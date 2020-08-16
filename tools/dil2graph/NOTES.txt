@@ -1,0 +1,13 @@
+NOTES
+-----
+
+1. dil2al
+
+The DIL2AL variable in the Makefile is set to the source directory of
+dil2al. This program needs dil2al.hh and several object files to build.
+
+2. Compiling
+
+Use make and the Makefile for compilation.
+
+Make is not yet functional.

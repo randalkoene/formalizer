@@ -1,0 +1,23 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/home/randalk/src/vcpkg/installed/x64-linux/include/**",
+                "/home/randalk/src/include/**",
+                "/home/randalk/src/dil2al/**",
+                "/home/randalk/src/dil2al",
+                "/usr/include/**",
+                "/usr/include/postgresql",
+                "/home/randalk/src/formalizer/core/include"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}

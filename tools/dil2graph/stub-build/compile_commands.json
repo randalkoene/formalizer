@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/randalk/src/dil2graph/build",
+  "command": "/usr/bin/c++    -g   -o CMakeFiles/dil2graph.dir/dil2graph.cc.o -c /home/randalk/src/dil2graph/dil2graph.cc",
+  "file": "/home/randalk/src/dil2graph/dil2graph.cc"
+}
+]
