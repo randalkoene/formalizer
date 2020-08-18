@@ -18,6 +18,10 @@ CORELIBPATH=$(FORMALIZERPATH)/core/lib
 
 DIL2AL=$(HOME)/src/dil2al
 
+INC=$(COREINCLUDEPATH)
+OBJ=./obj
+TEST=./test
+
 #INCLUDES= -I$(HOME)/src/include
 # to find the postgresql header files (e.g libpq-fe.h), do this: pg_config --includedir
 INCLUDES= -I$(CPATH) -I$(DIL2AL) -I$(COREINCLUDEPATH) -I/usr/include/postgresql
@@ -113,8 +117,8 @@ CFLAGS= $(COMPOPT) $(MACHSPEC) $(CFXTRA)
 RXCFLAGS= $(COMPOPT) $(MACHSPEC) $(RXCFXTRA)
 CPPFLAGS= $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(SAFEREGEX) $(INCLUDES)
 
-CORE_OBJS= $(CORELIBPATH)/error.o $(CORELIBPATH)/general.o $(CORELIBPATH)/TimeStamp.o \
-			$(CORELIBPATH)/Graphtypes.o $(CORELIBPATH)/Graphpostgres.o
+CORE_OBJS= $(CORELIBPATH)/obj/error.o $(CORELIBPATH)/obj/general.o $(CORELIBPATH)/obj/TimeStamp.o \
+			$(CORELIBPATH)/obj/Graphtypes.o $(CORELIBPATH)/obj/Graphpostgres.o
 
 DIL2AL_OBJS= $(DIL2AL)/utilities.o $(DIL2AL)/interface.o $(DIL2AL)/testcode.o $(DIL2AL)/diladmin.o \
 			$(DIL2AL)/tladmin.o $(DIL2AL)/cksum.o $(DIL2AL)/alcomp.o $(DIL2AL)/tlfilter.o \
@@ -130,18 +134,18 @@ init: FORCE
 	@echo 'Includes: $(CPPFLAGS)'
 	@echo '-------------------------------------------------------------------'
 
-dil2al_minimal.o: dil2al_minimal.cpp dil2al_minimal.hpp version.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) -c dil2al_minimal.cpp -o dil2al_minimal.o
+$(OBJ)/dil2al_minimal.o: dil2al_minimal.cpp dil2al_minimal.hpp version.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) -c dil2al_minimal.cpp -o $(OBJ)/dil2al_minimal.o
 
-dil2graph.o: dil2graph.cpp dil2graph.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) -c dil2graph.cpp -o dil2graph.o
+$(OBJ)/dil2graph.o: dil2graph.cpp dil2graph.hpp version.hpp $(OBJ)/dil2al_minimal.o
+	$(CCPP) $(CPPFLAGS) $(COLORS) -c dil2graph.cpp -o $(OBJ)/dil2graph.o
 
-dil2graph: dil2graph.o dil2al_minimal.o $(DIL2AL_OBJS) $(CORE_OBJS) $(ALT_REGEX)
+dil2graph: $(OBJ)/dil2graph.o $(OBJ)/dil2al_minimal.o $(DIL2AL_OBJS) $(CORE_OBJS) $(ALT_REGEX)
 	$(CCPP) $(CPPFLAGS) $^ -o dil2graph $(LIB_PATH)
 
 clean:
 	cp -f dil2graph dil2graph.bak
-	rm -r -f *.o dil2graph
+	rm -f $(OBJ)/*.o dil2graph
 
 #doc++:
 #	rm -r -f html

@@ -16,6 +16,10 @@ FORMALIZERPATH=$(HOME)/src/formalizer
 COREINCLUDEPATH=$(FORMALIZERPATH)/core/include
 CORELIBPATH=$(FORMALIZERPATH)/core/lib
 
+INC=$(COREINCLUDEPATH)
+OBJ=./obj
+TEST=./test
+
 #INCLUDES= -I$(HOME)/src/include
 # to find the postgresql header files (e.g libpq-fe.h), do this: pg_config --includedir
 INCLUDES= -I$(CPATH) -I$(COREINCLUDEPATH) -I/usr/include/postgresql
@@ -40,11 +44,10 @@ MACHOPT=
 ### Also, attempting a temporary fix for gcc 7.1+ compilation of dil2al
 ### (This should also be replaced by actual source code modification.)
 CPPTEMPWORKAROUND=-fno-access-control -Wno-format-truncation
-#RXSPECIAL=-Wno-error
 
 GCC3FXTRA=$(if $(shell gcc -v 2>&1 | grep "^gcc version[^0-9]*[3-9][.]"),-Wno-unused-function)
 CFXTRA= -DSTDC_HEADERS -pedantic -Wall -Werror -Wno-char-subscripts $(GCC3FXTRA)
-RXCFXTRA= -DSTDC_HEADERS -pedantic -Wall $(GCC3FXTRA)
+
 ## a few C++ constructs that are new to C++20, such as designated initializer lists,
 ## so let's add support for that here:
 CPP2020= -std=gnu++2a
@@ -90,7 +93,7 @@ CPPFLAGS= $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(INCLUDES)
 
 .PHONY: FORCE
 
-all: init general.o error.o TimeStamp.o Graphtypes.o Graphpostgres.o
+all: init $(OBJ)/general.o $(OBJ)/error.o $(OBJ)/TimeStamp.o $(OBJ)/Graphtypes.o $(OBJ)/Graphpostgres.o
 
 init: FORCE
 	@echo '-------------------------------------------------------------------'
@@ -98,23 +101,25 @@ init: FORCE
 	@echo 'Includes: $(CPPFLAGS)'
 	@echo '-------------------------------------------------------------------'
 
-error.o:
-	$(CCPP) $(CPPFLAGS) $^ -c error.cpp -o error.o
+$(OBJ)/error.o: error.cpp $(INC)/error.hpp
+	$(CCPP) $(CPPFLAGS) -c error.cpp -o $(OBJ)/error.o
 
-general.o: error.o
-	$(CCPP) $(CPPFLAGS) $^ -c general.cpp -o general.o
+$(OBJ)/general.o: general.cpp $(INC)/general.hpp $(INC)/error.hpp $(OBJ)/error.o
+	$(CCPP) $(CPPFLAGS) -c general.cpp -o $(OBJ)/general.o
 
-TimeStamp.o: error.o
-	$(CCPP) $(CPPFLAGS) $^ -c TimeStamp.cpp -o TimeStamp.o
+$(OBJ)/TimeStamp.o: TimeStamp.cpp $(INC)/TimeStamp.hpp $(INC)/error.hpp $(OBJ)/error.o
+	$(CCPP) $(CPPFLAGS) -c TimeStamp.cpp -o $(OBJ)/TimeStamp.o
 
-Graphtypes.o: error.o
-	$(CCPP) $(CPPFLAGS) $^ -c Graphtypes.cpp -o Graphtypes.o
+$(OBJ)/Graphtypes.o: Graphtypes.cpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(OBJ)/general.o
+	$(CCPP) $(CPPFLAGS) -c Graphtypes.cpp -o $(OBJ)/Graphtypes.o
 
-Graphpostgres.o: Graphtypes.o
-	$(CCPP) $(CPPFLAGS) $^ -c Graphpostgres.cpp -o Graphpostgres.o
+$(OBJ)/Graphpostgres.o: Graphpostgres.cpp $(INC)/Graphpostgres.hpp $(INC)/Graphtypes.hpp \
+						$(INC)/general.hpp $(INC)/error.hpp $(OBJ)/Graphtypes.o \
+						$(OBJ)/general.o $(OBJ)/error.o
+	$(CCPP) $(CPPFLAGS) -c Graphpostgres.cpp -o $(OBJ)/Graphpostgres.o
 
 clean:
-	rm -r -f *.o
+	rm -f $(OBJ)/*.o $(TEST)/*.o
 
 #doc++:
 #	rm -r -f html
