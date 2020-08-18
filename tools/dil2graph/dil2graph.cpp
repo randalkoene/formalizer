@@ -55,6 +55,7 @@ std::string dbname; /// This is initialized to $USER.
 void Exit_Now(int status) {
   exit_report();
   exit_postop();
+  ERRWARN_SUMMARY(VOUT);
   Clean_Exit(status);
 }
 
@@ -530,28 +531,8 @@ int alt_main() {
   return 0;
 }
 
-int main(int argc, char * argv[]) {
+std::pair<Detailed_Items_List*,Graph*> interactive_conversion() {
   ERRHERE(".1");
-	din = &cin;
-	eout = &cerr;
-	vout = &cout;
-	runnablename = argv[0]; if (runnablename.contains('/')) runnablename = runnablename.after('/',-1);
-	curdate = date_string(); curtime = time_stamp("%Y%m%d%H%M");
-	Output_Log_Append(curtime+'\n');
-  char * username = std::getenv("USER");
-  if (username) dbname = username;
-	initialize();
-  process_commandline(argc,argv);
-  if (dbname.empty()) {
-    EOUT << "\nNeed a database account to proceed. Defaults to $USER.\n";
-    Exit_Now(1);
-  }
-  VOUT << "Postgres database account selected: " << dbname << '\n';
-
-  if (load_only) {
-    alt_main(); // This does not return
-  }
-
   key_pause();
 
   VOUT << "Let's load the Detailed Items List:\n\n";
@@ -568,7 +549,7 @@ int main(int argc, char * argv[]) {
   VOUT << "Now, let's convert the Detailed Items List to Graph format:\n\n";
   ERRHERE(".3");
   ConversionMetrics convmet;
-  Graph* graph;
+  Graph * graph;
   if ((graph=convert_DIL_to_Graph(dil,convmet))==NULL) {
     EOUT << "\nSomething went wrong! Unable to convert to Graph.\n";
     Exit_Now(1);
@@ -651,6 +632,15 @@ int main(int argc, char * argv[]) {
 
   key_pause();
 
+  return std::make_pair(dil,graph);
+}
+
+void interactive_validation(Detailed_Items_List * dil, Graph * graph) {
+  ERRHERE(".1");
+  if ((!dil) || (!graph)) {
+    EOUT << "Unable to validate due to dil==NULL or graph==NULL\n";
+    Exit_Now(1);
+  }
   VOUT << "Now, let's validate the database by reloading the Graph and comparing it with the one that was stored.\n";
 
   Graph reloaded;
@@ -663,6 +653,7 @@ int main(int argc, char * argv[]) {
   VOUT << "  Number of Nodes  = " << reloaded.num_Nodes() << endl;
   VOUT << "  Number of Edges  = " << reloaded.num_Edges() << endl << endl;
 
+  ERRHERE(".2");
   std::string trace;
   if (identical_Graphs(*graph,reloaded,trace)) {
     VOUT << "The converted Graph that was stored and the reloaded Graph from the database are identical!\n";
@@ -673,7 +664,124 @@ int main(int argc, char * argv[]) {
     VOUT << "Trace: " << trace << endl << endl;
   }
 
+  ERRHERE(".3");
   key_pause();
+
+  VOUT << "Comparative order of Nodes (first 10):\n\n";
+  std::string rowstr("DIL ID\t\t\tNode ID\t\t\tPostgres id\t\tReloaded ID\n----------------\t----------------\t----------------\t----------------\n");
+  DIL_entry * e = dil->list.head();
+  auto n_it = graph->begin_Nodes();
+  auto r_it = reloaded.begin_Nodes();
+  auto v = load_Node_parameter_interval(dbname,pqn_id,0,10);
+  for (unsigned int i=0; i<10; i++) {
+    if (e) {
+      rowstr += e->str() + '\t';
+      e = e->Next();
+    } else {
+      rowstr += "\t\t\t";
+    }
+    if (n_it!=graph->end_Nodes()) {
+      rowstr += n_it->second->get_id().str() + '\t';
+      ++n_it;
+    } else {
+      rowstr += "\t\t\t";
+    }
+    if (i<v.size()) {
+      rowstr += v[i] + '\t';
+    } else {
+      rowstr += "\t\t\t";
+    }
+    if (r_it!=reloaded.end_Nodes()) {
+      rowstr += r_it->second->get_id().str() + '\n';
+      ++r_it;
+    } else {
+      rowstr += '\n';
+    }
+  }
+  rowstr += '\n';
+  VOUT << rowstr;
+
+  VOUT << "Comparative order of Edges (first 10):\n\n";
+  rowstr = "DEP>SUP ID\t\t\t\tReloaded DEP>SUP ID\n---------------->----------------\t---------------->----------------\n";
+  auto e_it = graph->begin_Edges();
+  auto re_it = reloaded.begin_Edges();
+  //auto v = load_Edge_parameter_interval(dbname,pqe_id,0,10);
+  for (unsigned int i=0; i<10; i++) {
+    if (e_it!=graph->end_Edges()) {
+      rowstr += e_it->second->get_id().str() + '\t';
+      ++e_it;
+    } else {
+      rowstr += "\t\t\t";
+    }
+    /*
+    if (i<v.size()) {
+      rowstr += v[i] + '\t';
+    } else {
+      rowstr += "\t\t\t";
+    }
+    */
+    if (re_it!=reloaded.end_Edges()) {
+      rowstr += re_it->second->get_id().str() + '\n';
+      ++re_it;
+    } else {
+      rowstr += '\n';
+    }
+  }
+  rowstr += '\n';
+  VOUT << rowstr;
+
+  key_pause();
+}
+
+int main(int argc, char * argv[]) {
+  ERRHERE(".1");
+	din = &cin;
+	eout = &cerr;
+	vout = &cout;
+	runnablename = argv[0]; if (runnablename.contains('/')) runnablename = runnablename.after('/',-1);
+	curdate = date_string(); curtime = time_stamp("%Y%m%d%H%M");
+	Output_Log_Append(curtime+'\n');
+  char * username = std::getenv("USER");
+  if (username) dbname = username;
+	initialize();
+  process_commandline(argc,argv);
+  if (dbname.empty()) {
+    EOUT << "\nNeed a database account to proceed. Defaults to $USER.\n";
+    Exit_Now(1);
+  }
+  VOUT << "Postgres database account selected: " << dbname << '\n';
+
+  ERRHERE(".2");
+
+  if (load_only) {
+    alt_main(); // This does not return
+  }
+
+  std::pair<Detailed_Items_List*,Graph*> dg = interactive_conversion();
+  interactive_validation(dg.first,dg.second);
+
+  ERRHERE(".3");
 
   Exit_Now(0);
 }
+
+/*
+  // ID unit tests
+  ID_TimeStamp idt_test = { .year = 2020, .month=8, .day=17, .hour=13, .minute = 4, .second = 15, .minor_id = 1 };
+  ID_Compare idc_test;
+  VOUT << "Some ID unit tests:\n";
+  VOUT << "ID_TimeStamp size = " << sizeof(idt_test) << " bytes\n";
+  VOUT << "ID_Compare size   = " << sizeof(idc_test) << " bytes\n";
+  unsigned char const * ptr = (unsigned char const *) (&idt_test);
+  for (size_t i = 0; i<sizeof(idt_test); ++i) {
+    VOUT << (int) *ptr << '\t';
+    ++ptr;
+  }
+  VOUT << endl;
+  ptr = (unsigned char const *) (&idc_test);
+  for (size_t i = 0; i<sizeof(idc_test); ++i) {
+    VOUT << (int) *ptr << '\t';
+    ++ptr;
+  }
+  VOUT << endl;
+*/

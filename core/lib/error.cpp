@@ -1,14 +1,16 @@
 // Copyright 2020 Randal A. Koene
 // License TBD
 
+#include <fstream>
+
 #include "error.hpp"
-#include <iostream>
 
 namespace fz {
 
 std::string errhint;
 
-Errors ErrQ, WarnQ;
+Errors ErrQ(DEFAULT_ERRLOGPATH);
+Errors WarnQ(DEFAULT_WARNLOGPATH);
 
 
 /**
@@ -63,7 +65,10 @@ std::string Errors::pretty_print() const {
 /**
  * Clean up after yourself before you exit.
  * 
- * Call this to exit the program and show any remaining errors in the queue.
+ * Call this to exit the program and log any remaining errors in the queue.
+ * 
+ * The ERRWARN_SUMMARY() macro can be used to print a summary report before
+ * calling this function. After this function the queues will be empty.
  * 
  * ***NOTE: We may want to move this elsewhere, since a clean exit will need
  * ***      more than just a list of errors, and we don't even know where to
@@ -71,13 +76,17 @@ std::string Errors::pretty_print() const {
  */
 void Clean_Exit(int ecode) {
     if (ErrQ.num()>0) {
-        std::cerr << "Errors:\n";
-        std::cerr << ErrQ.pretty_print();
+        if (ErrQ.get_errfilepath().empty()) ErrQ.set_errfilepath(DEFAULT_ERRLOGPATH);
+        std::ofstream errfile(ErrQ.get_errfilepath().c_str(),ERRWARN_LOG_MODE);
+        errfile << ErrQ.pretty_print();
+        errfile.close();
         ErrQ.flush();
     }
     if (WarnQ.num()>0) {
-        std::cerr << "Warnings:\n";
-        std::cerr << WarnQ.pretty_print();
+        if (WarnQ.get_errfilepath().empty()) WarnQ.set_errfilepath(DEFAULT_WARNLOGPATH);
+        std::ofstream warnfile(WarnQ.get_errfilepath().c_str(),ERRWARN_LOG_MODE);
+        warnfile << WarnQ.pretty_print();
+        warnfile.close();
         WarnQ.flush();
     }
     exit(ecode);

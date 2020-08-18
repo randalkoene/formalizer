@@ -15,20 +15,38 @@
 #include <string>
 #include <deque>
 
-namespace fz {
-
-/// Global variable that can be updated to give a better hint about where exactly an error occurred.
-extern std::string errhint;
-
 /// A set of useful macros
 #define ERRHINT(h) errhint = h
 #define ERRHERE(idx) ERRHINT(std::string(__func__)+idx)
 
-#define ADDERROR(f,e) ErrQ.push(f,e)
-#define ERRRETURNFALSE(f,e) { ErrQ.push(f,e); return false; }
-#define ERRRETURNNULL(f,e) { ErrQ.push(f,e); return NULL; }
+#define ADDERROR(f,e) fz::ErrQ.push(f,e)
+#define ERRRETURNFALSE(f,e) { fz::ErrQ.push(f,e); return false; }
+#define ERRRETURNNULL(f,e) { fz::ErrQ.push(f,e); return NULL; }
 
-#define ADDWARNING(f,e) WarnQ.push(f,e)
+#define ADDWARNING(f,e) fz::WarnQ.push(f,e)
+
+#define ERRWARN_SUMMARY(estream) { \
+    if ((fz::ErrQ.num()+fz::WarnQ.num())<1) { \
+        estream << "No errors or warnings.\n"; \
+    } else { \
+        estream << "Logging " << fz::ErrQ.num() << " errors in " << fz::ErrQ.get_errfilepath() << endl; \
+        estream << "Logging " << fz::WarnQ.num() << " warnings in " << fz::WarnQ.get_errfilepath() << endl; \
+    } \
+}
+
+#define DEFAULT_ERRLOGPATH "/tmp/formalizer.core.error.ErrQ.log"
+#define DEFAULT_WARNLOGPATH  "/tmp/formalizer.core.error.WarnQ.log"
+#define LOG_TRUNC_MODE
+#ifdef LOG_TRUNC_MODE
+    #define ERRWARN_LOG_MODE (std::ofstream::out | std::ofstream::trunc)
+#else
+    #define ERRWARN_LOG_MODE (std::ofstream::out | std::ofstream::app)
+#endif
+
+namespace fz {
+
+/// Global variable that can be updated to give a better hint about where exactly an error occurred.
+extern std::string errhint;
 
 struct Error_Instance {
     std::string hint;
@@ -48,7 +66,11 @@ struct Error_Instance {
 class Errors {
 protected:
     std::deque<Error_Instance> errq;
+    std::string errfilepath;
 public:
+    Errors(std::string efp): errfilepath(efp) {}
+    void set_errfilepath(std::string efp) { errfilepath = efp; }
+    std::string get_errfilepath() const { return errfilepath; }
     void push(std::string f, std::string e);
     std::string pretty_print() const;
     Error_Instance pop();

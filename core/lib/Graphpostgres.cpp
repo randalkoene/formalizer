@@ -185,7 +185,7 @@ bool query_call_pq(PGconn* conn, std::string qstr, bool request_single_row_mode)
  * 
  * To sample all columns simple set cend > number of columns.
  * 
- * @param conn a valid Postgres connection.
+ * @param conn an active Postgres connection.
  * @param rstart first row to sample.
  * @param rend one after last row to sample.
  * @param cstart first column to sample.
@@ -378,9 +378,6 @@ bool store_Graph_pq(const Graph& graph, std::string dbname, void (*progress_func
     STORE_GRAPH_PQ_RETURN(true);
 }
 
-enum pq_Tfields { pqt_id, pqt_supid, pqt_tag, pqt_title, pqt_keyword, pqt_relevance, _pqt_NUM };
-enum pq_Nfields { pqn_id, pqn_topics, pqn_topicrelevance, pqn_valuation, pqn_completion, pqn_required, pqn_text, pqn_targetdate, pqn_tdproperty, pqn_isperiodic, pqn_tdperiodic, pqn_tdevery, pqn_tdspan, _pqn_NUM };
-enum pq_Efields { pqe_id, pqe_dependency, pqe_significance, pqe_importance, pqe_urgency, pqe_priority, _pqe_NUM };
 const std::string pq_topic_fieldnames[_pqt_NUM] = {"id",
                                                    "supid",
                                                    "tag",
@@ -512,7 +509,7 @@ std::vector<Topic_Keyword> keyrel_from_pq(std::string keywordstr, std::string re
 }
 
 bool read_Topics_pq(PGconn* conn, Topic_Tags & topictags) {
-    if (!query_call_pq(conn,"SELECT * FROM "+pq_schemaname+".topics",false)) return false;
+    if (!query_call_pq(conn,"SELECT * FROM "+pq_schemaname+".topics ORDER BY "+pq_topic_fieldnames[pqt_id],false)) return false;
 
     //sample_query_data(conn,0,4,0,100,tmpout);
 
@@ -631,7 +628,7 @@ td_pattern tdpattern_from_pq(std::string pqtdpattern) {
 }
 
 bool read_Nodes_pq(PGconn* conn, Graph & graph) {
-    if (!query_call_pq(conn,"SELECT * FROM "+pq_schemaname+".nodes",false)) return false;
+    if (!query_call_pq(conn,"SELECT * FROM "+pq_schemaname+".nodes ORDER BY "+pq_node_fieldnames[pqn_id],false)) return false;
 
     //sample_query_data(conn,0,4,0,100,tmpout);
   
@@ -686,7 +683,7 @@ bool read_Nodes_pq(PGconn* conn, Graph & graph) {
 }
 
 bool read_Edges_pq(PGconn* conn, Graph & graph) {
-    if (!query_call_pq(conn,"SELECT * FROM "+pq_schemaname+".edges",false)) return false;
+    if (!query_call_pq(conn,"SELECT * FROM "+pq_schemaname+".edges ORDER BY "+pq_edge_fieldnames[pqe_id],false)) return false;
 
     //sample_query_data(conn,0,4,0,100,tmpout);
 
@@ -725,9 +722,9 @@ bool read_Edges_pq(PGconn* conn, Graph & graph) {
 }
 
 /**
- * Load all the Nodes and Edges of the Graph from the PostgreSQL database.
+ * Load all the Nodes, Edges and Topics of the Graph from the PostgreSQL database.
  * 
- * @param graph a Graph for the Nodes and Edges, typically empty.
+ * @param graph a Graph for the Nodes and Edges, etc, typically empty.
  * @param dbname database name. 
  * @returns true if the Graph was successfully loaded from the database.
  */
@@ -754,9 +751,111 @@ bool load_Graph_pq(Graph& graph, std::string dbname) {
 
 }
 
-//std::string All_Topic_keyword_pqstr();
-//std::string All_Topic_relevance_pqstr();
-//std::string All_Topic_Data_pqstr();
+/**
+ * Load specific Node parameter column interval from PostgreSQL database.
+ * 
+ * This interface attempts to hide as much as possible about the Postgres specifics
+ * of the operation, in order to preserve a Formalizer database access protocol
+ * across different possible underlying database choices.
+ * 
+ * Note: For this reason, the lowest possible interval start is 0 (not 1, as per
+ * SQL row numbering convention).
+ * 
+ * @param dbname the Postgres database.
+ * @param param the enumerated parameter identifier.
+ * @param from_row the first row in the interval, counting from 0.
+ * @param num_rows the number of rows in the intervial.
+ * @return a vector with string elements, one for each row.
+ */
+std::vector<std::string> load_Node_parameter_interval(std::string dbname, pq_Nfields param, unsigned long from_row, unsigned long num_rows) {
+    std::vector<std::string> v;
+    if (param>=_pqn_NUM) {
+        ADDERROR(__func__,"unknown pq_Nfields enumerated parameter ("+std::to_string(param)+')');
+        return v;
+    }
+    if (num_rows==0) return v;
+
+    PGconn *conn = connection_setup_pq(dbname);
+    if (!conn) return v;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define LOAD_NODE_PARAMETER_INTERVAL_RETURN(v) { PQfinish(conn); return v; }
+
+    PGresult *res = NULL;
+    int rows = 0;
+    // Instead of "LIMIT n" this could use "FETCH FIRST n ROW ONLY".
+    //if (query_call_pq(conn, "SELECT "+pq_node_fieldnames[param]+" FROM " + pq_schemaname + ".nodes OFFSET "+std::to_string(from_row)+" LIMIT "+std::to_string(num_rows), false)) {
+    if (query_call_pq(conn, "SELECT "+pq_node_fieldnames[param]+" FROM " + pq_schemaname + ".nodes ORDER BY "+pq_node_fieldnames[pqn_id]+" OFFSET "+std::to_string(from_row)+" LIMIT "+std::to_string(num_rows), false)) {
+        res = PQgetResult(conn);
+        if (res) {
+            rows = PQntuples(res);
+        } else {
+            LOAD_NODE_PARAMETER_INTERVAL_RETURN(v);
+        }
+    }
+
+    for (int r = 0; r<rows; ++r) {
+        v.emplace_back(PQgetvalue(res,r,0));
+    }
+    PQclear(res);
+
+    LOAD_NODE_PARAMETER_INTERVAL_RETURN(v);
+}
+
+/**
+ * Load specific Edge parameter column interval from PostgreSQL database.
+ * 
+ * This interface attempts to hide as much as possible about the Postgres specifics
+ * of the operation, in order to preserve a Formalizer database access protocol
+ * across different possible underlying database choices.
+ * 
+ * Note: For this reason, the lowest possible interval start is 0 (not 1, as per
+ * SQL row numbering convention).
+ * 
+ * @param dbname the Postgres database.
+ * @param param the enumerated parameter identifier.
+ * @param from_row the first row in the interval, counting from 0.
+ * @param num_rows the number of rows in the intervial.
+ * @return a vector with string elements, one for each row.
+ */
+std::vector<std::string> load_Edge_parameter_interval(std::string dbname, pq_Efields param, unsigned long from_row, unsigned long num_rows) {
+    std::vector<std::string> v;
+    if (param>=_pqe_NUM) {
+        ADDERROR(__func__,"unknown pq_Efields enumerated parameter ("+std::to_string(param)+')');
+        return v;
+    }
+    if (num_rows==0) return v;
+
+    PGconn *conn = connection_setup_pq(dbname);
+    if (!conn) return v;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define LOAD_EDGE_PARAMETER_INTERVAL_RETURN(v) { PQfinish(conn); return v; }
+
+    PGresult *res = NULL;
+    int rows = 0;
+    // Instead of "LIMIT n" this could use "FETCH FIRST n ROW ONLY".
+    //if (query_call_pq(conn, "SELECT "+pq_node_fieldnames[param]+" FROM " + pq_schemaname + ".nodes OFFSET "+std::to_string(from_row)+" LIMIT "+std::to_string(num_rows), false)) {
+    if (query_call_pq(conn, "SELECT "+pq_edge_fieldnames[param]+" FROM " + pq_schemaname + ".edges ORDER BY "+pq_edge_fieldnames[pqe_id]+" OFFSET "+std::to_string(from_row)+" LIMIT "+std::to_string(num_rows), false)) {
+        res = PQgetResult(conn);
+        if (res) {
+            rows = PQntuples(res);
+        } else {
+            LOAD_EDGE_PARAMETER_INTERVAL_RETURN(v);
+        }
+    }
+
+    for (int r = 0; r<rows; ++r) {
+        v.emplace_back(PQgetvalue(res,r,0));
+    }
+    PQclear(res);
+
+    LOAD_EDGE_PARAMETER_INTERVAL_RETURN(v);
+}
+
+// ======================================
+// Definitions of class member functions:
+// ======================================
 
 /// Return the topic tag id number.
 std::string Topic_pq::id_pqstr() {

@@ -165,13 +165,13 @@ std::string Node_ID_TimeStamp_to_string(const ID_TimeStamp idT) {
     return ss.str();
 }
 
-Node_ID_key::Node_ID_key(const ID_TimeStamp& _idT): idC( { .id_major = 0, .id_minor = 0 } ) {
+Node_ID_key::Node_ID_key(const ID_TimeStamp& _idT) { //}: idC( { .id_major = 0, .id_minor = 0 } ) {
     idT=_idT;
     std::string formerror;
     if (!valid_Node_ID(_idT,formerror)) throw(ID_exception(formerror));
 }
 
-Node_ID_key::Node_ID_key(std::string _idS): idC( { .id_major = 0, .id_minor = 0 } ) {
+Node_ID_key::Node_ID_key(std::string _idS) { //}: idC( { .id_major = 0, .id_minor = 0 } ) {
     std::string formerror;
     if (!valid_Node_ID(_idS,formerror,&idT)) throw(ID_exception(formerror));
 }
@@ -554,7 +554,8 @@ bool identical_Topic_Tags(Topic_Tags & ttags1, Topic_Tags & ttags2, std::string 
 bool identical_Node_ID_key(const Node_ID_key & key1, const Node_ID_key & key2, std::string & trace) {
     // Let's do this in lexicographical manner.
     trace += "Node_ID_key";
-    return std::tie(key1.idC.id_major,key1.idC.id_minor) == std::tie(key2.idC.id_major, key2.idC.id_minor);
+    return key1.idT == key2.idT;
+    //return std::tie(key1.idC.id_major,key1.idC.id_minor) == std::tie(key2.idC.id_major, key2.idC.id_minor);
 }
 
 /**
@@ -608,7 +609,8 @@ bool identical_Nodes(Node & node1, Node & node2, std::string & trace) {
 bool identical_Edge_ID_key(const Edge_ID_key & key1, const Edge_ID_key & key2, std::string & trace) {
     // Let's do this in lexicographical manner.
     trace += "Edge_ID_key";
-    return std::tie(key1.sup.idC.id_major, key1.sup.idC.id_minor, key1.dep.idC.id_major, key1.dep.idC.id_minor) == std::tie(key2.sup.idC.id_major, key2.sup.idC.id_minor, key2.dep.idC.id_major, key2.dep.idC.id_minor);
+    return std::tie(key1.sup.idT,key1.dep.idT) == std::tie(key2.sup.idT,key2.dep.idT);
+    //return std::tie(key1.sup.idC.id_major, key1.sup.idC.id_minor, key1.dep.idC.id_major, key1.dep.idC.id_minor) == std::tie(key2.sup.idC.id_major, key2.sup.idC.id_minor, key2.dep.idC.id_major, key2.dep.idC.id_minor);
 }
 
 bool identical_Edges(Edge & edge1, Edge & edge2, std::string & trace) {

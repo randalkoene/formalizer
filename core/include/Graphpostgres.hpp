@@ -58,6 +58,10 @@
 
 namespace fz {
 
+enum pq_Tfields { pqt_id, pqt_supid, pqt_tag, pqt_title, pqt_keyword, pqt_relevance, _pqt_NUM };
+enum pq_Nfields { pqn_id, pqn_topics, pqn_topicrelevance, pqn_valuation, pqn_completion, pqn_required, pqn_text, pqn_targetdate, pqn_tdproperty, pqn_isperiodic, pqn_tdperiodic, pqn_tdevery, pqn_tdspan, _pqn_NUM };
+enum pq_Efields { pqe_id, pqe_dependency, pqe_significance, pqe_importance, pqe_urgency, pqe_priority, _pqe_NUM };
+
 #define DEFAULT_PQ_SCHEMANAME "formalizer"
 extern std::string pq_schemaname;
 
@@ -86,6 +90,10 @@ bool add_Edge_pq(PGconn *conn, const Edge *edge);
 bool store_Graph_pq(const Graph& graph, std::string dbname, void (*progressfunc)(unsigned long, unsigned long) = NULL);
 
 bool load_Graph_pq(Graph& graph, std::string dbname);
+
+std::vector<std::string> load_Node_parameter_interval(std::string dbname, pq_Nfields param, unsigned long from_row, unsigned long num_rows);
+
+std::vector<std::string> load_Edge_parameter_interval(std::string dbname, pq_Efields param, unsigned long from_row, unsigned long num_rows);
 
 inline std::string TimeStamp_pq(time_t t) {
     if (t<0) return "'infinity'";

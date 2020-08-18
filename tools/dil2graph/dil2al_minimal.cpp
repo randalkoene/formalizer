@@ -8,9 +8,13 @@
  * the Makefile. (This approach is used for other functions, such as functions in dil2al/utilities.cc.)
  */
 
+#include <sys/wait.h>
+
+#include "error.hpp"
+
 #include "dil2al.hh"
 #include "dil2al_minimal.hpp"
-#include <sys/wait.h>
+
 
 String runnablename;
 String runningcommand("dil2al:(unspecified)"); // Which command request is running, prepended with runnablename for use in UI_ output.
@@ -660,19 +664,14 @@ String generate_tag(String & tagid) {
 }
 
 void exit_report() {
-  //VOUT << "Exit Report:\n";
-  // loop warnings
-  if (looplist) {
-    WARN << "DIL_entry::Propagated_Target_Date(), loops detected at:\n";
-    PLL_LOOP_FORWARD(DIL_entry,looplist->list.head(),1) {
-      WARN << "DIL#";
-      if (calledbyforminput) WARN << "<A HREF=\"" << idfile << '#' << e->chars() << "\">";
-      WARN << e->chars();
-      if (calledbyforminput) WARN << "</A>";
-      WARN << '\n';
+    // loop warnings
+    if (looplist) {
+        ADDWARNING(__func__, "DIL_entry::Propagated_Target_Date(), loops detected at:");
+        PLL_LOOP_FORWARD(DIL_entry, looplist->list.head(), 1) {
+			ADDWARNING("DIL#",e->chars());
+        }
+        delete looplist;
     }
-    delete looplist;
-  }
 }
 
 #ifdef INCLUDE_PROFILING_TIMERS

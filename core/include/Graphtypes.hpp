@@ -104,31 +104,47 @@ public:
 };
 
 struct ID_TimeStamp {
-    int16_t year;
-    uint8_t month;
-    uint8_t day;
-    uint8_t hour;
-    uint8_t minute;
-    uint8_t second;
     uint8_t minor_id;
+    uint8_t second;
+    uint8_t minute;
+    uint8_t hour;
+    uint8_t day;
+    uint8_t month;
+    int16_t year;
+    ID_TimeStamp(): minor_id(0), second(0), minute(0), hour(0), day(0), month(0), year(0) {}
+    bool operator< (const ID_TimeStamp& rhs) const {
+        return std::tie(year,month,day,hour,minute,second,minor_id)
+             < std::tie(rhs.year,rhs.month,rhs.day,rhs.hour,rhs.minute,rhs.second,rhs.minor_id);
+    }
+    bool operator== (const ID_TimeStamp& rhs) const {
+        return std::tie(year,month,day,hour,minute,second,minor_id)
+             == std::tie(rhs.year,rhs.month,rhs.day,rhs.hour,rhs.minute,rhs.second,rhs.minor_id);
+    }
 };
 
+/*
 struct ID_Compare {
     uint32_t id_major;
     uint32_t id_minor;
 };
+*/
 
 union Node_ID_key {
     ID_TimeStamp idT;
-    ID_Compare idC;
-    Node_ID_key(): idC( { .id_major = 0, .id_minor = 0 } ) {}
-    Node_ID_key(const ID_Compare& _idC): idC(_idC) {}
+    //ID_Compare idC;
+    //Node_ID_key(): idC( { .id_major = 0, .id_minor = 0 } ) {}
+    Node_ID_key(): idT() {}
+    //Node_ID_key(const ID_Compare& _idC): idC(_idC) {}
     Node_ID_key(const ID_TimeStamp& _idT);
     Node_ID_key(std::string _idS);
     bool operator< (const Node_ID_key& rhs) const {
         // Note: Using tie() here to achieve lexicographical comparison is a life saver.
         // Much time was lost trying to unravel problems doing this manually!
-        return std::tie(idC.id_major,idC.id_minor) < std::tie(rhs.idC.id_major, rhs.idC.id_minor);
+        // Compares the first element in the tie() first, then the second, and so forth.
+        return (idT < rhs.idT);
+        //return std::tie(idT.year,idT.month,idT.day,idT.hour,idT.minute,idT.second,idT.minor_id)
+        //     < std::tie(rhs.idT.year,rhs.idT.month,rhs.idT.day,rhs.idT.hour,rhs.idT.minute,rhs.idT.second,rhs.idT.minor_id);
+        //return std::tie(idC.id_major, idC.id_minor) < std::tie(rhs.idC.id_major, rhs.idC.id_minor);
     }
     /*bool operator< (const Node_ID_key& rhs) const {
         if (idC.id_major < rhs.idC.id_major) return true;
@@ -161,7 +177,8 @@ struct Edge_ID_key {
     Edge_ID_key(Node_ID_key _depkey, Node_ID_key _supkey): dep(_depkey), sup(_supkey) {}
     Edge_ID_key(std::string _idS);
     bool operator<(const Edge_ID_key &rhs) const {
-        return std::tie(sup.idC.id_major, sup.idC.id_minor, dep.idC.id_major, dep.idC.id_minor) < std::tie(rhs.sup.idC.id_major, rhs.sup.idC.id_minor, rhs.dep.idC.id_major, rhs.dep.idC.id_minor);
+        return std::tie(sup,dep) < std::tie(rhs.sup,rhs.dep);
+        //return std::tie(sup.idC.id_major, sup.idC.id_minor, dep.idC.id_major, dep.idC.id_minor) < std::tie(rhs.sup.idC.id_major, rhs.sup.idC.id_minor, rhs.dep.idC.id_major, rhs.dep.idC.id_minor);
         /*if (sup.idC.id_major < rhs.sup.idC.id_major) return true;
         if (sup.idC.id_minor < rhs.sup.idC.id_minor) return true;
         if (dep.idC.id_major < rhs.dep.idC.id_major) return true;
