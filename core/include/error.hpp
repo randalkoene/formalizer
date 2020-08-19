@@ -29,8 +29,8 @@
     if ((fz::ErrQ.num()+fz::WarnQ.num())<1) { \
         estream << "No errors or warnings.\n"; \
     } else { \
-        estream << "Logging " << fz::ErrQ.num() << " errors in " << fz::ErrQ.get_errfilepath() << endl; \
-        estream << "Logging " << fz::WarnQ.num() << " warnings in " << fz::WarnQ.get_errfilepath() << endl; \
+        estream << "Logging " << fz::ErrQ.num() << " errors in " << fz::ErrQ.get_errfilepath() << '\n'; \
+        estream << "Logging " << fz::WarnQ.num() << " warnings in " << fz::WarnQ.get_errfilepath() << '\n'; \
     } \
 }
 
