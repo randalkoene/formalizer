@@ -487,12 +487,13 @@ void print_version(std::string progname) {
 }
 
 void print_usage(std::string progname) {
-    std::cout << "Usage: " << progname << " [-d <dbname>] [-L|-D|-T]\n"
+    std::cout << "Usage: " << progname << " [-d <dbname>] [-m] [-L|-D|-T]\n"
               << "       " << progname << " -v\n"
               << '\n'
               << "  Options:\n"
               << "    -d store resulting Graph in Postgres account <dbname>\n"
               << "       (default is $USER)\n"
+              << "    -m manual decisions (no automatic fixes)\n"
               << "    -L load only (no conversion and storage)\n"
               << "    -D DIL hierarchy conversion only\n"
               << "    -T Task Log conversion only\n"
@@ -510,11 +511,15 @@ void process_commandline(int argc, char *argv[]) {
     int c;
     opterr = 0;
 
-    while ((c = getopt(argc, argv, "d:LDT")) != EOF) {
+    while ((c = getopt(argc, argv, "d:LDTm")) != EOF) {
 
         switch (c) {
         case 'd':
             dbname = optarg;
+            break;
+
+        case 'm':
+            manual_decisions = true;
             break;
 
         case 'L':

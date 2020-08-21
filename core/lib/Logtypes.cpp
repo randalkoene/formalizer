@@ -160,6 +160,16 @@ std::string Log_chunk_ID_TimeStamp_to_string(const Log_TimeStamp idT) {
     return ss.str();
 }
 
+std::tm Log_TimeStamp::get_local_time() const {
+    std::tm tm = { 0 };
+    tm.tm_year = year-1900;
+    tm.tm_mon = month-1;
+    tm.tm_mday = day;
+    tm.tm_hour = hour;
+    tm.tm_min = minute;
+    return tm;
+}
+
 Log_entry_ID_key::Log_entry_ID_key(const Log_TimeStamp& _idT) {
     idT=_idT;
     std::string formerror;

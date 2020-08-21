@@ -16,6 +16,8 @@
 
 using namespace fz;
 
+extern bool manual_decisions;
+
 unsigned int convert_TL_Chunk_to_Log_entries(Log & log, std::string chunktext);
 
 std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl);

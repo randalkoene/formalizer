@@ -165,6 +165,17 @@ std::string Node_ID_TimeStamp_to_string(const ID_TimeStamp idT) {
     return ss.str();
 }
 
+std::tm ID_TimeStamp::get_local_time() {
+    std::tm tm = { 0 };
+    tm.tm_year = year-1900;
+    tm.tm_mon = month-1;
+    tm.tm_mday = day;
+    tm.tm_hour = hour;
+    tm.tm_min = minute;
+    tm.tm_sec = second;
+    return tm;
+}
+
 Node_ID_key::Node_ID_key(const ID_TimeStamp& _idT) { //}: idC( { .id_major = 0, .id_minor = 0 } ) {
     idT=_idT;
     std::string formerror;

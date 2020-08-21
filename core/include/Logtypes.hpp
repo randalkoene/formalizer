@@ -34,6 +34,7 @@
 
 #include <memory>
 #include <map>
+#include <ctime>
 
 #include "error.hpp"
 #include "TimeStamp.hpp"
@@ -45,6 +46,19 @@ class Log;
 class Log_entry;
 class Log_chunk;
 
+/**
+ * Timestamp IDs in the format required for Log IDs.
+ * These include all time components from year to minute, as well as an additional
+ * minor_id (this is NOT a decimal, since .10 is higher than .9).
+ * The minor_id is used only in Log Entry IDs, not in Log Chunk IDs.
+ * Note that the time formatting is not the same as in the C time structure 'tm'.
+ * Days and months count from 1. The year is given as is, not relative to the
+ * UNIX epoch. (By contrast, tm time subtracts 1900 years.)
+ * 
+ * These structures are mainly used as unique IDs, but conversion to UNIX time
+ * is provided through member functions.
+ * Time conversion to UNIX time is carried out by the get_time() functions.
+ */
 struct Log_TimeStamp {
     uint8_t minor_id;
     uint8_t minute;
@@ -60,6 +74,11 @@ struct Log_TimeStamp {
     bool operator== (const Log_TimeStamp& rhs) const {
         return std::tie(year,month,day,hour,minute,minor_id)
              == std::tie(rhs.year,rhs.month,rhs.day,rhs.hour,rhs.minute,rhs.minor_id);
+    }
+    std::tm get_local_time() const;
+    time_t get_epoch_time() const {
+        std::tm tm = get_local_time();
+        return mktime(&tm);
     }
 };
 
@@ -97,6 +116,7 @@ public:
     Log_entry_ID() = delete; // explicitly forbid the default constructor, just in case
     Log_entry_ID_key key() const { return idkey; }
     std::string str() const { return idS_cache; }
+    time_t get_epoch_time() const { return idkey.idT.get_epoch_time(); }
 };
 
 class Log_chunk_ID {
@@ -109,6 +129,7 @@ public:
     Log_chunk_ID() = delete; // explicitly forbid the default constructor, just in case
     Log_chunk_ID_key key() const { return idkey; }
     std::string str() const { return idS_cache; }
+    time_t get_epoch_time() const { return idkey.idT.get_epoch_time(); }
 };
 
 class Log_entry {
@@ -141,6 +162,7 @@ public:
     std::string & get_entrytext() { return entrytext; }
     Node * get_Node() { return node; }
     Log_chunk * get_Chunk() { return chunk; }
+    time_t get_epoch_time() const { return id.get_epoch_time(); }
 };
 
 /**
@@ -181,6 +203,7 @@ public:
     Node * get_Node() const { return node; }
     Log_entry_ID_key & get_first_entry() { return first_entry; }
     std::vector<Log_entry *> & get_entries() { return entries; }
+    time_t get_epoch_time() const { return t_begin.get_epoch_time(); }
 };
 
 /**

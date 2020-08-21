@@ -46,6 +46,7 @@
 #include "coreversion.hpp"
 #define __GRAPHTYPES_HPP (__COREVERSION_HPP)
 
+#include <ctime>
 #include <cstdint>
 #include "error.hpp"
 #include "TimeStamp.hpp"
@@ -103,6 +104,18 @@ public:
     std::string what() { return std::string(stub + idexceptioncase); }
 };
 
+/**
+ * Timestamp IDs in the format required for Node IDs.
+ * These include all time components from year to second, as well as an additional
+ * minor_id (this is NOT a decimal, since .10 is higher than .9).
+ * Note that the time formatting is not the same as in the C time structure 'tm'.
+ * Days and months count from 1. The year is given as is, not relative to the
+ * UNIX epoch. (By contrast, tm time subtracts 1900 years.)
+ * 
+ * These structures are mainly used as unique IDs, but conversion to UNIX time
+ * is provided through member functions.
+ * Time conversion to UNIX time is carried out by the get_time() functions.
+ */
 struct ID_TimeStamp {
     uint8_t minor_id;
     uint8_t second;
@@ -119,6 +132,11 @@ struct ID_TimeStamp {
     bool operator== (const ID_TimeStamp& rhs) const {
         return std::tie(year,month,day,hour,minute,second,minor_id)
              == std::tie(rhs.year,rhs.month,rhs.day,rhs.hour,rhs.minute,rhs.second,rhs.minor_id);
+    }
+    std::tm get_local_time();
+    time_t get_epoch_time() {
+        std::tm tm = get_local_time();
+        return mktime(&tm);
     }
 };
 

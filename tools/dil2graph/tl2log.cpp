@@ -14,6 +14,7 @@
 // Formalizer core
 #include "error.hpp"
 #include "general.hpp"
+#include "TimeStamp.hpp"
 #include "Graphtypes.hpp"
 #include "Logtypes.hpp"
 
@@ -24,6 +25,9 @@
 using namespace fz;
 
 const Node_ID Lost_and_Found_node("20200820215834.1");
+
+bool manual_decisions = false;
+unsigned int auto_eliminate_duration_threshold = 20; // in minutes
 
 //----------------------------------------------------
 // Definitions of file-local scope functions:
@@ -179,6 +183,41 @@ unsigned int convert_TL_Chunk_to_Log_entries(Log & log, std::string chunktext) {
     return chunk->get_entries().size();
 }
 
+char manual_fix_choice(Log * log, std::string chunkid_str, std::string nodeid_str, const char chunk_content[], int mins_duration) {
+    VOUT << "Chunk with invalid Node ID encountered. (interactive mode)\n";
+    VOUT << "  Chunk at: " << chunkid_str << " [" << mins_duration << " minutes]" << '\n';
+    VOUT << "  Invalid Node ID string: {" << nodeid_str << "}\n\n";
+    VOUT << "  -- Chunk content: --------------------------------------------------------------------\n";
+    VOUT << chunk_content << '\n';
+    VOUT << "  --------------------------------------------------------------------------------------\n";
+    VOUT << "Options:\n\n";
+    VOUT << "  L - connect the chunk to the Lost-and-Found Node [20200820215834.1]\n";
+    VOUT << "  S - specify a Node ID manually\n";
+    VOUT << "  E - eliminate the chunk\n";
+    VOUT << "  X - exit\n\n";
+    VOUT << "Your choice: ";
+    std::string enterstr;
+    std::getline(cin, enterstr);
+    char decision = enterstr[0];
+    switch (decision) {
+        case 'L': case 'l':
+            decision = 'l';
+            break;
+
+        case 'S': case 's':
+            decision = 's';
+            break;
+        
+        case 'E': case 'e':
+            decision = 'e';
+            break;
+
+        default:
+            decision = 'x';
+    }
+    return decision;
+}
+
 /**
  * Convert a complete Task Log to Log format.
  * 
@@ -234,23 +273,37 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
             log->add_earlier_Chunk(chunkid.key().idT,nodeid);
 
         } catch (ID_exception idexception) {
-            VOUT << "Chunk with invalid Node ID encountered. (interactive mode)\n";
-            VOUT << "  Chunk at: " << chunkid.str() << '\n';
-            VOUT << "  Invalid Node ID string: {" << std::string(TLentrycontent->dil.title.chars()) << "}\n\n";
-            VOUT << "Options:\n\n";
-            VOUT << "  L - connect the chunk to the Lost-and-Found Node [20200820215834.1]\n";
-            VOUT << "  S - specify a Node ID manually\n";
-            VOUT << "  X - exit\n\n";
-            VOUT << "Your choice: ";
-            std::string enterstr;
-            std::getline(cin, enterstr);
-            if ((enterstr[0]=='L') || (enterstr[0]=='l')) {
+            unsigned int mins_duration = 0;
+            if (!(log->get_Chunks().empty())) {
+                time_t thischunk = time_stamp_time(chunkid.str());
+                time_t laterchunk = log->get_Chunks().front()->get_epoch_time();
+                mins_duration = (laterchunk-thischunk)/60;
+            }
+            char decision('x');
+            if (manual_decisions) {
+                decision = manual_fix_choice(log.get(),chunkid.str(),TLentrycontent->dil.title.chars(),TLentrycontent->htmltext.chars(),mins_duration);
+            } else {
+                VOUT << "Chunk with invalid Node ID encountered. Applying automatic fix.\n";
+                std::string chunkcontent(TLentrycontent->htmltext.chars());
+                std::size_t entrypos = chunkcontent.find("<!-- entry Begin");
+                if (entrypos!=std::string::npos) {
+                    decision = 'l';
+                } else {
+                    if (mins_duration<auto_eliminate_duration_threshold)
+                        decision = 'e';
+                    else
+                        decision = 'l';
+                }
+            }
+
+            if (decision=='l') {
                 ADDWARNING(__func__,"invalid Node ID in Log chunk ["+chunkid.str()+"] replaced with Lost-and-Found Node");
                 log->add_earlier_Chunk(chunkid.key().idT,Lost_and_Found_node);
 
             } else {
-                if ((enterstr[0]=='S') || (enterstr[0]=='s')) {
+                if (decision=='s') {
                     VOUT << "\nAlternative Node ID: ";
+                    std::string enterstr;
                     std::getline(cin,enterstr);
                     try {
                         const Node_ID alt_nodeid(enterstr);
@@ -262,8 +315,15 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
 
                     }
                 } else {
-                    VOUT << "\nExiting.\n";
-                    ERRRETURNNULL(__func__,"invalid Node ID ("+std::string(TLentrycontent->dil.title.chars())+") at TL chunk ["+chunkid.str()+"], "+idexception.what());
+                    if (decision=='e') {
+                        ADDWARNING(__func__,"invalid Node ID in Log chunk ["+chunkid.str()+"] eliminated per user instruction");
+                        VOUT << "\nEliminating that node.\n";
+                        continue; // This skips parsing the chunk for entries as well.
+
+                    } else {
+                        VOUT << "\nExiting.\n";
+                        ERRRETURNNULL(__func__,"invalid Node ID ("+std::string(TLentrycontent->dil.title.chars())+") at TL chunk ["+chunkid.str()+"], "+idexception.what());
+                    }
                 }
             }
 
@@ -301,11 +361,15 @@ std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
 
     key_pause();
 
-    VOUT << "Please note that this conversion will attempt to apply fixes where those\n";
-    VOUT << "are feasible:\n";
-    VOUT << "  a. Log chunks with missing Node references will be attached to a\n";
-    VOUT << "     special 'Lost and Found' Node at id [20200820215834.1].\n";
-    VOUT << '\n';
+    if (!manual_decisions) {
+        VOUT << "Please note that this conversion will attempt to apply fixes where those\n";
+        VOUT << "are feasible:\n";
+        VOUT << "  a. Log chunks with missing Node references will be attached to a\n";
+        VOUT << "     special 'Lost and Found' Node at id [20200820215834.1].\n";
+        VOUT << "  b. If such chunks do not contain Log entry tags, and if the chunk\n";
+        VOUT << "     duration is less than " << auto_eliminate_duration_threshold << " then the chunk is eliminated.\n";
+        VOUT << '\n';
+    }
     VOUT << "Now, let's convert the Task Log to Log format:\n\n";
     ERRHERE(".3");
     //ConversionMetrics convmet;
