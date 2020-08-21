@@ -41,23 +41,35 @@ std::string dbname; /// This is initialized to $USER.
 
 using namespace fz;
 
+enum exit_status_code { exit_ok, exit_general_error, exit_database_error, exit_unknown_option };
+
+std::string server_long_id;
+
 /**
  * Closing and clean-up actions when exiting the program.
  * 
  * @param status exit status to return to the program caller.
  */
-void Exit_Now(int status) {
+void Exit_Now(exit_status_code status) {
     ERRWARN_SUMMARY(std::cout);
     Clean_Exit(status);
 }
 
 void print_usage(std::string progname) {
-    std::cout << "Usage: " << progname << " [-d <dbname>] [-L]\n\n"
+    std::cout << "Usage: " << progname << " [-d <dbname>]\n"
+              << "       " << progname << " -v\n"
+              << '\n'
               << "  Options:\n"
-              << "    -d store resulting Graph in Postgres account <dbname>\n"
+              << "    -d use Postgres account <dbname>\n"
               << "       (default is $USER)\n"
-              << "    -L load only (no conversion and storage)\n"
-              << "\n";
+              << "    -v print version info\n"
+              << '\n'
+              << server_long_id << '\n'
+              << '\n';
+}
+
+void print_version(std::string progname) {
+    std::cout << progname << " " << server_long_id << '\n';
 }
 
 bool load_only = false; /// Alternative call, merely to test database loading.
@@ -66,16 +78,20 @@ void process_commandline(int argc, char *argv[]) {
     int c;
     opterr = 0;
 
-    while ((c = getopt(argc, argv, "d:")) != EOF) {
+    while ((c = getopt(argc, argv, "d:v")) != EOF) {
 
         switch (c) {
         case 'd':
             dbname = optarg;
             break;
 
+        case 'v':
+            print_version(argv[0]);
+            Clean_Exit(exit_ok);
+
         default:
             print_usage(argv[0]);
-            Exit_Now(0);
+            Clean_Exit(exit_unknown_option);
         }
     }
 }
@@ -83,23 +99,24 @@ void process_commandline(int argc, char *argv[]) {
 int main(int argc, char *argv[]) {
     ERRHERE(".1");
 
+    server_long_id = "Formalizer:GraphServer:Postgres (C++ implementation) v" + version() + " (core v" + coreversion() + ")";
     char *username = std::getenv("USER");
     if (username)
         dbname = username;
     process_commandline(argc, argv);
+
+    std::cout << server_long_id << " starting.\n";
     if (dbname.empty()) {
         ADDERROR(__func__, "Need a database account to proceed. Defaults to $USER.");
-        Exit_Now(1);
+        Exit_Now(exit_general_error);
     }
-
-    std::cout << "Formalizer Graph Server:Postgres (C++ implementation) v" << version() << " starting.\n";
     std::cout << "Postgres database account selected: " << dbname << '\n';
 
     ERRHERE(".2");
     Graph graph;
     if (!load_Graph_pq(graph, dbname)) {
         ADDERROR(__func__, "Unable to load Graph from Postgres database.");
-        Exit_Now(1);
+        Exit_Now(exit_database_error);
     }
 
 #define VERBOSE_INITIAL_LOAD
@@ -110,7 +127,7 @@ int main(int argc, char *argv[]) {
     std::cout << "  Number of Edges  = " << graph.num_Edges() << "\n\n";
 #endif
 
-    Exit_Now(0);
+    Exit_Now(exit_ok);
 
     return 0;
 }

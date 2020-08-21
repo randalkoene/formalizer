@@ -8,7 +8,7 @@
  */
 
 #ifndef __VERSION_HPP
-#define __VERSION_HPP "2.0.0-0.1"
+#define __VERSION_HPP "1.0.0-0.1"
 
 #include <string>
 

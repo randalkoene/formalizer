@@ -50,6 +50,10 @@
         "sstream": "cpp",
         "stdexcept": "cpp",
         "streambuf": "cpp",
-        "typeinfo": "cpp"
-    }
+        "typeinfo": "cpp",
+        "cinttypes": "cpp",
+        "cstring": "cpp",
+        "valarray": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "Enabled"
 }

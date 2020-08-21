@@ -15,6 +15,14 @@
 
 using namespace fz;
 
+enum exit_status_code { exit_ok,
+                        exit_general_error,
+                        exit_database_error,
+                        exit_unknown_option,
+                        exit_cancel,
+                        exit_conversion_error,
+                        exit_DIL_error };
+
 /// Postgres database name
 extern std::string dbname; // provided in dil2graph.cpp, initialized to $USER
 
@@ -33,18 +41,16 @@ struct ConversionMetrics {
     int topicsanskeyrel;
     ConversionMetrics() : nullnodes(0), skippedentries(0), duplicates(0), unknownnodeerror(0), notopics(0), nulledges(0), duplicateedges(0), selfconnections(0), missingdepnode(0), missingsupnode(0), unknownedgeerror(0), topicsanskeyrel(0) {}
     int conversion_problems_sum() { // These can be problematic.
-      return nullnodes + skippedentries + duplicates + unknownnodeerror + notopics + nulledges + duplicateedges + missingdepnode + missingsupnode + unknownedgeerror;
+        return nullnodes + skippedentries + duplicates + unknownnodeerror + notopics + nulledges + duplicateedges + missingdepnode + missingsupnode + unknownedgeerror;
     }
     int conversion_metrics_sum() { // This is the simple sum of counts, problematic or not.
-      return conversion_problems_sum() + selfconnections + topicsanskeyrel;
+        return conversion_problems_sum() + selfconnections + topicsanskeyrel;
     }
 };
 
-void Exit_Now(int status);
-
 std::string convert_DIL_Topics_file_to_tag(DIL_Topical_List &diltopic);
 
-int convert_DIL_Topics_to_topics(Topic_Tags & topics, Node &node, DIL_entry &entry);
+int convert_DIL_Topics_to_topics(Topic_Tags &topics, Node &node, DIL_entry &entry);
 
 time_t get_Node_Target_Date(DIL_entry &e);
 
@@ -54,16 +60,20 @@ td_pattern get_Node_tdpattern(DIL_entry &e);
 
 Node *convert_DIL_entry_to_Node(DIL_entry &e, Graph &graph, ConversionMetrics &convmet);
 
-Edge * convert_DIL_Superior_to_Edge(DIL_entry &depentry, DIL_entry &supentry, DIL_Superiors &dilsup, Graph & graph, ConversionMetrics &convmet);
+Edge *convert_DIL_Superior_to_Edge(DIL_entry &depentry, DIL_entry &supentry, DIL_Superiors &dilsup, Graph &graph, ConversionMetrics &convmet);
 
 std::vector<Topic_Keyword> get_DIL_Topics_File_KeyRels(std::string dilfilepath);
 
-unsigned int collect_topic_keyword_relevance_pairs(Topic * topic);
+unsigned int collect_topic_keyword_relevance_pairs(Topic *topic);
 
-std::vector<int> detect_DIL_Topics_Symlinks(const std::vector<std::string> &dilfilepaths, int & num);
+std::vector<int> detect_DIL_Topics_Symlinks(const std::vector<std::string> &dilfilepaths, int &num);
 
-std::vector<int> detect_DIL_Topics_Symlinks(const std::vector<std::string> &dilfilepaths, int & num);
+std::vector<int> detect_DIL_Topics_Symlinks(const std::vector<std::string> &dilfilepaths, int &num);
 
 Graph *convert_DIL_to_Graph(Detailed_Items_List *dil, ConversionMetrics &convmet);
+
+void Exit_Now(int status); // needed in dil2al_minimal.cpp and dil2al linked object files
+
+void key_pause();
 
 #endif // __DIL2GRAPH_HPP

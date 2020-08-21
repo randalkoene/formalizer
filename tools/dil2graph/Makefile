@@ -118,7 +118,8 @@ RXCFLAGS= $(COMPOPT) $(MACHSPEC) $(RXCFXTRA)
 CPPFLAGS= $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(SAFEREGEX) $(INCLUDES)
 
 CORE_OBJS= $(CORELIBPATH)/obj/error.o $(CORELIBPATH)/obj/general.o $(CORELIBPATH)/obj/TimeStamp.o \
-			$(CORELIBPATH)/obj/Graphtypes.o $(CORELIBPATH)/obj/Graphpostgres.o
+			$(CORELIBPATH)/obj/Graphtypes.o $(CORELIBPATH)/obj/Graphpostgres.o $(CORELIBPATH)/obj/Logtypes.o \
+			$(CORELIBPATH)/obj/dilaccess.o
 
 DIL2AL_OBJS= $(DIL2AL)/utilities.o $(DIL2AL)/interface.o $(DIL2AL)/testcode.o $(DIL2AL)/diladmin.o \
 			$(DIL2AL)/tladmin.o $(DIL2AL)/cksum.o $(DIL2AL)/alcomp.o $(DIL2AL)/tlfilter.o \
@@ -137,10 +138,13 @@ init: FORCE
 $(OBJ)/dil2al_minimal.o: dil2al_minimal.cpp dil2al_minimal.hpp version.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) -c dil2al_minimal.cpp -o $(OBJ)/dil2al_minimal.o
 
+$(OBJ)/tl2log.o: tl2log.cpp tl2log.hpp version.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) -c tl2log.cpp -o $(OBJ)/tl2log.o
+
 $(OBJ)/dil2graph.o: dil2graph.cpp dil2graph.hpp version.hpp $(OBJ)/dil2al_minimal.o
 	$(CCPP) $(CPPFLAGS) $(COLORS) -c dil2graph.cpp -o $(OBJ)/dil2graph.o
 
-dil2graph: $(OBJ)/dil2graph.o $(OBJ)/dil2al_minimal.o $(DIL2AL_OBJS) $(CORE_OBJS) $(ALT_REGEX)
+dil2graph: $(OBJ)/dil2graph.o $(OBJ)/tl2log.o $(OBJ)/dil2al_minimal.o $(DIL2AL_OBJS) $(CORE_OBJS) $(ALT_REGEX)
 	$(CCPP) $(CPPFLAGS) $^ -o dil2graph $(LIB_PATH)
 
 clean:

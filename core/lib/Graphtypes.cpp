@@ -121,18 +121,18 @@ bool valid_Node_ID(const ID_TimeStamp &idT, std::string &formerror) {
  * within valid ranges. Note that years before 1999 are disqualified,
  * since the Formalizer did not exist before then.
  * 
- * @param id_str a string of the format YYYYmmddHHMM.num.
+ * @param id_str a string of the format YYYYmmddHHMMSS.num.
  * @param formerror a string that collects specific error information if there is any.
  * @param id_timestamp if not NULL, receives valid components.
  * @return true if valid.
  */
 bool valid_Node_ID(std::string id_str, std::string &formerror, ID_TimeStamp *id_timestamp) {
 
-    if (id_str.length() < 14)
+    if (id_str.length() < 16)
         VALID_NODE_ID_FAIL("string size");
     if (id_str[14] != '.')
         VALID_NODE_ID_FAIL("format");
-    for (int i = 0; i < 12; i++)
+    for (int i = 0; i < 14; i++)
         if (!isdigit(id_str[i]))
             VALID_NODE_ID_FAIL("digits");
 

@@ -24,6 +24,10 @@ TEST=./test
 # to find the postgresql header files (e.g libpq-fe.h), do this: pg_config --includedir
 INCLUDES= -I$(CPATH) -I$(COREINCLUDEPATH) -I/usr/include/postgresql
 
+# Add this include directory for dilaccess.cpp and programs that use it.
+# Using this links in a lot!
+DIL2AL=$(HOME)/src/dil2al
+
 # to find the postgresql library files fo this: pg_config --libdir
 LIB_PATH= -L/usr/lib/x86_64-linux-gnu -lpq
 
@@ -93,7 +97,8 @@ CPPFLAGS= $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(INCLUDES)
 
 .PHONY: FORCE
 
-all: init $(OBJ)/general.o $(OBJ)/error.o $(OBJ)/TimeStamp.o $(OBJ)/Graphtypes.o $(OBJ)/Graphpostgres.o
+all: init $(OBJ)/general.o $(OBJ)/error.o $(OBJ)/TimeStamp.o $(OBJ)/dilaccess.o $(OBJ)/Graphtypes.o \
+						$(OBJ)/Logtypes.o $(OBJ)/Graphpostgres.o
 
 init: FORCE
 	@echo '-------------------------------------------------------------------'
@@ -110,8 +115,16 @@ $(OBJ)/general.o: general.cpp $(INC)/general.hpp $(INC)/error.hpp $(OBJ)/error.o
 $(OBJ)/TimeStamp.o: TimeStamp.cpp $(INC)/TimeStamp.hpp $(INC)/error.hpp $(OBJ)/error.o
 	$(CCPP) $(CPPFLAGS) -c TimeStamp.cpp -o $(OBJ)/TimeStamp.o
 
-$(OBJ)/Graphtypes.o: Graphtypes.cpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(OBJ)/general.o
+$(OBJ)/dilaccess.o: dilaccess.cpp $(INC)/dilaccess.hpp $(INC)/error.hpp $(OBJ/error.o)
+	$(CCPP) $(CPPFLAGS) -I$(DIL2AL) -c dilaccess.cpp -o $(OBJ)/dilaccess.o
+
+$(OBJ)/Graphtypes.o: Graphtypes.cpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp \
+						$(OBJ)/general.o $(OBJ)/TimeStamp.o
 	$(CCPP) $(CPPFLAGS) -c Graphtypes.cpp -o $(OBJ)/Graphtypes.o
+
+$(OBJ)/Logtypes.o: Logtypes.cpp $(INC)/Logtypes.hpp $(INC)/Graphtypes.hpp $(INC)/general.hpp \
+						$(INC)/TimeStamp.hpp $(OBJ)/Graphtypes.o $(OBJ)/general.o $(OBJ)/TimeStamp.o
+	$(CCPP) $(CPPFLAGS) -c Logtypes.cpp -o $(OBJ)/Logtypes.o
 
 $(OBJ)/Graphpostgres.o: Graphpostgres.cpp $(INC)/Graphpostgres.hpp $(INC)/Graphtypes.hpp \
 						$(INC)/general.hpp $(INC)/error.hpp $(OBJ)/Graphtypes.o \
