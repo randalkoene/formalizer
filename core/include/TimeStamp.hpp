@@ -20,15 +20,32 @@ namespace fz {
 
 #define INVALID_TIME_STAMP -34403 // a numerical rendering of 'ERROR'
 
-time_t time_stamp_time(std::string timestr, bool noerror = false);
+std::time_t emulated_time = INVALID_TIME_STAMP;
 
-std::string TimeStamp(const char *dateformat, time_t t);
+inline std::time_t ActualTime() { return std::time(); }
+
+inline std::time_t EmulatedTime() {
+    if (emulated_time > 0)
+        return emulated_time;
+
+    return ActualTime();
+}
+
+std::time_t time_stamp_time(std::string timestr, bool noerror = false);
+
+std::string TimeStamp(const char *dateformat, std::time_t t);
 
 /// Generate a Formalizer standardized date and time stamp (YYYYmmddHHMM).
-inline std::string TimeStampYmdHM(time_t t) { return TimeStamp("%Y%m%d%H%M",t); }
+inline std::string TimeStampYmdHM(std::time_t t) { return TimeStamp("%Y%m%d%H%M",t); }
 
 /// Generate a Formalizer standardized date stamp (YYYYmmdd).
-inline std::string DateStampYmd(time_t t) { return TimeStamp("%Y%m%d",t); }
+inline std::string DateStampYmd(std::time_t t) { return TimeStamp("%Y%m%d",t); }
+
+/// Generate a Formalizer standardized file backup extension (YYYYmmdd.bak).
+inline std::string BackupStampYmd() { return DateStampYmd(ActualTime())+".bak"; }
+
+/// Generate a Formalizer standardized file backup precise extension (YYYYmmddHHMM.bak).
+inline std::string BackupStampYmdHM() { return TimeStampYmdHM(ActualTime())+".bak"; }
 
 typedef std::tuple<unsigned int, unsigned int, unsigned int> ymd_tuple;
 struct year_month_day_t: public ymd_tuple {

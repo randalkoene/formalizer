@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <sstream>
 #include <fstream>
+#include <filesystem>
 
 #include "error.hpp"
 #include "general.hpp"
@@ -92,6 +93,73 @@ std::vector<std::string> split(const std::string &s, char delim) {
     std::vector<std::string> elems;
     split(s, delim, std::back_inserter(elems));
     return elems;
+}
+
+/**
+ * Write the full contents of a string to a file.
+ * 
+ * Note that this function does NOT create a backup of a previous file at the
+ * given path.
+ * 
+ * @param path of the file.
+ * @param s reference to the string.
+ * @param writestate returns the iostate flags when provided (default: nullptr)
+ * @return true if the write from string was successful.
+ */
+bool string_to_file(std::string path, std::string & s, std::ofstream::iostate * writestate) {
+    std::ofstream ofs(path, std::ifstream::out);
+
+    if (writestate) (*writestate) = ofs.rdstate();
+
+    if (ofs.fail())
+        ERRRETURNFALSE(__func__,"unable to create file "+path);
+
+    ofs << s;
+    ofs.close();
+    return true;
+}
+
+/**
+ * Write the full contents of a string to a file, but move an existing file
+ * at the given path to a backup name first.
+ * 
+ * Note that TimeStamp:BackupStampYmd() and TimeStamp:BackupStampYmdHM() provide
+ * valid Formalizer standardized backup extension tags.
+ * 
+ * @param path of the file.
+ * @param s reference to the string.
+ * @param backupext is the extension to use for a potential backup of existing.
+ * @param backedup stores a flag to indicate is an existing file was renamed to a backup.
+ * @param writestate returns the iostate flags when provided (default: nullptr)
+ * @return true if the write from string was successful.
+ */
+bool string_to_file_with_backup(std::string path, std::string & s, std::string backupext, bool & backedup, std::ofstream::iostate * writestate) {
+    if (!std::filesystem::exists(path))
+        return string_to_file(path, s, writestate);
+
+    if (backupext.empty())
+        ERRRETURNFALSE(__func__,"missing backup extension tag");
+
+    std::string attemptpath(path+".attempt");
+    std::ofstream ofs(attemptpath, std::ifstream::out);
+
+    if (writestate) (*writestate) = ofs.rdstate();
+
+    if (ofs.fail())
+        ERRRETURNFALSE(__func__,"unable to create file "+attemptpath);
+
+    ofs << s;
+    ofs.close();
+
+    std::string backuppath(path+'.'+backupext);
+    backedup = (rename(path.c_str(),backuppath.c_str()) == 0);
+    if (!backedup)
+        ERRRETURNFALSE(__func__,"unable to create "+backuppath+", retained "+attemptpath);
+
+    if (rename(attemptpath.c_str(),path.c_str()) != 0)
+        ERRRETURNFALSE(__func__,"unable to rename "+attemptpath);
+
+    return true;
 }
 
 /**

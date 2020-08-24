@@ -255,6 +255,21 @@ public:
     }
 };
 
+typedef std::map<const Log_entry_ID_key,std::unique_ptr<Log_entry>> Log_entries_Map;
+
+//typedef std::deque<std::unique_ptr<Log_chunk>> Log_chunks_Deque;
+typedef std::deque<std::unique_ptr<Log_chunk>> Log_chunk_ptr_deque;
+
+struct Log_chunks_Deque: public Log_chunk_ptr_deque {
+    const Log_chunk_ID_key & get_tbegin_key(Log_chunk_ptr_deque::size_type idx) const {
+        return at(idx)->get_tbegin_key();
+    }
+    Log_chunk_ptr_deque::size_type find(const Log_chunk_ID_key chunk_id) const;
+
+    // friend functions
+    friend unsigned long Chunks_total_minutes(Log_chunks_Deque & chunks);
+};
+
 typedef std::deque<Log_chunk_ID_key> Log_chunk_ID_key_deque;
 
 /**
@@ -273,21 +288,6 @@ public:
     // helper functions
     std::string get_chunk_id_str(Log_chunk_ID_key_deque::size_type idx) { return Log_chunk_ID_TimeStamp_to_string( at(idx).idT ); }
     std::string get_Ymd_str(Log_chunk_ID_key_deque::size_type idx) { return Log_TimeStamp_to_Ymd_string( at(idx).idT ); }
-};
-
-typedef std::map<const Log_entry_ID_key,std::unique_ptr<Log_entry>> Log_entries_Map;
-
-//typedef std::deque<std::unique_ptr<Log_chunk>> Log_chunks_Deque;
-typedef std::deque<std::unique_ptr<Log_chunk>> Log_chunk_ptr_deque;
-
-struct Log_chunks_Deque: public Log_chunk_ptr_deque {
-    const Log_chunk_ID_key & get_tbegin_key(Log_chunk_ptr_deque::size_type idx) const {
-        return at(idx)->get_tbegin_key();
-    }
-    Log_chunk_ptr_deque::size_type find(const Log_chunk_ID_key chunk_id) const;
-
-    // friend functions
-    friend unsigned long Chunks_total_minutes(Log_chunks_Deque & chunks);
 };
 
 class Log {

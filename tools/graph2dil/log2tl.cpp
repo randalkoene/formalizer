@@ -16,19 +16,43 @@
 
 #include "error.hpp"
 #include "general.hpp"
+#include "Logtypes.hpp"
+#include "Graphtypes.hpp"
 
 using namespace fz;
 
 /// The Makefile attempts to provide this at compile time based on the source
 /// file directory.
 #ifdef DEFAULT_TEMPLATE_DIR
-    std::string test_template_dir(DEFAULT_TEMPLATE_DIR);
+    std::string test_template_dir(DEFAULT_TEMPLATE_DIR "/templates");
 #else
-    std::string test_template_dir(".");
+    std::string test_template_dir("./templates");
 #endif
 
-struct givethisagoodname {
+/**
+ * This structure contains all the necessary data and rendering functions
+ * to convert the content from a Breakpoint start in a Log to its end
+ * (as defined by the next Breakpoint if there is one).
+ * 
+ * The rendering functions make use of templates that are defined in
+ * template files 'TL_*.template.html' in the 'templates/' directory
+ * of the source code. The templates were made by mapping components
+ * of actual dil2al Task Log files.
+ * 
+ * section_Converter constructor:
+ * @param _graph a complete in-memory Graph.
+ * @param _log a complete in-memory Log.
+ * @param _bridx index to the Breakpoint for which to convert a section. 
+ */
+struct section_Converter {
     inja::Environment env;
+    Graph & graph;
+    Log & log;
+    Log_chunk_ID_key_deque::size_type bridx;
+    std::string rendered_section;
+
+    section_Converter() = delete; // explicitly forbid the default constructor, just in case
+    section_Converter(Graph & _graph, Log & _log, Log_chunks_Deque::size_type _bridx): graph(_graph), log(_log), bridx(_bridx) {}
 
     enum template_id_enum {
         section_temp,
@@ -181,3 +205,32 @@ struct givethisagoodname {
     //*** entry_withnode uses the same nodeprev and nodenext templates as chunk
 
 };
+
+/**
+ * Convert an entire Log into a dil2al backwards compatible set of
+ * Task Log files.
+ * 
+ * The Graph and Log must already be fully in memory.
+ * 
+ * @param graph the Graph.
+ * @param log the fully in-memory Log.
+ * @param TLdirectory is the directory path where TL files should be created.
+ * @return true if successfully converted.
+ */
+bool interactive_Log2TL_conversion(Graph & graph, Log & log, std::string TLdirectory) {
+    ERRHERE(".top");
+
+    for (Log_chunk_ID_key_deque::size_type bridx = 0; bridx < log.num_Breakpoints(); ++bridx) {
+        std::string bridxstr(std::to_string(bridx));
+        ERRHERE(".conv."+bridxstr);
+        section_Converter sC(graph,log,bridx);
+        if (!sC.render_section())
+            ERRRETURNFALSE(__func__,"unable to render section ["+bridxstr+"] from Log chunk "+log.get_Breakpoint_first_chunk_id_str(bridx));
+        
+        ERRHERE(".store."+bridxstr);
+        if (!string_to_file(TLdirectory+"/task-log."+log.get_Breakpoint_Ymd_str(bridx)+".html",sC.rendered_section))
+            ERRRETURNFALSE(__func__,"unable to write section to file");
+    }
+
+    return true;
+}
