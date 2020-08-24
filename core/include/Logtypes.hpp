@@ -9,7 +9,7 @@
  */
 
 /**
- * Notes about the C++ Node object structure:
+ * Notes about the C++ Log object structure:
  * - Every entry created (with fzlog) makes a Log_entry. These have a consecutive order
  *   in time when created. Every Log_entry also has a unique ID. In the dil2al HTML
  *   format that was the A-NAME reference.
@@ -21,6 +21,10 @@
  *   Log_chunk records. Those records specify: t_begin for the time stamp when a chunk
  *   begins, entry_id for the first entry in the chunk, node_id for the Node that the
  *   whole chunk belongs to.
+ * - The Log_chunk records also record the time when the chunk was closed. This is
+ *   necessary, since Log chunks are not guaranteed to be temporally adjacent.
+ *   Especially during the early use of dil2al scheduling and logging was not done
+ *   for the full 24 hours of each day. Missing time intervals are tolerated.
  * - When loaded, these things are translated into rapid access containers with pointers
  *   to Node and Log_entry objects.
  * 
@@ -42,9 +46,24 @@
 
 namespace fz {
 
+class Log_TimeStamp;
 class Log;
 class Log_entry;
 class Log_chunk;
+
+std::string Log_entry_ID_TimeStamp_to_string(const Log_TimeStamp idT);
+
+std::string Log_chunk_ID_TimeStamp_to_string(const Log_TimeStamp idT);
+
+std::string Log_TimeStamp_to_Ymd_string(const Log_TimeStamp idT);
+
+bool valid_Log_entry_ID(const Log_TimeStamp &idT, std::string &formerror);
+
+bool valid_Log_chunk_ID(const Log_TimeStamp &idT, std::string &formerror);
+
+bool valid_Log_entry_ID(std::string id_str, std::string &formerror, Log_TimeStamp *id_timestamp = NULL);
+
+bool valid_Log_chunk_ID(std::string id_str, std::string &formerror, Log_TimeStamp *id_timestamp = NULL);
 
 /**
  * Timestamp IDs in the format required for Log IDs.
@@ -91,6 +110,9 @@ union Log_entry_ID_key {
     bool operator< (const Log_entry_ID_key& rhs) const {
         return (idT < rhs.idT);
     }
+    bool operator== (const Log_entry_ID_key& rhs) const {
+        return (idT == rhs.idT);
+    }
 
 };
 
@@ -100,13 +122,18 @@ union Log_chunk_ID_key {
     Log_chunk_ID_key(): idT() {}
     Log_chunk_ID_key(const Log_TimeStamp& _idT);
     Log_chunk_ID_key(std::string _idS);
+    std::time_t get_epoch_time() const { return idT.get_epoch_time(); }
+    std::string str() const { return TimeStamp("%Y%m%d",idT.get_epoch_time()); }
     bool operator< (const Log_chunk_ID_key& rhs) const {
         return (idT < rhs.idT);
     }
-
+    bool operator== (const Log_chunk_ID_key& rhs) const {
+        return (idT == rhs.idT);
+    }
 };
 
 class Log_entry_ID {
+    friend class Log_entry;
 protected:
     Log_entry_ID_key idkey;
     std::string idS_cache; // cached string version of the ID to speed things up
@@ -120,6 +147,7 @@ public:
 };
 
 class Log_chunk_ID {
+    friend class Log_chunk;
 protected:
     Log_chunk_ID_key idkey;
     std::string idS_cache; // cached string version of the ID to speed things up
@@ -163,6 +191,10 @@ public:
     Node * get_Node() { return node; }
     Log_chunk * get_Chunk() { return chunk; }
     time_t get_epoch_time() const { return id.get_epoch_time(); }
+
+    // helper functions
+    const Log_entry_ID_key & get_id_key() const { return id.idkey; }
+    std::string get_id_str() const { return id.str(); }
 };
 
 /**
@@ -174,6 +206,7 @@ class Log_chunk {
 protected:
     const Log_chunk_ID t_begin;   /// The time stamp when a Log chunk begins.
     const Node_ID node_id;        /// The Node to which the Log chunk belongs.
+    std::time_t t_close;          /// The time when a Log chunk was closed (-1 if not closed).
     Log_entry_ID_key first_entry; /// ID of the first Log_entry in the chunk (once created).
 
     // The following are maintained for rapid access where possible.
@@ -181,8 +214,8 @@ protected:
     std::vector<Log_entry *> entries;
 
 public:
-    Log_chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid) : t_begin(_tbegin), node_id(_nodeid), node(NULL) {}
-    Log_chunk(const Log_TimeStamp &_tbegin, Node &_node): t_begin(_tbegin), node_id(_node.get_id()), node(&_node) {}
+    Log_chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose) : t_begin(_tbegin), node_id(_nodeid), t_close(_tclose), node(NULL) {}
+    Log_chunk(const Log_TimeStamp &_tbegin, Node &_node, std::time_t _tclose): t_begin(_tbegin), node_id(_node.get_id()), t_close(_tclose), node(&_node) {}
 
     bool set_Node(Node & _node) {
         if (!(node_id.key().idT == _node.get_id().key().idT))
@@ -203,25 +236,59 @@ public:
     Node * get_Node() const { return node; }
     Log_entry_ID_key & get_first_entry() { return first_entry; }
     std::vector<Log_entry *> & get_entries() { return entries; }
-    time_t get_epoch_time() const { return t_begin.get_epoch_time(); }
+    std::time_t get_open_time() const { return t_begin.get_epoch_time(); }
+    std::time_t get_close_time() const { return t_close; }
+    void set_close_time(std::time_t _tclose) { t_close = _tclose; }
+
+    // helper functions
+    const Log_chunk_ID_key & get_tbegin_key() const { return t_begin.idkey; }
+    std::string get_tbegin_str() const { return t_begin.str(); }
+    std::time_t duration_seconds() const {
+        if (t_close<0)
+            return -1;
+        return t_close - get_open_time();
+    }
+    int duration_minutes() const {
+        if (t_close<0)
+            return -1;
+        return duration_seconds() / 60;
+    }
 };
+
+typedef std::deque<Log_chunk_ID_key> Log_chunk_ID_key_deque;
 
 /**
  * This table exists for backward compatibility with the dil2al data storage format.
  * It contains a list of Log chunk IDs that indicate the start of each Task Log file
  * in that storage format.
  */
-class Log_Breakpoints {
-protected:
-    std::deque<Log_chunk_ID_key> breakpoint_ids;
+class Log_Breakpoints: protected Log_chunk_ID_key_deque {
+    friend class Log;
 public:
-    void add_earlier_Breakpoint(Log_chunk & chunk) { breakpoint_ids.push_front(chunk.get_tbegin().key()); }
-    void add_later_Breakpoint(Log_chunk & chunk) { breakpoint_ids.push_back(chunk.get_tbegin().key()); }
-    std::deque<Log_chunk_ID_key> & get_breakpoints() { return breakpoint_ids; }
+    void add_earlier_Breakpoint(Log_chunk & chunk) { push_front(chunk.get_tbegin_key()); }
+    void add_later_Breakpoint(Log_chunk & chunk) { push_back(chunk.get_tbegin_key()); }
+    //Log_chunk_ID_key_deque & get_chunk_ids() { return breakpoint_ids; }
+    Log_chunk_ID_key & get_chunk_id_key(Log_chunk_ID_key_deque::size_type idx) { return at(idx); }
+
+    // helper functions
+    std::string get_chunk_id_str(Log_chunk_ID_key_deque::size_type idx) { return Log_chunk_ID_TimeStamp_to_string( at(idx).idT ); }
+    std::string get_Ymd_str(Log_chunk_ID_key_deque::size_type idx) { return Log_TimeStamp_to_Ymd_string( at(idx).idT ); }
 };
 
 typedef std::map<const Log_entry_ID_key,std::unique_ptr<Log_entry>> Log_entries_Map;
-typedef std::deque<std::unique_ptr<Log_chunk>> Log_chunks_Deque;
+
+//typedef std::deque<std::unique_ptr<Log_chunk>> Log_chunks_Deque;
+typedef std::deque<std::unique_ptr<Log_chunk>> Log_chunk_ptr_deque;
+
+struct Log_chunks_Deque: public Log_chunk_ptr_deque {
+    const Log_chunk_ID_key & get_tbegin_key(Log_chunk_ptr_deque::size_type idx) const {
+        return at(idx)->get_tbegin_key();
+    }
+    Log_chunk_ptr_deque::size_type find(const Log_chunk_ID_key chunk_id) const;
+
+    // friend functions
+    friend unsigned long Chunks_total_minutes(Log_chunks_Deque & chunks);
+};
 
 class Log {
 protected:
@@ -229,25 +296,26 @@ protected:
     Log_chunks_Deque chunks;
     Log_Breakpoints breakpoints;
 public:
-    unsigned long num_Entries() const { return entries.size(); }
+    Log_entries_Map::size_type num_Entries() const { return entries.size(); }
+    Log_chunks_Deque::size_type num_Chunks() const { return chunks.size(); }
+    Log_chunk_ID_key_deque::size_type num_Breakpoints() const { return breakpoints.size(); }
     Log_entries_Map & get_Entries() { return entries; }
     Log_chunks_Deque & get_Chunks() { return chunks; }
     Log_Breakpoints & get_Breakpoints() { return breakpoints; }
-    void add_earlier_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid) { chunks.push_front(std::make_unique<Log_chunk>(_tbegin,_nodeid)); }
-    void add_later_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid) { chunks.push_back(std::make_unique<Log_chunk>(_tbegin,_nodeid)); }
+    void add_earlier_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose) { chunks.push_front(std::make_unique<Log_chunk>(_tbegin,_nodeid,_tclose)); }
+    void add_later_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose) { chunks.push_back(std::make_unique<Log_chunk>(_tbegin,_nodeid, _tclose)); }
+
+    // friend functions
+    friend std::vector<Log_chunks_Deque::size_type> Breakpoint_Indices(Log & log);
+    friend std::vector<Log_chunks_Deque::size_type> Chunks_per_Breakpoint(Log & log);
+ 
+    // helper functions
+    Log_chunk_ID_key & get_Breakpoint_first_chunk_id_key(Log_chunk_ID_key_deque::size_type idx) { return breakpoints.at(idx); }
+    std::string get_Breakpoint_first_chunk_id_str(Log_chunk_ID_key_deque::size_type idx) { return Log_chunk_ID_TimeStamp_to_string( breakpoints.at(idx).idT ); }
+    std::string get_Breakpoint_Ymd_str(Log_chunk_ID_key_deque::size_type idx) { return Log_TimeStamp_to_Ymd_string( breakpoints.at(idx).idT ); }
 };
 
-bool valid_Log_entry_ID(const Log_TimeStamp &idT, std::string &formerror);
-
-bool valid_Log_chunk_ID(const Log_TimeStamp &idT, std::string &formerror);
-
-bool valid_Log_entry_ID(std::string id_str, std::string &formerror, Log_TimeStamp *id_timestamp = NULL);
-
-bool valid_Log_chunk_ID(std::string id_str, std::string &formerror, Log_TimeStamp *id_timestamp = NULL);
-
-std::string Log_entry_ID_TimeStamp_to_string(const ID_TimeStamp idT);
-
-std::string Log_chunk_ID_TimeStamp_to_string(const ID_TimeStamp idT);
+unsigned long Entries_total_text(Log_entries_Map & entries);
 
 } // namespace fz
 

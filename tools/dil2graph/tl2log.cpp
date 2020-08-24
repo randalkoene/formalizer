@@ -8,6 +8,10 @@
  * For more development details, see the Trello card at https://trello.com/c/NNSWVRFf.
  */
 
+#include <ctime>
+#include <tuple>
+#include <iomanip>
+
 // dil2al compatibility
 #include "dil2al.hh"
 
@@ -21,13 +25,18 @@
 // Tool specific
 #include "tl2log.hpp"
 #include "dil2graph.hpp"
+#include "logtest.hpp"
 
 using namespace fz;
 
 const Node_ID Lost_and_Found_node("20200820215834.1");
+//const Node_ID Null_node("19000101000000.1");
+const Node_ID Null_node("20200820215834.1");
 
 bool manual_decisions = false;
 unsigned int auto_eliminate_duration_threshold = 20; // in minutes
+
+unsigned long num_fixes_applied = 0;
 
 //----------------------------------------------------
 // Definitions of file-local scope functions:
@@ -183,7 +192,7 @@ unsigned int convert_TL_Chunk_to_Log_entries(Log & log, std::string chunktext) {
     return chunk->get_entries().size();
 }
 
-char manual_fix_choice(Log * log, std::string chunkid_str, std::string nodeid_str, const char chunk_content[], int mins_duration) {
+char manual_fix_choice(std::string chunkid_str, std::string nodeid_str, const char chunk_content[], int mins_duration) {
     VOUT << "Chunk with invalid Node ID encountered. (interactive mode)\n";
     VOUT << "  Chunk at: " << chunkid_str << " [" << mins_duration << " minutes]" << '\n';
     VOUT << "  Invalid Node ID string: {" << nodeid_str << "}\n\n";
@@ -219,6 +228,126 @@ char manual_fix_choice(Log * log, std::string chunkid_str, std::string nodeid_st
 }
 
 /**
+ * Using the Task Log basic metrics provisions of Logtypes.hh to print some
+ * information about the conversion.
+ */
+void show_metrics(Log & log) {
+    //VOUT << '@' << log.get_Chunks().front()->get_tbegin_str();
+    VOUT << "\n[" << log.num_Breakpoints() << "] Log breakpoints (TL files)\n";
+    VOUT << '[' << log.num_Chunks() << "] TL chunks (" << num_fixes_applied << " fixed";
+    if (log.num_Chunks() > 0)
+        VOUT << ", " << to_precision_string(100.0 * (double)num_fixes_applied / (double)log.num_Chunks()) << '%';
+    VOUT << ')';
+    if (log.num_Breakpoints() > 0)
+        VOUT << " (av. " << to_precision_string((double)log.num_Chunks() / (double) log.num_Breakpoints()) << " chunks/breakpoint)";
+    VOUT << "\n[" << log.num_Entries() << "] TL entries";
+    if (log.num_Chunks() > 0)
+        VOUT << " (av. " << to_precision_string((double)log.num_Entries() / (double)log.num_Chunks()) << " entries/chunk)";
+    if (log.num_Chunks() > 0) {
+        std::time_t firstchunk_t = log.get_Chunks().front()->get_open_time();
+        std::time_t lastchunk_t = log.get_Chunks().back()->get_open_time();
+        double difference = std::difftime(lastchunk_t,firstchunk_t) / (60 * 60 * 24);
+        auto [years, months, days] = static_cast<ymd_tuple>(years_months_days(firstchunk_t,lastchunk_t));
+        //auto years = years_months_days(firstchunk_t,lastchunk_t).year();
+        VOUT << "\n[" << difference << "] days (" << years << " years, "<< months << " months, " << days << " days) from [" << std::put_time(std::localtime(&firstchunk_t),"%F %T") << "] to [" << std::put_time(std::localtime(&lastchunk_t),"%F %T") << ']';
+    }
+    unsigned long total_minutes = Chunks_total_minutes(log.get_Chunks());
+    auto [logged_years, logged_months, logged_days] = static_cast<ymd_tuple>(years_months_days(0,total_minutes*60));
+    VOUT << "\nTotal time logged = " << total_minutes << " minutes (" << logged_years << " years, " << logged_months << " months, " << logged_days << " days)\n";
+    if (log.num_Chunks() > 0) {
+        double av_duration = (double) total_minutes / (double) log.num_Chunks();
+        VOUT << "\nAverage Chunk duration = " << to_precision_string(av_duration) << " minutes\n";
+    }
+    if (log.num_Entries() > 0) {
+        unsigned long total_characters = Entries_total_text(log.get_Entries());
+        VOUT << "\nTotal characters logged = " << total_characters << " (approx. " << to_precision_string((double) total_characters / 3000.0) << " letter sized written pages, or " << to_precision_string((double) total_characters / (150.*3000.0)) << " books)\n";
+    }
+
+    VOUT << '\n';
+
+}
+
+const Node_ID convert_TL_DILref_to_Node_ID(TL_entry_content &TLentrycontent, Log & log, std::string chunkid_str, int &nodeid_result) {
+    std::string nodeid_str(TLentrycontent.dil.title.chars());
+    try {
+        const Node_ID nodeid(nodeid_str);
+
+        nodeid_result = 1;
+        return nodeid;
+
+    } catch (ID_exception idexception) {
+
+        unsigned int mins_duration = 0;
+        if (!(log.get_Chunks().empty())) {
+            time_t thischunk = time_stamp_time(chunkid_str);
+            time_t laterchunk = log.get_Chunks().front()->get_open_time();
+            mins_duration = (laterchunk - thischunk) / 60;
+        }
+
+        char decision('x');
+        if (manual_decisions) {
+            decision = manual_fix_choice(chunkid_str, nodeid_str, TLentrycontent.htmltext.chars(), mins_duration);
+
+        } else {
+            VOUT << "Chunk with invalid Node ID encountered. Applying automatic fix.\n";
+            std::string chunkcontent(TLentrycontent.htmltext.chars());
+            std::size_t entrypos = chunkcontent.find("<!-- entry Begin");
+            if (entrypos != std::string::npos) {
+                decision = 'l';
+            } else {
+                if (mins_duration < auto_eliminate_duration_threshold)
+                    decision = 'e';
+                else
+                    decision = 'l';
+            }
+        }
+
+        if (decision == 'l') {
+            ADDWARNING(__func__, "invalid Node ID in Log chunk [" + chunkid_str + "] replaced with Lost-and-Found Node");
+            ++num_fixes_applied;
+            nodeid_result=1;
+            return Lost_and_Found_node;
+
+        } else {
+            if (decision == 's') {
+                VOUT << "\nAlternative Node ID: ";
+                std::string enterstr;
+                std::getline(cin, enterstr);
+                try {
+                    const Node_ID alt_nodeid(enterstr);
+                    ++num_fixes_applied;
+                    nodeid_result=1;
+                    return alt_nodeid;
+
+                } catch (ID_exception idexception) {
+                    VOUT << "\nUnforuntately, that one was invalid as well.\n";
+                    ADDERROR(__func__, "invalid alternate Node ID (" + enterstr + ") provided by user at TL chunk [" + chunkid_str + "], " + idexception.what());
+                    nodeid_result=-1;
+                    return Null_node;
+
+                }
+            } else {
+                if (decision == 'e') {
+                    ADDWARNING(__func__, "invalid Node ID in Log chunk [" + chunkid_str + "] eliminated per user instruction");
+                    VOUT << "\nEliminating that node.\n";
+                    ++num_fixes_applied;
+                    nodeid_result=0;
+                    return Null_node;
+
+                } else {
+                    VOUT << "\nExiting.\n";
+                    ADDERROR(__func__, "invalid Node ID (" + nodeid_str + ") at TL chunk [" + chunkid_str + "], " + idexception.what());
+                    nodeid_result=-1;
+                    return Null_node;
+
+                }
+            }
+        }
+    }
+    // never gets here
+}
+
+/**
  * Convert a complete Task Log to Log format.
  * 
  * Note that this function carries out the entire conversion in memory.
@@ -234,7 +363,7 @@ char manual_fix_choice(Log * log, std::string chunkid_str, std::string nodeid_st
  * @return pointer to Log, or nullptr.
  */
 std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
-    ERRHERE(".1");
+    ERRHERE(".top");
     if (!tl)
         ERRRETURNNULL(__func__, "unable to build Log from NULL Task_Log");
 
@@ -243,15 +372,15 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
     if (!log)
         ERRRETURNNULL(__func__, "unable to initialize Log");
 
-    ERRHERE(".2");
+    ERRHERE(".revparse");
     // Add all the TL_entry_content chunks to the Log while extracting Log_entry objects
     TL_entry_content * tlec; // just a momentary holder
-    std::string TLfilename; 
+    std::string TLfilename;
     while ((tlec = tl->get_previous_task_log_entry()) != NULL) {
 
-        // This unique_ptr should be automatically deleting chunk objects on each iteration, as
+        // This unique_ptr will be automatically deleting chunk objects on each iteration, as
         // well as if the function returns by error.
-        std::unique_ptr<TL_entry_content> TLentrycontent(std::make_unique<TL_entry_content>(*tlec));
+        std::unique_ptr<TL_entry_content> TLentrycontent(tlec); // captures ownership
 
         // detect TL file change
         // previously processed chunk, which should now be at the front of the chunks
@@ -262,79 +391,34 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
                     ERRRETURNNULL(__func__,"unable to assign Log breakpoint without any Log chunks");
 
                 log->get_Breakpoints().add_earlier_Breakpoint(*log->get_Chunks().front());
+
             }
             TLfilename = TLentrycontent->source.file.chars();
         }
 
         // convert TL_entry_content into Log_chunk
         const Log_chunk_ID chunkid(TimeStampYmdHM(TLentrycontent->_chunkstarttime));
-        try {
-            const Node_ID nodeid(TLentrycontent->dil.title.chars());
-            log->add_earlier_Chunk(chunkid.key().idT,nodeid);
 
-        } catch (ID_exception idexception) {
-            unsigned int mins_duration = 0;
-            if (!(log->get_Chunks().empty())) {
-                time_t thischunk = time_stamp_time(chunkid.str());
-                time_t laterchunk = log->get_Chunks().front()->get_epoch_time();
-                mins_duration = (laterchunk-thischunk)/60;
-            }
-            char decision('x');
-            if (manual_decisions) {
-                decision = manual_fix_choice(log.get(),chunkid.str(),TLentrycontent->dil.title.chars(),TLentrycontent->htmltext.chars(),mins_duration);
-            } else {
-                VOUT << "Chunk with invalid Node ID encountered. Applying automatic fix.\n";
-                std::string chunkcontent(TLentrycontent->htmltext.chars());
-                std::size_t entrypos = chunkcontent.find("<!-- entry Begin");
-                if (entrypos!=std::string::npos) {
-                    decision = 'l';
-                } else {
-                    if (mins_duration<auto_eliminate_duration_threshold)
-                        decision = 'e';
-                    else
-                        decision = 'l';
-                }
-            }
+        ERRHERE(".revparse."+chunkid.str());
+        int nodeid_result = 0; // 0 = skip chunk, 1 = keep chunk, -1 = fail conversion
+        const Node_ID nodeid(convert_TL_DILref_to_Node_ID(*TLentrycontent,*log, chunkid.str(), nodeid_result));
 
-            if (decision=='l') {
-                ADDWARNING(__func__,"invalid Node ID in Log chunk ["+chunkid.str()+"] replaced with Lost-and-Found Node");
-                log->add_earlier_Chunk(chunkid.key().idT,Lost_and_Found_node);
+        if (nodeid_result<0)
+            ERRRETURNNULL(__func__,"undefined Log conversion directive, exiting");
 
-            } else {
-                if (decision=='s') {
-                    VOUT << "\nAlternative Node ID: ";
-                    std::string enterstr;
-                    std::getline(cin,enterstr);
-                    try {
-                        const Node_ID alt_nodeid(enterstr);
-                        log->add_earlier_Chunk(chunkid.key().idT,alt_nodeid);
-
-                    } catch (ID_exception idexception) {
-                        VOUT << "\nUnforuntately, that one was invalid as well.\n";
-                        ERRRETURNNULL(__func__,"invalid alternate Node ID ("+enterstr+") provided by user at TL chunk ["+chunkid.str()+"], "+idexception.what());
-
-                    }
-                } else {
-                    if (decision=='e') {
-                        ADDWARNING(__func__,"invalid Node ID in Log chunk ["+chunkid.str()+"] eliminated per user instruction");
-                        VOUT << "\nEliminating that node.\n";
-                        continue; // This skips parsing the chunk for entries as well.
-
-                    } else {
-                        VOUT << "\nExiting.\n";
-                        ERRRETURNNULL(__func__,"invalid Node ID ("+std::string(TLentrycontent->dil.title.chars())+") at TL chunk ["+chunkid.str()+"], "+idexception.what());
-                    }
-                }
-            }
-
+        if (nodeid_result>0) {
+            log->add_earlier_Chunk(chunkid.key().idT,nodeid,TLentrycontent->chunkendtime);
+        } else {
+            continue; // This skips parsing the chunk for entries as well.
         }
-        
+
         if (convert_TL_Chunk_to_Log_entries(*log,TLentrycontent->htmltext.chars())<1)
             ADDWARNING(__func__,"no Log entries found in Log chunk ["+chunkid.str()+']');
 
     }
 
     // Collect the first-TL-file as breakpoint as well
+    ERRHERE(".earliest");
     if (log->get_Chunks().empty())
         ERRRETURNNULL(__func__, "no Log chunks found");
 
@@ -343,15 +427,18 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
 
     log->get_Breakpoints().add_earlier_Breakpoint(*log->get_Chunks().front());
 
+    ERRHERE(".verify");
+    show_metrics(*log);
+
     return log;
 }
 
 std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
-    ERRHERE(".1");
+    ERRHERE(".top");
     key_pause();
 
     VOUT << "Let's prepare the Task Log for parsing:\n\n";
-    ERRHERE(".2");
+    ERRHERE(".prep");
 
     Task_Log * tl;
     if (!(tl = get_Task_Log())) {
@@ -370,8 +457,8 @@ std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
         VOUT << "     duration is less than " << auto_eliminate_duration_threshold << " then the chunk is eliminated.\n";
         VOUT << '\n';
     }
-    VOUT << "Now, let's convert the Task Log to Log format:\n\n";
-    ERRHERE(".3");
+    VOUT << "Now, let's convert the Task Log to Log format:\n\n"; VOUT.flush();
+    ERRHERE(".convert");
     //ConversionMetrics convmet;
     std::unique_ptr<Log> log(convert_TL_to_Log(tl));
     if (log == nullptr) {
@@ -381,6 +468,12 @@ std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
     VOUT << "\nTask Log converted to Log with " << log->num_Entries() << " entries.\n\n";
 
     key_pause();
+
+    ERRHERE(".test");
+    if (!test_Log_data(*log)) {
+        EOUT << "\nConverted Log data sampling test did not complete.\n";
+        Exit_Now(exit_conversion_error);
+    }
 
     return std::make_pair(tl, std::move(log));
 }

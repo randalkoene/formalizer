@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>{{ title }}</title>
+  </head>
+
+  <style>
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size:12px
+  }
+  table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    width: 100%;
+  }
+  .entrycell td {
+    background-color: #007f7f;
+  }
+  tr:hover {
+    background-color: #f5f5f5;
+  }
+  </style>
+
+  <body>
+
+    <h1>{{ header }}</h1>
+
+    This test page was generated as a test of Task Log to Log conversion with <code>dil2graph</code>.
+
+    <h2>{{ breakpoints_header }}</h2>
+
+    <table class="breakpoints">
+    {{ breakpoints }}
+    </table>
+
+    <h2>{{ chunks_header }}</h2>
+
+    <table class="chunks">
+    {{ chunks }}
+    </table>
+
+  </body>
+
+</html>

@@ -15,6 +15,7 @@ CCPP=g++
 FORMALIZERPATH=$(HOME)/src/formalizer
 COREINCLUDEPATH=$(FORMALIZERPATH)/core/include
 CORELIBPATH=$(FORMALIZERPATH)/core/lib
+FORMALIZERPATH_THIS=$(FORMALIZERPATH)/tools/dil2graph
 
 DIL2AL=$(HOME)/src/dil2al
 
@@ -138,13 +139,16 @@ init: FORCE
 $(OBJ)/dil2al_minimal.o: dil2al_minimal.cpp dil2al_minimal.hpp version.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) -c dil2al_minimal.cpp -o $(OBJ)/dil2al_minimal.o
 
+$(OBJ)/logtest.o: logtest.cpp logtest_templates.cpp logtest.hpp version.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\" -c logtest.cpp -o $(OBJ)/logtest.o
+
 $(OBJ)/tl2log.o: tl2log.cpp tl2log.hpp version.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) -c tl2log.cpp -o $(OBJ)/tl2log.o
 
 $(OBJ)/dil2graph.o: dil2graph.cpp dil2graph.hpp version.hpp $(OBJ)/dil2al_minimal.o
 	$(CCPP) $(CPPFLAGS) $(COLORS) -c dil2graph.cpp -o $(OBJ)/dil2graph.o
 
-dil2graph: $(OBJ)/dil2graph.o $(OBJ)/tl2log.o $(OBJ)/dil2al_minimal.o $(DIL2AL_OBJS) $(CORE_OBJS) $(ALT_REGEX)
+dil2graph: $(OBJ)/dil2graph.o $(OBJ)/tl2log.o $(OBJ)/logtest.o $(OBJ)/dil2al_minimal.o $(DIL2AL_OBJS) $(CORE_OBJS) $(ALT_REGEX)
 	$(CCPP) $(CPPFLAGS) $^ -o dil2graph $(LIB_PATH)
 
 clean:

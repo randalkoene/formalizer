@@ -39,6 +39,7 @@
 // Tool specific
 #include "dil2graph.hpp"
 #include "tl2log.hpp"
+#include "logtest.hpp"
 
 std::string server_long_id;
 
@@ -487,7 +488,7 @@ void print_version(std::string progname) {
 }
 
 void print_usage(std::string progname) {
-    std::cout << "Usage: " << progname << " [-d <dbname>] [-m] [-L|-D|-T]\n"
+    std::cout << "Usage: " << progname << " [-d <dbname>] [-m] [-L|-D|-T] [-o <testfile>]\n"
               << "       " << progname << " -v\n"
               << '\n'
               << "  Options:\n"
@@ -498,6 +499,8 @@ void print_usage(std::string progname) {
               << "    -D DIL hierarchy conversion only\n"
               << "    -T Task Log conversion only\n"
               << "    -v print version info\n"
+              << "    -o specify path of test output file\n"
+              << "       (default: " << testfilepath << ")\n"
               << '\n'
               << server_long_id << '\n'
               << '\n';
@@ -511,7 +514,7 @@ void process_commandline(int argc, char *argv[]) {
     int c;
     opterr = 0;
 
-    while ((c = getopt(argc, argv, "d:LDTm")) != EOF) {
+    while ((c = getopt(argc, argv, "d:LDTmo:")) != EOF) {
 
         switch (c) {
         case 'd':
@@ -532,6 +535,10 @@ void process_commandline(int argc, char *argv[]) {
 
         case 'T':
             tl_only = true;
+            break;
+
+        case 'o':
+            testfilepath = optarg;
             break;
 
         case 'v':
@@ -841,6 +848,7 @@ int main(int argc, char *argv[]) {
     }
 
     ERRHERE(".3");
+    VOUT << runnablename << " completed.\n";
 
     Exit_Now(exit_ok);
 }

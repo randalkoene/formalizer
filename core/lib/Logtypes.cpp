@@ -2,6 +2,7 @@
 // License TBD
 
 #include <iomanip>
+#include <numeric>
 
 #include "Logtypes.hpp"
 
@@ -160,6 +161,15 @@ std::string Log_chunk_ID_TimeStamp_to_string(const Log_TimeStamp idT) {
     return ss.str();
 }
 
+std::string Log_TimeStamp_to_Ymd_string(const Log_TimeStamp idT) {
+    std::stringstream ss;
+    ss << std::setfill('0')
+       << std::setw(4) << (int) idT.year
+       << std::setw(2) << (int) idT.month
+       << std::setw(2) << (int) idT.day;
+    return ss.str();
+}
+
 std::tm Log_TimeStamp::get_local_time() const {
     std::tm tm = { 0 };
     tm.tm_year = year-1900;
@@ -198,6 +208,126 @@ Log_entry_ID::Log_entry_ID(const Log_TimeStamp _idT): idkey(_idT) {
 
 Log_chunk_ID::Log_chunk_ID(const Log_TimeStamp _idT): idkey(_idT) {
     idS_cache = Log_chunk_ID_TimeStamp_to_string(idkey.idT);
+}
+
+/**
+ * Find index of Log chunk from its ID.
+ * 
+ * This implementation attempts to be quick about it by relying on the sorted
+ * order of Log chunks to apply a quick search method.
+ * (This is actually probably the same as using std::binary_search.)
+ * 
+ * @param chunks the list of pointers to Log chunks.
+ * @param chunk_id the Log chunk ID.
+ * @return the index in the list, or ::size() if not found.
+ */
+Log_chunk_ptr_deque::size_type Log_chunks_Deque::find(const Log_chunk_ID_key chunk_id) const {
+    if (size()<1)
+        return 0;
+    
+    long lowerbound = 0;
+    long upperbound = size()-1;
+    long tryidx = size()/2;
+
+    while (true) {
+
+        if (get_tbegin_key(tryidx) == chunk_id)
+            return tryidx;
+
+        if (get_tbegin_key(tryidx) < chunk_id) {
+            lowerbound = tryidx + 1;
+        } else {
+            upperbound = tryidx - 1;
+        }
+
+        if (lowerbound > upperbound)
+            return size(); // not found
+
+        tryidx = lowerbound + ((upperbound - lowerbound) / 2);
+    }
+
+    // never gets here
+}
+
+/**
+ * This converts the list of Log breakpoint Log chunk IDs into a list of
+ * indices into the list of Log chunks (in Log::chunks).
+ * 
+ * Note: All Log chunks must be loaded into memory before calling this function.
+ * 
+ * If a breakpoint was not found then the corresponding element of the vector
+ * of indices has the value log::num_Chunks(), pointing beyond all valid
+ * Log chunks in the deque.
+ * 
+ * @param log a Log object where all Log chunks are in the chunks deque.
+ * @return a vector of indices into log::chunks.
+ */
+std::vector<Log_chunks_Deque::size_type> Breakpoint_Indices(Log & log) {
+    std::vector<Log_chunks_Deque::size_type> indices(log.num_Breakpoints());
+    for (std::deque<Log_chunk_ID_key>::size_type i = 0; i < log.num_Breakpoints(); ++i) {
+        Log_chunk_ptr_deque::size_type idx = log.get_Chunks().find(log.breakpoints.get_chunk_id_key(i));
+        if (idx>=log.get_Chunks().size()) {
+            ADDERROR(__func__,"Log breakpoint["+std::to_string(i)+"]="+log.breakpoints.get_chunk_id_str(i)+" is not a known Log chunk");
+            indices[i] = log.num_Chunks(); // indicates not found
+        } else {
+            indices[i] = idx;
+        }
+    }
+    return indices;
+}
+
+/**
+ * Find the frequency distribution for the number of Log chunks per
+ * Log breakpoint.
+ * 
+ * Note: All Log chunks must be loaded into memory before calling this function.
+ * 
+ * @param log a Log object where all Log chunks are in the chunks deque.
+ * @return a vector of counts.
+ */
+std::vector<Log_chunks_Deque::size_type> Chunks_per_Breakpoint(Log & log) {
+    auto chunkindices = Breakpoint_Indices(log);
+    chunkindices.push_back(log.num_Chunks() - 1); // append the latest Log chunk index
+    auto diff = chunkindices;                     // easy way to make sure it's the same type and size
+    std::adjacent_difference(chunkindices.begin(), chunkindices.end(), diff.begin());
+    diff.erase(diff.begin()); // trim diff[0], see std::adjacent_difference()
+    return diff;
+}
+
+/**
+ * Calculate the total number of minutes logged for all Log chunks in the
+ * specified deque.
+ * 
+ * @param chunks a deque containing a sorted list Log_chunk pointers.
+ * @return the sum total of time logged in minutes.
+ */
+unsigned long Chunks_total_minutes(Log_chunks_Deque & chunks) {
+    struct {
+        unsigned long operator()(unsigned long total, const std::unique_ptr<Log_chunk> & chunkptr) {
+            if (chunkptr)
+                return total + chunkptr->duration_minutes();
+            return total;
+        }
+    } duration_adder;
+    return std::accumulate(chunks.begin(), chunks.end(), (unsigned long) 0, duration_adder);
+}
+
+/**
+ * Calculate the total number of characters in Log entry description text in the
+ * specified map.
+ * 
+ * @param entries a map containing Log_entry_ID_key and Log_entry smart pointer pairs.
+ * @return the sum total of text characters.
+ */
+unsigned long Entries_total_text(Log_entries_Map & entries) {
+    struct {
+        unsigned long operator()(unsigned long total, const Log_entries_Map::value_type & entrypair) {
+            if (entrypair.second)
+                return total + entrypair.second->get_entrytext().size();
+            return total;
+        }
+    } text_adder;
+    return std::accumulate(entries.begin(), entries.end(), (unsigned long) 0, text_adder);
 }
 
 } // namespace fz

@@ -10,6 +10,7 @@
 #include <memory>
 #include <iomanip>
 #include <sstream>
+#include <fstream>
 
 #include "error.hpp"
 #include "general.hpp"
@@ -91,6 +92,35 @@ std::vector<std::string> split(const std::string &s, char delim) {
     std::vector<std::string> elems;
     split(s, delim, std::back_inserter(elems));
     return elems;
+}
+
+/**
+ * Read the full contents of a (text) file into a string.
+ * 
+ * The contents of the receiving string are replaced.
+ * For efficiency, this function finds the size of the file and reserves space
+ * in the string before pulling in the content.
+ * 
+ * @param path of the file.
+ * @param s reference to the receiving string.
+ * @param readstate returns the iostate flags when provided (default: nullptr)
+ * @return true if the read into string was successful.
+ */
+bool file_to_string(std::string path, std::string & s, std::ifstream::iostate * readstate) {
+    std::ifstream ifs(path, std::ifstream::in);
+
+    if (readstate) (*readstate) = ifs.rdstate();
+
+    if (ifs.fail())
+        ERRRETURNFALSE(__func__,"unable to open file "+path);
+
+    ifs.seekg(0, std::ios::end);
+    s.reserve(ifs.tellg());
+    ifs.seekg(0, std::ios::beg);
+
+    s.assign((std::istreambuf_iterator<char>(ifs)),std::istreambuf_iterator<char>());
+    ifs.close();
+    return true;
 }
 
 } // namespace fz

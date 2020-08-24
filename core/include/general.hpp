@@ -14,6 +14,7 @@
 #define __GENERAL_HPP (__COREVERSION_HPP)
 
 #include <vector>
+#include <fstream>
 
 namespace fz {
 
@@ -59,6 +60,14 @@ inline std::string &rtrim(std::string &s, const char *t = " \t\n\r\f\v") {
  */
 inline std::string &trim(std::string &s, const char *t = " \t\n\r\f\v") {
     return ltrim(rtrim(s, t), t);
+}
+
+bool file_to_string(std::string path, std::string & s, std::ifstream::iostate * readstate = nullptr);
+
+inline std::string string_from_file(std::string path, std::ifstream::iostate * readstate = nullptr) {
+    std::string s;
+    file_to_string(path,s,readstate);
+    return s;
 }
 
 } // namespace fz
