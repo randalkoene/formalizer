@@ -29,6 +29,8 @@ using namespace fz;
     std::string test_template_dir("./templates");
 #endif
 
+enum section_status { section_ok, section_out_of_bounds, section_fist_chunk_not_found };
+
 /**
  * This structure contains all the necessary data and rendering functions
  * to convert the content from a Breakpoint start in a Log to its end
@@ -45,14 +47,45 @@ using namespace fz;
  * @param _bridx index to the Breakpoint for which to convert a section. 
  */
 struct section_Converter {
+protected:
+    section_status status;
+public:
     inja::Environment env;
+
     Graph & graph;
     Log & log;
     Log_chunk_ID_key_deque::size_type bridx;
-    std::string rendered_section;
+
+    std::string yyyymmdd;
+    Log_chunk_ptr_deque::size_type chunk_begin_idx; // index of first chunk in section
+    Log_chunk_ptr_deque::size_type chunk_end_limit; // one past index of last chunk in section
+
+    std::string rendered_section; /// Holds the result of section rendering process.
 
     section_Converter() = delete; // explicitly forbid the default constructor, just in case
-    section_Converter(Graph & _graph, Log & _log, Log_chunks_Deque::size_type _bridx): graph(_graph), log(_log), bridx(_bridx) {}
+    section_Converter(Graph & _graph, Log & _log, Log_chunks_Deque::size_type _bridx): status(section_ok), graph(_graph), log(_log), bridx(_bridx) {
+        if (bridx>=log.num_Breakpoints()) {
+            status = section_out_of_bounds;
+            ADDERROR(__func__,"section out of bounds at breakpoint index "+std::to_string(bridx));
+
+        } else {
+            yyyymmdd = log.get_Breakpoint_Ymd_str(bridx);
+            chunk_begin_idx = log.find_Breakpoint_first_chunk(bridx);
+
+            if (chunk_begin_idx>=log.num_Chunks()) {
+                status = section_fist_chunk_not_found;
+                ADDERROR(__func__,"section first chunk not found "+log.get_Breakpoint_first_chunk_id_str(bridx));
+
+            } else {
+                auto next_idx = bridx+1;
+                if (next_idx>=log.num_Breakpoints()) {
+                    chunk_end_limit = log.num_Chunks();
+                } else {
+                    chunk_end_limit = log.find_Breakpoint_first_chunk(next_idx);
+                }
+            }
+        }
+    }
 
     enum template_id_enum {
         section_temp,
@@ -106,7 +139,6 @@ struct section_Converter {
         return true;
     }
 
-    std::string yyyymmdd;
     std::string prevsection;
     std::string nextsection;
     bool have_looked_for_chunks = false; // empty chunks is possible
@@ -115,12 +147,18 @@ struct section_Converter {
 
     /**
      * Before calling this function:
-     * 1. Make sure that yyyymmdd has been derived from Breakpoint.
-     * 2. Make sure that prevsection has been generated with render_prevsection().
-     * 3. Make sure that nextsection has been generated with render_nextsection().
-     * 4. Make sure that chunks has been generated.
+     * 1. Make sure that `yyyymmdd` has been derived from Breakpoint.
+     * 2. Make sure that `prevsection` has been generated with `render_prevsection()`.
+     * 3. Make sure that `nextsection` has been generated with `render_nextsection()`.
+     * 4. Make sure that `chunks` has been generated.
      */
     bool render_section() {
+        if (status!=section_ok)
+            ERRRETURNFALSE(__func__,"section status does not permit rendering");
+
+        if (yyyymmdd.empty())
+            ERRRETURNFALSE(__func__,"the section needs an identified Log breakpoint");
+
         if (templates.empty()) {
             if (!load_templates())
                 ERRRETURNFALSE(__func__,"unable to load templates");
@@ -157,13 +195,12 @@ struct section_Converter {
     /**
      * Before calling this function:
      * 1. Determine if the section `has_prev_section` from the list of Breakpoints.
-     * 2. Make sure that prev_yyyymmdd has been derived from prev Breakpoint (if there is one).
+     * 2. Make sure that `prev_yyyymmdd` has been derived from prev Breakpoint (if there is one).
      */
     bool render_prevsection() {
         nlohmann::json prevsectiondata;
-        prevsectiondata["prev_yyyymmdd"] = prev_yyyymmdd;
-        std::ifstream::iostate template_rdstate;
-        if (has_prev_section) {
+        prevsectiondata["prev_yyyymmdd"] = prev_yyyymmdd; //*** find this!
+        if (has_prev_section) { // *** find this!
             prevsection = env.render(templates[section_prev_temp],prevsectiondata);
         } else {
             prevsection = env.render(templates[section_noprev_temp],prevsectiondata);
@@ -177,13 +214,12 @@ struct section_Converter {
     /**
      * Before calling this function:
      * 1. Determine if the section `has_next_section` from the list of Breakpoints.
-     * 2. Make sure that next_yyyymmdd has been derived from next Breakpoint (if there is one).
+     * 2. Make sure that `next_yyyymmdd` has been derived from next Breakpoint (if there is one).
      */
     bool render_nextsection() {
         nlohmann::json nextsectiondata;
-        nextsectiondata["next_yyyymmdd"] = next_yyyymmdd;
-        std::ifstream::iostate template_rdstate;
-        if (has_next_section) {
+        nextsectiondata["next_yyyymmdd"] = next_yyyymmdd; //*** find this!
+        if (has_next_section) { // *** find this!
             nextsection = env.render(templates[section_next_temp],nextsectiondata);
         } else {
             nextsection = env.render(templates[section_nonext_temp],nextsectiondata);
@@ -193,9 +229,105 @@ struct section_Converter {
 
     std::string chunkbeginyyyymmddhhmm;
     std::string chunkendIyyyymmddhhmm; // wrap in <I></I>
+    std::string entry;
 
+    /**
+     * This renders all Log chunks within the section
+     * into the `chunks` string variable.
+     */
     bool render_chunks() {
+        chunks.clear();
 
+        for (unsigned long c = chunk_begin_idx; c < chunk_end_limit; ++c) {
+
+            Log_chunk & chunk = *(log.get_chunk(c);
+            nlohmann::json chunkdata;
+            chunkdata["chunkbeginyyyymmddhhmm"] = chunk.get_tbegin_str();
+
+            { // scope for figuring out ALprev
+                std::string ALprev;
+                if (c <= 0) {
+                    ALprev = templates[chunk_ALnoprev_temp]; // no need to render
+                } else {
+                    nlohmann::json ALprevdata;
+                    if ((c - 1) < chunk_begin_idx) {
+                        ALprevdata["ALprevsectionyyyymmdd"] = log.get_Breakpoint_Ymd_str(bridx - 1);
+                    } else {
+                        ALprevdata["ALprevsectionyyyymmdd"] = yyyymmdd;
+                    }
+                    ALprevdata["ALprevchunkstartyyyymmddhhmm"] = log.get_chunk(c - 1)->get_tbegin_str();
+                    ALprev = env.render(templates[chunk_ALprev_temp], ALprevdata);
+                }
+                chunkdata["ALprev"] = ALprev;
+            }
+
+            { // scope for figuring out Alnext
+                std::string ALnext;
+                if ((c + 1) >= log.num_Chunks()) {
+                    ALnext = templates[chunk_ALnonext_temp]; // no need to render
+                } else {
+                    nlohmann::json ALnextdata;
+                    if ((c + 1) >= chunk_end_limit) {
+                        ALnextdata["ALnextsectionyyyymmdd"] = "task-log."+log.get_Breakpoint_Ymd_str(bridx + 1)+".html#";
+                    } else {
+                        ALnextdata["ALnextsectionyyyymmdd"] = "#"; // All but the last in section are relative!
+                    }
+                    ALnextdata["ALnextchunkstartyyyymmddhhmm"] = log.get_chunk(c + 1)->get_tbegin_str();
+                    ALnext = env.render(templates[chunk_ALnext_temp], ALnextdata);
+                }                
+                chunkdata["ALnext"] = ALnext;
+            }
+
+            chunkdata["nodetopicid"] = do this;
+            chunkdata["nodeid"] = do this;
+            chunkdata["nodetopictitle"] = do this;
+
+            { // scope for figuring out nodeprev
+                std::string nodeprev;
+                if (!chunk.get_node_prev_chunk()) {
+                    nodeprev = templates[chunk_nodenoprev_temp]; // no need to render
+                } else {
+                    nlohmann::json nodeprevdata;
+                    if (chunk.get_node_prev_chunk() < chunk_begin_idx) { CONTINUE HERE... GET SECTION IT IS IN
+                        nodeprevdata["nodeprevsectionyyyymmdd"] = log.get_Breakpoint_Ymd_str(bridx - 1);
+                    } else {
+                        nodeprevdata["nodeprevsectionyyyymmdd"] = yyyymmdd;
+                    }
+                    nodeprevdata["nodeprevchunkstartyyyymmddhhmm"] = chunk.get_node_prev_chunk()->get_tbegin_str();
+                    nodeprev = env.render(templates[chunk_nodeprev_temp], nodeprevdata);
+                }
+                chunkdata["nodeprev"] = nodeprev;
+            }
+
+            { // scope for figuring out nodeprev
+                std::string nodenext;
+                if (!chunk.get_node_next_chunk()) {
+                    nodenext = templates[chunk_nodenonext_temp]; // no need to render
+                } else {
+                    nlohmann::json nodenextdata;
+                    if (chunk.get_node_next_chunk() < chunk_begin_idx) { CONTINUE HERE... GET SECTION IT IS IN
+                        nodenextdata["nodenextsectionyyyymmdd"] = "task-log."+log.get_Breakpoint_Ymd_str(bridx - 1)+".html#";
+                    } else {
+                        nodenextdata["nodenextsectionyyyymmdd"] = "#"; // all that are in the same section!
+                    }
+                    nodenextdata["nodenextchunkstartyyyymmddhhmm"] = chunk.get_node_next_chunk()->get_tbegin_str();
+                    nodenext = env.render(templates[chunk_nodenext_temp], nodenextdata);
+                }
+                chunkdata["nodenext"] = nodenext;
+            }
+
+
+            chunkdata["chunkendIyyyymmddhhmm"] = do this;
+
+            // Let's hope for or enforce valid rapid-access `entries` vector.
+            auto entries = chunk.get_entries();
+            for (unsigned long e = 0; e < entries.size(); ++e) {
+                this still needs doing
+            }
+            chunkdata["entries"] = ;
+
+            chunks += env.render(templates[chunk_temp],chunks);
+        }
     }
 
     bool render_entry() {
@@ -203,6 +335,7 @@ struct section_Converter {
     }
 
     //*** entry_withnode uses the same nodeprev and nodenext templates as chunk
+    do this too
 
 };
 

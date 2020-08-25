@@ -250,6 +250,89 @@ Log_chunk_ptr_deque::size_type Log_chunks_Deque::find(const Log_chunk_ID_key chu
 }
 
 /**
+ * Parse all chunks connected to the Log and find the sequence that
+ * belongs to a specific Node.
+ * 
+ * This is used by Log::setup_Chunk_nodeprevnext(), and it can also
+ * be used independent of the reference parameters in the Log_chunk
+ * objects, which even works for arbitrary loaded lists of Log chunks.
+ * 
+ * @param node_id of the Node for which to collect Log chunks.
+ * @return a deque sorted list of smart pointers to all chunks found.
+ */
+std::deque<Log_chunk *> Log::get_Node_chunks_fullparse(const Node_ID node_id) {
+    std::deque<Log_chunk *> res;
+    for (auto it = chunks.begin(); it<chunks.end(); ++it) {
+        if ((*it)->get_NodeID().key().idT == node_id.key().idT) {
+            res.emplace_back(it->get());
+        }
+    }
+    return res;
+}
+
+/**
+ * Quickly walk through the reference chain that belongs to the
+ * specified Node and return all of its Log chunks.
+ * 
+ * Note that this function depends on valid rapid-access
+ * `node_prev_chunk` and `node_next_chunk` variables in each
+ * Log chunk.
+ * 
+ * @param node_id of the Node for which to collect Log chunks.
+ * @return a deque sorted list of smart pointers to all chunks found.
+ */
+std::deque<Log_chunk *> Log::get_Node_chunks(const Node_ID node_id) {
+    std::deque<Log_chunk *> res;
+    for (auto it = chunks.begin(); it<chunks.end(); ++it) {
+        if ((*it)->get_NodeID().key().idT == node_id.key().idT) {
+            res.emplace_back(it->get());
+            break; // Do the rest via the rapid-access pointer chain
+        }
+    }
+
+    if (res.empty())
+        return res;
+
+    for (Log_chunk * chunk = res.front()->get_node_next_chunk(); chunk != nullptr; chunk = chunk->get_node_next_chunk()) {
+        res.emplace_back(chunk);
+    }
+    return res;
+}
+
+/**
+ * Parse the deque list of Log chunks and assign all references in
+ * `node_prev_chunk_id`, `node_next_chunk_id`, and their rapid-access
+ * pointers.
+ */
+void Log::setup_Chunk_nodeprevnext() {
+ turns out this is a little trickier... unless I have the graph and all the nodes
+}
+
+Log_entry_iterator_interval Log::get_Entries_interval(const Log_entry_ID_key interval_front, const Log_entry_ID_key interval_back) {
+add this
+}
+
+Log_entry_iterator_interval Log::get_Entries_interval(const Log_entry_ID_key interval_front, unsigned long n) {
+add this
+}
+
+Log_chunk_ID_interval Log::get_Chunks_ID_t_interval(std::time_t t_from, std::time_t t_before) {
+add this
+}
+
+Log_chunk_ID_interval Log::get_Chunks_ID_n_interval(std::time_t t_from, unsigned long n) {
+add this
+}
+
+Log_chunk_index_interval Log::get_Chunks_index_t_interval(std::time_t t_from, std::time_t t_before) {
+add this
+}
+
+Log_chunk_index_interval Log::get_Chunks_index_n_interval(std::time_t t_from, unsigned long n) {
+add this
+}
+
+/**
  * This converts the list of Log breakpoint Log chunk IDs into a list of
  * indices into the list of Log chunks (in Log::chunks).
  * 

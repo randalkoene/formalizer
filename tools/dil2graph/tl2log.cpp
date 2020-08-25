@@ -350,10 +350,16 @@ const Node_ID convert_TL_DILref_to_Node_ID(TL_entry_content &TLentrycontent, Log
 /**
  * Convert a complete Task Log to Log format.
  * 
- * Note that this function carries out the entire conversion in memory.
+ * Note A: This function carries out the entire conversion in memory.
  * If the Task Log is too large to hold all its entries in memory during
  * conversion then a different, stream-based or paging implementation of
  * this conversion will need to be used.
+ * 
+ * Note B: The `Tlentrycontent->dilprev` and `->dilnext` data is not used
+ * to set up `node_prev_chunk_id` and `node_next_chunk_id`, because
+ * before all chunks are in the Log it is impossible to verify if those
+ * point to existing Log chunks. Instead, the `Log::setup_Chunk_nodeprevnext()`
+ * function is called at the end of conversion to set up those references.
  * 
  * ***Possible future improvement: By providing a valid Graph to this
  * function it would be possible to test if Nodes referenced by chunks
@@ -406,6 +412,11 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
         if (nodeid_result<0)
             ERRRETURNNULL(__func__,"undefined Log conversion directive, exiting");
 
+        // Note that node_prev_chunk_id and node_next_chunk_id are assigned later.
+        TLentrycontent->dilprev.title;
+something here to get the next two, which are chunk pointers:
+            filetitle_t dilprev, dilnext;
+
         if (nodeid_result>0) {
             log->add_earlier_Chunk(chunkid.key().idT,nodeid,TLentrycontent->chunkendtime);
         } else {
@@ -426,6 +437,9 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
         ERRRETURNNULL(__func__, "no Task Log files found");
 
     log->get_Breakpoints().add_earlier_Breakpoint(*log->get_Chunks().front());
+
+    // Set up the `node_prev_chunk_id` and `node_next_chunk_id` parameters
+    log->setup_Chunk_nodeprevnext();
 
     ERRHERE(".verify");
     show_metrics(*log);
