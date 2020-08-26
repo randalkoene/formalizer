@@ -70,7 +70,7 @@ public:
 
         } else {
             yyyymmdd = log.get_Breakpoint_Ymd_str(bridx);
-            chunk_begin_idx = log.find_Breakpoint_first_chunk(bridx);
+            chunk_begin_idx = log.get_chunk_first_at_Breakpoint(bridx);
 
             if (chunk_begin_idx>=log.num_Chunks()) {
                 status = section_fist_chunk_not_found;
@@ -81,7 +81,7 @@ public:
                 if (next_idx>=log.num_Breakpoints()) {
                     chunk_end_limit = log.num_Chunks();
                 } else {
-                    chunk_end_limit = log.find_Breakpoint_first_chunk(next_idx);
+                    chunk_end_limit = log.get_chunk_first_at_Breakpoint(next_idx);
                 }
             }
         }
@@ -232,110 +232,133 @@ public:
     std::string entry;
 
     /**
-     * This renders all Log chunks within the section
-     * into the `chunks` string variable.
+     * Render a Log chunk's references to preceding and following Log chunks.
+     */
+    std::string render_chunk_ALprev(unsigned long c) {
+        if (c==0) {
+            return templates[chunk_ALnoprev_temp]; // no need to render
+        }
+
+        nlohmann::json ALprevdata;
+        if ((c - 1) < chunk_begin_idx) {
+            ALprevdata["ALprevsectionyyyymmdd"] = log.get_Breakpoint_Ymd_str(bridx - 1);
+        } else {
+            ALprevdata["ALprevsectionyyyymmdd"] = yyyymmdd;
+        }
+        ALprevdata["ALprevchunkstartyyyymmddhhmm"] = log.get_chunk(c - 1)->get_tbegin_str();
+        return env.render(templates[chunk_ALprev_temp], ALprevdata);
+    }
+
+    std::string render_chunk_ALnext(unsigned long c) {
+        if ((c + 1) >= log.num_Chunks()) {
+            return templates[chunk_ALnonext_temp]; // no need to render
+        }
+
+        nlohmann::json ALnextdata;
+        if ((c + 1) >= chunk_end_limit) {
+            ALnextdata["ALnextsectionyyyymmdd"] = "task-log."+log.get_Breakpoint_Ymd_str(bridx + 1)+".html#";
+        } else {
+            ALnextdata["ALnextsectionyyyymmdd"] = "#"; // All but the last in section are relative!
+        }
+        ALnextdata["ALnextchunkstartyyyymmddhhmm"] = log.get_chunk(c + 1)->get_tbegin_str();
+        return env.render(templates[chunk_ALnext_temp], ALnextdata);
+    }
+
+    std::string render_chunk_nodeprev(Log_chunk & chunk) {
+        if (!chunk.get_node_prev_chunk()) {
+            return templates[chunk_nodenoprev_temp]; // no need to render
+        }
+
+        nlohmann::json nodeprevdata;
+        // find the section of the previous chunk belonging to the same node
+        auto node_prev_bridx = log.find_Breakpoint_index_before_chunk(chunk.get_node_prev_chunk()->get_tbegin_key());
+        if (node_prev_bridx != bridx) {
+            nodeprevdata["nodeprevsectionyyyymmdd"] = log.get_Breakpoint_Ymd_str(node_prev_bridx);
+        } else {
+            nodeprevdata["nodeprevsectionyyyymmdd"] = yyyymmdd;
+        }
+        nodeprevdata["nodeprevchunkstartyyyymmddhhmm"] = chunk.get_node_prev_chunk()->get_tbegin_str();
+        return env.render(templates[chunk_nodeprev_temp], nodeprevdata);
+    }
+
+    std::string render_chunk_nodenext(Log_chunk & chunk) {
+        if (!chunk.get_node_next_chunk()) {
+            return templates[chunk_nodenonext_temp]; // no need to render
+        }
+
+        nlohmann::json nodenextdata;
+        // find the section of the next chunk belonging to the same node
+        auto node_next_bridx = log.find_Breakpoint_index_before_chunk(chunk.get_node_next_chunk()->get_tbegin_key());
+        if (node_next_bridx != bridx) {
+            nodenextdata["nodenextsectionyyyymmdd"] = "task-log."+log.get_Breakpoint_Ymd_str(node_next_bridx)+".html#";
+        } else {
+            nodenextdata["nodenextsectionyyyymmdd"] = "#"; // all that are in the same section!
+        }
+        nodenextdata["nodenextchunkstartyyyymmddhhmm"] = chunk.get_node_next_chunk()->get_tbegin_str();
+        return env.render(templates[chunk_nodenext_temp], nodenextdata);
+    }
+
+    /**
+     * Render all Log chunks within the section into the `chunks` string variable.
      */
     bool render_chunks() {
         chunks.clear();
 
         for (unsigned long c = chunk_begin_idx; c < chunk_end_limit; ++c) {
 
-            Log_chunk & chunk = *(log.get_chunk(c);
+            Log_chunk & chunk = *(log.get_chunk(c));
             nlohmann::json chunkdata;
+
             chunkdata["chunkbeginyyyymmddhhmm"] = chunk.get_tbegin_str();
 
-            { // scope for figuring out ALprev
-                std::string ALprev;
-                if (c <= 0) {
-                    ALprev = templates[chunk_ALnoprev_temp]; // no need to render
-                } else {
-                    nlohmann::json ALprevdata;
-                    if ((c - 1) < chunk_begin_idx) {
-                        ALprevdata["ALprevsectionyyyymmdd"] = log.get_Breakpoint_Ymd_str(bridx - 1);
-                    } else {
-                        ALprevdata["ALprevsectionyyyymmdd"] = yyyymmdd;
-                    }
-                    ALprevdata["ALprevchunkstartyyyymmddhhmm"] = log.get_chunk(c - 1)->get_tbegin_str();
-                    ALprev = env.render(templates[chunk_ALprev_temp], ALprevdata);
-                }
-                chunkdata["ALprev"] = ALprev;
+            chunkdata["ALprev"] = render_chunk_ALprev(c);
+
+            chunkdata["ALnext"] = render_chunk_ALnext(c);
+
+            if (graph.num_Topics()>0) {
+                Topic * maintopic = main_topic(graph,chunk);
+                chunkdata["nodetopicid"] = maintopic->get_tag();
+                chunkdata["nodetopictitle"] =maintopic->get_title();
+            } else {
+                chunkdata["nodetopicid"] = "{missing-topic}";
+                chunkdata["nodetopictitle"] = "{missing-title}";
             }
 
-            { // scope for figuring out Alnext
-                std::string ALnext;
-                if ((c + 1) >= log.num_Chunks()) {
-                    ALnext = templates[chunk_ALnonext_temp]; // no need to render
-                } else {
-                    nlohmann::json ALnextdata;
-                    if ((c + 1) >= chunk_end_limit) {
-                        ALnextdata["ALnextsectionyyyymmdd"] = "task-log."+log.get_Breakpoint_Ymd_str(bridx + 1)+".html#";
-                    } else {
-                        ALnextdata["ALnextsectionyyyymmdd"] = "#"; // All but the last in section are relative!
-                    }
-                    ALnextdata["ALnextchunkstartyyyymmddhhmm"] = log.get_chunk(c + 1)->get_tbegin_str();
-                    ALnext = env.render(templates[chunk_ALnext_temp], ALnextdata);
-                }                
-                chunkdata["ALnext"] = ALnext;
+            chunkdata["nodeid"] = chunk.get_NodeID().str();
+
+            chunkdata["nodeprev"] = render_chunk_nodeprev(chunk);
+
+            chunkdata["nodenext"] = render_chunk_nodenext(chunk);
+
+            time_t chunkclose = chunk.get_close_time();
+            if (chunkclose<0) {
+                chunkdata["chunkendIyyyymmddhhmm"] = "";
+            } else {
+                chunkdata["chunkendIyyyymmddhhmm"] = "<I>"+TimeStampYmdHM(chunkclose)+"</I>";
             }
-
-            chunkdata["nodetopicid"] = do this;
-            chunkdata["nodeid"] = do this;
-            chunkdata["nodetopictitle"] = do this;
-
-            { // scope for figuring out nodeprev
-                std::string nodeprev;
-                if (!chunk.get_node_prev_chunk()) {
-                    nodeprev = templates[chunk_nodenoprev_temp]; // no need to render
-                } else {
-                    nlohmann::json nodeprevdata;
-                    if (chunk.get_node_prev_chunk() < chunk_begin_idx) { CONTINUE HERE... GET SECTION IT IS IN
-                        nodeprevdata["nodeprevsectionyyyymmdd"] = log.get_Breakpoint_Ymd_str(bridx - 1);
-                    } else {
-                        nodeprevdata["nodeprevsectionyyyymmdd"] = yyyymmdd;
-                    }
-                    nodeprevdata["nodeprevchunkstartyyyymmddhhmm"] = chunk.get_node_prev_chunk()->get_tbegin_str();
-                    nodeprev = env.render(templates[chunk_nodeprev_temp], nodeprevdata);
-                }
-                chunkdata["nodeprev"] = nodeprev;
-            }
-
-            { // scope for figuring out nodeprev
-                std::string nodenext;
-                if (!chunk.get_node_next_chunk()) {
-                    nodenext = templates[chunk_nodenonext_temp]; // no need to render
-                } else {
-                    nlohmann::json nodenextdata;
-                    if (chunk.get_node_next_chunk() < chunk_begin_idx) { CONTINUE HERE... GET SECTION IT IS IN
-                        nodenextdata["nodenextsectionyyyymmdd"] = "task-log."+log.get_Breakpoint_Ymd_str(bridx - 1)+".html#";
-                    } else {
-                        nodenextdata["nodenextsectionyyyymmdd"] = "#"; // all that are in the same section!
-                    }
-                    nodenextdata["nodenextchunkstartyyyymmddhhmm"] = chunk.get_node_next_chunk()->get_tbegin_str();
-                    nodenext = env.render(templates[chunk_nodenext_temp], nodenextdata);
-                }
-                chunkdata["nodenext"] = nodenext;
-            }
-
-
-            chunkdata["chunkendIyyyymmddhhmm"] = do this;
 
             // Let's hope for or enforce valid rapid-access `entries` vector.
+            entry.clear();
             auto entries = chunk.get_entries();
             for (unsigned long e = 0; e < entries.size(); ++e) {
-                this still needs doing
+                // *** BEGIN DUMMY CODE
+                entry = "{missing-entries}";
+                break;
+                // *** END DUMMY CODE
             }
-            chunkdata["entries"] = ;
+            chunkdata["entries"] = entry;
 
             chunks += env.render(templates[chunk_temp],chunks);
         }
     }
 
     bool render_entry() {
-
+        return true;
     }
 
-    //*** entry_withnode uses the same nodeprev and nodenext templates as chunk
-    do this too
+    bool render_entry_withnode() {
+        return true;
+    }
 
 };
 

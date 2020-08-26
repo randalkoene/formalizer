@@ -46,6 +46,8 @@
 
 namespace fz {
 
+#define LOG_NULLKEY_STR "{null-key}"
+
 class Log_TimeStamp;
 class Log;
 class Log_entry;
@@ -85,7 +87,10 @@ struct Log_TimeStamp {
     uint8_t day;
     uint8_t month;
     int16_t year;
+
     Log_TimeStamp(): minor_id(0), minute(0), hour(0), day(0), month(0), year(0) {}
+    Log_TimeStamp(std::time_t t, bool testvalid = false, uint8_t _minorid = 0);
+
     bool operator< (const Log_TimeStamp& rhs) const {
         return std::tie(year,month,day,hour,minute,minor_id)
              < std::tie(rhs.year,rhs.month,rhs.day,rhs.hour,rhs.minute,rhs.minor_id);
@@ -94,42 +99,77 @@ struct Log_TimeStamp {
         return std::tie(year,month,day,hour,minute,minor_id)
              == std::tie(rhs.year,rhs.month,rhs.day,rhs.hour,rhs.minute,rhs.minor_id);
     }
+
     std::tm get_local_time() const;
-    time_t get_epoch_time() const {
-        std::tm tm = get_local_time();
-        return mktime(&tm);
-    }
+    time_t get_epoch_time() const { return mktime(&get_local_time()); }
 };
 
-union Log_entry_ID_key {
+/**
+ * Standardized Formalizer Log entry ID key.
+ * 
+ * The principal constructors (all but the default constructor) each
+ * call a validity test for the key format and can throw an
+ * ID_exception.
+ * 
+ * In various containers, the ordering of Log entry ID keys is determined
+ * by the provided operator<(). It calls its equivalent in Log_TimeStamp,
+ * where std::tie() enables lexicographical comparison, from the largest
+ * temporal component to the smallest.
+ * 
+ * The default constructor is provided for various special use cases such
+ * as initialization of containers. The `isnullkey()` function can test
+ * for this special state.
+ */
+struct Log_entry_ID_key {
     Log_TimeStamp idT;
 
-    Log_entry_ID_key(): idT() {}
+    Log_entry_ID_key(): idT() {} /// Try to use this one only for container element initialization and such.
+
     Log_entry_ID_key(const Log_TimeStamp& _idT);
+    Log_entry_ID_key(std::time_t t, uint8_t _minorid = 1): idT(t,true,_minorid) {}
     Log_entry_ID_key(std::string _idS);
-    bool operator< (const Log_entry_ID_key& rhs) const {
-        return (idT < rhs.idT);
-    }
-    bool operator== (const Log_entry_ID_key& rhs) const {
-        return (idT == rhs.idT);
-    }
+
+    bool isnullkey() const { return idT.month == 0; }
+
+    std::string str() const { return (isnullkey() ? LOG_NULLKEY_STR : Log_entry_ID_TimeStamp_to_string(idT)); }
+
+    bool operator< (const Log_entry_ID_key& rhs) const { return (idT < rhs.idT); }
+    bool operator== (const Log_entry_ID_key& rhs) const { return (idT == rhs.idT); }
 
 };
 
-union Log_chunk_ID_key {
+/**
+ * Standardized Formalizer Log chunk ID key.
+ * 
+ * The principal constructors (all but the default constructor) each
+ * call a validity test for the key format and can throw an
+ * ID_exception.
+ * 
+ * In various containers, the ordering of Log chunk ID keys is determined
+ * by the provided operator<(). It calls its equivalent in Log_TimeStamp,
+ * where std::tie() enables lexicographical comparison, from the largest
+ * temporal component to the smallest.
+ * 
+ * The default constructor is provided for various special use cases such
+ * as initialization of containers. The `isnullkey()` function can test
+ * for this special state.
+ */
+struct Log_chunk_ID_key {
     Log_TimeStamp idT;
 
-    Log_chunk_ID_key(): idT() {}
+    Log_chunk_ID_key(): idT() {} /// Try to use this one only for container element initialization and such.
+
     Log_chunk_ID_key(const Log_TimeStamp& _idT);
+    Log_chunk_ID_key(std::time_t t): idT(t,true) {}
     Log_chunk_ID_key(std::string _idS);
+
+    bool isnullkey() const { return idT.month == 0; }
+
     std::time_t get_epoch_time() const { return idT.get_epoch_time(); }
-    std::string str() const { return TimeStamp("%Y%m%d",idT.get_epoch_time()); }
-    bool operator< (const Log_chunk_ID_key& rhs) const {
-        return (idT < rhs.idT);
-    }
-    bool operator== (const Log_chunk_ID_key& rhs) const {
-        return (idT == rhs.idT);
-    }
+    std::string str() const { return (isnullkey() ? LOG_NULLKEY_STR : Log_chunk_ID_TimeStamp_to_string(idT)); }
+
+    bool operator< (const Log_chunk_ID_key& rhs) const { return (idT < rhs.idT); }
+    bool operator== (const Log_chunk_ID_key& rhs) const { return (idT == rhs.idT); }
 };
 
 class Log_entry_ID {
@@ -137,12 +177,16 @@ class Log_entry_ID {
 protected:
     Log_entry_ID_key idkey;
     std::string idS_cache; // cached string version of the ID to speed things up
+
+    Log_entry_ID() {} // to set up a null-ID in very specific cases
 public:
     Log_entry_ID(std::string _idS): idkey(_idS), idS_cache(_idS) {}
     Log_entry_ID(const Log_TimeStamp _idT);
-    Log_entry_ID() = delete; // explicitly forbid the default constructor, just in case
+    //Log_entry_ID() = delete; // explicitly forbid the default constructor, just in case
+
+    bool isnullID() const { return idkey.isnullkey(); }
     Log_entry_ID_key key() const { return idkey; }
-    std::string str() const { return idS_cache; }
+    std::string str() const { return (isnullID() ? idkey.str() : idS_cache); }
     time_t get_epoch_time() const { return idkey.idT.get_epoch_time(); }
 };
 
@@ -151,12 +195,21 @@ class Log_chunk_ID {
 protected:
     Log_chunk_ID_key idkey;
     std::string idS_cache; // cached string version of the ID to speed things up
+
+    Log_chunk_ID() {} // to set up a null-ID in very specific cases
+    // the following are only meant for careful administrative use, for example in
+    // Log chunk chaining in Log::setup_Chunk_nodeprevnext().
+    bool _reassign(std::string _idS);
+    bool _reassign(const Log_TimeStamp _idT);
+    void _nullID();
 public:
     Log_chunk_ID(std::string _idS): idkey(_idS), idS_cache(_idS) {}
     Log_chunk_ID(const Log_TimeStamp _idT);
-    Log_chunk_ID() = delete; // explicitly forbid the default constructor, just in case
+    //Log_chunk_ID() = delete; // explicitly forbid the default constructor, just in case
+
+    bool isnullID() const { return idkey.isnullkey(); }
     Log_chunk_ID_key key() const { return idkey; }
-    std::string str() const { return idS_cache; }
+    std::string str() const { return (isnullID() ? idkey.str() : idS_cache); }
     time_t get_epoch_time() const { return idkey.idT.get_epoch_time(); }
 };
 
@@ -176,7 +229,8 @@ public:
     Log_entry(const Log_TimeStamp &_id, std::string _entrytext, const Node_ID_key &_nodeidkey, Log_chunk * _chunk = NULL): id(_id), node_idkey(_nodeidkey), entrytext(_entrytext), chunk(_chunk) {}
     Log_entry(const Log_TimeStamp &_id, std::string _entrytext, Log_chunk * _chunk = NULL): id(_id), entrytext(_entrytext), chunk(_chunk) {}
 
-    bool set_Node(Node & _node) {
+    /// Set Node pointer to the same Node as node_idkey if it was not set during construction.
+    bool set_Node_rapid_access(Node & _node) {
         if (!(node_idkey.idT == _node.get_id().key().idT))
             return false;
 
@@ -214,19 +268,19 @@ public:
 class Log_chunk {
 protected:
     // These three must be provided when the object is created.
-    const Log_chunk_ID t_begin;            /// The time stamp when a Log chunk begins.
-    const Node_ID node_id;                 /// The Node to which the Log chunk belongs.
-    std::time_t t_close;                   /// The time when a Log chunk was closed (-1 if not closed).
+    const Log_chunk_ID t_begin; /// The time stamp when a Log chunk begins.
+    const Node_ID node_id;      /// The Node to which the Log chunk belongs.
+    std::time_t t_close;        /// The time when a Log chunk was closed (-1 if not closed).
     // The following are expected, but can be added after object creation.
     Log_chunk_ID node_prev_chunk_id; /// Previous chunk belonging to the same Node.
     Log_chunk_ID node_next_chunk_id; /// Next chunk belonging to the same Node.
-    Log_entry_ID_key first_entry;          /// ID of the first Log_entry in the chunk (once created).
+    Log_entry_ID_key first_entry;    /// ID of the first Log_entry in the chunk (once created).
 
     // The following are maintained for rapid access where possible.
     Node *node;
     std::vector<Log_entry *> entries;
-    Log_chunk * node_prev_chunk;
-    Log_chunk * node_next_chunk;
+    Log_chunk *node_prev_chunk;
+    Log_chunk *node_next_chunk;
 
 public:
     Log_chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose) : t_begin(_tbegin), node_id(_nodeid), t_close(_tclose), node(NULL), node_prev_chunk(NULL), node_next_chunk(NULL) {}
@@ -234,48 +288,43 @@ public:
     Log_chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose, const Log_TimeStamp & _prev, const Log_TimeStamp & _next) : t_begin(_tbegin), node_id(_nodeid), t_close(_tclose), node_prev_chunk_id(_prev), node_next_chunk_id(_next), node(NULL), node_prev_chunk(NULL), node_next_chunk(NULL) {}
     Log_chunk(const Log_TimeStamp &_tbegin, Node &_node, std::time_t _tclose, const Log_TimeStamp & _prev, const Log_TimeStamp & _next): t_begin(_tbegin), node_id(_node.get_id()), t_close(_tclose), node_prev_chunk_id(_prev), node_next_chunk_id(_next), node(&_node), node_prev_chunk(NULL), node_next_chunk(NULL) {}
 
-    bool set_Node(Node & _node) {
-        if (!(node_id.key().idT == _node.get_id().key().idT))
-            return false;
+    /// rapid-access setup
+    bool set_Node_rapid_access(Node & _node); // inlined below
 
-        node = &_node;
-        return true;
-    }
-    void set_Node_prev_chunk(const Log_TimeStamp & _prev) { node_prev_chunk_id = _prev; }
-    void set_Node_next_chunk(const Log_TimeStamp & _next) { node_next_chunk_id = _next; }
-    void add_Entry(Log_entry &entry) {
-        if (entries.empty()) {
-            first_entry = entry.id.key();
-        }
-        entries.push_back(&entry);
-    }
+    /// tables references
+    std::vector<Log_entry *> & get_entries() { return entries; }
 
+    /// entries table: extend
+    void add_Entry(Log_entry &entry); // inlined below
+
+    /// safely inspect data
     const Log_chunk_ID & get_tbegin() const { return t_begin; }
     const Node_ID & get_NodeID() const { return node_id; }
     Node * get_Node() const { return node; }
+    Node * get_Node(Graph & graph); // inlined below
+    const Log_chunk_ID_key & get_tbegin_key() const { return t_begin.idkey; }
+    const Log_TimeStamp & get_tbegin_idT() const { return t_begin.idkey.idT; }
+    std::string get_tbegin_str() const { return t_begin.str(); }
+    std::time_t get_open_time() const { return t_begin.get_epoch_time(); }
+    std::time_t get_close_time() const { return t_close; }
+
     Log_chunk_ID get_node_prev_chunk_id() { return node_prev_chunk_id; }
     Log_chunk_ID get_node_next_chunk_id() { return node_next_chunk_id; }
     Log_chunk * get_node_prev_chunk() { return node_prev_chunk; }
     Log_chunk * get_node_next_chunk() { return node_next_chunk; }
     Log_entry_ID_key & get_first_entry() { return first_entry; }
-    std::vector<Log_entry *> & get_entries() { return entries; }
-    std::time_t get_open_time() const { return t_begin.get_epoch_time(); }
-    std::time_t get_close_time() const { return t_close; }
-    void set_close_time(std::time_t _tclose) { t_close = _tclose; }
 
-    // helper functions
-    const Log_chunk_ID_key & get_tbegin_key() const { return t_begin.idkey; }
-    std::string get_tbegin_str() const { return t_begin.str(); }
-    std::time_t duration_seconds() const {
-        if (t_close<0)
-            return -1;
-        return t_close - get_open_time();
-    }
-    int duration_minutes() const {
-        if (t_close<0)
-            return -1;
-        return duration_seconds() / 60;
-    }
+    /// change parameters
+    void set_close_time(std::time_t _tclose) { t_close = _tclose; }
+    void set_Node_prev_chunk(Log_chunk * prevptr);
+    void set_Node_next_chunk(Log_chunk * nextptr);
+
+    // helper (utility) functions
+    std::time_t duration_seconds() const; // inline below
+    int duration_minutes() const; // inline below
+
+    /// friend (utility) functions
+    friend Topic * main_topic(Graph & _graph, Log_chunk & chunk);
 };
 
 /**
@@ -307,6 +356,17 @@ struct Log_chunks_Deque: public Log_chunk_ptr_deque {
     const Log_chunk_ID_key & get_tbegin_key(Log_chunk_ptr_deque::size_type idx) const {
         return at(idx)->get_tbegin_key();
     }
+    /// Get a copy of the ID key of Log chunk by index, or null-key if out of range.
+    Log_chunk_ID_key get_key_copy(Log_chunk_ptr_deque::size_type idx) const {
+        if (idx>=size())
+            return Log_chunk_ID_key(); // return a null-key
+
+        return at(idx)->get_tbegin_key();
+    }
+    /// Get reference to TimeStamp of Log chunk by index. Throws an @exception if out of range.
+    const Log_TimeStamp & get_tbegin_idT(Log_chunk_ptr_deque::size_type idx) const {
+        return at(idx)->get_tbegin_idT();
+    }
     /// Get pointer to Log chunk by index. Returns nullptr if out of range.
     Log_chunk * get_chunk(Log_chunk_ptr_deque::size_type idx) const {
         if (idx>=size())
@@ -316,6 +376,8 @@ struct Log_chunks_Deque: public Log_chunk_ptr_deque {
     }
     /// Get index of Log chunk pointer by ID key. Returns size() if not found.
     Log_chunk_ptr_deque::size_type find(const Log_chunk_ID_key chunk_id) const;
+    /// Find index of Log chunk by its ID closest to time t.
+    Log_chunk_ptr_deque::size_type Log_chunks_Deque::find(std::time_t t, bool later) const;
 
     // friend functions
     /// Sum of durations of Log chunks.
@@ -339,14 +401,18 @@ typedef std::deque<Log_chunk_ID_key> Log_chunk_ID_key_deque;
 class Log_Breakpoints: protected Log_chunk_ID_key_deque {
     friend class Log;
 public:
+    // breakpoints table: extend
     void add_earlier_Breakpoint(Log_chunk & chunk) { push_front(chunk.get_tbegin_key()); }
     void add_later_Breakpoint(Log_chunk & chunk) { push_back(chunk.get_tbegin_key()); }
-    //Log_chunk_ID_key_deque & get_chunk_ids() { return breakpoint_ids; }
-    Log_chunk_ID_key & get_chunk_id_key(Log_chunk_ID_key_deque::size_type idx) { return at(idx); }
 
-    // helper functions
+    // breakpoints table: get breakpoint
+    Log_chunk_ID_key & get_chunk_id_key(Log_chunk_ID_key_deque::size_type idx) { return at(idx); }
     std::string get_chunk_id_str(Log_chunk_ID_key_deque::size_type idx) { return Log_chunk_ID_TimeStamp_to_string( at(idx).idT ); }
     std::string get_Ymd_str(Log_chunk_ID_key_deque::size_type idx) { return Log_TimeStamp_to_Ymd_string( at(idx).idT ); }
+
+    // crossref tables: breakpoints x chunks
+    const Log_chunk_ID_key & find_Breakpoint_tstamp_before_chunk(const Log_chunk_ID_key key);
+    Log_chunk_ID_key_deque::size_type find_Breakpoint_index_before_chunk(const Log_chunk_ID_key key);
 };
 
 /**
@@ -386,40 +452,140 @@ protected:
     Log_chunks_Deque chunks;
     Log_Breakpoints breakpoints;
 public:
+    void setup_Chunk_nodeprevnext(); /// Call this after loading chunks into the Log.
+
+    /// tables: sizes
     Log_entries_Map::size_type num_Entries() const { return entries.size(); }
     Log_chunks_Deque::size_type num_Chunks() const { return chunks.size(); }
     Log_chunk_ID_key_deque::size_type num_Breakpoints() const { return breakpoints.size(); }
+
+    /// tables: references
     Log_entries_Map & get_Entries() { return entries; }
     Log_chunks_Deque & get_Chunks() { return chunks; }
     Log_Breakpoints & get_Breakpoints() { return breakpoints; }
+
+    /// chunks table: extend
     void add_earlier_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose) { chunks.push_front(std::make_unique<Log_chunk>(_tbegin,_nodeid,_tclose)); }
     void add_later_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose) { chunks.push_back(std::make_unique<Log_chunk>(_tbegin,_nodeid, _tclose)); }
-    std::deque<Log_chunk *> get_Node_chunks_fullparse(const Node_ID node_id);
-    std::deque<Log_chunk *> get_Node_chunks(const Node_ID node_id); /// This version requires valid prev/next references.
-    void setup_Chunk_nodeprevnext(); /// Call this after loading chunks into the Log.
 
-    // friend functions
-    friend std::vector<Log_chunks_Deque::size_type> Breakpoint_Indices(Log & log);
-    friend std::vector<Log_chunks_Deque::size_type> Chunks_per_Breakpoint(Log & log);
- 
-    // helper functions
+    /// chunks table: get chunk
     Log_chunk * get_chunk(Log_chunk_ptr_deque::size_type idx) const { return chunks.get_chunk(idx); }
+    Log_chunk_ID_key get_chunk_id_key(Log_chunk_ptr_deque::size_type idx) const { return chunks.get_key_copy(idx); }
     Log_chunk_ptr_deque::size_type find_chunk_by_key(const Log_chunk_ID_key chunk_idkey) const { return chunks.find(chunk_idkey); }
+
+    /// breakpoints table: get breakpoint
     Log_chunk_ID_key & get_Breakpoint_first_chunk_id_key(Log_chunk_ID_key_deque::size_type idx) { return breakpoints.at(idx); }
     std::string get_Breakpoint_first_chunk_id_str(Log_chunk_ID_key_deque::size_type idx) { return Log_chunk_ID_TimeStamp_to_string( breakpoints.at(idx).idT ); }
     std::string get_Breakpoint_Ymd_str(Log_chunk_ID_key_deque::size_type idx) { return Log_TimeStamp_to_Ymd_string( breakpoints.at(idx).idT ); }
-    Log_chunk_ptr_deque::size_type find_Breakpoint_first_chunk(Log_chunk_ID_key_deque::size_type idx) { return find_chunk_by_key(get_Breakpoint_first_chunk_id_key(idx)); }
+
+    /// crossref tabless: chunks x breakpoints
+    Log_chunk_ptr_deque::size_type get_chunk_first_at_Breakpoint(Log_chunk_ID_key_deque::size_type idx) { return find_chunk_by_key(get_Breakpoint_first_chunk_id_key(idx)); }
+
+    /// crossref tables: breakpoints x chunks
+    const Log_chunk_ID_key & find_Breakpoint_tstamp_before_chunk(const Log_chunk_ID_key key) { return breakpoints.find_Breakpoint_tstamp_before_chunk(key); }
+    Log_chunk_ID_key_deque::size_type find_Breakpoint_index_before_chunk(const Log_chunk_ID_key key) { return breakpoints.find_Breakpoint_index_before_chunk(key); }
     
+    /// entries table: select interval, from chunk / time, to chunk / time / count 
     Log_entry_iterator_interval get_Entries_interval(const Log_entry_ID_key interval_front, const Log_entry_ID_key interval_back);
+    Log_entry_iterator_interval get_Entries_t_interval(std::time_t t_from, std::time_t t_before);
     Log_entry_iterator_interval get_Entries_interval(const Log_entry_ID_key interval_front, unsigned long n);
+    Log_entry_iterator_interval get_Entries_n_interval(std::time_t t_from, unsigned long n);
+
+    /// chunks table: select interval, from chunk / time, to chunk / time / count
     Log_chunk_ID_interval get_Chunks_ID_t_interval(std::time_t t_from, std::time_t t_before);
     Log_chunk_ID_interval get_Chunks_ID_n_interval(std::time_t t_from, unsigned long n);
     Log_chunk_index_interval get_Chunks_index_t_interval(std::time_t t_from, std::time_t t_before);
     Log_chunk_index_interval get_Chunks_index_n_interval(std::time_t t_from, unsigned long n);
 
+    /// chunks table: select subset by Node
+    std::deque<Log_chunk *> get_Node_chunks_fullparse(const Node_ID node_id);
+    std::deque<Log_chunk *> get_Node_chunks(const Node_ID node_id); /// This version requires valid prev/next references.
+
+
+    // friend functions
+    friend std::vector<Log_chunks_Deque::size_type> Breakpoint_Indices(Log & log);
+    friend std::vector<Log_chunks_Deque::size_type> Chunks_per_Breakpoint(Log & log);
+  
     //*** Can define a helper function to `refresh_Chunk_entries(Log_chunk_ID_key_deque::size_type idx)`
     //*** in case the rapid-access vector was not initialized or was corrupted.
 };
+
+// +----- begin: inline functions -----+
+
+/**
+ * Set rapid-access node pointer to the same Node as the one indicated by
+ * node_id.key(), e.g. if that was not set during Log_chunk object construction.
+ * 
+ * Note: This function needs a valid Node reference to assign, but it will
+ *       only accept one that matches node_id.key().
+ * 
+ * @param _node reference that must match node_id.key().
+ * @return true if successful, false if there was a mismatch.
+ */
+inline bool Log_chunk::set_Node_rapid_access(Node & _node) { /// 
+    if (!(node_id.key().idT == _node.get_id().key().idT))
+        return false;
+
+    node = &_node;
+    return true;
+}
+
+/**
+ * Extend the Log chunk entries list a Log entry. The entry is appended,
+ * and if it is the first one in the list then its ID key is copied to
+ * `first_entry`.
+ * 
+ * @param entry is a new Log entry record.
+ */
+inline void Log_chunk::add_Entry(Log_entry &entry) {
+    if (entries.empty()) {
+        first_entry = entry.id.key();
+    }
+    entries.push_back(&entry);
+}
+
+/**
+ * Find a Node in the Graph that has Node ID with key matching
+ * node_id.key().
+ * 
+ * Note: If the rapid-access node pointer is set then that
+ *       is returned.
+ * 
+ * @param graph is a valid Graph.
+ * @return pointer to the Node (or nullptr if not found).
+ */
+inline Node * Log_chunk::get_Node(Graph & graph) {
+    if (!node)
+        node = graph.Node_by_id(node_id.key());
+
+    return node;
+}
+
+/**
+ * Report the duration of the Log chunk in seconds.
+ * 
+ * @return duration in seconds (or -1 if the chunk is still open).
+ */
+inline std::time_t Log_chunk::duration_seconds() const {
+    if (t_close < 0)
+        return -1;
+
+    return t_close - get_open_time();
+}
+
+/**
+ * Report the duration of the Log chunk in minutes.
+ * 
+ * @return duration in minutes (or -1 if the chunk is still open).
+ */
+inline int Log_chunk::duration_minutes() const {
+    if (t_close < 0)
+        return -1;
+
+    return duration_seconds() / 60;
+}
+
+// +----- end  : inline functions -----+
 
 unsigned long Entries_total_text(Log_entries_Map & entries);
 

@@ -165,6 +165,14 @@ std::string Node_ID_TimeStamp_to_string(const ID_TimeStamp idT) {
     return ss.str();
 }
 
+/**
+ * Convert standardized Formalizer Node ID time stamp into local time
+ * data object.
+ * 
+ * Note: This function ignores the `minor_id` value.
+ * 
+ * @return local time data objet with converted Node ID time stamp.
+ */
 std::tm ID_TimeStamp::get_local_time() {
     std::tm tm = { 0 };
     tm.tm_year = year-1900;
@@ -390,6 +398,21 @@ void Node::set_text(const std::string utf8str) {
     if (utf8::check_utf_fixes()>0) ADDWARNING(__func__,"replaced "+std::to_string(utf8::check_utf_fixes())+" invalid UTF8 code points in Node description ("+utf8str.substr(0,20)+"...)");
 }
 
+/**
+ * Report the main Topic (by ID) of the Node, as indicated by the maximum
+ * Topic_Relevance value.
+ * 
+ * @return Topic_ID of main Topic.
+ */
+Topic_ID Node::main_topic_id() {
+    Topic_ID main_id = 0;
+    Topic_Relevance max_rel = 0.0;
+    for (const auto& [t_id, t_rel] : topics) {
+        if (t_rel>max_rel)
+            main_id = t_id;
+    }
+}
+
 Edge_ID_key::Edge_ID_key(std::string _idS) {
     std::string formerror;
     size_t arrowpos = _idS.find('>');
@@ -516,6 +539,30 @@ bool Graph::remove_Edge(Edge *edge) {
 void Graph::set_all_semaphores(int sval) {
     for (auto it = nodes.begin(); it != nodes.end(); ++it)
         it->second->set_semaphore(sval);
+}
+
+// +----- begin: friend functions -----+
+
+/**
+ * Find the main Topic of a Node, as indicated by the maximum
+ * Topic_Relevance value.
+ * 
+ * Note: This is a friend function in order to ensure that the search for
+ *       the Topic object is called only when a valid Topic_Tags list
+ *       can provid pointers to them.
+ * 
+ * @param Topic_Tags a valid Topic_Tags list.
+ * @param node a Node for which the main Topic is requested.
+ * @return a pointer to the Topic object (or nullptr if not found).
+ */
+Topic * main_topic(Topic_Tags & topictags, Node & node) {
+    Topic * maintopic = nullptr;
+    Topic_Relevance max_rel = 0.0;
+    for (const auto& [t_id, t_rel] : node.topics) {
+        if (t_rel>max_rel)
+            maintopic = topictags.find_by_id(t_id);
+    }
+    return maintopic;
 }
 
 #define VALIDATIONFAIL(v1,v2) { \
@@ -682,5 +729,7 @@ bool identical_Graphs(Graph & graph1, Graph & graph2, std::string & trace) {
 
     return true;
 }
+
+// +----- end  : friend functions -----+
 
 } // namespace fz
