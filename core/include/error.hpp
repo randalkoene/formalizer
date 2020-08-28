@@ -12,6 +12,7 @@
 #include "coreversion.hpp"
 #define __ERROR_HPP (__COREVERSION_HPP)
 
+#include <fstream>
 #include <string>
 #include <deque>
 
@@ -22,15 +23,16 @@
 #define ADDERROR(f,e) fz::ErrQ.push(f,e)
 #define ERRRETURNFALSE(f,e) { fz::ErrQ.push(f,e); return false; }
 #define ERRRETURNNULL(f,e) { fz::ErrQ.push(f,e); return NULL; }
+#define ADDERRPING(p) if (fz::ErrQ.pinging()) { fz::ErrQ.push(__func__,std::string("PING-")+p); }
 
 #define ADDWARNING(f,e) fz::WarnQ.push(f,e)
 
 #define ERRWARN_SUMMARY(estream) { \
-    if ((fz::ErrQ.num()+fz::WarnQ.num())<1) { \
+    if ((fz::ErrQ.total_num()+fz::WarnQ.total_num())<1) { \
         estream << "No errors or warnings.\n"; \
     } else { \
-        estream << "Logging " << fz::ErrQ.num() << " errors in " << fz::ErrQ.get_errfilepath() << '\n'; \
-        estream << "Logging " << fz::WarnQ.num() << " warnings in " << fz::WarnQ.get_errfilepath() << '\n'; \
+        estream << "Logging " << fz::ErrQ.total_num() << " errors in " << fz::ErrQ.get_errfilepath() << '\n'; \
+        estream << "Logging " << fz::WarnQ.total_num() << " warnings in " << fz::WarnQ.get_errfilepath() << '\n'; \
     } \
 }
 
@@ -67,8 +69,11 @@ class Errors {
 protected:
     std::deque<Error_Instance> errq;
     std::string errfilepath;
+    int numflushed;
+    bool caching;
+    bool ping;
 public:
-    Errors(std::string efp): errfilepath(efp) {}
+    Errors(std::string efp): errfilepath(efp), numflushed(0), caching(true), ping(false) {}
     void set_errfilepath(std::string efp) { errfilepath = efp; }
     std::string get_errfilepath() const { return errfilepath; }
     void push(std::string f, std::string e);
@@ -76,6 +81,13 @@ public:
     Error_Instance pop();
     int flush();
     int num() const { return errq.size(); }
+    int total_num() const { return numflushed+num(); }
+    void disable_caching() { caching=false; }
+    void enable_caching() { caching=true; }
+    void enable_pinging() { ping=true; }
+    void disable_pinging() { ping=false; }
+    bool pinging() { return ping; }
+    void output(std::ofstream::openmode mode);
 };
 
 void Clean_Exit(int ecode);

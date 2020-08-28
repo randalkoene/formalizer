@@ -201,14 +201,37 @@ Log_TimeStamp::Log_TimeStamp(std::time_t t, bool testvalid, uint8_t _minorid) {
     }
 }
 
+/**
+ * Convert the standardized Formalizer Log time stamp into equivalent localtime
+ * structure.
+ * 
+ * @return localtime structure (contains all-zero if null-stamp).
+ */
 std::tm Log_TimeStamp::get_local_time() const {
     std::tm tm = { 0 };
+    if (isnullstamp())
+        return tm;
+
     tm.tm_year = year-1900;
     tm.tm_mon = month-1;
     tm.tm_mday = day;
     tm.tm_hour = hour;
     tm.tm_min = minute;
     return tm;
+}
+
+/**
+ * Convert the standardized Formalizer Log time stamp into equivalent UNIX epoch
+ * time.
+ * 
+ * @return the equivalent UNIX epoch time, or -1 if null-stamp.
+ */
+time_t Log_TimeStamp::get_epoch_time() const {
+    if (isnullstamp())
+        return -1;
+
+    std::tm tm(get_local_time());
+    return mktime(&tm);
 }
 
 Log_entry_ID_key::Log_entry_ID_key(const Log_TimeStamp& _idT) {
@@ -259,6 +282,7 @@ bool Log_chunk_ID::_reassign(const Log_TimeStamp _idT) {
 
     idkey.idT = _idT;
     idS_cache = idkey.str();
+    return true;
 }
 
 // Use appropriately!
@@ -413,7 +437,7 @@ const Log_chunk_ID_key & Log_Breakpoints::find_Breakpoint_tstamp_before_chunk(co
  * @return the Breakpoint index in the table of breakpoints.
  */
 Log_chunk_ID_key_deque::size_type Log_Breakpoints::find_Breakpoint_index_before_chunk(const Log_chunk_ID_key key) {
-    for (auto i = 0; i < size(); ++i) {
+    for (Log_chunk_ID_key_deque::size_type i = 0; i < size(); ++i) {
         if (key < at(i)) {
             return (i>0) ? (i-1) : 0;
         }
@@ -492,6 +516,7 @@ struct Node_Chunks_cursor {
         count++;
         // New tail of chain
         tail = &chunk;
+        return true;
     }
 };
 
@@ -765,6 +790,39 @@ std::vector<Log_chunks_Deque::size_type> Breakpoint_Indices(Log & log) {
         }
     }
     return indices;
+}
+
+/**
+ * Report the span in seconds from when the Log was started (first cunk)
+ * to its most recent chunk.
+ * 
+ * @param log the Log for which to report the span.
+ * @return the number of seconds.
+ */
+unsigned long Log_span_in_seconds(Log & log) {
+    return std::difftime(log.newest_chunk_t(),log.oldest_chunk_t());
+}
+
+/**
+ * Report the span in days from when the Log was started (first cunk)
+ * to its most recent chunk.
+ * 
+ * @param log the Log for which to report the span.
+ * @return the decimal number of days.
+ */
+double Log_span_in_days(Log & log) {
+    return (double)Log_span_in_seconds(log) / (60 * 60 * 24);
+}
+
+/**
+ * Report the span in years, months and days from when the Log was started
+ * (first cunk) to its most recent chunk.
+ * 
+ * @param log the Log for which to report the span.
+ * @return a tuple of [year, month, day].
+ */
+ymd_tuple Log_span_years_months_days(Log & log) {
+    return static_cast<ymd_tuple>(years_months_days(log.oldest_chunk_t(),log.newest_chunk_t()));
 }
 
 /**

@@ -10,12 +10,16 @@
  * For more development details, see the Trello card at https://trello.com/c/NNSWVRFf.
  */
 
+#include <filesystem>
+#include <ostream>
+
 // needs these for the HTML output test samples of converted Log data
-#include <nlohmann/json.hpp>
-#include <inja/inja.hpp>
+//#include <nlohmann/json.hpp>
+//#include <inja/inja.hpp>
 
 #include "error.hpp"
 #include "general.hpp"
+#include "templater.hpp"
 #include "Logtypes.hpp"
 #include "Graphtypes.hpp"
 
@@ -31,6 +35,58 @@ using namespace fz;
 
 enum section_status { section_ok, section_out_of_bounds, section_fist_chunk_not_found };
 
+enum template_id_enum {
+    section_temp,
+    section_next_temp,
+    section_nonext_temp,
+    section_prev_temp,
+    section_noprev_temp,
+    chunk_temp,
+    chunk_ALnext_temp,
+    chunk_ALnonext_temp,
+    chunk_ALprev_temp,
+    chunk_ALnoprev_temp,
+    chunk_nodenext_temp,
+    chunk_nodenonext_temp,
+    chunk_nodeprev_temp,
+    chunk_nodenoprev_temp,
+    entry_temp,
+    entry_withnode_temp,
+    NUM_temp
+};
+
+const std::vector<std::string> template_ids = {
+    "section",
+    "section_next",
+    "section_nonext",
+    "section_prev",
+    "section_noprev",
+    "chunk",
+    "chunk_ALnext",
+    "chunk_ALnonext",
+    "chunk_ALprev",
+    "chunk_ALnoprev",
+    "chunk_nodenext",
+    "chunk_nodenonext",
+    "chunk_nodeprev",
+    "chunk_nodenoprev",
+    "entry",
+    "entry_withnode"};
+
+/// A container in which to cache the template files to be used.
+typedef std::map<template_id_enum,std::string> section_templates;
+
+bool load_templates(section_templates & templates) {
+    templates.clear();
+
+    for (int i = 0; i < NUM_temp; ++i) {
+        if (!file_to_string(test_template_dir + "/TL_" + template_ids[i] + ".template.html", templates[static_cast<template_id_enum>(i)]))
+            ERRRETURNFALSE(__func__, "unable to load " + template_ids[i]);
+    }
+
+    return true;
+}
+
 /**
  * This structure contains all the necessary data and rendering functions
  * to convert the content from a Breakpoint start in a Log to its end
@@ -41,7 +97,12 @@ enum section_status { section_ok, section_out_of_bounds, section_fist_chunk_not_
  * of the source code. The templates were made by mapping components
  * of actual dil2al Task Log files.
  * 
+ * Note: The `_templates` can be pre-loaded or they will be loaded the
+ *       first time they are checked for use.
+ * 
  * section_Converter constructor:
+ * @param _env a templates rendering environment.
+ * @param _templates a set of templates to apply.
  * @param _graph a complete in-memory Graph.
  * @param _log a complete in-memory Log.
  * @param _bridx index to the Breakpoint for which to convert a section. 
@@ -49,8 +110,10 @@ enum section_status { section_ok, section_out_of_bounds, section_fist_chunk_not_
 struct section_Converter {
 protected:
     section_status status;
+
 public:
-    inja::Environment env;
+    render_environment & env;
+    section_templates & templates;
 
     Graph & graph;
     Log & log;
@@ -63,10 +126,13 @@ public:
     std::string rendered_section; /// Holds the result of section rendering process.
 
     section_Converter() = delete; // explicitly forbid the default constructor, just in case
-    section_Converter(Graph & _graph, Log & _log, Log_chunks_Deque::size_type _bridx): status(section_ok), graph(_graph), log(_log), bridx(_bridx) {
-        if (bridx>=log.num_Breakpoints()) {
+    section_Converter(render_environment &_env, section_templates &_templates, Graph &_graph, Log &_log,
+                      Log_chunks_Deque::size_type _bridx) : status(section_ok), env(_env), templates(_templates),
+                      graph(_graph), log(_log), bridx(_bridx) {
+
+        if (bridx >= log.num_Breakpoints()) {
             status = section_out_of_bounds;
-            ADDERROR(__func__,"section out of bounds at breakpoint index "+std::to_string(bridx));
+            ADDERROR(__func__, "section out of bounds at breakpoint index " + std::to_string(bridx));
 
         } else {
             yyyymmdd = log.get_Breakpoint_Ymd_str(bridx);
@@ -87,63 +153,10 @@ public:
         }
     }
 
-    enum template_id_enum {
-        section_temp,
-        section_next_temp,
-        section_nonext_temp,
-        section_prev_temp,
-        section_noprev_temp,
-        chunk_temp,
-        chunk_ALnext_temp,
-        chunk_ALnonext_temp,
-        chunk_ALprev_temp,
-        chunk_ALnoprev_temp,
-        chunk_nodenext_temp,
-        chunk_nodenonext_temp,
-        chunk_nodeprev_temp,
-        chunk_nodenoprev_temp,
-        entry_temp,
-        entry_withnode_temp,
-        NUM_temp        
-    };
-
-    const std::vector<std::string> template_ids = {
-        "section",
-        "section_next",
-        "section_nonext",
-        "section_prev",
-        "section_noprev",
-        "chunk",
-        "chunk_ALnext",
-        "chunk_ALnonext",
-        "chunk_ALprev",
-        "chunk_ALnoprev",
-        "chunk_nodenext",
-        "chunk_nodenonext",
-        "chunk_nodeprev",
-        "chunk_nodenoprev",
-        "entry",
-        "entry_withnode"
-    };
-
-    std::map<template_id_enum,std::string> templates;
-
-    bool load_templates() {
-        templates.clear();
-
-        for (int i = 0; i < NUM_temp; ++i) {
-            if (!file_to_string(test_template_dir + "/TL_"+template_ids[i]+".template.html", templates[static_cast<template_id_enum>(i)]))
-                ERRRETURNFALSE(__func__, "unable to load "+template_ids[i]);
-        }
-
-        return true;
-    }
-
     std::string prevsection;
     std::string nextsection;
     bool have_looked_for_chunks = false; // empty chunks is possible
     std::string chunks;
-    std::string section;
 
     /**
      * Before calling this function:
@@ -160,32 +173,37 @@ public:
             ERRRETURNFALSE(__func__,"the section needs an identified Log breakpoint");
 
         if (templates.empty()) {
-            if (!load_templates())
+            if (!load_templates(templates))
                 ERRRETURNFALSE(__func__,"unable to load templates");
         }
 
-        nlohmann::json sectiondata;
-        sectiondata["yyyymmdd"] = yyyymmdd;
+        ADDERRPING("#1");
+        template_varvalues sectiondata;
+        sectiondata.emplace("yyyymmdd",yyyymmdd);
 
         if (prevsection.empty()) {
             if (!render_prevsection())
                 ERRRETURNFALSE(__func__,"unable to generate prevsection");
         }
-        sectiondata["prevsection"] = prevsection;
+        ADDERRPING("#2");
+        sectiondata.emplace("prevsection",prevsection);
 
         if (nextsection.empty()) {
             if (!render_nextsection())
                 ERRRETURNFALSE(__func__,"unable to generate nextsection");
         }
-        sectiondata["nextsection"] = nextsection;
+        ADDERRPING("#3");
+        sectiondata.emplace("nextsection",nextsection);
 
         if (!have_looked_for_chunks) {
             if (!render_chunks())
                 ERRRETURNFALSE(__func__,"unable to generate chunks");
         }
-        sectiondata["chunks"] = chunks;
+        ADDERRPING("#4");
+        sectiondata.emplace("chunks",chunks);
 
-        section = env.render(templates[section_temp],sectiondata);
+        ADDERRPING("#5");
+        rendered_section = env.render(templates[section_temp],sectiondata);
         return true;
     }
 
@@ -198,8 +216,9 @@ public:
      * 2. Make sure that `prev_yyyymmdd` has been derived from prev Breakpoint (if there is one).
      */
     bool render_prevsection() {
-        nlohmann::json prevsectiondata;
-        prevsectiondata["prev_yyyymmdd"] = prev_yyyymmdd; //*** find this!
+        template_varvalues prevsectiondata;
+        ADDERRPING("#1");
+        prevsectiondata.emplace("prev_yyyymmdd",prev_yyyymmdd); //*** find this!
         if (has_prev_section) { // *** find this!
             prevsection = env.render(templates[section_prev_temp],prevsectiondata);
         } else {
@@ -217,8 +236,9 @@ public:
      * 2. Make sure that `next_yyyymmdd` has been derived from next Breakpoint (if there is one).
      */
     bool render_nextsection() {
-        nlohmann::json nextsectiondata;
-        nextsectiondata["next_yyyymmdd"] = next_yyyymmdd; //*** find this!
+        template_varvalues nextsectiondata;
+        ADDERRPING("#1");
+        nextsectiondata.emplace("next_yyyymmdd",next_yyyymmdd); //*** find this!
         if (has_next_section) { // *** find this!
             nextsection = env.render(templates[section_next_temp],nextsectiondata);
         } else {
@@ -239,13 +259,14 @@ public:
             return templates[chunk_ALnoprev_temp]; // no need to render
         }
 
-        nlohmann::json ALprevdata;
+        ADDERRPING("#1");
+        template_varvalues ALprevdata;
         if ((c - 1) < chunk_begin_idx) {
-            ALprevdata["ALprevsectionyyyymmdd"] = log.get_Breakpoint_Ymd_str(bridx - 1);
+            ALprevdata.emplace("ALprevsectionyyyymmdd",log.get_Breakpoint_Ymd_str(bridx - 1));
         } else {
-            ALprevdata["ALprevsectionyyyymmdd"] = yyyymmdd;
+            ALprevdata.emplace("ALprevsectionyyyymmdd",yyyymmdd);
         }
-        ALprevdata["ALprevchunkstartyyyymmddhhmm"] = log.get_chunk(c - 1)->get_tbegin_str();
+        ALprevdata.emplace("ALprevchunkstartyyyymmddhhmm",log.get_chunk(c - 1)->get_tbegin_str());
         return env.render(templates[chunk_ALprev_temp], ALprevdata);
     }
 
@@ -254,13 +275,14 @@ public:
             return templates[chunk_ALnonext_temp]; // no need to render
         }
 
-        nlohmann::json ALnextdata;
+        ADDERRPING("#1");
+        template_varvalues ALnextdata;
         if ((c + 1) >= chunk_end_limit) {
-            ALnextdata["ALnextsectionyyyymmdd"] = "task-log."+log.get_Breakpoint_Ymd_str(bridx + 1)+".html#";
+            ALnextdata.emplace("ALnextsectionyyyymmdd","task-log."+log.get_Breakpoint_Ymd_str(bridx + 1)+".html#");
         } else {
-            ALnextdata["ALnextsectionyyyymmdd"] = "#"; // All but the last in section are relative!
+            ALnextdata.emplace("ALnextsectionyyyymmdd","#"); // All but the last in section are relative!
         }
-        ALnextdata["ALnextchunkstartyyyymmddhhmm"] = log.get_chunk(c + 1)->get_tbegin_str();
+        ALnextdata.emplace("ALnextchunkstartyyyymmddhhmm",log.get_chunk(c + 1)->get_tbegin_str());
         return env.render(templates[chunk_ALnext_temp], ALnextdata);
     }
 
@@ -269,15 +291,16 @@ public:
             return templates[chunk_nodenoprev_temp]; // no need to render
         }
 
-        nlohmann::json nodeprevdata;
+        ADDERRPING("#1");
+        template_varvalues nodeprevdata;
         // find the section of the previous chunk belonging to the same node
         auto node_prev_bridx = log.find_Breakpoint_index_before_chunk(chunk.get_node_prev_chunk()->get_tbegin_key());
         if (node_prev_bridx != bridx) {
-            nodeprevdata["nodeprevsectionyyyymmdd"] = log.get_Breakpoint_Ymd_str(node_prev_bridx);
+            nodeprevdata.emplace("nodeprevsectionyyyymmdd",log.get_Breakpoint_Ymd_str(node_prev_bridx));
         } else {
-            nodeprevdata["nodeprevsectionyyyymmdd"] = yyyymmdd;
+            nodeprevdata.emplace("nodeprevsectionyyyymmdd",yyyymmdd);
         }
-        nodeprevdata["nodeprevchunkstartyyyymmddhhmm"] = chunk.get_node_prev_chunk()->get_tbegin_str();
+        nodeprevdata.emplace("nodeprevchunkstartyyyymmddhhmm",chunk.get_node_prev_chunk()->get_tbegin_str());
         return env.render(templates[chunk_nodeprev_temp], nodeprevdata);
     }
 
@@ -286,15 +309,16 @@ public:
             return templates[chunk_nodenonext_temp]; // no need to render
         }
 
-        nlohmann::json nodenextdata;
+        ADDERRPING("#1");
+        template_varvalues nodenextdata;
         // find the section of the next chunk belonging to the same node
         auto node_next_bridx = log.find_Breakpoint_index_before_chunk(chunk.get_node_next_chunk()->get_tbegin_key());
         if (node_next_bridx != bridx) {
-            nodenextdata["nodenextsectionyyyymmdd"] = "task-log."+log.get_Breakpoint_Ymd_str(node_next_bridx)+".html#";
+            nodenextdata.emplace("nodenextsectionyyyymmdd","task-log."+log.get_Breakpoint_Ymd_str(node_next_bridx)+".html#");
         } else {
-            nodenextdata["nodenextsectionyyyymmdd"] = "#"; // all that are in the same section!
+            nodenextdata.emplace("nodenextsectionyyyymmdd","#"); // all that are in the same section!
         }
-        nodenextdata["nodenextchunkstartyyyymmddhhmm"] = chunk.get_node_next_chunk()->get_tbegin_str();
+        nodenextdata.emplace("nodenextchunkstartyyyymmddhhmm",chunk.get_node_next_chunk()->get_tbegin_str());
         return env.render(templates[chunk_nodenext_temp], nodenextdata);
     }
 
@@ -306,35 +330,38 @@ public:
 
         for (unsigned long c = chunk_begin_idx; c < chunk_end_limit; ++c) {
 
+            ADDERRPING(std::to_string(c));
             Log_chunk & chunk = *(log.get_chunk(c));
-            nlohmann::json chunkdata;
+            template_varvalues chunkdata;
 
-            chunkdata["chunkbeginyyyymmddhhmm"] = chunk.get_tbegin_str();
+            chunkdata.emplace("chunkbeginyyyymmddhhmm",chunk.get_tbegin_str());
 
-            chunkdata["ALprev"] = render_chunk_ALprev(c);
+            chunkdata.emplace("ALprev",render_chunk_ALprev(c));
 
-            chunkdata["ALnext"] = render_chunk_ALnext(c);
+            chunkdata.emplace("ALnext",render_chunk_ALnext(c));
 
             if (graph.num_Topics()>0) {
                 Topic * maintopic = main_topic(graph,chunk);
-                chunkdata["nodetopicid"] = maintopic->get_tag();
-                chunkdata["nodetopictitle"] =maintopic->get_title();
+                if (maintopic) {
+                    chunkdata.emplace("nodetopicid", maintopic->get_tag());
+                    chunkdata.emplace("nodetopictitle", maintopic->get_title());
+                }
             } else {
-                chunkdata["nodetopicid"] = "{missing-topic}";
-                chunkdata["nodetopictitle"] = "{missing-title}";
+                chunkdata.emplace("nodetopicid", "{missing-topic}");
+                chunkdata.emplace("nodetopictitle", "{missing-title}");
             }
+            ADDERRPING("#1");
+            chunkdata.emplace("nodeid",chunk.get_NodeID().str());
 
-            chunkdata["nodeid"] = chunk.get_NodeID().str();
+            chunkdata.emplace("nodeprev",render_chunk_nodeprev(chunk));
 
-            chunkdata["nodeprev"] = render_chunk_nodeprev(chunk);
-
-            chunkdata["nodenext"] = render_chunk_nodenext(chunk);
+            chunkdata.emplace("nodenext",render_chunk_nodenext(chunk));
 
             time_t chunkclose = chunk.get_close_time();
             if (chunkclose<0) {
-                chunkdata["chunkendIyyyymmddhhmm"] = "";
+                chunkdata.emplace("chunkendIyyyymmddhhmm","");
             } else {
-                chunkdata["chunkendIyyyymmddhhmm"] = "<I>"+TimeStampYmdHM(chunkclose)+"</I>";
+                chunkdata.emplace("chunkendIyyyymmddhhmm","<I>"+TimeStampYmdHM(chunkclose)+"</I>");
             }
 
             // Let's hope for or enforce valid rapid-access `entries` vector.
@@ -346,10 +373,11 @@ public:
                 break;
                 // *** END DUMMY CODE
             }
-            chunkdata["entries"] = entry;
+            chunkdata.emplace("entries",entry);
 
-            chunks += env.render(templates[chunk_temp],chunks);
+            chunks += env.render(templates[chunk_temp],chunkdata);
         }
+        return true;
     }
 
     bool render_entry() {
@@ -363,29 +391,106 @@ public:
 };
 
 /**
+ * Progress indicator that prints a row of '=' if the counter has reached
+ * another 10th of the total.
+ * 
+ * @param n is the total number that equals 100%.
+ * @param ncount is the number reached so far.
+ * @return string containing a bar of proportional length (or empty if
+ *         another 10th has not yet been reached).
+ */
+std::string all_sections_progress_bar(unsigned long n, unsigned long ncount) {
+    if (ncount==0) {
+        return "+----+----+----+---+\n"
+               "|    :    :    :   |\n";
+    }
+
+    if (ncount >= n) {
+        return "====================";
+    }
+
+    unsigned long tenth = n / 10;
+    if ((n % 10) > 0)
+        tenth++;
+
+    if (ncount < tenth)
+        return "";
+
+    if ((ncount % tenth) == 0) {
+        return std::string(2 * ncount / tenth,'=');
+    }
+
+    return "";
+}
+
+
+/**
  * Convert an entire Log into a dil2al backwards compatible set of
  * Task Log files.
  * 
  * The Graph and Log must already be fully in memory.
  * 
+ * This function attempts to create the `TLdirectory` specified if it does not
+ * exist already. A symbolic link `task-log.html` is also created in that
+ * directory, for easy access to the most recent of the files generated.
+ * 
  * @param graph the Graph.
  * @param log the fully in-memory Log.
  * @param TLdirectory is the directory path where TL files should be created.
+ * @param o points to an optional output stream for progress report (or nullptr).
  * @return true if successfully converted.
  */
-bool interactive_Log2TL_conversion(Graph & graph, Log & log, std::string TLdirectory) {
+bool interactive_Log2TL_conversion(Graph & graph, Log & log, std::string TLdirectory, std::ostream * o) {
     ERRHERE(".top");
 
+    std::error_code ec; // we need to check for error codes to distinguish from existing directory
+    if (!std::filesystem::create_directories(TLdirectory, ec)) {
+        if (ec)
+            ERRRETURNFALSE(__func__,"unable to create the output directory "+TLdirectory+"\nError code ["+std::to_string(ec.value())+"]: "+ec.message());
+        
+        ADDWARNING(__func__,"using a previously existing directory - any existing files in the directory may be affected");
+    }
+
+    render_environment env;
+    section_templates templates;
+    load_templates(templates);
+    std::string latest_TLfile;
     for (Log_chunk_ID_key_deque::size_type bridx = 0; bridx < log.num_Breakpoints(); ++bridx) {
+
         std::string bridxstr(std::to_string(bridx));
         ERRHERE(".conv."+bridxstr);
-        section_Converter sC(graph,log,bridx);
-        if (!sC.render_section())
-            ERRRETURNFALSE(__func__,"unable to render section ["+bridxstr+"] from Log chunk "+log.get_Breakpoint_first_chunk_id_str(bridx));
-        
+
+        section_Converter sC(env,templates,graph,log,bridx);
+        if (!sC.render_section()) {
+            ADDERROR(__func__,"unable to render section ["+bridxstr+"] from Log chunk "+log.get_Breakpoint_first_chunk_id_str(bridx));
+            continue;
+        }
+
+        if (sC.rendered_section.empty()) {
+            ADDERROR(__func__,"empty rendered section ["+bridxstr+"] from Log chunk "+log.get_Breakpoint_first_chunk_id_str(bridx));
+            continue;
+        }
+
         ERRHERE(".store."+bridxstr);
-        if (!string_to_file(TLdirectory+"/task-log."+log.get_Breakpoint_Ymd_str(bridx)+".html",sC.rendered_section))
+        latest_TLfile = TLdirectory+"/task-log."+log.get_Breakpoint_Ymd_str(bridx)+".html";
+        if (!string_to_file(latest_TLfile,sC.rendered_section))
             ERRRETURNFALSE(__func__,"unable to write section to file");
+
+        if (o) {
+            std::string progbar = all_sections_progress_bar(log.num_Breakpoints(), bridx);
+            if (!progbar.empty())
+                (*o) << progbar << '\n';
+        }
+    }
+
+    ERRHERE(".result");
+    if (latest_TLfile.empty()) {
+        ERRRETURNFALSE(__func__,"there appear to be no created files to point a task-log.html symbolic link to");
+
+    } else {
+        std::filesystem::create_symlink(latest_TLfile,TLdirectory+"/task-log.html",ec);
+        if (ec)
+            ERRRETURNFALSE(__func__,"Conversion completed, but unable to create symbolic link to task-log.html\nError code ["+std::to_string(ec.value())+"]: "+ec.message());
     }
 
     return true;

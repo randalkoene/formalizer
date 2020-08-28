@@ -78,7 +78,14 @@ bool valid_Log_chunk_ID(std::string id_str, std::string &formerror, Log_TimeStam
  * 
  * These structures are mainly used as unique IDs, but conversion to UNIX time
  * is provided through member functions.
- * Time conversion to UNIX time is carried out by the get_time() functions.
+ * Time conversion to UNIX time is carried out by the get_epoch_time() function.
+ * 
+ * Note: A non-standard Log time stamp can be created and used. The quick
+ *       isnullstamp() test can detect the special case where non-standard
+ *       values are used to create a null-stamp, so that the get_local_time()
+ *       and get_epoch_time() functions return well defined results for those.
+ *       For greater assurance, the Log_entry_ID_key and Log_chunk_ID_key
+ *       classes call specific thorough `valid_...` test functions.
  */
 struct Log_TimeStamp {
     uint8_t minor_id;
@@ -88,9 +95,12 @@ struct Log_TimeStamp {
     uint8_t month;
     int16_t year;
 
+    /// Initializes as LOG_NULL_IDSTAMP.
     Log_TimeStamp(): minor_id(0), minute(0), hour(0), day(0), month(0), year(0) {}
     Log_TimeStamp(std::time_t t, bool testvalid = false, uint8_t _minorid = 0);
 
+    /// standardization functions and operators
+    bool isnullstamp() const { return (month == 0) || (year<1900); }
     bool operator< (const Log_TimeStamp& rhs) const {
         return std::tie(year,month,day,hour,minute,minor_id)
              < std::tie(rhs.year,rhs.month,rhs.day,rhs.hour,rhs.minute,rhs.minor_id);
@@ -99,9 +109,8 @@ struct Log_TimeStamp {
         return std::tie(year,month,day,hour,minute,minor_id)
              == std::tie(rhs.year,rhs.month,rhs.day,rhs.hour,rhs.minute,rhs.minor_id);
     }
-
     std::tm get_local_time() const;
-    time_t get_epoch_time() const { return mktime(&get_local_time()); }
+    time_t get_epoch_time() const;
 };
 
 /**
@@ -377,7 +386,7 @@ struct Log_chunks_Deque: public Log_chunk_ptr_deque {
     /// Get index of Log chunk pointer by ID key. Returns size() if not found.
     Log_chunk_ptr_deque::size_type find(const Log_chunk_ID_key chunk_id) const;
     /// Find index of Log chunk by its ID closest to time t.
-    Log_chunk_ptr_deque::size_type Log_chunks_Deque::find(std::time_t t, bool later) const;
+    Log_chunk_ptr_deque::size_type find(std::time_t t, bool later) const;
 
     // friend functions
     /// Sum of durations of Log chunks.
@@ -501,10 +510,16 @@ public:
     std::deque<Log_chunk *> get_Node_chunks_fullparse(const Node_ID node_id);
     std::deque<Log_chunk *> get_Node_chunks(const Node_ID node_id); /// This version requires valid prev/next references.
 
+    /// helper (utility) functions
+    std::time_t oldest_chunk_t() { return (num_Chunks()>0) ? chunks.front()->get_open_time() : RTt_unspecified; }
+    std::time_t newest_chunk_t() { return (num_Chunks()>0) ? chunks.back()->get_open_time() : RTt_unspecified; }
 
     // friend functions
     friend std::vector<Log_chunks_Deque::size_type> Breakpoint_Indices(Log & log);
     friend std::vector<Log_chunks_Deque::size_type> Chunks_per_Breakpoint(Log & log);
+    friend unsigned long Log_span_in_seconds(Log & log);
+    friend double Log_span_in_days(Log & log);
+    friend ymd_tuple Log_span_years_months_days(Log & log);
   
     //*** Can define a helper function to `refresh_Chunk_entries(Log_chunk_ID_key_deque::size_type idx)`
     //*** in case the rapid-access vector was not initialized or was corrupted.

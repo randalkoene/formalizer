@@ -12,10 +12,21 @@ CC=gcc
 CCPP=g++ 
 ##########################################################
 
+# Temporarily enable the following (later replace with graph2dil and server calls)
+COMPILEDIRECTGRAPH2DIL = -D__DIRECTGRAPH2DIL__ -DDIRECTGRAPH2DIL_DIR=\"/var/www/html/formalizer/graph2dil\"
+OBJECTDIRECTGRAPH2DIL = ../graph2dil/obj/log2tl.o
+OBJECTDIRECTGRAPHDETECT = ../graph2dil/log2tl.cpp
+
+# Define (uncomment) the following to set a different precompiled default
+# output path for logtest.
+LOGTESTOUTPUTFILE = -DDEFAULT_LOGTEST_FILE=\"/var/www/html/formalizer/dil2graph-testlogdata.html\"
+
 FORMALIZERPATH=$(HOME)/src/formalizer
 COREINCLUDEPATH=$(FORMALIZERPATH)/core/include
 CORELIBPATH=$(FORMALIZERPATH)/core/lib
 FORMALIZERPATH_THIS=$(FORMALIZERPATH)/tools/dil2graph
+
+LOGTESTTEMPLATES = -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\"
 
 DIL2AL=$(HOME)/src/dil2al
 
@@ -66,7 +77,7 @@ RXCFXTRA= -D__DIL2AL__ -DSTDC_HEADERS -pedantic -Wall $(GCC3FXTRA)
 ## dil2graph uses a few C++ constructs that are new to C++20, such as designated initializer lists,
 ## so let's add support for that here:
 CPP2020= -std=gnu++2a
-CPPXTRA= -D__DIL2AL__ -D_ALT_REGEX_H=$(ALT_REGEX_H) $(MACHOPT) -mieee-fp -ffast-math -D_USE_ALT_REGEX -D_CPP_REGEX -DDEFAULTHOMEDIR=\"$(HOME)\" -pedantic -Wall -Werror $(GCC3FXTRA) $(CPPTEMPWORKAROUND) $(CPP2020)
+CPPXTRA= -D__DIL2AL__ -D_ALT_REGEX_H=$(ALT_REGEX_H) $(MACHOPT) -mieee-fp -ffast-math -D_USE_ALT_REGEX -D_CPP_REGEX -DDEFAULTHOMEDIR=\"$(HOME)\" -pedantic -Wall -Werror $(GCC3FXTRA) $(CPP2020)
 REGEXSTR=regex-gnu_for_C++
 ##
 ##########################################################
@@ -118,8 +129,8 @@ CFLAGS= $(COMPOPT) $(MACHSPEC) $(CFXTRA)
 RXCFLAGS= $(COMPOPT) $(MACHSPEC) $(RXCFXTRA)
 CPPFLAGS= $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(SAFEREGEX) $(INCLUDES)
 
-CORE_OBJS= $(CORELIBPATH)/obj/error.o $(CORELIBPATH)/obj/general.o $(CORELIBPATH)/obj/TimeStamp.o \
-			$(CORELIBPATH)/obj/Graphtypes.o $(CORELIBPATH)/obj/Graphpostgres.o $(CORELIBPATH)/obj/Logtypes.o \
+CORE_OBJS= $(CORELIBPATH)/obj/error.o $(CORELIBPATH)/obj/general.o $(CORELIBPATH)/obj/templater.o $(CORELIBPATH)/obj/ReferenceTime.o $(CORELIBPATH)/obj/TimeStamp.o \
+			$(CORELIBPATH)/obj/Graphtypes.o $(CORELIBPATH)/obj/Graphcompare.o $(CORELIBPATH)/obj/Graphpostgres.o $(CORELIBPATH)/obj/Logtypes.o \
 			$(CORELIBPATH)/obj/dilaccess.o
 
 DIL2AL_OBJS= $(DIL2AL)/utilities.o $(DIL2AL)/interface.o $(DIL2AL)/testcode.o $(DIL2AL)/diladmin.o \
@@ -136,19 +147,25 @@ init: FORCE
 	@echo 'Includes: $(CPPFLAGS)'
 	@echo '-------------------------------------------------------------------'
 
+# add $(CPPTEMPWORKAROUND) as needed
+
 $(OBJ)/dil2al_minimal.o: dil2al_minimal.cpp dil2al_minimal.hpp version.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) -c dil2al_minimal.cpp -o $(OBJ)/dil2al_minimal.o
 
 $(OBJ)/logtest.o: logtest.cpp logtest_templates.cpp logtest.hpp version.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\" -c logtest.cpp -o $(OBJ)/logtest.o
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(LOGTESTTEMPLATES) $(LOGTESTOUTPUTFILE) -c logtest.cpp -o $(OBJ)/logtest.o
 
 $(OBJ)/tl2log.o: tl2log.cpp tl2log.hpp version.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) -c tl2log.cpp -o $(OBJ)/tl2log.o
 
 $(OBJ)/dil2graph.o: dil2graph.cpp dil2graph.hpp version.hpp $(OBJ)/dil2al_minimal.o
-	$(CCPP) $(CPPFLAGS) $(COLORS) -c dil2graph.cpp -o $(OBJ)/dil2graph.o
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(COMPILEDIRECTGRAPH2DIL) -c dil2graph.cpp -o $(OBJ)/dil2graph.o
 
-dil2graph: $(OBJ)/dil2graph.o $(OBJ)/tl2log.o $(OBJ)/logtest.o $(OBJ)/dil2al_minimal.o $(DIL2AL_OBJS) $(CORE_OBJS) $(ALT_REGEX)
+$(OBJECTDIRECTGRAPH2DIL): $(OBJECTDIRECTGRAPHDETECT)
+	@echo 'log2tl code has changed - please recompile in ../graph2dil !'
+
+dil2graph: $(OBJ)/dil2graph.o $(OBJ)/tl2log.o $(OBJ)/logtest.o $(OBJ)/dil2al_minimal.o \
+			$(DIL2AL_OBJS) $(CORE_OBJS) $(ALT_REGEX) $(OBJECTDIRECTGRAPH2DIL)
 	$(CCPP) $(CPPFLAGS) $^ -o dil2graph $(LIB_PATH)
 
 clean:

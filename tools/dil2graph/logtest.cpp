@@ -25,15 +25,18 @@
 
 using namespace fz;
 
-/// The Makefile attempts to provide this at compile time based on the source
-/// file directory.
-#ifdef DEFAULT_TEMPLATE_DIR
-    std::string test_template_path(DEFAULT_TEMPLATE_DIR "/test_page.template.html");
-#else
-    std::string test_template_path("./test_page.template.html");
+// The Makefile attempts to provide this at compile time based on the source
+// file directory location.
+#ifndef DEFAULT_TEMPLATE_DIR
+    #define DEFAULT_TEMPLATE_DIR "."
+#endif
+// The Makefile can specify this as desired.
+#ifndef DEFAULT_LOGTEST_FILE
+    #define DEFAULT_LOGTEST_FILE "/tmp/dil2graph-logtest.html"
 #endif
 
-std::string testfilepath("/var/www/html/formalizer/dil2graph-testlogdata.html");
+std::string test_template_path(DEFAULT_TEMPLATE_DIR "/test_page.template.html");
+std::string testfilepath(DEFAULT_LOGTEST_FILE);
 
 /**
  * Generate simple HTML snippet for the content of a specified Log chunk.

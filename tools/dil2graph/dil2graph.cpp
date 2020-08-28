@@ -41,6 +41,10 @@
 #include "tl2log.hpp"
 #include "logtest.hpp"
 
+#ifdef __DIRECTGRAPH2DIL__
+    #include "../graph2dil/log2tl.hpp"
+#endif // __DIRECTGRAPH2DIL__
+
 std::string server_long_id;
 
 using namespace fz;
@@ -506,9 +510,14 @@ void print_usage(std::string progname) {
               << '\n';
 }
 
-bool load_only = false; /// Alternative call, merely to test database loading.
-bool dil_only = false;
-bool tl_only = false;
+enum flow_options {
+    flow_everything = 0, /// load and convert DIL hierarchy to Graph, load and convert Task Log to Log
+    flow_load_only = 1,  /// Graph loading test only
+    flow_dil_only = 2,   /// load and convert DIL hierarchy to Graph
+    flow_tl_only = 3     /// load and convert Task Log to Log
+};
+
+flow_options flowcontrol = flow_everything;
 
 void process_commandline(int argc, char *argv[]) {
     int c;
@@ -526,15 +535,15 @@ void process_commandline(int argc, char *argv[]) {
             break;
 
         case 'L':
-            load_only = true;
+            flowcontrol = flow_load_only;
             break;
 
         case 'D':
-            dil_only = true;
+            flowcontrol = flow_dil_only;
             break;
 
         case 'T':
-            tl_only = true;
+            flowcontrol = flow_tl_only;
             break;
 
         case 'o':
@@ -809,6 +818,8 @@ void interactive_validation(Detailed_Items_List *dil, Graph *graph) {
 }
 
 int main(int argc, char *argv[]) {
+    ErrQ.disable_caching(); // more granular, more work, less chance of losing error messages
+    
     ERRHERE(".1");
     server_long_id = "Formalizer:Conversion:DIL2Graph v" + version() + " (core v" + coreversion() + ")";
     din = &cin;
@@ -835,17 +846,57 @@ int main(int argc, char *argv[]) {
 
     ERRHERE(".2");
 
-    if (load_only) {
+    std::unique_ptr<Graph> graphptr;
+    std::unique_ptr<Log> logptr;
+    switch (flowcontrol) {
+    case flow_load_only: {
         alt_main(); // This does not return
+        break;
     }
 
-    if (!tl_only) {
-        std::pair<Detailed_Items_List *, Graph *> dg = interactive_conversion();
-        interactive_validation(dg.first, dg.second);
+    case flow_dil_only: {
+        auto [DILptr, _graphptr] = interactive_conversion();
+        interactive_validation(DILptr, _graphptr);
+        graphptr.reset(_graphptr);
+        break;
     }
-    if (!dil_only) {
-        interactive_TL2Log_conversion();
+
+    case flow_tl_only: {
+        auto [TLptr, _logptr] = interactive_TL2Log_conversion();
+        logptr = std::move(_logptr);
+        break;
     }
+
+    default: { // flow_everything
+        auto [DILptr, _graphptr] = interactive_conversion();
+        interactive_validation(DILptr, _graphptr);
+        auto [TLptr, _logptr] = interactive_TL2Log_conversion();
+        graphptr.reset(_graphptr);
+        logptr = std::move(_logptr);
+    }
+    }
+
+#ifdef __DIRECTGRAPH2DIL__
+    if (logptr) {
+        VOUT << "Now, let's try converting the Log right back into Tak Log files.\n";
+        key_pause();
+
+        ERRHERE(".graph2dil");
+        if (!graphptr) {
+            graphptr = std::make_unique<Graph>();
+            if (!load_Graph_pq(*graphptr, dbname)) {
+                EOUT << "\nSomething went wrong! Unable to Graph load from Postgres database.\n";
+                Exit_Now(exit_database_error);
+            }
+        }
+        if (!interactive_Log2TL_conversion(*graphptr, *logptr,DIRECTGRAPH2DIL_DIR, &VOUT)) {
+            EOUT << "\nDirect conversion test back to Task Log files did not complete..\n";
+            Exit_Now(exit_general_error);
+        }
+        VOUT << "Direct conversion test back to Task Log files written to " << DIRECTGRAPH2DIL_DIR << '\n';
+        VOUT << "Hint: Try viewing it http://aether.local/formalizer/graph2dil/task-log.html\n";
+    }
+#endif // __DIRECTGRAPH2DIL__
 
     ERRHERE(".3");
     VOUT << runnablename << " completed.\n";

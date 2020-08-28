@@ -9,12 +9,20 @@
  */
 
 #include <filesystem>
+#include <ostream>
 #include <iostream>
 
 #include "error.hpp"
 #include "Graphtypes.hpp"
 #include "Logtypes.hpp"
 #include "log2tl.hpp"
+
+// This can be specified in the Makefile. If it is not then the macro
+// is set to the empty string, which leads to initialization with time
+// stamp in /tmp/graph2dil-<time-stamp>.
+#ifndef GRAPH2DIL_OUTPUT_DIR
+    #define GRAPH2DIL_OUTPUT_DIR ""
+#endif // GRAPH2DIL_OUTPUT_DIR
 
 using namespace fz;
 
@@ -25,8 +33,6 @@ enum exit_status_code { exit_ok,
                         exit_cancel,
                         exit_conversion_error,
                         exit_DIL_error };
-
-std::string DILTLdirectory;
 
 /**
  * Closing and clean-up actions when exiting the program.
@@ -48,30 +54,62 @@ void key_pause() {
     std::getline(std::cin, enterstr);
 }
 
-void initialize() {
-    DILTLdirectory = "/tmp/graph2dil-"+TimeStampYmdHM(ActualTime()); // default location for converted output files
-}
+struct {
+    std::string server_long_id = "Formalizer:Conversion:DIL2Graph v" __VERSION_HPP " (core v" __COREVERSION_HPP ")"; /// Formalizer component identifier
+    std::string runnablename; /// the running program name
+    std::string DILTLdirectory = GRAPH2DIL_OUTPUT_DIR; /// location for converted output files
+    std::vector<std::string> cmdargs; /// copy of command line arguments
+
+    /**
+     * Initialize configuration parameters.
+     * Call this at the top of main().
+     * 
+     * @param argc command line parameters count forwarded from main().
+     * @param argv command line parameters array forwarded from main().
+     */
+    void init(int argc, char *argv[]) {
+        for (int i = 0; i < argc; ++i) cmdargs[i] = argv[i];
+
+        runnablename = cmdargs[0];
+        auto n = runnablename.find_last_of('/');
+        if (n!=std::string::npos)
+            runnablename.erase(0,n+1);
+
+        if (DILTLdirectory.empty())
+            DILTLdirectory = "/tmp/graph2dil-"+TimeStampYmdHM(ActualTime());
+
+    }
+
+} configpars;
 
 int main(int argc, char *argv[]) {
-    initialize();
+    ERRHERE(".init");
+    configpars.init(argc,argv);
 
     //*** THIS IS JUST A STUB!
 
-    if (!std::filesystem::create_directories(DILTLdirectory)) {
-        std::cerr << "\nUnable to create the output directory "+DILTLdirectory+".\n";
+    ERRHERE(".prep");
+    if (!std::filesystem::create_directories(configpars.DILTLdirectory)) {
+        std::cerr << "\nUnable to create the output directory "+configpars.DILTLdirectory+".\n";
         Exit_Now(exit_general_error);
     }
 
+    ERRHERE(".loadGraph");
     Graph graph;
     //*** LOAD THE GRAPH
 
+    ERRHERE(".loadLog");
     Log log;
     //*** LOAD THE LOG
 
-    if (!interactive_Log2TL_conversion(graph, log, DILTLdirectory)) {
+    ERRHERE(".goLog2TL");
+    if (!interactive_Log2TL_conversion(graph, log, configpars.DILTLdirectory, &std::cout)) {
         std::cerr << "\nNeed a database account to proceed. Defaults to $USER.\n";
         Exit_Now(exit_general_error);
     }
          
+    ERRHERE(".exitok");
+    std::cout << configpars.runnablename << " completed.\n";
+
     Exit_Now(exit_ok);
 }

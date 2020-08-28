@@ -12,10 +12,12 @@
 #include "version.hpp"
 #define __LOG2TL_HPP (__VERSION_HPP)
 
+#include <ostream>
+
 #include "Logtypes.hpp"
 
 using namespace fz;
 
-bool interactive_Log2TL_conversion(Graph & graph, Log & log, std::string TLdirectory);
+bool interactive_Log2TL_conversion(Graph & graph, Log & log, std::string TLdirectory, std::ostream * o = nullptr);
 
 #endif // __LOG2TL_HPP

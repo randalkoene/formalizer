@@ -51,10 +51,16 @@ unsigned long num_fixes_applied = 0;
  * Access starts with the HTML Task Log file at `tasklog` and with the
  * search cursor at its end (chunkseekloc=-1).
  * 
+ * @param o an optional message stream for information about the process.
  * @return pointer to Task Log object, or NULL if unsuccessful.
  */
-Task_Log * get_Task_Log() {
+Task_Log * get_Task_Log(ostream * o) {
     Task_Log * tl = new Task_Log();
+
+    if (o) {
+        (*o) << "Task Log ready for access at " << tl->chunktasklog << "\n";
+        (*o) << "\nNote that the Task Log is scanned iteratively, not loaded into memory in full.\n";
+    }
 
     return tl;    
 }
@@ -228,43 +234,49 @@ char manual_fix_choice(std::string chunkid_str, std::string nodeid_str, const ch
 }
 
 /**
- * Using the Task Log basic metrics provisions of Logtypes.hh to print some
- * information about the conversion.
+ * Print summary information about the conversion through basic metrics support in Logtypes.hh.
+ * 
+ * @param log the log data structure.
+ * @param o an output stream such a cout or a file stream.
+ * @param indent an optional string of characters to prepend each line with.
  */
-void show_metrics(Log & log) {
-    //VOUT << '@' << log.get_Chunks().front()->get_tbegin_str();
-    VOUT << "\n[" << log.num_Breakpoints() << "] Log breakpoints (TL files)\n";
-    VOUT << '[' << log.num_Chunks() << "] TL chunks (" << num_fixes_applied << " fixed";
-    if (log.num_Chunks() > 0)
-        VOUT << ", " << to_precision_string(100.0 * (double)num_fixes_applied / (double)log.num_Chunks()) << '%';
-    VOUT << ')';
-    if (log.num_Breakpoints() > 0)
-        VOUT << " (av. " << to_precision_string((double)log.num_Chunks() / (double) log.num_Breakpoints()) << " chunks/breakpoint)";
-    VOUT << "\n[" << log.num_Entries() << "] TL entries";
-    if (log.num_Chunks() > 0)
-        VOUT << " (av. " << to_precision_string((double)log.num_Entries() / (double)log.num_Chunks()) << " entries/chunk)";
+void print_Log_metrics(Log & log, ostream & o, std::string indent) {
+    o << indent << "Log breakpoints (TL files): " << log.num_Breakpoints() << "\n\n";
+    o << indent << "Log chunks                : " << log.num_Chunks() << '\n';
+
     if (log.num_Chunks() > 0) {
-        std::time_t firstchunk_t = log.get_Chunks().front()->get_open_time();
-        std::time_t lastchunk_t = log.get_Chunks().back()->get_open_time();
-        double difference = std::difftime(lastchunk_t,firstchunk_t) / (60 * 60 * 24);
-        auto [years, months, days] = static_cast<ymd_tuple>(years_months_days(firstchunk_t,lastchunk_t));
-        //auto years = years_months_days(firstchunk_t,lastchunk_t).year();
-        VOUT << "\n[" << difference << "] days (" << years << " years, "<< months << " months, " << days << " days) from [" << std::put_time(std::localtime(&firstchunk_t),"%F %T") << "] to [" << std::put_time(std::localtime(&lastchunk_t),"%F %T") << ']';
+        o << indent << "\t(" << num_fixes_applied << " chunks fixed, " << to_precision_string(100.0 * (double)num_fixes_applied / (double)log.num_Chunks()) << "%)\n";
+        if (log.num_Breakpoints() > 0)
+            o << indent << "\t(average chunks per breakpoint: " << to_precision_string((double)log.num_Chunks() / (double) log.num_Breakpoints()) << ")\n";
+        o << '\n';
+        o << indent << "Log entries               : " << log.num_Entries() << "\n";
+        o << indent << "\t(average entries per chunk: " << to_precision_string((double)log.num_Entries() / (double)log.num_Chunks()) << ")\n\n";
+        
+        std::time_t firstchunk_t = log.oldest_chunk_t();
+        std::time_t lastchunk_t = log.newest_chunk_t();
+        double span_days = Log_span_in_days(log);
+        auto [years, months, days] = Log_span_years_months_days(log);
+        o << indent << "Log span in days          : " << span_days << " (" << years << " years, "<< months << " months, " << days << " days)\n";
+        o << indent << "\tFrom [" << std::put_time(std::localtime(&firstchunk_t),"%F %T") << "] to [" << std::put_time(std::localtime(&lastchunk_t),"%F %T") << "]\n\n";
     }
+
     unsigned long total_minutes = Chunks_total_minutes(log.get_Chunks());
     auto [logged_years, logged_months, logged_days] = static_cast<ymd_tuple>(years_months_days(0,total_minutes*60));
-    VOUT << "\nTotal time logged = " << total_minutes << " minutes (" << logged_years << " years, " << logged_months << " months, " << logged_days << " days)\n";
+    o << indent << "Total time logged         : " << total_minutes << " minutes (" << logged_years << " years, " << logged_months << " months, " << logged_days << " days)\n";
     if (log.num_Chunks() > 0) {
         double av_duration = (double) total_minutes / (double) log.num_Chunks();
-        VOUT << "\nAverage Chunk duration = " << to_precision_string(av_duration) << " minutes\n";
-    }
-    if (log.num_Entries() > 0) {
-        unsigned long total_characters = Entries_total_text(log.get_Entries());
-        VOUT << "\nTotal characters logged = " << total_characters << " (approx. " << to_precision_string((double) total_characters / 3000.0) << " letter sized written pages, or " << to_precision_string((double) total_characters / (150.*3000.0)) << " books)\n";
+        o << indent << "\tAverage Chunk duration : " << to_precision_string(av_duration) << " minutes\n";
+
+        if (log.num_Entries() > 0) {
+            unsigned long total_characters = Entries_total_text(log.get_Entries());
+            o << '\n' << indent << "Total characters logged: " << total_characters << '\n';
+            o << indent << "\t(approx. " << to_precision_string((double)total_characters / 3000.0) << " letter sized written pages, or " << to_precision_string((double)total_characters / (150. * 3000.0)) << " books)\n";
+            o << indent << "\t(" << to_precision_string((double)total_characters / log.num_Entries()) << " chars per entry, " << to_precision_string((double)total_characters / log.num_Chunks()) << " chars per chunk)\n";
+            o << indent << "\t(" << to_precision_string((double)total_characters / (total_minutes/60)) << " chars per hour, " << to_precision_string((double)total_characters / (total_minutes/(24*60))) << " chars per day)\n";
+        }
     }
 
-    VOUT << '\n';
-
+    o << '\n';
 }
 
 const Node_ID convert_TL_DILref_to_Node_ID(TL_entry_content &TLentrycontent, Log & log, std::string chunkid_str, int &nodeid_result) {
@@ -412,10 +424,8 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
         if (nodeid_result<0)
             ERRRETURNNULL(__func__,"undefined Log conversion directive, exiting");
 
-        // Note that node_prev_chunk_id and node_next_chunk_id are assigned later.
-        TLentrycontent->dilprev.title;
-something here to get the next two, which are chunk pointers:
-            filetitle_t dilprev, dilnext;
+        // Note that node_prev_chunk_id and node_next_chunk_id are assigned at the end of the
+        // function by the call to log->setup_Chunk_nodeprevnext().
 
         if (nodeid_result>0) {
             log->add_earlier_Chunk(chunkid.key().idT,nodeid,TLentrycontent->chunkendtime);
@@ -438,11 +448,9 @@ something here to get the next two, which are chunk pointers:
 
     log->get_Breakpoints().add_earlier_Breakpoint(*log->get_Chunks().front());
 
+    ERRHERE(".chainbynode");
     // Set up the `node_prev_chunk_id` and `node_next_chunk_id` parameters
     log->setup_Chunk_nodeprevnext();
-
-    ERRHERE(".verify");
-    show_metrics(*log);
 
     return log;
 }
@@ -455,15 +463,13 @@ std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
     ERRHERE(".prep");
 
     Task_Log * tl;
-    if (!(tl = get_Task_Log())) {
+    if (!(tl = get_Task_Log(&VOUT))) {
         EOUT << "\nSomethihg went wrong! Unable to peruse Task Log.\n";
         Exit_Now(exit_DIL_error);
     }
 
-    key_pause();
-
     if (!manual_decisions) {
-        VOUT << "Please note that this conversion will attempt to apply fixes where those\n";
+        VOUT << "\nPlease note that this conversion will attempt to apply fixes where those\n";
         VOUT << "are feasible:\n";
         VOUT << "  a. Log chunks with missing Node references will be attached to a\n";
         VOUT << "     special 'Lost and Found' Node at id [20200820215834.1].\n";
@@ -471,6 +477,9 @@ std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
         VOUT << "     duration is less than " << auto_eliminate_duration_threshold << " then the chunk is eliminated.\n";
         VOUT << '\n';
     }
+
+    key_pause();
+
     VOUT << "Now, let's convert the Task Log to Log format:\n\n"; VOUT.flush();
     ERRHERE(".convert");
     //ConversionMetrics convmet;
@@ -480,6 +489,9 @@ std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
         Exit_Now(exit_conversion_error);
     }
     VOUT << "\nTask Log converted to Log with " << log->num_Entries() << " entries.\n\n";
+
+    VOUT << "Summary of Log metrics:\n\n";
+    print_Log_metrics(*log,VOUT,"\t");
 
     key_pause();
 

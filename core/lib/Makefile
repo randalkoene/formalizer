@@ -47,7 +47,7 @@ MACHOPT=
 ### (This should be replaced by actual source code modification.)
 ### Also, attempting a temporary fix for gcc 7.1+ compilation of dil2al
 ### (This should also be replaced by actual source code modification.)
-CPPTEMPWORKAROUND=-fno-access-control -Wno-format-truncation
+#CPPTEMPWORKAROUND=-fno-access-control -Wno-format-truncation
 
 GCC3FXTRA=$(if $(shell gcc -v 2>&1 | grep "^gcc version[^0-9]*[3-9][.]"),-Wno-unused-function)
 CFXTRA= -DSTDC_HEADERS -pedantic -Wall -Werror -Wno-char-subscripts $(GCC3FXTRA)
@@ -97,8 +97,9 @@ CPPFLAGS= $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(INCLUDES)
 
 .PHONY: FORCE
 
-all: init $(OBJ)/general.o $(OBJ)/error.o $(OBJ)/TimeStamp.o $(OBJ)/dilaccess.o $(OBJ)/Graphtypes.o \
-						$(OBJ)/Logtypes.o $(OBJ)/Graphpostgres.o
+all: init $(OBJ)/general.o $(OBJ)/error.o $(OBJ)/templater.o $(OBJ)/ReferenceTime.o $(OBJ)/TimeStamp.o \
+						$(OBJ)/dilaccess.o $(OBJ)/Graphtypes.o \
+						$(OBJ)/Graphcompare.o $(OBJ)/Logtypes.o $(OBJ)/Graphpostgres.o
 
 init: FORCE
 	@echo '-------------------------------------------------------------------'
@@ -109,26 +110,32 @@ init: FORCE
 $(OBJ)/error.o: error.cpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c error.cpp -o $(OBJ)/error.o
 
-$(OBJ)/general.o: general.cpp $(INC)/general.hpp $(INC)/error.hpp $(OBJ)/error.o
+$(OBJ)/general.o: general.cpp $(INC)/general.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c general.cpp -o $(OBJ)/general.o
 
-$(OBJ)/TimeStamp.o: TimeStamp.cpp $(INC)/TimeStamp.hpp $(INC)/error.hpp $(OBJ)/error.o
+$(OBJ)/templater.o: templater.cpp $(INC)/templater.hpp $(INC)/error.hpp
+	$(CCPP) $(CPPFLAGS) -c templater.cpp -o $(OBJ)/templater.o
+
+$(OBJ)/ReferenceTime.o: ReferenceTime.cpp $(INC)/ReferenceTime.hpp $(INC)/error.hpp
+	$(CCPP) $(CPPFLAGS) -c ReferenceTime.cpp -o $(OBJ)/ReferenceTime.o
+
+$(OBJ)/TimeStamp.o: TimeStamp.cpp $(INC)/TimeStamp.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c TimeStamp.cpp -o $(OBJ)/TimeStamp.o
 
-$(OBJ)/dilaccess.o: dilaccess.cpp $(INC)/dilaccess.hpp $(INC)/error.hpp $(OBJ/error.o)
+$(OBJ)/dilaccess.o: dilaccess.cpp $(INC)/dilaccess.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -I$(DIL2AL) -c dilaccess.cpp -o $(OBJ)/dilaccess.o
 
-$(OBJ)/Graphtypes.o: Graphtypes.cpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp \
-						$(OBJ)/general.o $(OBJ)/TimeStamp.o
+$(OBJ)/Graphcompare.o: Graphcompare.cpp $(INC)/Graphtypes.hpp
+	$(CCPP) $(CPPFLAGS) -c Graphcompare.cpp -o $(OBJ)/Graphcompare.o
+
+$(OBJ)/Graphtypes.o: Graphtypes.cpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c Graphtypes.cpp -o $(OBJ)/Graphtypes.o
 
-$(OBJ)/Logtypes.o: Logtypes.cpp $(INC)/Logtypes.hpp $(INC)/Graphtypes.hpp $(INC)/general.hpp \
-						$(INC)/TimeStamp.hpp $(OBJ)/Graphtypes.o $(OBJ)/general.o $(OBJ)/TimeStamp.o
+$(OBJ)/Logtypes.o: Logtypes.cpp $(INC)/Logtypes.hpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c Logtypes.cpp -o $(OBJ)/Logtypes.o
 
 $(OBJ)/Graphpostgres.o: Graphpostgres.cpp $(INC)/Graphpostgres.hpp $(INC)/Graphtypes.hpp \
-						$(INC)/general.hpp $(INC)/error.hpp $(OBJ)/Graphtypes.o \
-						$(OBJ)/general.o $(OBJ)/error.o
+						$(INC)/general.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c Graphpostgres.cpp -o $(OBJ)/Graphpostgres.o
 
 clean:

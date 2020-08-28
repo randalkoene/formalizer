@@ -103,6 +103,13 @@ public:
  * 
  * These structures are mainly used as unique IDs, but conversion to UNIX time
  * is provided through member functions.
+ * 
+ * Note: A non-standard ID time stamp can be created and used. The quick
+ *       isnullstamp() test can detect the special case where non-standard
+ *       values are used to create a null-stamp, so that the get_local_time()
+ *       and get_epoch_time() functions return well defined results for those.
+ *       For greater assurance, the Node_ID_key and Edge_ID_key classes
+ *       call specific thorough `valid_...` test functions.
  */
 struct ID_TimeStamp {
     uint8_t minor_id;
@@ -113,10 +120,11 @@ struct ID_TimeStamp {
     uint8_t month;
     int16_t year;
 
-    /// Initializes as NODE_NULL_ID.
+    /// Initializes as NODE_NULL_IDSTAMP.
     ID_TimeStamp(): minor_id(0), second(0), minute(0), hour(0), day(0), month(0), year(0) {}
 
     /// standardization functions and operators
+    bool isnullstamp() const { return (month == 0) || (year<1900); }
     bool operator< (const ID_TimeStamp& rhs) const {
         return std::tie(year,month,day,hour,minute,second,minor_id)
              < std::tie(rhs.year,rhs.month,rhs.day,rhs.hour,rhs.minute,rhs.second,rhs.minor_id);
@@ -463,7 +471,7 @@ public:
 
     /// friend (utility) functions
     friend Topic * main_topic(Topic_Tags & topictags, Node & node); // friend function to ensure search with available Topic_Tags
-    friend Topic * main_topic(Graph & _graph, Node & node) { return _graph.main_Topic_of_Node(node); }
+    friend Topic * main_topic(Graph & _graph, Node & node);
     friend bool identical_Nodes(Node & node1, Node & node2, std::string & trace);
 };
 

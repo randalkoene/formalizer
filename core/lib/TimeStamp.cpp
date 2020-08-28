@@ -41,7 +41,6 @@ namespace fz {
  * @return local Unix time in seconds, negative integer code, or
  *         INVALID_TIME_STAMP.
  */
-#define INVALID_TIME_STAMP -34403 // a numerical rendering of 'ERROR'
 time_t time_stamp_time(std::string timestr, bool noerror) {
     struct tm ts;
     int tl = timestr.size();
@@ -56,7 +55,7 @@ time_t time_stamp_time(std::string timestr, bool noerror) {
         if (!noerror) {
             ADDERROR(__func__, "invalid [^0-9]YYYYmmddHHMM time stamp (" + timestr + ") [failed test#1]");
         }
-        return (time_t)INVALID_TIME_STAMP;
+        return RTt_invalid_time_stamp;
     }
     const char *tschars = timestr.c_str();
     for (int i = tl - 12; i < tl; i++) {
@@ -64,7 +63,7 @@ time_t time_stamp_time(std::string timestr, bool noerror) {
             if (!noerror) {
                 ADDERROR(__func__, "invalid [^0-9]YYYYmmddHHMM time stamp (" + timestr + ") [failed test#2]");
             }
-            return (time_t)INVALID_TIME_STAMP;
+            return RTt_invalid_time_stamp;
         }
     }
 
@@ -80,7 +79,7 @@ time_t time_stamp_time(std::string timestr, bool noerror) {
         if (!noerror) {
             ADDERROR(__func__, "time stamp before the year 1900 (" + timestr + ") [failed test#3]");
         }
-        return (time_t)INVALID_TIME_STAMP;
+        return RTt_invalid_time_stamp;
     }
     ts.tm_year -= 1900;
     ts.tm_wday = 0;

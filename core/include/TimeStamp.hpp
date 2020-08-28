@@ -16,20 +16,9 @@
 #include <ctime>
 #include <tuple>
 
+#include "ReferenceTime.hpp"
+
 namespace fz {
-
-#define INVALID_TIME_STAMP -34403 // a numerical rendering of 'ERROR'
-
-std::time_t emulated_time = INVALID_TIME_STAMP;
-
-inline std::time_t ActualTime() { return std::time(); }
-
-inline std::time_t EmulatedTime() {
-    if (emulated_time > 0)
-        return emulated_time;
-
-    return ActualTime();
-}
 
 std::time_t time_stamp_time(std::string timestr, bool noerror = false);
 

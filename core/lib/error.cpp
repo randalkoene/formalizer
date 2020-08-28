@@ -25,6 +25,12 @@ void Errors::push(std::string f, std::string e) {
     if (e.empty())
         e = "unspecified";
     errq.push_back(Error_Instance(errhint, f, e));
+    if (!caching) {
+        if (numflushed<1)
+            output(ERRWARN_LOG_MODE);
+        else
+            output(std::ofstream::out | std::ofstream::app);
+    }
 }
 
 /**
@@ -37,6 +43,7 @@ Error_Instance Errors::pop() {
         return Error_Instance("", "", "");
     Error_Instance e(errq.front());
     errq.pop_front();
+    ++numflushed;
     return e;
 }
 
@@ -47,6 +54,7 @@ Error_Instance Errors::pop() {
  */
 int Errors::flush() {
     int s = errq.size();
+    numflushed += s;
     errq.clear();
     return s;
 }
@@ -63,6 +71,25 @@ std::string Errors::pretty_print() const {
 }
 
 /**
+ * Stream error messages to file and flush the queue.
+ * 
+ * Output modes are:
+ *   (std::ofstream::out | std::ofstream::trunc)
+ *   (std::ofstream::out | std::ofstream::app)
+ * 
+ * @param mode output mode.
+ */
+void Errors::output(std::ofstream::openmode mode) {
+    if (num()>0) {
+        if (get_errfilepath().empty()) set_errfilepath(DEFAULT_ERRLOGPATH);
+        std::ofstream errfile(get_errfilepath().c_str(),mode);
+        errfile << pretty_print();
+        errfile.close();
+        flush();
+    }
+}
+
+/**
  * Clean up after yourself before you exit.
  * 
  * Call this to exit the program and log any remaining errors in the queue.
@@ -75,20 +102,8 @@ std::string Errors::pretty_print() const {
  * ***      send the output.
  */
 void Clean_Exit(int ecode) {
-    if (ErrQ.num()>0) {
-        if (ErrQ.get_errfilepath().empty()) ErrQ.set_errfilepath(DEFAULT_ERRLOGPATH);
-        std::ofstream errfile(ErrQ.get_errfilepath().c_str(),ERRWARN_LOG_MODE);
-        errfile << ErrQ.pretty_print();
-        errfile.close();
-        ErrQ.flush();
-    }
-    if (WarnQ.num()>0) {
-        if (WarnQ.get_errfilepath().empty()) WarnQ.set_errfilepath(DEFAULT_WARNLOGPATH);
-        std::ofstream warnfile(WarnQ.get_errfilepath().c_str(),ERRWARN_LOG_MODE);
-        warnfile << WarnQ.pretty_print();
-        warnfile.close();
-        WarnQ.flush();
-    }
+    ErrQ.output(ERRWARN_LOG_MODE);
+    WarnQ.output(ERRWARN_LOG_MODE);
     exit(ecode);
 }
 
