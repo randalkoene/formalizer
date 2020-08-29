@@ -50,6 +50,7 @@ namespace fz {
 
 class Log_TimeStamp;
 class Log;
+class Log_data;
 class Log_entry;
 class Log_chunk;
 
@@ -181,6 +182,136 @@ struct Log_chunk_ID_key {
     bool operator== (const Log_chunk_ID_key& rhs) const { return (idT == rhs.idT); }
 };
 
+/**
+ * Log objects are principally identified by their ID key, but when used
+ * as a linked target, e.g. by-Node chaining, rapid-access pointers are
+ * maintained when possible for faster traveral. This Log_target template
+ * formalizes that concept.
+ * 
+ * *** Note: In a future update, this template can be the basis for added
+ *           pointer safety with regards to rapid-access pointers. See the
+ *           description on the Trello card at https://trello.com/c/CZ8XIw4j.
+ */
+template <class Log_ID_key, class Log_component>
+struct Log_target {
+    Log_ID_key key;
+    Log_component *ptr;
+
+    Log_target() : ptr(nullptr) {}
+    Log_target(const Log_ID_key &k, const Log_component *p = nullptr) : key(k), ptr(p) {}
+    Log_target(const Log_TimeStamp &t_stamp, const Log_component *p = nullptr) : key(t_stamp), ptr(p) {}
+};
+
+typedef Log_target<Log_chunk_ID_key, Log_chunk> Log_chunk_target;
+typedef Log_target<Log_entry_ID_key, Log_entry> Log_entry_target;
+
+typedef std::pair<bool, Log_data *> Log_ptr_pair;
+typedef std::tuple<bool, Log_chunk_ID_key, Log_entry_ID_key> Log_key_tuple;
+typedef std::tuple<bool, Log_chunk_target, Log_entry_target> Log_target_tuple;
+
+/**
+ * This data structure is used to follow a chain by-Node through the Log that
+ * can lead to Log chunks or Log entries.
+ * 
+ * The two possible IDs and two possible pointers are in unions to share the
+ * same memory space.
+ * 
+ * @param ischunk flag is true if the target is a Log chunk, false if Log entry.
+ * @param chunk identifies and points to a Log chunk (or is nullkey & nullptr).
+ * @param entry identifies and points to a Log entry (or is nullkey & nullptr).
+ */
+struct Log_chain_target {
+    bool ischunk;
+    union {
+        Log_chunk_target chunk;
+        Log_entry_target entry;
+    };
+
+    Log_chain_target(): ischunk(true) {}
+    Log_chain_target(const Log_chunk_ID_key & chunkkey, const Log_chunk * cptr = nullptr): ischunk(true), chunk(chunkkey,cptr) {}
+    Log_chain_target(const Log_entry_ID_key & entrykey, const Log_entry * eptr = nullptr): ischunk(false), entry(entrykey,eptr) {}
+    Log_chain_target(const Log_TimeStamp & t_stamp, bool _ischunk, Log_data * dptr = nullptr) { set_any_target(t_stamp,_ischunk, dptr); }
+
+    void set_chunk_target(const Log_chunk_target _chunk) { ischunk = true; chunk = _chunk; }
+    void set_chunk_target(const Log_chunk_ID_key & chunkkey, Log_chunk * cptr = nullptr) { ischunk = true; chunk.key = chunkkey; chunk.ptr = cptr; }
+    void set_chunk_target(const Log_TimeStamp & t_stamp, Log_chunk * cptr = nullptr) { ischunk = true; chunk.key = Log_chunk_ID_key(t_stamp); chunk.ptr = cptr; }
+    void set_entry_target(const Log_entry_target _entry) { ischunk = false; entry = _entry; }
+    void set_entry_target(const Log_entry_ID_key & entrykey, Log_entry * cptr = nullptr) { ischunk = false; entry.key = entrykey; entry.ptr = cptr; }
+    void set_entry_target(const Log_TimeStamp & t_stamp, Log_entry * cptr = nullptr) { ischunk = false; entry.key = Log_entry_ID_key(t_stamp); entry.ptr = cptr; }
+    void set_any_target(const Log_TimeStamp & t_stamp, bool _ischunk, Log_data * dptr = nullptr) {
+        ischunk = _ischunk;
+        if (ischunk) {
+            chunk = Log_chunk_target(t_stamp, (Log_chunk *)dptr);
+        } else {
+            entry = Log_entry_target(t_stamp, (Log_entry *)dptr);
+        }
+    }
+
+    Log_chunk_target get_chunk_target() {
+        if (ischunk)
+            return chunk;
+
+        ADDERROR(__func__, "chunk target requested from entry target (returning null-target)");
+        return Log_chunk_target();
+    }
+    Log_entry_target get_entry_target() {
+        if (!ischunk)
+            return entry;
+        
+        ADDERROR(__func__, "entry target requested from chunk target (returning null-target)");
+        return Log_entry_target();
+    }
+    Log_chunk_ID_key get_chunk_key() {
+        if (ischunk)
+            return chunk.key;
+    
+        ADDERROR(__func__, "chunk key requested from entry target (returning null-key)");
+        return Log_chunk_ID_key();
+    }
+    Log_entry_ID_key get_entry_key() {
+        if (!ischunk)
+            return entry.key;
+
+        ADDERROR(__func__, "entry key requested from chunk target (returning null-key)");
+        return Log_entry_ID_key();
+    }
+    /// Definitely check `ischunk` when using `get_ptr()`.
+    Log_data * get_ptr() {
+        return (ischunk) ? (Log_data *)chunk.ptr : (Log_data *)entry.ptr;
+    }
+    Log_ptr_pair get_data_ptr() {
+        return std::make_pair(ischunk, get_ptr());
+    }
+    Log_key_tuple get_any_ID_key() {
+        if (ischunk) {
+            return std::make_tuple(ischunk, chunk.key, Log_entry_ID_key());
+        } else {
+            return std::make_tuple(ischunk, Log_chunk_ID_key(), entry.key);
+        }
+    }
+    Log_target_tuple get_any_target() {
+        if (ischunk) {
+            return std::make_tuple(ischunk, chunk, Log_entry_target());
+        } else {
+            return std::make_tuple(ischunk, Log_chunk_target(), entry);
+        }
+    }
+
+    bool isnulltarget_byID() {
+        if (ischunk) {
+            return chunk.key.isnullkey();
+        } else {
+            return entry.key.isnullkey();
+        }
+    }
+    bool isnulltarget_byptr() {
+        return get_ptr() == nullptr;
+    }
+
+    Log_chain_target * go_next_in_chain();
+    Log_chain_target * go_prev_in_chain();
+};
+
 class Log_entry_ID {
     friend class Log_entry;
 protected:
@@ -222,26 +353,68 @@ public:
     time_t get_epoch_time() const { return idkey.idT.get_epoch_time(); }
 };
 
-class Log_entry {
+/// Log data base class providing shared parameters and functions.
+class Log_data {
+    friend class Log;
+    // We may move some things in here later. Right now, this exists mostly to
+    // provide some additional support to the `log_chain_target` struct.
+};
+
+/// Base class for Log components that are chainable as belonging to a Node.
+class Log_by_Node_chainable {
+    friend class Log;
+protected:
+    Log_chain_target node_prev;   /// Previous in chain-by-Node.
+    Log_chain_target node_next;   /// Next in chain-by-Node.
+
+public:
+    Log_by_Node_chainable() {}
+    Log_by_Node_chainable(const Log_chain_target & _prev, const Log_chain_target & _next): node_prev(_prev), node_next(_next) {}
+    Log_by_Node_chainable(bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next): node_prev(_prev,previschunk), node_next(_next,nextischunk) {}
+
+    Log_chain_target get_node_prev() { return node_prev; }
+    Log_chain_target get_node_next() { return node_next; }
+    Log_ptr_pair get_node_prev_ptr() { return node_prev.get_data_ptr(); }
+    Log_ptr_pair get_node_next_ptr() { return node_next.get_data_ptr(); }
+
+    void set_Node_prev_ptr(Log_chunk * prevptr);
+    void set_Node_prev_ptr(Log_entry * prevptr);
+    void set_Node_next_ptr(Log_chunk * nextptr);
+    void set_Node_next_ptr(Log_entry * nextptr);
+
+};
+
+class Log_entry: public Log_by_Node_chainable, public Log_data {
     friend class Log;
     friend class Log_chunk;
 protected:
-    const Log_entry_ID id;          /// The id that extends the chunk time stamp.
-    const Node_ID_key node_idkey;   /// Reference to the Node this belongs to or zero-stamp.
-    std::string entrytext;          /// Text content (typically in HTML).
+    const Log_entry_ID id;        /// The id that extends the chunk time stamp.
+    const Node_ID_key node_idkey; /// Reference to the Node this belongs to or zero-stamp.
+    std::string entrytext;        /// Text content (typically in HTML).
 
     // The following are maintained for rapid access where possible.
-    Node *node;
+    Node *node = nullptr;
     Log_chunk *chunk;
 
 public:
-    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, const Node_ID_key &_nodeidkey, Log_chunk * _chunk = NULL): id(_id), node_idkey(_nodeidkey), entrytext(_entrytext), chunk(_chunk) {}
-    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, Log_chunk * _chunk = NULL): id(_id), entrytext(_entrytext), chunk(_chunk) {}
+    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, const Node_ID_key &_nodeidkey, Log_chunk * _chunk = NULL): id(_id), node_idkey(_nodeidkey), entrytext(_entrytext), node(nullptr), chunk(_chunk) {
+        // Notice that we are not immediately attempting to set the `node` rapid-access cache that
+        // would correspond with `node_idkey`. That is, beause we cannot be certain that this object
+        // is being created within a context where the corresponding Node object actually ecists and
+        // a pointer to it is identifiable. The rapid-access pointer must be set explicitly via
+        // `set_Node_rapid_access()`, which can also be called by the parametrized overload of the
+        // `get_Node()` member function.
+    }
+    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, Log_chunk * _chunk = NULL): id(_id), entrytext(_entrytext), node(nullptr), chunk(_chunk) {}
+    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, const Node_ID_key &_nodeidkey, bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next, Log_chunk * _chunk = NULL) : id(_id), node_idkey(_nodeidkey), entrytext(_entrytext), node(nullptr), chunk(_chunk) {}
+    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next, Log_chunk * _chunk = NULL): Log_by_Node_chainable(previschunk,_prev,nextischunk,_next), id(_id), entrytext(_entrytext), node(nullptr), chunk(_chunk) {}
+
 
     /// Set Node pointer to the same Node as node_idkey if it was not set during construction.
     bool set_Node_rapid_access(Node & _node) {
-        if (!(node_idkey.idT == _node.get_id().key().idT))
+        if (!(node_idkey.idT == _node.get_id().key().idT)) {
             return false;
+        }
 
         node = &_node;
         return true;
@@ -249,9 +422,16 @@ public:
     void set_Chunk(Log_chunk * _chunk) { chunk = _chunk; }
 
     const Log_entry_ID & get_id() const { return id; }
+    uint8_t get_minor_id() const { return id.idkey.idT.minor_id; }
     const Node_ID_key & get_nodeidkey() const { return node_idkey; }
     std::string & get_entrytext() { return entrytext; }
     Node * get_Node() { return node; }
+    Node * get_Node(Graph & graph) {
+        if (!node)
+            node = graph.Node_by_id(node_idkey); // could still be nullptr!
+
+        return node;
+    }
     Log_chunk * get_Chunk() { return chunk; }
     time_t get_epoch_time() const { return id.get_epoch_time(); }
 
@@ -274,28 +454,23 @@ public:
  * reason, `Log_chunk` also explicitly stores `node_prevchunk_id` and
  * `node_nextchunk_id`.
  */
-class Log_chunk {
+class Log_chunk: public Log_by_Node_chainable, public Log_data {
 protected:
     // These three must be provided when the object is created.
-    const Log_chunk_ID t_begin; /// The time stamp when a Log chunk begins.
-    const Node_ID node_id;      /// The Node to which the Log chunk belongs.
-    std::time_t t_close;        /// The time when a Log chunk was closed (-1 if not closed).
-    // The following are expected, but can be added after object creation.
-    Log_chunk_ID node_prev_chunk_id; /// Previous chunk belonging to the same Node.
-    Log_chunk_ID node_next_chunk_id; /// Next chunk belonging to the same Node.
-    Log_entry_ID_key first_entry;    /// ID of the first Log_entry in the chunk (once created).
+    const Log_chunk_ID t_begin;   /// The time stamp when a Log chunk begins.
+    const Node_ID node_id;        /// The Node to which the Log chunk belongs.
+    std::time_t t_close;          /// The time when a Log chunk was closed (-1 if not closed).
+    Log_entry_ID_key first_entry; /// ID of the first Log_entry in the chunk (once created).
 
     // The following are maintained for rapid access where possible.
     Node *node;
     std::vector<Log_entry *> entries;
-    Log_chunk *node_prev_chunk;
-    Log_chunk *node_next_chunk;
 
 public:
-    Log_chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose) : t_begin(_tbegin), node_id(_nodeid), t_close(_tclose), node(NULL), node_prev_chunk(NULL), node_next_chunk(NULL) {}
-    Log_chunk(const Log_TimeStamp &_tbegin, Node &_node, std::time_t _tclose): t_begin(_tbegin), node_id(_node.get_id()), t_close(_tclose), node(&_node), node_prev_chunk(NULL), node_next_chunk(NULL) {}
-    Log_chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose, const Log_TimeStamp & _prev, const Log_TimeStamp & _next) : t_begin(_tbegin), node_id(_nodeid), t_close(_tclose), node_prev_chunk_id(_prev), node_next_chunk_id(_next), node(NULL), node_prev_chunk(NULL), node_next_chunk(NULL) {}
-    Log_chunk(const Log_TimeStamp &_tbegin, Node &_node, std::time_t _tclose, const Log_TimeStamp & _prev, const Log_TimeStamp & _next): t_begin(_tbegin), node_id(_node.get_id()), t_close(_tclose), node_prev_chunk_id(_prev), node_next_chunk_id(_next), node(&_node), node_prev_chunk(NULL), node_next_chunk(NULL) {}
+    Log_chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose) : t_begin(_tbegin), node_id(_nodeid), t_close(_tclose), node(NULL) {}
+    Log_chunk(const Log_TimeStamp &_tbegin, Node &_node, std::time_t _tclose): t_begin(_tbegin), node_id(_node.get_id()), t_close(_tclose), node(&_node) {}
+    Log_chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose, bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next) : Log_by_Node_chainable(previschunk,_prev,nextischunk,_next), t_begin(_tbegin), node_id(_nodeid), t_close(_tclose), node(NULL) {}
+    Log_chunk(const Log_TimeStamp &_tbegin, Node &_node, std::time_t _tclose, bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next): Log_by_Node_chainable(previschunk,_prev,nextischunk,_next), t_begin(_tbegin), node_id(_node.get_id()), t_close(_tclose), node(&_node) {}
 
     /// rapid-access setup
     bool set_Node_rapid_access(Node & _node); // inlined below
@@ -313,20 +488,13 @@ public:
     Node * get_Node(Graph & graph); // inlined below
     const Log_chunk_ID_key & get_tbegin_key() const { return t_begin.idkey; }
     const Log_TimeStamp & get_tbegin_idT() const { return t_begin.idkey.idT; }
-    std::string get_tbegin_str() const { return t_begin.str(); }
+    std::string get_tbegin_str() const { return t_begin.str(); } /// Log_chunk ID string
     std::time_t get_open_time() const { return t_begin.get_epoch_time(); }
     std::time_t get_close_time() const { return t_close; }
-
-    Log_chunk_ID get_node_prev_chunk_id() { return node_prev_chunk_id; }
-    Log_chunk_ID get_node_next_chunk_id() { return node_next_chunk_id; }
-    Log_chunk * get_node_prev_chunk() { return node_prev_chunk; }
-    Log_chunk * get_node_next_chunk() { return node_next_chunk; }
     Log_entry_ID_key & get_first_entry() { return first_entry; }
 
     /// change parameters
     void set_close_time(std::time_t _tclose) { t_close = _tclose; }
-    void set_Node_prev_chunk(Log_chunk * prevptr);
-    void set_Node_next_chunk(Log_chunk * nextptr);
 
     // helper (utility) functions
     std::time_t duration_seconds() const; // inline below
@@ -462,6 +630,8 @@ protected:
     Log_Breakpoints breakpoints;
 public:
     void setup_Chunk_nodeprevnext(); /// Call this after loading chunks into the Log.
+    void setup_Entry_node_caches(Graph & graph); /// Call this after loading entries into the Log with valid Graph.
+    void setup_Chunk_node_caches(Graph & graph); /// Call this after loading entries into the Log with valid Graph.
 
     /// tables: sizes
     Log_entries_Map::size_type num_Entries() const { return entries.size(); }
@@ -507,8 +677,8 @@ public:
     Log_chunk_index_interval get_Chunks_index_n_interval(std::time_t t_from, unsigned long n);
 
     /// chunks table: select subset by Node
-    std::deque<Log_chunk *> get_Node_chunks_fullparse(const Node_ID node_id);
-    std::deque<Log_chunk *> get_Node_chunks(const Node_ID node_id); /// This version requires valid prev/next references.
+    std::deque<Log_chain_target> get_Node_chain_fullparse(const Node_ID node_id, bool onlyfirst = false);
+    std::deque<Log_chain_target> get_Node_chain(const Node_ID node_id); /// This version requires valid prev/next references.
 
     /// helper (utility) functions
     std::time_t oldest_chunk_t() { return (num_Chunks()>0) ? chunks.front()->get_open_time() : RTt_unspecified; }

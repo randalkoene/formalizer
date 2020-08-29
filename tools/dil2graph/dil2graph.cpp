@@ -819,6 +819,7 @@ void interactive_validation(Detailed_Items_List *dil, Graph *graph) {
 
 int main(int argc, char *argv[]) {
     ErrQ.disable_caching(); // more granular, more work, less chance of losing error messages
+    //ErrQ.enable_pinging(); // turn this on when hunting for the cause of a segfault
     
     ERRHERE(".1");
     server_long_id = "Formalizer:Conversion:DIL2Graph v" + version() + " (core v" + coreversion() + ")";
@@ -836,6 +837,7 @@ int main(int argc, char *argv[]) {
         dbname = username;
     initialize();
     process_commandline(argc, argv);
+    verbose = false; // Turning off most messages from dil2al code.
 
     VOUT << server_long_id << " starting.\n";
     if (dbname.empty()) {
@@ -873,6 +875,10 @@ int main(int argc, char *argv[]) {
         auto [TLptr, _logptr] = interactive_TL2Log_conversion();
         graphptr.reset(_graphptr);
         logptr = std::move(_logptr);
+        if ((logptr != nullptr) && (graphptr != nullptr)) {
+            logptr->setup_Entry_node_caches(*(graphptr.get())); // here we can do this!
+            logptr->setup_Chunk_node_caches(*(graphptr.get()));
+        }
     }
     }
 
@@ -887,6 +893,10 @@ int main(int argc, char *argv[]) {
             if (!load_Graph_pq(*graphptr, dbname)) {
                 EOUT << "\nSomething went wrong! Unable to Graph load from Postgres database.\n";
                 Exit_Now(exit_database_error);
+            }
+            if ((logptr != nullptr) && (graphptr != nullptr)) {
+                logptr->setup_Entry_node_caches(*(graphptr.get())); // here we can do this!
+                logptr->setup_Chunk_node_caches(*(graphptr.get()));
             }
         }
         if (!interactive_Log2TL_conversion(*graphptr, *logptr,DIRECTGRAPH2DIL_DIR, &VOUT)) {

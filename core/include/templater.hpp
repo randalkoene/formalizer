@@ -24,7 +24,15 @@ struct template_variable_values {
     template_variable_values(std::string v): varvalue(v), n_applied(0) {}
 };
 
-typedef std::map<std::string,template_variable_values> template_varvalues;
+//typedef std::map<std::string,template_variable_values> template_varvalues;
+struct template_varvalues: public std::map<std::string,template_variable_values> {
+    template_varvalues() {}
+    template_varvalues(const std::map<std::string,std::string> & init) {
+        for (const auto& [k, v] : init) {
+            emplace(k,v);
+        }
+    }
+};
 
 struct render_varpos {
     std::string::size_type pos;
@@ -57,7 +65,7 @@ struct render_environment {
     std::string varclose = "}}";
     bool skipmissing = true;
     render_error_t render_error = rerr_ok;
-    std::string render(const std::string temp, template_varvalues vars);
+    std::string render(const std::string temp, template_varvalues vars, bool proceed_if_emptyvars = true);
 };
 
 } // namespace fz

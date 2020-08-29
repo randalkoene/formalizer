@@ -11,14 +11,15 @@
  */
 
 // needs these for the HTML output test samples of converted Log data
-#include <nlohmann/json.hpp>
-#include <inja/inja.hpp>
+//#include <nlohmann/json.hpp>
+//#include <inja/inja.hpp>
 
 #include "dil2al.hh"
 
 #include "general.hpp"
 #include "TimeStamp.hpp"
 #include "tl2log.hpp"
+#include "templater.hpp"
 
 // special non-header include to keep compile time teamplates out of the way
 #include "logtest_templates.cpp"
@@ -45,22 +46,22 @@ std::string testfilepath(DEFAULT_LOGTEST_FILE);
  * @param chunk the specified Log chunk.
  * @return a string containing the HTML snippet.
  */
-std::string sample_Chunk_HTML(inja::Environment & env, Log_chunk & chunk) {
+std::string sample_Chunk_HTML(render_environment & env, Log_chunk & chunk) {
     auto entrypointers = chunk.get_entries();
     VOUT << "Adding sample chunk with " << entrypointers.size() << " entries.\n";
 
     std::string htmlentries;
     for (auto entryptr_it = entrypointers.begin(); entryptr_it != entrypointers.end(); ++entryptr_it) {
-        nlohmann::json entrydata;
-        entrydata["entry"] = (*entryptr_it)->get_entrytext();
-        entrydata["minor_id"] = (*entryptr_it)->get_id().key().idT.minor_id;
+        template_varvalues entrydata;
+        entrydata.emplace("entry",(*entryptr_it)->get_entrytext());
+        entrydata.emplace("minor_id",(*entryptr_it)->get_id().key().idT.minor_id);
         htmlentries += env.render(testentry,entrydata);
     }
 
-    nlohmann::json chunkdata;
-    chunkdata["entries"] = htmlentries;
-    chunkdata["chunk"] = chunk.get_tbegin_str();
-    chunkdata["node"] = chunk.get_NodeID().str();
+    template_varvalues chunkdata;
+    chunkdata.emplace("entries",htmlentries);
+    chunkdata.emplace("chunk",chunk.get_tbegin_str());
+    chunkdata.emplace("node",chunk.get_NodeID().str());
 
     return env.render(testchunk,chunkdata);
 }
@@ -83,9 +84,9 @@ std::string sample_Chunk_HTML(inja::Environment & env, Log_chunk & chunk) {
 struct render_Breakpoint {
     Log & log;
     std::string & rendered;
-    inja::Environment & env;
+    render_environment & env;
 
-    render_Breakpoint(Log & _log, std::string & _rendered, inja::Environment & _env): log(_log), rendered(_rendered), env(_env) {}
+    render_Breakpoint(Log & _log, std::string & _rendered, render_environment & _env): log(_log), rendered(_rendered), env(_env) {}
 
     void operator()(unsigned long sample_idx) {
         Log_chunk_ID_key & chunk_key = log.get_Breakpoint_first_chunk_id_key(sample_idx);
@@ -94,8 +95,8 @@ struct render_Breakpoint {
         std::string TLfilename = "task-log."+ymdstr+".html";
         VOUT << "Adding sample Breakpoint " << TLfilename << " entries.\n";
 
-        nlohmann::json breakpointdata;
-        breakpointdata["TLfile"] = TLfilename;
+        template_varvalues breakpointdata;
+        breakpointdata.emplace("TLfile",TLfilename);
 
         std::string firstchunk_rendered;
         auto chunk_idx = log.get_Chunks().find(chunk_key);
@@ -105,7 +106,7 @@ struct render_Breakpoint {
         } else {
             firstchunk_rendered += testchunk_notfound;
         }
-        breakpointdata["firstchunk"] = firstchunk_rendered;
+        breakpointdata.emplace("firstchunk",firstchunk_rendered);
 
         rendered += env.render(testbreakpoint,breakpointdata);
     }
@@ -122,22 +123,23 @@ struct render_Breakpoint {
  * @return true if the test was able to complete.
  */
 bool test_Log_data(Log & log) {
-    nlohmann::json testpagedata = {
-        {"title","Log data test"},
+    std::map<std::string,std::string> tempinit {
+        {"title", "Log data test"},
         {"header","Log data test"},
         {"breakpoints_header","Task Log backward compatibility Log Breakpoints test"},
         {"chunks_header","Log chunks test"}
     };
+    template_varvalues testpagedata(tempinit);
 
-    inja::Environment env;
+    render_environment env;
     VOUT << "Building test page.\n";
 
     ERRHERE(".chunks");
     if (log.num_Chunks()>=1) {
         Log_chunk * chunk = log.get_Chunks().back().get();
-        testpagedata["chunks"] = sample_Chunk_HTML(env,*chunk);
+        testpagedata.emplace("chunks",sample_Chunk_HTML(env,*chunk));
     } else {
-        testpagedata["chunks"] = zerochunks;
+        testpagedata.emplace("chunks",zerochunks);
     }
 
     ERRHERE(".breakpoints");
@@ -146,9 +148,9 @@ bool test_Log_data(Log & log) {
         render_Breakpoint rB(log,testbreakpointsstr,env);
         std::set<unsigned long> sampleset = {0, log.num_Breakpoints()/2, log.num_Breakpoints()-1 };
         std::for_each(sampleset.begin(), sampleset.end(), rB);
-        testpagedata["breakpoints"] = testbreakpointsstr;
+        testpagedata.emplace("breakpoints",testbreakpointsstr);
     } else {
-        testpagedata["breakpoints"] = zerobreakpoints;
+        testpagedata.emplace("breakpoints",zerobreakpoints);
     }
 
     VOUT << "Using test page template at: " << test_template_path << '\n';

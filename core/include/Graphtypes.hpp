@@ -425,6 +425,7 @@ public:
 
     // safely inspect data
     const Node_ID &get_id() const { return id; }
+    std::string get_id_str() const { return id.str(); }
     const Topics_Set &get_topics() const { return topics; }
     float get_valuation() const { return valuation; }
     float get_completion() const { return completion; }

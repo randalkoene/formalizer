@@ -164,19 +164,22 @@ unsigned int convert_TL_Chunk_to_Log_entries(Log & log, std::string chunktext) {
         }
         std::string entrytext(chunktext.substr(entrytextpos, maxpos - entrytextpos));
 
+        // attempt to build a Log_entry_ID object
         try {
             const Log_entry_ID entryid(entryid_str);
 
             std::unique_ptr<Log_entry> entry;
-            if (nodeid_str.empty()) {
+            if (nodeid_str.empty()) { // make Log_entry object without Node specifier
                 entry = std::make_unique<Log_entry>(entryid.key().idT, entrytext, chunk);
-                chunk->add_Entry(*entry);
+                chunk->add_Entry(*entry); // add to chunk.entries
                 log.get_Entries().insert({entryid.key(),std::move(entry)}); // entry is now nullptr
 
             } else {
+                // attempt to build a Node_ID object
                 try {
                     const Node_ID nodeid(nodeid_str);
 
+                    // make Log_entry object with Node specifier
                     entry = std::make_unique<Log_entry>(entryid.key().idT, entrytext, nodeid.key(), chunk);
                     chunk->add_Entry(*entry);
                     log.get_Entries().insert({entryid.key(),std::move(entry)}); // entry is now nullptr
@@ -373,6 +376,11 @@ const Node_ID convert_TL_DILref_to_Node_ID(TL_entry_content &TLentrycontent, Log
  * point to existing Log chunks. Instead, the `Log::setup_Chunk_nodeprevnext()`
  * function is called at the end of conversion to set up those references.
  * 
+ * This function can be run in the absence of a Graph, but note that the
+ * rapid-access `node` caches are not set up here for that reason. Run
+ * `log->setup_Entry_node_caches(graph)` upon successful return from this
+ * function to set up rapid-access.
+ * 
  * ***Possible future improvement: By providing a valid Graph to this
  * function it would be possible to test if Nodes referenced by chunks
  * and entries actually exist.
@@ -450,11 +458,31 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
 
     ERRHERE(".chainbynode");
     // Set up the `node_prev_chunk_id` and `node_next_chunk_id` parameters
+    // ***
+    VOUT << "\n*** PLEASE NOTE: Chaining by node is still broken!\n\n";
+    VOUT << "*** Some ideas:\n";
+    VOUT << "*** - Read the actual embedded ids as chaining info, store that.\n";
+    VOUT << "*** - To encode and return rapid-access chains and vectors of such,\n";
+    VOUT << "***   create a stuct that can hold both a pointer to a chunk or to an\n";
+    VOUT << "***   entry (e.g. in a union) and a flag to distinguish them.\n";
+    VOUT << "***   To build the rapid access lists, either rely on the TL\n";
+    VOUT << "***   data, or run thourgh both chunk and entry lists to generate\n";
+    VOUT << "***   correctly.";
+    VOUT << "*** - Probably start by replacing the id key and pointer parameters\n";
+    VOUT << "***   with union structs first to ensure that no functions that assumed\n";
+    VOUT << "***   simple pointers will work without correction.\n\n";
+    // ***
     log->setup_Chunk_nodeprevnext();
 
     return log;
 }
 
+/**
+ * This function can be run in the absence of a Graph, but note that the
+ * rapid-access `node` caches are not set up here for that reason. Run
+ * `log->setup_Entry_node_caches(graph)` upon successful return from this
+ * function to set up rapid-access.
+ */
 std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
     ERRHERE(".top");
     key_pause();

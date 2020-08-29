@@ -234,6 +234,41 @@ time_t Log_TimeStamp::get_epoch_time() const {
     return mktime(&tm);
 }
 
+/**
+ * Use rapid-access pointers to point to next in by-Node chain.
+ * 
+ * This function requires that rapid-access pointers have been set up.
+ * 
+ * @return pointer to the next target in the chain, or nullptr if this
+ *         is a null-target (e.g. end of chain).
+ */
+Log_chain_target * Log_chain_target::go_next_in_chain() {
+    if (isnulltarget_byptr())
+        return nullptr;
+    
+    auto [ischunk, ptr] = get_data_ptr();
+
+    if (ischunk) {
+        return &(((Log_chunk *)ptr)->get_node_next());
+    } else {
+        return &(((Log_entry *)ptr)->get_node_next());
+    }
+}
+
+/// See description for go_next_in_chain().
+Log_chain_target * Log_chain_target::go_prev_in_chain() {
+    if (isnulltarget_byptr())
+        return nullptr;
+    
+    auto [ischunk, ptr] = get_data_ptr();
+
+    if (ischunk) {
+        return &(((Log_chunk *)ptr)->get_node_prev());
+    } else {
+        return &(((Log_entry *)ptr)->get_node_prev());
+    }
+}
+
 Log_entry_ID_key::Log_entry_ID_key(const Log_TimeStamp& _idT) {
     idT=_idT;
     std::string formerror;
@@ -291,24 +326,63 @@ void Log_chunk_ID::_nullID() {
     idS_cache = idkey.str();
 }
 
-void Log_chunk::set_Node_prev_chunk(Log_chunk * prevptr) { // give nullptr to clear
+/**
+ * Set the previous in chain-by-Node based on a Log chunk pointer.
+ * 
+ * This assumes that you _know_ that the pointer is correct and that it is
+ * indeed a chunk and not an entry. No confirmations are performed here.
+ * The target is set accordingly, both ID key and rapid-access pointer.
+ * 
+ * A nullptr can be given to clear (by)`node_prev`.
+ * 
+ * @param prevptr a valid pointer to previous chunk in the chain (or nullptr).
+ */
+void Log_by_Node_chainable::set_Node_prev_ptr(Log_chunk * prevptr) { // give nullptr to clear
     if (prevptr!=this) {
-        node_prev_chunk = prevptr;
+        node_prev.ischunk = true;
+        node_prev.chunk.ptr = prevptr;
         if (prevptr!=nullptr) {
-            node_prev_chunk_id = prevptr->get_tbegin();
+            node_prev.chunk.key = *(const_cast<Log_chunk_ID_key *>(&(prevptr->get_tbegin_key())));
         } else {
-            node_prev_chunk_id._nullID();
+            node_prev.chunk.key = Log_chunk_ID_key();
         }
     }
 }
 
-void Log_chunk::set_Node_next_chunk(Log_chunk * nextptr) { // give nullptr to clear
+/// See the description of Log_chunk::set_Node_prev_ptr.
+void Log_by_Node_chainable::set_Node_next_ptr(Log_chunk * nextptr) { // give nullptr to clear
     if (nextptr!=this) {
-        node_next_chunk = nextptr;
+        node_next.ischunk = true;
+        node_next.chunk.ptr = nextptr;
         if (nextptr!=nullptr) {
-            node_next_chunk_id = nextptr->get_tbegin();
+            node_next.chunk.key = *(const_cast<Log_chunk_ID_key *>(&(nextptr->get_tbegin_key())));
         } else {
-            node_next_chunk_id._nullID();
+            node_next.chunk.key = Log_chunk_ID_key();
+        }
+    }
+}
+
+void Log_by_Node_chainable::set_Node_prev_ptr(Log_entry * prevptr) { // give nullptr to clear
+    if ((Log_chunk*)prevptr!=this) {
+        node_prev.ischunk = false;
+        node_prev.entry.ptr = prevptr;
+        if (prevptr!=nullptr) {
+            node_prev.entry.key = *(const_cast<Log_entry_ID_key *>(&(prevptr->get_id_key())));
+        } else {
+            node_prev.entry.key = Log_entry_ID_key();
+        }
+    }
+}
+
+/// See the description of Log_chunk::set_Node_prev_ptr.
+void Log_by_Node_chainable::set_Node_next_ptr(Log_entry * nextptr) { // give nullptr to clear
+    if ((Log_chunk*)nextptr!=this) {
+        node_next.ischunk = false;
+        node_next.entry.ptr = nextptr;
+        if (nextptr!=nullptr) {
+            node_next.entry.key = *(const_cast<Log_entry_ID_key *>(&(nextptr->get_id_key())));
+        } else {
+            node_next.entry.key = Log_entry_ID_key();
         }
     }
 }
@@ -446,61 +520,89 @@ Log_chunk_ID_key_deque::size_type Log_Breakpoints::find_Breakpoint_index_before_
 }
 
 /**
- * Parse all chunks connected to the Log and find the sequence that
- * belongs to a specific Node.
+ * Parse all chunks connected to the Log and find the sequence of
+ * chunks and entries that belongs to a specific Node.
  * 
  * This is used by Log::setup_Chunk_nodeprevnext(), and it can also
  * be used independent of the reference parameters in the Log_chunk
  * objects, which even works for arbitrary loaded lists of Log chunks.
  * 
- * @param node_id of the Node for which to collect Log chunks.
- * @return a deque sorted list of smart pointers to all chunks found.
+ * This function is also used by the rapid search version `get_Node_targets()`,
+ * which calls this to find the first target, the head of the chain,
+ * which is specifeid via the `onlyfirst` parameter.
+ * 
+ * This function requires that the `entries` list has been set up
+ * for all Log chunks.
+ * 
+ * @param node_id of the Node for which to collect its Log chain (history).
+ * @param onlyfirst flag if true return only the first target.
+ * @return a deque sorted list of chain targets found.
  */
-std::deque<Log_chunk *> Log::get_Node_chunks_fullparse(const Node_ID node_id) {
-    std::deque<Log_chunk *> res;
+std::deque<Log_chain_target> Log::get_Node_chain_fullparse(const Node_ID node_id, bool onlyfirst) {
+    std::deque<Log_chain_target> res;
+
     for (auto it = chunks.begin(); it<chunks.end(); ++it) {
+
+        // check the chunk first
         if ((*it)->get_NodeID().key().idT == node_id.key().idT) {
-            res.emplace_back(it->get());
+            res.emplace_back((*it)->get_tbegin_key(),it->get());
+            if (onlyfirst)
+                return res;
         }
+
+        // then check its entries
+        for (const auto& e : (*it)->get_entries()) {
+            if (!(e->get_nodeidkey().isnullkey())) {
+                if (e->get_nodeidkey() == node_id.key()) {
+                    res.emplace_back(e->get_id_key(),e);
+                    if (onlyfirst)
+                        return res;
+                }
+            }
+        }
+
     }
+
     return res;
 }
 
 /**
  * Quickly walk through the reference chain that belongs to the
- * specified Node and return all of its Log chunks.
+ * specified Node and return all of its Log chunks and Log entries.
  * 
- * Note that this function depends on valid rapid-access
- * `node_prev_chunk` and `node_next_chunk` variables in each
- * Log chunk.
+ * Note that this function depends on valid rapid-access pointers
+ * within `node_prev` and `node_next` variables in each
+ * Log chunk and entry.
  * 
- * @param node_id of the Node for which to collect Log chunks.
- * @return a deque sorted list of smart pointers to all chunks found.
+ * @param node_id of the Node for which to collect its Log chain (history).
+ * @return a deque sorted list of chain targets found.
  */
-std::deque<Log_chunk *> Log::get_Node_chunks(const Node_ID node_id) {
-    std::deque<Log_chunk *> res;
-    for (auto it = chunks.begin(); it<chunks.end(); ++it) {
-        if ((*it)->get_NodeID().key().idT == node_id.key().idT) {
-            res.emplace_back(it->get());
-            break; // Do the rest via the rapid-access pointer chain
-        }
-    }
+std::deque<Log_chain_target> Log::get_Node_chain(const Node_ID node_id) {
+    std::deque<Log_chain_target> res = get_Node_chain_fullparse(node_id,true);
 
     if (res.empty())
         return res;
 
-    for (Log_chunk * chunk = res.front()->get_node_next_chunk(); chunk != nullptr; chunk = chunk->get_node_next_chunk()) {
-        res.emplace_back(chunk);
+    for (Log_chain_target * next = res.front().go_next_in_chain(); next != nullptr; next = next->go_next_in_chain()) {
+        res.emplace_back(*next);
     }
+
     return res;
 }
 
-struct Node_Chunks_cursor {
-    Log_chunk * head;
-    Log_chunk * tail;
+/**
+ * This structure is used by `Log::setup_Chunk_nodeprevnext()` to build a proper
+ * chain.
+ * 
+ * This is all done using references by ID within the Log data structure. No
+ * Graph object is required.
+ */
+struct Node_Targets_cursor {
+    Log_chain_target & head;
+    Log_chunk_target & tail;
     unsigned long count;
 
-    Node_Chunks_cursor(Log_chunk * tailhead): head(tailhead), tail(tailhead), count(1) {
+    Node_Targets_cursor(Log_chain_target & tailhead): head(tailhead), tail(tailhead), count(1) {
         tailhead->set_Node_prev_chunk(nullptr); // clear in case previously attached
         tailhead->set_Node_next_chunk(nullptr); // clear in case previously attached
     }
@@ -524,6 +626,9 @@ struct Node_Chunks_cursor {
  * Parse the deque list of Log chunks and assign all references in
  * `node_prev_chunk_id`, `node_next_chunk_id`, and their rapid-access
  * pointers.
+ * 
+ * This is all done using references by ID within the Log data structure. No
+ * Graph object is required.
  */
 void Log::setup_Chunk_nodeprevnext() {
     std::map<Node_ID_key,Node_Chunks_cursor> cursors;
@@ -531,6 +636,78 @@ void Log::setup_Chunk_nodeprevnext() {
         Log_chunk * chunk = chunkptr.get();
         auto [node_cursor_it, was_new] = cursors.emplace(chunk->get_NodeID().key(),chunk); // first of a Node
         if (!was_new) node_cursor_it->second.append(*chunk); // adding to a Node's chain
+    }
+}
+
+/**
+ * Parse the map of Log entries and assign all `node` cache pointers
+ * in acordance with Node objects found in the Graph.
+ */
+void Log::setup_Entry_node_caches(Graph & graph) {
+    for (const auto& [entrykey, entryptr] : entries) {
+        Log_entry * entry = entryptr.get();
+
+        if (!entry) {
+            ADDERROR(__func__,"null-entry in Graph.entries at entry with ID "+entrykey.str());
+            continue;
+        }
+
+        const Node_ID_key & nodeIDkey = entry->get_nodeidkey();
+        if (nodeIDkey.isnullkey()) {
+            if (entry->get_Node() != nullptr) {
+                ADDERROR(__func__,"non-null rapid-access cache while Log_entry.node_idkey is null-key at entry with ID "+entrykey.str());
+                continue;
+            }
+
+        } else {
+            Node * node = graph.Node_by_id(nodeIDkey);
+
+            if (!node) {
+                ADDERROR(__func__,"no Node found that matches ID "+nodeIDkey.str()+" at entry with ID "+entrykey.str());
+                continue;
+            }
+
+            if (!entry->set_Node_rapid_access(*node)) {
+                ADDERROR(__func__,"Log entry at ID "+entrykey.str()+" refused rapid-access Node pointer with ID "+node->get_id_str()+" (needed Node ID "+nodeIDkey.str()+')');
+                continue;
+            }
+        }
+    }
+}
+
+/**
+ * Parse the deque of Log chunks and assign all `node` cache pointers
+ * in acordance with Node objects found in the Graph.
+ */
+void Log::setup_Chunk_node_caches(Graph & graph) {
+    for (const auto& chunkptr : chunks) {
+        Log_chunk * chunk = chunkptr.get();
+
+        if (!chunk) {
+            ADDERROR(__func__,"null-chunk in Graph.chunks at chunk with ID "+chunk->get_tbegin_str());
+            continue;
+        }
+
+        const Node_ID_key & nodeIDkey = chunk->get_NodeID().key();
+        if (nodeIDkey.isnullkey()) {
+            if (chunk->get_Node() != nullptr) {
+                ADDERROR(__func__,"non-null rapid-access cache while Log_chunk.node_id has null-key at chunk with ID "+chunk->get_tbegin_str());
+                continue;
+            }
+
+        } else {
+            Node * node = graph.Node_by_id(nodeIDkey);
+
+            if (!node) {
+                ADDERROR(__func__,"no Node found that matches ID "+nodeIDkey.str()+" at chunk with ID "+chunk->get_tbegin_str());
+                continue;
+            }
+
+            if (!chunk->set_Node_rapid_access(*node)) {
+                ADDERROR(__func__,"Log chunk at ID "+chunk->get_tbegin_str()+" refused rapid-access Node pointer with ID "+node->get_id_str()+" (needed Node ID "+nodeIDkey.str()+')');
+                continue;
+            }
+        }
     }
 }
 

@@ -122,6 +122,10 @@ public:
     std::string yyyymmdd;
     Log_chunk_ptr_deque::size_type chunk_begin_idx; // index of first chunk in section
     Log_chunk_ptr_deque::size_type chunk_end_limit; // one past index of last chunk in section
+    bool has_prev_section;
+    bool has_next_section;
+    std::string prev_yyyymmdd;
+    std::string next_yyyymmdd;
 
     std::string rendered_section; /// Holds the result of section rendering process.
 
@@ -143,11 +147,19 @@ public:
                 ADDERROR(__func__,"section first chunk not found "+log.get_Breakpoint_first_chunk_id_str(bridx));
 
             } else {
-                auto next_idx = bridx+1;
-                if (next_idx>=log.num_Breakpoints()) {
-                    chunk_end_limit = log.num_Chunks();
+                has_prev_section = bridx > 0;
+                if (has_prev_section) {
+                    prev_yyyymmdd = log.get_Breakpoint_Ymd_str(bridx-1);
+                }
+
+                has_next_section = (bridx+1) < log.num_Breakpoints();
+                if (has_next_section) {
+                    chunk_end_limit = log.get_chunk_first_at_Breakpoint(bridx+1);
+                    next_yyyymmdd = log.get_Breakpoint_Ymd_str(bridx+1);
+
                 } else {
-                    chunk_end_limit = log.get_chunk_first_at_Breakpoint(next_idx);
+                    chunk_end_limit = log.num_Chunks();
+
                 }
             }
         }
@@ -207,9 +219,6 @@ public:
         return true;
     }
 
-    bool has_prev_section;
-    std::string prev_yyyymmdd;
-
     /**
      * Before calling this function:
      * 1. Determine if the section `has_prev_section` from the list of Breakpoints.
@@ -218,7 +227,7 @@ public:
     bool render_prevsection() {
         template_varvalues prevsectiondata;
         ADDERRPING("#1");
-        prevsectiondata.emplace("prev_yyyymmdd",prev_yyyymmdd); //*** find this!
+        prevsectiondata.emplace("prev_yyyymmdd",prev_yyyymmdd);
         if (has_prev_section) { // *** find this!
             prevsection = env.render(templates[section_prev_temp],prevsectiondata);
         } else {
@@ -226,9 +235,6 @@ public:
         }
         return true;
     }
-
-    bool has_next_section;
-    std::string next_yyyymmdd;
 
     /**
      * Before calling this function:
@@ -238,7 +244,7 @@ public:
     bool render_nextsection() {
         template_varvalues nextsectiondata;
         ADDERRPING("#1");
-        nextsectiondata.emplace("next_yyyymmdd",next_yyyymmdd); //*** find this!
+        nextsectiondata.emplace("next_yyyymmdd",next_yyyymmdd);
         if (has_next_section) { // *** find this!
             nextsection = env.render(templates[section_next_temp],nextsectiondata);
         } else {
@@ -330,7 +336,7 @@ public:
 
         for (unsigned long c = chunk_begin_idx; c < chunk_end_limit; ++c) {
 
-            ADDERRPING(std::to_string(c));
+            ADDERRPING("chunk#"+std::to_string(c));
             Log_chunk & chunk = *(log.get_chunk(c));
             template_varvalues chunkdata;
 
@@ -364,14 +370,26 @@ public:
                 chunkdata.emplace("chunkendIyyyymmddhhmm","<I>"+TimeStampYmdHM(chunkclose)+"</I>");
             }
 
-            // Let's hope for or enforce valid rapid-access `entries` vector.
+            ADDERRPING("#2");
+            // Needs valid rapid-access `entries` vector.
             entry.clear();
             auto entries = chunk.get_entries();
-            for (unsigned long e = 0; e < entries.size(); ++e) {
-                // *** BEGIN DUMMY CODE
-                entry = "{missing-entries}";
-                break;
-                // *** END DUMMY CODE
+            for (unsigned long e_idx = 0; e_idx < entries.size(); ++e_idx) {
+
+                Log_entry * e = entries[e_idx];
+                if (!e) {
+                    ADDERROR(__func__,"nullptr encountered at entry "+std::to_string(e_idx)+" of chunk "+chunk.get_tbegin_str());
+                    entry += "[<B>"+std::to_string(e_idx+1)+"</B>] {missing-entry}\n\n";
+                    continue;
+                }
+
+                Node * n = e->get_Node();
+                if (n) {
+                    render_entry_withnode(*e,*n);
+                } else {
+                    render_entry(*e);
+                }
+
             }
             chunkdata.emplace("entries",entry);
 
@@ -380,11 +398,35 @@ public:
         return true;
     }
 
-    bool render_entry() {
+    bool render_entry(Log_entry & e) {
+        ADDERRPING("#1");
+        template_varvalues entrydata;
+        entrydata.emplace("entryid",e.get_id_str());
+        entrydata.emplace("entryminorid",std::to_string(e.get_minor_id()));
+        entrydata.emplace("entrytext",e.get_entrytext());
+        entry += env.render(templates[entry_temp],entrydata);
         return true;
     }
 
-    bool render_entry_withnode() {
+    bool render_entry_withnode(Log_entry & e, Node & n) {
+        ADDERRPING("#1");
+        template_varvalues entrydata;
+        entrydata.emplace("entryid",e.get_id_str());
+        entrydata.emplace("entryminorid",std::to_string(e.get_minor_id()));
+        entrydata.emplace("entrytext",e.get_entrytext());
+        ADDERRPING("#4-"+std::to_string((unsigned long) &n));
+        entrydata.emplace("nodeid",n.get_id_str());
+
+        ADDERRPING("#6");
+        Topic * maintopic = main_topic(graph,n);
+        if (maintopic) {
+            entrydata.emplace("nodetopicid",maintopic->get_tag());
+            entrydata.emplace("nodetopictitle",maintopic->get_title());
+        }
+
+        entrydata.emplace("nodeprev","{{ missing-data }}"); // *** PROBLEM... entries have not been linked in!
+        entrydata.emplace("nodenext","{{ missing data }}"); // ***PROBLEM... entries have not been linked in!
+        entry += env.render(templates[entry_withnode_temp],entrydata);
         return true;
     }
 

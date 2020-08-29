@@ -25,11 +25,16 @@ namespace fz {
  * errors are reduced to warnings if `render_environment::skipmissing`
  * is true.
  * 
+ * When the `proceed_if_emptyvars` flag is true then rendering will be
+ * attempted eevn if `vars` contains no variable values. This is useful
+ * when a template may contain no variable labels to substitute.
+ * 
  * @param temp a template containing {{ varname }} to be replaced.
  * @param vars a map of variable names and variable values.
+ * @param proceed_if_emptyvars if true attempts to render even if `vars` is empty.
  * @return the rendered string composing template and variables (or empty if error).
  */
-std::string render_environment::render(const std::string temp, template_varvalues vars) {
+std::string render_environment::render(const std::string temp, template_varvalues vars, bool proceed_if_emptyvars) {
     render_error = rerr_ok;
 
     if (temp.empty()) {
@@ -38,8 +43,8 @@ std::string render_environment::render(const std::string temp, template_varvalue
         return temp;
     }
 
-    if (vars.empty()) {
-        ADDWARNING(__func__,"no variables to render into template ("+temp.substr(0,20));
+    if ((!proceed_if_emptyvars) && (vars.empty())) {
+        ADDWARNING(__func__,"no variables to render into template ("+temp.substr(0,20)+") [`proceed_if_emptyvars` can relax this requirement]");
         render_error = rerr_no_variable_values;
         return temp;
     }
