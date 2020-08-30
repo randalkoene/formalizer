@@ -2,7 +2,7 @@
 // License TBD
 
 /**
- * This header file declares Graph, Node aned Edge types for use with the Formalizer.
+ * This header file declares Graph, Node aned Edge Postgres types for use with the Formalizer.
  * These define the authoritative version of the data structure for storage in PostgreSQL.
  * 
  * Versioning is based on https://semver.org/ and the C++ headers define __GRAPHPOSTGRES_HPP.

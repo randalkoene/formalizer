@@ -72,10 +72,10 @@ public:
     Log_by_Node_chainable(const Log_chain_target & _prev, const Log_chain_target & _next): node_prev(_prev), node_next(_next) {}
     Log_by_Node_chainable(bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next): node_prev(_prev,previschunk), node_next(_next,nextischunk) {}
 
-    bool node_prev_isnullptr() { node_prev.isnulltarget_byptr(); }
-    bool node_next_isnullptr() { node_next.isnulltarget_byptr(); }
-    Log_chain_target get_node_prev() { return node_prev; }
-    Log_chain_target get_node_next() { return node_next; }
+    bool node_prev_isnullptr() { return node_prev.isnulltarget_byptr(); }
+    bool node_next_isnullptr() { return node_next.isnulltarget_byptr(); }
+    const Log_chain_target & get_node_prev() const { return node_prev; }
+    const Log_chain_target & get_node_next() const { return node_next; }
     Log_ptr_pair get_node_prev_ptr() { return node_prev.get_data_ptr(); }
     Log_ptr_pair get_node_next_ptr() { return node_next.get_data_ptr(); }
 
@@ -314,7 +314,8 @@ protected:
     Log_chunks_Deque chunks;
     Log_Breakpoints breakpoints;
 public:
-    void setup_Chunk_nodeprevnext(); /// Call this after loading chunks into the Log.
+    /// finalizing setup
+    void setup_Chain_nodeprevnext(); /// Call this after loading chunks and enties into the Log.
     void setup_Entry_node_caches(Graph & graph); /// Call this after loading entries into the Log with valid Graph.
     void setup_Chunk_node_caches(Graph & graph); /// Call this after loading entries into the Log with valid Graph.
 

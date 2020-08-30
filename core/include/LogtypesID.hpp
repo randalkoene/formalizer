@@ -185,8 +185,8 @@ struct Log_target {
     Log_component *ptr;
 
     Log_target() : ptr(nullptr) {}
-    Log_target(const Log_ID_key &k, const Log_component *p = nullptr) : key(k), ptr(p) {}
-    Log_target(const Log_TimeStamp &t_stamp, const Log_component *p = nullptr) : key(t_stamp), ptr(p) {}
+    Log_target(const Log_ID_key &k, const Log_component *p = nullptr) : key(k), ptr(const_cast<Log_component *>(p)) {}
+    Log_target(const Log_TimeStamp &t_stamp, const Log_component *p = nullptr) : key(t_stamp), ptr(const_cast<Log_component *>(p)) {}
 };
 
 typedef Log_target<Log_chunk_ID_key, Log_chunk> Log_chunk_target;
@@ -215,47 +215,52 @@ struct Log_chain_target {
     };
 
     Log_chain_target(): ischunk(true) {}
+    // Letting the compiler create the implicit copy constructor, which is probably fine.
+   
     Log_chain_target(const Log_chunk_ID_key & chunkkey, const Log_chunk * cptr = nullptr): ischunk(true), chunk(chunkkey,cptr) {}
     Log_chain_target(const Log_chunk & _chunk);
-    Log_chain_target(const Log_entry_ID_key & entrykey, const Log_entry * eptr = nullptr);
+
+    Log_chain_target(const Log_entry_ID_key & entrykey, const Log_entry * eptr = nullptr): ischunk(false), entry(entrykey,eptr) {}
     Log_chain_target(const Log_entry & _entry);
-    Log_chain_target(const Log_TimeStamp & t_stamp, bool _ischunk, Log_data * dptr = nullptr);
-    Log_chain_target(const Log_chunk_ID_key & chunkkey, const Log_chunk * cptr): ischunk(true), chunk(chunkkey,cptr) {}
-    Log_chain_target(const Log_chunk & _chunk): ischunk(true), chunk(_chunk.get_tbegin_key(),&_chunk) {}
-    Log_chain_target(const Log_entry_ID_key & entrykey, const Log_entry * eptr): ischunk(false), entry(entrykey,eptr) {}
-    Log_chain_target(const Log_entry & _entry): ischunk(false), entry(_entry.get_id_key(),&_entry) {}
-    Log_chain_target(const Log_TimeStamp & t_stamp, bool _ischunk, Log_data * dptr) { set_any_target(t_stamp,_ischunk, dptr); }
+
+    Log_chain_target(const Log_TimeStamp & t_stamp, bool _ischunk, Log_data * dptr = nullptr) { set_any_target(t_stamp,_ischunk, dptr); }
 
     void set_to_nulltarget() { ischunk = true; chunk.key = Log_chunk_ID_key(); chunk.ptr = nullptr; }
+
     void set_chunk_target(const Log_chunk_target _chunk) { ischunk = true; chunk = _chunk; }
-    void set_chunk_target(const Log_chunk & _chunk) { ischunk = true; chunk.key = _chunk.get_tbegin_key(); chunk.ptr = const_cast<Log_chunk *>(&_chunk); }
+    void set_chunk_target(const Log_chunk & _chunk);
     void set_chunk_target(const Log_chunk_ID_key & chunkkey, Log_chunk * cptr = nullptr) { ischunk = true; chunk.key = chunkkey; chunk.ptr = cptr; }
     void set_chunk_target(const Log_TimeStamp & t_stamp, Log_chunk * cptr = nullptr) { ischunk = true; chunk.key = Log_chunk_ID_key(t_stamp); chunk.ptr = cptr; }
+
     void set_entry_target(const Log_entry_target _entry) { ischunk = false; entry = _entry; }
-    void set_entry_target(const Log_entry & _entry) { ischunk = false; entry.key = _entry.get_id_key(); entry.ptr = const_cast<Log_entry *>(&_entry); }
+    void set_entry_target(const Log_entry & _entry);
     void set_entry_target(const Log_entry_ID_key & entrykey, Log_entry * cptr = nullptr) { ischunk = false; entry.key = entrykey; entry.ptr = cptr; }
     void set_entry_target(const Log_TimeStamp & t_stamp, Log_entry * cptr = nullptr) { ischunk = false; entry.key = Log_entry_ID_key(t_stamp); entry.ptr = cptr; }
+
     void set_any_target(const Log_TimeStamp & t_stamp, bool _ischunk, Log_data * dptr = nullptr);
 
     Log_chunk_target get_chunk_target();
     Log_entry_target get_entry_target();
+
     Log_chunk_ID_key get_chunk_key();
     Log_entry_ID_key get_entry_key();
-    Log_data * get_ptr(); /// Definitely check `ischunk` when using `get_ptr()`.
+
+    Log_data * get_ptr() const; /// Definitely check `ischunk` when using `get_ptr()`.
     Log_ptr_pair get_data_ptr();
+
     Log_key_tuple get_any_ID_key();
     Log_target_tuple get_any_target();
 
-    bool isnulltarget_byID();
-    bool isnulltarget_byptr() { return get_ptr() == nullptr; }
+    bool isnulltarget_byID() const;
+    bool isnulltarget_byptr() const { return get_ptr() == nullptr; }
 
     bool same_target(Log_chain_target & target);
     bool same_target(Log_chunk & chunkref);
     bool same_target(Log_entry & entryref);
 
     // helper function dealing with next/prev-in-chain, instead of this object
-    Log_chain_target * go_next_in_chain();
-    Log_chain_target * go_prev_in_chain();
+    const Log_chain_target * next_in_chain() const;
+    const Log_chain_target * prev_in_chain() const;
     void bytargetptr_set_Node_next_ptr(Log_chunk * _next);
     void bytargetptr_set_Node_next_ptr(Log_entry * _next);
     void bytargetptr_set_Node_prev_ptr(Log_chunk * _prev);
@@ -347,7 +352,7 @@ inline Log_entry_ID_key Log_chain_target::get_entry_key() {
 }
 
 /// Definitely check `ischunk` when using `get_ptr()`.
-inline Log_data * Log_chain_target::get_ptr() {
+inline Log_data * Log_chain_target::get_ptr() const {
     return (ischunk) ? (Log_data *)chunk.ptr : (Log_data *)entry.ptr;
 }
 
@@ -371,43 +376,11 @@ inline Log_target_tuple Log_chain_target::get_any_target() {
     }
 }
 
-inline bool Log_chain_target::isnulltarget_byID() {
+inline bool Log_chain_target::isnulltarget_byID() const {
     if (ischunk) {
         return chunk.key.isnullkey();
     } else {
         return entry.key.isnullkey();
-    }
-}
-
-inline void Log_chain_target::bytargetptr_set_Node_next_ptr(Log_chunk * _next) {
-    if (ischunk) {
-        chunk.ptr->set_Node_next_ptr(_next);
-    } else {
-        entry.ptr->set_Node_next_ptr(_next);
-    }
-}
-
-inline void Log_chain_target::bytargetptr_set_Node_next_ptr(Log_entry * _next) {
-    if (ischunk) {
-        chunk.ptr->set_Node_next_ptr(_next);
-    } else {
-        entry.ptr->set_Node_next_ptr(_next);
-    }
-}
-
-inline void Log_chain_target::bytargetptr_set_Node_prev_ptr(Log_chunk * _prev) {
-    if (ischunk) {
-        chunk.ptr->set_Node_prev_ptr(_prev);
-    } else {
-        entry.ptr->set_Node_prev_ptr(_prev);
-    }
-}
-
-inline void Log_chain_target::bytargetptr_set_Node_prev_ptr(Log_entry * _prev) {
-    if (ischunk) {
-        chunk.ptr->set_Node_prev_ptr(_prev);
-    } else {
-        entry.ptr->set_Node_prev_ptr(_prev);
     }
 }
 

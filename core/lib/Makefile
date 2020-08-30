@@ -96,7 +96,7 @@ CFLAGS= $(COMPOPT) $(MACHSPEC) $(CFXTRA)
 CPPFLAGS= $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(INCLUDES)
 
 SOURCES = $(wildcard *.cpp)
-OBJECTS = $(addprefix $(OBJ)/,$(SOURCES:%.cpp,%.o))
+OBJECTS = $(addprefix $(OBJ)/,$(SOURCES:%.cpp=%.o))
 
 .PHONY: FORCE
 
@@ -107,7 +107,7 @@ init: FORCE
 	@echo 'Compilation options: $(MACHSTR), $(OPTSTR)'
 	@echo 'Includes: $(CPPFLAGS)'
 	@echo 'Core sources: $(SOURCES)'
-	@echo 'Core object built here: $(OBJECTS)'
+	@echo 'Core objects built here: $(OBJECTS)'
 	@echo '-------------------------------------------------------------------'
 
 $(OBJ)/error.o: error.cpp $(INC)/error.hpp
@@ -143,6 +143,10 @@ $(OBJ)/Logtypes.o: Logtypes.cpp $(INC)/Logtypes.hpp $(INC)/Graphtypes.hpp $(INC)
 $(OBJ)/Graphpostgres.o: Graphpostgres.cpp $(INC)/Graphpostgres.hpp $(INC)/Graphtypes.hpp \
 						$(INC)/general.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c Graphpostgres.cpp -o $(OBJ)/Graphpostgres.o
+
+$(OBJ)/Logpostgres.o: Logpostgres.cpp $(INC)/Logpostgres.hpp $(INC)/Logtypes.hpp \
+						$(INC)/general.hpp $(INC)/error.hpp
+	$(CCPP) $(CPPFLAGS) -c Logpostgres.cpp -o $(OBJ)/Logpostgres.o
 
 clean:
 	rm -f $(OBJ)/*.o $(TEST)/*.o

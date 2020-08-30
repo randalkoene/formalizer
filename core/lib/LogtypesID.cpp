@@ -235,6 +235,25 @@ time_t Log_TimeStamp::get_epoch_time() const {
     return mktime(&tm);
 }
 
+
+Log_chain_target::Log_chain_target(const Log_chunk & _chunk): ischunk(true), chunk(_chunk.get_tbegin_key(),&_chunk) {
+}
+
+Log_chain_target::Log_chain_target(const Log_entry & _entry): ischunk(false), entry(_entry.get_id_key(),&_entry) {
+}
+
+void Log_chain_target::set_chunk_target(const Log_chunk & _chunk) {
+    ischunk = true;
+    chunk.key = _chunk.get_tbegin_key();
+    chunk.ptr = const_cast<Log_chunk *>(&_chunk);
+}
+
+void Log_chain_target::set_entry_target(const Log_entry & _entry) {
+    ischunk = false;
+    entry.key = _entry.get_id_key();
+    entry.ptr = const_cast<Log_entry *>(&_entry);
+}
+
 /**
  * Test if two Log chain targets point to the same thing.
  * 
@@ -310,30 +329,58 @@ bool Log_chain_target::same_target(Log_entry & entryref) {
  * @return pointer to the next target in the chain, or nullptr if this
  *         is a null-target (e.g. end of chain).
  */
-Log_chain_target * Log_chain_target::go_next_in_chain() {
+const Log_chain_target * Log_chain_target::next_in_chain() const {
     if (isnulltarget_byptr())
         return nullptr;
     
-    auto [ischunk, ptr] = get_data_ptr();
-
     if (ischunk) {
-        return &(((Log_chunk *)ptr)->get_node_next());
+        return &(chunk.ptr->get_node_next());
     } else {
-        return &(((Log_entry *)ptr)->get_node_next());
+        return &(entry.ptr->get_node_next());
     }
 }
 
 /// See description for go_next_in_chain().
-Log_chain_target * Log_chain_target::go_prev_in_chain() {
+const Log_chain_target * Log_chain_target::prev_in_chain() const {
     if (isnulltarget_byptr())
         return nullptr;
     
-    auto [ischunk, ptr] = get_data_ptr();
-
     if (ischunk) {
-        return &(((Log_chunk *)ptr)->get_node_prev());
+        return &(chunk.ptr->get_node_prev());
     } else {
-        return &(((Log_entry *)ptr)->get_node_prev());
+        return &(entry.ptr->get_node_prev());
+    }
+}
+
+void Log_chain_target::bytargetptr_set_Node_next_ptr(Log_chunk * _next) {
+    if (ischunk) {
+        chunk.ptr->set_Node_next_ptr(_next);
+    } else {
+        entry.ptr->set_Node_next_ptr(_next);
+    }
+}
+
+void Log_chain_target::bytargetptr_set_Node_next_ptr(Log_entry * _next) {
+    if (ischunk) {
+        chunk.ptr->set_Node_next_ptr(_next);
+    } else {
+        entry.ptr->set_Node_next_ptr(_next);
+    }
+}
+
+void Log_chain_target::bytargetptr_set_Node_prev_ptr(Log_chunk * _prev) {
+    if (ischunk) {
+        chunk.ptr->set_Node_prev_ptr(_prev);
+    } else {
+        entry.ptr->set_Node_prev_ptr(_prev);
+    }
+}
+
+void Log_chain_target::bytargetptr_set_Node_prev_ptr(Log_entry * _prev) {
+    if (ischunk) {
+        chunk.ptr->set_Node_prev_ptr(_prev);
+    } else {
+        entry.ptr->set_Node_prev_ptr(_prev);
     }
 }
 

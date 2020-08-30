@@ -254,9 +254,16 @@ std::deque<Log_chain_target> Log::get_Node_chain_fullparse(const Node_ID node_id
  * Quickly walk through the reference chain that belongs to the
  * specified Node and return all of its Log chunks and Log entries.
  * 
- * Note that this function depends on valid rapid-access pointers
- * within `node_prev` and `node_next` variables in each
- * Log chunk and entry.
+ * Note A: This function depends on valid rapid-access pointers
+ *         within `node_prev` and `node_next` variables in each
+ *         Log chunk and entry.
+ * Note B: This function (presently) works by building a brand-new
+ *         deque list with Log_chain_target copies (instead of
+ *         references). This decision is based on the assumption that
+ *         the list of targets is typically informative, providing
+ *         necessary access info to those targets, but you don't
+ *         accidentally want to break existing chains by modifying
+ *         elements of the deque list.
  * 
  * @param node_id of the Node for which to collect its Log chain (history).
  * @return a deque sorted list of chain targets found.
@@ -267,7 +274,7 @@ std::deque<Log_chain_target> Log::get_Node_chain(const Node_ID node_id) {
     if (res.empty())
         return res;
 
-    for (Log_chain_target * next = res.front().go_next_in_chain(); next != nullptr; next = next->go_next_in_chain()) {
+    for (const Log_chain_target * next = res.front().next_in_chain(); next != nullptr; next = next->next_in_chain()) {
         res.emplace_back(*next);
     }
 
@@ -286,11 +293,11 @@ struct Node_Targets_cursor {
     Log_chain_target tail;
     unsigned long count;
 
-    Node_Targets_cursor(Log_chunk & tailhead): count(1), head(tailhead), tail(tailhead) {
+    Node_Targets_cursor(Log_chunk & tailhead): head(tailhead), tail(tailhead), count(1) {
         tailhead.set_Node_next_null(); // clear in case previously attached
         tailhead.set_Node_prev_null(); // clear in case previously attached
     }
-    Node_Targets_cursor(Log_entry & tailhead): count(1), head(tailhead), tail(tailhead) {
+    Node_Targets_cursor(Log_entry & tailhead): head(tailhead), tail(tailhead), count(1) {
         tailhead.set_Node_next_null(); // clear in case previously attached
         tailhead.set_Node_prev_null(); // clear in case previously attached
     }
@@ -335,14 +342,13 @@ struct Node_Targets_cursor {
 };
 
 /**
- * Parse the deque list of Log chunks and assign all references in
- * `node_prev_chunk_id`, `node_next_chunk_id`, and their rapid-access
- * pointers.
+ * Parse the deque list of Log chunks, as well as their entries, and assign
+ * all references in `node_prev`, `node_next`, and their rapid-access pointers.
  * 
  * This is all done using references by ID within the Log data structure. No
  * Graph object is required.
  */
-void Log::setup_Chunk_nodeprevnext() {
+void Log::setup_Chain_nodeprevnext() {
 
     //std::deque<Log_chain_target> res;
 
@@ -352,14 +358,26 @@ void Log::setup_Chunk_nodeprevnext() {
 
         // first, link the chunk to the right chain
         Log_chunk * chunk = chunkptr.get();
-        auto [c_node_cursor_it, c_was_new] = cursors.emplace(chunk->get_NodeID().key(),chunk); // first of a Node
-        if (!c_was_new) c_node_cursor_it->second.append(*chunk); // adding to a Node's chain
+        if (!chunk) {
+            ADDERROR(__func__,"Log chunk pointer is nullptr in chunks list (this should never happen!)");
+            continue;
+        } else {
+            Node_Targets_cursor c_ntc(*chunk);
+            auto [c_node_cursor_it, c_was_new] = cursors.emplace(chunk->get_NodeID().key(),c_ntc); // first of a Node
+            if (!c_was_new) c_node_cursor_it->second.append(*chunk); // adding to a Node's chain
 
-        // then, link entries in the chunk with specified Nodes to the right chains
-        for (const auto& entry : chunkptr->get_entries()) {
-            if (!(entry->get_nodeidkey().isnullkey())) {
-                auto [e_node_cursor_it, e_was_new] = cursors.emplace(entry->get_nodeidkey(),entry); // first of a Node
-                if (!e_was_new) e_node_cursor_it->second.append(*entry); // adding to a Node's chain
+            // then, link entries in the chunk with specified Nodes to the right chains
+            for (const auto& entry : chunkptr->get_entries()) {
+                if (!entry) {
+                    ADDERROR(__func__,"Log entry pointer is nullptr in chunk.get_entries (this should never happen!)");
+                    continue;
+                } else {
+                    if (!(entry->get_nodeidkey().isnullkey())) {
+                        Node_Targets_cursor e_ntc(*entry);
+                        auto [e_node_cursor_it, e_was_new] = cursors.emplace(entry->get_nodeidkey(),e_ntc); // first of a Node
+                        if (!e_was_new) e_node_cursor_it->second.append(*entry); // adding to a Node's chain
+                    }
+                }
             }
         }
 
