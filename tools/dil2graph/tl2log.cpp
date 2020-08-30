@@ -472,7 +472,7 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
     VOUT << "***   with union structs first to ensure that no functions that assumed\n";
     VOUT << "***   simple pointers will work without correction.\n\n";
     // ***
-    log->setup_Chunk_nodeprevnext();
+    log->setup_Chain_nodeprevnext();
 
     return log;
 }

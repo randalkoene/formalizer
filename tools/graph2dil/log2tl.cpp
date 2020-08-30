@@ -293,38 +293,40 @@ public:
     }
 
     std::string render_chunk_nodeprev(Log_chunk & chunk) {
-        if (!chunk.get_node_prev_chunk()) {
+        if (chunk.node_prev_isnullptr()) {
             return templates[chunk_nodenoprev_temp]; // no need to render
         }
 
         ADDERRPING("#1");
         template_varvalues nodeprevdata;
         // find the section of the previous chunk belonging to the same node
-        auto node_prev_bridx = log.find_Breakpoint_index_before_chunk(chunk.get_node_prev_chunk()->get_tbegin_key());
+        const Log_chain_target & chainprev = chunk.get_node_prev();
+        auto node_prev_bridx = log.find_Breakpoint_index_before_chaintarget(chainprev);
         if (node_prev_bridx != bridx) {
             nodeprevdata.emplace("nodeprevsectionyyyymmdd",log.get_Breakpoint_Ymd_str(node_prev_bridx));
         } else {
             nodeprevdata.emplace("nodeprevsectionyyyymmdd",yyyymmdd);
         }
-        nodeprevdata.emplace("nodeprevchunkstartyyyymmddhhmm",chunk.get_node_prev_chunk()->get_tbegin_str());
+        nodeprevdata.emplace("nodeprevchunkstartyyyymmddhhmm",chainprev.str());
         return env.render(templates[chunk_nodeprev_temp], nodeprevdata);
     }
 
     std::string render_chunk_nodenext(Log_chunk & chunk) {
-        if (!chunk.get_node_next_chunk()) {
+        if (chunk.node_next_isnullptr()) {
             return templates[chunk_nodenonext_temp]; // no need to render
         }
 
         ADDERRPING("#1");
         template_varvalues nodenextdata;
         // find the section of the next chunk belonging to the same node
-        auto node_next_bridx = log.find_Breakpoint_index_before_chunk(chunk.get_node_next_chunk()->get_tbegin_key());
+        const Log_chain_target & chainnext = chunk.get_node_next();
+        auto node_next_bridx = log.find_Breakpoint_index_before_chaintarget(chainnext);
         if (node_next_bridx != bridx) {
             nodenextdata.emplace("nodenextsectionyyyymmdd","task-log."+log.get_Breakpoint_Ymd_str(node_next_bridx)+".html#");
         } else {
             nodenextdata.emplace("nodenextsectionyyyymmdd","#"); // all that are in the same section!
         }
-        nodenextdata.emplace("nodenextchunkstartyyyymmddhhmm",chunk.get_node_next_chunk()->get_tbegin_str());
+        nodenextdata.emplace("nodenextchunkstartyyyymmddhhmm",chainnext.str());
         return env.render(templates[chunk_nodenext_temp], nodenextdata);
     }
 
@@ -408,6 +410,46 @@ public:
         return true;
     }
 
+    // ??? same templates as for chunks ???
+    std::string render_entry_nodeprev(Log_entry & entry) {
+        if (entry.node_prev_isnullptr()) {
+            return templates[chunk_nodenoprev_temp]; // no need to render
+        }
+
+        ADDERRPING("#1");
+        template_varvalues nodeprevdata;
+        // find the section of the previous chunk or entry belonging to the same node
+        const Log_chain_target & chainprev = entry.get_node_prev();
+        auto node_prev_bridx = log.find_Breakpoint_index_before_chaintarget(chainprev);
+        if (node_prev_bridx != bridx) {
+            nodeprevdata.emplace("nodeprevsectionyyyymmdd",log.get_Breakpoint_Ymd_str(node_prev_bridx));
+        } else {
+            nodeprevdata.emplace("nodeprevsectionyyyymmdd",yyyymmdd);
+        }
+        nodeprevdata.emplace("nodeprevchunkstartyyyymmddhhmm",chainprev.str());
+        return env.render(templates[chunk_nodeprev_temp], nodeprevdata);
+    }
+
+    // ??? same templates as for chunks ???
+    std::string render_entry_nodenext(Log_entry & entry) {
+        if (entry.node_next_isnullptr()) {
+            return templates[chunk_nodenonext_temp]; // no need to render
+        }
+
+        ADDERRPING("#1");
+        template_varvalues nodenextdata;
+        // find the section of the next chunk or entry belonging to the same node
+        const Log_chain_target & chainnext = entry.get_node_next();
+        auto node_next_bridx = log.find_Breakpoint_index_before_chaintarget(chainnext);
+        if (node_next_bridx != bridx) {
+            nodenextdata.emplace("nodenextsectionyyyymmdd","task-log."+log.get_Breakpoint_Ymd_str(node_next_bridx)+".html#");
+        } else {
+            nodenextdata.emplace("nodenextsectionyyyymmdd","#"); // all that are in the same section!
+        }
+        nodenextdata.emplace("nodenextchunkstartyyyymmddhhmm",chainnext.str());
+        return env.render(templates[chunk_nodenext_temp], nodenextdata);
+    }
+
     bool render_entry_withnode(Log_entry & e, Node & n) {
         ADDERRPING("#1");
         template_varvalues entrydata;
@@ -424,8 +466,8 @@ public:
             entrydata.emplace("nodetopictitle",maintopic->get_title());
         }
 
-        entrydata.emplace("nodeprev","{{ missing-data }}"); // *** PROBLEM... entries have not been linked in!
-        entrydata.emplace("nodenext","{{ missing data }}"); // ***PROBLEM... entries have not been linked in!
+        entrydata.emplace("nodeprev",render_entry_nodeprev(e));
+        entrydata.emplace("nodenext",render_entry_nodenext(e));
         entry += env.render(templates[entry_withnode_temp],entrydata);
         return true;
     }
@@ -530,7 +572,9 @@ bool interactive_Log2TL_conversion(Graph & graph, Log & log, std::string TLdirec
         ERRRETURNFALSE(__func__,"there appear to be no created files to point a task-log.html symbolic link to");
 
     } else {
-        std::filesystem::create_symlink(latest_TLfile,TLdirectory+"/task-log.html",ec);
+        std::filesystem::path TLsymlink(TLdirectory+"/task-log.html");
+        std::filesystem::remove(TLsymlink);
+        std::filesystem::create_symlink(latest_TLfile,TLsymlink,ec);
         if (ec)
             ERRRETURNFALSE(__func__,"Conversion completed, but unable to create symbolic link to task-log.html\nError code ["+std::to_string(ec.value())+"]: "+ec.message());
     }

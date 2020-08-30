@@ -117,6 +117,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/templater.o
 CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
 CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
+CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
 CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Logpostgres.o

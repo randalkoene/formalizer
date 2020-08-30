@@ -204,6 +204,38 @@ Log_chunk_ID_key_deque::size_type Log_Breakpoints::find_Breakpoint_index_before_
 }
 
 /**
+ * Find the Breakpoint section to which the Log entry with the given
+ * ID key belongs.
+ * 
+ * Log entries don't have their own start times to compare directly with
+ * a Breakpoint. We also don't want to assume (just for this function)
+ * that a Graph is available in order to actually check the start time
+ * of the corresponding chunk. Instead, we use a trick to use the
+ * Entry ID key to retrieve a Log time stamp, and convert that into an
+ * assumed Log Chunk ID key. That is then used to find the section.
+ * 
+ * Note: This trick does impose some requirements that are noted on
+ *       the Trello card at https://trello.com/c/BB3QjWOG.
+ * 
+ * @param key is the Log entry ID key.
+ * @return the Breakpoint index in the table of breakpoints.
+ */
+Log_chunk_ID_key_deque::size_type Log_Breakpoints::find_Breakpoint_index_before_entry(const Log_entry_ID_key key) {
+    Log_TimeStamp entrytime = key.idT;
+    entrytime.minor_id = 0;
+    Log_chunk_ID_key assumed_chunk_key(entrytime);
+    return find_Breakpoint_index_before_chunk(assumed_chunk_key);
+}
+
+Log_chunk_ID_key_deque::size_type Log_Breakpoints::find_Breakpoint_index_before_chaintarget(const Log_chain_target & chaintarget) {
+    if (chaintarget.ischunk) {
+        return find_Breakpoint_index_before_chunk(chaintarget.chunk.key);
+    } else {
+        return find_Breakpoint_index_before_entry(chaintarget.entry.key);
+    }
+}
+
+/**
  * Parse all chunks connected to the Log and find the sequence of
  * chunks and entries that belongs to a specific Node.
  * 

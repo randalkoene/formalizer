@@ -275,6 +275,8 @@ public:
     // crossref tables: breakpoints x chunks
     const Log_chunk_ID_key & find_Breakpoint_tstamp_before_chunk(const Log_chunk_ID_key key);
     Log_chunk_ID_key_deque::size_type find_Breakpoint_index_before_chunk(const Log_chunk_ID_key key);
+    Log_chunk_ID_key_deque::size_type find_Breakpoint_index_before_entry(const Log_entry_ID_key key);
+    Log_chunk_ID_key_deque::size_type find_Breakpoint_index_before_chaintarget(const Log_chain_target & chaintarget);
 };
 
 /**
@@ -349,6 +351,8 @@ public:
     /// crossref tables: breakpoints x chunks
     const Log_chunk_ID_key & find_Breakpoint_tstamp_before_chunk(const Log_chunk_ID_key key) { return breakpoints.find_Breakpoint_tstamp_before_chunk(key); }
     Log_chunk_ID_key_deque::size_type find_Breakpoint_index_before_chunk(const Log_chunk_ID_key key) { return breakpoints.find_Breakpoint_index_before_chunk(key); }
+    Log_chunk_ID_key_deque::size_type find_Breakpoint_index_before_entry(const Log_entry_ID_key key) { return breakpoints.find_Breakpoint_index_before_entry(key); }
+    Log_chunk_ID_key_deque::size_type find_Breakpoint_index_before_chaintarget(const Log_chain_target & chaintarget) { return breakpoints.find_Breakpoint_index_before_chaintarget(chaintarget); }
     
     /// entries table: select interval, from chunk / time, to chunk / time / count 
     Log_entry_iterator_interval get_Entries_interval(const Log_entry_ID_key interval_front, const Log_entry_ID_key interval_back);

@@ -129,9 +129,20 @@ CFLAGS= $(COMPOPT) $(MACHSPEC) $(CFXTRA)
 RXCFLAGS= $(COMPOPT) $(MACHSPEC) $(RXCFXTRA)
 CPPFLAGS= $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(SAFEREGEX) $(INCLUDES)
 
-CORE_OBJS= $(CORELIBPATH)/obj/error.o $(CORELIBPATH)/obj/general.o $(CORELIBPATH)/obj/templater.o $(CORELIBPATH)/obj/ReferenceTime.o $(CORELIBPATH)/obj/TimeStamp.o \
-			$(CORELIBPATH)/obj/Graphtypes.o $(CORELIBPATH)/obj/Graphcompare.o $(CORELIBPATH)/obj/Graphpostgres.o $(CORELIBPATH)/obj/Logtypes.o \
-			$(CORELIBPATH)/obj/dilaccess.o
+# +----- begin: Select Formalizer core library objects -----+
+CORE_OBJS = $(CORELIBPATH)/obj/error.o
+CORE_OBJS += $(CORELIBPATH)/obj/general.o
+CORE_OBJS += $(CORELIBPATH)/obj/templater.o
+CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
+CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
+CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
+CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphcompare.o
+# CORE_OBJS += $(CORELIBPATH)/obj/Logpostgres.o
+CORE_OBJS += $(CORELIBPATH)/obj/dilaccess.o
+# +----- end  : Select Formalizer core library objects -----+
 
 DIL2AL_OBJS= $(DIL2AL)/utilities.o $(DIL2AL)/interface.o $(DIL2AL)/testcode.o $(DIL2AL)/diladmin.o \
 			$(DIL2AL)/tladmin.o $(DIL2AL)/cksum.o $(DIL2AL)/alcomp.o $(DIL2AL)/tlfilter.o \

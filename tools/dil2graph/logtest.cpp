@@ -54,7 +54,7 @@ std::string sample_Chunk_HTML(render_environment & env, Log_chunk & chunk) {
     for (auto entryptr_it = entrypointers.begin(); entryptr_it != entrypointers.end(); ++entryptr_it) {
         template_varvalues entrydata;
         entrydata.emplace("entry",(*entryptr_it)->get_entrytext());
-        entrydata.emplace("minor_id",(*entryptr_it)->get_id().key().idT.minor_id);
+        entrydata.emplace("minor_id",std::to_string((*entryptr_it)->get_id().key().idT.minor_id));
         htmlentries += env.render(testentry,entrydata);
     }
 

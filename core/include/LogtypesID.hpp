@@ -251,6 +251,8 @@ struct Log_chain_target {
     Log_key_tuple get_any_ID_key();
     Log_target_tuple get_any_target();
 
+    std::string str() const { return ischunk ? chunk.key.str() : entry.key.str(); }
+
     bool isnulltarget_byID() const;
     bool isnulltarget_byptr() const { return get_ptr() == nullptr; }
 
