@@ -5,326 +5,10 @@
 #include <iomanip>
 #include <numeric>
 
+#include "LogtypesID.hpp"
 #include "Logtypes.hpp"
 
 namespace fz {
-
-#define VALID_LOG_ID_FAIL(f) \
-    {                         \
-        formerror = f;        \
-        return false;         \
-    }
-
-/**
- * Test if a Log_TimeStamp can be used as a valid Log_entry_ID.
- * 
- * Note that years before 1999 are disqualified,
- * since the Formalizer did not exist before then.
- * 
- * @param idT reference to an Log_TimeStamp object.
- * @param formerror a string that collects specific error information if there is any.
- * @return true if valid.
- */
-bool valid_Log_entry_ID(const Log_TimeStamp &idT, std::string &formerror) {
-    if (idT.year < 1999)
-        VALID_LOG_ID_FAIL("year");
-    if ((idT.month < 1) || (idT.month > 12))
-        VALID_LOG_ID_FAIL("month");
-    if ((idT.day < 1) || (idT.day > 31))
-        VALID_LOG_ID_FAIL("day");
-    if (idT.hour > 23)
-        VALID_LOG_ID_FAIL("hour");
-    if (idT.minute > 59)
-        VALID_LOG_ID_FAIL("minute");
-    if (idT.minor_id < 1)
-        VALID_LOG_ID_FAIL("minor_id");
-    return true;
-}
-
-/**
- * Test if a Log_TimeStamp can be used as a valid Log_chunk_ID.
- * 
- * Note that years before 1999 are disqualified,
- * since the Formalizer did not exist before then.
- * 
- * @param idT reference to an Log_TimeStamp object.
- * @param formerror a string that collects specific error information if there is any.
- * @return true if valid.
- */
-bool valid_Log_chunk_ID(const Log_TimeStamp &idT, std::string &formerror) {
-    if (idT.year < 1999)
-        VALID_LOG_ID_FAIL("year");
-    if ((idT.month < 1) || (idT.month > 12))
-        VALID_LOG_ID_FAIL("month");
-    if ((idT.day < 1) || (idT.day > 31))
-        VALID_LOG_ID_FAIL("day");
-    if (idT.hour > 23)
-        VALID_LOG_ID_FAIL("hour");
-    if (idT.minute > 59)
-        VALID_LOG_ID_FAIL("minute");
-    return true;
-}
-
-
-/**
- * Test if a string can be used to form a valid Log_entry_ID.
- * 
- * Checks string length, period separating time stamp from minor ID,
- * all digits in time stamp and minor ID, and time stamp components
- * within valid ranges. Note that years before 1999 are disqualified,
- * since the Formalizer did not exist before then.
- * 
- * @param id_str a string of the format YYYYmmddHHMM.num.
- * @param formerror a string that collects specific error information if there is any.
- * @param id_timestamp if not NULL, receives valid components.
- * @return true if valid.
- */
-bool valid_Log_entry_ID(std::string id_str, std::string &formerror, Log_TimeStamp *id_timestamp) {
-
-    if (id_str.length() < 14)
-        VALID_LOG_ID_FAIL("string size");
-    if (id_str[12] != '.')
-        VALID_LOG_ID_FAIL("format");
-    for (int i = 0; i < 12; i++)
-        if (!isdigit(id_str[i]))
-            VALID_LOG_ID_FAIL("digits");
-
-    Log_TimeStamp idT;
-    idT.year = stoi(id_str.substr(0, 4));
-    idT.month = stoi(id_str.substr(4, 2));
-    idT.day = stoi(id_str.substr(6, 2));
-    idT.hour = stoi(id_str.substr(8, 2));
-    idT.minute = stoi(id_str.substr(10, 2));
-    idT.minor_id = stoi(id_str.substr(13));
-    if (!valid_Log_entry_ID(idT, formerror))
-        return false;
-
-    if (id_timestamp)
-        *id_timestamp = idT;
-    return true;
-}
-
-/**
- * Test if a string can be used to form a valid Log_chunk_ID.
- * 
- * Checks string length, all digits in time stamp, and time stamp components
- * within valid ranges. Note that years before 1999 are disqualified,
- * since the Formalizer did not exist before then.
- * 
- * @param id_str a string of the format YYYYmmddHHMM.
- * @param formerror a string that collects specific error information if there is any.
- * @param id_timestamp if not NULL, receives valid components.
- * @return true if valid.
- */
-bool valid_Log_chunk_ID(std::string id_str, std::string &formerror, Log_TimeStamp *id_timestamp) {
-
-    if (id_str.length() < 12)
-        VALID_LOG_ID_FAIL("string size");
-    for (int i = 0; i < 12; i++)
-        if (!isdigit(id_str[i]))
-            VALID_LOG_ID_FAIL("digits");
-
-    Log_TimeStamp idT;
-    idT.year = stoi(id_str.substr(0, 4));
-    idT.month = stoi(id_str.substr(4, 2));
-    idT.day = stoi(id_str.substr(6, 2));
-    idT.hour = stoi(id_str.substr(8, 2));
-    idT.minute = stoi(id_str.substr(10, 2));
-    idT.minor_id = 0;
-    if (!valid_Log_chunk_ID(idT, formerror))
-        return false;
-
-    if (id_timestamp)
-        *id_timestamp = idT;
-    return true;
-}
-
-std::string Log_entry_ID_TimeStamp_to_string(const Log_TimeStamp idT) {
-    std::stringstream ss;
-    ss << std::setfill('0')
-       << std::setw(4) << (int) idT.year
-       << std::setw(2) << (int) idT.month
-       << std::setw(2) << (int) idT.day
-       << std::setw(2) << (int) idT.hour
-       << std::setw(2) << (int) idT.minute
-       << '.' << std::setw(1) << (int) idT.minor_id;
-    return ss.str();
-}
-
-std::string Log_chunk_ID_TimeStamp_to_string(const Log_TimeStamp idT) {
-    std::stringstream ss;
-    ss << std::setfill('0')
-       << std::setw(4) << (int) idT.year
-       << std::setw(2) << (int) idT.month
-       << std::setw(2) << (int) idT.day
-       << std::setw(2) << (int) idT.hour
-       << std::setw(2) << (int) idT.minute;
-    return ss.str();
-}
-
-std::string Log_TimeStamp_to_Ymd_string(const Log_TimeStamp idT) {
-    std::stringstream ss;
-    ss << std::setfill('0')
-       << std::setw(4) << (int) idT.year
-       << std::setw(2) << (int) idT.month
-       << std::setw(2) << (int) idT.day;
-    return ss.str();
-}
-
-/**
- * Generate a candidate Log time stamp from UNIX epoch time.
- * 
- * If the `testvalid` flag is set then the validity test for use
- * as a standardized Formalizer Log_chunk_ID is carried out and
- * can cause an `ID_exception`. (In essence, all this adds is a
- * test that year>=1999).
- * 
- * Note that the default `_minorid` is 0, which is expected for
- * a Log_chunk_ID, while Log_entry_ID `minor_id` values normally
- * start at 1.
- * 
- * @param t a UNIX epoch time.
- * @param testvalid if set causes year check (default: false).
- * @param _minorid to set (default: 0).
- */
-Log_TimeStamp::Log_TimeStamp(std::time_t t, bool testvalid, uint8_t _minorid) {
-    std::tm * tm = std::localtime(&t);
-    year = tm->tm_year + 1900;
-    month = tm->tm_mon + 1;
-    day = tm->tm_mday;
-    hour = tm->tm_hour;
-    minute = tm->tm_min;
-    minor_id = _minorid;
-    if (testvalid) {
-        std::string formerror;
-        if (!valid_Log_chunk_ID((*this),formerror)) throw(ID_exception(formerror));
-    }
-}
-
-/**
- * Convert the standardized Formalizer Log time stamp into equivalent localtime
- * structure.
- * 
- * @return localtime structure (contains all-zero if null-stamp).
- */
-std::tm Log_TimeStamp::get_local_time() const {
-    std::tm tm = { 0 };
-    if (isnullstamp())
-        return tm;
-
-    tm.tm_year = year-1900;
-    tm.tm_mon = month-1;
-    tm.tm_mday = day;
-    tm.tm_hour = hour;
-    tm.tm_min = minute;
-    return tm;
-}
-
-/**
- * Convert the standardized Formalizer Log time stamp into equivalent UNIX epoch
- * time.
- * 
- * @return the equivalent UNIX epoch time, or -1 if null-stamp.
- */
-time_t Log_TimeStamp::get_epoch_time() const {
-    if (isnullstamp())
-        return -1;
-
-    std::tm tm(get_local_time());
-    return mktime(&tm);
-}
-
-/**
- * Use rapid-access pointers to point to next in by-Node chain.
- * 
- * This function requires that rapid-access pointers have been set up.
- * 
- * @return pointer to the next target in the chain, or nullptr if this
- *         is a null-target (e.g. end of chain).
- */
-Log_chain_target * Log_chain_target::go_next_in_chain() {
-    if (isnulltarget_byptr())
-        return nullptr;
-    
-    auto [ischunk, ptr] = get_data_ptr();
-
-    if (ischunk) {
-        return &(((Log_chunk *)ptr)->get_node_next());
-    } else {
-        return &(((Log_entry *)ptr)->get_node_next());
-    }
-}
-
-/// See description for go_next_in_chain().
-Log_chain_target * Log_chain_target::go_prev_in_chain() {
-    if (isnulltarget_byptr())
-        return nullptr;
-    
-    auto [ischunk, ptr] = get_data_ptr();
-
-    if (ischunk) {
-        return &(((Log_chunk *)ptr)->get_node_prev());
-    } else {
-        return &(((Log_entry *)ptr)->get_node_prev());
-    }
-}
-
-Log_entry_ID_key::Log_entry_ID_key(const Log_TimeStamp& _idT) {
-    idT=_idT;
-    std::string formerror;
-    if (!valid_Log_entry_ID(_idT,formerror)) throw(ID_exception(formerror));
-}
-
-Log_entry_ID_key::Log_entry_ID_key(std::string _idS) {
-    std::string formerror;
-    if (!valid_Log_entry_ID(_idS,formerror,&idT)) throw(ID_exception(formerror));
-}
-
-Log_chunk_ID_key::Log_chunk_ID_key(const Log_TimeStamp& _idT) {
-    idT=_idT;
-    std::string formerror;
-    if (!valid_Log_chunk_ID(_idT,formerror)) throw(ID_exception(formerror));
-}
-
-Log_chunk_ID_key::Log_chunk_ID_key(std::string _idS) {
-    std::string formerror;
-    if (!valid_Log_chunk_ID(_idS,formerror,&idT)) throw(ID_exception(formerror));
-}
-
-Log_entry_ID::Log_entry_ID(const Log_TimeStamp _idT): idkey(_idT) {
-    idS_cache = Log_entry_ID_TimeStamp_to_string(idkey.idT);
-}
-
-Log_chunk_ID::Log_chunk_ID(const Log_TimeStamp _idT): idkey(_idT) {
-    idS_cache = Log_chunk_ID_TimeStamp_to_string(idkey.idT);
-}
-
-// Use very carefully!
-bool Log_chunk_ID::_reassign(std::string _idS) {
-    std::string formerror;
-    if (!valid_Log_chunk_ID(_idS,formerror,&idkey.idT))
-        ERRRETURNFALSE(__func__,"invalid Log chunk ID "+_idS+" ("+formerror+')');
-
-    idS_cache = _idS;
-    return true;
-}
-
-// Use very carefully!
-bool Log_chunk_ID::_reassign(const Log_TimeStamp _idT) {
-    std::string formerror;
-    if (!valid_Log_chunk_ID(_idT,formerror))
-        ERRRETURNFALSE(__func__,"invalid Log chunk ID "+Log_chunk_ID_TimeStamp_to_string(_idT)+" ("+formerror+')');
-
-    idkey.idT = _idT;
-    idS_cache = idkey.str();
-    return true;
-}
-
-// Use appropriately!
-void Log_chunk_ID::_nullID() {
-    idkey.idT = Log_TimeStamp(); // null-key
-    idS_cache = idkey.str();
-}
 
 /**
  * Set the previous in chain-by-Node based on a Log chunk pointer.
@@ -598,26 +282,54 @@ std::deque<Log_chain_target> Log::get_Node_chain(const Node_ID node_id) {
  * Graph object is required.
  */
 struct Node_Targets_cursor {
-    Log_chain_target & head;
-    Log_chunk_target & tail;
+    Log_chain_target head;
+    Log_chain_target tail;
     unsigned long count;
 
-    Node_Targets_cursor(Log_chain_target & tailhead): head(tailhead), tail(tailhead), count(1) {
-        tailhead->set_Node_prev_chunk(nullptr); // clear in case previously attached
-        tailhead->set_Node_next_chunk(nullptr); // clear in case previously attached
+    Node_Targets_cursor(Log_chunk & tailhead): count(1), head(tailhead), tail(tailhead) {
+        tailhead.set_Node_next_null(); // clear in case previously attached
+        tailhead.set_Node_prev_null(); // clear in case previously attached
+    }
+    Node_Targets_cursor(Log_entry & tailhead): count(1), head(tailhead), tail(tailhead) {
+        tailhead.set_Node_next_null(); // clear in case previously attached
+        tailhead.set_Node_prev_null(); // clear in case previously attached
     }
 
     bool append(Log_chunk & chunk) {
-        if ((&chunk==tail) || (chunk.get_node_prev_chunk()!=nullptr))
+        if (tail.same_target(chunk) || (!chunk.node_prev_isnullptr()))
             ERRRETURNFALSE(__func__,"unable to append a Log chunk that was already chained");
 
-        chunk.set_Node_next_chunk(nullptr); // clearing any old attachements as we go
+        chunk.set_Node_next_null(); // clearing any old attachements as we go
+
         // Link into the chain
-        chunk.set_Node_prev_chunk(tail);
-        tail->set_Node_next_chunk(&chunk);
+        if (!tail.isnulltarget_byptr()) { // testing just in case (ought never to happen)
+            chunk.set_Node_prev(tail);
+            tail.bytargetptr_set_Node_next_ptr(&chunk);
+        }
+
         count++;
+
         // New tail of chain
-        tail = &chunk;
+        tail.set_chunk_target(chunk);
+        return true;
+    }
+
+    bool append(Log_entry & entry) {
+        if (tail.same_target(entry) || (!entry.node_prev_isnullptr()))
+            ERRRETURNFALSE(__func__,"unable to append a Log entry that was already chained");
+
+        entry.set_Node_next_null(); // clearing any old attachements as we go
+
+        // Link into the chain
+        if (!tail.isnulltarget_byptr()) { // testing just in case (ought never to happen)
+            entry.set_Node_prev(tail);
+            tail.bytargetptr_set_Node_next_ptr(&entry);
+        }
+
+        count++;
+
+        // New tail of chain
+        tail.set_entry_target(entry);
         return true;
     }
 };
@@ -631,11 +343,26 @@ struct Node_Targets_cursor {
  * Graph object is required.
  */
 void Log::setup_Chunk_nodeprevnext() {
-    std::map<Node_ID_key,Node_Chunks_cursor> cursors;
+
+    //std::deque<Log_chain_target> res;
+
+    std::map<Node_ID_key,Node_Targets_cursor> cursors;
+
     for (const auto& chunkptr : chunks) { // .begin(); it != chunks.end(); ++it) {
+
+        // first, link the chunk to the right chain
         Log_chunk * chunk = chunkptr.get();
-        auto [node_cursor_it, was_new] = cursors.emplace(chunk->get_NodeID().key(),chunk); // first of a Node
-        if (!was_new) node_cursor_it->second.append(*chunk); // adding to a Node's chain
+        auto [c_node_cursor_it, c_was_new] = cursors.emplace(chunk->get_NodeID().key(),chunk); // first of a Node
+        if (!c_was_new) c_node_cursor_it->second.append(*chunk); // adding to a Node's chain
+
+        // then, link entries in the chunk with specified Nodes to the right chains
+        for (const auto& entry : chunkptr->get_entries()) {
+            if (!(entry->get_nodeidkey().isnullkey())) {
+                auto [e_node_cursor_it, e_was_new] = cursors.emplace(entry->get_nodeidkey(),entry); // first of a Node
+                if (!e_was_new) e_node_cursor_it->second.append(*entry); // adding to a Node's chain
+            }
+        }
+
     }
 }
 

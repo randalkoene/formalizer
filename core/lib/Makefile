@@ -95,16 +95,19 @@ CPPOPT= -felide-constructors
 CFLAGS= $(COMPOPT) $(MACHSPEC) $(CFXTRA)
 CPPFLAGS= $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(INCLUDES)
 
+SOURCES = $(wildcard *.cpp)
+OBJECTS = $(addprefix $(OBJ)/,$(SOURCES:%.cpp,%.o))
+
 .PHONY: FORCE
 
-all: init $(OBJ)/general.o $(OBJ)/error.o $(OBJ)/templater.o $(OBJ)/ReferenceTime.o $(OBJ)/TimeStamp.o \
-						$(OBJ)/dilaccess.o $(OBJ)/Graphtypes.o \
-						$(OBJ)/Graphcompare.o $(OBJ)/Logtypes.o $(OBJ)/Graphpostgres.o
+all: init $(OBJECTS)
 
 init: FORCE
 	@echo '-------------------------------------------------------------------'
 	@echo 'Compilation options: $(MACHSTR), $(OPTSTR)'
 	@echo 'Includes: $(CPPFLAGS)'
+	@echo 'Core sources: $(SOURCES)'
+	@echo 'Core object built here: $(OBJECTS)'
 	@echo '-------------------------------------------------------------------'
 
 $(OBJ)/error.o: error.cpp $(INC)/error.hpp
@@ -130,6 +133,9 @@ $(OBJ)/Graphcompare.o: Graphcompare.cpp $(INC)/Graphtypes.hpp
 
 $(OBJ)/Graphtypes.o: Graphtypes.cpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c Graphtypes.cpp -o $(OBJ)/Graphtypes.o
+
+$(OBJ)/LogtypesID.o: LogtypesID.cpp $(INC)/LogtypesID.hpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
+	$(CCPP) $(CPPFLAGS) -c LogtypesID.cpp -o $(OBJ)/LogtypesID.o
 
 $(OBJ)/Logtypes.o: Logtypes.cpp $(INC)/Logtypes.hpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c Logtypes.cpp -o $(OBJ)/Logtypes.o
