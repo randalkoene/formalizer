@@ -818,8 +818,15 @@ void interactive_validation(Detailed_Items_List *dil, Graph *graph) {
 }
 
 int main(int argc, char *argv[]) {
+    cout << "** CONFIG NOTE: This tool (and its components from core) still need a\n";
+    cout << "**              standardized method of configuration. See Trello card\n";
+    cout << "**              at https://trello.com/c/4B7x2kif.\n\n";
+    // *** +---- begin: Things that probably should be configurable -----+
+    ErrQ.set_errfilepath("/var/www/html/formalizer/formalizer.core.error.ErrQ.log");
+    WarnQ.set_errfilepath("/var/www/html/formalizer/formalizer.core.error.WarnQ.log");
     ErrQ.disable_caching(); // more granular, more work, less chance of losing error messages
     //ErrQ.enable_pinging(); // turn this on when hunting for the cause of a segfault
+    // *** +---- end  : Things that probably should be configurable -----+
     
     ERRHERE(".1");
     server_long_id = "Formalizer:Conversion:DIL2Graph v" + version() + " (core v" + coreversion() + ")";
@@ -899,7 +906,7 @@ int main(int argc, char *argv[]) {
                 logptr->setup_Chunk_node_caches(*(graphptr.get()));
             }
         }
-        if (!interactive_Log2TL_conversion(*graphptr, *logptr,DIRECTGRAPH2DIL_DIR, &VOUT)) {
+        if (!interactive_Log2TL_conversion(*graphptr, *logptr,DIRECTGRAPH2DIL_DIR, DIRECTGRAPH2DIL_DIR "/../graph2dil-lists.html",&VOUT)) {
             EOUT << "\nDirect conversion test back to Task Log files did not complete..\n";
             Exit_Now(exit_general_error);
         }

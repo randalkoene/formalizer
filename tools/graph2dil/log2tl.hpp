@@ -18,6 +18,6 @@
 
 using namespace fz;
 
-bool interactive_Log2TL_conversion(Graph & graph, Log & log, std::string TLdirectory, std::ostream * o = nullptr);
+bool interactive_Log2TL_conversion(Graph & graph, Log & log, std::string TLdirectory, std::string IndexPath, std::ostream * o = nullptr);
 
 #endif // __LOG2TL_HPP

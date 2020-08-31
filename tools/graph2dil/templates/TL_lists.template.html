@@ -1,0 +1,523 @@
+<HTML>
+<HEAD>
+<TITLE>Active Lists and Detailed Item Lists</TITLE>
+</HEAD>
+<BODY BGCOLOR="#F0E0A0">
+
+<CENTER><TABLE WIDTH="80%" CELLPADDING=7 BGCOLOR="#005F00"><TR><TD><FONT COLOR="#FFFF00">
+<UL>
+<LI>Active Task Lists generally contain <B>references</B> to Detail Items in Detail Items Lists.
+<LI>Detailed Items Lists generally contain <B>keys</B> to ideas and information found in resources.
+</UL>
+Using keys and references allows the corresponding information to remain within its documented context.
+</FONT></TABLE></CENTER>
+
+<TABLE WIDTH="100%" BORDER=1>
+  <TR>
+    <TD ALIGN=LEFT>
+      <B>AL, DIL &amp; TL</B>:<BR>
+      <A HREF="#AL"><B>Active Lists (AL)</B></A><BR>
+      <A HREF="#DIL"><B>Detailed Item Lists (DIL)</B></A><BR>
+      <A HREF="#TL"><B>Task Logs (TL)</B></A><BR>
+      <A HREF="income-possibilities-task-hierarchies.html">Income Possibilities Task Hierarchies</A><BR>
+    </TD>
+    <TD ALIGN=RIGHT>
+      <B>Tracking</B>:<BR>
+      <A HREF="planning/simple-exercise-tracking.ods"><B>Simple Exercise Tracking</B></A><BR>
+      <A HREF="planning/journal.anxiety-fear-vs-courage-activity.ods"><B>Anxiety &amp; Fear vs. Courage &amp; Activity</B></A><BR>
+      <A HREF="planning/financial-plan-2012.ods"><B>Financial Plan &amp; Tracking</B></A><BR>
+    </TD>
+  </TR>
+  <TR>
+    <TD ALIGN=LEFT>
+      <B>Organization</B>:<BR>
+      <A HREF="planning/networks.html"><B>Networks</B></A><BR>
+      <A HREF="planning/OOP/TEMPLATE-negotiation-20110106114849.1.html"><B>Preparing Negotiations Template</B></A><BR>
+      <A HREF="../../tmp/whiteboards/"><B>Whiteboards</B></A>, Stored &amp; Scanned <A HREF="/home/randalk/images/notes/"><B>Notes</B></A><BR>
+    </TD>
+    <TD ALIGN=RIGHT>
+      <B>Dissertation and Articles organization</B>:<BR>
+      <A HREF="lists/figures-directory.html">Figures Directory</A>, <A HREF="lists/paper-plans.html">Paper Plans</A><BR>
+    </TD>
+  </TR>
+  <TR>
+    <TD ALIGN=LEFT>
+      <B>Usage documentation</B>:<BR>
+      <A HREF="#Hypothesis-and-Method"><B>Hypothesis and Method</B></A><BR>
+      <A HREF="../txt/HowTo-OOP.odt"><B>HowTo OOP</B></A>, <A HREF="../txt/objective-oriented-planning-20090102.odt">Objective-Oriented Planning</A> (<a href="lists/objective-oriented-planning-graph.fig">Figure</a>)<BR>
+      <A HREF="planning/goal-directed-decision-making.html"><B>Goal Directed Decision Making</B></A><BR>
+      <A HREF="#DIL2AL"><B>Extracting Active Lists from Detailed Item Lists</B></A><BR>
+      <A HREF="formalizer-doc.html"><B>Documentation of the Formalizer and dil2al</B></A><BR>
+      <A HREF="#guidelines"><B>Guidelines</B></A><BR>
+      <A HREF="lists/planning-cross-reference-index.html"><B>Planning (Cross)Reference &amp; Index</B></A><BR>
+   </TD>
+    <TD ALIGN=RIGHT>
+      <B>Legacy documentation</B>:<BR>
+      <A HREF="#references">References</A><BR>
+      <A HREF="#Hints">Project Efficiency</A>, <A HREF="#research-prep">Research P./P.</A>, <A HREF="#experiment-plan">Experimentation</A><BR>
+      <A HREF="#templates-parsing-autogeneration">Templates, automatic parsing and draft generation</A><BR>
+      <A HREF="style-guide.html#dil2al-tags">Style Guide: DIL, AL, TL and Document Processing Tags</A> (<A HREF="../../src/dil2al/dil2al.cc">dil2al</A>)<BR>
+      <A HREF="planning/bigplan.html">Big Plan</A>, <A HREF="lists/objectives.html">Objectives</A>, Target Dates <a href="lists/ooplanner.html">planner</a><BR>
+      <A HREF="work-log.html">Work Log</A>, <A HREF="lists/depth-stack.txt">Depth Stack</A><BR>
+    </TD>
+  </TR>
+<BR>
+</TABLE>
+
+
+<H1><A NAME="AL">Active Lists (AL)</A></H1>
+
+Active lists are generated according to ongoing <A HREF="planning/material.html#article-writing-tips">projects</A> and agendas, utilizing relevance, urgency and deadline information to establish prioretization, and displaying those items with a priority great enough to be kept in mind and subsequently attended to. Projects refer to specific DIL entries, and involve the completion of that entry and all its dependencies (but also see <B><a href="lists/task-log.20110126.html#201102200557.2">The Relationship between Projects and DIL entries</a></B>). it is a good habit to always check the generated schedule for the next day or week, to assure that it is sensible. For satisfying achievements the ALs should be followed with discipline, to ensure that all relevant tasks are completed prior to their original target dates.
+
+<UL>
+<LI><A HREF="lists/active-list.all.html">Active List: All</A> (<A HREF="lists/task-log.20000417.html#200009171528">Al tail</A>,<A HREF="lists/task-log.20200817.html#202008230039">AL head</A>)<BR>
+A list of tasks created with all DIL entries.
+<P>
+<LI><A HREF="lists/active-thesis-list.html">Active Thesis List</A> (<A HREF="lists/task-log.19991127.html#199911290925">AL tail</A>,<A HREF="lists/task-log.20000417.html#200009131412">AL head</A>) (Deprecated)<BR>
+A prioretized active tasks list in the context of the <A HREF="phd-dissertation.html">Ph.D. Thesis Dissertation</A> Project.
+<P>
+<LI><A HREF="lists/active-responsibilities-list.html">Active Responsibilities List</A> (Deprecated)<BR>
+A list of tasks relating to various non-work responsibilities, such as social and residential responsibilities, e.g. immigration, taxation, health-care, relationship responsibilities, holiday celebrations, special events.
+<P>
+<LI><A HREF="lists/active-evening-list.html">Active ``Evening'' List</A> (Deprecated)<BR>
+As the name implies, a prioretized active tasks list for tasks not intended as working-hours tasks, e.g. tasks suggested for free hours such as evenings. Aside from hobby (e.g. <A HREF="../txt/economy/earthstory.html">Earth</A>) and miscellaneous tasks, other examples may be tasks that relate to the organization or automation of working-hours tasks.
+<P>
+</UL>
+<P>
+<A NAME="UPDATE">[</A><A HREF="/cgi-bin/dil2al?dil2al=AcS0"><B>Update Strict</B></A>] [<A HREF="/cgi-bin/dil2al?dil2al=AcS0&setpar__EQ__ctrshowall">Update Strict (+ctrshowall)</A>] [<A HREF="/cgi-bin/dil2al?dil2al=AcS0&setpar__EQ__alwide=9999999">Update Strict (show complete AL)</A>] [<A HREF="/cgi-bin/dil2al?dil2al=AcE0">Update Expanding</A>]
+<P>
+  See the <a href="lists/init.html"><b>Init</b></a> page, <a href="formalizer-doc.html#best-practices">Best Practices</a> or [<A HREF="/cgi-bin/dil2al-bestpractice-update.sh?caller=browserpage"><B>Best Practices</B></A>] script, and [<A HREF="/cgi-bin/formalizer-showmetrics-manually.sh?caller=browserpage">Update Displayed Metrics</A>].
+<P>
+  Most recent Formalizer/dil2al output log: <B><a href="/tmp/dil2al-output.html">dil2al-output.html</a></B>
+<P>
+  <!-- Added 20200228. See TL#202002281025.  -->
+  <B>SYSTEM USE</B>:
+  <OL>
+    <LI>Start with the morning Metrics and a freshly updated AL.
+    <LI>Use active Task Chunking - keep the daemon on!
+    <LI>Carry out run-throughs and DAF identification for the day's tasks.
+    <LI>Use this System Help as needed when issues arise.
+    <LI>Update Progress Metrics throughout the day.
+  </OL>
+<P>
+  <B>VALUES: <a href="../tex/Change/NoC-Values-practical-guide.html">Practical Guide</a></B>
+<P>
+To make sure that each important task is done by its necessary target date, planning needs to take into account:
+<BR>
+a.) The current situation. Immediate need and best actions. This part of planning explains the actions and their value with confidence.
+<BR>
+b.) The big picture from the top level down. What to do to reach the ultimate Objectives. This part of planning gives an overriding perspective and it is the context for what is done.
+<BR>
+The balanced combination of both parts of planning explains and proposes activities and strategies.
+<BR>
+One set of tools with which to balance both parts of planning are the <a href="../../tmp/significant.html" ><B>significant.html</B></a> and <a href="../../tmp/metrics.html" >metrics.html</a> files.
+<P>
+<A HREF="lists/active-list.all.ctr.html"><B>Active List - Cumulative Time Required: all</B></A>
+<P>
+<A HREF="lists/formalizer.current-task-history.html"><B>Current Task History</B></A>
+<P>
+<a href="lists/frequent.html">Frequent Tasks</a>
+
+<P>
+Local Parameters: <A HREF="../../.dil2alrc">.dil2alrc</A>
+
+<H1><A NAME="DIL">Detailed Item Lists (DIL)</A></H1>
+
+This is the main table of contents that refers to topical detailed items lists.
+<P>
+<A HREF="lists/hierarchy.html"><B>DIL Hierarchy</B></A> [<A HREF="/cgi-bin/dil2al?dil2al=D&processcmd=newhierarchy&maxdepth=5&hierarchyfile=/home/randalk/doc/html/lists/hierarchy.html">Update</A>] [<A HREF="/cgi-bin/dil2al?dil2al=D&processcmd=newhierarchy&maxdepth=5&setpar=hierarchysorting&hierarchyfile=/home/randalk/doc/html/lists/hierarchy.html">Ordered</A>] [<A HREF="/cgi-bin/dil2al?dil2al=D&processcmd=newhierarchy&maxdepth=5&hierarchyfile=/home/randalk/doc/html/lists/hierarchy.html&expressions=%40begin%3A%20PLAN%20DIL%20TEMPLATE">Plan</A>] <!-- %40=@, %3A=:, %20=space --> Direct to bottom-up Plan: [<A HREF="/cgi-bin/dil2al?dil2al=D&processcmd=newhierarchy&maxdepth=5&setpar__EQ__hierarchyexcerptlength=160&setpar=reversehierarchy&expressions=%2540begin%253A%2520PLAN%2520DIL%2520TEMPLATE">depth 5</A>] [<A HREF="/cgi-bin/dil2al?dil2al=D&processcmd=newhierarchy&maxdepth=15&setpar__EQ__hierarchyexcerptlength=160&setpar=reversehierarchy&expressions=%2540begin%253A%2520PLAN%2520DIL%2520TEMPLATE">depth 15</A>]
+<BR>Specific hierarchies: <a href="/cgi-bin/dil2al?dil2al=D&DILIDCHKBX20050307091430.1=extract&processcmd=newhierarchy&maxdepth=8&setpar__EQ__hierarchyexcerptlength=80&setpar=noreversehierarchy">WBE/MU</a>, <A HREF="/cgi-bin/dil2al?dil2al=D&DILIDCHKBX20050216063846.1=extract&processcmd=newhierarchy&maxdepth=8&setpar__EQ__hierarchyexcerptlength=80&setpar=noreversehierarchy">CASPAN</A>, <a href="/cgi-bin/dil2al?dil2al=D&DILIDCHKBX20040428134454.1=extract&processcmd=newhierarchy&maxdepth=5&setpar__EQ__hierarchyexcerptlength=80&setpar=noreversehierarchy">Career</a>, <a href="/cgi-bin/dil2al?dil2al=D&DILIDCHKBX20010225122509.1=extract&processcmd=newhierarchy&maxdepth=8&setpar__EQ__hierarchyexcerptlength=80&setpar=noreversehierarchy">dil2al</a>, <a href="">...</a> (<a href="formalizer.graphical-DIL-hierarchy-roadmap-OOP.html" >Graphical DIL Hierarchy / Roadmap OOP</a>: <a href="../../tmp/hierarchy.pdf" ><strong>hierarchy.pdf</strong></a>, currrent top: <B>[<a href="lists/plan.html#20101230042609.1" >EVERYTHING</a>]</B>)
+<P>
+<UL>
+<LI><A HREF="lists/literature.html">Literature Research</A>
+<LI><A HREF="lists/components.html">Components</A>
+<ul>
+<LI><A HREF="lists/memory.html">Memory</A>
+<ul>
+<LI><A HREF="lists/stm.html">STM</A>
+<LI><A HREF="lists/ltp.html">LTP</A>
+</ul>
+<LI><A HREF="lists/responses.html">Responses</A>
+</ul>
+<LI><A HREF="lists/structure.html">Structure of Neuronal Circuitry</A>
+<ul>
+<LI><A HREF="lists/network-dynamics.html">Network Dynamics</A>
+</ul>
+<LI><A HREF="lists/neuronal-data-extraction.html">Neuronal Data Extraction</A>
+<LI><A HREF="lists/nre.html">Neurological Reconstruction and Emulation</A>
+<LI><A HREF="lists/experiments.html">Experiments</A>
+<LI><A HREF="lists/netmorph.html">NETMORPH Simulator Implementation and Documentation</A>
+<LI><A HREF="lists/gesn.html">GESN</A>
+<LI><A HREF="lists/gesnlib-implementation.html">GESNlib Implementation</A>
+<LI><A HREF="lists/publication.html">Publication of Research</A>
+<ul>
+<LI><A HREF="lists/journal.html">Journal Publication</A>
+<LI><A HREF="lists/presentation.html">Slide Presentations</A>
+<LI><A HREF="lists/poster.html">Poster Presentations</A>
+</ul>
+<LI><A HREF="lists/organization.html">Organization and Planning</A>
+<ul>
+<LI><A HREF="lists/formalizer.html">Formalizer</A>
+<LI><A HREF="lists/dil2al.html">DIL, AL and TL automation</A>
+<LI><A HREF="lists/financial.html">Financial</A>
+<ul>
+<LI><A HREF="lists/capital.html">Capial Growth and Leverage</A>
+<LI><A HREF="lists/taxes.html">Taxes and Related Financial Activities</A>
+<LI><A HREF="lists/fund-raising.html">Fund Raising</A>
+<ul>
+<LI><A HREF="lists/grant-writing.html">Grant Writing</A>
+</ul>
+<LI><A HREF="lists/accounting.html">Accounting, Reimbursements and Financial Administration</A>
+<LI><A HREF="lists/bill-payments.html">Bill Payments</A>
+</ul>
+<LI><A HREF="lists/plan.html">Plan</A>
+<ul>
+<LI><A HREF="lists/roadmap.html">Personal Roadmap</A>
+<LI><A HREF="lists/oop.html">Objective Oriented Planning</A>
+<ul>
+<LI><A HREF="lists/oop-change.html">Objective Oriented Planning for Change Project</A>
+<LI><A HREF="lists/oop-muwbe.html">Objective Oriented Planning - MUWBE Objective</A>
+<LI><A HREF="lists/oop-wbeproj.html">Objective Oriented Planning - WBEPROJ Objective</A>
+<LI><A HREF="lists/oop-wbeorg.html">Objective Oriented Planning - WBEORG Objective</A>
+<LI><A HREF="lists/oop-fundnet.html">Objective Oriented Planning - FUNDNET Objective</A>
+<LI><A HREF="lists/oop-perspot.html">Objective Oriented Planning - PERSPOT Objective</A>
+<LI><A HREF="lists/oop-dnwbe.html">Objective Oriented Planning - DNWBE Objective</A>
+<LI><A HREF="lists/oop-strucemu.html">Objective Oriented Planning - STRUCEMU Objective</A>
+<LI><A HREF="lists/oop-nineur.html">Objective Oriented Planning - NINEUR Objective</A>
+<LI><A HREF="lists/oop-homefin.html">Objective Oriented Planning - HOMEFIN Objective</A>
+<LI><A HREF="lists/oop-finsafe.html">Objective Oriented Planning - FINSAFE Objective</A>
+<LI><A HREF="lists/oop-dssponsor.html">Objective Oriented Planning - DSSPONSOR Objective</A>
+<LI><A HREF="lists/oop-perssys-wbeorg-focus.html">Objective Oriented Planning - PERSSYS-WBEORG-FOCUS Milestone Objective</A>
+<LI><A HREF="lists/oop-perssys-staff.html">Objective Oriented Planning - PERSSYS-STAFF Milestone Objective</A>
+<LI><A HREF="lists/oop-dndir.html">Objective Oriented Planning - DNDIR Objective</A>
+</ul>
+<LI><A HREF="lists/rtt.html">Rationally Thinking Through</A>
+</ul>
+<LI><A HREF="lists/travel.html">Travel</A>
+<LI><A HREF="lists/meetings.html">Meetings, Conferences, Workshops et cetera</A>
+<ul>
+<LI><A HREF="lists/department-meeting.html">Department Meetings and Internal Appointments</A>
+<LI><A HREF="lists/opportunity.html">Opportunity, Appointment, Reminder, Gig, Deal, Sale</A>
+</ul>
+</ul>
+<LI><A HREF="lists/self-improvement.html">Self-Improvement</A>
+<ul>
+<LI><A HREF="lists/system.html">System</A>
+</ul>
+<LI><A HREF="lists/communication.html">Communication</A>
+<ul>
+<LI><A HREF="lists/networking.html">Networking, Profile, Renown</A>
+<ul>
+<LI><A HREF="lists/brand.html">Personal Brand and Profile Building</A>
+<LI><A HREF="lists/profiles.html">Profiles</A>
+<LI><A HREF="lists/contacts.html">Contacts</A>
+</ul>
+</ul>
+<LI><A HREF="lists/computer-environment.html">Computer Environment</A>
+<LI><A HREF="lists/career.html">Career and Profession</A>
+<ul>
+<LI><A HREF="lists/career-2020.html">Career Restart 2020</A>
+<LI><A HREF="lists/entrepreneurship.html">Entrepreneurship</A>
+<LI><A HREF="lists/storage.html">Storage Company</A>
+<LI><A HREF="lists/eventapp.html">Event App</A>
+<LI><A HREF="lists/neurobotx.html">NeurobotX</A>
+<LI><A HREF="lists/consulting.html">Consulting</A>
+<LI><A HREF="lists/carboncopies.html">Carboncopies</A>
+<LI><A HREF="lists/cc-research.html">Carboncopies Research</A>
+<LI><A HREF="lists/cc-operations.html">Carboncopies Operations</A>
+<LI><A HREF="lists/betterhuman.html">BetterHuman</A>
+<LI><A HREF="lists/ranchwork.html">Ranch Work</A>
+<LI><A HREF="lists/kernel.html">Kernel</A>
+<LI><A HREF="lists/venture-capital-consulting.html">Venture Capital Consulting</A>
+<LI><A HREF="lists/goneuro.html">GoNeuro</A>
+<LI><A HREF="lists/halcyon-analysis.html">Halcyon Molecular Analysis</A>
+<LI><A HREF="lists/professorship-and-teaching.html">Professorship and Teaching</A>
+<LI><A HREF="lists/positions.html">Career Positions</A>
+<LI><A HREF="lists/management.html">Management Tasks</A>
+<ul>
+<LI><A HREF="lists/work-groups.html">Work Groups</A>
+</ul>
+<LI><A HREF="lists/human-resources.html">Human Resources, Talent Acquisition, Team Organization</A>
+</ul>
+<LI><A HREF="lists/health.html">Health and Well-Being</A>
+<LI><A HREF="lists/community.html">Community and Residential Matters</A>
+<ul>
+<LI><A HREF="lists/social.html">Social Items</A>
+<LI><A HREF="lists/family.html">Family</A>
+<LI><A HREF="lists/mobile-living.html">Mobile Living</A>
+</ul>
+<LI><A HREF="lists/leisure.html">Leisure and Hobbies</A>
+<ul>
+<LI><A HREF="lists/earth.html">Earth</A>
+<LI><A HREF="lists/earthview.html">EarthView</A>
+</ul>
+<LI><A HREF="lists/raise-kids.html">Raise Kids</A>
+</UL>
+
+<LI><A HREF="lists/detailed-items-by-ID.html">Detailed Items by ID</A>
+<LI>Archived: <A HREF="lists/archived/detailed-items-list.html">Detailed Items List</A> (<A HREF="lists/archived/detailed-items-by-ID.html">Detailed Items by ID</A>)
+
+<P>
+<B>Add:</B> [<A HREF="/cgi-bin/dilentry?dilentry=formcall">DIL Entry</A>] [<A HREF="/cgi-bin/plandilentry?dilentry=formcall">Plan DIL Entry</A>]
+
+<H1><A NAME="TL">Task Logs (TL)</A></H1>
+
+The Task Log is a short, but complete, point-wise record of results with references to more elborate documentation. The temporal continuity of the Task Log retains the context within which results were obtained. The Task Log is designed for completeness and filtered extraction of information, which can subsequently be browsed, included in articles or used for Detail Item Lists and for further tasks. (Also see <A HREF="work-log.html#task-logs">the description in the Work Log</A>.)
+
+<UL>
+<LI><A HREF="lists/task-log.html">Task Log</A>
+<OL>
+{{ sectionlinks }}
+</OL>
+</UL>
+
+<P>
+&nbsp;<P>
+<H1><A NAME="Hypothesis-and-Method">Hypothesis and Method</A></H1>
+
+<TABLE WIDTH="100%" BGCOLOR="#FFFFFF"><TR><TD>
+<U>Hypothesis</U>: Working in parallel on the totality of things to be accomplished has a positive effect (a) on <b>my work</b> and (b) on <b>the results</b>. My work does not bog down. Sufficient attention is given to all aspects of the overall set of objectives (which is also where the scheduling method interacts with <a href="planning/goal-directed-decision-making.html">goal directed decision making</a>). I gain motivation by a perspective of the whole. The results of my work are improved by the effects of interaction between tasks.
+<P>
+<U>Method</U>: There are three main components of the current method, namely (1) striving for hierarchy in which efficient work is aided by a clear and concrete subdivision into smaller tasks on which a superior task depends, (2) defining an ideal order in which tasks should be completed (for which target dates without tags are simply one implementation, where it is normally a good idea to specify such order for the more superior tasks that automatically propagate the order to their dependencies), and (3) a necessary grounding in real-world schedules (which impose the fixed "F" class of target dates, as well as their derivatives, such as specific "S" target dates).
+<P>
+A good example of hierarchy is given by the <a href="/cgi-bin/dil2al?dil2al=D&DILIDCHKBX20050216063846.1=extract&processcmd=newhierarchy&maxdepth=5&setpar__EQ__hierarchyexcerptlength=80&setpar=noreversehierarchy">CASPAN tasks</a>, and an example of consequent results is therefore given by the results (and the timing of such results) for the CASPAN tasks.
+<P>
+<I>(For more see <a href="lists/task-log.20050906.html#200510070933">TL#200510070933</a>.)</I>
+</TD></TR></TABLE>
+
+<P>
+&nbsp;<P>
+<H1><A NAME="guidelines">Guidelines</A></H1>
+
+(See <A HREF="lists/organization.html#20000926121532.1">DIL#20000926121532.1</A>. Note that many guidelines have not yet been indexed.)
+
+Guideline IDs are organized into categories according to the sort of tasks that they apply to. All IDs begin with a lower-case ``g'' to distinguish guideline IDs from other IDs (e.g. Novelty IDs, @CRef@ tags, etc.). The category indicator can be followed by an ID number or another classification identifier with ID number for specialized categories. When a visible marker is included at the onset of the guideline, it is encased in a structure, as in the following example: &lt;A NAME="gL1"&gt;&lt;!-- @guideline@ --&gt;gL1&lt;/A&gt; (the NAME tag should be included, even if the original document is not HTML), which can optionally include extra style tags and surrounding characters, such as [&lt;B&gt;&lt;A NAME="gL1"&gt;&lt;!-- @guideline@ --&gt;gL1&lt;/A&gt;&lt;/B&gt;]. (See <A HREF="style-guide.html#dil2al-tags">tags</A>.)
+
+<B><U>Guideline IDs:</U></B>
+<UL>
+<LI><B>gS</B>&lt;x&gt; = scheduling guidelines<BR>
+<A HREF="lists/task-log.20001016.html#gS1">gS1</A>
+<LI><B>gL</B>&lt;x&gt; = logging guidelines<BR>
+<A HREF="lists/organization.html#gL1">gL1</A>, <A HREF="lists/organization.html#gL2">gL2</A>
+<LI><B>gT</B>&lt;x&gt; = theorizing guidelines<BR>
+<A HREF="lists/components.html#gT1">gT1</A>
+<LI><B>gMM</B>&lt;x&gt; = model making guidelines<BR>
+<A HREF="lists/task-log.20001016.html#gMM1">gMM1</A>
+<LI><B>gE</B>&lt;x&gt; = experimentation guidelines<BR>
+<A HREF="lists.html#gE1">gE1</A>, <A HREF="lists.html#gE2">gE2</A>, <A HREF="lists.html#gE3">gE3</A>
+<LI><B>gPP</B>&lt;x&gt; = general paper planning guidelines<BR>
+<A HREF="planning/material.html#gPP1">gPP1</A>, <A HREF="planning/material.html#gPP2">gPP2</A>, <A HREF="planning/material.html#gPP3">gPP3</A>, <A HREF="lists/task-log.20000417.html#gPP4">gPP4</A>, <A HREF="lists.html#gPP5">gPP5</A>, <A HREF="lists/task-log.20010205.html#gPP6">gPP6</A>
+<LI><B>gP</B>&lt;x&gt; = general paper writing guidelines<BR>
+<A HREF="planning/material.html#gP1">gP1</A>, <A HREF="planning/material.html#gP2">gP2</A>, <A HREF="planning/material.html#gP3">gP3</A>, <A HREF="planning/material.html#gP4">gP4</A>, <A HREF="planning/material.html#gP5">gP5</A>, <A HREF="planning/material.html#gP6">gP6</A>, <A HREF="lists/task-log.20001016.html#gP7">gP7</A>, <A HREF="planning/material.html#gP8">gP8</A>, <A HREF="planning/material.html#gP9">gP9</A>, <A HREF="planning/material.html#gP10">gP10</A>
+<A HREF="planning/material.html#gP11">gP11</A>
+<LI><B>gA</B>&lt;x&gt; = abstract writing guidelines<BR>
+<A HREF="planning/material.html#gA1">gA1</A>, <A HREF="planning/material.html#gA2">gA2</A>, <A HREF="planning/material.html#gA3">gA3</A>, <A HREF="planning/material.html#gA4">gA4</A>, <A HREF="planning/material.html#gA5">gA5</A>, <A HREF="planning/material.html#gA6">gA6</A>, <A HREF="lists/task-log.20001016.html#gA7">gA7</A>, <A HREF="lists/task-log.20001016.html#gA8">gA8</A>
+<LI><B>gI</B>&lt;x&gt; = introduction writing guidelines<BR>
+<A HREF="planning/material.html#gI1">gI1</A>, <A HREF="planning/material.html#gI2">gI2</A>, <A HREF="planning/material.html#gI3">gI3</A>, <A HREF="planning/material.html#gI4">gI4</A>, <A HREF="planning/material.html#gI5">gI5</A>, <A HREF="planning/material.html#gI6">gI6</A>, <A HREF="planning/material.html#gI7">gI7</A>, <A HREF="planning/material.html#gI8">gI8</A>, <A HREF="planning/material.html#gI9">gI9</A>, <A HREF="planning/material.html#gI10">gI10</A>, <A HREF="lists/task-log.20001016.html#gI11">gI11</A>
+<LI><B>gM</B>&lt;x&gt; = materials and methods writing guidelines<BR>
+<A HREF="planning/material.html#gM1">gM1</A>
+<LI><B>gR</B>&lt;x&gt; = results writing guidelines<BR>
+<A HREF="planning/material.html#gR1">gR1</A>
+<LI><B>gD</B>&lt;x&gt; = discussion writing guidelines<BR>
+<A HREF="planning/material.html#gD1">gD1</A>, <A HREF="planning/material.html#gD2">gD2</A>, <A HREF="planning/material.html#gD3">gD3</A>
+<LI><B>gF</B>&lt;x&gt; = figures guidelines<BR>
+<A HREF="planning/material.html#gF1">gF1</A>, <A HREF="planning/material.html#gF2">gF2</A>, <A HREF="planning/material.html#gF3">gF3</A>
+</UL>
+
+Boxed summaries, indicating a set of guidelines to keep in mind when working on a specific task are indicated where the majority of the corresponding guidelines and accompanying documentation are located. The following references link to those summaries.
+
+<B><U>Task Specific Guideline Summaries:</U></B>
+<UL>
+<LI>
+</UL>
+
+<P>
+&nbsp;<P>
+<H1><A NAME="references">References</A></H1>
+
+<A HREF="planning/material.html">Literature References and Resources</A> (also provides <A HREF="planning/material.html#article-planning">paper planning</A> and <A HREF="planning/material.html#additional-writing-tips">writing</A> hints)<BR>
+<A HREF="lists/cr-misc.html">Miscellanious Cross-References</A><BR>
+<A HREF="lists/dil2al.html#20011015125127.1">Working with Annotations of Text</A><BR>
+<A HREF="formalizer-doc.html">Documentation of the Formalizer and dil2al</A>
+
+<P>
+&nbsp;<P>
+<H1><A NAME="Hints">Hints and Suggestions for Project Efficiency</A></H1>
+
+<B>Update 20040417</B>: A focus on the production of tangible OUTPUT seems to reduce time spent bogged down. Note that output is not equal to task completion, since completion includes details that are often more easily taken care of once tangible output has already been produced. When task results are intended to be presented or delivered to others it is a simple matter to define what constitutes the output to focus on. There must be a similar definition of tangible output for work on other tasks.
+
+<UL>
+<LI><U>My personal effectiveness goal has to be to work as efficiently and hard as desired, because that is what I want, not due to internal or external threats</U>.
+<P>
+<LI><U>Set official targets such that they can be achieved and beaten. This has a positive effect on impressions</U>.
+<P>
+<LI><U>It is good to be frank with coworkers and supervisors</U>.
+<P>
+<LI><U>There is no benefit to making false claims, but it is good to present true circumstances in the manner that positions myself as desired</U>.
+</UL>
+<P>
+<UL>
+<LI><B>Speed is essential, quality is a bonus.</B> Quality is important, of course. But quality without speed is not rewarded, while speed is always rewarded. At the very minimum, speed is its own reward in that it leaves more time for other things, or improvements of that which has been accomplished.
+<LI><B>It is not necessary to optimize and perfect every detail</B>. It is perfectly legitimate to improve one's model in an ensuing paper. (E.g. Finding an improved version of Eq.~\ref{eq:jendw}, in the first stage required only a local improvement of the range of $\gij$, while a biologically plausible alternative equation with all the right characteristics could be developed for another paper.)
+<LI><B>All aspects and stages</B> of a project should be <B>rapid</B> and <B>efficient</B>, if something bogs down it is probably not being done efficiently or it is not properly defined (being treated to broadly or with too much optimization, see hint above) or segmented.
+<LI>If you spend more than <B>2 twenty minute chunks</B> of time <B>more</B> on an item than predicted, consider how to move on by rescheduling specific DILs for later so that priority items can be dealt with now.
+<LI>Similarly, if you have spent <B> 3 twenty minute chunks</B> on the investigation of a model assumption, consider scheduling specific DILs to continue the investigation at a later time, and make a working assumption in order to move on now.
+<LI>If the <B>time required</B> indicated for a particular DIL entry seems low for a complete treatment of the subject matter described in the content it implies that an exploratory (not detailed) treatment is expected. This can lead to initial outlines of and notes about processes, models, etc. More focused DILs are then created.
+<LI>Since <B>paper corrections</B> are a continuous process, it is advisable to always be working on other <B>simultaneous papers</B>, while making corrections in parallel.
+</UL>
+<P>
+
+<P>
+&nbsp;<P>
+<H1><A NAME="research-prep">Research Preparation/Planning Hints</A></H1>
+
+[<B><A NAME="gPP5"><!-- @guideline@ -->gPP5</A></B>]Within a project track chosen based on fundamental research goals, structure the research around well-defined papers. Then produce research as required for each paper, and do writing and experimenting in an interleaved simultaneous fashion. On occasion there is reason to do additional experiments beyond the requirements of the papers.
+
+See <A HREF="lists/task-log.20000417.html#200009211300.2">TL#200009211300.2</A>, also known as paper planning guideline <A HREF="lists/task-log.20000417.html#gPP4">gPP4</A>.
+
+<H1><A NAME="experiment-plan">Experimentation Hints</A></H1>
+
+<U>Choosing Experiments:</U>
+
+Which way around are experiments and objectives established? Do we have a set of research objectives, and select appropriate experiments to achieve them? Or do we have a set of experiments with which research was conducted, and note objectives accordingly in the papers?<BR>
+[<B><A NAME="gE1"><!-- @guideline@ -->gE1</A></B>]<B>Goal oriented work: Have objectives, seek to achieve them, do experiments for that purpose.</B> Ideally, set up specific hypotheses and test them.<BR>
+Other experiments may well be described as possibly interesting in DIL entries. But the location of an experiment's DIL entry within the DIL hierarchy indicates what objectives it relates to, so that relevant experiments are scheduled as a priority.
+
+<U>Scheduling Experiments:</U>
+<OL>
+<LI>[<B><A NAME="gE2"><!-- @guideline@ -->gE2</A></B>]It is possible to do the initial scheduling of many experiments at once so as to get a good idea of the schedule requirements.
+<LI>[<B><A NAME="gE3"><!-- @guideline@ -->gE3</A></B>]Plan at successive resolutions:
+<OL>
+<LI>[DIL] Select experiments according to the requirements of objectives (see Guideline above), prune other experiment ideas by retaining them in the DILs for later. This can involve identifying and sorting existing experiment ideas to schedule as well as adding remaining experiments necessary to achieve the objectives.
+<LI>[DIL] Initial specification of the experiments, indicating the corresponding objective, hypothesis and method. Set target dates at this point.
+<LI>[DIL] Specify implementation requirements (DIL with TD), when to fulfill them (DIL with TD), when to run the next experiment (DIL with TD) and when to evaluate the results (DIL with TD)
+</OL>
+These tasks 1 to 3 can be scheduled in parallel.
+</OL>
+
+<U>Logging Experiments:</U>
+
+It is general practise to keep a logbook when doing experiments, and the <A HREF="lists/task-log.html">Task Log</A> is clearly a logbook. While it is possible to log the actual data and results to a separate experiment-specific document, some time is required to set up directories, references to and formats for such documents. It is quite possible to generate such documents on demand (in addition to the material that is collected in a paper) by extracting the sequence of Task Log entries linked to an experiment DIL entry. As stated above, the convention is that a Task Log is ``a short, but complete, point-wise record of results with references to more elaborate documentation''. That elaborate documentation can mean graphs, tables, data input and output, permanently linked documents for collected results, models and standards, as well as papers.
+
+
+<H1><A NAME="templates-parsing-autogeneration">Templates, automatic parsing and draft generation</A></H1>
+
+<UL>
+<LI>Use templates instead of macros to avoid dependence on a particular editor.
+<LI>The approach: use <B>template to specify structure and special information</B> that can be provided, use <B>standard structure and information when parsing</B> with dil2al tools to <B>generate desired resulting drafts</B>, possibly including more templates. For example:<BR>
+(a) When programming, use templates to initialize classes and functions of GESN components, enter information where requested, information is used to determine if and how to diagnose the function, diagnostic function is automatically created, requiring only minimal editing.<BR>
+(b) Similarly for papers, templates are used during making of notes, the notes are parsed to generate a paper plan, the edited paper plan is parsed to update the notes and to generate a paper draft using templates, the generated paper draft offers comments and suggestions for efficient editing of the paper.
+</UL>
+<P>
+
+<B><U>Also see:</U></B><BR>
+<LI><A HREF="work-log.html#organizing-efficient-working">Work Log: Organizing Research Projects and Maintaining an Efficient Rate of Work</A>
+<LI><A HREF="../../src/nnmodels/nnmodels.html">General Computational Modeling Notes: Efficient Programming</A>
+
+<P>
+&nbsp;<P>
+<H1><A NAME="DIL2AL">Extracting Active Lists from Detailed Item Lists</A></H1>
+
+Items in the DIL have both <B>intrinsic</B> and <B>project-specific</B> characteristic parameters that can be used to extract up-to-date prioretized Active Lists with sequences of 20 minute task chunks. When an AL is extracted for current work on a particular project, the selection of items is obtained through a combination of the parameters into two main project issues: <B>importance</B> and <B>urgency</B>.<BR>
+For AL scheduling approaches see <a href="formalizer-doc.html#best-practices"><B>Best Practices</B></a> and related documentation.<BR>
+(Note that the term ``project'' may also refer to any specific DIL entry and its dependencies.)
+<OL>
+<LI><B>k_{top} = {k_{top,1},...,k_{top,n}}</B>: list of <I>keywords</I> of topic `top'
+<LI><B>I_{proj,top} in [0,1]</B>: <I>involvement</I> of topic `top' in project `proj'<BR>
+	<UL>
+	<LI>set by hand
+	<LI>or (automated) estimation: E[I_{proj,top}] obtained from a count of keywords beloging to topic `top' (k_{top}) as they occur in the description of project `proj', possibly dynamically adjusted in accordance with the frequency with which items belonging to topic `top' occur in the Active List of project `proj'
+	</UL>
+<LI><B>R_{top} in [0,1]</B>: <I>relevance</I> of item to topic `top'<BR>
+	<UL>
+	<LI>set by hand
+	<LI>or (automated) estimation: E[R_{top}] = R_{top,k_maxfreq}, the relevance value assigned to the keyword (k_maxfreq) most frequently appearing in the item content from the list of keywords (k_{top}) for topic `top'; alternatively the ratio of occurrance of all keywords from k_{top} in the item content can be obtained (count-of-k_{top,i}/sum-of-counts-k_{top}), multiplied by their respective assigned relevance values to topic `top', and summed for E[R_{top}]
+	</UL>
+<LI><B>R_{proj} in [0,1]</B>: <I>relevance</I> of item to project `proj'<BR>
+	<UL>
+	<LI>set by hand
+	<LI>or (automated) estimation: E[R_{proj}] = R_{top}*I_{proj,top}, note that that is an estimate, since what is generally of a specific relevance to a topic area may have a somewhat different relevance to a specific project... if there an item is relevant to multiple topics, either the highest R*I result can be used, or the average result
+	</UL>
+<LI><B>C in [0,1]</B>: <I>completion</I> ratio of item<BR>
+	<UL>
+	<LI>set by hand
+	</UL>
+<LI><B>T in [0,inf]</B>: estimation of total <I>time</I> required by item<BR>
+The time when the first 20 minute task chunk involving the item is begun is stored in T_{start}, and T_{req}=T-(T_{cur}-T_{start})
+	<UL>
+	<LI>set by hand and adjust (automatically) whenever a new (non-zero) completion ratio (C) is entered: T=(T_{cur}-T_{start})/C
+	</UL>
+At this point, calculations can continue in triplicate if T is available in the form of minimum, maximum and average estimates, based on experience with other items, which of course depends on what sort of work is involved: obtaining information, designing structure, implementation, etc.<BR>
+Time required always refers to time spent properly dealing with an item according to its content. That can mean working on an item, if its content is itself a task to be completed. Or it can mean considering the item and writing up more detailed information that might again lead to detail items. Or it can mean arranging and planning an item, perhaps by creating a process that will insure that corresponding detail items will be added as required. E.g. An item stating ``content in the task logs should be collected into articles'' could lead to the development of a process that insures that task log content is automatically filtered for article content, and that detail items appear for the writing of the articles. The time required therefore does not necessarily indicate the time needed to complete work on everything mentioned in the content, but rather the time needed to deal with the item so that results are generated that propagate information (to document specific results, or lead to other detailed items). If, for instance, a detail item is a reference to a specific neuronal component or process, dealing with it can imply obtaining significant information from the reference, extracting functional specifics, evaluating the component or process, and generating goals directed new detail items.
+<LI><B>V in [0,inf]</B>: <I>valuation</I> of item as compared to a set of standard items<BR>
+	<UL>
+	<LI>set V_{unbounded} in [0,inf] by hand, comparing with items that have V_{unbounded} valuations at 1.0 (e.g. <I>the LTP function may be biased toward PSPs slightly before APs</I>), 2.0 (e.g. <I>spike timing is relevant</I>) and 3.0 (e.g. <I>information is distributed</I>); these standard items may need valuation adjustment or replacement with more representative items as empirical trial warrants
+	<LI>Multiplication by R_{proj} gives the project-specific item valuation. We favour single valuable items over multiple items of the same combined value: (R_{proj}*V)^n, where n=1.1, 1.5 or 2.0. Results with <A HREF="../../octave/dil2al.m">dil2al.m</A> show that for a desired combined T_{req} at 70% of the single item T_{req} for two items, each of which have half the valuation of the single item, n=1.5 is suitable.
+	</UL>
+<LI><I>Importance_{unbounded}</I> = (R_{proj} * V)^n / T_{req}<BR>
+The ratio of valuation over time can lead to quick and correct decisions on inclusion or postponement. The decision-making process can be improved through adjustments based on the results of prior decisions.<BR>
+If this gives too much importance to items near completion (through decreasing T_{req}), the equation can be balanced further as empirical trials warrant.
+	<UL>
+	<LI>Importance_{unbounded} is transformed to the range [0,1] to obtain its contribution to Priority. One of two transformation functions can be selected: a transformation function with a sigmoidal redistribution of priorities (resulting in multiple very high and very low priority items),<BR>
+	<I>Importance</I> = f(x) = 1 / (exp(-(x-m/2)*10/m) + 1),<BR>
+	where x = Importance_{unbounded} and m = max({Importance_{unbounded}}) from the set of all item importances,
+	or a linear transformation function,<BR>
+	<I>Importance</I> = f(x) = x/m<BR>
+	</UL>
+<LI><B>T_{deadline} in [T_{cur},T_{projdeadline}]</B>: <I>deadline</I> of item in the context of the project `proj', between the current time (T_{cur}) and the project deadline (T_{projdeadline})<BR>
+	<UL>
+	<LI>an item with no specific deadline has the default deadline in the context of the project, T_{deadline}=T_{projdeadline}<BR>
+	<B>Note: In converting the single-project AL to single-set DILs structure to a <A HREF="#DIL-dep-hierarchy">DIL hierarchy</A>, where any DIL entry could be selected as a visible AL, T_{projdeadline} effectively becomes T_{SDEdeadline}, where SDE is a ``superior DIL entry'', a DIL entry directly superior to and depending on the DIL entry under consideration within the dependency hierarchy. If a deadline is not explicitly specified for that superior DIL entry, then the search for a deadline propagates upward through the hierarchy.</B>
+	<LI>an item can be given <I>deadline periodicity</I>, so that new T_{deadline} are set at regular offsets from periodic intervals
+	<LI>at item can have a <I>triggered deadline</I>, so that the occurrance of a specific event causes a new T_{deadline} to be set
+	<LI>Also see <A HREF="lists/task-log.20000417.html#200006291007.2">TL#200006291007.2</A>.
+	</UL>
+<LI><B>U in [0,1]</B>: <I>urgency</I> of an item within the context of project `proj'<BR>
+	<UL>
+	<LI>U = 1 - (T_{deadline} - T_{cur}) / (T_{projdeadline} - T_{cur})
+	<LI>the <I>absolute urgency</I> of an item is represented by (T_{deadline}-T_{cur})
+	</UL>
+<LI><I>Priority</I> = (0.3 * Importance) + (0.7 * U)<BR>
+The weightings applied here provide controls over the balance between importance and urgency for item prioritization in the project-specific Active List.
+</OL>
+
+A threshold on the number of chunks to display is used to generate the visible Active List, while the complete Active List is generated from all items with priority values greater than 0. <B>(The visible and complete ALs are being converted into ``wide'' and ``focused'' selections from the complete AL. This is done, since it is possible to compute complete ALs for a very large number of task chunks, and all task chunks are listed in the order that is computed. The complete AL is not displayed, but recomputed when necessary.)</B> That list is kept in a short-hand format, with chunks assigned so that the lowest priority item has one chunk. The visible list is generated through randomized selection with a probability distribution according to the chunk frequencies in the top p_{visselect} portion (tunable, e.g. p_{visselect}=0.9) of the range of priorities in the full Active List. Each time an Active List chunk is checked off (by being worked on), one chunk is subtracted from the corresponding item in the full Active List. Extraction of another visible list from the full list is done if requested manually or if only a portion p_{vislist} of the visible list remains to be done (p_{vislist} is a tunable parameter). Generation of another full Active List occurs when requested manually, or whenever there is a change in the DIL and the new, altered or removed items have a computed priority in the upper m_{priority} percent (where m_{priority} is a tunable parameter) of the previously computed list of priorities, or if there have been changes in the DIL since the last AL generation (but not of highest priority) and a portion p_{AL} (which is also a tunable parameter) of the full Active List has been worked on, or if a specified time T_{regenerate} (a tunable parameter) has passed since the last generation of a full Active List.<P>
+(Selection: Order from top priority down, generate #chunks random numbers, multiply by [#chunks:-1:1], take floor values and add one.)
+<P>
+If an item so far has R_{proj}=0, but appears to be valuable (V), eventhough its inclusion would expand the context of the project, then inclusion can be brought about by altering the project theme description so that related topic keywords (which may also be updated) occur.
+<P>
+In further automation the results from previous estimates can be used to enhance the process of initial estimations. It may be that, just as with the <A HREF="../txt/economy/autonomous-behaviour.txt">autonomous behaviour</A> of characters in <A HREF="../txt/economy/earthstory.html">Earth</A>, a neuronal network approach may provide the most successful implementation for such a dynamic planning and scheduling method, involving relevance based on keyword identification, and learning of initial value estimates and functions of parameters from the results of previous decisions. I can make a network that at first only learns from my and the simple automated activities. The network would receive as many possibly relevant inputs as possible, such as key words to identify, item contents, logged results (possibly beyond the recursion into new detail items that exists anyway), and all data I use to make decisions for initial values set by hand. From that the network can learn to deduce and enhance the automated estimation procedures, and possibly also a satisfactory and reliable method for initial value selection.
+<P>
+<B><U>Available Time Assumed by AL:</U></B>
+<UL>
+<LI>AL generation can be requested specifically for a number of chunks, or up to a specific date. A complete AL is created when ``0'' is specified, this specification overrides all others. The default is to create an AL with ``generatealtcs'' chunks, where every day is considered to have ``algenregular'' hours, and time chunks of size ``timechunksize'' minutes each. The default values can be modified in the configuration file, <A HREF="../../.dil2alrc">.dil2alrc</A>, and are otherwise set to the compile-time values DEFAULTALTCS, DEFAULTALGENREGULAR, and DEFAULTCHUNKSIZE respectively. If a complete AL is created, then the default hours per day are ``algenall'', with compile-time value DEFAULTALGENALL.
+<LI>DIL entries can contain a specific parameter for the number of hours per day that is assumed for the type of task. (???Can either search up from superior to find parameter, with the default values if parameter is not found, or can take the largest number in all dependencies.???)
+<LI>Tasks whose target dates are later than the current date, but that require more task chunks than remain available before that target date, cause the number of hours per day to expand automatically to the nearest amount that allows the target date to be achieved, to a maximum of 24 hours per day. A warning indicates this expansion. The AL is regenerated until all tasks can be achieved by their target dates, or until the 24 hours per day setting. Another warning is given for tasks that cannot achieve their target dates.
+<LI>Automatic expansion of the number of hours per day for additional time to enable a target date to be achieved is not done, only if the option 'S' is appended to the AL request (e.g. dil2al -AS, dil2al -AS0, etc.), to indicate strict planning according to hours given by algenregular, algenall and AL superior parameters.
+<LI>AL generation can make a number of different assumptions about the number of hours that have already been worked during the current day: (a) use the ``alworkdaystart'' parameter to estimate time worked, (b) add up logged task chunks during this day to estimate time worked, (c) obtain the time worked on the command line, or (d) ask for the time worked.
+<LI>Target dates with only year, month and day indications receive the default time 00:00 (midnight).
+<LI>It is possibile to request an AL for a DIL entry and its dependencies, or for all DIL entries, without designating a single superior.
+<LI>It is possible to request an AL over a specific time period, in terms of a time interval or a number of task chunks, or a complete AL, containing as many time chunks as are necessary to complete all DIL entries.
+</UL>
+<P>
+<B><U><A NAME="DIL-dep-hierarchy">The DIL Dependencies Hierarchy:</A></U></B>
+A DIL entry can be a dependency of any number of other DIL entries. Those DIL entries are then called its ``superiors'', while any DIL entries that it depends on are called its ``dependencies''.
+<UL>
+<LI>The list of superiors is maintained in the third column of the <A HREF="lists/detailed-items-by-ID.html">DIL-by-ID</A> file. That column also contains information, such as target dates.
+<LI>A DIL entry that has no superior can leave the column empty. If such a DIL entry wishes to list information, such as a target date, it can list itself as a superior.
+<LI>Several DIL entries (which may or may not have superiors) can be listed here as an AL Project, for quick access to related tasks and task log entries. Every AL Project should have a corresponding DIL entry.
+<LI>The generation of an AL with Task Chunks can be requested for: All DIL entries, specific DIL entries and their dependencies, AL Projects and their dependencies.
+</UL>
+(Also see <A HREF="lists/dil2al.html#20000811093535.1">DIL#20000811093535.1</A>.)
+<P>
+<B><U>Comparison with computer OS task schedulers:</U></B> Regular computer task schedulers schedule tasks without taking completion into account, based entirely on a priority value attached to a task. The Active List task scheduler can use completion deadlines to prioretize. A regular computer task scheduler schedules tasks such that it gives the appearance that tasks are performed in parallel, thus simulating many task specific processors. The Active List task scheduler multitasks in order to <B>guarantee progress in all tasks</B> without the danger of becoming lost in tasks that try to hog all the available time, as well as allowing the <B>results of progress in some tasks to affect all the other tasks</B>.
+<P>
+<U>(Re)scheduling for Earliest Possible Target Dates: </U> <A HREF="lists/task-log.20001016.html#gS1">Description and Algorithm</A>.
+<P>
+<B><U>Archival:</U></B> For archival of the complete history of Detail Items, Active Lists and Task Logs, several backups must be retained, while others are only of transitory importance in the case of a problem with the generation of new lists. Completed, aborted or cancelled Detail Items are moved to the <A HREF="archived/detailed-items-list.html">Archived Detailed Items List</A>, which can be periodically backed up (see <A HREF="/usr/local/bin/aurorabackup.cron">aurorabackup</A> and <A HREF="/usr/local/bin/dilbackup">dilbackup</A>). If the one backup file grows too large, it is possible to give the backed up list a date-mark and link it to a new archival list. The Detail Items are archived in the order in which they are completed, aborted or cancelled. Their references are also moved from the <A HREF="detailed-items-by-ID.html">Detailed Items by ID</A> list to the <A HREF="archived/detailed-items-by-ID.html">Archived Detailed Items by ID</A> list, in the order of ascending ID numbers. That archival list can also be backed up periodically to a single backup copy. Snapshots of backup archives can be written to CD-ROM. Backups of the current active DIL lists should also be kept for daily, weekly and monthly intervals.
+
+<P>
+<HR>
+~/doc/<A HREF="maincont.html">html</A>/lists.html
+
+</BODY>

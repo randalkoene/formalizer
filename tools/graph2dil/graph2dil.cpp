@@ -58,6 +58,7 @@ struct {
     std::string server_long_id = "Formalizer:Conversion:DIL2Graph v" __VERSION_HPP " (core v" __COREVERSION_HPP ")"; /// Formalizer component identifier
     std::string runnablename; /// the running program name
     std::string DILTLdirectory = GRAPH2DIL_OUTPUT_DIR; /// location for converted output files
+    std::string DILTLindex = GRAPH2DIL_OUTPUT_DIR "/../graph2dil-lists.html";
     std::vector<std::string> cmdargs; /// copy of command line arguments
 
     /**
@@ -103,7 +104,7 @@ int main(int argc, char *argv[]) {
     //*** LOAD THE LOG
 
     ERRHERE(".goLog2TL");
-    if (!interactive_Log2TL_conversion(graph, log, configpars.DILTLdirectory, &std::cout)) {
+    if (!interactive_Log2TL_conversion(graph, log, configpars.DILTLdirectory, configpars.DILTLindex ,&std::cout)) {
         std::cerr << "\nNeed a database account to proceed. Defaults to $USER.\n";
         Exit_Now(exit_general_error);
     }

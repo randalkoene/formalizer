@@ -52,6 +52,7 @@ enum template_id_enum {
     chunk_nodenoprev_temp,
     entry_temp,
     entry_withnode_temp,
+    index_temp,
     NUM_temp
 };
 
@@ -71,7 +72,8 @@ const std::vector<std::string> template_ids = {
     "chunk_nodeprev",
     "chunk_nodenoprev",
     "entry",
-    "entry_withnode"};
+    "entry_withnode",
+    "lists"};
 
 /// A container in which to cache the template files to be used.
 typedef std::map<template_id_enum,std::string> section_templates;
@@ -507,6 +509,49 @@ std::string all_sections_progress_bar(unsigned long n, unsigned long ncount) {
     return "";
 }
 
+struct section_IndexBuilder {
+public:
+    render_environment & env;
+    section_templates & templates;
+    std::string sectionsdir;
+
+    Log & log;
+ 
+    std::string rendered_index; /// Holds the result of rendering process.
+
+    section_IndexBuilder() = delete; // explicitly forbid the default constructor, just in case
+    section_IndexBuilder(render_environment &_env, section_templates &_templates, Log & _log, std::string _sectionsdir) : env(_env), templates(_templates), sectionsdir(_sectionsdir), log(_log) {
+    }
+
+    bool render_Index() {
+
+        template_varvalues indexvars;
+        std::string indexlinksstr;
+        for (Log_chunk_ID_key_deque::size_type bridx = 0; bridx < log.num_Breakpoints(); ++bridx) {
+            std::string sectionymd = log.get_Breakpoint_Ymd_str(bridx);
+            std::string sectionlinestr = "<LI><A HREF=\""+sectionsdir+"/task-log."+sectionymd+".html\">Task Log: section initiation date mark "+sectionymd+"</A>\n";
+            indexlinksstr += sectionlinestr;
+        }
+        indexvars.emplace("sectionlinks",indexlinksstr);
+        rendered_index = env.render(templates[index_temp],indexvars);
+
+        return true;
+    }
+
+    bool save_rendered_Index(std::string indexpath) {
+        if (indexpath.empty())
+            return false;
+
+        if (rendered_index.empty())
+            ERRRETURNFALSE(__func__,"empty section index, nothing to save");
+
+        if (!string_to_file(indexpath,rendered_index))
+            return false;
+
+        return true;
+    }
+
+};
 
 /**
  * Convert an entire Log into a dil2al backwards compatible set of
@@ -521,10 +566,11 @@ std::string all_sections_progress_bar(unsigned long n, unsigned long ncount) {
  * @param graph the Graph.
  * @param log the fully in-memory Log.
  * @param TLdirectory is the directory path where TL files should be created.
+ * @param IndexPath is the file path where a TL index should be created (empty to skip).
  * @param o points to an optional output stream for progress report (or nullptr).
  * @return true if successfully converted.
  */
-bool interactive_Log2TL_conversion(Graph & graph, Log & log, std::string TLdirectory, std::ostream * o) {
+bool interactive_Log2TL_conversion(Graph & graph, Log & log, std::string TLdirectory, std::string IndexPath, std::ostream * o) {
     ERRHERE(".top");
 
     std::error_code ec; // we need to check for error codes to distinguish from existing directory
@@ -577,6 +623,20 @@ bool interactive_Log2TL_conversion(Graph & graph, Log & log, std::string TLdirec
         std::filesystem::create_symlink(latest_TLfile,TLsymlink,ec);
         if (ec)
             ERRRETURNFALSE(__func__,"Conversion completed, but unable to create symbolic link to task-log.html\nError code ["+std::to_string(ec.value())+"]: "+ec.message());
+
+        if (!IndexPath.empty()) {
+            ERRHERE(".index");
+            std::filesystem::path graph2dildir(TLdirectory);
+            std::string sectionsdir = graph2dildir.filename(); // get the list part of the path (e.g. lists)
+            section_IndexBuilder sIB(env,templates,log,sectionsdir);
+            if (!sIB.render_Index()) {
+                ERRRETURNFALSE(__func__,"unable to render section index");
+            } else {
+                if (!sIB.save_rendered_Index(IndexPath)) {
+                    ERRRETURNFALSE(__func__,"unable to save rendered section index at "+IndexPath);
+                }
+            }
+        }
     }
 
     return true;
