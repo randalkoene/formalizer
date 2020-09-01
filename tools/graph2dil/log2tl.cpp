@@ -22,6 +22,7 @@
 #include "templater.hpp"
 #include "Logtypes.hpp"
 #include "Graphtypes.hpp"
+#include "log2tl.hpp"
 
 using namespace fz;
 
@@ -274,7 +275,12 @@ public:
         } else {
             ALprevdata.emplace("ALprevsectionyyyymmdd",yyyymmdd);
         }
-        ALprevdata.emplace("ALprevchunkstartyyyymmddhhmm",log.get_chunk(c - 1)->get_tbegin_str());
+        Log_chunk *pcptr = log.get_chunk(c - 1);
+        if (!pcptr) {
+            ADDERROR(__func__,"previous chunk (idx="+std::to_string(c-1)+") returned nullptr");
+        } else {
+            ALprevdata.emplace("ALprevchunkstartyyyymmddhhmm",pcptr->get_tbegin_str());
+        }
         return env.render(templates[chunk_ALprev_temp], ALprevdata);
     }
 
@@ -290,7 +296,12 @@ public:
         } else {
             ALnextdata.emplace("ALnextsectionyyyymmdd","#"); // All but the last in section are relative!
         }
-        ALnextdata.emplace("ALnextchunkstartyyyymmddhhmm",log.get_chunk(c + 1)->get_tbegin_str());
+        Log_chunk * ncptr = log.get_chunk(c + 1);
+        if (!ncptr) { // always be careful
+            ADDERROR(__func__,"next chunk (idx="+std::to_string(c+1)+") returned nullptr");
+        } else {
+            ALnextdata.emplace("ALnextchunkstartyyyymmddhhmm",ncptr->get_tbegin_str());
+        }
         return env.render(templates[chunk_ALnext_temp], ALnextdata);
     }
 
@@ -341,10 +352,18 @@ public:
         for (unsigned long c = chunk_begin_idx; c < chunk_end_limit; ++c) {
 
             ADDERRPING("chunk#"+std::to_string(c));
-            Log_chunk & chunk = *(log.get_chunk(c));
+            Log_chunk * cptr = log.get_chunk(c);
+            if (!cptr) { // always be careful around pointers
+                ADDERROR(__func__,"chunk (idx="+std::to_string(c)+") was nullptr (should never happen!)");
+                continue;
+            }
+
+            Log_chunk & chunk = *cptr;
+            std::string chunkidstr(chunk.get_tbegin_str());
+            ERRHERE(chunkidstr);
             template_varvalues chunkdata;
 
-            chunkdata.emplace("chunkbeginyyyymmddhhmm",chunk.get_tbegin_str());
+            chunkdata.emplace("chunkbeginyyyymmddhhmm",chunkidstr);
 
             chunkdata.emplace("ALprev",render_chunk_ALprev(c));
 
@@ -382,7 +401,7 @@ public:
 
                 Log_entry * e = entries[e_idx];
                 if (!e) {
-                    ADDERROR(__func__,"nullptr encountered at entry "+std::to_string(e_idx)+" of chunk "+chunk.get_tbegin_str());
+                    ADDERROR(__func__,"nullptr encountered at entry "+std::to_string(e_idx)+" of chunk "+chunkidstr);
                     entry += "[<B>"+std::to_string(e_idx+1)+"</B>] {missing-entry}\n\n";
                     continue;
                 }
@@ -570,13 +589,23 @@ public:
  * @param o points to an optional output stream for progress report (or nullptr).
  * @return true if successfully converted.
  */
-bool interactive_Log2TL_conversion(Graph & graph, Log & log, std::string TLdirectory, std::string IndexPath, std::ostream * o) {
+bool interactive_Log2TL_conversion(Graph & graph, Log & log, const Log2TL_conv_params & params) {
     ERRHERE(".top");
 
+    Log_chunk_ID_key_deque::size_type from_idx = 0;
+    Log_chunk_ID_key_deque::size_type to_idx = log.num_Breakpoints()-1;
+    if (params.to_idx<to_idx)
+        to_idx = params.to_idx;
+    if (params.from_idx>from_idx)
+        from_idx = params.from_idx;
+    if (to_idx < from_idx) {
+        ERRRETURNFALSE(__func__,"empty setion interval from "+std::to_string(from_idx)+" to "+std::to_string(to_idx));
+    }
+
     std::error_code ec; // we need to check for error codes to distinguish from existing directory
-    if (!std::filesystem::create_directories(TLdirectory, ec)) {
+    if (!std::filesystem::create_directories(params.TLdirectory, ec)) {
         if (ec)
-            ERRRETURNFALSE(__func__,"unable to create the output directory "+TLdirectory+"\nError code ["+std::to_string(ec.value())+"]: "+ec.message());
+            ERRRETURNFALSE(__func__,"unable to create the output directory "+params.TLdirectory+"\nError code ["+std::to_string(ec.value())+"]: "+ec.message());
         
         ADDWARNING(__func__,"using a previously existing directory - any existing files in the directory may be affected");
     }
@@ -585,7 +614,7 @@ bool interactive_Log2TL_conversion(Graph & graph, Log & log, std::string TLdirec
     section_templates templates;
     load_templates(templates);
     std::string latest_TLfile;
-    for (Log_chunk_ID_key_deque::size_type bridx = 0; bridx < log.num_Breakpoints(); ++bridx) {
+    for (Log_chunk_ID_key_deque::size_type bridx = from_idx; bridx <= to_idx; ++bridx) {
 
         std::string bridxstr(std::to_string(bridx));
         ERRHERE(".conv."+bridxstr);
@@ -602,14 +631,14 @@ bool interactive_Log2TL_conversion(Graph & graph, Log & log, std::string TLdirec
         }
 
         ERRHERE(".store."+bridxstr);
-        latest_TLfile = TLdirectory+"/task-log."+log.get_Breakpoint_Ymd_str(bridx)+".html";
+        latest_TLfile = params.TLdirectory+"/task-log."+log.get_Breakpoint_Ymd_str(bridx)+".html";
         if (!string_to_file(latest_TLfile,sC.rendered_section))
             ERRRETURNFALSE(__func__,"unable to write section to file");
 
-        if (o) {
+        if (params.o) {
             std::string progbar = all_sections_progress_bar(log.num_Breakpoints(), bridx);
             if (!progbar.empty())
-                (*o) << progbar << '\n';
+                (*params.o) << progbar << '\n';
         }
     }
 
@@ -618,22 +647,22 @@ bool interactive_Log2TL_conversion(Graph & graph, Log & log, std::string TLdirec
         ERRRETURNFALSE(__func__,"there appear to be no created files to point a task-log.html symbolic link to");
 
     } else {
-        std::filesystem::path TLsymlink(TLdirectory+"/task-log.html");
+        std::filesystem::path TLsymlink(params.TLdirectory+"/task-log.html");
         std::filesystem::remove(TLsymlink);
         std::filesystem::create_symlink(latest_TLfile,TLsymlink,ec);
         if (ec)
             ERRRETURNFALSE(__func__,"Conversion completed, but unable to create symbolic link to task-log.html\nError code ["+std::to_string(ec.value())+"]: "+ec.message());
 
-        if (!IndexPath.empty()) {
+        if (!params.IndexPath.empty()) {
             ERRHERE(".index");
-            std::filesystem::path graph2dildir(TLdirectory);
+            std::filesystem::path graph2dildir(params.TLdirectory);
             std::string sectionsdir = graph2dildir.filename(); // get the list part of the path (e.g. lists)
             section_IndexBuilder sIB(env,templates,log,sectionsdir);
             if (!sIB.render_Index()) {
                 ERRRETURNFALSE(__func__,"unable to render section index");
             } else {
-                if (!sIB.save_rendered_Index(IndexPath)) {
-                    ERRRETURNFALSE(__func__,"unable to save rendered section index at "+IndexPath);
+                if (!sIB.save_rendered_Index(params.IndexPath)) {
+                    ERRRETURNFALSE(__func__,"unable to save rendered section index at "+params.IndexPath);
                 }
             }
         }

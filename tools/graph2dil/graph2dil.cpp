@@ -104,7 +104,13 @@ int main(int argc, char *argv[]) {
     //*** LOAD THE LOG
 
     ERRHERE(".goLog2TL");
-    if (!interactive_Log2TL_conversion(graph, log, configpars.DILTLdirectory, configpars.DILTLindex ,&std::cout)) {
+    Log2TL_conv_params params;
+    params.TLdirectory = configpars.DILTLdirectory;
+    params.IndexPath = configpars.DILTLindex;
+    params.o = &std::cout;
+    //params.from_idx = from_section;
+    //params.to_idx = to_section;    
+    if (!interactive_Log2TL_conversion(graph, log, params)) {
         std::cerr << "\nNeed a database account to proceed. Defaults to $USER.\n";
         Exit_Now(exit_general_error);
     }

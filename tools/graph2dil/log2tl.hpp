@@ -18,6 +18,14 @@
 
 using namespace fz;
 
-bool interactive_Log2TL_conversion(Graph & graph, Log & log, std::string TLdirectory, std::string IndexPath, std::ostream * o = nullptr);
+struct Log2TL_conv_params {
+    std::string TLdirectory; /// the directory path where TL files should be created
+    std::string IndexPath;   /// the file path where a TL index should be created (empty to skip)
+    std::ostream * o = nullptr;        /// an optional output stream for progress report (or nullptr)
+    Log_chunk_ID_key_deque::size_type from_idx = 0; /// first section to convert (default 0)
+    Log_chunk_ID_key_deque::size_type to_idx = 9999999;   /// last section to convert (default 9999999)
+};
+
+bool interactive_Log2TL_conversion(Graph & graph, Log & log, const Log2TL_conv_params & params);
 
 #endif // __LOG2TL_HPP

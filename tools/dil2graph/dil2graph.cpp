@@ -51,6 +51,9 @@ using namespace fz;
 
 std::string dbname; /// This is initialized to $USER.
 
+unsigned long from_section = 0;
+unsigned long to_section = 9999999;
+
 //----------------------------------------------------
 // Definitions of functions declared in dil2graph.hpp:
 //----------------------------------------------------
@@ -492,7 +495,7 @@ void print_version(std::string progname) {
 }
 
 void print_usage(std::string progname) {
-    std::cout << "Usage: " << progname << " [-d <dbname>] [-m] [-L|-D|-T] [-o <testfile>]\n"
+    std::cout << "Usage: " << progname << " [-d <dbname>] [-m] [-L|-D|-T] [-o <testfile>] [-1 <num1>] [-2 <num2>]\n"
               << "       " << progname << " -v\n"
               << '\n'
               << "  Options:\n"
@@ -505,6 +508,8 @@ void print_usage(std::string progname) {
               << "    -v print version info\n"
               << "    -o specify path of test output file\n"
               << "       (default: " << testfilepath << ")\n"
+              << "    -1 1st section to reconstruct is <num1>\n"
+              << "    -2 last section to reconstruct is <num2>\n"
               << '\n'
               << server_long_id << '\n'
               << '\n';
@@ -523,7 +528,7 @@ void process_commandline(int argc, char *argv[]) {
     int c;
     opterr = 0;
 
-    while ((c = getopt(argc, argv, "d:LDTmo:")) != EOF) {
+    while ((c = getopt(argc, argv, "d:LDTmo:1:2:")) != EOF) {
 
         switch (c) {
         case 'd':
@@ -548,6 +553,14 @@ void process_commandline(int argc, char *argv[]) {
 
         case 'o':
             testfilepath = optarg;
+            break;
+
+        case '1':
+            from_section = std::atoi(optarg);
+            break;
+
+        case '2':
+            to_section = std::atoi(optarg);
             break;
 
         case 'v':
@@ -906,7 +919,13 @@ int main(int argc, char *argv[]) {
                 logptr->setup_Chunk_node_caches(*(graphptr.get()));
             }
         }
-        if (!interactive_Log2TL_conversion(*graphptr, *logptr,DIRECTGRAPH2DIL_DIR, DIRECTGRAPH2DIL_DIR "/../graph2dil-lists.html",&VOUT)) {
+        Log2TL_conv_params params;
+        params.TLdirectory = DIRECTGRAPH2DIL_DIR;
+        params.IndexPath = DIRECTGRAPH2DIL_DIR "/../graph2dil-lists.html";
+        params.o = &VOUT;
+        params.from_idx = from_section;
+        params.to_idx = to_section;
+        if (!interactive_Log2TL_conversion(*graphptr, *logptr, params)) {
             EOUT << "\nDirect conversion test back to Task Log files did not complete..\n";
             Exit_Now(exit_general_error);
         }
