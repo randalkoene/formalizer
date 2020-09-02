@@ -113,6 +113,9 @@ init: FORCE
 $(OBJ)/error.o: error.cpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c error.cpp -o $(OBJ)/error.o
 
+$(OBJ)/standard.o: standard.cpp $(INC)/standard.hpp
+	$(CCPP) $(CPPFLAGS) -c standard.cpp -o $(OBJ)/standard.o
+
 $(OBJ)/general.o: general.cpp $(INC)/general.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c general.cpp -o $(OBJ)/general.o
 

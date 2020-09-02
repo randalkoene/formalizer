@@ -97,9 +97,12 @@ void Errors::output(std::ofstream::openmode mode) {
  * The ERRWARN_SUMMARY() macro can be used to print a summary report before
  * calling this function. After this function the queues will be empty.
  * 
- * ***NOTE: We may want to move this elsewhere, since a clean exit will need
- * ***      more than just a list of errors, and we don't even know where to
- * ***      send the output.
+ * Note: If you are using standard.hpp (which every Formalizer program
+ *       should) then do not use this function. The correct exit processes
+ *       will be set up by member functions and initialization of the
+ *       `fz::standard` object instead. In your program, you can then
+ *       simply call `exit(error_code)` or `standard.exit(error_code)`.
+ *       Both will do the same thing.
  */
 void Clean_Exit(int ecode) {
     ErrQ.output(ERRWARN_LOG_MODE);
