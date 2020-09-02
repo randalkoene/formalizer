@@ -128,6 +128,8 @@ public:
 
     void print_version();
 
+    // *** instead of these hooks and add_usage_top there could be a usage_stack
+    //     that you can register strings with.
     /**
      * Replace this usage hook by inheriting the class and specifying a derived
      * version of this virtual member function.
@@ -135,10 +137,10 @@ public:
     virtual void usage_hook() {}
 
     /**
-     * Replce this options processing hook by inheriting the class and specifying a
+     * Replace this options processing hook by inheriting the class and specifying a
      * derived version of this virtual member function.
      */
-    virtual void options_hook(char c, std::string cargs) {}
+    virtual bool options_hook(char c, std::string cargs) { return false; }
 
 };
 
@@ -163,6 +165,8 @@ struct Graph_access {
     }
 
     void usage_hook();
+
+    bool options_hook(char c, std::string cargs);
 
 protected:
     void dbname_error();

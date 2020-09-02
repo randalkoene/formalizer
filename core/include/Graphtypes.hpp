@@ -518,6 +518,8 @@ typedef std::map<Node_ID_key,Node*> Node_Map;
 
 typedef std::map<Edge_ID_key,Edge*> Edge_Map;
 
+typedef std::vector<Node*> Node_Index;
+
 class Graph {
     friend class Node;
 public:
@@ -558,6 +560,7 @@ public:
     auto begin_Nodes() const { return nodes.begin(); }
     auto end_Nodes() const { return nodes.end(); }
     Node * Node_by_id(const Node_ID_key & id) const; // inlined below
+    Node_Index get_Indexed_Nodes() const;
 
     /// edges table: get edge
     auto begin_Edges() const { return edges.begin(); }

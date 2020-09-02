@@ -542,6 +542,14 @@ void Graph::set_all_semaphores(int sval) {
         it->second->set_semaphore(sval);
 }
 
+Node_Index Graph::get_Indexed_Nodes() const {
+    Node_Index nodeindex;
+    for (const auto& nodekp: nodes) {
+        nodeindex.push_back(nodekp.second);
+    }
+    return nodeindex;
+}
+
 // +----- begin: friend functions -----+
 
 /**

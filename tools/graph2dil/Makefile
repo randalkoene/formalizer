@@ -40,8 +40,8 @@ POSTGRESLIB = -L/usr/lib/x86_64-linux-gnu -lpq
 
 # +----- begin: Essential include and library paths for this program -----+
 INCLUDES := -I$(CPATH) -I$(COREINCLUDEPATH)
-# INCLUDES += -I$(POSTGRESINC)
-# LIB_PATH = $(POSTGRESLIB)
+INCLUDES += -I$(POSTGRESINC)
+LIB_PATH = $(POSTGRESLIB)
 # +----- begin: Essential include and library paths for this program -----+
 
 # +----- begin: In case not included from CPATH -----+
@@ -112,6 +112,7 @@ CPPFLAGS = $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(INCLUDES)
 
 # +----- begin: Select Formalizer core library objects -----+
 CORE_OBJS = $(CORELIBPATH)/obj/error.o
+CORE_OBJS += $(CORELIBPATH)/obj/standard.o
 CORE_OBJS += $(CORELIBPATH)/obj/general.o
 CORE_OBJS += $(CORELIBPATH)/obj/templater.o
 CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
@@ -119,7 +120,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
 CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
 CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
-# CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Logpostgres.o
 # CORE_OBJS += $(CORELIBPATH)/obj/dilaccess.o
 # +----- end  : Select Formalizer core library objects -----+

@@ -8,11 +8,14 @@
  * 
  */
 
+#define FORMALIZER_MODULE_ID "Formalizer:Conversion:DIL2Graph"
+
 #include <filesystem>
 #include <ostream>
 #include <iostream>
 
 #include "error.hpp"
+#include "standard.hpp"
 #include "Graphtypes.hpp"
 #include "Logtypes.hpp"
 #include "log2tl.hpp"
@@ -26,40 +29,34 @@
 
 using namespace fz;
 
-enum exit_status_code { exit_ok,
-                        exit_general_error,
-                        exit_database_error,
-                        exit_unknown_option,
-                        exit_cancel,
-                        exit_conversion_error,
-                        exit_DIL_error };
+struct graph2dil: public formalizer_standard_program {
 
-/**
- * Closing and clean-up actions when exiting the program.
- * 
- * Note that the exit status here needs to be an integer rather than
- * the enumerated exit_status_code type, because it might also
- * become linked into dil2al exit status.
- * 
- * @param status exit status to return to the program caller.
- */
-void Exit_Now(int status) {
-    ERRWARN_SUMMARY(std::cout);
-    Clean_Exit(status);
-}
-
-void key_pause() {
-    std::cout << "...Presse ENTER to continue (or CTRL+C to exit).\n";
-    std::string enterstr;
-    std::getline(std::cin, enterstr);
-}
-
-struct {
-    std::string server_long_id = "Formalizer:Conversion:DIL2Graph v" __VERSION_HPP " (core v" __COREVERSION_HPP ")"; /// Formalizer component identifier
-    std::string runnablename; /// the running program name
     std::string DILTLdirectory = GRAPH2DIL_OUTPUT_DIR; /// location for converted output files
     std::string DILTLindex = GRAPH2DIL_OUTPUT_DIR "/../graph2dil-lists.html";
     std::vector<std::string> cmdargs; /// copy of command line arguments
+
+    Graph_access ga;
+
+    graph2dil() {
+         add_usage_top += ga.usage_top;
+    }
+
+    virtual void usage_hook() {
+        ga.usage_hook();
+    }
+
+    virtual bool options_hook(char c, std::string cargs) {
+        if (ga.options_hook(c,cargs))
+            return true;
+
+        /*
+        switch (c) {
+
+        }
+        */
+
+       return false;
+    }
 
     /**
      * Initialize configuration parameters.
@@ -68,35 +65,32 @@ struct {
      * @param argc command line parameters count forwarded from main().
      * @param argv command line parameters array forwarded from main().
      */
-    void init(int argc, char *argv[]) {
+    void init_top(int argc, char *argv[]) {
+        init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
+    
         for (int i = 0; i < argc; ++i) cmdargs[i] = argv[i];
-
-        runnablename = cmdargs[0];
-        auto n = runnablename.find_last_of('/');
-        if (n!=std::string::npos)
-            runnablename.erase(0,n+1);
 
         if (DILTLdirectory.empty())
             DILTLdirectory = "/tmp/graph2dil-"+TimeStampYmdHM(ActualTime());
 
     }
 
-} configpars;
+} g2d;
 
 int main(int argc, char *argv[]) {
     ERRHERE(".init");
-    configpars.init(argc,argv);
+    g2d.init_top(argc,argv);
 
     //*** THIS IS JUST A STUB!
 
     ERRHERE(".prep");
-    if (!std::filesystem::create_directories(configpars.DILTLdirectory)) {
-        std::cerr << "\nUnable to create the output directory "+configpars.DILTLdirectory+".\n";
-        Exit_Now(exit_general_error);
+    if (!std::filesystem::create_directories(g2d.DILTLdirectory)) {
+        FZERR("\nUnable to create the output directory "+g2d.DILTLdirectory+".\n");
+        exit(exit_general_error);
     }
 
     ERRHERE(".loadGraph");
-    Graph graph;
+    std::unique_ptr<Graph> graph = g2d.ga.request_Graph_copy();
     //*** LOAD THE GRAPH
 
     ERRHERE(".loadLog");
@@ -105,18 +99,16 @@ int main(int argc, char *argv[]) {
 
     ERRHERE(".goLog2TL");
     Log2TL_conv_params params;
-    params.TLdirectory = configpars.DILTLdirectory;
-    params.IndexPath = configpars.DILTLindex;
+    params.TLdirectory = g2d.DILTLdirectory;
+    params.IndexPath = g2d.DILTLindex;
     params.o = &std::cout;
     //params.from_idx = from_section;
     //params.to_idx = to_section;    
-    if (!interactive_Log2TL_conversion(graph, log, params)) {
-        std::cerr << "\nNeed a database account to proceed. Defaults to $USER.\n";
-        Exit_Now(exit_general_error);
+    if (!interactive_Log2TL_conversion(*(graph.get()), log, params)) {
+        FZERR("\nNeed a database account to proceed. Defaults to $USER.\n");
+        exit(exit_general_error);
     }
          
     ERRHERE(".exitok");
-    std::cout << configpars.runnablename << " completed.\n";
-
-    Exit_Now(exit_ok);
+    g2d.completed_ok();
 }

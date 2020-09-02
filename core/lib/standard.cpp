@@ -118,6 +118,17 @@ void Graph_access::usage_hook() {
     FZOUT("       (default is $USER)\n");
 }
 
+bool Graph_access::options_hook(char c, std::string cargs) {
+    switch (c) {
+
+    case 'd':
+        dbname = cargs;
+        return true;
+    }
+    
+    return false;
+}
+
 void Graph_access::dbname_error() {
     std::string errstr("Need a database account to proceed. Defaults to $USER.");
     ADDERROR(std::string("Graph_access::")+__func__,errstr);
