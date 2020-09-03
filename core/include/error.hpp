@@ -24,6 +24,13 @@
 #define ERRRETURNFALSE(f,e) { fz::ErrQ.push(f,e); return false; }
 #define ERRRETURNNULL(f,e) { fz::ErrQ.push(f,e); return NULL; }
 #define ADDERRPING(p) if (fz::ErrQ.pinging()) { fz::ErrQ.push(__func__,std::string("PING-")+p); }
+/// Declare USE_COMPILEDPING at the top of the main program source file or in Makefile via -D
+/// These are particularly useful for detecting issues in constructors, before main() begins.
+#ifdef USE_COMPILEDPING
+    #define COMPILEDPING(tostream,p) { tostream << p; }
+#else
+    #define COMPILEDPING(tostream,p) { }
+#endif
 
 #define ADDWARNING(f,e) fz::WarnQ.push(f,e)
 

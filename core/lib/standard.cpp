@@ -79,6 +79,7 @@ formalizer_standard_program::formalizer_standard_program(): quiet(false) {
     // Warning: Only put things here for which it does not matter if the
     // standard object is initialized later than a local object that
     // uses a derived class.
+    COMPILEDPING(std::cout, "PING-formalizer_standard_program().1\n");
 }
 
 /// Almost identical to regular exit(). (See details in standard.hpp.)
@@ -93,21 +94,25 @@ void formalizer_standard_program::print_version() {
 
 //*** It could be useful to replace the below with use of the templater.hpp methods.
 void formalizer_standard_program::print_usage() {
-    FZOUT("Usage: "+runnablename+add_usage_top+'\n');
-    FZOUT("       "+runnablename+" -v\n\n");
+    FZOUT("Usage: "+runnablename+" [-E <errfile>] [-W <warnfile>] [-q]"+add_usage_top+'\n');
+    FZOUT("       "+runnablename+" <-v|-h>\n\n");
 
     FZOUT("  Options:\n");
 
     usage_hook();
 
-    FZOUT("    -v print version info\n\n");
+    FZOUT("    -E send error output to <errfile> (STDOUT=standard output)\n");
+    FZOUT("    -W send warning output to <warnfile> (STDOUT=standard output)\n");
+    FZOUT("    -q set quieter running\n");
+    FZOUT("    -v print version info\n");
+    FZOUT("    -h print this help\n\n")
 
     FZOUT(server_long_id+"\n\n");
 }
 
 void formalizer_standard_program::commandline(int argc, char *argv[]) {
     int optionindex;
-    add_option_args += "hqv";
+    add_option_args += "hqvE:W:";
 
     while (true) {
         auto [c, option_arg] = safe_cmdline_options(argc, argv, add_option_args.c_str(), optionindex);
@@ -119,8 +124,17 @@ void formalizer_standard_program::commandline(int argc, char *argv[]) {
 
         switch (c) {
 
+        case 'E':
+            ErrQ.set_errfilepath(option_arg);
+            break;
+
+        case 'W':
+            WarnQ.set_errfilepath(option_arg);
+            break;
+
         case 'q':
             quiet = true;
+            standard.quiet = true; // visible to all
             break;
 
         case 'v':
@@ -189,14 +203,19 @@ void Graph_access::dbname_error() {
 }
 
 void Graph_access::graph_access_initialize() {
-    char *username = std::getenv("USER");
-    if (username)
-        dbname = username;
-    
+    COMPILEDPING(std::cout,"PING-graph_access_initialize()\n");
+    if (dbname.empty()) { // attempt to get a default from $USER
+        char *username = std::getenv("USER");
+        if (username)
+            dbname = username;
+    }
+
     if (dbname.empty())
         dbname_error();
 
-    FZOUT("Postgres database account selected: "+dbname+'\n');
+    if (!standard.quiet) {
+        FZOUT("Postgres database account selected: "+dbname+'\n');
+    }
 }
 
 #ifdef TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE
@@ -213,10 +232,12 @@ std::unique_ptr<Graph> Graph_access::request_Graph_copy() {
         FZOUT("\n*** Please replace that with access through fzserverpq as soon as possible!\n\n");
     }
 
+    graph_access_initialize();
+
     std::unique_ptr<Graph> graphptr = std::make_unique<Graph>();
 
     if (!load_Graph_pq(*graphptr, dbname)) {
-        FZERR("\nSomething went wrong! Unable to Graph load from Postgres database.\n");
+        FZERR("\nSomething went wrong! Unable to load Graph from Postgres database.\n");
         standard.exit(exit_database_error);
     }
 

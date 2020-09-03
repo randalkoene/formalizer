@@ -43,6 +43,7 @@ struct fzquerypq: public formalizer_standard_program {
     flow_options flowcontrol;
 
     fzquerypq() : output_format(output_txt), ga(add_option_args, add_usage_top, true), flowcontrol(flow_unknown) {
+        COMPILEDPING(std::cout, "PING-fzquerypq().1\n");
         add_option_args += "n:F:";
         add_usage_top += " [-n <Node-ID>]";
     }

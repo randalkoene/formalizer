@@ -1,6 +1,7 @@
 // Copyright 2020 Randal A. Koene
 // License TBD
 
+#include <iostream>
 #include <fstream>
 
 #include "error.hpp"
@@ -81,11 +82,19 @@ std::string Errors::pretty_print() const {
  */
 void Errors::output(std::ofstream::openmode mode) {
     if (num()>0) {
+
         if (get_errfilepath().empty()) set_errfilepath(DEFAULT_ERRLOGPATH);
-        std::ofstream errfile(get_errfilepath().c_str(),mode);
-        errfile << pretty_print();
-        errfile.close();
-        flush();
+
+        if (get_errfilepath() == "STDOUT") {
+            std::cout << pretty_print();
+            std::cout.flush();
+
+        } else {
+            std::ofstream errfile(get_errfilepath().c_str(),mode);
+            errfile << pretty_print();
+            errfile.close();
+            flush();
+        }
     }
 }
 

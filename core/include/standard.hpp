@@ -12,7 +12,10 @@
 #include "coreversion.hpp"
 #define __STANDARD_HPP (__COREVERSION_HPP)
 
-//#include <iostream>
+//#define USE_COMPILEDPING
+
+//*** consider removing the next one and setting base.out and base.err to nullptr first
+#include <iostream>
 #include <stdlib.h>
 #include <cstdlib>
 #include <ostream>
@@ -58,8 +61,8 @@ void error_summary_wrapper();
 void clean_exit_wrapper();
 
 struct formalizer_base_streams {
-    std::ostream *out;      /// for example *cout
-    std::ostream *err;      /// for example *cerr
+    std::ostream *out = &std::cout;//nullptr;      /// for example *cout
+    std::ostream *err = &std::cerr;//nullptr;      /// for example *cerr
 };
 
 extern formalizer_base_streams base;
@@ -183,7 +186,8 @@ struct Graph_access {
      *                           to extend the top line of usage output.
      */
     Graph_access(std::string & add_option_args_here, std::string & add_usage_top_here, bool _isserver = false): is_server(_isserver) {
-        graph_access_initialize();
+        COMPILEDPING(std::cout, "PING-Graph_access().1\n");
+        // This is better called just before a Graph request: graph_access_initialize();
         add_option_args_here += "d:";
         add_usage_top_here += " [-d <dbname>]";
     }

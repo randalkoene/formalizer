@@ -8,6 +8,8 @@
 
 #define FORMALIZER_MODULE_ID "Formalizer:GraphServer:Postgres:SingleQuery"
 
+//#define USE_COMPILEDPING
+
 // std
 #include <filesystem>
 #include <iostream>
@@ -29,9 +31,11 @@ using namespace fz;
 fzquerypq fzq;
 
 int main(int argc, char *argv[]) {
+    COMPILEDPING(std::cout, "PING-main().1\n");
     ERRHERE(".init");
     fzq.init_top(argc, argv);
 
+    COMPILEDPING(std::cout, "PING-main().2\n");
     switch (fzq.flowcontrol) {
 
     case flow_node: {
@@ -45,6 +49,7 @@ int main(int argc, char *argv[]) {
 
     }
 
+    COMPILEDPING(std::cout,"PING-main().3\n");
     ERRHERE(".exitok");
     return fzq.completed_ok();
 }
