@@ -560,6 +560,7 @@ public:
     auto begin_Nodes() const { return nodes.begin(); }
     auto end_Nodes() const { return nodes.end(); }
     Node * Node_by_id(const Node_ID_key & id) const; // inlined below
+    Node * Node_by_idstr(std::string idstr) const; // inclined below
     Node_Index get_Indexed_Nodes() const;
 
     /// edges table: get edge
@@ -652,6 +653,24 @@ inline Node * Graph::Node_by_id(const Node_ID_key & id) const {
     auto it = nodes.find(id);
     if (it==nodes.end()) return nullptr;
     return it->second;
+}
+
+/**
+ * Find a Node in the Graph by its ID key from a string.
+ * 
+ * @param idstr a string specifying a Node ID key.
+ * @return pointer to Node (or nullptr if not found).
+ */
+inline Node * Graph::Node_by_idstr(std::string idstr) const {
+    try {
+        const Node_ID_key nodeidkey(idstr);
+        return Node_by_id(nodeidkey);
+
+    } catch (ID_exception idexception) {
+        ADDERROR(__func__, "invalid Node ID (" + idstr + ")\n" + idexception.what());
+        return nullptr;
+    }
+    // never gets here
 }
 
 /**

@@ -24,15 +24,16 @@ using namespace fz;
 struct nodeboard: public formalizer_standard_program {
     Graph_access ga;
 
-    nodeboard() {
-         add_usage_top += ga.usage_top;
+    nodeboard(): ga(add_option_args,add_usage_top) {
+        //add_option_args += "n:";
+        //add_usage_top += " [-n <Node-ID>]";
     }
 
     virtual void usage_hook() {
         ga.usage_hook();
     }
 
-    virtual bool options_hook(char c, std::string cargs) {
+    virtual bool options_hook(char c, char * cargs) {
         if (ga.options_hook(c,cargs))
             return true;
 

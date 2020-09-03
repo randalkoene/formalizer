@@ -37,15 +37,15 @@ struct graph2dil: public formalizer_standard_program {
 
     Graph_access ga;
 
-    graph2dil() {
-         add_usage_top += ga.usage_top;
+    graph2dil(): ga(add_option_args,add_usage_top) {
+
     }
 
     virtual void usage_hook() {
         ga.usage_hook();
     }
 
-    virtual bool options_hook(char c, std::string cargs) {
+    virtual bool options_hook(char c, char * cargs) {
         if (ga.options_hook(c,cargs))
             return true;
 

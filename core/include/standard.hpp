@@ -12,6 +12,7 @@
 #include "coreversion.hpp"
 #define __STANDARD_HPP (__COREVERSION_HPP)
 
+//#include <iostream>
 #include <stdlib.h>
 #include <cstdlib>
 #include <ostream>
@@ -48,6 +49,7 @@ enum exit_status_code {
     exit_conversion_error,
     exit_DIL_error,
     exit_unable_to_stack_clean_exit,
+    exit_command_line_error,
     exit_NUMENUMS // this one simplifies corresponding array definition, e.g. char[exit_NUMENUMS]
     };
 
@@ -75,17 +77,25 @@ extern formalizer_base_streams base;
 struct formalizer_standard_program {
     std::string server_long_id; /// standardized module string
 
+    std::string add_option_args; // more option argument characters, e.g. "n:F:"
     std::string add_usage_top; // more options, e.g. " [-d <dbname>] [-m]"
+
+    bool quiet; // report less
 
     /**
      * Base initialization of standard Formalizer programs.
      */
     formalizer_standard_program();
 
-    /// You can call this instead of std::exit() if you like, same thing, same stack.
-    void exit(int exit_code) {
-        std::exit(exit_code);
-    }
+    /**
+     * You can call this instead of std::exit() if you like, same thing, same stack.
+     * There is one minor difference that might matter when you want to:
+     * a) run a program quietly, and,
+     * b) leave base.out unaltered (no need for a special handler or nullptr).
+     * This version of exit copies `quiet` explicitly to `standard.quiet`, so
+     * that `error_summary_wrapper` can see it.
+     */
+    void exit(int exit_code);
 
     /**
      * Add additional steps to the exit() stack.
@@ -104,8 +114,6 @@ protected:
     bool initialized = false; // This is used to test if standard.init() was called before permitting other things.
 
     std::string runnablename;
-
-    void print_usage();
 
     void commandline(int argc, char *argv[]);
 
@@ -128,6 +136,8 @@ public:
 
     void print_version();
 
+    void print_usage();
+
     // *** instead of these hooks and add_usage_top there could be a usage_stack
     //     that you can register strings with.
     /**
@@ -139,6 +149,10 @@ public:
     /**
      * Replace this options processing hook by inheriting the class and specifying a
      * derived version of this virtual member function.
+     * 
+     * @param c is the command line option character.
+     * @param cargs points to the option argument value if `c` has one (otherwise it is
+     *              undefined - so DO NOT assume that you can use it to initialize a string).
      */
     virtual bool options_hook(char c, std::string cargs) { return false; }
 
@@ -158,10 +172,20 @@ class Graph; // forward declaration
 struct Graph_access {
     std::string dbname;
 
-    std::string usage_top = " [-d <dbname>]";
+    bool is_server; /// authoritative server programs should set this flag
 
-    Graph_access() {
+    /**
+     * Carry out initializations needed to enable access to the Graph data structure.
+     * 
+     * @param add_topion_args_here receiving string where "d:" is appended to extend
+     *                             command line options recognized.
+     * @param add_usage_top_here receiving string where the option format is appended
+     *                           to extend the top line of usage output.
+     */
+    Graph_access(std::string & add_option_args_here, std::string & add_usage_top_here, bool _isserver = false): is_server(_isserver) {
         graph_access_initialize();
+        add_option_args_here += "d:";
+        add_usage_top_here += " [-d <dbname>]";
     }
 
     void usage_hook();
@@ -178,6 +202,8 @@ public:
 #endif
 
 };
+
+std::pair<int, std::string> safe_cmdline_options(int argc, char *argv[], std::string options, int &optindcopy);
 
 //*** It is not entirely clear if key_pause() should be here or in some stream utility set.
 void key_pause();
