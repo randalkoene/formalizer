@@ -27,7 +27,7 @@
 /// Declare USE_COMPILEDPING at the top of the main program source file or in Makefile via -D
 /// These are particularly useful for detecting issues in constructors, before main() begins.
 #ifdef USE_COMPILEDPING
-    #define COMPILEDPING(tostream,p) { tostream << p; }
+    #define COMPILEDPING(tostream,p) { tostream << p; tostream.flush(); }
 #else
     #define COMPILEDPING(tostream,p) { }
 #endif

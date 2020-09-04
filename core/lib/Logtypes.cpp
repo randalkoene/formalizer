@@ -716,7 +716,12 @@ Log_chunk_index_interval Log::get_Chunks_index_n_interval(std::time_t t_from, un
  * @return a pointer to the Topic object (or nullptr if not found).
  */
 Topic * main_topic(Graph & _graph, Log_chunk & chunk) {
-    return _graph.main_Topic_of_Node(*chunk.get_Node(_graph));
+    // Be careful, in case the Node the chunk is referencing does not exist in the Graph.
+    Node * node = chunk.get_Node(_graph);
+    if (!node)
+        return nullptr;
+
+    return _graph.main_Topic_of_Node(*node);
 }
 
 /**

@@ -10,6 +10,11 @@
  * For more development details, see the Trello card at https://trello.com/c/NNSWVRFf.
  */
 
+// +----- begin: uncomment when debugging -----+
+// #define USE_COMPILEDPING
+// #include <iostream>
+// +----- end  : uncomment when debugging -----+
+
 #include <filesystem>
 #include <ostream>
 
@@ -155,15 +160,23 @@ public:
                     prev_yyyymmdd = log.get_Breakpoint_Ymd_str(bridx-1);
                 }
 
-                has_next_section = (bridx+1) < log.num_Breakpoints();
-                if (has_next_section) {
-                    chunk_end_limit = log.get_chunk_first_at_Breakpoint(bridx+1);
-                    next_yyyymmdd = log.get_Breakpoint_Ymd_str(bridx+1);
+                // Build in a safety, in case the first section is not found on the next Breakpoint.
+                unsigned int offset = 1;
+                do {
+                    has_next_section = (bridx+offset) < log.num_Breakpoints();
+                    if (has_next_section) {
+                        chunk_end_limit = log.get_chunk_first_at_Breakpoint(bridx+offset);
+                        if (chunk_end_limit < log.num_Chunks()) {
+                            next_yyyymmdd = log.get_Breakpoint_Ymd_str(bridx+offset);
+                            break;
+                        }
+                        ++offset;
+                        
+                    } else {
+                        chunk_end_limit = log.num_Chunks();
 
-                } else {
-                    chunk_end_limit = log.num_Chunks();
-
-                }
+                    }
+                } while (has_next_section);
             }
         }
     }
@@ -192,7 +205,7 @@ public:
                 ERRRETURNFALSE(__func__,"unable to load templates");
         }
 
-        ADDERRPING("#1");
+        COMPILEDPING(std::cout,"PING-render_section.1\n");
         template_varvalues sectiondata;
         sectiondata.emplace("yyyymmdd",yyyymmdd);
 
@@ -200,24 +213,24 @@ public:
             if (!render_prevsection())
                 ERRRETURNFALSE(__func__,"unable to generate prevsection");
         }
-        ADDERRPING("#2");
+        COMPILEDPING(std::cout,"PING-render_section.2\n");
         sectiondata.emplace("prevsection",prevsection);
 
         if (nextsection.empty()) {
             if (!render_nextsection())
                 ERRRETURNFALSE(__func__,"unable to generate nextsection");
         }
-        ADDERRPING("#3");
+        COMPILEDPING(std::cout,"PING-render_section.3\n");
         sectiondata.emplace("nextsection",nextsection);
 
         if (!have_looked_for_chunks) {
             if (!render_chunks())
                 ERRRETURNFALSE(__func__,"unable to generate chunks");
         }
-        ADDERRPING("#4");
+        COMPILEDPING(std::cout,"PING-render_section.4\n");
         sectiondata.emplace("chunks",chunks);
 
-        ADDERRPING("#5");
+        COMPILEDPING(std::cout,"PING-render_section.5\n");
         rendered_section = env.render(templates[section_temp],sectiondata);
         return true;
     }
@@ -347,11 +360,12 @@ public:
      * Render all Log chunks within the section into the `chunks` string variable.
      */
     bool render_chunks() {
+        COMPILEDPING(std::cout,"PING-render_chunks\n");
         chunks.clear();
 
         for (unsigned long c = chunk_begin_idx; c < chunk_end_limit; ++c) {
 
-            ADDERRPING("chunk#"+std::to_string(c));
+            COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".1\n");
             Log_chunk * cptr = log.get_chunk(c);
             if (!cptr) { // always be careful around pointers
                 ADDERROR(__func__,"chunk (idx="+std::to_string(c)+") was nullptr (should never happen!)");
@@ -365,25 +379,37 @@ public:
 
             chunkdata.emplace("chunkbeginyyyymmddhhmm",chunkidstr);
 
+            //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".2\n");
             chunkdata.emplace("ALprev",render_chunk_ALprev(c));
 
+            //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".3\n");
             chunkdata.emplace("ALnext",render_chunk_ALnext(c));
 
+            //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".3a\n");
             if (graph.num_Topics()>0) {
+                //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".3b\n");
                 Topic * maintopic = main_topic(graph,chunk);
                 if (maintopic) {
+                    //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".3c-i\n");
                     chunkdata.emplace("nodetopicid", maintopic->get_tag());
                     chunkdata.emplace("nodetopictitle", maintopic->get_title());
+                } else {
+                    //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".3c-ii\n");
+                    chunkdata.emplace("nodetopicid", "{missing-topic}");
+                    chunkdata.emplace("nodetopictitle", "{missing-title}");
                 }
             } else {
+                //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".3d\n");
                 chunkdata.emplace("nodetopicid", "{missing-topic}");
                 chunkdata.emplace("nodetopictitle", "{missing-title}");
             }
-            ADDERRPING("#1");
+            //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".3e\n");
             chunkdata.emplace("nodeid",chunk.get_NodeID().str());
 
+            //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".4\n");
             chunkdata.emplace("nodeprev",render_chunk_nodeprev(chunk));
 
+            //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".5\n");
             chunkdata.emplace("nodenext",render_chunk_nodenext(chunk));
 
             time_t chunkclose = chunk.get_close_time();
@@ -393,7 +419,7 @@ public:
                 chunkdata.emplace("chunkendIyyyymmddhhmm","<I>"+TimeStampYmdHM(chunkclose)+"</I>");
             }
 
-            ADDERRPING("#2");
+            //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".6\n");
             // Needs valid rapid-access `entries` vector.
             entry.clear();
             auto entries = chunk.get_entries();
@@ -416,6 +442,7 @@ public:
             }
             chunkdata.emplace("entries",entry);
 
+            //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".7\n");
             chunks += env.render(templates[chunk_temp],chunkdata);
         }
         return true;
@@ -590,6 +617,7 @@ public:
  * @return true if successfully converted.
  */
 bool interactive_Log2TL_conversion(Graph & graph, Log & log, const Log2TL_conv_params & params) {
+    COMPILEDPING(std::cout,"PING-Log2TL.top\n");
     ERRHERE(".top");
 
     Log_chunk_ID_key_deque::size_type from_idx = 0;
@@ -610,6 +638,7 @@ bool interactive_Log2TL_conversion(Graph & graph, Log & log, const Log2TL_conv_p
         ADDWARNING(__func__,"using a previously existing directory - any existing files in the directory may be affected");
     }
 
+    COMPILEDPING(std::cout,"PING-Log2TL.loadtemplates\n");
     render_environment env;
     section_templates templates;
     load_templates(templates);
@@ -619,6 +648,7 @@ bool interactive_Log2TL_conversion(Graph & graph, Log & log, const Log2TL_conv_p
         std::string bridxstr(std::to_string(bridx));
         ERRHERE(".conv."+bridxstr);
 
+        COMPILEDPING(std::cout,"PING-Log2TL.render-"+bridxstr+'\n');
         section_Converter sC(env,templates,graph,log,bridx);
         if (!sC.render_section()) {
             ADDERROR(__func__,"unable to render section ["+bridxstr+"] from Log chunk "+log.get_Breakpoint_first_chunk_id_str(bridx));
@@ -630,6 +660,7 @@ bool interactive_Log2TL_conversion(Graph & graph, Log & log, const Log2TL_conv_p
             continue;
         }
 
+        COMPILEDPING(std::cout,"PING-Log2TL.store-"+bridxstr+'\n');
         ERRHERE(".store."+bridxstr);
         latest_TLfile = params.TLdirectory+"/task-log."+log.get_Breakpoint_Ymd_str(bridx)+".html";
         if (!string_to_file(latest_TLfile,sC.rendered_section))

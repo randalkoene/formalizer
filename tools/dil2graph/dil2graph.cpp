@@ -13,6 +13,10 @@
  * Formalizer doc at: https://docs.google.com/document/d/1rYPFgzFgjkF1xGx3uABiXiaDR5sfmOzqYQRqSntcyyY/edit#heading=h.tarhfe395l5v
  */
 
+// +----- begin: uncomment when debugging -----+
+// #define USE_COMPILEDPING
+// +----- end  : uncomment when debugging -----+
+
 #define FORMALIZER_MODULE_ID "Formalizer:Conversion:DIL2Graph"
 
 // std
@@ -797,6 +801,7 @@ int main(int argc, char *argv[]) {
     }
 
 #ifdef __DIRECTGRAPH2DIL__
+    COMPILEDPING(std::cout,"PING-main.g2dtest\n");
     if (logptr) {
         VOUT << "Now, let's try converting the Log right back into Tak Log files.\n";
         key_pause();
@@ -809,11 +814,14 @@ int main(int argc, char *argv[]) {
                 ADDERROR(__func__,"unable to load Graph");
                 d2g.exit(exit_database_error);
             }
+            COMPILEDPING(std::cout,"PING-main.g2d-Logcaches\n");
             if ((logptr != nullptr) && (graphptr != nullptr)) {
                 logptr->setup_Entry_node_caches(*(graphptr.get())); // here we can do this!
                 logptr->setup_Chunk_node_caches(*(graphptr.get()));
             }
         }
+
+        COMPILEDPING(std::cout,"PING-main.g2d-Log2TL\n");
         Log2TL_conv_params params;
         params.TLdirectory = DIRECTGRAPH2DIL_DIR;
         params.IndexPath = DIRECTGRAPH2DIL_DIR "/../graph2dil-lists.html";
@@ -822,7 +830,7 @@ int main(int argc, char *argv[]) {
         params.to_idx = d2g.to_section;
         if (!interactive_Log2TL_conversion(*graphptr, *logptr, params)) {
             EOUT << "\nDirect conversion test back to Task Log files did not complete..\n";
-            Exit_Now(exit_general_error);
+            d2g.exit(exit_general_error);
         }
         VOUT << "Direct conversion test back to Task Log files written to " << DIRECTGRAPH2DIL_DIR << '\n';
         VOUT << "Hint: Try viewing it http://aether.local/formalizer/graph2dil/task-log.html\n";
