@@ -198,6 +198,7 @@ struct Graph_access {
 
 protected:
     void dbname_error();
+public:
     void graph_access_initialize();
 
 #ifdef TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE

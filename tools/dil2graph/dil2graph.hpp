@@ -11,20 +11,18 @@
 #include "version.hpp"
 #define __DIL2GRAPH_HPP (__VERSION_HPP)
 
+// dil2al compatibility
+#include "dil2al_minimal.hpp"
+
+// core
+#include "standard.hpp"
 #include "dilaccess.hpp"
 
+// local
+#include "logtest.hpp"
+#include "tl2log.hpp"
+
 using namespace fz;
-
-enum exit_status_code { exit_ok,
-                        exit_general_error,
-                        exit_database_error,
-                        exit_unknown_option,
-                        exit_cancel,
-                        exit_conversion_error,
-                        exit_DIL_error };
-
-/// Postgres database name
-extern std::string dbname; // provided in dil2graph.cpp, initialized to $USER
 
 struct ConversionMetrics {
     int nullnodes;
@@ -74,6 +72,102 @@ Graph *convert_DIL_to_Graph(Detailed_Items_List *dil, ConversionMetrics &convmet
 
 void Exit_Now(int status); // needed in dil2al_minimal.cpp and dil2al linked object files
 
-void key_pause();
+enum flow_options {
+    flow_unknown = 0,  /// no recognized request
+    flow_everything = 1, /// load and convert DIL hierarchy to Graph, load and convert Task Log to Log
+    flow_load_only = 2,  /// Graph loading test only
+    flow_dil_only = 3,   /// load and convert DIL hierarchy to Graph
+    flow_tl_only = 4     /// load and convert Task Log to Log
+};
+
+struct dil2graph: public formalizer_standard_program {
+
+    //std::vector<std::string> cmdargs; /// copy of command line arguments
+    //output_format_specifier output_format; /// the format used to deliver query results
+
+    unsigned long from_section;
+    unsigned long to_section;
+
+    std::string node_idstr;
+
+    Graph_access ga;
+
+    flow_options flowcontrol;
+
+    dil2graph() : from_section(0), to_section(9999999), ga(add_option_args, add_usage_top), flowcontrol(flow_everything) {
+        COMPILEDPING(std::cout, "PING-dil2graph().1\n");
+        add_option_args += "LDTmo:1:2:";
+        add_usage_top += " [-m] [-L|-D|-T] [-o <testfile>] [-1 <num1>] [-2 <num2>]";
+    }
+
+    virtual void usage_hook() {
+        ga.usage_hook();
+        FZOUT("    -m manual decisions (no automatic fixes)\n");
+        FZOUT("    -L load only (no conversion and storage)\n");
+        FZOUT("    -D DIL hierarchy conversion only\n");
+        FZOUT("    -T Task Log conversion only\n");
+        FZOUT("    -o specify path of test output file\n");
+        FZOUT("       (default: "+testfilepath+")\n");
+        FZOUT("    -1 1st section to reconstruct is <num1>\n");
+        FZOUT("    -2 last section to reconstruct is <num2>\n");
+    }
+
+    virtual bool options_hook(char c, std::string cargs) {
+        if (ga.options_hook(c,cargs))
+            return true;
+
+        switch (c) {
+
+        case 'm':
+            manual_decisions = true; // *** this variable is still outside of a struct (see tl2log.hpp/cpp)
+            return true;
+        
+        case 'L':
+            flowcontrol = flow_load_only;
+            return true;
+
+        case 'D':
+            flowcontrol = flow_dil_only;
+            return true;
+
+        case 'T':
+            flowcontrol = flow_tl_only;
+            return true;
+
+        case 'o':
+            testfilepath = cargs;
+            return true;
+
+        case '1':
+            from_section = std::atoi(cargs.c_str());
+            return true;
+
+        case '2':
+            to_section = std::atoi(cargs.c_str());
+            return true;
+
+        }
+
+       return false;
+    }
+
+    /**
+     * Initialize configuration parameters.
+     * Call this at the top of main().
+     * 
+     * @param argc command line parameters count forwarded from main().
+     * @param argv command line parameters array forwarded from main().
+     */
+    void init_top(int argc, char *argv[]) {
+        //*************** for (int i = 0; i < argc; ++i) cmdargs[i] = argv[i]; // do this before getopt mucks it up
+        init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
+
+        add_to_exit_stack(&exit_postop); // include exit steps needed for dil2al code
+        add_to_exit_stack(&exit_report);
+    }
+
+};
+
+extern dil2graph d2g;
 
 #endif // __DIL2GRAPH_HPP

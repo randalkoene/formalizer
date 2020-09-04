@@ -17,6 +17,7 @@
 
 // Formalizer core
 #include "error.hpp"
+#include "standard.hpp"
 #include "general.hpp"
 #include "TimeStamp.hpp"
 #include "Graphtypes.hpp"

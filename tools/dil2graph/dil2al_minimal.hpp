@@ -21,4 +21,6 @@ void initialize();
 
 void exit_report();
 
+void exit_postop();
+
 #endif // __DIL2AL_MINIMAL_HPP

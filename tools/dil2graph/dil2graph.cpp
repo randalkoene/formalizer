@@ -13,6 +13,9 @@
  * Formalizer doc at: https://docs.google.com/document/d/1rYPFgzFgjkF1xGx3uABiXiaDR5sfmOzqYQRqSntcyyY/edit#heading=h.tarhfe395l5v
  */
 
+#define FORMALIZER_MODULE_ID "Formalizer:Conversion:DIL2Graph"
+
+// std
 #include <array>
 #include <cstdio>
 #include <filesystem>
@@ -29,14 +32,15 @@
 #include "dil2al.hh"
 #include "dil2al_minimal.hpp"
 
-// Formalizer core
+// core
 #include "Graphpostgres.hpp"
 #include "Graphtypes.hpp"
 #include "dilaccess.hpp"
 #include "error.hpp"
+#include "standard.hpp"
 #include "general.hpp"
 
-// Tool specific
+// local
 #include "dil2graph.hpp"
 #include "tl2log.hpp"
 #include "logtest.hpp"
@@ -45,18 +49,22 @@
     #include "../graph2dil/log2tl.hpp"
 #endif // __DIRECTGRAPH2DIL__
 
-std::string server_long_id;
+//std::string server_long_id;
 
 using namespace fz;
 
-std::string dbname; /// This is initialized to $USER.
+dil2graph d2g;
 
-unsigned long from_section = 0;
-unsigned long to_section = 9999999;
+//std::string dbname; /// This is initialized to $USER.
 
 //----------------------------------------------------
 // Definitions of functions declared in dil2graph.hpp:
 //----------------------------------------------------
+
+/// This wrapper is for backward compatibility needed for dil2al_minimal.hpp and dil2al linked object files.
+void Exit_Now(int status) {
+    d2g.exit(static_cast<exit_status_code>(status));
+}
 
 /**
  * Uses the topical DIL file name to create a topic tag.
@@ -464,115 +472,9 @@ Graph *convert_DIL_to_Graph(Detailed_Items_List *dil, ConversionMetrics &convmet
     return graph;
 }
 
-/**
- * Closing and clean-up actions when exiting the program.
- * 
- * Note that the exit status here needs to be an integer rather than
- * the enumerated exit_status_code type, because it is also linked
- * into dil2al object code.
- * 
- * @param status exit status to return to the program caller.
- */
-void Exit_Now(int status) {
-    exit_report();
-    exit_postop();
-    ERRWARN_SUMMARY(VOUT);
-    Clean_Exit(status);
-}
-
-void key_pause() {
-    VOUT << "...Presse ENTER to continue (or CTRL+C to exit).\n";
-    std::string enterstr;
-    std::getline(cin, enterstr);
-}
-
 //----------------------------------------------------
 // Definitions of file-local scope functions:
 //----------------------------------------------------
-
-void print_version(std::string progname) {
-    std::cout << progname << " " << server_long_id << '\n';
-}
-
-void print_usage(std::string progname) {
-    std::cout << "Usage: " << progname << " [-d <dbname>] [-m] [-L|-D|-T] [-o <testfile>] [-1 <num1>] [-2 <num2>]\n"
-              << "       " << progname << " -v\n"
-              << '\n'
-              << "  Options:\n"
-              << "    -d store resulting Graph in Postgres account <dbname>\n"
-              << "       (default is $USER)\n"
-              << "    -m manual decisions (no automatic fixes)\n"
-              << "    -L load only (no conversion and storage)\n"
-              << "    -D DIL hierarchy conversion only\n"
-              << "    -T Task Log conversion only\n"
-              << "    -v print version info\n"
-              << "    -o specify path of test output file\n"
-              << "       (default: " << testfilepath << ")\n"
-              << "    -1 1st section to reconstruct is <num1>\n"
-              << "    -2 last section to reconstruct is <num2>\n"
-              << '\n'
-              << server_long_id << '\n'
-              << '\n';
-}
-
-enum flow_options {
-    flow_everything = 0, /// load and convert DIL hierarchy to Graph, load and convert Task Log to Log
-    flow_load_only = 1,  /// Graph loading test only
-    flow_dil_only = 2,   /// load and convert DIL hierarchy to Graph
-    flow_tl_only = 3     /// load and convert Task Log to Log
-};
-
-flow_options flowcontrol = flow_everything;
-
-void process_commandline(int argc, char *argv[]) {
-    int c;
-    opterr = 0;
-
-    while ((c = getopt(argc, argv, "d:LDTmo:1:2:")) != EOF) {
-
-        switch (c) {
-        case 'd':
-            dbname = optarg;
-            break;
-
-        case 'm':
-            manual_decisions = true;
-            break;
-
-        case 'L':
-            flowcontrol = flow_load_only;
-            break;
-
-        case 'D':
-            flowcontrol = flow_dil_only;
-            break;
-
-        case 'T':
-            flowcontrol = flow_tl_only;
-            break;
-
-        case 'o':
-            testfilepath = optarg;
-            break;
-
-        case '1':
-            from_section = std::atoi(optarg);
-            break;
-
-        case '2':
-            to_section = std::atoi(optarg);
-            break;
-
-        case 'v':
-            print_version(argv[0]);
-            Clean_Exit(exit_ok);
-
-        default:
-            print_usage(argv[0]);
-            Clean_Exit(exit_ok);
-        }
-    }
-}
 
 /**
  * Progress indicator that prints a '=' each time the counter reaches
@@ -604,22 +506,21 @@ int alt_main() {
 
     key_pause();
 
-    Graph graph;
-    if (!load_Graph_pq(graph, dbname)) {
-        EOUT << "\nSomething went wrong! Unable to load Graph from Postgres database.\n";
-        Exit_Now(exit_database_error);
+    ERRHERE(".loadGraph");
+    std::unique_ptr<Graph> graph = d2g.ga.request_Graph_copy();
+    if (!graph) {
+        ADDERROR(__func__,"unable to load Graph");
+        d2g.exit(exit_database_error);
     }
+
     VOUT << "Graph re-loading data test:\n";
-    VOUT << "  Number of Topics = " << graph.get_topics().get_topictags().size() << endl;
-    VOUT << "  Number of Nodes  = " << graph.num_Nodes() << endl;
-    VOUT << "  Number of Edges  = " << graph.num_Edges() << endl
-         << endl;
+    VOUT << "  Number of Topics = " << graph->get_topics().get_topictags().size() << '\n';
+    VOUT << "  Number of Nodes  = " << graph->num_Nodes() << '\n';
+    VOUT << "  Number of Edges  = " << graph->num_Edges() << "\n\n";
 
     key_pause();
 
-    Exit_Now(exit_ok);
-
-    return 0;
+    return d2g.completed_ok();
 }
 
 std::pair<Detailed_Items_List *, Graph *> interactive_conversion() {
@@ -631,7 +532,7 @@ std::pair<Detailed_Items_List *, Graph *> interactive_conversion() {
     Detailed_Items_List *dil;
     if (!(dil = get_DIL_Graph())) {
         EOUT << "\nSomethihg went wrong! Unable to load Detailed Items List.\n";
-        Exit_Now(exit_DIL_error);
+        d2g.exit(exit_DIL_error);
     }
     VOUT << "\nDetailed Items List loaded with " << dil->list.length() << " DIL_entry elements.\n\n";
 
@@ -643,7 +544,7 @@ std::pair<Detailed_Items_List *, Graph *> interactive_conversion() {
     Graph *graph;
     if ((graph = convert_DIL_to_Graph(dil, convmet)) == NULL) {
         EOUT << "\nSomething went wrong! Unable to convert to Graph.\n";
-        Exit_Now(exit_conversion_error);
+        d2g.exit(exit_conversion_error);
     }
     VOUT << "\nDetailed Items List converted to Graph with " << graph->num_Nodes() << " Node elements.\n\n";
 
@@ -690,7 +591,7 @@ std::pair<Detailed_Items_List *, Graph *> interactive_conversion() {
         std::getline(cin, proceedchoice);
         if (proceedchoice != "proceed") {
             VOUT << "\nWise choice.\n";
-            Exit_Now(exit_cancel);
+            d2g.exit(exit_cancel);
         } else
             VOUT << "Proceeding despite noted reservations.\n";
     } else
@@ -711,9 +612,10 @@ std::pair<Detailed_Items_List *, Graph *> interactive_conversion() {
     VOUT << "+----+----+----+---+\n";
     VOUT << "|    :    :    :   |\n";
     VOUT.flush();
-    if (!store_Graph_pq(*graph, dbname, node_pq_progress_func)) {
+    d2g.ga.graph_access_initialize();
+    if (!store_Graph_pq(*graph, d2g.ga.dbname, node_pq_progress_func)) {
         EOUT << "\nSomething went wrong! Unable to store (correctly) in Postgres database.\n";
-        Exit_Now(exit_database_error);
+        d2g.exit(exit_database_error);
     }
     VOUT << "\nGraph stored in Postgres database.\n\n";
 
@@ -738,10 +640,11 @@ void interactive_validation(Detailed_Items_List *dil, Graph *graph) {
     }
     VOUT << "Now, let's validate the database by reloading the Graph and comparing it with the one that was stored.\n";
 
+    ERRHERE(".reloadGraph");
     Graph reloaded;
-    if (!load_Graph_pq(reloaded, dbname)) {
+    if (!load_Graph_pq(reloaded, d2g.ga.dbname)) { // Not using d2g.ga.request_Graph_copy(), because there might be no running server when we just created the database.
         EOUT << "\nSomething went wrong! Unable to load back from Postgres database.\n";
-        Exit_Now(exit_database_error);
+        d2g.exit(exit_database_error);
     }
     VOUT << "Graph re-loading data test:\n";
     VOUT << "  Number of Topics = " << reloaded.get_topics().get_topictags().size() << endl;
@@ -769,7 +672,7 @@ void interactive_validation(Detailed_Items_List *dil, Graph *graph) {
     DIL_entry *e = dil->list.head();
     auto n_it = graph->begin_Nodes();
     auto r_it = reloaded.begin_Nodes();
-    auto v = load_Node_parameter_interval(dbname, pqn_id, 0, 10);
+    auto v = load_Node_parameter_interval(d2g.ga.dbname, pqn_id, 0, 10);
     for (unsigned int i = 0; i < 10; i++) {
         if (e) {
             rowstr += e->str() + '\t';
@@ -831,6 +734,7 @@ void interactive_validation(Detailed_Items_List *dil, Graph *graph) {
 }
 
 int main(int argc, char *argv[]) {
+    ERRHERE(".config");
     cout << "** CONFIG NOTE: This tool (and its components from core) still need a\n";
     cout << "**              standardized method of configuration. See Trello card\n";
     cout << "**              at https://trello.com/c/4B7x2kif.\n\n";
@@ -841,36 +745,25 @@ int main(int argc, char *argv[]) {
     //ErrQ.enable_pinging(); // turn this on when hunting for the cause of a segfault
     // *** +---- end  : Things that probably should be configurable -----+
     
-    ERRHERE(".1");
-    server_long_id = "Formalizer:Conversion:DIL2Graph v" + version() + " (core v" + coreversion() + ")";
+    ERRHERE(".init");
+    d2g.init_top(argc, argv);
+
+    ERRHERE(".dil2alinit");
     din = &cin;
-    eout = &cerr;
-    vout = &cout;
-    runnablename = argv[0];
-    if (runnablename.contains('/'))
-        runnablename = runnablename.after('/', -1);
+    eout = FORMALIZER_BASE_ERR_OSTREAM_PTR;
+    vout = FORMALIZER_BASE_OUT_OSTREAM_PTR;
+    runnablename = d2g.name().c_str(); // For compatibility, this needs the other String::runnablename as well
     curdate = date_string();
     curtime = time_stamp("%Y%m%d%H%M");
     Output_Log_Append(curtime + '\n');
-    char *username = std::getenv("USER");
-    if (username)
-        dbname = username;
     initialize();
-    process_commandline(argc, argv);
     verbose = false; // Turning off most messages from dil2al code.
 
-    VOUT << server_long_id << " starting.\n";
-    if (dbname.empty()) {
-        EOUT << "\nNeed a database account to proceed. Defaults to $USER.\n";
-        Exit_Now(exit_general_error);
-    }
-    VOUT << "Postgres database account selected: " << dbname << '\n';
-
-    ERRHERE(".2");
-
+    ERRHERE(".flowcontrol");
     std::unique_ptr<Graph> graphptr;
     std::unique_ptr<Log> logptr;
-    switch (flowcontrol) {
+    switch (d2g.flowcontrol) {
+
     case flow_load_only: {
         alt_main(); // This does not return
         break;
@@ -900,6 +793,7 @@ int main(int argc, char *argv[]) {
             logptr->setup_Chunk_node_caches(*(graphptr.get()));
         }
     }
+
     }
 
 #ifdef __DIRECTGRAPH2DIL__
@@ -909,10 +803,11 @@ int main(int argc, char *argv[]) {
 
         ERRHERE(".graph2dil");
         if (!graphptr) {
-            graphptr = std::make_unique<Graph>();
-            if (!load_Graph_pq(*graphptr, dbname)) {
-                EOUT << "\nSomething went wrong! Unable to Graph load from Postgres database.\n";
-                Exit_Now(exit_database_error);
+            ERRHERE(".loadGraph");
+            graphptr = d2g.ga.request_Graph_copy();
+            if (!graphptr) {
+                ADDERROR(__func__,"unable to load Graph");
+                d2g.exit(exit_database_error);
             }
             if ((logptr != nullptr) && (graphptr != nullptr)) {
                 logptr->setup_Entry_node_caches(*(graphptr.get())); // here we can do this!
@@ -923,8 +818,8 @@ int main(int argc, char *argv[]) {
         params.TLdirectory = DIRECTGRAPH2DIL_DIR;
         params.IndexPath = DIRECTGRAPH2DIL_DIR "/../graph2dil-lists.html";
         params.o = &VOUT;
-        params.from_idx = from_section;
-        params.to_idx = to_section;
+        params.from_idx = d2g.from_section;
+        params.to_idx = d2g.to_section;
         if (!interactive_Log2TL_conversion(*graphptr, *logptr, params)) {
             EOUT << "\nDirect conversion test back to Task Log files did not complete..\n";
             Exit_Now(exit_general_error);
@@ -934,10 +829,7 @@ int main(int argc, char *argv[]) {
     }
 #endif // __DIRECTGRAPH2DIL__
 
-    ERRHERE(".3");
-    VOUT << runnablename << " completed.\n";
-
-    Exit_Now(exit_ok);
+    return d2g.completed_ok();
 }
 
 /*

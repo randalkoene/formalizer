@@ -5,6 +5,11 @@
 
 SHELL=/usr/bin/bash
 
+# +----- begin: Output preconfigurations -----+
+STANDARD_STREAMS = -DFORMALIZER_BASE_OUT_OSTREAM_PTR=\&std::cout
+STANDARD_STREAMS += -DFORMALIZER_BASE_ERR_OSTREAM_PTR=\&std::cerr
+# +----- end  : Output preconfigurations -----+
+
 ##########################################################
 ## Compiler
 ## --------
@@ -16,7 +21,7 @@ CCPP=g++
 COMPILEDIRECTGRAPH2DIL = -D__DIRECTGRAPH2DIL__ -DDIRECTGRAPH2DIL_DIR=\"/var/www/html/formalizer/graph2dil\"
 OBJECTDIRECTGRAPH2DIL = ../graph2dil/obj/log2tl.o
 OBJECTDIRECTGRAPHDETECT = ../graph2dil/log2tl.cpp
-
+ 
 # Define (uncomment) the following to set a different precompiled default
 # output path for logtest.
 LOGTESTOUTPUTFILE = -DDEFAULT_LOGTEST_FILE=\"/var/www/html/formalizer/dil2graph-testlogdata.html\"
@@ -132,6 +137,7 @@ CPPFLAGS= $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(SAFEREGEX) $(INCLUDES)
 # +----- begin: Select Formalizer core library objects -----+
 CORE_OBJS = $(CORELIBPATH)/obj/error.o
 CORE_OBJS += $(CORELIBPATH)/obj/general.o
+CORE_OBJS += $(CORELIBPATH)/obj/standard.o
 CORE_OBJS += $(CORELIBPATH)/obj/templater.o
 CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
 CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
@@ -161,16 +167,16 @@ init: FORCE
 # add $(CPPTEMPWORKAROUND) as needed
 
 $(OBJ)/dil2al_minimal.o: dil2al_minimal.cpp dil2al_minimal.hpp version.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) -c dil2al_minimal.cpp -o $(OBJ)/dil2al_minimal.o
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c dil2al_minimal.cpp -o $(OBJ)/dil2al_minimal.o
 
 $(OBJ)/logtest.o: logtest.cpp logtest_templates.cpp logtest.hpp version.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) $(LOGTESTTEMPLATES) $(LOGTESTOUTPUTFILE) -c logtest.cpp -o $(OBJ)/logtest.o
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(LOGTESTTEMPLATES) $(LOGTESTOUTPUTFILE) -c logtest.cpp -o $(OBJ)/logtest.o
 
 $(OBJ)/tl2log.o: tl2log.cpp tl2log.hpp version.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) -c tl2log.cpp -o $(OBJ)/tl2log.o
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c tl2log.cpp -o $(OBJ)/tl2log.o
 
 $(OBJ)/dil2graph.o: dil2graph.cpp dil2graph.hpp version.hpp $(OBJ)/dil2al_minimal.o
-	$(CCPP) $(CPPFLAGS) $(COLORS) $(COMPILEDIRECTGRAPH2DIL) -c dil2graph.cpp -o $(OBJ)/dil2graph.o
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(COMPILEDIRECTGRAPH2DIL) -c dil2graph.cpp -o $(OBJ)/dil2graph.o
 
 $(OBJECTDIRECTGRAPH2DIL): $(OBJECTDIRECTGRAPHDETECT)
 	@echo 'log2tl code has changed - please recompile in ../graph2dil !'
