@@ -803,7 +803,7 @@ int main(int argc, char *argv[]) {
 #ifdef __DIRECTGRAPH2DIL__
     COMPILEDPING(std::cout,"PING-main.g2dtest\n");
     if (logptr) {
-        VOUT << "Now, let's try converting the Log right back into Tak Log files.\n";
+        VOUT << "\nNow, let's try converting the Log right back into Tak Log files.\n\n";
         key_pause();
 
         ERRHERE(".graph2dil");
@@ -832,8 +832,8 @@ int main(int argc, char *argv[]) {
             EOUT << "\nDirect conversion test back to Task Log files did not complete..\n";
             d2g.exit(exit_general_error);
         }
-        VOUT << "Direct conversion test back to Task Log files written to " << DIRECTGRAPH2DIL_DIR << '\n';
-        VOUT << "Hint: Try viewing it http://aether.local/formalizer/graph2dil/task-log.html\n";
+        VOUT << "\nDirect conversion test back to Task Log files written to " << DIRECTGRAPH2DIL_DIR << '\n';
+        VOUT << "Hint: Try viewing it http://aether.local/formalizer/graph2dil/task-log.html\n\n";
     }
 #endif // __DIRECTGRAPH2DIL__
 

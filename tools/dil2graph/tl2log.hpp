@@ -14,11 +14,13 @@
 
 #include "Logtypes.hpp"
 
+class Task_Log; // forward declaration instead of including dil2al.hh here
+
 using namespace fz;
 
 extern bool manual_decisions;
 
-Task_Log * get_Task_Log(ostream * o = nullptr);
+Task_Log * get_Task_Log(std::ostream * o = nullptr);
 
 unsigned int convert_TL_Chunk_to_Log_entries(Log & log, std::string chunktext);
 
@@ -26,6 +28,6 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl);
 
 std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion();
 
-void print_Log_metrics(Log & log, ostream & o, std::string indent);
+void print_Log_metrics(Log & log, std::ostream & o, std::string indent);
 
 #endif // __TL2LOG_HPP

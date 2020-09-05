@@ -10,18 +10,18 @@
  * For more development details, see the Trello card at https://trello.com/c/NNSWVRFf.
  */
 
-// needs these for the HTML output test samples of converted Log data
-//#include <nlohmann/json.hpp>
-//#include <inja/inja.hpp>
+// dil2al compatibility
+//#include "dil2al.hh"
 
-#include "dil2al.hh"
-
+// core
 #include "general.hpp"
+#include "standard.hpp"
 #include "TimeStamp.hpp"
-#include "tl2log.hpp"
 #include "templater.hpp"
 
-// special non-header include to keep compile time teamplates out of the way
+// local
+#include "tl2log.hpp"
+// special non-header include to keep compile time templates out of the way
 #include "logtest_templates.cpp"
 
 using namespace fz;
@@ -48,7 +48,7 @@ std::string testfilepath(DEFAULT_LOGTEST_FILE);
  */
 std::string sample_Chunk_HTML(render_environment & env, Log_chunk & chunk) {
     auto entrypointers = chunk.get_entries();
-    VOUT << "Adding sample chunk with " << entrypointers.size() << " entries.\n";
+    FZOUT("Adding sample chunk with "+std::to_string(entrypointers.size())+" entries.\n");
 
     std::string htmlentries;
     for (auto entryptr_it = entrypointers.begin(); entryptr_it != entrypointers.end(); ++entryptr_it) {
@@ -93,7 +93,7 @@ struct render_Breakpoint {
 
         std::string ymdstr(log.get_Breakpoint_Ymd_str(sample_idx));
         std::string TLfilename = "task-log."+ymdstr+".html";
-        VOUT << "Adding sample Breakpoint " << TLfilename << " entries.\n";
+        FZOUT("Adding sample Breakpoint "+TLfilename+" entries.\n");
 
         template_varvalues breakpointdata;
         breakpointdata.emplace("TLfile",TLfilename);
@@ -132,7 +132,7 @@ bool test_Log_data(Log & log) {
     template_varvalues testpagedata(tempinit);
 
     render_environment env;
-    VOUT << "Building test page.\n";
+    FZOUT("Building test page.\n");
 
     ERRHERE(".chunks");
     if (log.num_Chunks()>=1) {
@@ -153,14 +153,13 @@ bool test_Log_data(Log & log) {
         testpagedata.emplace("breakpoints",zerobreakpoints);
     }
 
-    VOUT << "Using test page template at: " << test_template_path << '\n';
-    //std::string testhtml = env.render_file(test_template_path,testpagedata);  // *** appears to be broken
+    FZOUT("Using test page template at: "+test_template_path+"\n\n");
     std::ifstream::iostate template_rdstate;
     std::string testhtml = env.render(string_from_file(test_template_path,&template_rdstate),testpagedata);
 
     if ((template_rdstate & std::ifstream::failbit & std::ifstream::badbit) == 0) {
-        VOUT << "Writing test page to " << testfilepath << '\n';
-        VOUT << "Hint: Try viewing it http://aether.local/formalizer/dil2graph-testlogdata.html\n";
+        FZOUT("Writing test page to "+testfilepath+'\n');
+        FZOUT("Hint: Try viewing it http://aether.local/formalizer/dil2graph-testlogdata.html\n");
         std::ofstream testfile(testfilepath, std::ofstream::out);
         testfile << testhtml;
         testfile.close();

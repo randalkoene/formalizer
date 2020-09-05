@@ -14,6 +14,7 @@
 
 //#define USE_COMPILEDPING
 
+// std
 //*** consider removing the next one and setting base.out and base.err to nullptr first
 #include <iostream>
 #include <stdlib.h>
@@ -21,6 +22,7 @@
 #include <ostream>
 #include <memory>
 
+// core
 #include "error.hpp"
 
 // *** The following will be removed once the fzserverpq is ready.

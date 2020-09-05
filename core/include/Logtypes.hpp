@@ -235,6 +235,9 @@ struct Log_chunks_Deque: public Log_chunk_ptr_deque {
     /// Get pointer to Log chunk by index. Returns nullptr if out of range.
     Log_chunk * get_chunk(Log_chunk_ptr_deque::size_type idx) const;
 
+    /// Find index of Log chunk pointer by ID key by brute force sequential search. Returns size() if not found.
+    Log_chunk_ptr_deque::size_type slow_find(const Log_chunk_ID_key chunk_id) const;
+
     /// Get index of Log chunk pointer by ID key. Returns size() if not found.
     Log_chunk_ptr_deque::size_type find(const Log_chunk_ID_key chunk_id) const;
 

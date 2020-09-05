@@ -8,6 +8,7 @@
  * For more development details, see the Trello card at https://trello.com/c/NNSWVRFf.
  */
 
+// std
 #include <ctime>
 #include <tuple>
 #include <iomanip>
@@ -15,7 +16,7 @@
 // dil2al compatibility
 #include "dil2al.hh"
 
-// Formalizer core
+// core
 #include "error.hpp"
 #include "standard.hpp"
 #include "general.hpp"
@@ -23,7 +24,7 @@
 #include "Graphtypes.hpp"
 #include "Logtypes.hpp"
 
-// Tool specific
+// local
 #include "tl2log.hpp"
 #include "dil2graph.hpp"
 #include "logtest.hpp"
@@ -203,18 +204,18 @@ unsigned int convert_TL_Chunk_to_Log_entries(Log & log, std::string chunktext) {
 }
 
 char manual_fix_choice(std::string chunkid_str, std::string nodeid_str, const char chunk_content[], int mins_duration) {
-    VOUT << "Chunk with invalid Node ID encountered. (interactive mode)\n";
-    VOUT << "  Chunk at: " << chunkid_str << " [" << mins_duration << " minutes]" << '\n';
-    VOUT << "  Invalid Node ID string: {" << nodeid_str << "}\n\n";
-    VOUT << "  -- Chunk content: --------------------------------------------------------------------\n";
-    VOUT << chunk_content << '\n';
-    VOUT << "  --------------------------------------------------------------------------------------\n";
-    VOUT << "Options:\n\n";
-    VOUT << "  L - connect the chunk to the Lost-and-Found Node [20200820215834.1]\n";
-    VOUT << "  S - specify a Node ID manually\n";
-    VOUT << "  E - eliminate the chunk\n";
-    VOUT << "  X - exit\n\n";
-    VOUT << "Your choice: ";
+    FZOUT("Chunk with invalid Node ID encountered. (interactive mode)\n");
+    FZOUT("  Chunk at: "+chunkid_str+" ["+std::to_string(mins_duration)+" minutes]\n");
+    FZOUT("  Invalid Node ID string: {"+nodeid_str+"}\n\n");
+    FZOUT("  -- Chunk content: --------------------------------------------------------------------\n");
+    FZOUT(chunk_content+'\n');
+    FZOUT("  --------------------------------------------------------------------------------------\n");
+    FZOUT("Options:\n\n");
+    FZOUT("  L - connect the chunk to the Lost-and-Found Node [20200820215834.1]\n");
+    FZOUT("  S - specify a Node ID manually\n");
+    FZOUT("  E - eliminate the chunk\n");
+    FZOUT("  X - exit\n\n");
+    FZOUT("Your choice: ");
     std::string enterstr;
     std::getline(cin, enterstr);
     char decision = enterstr[0];
@@ -305,7 +306,7 @@ const Node_ID convert_TL_DILref_to_Node_ID(TL_entry_content &TLentrycontent, Log
             decision = manual_fix_choice(chunkid_str, nodeid_str, TLentrycontent.htmltext.chars(), mins_duration);
 
         } else {
-            VOUT << "Chunk with invalid Node ID encountered. Applying automatic fix.\n";
+            FZOUT("Chunk with invalid Node ID encountered. Applying automatic fix.\n");
             std::string chunkcontent(TLentrycontent.htmltext.chars());
             std::size_t entrypos = chunkcontent.find("<!-- entry Begin");
             if (entrypos != std::string::npos) {
@@ -326,7 +327,7 @@ const Node_ID convert_TL_DILref_to_Node_ID(TL_entry_content &TLentrycontent, Log
 
         } else {
             if (decision == 's') {
-                VOUT << "\nAlternative Node ID: ";
+                FZOUT("\nAlternative Node ID: ");
                 std::string enterstr;
                 std::getline(cin, enterstr);
                 try {
@@ -336,7 +337,7 @@ const Node_ID convert_TL_DILref_to_Node_ID(TL_entry_content &TLentrycontent, Log
                     return alt_nodeid;
 
                 } catch (ID_exception idexception) {
-                    VOUT << "\nUnforuntately, that one was invalid as well.\n";
+                    FZOUT("\nUnforuntately, that one was invalid as well.\n");
                     ADDERROR(__func__, "invalid alternate Node ID (" + enterstr + ") provided by user at TL chunk [" + chunkid_str + "], " + idexception.what());
                     nodeid_result=-1;
                     return Null_node;
@@ -345,13 +346,13 @@ const Node_ID convert_TL_DILref_to_Node_ID(TL_entry_content &TLentrycontent, Log
             } else {
                 if (decision == 'e') {
                     ADDWARNING(__func__, "invalid Node ID in Log chunk [" + chunkid_str + "] eliminated per user instruction");
-                    VOUT << "\nEliminating that node.\n";
+                    FZOUT("\nEliminating that node.\n");
                     ++num_fixes_applied;
                     nodeid_result=0;
                     return Null_node;
 
                 } else {
-                    VOUT << "\nExiting.\n";
+                    FZOUT("\nExiting.\n");
                     ADDERROR(__func__, "invalid Node ID (" + nodeid_str + ") at TL chunk [" + chunkid_str + "], " + idexception.what());
                     nodeid_result=-1;
                     return Null_node;
@@ -458,21 +459,6 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
     log->get_Breakpoints().add_earlier_Breakpoint(*log->get_Chunks().front());
 
     ERRHERE(".chainbynode");
-    // Set up the `node_prev_chunk_id` and `node_next_chunk_id` parameters
-    // ***
-    VOUT << "\n*** PLEASE NOTE: Chaining by node is still broken!\n\n";
-    VOUT << "*** Some ideas:\n";
-    VOUT << "*** - Read the actual embedded ids as chaining info, store that.\n";
-    VOUT << "*** - To encode and return rapid-access chains and vectors of such,\n";
-    VOUT << "***   create a stuct that can hold both a pointer to a chunk or to an\n";
-    VOUT << "***   entry (e.g. in a union) and a flag to distinguish them.\n";
-    VOUT << "***   To build the rapid access lists, either rely on the TL\n";
-    VOUT << "***   data, or run thourgh both chunk and entry lists to generate\n";
-    VOUT << "***   correctly.";
-    VOUT << "*** - Probably start by replacing the id key and pointer parameters\n";
-    VOUT << "***   with union structs first to ensure that no functions that assumed\n";
-    VOUT << "***   simple pointers will work without correction.\n\n";
-    // ***
     log->setup_Chain_nodeprevnext();
 
     return log;
@@ -488,46 +474,47 @@ std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
     ERRHERE(".top");
     key_pause();
 
-    VOUT << "Let's prepare the Task Log for parsing:\n\n";
+    FZOUT("Let's prepare the Task Log for parsing:\n\n");
     ERRHERE(".prep");
 
     Task_Log * tl;
-    if (!(tl = get_Task_Log(&VOUT))) {
-        EOUT << "\nSomethihg went wrong! Unable to peruse Task Log.\n";
-        Exit_Now(exit_DIL_error);
+    if (!(tl = get_Task_Log(base.out))) {
+        FZERR("\nSomethihg went wrong! Unable to peruse Task Log.\n");
+        d2g.exit(exit_DIL_error);
     }
 
     if (!manual_decisions) {
-        VOUT << "\nPlease note that this conversion will attempt to apply fixes where those\n";
-        VOUT << "are feasible:\n";
-        VOUT << "  a. Log chunks with missing Node references will be attached to a\n";
-        VOUT << "     special 'Lost and Found' Node at id [20200820215834.1].\n";
-        VOUT << "  b. If such chunks do not contain Log entry tags, and if the chunk\n";
-        VOUT << "     duration is less than " << auto_eliminate_duration_threshold << " then the chunk is eliminated.\n";
-        VOUT << '\n';
+        FZOUT("\nPlease note that this conversion will attempt to apply fixes where those\n");
+        FZOUT("are feasible:\n");
+        FZOUT("  a. Log chunks with missing Node references will be attached to a\n");
+        FZOUT("     special 'Lost and Found' Node at id [20200820215834.1].\n");
+        FZOUT("  b. If such chunks do not contain Log entry tags, and if the chunk\n");
+        FZOUT("     duration is less than "+std::to_string(auto_eliminate_duration_threshold)+" then the chunk is eliminated.\n");
+        FZOUT('\n');
     }
 
     key_pause();
 
-    VOUT << "Now, let's convert the Task Log to Log format:\n\n"; VOUT.flush();
+    FZOUT("Now, let's convert the Task Log to Log format:\n\n");
+    if (base.out) base.out->flush();
     ERRHERE(".convert");
     //ConversionMetrics convmet;
     std::unique_ptr<Log> log(convert_TL_to_Log(tl));
     if (log == nullptr) {
-        EOUT << "\nSomething went wrong! Unable to convert to Log.\n";
-        Exit_Now(exit_conversion_error);
+        FZERR("\nSomething went wrong! Unable to convert to Log.\n");
+        d2g.exit(exit_conversion_error);
     }
-    VOUT << "\nTask Log converted to Log with " << log->num_Entries() << " entries.\n\n";
+    FZOUT("\nTask Log converted to Log with "+std::to_string(log->num_Entries())+" entries.\n\n");
 
-    VOUT << "Summary of Log metrics:\n\n";
-    print_Log_metrics(*log,VOUT,"\t");
+    FZOUT("Summary of Log metrics:\n\n");
+    print_Log_metrics(*log,*(base.out),"\t");
 
     key_pause();
 
     ERRHERE(".test");
     if (!test_Log_data(*log)) {
-        EOUT << "\nConverted Log data sampling test did not complete.\n";
-        Exit_Now(exit_conversion_error);
+        FZERR("\nConverted Log data sampling test did not complete.\n");
+        d2g.exit(exit_conversion_error);
     }
 
     return std::make_pair(tl, std::move(log));

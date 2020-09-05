@@ -72,6 +72,23 @@ void Log_by_Node_chainable::set_Node_next_ptr(Log_entry * nextptr) { // give nul
 }
 
 /**
+ * Slow brute force search for Log chunk by ID.
+ * 
+ * This one should work if the ID is in there, even if the IDs are not sorted
+ * correctly for some reason (i.e. if some IDs are not in correct temporal Log order).
+ * 
+ * @param chunk_id the Log chunk ID.
+ * @return the index in the list, or ::size() if not found.
+ */
+Log_chunk_ptr_deque::size_type Log_chunks_Deque::slow_find(const Log_chunk_ID_key chunk_id) const {
+    for (Log_chunk_ptr_deque::size_type idx = 0; idx < size(); ++idx) {
+        if (get_tbegin_key(idx) == chunk_id)
+            return idx;
+    }
+    return size();
+}
+
+/**
  * Find index of Log chunk from its ID.
  * 
  * This implementation attempts to be quick about it by relying on the sorted
@@ -101,7 +118,8 @@ Log_chunk_ptr_deque::size_type Log_chunks_Deque::find(const Log_chunk_ID_key chu
         }
 
         if (lowerbound > upperbound) {
-            return size(); // not found
+            return slow_find(chunk_id);
+            //return size(); // not found
         }
 
         tryidx = lowerbound + ((upperbound - lowerbound) / 2);

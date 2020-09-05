@@ -15,18 +15,18 @@
 // #include <iostream>
 // +----- end  : uncomment when debugging -----+
 
+// std
 #include <filesystem>
 #include <ostream>
 
-// needs these for the HTML output test samples of converted Log data
-//#include <nlohmann/json.hpp>
-//#include <inja/inja.hpp>
-
+// core
 #include "error.hpp"
 #include "general.hpp"
 #include "templater.hpp"
 #include "Logtypes.hpp"
 #include "Graphtypes.hpp"
+
+// local
 #include "log2tl.hpp"
 
 using namespace fz;
@@ -148,7 +148,7 @@ public:
 
         } else {
             yyyymmdd = log.get_Breakpoint_Ymd_str(bridx);
-            chunk_begin_idx = log.get_chunk_first_at_Breakpoint(bridx);
+            chunk_begin_idx = log.get_chunk_first_at_Breakpoint(bridx); // find the actual object
 
             if (chunk_begin_idx>=log.num_Chunks()) {
                 status = section_fist_chunk_not_found;
