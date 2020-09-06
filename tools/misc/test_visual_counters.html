@@ -1,0 +1,290 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Visual Counters</title>
+    <meta name="description" content="Visual Counters">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="css/styles.css?v=1.0">
+
+    <style>
+        .button {
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+
+        .fullsize {
+            background-color: #4CAF50;
+        }
+
+        /* Green */
+        .small {
+            background-color: #008CBA;
+        }
+
+        /* Blue */
+    </style>
+
+</head>
+
+<body>
+
+    <main>
+
+        <div id="addCounter"><button id="addNewCounter">ADD COUNTER&nbsp;</button></div>
+        <table>
+            <tr>
+
+
+                <div id="counter0" class="counter" data-counter="0">
+                    <td>
+                        <div class="tallyname" data-counter="0">Tally Counter</div>
+                        <div class="deleteCounter" data-counter="0"><button id="deleteCounter">DELETE
+                                COUNTER&nbsp;</button></div>
+                        <div class="count" data-counter="0">
+                            <div class="message" data-counter="0">&nbsp;</div>
+                            <div class="tally" data-counter="0">0</div>
+                        </div>
+                        <div class="tallybtns" data-counter="0">
+                            <div class="row" data-counter="0">
+                                <div class="subBtn leftElement" data-counter="0"><button
+                                        class="fullsize">SUBTRACT&nbsp;</button>
+                                    <button class="small">-&nbsp;</button></div>
+                                <div class="addBtn rightElement" data-counter="0"><button
+                                        class="fullsize">ADD&nbsp;</button>
+                                    <button class="small">+&nbsp;</button></div>
+                            </div>
+                            <div class="row reset" data-counter="0"><button class="resetCount fullsize centerElement"
+                                    type="button">RESET&nbsp;</button> <button class="resetCount small"
+                                    type="button">r&nbsp;</button>
+                            </div>
+                            <div class="row" data-counter="0">
+                                <div class="startVal leftElement" data-counter="0"><button
+                                        class="fullsize">STARTVAL&nbsp;</button>
+                                    <button class="small">init&nbsp;</button></div>
+                                <div class="startValueInput leftElement" data-counter="0">
+                                    <div class="inputDiv" data-counter="0"><input class="newStartValue" type="text"
+                                            maxlength="10" />
+                                        <div class="setInputBtn setStartValueBtn" data-counter="0"><button
+                                                class="fullsize">&nbsp;</button> <button class="small">&nbsp;</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="renameCounter rightElement" data-counter="0"><button
+                                        class="fullsize">RENAME&nbsp;</button>
+                                    <button class="small">name&nbsp;</button></div>
+                                <div class="renameInput rightElement" data-counter="0">
+                                    <div class="inputDiv" data-counter="0"><input class="renameInputValue" type="text"
+                                            maxlength="20" />
+                                        <div class="setInputBtn renameInputBtn" data-counter="0"><button
+                                                class="fullsize">SET&nbsp;</button> <button
+                                                class="small">set&nbsp;</button></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </div>
+
+            </tr>
+        </table>
+
+
+
+    </main>
+
+    <footer>
+
+    </footer>
+
+    <!-- <script src="js/scripts.js"></script> -->
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"
+        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        document.isSetError = false;
+        document.countval = 0;
+        document.countername = "TALLY COUNTER";
+        document.currCounterCount = 0;
+
+        function showMessage(counterID, msg, className, fadeOut) {
+            if (typeof (className) == "undefined") className = "";
+            if (typeof (fadeOut) == "undefined") fadeOut = false;
+            $(counterID + " .message").text(msg).removeClass("error").removeClass("green");
+            if (className != "") {
+                $(counterID + " .message").show().fadeIn("fast").addClass(className);
+            }
+            if (fadeOut) {
+                setTimeout(function () {
+                    $(counterID + " .message").fadeOut("slow");
+                }, 2000);
+            }
+        }
+
+        function clearMessage() {
+            $(".message").text("").removeClass("error").removeClass("green");
+        }
+
+        function changeStartValue(id) {
+            var isSetError = false;
+            var sv = $(id + " .newStartValue").val();
+            if (sv == "" || sv == null) sv = 0;
+            if (!$.isNumeric(sv)) {
+                isSetError = true;
+                showMessage(id, "Please enter numbers only.", "error");
+            } else {
+                sv = parseInt(sv);
+                if (sv < -99999999 || sv > 99999999) {
+                    isSetError = true;
+                    showMessage(id, "Too many digits.", "error");
+                }
+            }
+            if (!isSetError) {
+                countval = sv;
+                $(id + " .newStartValue").removeClass("error");
+                $(id + " .tally").text(countval);
+                $(id + " .startValueInput").hide();
+                $(id + " .startVal").show();
+            } else {
+                $(id + " .newStartValue").addClass("error");
+            }
+            return isSetError;
+        }
+
+        function changeCounterName(id) {
+            var isSetError = false;
+            var newName = $(id + " .renameInputValue").val();
+            if (newName == "" || newName == null) {
+                newName = "TALLY COUNTER";
+            }
+            if (!isSetError) {
+                $(id + " .renameInputValue").removeClass("error");
+                countername = newName;
+                $(id + " .tallyname").html(countername);
+                $(id + " .renameInput").hide();
+                $(id + " .renameCounter").show();
+            } else {
+                $(id + " .renameInputValue").addClass("error");
+            }
+            return isSetError;
+        }
+
+        function setElementDataVals(id, num) {
+            $(id).attr("data-counter", num);
+            $(id + " div").each(function () {
+                $(this).attr("data-counter", num);
+            });
+        }
+
+        function getCurrCounterID(ele) {
+            var num = $(ele).closest(".counter").attr("data-counter");
+            return "#counter" + num;
+        }
+
+        $(document).ready(function () {
+            countername = $(".tallyname").html();
+            setElementDataVals("#counter1", 1);
+            $(".deleteCounter").on("click", function () {
+                if (document.currCounterCount > 1) {
+                    id = getCurrCounterID($(this));
+                    $(id).remove();
+                }
+            });
+            //Counter Buttons
+            $(".addBtn").on("click", function () {
+                id = getCurrCounterID($(this));
+                countval = parseInt($(id + " .tally").text());
+                countval++;
+                $(id + " .tally").text(countval);
+            });
+            $(".subBtn").on("click", function () {
+                id = getCurrCounterID($(this));
+                countval = parseInt($(id + " .tally").text());
+                countval--;
+                $(id + " .tally").text(countval);
+            });
+            //Reset Button
+            $(".resetCount").on("click", function () {
+                id = getCurrCounterID($(this));
+                $(id + " .tally").text(0);
+                $(id + " .newStartValue").val(0);
+                showMessage(id, "Counter has been reset.", "green", true);
+            });
+            //Rename Button
+            $(".renameCounter").on("click", function () {
+                id = getCurrCounterID($(this));
+                $(this).hide();
+                $(id + " .renameInput").show();
+                $(id + " input.renameInputValue")[0].focus();
+                showMessage(id, "Enter the new name, then click SET.", "", false);
+            });
+            $(".renameInputBtn").on("click", function () {
+                id = getCurrCounterID($(this));
+                isSetError = changeCounterName(id);
+                if (!isSetError) {
+                    clearMessage();
+                    $(id + " .renameInput").hide();
+                    $(id + " .renameCounter").show();
+                }
+            });
+            //Start Value Button
+            $(".startVal").on("click", function () {
+                id = getCurrCounterID($(this));
+                $(this).hide();
+                $(id + " .startValueInput").show();
+                $(id + " input.newStartValue")[0].focus();
+                showMessage(id, "Enter the starting value, then click SET.", "", false);
+            });
+            $(".setStartValueBtn").on("click", function () {
+                id = getCurrCounterID($(this));
+                isSetError = changeStartValue(id);
+                if (!isSetError) {
+                    clearMessage();
+                    $(id + " .startValueInput").hide();
+                    $(id + " .startVal").show();
+                }
+            });
+            $('input').bind("enterKey", function (e) {
+                //do stuff here
+                console.log($(this).parent());
+                $(this).parent().find(".setInputBtn").click();
+            });
+            $('input').keyup(function (e) {
+                if (e.keyCode == 13) {
+                    $(this).trigger("enterKey");
+                }
+            });
+            //Add Another Counter Button
+            $("#addNewCounter").on("click", function () {
+                document.currCounterCount++;
+                var cID = "counter" + document.currCounterCount;
+                $("#counter0").clone(true).show().attr("id", cID)).insertAfter($("#addCounter");
+                //if ((document.currCounterCount % 2) == 0) {
+                //    $("</tr>\n<tr>\n", $("#counter0").clone(true).show().attr("id", cID)).insertAfter($("#addCounter"));
+                //} else {
+                //    $("#counter0").clone(true).show().attr("id", cID).insertAfter($("#addCounter"));
+                //}
+                setElementDataVals("#" + cID, document.currCounterCount);
+            });
+            // create item 1
+            //$("#addNewCounter").click();
+
+
+
+            //changeCounterName()
+        });
+    </script>
+
+</body>
+
+</html>
