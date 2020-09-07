@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classfz_1_1Log__by__Node__chainable.html" title="Base class for Log components that are chainable as belonging to a Node. " alt="" coords="5,5,188,32"/>
+<area shape="rect" id="node2" href="$classfz_1_1Log__chunk.html" title="fz::Log_chunk" alt="" coords="236,5,340,32"/>
+<area shape="rect" id="node3" href="$classfz_1_1Log__entry.html" title="fz::Log_entry" alt="" coords="239,56,337,83"/>
+<area shape="rect" id="node4" href="$classfz_1_1Log__data.html" title="Log data base class providing shared parameters and functions. " alt="" coords="49,56,144,83"/>
+</map>

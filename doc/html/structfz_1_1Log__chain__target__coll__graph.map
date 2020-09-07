@@ -1,0 +1,19 @@
+<map id="fz::Log_chain_target" name="fz::Log_chain_target">
+<area shape="rect" id="node6" href="$classfz_1_1Log__by__Node__chainable.html" title="Base class for Log components that are chainable as belonging to a Node. " alt="" coords="696,169,879,196"/>
+<area shape="rect" id="node2" href="$structfz_1_1Log__target.html" title="fz::Log_target\&lt; Log\l_chunk_ID_key, Log_chunk \&gt;" alt="" coords="1196,111,1392,153"/>
+<area shape="rect" id="node3" href="$structfz_1_1Log__chunk__ID__key.html" title="fz::Log_chunk_ID_key" alt="" coords="429,221,583,248"/>
+<area shape="rect" id="node11" href="$classfz_1_1Log__chunk__ID.html" title="fz::Log_chunk_ID" alt="" coords="725,233,850,260"/>
+<area shape="rect" id="node4" href="$structfz_1_1Log__TimeStamp.html" title="fz::Log_TimeStamp" alt="" coords="205,221,341,248"/>
+<area shape="rect" id="node12" href="$structfz_1_1Log__entry__ID__key.html" title="fz::Log_entry_ID_key" alt="" coords="714,489,861,516"/>
+<area shape="rect" id="node5" href="$classfz_1_1Log__chunk.html" title="fz::Log_chunk" alt="" coords="997,339,1101,365"/>
+<area shape="rect" id="node17" href="$classfz_1_1Log__entry.html" title="fz::Log_entry" alt="" coords="1245,400,1343,427"/>
+<area shape="rect" id="node7" href="$classfz_1_1Log__data.html" title="Log data base class providing shared parameters and functions. " alt="" coords="740,424,835,451"/>
+<area shape="rect" id="node8" href="$classfz_1_1Node__ID.html" title="fz::Node_ID" alt="" coords="459,360,553,387"/>
+<area shape="rect" id="node13" href="$classfz_1_1Node.html" title="fz::Node" alt="" coords="751,292,823,319"/>
+<area shape="rect" id="node9" href="$structfz_1_1Node__ID__key.html" title="fz::Node_ID_key" alt="" coords="213,481,334,508"/>
+<area shape="rect" id="node10" href="$structfz_1_1ID__TimeStamp.html" title="fz::ID_TimeStamp" alt="" coords="5,481,135,508"/>
+<area shape="rect" id="node16" href="$structfz_1_1Log__target.html" title="fz::Log_target\&lt; Log\l_entry_ID_key, Log_entry \&gt;" alt="" coords="1460,393,1644,434"/>
+<area shape="rect" id="node18" href="$classfz_1_1Log__entry__ID.html" title="fz::Log_entry_ID" alt="" coords="989,488,1108,515"/>
+<area shape="rect" id="node14" href="$classfz_1_1Graph.html" title="fz::Graph" alt="" coords="468,272,544,299"/>
+<area shape="rect" id="node15" href="$classfz_1_1Topic__Tags.html" title="fz::Topic_Tags" alt="" coords="219,272,328,299"/>
+</map>
