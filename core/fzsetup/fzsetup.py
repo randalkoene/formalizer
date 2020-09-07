@@ -9,11 +9,15 @@
 import os
 import sys
 sys.path.append(os.getenv('HOME')+'/src/formalizer/core/lib')
+sys.path.append(os.getenv('HOME')+'/src/formalizer/core/include')
 
 import argparse
 import subprocess
 
 import Graphpostgres
+import coreversion
+
+version = "0.1.0-0.1"
 
 config = {
     'verbose' : False
@@ -118,6 +122,11 @@ def make_binaries_available():
 
 
 if __name__ == '__main__':
+
+    core_version = coreversion.coreversion()
+    server_long_id = f"Formalizer:Setup v{version} (core v{core_version})"
+
+    print(server_long_id)
 
     parser = argparse.ArgumentParser(description='Setup or refresh a Formalizer environment.')
     parser.add_argument('-A', '--All', dest='doall', action="store_true", help='do all setup steps, ensure environment is ready')

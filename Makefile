@@ -34,6 +34,7 @@ EXECUTABLES += $(TOOLSPATH)/graph2dil/graph2dil
 EXECUTABLES += $(TOOLSPATH)/requestmanual/requestmanual.py
 EXECUTABLES += $(TOOLSPATH)/dil2graph/dil2graph
 EXECUTABLES += $(TOOLSPATH)/earlywiz/earlywiz.py
+EXECUTABLES += $(TOOLSPATH)/fzguide.system/fzguide.system
 EXECUTABLES += $(TOOLSPATH)/nodeboard/nodeboard
 
 CGIEXE = $(COREPATH)/fzquerypq/fzquerypq
