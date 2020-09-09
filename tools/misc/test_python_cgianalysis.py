@@ -27,12 +27,16 @@ if __name__ == '__main__':
         print('<B>Command : ', thecmd, '<BR><BR>')
         print('Result : <BR><BR>')
         try:
-            p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
-            (child_stdin,child_stdout) = (p.stdin, p.stdout)
+            p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,stderr=PIPE,close_fds=True, universal_newlines=True)
+            (child_stdin,child_stdout,child_stderr) = (p.stdin, p.stdout, p.stderr)
             child_stdin.close()
             result = child_stdout.read()
             child_stdout.close()
+            errresult = child_stderr.read()
+            child_stderr.close()
             print(result.replace('\n', '<BR>'))
+            print('<HR>\nSTDERR output:\n<BR>\n')
+            print(errresult.replace('\n', '<BR>'))
 
         except Exception as ex:                
             print(ex)

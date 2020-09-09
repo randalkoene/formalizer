@@ -12,6 +12,9 @@ CC=gcc
 CCPP=g++ 
 ##########################################################
 
+DEFAULTDBNAME=-DDEFAULT_DBNAME=\"formalizer\"
+DEFAULTSCHEMA=-DDEFAULT_PQ_SCHEMANAME=\"$(USER)\"
+
 FORMALIZERPATH=$(HOME)/src/formalizer
 COREINCLUDEPATH=$(FORMALIZERPATH)/core/include
 CORELIBPATH=$(FORMALIZERPATH)/core/lib
@@ -114,7 +117,7 @@ $(OBJ)/error.o: error.cpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c error.cpp -o $(OBJ)/error.o
 
 $(OBJ)/standard.o: standard.cpp $(INC)/standard.hpp
-	$(CCPP) $(CPPFLAGS) -c standard.cpp -o $(OBJ)/standard.o
+	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c standard.cpp -o $(OBJ)/standard.o
 
 $(OBJ)/general.o: general.cpp $(INC)/general.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c general.cpp -o $(OBJ)/general.o
@@ -145,7 +148,7 @@ $(OBJ)/Logtypes.o: Logtypes.cpp $(INC)/Logtypes.hpp $(INC)/Graphtypes.hpp $(INC)
 
 $(OBJ)/Graphpostgres.o: Graphpostgres.cpp $(INC)/Graphpostgres.hpp $(INC)/Graphtypes.hpp \
 						$(INC)/general.hpp $(INC)/error.hpp
-	$(CCPP) $(CPPFLAGS) -c Graphpostgres.cpp -o $(OBJ)/Graphpostgres.o
+	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c Graphpostgres.cpp -o $(OBJ)/Graphpostgres.o
 
 $(OBJ)/Logpostgres.o: Logpostgres.cpp $(INC)/Logpostgres.hpp $(INC)/Logtypes.hpp \
 						$(INC)/general.hpp $(INC)/error.hpp

@@ -176,6 +176,7 @@ class Graph; // forward declaration
  */
 struct Graph_access {
     std::string dbname;
+    std::string pq_schemaname;
 
     bool is_server; /// authoritative server programs should set this flag
 
@@ -190,8 +191,8 @@ struct Graph_access {
     Graph_access(std::string & add_option_args_here, std::string & add_usage_top_here, bool _isserver = false): is_server(_isserver) {
         COMPILEDPING(std::cout, "PING-Graph_access().1\n");
         // This is better called just before a Graph request: graph_access_initialize();
-        add_option_args_here += "d:";
-        add_usage_top_here += " [-d <dbname>]";
+        add_option_args_here += "d:s:";
+        add_usage_top_here += " [-d <dbname>] [-s <schemaname>]";
     }
 
     void usage_hook();
@@ -200,6 +201,7 @@ struct Graph_access {
 
 protected:
     void dbname_error();
+    void schemaname_error();
 public:
     void graph_access_initialize();
 

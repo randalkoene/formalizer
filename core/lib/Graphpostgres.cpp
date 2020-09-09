@@ -41,7 +41,12 @@ Simulate_PQ_Changes SimPQ;
 
 /// Table layout for Graph structure with Nodes and Edges
 
-std::string pq_schemaname(DEFAULT_PQ_SCHEMANAME);
+// This can be provided at compile-time with a -D option.
+#ifndef DEFAULT_PQ_SCHEMANAME
+    #define DEFAULT_PQ_SCHEMANAME "formalizeruser"
+#endif
+
+//std::string pq_schemaname(DEFAULT_PQ_SCHEMANAME); // This is now in standard.hpp
 
 std::string pq_enum_td_property("('unspecified','inherit','variable','fixed','exact')");
 std::string pq_enum_td_pattern("('patt_daily','patt_workdays','patt_weekly','patt_biweekly','patt_monthly','patt_endofmonthoffset','patt_yearly','OLD_patt_span','patt_nonperiodic')");
@@ -216,14 +221,15 @@ int sample_query_data(PGconn *conn, unsigned int rstart, unsigned int rend, unsi
 }
 
 /**
- * Create a new databased schema for Formalizer data.
+ * Create a new database schema for Formalizer data.
  * 
  * @param conn active database connection.
+ * @param schemaname Formalizer schema name (usually Graph_access::pq_schemaname)
  * @return true if schema was successfully created.
  */
-bool create_Formalizer_schema_pq(PGconn* conn) {
+bool create_Formalizer_schema_pq(PGconn* conn, std::string schemaname) {
     ERRHERE(".1");
-    std::string pq_makeschema("CREATE SCHEMA "+pq_schemaname);
+    std::string pq_makeschema("CREATE SCHEMA "+schemaname);
     return simple_call_pq(conn,pq_makeschema);
 }
 
@@ -231,14 +237,15 @@ bool create_Formalizer_schema_pq(PGconn* conn) {
  * Create enumerated types in database for Node and Edge data.
  * 
  * @param conn active database connection.
+ * @param schemaname Formalizer schema name (usually Graph_access::pq_schemaname)
  * @return true if types were successfully created.
  */
-bool create_Enum_Types_pq(PGconn* conn) {
+bool create_Enum_Types_pq(PGconn* conn, std::string schemaname) {
     ERRHERE(".1");
-    std::string pq_maketype("CREATE TYPE "+pq_schemaname+".td_property AS ENUM "+pq_enum_td_property);
+    std::string pq_maketype("CREATE TYPE "+schemaname+".td_property AS ENUM "+pq_enum_td_property);
     if (!simple_call_pq(conn,pq_maketype)) return false;
     ERRHERE(".2");
-    pq_maketype = "CREATE TYPE "+pq_schemaname+".td_pattern AS ENUM "+pq_enum_td_pattern;
+    pq_maketype = "CREATE TYPE "+schemaname+".td_pattern AS ENUM "+pq_enum_td_pattern;
     return simple_call_pq(conn,pq_maketype);
 }
 
@@ -246,11 +253,12 @@ bool create_Enum_Types_pq(PGconn* conn) {
  * Create a new database table for Topics.
  * 
  * @param conn active database connection.
+ * @param schemaname Formalizer schema name (usually Graph_access::pq_schemaname)
  * @return true if table was successfully created.
  */
-bool create_Topics_table_pq(PGconn *conn) {
+bool create_Topics_table_pq(PGconn *conn, std::string schemaname) {
     ERRHERE(".1");
-    std::string pq_maketable("CREATE TABLE "+pq_schemaname+".Topics ("+pq_topiclayout+')');
+    std::string pq_maketable("CREATE TABLE "+schemaname+".Topics ("+pq_topiclayout+')');
     return simple_call_pq(conn,pq_maketable);
 }
 
@@ -258,17 +266,18 @@ bool create_Topics_table_pq(PGconn *conn) {
  * Create a new database table for Nodes.
  * 
  * @param conn active database connection.
+ * @param schemaname Formalizer schema name (usually Graph_access::pq_schemaname)
  * @return true if table was successfully created.
  */
-bool create_Nodes_table_pq(PGconn* conn) {
+bool create_Nodes_table_pq(PGconn* conn, std::string schemaname) {
     ERRHERE(".1");
     // modify the node layout to include the schema name in the user defined type names
     auto pos1 = pq_nodelayout.find("td_property");
-    std::string pqnlayout(pq_nodelayout.substr(0,pos1)+pq_schemaname+'.');
+    std::string pqnlayout(pq_nodelayout.substr(0,pos1)+schemaname+'.');
     auto pos2 = pq_nodelayout.find("td_pattern",pos1+3);
-    pqnlayout += pq_nodelayout.substr(pos1,pos2-pos1)+pq_schemaname+'.';
+    pqnlayout += pq_nodelayout.substr(pos1,pos2-pos1)+schemaname+'.';
     pqnlayout += pq_nodelayout.substr(pos2);
-    std::string pq_maketable("CREATE TABLE "+pq_schemaname+".Nodes ("+pqnlayout+')');
+    std::string pq_maketable("CREATE TABLE "+schemaname+".Nodes ("+pqnlayout+')');
     return simple_call_pq(conn,pq_maketable);
 }
 
@@ -276,41 +285,42 @@ bool create_Nodes_table_pq(PGconn* conn) {
  * Create a new database table for Edges.
  * 
  * @param conn active database connection.
+ * @param schemaname Formalizer schema name (usually Graph_access::pq_schemaname)
  * @return true if table was successfully created.
  */
-bool create_Edges_table_pq(PGconn* conn) {
+bool create_Edges_table_pq(PGconn* conn, std::string schemaname) {
     ERRHERE(".1");
-    std::string pq_maketable("CREATE TABLE "+pq_schemaname+".Edges ("+pq_edgelayout+')');
+    std::string pq_maketable("CREATE TABLE "+schemaname+".Edges ("+pq_edgelayout+')');
     return simple_call_pq(conn,pq_maketable);
 }
 
-bool add_Topic_pq(PGconn *conn, const Topic *topic) {
+bool add_Topic_pq(PGconn *conn, std::string schemaname, const Topic *topic) {
     ERRHERE(".1");
     if (!topic)
         ERRRETURNFALSE(__func__, "unable to add a NULL Topic");
 
     Topic_pq tpq(topic);
-    std::string tstr("INSERT INTO "+pq_schemaname + ".Topics VALUES "+ tpq.All_Topic_Data_pqstr());
+    std::string tstr("INSERT INTO "+schemaname + ".Topics VALUES "+ tpq.All_Topic_Data_pqstr());
     return simple_call_pq(conn,tstr);
 }
 
-bool add_Node_pq(PGconn *conn, const Node *node) {
+bool add_Node_pq(PGconn *conn, std::string schemaname, const Node *node) {
     ERRHERE(".1");
     if (!node)
         ERRRETURNFALSE(__func__, "unable to add a NULL Node");
 
     Node_pq npq(node);
-    std::string nstr("INSERT INTO " + pq_schemaname + ".Nodes VALUES " + npq.All_Node_Data_pqstr());
+    std::string nstr("INSERT INTO " + schemaname + ".Nodes VALUES " + npq.All_Node_Data_pqstr());
     return simple_call_pq(conn, nstr);
 }
 
-bool add_Edge_pq(PGconn *conn, const Edge *edge) {
+bool add_Edge_pq(PGconn *conn, std::string schemaname, const Edge *edge) {
     ERRHERE(".1");
     if (!edge)
         ERRRETURNFALSE(__func__, "unable to add a NULL Edge");
 
     Edge_pq epq(edge);
-    std::string estr("INSERT INTO " + pq_schemaname + ".Edges VALUES " + epq.All_Edge_Data_pqstr());
+    std::string estr("INSERT INTO " + schemaname + ".Edges VALUES " + epq.All_Edge_Data_pqstr());
     return simple_call_pq(conn, estr);
 }
 
@@ -319,10 +329,11 @@ bool add_Edge_pq(PGconn *conn, const Edge *edge) {
  * 
  * @param graph a Graph containing all of the Nodes and Edges.
  * @param dbname database name.
+ * @param schemaname Formalizer schema name (usually Graph_access::pq_schemaname)
  * @param progress_func points to an optional progress indicator function.
  * @returns true if the Graph was successfully stored in the database.
  */
-bool store_Graph_pq(const Graph& graph, std::string dbname, void (*progress_func)(unsigned long, unsigned long)) {
+bool store_Graph_pq(const Graph& graph, std::string dbname, std::string schemaname, void (*progress_func)(unsigned long, unsigned long)) {
     ERRHERE(".setup");
     PGconn* conn = connection_setup_pq(dbname);
     if (!conn) return false;
@@ -331,43 +342,43 @@ bool store_Graph_pq(const Graph& graph, std::string dbname, void (*progress_func
     #define STORE_GRAPH_PQ_RETURN(r) { PQfinish(conn); return r; }
 
     ERRHERE(".schema");
-    if (!create_Formalizer_schema_pq(conn)) STORE_GRAPH_PQ_RETURN(false);
+    if (!create_Formalizer_schema_pq(conn, schemaname)) STORE_GRAPH_PQ_RETURN(false);
 
     ERRHERE(".enum");
-    if (!create_Enum_Types_pq(conn)) STORE_GRAPH_PQ_RETURN(false);
+    if (!create_Enum_Types_pq(conn, schemaname)) STORE_GRAPH_PQ_RETURN(false);
 
     ERRHERE(".topicstable");
-    if (!create_Topics_table_pq(conn)) STORE_GRAPH_PQ_RETURN(false);
+    if (!create_Topics_table_pq(conn, schemaname)) STORE_GRAPH_PQ_RETURN(false);
 
     ERRHERE(".topics");
     unsigned long n = graph.get_topics().get_topictags().size();
     unsigned long ncount = 0;
     for (auto topic = graph.get_topics().get_topictags().begin(); topic != graph.get_topics().get_topictags().end(); ++topic) {
-        if (!add_Topic_pq(conn,(*topic))) STORE_GRAPH_PQ_RETURN(false);
+        if (!add_Topic_pq(conn, schemaname,(*topic))) STORE_GRAPH_PQ_RETURN(false);
         ncount++;
         if (progress_func) (*progress_func)(n,ncount);
     }
 
     ERRHERE(".nodestable");
-    if (!create_Nodes_table_pq(conn)) STORE_GRAPH_PQ_RETURN(false);
+    if (!create_Nodes_table_pq(conn, schemaname)) STORE_GRAPH_PQ_RETURN(false);
 
     ERRHERE(".nodes");
     n = graph.num_Nodes();
     ncount = 0;
     for (auto node = graph.begin_Nodes(); node != graph.end_Nodes(); ++node) {
-        if (!add_Node_pq(conn,node->second)) STORE_GRAPH_PQ_RETURN(false);
+        if (!add_Node_pq(conn, schemaname,node->second)) STORE_GRAPH_PQ_RETURN(false);
         ncount++;
         if (progress_func) (*progress_func)(n,ncount);
     }
 
     ERRHERE(".edgestable");
-    if (!create_Edges_table_pq(conn)) STORE_GRAPH_PQ_RETURN(false);
+    if (!create_Edges_table_pq(conn, schemaname)) STORE_GRAPH_PQ_RETURN(false);
 
     ERRHERE(".edges");
     n = graph.num_Edges();
     ncount = 0;
     for (auto edge = graph.begin_Edges(); edge != graph.end_Edges(); ++edge) {
-        if (!add_Edge_pq(conn,edge->second)) STORE_GRAPH_PQ_RETURN(false);
+        if (!add_Edge_pq(conn, schemaname,edge->second)) STORE_GRAPH_PQ_RETURN(false);
         ncount++;
         if (progress_func) (*progress_func)(n,ncount);
     }
@@ -508,8 +519,8 @@ std::vector<Topic_Keyword> keyrel_from_pq(std::string keywordstr, std::string re
     return krels;
 }
 
-bool read_Topics_pq(PGconn* conn, Topic_Tags & topictags) {
-    if (!query_call_pq(conn,"SELECT * FROM "+pq_schemaname+".topics ORDER BY "+pq_topic_fieldnames[pqt_id],false)) return false;
+bool read_Topics_pq(PGconn* conn, std::string schemaname, Topic_Tags & topictags) {
+    if (!query_call_pq(conn,"SELECT * FROM "+schemaname+".topics ORDER BY "+pq_topic_fieldnames[pqt_id],false)) return false;
 
     //sample_query_data(conn,0,4,0,100,tmpout);
 
@@ -627,8 +638,8 @@ td_pattern tdpattern_from_pq(std::string pqtdpattern) {
     }
 }
 
-bool read_Nodes_pq(PGconn* conn, Graph & graph) {
-    if (!query_call_pq(conn,"SELECT * FROM "+pq_schemaname+".nodes ORDER BY "+pq_node_fieldnames[pqn_id],false)) return false;
+bool read_Nodes_pq(PGconn* conn, std::string schemaname, Graph & graph) {
+    if (!query_call_pq(conn,"SELECT * FROM "+schemaname+".nodes ORDER BY "+pq_node_fieldnames[pqn_id],false)) return false;
 
     //sample_query_data(conn,0,4,0,100,tmpout);
   
@@ -682,8 +693,8 @@ bool read_Nodes_pq(PGconn* conn, Graph & graph) {
     return true;
 }
 
-bool read_Edges_pq(PGconn* conn, Graph & graph) {
-    if (!query_call_pq(conn,"SELECT * FROM "+pq_schemaname+".edges ORDER BY "+pq_edge_fieldnames[pqe_id],false)) return false;
+bool read_Edges_pq(PGconn* conn, std::string schemaname, Graph & graph) {
+    if (!query_call_pq(conn,"SELECT * FROM "+schemaname+".edges ORDER BY "+pq_edge_fieldnames[pqe_id],false)) return false;
 
     //sample_query_data(conn,0,4,0,100,tmpout);
 
@@ -725,10 +736,11 @@ bool read_Edges_pq(PGconn* conn, Graph & graph) {
  * Load all the Nodes, Edges and Topics of the Graph from the PostgreSQL database.
  * 
  * @param graph a Graph for the Nodes and Edges, etc, typically empty.
- * @param dbname database name. 
+ * @param dbname database name.
+ * @param schemaname Formalizer schema name (usually Graph_access::pq_schemaname) 
  * @returns true if the Graph was successfully loaded from the database.
  */
-bool load_Graph_pq(Graph& graph, std::string dbname) {
+bool load_Graph_pq(Graph& graph, std::string dbname, std::string schemaname) {
 
     ERRHERE(".setup");
     PGconn* conn = connection_setup_pq(dbname);
@@ -739,13 +751,13 @@ bool load_Graph_pq(Graph& graph, std::string dbname) {
 
     ERRHERE(".topics");
     Topic_Tags * Ttags = const_cast<Topic_Tags *>(&graph.get_topics()); // explicitly make this modifiable here
-    if (!read_Topics_pq(conn,*Ttags)) LOAD_GRAPH_PQ_RETURN(false);
+    if (!read_Topics_pq(conn,schemaname, *Ttags)) LOAD_GRAPH_PQ_RETURN(false);
 
     ERRHERE(".nodes");
-    if (!read_Nodes_pq(conn,graph)) LOAD_GRAPH_PQ_RETURN(false);
+    if (!read_Nodes_pq(conn,schemaname, graph)) LOAD_GRAPH_PQ_RETURN(false);
 
     ERRHERE(".edges");
-    if (!read_Edges_pq(conn,graph)) LOAD_GRAPH_PQ_RETURN(false);
+    if (!read_Edges_pq(conn,schemaname, graph)) LOAD_GRAPH_PQ_RETURN(false);
 
     LOAD_GRAPH_PQ_RETURN(true);
 
@@ -762,12 +774,13 @@ bool load_Graph_pq(Graph& graph, std::string dbname) {
  * SQL row numbering convention).
  * 
  * @param dbname the Postgres database.
+ * @param schemaname Formalizer schema name (usually Graph_access::pq_schemaname)
  * @param param the enumerated parameter identifier.
  * @param from_row the first row in the interval, counting from 0.
  * @param num_rows the number of rows in the intervial.
  * @return a vector with string elements, one for each row.
  */
-std::vector<std::string> load_Node_parameter_interval(std::string dbname, pq_Nfields param, unsigned long from_row, unsigned long num_rows) {
+std::vector<std::string> load_Node_parameter_interval(std::string dbname, std::string schemaname, pq_Nfields param, unsigned long from_row, unsigned long num_rows) {
     std::vector<std::string> v;
     if (param>=_pqn_NUM) {
         ADDERROR(__func__,"unknown pq_Nfields enumerated parameter ("+std::to_string(param)+')');
@@ -784,8 +797,8 @@ std::vector<std::string> load_Node_parameter_interval(std::string dbname, pq_Nfi
     PGresult *res = NULL;
     int rows = 0;
     // Instead of "LIMIT n" this could use "FETCH FIRST n ROW ONLY".
-    //if (query_call_pq(conn, "SELECT "+pq_node_fieldnames[param]+" FROM " + pq_schemaname + ".nodes OFFSET "+std::to_string(from_row)+" LIMIT "+std::to_string(num_rows), false)) {
-    if (query_call_pq(conn, "SELECT "+pq_node_fieldnames[param]+" FROM " + pq_schemaname + ".nodes ORDER BY "+pq_node_fieldnames[pqn_id]+" OFFSET "+std::to_string(from_row)+" LIMIT "+std::to_string(num_rows), false)) {
+    //if (query_call_pq(conn, "SELECT "+pq_node_fieldnames[param]+" FROM " + schemaname + ".nodes OFFSET "+std::to_string(from_row)+" LIMIT "+std::to_string(num_rows), false)) {
+    if (query_call_pq(conn, "SELECT "+pq_node_fieldnames[param]+" FROM " + schemaname + ".nodes ORDER BY "+pq_node_fieldnames[pqn_id]+" OFFSET "+std::to_string(from_row)+" LIMIT "+std::to_string(num_rows), false)) {
         res = PQgetResult(conn);
         if (res) {
             rows = PQntuples(res);
@@ -813,12 +826,13 @@ std::vector<std::string> load_Node_parameter_interval(std::string dbname, pq_Nfi
  * SQL row numbering convention).
  * 
  * @param dbname the Postgres database.
+ * @param schemaname the Formalizer schema name (usually provided by Graph_access::pq_schemaname)
  * @param param the enumerated parameter identifier.
  * @param from_row the first row in the interval, counting from 0.
  * @param num_rows the number of rows in the intervial.
  * @return a vector with string elements, one for each row.
  */
-std::vector<std::string> load_Edge_parameter_interval(std::string dbname, pq_Efields param, unsigned long from_row, unsigned long num_rows) {
+std::vector<std::string> load_Edge_parameter_interval(std::string dbname, std::string schemaname, pq_Efields param, unsigned long from_row, unsigned long num_rows) {
     std::vector<std::string> v;
     if (param>=_pqe_NUM) {
         ADDERROR(__func__,"unknown pq_Efields enumerated parameter ("+std::to_string(param)+')');
@@ -835,8 +849,8 @@ std::vector<std::string> load_Edge_parameter_interval(std::string dbname, pq_Efi
     PGresult *res = NULL;
     int rows = 0;
     // Instead of "LIMIT n" this could use "FETCH FIRST n ROW ONLY".
-    //if (query_call_pq(conn, "SELECT "+pq_node_fieldnames[param]+" FROM " + pq_schemaname + ".nodes OFFSET "+std::to_string(from_row)+" LIMIT "+std::to_string(num_rows), false)) {
-    if (query_call_pq(conn, "SELECT "+pq_edge_fieldnames[param]+" FROM " + pq_schemaname + ".edges ORDER BY "+pq_edge_fieldnames[pqe_id]+" OFFSET "+std::to_string(from_row)+" LIMIT "+std::to_string(num_rows), false)) {
+    //if (query_call_pq(conn, "SELECT "+pq_node_fieldnames[param]+" FROM " + schemaname + ".nodes OFFSET "+std::to_string(from_row)+" LIMIT "+std::to_string(num_rows), false)) {
+    if (query_call_pq(conn, "SELECT "+pq_edge_fieldnames[param]+" FROM " + schemaname + ".edges ORDER BY "+pq_edge_fieldnames[pqe_id]+" OFFSET "+std::to_string(from_row)+" LIMIT "+std::to_string(num_rows), false)) {
         res = PQgetResult(conn);
         if (res) {
             rows = PQntuples(res);

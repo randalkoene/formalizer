@@ -15,12 +15,12 @@
         .button {
             border: none;
             color: white;
-            padding: 15px 32px;
+            padding: 30px 64px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
+            font-size: 20px;
+            margin: 8px 4px;
             cursor: pointer;
         }
 
@@ -34,6 +34,14 @@
         }
 
         /* Blue */
+
+        table {
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
     </style>
 
 </head>
@@ -43,13 +51,17 @@
     <main>
 
         <div id="addCounter"><button id="addNewCounter">ADD COUNTER&nbsp;</button></div>
-        <table>
-            <tr>
+        <P>
 
+        </P>
 
-                <div id="counter0" class="counter" data-counter="0">
-                    <td>
+        <table id="countersTable">
+            <tbody>
+                <tr>
+
+                    <td id="counter0" class="counter" data-counter="0">
                         <div class="tallyname" data-counter="0">Tally Counter</div>
+                        <p></p>
                         <div class="deleteCounter" data-counter="0"><button id="deleteCounter">DELETE
                                 COUNTER&nbsp;</button></div>
                         <div class="count" data-counter="0">
@@ -58,12 +70,13 @@
                         </div>
                         <div class="tallybtns" data-counter="0">
                             <div class="row" data-counter="0">
+                                <div class="addBtn rightElement" data-counter="0"><button
+                                    class="fullsize">ADD&nbsp;</button>
+                                <button class="small">+&nbsp;</button></div>
+                                <P></P>
                                 <div class="subBtn leftElement" data-counter="0"><button
                                         class="fullsize">SUBTRACT&nbsp;</button>
                                     <button class="small">-&nbsp;</button></div>
-                                <div class="addBtn rightElement" data-counter="0"><button
-                                        class="fullsize">ADD&nbsp;</button>
-                                    <button class="small">+&nbsp;</button></div>
                             </div>
                             <div class="row reset" data-counter="0"><button class="resetCount fullsize centerElement"
                                     type="button">RESET&nbsp;</button> <button class="resetCount small"
@@ -77,7 +90,7 @@
                                     <div class="inputDiv" data-counter="0"><input class="newStartValue" type="text"
                                             maxlength="10" />
                                         <div class="setInputBtn setStartValueBtn" data-counter="0"><button
-                                                class="fullsize">&nbsp;</button> <button class="small">&nbsp;</button>
+                                                class="fullsize">SET&nbsp;</button> <button class="small">set&nbsp;</button>
                                         </div>
                                     </div>
                                 </div>
@@ -89,18 +102,17 @@
                                             maxlength="20" />
                                         <div class="setInputBtn renameInputBtn" data-counter="0"><button
                                                 class="fullsize">SET&nbsp;</button> <button
-                                                class="small">set&nbsp;</button></div>
+                                                class="small">set&nbsp;</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <p></p>
                     </td>
-                </div>
-
-            </tr>
+                </tr>
+            </tbody>
         </table>
-
-
 
     </main>
 
@@ -179,6 +191,9 @@
             return isSetError;
         }
 
+        /// Set all the `data-counter` references numbers within the #counterN div-block to the same id value.
+        /// @param id is a reference such as #counter0, #counter1
+        /// @param num is a counter number (0, 1, 2, etc)
         function setElementDataVals(id, num) {
             $(id).attr("data-counter", num);
             $(id + " div").each(function () {
@@ -186,6 +201,7 @@
             });
         }
 
+        /// Identify which #counter0 (reference) an element belongs to based on its `data-counter` id setting.
         function getCurrCounterID(ele) {
             var num = $(ele).closest(".counter").attr("data-counter");
             return "#counter" + num;
@@ -195,9 +211,10 @@
             countername = $(".tallyname").html();
             setElementDataVals("#counter1", 1);
             $(".deleteCounter").on("click", function () {
-                if (document.currCounterCount > 1) {
+                if (document.currCounterCount > 0) {
                     id = getCurrCounterID($(this));
                     $(id).remove();
+                    document.currCounterCount--;
                 }
             });
             //Counter Buttons
@@ -265,23 +282,47 @@
                 }
             });
             //Add Another Counter Button
-            $("#addNewCounter").on("click", function () {
-                document.currCounterCount++;
-                var cID = "counter" + document.currCounterCount;
-                $("#counter0").clone(true).show().attr("id", cID)).insertAfter($("#addCounter");
-                //if ((document.currCounterCount % 2) == 0) {
-                //    $("</tr>\n<tr>\n", $("#counter0").clone(true).show().attr("id", cID)).insertAfter($("#addCounter"));
-                //} else {
-                //    $("#counter0").clone(true).show().attr("id", cID).insertAfter($("#addCounter"));
-                //}
-                setElementDataVals("#" + cID, document.currCounterCount);
-            });
+            $("#addNewCounter").on("click",
+                function () {
+                    var prevID = "counter" + document.currCounterCount;
+                    document.currCounterCount++;
+                    var cID = "counter" + document.currCounterCount;
+                    // Place cloned counter block after the #addCounter container (i.e. prepend before existing blocks)
+                    var theRow = Math.floor(document.currCounterCount / 2);
+                    var theCell = document.currCounterCount % 2;
+                    if (theCell == 0) {
+                        var tableRef = document.getElementById('countersTable').getElementsByTagName('tbody')[0];
+                        var newRow = tableRef.insertRow(theRow);
+                        var newCell = newRow.insertCell(theCell);
+                        newCell.id = "cell"+cID; // give this DOM object an ID, so that the jQuery reference can find it
+                        let newCounter = ($("#counter0").clone(true).show());
+                        newCounter.attr("id", cID);
+                        $("#cell"+cID).append(newCounter);
+                    } else {
+                        var tableRef = document.getElementById('countersTable').getElementsByTagName('tbody')[0];
+                        var RowEl = tableRef.rows[theRow];
+                        var newCell = RowEl.insertCell(theCell);
+                        newCell.id = "cell"+cID; // give this DOM object an ID, so that the jQuery reference can find it
+                        let newCounter = ($("#counter0").clone(true).show());
+                        newCounter.attr("id", cID);
+                        $("#cell"+cID).append(newCounter);
+                    }
+                    //$("#counter0").clone(true).show().attr("id", cID).insertAfter($("#" + prevID));
+                    setElementDataVals("#" + cID, document.currCounterCount);
+
+                }
+            );
             // create item 1
-            //$("#addNewCounter").click();
+            $("#addNewCounter").click();
+            // create item 2
+            $("#addNewCounter").click();
+            // create item 3
+            $("#addNewCounter").click();
 
-
-
-            //changeCounterName()
+            $("#counter0 .tallyname").html("ANSWERED");
+            $("#counter1 .tallyname").html("PROCESSED");
+            $("#counter2 .tallyname").html("SORTED");
+            $("#counter3 .tallyname").html("DELETED");
         });
     </script>
 

@@ -33,12 +33,17 @@ print('<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">')
 print("<title>Test Prototype: Request a Node and Log Chunk</title>")
 print("</head>")
 print("<body>")
+
+thisscript = os.path.realpath(__file__)
+print(f'(For dev reference, this script is at {thisscript}.)')
+
 print("<h1>Test Prototype: Request a Node and Log Chunk</h1>\n<p></p>")
 print("<h2>Node %s and Log Chunk %s</h2>" % (node_id, logchunk_id))
 print("<table>")
 
 if node_id:
-    thecmd = "./fzquerypq -q -d randalk -n "+node_id+" -E STDOUT -F html"
+    thecmd = "./fzquerypq -q -d formalizer -s randalk -n "+node_id+" -E STDOUT -F html"
+    print('Using this command: ',thecmd)
     try:
         p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
         (child_stdin,child_stdout) = (p.stdin, p.stdout)
