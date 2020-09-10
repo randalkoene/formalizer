@@ -44,7 +44,7 @@ CGIEXE += $(TOOLSPATH)/logentry-form/logentry-form.py
 
 .PHONY: FORCE
 
-all: init executables
+all: init executables doxygen
 
 init: FORCE
 	@echo '-------------------------------------------------------------------'
@@ -57,6 +57,9 @@ executables: $(EXECUTABLES)
 	mkdir -p $(EXEDIR)
 	ln -f -s $(EXECUTABLES) $(EXEDIR)/
 	ln -f -s $(CGIEXE) $(CGIDIR)/
+
+doxygen: FORCE
+	doxygen Doxyfile
 
 clean:
 	rm -f $(EXEDIR)/*

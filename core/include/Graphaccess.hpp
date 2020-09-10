@@ -5,12 +5,12 @@
  * This header file declares standard Graph access structures and functionss that should be
  * used when a standardized Formalizer C++ program needs Graph access.
  * 
- * Versioning is based on https://semver.org/ and the C++ headers define ___GRAPHACCESS_HPP.
+ * Versioning is based on https://semver.org/ and the C++ headers define __GRAPHACCESS_HPP.
  */
 
-#ifndef ___GRAPHACCESS_HPP
+#ifndef __GRAPHACCESS_HPP
 #include "coreversion.hpp"
-#define ___GRAPHACCESS_HPP (__COREVERSION_HPP)
+#define __GRAPHACCESS_HPP (__COREVERSION_HPP)
 
 //#define USE_COMPILEDPING
 
@@ -74,4 +74,4 @@ public:
 
 } // namespace fz
 
-#endif // ___GRAPHACCESS_HPP
+#endif // __GRAPHACCESS_HPP

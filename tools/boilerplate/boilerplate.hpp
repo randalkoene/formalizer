@@ -17,9 +17,9 @@
 using namespace fz;
 
 enum flow_options {
-    flow_unknown = 0, /// no recognized request
-    flow_cpp = 1,     /// request: make boilerplate for C++ program
-    flow_python = 2,  /// request: make boilerplate for Python program
+    flow_unknown = 0, ///< no recognized request
+    flow_cpp = 1,     ///< request: make boilerplate for C++ program
+    flow_python = 2,  ///< request: make boilerplate for Python program
     flow_NUMoptions
 };
 
@@ -33,8 +33,18 @@ struct boilerplate: public formalizer_standard_program {
 
     virtual bool options_hook(char c, std::string cargs);
 
+    void init_top(int argc, char *argv[]);
+
 };
 
 extern boilerplate bp;
+
+bool ask_boolean_choice(std::string description, char truechar, std::string trueconfirm, std::string falseconfirm);
+
+std::string ask_string_input(std::string description, bool allowempty);
+
+std::string formalizer_path_dir(std::string compname, std::string category, bool iscore, bool islibrary, bool isheader);
+
+void careful_file_create(std::string filename, std::string & filecontent);
 
 #endif // __BOILERPLATE_HPP

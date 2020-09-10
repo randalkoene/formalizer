@@ -30,6 +30,8 @@ COREINCLUDEPATH=$(FORMALIZERPATH)/core/include
 CORELIBPATH=$(FORMALIZERPATH)/core/lib
 FORMALIZERPATH_THIS=$(FORMALIZERPATH)/tools/boilerplate
 
+FORMALIZERROOT = -DFORMALIZER_ROOT=\"$(FORMALIZERPATH)\"
+
 TEMPLATEDIR = -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\" 
 
 INC=$(COREINCLUDEPATH)
@@ -144,10 +146,10 @@ $(OBJ)/cpp_boilerplate.o: cpp_boilerplate.cpp boilerplate.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c cpp_boilerplate.cpp -o $(OBJ)/cpp_boilerplate.o
 
 $(OBJ)/boilerplate.o: boilerplate.cpp boilerplate.hpp version.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c boilerplate.cpp -o $(OBJ)/boilerplate.o
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(FORMALIZERROOT) -c boilerplate.cpp -o $(OBJ)/boilerplate.o
 
 boilerplate: $(OBJ)/boilerplate.o $(OBJ)/cpp_boilerplate.o $(CORE_OBJS)
-	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $^ -o boilerplate $(LIB_PATH)
+	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $(FORMALIZERROOT) $^ -o boilerplate $(LIB_PATH)
 
 clean:
 	cp -f boilerplate boilerplate.bak

@@ -32,6 +32,8 @@ struct {{ this }}: public formalizer_standard_program {
 
     virtual bool options_hook(char c, std::string cargs);
 
+    void init_top(int argc, char *argv[]);
+
 };
 
 extern {{ this }} {{ th }};
