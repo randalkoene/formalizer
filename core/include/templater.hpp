@@ -12,7 +12,9 @@
 #include "coreversion.hpp"
 #define __TEMPLATER_HPP (__COREVERSION_HPP)
 
+// std
 #include <string>
+#include <vector>
 #include <map>
 
 namespace fz {

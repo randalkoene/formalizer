@@ -33,7 +33,8 @@ struct nodeboard: public formalizer_standard_program {
         ga.usage_hook();
     }
 
-    virtual bool options_hook(char c, char * cargs) {
+    virtual bool options_hook(char c, std::string cargs) {
+
         if (ga.options_hook(c,cargs))
             return true;
 

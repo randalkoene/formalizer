@@ -29,12 +29,13 @@ EXECUTABLES = $(COREPATH)/fzquerypq/fzquerypq
 EXECUTABLES += $(COREPATH)/fzserverpq/fzserverpq
 EXECUTABLES += $(COREPATH)/fzsetup/fzsetup.py
 
+EXECUTABLES += $(TOOLSPATH)/boilerplate/boilerplate
 EXECUTABLES += $(TOOLSPATH)/compat/dil2al-polldaemon.sh
 EXECUTABLES += $(TOOLSPATH)/graph2dil/graph2dil
 EXECUTABLES += $(TOOLSPATH)/requestmanual/requestmanual.py
 EXECUTABLES += $(TOOLSPATH)/dil2graph/dil2graph
 EXECUTABLES += $(TOOLSPATH)/earlywiz/earlywiz.py
-EXECUTABLES += $(TOOLSPATH)/fzguide.system/fzguide.system
+# EXECUTABLES += $(TOOLSPATH)/fzguide.system/fzguide.system
 EXECUTABLES += $(TOOLSPATH)/nodeboard/nodeboard
 
 CGIEXE = $(COREPATH)/fzquerypq/fzquerypq
@@ -54,7 +55,7 @@ init: FORCE
 
 executables: $(EXECUTABLES)
 	mkdir -p $(EXEDIR)
-	ln -s $(EXECUTABLES) $(EXEDIR)/
+	ln -f -s $(EXECUTABLES) $(EXEDIR)/
 	ln -f -s $(CGIEXE) $(CGIDIR)/
 
 clean:

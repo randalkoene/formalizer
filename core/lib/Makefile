@@ -131,6 +131,9 @@ $(OBJ)/ReferenceTime.o: ReferenceTime.cpp $(INC)/ReferenceTime.hpp $(INC)/error.
 $(OBJ)/TimeStamp.o: TimeStamp.cpp $(INC)/TimeStamp.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c TimeStamp.cpp -o $(OBJ)/TimeStamp.o
 
+$(OBJ)/Graphaccess.o: Graphaccess.cpp $(INC)/Graphaccess.hpp $(INC)/standard.hpp
+	$(CCPP) $(CPPFLAGS) -c Graphaccess.cpp -o $(OBJ)/Graphaccess.o
+
 $(OBJ)/dilaccess.o: dilaccess.cpp $(INC)/dilaccess.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -I$(DIL2AL) -c dilaccess.cpp -o $(OBJ)/dilaccess.o
 

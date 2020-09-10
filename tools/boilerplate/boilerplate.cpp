@@ -15,39 +15,49 @@
 
 #define FORMALIZER_MODULE_ID "Formalizer:Development:AutoGeneration:Init"
 
+// std
 #include <iostream>
 
+// core
 #include "version.hpp"
 #include "error.hpp"
 #include "standard.hpp"
-#include "templater.html"
+
+// local
+#include "boilerplate.hpp"
+#include "cpp_boilerplate.hpp"
 
 using namespace fz;
 
-struct boilerplate: public formalizer_standard_program {
+boilerplate bp;
 
-    boilerplate(): {
-        //add_option_args += "n:";
-        //add_usage_top += " [-n <Node-ID>]";
-    }
+boilerplate::boilerplate() {
+    add_option_args += "T:";
+    add_usage_top += " [-T <target>]";
+}
 
-    virtual void usage_hook() {
-        
-    }
+void boilerplate::usage_hook() {
+    FZOUT("    -T target (language): cpp, python\n");        
+}
 
-    virtual bool options_hook(char c, char * cargs) {
-        //if (ga.options_hook(c,cargs))
-        //    return true;
+bool boilerplate::options_hook(char c, std::string cargs) {
 
-        /*
-        switch (c) {
+    switch (c) {
 
+    case 'T':
+        if (cargs == "cpp") {
+            flowcontrol = flow_cpp;
+            return true;
         }
-        */
+        if (cargs == "python") {
+            flowcontrol = flow_python;
+            return true;
+        }
 
-       return false;
     }
-} bp;
+
+    return false;
+}
 
 int main(int argc, char *argv[]) {
     bp.init(argc,argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
@@ -57,8 +67,12 @@ int main(int argc, char *argv[]) {
 
     switch (bp.flowcontrol) {
 
-    case flow_: {
-        ;
+    case flow_cpp: {
+        return make_cpp_boilerplate();
+    }
+
+    case flow_python: {
+
         break;
     }
 
