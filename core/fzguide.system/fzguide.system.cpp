@@ -51,7 +51,7 @@ std::map<fgs_subsection,const std::string> subsectiontag = {
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzguide_system::fzguide_system(): section(fgs_am), subsection(fgs_wakeup), decimalidx(1.0), flowcontrol(flow_unknown), pa(add_option_args, add_usage_top, true) {
-    add_option_args += "SRAPU:i:";
+    add_option_args += "SRAPU:x:i:";
     add_usage_top += " <-S|-R> [-A|-P] [-U <subsection>] [-x <idx>] [-i <inputfile>]";
 }
 
@@ -119,6 +119,7 @@ bool fzguide_system::options_hook(char c, std::string cargs) {
         if (idx_float<=0.0)
             return false;
         decimalidx = idx_float;
+        return true;
     }
 
     case 'i': {
@@ -154,6 +155,7 @@ std::string Guide_snippet_system::all_values_pqstr() const {
 
 
 int store_snippet() {
+    VERBOSEOUT("Collecting snippet to store to the System Guide...\n\n");
     Guide_snippet_system snippet;
     if (fgs.source.empty()) { // from STDIN
         if (!stream_to_string(std::cin,snippet.snippet)) {
@@ -171,7 +173,7 @@ int store_snippet() {
     snippet.subsection = subsectiontag[fgs.subsection];
     snippet.idxstr = to_precision_string(fgs.decimalidx,1);
 
-    if (!store_Guide_snippet_pq(snippet, fgs.pa.dbname, fgs.pa.pq_schemaname)) {
+    if (!store_Guide_snippet_pq(snippet, fgs.pa)) {
         ADDERROR(__func__,"unable to store snippet");
         fgs.exit(exit_database_error);
     }
@@ -181,9 +183,6 @@ int store_snippet() {
 
 int main(int argc, char *argv[]) {
     fgs.init_top(argc, argv);
-
-    FZOUT("\nThis a the stub.\n\n");
-    key_pause();
 
     switch (fgs.flowcontrol) {
 

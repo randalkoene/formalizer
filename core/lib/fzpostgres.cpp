@@ -249,4 +249,32 @@ void Postgres_access::schemaname_error() {
     standard.exit(exit_database_error);
 }
 
+void Postgres_access::access_initialize() {
+    COMPILEDPING(std::cout,"PING-access_initialize()\n");
+    if (dbname.empty()) { // attempt to get a default
+        dbname = DEFAULT_DBNAME;
+        /* See how this was clarified and changed in https://trello.com/c/Lww33Lym.
+        char *username = std::getenv("USER");
+        if (username)
+            dbname = username;
+        */
+    }
+    if (pq_schemaname.empty()) { // attempt to get a default
+        char *username = std::getenv("USER");
+        if (username)
+            pq_schemaname = username;
+    }
+
+    if (dbname.empty())
+        dbname_error();
+    if (pq_schemaname.empty())
+        schemaname_error();
+
+    if (!standard.quiet) {
+        FZOUT("Postgres database selected: "+dbname+'\n');
+        FZOUT("Postgres schema selected  : "+pq_schemaname+'\n');
+    }
+}
+
+
 } // namespace fz

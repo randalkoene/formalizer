@@ -13,33 +13,6 @@
 
 namespace fz {
 
-void Graph_access::graph_access_initialize() {
-    COMPILEDPING(std::cout,"PING-graph_access_initialize()\n");
-    if (dbname.empty()) { // attempt to get a default
-        dbname = DEFAULT_DBNAME;
-        /* See how this was clarified and changed in https://trello.com/c/Lww33Lym.
-        char *username = std::getenv("USER");
-        if (username)
-            dbname = username;
-        */
-    }
-    if (pq_schemaname.empty()) { // attempt to get a default
-        char *username = std::getenv("USER");
-        if (username)
-            pq_schemaname = username;
-    }
-
-    if (dbname.empty())
-        dbname_error();
-    if (pq_schemaname.empty())
-        schemaname_error();
-
-    if (!standard.quiet) {
-        FZOUT("Postgres database selected: "+dbname+'\n');
-        FZOUT("Postgres schema selected  : "+pq_schemaname+'\n');
-    }
-}
-
 #ifdef TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE
 
 /**
@@ -54,7 +27,7 @@ std::unique_ptr<Graph> Graph_access::request_Graph_copy() {
         FZOUT("\n*** Please replace that with access through fzserverpq as soon as possible!\n\n");
     }
 
-    graph_access_initialize();
+    access_initialize();
 
     std::unique_ptr<Graph> graphptr = std::make_unique<Graph>();
 

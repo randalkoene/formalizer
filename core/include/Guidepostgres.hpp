@@ -43,9 +43,9 @@ struct Guide_snippet {
 
 };
 
-bool create_Guide_table(PGconn* conn, const std::string schemaname, const std::string guidetable, const std::string guidetablelayout);
+bool create_Guide_table(const active_pq & apq, const std::string guidetable, const std::string guidetablelayout);
 
-bool store_Guide_snippet_pq(const Guide_snippet & snippet, std::string dbname, std::string schemaname);
+bool store_Guide_snippet_pq(const Guide_snippet & snippet, Postgres_access & pa);
 
 } // namespace fz
 

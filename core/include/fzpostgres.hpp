@@ -95,6 +95,9 @@ extern Simulate_PQ_Changes SimPQ;
 struct active_pq {
     PGconn* conn;
     std::string pq_schemaname;
+
+    active_pq(): conn(nullptr) {}
+    active_pq(PGconn * _conn, std::string _schemaname): conn(_conn), pq_schemaname(_schemaname) {}
 };
 
 /**
@@ -120,6 +123,8 @@ struct Postgres_access {
         add_option_args_here += "d:s:";
         add_usage_top_here += " [-d <dbname>] [-s <schemaname>]";
     }
+
+    void access_initialize(); ///< Call this before attempting to open a database connection.
 
     void usage_hook();
 

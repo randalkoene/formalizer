@@ -53,8 +53,6 @@ struct Graph_access: public Postgres_access {
     //void usage_hook(); // *** presently identical to Postgres_access::usage_hook()
     //bool options_hook(char c, std::string cargs); // *** presently identical to Postgres_access::options_hook()
 
-    void graph_access_initialize();
-
 #ifdef TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE
 public:
     std::unique_ptr<Graph> request_Graph_copy();
