@@ -36,5 +36,7 @@ var searchData=
   ['get_5ftopictags',['get_topictags',['../classfz_1_1Topic__Tags.html#adc63576bdcdc06685a7d58ed43c097f4',1,'fz::Topic_Tags']]],
   ['graph',['Graph',['../classfz_1_1Graph.html',1,'fz::Graph'],['../classfz_1_1Node.html#a26c8aa7f2980338364cce5f38550c4fb',1,'fz::Node::graph()']]],
   ['graph2dil',['graph2dil',['../structgraph2dil.html',1,'']]],
-  ['graph_5faccess',['Graph_access',['../structfz_1_1Graph__access.html',1,'fz::Graph_access'],['../structfz_1_1Graph__access.html#afdb454c7d36764bdca602196802402f7',1,'fz::Graph_access::Graph_access()']]]
+  ['graph_5faccess',['Graph_access',['../structfz_1_1Graph__access.html',1,'fz::Graph_access'],['../structfz_1_1Graph__access.html#afdb454c7d36764bdca602196802402f7',1,'fz::Graph_access::Graph_access()']]],
+  ['guide_5fsnippet',['Guide_snippet',['../structfz_1_1Guide__snippet.html',1,'fz']]],
+  ['guide_5fsnippet_5fsystem',['Guide_snippet_system',['../structGuide__snippet__system.html',1,'']]]
 ];

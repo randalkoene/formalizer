@@ -1,7 +1,7 @@
 // Copyright 2020 Randal A. Koene
 // License TBD
 
-/**
+/** @file standard.hpp
  * This header file declares standard structures and functions that should be used with
  * any standardized Formalizer C++ program.
  * 
@@ -36,12 +36,24 @@
     #define FORMALIZER_BASE_ERR_OSTREAM_PTR (nullptr)
 #endif
 
-/// Utility macros
+/**
+ * Utility macros for regular and verbose out and err streams.
+ * 
+ * - Use `FZOUT(s)` to stream out to `base.out`.
+ * - Use `FZERR(s)` to stream out to `base.err`.
+ * - Use `VERBOSEOUT(s)` to stream out to `base.out` when `standard.quiet==false`.
+ * - Use `VERBOSEERR(s)` to stream out to `base.err` when `standard.quiet==false`.
+ */
 #define FZOUT(s) { if (base.out) (*base.out) << s; }
 #define FZERR(s) { if (base.err) (*base.err) << s; }
+#define VERBOSEOUT(s) { if ((base.out) && (!standard.quiet)) (*base.out) << s; }
+#define VERBOSEERR(s) { if ((base.err) && (!standard.quiet)) (*base.err) << s; }
 
 namespace fz {
 
+/**
+ * Standardized exit codes for the Formalizer environment.
+ */
 enum exit_status_code {
     exit_ok,
     exit_general_error,
@@ -53,7 +65,7 @@ enum exit_status_code {
     exit_unable_to_stack_clean_exit,
     exit_command_line_error,
     exit_file_error,
-    exit_NUMENUMS // this one simplifies corresponding array definition, e.g. char[exit_NUMENUMS]
+    exit_NUMENUMS ///< this one simplifies corresponding array definition, e.g. char[exit_NUMENUMS]
     };
 
 void error_summary_wrapper();

@@ -1,4 +1,5 @@
 <map id="nodeboard" name="nodeboard">
-<area shape="rect" id="node2" href="$structfz_1_1formalizer__standard__program.html" title="fz::formalizer_standard\l_program" alt="" coords="5,5,160,47"/>
-<area shape="rect" id="node3" href="$structfz_1_1Graph__access.html" title="fz::Graph_access" alt="" coords="184,13,309,39"/>
+<area shape="rect" id="node2" href="$structfz_1_1formalizer__standard__program.html" title="This structure registers a standard object with a set of expected parameters and functions for any st..." alt="" coords="5,81,160,123"/>
+<area shape="rect" id="node3" href="$structfz_1_1Graph__access.html" title="A standardized way to access the Graph database. " alt="" coords="184,89,309,115"/>
+<area shape="rect" id="node4" href="$structfz_1_1Postgres__access.html" title="A standardized way to access the Formalizer database. " alt="" coords="175,5,318,32"/>
 </map>

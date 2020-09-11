@@ -75,14 +75,17 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>Standardized Formalizer <a class="el" href="classfz_1_1Edge.html">Edge</a> ID key.  
+ <a href="structfz_1_1Edge__ID__key.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="Graphtypes_8hpp_source.html">Graphtypes.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Collaboration diagram for fz::Edge_ID_key:</div>
 <div class="dyncontent">
 <div class="center"><img src="structfz_1_1Edge__ID__key__coll__graph.png" border="0" usemap="#fz_1_1Edge__ID__key_coll__map" alt="Collaboration graph"/></div>
 <map name="fz_1_1Edge__ID__key_coll__map" id="fz_1_1Edge__ID__key_coll__map">
-<area shape="rect" id="node2" href="structfz_1_1Node__ID__key.html" title="fz::Node_ID_key" alt="" coords="9,95,131,121"/>
-<area shape="rect" id="node3" href="structfz_1_1ID__TimeStamp.html" title="fz::ID_TimeStamp" alt="" coords="5,5,135,32"/>
+<area shape="rect" id="node2" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. " alt="" coords="9,95,131,121"/>
+<area shape="rect" id="node3" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. " alt="" coords="5,5,135,32"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -103,6 +106,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stru
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;</b> (const <a class="el" href="structfz_1_1Edge__ID__key.html">Edge_ID_key</a> &amp;rhs) const</td></tr>
 <tr class="separator:a4e2669950d6e23b45bd168ac785bdf03"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aabdfeb86cbc08b2ad106e50c556227b0"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Edge__ID__key.html#aabdfeb86cbc08b2ad106e50c556227b0">str</a> () const</td></tr>
+<tr class="memdesc:aabdfeb86cbc08b2ad106e50c556227b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert <a class="el" href="classfz_1_1Edge.html">Edge</a> ID key into standardized <a class="el" href="classfz_1_1Edge.html">Edge</a> ID stamp.  <a href="#aabdfeb86cbc08b2ad106e50c556227b0">More...</a><br /></td></tr>
 <tr class="separator:aabdfeb86cbc08b2ad106e50c556227b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
@@ -121,9 +125,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>identical_Edge_ID_key
 <tr class="separator:a52cfbb7f0291848aac9a700078711738"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Standardized Formalizer <a class="el" href="classfz_1_1Edge.html">Edge</a> ID key.</p>
+<div class="textblock"><p>Standardized Formalizer <a class="el" href="classfz_1_1Edge.html">Edge</a> ID key. </p>
 <p>The principal constructors (all but the default constructor) each call a validity test for the key format of each key (dep and sup), and can throw an <a class="el" href="classfz_1_1ID__exception.html" title="Declared here for reference before further detailing. ">ID_exception</a>.</p>
-<p>In various containers, the ordering of <a class="el" href="classfz_1_1Edge.html">Edge</a> ID keys is determined by the provided operator&lt;(). It uses std::tie() to sequentially call its equivalent in <a class="el" href="structfz_1_1ID__TimeStamp.html">ID_TimeStamp</a> for sup and then for dep, where std::tie() is used again to enable lexicographical comparison, from the largest temporal component to the smallest.</p>
+<p>In various containers, the ordering of <a class="el" href="classfz_1_1Edge.html">Edge</a> ID keys is determined by the provided operator&lt;(). It uses std::tie() to sequentially call its equivalent in <a class="el" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. ">ID_TimeStamp</a> for sup and then for dep, where std::tie() is used again to enable lexicographical comparison, from the largest temporal component to the smallest.</p>
 <p>The default constructor is provided for various special use cases such as initialization of containers. The <code><a class="el" href="structfz_1_1Edge__ID__key.html#ab66bfeba70180fac92a555cf2468e7fc" title="standardization functions and operators ">isnullkey()</a></code> function can test for this special state. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="aabdfeb86cbc08b2ad106e50c556227b0"></a>
@@ -148,7 +152,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>identical_Edge_ID_key
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Convert <a class="el" href="classfz_1_1Edge.html">Edge</a> ID key into standardized <a class="el" href="classfz_1_1Edge.html">Edge</a> ID stamp.</p>
+
+<p>Convert <a class="el" href="classfz_1_1Edge.html">Edge</a> ID key into standardized <a class="el" href="classfz_1_1Edge.html">Edge</a> ID stamp. </p>
 <dl class="section return"><dt>Returns</dt><dd>a string with the <a class="el" href="classfz_1_1Edge.html">Edge</a> ID stamp (or NODE_NULLKEY_STR). </dd></dl>
 
 </div>

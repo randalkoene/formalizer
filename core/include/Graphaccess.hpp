@@ -20,6 +20,7 @@
 
 // core
 //#include "error.hpp"
+#include "fzpostgres.hpp"
 
 // *** The following will be removed once the fzserverpq is ready.
 #define TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE
@@ -34,11 +35,7 @@ class Graph; // forward declaration
  *       code to provide direct access to the Postgres database, which is
  *       not advisable and will be replaced.
  */
-struct Graph_access {
-    std::string dbname;
-    std::string pq_schemaname;
-
-    bool is_server; /// authoritative server programs should set this flag
+struct Graph_access: public Postgres_access {
 
     /**
      * Carry out initializations needed to enable access to the Graph data structure.
@@ -48,21 +45,14 @@ struct Graph_access {
      * @param add_usage_top_here receiving string where the option format is appended
      *                           to extend the top line of usage output.
      */
-    Graph_access(std::string & add_option_args_here, std::string & add_usage_top_here, bool _isserver = false): is_server(_isserver) {
+    Graph_access(std::string & add_option_args_here, std::string & add_usage_top_here, bool _isserver = false): Postgres_access(add_option_args_here,add_usage_top_here,_isserver) {
         //COMPILEDPING(std::cout, "PING-Graph_access().1\n");
         // This is better called just before a Graph request: graph_access_initialize();
-        add_option_args_here += "d:s:";
-        add_usage_top_here += " [-d <dbname>] [-s <schemaname>]";
     }
 
-    void usage_hook();
+    //void usage_hook(); // *** presently identical to Postgres_access::usage_hook()
+    //bool options_hook(char c, std::string cargs); // *** presently identical to Postgres_access::options_hook()
 
-    bool options_hook(char c, std::string cargs);
-
-protected:
-    void dbname_error();
-    void schemaname_error();
-public:
     void graph_access_initialize();
 
 #ifdef TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE

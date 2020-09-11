@@ -79,14 +79,14 @@ Collaboration diagram for fz::Edge:</div>
 <div class="dyncontent">
 <div class="center"><img src="classfz_1_1Edge__coll__graph.png" border="0" usemap="#fz_1_1Edge_coll__map" alt="Collaboration graph"/></div>
 <map name="fz_1_1Edge_coll__map" id="fz_1_1Edge_coll__map">
-<area shape="rect" id="node2" href="classfz_1_1Edge__ID.html" title="fz::Edge_ID" alt="" coords="235,288,327,315"/>
-<area shape="rect" id="node3" href="structfz_1_1Edge__ID__key.html" title="fz::Edge_ID_key" alt="" coords="240,199,360,225"/>
-<area shape="rect" id="node4" href="structfz_1_1Node__ID__key.html" title="fz::Node_ID_key" alt="" coords="190,95,311,121"/>
-<area shape="rect" id="node7" href="classfz_1_1Node__ID.html" title="fz::Node_ID" alt="" coords="123,199,216,225"/>
-<area shape="rect" id="node5" href="structfz_1_1ID__TimeStamp.html" title="fz::ID_TimeStamp" alt="" coords="186,5,315,32"/>
-<area shape="rect" id="node6" href="classfz_1_1Node.html" title="fz::Node" alt="" coords="133,288,205,315"/>
+<area shape="rect" id="node2" href="classfz_1_1Edge__ID.html" title="Edge ID that caches its ID stamp for frequent use. " alt="" coords="235,288,327,315"/>
+<area shape="rect" id="node3" href="structfz_1_1Edge__ID__key.html" title="Standardized Formalizer Edge ID key. " alt="" coords="240,199,360,225"/>
+<area shape="rect" id="node4" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. " alt="" coords="190,95,311,121"/>
+<area shape="rect" id="node7" href="classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use. " alt="" coords="123,199,216,225"/>
+<area shape="rect" id="node5" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. " alt="" coords="186,5,315,32"/>
+<area shape="rect" id="node6" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) " alt="" coords="133,288,205,315"/>
 <area shape="rect" id="node8" href="classfz_1_1Graph.html" title="fz::Graph" alt="" coords="22,199,98,225"/>
-<area shape="rect" id="node9" href="classfz_1_1Topic__Tags.html" title="fz::Topic_Tags" alt="" coords="5,95,115,121"/>
+<area shape="rect" id="node9" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. " alt="" coords="5,95,115,121"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -96,6 +96,7 @@ Public Member Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Edge</b> (<a class="el" href="classfz_1_1Node.html">Node</a> &amp;_dep, <a class="el" href="classfz_1_1Node.html">Node</a> &amp;_sup)</td></tr>
 <tr class="separator:ae442407157b6d489406e78e0196b7394"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adaf45b440449d84a5fb0c9a0688fbedf"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Edge.html#adaf45b440449d84a5fb0c9a0688fbedf">Edge</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, std::string id_str)</td></tr>
+<tr class="memdesc:adaf45b440449d84a5fb0c9a0688fbedf"><td class="mdescLeft">&#160;</td><td class="mdescRight">An <a class="el" href="classfz_1_1Edge.html">Edge</a> can only exist between two Nodes.  <a href="#adaf45b440449d84a5fb0c9a0688fbedf">More...</a><br /></td></tr>
 <tr class="separator:adaf45b440449d84a5fb0c9a0688fbedf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac24bb1cdd798bfe5d673de578141bb78"><td class="memItemLeft" align="right" valign="top"><a id="ac24bb1cdd798bfe5d673de578141bb78"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_id</b> () const</td></tr>
@@ -200,13 +201,15 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
         </tr>
       </table>
 </div><div class="memdoc">
-<p>An <a class="el" href="classfz_1_1Edge.html">Edge</a> can only exist between two Nodes. Therefore, if the actual <a class="el" href="classfz_1_1Node.html">Node</a> objects are not provided a <a class="el" href="classfz_1_1Graph.html">Graph</a> must be provided in which the Nodes with specified IDs must exist.</p>
+
+<p>An <a class="el" href="classfz_1_1Edge.html">Edge</a> can only exist between two Nodes. </p>
+<p>Therefore, if the actual <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> objects are not provided a <a class="el" href="classfz_1_1Graph.html">Graph</a> must be provided in which the Nodes with specified IDs must exist.</p>
 <p>This constructor also adds the <a class="el" href="classfz_1_1Edge.html">Edge</a> to the <a class="el" href="classfz_1_1Graph.html">Graph</a>. No separate call is needed.</p>
-<p>Validity of the ID string is tested in the <a class="el" href="structfz_1_1Edge__ID__key.html">Edge_ID_key</a> via <a class="el" href="classfz_1_1Edge__ID.html">Edge_ID</a>.</p>
-<p>This constructor throws exceptions if the ID is invalid or if the <a class="el" href="classfz_1_1Node.html">Node</a> objects indicated by the ID are not found.</p>
+<p>Validity of the ID string is tested in the <a class="el" href="structfz_1_1Edge__ID__key.html" title="Standardized Formalizer Edge ID key. ">Edge_ID_key</a> via <a class="el" href="classfz_1_1Edge__ID.html" title="Edge ID that caches its ID stamp for frequent use. ">Edge_ID</a>.</p>
+<p>This constructor throws exceptions if the ID is invalid or if the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> objects indicated by the ID are not found.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">graph</td><td>a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> containing <a class="el" href="classfz_1_1Node.html">Node</a> objects. </td></tr>
+    <tr><td class="paramname">graph</td><td>a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> containing <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> objects. </td></tr>
     <tr><td class="paramname">id_str</td><td>the <a class="el" href="classfz_1_1Edge.html">Edge</a> ID string, validity will be tested. </td></tr>
   </table>
   </dd>

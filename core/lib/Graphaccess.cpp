@@ -11,52 +11,7 @@
 #include "Graphtypes.hpp"
 #include "Graphpostgres.hpp"
 
-/// Default Formalizer Postgres database name. See https://trello.com/c/Lww33Lym.
-#ifndef DEFAULT_DBNAME
-    #define DEFAULT_DBNAME "formalizer"
-#endif
-/// Default Formalizer Postgres schema name. See https://trello.com/c/Lww33Lym.
-#ifndef DEFAULT_PQ_SCHEMANAME
-    #define DEFAULT_PQ_SCHEMANAME "formalizeruser"
-#endif
-
 namespace fz {
-
-void Graph_access::usage_hook() {
-    FZOUT("    -d use Postgres database <dbname>\n");
-    FZOUT("       (default is " DEFAULT_DBNAME  ")\n"); // used to be $USER, but this was clarified in https://trello.com/c/Lww33Lym
-    FZOUT("    -s use Postgres schema <schemaname>\n");
-    FZOUT("       (default is $USER or formalizeruser)\n");
-}
-
-bool Graph_access::options_hook(char c, std::string cargs) {
-    switch (c) {
-
-    case 'd':
-        dbname = cargs;
-        return true;
-
-    case 's':
-        pq_schemaname = cargs;
-        return true;
-    }
-
-    return false;
-}
-
-void Graph_access::dbname_error() {
-    std::string errstr("Need a database to proceed. Defaults to formalizer."); // used to be $USER
-    ADDERROR(std::string("Graph_access::")+__func__,errstr);
-    FZERR('\n'+errstr+'\n');
-    standard.exit(exit_database_error);
-}
-
-void Graph_access::schemaname_error() {
-    std::string errstr("Need a schema to proceed. Defaults to $USER or formalizeruser."); // used to be $USER
-    ADDERROR(std::string("Graph_access::")+__func__,errstr);
-    FZERR('\n'+errstr+'\n');
-    standard.exit(exit_database_error);
-}
 
 void Graph_access::graph_access_initialize() {
     COMPILEDPING(std::cout,"PING-graph_access_initialize()\n");

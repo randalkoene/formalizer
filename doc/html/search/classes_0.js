@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['conversionmetrics',['ConversionMetrics',['../structConversionMetrics.html',1,'']]]
+  ['boilerplate',['boilerplate',['../structboilerplate.html',1,'']]]
 ];

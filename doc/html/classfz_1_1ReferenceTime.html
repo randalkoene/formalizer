@@ -84,6 +84,7 @@ Public Member Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ReferenceTime</b> (std::time_t _emtime)</td></tr>
 <tr class="separator:a3a7186df6a00979c8b287aa60e956970"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac28f584193582243a4d3202b469463a0"><td class="memItemLeft" align="right" valign="top">std::time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1ReferenceTime.html#ac28f584193582243a4d3202b469463a0">Time</a> ()</td></tr>
+<tr class="memdesc:ac28f584193582243a4d3202b469463a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Report the current time according to the <a class="el" href="classfz_1_1ReferenceTime.html">ReferenceTime</a> frame being used.  <a href="#ac28f584193582243a4d3202b469463a0">More...</a><br /></td></tr>
 <tr class="separator:ac28f584193582243a4d3202b469463a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9339165d76cab55f060bbb10ca3a061f"><td class="memItemLeft" align="right" valign="top"><a id="a9339165d76cab55f060bbb10ca3a061f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>switch_to_actual_time</b> ()</td></tr>
@@ -113,7 +114,8 @@ std::time_t&#160;</td><td class="memItemRight" valign="bottom"><b>emulated_time<
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Report the current time according to the <a class="el" href="classfz_1_1ReferenceTime.html">ReferenceTime</a> frame being used.</p>
+
+<p>Report the current time according to the <a class="el" href="classfz_1_1ReferenceTime.html">ReferenceTime</a> frame being used. </p>
 <p>Note: This function returns actual time event for emulated_time == 0. It is a precaution, in case unspecified time values are sometimes left zero-valued. (This is subject to change and may be set to emulated_time &gt; RTt_unspecified.)</p>
 <dl class="section return"><dt>Returns</dt><dd>current time, either emulated as specified or actual. </dd></dl>
 

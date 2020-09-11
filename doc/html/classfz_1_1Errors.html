@@ -74,6 +74,9 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>Maintain a queue of recent errors encountered in ErrQ and provide them on demand.  
+ <a href="classfz_1_1Errors.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="error_8hpp_source.html">error.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -88,12 +91,16 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_errfilepath</b> (
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_errfilepath</b> () const</td></tr>
 <tr class="separator:a23d54a2e0c6d9768eb356a6238995ed8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a90d891ec4025e9a74f9aac517beb0254"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Errors.html#a90d891ec4025e9a74f9aac517beb0254">push</a> (std::string f, std::string e)</td></tr>
+<tr class="memdesc:a90d891ec4025e9a74f9aac517beb0254"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pushes a new error instance to the back of the queue of errors.  <a href="#a90d891ec4025e9a74f9aac517beb0254">More...</a><br /></td></tr>
 <tr class="separator:a90d891ec4025e9a74f9aac517beb0254"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad23c6de949c3c1ecc1251754908279d6"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Errors.html#ad23c6de949c3c1ecc1251754908279d6">pretty_print</a> () const</td></tr>
+<tr class="memdesc:ad23c6de949c3c1ecc1251754908279d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concatenate all errors in the error queue in a single string.  <a href="#ad23c6de949c3c1ecc1251754908279d6">More...</a><br /></td></tr>
 <tr class="separator:ad23c6de949c3c1ecc1251754908279d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab22d290508d043fa1f5c5c225f3d03c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfz_1_1Error__Instance.html">Error_Instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Errors.html#ab22d290508d043fa1f5c5c225f3d03c0">pop</a> ()</td></tr>
+<tr class="memdesc:ab22d290508d043fa1f5c5c225f3d03c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pops the oldest error from the front of the queue of errors.  <a href="#ab22d290508d043fa1f5c5c225f3d03c0">More...</a><br /></td></tr>
 <tr class="separator:ab22d290508d043fa1f5c5c225f3d03c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab129f5fb34dd15dc23208761ca570777"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Errors.html#ab129f5fb34dd15dc23208761ca570777">flush</a> ()</td></tr>
+<tr class="memdesc:ab129f5fb34dd15dc23208761ca570777"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears the queue of errors.  <a href="#ab129f5fb34dd15dc23208761ca570777">More...</a><br /></td></tr>
 <tr class="separator:ab129f5fb34dd15dc23208761ca570777"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa65c3d5332c2f79c250923bb122a9ea4"><td class="memItemLeft" align="right" valign="top"><a id="aa65c3d5332c2f79c250923bb122a9ea4"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>num</b> () const</td></tr>
@@ -117,6 +124,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>disable_pinging</b> (
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>pinging</b> ()</td></tr>
 <tr class="separator:aeafa96065d4019be93555314f012838f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac21660b9b891aacbc2895c77eef70b2c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Errors.html#ac21660b9b891aacbc2895c77eef70b2c">output</a> (std::ofstream::openmode mode)</td></tr>
+<tr class="memdesc:ac21660b9b891aacbc2895c77eef70b2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stream error messages to file and flush the queue.  <a href="#ac21660b9b891aacbc2895c77eef70b2c">More...</a><br /></td></tr>
 <tr class="separator:ac21660b9b891aacbc2895c77eef70b2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
@@ -138,7 +146,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>ping</b></td></tr>
 <tr class="separator:a290f84801be49e5bb6d800261b1e9caf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Maintain a queue of recent errors encountered in ErrQ and provide them on demand.</p>
+<div class="textblock"><p>Maintain a queue of recent errors encountered in ErrQ and provide them on demand. </p>
 <p>A separate queue of warnings is also maintained in WarnQ.</p>
 <p>This allows you to store and later process a sequence of non-fatal errors in whatever way you wish. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
@@ -156,7 +164,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>ping</b></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Clears the queue of errors.</p>
+
+<p>Clears the queue of errors. </p>
 <dl class="section return"><dt>Returns</dt><dd>number of errors that were in the error queue when it was cleared. </dd></dl>
 
 </div>
@@ -176,7 +185,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>ping</b></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Stream error messages to file and flush the queue.</p>
+
+<p>Stream error messages to file and flush the queue. </p>
 <p>Output modes are: (std::ofstream::out | std::ofstream::trunc) (std::ofstream::out | std::ofstream::app)</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -201,7 +211,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>ping</b></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Pops the oldest error from the front of the queue of errors.</p>
+
+<p>Pops the oldest error from the front of the queue of errors. </p>
 <dl class="section return"><dt>Returns</dt><dd>content of the oldest error instance or empty instance if the queue was empty. </dd></dl>
 
 </div>
@@ -220,7 +231,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>ping</b></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Concatenate all errors in the error queue in a single string.</p>
+
+<p>Concatenate all errors in the error queue in a single string. </p>
 <dl class="section return"><dt>Returns</dt><dd>string of error content in order of occurrence. </dd></dl>
 
 </div>
@@ -250,7 +262,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>ping</b></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Pushes a new error instance to the back of the queue of errors.</p>
+
+<p>Pushes a new error instance to the back of the queue of errors. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">f</td><td>name of function in which error occurred. </td></tr>

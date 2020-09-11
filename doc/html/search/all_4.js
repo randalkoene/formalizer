@@ -13,5 +13,7 @@ var searchData=
   ['error_5finstance',['Error_Instance',['../structfz_1_1Error__Instance.html',1,'fz']]],
   ['error_5fsummary_5fwrapper',['error_summary_wrapper',['../namespacefz.html#a5cdf2285bd874038959c3aca55feac8d',1,'fz']]],
   ['errors',['Errors',['../classfz_1_1Errors.html',1,'fz']]],
-  ['exit',['exit',['../structfz_1_1formalizer__standard__program.html#a96b26e4e551e8de1b1bad082d67ba600',1,'fz::formalizer_standard_program']]]
+  ['exit',['exit',['../structfz_1_1formalizer__standard__program.html#a96b26e4e551e8de1b1bad082d67ba600',1,'fz::formalizer_standard_program']]],
+  ['exit_5fnumenums',['exit_NUMENUMS',['../namespacefz.html#a95a7b508456ccb1691f487ed136d52d4a705b1561a859fa4dfba9b3e3045d9f24',1,'fz']]],
+  ['exit_5fstatus_5fcode',['exit_status_code',['../namespacefz.html#a95a7b508456ccb1691f487ed136d52d4',1,'fz']]]
 ];

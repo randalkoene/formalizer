@@ -1,19 +1,19 @@
 <map id="fz::Log_by_Node_chainable" name="fz::Log_by_Node_chainable">
-<area shape="rect" id="node6" href="$classfz_1_1Log__chunk.html" title="fz::Log_chunk" alt="" coords="969,244,1073,271"/>
+<area shape="rect" id="node6" href="$classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk. " alt="" coords="969,244,1073,271"/>
 <area shape="rect" id="node17" href="$classfz_1_1Log__entry.html" title="fz::Log_entry" alt="" coords="1217,325,1315,352"/>
-<area shape="rect" id="node2" href="$structfz_1_1Log__chain__target.html" title="fz::Log_chain_target" alt="" coords="1697,177,1837,204"/>
+<area shape="rect" id="node2" href="$structfz_1_1Log__chain__target.html" title="This data structure is used to follow a chain by&#45;Node through the Log that can lead to Log chunks or ..." alt="" coords="1697,177,1837,204"/>
 <area shape="rect" id="node3" href="$structfz_1_1Log__target.html" title="fz::Log_target\&lt; Log\l_chunk_ID_key, Log_chunk \&gt;" alt="" coords="1168,33,1364,74"/>
-<area shape="rect" id="node4" href="$structfz_1_1Log__chunk__ID__key.html" title="fz::Log_chunk_ID_key" alt="" coords="429,47,583,73"/>
+<area shape="rect" id="node4" href="$structfz_1_1Log__chunk__ID__key.html" title="Standardized Formalizer Log chunk ID key. " alt="" coords="429,47,583,73"/>
 <area shape="rect" id="node11" href="$classfz_1_1Log__chunk__ID.html" title="fz::Log_chunk_ID" alt="" coords="697,164,822,191"/>
-<area shape="rect" id="node5" href="$structfz_1_1Log__TimeStamp.html" title="fz::Log_TimeStamp" alt="" coords="205,9,341,36"/>
-<area shape="rect" id="node12" href="$structfz_1_1Log__entry__ID__key.html" title="fz::Log_entry_ID_key" alt="" coords="686,84,833,111"/>
+<area shape="rect" id="node5" href="$structfz_1_1Log__TimeStamp.html" title="Timestamp IDs in the format required for Log IDs. " alt="" coords="205,9,341,36"/>
+<area shape="rect" id="node12" href="$structfz_1_1Log__entry__ID__key.html" title="Standardized Formalizer Log entry ID key. " alt="" coords="686,84,833,111"/>
 <area shape="rect" id="node7" href="$classfz_1_1Log__data.html" title="Log data base class providing shared parameters and functions. " alt="" coords="712,293,807,320"/>
-<area shape="rect" id="node8" href="$classfz_1_1Node__ID.html" title="fz::Node_ID" alt="" coords="459,344,553,371"/>
-<area shape="rect" id="node13" href="$classfz_1_1Node.html" title="fz::Node" alt="" coords="723,344,795,371"/>
-<area shape="rect" id="node9" href="$structfz_1_1Node__ID__key.html" title="fz::Node_ID_key" alt="" coords="213,395,334,421"/>
-<area shape="rect" id="node10" href="$structfz_1_1ID__TimeStamp.html" title="fz::ID_TimeStamp" alt="" coords="5,395,135,421"/>
+<area shape="rect" id="node8" href="$classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use. " alt="" coords="459,344,553,371"/>
+<area shape="rect" id="node13" href="$classfz_1_1Node.html" title="(A woefully incomplete class documentation.) " alt="" coords="723,344,795,371"/>
+<area shape="rect" id="node9" href="$structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. " alt="" coords="213,395,334,421"/>
+<area shape="rect" id="node10" href="$structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. " alt="" coords="5,395,135,421"/>
 <area shape="rect" id="node16" href="$structfz_1_1Log__target.html" title="fz::Log_target\&lt; Log\l_entry_ID_key, Log_entry \&gt;" alt="" coords="1432,170,1616,211"/>
 <area shape="rect" id="node18" href="$classfz_1_1Log__entry__ID.html" title="fz::Log_entry_ID" alt="" coords="961,137,1080,164"/>
 <area shape="rect" id="node14" href="$classfz_1_1Graph.html" title="fz::Graph" alt="" coords="468,188,544,215"/>
-<area shape="rect" id="node15" href="$classfz_1_1Topic__Tags.html" title="fz::Topic_Tags" alt="" coords="219,188,328,215"/>
+<area shape="rect" id="node15" href="$classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. " alt="" coords="219,188,328,215"/>
 </map>

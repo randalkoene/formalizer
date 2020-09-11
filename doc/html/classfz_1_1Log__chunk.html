@@ -75,6 +75,9 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>Specifies the start time, <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a>, close time, and set of entries of a <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk.  
+ <a href="classfz_1_1Log__chunk.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="Logtypes_8hpp_source.html">Logtypes.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for fz::Log_chunk:</div>
@@ -93,20 +96,20 @@ Collaboration diagram for fz::Log_chunk:</div>
 <area shape="rect" id="node4" href="structfz_1_1Log__target.html" title="fz::Log_target\&lt; Log\l_chunk_ID_key, Log_chunk \&gt;" alt="" coords="1196,154,1392,195"/>
 <area shape="rect" id="node9" href="classfz_1_1Log__entry.html" title="fz::Log_entry" alt="" coords="1997,284,2096,311"/>
 <area shape="rect" id="node2" href="classfz_1_1Log__by__Node__chainable.html" title="Base class for Log components that are chainable as belonging to a Node. " alt="" coords="1733,232,1916,259"/>
-<area shape="rect" id="node3" href="structfz_1_1Log__chain__target.html" title="fz::Log_chain_target" alt="" coords="1480,161,1620,188"/>
-<area shape="rect" id="node5" href="structfz_1_1Log__chunk__ID__key.html" title="fz::Log_chunk_ID_key" alt="" coords="429,119,583,145"/>
+<area shape="rect" id="node3" href="structfz_1_1Log__chain__target.html" title="This data structure is used to follow a chain by&#45;Node through the Log that can lead to Log chunks or ..." alt="" coords="1480,161,1620,188"/>
+<area shape="rect" id="node5" href="structfz_1_1Log__chunk__ID__key.html" title="Standardized Formalizer Log chunk ID key. " alt="" coords="429,119,583,145"/>
 <area shape="rect" id="node18" href="classfz_1_1Log__chunk__ID.html" title="fz::Log_chunk_ID" alt="" coords="679,175,804,201"/>
-<area shape="rect" id="node6" href="structfz_1_1Log__TimeStamp.html" title="fz::Log_TimeStamp" alt="" coords="205,75,341,101"/>
-<area shape="rect" id="node8" href="structfz_1_1Log__entry__ID__key.html" title="fz::Log_entry_ID_key" alt="" coords="668,57,815,84"/>
+<area shape="rect" id="node6" href="structfz_1_1Log__TimeStamp.html" title="Timestamp IDs in the format required for Log IDs. " alt="" coords="205,75,341,101"/>
+<area shape="rect" id="node8" href="structfz_1_1Log__entry__ID__key.html" title="Standardized Formalizer Log entry ID key. " alt="" coords="668,57,815,84"/>
 <area shape="rect" id="node7" href="structfz_1_1Log__target.html" title="fz::Log_target\&lt; Log\l_entry_ID_key, Log_entry \&gt;" alt="" coords="2164,131,2348,173"/>
 <area shape="rect" id="node11" href="classfz_1_1Log__entry__ID.html" title="fz::Log_entry_ID" alt="" coords="1053,65,1172,92"/>
 <area shape="rect" id="node10" href="classfz_1_1Log__data.html" title="Log data base class providing shared parameters and functions. " alt="" coords="694,308,789,335"/>
-<area shape="rect" id="node12" href="classfz_1_1Node.html" title="fz::Node" alt="" coords="705,367,777,393"/>
-<area shape="rect" id="node13" href="classfz_1_1Node__ID.html" title="fz::Node_ID" alt="" coords="459,325,553,352"/>
-<area shape="rect" id="node14" href="structfz_1_1Node__ID__key.html" title="fz::Node_ID_key" alt="" coords="213,431,334,457"/>
-<area shape="rect" id="node15" href="structfz_1_1ID__TimeStamp.html" title="fz::ID_TimeStamp" alt="" coords="5,431,135,457"/>
+<area shape="rect" id="node12" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) " alt="" coords="705,367,777,393"/>
+<area shape="rect" id="node13" href="classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use. " alt="" coords="459,325,553,352"/>
+<area shape="rect" id="node14" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. " alt="" coords="213,431,334,457"/>
+<area shape="rect" id="node15" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. " alt="" coords="5,431,135,457"/>
 <area shape="rect" id="node16" href="classfz_1_1Graph.html" title="fz::Graph" alt="" coords="468,376,544,403"/>
-<area shape="rect" id="node17" href="classfz_1_1Topic__Tags.html" title="fz::Topic_Tags" alt="" coords="219,376,328,403"/>
+<area shape="rect" id="node17" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. " alt="" coords="219,376,328,403"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -145,6 +148,7 @@ const <a class="el" href="classfz_1_1Node__ID.html">Node_ID</a> &amp;&#160;</td>
 <a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_Node</b> () const</td></tr>
 <tr class="separator:a83e16ee6aa9388f63f1cb9ba3ff6c9e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab0bc63bbcb06023b4584d39d74b5b27f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__chunk.html#ab0bc63bbcb06023b4584d39d74b5b27f">get_Node</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph)</td></tr>
+<tr class="memdesc:ab0bc63bbcb06023b4584d39d74b5b27f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> that has <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> ID with key matching node_id.key().  <a href="#ab0bc63bbcb06023b4584d39d74b5b27f">More...</a><br /></td></tr>
 <tr class="separator:ab0bc63bbcb06023b4584d39d74b5b27f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a73745f98234838dacb48fb57cf105729"><td class="memItemLeft" align="right" valign="top"><a id="a73745f98234838dacb48fb57cf105729"></a>
 const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_tbegin_key</b> () const</td></tr>
@@ -157,7 +161,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_tbegin_str
 <tr class="separator:a8c46ef091bc38aca1e219daf01e669ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aac11da9b47e3d4543cd06bdf9c6ad5a4"><td class="memItemLeft" align="right" valign="top"><a id="aac11da9b47e3d4543cd06bdf9c6ad5a4"></a>
 std::time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__chunk.html#aac11da9b47e3d4543cd06bdf9c6ad5a4">get_open_time</a> () const</td></tr>
-<tr class="memdesc:aac11da9b47e3d4543cd06bdf9c6ad5a4"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> ID string. <br /></td></tr>
+<tr class="memdesc:aac11da9b47e3d4543cd06bdf9c6ad5a4"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk. ">Log_chunk</a> ID string. <br /></td></tr>
 <tr class="separator:aac11da9b47e3d4543cd06bdf9c6ad5a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afbd5b34e754decdd1cea165a9b9cbcba"><td class="memItemLeft" align="right" valign="top"><a id="afbd5b34e754decdd1cea165a9b9cbcba"></a>
 std::time_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_close_time</b> () const</td></tr>
@@ -170,8 +174,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memdesc:aaf759458d02ea19b450b69dfa12f8874"><td class="mdescLeft">&#160;</td><td class="mdescRight">change parameters <br /></td></tr>
 <tr class="separator:aaf759458d02ea19b450b69dfa12f8874"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a53a724c510352d0b099d392dc0d68907"><td class="memItemLeft" align="right" valign="top">std::time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__chunk.html#a53a724c510352d0b099d392dc0d68907">duration_seconds</a> () const</td></tr>
+<tr class="memdesc:a53a724c510352d0b099d392dc0d68907"><td class="mdescLeft">&#160;</td><td class="mdescRight">Report the duration of the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk in seconds.  <a href="#a53a724c510352d0b099d392dc0d68907">More...</a><br /></td></tr>
 <tr class="separator:a53a724c510352d0b099d392dc0d68907"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a32c1bf9499c5000ad6b5a19faa51bdc7"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__chunk.html#a32c1bf9499c5000ad6b5a19faa51bdc7">duration_minutes</a> () const</td></tr>
+<tr class="memdesc:a32c1bf9499c5000ad6b5a19faa51bdc7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Report the duration of the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk in minutes.  <a href="#a32c1bf9499c5000ad6b5a19faa51bdc7">More...</a><br /></td></tr>
 <tr class="separator:a32c1bf9499c5000ad6b5a19faa51bdc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classfz_1_1Log__by__Node__chainable"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classfz_1_1Log__by__Node__chainable')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classfz_1_1Log__by__Node__chainable.html">fz::Log_by_Node_chainable</a></td></tr>
 <tr class="memitem:a040b85e25b934b092ac8fd2f4a9aa505 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="a040b85e25b934b092ac8fd2f4a9aa505"></a>
@@ -216,17 +222,18 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Node_prev</b> (<a
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Node_next</b> (<a class="el" href="structfz_1_1Log__chain__target.html">Log_chain_target</a> _next)</td></tr>
 <tr class="separator:acb2a42c3a4bb06433310e09b9cd5e74c inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7fa4278c74ddbf6c8a33f4dd08e1816f inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__by__Node__chainable.html#a7fa4278c74ddbf6c8a33f4dd08e1816f">set_Node_prev_ptr</a> (<a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *prevptr)</td></tr>
+<tr class="memdesc:a7fa4278c74ddbf6c8a33f4dd08e1816f inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the previous in chain-by-Node based on a <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk pointer.  <a href="classfz_1_1Log__by__Node__chainable.html#a7fa4278c74ddbf6c8a33f4dd08e1816f">More...</a><br /></td></tr>
 <tr class="separator:a7fa4278c74ddbf6c8a33f4dd08e1816f inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab1ad41b0149fec674daadea0e660fd9e inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="ab1ad41b0149fec674daadea0e660fd9e"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Node_prev_ptr</b> (<a class="el" href="classfz_1_1Log__entry.html">Log_entry</a> *prevptr)</td></tr>
 <tr class="separator:ab1ad41b0149fec674daadea0e660fd9e inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acf89bf47645680279caf65805e3ac634 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="acf89bf47645680279caf65805e3ac634"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__by__Node__chainable.html#acf89bf47645680279caf65805e3ac634">set_Node_next_ptr</a> (<a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *nextptr)</td></tr>
-<tr class="memdesc:acf89bf47645680279caf65805e3ac634 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="mdescLeft">&#160;</td><td class="mdescRight">See the description of <a class="el" href="classfz_1_1Log__by__Node__chainable.html#a7fa4278c74ddbf6c8a33f4dd08e1816f">Log_chunk::set_Node_prev_ptr</a>. <br /></td></tr>
+<tr class="memdesc:acf89bf47645680279caf65805e3ac634 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="mdescLeft">&#160;</td><td class="mdescRight">See the description of <a class="el" href="classfz_1_1Log__by__Node__chainable.html#a7fa4278c74ddbf6c8a33f4dd08e1816f" title="Set the previous in chain-by-Node based on a Log chunk pointer. ">Log_chunk::set_Node_prev_ptr</a>. <br /></td></tr>
 <tr class="separator:acf89bf47645680279caf65805e3ac634 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af55ea4a68dd3caea62ed594a190ca45a inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="af55ea4a68dd3caea62ed594a190ca45a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__by__Node__chainable.html#af55ea4a68dd3caea62ed594a190ca45a">set_Node_next_ptr</a> (<a class="el" href="classfz_1_1Log__entry.html">Log_entry</a> *nextptr)</td></tr>
-<tr class="memdesc:af55ea4a68dd3caea62ed594a190ca45a inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="mdescLeft">&#160;</td><td class="mdescRight">See the description of <a class="el" href="classfz_1_1Log__by__Node__chainable.html#a7fa4278c74ddbf6c8a33f4dd08e1816f">Log_chunk::set_Node_prev_ptr</a>. <br /></td></tr>
+<tr class="memdesc:af55ea4a68dd3caea62ed594a190ca45a inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="mdescLeft">&#160;</td><td class="mdescRight">See the description of <a class="el" href="classfz_1_1Log__by__Node__chainable.html#a7fa4278c74ddbf6c8a33f4dd08e1816f" title="Set the previous in chain-by-Node based on a Log chunk pointer. ">Log_chunk::set_Node_prev_ptr</a>. <br /></td></tr>
 <tr class="separator:af55ea4a68dd3caea62ed594a190ca45a inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
@@ -236,15 +243,15 @@ const <a class="el" href="classfz_1_1Log__chunk__ID.html">Log_chunk_ID</a>&#160;
 <tr class="separator:ad0634f775828db77a75fe182d9a9406b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa3c441a6e506c48a29dcec2d88757ba5"><td class="memItemLeft" align="right" valign="top"><a id="aa3c441a6e506c48a29dcec2d88757ba5"></a>
 const <a class="el" href="classfz_1_1Node__ID.html">Node_ID</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__chunk.html#aa3c441a6e506c48a29dcec2d88757ba5">node_id</a></td></tr>
-<tr class="memdesc:aa3c441a6e506c48a29dcec2d88757ba5"><td class="mdescLeft">&#160;</td><td class="mdescRight">The time stamp when a <a class="el" href="classfz_1_1Log.html">Log</a> chunk begins. <br /></td></tr>
+<tr class="memdesc:aa3c441a6e506c48a29dcec2d88757ba5"><td class="mdescLeft">&#160;</td><td class="mdescRight">The time stamp when a <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk begins. <br /></td></tr>
 <tr class="separator:aa3c441a6e506c48a29dcec2d88757ba5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af0b4f263cca6b3273f43e34f40c87d61"><td class="memItemLeft" align="right" valign="top"><a id="af0b4f263cca6b3273f43e34f40c87d61"></a>
 std::time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__chunk.html#af0b4f263cca6b3273f43e34f40c87d61">t_close</a></td></tr>
-<tr class="memdesc:af0b4f263cca6b3273f43e34f40c87d61"><td class="mdescLeft">&#160;</td><td class="mdescRight">The <a class="el" href="classfz_1_1Node.html">Node</a> to which the <a class="el" href="classfz_1_1Log.html">Log</a> chunk belongs. <br /></td></tr>
+<tr class="memdesc:af0b4f263cca6b3273f43e34f40c87d61"><td class="mdescLeft">&#160;</td><td class="mdescRight">The <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> to which the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk belongs. <br /></td></tr>
 <tr class="separator:af0b4f263cca6b3273f43e34f40c87d61"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa5902ac54c3ed37404677cb435d397c8"><td class="memItemLeft" align="right" valign="top"><a id="aa5902ac54c3ed37404677cb435d397c8"></a>
 <a class="el" href="structfz_1_1Log__entry__ID__key.html">Log_entry_ID_key</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__chunk.html#aa5902ac54c3ed37404677cb435d397c8">first_entry</a></td></tr>
-<tr class="memdesc:aa5902ac54c3ed37404677cb435d397c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">The time when a <a class="el" href="classfz_1_1Log.html">Log</a> chunk was closed (-1 if not closed). <br /></td></tr>
+<tr class="memdesc:aa5902ac54c3ed37404677cb435d397c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">The time when a <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk was closed (-1 if not closed). <br /></td></tr>
 <tr class="separator:aa5902ac54c3ed37404677cb435d397c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa84cd38d4a5f384d0f03cf94582281ff"><td class="memItemLeft" align="right" valign="top"><a id="aa84cd38d4a5f384d0f03cf94582281ff"></a>
 <a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__chunk.html#aa84cd38d4a5f384d0f03cf94582281ff">node</a></td></tr>
@@ -269,9 +276,9 @@ Friends</h2></td></tr>
 <tr class="separator:aa5aeea463c642df252865f4dbbff8fc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Specifies the start time, <a class="el" href="classfz_1_1Node.html">Node</a>, close time, and set of entries of a <a class="el" href="classfz_1_1Log.html">Log</a> chunk.</p>
+<div class="textblock"><p>Specifies the start time, <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a>, close time, and set of entries of a <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk. </p>
 <p>Note A: The <a class="el" href="classfz_1_1Log__chunk__ID.html">Log_chunk_ID</a> differs from <a class="el" href="classfz_1_1Log__entry__ID.html">Log_entry_ID</a> in that there is no minor_id.</p>
-<p>Note B: It is possible to get the sorted list of <a class="el" href="classfz_1_1Log.html">Log</a> chunks that belong to a specific <a class="el" href="classfz_1_1Node.html">Node</a> by parsing the list log <a class="el" href="classfz_1_1Log.html">Log</a> chunks and identifying all of the ones that belong to the <a class="el" href="classfz_1_1Node.html">Node</a>. Not only would that be slow (which would at least sugegst maintaining a rapid-access list), but it is also counter-productive when you expect that you will rarely load the complete <a class="el" href="classfz_1_1Log.html">Log</a> into memory at once. For this reason, <code><a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a></code> also explicitly stores <code>node_prevchunk_id</code> and <code>node_nextchunk_id</code>. </p>
+<p>Note B: It is possible to get the sorted list of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks that belong to a specific <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> by parsing the list log <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and identifying all of the ones that belong to the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a>. Not only would that be slow (which would at least sugegst maintaining a rapid-access list), but it is also counter-productive when you expect that you will rarely load the complete <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> into memory at once. For this reason, <code><a class="el" href="classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk. ">Log_chunk</a></code> also explicitly stores <code>node_prevchunk_id</code> and <code>node_nextchunk_id</code>. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="abfee983761a70c789592f9254f00269b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#abfee983761a70c789592f9254f00269b">&#9670;&nbsp;</a></span>add_Entry()</h2>
@@ -298,10 +305,11 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>entries table: extend </p>
-<p>Extend the <a class="el" href="classfz_1_1Log.html">Log</a> chunk entries list a <a class="el" href="classfz_1_1Log.html">Log</a> entry. The entry is appended, and if it is the first one in the list then its ID key is copied to <code>first_entry</code>.</p>
+<p>Extend the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk entries list a <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entry.</p>
+<p>The entry is appended, and if it is the first one in the list then its ID key is copied to <code>first_entry</code>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">entry</td><td>is a new <a class="el" href="classfz_1_1Log.html">Log</a> entry record. </td></tr>
+    <tr><td class="paramname">entry</td><td>is a new <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entry record. </td></tr>
   </table>
   </dd>
 </dl>
@@ -330,7 +338,8 @@ Friends</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Report the duration of the <a class="el" href="classfz_1_1Log.html">Log</a> chunk in minutes.</p>
+
+<p>Report the duration of the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk in minutes. </p>
 <dl class="section return"><dt>Returns</dt><dd>duration in minutes (or -1 if the chunk is still open). </dd></dl>
 
 </div>
@@ -357,7 +366,8 @@ Friends</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Report the duration of the <a class="el" href="classfz_1_1Log.html">Log</a> chunk in seconds.</p>
+
+<p>Report the duration of the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk in seconds. </p>
 <dl class="section return"><dt>Returns</dt><dd>duration in seconds (or -1 if the chunk is still open). </dd></dl>
 
 </div>
@@ -385,7 +395,8 @@ Friends</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Find a <a class="el" href="classfz_1_1Node.html">Node</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> that has <a class="el" href="classfz_1_1Node.html">Node</a> ID with key matching node_id.key().</p>
+
+<p>Find a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> that has <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> ID with key matching node_id.key(). </p>
 <p>Note: If the rapid-access node pointer is set then that is returned.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -393,7 +404,7 @@ Friends</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>pointer to the <a class="el" href="classfz_1_1Node.html">Node</a> (or nullptr if not found). </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> (or nullptr if not found). </dd></dl>
 
 </div>
 </div>
@@ -422,8 +433,9 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>rapid-access setup </p>
-<p>Set rapid-access node pointer to the same <a class="el" href="classfz_1_1Node.html">Node</a> as the one indicated by node_id.key(), e.g. if that was not set during <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> object construction.</p>
-<p>Note: This function needs a valid <a class="el" href="classfz_1_1Node.html">Node</a> reference to assign, but it will only accept one that matches node_id.key().</p>
+<p>Set rapid-access node pointer to the same <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> as the one indicated by node_id.key(), e.g.</p>
+<p>if that was not set during <a class="el" href="classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk. ">Log_chunk</a> object construction.</p>
+<p>Note: This function needs a valid <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> reference to assign, but it will only accept one that matches node_id.key().</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">_node</td><td>reference that must match node_id.key(). </td></tr>
@@ -470,12 +482,11 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>friend (utility) functions </p>
-<p>Find the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> of a <a class="el" href="classfz_1_1Log.html">Log</a> chunk's <a class="el" href="classfz_1_1Node.html">Node</a>, as indicated by the maximum Topic_Relevance value.</p>
-<p>Note: This is a friend function in order to ensure that the search for the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is called only when a valid <a class="el" href="classfz_1_1Topic__Tags.html">Topic_Tags</a> list can provid pointers to them.</p>
+<p>Note: This is a friend function in order to ensure that the search for the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is called only when a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> list can provid pointers to them.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">_graph</td><td>a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> with <a class="el" href="classfz_1_1Topic__Tags.html">Topic_Tags</a> list. </td></tr>
-    <tr><td class="paramname">chunk</td><td>a <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> for which the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> is requested. </td></tr>
+    <tr><td class="paramname">_graph</td><td>a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> with <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> list. </td></tr>
+    <tr><td class="paramname">chunk</td><td>a <a class="el" href="classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk. ">Log_chunk</a> for which the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> is requested. </td></tr>
   </table>
   </dd>
 </dl>

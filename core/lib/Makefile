@@ -131,9 +131,6 @@ $(OBJ)/ReferenceTime.o: ReferenceTime.cpp $(INC)/ReferenceTime.hpp $(INC)/error.
 $(OBJ)/TimeStamp.o: TimeStamp.cpp $(INC)/TimeStamp.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c TimeStamp.cpp -o $(OBJ)/TimeStamp.o
 
-$(OBJ)/Graphaccess.o: Graphaccess.cpp $(INC)/Graphaccess.hpp $(INC)/standard.hpp
-	$(CCPP) $(CPPFLAGS) -c Graphaccess.cpp -o $(OBJ)/Graphaccess.o
-
 $(OBJ)/dilaccess.o: dilaccess.cpp $(INC)/dilaccess.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -I$(DIL2AL) -c dilaccess.cpp -o $(OBJ)/dilaccess.o
 
@@ -149,13 +146,24 @@ $(OBJ)/LogtypesID.o: LogtypesID.cpp $(INC)/LogtypesID.hpp $(INC)/Graphtypes.hpp 
 $(OBJ)/Logtypes.o: Logtypes.cpp $(INC)/Logtypes.hpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c Logtypes.cpp -o $(OBJ)/Logtypes.o
 
+$(OBJ)/fzpostgres.o: fzpostgres.cpp $(INC)/fzpostgres.hpp $(INC)/error.hpp \
+						$(INC)/general.hpp $(INC)/TimeStamp.hpp
+	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c fzpostgres.cpp -o $(OBJ)/fzpostgres.o
+
+$(OBJ)/Graphaccess.o: Graphaccess.cpp $(INC)/Graphaccess.hpp $(INC)/standard.hpp $(INC)/fzpostgres.hpp
+	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c Graphaccess.cpp -o $(OBJ)/Graphaccess.o
+
 $(OBJ)/Graphpostgres.o: Graphpostgres.cpp $(INC)/Graphpostgres.hpp $(INC)/Graphtypes.hpp \
-						$(INC)/general.hpp $(INC)/error.hpp
+						$(INC)/fzpostgres.hpp $(INC)/general.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c Graphpostgres.cpp -o $(OBJ)/Graphpostgres.o
 
 $(OBJ)/Logpostgres.o: Logpostgres.cpp $(INC)/Logpostgres.hpp $(INC)/Logtypes.hpp \
+						$(INC)/fzpostgres.hpp $(INC)/general.hpp $(INC)/error.hpp
+	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c Logpostgres.cpp -o $(OBJ)/Logpostgres.o
+
+$(OBJ)/Guidepostgres.o: Guidepostgres.cpp $(INC)/Guidepostgres.hpp $(INC)/fzpostgres.hpp \
 						$(INC)/general.hpp $(INC)/error.hpp
-	$(CCPP) $(CPPFLAGS) -c Logpostgres.cpp -o $(OBJ)/Logpostgres.o
+	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c Guidepostgres.cpp -o $(OBJ)/Guidepostgres.o
 
 clean:
 	rm -f $(OBJ)/*.o $(TEST)/*.o

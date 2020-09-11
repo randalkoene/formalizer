@@ -13,5 +13,8 @@ var searchData=
   ['all_5ftopic_5fdata_5fpqstr',['All_Topic_Data_pqstr',['../classfz_1_1Topic__pq.html#a5626a0dd58a63841cf6c20994ebbd19c',1,'fz::Topic_pq']]],
   ['all_5ftopic_5fkeyword_5fpqstr',['All_Topic_keyword_pqstr',['../classfz_1_1Topic__pq.html#ae401d1c33924c6bc836c7922f3e8c7a2',1,'fz::Topic_pq']]],
   ['all_5ftopic_5frelevance_5fpqstr',['All_Topic_relevance_pqstr',['../classfz_1_1Topic__pq.html#a21d1469d7bf353880b9ba907208d7ff4',1,'fz::Topic_pq']]],
-  ['array_5ffrom_5fpq',['array_from_pq',['../namespacefz.html#a8bb0a2b43f1d6c0d4d0c1cb9fc72484e',1,'fz']]]
+  ['all_5fvalues_5fpqstr',['all_values_pqstr',['../structGuide__snippet__system.html#a812570de610a76508af44d7001da9e74',1,'Guide_snippet_system::all_values_pqstr()'],['../structfz_1_1Guide__snippet.html#af65e045389bd9789efac9214461b7307',1,'fz::Guide_snippet::all_values_pqstr()']]],
+  ['array_5ffrom_5fpq',['array_from_pq',['../namespacefz.html#ab26caa1b821a4715dbec90c174a95e97',1,'fz']]],
+  ['ask_5fboolean_5fchoice',['ask_boolean_choice',['../boilerplate_8cpp.html#a2d17511a11be290b7c962b57b587790d',1,'boilerplate.cpp']]],
+  ['ask_5fstring_5finput',['ask_string_input',['../boilerplate_8cpp.html#a50d4a38ba76ff295140bad0a2b5bd079',1,'boilerplate.cpp']]]
 ];

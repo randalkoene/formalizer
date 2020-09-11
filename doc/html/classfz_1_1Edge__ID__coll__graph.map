@@ -1,5 +1,5 @@
 <map id="fz::Edge_ID" name="fz::Edge_ID">
-<area shape="rect" id="node2" href="$structfz_1_1Edge__ID__key.html" title="fz::Edge_ID_key" alt="" coords="10,199,130,225"/>
-<area shape="rect" id="node3" href="$structfz_1_1Node__ID__key.html" title="fz::Node_ID_key" alt="" coords="9,95,131,121"/>
-<area shape="rect" id="node4" href="$structfz_1_1ID__TimeStamp.html" title="fz::ID_TimeStamp" alt="" coords="5,5,135,32"/>
+<area shape="rect" id="node2" href="$structfz_1_1Edge__ID__key.html" title="Standardized Formalizer Edge ID key. " alt="" coords="10,199,130,225"/>
+<area shape="rect" id="node3" href="$structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. " alt="" coords="9,95,131,121"/>
+<area shape="rect" id="node4" href="$structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. " alt="" coords="5,5,135,32"/>
 </map>

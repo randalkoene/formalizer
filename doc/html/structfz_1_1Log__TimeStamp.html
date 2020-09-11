@@ -74,6 +74,9 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>Timestamp IDs in the format required for <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> IDs.  
+ <a href="structfz_1_1Log__TimeStamp.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="LogtypesID_8hpp_source.html">LogtypesID.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -83,6 +86,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a19ead88d9c421e992ac20d9d8d8b099b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes as LOG_NULL_IDSTAMP. <br /></td></tr>
 <tr class="separator:a19ead88d9c421e992ac20d9d8d8b099b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab56004c80e8d00c24262294ce87bc2fb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__TimeStamp.html#ab56004c80e8d00c24262294ce87bc2fb">Log_TimeStamp</a> (std::time_t t, bool testvalid=false, uint8_t _minorid=0)</td></tr>
+<tr class="memdesc:ab56004c80e8d00c24262294ce87bc2fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate a candidate <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> time stamp from UNIX epoch time.  <a href="#ab56004c80e8d00c24262294ce87bc2fb">More...</a><br /></td></tr>
 <tr class="separator:ab56004c80e8d00c24262294ce87bc2fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f1b3d14332c9a9b48debee63d3a00f3"><td class="memItemLeft" align="right" valign="top"><a id="a2f1b3d14332c9a9b48debee63d3a00f3"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__TimeStamp.html#a2f1b3d14332c9a9b48debee63d3a00f3">isnullstamp</a> () const</td></tr>
@@ -95,8 +99,10 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;</b> (con
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;rhs) const</td></tr>
 <tr class="separator:a8e93e54bc4a55f416e714cfa885a953a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8dbf9b719fac4baa94f37d7a4a5a969e"><td class="memItemLeft" align="right" valign="top">std::tm&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__TimeStamp.html#a8dbf9b719fac4baa94f37d7a4a5a969e">get_local_time</a> () const</td></tr>
+<tr class="memdesc:a8dbf9b719fac4baa94f37d7a4a5a969e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert the standardized Formalizer <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> time stamp into equivalent localtime structure.  <a href="#a8dbf9b719fac4baa94f37d7a4a5a969e">More...</a><br /></td></tr>
 <tr class="separator:a8dbf9b719fac4baa94f37d7a4a5a969e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af99d02624fcb68b840f2019a719ebcc6"><td class="memItemLeft" align="right" valign="top">time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__TimeStamp.html#af99d02624fcb68b840f2019a719ebcc6">get_epoch_time</a> () const</td></tr>
+<tr class="memdesc:af99d02624fcb68b840f2019a719ebcc6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert the standardized Formalizer <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> time stamp into equivalent UNIX epoch time.  <a href="#af99d02624fcb68b840f2019a719ebcc6">More...</a><br /></td></tr>
 <tr class="separator:af99d02624fcb68b840f2019a719ebcc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
@@ -121,9 +127,10 @@ int16_t&#160;</td><td class="memItemRight" valign="bottom"><b>year</b></td></tr>
 <tr class="separator:a2740974a879ea3faba70df08990292ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Timestamp IDs in the format required for <a class="el" href="classfz_1_1Log.html">Log</a> IDs. These include all time components from year to minute, as well as an additional minor_id (this is NOT a decimal, since .10 is higher than .9). The minor_id is used only in <a class="el" href="classfz_1_1Log.html">Log</a> Entry IDs, not in <a class="el" href="classfz_1_1Log.html">Log</a> Chunk IDs. Note that the time formatting is not the same as in the C time structure 'tm'. Days and months count from 1. The year is given as is, not relative to the UNIX epoch. (By contrast, tm time subtracts 1900 years.)</p>
-<p>These structures are mainly used as unique IDs, but conversion to UNIX time is provided through member functions. Time conversion to UNIX time is carried out by the <a class="el" href="structfz_1_1Log__TimeStamp.html#af99d02624fcb68b840f2019a719ebcc6">get_epoch_time()</a> function.</p>
-<p>Note: A non-standard <a class="el" href="classfz_1_1Log.html">Log</a> time stamp can be created and used. The quick <a class="el" href="structfz_1_1Log__TimeStamp.html#a2f1b3d14332c9a9b48debee63d3a00f3" title="standardization functions and operators ">isnullstamp()</a> test can detect the special case where non-standard values are used to create a null-stamp, so that the <a class="el" href="structfz_1_1Log__TimeStamp.html#a8dbf9b719fac4baa94f37d7a4a5a969e">get_local_time()</a> and <a class="el" href="structfz_1_1Log__TimeStamp.html#af99d02624fcb68b840f2019a719ebcc6">get_epoch_time()</a> functions return well defined results for those. For greater assurance, the <a class="el" href="structfz_1_1Log__entry__ID__key.html">Log_entry_ID_key</a> and <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> classes call specific thorough <code>valid_...</code> test functions. </p>
+<div class="textblock"><p>Timestamp IDs in the format required for <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> IDs. </p>
+<p>These include all time components from year to minute, as well as an additional minor_id (this is NOT a decimal, since .10 is higher than .9). The minor_id is used only in <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> Entry IDs, not in <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> Chunk IDs. Note that the time formatting is not the same as in the C time structure 'tm'. Days and months count from 1. The year is given as is, not relative to the UNIX epoch. (By contrast, tm time subtracts 1900 years.)</p>
+<p>These structures are mainly used as unique IDs, but conversion to UNIX time is provided through member functions. Time conversion to UNIX time is carried out by the <a class="el" href="structfz_1_1Log__TimeStamp.html#af99d02624fcb68b840f2019a719ebcc6" title="Convert the standardized Formalizer Log time stamp into equivalent UNIX epoch time. ">get_epoch_time()</a> function.</p>
+<p>Note: A non-standard <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> time stamp can be created and used. The quick <a class="el" href="structfz_1_1Log__TimeStamp.html#a2f1b3d14332c9a9b48debee63d3a00f3" title="standardization functions and operators ">isnullstamp()</a> test can detect the special case where non-standard values are used to create a null-stamp, so that the <a class="el" href="structfz_1_1Log__TimeStamp.html#a8dbf9b719fac4baa94f37d7a4a5a969e" title="Convert the standardized Formalizer Log time stamp into equivalent localtime structure. ">get_local_time()</a> and <a class="el" href="structfz_1_1Log__TimeStamp.html#af99d02624fcb68b840f2019a719ebcc6" title="Convert the standardized Formalizer Log time stamp into equivalent UNIX epoch time. ">get_epoch_time()</a> functions return well defined results for those. For greater assurance, the <a class="el" href="structfz_1_1Log__entry__ID__key.html" title="Standardized Formalizer Log entry ID key. ">Log_entry_ID_key</a> and <a class="el" href="structfz_1_1Log__chunk__ID__key.html" title="Standardized Formalizer Log chunk ID key. ">Log_chunk_ID_key</a> classes call specific thorough <code>valid_...</code> test functions. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ab56004c80e8d00c24262294ce87bc2fb"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab56004c80e8d00c24262294ce87bc2fb">&#9670;&nbsp;</a></span>Log_TimeStamp()</h2>
@@ -156,7 +163,8 @@ int16_t&#160;</td><td class="memItemRight" valign="bottom"><b>year</b></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Generate a candidate <a class="el" href="classfz_1_1Log.html">Log</a> time stamp from UNIX epoch time.</p>
+
+<p>Generate a candidate <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> time stamp from UNIX epoch time. </p>
 <p>If the <code>testvalid</code> flag is set then the validity test for use as a standardized Formalizer <a class="el" href="classfz_1_1Log__chunk__ID.html">Log_chunk_ID</a> is carried out and can cause an <code><a class="el" href="classfz_1_1ID__exception.html" title="Declared here for reference before further detailing. ">ID_exception</a></code>. (In essence, all this adds is a test that year&gt;=1999).</p>
 <p>Note that the default <code>_minorid</code> is 0, which is expected for a <a class="el" href="classfz_1_1Log__chunk__ID.html">Log_chunk_ID</a>, while <a class="el" href="classfz_1_1Log__entry__ID.html">Log_entry_ID</a> <code>minor_id</code> values normally start at 1.</p>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -185,7 +193,8 @@ int16_t&#160;</td><td class="memItemRight" valign="bottom"><b>year</b></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Convert the standardized Formalizer <a class="el" href="classfz_1_1Log.html">Log</a> time stamp into equivalent UNIX epoch time.</p>
+
+<p>Convert the standardized Formalizer <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> time stamp into equivalent UNIX epoch time. </p>
 <dl class="section return"><dt>Returns</dt><dd>the equivalent UNIX epoch time, or -1 if null-stamp. </dd></dl>
 
 </div>
@@ -204,7 +213,8 @@ int16_t&#160;</td><td class="memItemRight" valign="bottom"><b>year</b></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Convert the standardized Formalizer <a class="el" href="classfz_1_1Log.html">Log</a> time stamp into equivalent localtime structure.</p>
+
+<p>Convert the standardized Formalizer <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> time stamp into equivalent localtime structure. </p>
 <dl class="section return"><dt>Returns</dt><dd>localtime structure (contains all-zero if null-stamp). </dd></dl>
 
 </div>

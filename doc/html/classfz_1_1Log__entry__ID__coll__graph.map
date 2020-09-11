@@ -1,4 +1,4 @@
 <map id="fz::Log_entry_ID" name="fz::Log_entry_ID">
-<area shape="rect" id="node2" href="$structfz_1_1Log__entry__ID__key.html" title="fz::Log_entry_ID_key" alt="" coords="5,95,152,121"/>
-<area shape="rect" id="node3" href="$structfz_1_1Log__TimeStamp.html" title="fz::Log_TimeStamp" alt="" coords="11,5,147,32"/>
+<area shape="rect" id="node2" href="$structfz_1_1Log__entry__ID__key.html" title="Standardized Formalizer Log entry ID key. " alt="" coords="5,95,152,121"/>
+<area shape="rect" id="node3" href="$structfz_1_1Log__TimeStamp.html" title="Timestamp IDs in the format required for Log IDs. " alt="" coords="11,5,147,32"/>
 </map>

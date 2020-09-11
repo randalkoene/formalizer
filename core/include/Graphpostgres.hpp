@@ -1,7 +1,7 @@
 // Copyright 2020 Randal A. Koene
 // License TBD
 
-/**
+/** @file Graphpostgres.hpp
  * This header file declares Graph, Node aned Edge Postgres types for use with the Formalizer.
  * These define the authoritative version of the data structure for storage in PostgreSQL.
  * 
@@ -62,18 +62,6 @@ enum pq_Tfields { pqt_id, pqt_supid, pqt_tag, pqt_title, pqt_keyword, pqt_releva
 enum pq_Nfields { pqn_id, pqn_topics, pqn_topicrelevance, pqn_valuation, pqn_completion, pqn_required, pqn_text, pqn_targetdate, pqn_tdproperty, pqn_isperiodic, pqn_tdperiodic, pqn_tdevery, pqn_tdspan, _pqn_NUM };
 enum pq_Efields { pqe_id, pqe_dependency, pqe_significance, pqe_importance, pqe_urgency, pqe_priority, _pqe_NUM };
 
-//extern std::string pq_schemaname; // *** This is now being supplied through standard.hpp:Graph_access::pq_schemaname
-
-PGconn* connection_setup_pq(std::string dbname);
-
-bool simple_call_pq(PGconn* conn, std::string astr);
-
-bool query_call_pq(PGconn* conn, std::string qstr, bool request_single_row_mode);
-
-int sample_query_data(PGconn *conn, unsigned int rstart, unsigned int rend, unsigned int cstart, unsigned int cend, std::string &databufstr);
-
-bool create_Formalizer_schema_pq(PGconn* conn, std::string schemaname);
-
 bool create_Enum_Types_pq(PGconn* conn, std::string schemaname);
 
 bool create_Topics_table_pq(PGconn *conn, std::string schemaname);
@@ -95,38 +83,6 @@ bool load_Graph_pq(Graph& graph, std::string dbname, std::string schemaname);
 std::vector<std::string> load_Node_parameter_interval(std::string dbname, std::string schemaname, pq_Nfields param, unsigned long from_row, unsigned long num_rows);
 
 std::vector<std::string> load_Edge_parameter_interval(std::string dbname, std::string schemaname, pq_Efields param, unsigned long from_row, unsigned long num_rows);
-
-inline std::string TimeStamp_pq(time_t t) {
-    if (t<0) return "'infinity'";
-    return TimeStamp("'%Y%m%d %H:%M'",t);
-}
-
-/**
- * A simulation class that enables Postgres call testing.
- * 
- * Call the SimulateChanges() member function to activate simulation.
- * Call the ActualChanges() member function to enable Postgres changes.
- * The default state is to make actual Postgres changes.
- * 
- * Use the global instantiation SimPQ.
- */
-class Simulate_PQ_Changes {
-protected:
-    bool simulate_pq_changes = false; /// Set this to test Postgres calls.
-    std::string simulated_pq_calls; /// Postgres calls are appended here when simulated.
-public:
-    void SimulateChanges() { simulate_pq_changes = true; }
-    void ActualChanges() { simulate_pq_changes = false; }
-    bool SimulatingPQChanges() const { return simulate_pq_changes; }
-    void AddToSimLog(std::string & pqcall) { simulated_pq_calls += pqcall + '\n'; }
-    bool SimPQChangesAndLog(std::string & pqcall) {
-        if (simulate_pq_changes) AddToSimLog(pqcall);
-        return simulate_pq_changes;
-    }
-    std::string & GetLog() { return simulated_pq_calls; }
-};
-
-extern Simulate_PQ_Changes SimPQ;
 
 /**
  * A data types conversion helper class that can deliver the Postgres Topics table

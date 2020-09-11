@@ -74,13 +74,16 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>Standardized Formalizer <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk ID key.  
+ <a href="structfz_1_1Log__chunk__ID__key.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="LogtypesID_8hpp_source.html">LogtypesID.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Collaboration diagram for fz::Log_chunk_ID_key:</div>
 <div class="dyncontent">
 <div class="center"><img src="structfz_1_1Log__chunk__ID__key__coll__graph.png" border="0" usemap="#fz_1_1Log__chunk__ID__key_coll__map" alt="Collaboration graph"/></div>
 <map name="fz_1_1Log__chunk__ID__key_coll__map" id="fz_1_1Log__chunk__ID__key_coll__map">
-<area shape="rect" id="node2" href="structfz_1_1Log__TimeStamp.html" title="fz::Log_TimeStamp" alt="" coords="14,5,150,32"/>
+<area shape="rect" id="node2" href="structfz_1_1Log__TimeStamp.html" title="Timestamp IDs in the format required for Log IDs. " alt="" coords="14,5,150,32"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -119,9 +122,9 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a396e17f076ff0d34415ff84373f10a2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Standardized Formalizer <a class="el" href="classfz_1_1Log.html">Log</a> chunk ID key.</p>
+<div class="textblock"><p>Standardized Formalizer <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk ID key. </p>
 <p>The principal constructors (all but the default constructor) each call a validity test for the key format and can throw an <a class="el" href="classfz_1_1ID__exception.html" title="Declared here for reference before further detailing. ">ID_exception</a>.</p>
-<p>In various containers, the ordering of <a class="el" href="classfz_1_1Log.html">Log</a> chunk ID keys is determined by the provided operator&lt;(). It calls its equivalent in <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a>, where std::tie() enables lexicographical comparison, from the largest temporal component to the smallest.</p>
+<p>In various containers, the ordering of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk ID keys is determined by the provided operator&lt;(). It calls its equivalent in <a class="el" href="structfz_1_1Log__TimeStamp.html" title="Timestamp IDs in the format required for Log IDs. ">Log_TimeStamp</a>, where std::tie() enables lexicographical comparison, from the largest temporal component to the smallest.</p>
 <p>The default constructor is provided for various special use cases such as initialization of containers. The <code>isnullkey()</code> function can test for this special state. </p>
 </div><hr/>The documentation for this struct was generated from the following files:<ul>
 <li>core/include/<a class="el" href="LogtypesID_8hpp_source.html">LogtypesID.hpp</a></li>

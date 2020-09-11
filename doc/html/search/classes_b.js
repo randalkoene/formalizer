@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['year_5fmonth_5fday_5ft',['year_month_day_t',['../structfz_1_1year__month__day__t.html',1,'fz']]]
+  ['section_5fconverter',['section_Converter',['../structsection__Converter.html',1,'']]],
+  ['section_5findexbuilder',['section_IndexBuilder',['../structsection__IndexBuilder.html',1,'']]],
+  ['simulate_5fpq_5fchanges',['Simulate_PQ_Changes',['../classfz_1_1Simulate__PQ__Changes.html',1,'fz']]]
 ];

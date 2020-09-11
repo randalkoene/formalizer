@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['miscellaneous_20prototypes_20for_20testing',['Miscellaneous Prototypes for Testing',['../md_tools_misc_README.html',1,'']]]
+  ['core_20_2d_20formalizer_20core_20components',['core - Formalizer core components',['../md_core_README.html',1,'']]]
 ];

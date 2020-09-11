@@ -191,4 +191,27 @@ bool file_to_string(std::string path, std::string & s, std::ifstream::iostate * 
     return true;
 }
 
+/**
+ * Read the full contents of a (text) stream into a string.
+ * 
+ * This implementation was tested to be faster than the one-liner implementations shown
+ * at https://stackoverflow.com/questions/3203452/how-to-read-entire-stream-into-a-stdstring,
+ * at least as of Oct. 2011. It might be even faster to pre-allocate buffer space according
+ * to stream size, as per the example inhttp://www.cplusplus.com/reference/istream/istream/read/,
+ * but it isn't immediately clear to me if that also works with STDIN.
+ * 
+ * Note: This can be used with STDIN (`cin`) as well.
+ * 
+ * @param in is an open istream.
+ * @param s reference to the receiving string.
+ * @return true if the read into string was successful.
+ */
+bool stream_to_string(std::istream &in, std::string & s) {
+    char buffer[4096];
+    while (in.read(buffer, sizeof(buffer)))
+        s.append(buffer, sizeof(buffer));
+    s.append(buffer, in.gcount());
+    return true; // *** might want to test the `badbit` mentioned in documentation
+}
+
 } // namespace fz

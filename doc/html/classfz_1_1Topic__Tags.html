@@ -75,6 +75,9 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p><a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> tag data, indexed by <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> ID.  
+ <a href="classfz_1_1Topic__Tags.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="Graphtypes_8hpp_source.html">Graphtypes.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -94,6 +97,7 @@ Topic_Tags_Vector::size_type&#160;</td><td class="memItemRight" valign="bottom">
 <tr class="memdesc:acec903092006746c5387326da466b62b"><td class="mdescLeft">&#160;</td><td class="mdescRight">get topic  <a href="#acec903092006746c5387326da466b62b">More...</a><br /></td></tr>
 <tr class="separator:acec903092006746c5387326da466b62b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab528d5100e6ec9340f8ffc8e3bb99be7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Topic.html">Topic</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Topic__Tags.html#ab528d5100e6ec9340f8ffc8e3bb99be7">find_by_tag</a> (std::string _tag)</td></tr>
+<tr class="memdesc:ab528d5100e6ec9340f8ffc8e3bb99be7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Search the topicbytag map and return a pointer to the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> if the tag was found.  <a href="#ab528d5100e6ec9340f8ffc8e3bb99be7">More...</a><br /></td></tr>
 <tr class="separator:ab528d5100e6ec9340f8ffc8e3bb99be7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
@@ -113,7 +117,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="separator:adab89dd110e80ade1f620ed7321d7863"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> tag data, indexed by <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> ID.</p>
+<div class="textblock"><p><a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> tag data, indexed by <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> ID. </p>
 <p><a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> objects are created during calls to <a class="el" href="classfz_1_1Topic__Tags.html#aea7ba8607f3ea08cd3e40a696df78525" title="tables extend ">find_or_add_Topic()</a> in this class. Those objects are destroyed when the instance of this class is deleted. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="acec903092006746c5387326da466b62b"></a>
@@ -141,7 +145,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><div class="memdoc">
 
 <p>get topic </p>
-<p>Find a <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> in the <a class="el" href="classfz_1_1Topic__Tags.html">Topic_Tags</a> table by <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> ID.</p>
+<p>Find a <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> in the <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> table by <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> ID.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">_id</td><td>a <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> ID. </td></tr>
@@ -167,7 +171,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Search the topicbytag map and return a pointer to the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> if the tag was found.</p>
+
+<p>Search the topicbytag map and return a pointer to the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> if the tag was found. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">_tag</td><td>a topic tag label </td></tr>

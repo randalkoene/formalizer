@@ -82,7 +82,7 @@ Collaboration diagram for fz::Graph:</div>
 <div class="dyncontent">
 <div class="center"><img src="classfz_1_1Graph__coll__graph.png" border="0" usemap="#fz_1_1Graph_coll__map" alt="Collaboration graph"/></div>
 <map name="fz_1_1Graph_coll__map" id="fz_1_1Graph_coll__map">
-<area shape="rect" id="node2" href="classfz_1_1Topic__Tags.html" title="fz::Topic_Tags" alt="" coords="5,5,115,32"/>
+<area shape="rect" id="node2" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. " alt="" coords="5,5,115,32"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -146,8 +146,10 @@ auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>end_Nodes</b> () const</td></tr>
 <tr class="separator:a5a9691c6f4eebcbb98661598d2630356"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a386138eacb233452cc00aaf3de31e033"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a386138eacb233452cc00aaf3de31e033">Node_by_id</a> (const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;id) const</td></tr>
+<tr class="memdesc:a386138eacb233452cc00aaf3de31e033"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> by its ID key.  <a href="#a386138eacb233452cc00aaf3de31e033">More...</a><br /></td></tr>
 <tr class="separator:a386138eacb233452cc00aaf3de31e033"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a498bc12182fb03eb8bf01923d3e953ab"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a498bc12182fb03eb8bf01923d3e953ab">Node_by_idstr</a> (std::string idstr) const</td></tr>
+<tr class="memdesc:a498bc12182fb03eb8bf01923d3e953ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> by its ID key from a string.  <a href="#a498bc12182fb03eb8bf01923d3e953ab">More...</a><br /></td></tr>
 <tr class="separator:a498bc12182fb03eb8bf01923d3e953ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8adda9a84171030a012cf47126879832"><td class="memItemLeft" align="right" valign="top"><a id="a8adda9a84171030a012cf47126879832"></a>
 Node_Index&#160;</td><td class="memItemRight" valign="bottom"><b>get_Indexed_Nodes</b> () const</td></tr>
@@ -160,6 +162,7 @@ auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>end_Edges</b> () const</td></tr>
 <tr class="separator:a9bb7a6ca30e2870011011c5c738515e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5b71565b1a517549954fa8baf60d69da"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Edge.html">Edge</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a5b71565b1a517549954fa8baf60d69da">Edge_by_id</a> (const <a class="el" href="structfz_1_1Edge__ID__key.html">Edge_ID_key</a> &amp;id) const</td></tr>
+<tr class="memdesc:a5b71565b1a517549954fa8baf60d69da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find an <a class="el" href="classfz_1_1Edge.html">Edge</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> by its ID key.  <a href="#a5b71565b1a517549954fa8baf60d69da">More...</a><br /></td></tr>
 <tr class="separator:a5b71565b1a517549954fa8baf60d69da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a25cc71ae786452ce6be68f9c9c02034b"><td class="memItemLeft" align="right" valign="top"><a id="a25cc71ae786452ce6be68f9c9c02034b"></a>
 <a class="el" href="classfz_1_1Topic.html">Topic</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a25cc71ae786452ce6be68f9c9c02034b">find_Topic_by_id</a> (Topic_ID _id)</td></tr>
@@ -182,6 +185,7 @@ errcodes&#160;</td><td class="memItemRight" valign="bottom"><b>error</b> = g_noe
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
 <tr class="memitem:af7d7d17a420e43e58655a1d0e85850e5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#af7d7d17a420e43e58655a1d0e85850e5">set_all_semaphores</a> (int sval)</td></tr>
+<tr class="memdesc:af7d7d17a420e43e58655a1d0e85850e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the semaphore variables of all Nodes in the <a class="el" href="classfz_1_1Graph.html">Graph</a> to a specified value.  <a href="#af7d7d17a420e43e58655a1d0e85850e5">More...</a><br /></td></tr>
 <tr class="separator:af7d7d17a420e43e58655a1d0e85850e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
@@ -233,14 +237,15 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Node</b></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Find an <a class="el" href="classfz_1_1Edge.html">Edge</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> by its ID key.</p>
+
+<p>Find an <a class="el" href="classfz_1_1Edge.html">Edge</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> by its ID key. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">id</td><td>an <a class="el" href="classfz_1_1Edge.html">Edge</a> ID key. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>pointer to <a class="el" href="classfz_1_1Node.html">Node</a> (or nullptr if not found). </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> (or nullptr if not found). </dd></dl>
 
 </div>
 </div>
@@ -267,14 +272,15 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Node</b></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Find a <a class="el" href="classfz_1_1Node.html">Node</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> by its ID key.</p>
+
+<p>Find a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> by its ID key. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">id</td><td>a <a class="el" href="classfz_1_1Node.html">Node</a> ID key. </td></tr>
+    <tr><td class="paramname">id</td><td>a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> ID key. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>pointer to <a class="el" href="classfz_1_1Node.html">Node</a> (or nullptr if not found). </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> (or nullptr if not found). </dd></dl>
 
 </div>
 </div>
@@ -301,14 +307,15 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Node</b></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Find a <a class="el" href="classfz_1_1Node.html">Node</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> by its ID key from a string.</p>
+
+<p>Find a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> by its ID key from a string. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">idstr</td><td>a string specifying a <a class="el" href="classfz_1_1Node.html">Node</a> ID key. </td></tr>
+    <tr><td class="paramname">idstr</td><td>a string specifying a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> ID key. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>pointer to <a class="el" href="classfz_1_1Node.html">Node</a> (or nullptr if not found). </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> (or nullptr if not found). </dd></dl>
 
 </div>
 </div>
@@ -335,8 +342,9 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Node</b></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Set the semaphore variables of all Nodes in the <a class="el" href="classfz_1_1Graph.html">Graph</a> to a specified value.</p>
-<p>An example where this is used are <a class="el" href="classfz_1_1Graph.html">Graph</a> traversing functions, such as the <a class="el" href="classfz_1_1Node.html#a3ff58c0cd01e3418955b7918a7fd26fd">Node::inherit_targetdate()</a> function. </p>
+
+<p>Set the semaphore variables of all Nodes in the <a class="el" href="classfz_1_1Graph.html">Graph</a> to a specified value. </p>
+<p>An example where this is used are <a class="el" href="classfz_1_1Graph.html">Graph</a> traversing functions, such as the <a class="el" href="classfz_1_1Node.html#a3ff58c0cd01e3418955b7918a7fd26fd" title="This function attempt to determine an inherited target date from superior Nodes. ">Node::inherit_targetdate()</a> function. </p>
 
 </div>
 </div>
@@ -382,7 +390,6 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Node</b></td></tr>
 </div><div class="memdoc">
 
 <p>friend (utility) functions </p>
-<p>Compare two Graphs to report if they are data-identical.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">graph1</td><td>the first <a class="el" href="classfz_1_1Graph.html">Graph</a>. </td></tr>

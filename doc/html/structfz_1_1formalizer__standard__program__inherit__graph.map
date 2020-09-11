@@ -1,6 +1,8 @@
 <map id="fz::formalizer_standard_program" name="fz::formalizer_standard_program">
-<area shape="rect" id="node2" href="$structdil2graph.html" title="dil2graph" alt="" coords="5,95,80,121"/>
-<area shape="rect" id="node3" href="$structfzquerypq.html" title="fzquerypq" alt="" coords="105,95,183,121"/>
-<area shape="rect" id="node4" href="$structgraph2dil.html" title="graph2dil" alt="" coords="208,95,283,121"/>
-<area shape="rect" id="node5" href="$structnodeboard.html" title="nodeboard" alt="" coords="307,95,389,121"/>
+<area shape="rect" id="node2" href="$structboilerplate.html" title="boilerplate" alt="" coords="5,95,87,121"/>
+<area shape="rect" id="node3" href="$structdil2graph.html" title="dil2graph" alt="" coords="111,95,186,121"/>
+<area shape="rect" id="node4" href="$structfzguide__system.html" title="fzguide_system" alt="" coords="210,95,325,121"/>
+<area shape="rect" id="node5" href="$structfzquerypq.html" title="fzquerypq" alt="" coords="349,95,428,121"/>
+<area shape="rect" id="node6" href="$structgraph2dil.html" title="graph2dil" alt="" coords="453,95,527,121"/>
+<area shape="rect" id="node7" href="$structnodeboard.html" title="nodeboard" alt="" coords="551,95,634,121"/>
 </map>

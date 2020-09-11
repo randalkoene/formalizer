@@ -76,17 +76,20 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>(A woefully incomplete class documentation.)  
+ <a href="classfz_1_1Node.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="Graphtypes_8hpp_source.html">Graphtypes.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Collaboration diagram for fz::Node:</div>
 <div class="dyncontent">
 <div class="center"><img src="classfz_1_1Node__coll__graph.png" border="0" usemap="#fz_1_1Node_coll__map" alt="Collaboration graph"/></div>
 <map name="fz_1_1Node_coll__map" id="fz_1_1Node_coll__map">
-<area shape="rect" id="node2" href="classfz_1_1Node__ID.html" title="fz::Node_ID" alt="" coords="42,184,135,211"/>
-<area shape="rect" id="node3" href="structfz_1_1Node__ID__key.html" title="fz::Node_ID_key" alt="" coords="9,95,131,121"/>
-<area shape="rect" id="node4" href="structfz_1_1ID__TimeStamp.html" title="fz::ID_TimeStamp" alt="" coords="5,5,135,32"/>
+<area shape="rect" id="node2" href="classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use. " alt="" coords="42,184,135,211"/>
+<area shape="rect" id="node3" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. " alt="" coords="9,95,131,121"/>
+<area shape="rect" id="node4" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. " alt="" coords="5,5,135,32"/>
 <area shape="rect" id="node5" href="classfz_1_1Graph.html" title="fz::Graph" alt="" coords="168,184,244,211"/>
-<area shape="rect" id="node6" href="classfz_1_1Topic__Tags.html" title="fz::Topic_Tags" alt="" coords="155,95,265,121"/>
+<area shape="rect" id="node6" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. " alt="" coords="155,95,265,121"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -148,10 +151,10 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>add_topic</b> (Topic_
 <tr class="separator:a00de2807ea7724336dee5c1613c43a26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acf00714840873c4882c55312c5038329"><td class="memItemLeft" align="right" valign="top"><a id="acf00714840873c4882c55312c5038329"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Node.html#acf00714840873c4882c55312c5038329">add_topic</a> (std::string tag, std::string title, float topicrelevance)</td></tr>
-<tr class="memdesc:acf00714840873c4882c55312c5038329"><td class="mdescLeft">&#160;</td><td class="mdescRight">Use this version if the <a class="el" href="classfz_1_1Node.html">Node</a> is already in a <a class="el" href="classfz_1_1Graph.html">Graph</a>. <br /></td></tr>
+<tr class="memdesc:acf00714840873c4882c55312c5038329"><td class="mdescLeft">&#160;</td><td class="mdescRight">Use this version if the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> is already in a <a class="el" href="classfz_1_1Graph.html">Graph</a>. <br /></td></tr>
 <tr class="separator:acf00714840873c4882c55312c5038329"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae072f35e249bbd68a916553acc512fdd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Node.html#ae072f35e249bbd68a916553acc512fdd">remove_topic</a> (uint16_t id)</td></tr>
-<tr class="memdesc:ae072f35e249bbd68a916553acc512fdd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Use this version if the <a class="el" href="classfz_1_1Node.html">Node</a> is already in a <a class="el" href="classfz_1_1Graph.html">Graph</a>.  <a href="#ae072f35e249bbd68a916553acc512fdd">More...</a><br /></td></tr>
+<tr class="memdesc:ae072f35e249bbd68a916553acc512fdd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Use this version if the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> is already in a <a class="el" href="classfz_1_1Graph.html">Graph</a>.  <a href="#ae072f35e249bbd68a916553acc512fdd">More...</a><br /></td></tr>
 <tr class="separator:ae072f35e249bbd68a916553acc512fdd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada223653a0a59b039e0fc1b05f135b9a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Node.html#ada223653a0a59b039e0fc1b05f135b9a">remove_topic</a> (std::string tag)</td></tr>
 <tr class="separator:ada223653a0a59b039e0fc1b05f135b9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -206,10 +209,13 @@ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_semaphore</b> (int sval)</td></tr>
 <tr class="separator:a58b9ccc83f35aae502dbd9617ef26395"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0204ee1e8d0bcc62b27ec70db293ff56"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Node.html#a0204ee1e8d0bcc62b27ec70db293ff56">set_all_semaphores</a> (int sval)</td></tr>
+<tr class="memdesc:a0204ee1e8d0bcc62b27ec70db293ff56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempt to set the semaphore variables of all Nodes in the graph to a specified value.  <a href="#a0204ee1e8d0bcc62b27ec70db293ff56">More...</a><br /></td></tr>
 <tr class="separator:a0204ee1e8d0bcc62b27ec70db293ff56"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a20e11299205f7f310b51b52647e0e6ec"><td class="memItemLeft" align="right" valign="top">time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Node.html#a20e11299205f7f310b51b52647e0e6ec">nested_inherit_targetdate</a> ()</td></tr>
+<tr class="memdesc:a20e11299205f7f310b51b52647e0e6ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is the nested recursive <a class="el" href="classfz_1_1Graph.html">Graph</a> traversal function used to search for inherited target dates.  <a href="#a20e11299205f7f310b51b52647e0e6ec">More...</a><br /></td></tr>
 <tr class="separator:a20e11299205f7f310b51b52647e0e6ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ff58c0cd01e3418955b7918a7fd26fd"><td class="memItemLeft" align="right" valign="top">time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Node.html#a3ff58c0cd01e3418955b7918a7fd26fd">inherit_targetdate</a> ()</td></tr>
+<tr class="memdesc:a3ff58c0cd01e3418955b7918a7fd26fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function attempt to determine an inherited target date from superior Nodes.  <a href="#a3ff58c0cd01e3418955b7918a7fd26fd">More...</a><br /></td></tr>
 <tr class="separator:a3ff58c0cd01e3418955b7918a7fd26fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
@@ -219,7 +225,7 @@ const <a class="el" href="classfz_1_1Node__ID.html">Node_ID</a>&#160;</td><td cl
 <tr class="separator:add50fd1264f150a98ed4678d1ebb664d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ade2811e5efa9705e9e76a42e695b63de"><td class="memItemLeft" align="right" valign="top"><a id="ade2811e5efa9705e9e76a42e695b63de"></a>
 Topics_Set&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Node.html#ade2811e5efa9705e9e76a42e695b63de">topics</a></td></tr>
-<tr class="memdesc:ade2811e5efa9705e9e76a42e695b63de"><td class="mdescLeft">&#160;</td><td class="mdescRight">unique <a class="el" href="classfz_1_1Node.html">Node</a> identifier <br /></td></tr>
+<tr class="memdesc:ade2811e5efa9705e9e76a42e695b63de"><td class="mdescLeft">&#160;</td><td class="mdescRight">unique <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> identifier <br /></td></tr>
 <tr class="separator:ade2811e5efa9705e9e76a42e695b63de"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aadab4c335087e5fbb5347c2a1752cf4d"><td class="memItemLeft" align="right" valign="top"><a id="aadab4c335087e5fbb5347c2a1752cf4d"></a>
 float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Node.html#aadab4c335087e5fbb5347c2a1752cf4d">valuation</a></td></tr>
@@ -267,7 +273,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class
 <tr class="separator:a26c8aa7f2980338364cce5f38550c4fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa56ddc67a1a31ca87ce572e88d9be4b1"><td class="memItemLeft" align="right" valign="top"><a id="aa56ddc67a1a31ca87ce572e88d9be4b1"></a>
 <a class="el" href="namespacefz.html#a22cb31bb2e4314340751a857568610fe">Edges_Set</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Node.html#aa56ddc67a1a31ca87ce572e88d9be4b1">supedges</a></td></tr>
-<tr class="memdesc:aa56ddc67a1a31ca87ce572e88d9be4b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">this is set when the <a class="el" href="classfz_1_1Node.html">Node</a> is added to a <a class="el" href="classfz_1_1Graph.html">Graph</a> <br /></td></tr>
+<tr class="memdesc:aa56ddc67a1a31ca87ce572e88d9be4b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">this is set when the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> is added to a <a class="el" href="classfz_1_1Graph.html">Graph</a> <br /></td></tr>
 <tr class="separator:aa56ddc67a1a31ca87ce572e88d9be4b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1b72361faf162c0b85f8f0d2af4d01f2"><td class="memItemLeft" align="right" valign="top"><a id="a1b72361faf162c0b85f8f0d2af4d01f2"></a>
 <a class="el" href="namespacefz.html#a22cb31bb2e4314340751a857568610fe">Edges_Set</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Node.html#a1b72361faf162c0b85f8f0d2af4d01f2">depedges</a></td></tr>
@@ -289,12 +295,14 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Edge</b></td></tr>
 <tr class="memdesc:a903bd9856abc32abb08e3b187b1d92b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">friend (utility) functions  <a href="#a903bd9856abc32abb08e3b187b1d92b1">More...</a><br /></td></tr>
 <tr class="separator:a903bd9856abc32abb08e3b187b1d92b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea139461a7918888a644a4d9663ec169"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Topic.html">Topic</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Node.html#aea139461a7918888a644a4d9663ec169">main_topic</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;_graph, <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node)</td></tr>
+<tr class="memdesc:aea139461a7918888a644a4d9663ec169"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> of a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a>, as indicated by the maximum Topic_Relevance value.  <a href="#aea139461a7918888a644a4d9663ec169">More...</a><br /></td></tr>
 <tr class="separator:aea139461a7918888a644a4d9663ec169"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2b54aba92a839681b7fa0a989af18168"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Node.html#a2b54aba92a839681b7fa0a989af18168">identical_Nodes</a> (<a class="el" href="classfz_1_1Node.html">Node</a> &amp;node1, <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node2, std::string &amp;trace)</td></tr>
+<tr class="memdesc:a2b54aba92a839681b7fa0a989af18168"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determine if two <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> objects contain the same data.  <a href="#a2b54aba92a839681b7fa0a989af18168">More...</a><br /></td></tr>
 <tr class="separator:a2b54aba92a839681b7fa0a989af18168"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>(A woefully incomplete class documentation.)</p>
+<div class="textblock"><p>(A woefully incomplete class documentation.) </p>
 <p>Note that the set_text_unchecked() member function provides a fast way to set the <a class="el" href="classfz_1_1Node.html#a263525f4d8b7ca661a4c888b7f9abdb9" title="seconds ">Node.text</a> parameter, but could lead to invalid UTF8 content. Use it only when the source is guaranteed to be UTF8 encoded, such as when loading data from a database with built-in UTF8 type checking. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a25180de16214e9463f4a098546ec2749"></a>
@@ -330,7 +338,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Edge</b></td></tr>
 </div><div class="memdoc">
 
 <p>change parameters: topics </p>
-<p>id needs to exist in <a class="el" href="classfz_1_1Topic__Tags.html">Topic_Tags</a> first </p>
+<p>id needs to exist in <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> first </p>
 
 </div>
 </div>
@@ -350,15 +358,15 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Edge</b></td></tr>
 </div><div class="memdoc">
 
 <p><a class="el" href="classfz_1_1Graph.html">Graph</a> relative operations. </p>
-<p>Determine the effective target date of the <a class="el" href="classfz_1_1Node.html">Node</a> using the inheritance protocol.</p>
-<p>If the <a class="el" href="classfz_1_1Node.html">Node</a> target date is specified at the <a class="el" href="classfz_1_1Node.html">Node</a> then that target date is used. If the <a class="el" href="classfz_1_1Node.html">Node</a> target date is unspecifeid, then the target dates of Superiors are recursively checked to find and inherit the earliest one.</p>
-<dl class="section attention"><dt>Attention</dt><dd>In <a class="el" href="classfz_1_1Graph.html">Graph</a> v2.x format, the tdproperty values 'unspecified' and 'inherit' always take precedence over the value of the local targetvalue parameter. Both of those properties demand that the effective target date of the <a class="el" href="classfz_1_1Node.html">Node</a> is obtained by inheritance from Superiors, and if none is inherited then -1 is returned to indicate that no target date is to be taken into consideration when scheduling this <a class="el" href="classfz_1_1Node.html">Node</a>.</dd>
+<p>Determine the effective target date of the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> using the inheritance protocol.</p>
+<p>If the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> target date is specified at the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> then that target date is used. If the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> target date is unspecifeid, then the target dates of Superiors are recursively checked to find and inherit the earliest one.</p>
+<dl class="section attention"><dt>Attention</dt><dd>In <a class="el" href="classfz_1_1Graph.html">Graph</a> v2.x format, the tdproperty values 'unspecified' and 'inherit' always take precedence over the value of the local targetvalue parameter. Both of those properties demand that the effective target date of the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> is obtained by inheritance from Superiors, and if none is inherited then -1 is returned to indicate that no target date is to be taken into consideration when scheduling this <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a>.</dd>
 <dd>
-If the tdproperty value is not 'unspecified' or 'inherit' then the local targetdate value of the <a class="el" href="classfz_1_1Node.html">Node</a> is used, unless that value is smaller than 0. If it is smaller than 0 then this function attempts to correct the specification as follows: a) If tdproperty was 'fixed' then tdproperty is corrected to 'inherit'. b) If tdproperty was any other value then tdproperty is corrected to 'unspecified'.</dd>
+If the tdproperty value is not 'unspecified' or 'inherit' then the local targetdate value of the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> is used, unless that value is smaller than 0. If it is smaller than 0 then this function attempts to correct the specification as follows: a) If tdproperty was 'fixed' then tdproperty is corrected to 'inherit'. b) If tdproperty was any other value then tdproperty is corrected to 'unspecified'.</dd>
 <dd>
 Where this function is concerned, any value in the local targetdate parameter is ignored if tdproperty is 'unspecified' or 'inherit'. It is therefore technically possible to use the targetdate parameter as a cache for a potential target date hint (in case tdproperty is changed), but keep in mind that such hints are not guaranteed to be preserved to earlier or later versions of the data structure format.</dd></dl>
 <p>Historical: This is the <a class="el" href="classfz_1_1Graph.html">Graph</a> v2.x equivalent of the dil2al v1.x DIL_entry::Target_Date() function that obtains a target date, propagated as needed from Superiors, while also taking note of and protecting against possible loops in the graph structure.</p>
-<dl class="section return"><dt>Returns</dt><dd>the date and time in time_t seconds format, or -1 if there is no target date to take into account when scheduling this <a class="el" href="classfz_1_1Node.html">Node</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>the date and time in time_t seconds format, or -1 if there is no target date to take into account when scheduling this <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a>. </dd></dl>
 
 </div>
 </div>
@@ -384,9 +392,11 @@ Where this function is concerned, any value in the local targetdate parameter is
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This function attempt to determine an inherited target date from superior Nodes. It does not use the local targetdate parameter of the <a class="el" href="classfz_1_1Node.html">Node</a>.</p>
+
+<p>This function attempt to determine an inherited target date from superior Nodes. </p>
+<p>It does not use the local targetdate parameter of the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a>.</p>
 <p>Use this function with care. It is normally used by the safe function <a class="el" href="classfz_1_1Node.html#a092cbf79c74338b1a2dead8ecf708eed" title="Graph relative operations. ">effective_targetdate()</a> to resolve unspecified targe dates.</p>
-<p>This function return the special value -2 if the <a class="el" href="classfz_1_1Node.html">Node</a> is not connected to a <a class="el" href="classfz_1_1Graph.html">Graph</a>.</p>
+<p>This function return the special value -2 if the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> is not connected to a <a class="el" href="classfz_1_1Graph.html">Graph</a>.</p>
 <dl class="section return"><dt>Returns</dt><dd>the earliest date and time in time_t format that could be retrieved from the tree of superior Nodes, or MAXTIME_T if none could be found. </dd></dl>
 
 </div>
@@ -407,7 +417,7 @@ Where this function is concerned, any value in the local targetdate parameter is
 </div><div class="memdoc">
 
 <p>helper functions </p>
-<p>Report the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> (by ID) of the <a class="el" href="classfz_1_1Node.html">Node</a>, as indicated by the maximum Topic_Relevance value.</p>
+<p>Report the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> (by ID) of the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a>, as indicated by the maximum Topic_Relevance value.</p>
 <dl class="section return"><dt>Returns</dt><dd>Topic_ID of main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a>. </dd></dl>
 
 </div>
@@ -434,7 +444,9 @@ Where this function is concerned, any value in the local targetdate parameter is
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This is the nested recursive <a class="el" href="classfz_1_1Graph.html">Graph</a> traversal function used to search for inherited target dates. Normally only call this function recursively or from <a class="el" href="classfz_1_1Node.html#a3ff58c0cd01e3418955b7918a7fd26fd">inherit_targetdate()</a>.</p>
+
+<p>This is the nested recursive <a class="el" href="classfz_1_1Graph.html">Graph</a> traversal function used to search for inherited target dates. </p>
+<p>Normally only call this function recursively or from <a class="el" href="classfz_1_1Node.html#a3ff58c0cd01e3418955b7918a7fd26fd" title="This function attempt to determine an inherited target date from superior Nodes. ">inherit_targetdate()</a>.</p>
 <p>Like the <a class="el" href="classfz_1_1Node.html#a092cbf79c74338b1a2dead8ecf708eed" title="Graph relative operations. ">effective_targetdate()</a> function, this function attempts to correct a situation where the local targetdate is unspecified while the local tdproperty does not indicate that. For more information, see the comments of the <a class="el" href="classfz_1_1Node.html#a092cbf79c74338b1a2dead8ecf708eed" title="Graph relative operations. ">effective_targetdate()</a> function.</p>
 <dl class="section return"><dt>Returns</dt><dd>the local targetdate parameter value if specified, or MAXTIME_T if a loop conditin was encountered, or the earliest target date returned by recursion to superior Nodes, or MAXTIME_T if there were none. </dd></dl>
 
@@ -456,7 +468,7 @@ Where this function is concerned, any value in the local targetdate parameter is
       </table>
 </div><div class="memdoc">
 
-<p>Use this version if the <a class="el" href="classfz_1_1Node.html">Node</a> is already in a <a class="el" href="classfz_1_1Graph.html">Graph</a>. </p>
+<p>Use this version if the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> is already in a <a class="el" href="classfz_1_1Graph.html">Graph</a>. </p>
 <p>By convention, you must have at least one topic tag. </p>
 
 </div>
@@ -503,8 +515,9 @@ Where this function is concerned, any value in the local targetdate parameter is
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Attempt to set the semaphore variables of all Nodes in the graph to a specified value.</p>
-<dl class="section return"><dt>Returns</dt><dd>true if sucessful, false if the <a class="el" href="classfz_1_1Node.html">Node</a> is not connected to a valid <a class="el" href="classfz_1_1Graph.html">Graph</a>. </dd></dl>
+
+<p>Attempt to set the semaphore variables of all Nodes in the graph to a specified value. </p>
+<dl class="section return"><dt>Returns</dt><dd>true if sucessful, false if the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> is not connected to a valid <a class="el" href="classfz_1_1Graph.html">Graph</a>. </dd></dl>
 
 </div>
 </div>
@@ -607,7 +620,8 @@ Where this function is concerned, any value in the local targetdate parameter is
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Determine if two <a class="el" href="classfz_1_1Node.html">Node</a> objects contain the same data.</p>
+
+<p>Determine if two <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> objects contain the same data. </p>
 <p>Note that this does not compare the rapid-access Edges_Set supedges and depedges, since they are sets of pointers created as <a class="el" href="classfz_1_1Graph.html">Graph</a> Edges are added. They might end up in a different order, but they ought to be the same ones as in the Edge_Map. </p>
 
 </div>
@@ -647,12 +661,11 @@ Where this function is concerned, any value in the local targetdate parameter is
 </div><div class="memdoc">
 
 <p>friend (utility) functions </p>
-<p>Find the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> of a <a class="el" href="classfz_1_1Node.html">Node</a>, as indicated by the maximum Topic_Relevance value.</p>
-<p>Note: This is a friend function in order to ensure that the search for the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is called only when a valid <a class="el" href="classfz_1_1Topic__Tags.html">Topic_Tags</a> list can provid pointers to them.</p>
+<p>Note: This is a friend function in order to ensure that the search for the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is called only when a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> list can provid pointers to them.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname"><a class="el" href="classfz_1_1Topic__Tags.html">Topic_Tags</a></td><td>a valid <a class="el" href="classfz_1_1Topic__Tags.html">Topic_Tags</a> list. </td></tr>
-    <tr><td class="paramname">node</td><td>a <a class="el" href="classfz_1_1Node.html">Node</a> for which the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> is requested. </td></tr>
+    <tr><td class="paramname"><a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a></td><td>a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> list. </td></tr>
+    <tr><td class="paramname">node</td><td>a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> for which the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> is requested. </td></tr>
   </table>
   </dd>
 </dl>
@@ -693,12 +706,13 @@ Where this function is concerned, any value in the local targetdate parameter is
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Find the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> of a <a class="el" href="classfz_1_1Node.html">Node</a>, as indicated by the maximum Topic_Relevance value.</p>
-<p>Note: This is a friend function in order to ensure that the search for the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is called only when a valid <a class="el" href="classfz_1_1Topic__Tags.html">Topic_Tags</a> list that is known to a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> can provid pointers to them.</p>
+
+<p>Find the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> of a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a>, as indicated by the maximum Topic_Relevance value. </p>
+<p>Note: This is a friend function in order to ensure that the search for the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is called only when a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> list that is known to a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> can provid pointers to them.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">_graph</td><td>a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> that has a <a class="el" href="classfz_1_1Topic__Tags.html">Topic_Tags</a> list. </td></tr>
-    <tr><td class="paramname">node</td><td>a <a class="el" href="classfz_1_1Node.html">Node</a> for which the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> is requested. </td></tr>
+    <tr><td class="paramname">_graph</td><td>a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> that has a <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> list. </td></tr>
+    <tr><td class="paramname">node</td><td>a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> for which the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> is requested. </td></tr>
   </table>
   </dd>
 </dl>

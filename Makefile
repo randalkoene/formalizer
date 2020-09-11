@@ -22,26 +22,36 @@ OBJ=./obj
 TEST=./test
 # +----- end  : Formalizer source directory structure -----+
 
-
+# +----- begin: Select Formalizer compilables -----+
+LIBCOMPDIRS = $(COREPATH)/lib
+CORECOMPDIRS = $(COREPATH)/fzguide.system
+CORECOMPDIRS += $(COREPATH)/fzquerypq
+CORECOMPDIRS += $(COREPATH)/fzserverpq
+CORECOMPDIRS += $(COREPATH)/
+CORECOMPDIRS += $(COREPATH)/
+TOOLSCOMPDIRS =
+COMPILABLES = $(LIBCOMPDIRS) $(CORECOMPDIRS) $(TOOLSCOMPDIRS)
+# +----- end  : Select Formalizer compilables -----+
 
 # +----- begin: Select Formalizer executables -----+
 EXECUTABLES = $(COREPATH)/fzquerypq/fzquerypq
 EXECUTABLES += $(COREPATH)/fzserverpq/fzserverpq
 EXECUTABLES += $(COREPATH)/fzsetup/fzsetup.py
+EXECUTABLES += $(COREPATH)/fzguide.system/fzguide.system
 
-EXECUTABLES += $(TOOLSPATH)/boilerplate/boilerplate
+EXECUTABLES += $(TOOLSPATH)/dev/boilerplate/boilerplate
 EXECUTABLES += $(TOOLSPATH)/compat/dil2al-polldaemon.sh
 EXECUTABLES += $(TOOLSPATH)/graph2dil/graph2dil
 EXECUTABLES += $(TOOLSPATH)/requestmanual/requestmanual.py
 EXECUTABLES += $(TOOLSPATH)/dil2graph/dil2graph
 EXECUTABLES += $(TOOLSPATH)/earlywiz/earlywiz.py
-# EXECUTABLES += $(TOOLSPATH)/fzguide.system/fzguide.system
 EXECUTABLES += $(TOOLSPATH)/nodeboard/nodeboard
 
 CGIEXE = $(COREPATH)/fzquerypq/fzquerypq
 CGIEXE += $(TOOLSPATH)/logentry-form/logentry-form.py
 # +----- end  : Select Formalizer executables -----+
 
+# See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
 .PHONY: FORCE
 
 all: init executables doxygen
@@ -56,7 +66,7 @@ init: FORCE
 executables: $(EXECUTABLES)
 	mkdir -p $(EXEDIR)
 	ln -f -s $(EXECUTABLES) $(EXEDIR)/
-	ln -f -s $(CGIEXE) $(CGIDIR)/
+	sudo ln -f -s $(CGIEXE) $(CGIDIR)/
 
 doxygen: FORCE
 	doxygen Doxyfile

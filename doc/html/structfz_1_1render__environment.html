@@ -74,11 +74,15 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>Configuration for a template rendering environment.  
+ <a href="structfz_1_1render__environment.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="templater_8hpp_source.html">templater.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a289b5da56aeb2bd661644adf0b547a96"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1render__environment.html#a289b5da56aeb2bd661644adf0b547a96">render</a> (const std::string temp, <a class="el" href="structfz_1_1template__varvalues.html">template_varvalues</a> vars, bool proceed_if_emptyvars=true)</td></tr>
+<tr class="memdesc:a289b5da56aeb2bd661644adf0b547a96"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the variables in the template and replaces them with the values of those variables.  <a href="#a289b5da56aeb2bd661644adf0b547a96">More...</a><br /></td></tr>
 <tr class="separator:a289b5da56aeb2bd661644adf0b547a96"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
@@ -97,7 +101,7 @@ render_error_t&#160;</td><td class="memItemRight" valign="bottom"><b>render_erro
 <tr class="separator:a736eca321ae066572e1d6c1d6c3fb954"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Configuration for a template rendering environment.</p>
+<div class="textblock"><p>Configuration for a template rendering environment. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">varopen</td><td>is the string that opens a variable label in the template. </td></tr>
@@ -138,7 +142,8 @@ render_error_t&#160;</td><td class="memItemRight" valign="bottom"><b>render_erro
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Finds the variables in the template and replaces them with the values of those variables.</p>
+
+<p>Finds the variables in the template and replaces them with the values of those variables. </p>
 <p>If an error is encountered then an empty string is returned and the <code>render_environment::render_error</code> variable is set. Some potential errors are reduced to warnings if <code>render_environment::skipmissing</code> is true.</p>
 <p>When the <code>proceed_if_emptyvars</code> flag is true then rendering will be attempted eevn if <code>vars</code> contains no variable values. This is useful when a template may contain no variable labels to substitute.</p>
 <dl class="params"><dt>Parameters</dt><dd>

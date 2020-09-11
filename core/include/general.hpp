@@ -18,6 +18,11 @@
 
 namespace fz {
 
+/// Invere of <cctype>:isdigit().
+inline bool is_not_digit(int c) {
+    return !isdigit(c);
+}
+
 std::string shellcmd2str(std::string cmd);
 
 std::string to_precision_string(double d, unsigned int p = 2);
@@ -73,6 +78,8 @@ inline std::string string_from_file(std::string path, std::ifstream::iostate * r
     file_to_string(path,s,readstate);
     return s;
 }
+
+bool stream_to_string(std::istream &in, std::string & s);
 
 } // namespace fz
 

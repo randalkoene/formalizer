@@ -1,7 +1,7 @@
 // Copyright 2020 Randal A. Koene
 // License TBD
 
-/**
+/** @file Logpostgres.hpp
  * This header file declares Log Postgres types for use with the Formalizer.
  * These define the authoritative version of the data structure for storage in PostgreSQL.
  * 
@@ -35,7 +35,9 @@
 #include "coreversion.hpp"
 #define __LOGPOSTGRES_HPP (__COREVERSION_HPP)
 
+// core
 #include "Logtypes.hpp"
+#include "fzpostgres.hpp"
 
 /**
  * On Ubuntu, to install the libpq libraries, including the libpq-fe.h header file,
@@ -47,7 +49,97 @@
 
 namespace fz {
 
-//*** Right now, this is just a stub.
+/**
+ * Log Breakpoint fields:
+ * - `pqlb_id`: a Log chunk ID identifies each Breakpoint.
+ */
+enum pq_LBfields { pqlb_id, _pqlb_NUM };
+
+/**
+ * Log chunk fields:
+ * - `pqlc_id`: ID that also specifies the start time of a chunk.
+ * - `pqlc_nid`: Node ID of the Node to which the chunk belongs.
+ * - `pqlc_tclose`: Chunk close time (or infinity if the cuhnk is still open).
+ */
+enum pq_LCfields { pqlc_id, pqlc_nid, pqlc_tclose, pqlc_NUM };
+
+/**
+ * Log entry fields:
+ *  - `pqle_id`: ID that corresponds to a Log chunk ID, with an index position.
+ *  - `pqle_nid`: possible Node ID when the entry does not belong to the same Node as the chunk.
+ *  - `pqle_text`: Entry text content.
+ */
+enum pq_LEfields { pqle_id, pqle_nid, pqle_text, pqle_NUM };
+
+//bool create_Enum_Types_pq(const active_pq & apq);
+
+bool create_Breakpoints_table_pq(const active_pq & apq);
+
+bool create_Logchunks_table_pq(const active_pq & apq);
+
+bool create_Logentries_table_pq(const active_pq & apq);
+
+bool add_Breakpoint_pq(const active_pq & apq, const Log_chunk_ID_key & bptopid);
+
+bool add_Logchunk_pq(const active_pq & apq, const Log_chunk & chunk);
+
+bool add_Logentry_pq(const active_pq & apq, const Log_entry & entry);
+
+bool store_Log_pq(const Log & log, Postgres_access & pa, void (*progressfunc)(unsigned long, unsigned long) = NULL);
+
+
+/**
+ * A data types conversion helper class that can deliver the Postgres Breakpoints table
+ * equivalent INSERT value expression for all data content in a Breakpoints.
+ * 
+ * This helper class does not modify the Breakpoints in any way.
+ */
+class Breakpoint_pq {
+protected:
+    const Log_chunk_ID_key* chunkkey; // pointer to an element of the Log_chunk_ID_key_deque
+public:
+    Breakpoint_pq(const Log_chunk_ID_key* _chunkkey): chunkkey(_chunkkey) {} // See Trello card about (const type)* pointers.
+
+    std::string id_pqstr();
+    std::string All_Breakpoint_Data_pqstr();
+};
+
+/**
+ * A data types conversion helper class that can deliver the Postgres Log chunk table
+ * equivalent INSERT value expression for all data content in a Log chunk.
+ * 
+ * This helper class does not modify the Log chunk in any way.
+ */
+class Logchunk_pq {
+protected:
+    const Log_chunk* chunk; // pointer to a (const Log chunk), i.e. *chunk is treated as constant
+public:
+    Logchunk_pq(const Log_chunk* _chunk): chunk(_chunk) {} // See Trello card about (const type)* pointers.
+
+    std::string id_pqstr();
+    std::string nid_pqstr();
+    std::string tclose_pqstr();
+    std::string All_Logchunk_Data_pqstr();
+};
+
+/**
+ * A data types conversion helper class that can deliver the Postgres Log entries table
+ * equivalent INSERT value expression for all data content in a Log entry.
+ * 
+ * This helper class does not modify the Log entry in any way.
+ */
+class Logentry_pq {
+protected:
+    const Log_entry* entry; // pointer to a (const Log_entry), i.e. *entry is treated as constant
+public:
+    Logentry_pq(const Log_entry* _entry): entry(_entry) {} // See Trello card about (const type)* pointers.
+
+    std::string id_pqstr();
+    std::string nid_pqstr();
+    std::string text_pqstr();
+    std::string All_Logentry_Data_pqstr();
+};
+
 
 } // namespace fz
 
