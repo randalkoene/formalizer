@@ -39,6 +39,7 @@ COMPILABLES = $(LIBCOMPDIRS) $(CORECOMPDIRS) $(TOOLSCOMPDIRS)
 
 # +----- begin: Select Formalizer executables -----+
 EXECUTABLES =
+EXECUTABLES += $(COREPATH)/include/coreversion.py
 # EXECUTABLES = $(COREPATH)/fzaddnode/fzaddnode
 # EXECUTABLES = $(COREPATH)/fzedit/fzedit
 EXECUTABLES += $(COREPATH)/fzguide.system/fzguide.system

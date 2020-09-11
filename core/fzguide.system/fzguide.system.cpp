@@ -22,10 +22,18 @@
 #include "standard.hpp"
 #include "general.hpp"
 #include "fzpostgres.hpp"
+#include "templater.hpp"
 
 // local
 #include "fzguide.system.hpp"
 
+/// The Makefile attempts to provide this at compile time based on the source
+/// file directory.
+#ifdef DEFAULT_TEMPLATE_DIR
+    std::string template_dir(DEFAULT_TEMPLATE_DIR "/templates");
+#else
+    std::string template_dir("./templates");
+#endif
 
 using namespace fz;
 
@@ -50,9 +58,9 @@ std::map<fgs_subsection,const std::string> subsectiontag = {
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzguide_system::fzguide_system(): section(fgs_am), subsection(fgs_wakeup), decimalidx(1.0), flowcontrol(flow_unknown), pa(add_option_args, add_usage_top, true) {
-    add_option_args += "SRAPU:x:i:";
-    add_usage_top += " <-S|-R> [-A|-P] [-U <subsection>] [-x <idx>] [-i <inputfile>]";
+fzguide_system::fzguide_system(): section(fgs_am), subsection(fgs_wakeup), decimalidx(1.0), format(format_none), flowcontrol(flow_unknown), pa(add_option_args, add_usage_top, true) {
+    add_option_args += "SRAPU:x:i:o:F:";
+    add_usage_top += " <-S|-R> [-A|-P] [-U <subsection>] [-x <idx>] [-i <inputfile>] [-o <outputfile>] [-F <format>]";
 }
 
 /**
@@ -67,7 +75,9 @@ void fzguide_system::usage_hook() {
     FZOUT("    -P System guide section: PM\n");
     FZOUT("    -U System guide <subsection>\n");
     FZOUT("    -x System guide decimal index number <idx>\n");
-    FZOUT("    -i read snippet content from file (otherwise from STDIN)\n");
+    FZOUT("    -i read snippet content from <inputfile> (otherwise from STDIN)\n");
+    FZOUT("    -o write snippet content to <outputfile> (otherwise from STDOUT)\n");
+    FZOUT("    -F format result as: txt, html, fullhtml (default=none)\n");
 }
 
 /**
@@ -127,6 +137,27 @@ bool fzguide_system::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'o': {
+        dest = cargs;
+        return true;
+    }
+
+    case 'F': {
+        if (cargs=="txt") {
+            format = format_txt;
+            return true;
+        }
+        if (cargs=="html") {
+            format = format_html;
+            return true;
+        }
+        if (cargs=="fullhtml") {
+            format = format_fullhtml;
+            return true;
+        }
+        return false;
+    }
+
     }
 
     return false;
@@ -145,37 +176,142 @@ void fzguide_system::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen once in main(), for the derived class
 }
 
+void Guide_snippet_system::set_id(const fzguide_system & _fzgs) {
+    section = sectiontag[_fzgs.section];
+    subsection = subsectiontag[_fzgs.subsection];
+    idxstr = to_precision_string(_fzgs.decimalidx,1);
+}
+
 std::string Guide_snippet_system::layout() const {
     return pq_guide_system_layout;
 }
 
+std::string Guide_snippet_system::idstr() const {
+    return "'"+section+':'+subsection+':'+idxstr+"'";
+}
+
 std::string Guide_snippet_system::all_values_pqstr() const {
-    return "'"+section+':'+subsection+':'+idxstr+"', $txt$"+snippet+"$txt$";
+    return idstr()+", $txt$"+snippet+"$txt$";
 }
 
 
 int store_snippet() {
-    VERBOSEOUT("Collecting snippet to store to the System Guide...\n\n");
     Guide_snippet_system snippet;
     if (fgs.source.empty()) { // from STDIN
+        VERBOSEOUT("Collecting snippet to store to the System Guide from STDIN until EOF (CTRL+D)...\n\n");
         if (!stream_to_string(std::cin,snippet.snippet)) {
             ADDERROR(__func__,"unable to read snippet from STDIN");
             fgs.exit(exit_file_error);
         }
     } else {
+        VERBOSEOUT("Collecting snippet to store to the System Guide from "+fgs.source+"...\n\n");
         if (!file_to_string(fgs.source,snippet.snippet)) {
             ADDERROR(__func__,"unable to read snippet from "+fgs.source);
             fgs.exit(exit_file_error);
         }
     }
 
-    snippet.section = sectiontag[fgs.section];
-    snippet.subsection = subsectiontag[fgs.subsection];
-    snippet.idxstr = to_precision_string(fgs.decimalidx,1);
+    snippet.set_id(fgs);
+    VERBOSEOUT("Storing snippet to "+snippet.tablename+" with ID="+snippet.idstr()+"\n\n");
 
     if (!store_Guide_snippet_pq(snippet, fgs.pa)) {
         ADDERROR(__func__,"unable to store snippet");
         fgs.exit(exit_database_error);
+    }
+
+    return fgs.completed_ok();
+}
+
+enum template_id_enum {
+    format_txt_temp = format_txt,
+    format_html_temp = format_html,
+    format_fullhtml_temp = format_fullhtml,
+    NUM_temp
+};
+
+const std::vector<std::string> template_ids = {
+    "format_txt_template.txt",
+    "format_html_template.html",
+    "format_fullhtml_template.html"
+};
+
+typedef std::map<template_id_enum,std::string> format_templates;
+
+bool load_templates(format_templates & templates) {
+    templates.clear();
+
+    VERBOSEOUT("Using template directory: "+template_dir+'\n');
+
+    for (int i = 0; i < NUM_temp; ++i) {
+        if (!file_to_string(template_dir + "/" + template_ids[i], templates[static_cast<template_id_enum>(i)]))
+            ERRRETURNFALSE(__func__, "unable to load " + template_ids[i]);
+    }
+
+    return true;
+}
+
+std::string format_snippet(const std::string & snippet) {
+    render_environment env;
+    format_templates templates;
+    if (!load_templates(templates))
+        fgs.exit(exit_file_error); // Don't continue if you don't have the templates.
+
+    template_varvalues formatvars;        
+    switch (fgs.format) {
+
+        case format_txt: {
+            formatvars.emplace("section",sectiontag[fgs.section]);
+            formatvars.emplace("subsection",subsectiontag[fgs.subsection]);
+            formatvars.emplace("index",to_precision_string(fgs.decimalidx,1));
+            formatvars.emplace("snippet",snippet);
+            break;
+        }
+
+        case format_html: {
+            formatvars.emplace("snippet",snippet);
+            break;
+        }
+
+        case format_fullhtml: {
+            formatvars.emplace("section",sectiontag[fgs.section]);
+            formatvars.emplace("subsection",subsectiontag[fgs.subsection]);
+            formatvars.emplace("index",to_precision_string(fgs.decimalidx,1));
+            formatvars.emplace("snippet",snippet);
+            break;
+        }
+
+        default:
+            break;
+
+    }
+    return env.render(templates[(template_id_enum) fgs.format],formatvars);
+}
+
+int read_snippet() {
+    Guide_snippet_system snippet(fgs);
+    VERBOSEOUT("Reading snippet from "+snippet.tablename+" with ID="+snippet.idstr()+"\n\n");
+
+    if (!read_Guide_snippet_pq(snippet,fgs.pa)) {
+        ADDERROR(__func__,"unable to read snippet");
+        fgs.exit(exit_database_error);
+    }
+
+    std::string rendered_snippet;
+    if (fgs.format == format_none) {
+        rendered_snippet = snippet.snippet;
+    } else {
+        rendered_snippet = format_snippet(snippet.snippet);
+    }
+
+    if (fgs.dest.empty()) { // to STDOUT
+        VERBOSEOUT("Snippet content:\n\n");
+        FZOUT(rendered_snippet);
+    } else {
+        VERBOSEOUT("Writing snippet content to "+fgs.dest+".\n\n");
+        if (!string_to_file(fgs.dest,rendered_snippet)) {
+            ADDERROR(__func__,"unable to write snippet to "+fgs.dest);
+            fgs.exit(exit_file_error);
+        }
     }
 
     return fgs.completed_ok();
@@ -188,6 +324,10 @@ int main(int argc, char *argv[]) {
 
     case flow_store: {
         return store_snippet();
+    }
+
+    case flow_read: {
+        return read_snippet();
     }
 
     default: {

@@ -120,10 +120,10 @@ init: FORCE
 	@echo '-------------------------------------------------------------------'
 
 $(OBJ)/fzguide.system.o: fzguide.system.cpp fzguide.system.hpp version.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c fzguide.system.cpp -o $(OBJ)/fzguide.system.o
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(TEMPLATEDIR) $(STANDARD_STREAMS) -c fzguide.system.cpp -o $(OBJ)/fzguide.system.o
 
 fzguide.system: $(OBJ)/fzguide.system.o $(CORE_OBJS)
-	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $^ -o fzguide.system $(LIB_PATH)
+	$(CCPP) $(CPPFLAGS) $(TEMPLATEDIR) $(STANDARD_STREAMS) $^ -o fzguide.system $(LIB_PATH)
 
 clean:
 	cp -f fzguide.system fzguide.system.bak

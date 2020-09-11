@@ -58,4 +58,51 @@ bool store_Guide_snippet_pq(const Guide_snippet & snippet, Postgres_access & pa)
     STORE_SNIPPET_PQ_RETURN(true);
 }
 
+/**
+ * Read a single snippet from a Guide table in the database.
+ * 
+ * The `snippet` should specify `snippet.tablename` and a working `idstr()` method.
+ * 
+ * @param snippet data structure that clearly identifies the snippet and receives the resulting text.
+ * @param pa access data with database name and schema name.
+ */
+bool read_Guide_snippet_pq(Guide_snippet & snippet, Postgres_access & pa) {
+    ERRHERE(".setup");
+    pa.access_initialize();
+    PGconn* conn = connection_setup_pq(pa.dbname);
+    if (!conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define LOAD_SNIPPET_PQ_RETURN(r) { PQfinish(conn); return r; }
+
+    if (!query_call_pq(conn,"SELECT snippet FROM "+pa.pq_schemaname+ "." + snippet.tablename+" WHERE id="+snippet.idstr(),false)) LOAD_SNIPPET_PQ_RETURN(false);
+
+    //sample_query_data(conn,0,4,0,100,tmpout);
+  
+    PGresult *res;
+
+    while ((res = PQgetResult(conn))) { // It's good to use a loop for single row mode cases.
+
+        const int rows = PQntuples(res);
+        if (PQnfields(res)< 1) {
+            ADDERROR(__func__,"not enough fields in snippet result");
+            LOAD_SNIPPET_PQ_RETURN(false);
+        }
+
+        //if (!get_Node_pq_field_numbers(res)) LOAD_SNIPPET_PQ_RETURN(false); // *** we only asked for one field
+
+        snippet.snippet.clear();
+        for (int r = 0; r < rows; ++r) {
+
+            snippet.snippet.append(PQgetvalue(res, r, 0));
+
+        }
+
+        PQclear(res);
+    }
+
+    LOAD_SNIPPET_PQ_RETURN(true);
+}
+
+
 } // namespace fz

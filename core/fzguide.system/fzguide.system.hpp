@@ -17,6 +17,14 @@
 
 using namespace fz;
 
+enum format_options {
+    format_txt = 0,
+    format_html = 1,
+    format_fullhtml = 2,
+    format_none = 3,
+    format_NUMoptions  
+};
+
 enum flow_options {
     flow_unknown = 0, /// no recognized request
     flow_store = 1,   /// store new snippet
@@ -42,6 +50,8 @@ struct fzguide_system: public formalizer_standard_program {
     fgs_subsection subsection;
     float decimalidx;
     std::string source; ///< where to get snippet content (empty means STDIN)
+    std::string dest;   ///< where to put snippet content (empty means STDOUT)
+    format_options format;
 
     flow_options flowcontrol;
 
@@ -64,11 +74,15 @@ struct Guide_snippet_system: public Guide_snippet {
     std::string section;
     std::string subsection;
     std::string idxstr;
-    std::string snippet;
 
     Guide_snippet_system(): Guide_snippet("guide_system") {}
+    Guide_snippet_system(const fzguide_system & _fzgs): Guide_snippet("guide_system") { set_id(_fzgs); }
+
+    void set_id(const fzguide_system & _fzgs);
 
     virtual std::string layout() const;
+
+    virtual std::string idstr() const;
 
     virtual std::string all_values_pqstr() const;
 
