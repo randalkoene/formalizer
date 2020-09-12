@@ -179,7 +179,7 @@ void fzguide_system::init_top(int argc, char *argv[]) {
 void Guide_snippet_system::set_id(const fzguide_system & _fzgs) {
     section = sectiontag[_fzgs.section];
     subsection = subsectiontag[_fzgs.subsection];
-    idxstr = to_precision_string(_fzgs.decimalidx,1);
+    idxstr = to_precision_string(_fzgs.decimalidx,1,'0',4);
 }
 
 std::string Guide_snippet_system::layout() const {
@@ -262,7 +262,7 @@ std::string format_snippet(const std::string & snippet) {
         case format_txt: {
             formatvars.emplace("section",sectiontag[fgs.section]);
             formatvars.emplace("subsection",subsectiontag[fgs.subsection]);
-            formatvars.emplace("index",to_precision_string(fgs.decimalidx,1));
+            formatvars.emplace("index",to_precision_string(fgs.decimalidx,1,'0',4));
             formatvars.emplace("snippet",snippet);
             break;
         }
@@ -275,7 +275,7 @@ std::string format_snippet(const std::string & snippet) {
         case format_fullhtml: {
             formatvars.emplace("section",sectiontag[fgs.section]);
             formatvars.emplace("subsection",subsectiontag[fgs.subsection]);
-            formatvars.emplace("index",to_precision_string(fgs.decimalidx,1));
+            formatvars.emplace("index",to_precision_string(fgs.decimalidx,1,'0',4));
             formatvars.emplace("snippet",snippet);
             break;
         }

@@ -25,7 +25,7 @@ inline bool is_not_digit(int c) {
 
 std::string shellcmd2str(std::string cmd);
 
-std::string to_precision_string(double d, unsigned int p = 2);
+std::string to_precision_string(double d, unsigned int p = 2, char fillchar = ' ', unsigned int w = 0);
 
 template <typename Out>
 void split(const std::string &s, char delim, Out result);

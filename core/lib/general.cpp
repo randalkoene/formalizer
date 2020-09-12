@@ -44,14 +44,18 @@ std::string shellcmd2str(std::string cmd) {
 /**
  * Print double to string with specific precision.
  * 
- * Note: Perhaps this should be moved to general utility functions.
- * 
  * @param d a real number.
  * @param p precision (default 2).
+ * @param fillchar the fill character (default ' ', i.e. space).
+ * @param w minimum width (default 0).
  * @return a string.
  */
-std::string to_precision_string(double d, unsigned int p) {
+std::string to_precision_string(double d, unsigned int p, char fillchar, unsigned int w) {
     std::stringstream stream;
+    if (w>0) {
+        stream.width(w);
+        stream.fill(fillchar);
+    }
     stream << std::fixed << std::setprecision(p) << d;
     return stream.str();
 }
