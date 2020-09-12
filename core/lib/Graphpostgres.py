@@ -7,6 +7,10 @@
 This is the Python module for the Formalizer authoritative Postgres table structures
 as copies directly from Graphpostgres.cpp. For more information about the layout of
 the data structure, please see there and in Graphtypes.cpp/hpp.
+
+This does NOT mean that it is a good idea to access the Postgres database directly
+from arbitrary Python scripts. Authoritative access flows through the Formalizer
+Data Server layer.
 """
 
 

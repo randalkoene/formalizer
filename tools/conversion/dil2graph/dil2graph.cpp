@@ -616,7 +616,7 @@ std::pair<Detailed_Items_List *, Graph *> interactive_conversion() {
     VOUT << "+----+----+----+---+\n";
     VOUT << "|    :    :    :   |\n";
     VOUT.flush();
-    d2g.ga.graph_access_initialize();
+    d2g.ga.access_initialize();
     if (!store_Graph_pq(*graph, d2g.ga.dbname, d2g.ga.pq_schemaname, node_pq_progress_func)) {
         EOUT << "\nSomething went wrong! Unable to store (correctly) in Postgres database.\n";
         d2g.exit(exit_database_error);
