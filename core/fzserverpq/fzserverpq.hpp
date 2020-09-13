@@ -11,13 +11,34 @@
 #include "version.hpp"
 #define __FZSERVERPQ_HPP (__VERSION_HPP)
 
-namespace fz {
+// core
+#include "standard.hpp"
+#include "Graphaccess.hpp"
 
-/// Postgres database name
-extern std::string dbname; // provided in fzserver.cpp, initialized to $USER
+using namespace fz;
 
+enum flow_options {
+    flow_unknown = 0, /// no recognized request
+    //flow_something = 1,     /// request: make boilerplate for C++ program
+    flow_NUMoptions
+};
 
+struct fzserverpq: public formalizer_standard_program {
 
-} // namespace fz
+    Graph_access ga;
+
+    flow_options flowcontrol;
+
+    fzserverpq();
+
+    virtual void usage_hook();
+
+    virtual bool options_hook(char c, std::string cargs);
+
+    void init_top(int argc, char *argv[]);
+
+};
+
+extern fzserverpq fzs;
 
 #endif // __FZSERVERPQ_HPP

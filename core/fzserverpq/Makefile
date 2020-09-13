@@ -5,94 +5,108 @@
 
 SHELL=/usr/bin/bash
 
-##########################################################
-## Compiler
-## --------
+# +----- begin: Output preconfigurations -----+
+STANDARD_STREAMS = -DFORMALIZER_BASE_OUT_OSTREAM_PTR=\&std::cout
+STANDARD_STREAMS += -DFORMALIZER_BASE_ERR_OSTREAM_PTR=\&std::cerr
+# +----- end  : Output preconfigurations -----+
+
+# +----- begin: Output preconfigurations -----+
+
+# +----- end  : Output preconfigurations -----+
+
+# +----- begin: Compilers and machine specific tuning -----+
 CC=gcc
 CCPP=g++ 
-##########################################################
 
+# MACHSPEC=
+# GCCTUNE=$(if $(shell gcc -v 2>&1 | grep "^gcc version[^0-9]*[4-9][.]"),-mtune=pentium4)
+# SSEOPT= -mfpmath=sse
+MACHOPT= $(GCCTUNE) $(SSEOPT)
+# +----- end  : Compilers and machine specific tuning -----+
+
+# +----- begin: Formalizer source directory structure -----+
 FORMALIZERPATH=$(HOME)/src/formalizer
 COREINCLUDEPATH=$(FORMALIZERPATH)/core/include
 CORELIBPATH=$(FORMALIZERPATH)/core/lib
+FORMALIZERPATH_THIS=$(FORMALIZERPATH)/core/fzserverpq
+
+TEMPLATEDIR = -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\" 
 
 INC=$(COREINCLUDEPATH)
 OBJ=./obj
 TEST=./test
+# +----- end  : Formalizer source directory structure -----+
 
-#INCLUDES= -I$(HOME)/src/include
-# to find the postgresql header files (e.g libpq-fe.h), do this: pg_config --includedir
-INCLUDES= -I$(CPATH) -I$(COREINCLUDEPATH) -I/usr/include/postgresql
+# Notes:
+# - to find the postgresql header files (e.g libpq-fe.h), do this: pg_config --includedir
+# - to find the postgresql library files fo this: pg_config --libdir
+POSTGRESINC = /usr/include/postgresql
+POSTGRESLIB = -L/usr/lib/x86_64-linux-gnu -lpq
 
-# to find the postgresql library files fo this: pg_config --libdir
-LIB_PATH= -L/usr/lib/x86_64-linux-gnu -lpq
+# +----- begin: Essential include and library paths for this program -----+
+INCLUDES := -I$(CPATH) -I$(COREINCLUDEPATH)
+INCLUDES += -I$(POSTGRESINC)
+LIB_PATH = $(POSTGRESLIB)
+# +----- begin: Essential include and library paths for this program -----+
 
-##########################################################
-## Machine selection
-## -----------------
-## aurora (x86):
-MACHSPEC=
-GCCTUNE=$(if $(shell gcc -v 2>&1 | grep "^gcc version[^0-9]*[4-9][.]"),-mtune=pentium4)
-MACHOPT=
-#MACHOPT=$(GCCTUNE) -mfpmath=sse
-##
-##
-##########################################################
+# +----- begin: In case not included from CPATH -----+
+# INCLUDES= $(INCLUDE)-I$(HOME)/src/include
+# +----- end  : In case not included from CPATH -----+
 
-### Attempting a temporary fix for gcc 4.x compilation of dil2al
-### (This should be replaced by actual source code modification.)
-### Also, attempting a temporary fix for gcc 7.1+ compilation of dil2al
-### (This should also be replaced by actual source code modification.)
-CPPTEMPWORKAROUND=-fno-access-control -Wno-format-truncation
+# +----- being: Compiler Build options -----+
+CPPMATH = -mieee-fp -ffast-math
+# Note: Some Formalizer code uses concepts new to C++20.
+CPP2020 = -std=gnu++2a
+CPPXTRA := $(CPP2020) $(MACHOPT) -pedantic -Wall -Werror 
+# +----- end  : Compiler Build options -----+
 
-GCC3FXTRA=$(if $(shell gcc -v 2>&1 | grep "^gcc version[^0-9]*[3-9][.]"),-Wno-unused-function)
-CFXTRA= -DSTDC_HEADERS -pedantic -Wall -Werror -Wno-char-subscripts $(GCC3FXTRA)
-## fzserverpq uses a few C++ constructs that are new to C++20, such as designated initializer lists,
-## so let's add support for that here:
-CPP2020= -std=gnu++2a
-CPPXTRA= $(MACHOPT) -mieee-fp -ffast-math -DDEFAULTHOMEDIR=\"$(HOME)\" -pedantic -Wall -Werror $(GCC3FXTRA) $(CPPTEMPWORKAROUND) $(CPP2020)
-
-##
-##########################################################
-
-##########################################################
-## Compiler Options
-## ----------------
+# +----- begin: Optimization options -----+
+CPPOPT = -felide-constructors
+## optimized (USUALLY USE THIS ONE!):
+COMPOPT = -O3
+OPTSTR = optimized
+## optimized + debugging info (as per GDB recommendations 2019-02-01)
+#COMPOPT= -g -O3
+#OPTSTR=production_optimized_with_dbg_symbols
 ## debugging information (updates 2019-02-01):
 #COMPOPT= -g -Og
 #OPTSTR=editing_optimized_for_debugging
 ## generate profile information for use with gprof:
 #COMPOPT= -g -O6
 #OPTSTR=profiling
-## optimized (USUALLY USE THIS ONE!):
-COMPOPT= -O3
-OPTSTR=optimized
-## optimized + debugging info (as per GDB recommendations 2019-02-01)
-#COMPOPT= -g -O3
-#OPTSTR=production_optimized_with_dbg_symbols
-##########################################################
+# +----- end  : Optimization options -----+
 
-##########################################################
-## C++ Specific Compiler Options
-## -----------------------------
-## debugging information:
-#CPPOPT=
-## generate profile information for use with gprof:
-#CPPOPT=
-## optimized:
-CPPOPT= -felide-constructors
-## uncomment the following optimization option only if
-## you have an older C++ compiler that does not optimize
-## return values unless explicitly told to do so with
-## the now deprecated `named return value' extension:
-#CPPOPT= $(CPPOPT) -D_USE_NAMED_RETURN_VALUE_EXTENSION
-##########################################################
+# +----- begin: Compile-time Macro definitions -----+
+SPECIFYDEFAULTHOMEDIRDEF = -DDEFAULTHOMEDIR=\"$(HOME)\" 
+COMPILETIMEMACRODEFS += $(SPECIFYDEFAULTHOMEDIRDEF)
+CPPXTRA += $(COMPILETIMEMACRODEFS)
+# +----- end  : Compile-time Macro definitions -----+
 
-CFLAGS= $(COMPOPT) $(MACHSPEC) $(CFXTRA)
-CPPFLAGS= $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(INCLUDES)
+# +----- begin: Putting together the C flags -----+
+# CFLAGS = $(COMPOPT) $(MACHSPEC) $(CFXTRA)
+# RXCFLAGS = $(COMPOPT) $(MACHSPEC) $(RXCFXTRA)
+# +----- end  : Putting together the C flags -----+
 
-CORE_OBJS= $(CORELIBPATH)/obj/error.o $(CORELIBPATH)/obj/general.o $(CORELIBPATH)/obj/TimeStamp.o \
-			$(CORELIBPATH)/obj/Graphtypes.o $(CORELIBPATH)/obj/Graphpostgres.o
+# +----- begin: Putting together the C++ flags -----+
+CPPFLAGS = $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(INCLUDES)
+# +----- end  : Putting together the C++ flags -----+
+
+# +----- begin: Select Formalizer core library objects -----+
+CORE_OBJS = $(CORELIBPATH)/obj/error.o
+CORE_OBJS += $(CORELIBPATH)/obj/standard.o
+CORE_OBJS += $(CORELIBPATH)/obj/general.o
+CORE_OBJS += $(CORELIBPATH)/obj/templater.o
+# CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
+CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
+CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
+CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
+CORE_OBJS += $(CORELIBPATH)/obj/fzpostgres.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphaccess.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
+CORE_OBJS += $(CORELIBPATH)/obj/Logpostgres.o
+# CORE_OBJS += $(CORELIBPATH)/obj/dilaccess.o
+# +----- end  : Select Formalizer core library objects -----+
 
 .PHONY: FORCE
 
@@ -100,15 +114,15 @@ all: init fzserverpq
 
 init: FORCE
 	@echo '-------------------------------------------------------------------'
-	@echo 'Compilation options: $(MACHSTR), $(OPTSTR)'
+	@echo 'Compilation options: $(MACHSTR), $(OPTSTR), $(REGEXSTR)'
 	@echo 'Includes: $(CPPFLAGS)'
 	@echo '-------------------------------------------------------------------'
 
 $(OBJ)/fzserverpq.o: fzserverpq.cpp fzserverpq.hpp version.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) -c fzserverpq.cpp -o $(OBJ)/fzserverpq.o
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c fzserverpq.cpp -o $(OBJ)/fzserverpq.o
 
 fzserverpq: $(OBJ)/fzserverpq.o $(CORE_OBJS)
-	$(CCPP) $(CPPFLAGS) $^ -o fzserverpq $(LIB_PATH)
+	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $^ -o fzserverpq $(LIB_PATH)
 
 clean:
 	cp -f fzserverpq fzserverpq.bak
@@ -117,4 +131,3 @@ clean:
 #doc++:
 #	rm -r -f html
 #	doc++ -d html spiker.dxx
-

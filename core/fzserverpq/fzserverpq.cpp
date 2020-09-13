@@ -8,126 +8,119 @@
  * https://docs.google.com/document/d/1rYPFgzFgjkF1xGx3uABiXiaDR5sfmOzqYQRqSntcyyY/edit#heading=h.tarhfe395l5v
  * https://trello.com/c/S7SZUyeU
  * 
+ * For more about this, see {{ doc_reference }}.
  */
 
-#include <cstdio>
+#define FORMALIZER_MODULE_ID "Formalizer:Server:Graph:Postgres"
+
+// std
 #include <iostream>
-#include <string>
-#include <sys/wait.h>
-#include <unistd.h>
 
-// Formalizer core
-#include "Graphpostgres.hpp"
-#include "Graphtypes.hpp"
+// core
+#include "version.hpp"
 #include "error.hpp"
-#include "general.hpp"
+#include "standard.hpp"
+#include "Graphtypes.hpp"
 
-// Program specific
+// local
 #include "fzserverpq.hpp"
 
-namespace fz {
-
-std::string dbname; /// This is initialized to $USER.
-
-//----------------------------------------------------
-// Definitions of functions declared in fzserverpq.hpp:
-//----------------------------------------------------
-
-} // namespace fz
-
-//----------------------------------------------------
-// Definitions of file-local scope functions:
-//----------------------------------------------------
 
 using namespace fz;
 
-enum exit_status_code { exit_ok, exit_general_error, exit_database_error, exit_unknown_option };
-
-std::string server_long_id;
+/// The local class derived from `formalizer_standard_program`.
+fzserverpq fzs;
 
 /**
- * Closing and clean-up actions when exiting the program.
- * 
- * @param status exit status to return to the program caller.
+ * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
+ * For `add_usage_top`, add command line option usage format specifiers.
  */
-void Exit_Now(exit_status_code status) {
-    ERRWARN_SUMMARY(std::cout);
-    Clean_Exit(status);
+fzserverpq::fzserverpq(): ga(add_option_args, add_usage_top, true), flowcontrol(flow_unknown) {
+    //add_option_args += "x:";
+    //add_usage_top += " [-x <something>]";
 }
 
-void print_usage(std::string progname) {
-    std::cout << "Usage: " << progname << " [-d <dbname>]\n"
-              << "       " << progname << " -v\n"
-              << '\n'
-              << "  Options:\n"
-              << "    -d use Postgres account <dbname>\n"
-              << "       (default is $USER)\n"
-              << "    -v print version info\n"
-              << '\n'
-              << server_long_id << '\n'
-              << '\n';
+/**
+ * Add FZOUT statements for each line of the usage info to print as
+ * help for program specific command line options.
+ */
+void fzserverpq::usage_hook() {
+    ga.usage_hook();
+    //FZOUT("    -x something explanation\n");        
 }
 
-void print_version(std::string progname) {
-    std::cout << progname << " " << server_long_id << '\n';
-}
+/**
+ * Handler for command line options that are defined in the derived class
+ * as options specific to the program.
+ * 
+ * Include case statements for each option. Typical handlers do things such
+ * as collecting parameter values from `cargs` or setting `flowcontrol` choices.
+ * 
+ * @param c is the character that identifies a specific option.
+ * @param cargs is the optional parameter value provided for the option.
+ */
+bool fzserverpq::options_hook(char c, std::string cargs) {
+    if (ga.options_hook(c,cargs))
+        return true;
 
-bool load_only = false; /// Alternative call, merely to test database loading.
+    switch (c) {
 
-void process_commandline(int argc, char *argv[]) {
-    int c;
-    opterr = 0;
+    /*
+    case 'x': {
 
-    while ((c = getopt(argc, argv, "d:v")) != EOF) {
-
-        switch (c) {
-        case 'd':
-            dbname = optarg;
-            break;
-
-        case 'v':
-            print_version(argv[0]);
-            Clean_Exit(exit_ok);
-
-        default:
-            print_usage(argv[0]);
-            Clean_Exit(exit_unknown_option);
-        }
+        break;
     }
+    */
+
+    }
+
+    return false;
+}
+
+/**
+ * Initialize configuration parameters.
+ * Call this at the top of main().
+ * 
+ * @param argc command line parameters count forwarded from main().
+ * @param argv command line parameters array forwarded from main().
+ */
+void fzserverpq::init_top(int argc, char *argv[]) {
+    // *** add any initialization here that has to happen before standard initialization
+    init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
+    // *** add any initialization here that has to happen once in main(), for the derived class
+}
+
+std::unique_ptr<Graph> init_resident_Graph() {
+    std::unique_ptr<Graph> graph = fzs.ga.request_Graph_copy();
+    if (!graph) {
+        ADDERROR(__func__,"unable to load Graph");
+        fzs.exit(exit_database_error);
+    }
+    return graph;
 }
 
 int main(int argc, char *argv[]) {
-    ERRHERE(".1");
+    fzs.init_top(argc, argv);
+    fzs.init(argc,argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 
-    server_long_id = "Formalizer:GraphServer:Postgres (C++ implementation) v" + version() + " (core v" + coreversion() + ")";
-    char *username = std::getenv("USER");
-    if (username)
-        dbname = username;
-    process_commandline(argc, argv);
+    std::unique_ptr<Graph> graph = init_resident_Graph();
 
-    std::cout << server_long_id << " starting.\n";
-    if (dbname.empty()) {
-        ADDERROR(__func__, "Need a database account to proceed. Defaults to $USER.");
-        Exit_Now(exit_general_error);
+    FZOUT("\nThis is a stub.\n\n");
+    key_pause();
+
+    switch (fzs.flowcontrol) {
+
+    /*
+    case flow_something: {
+        return something();
     }
-    std::cout << "Postgres database account selected: " << dbname << '\n';
+    */
 
-    ERRHERE(".2");
-    Graph graph;
-    if (!load_Graph_pq(graph, dbname)) {
-        ADDERROR(__func__, "Unable to load Graph from Postgres database.");
-        Exit_Now(exit_database_error);
+    default: {
+        fzs.print_usage();
     }
 
-#define VERBOSE_INITIAL_LOAD
-#ifdef VERBOSE_INITIAL_LOAD
-    std::cout << "Graph data loaded:\n";
-    std::cout << "  Number of Topics = " << graph.get_topics().get_topictags().size() << '\n';
-    std::cout << "  Number of Nodes  = " << graph.num_Nodes() << '\n';
-    std::cout << "  Number of Edges  = " << graph.num_Edges() << "\n\n";
-#endif
+    }
 
-    Exit_Now(exit_ok);
-
-    return 0;
+    return fzs.completed_ok();
 }

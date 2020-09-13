@@ -15,6 +15,7 @@
 #include <iostream>
 
 #include "standard.hpp"
+#include "Graphaccess.hpp"
 
 using namespace fz;
 

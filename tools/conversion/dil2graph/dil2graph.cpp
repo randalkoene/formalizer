@@ -37,12 +37,12 @@
 #include "dil2al_minimal.hpp"
 
 // core
-#include "Graphpostgres.hpp"
-#include "Graphtypes.hpp"
-#include "dilaccess.hpp"
 #include "error.hpp"
 #include "standard.hpp"
 #include "general.hpp"
+#include "Graphtypes.hpp"
+#include "Graphpostgres.hpp"
+#include "dilaccess.hpp"
 
 // local
 #include "dil2graph.hpp"

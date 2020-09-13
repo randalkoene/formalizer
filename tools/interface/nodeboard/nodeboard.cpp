@@ -16,6 +16,7 @@
 #include "error.hpp"
 #include "standard.hpp"
 #include "Graphtypes.hpp"
+#include "Graphaccess.hpp"
 #include "Graphpostgres.hpp"
 #include "nbrender.hpp"
 
