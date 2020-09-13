@@ -43,6 +43,8 @@ enum template_id_enum {
     cpp_bp_Makefile_temp,
     cpp_bp_README_temp,
     cpp_bp_version_temp,
+    cpp_bp_rendercpp_temp,
+    cpp_bp_renderhpp_temp,
     NUM_temp
 };
 
@@ -53,7 +55,9 @@ const std::vector<std::string> template_ids = {
     "cpp_bp_libhpp_template.hpp",
     "cpp_bp_Makefile_template",
     "cpp_bp_README_template",
-    "cpp_bp_version_template.hpp"
+    "cpp_bp_version_template.hpp",
+    "cpp_bp_render_template.cpp",
+    "cpp_bp_render_template.hpp"
 };
 
 typedef std::map<template_id_enum,std::string> cpp_bp_templates;
@@ -102,6 +106,11 @@ int make_cpp_boilerplate() {
     std::string headerdir = formalizer_path_dir(thisname,category,iscore,islibrary,true);
     std::string sourcedir = formalizer_path_dir(thisname,category,iscore,islibrary,false);
 
+    bool includetemplater = false;
+    if (!islibrary) {
+        includetemplater = ask_boolean_choice("Include template rendering file? [y]/[N] ",'y',"INCLUDE TEMPLATE RENDERING","NO TEMPLATE RENDERING");
+    }
+
     std::string abbreviation, moduleid, versionstr;
     if (!islibrary) {
         abbreviation = ask_string_input("Abbreviation (e.g. \"bp\" for \"boilerplate\"): ",false);
@@ -144,6 +153,17 @@ int make_cpp_boilerplate() {
         } else {
             Makefilevars.emplace("tools_or_core","tools");
         }
+        if (includetemplater) {
+            Makefilevars.emplace("templater_target","$(OBJ)/render.o: render.cpp render.hpp\n"
+                "	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(FORMALIZERROOT) $(TEMPLATEDIR) -c render.cpp -o $(OBJ)/render.o\n"
+                "\n");
+            Makefilevars.emplace("templater_macro","$(TEMPLATEDIR) ");
+            Makefilevars.emplace("templater_obj","render.o ");
+        } else {
+            Makefilevars.emplace("templater_target","");
+            Makefilevars.emplace("templater_macro","");
+            Makefilevars.emplace("templater_obj","");
+        }
         rendered_Makefile = env.render(templates[cpp_bp_Makefile_temp], Makefilevars);
 
         ERRHERE(".README");
@@ -158,14 +178,35 @@ int make_cpp_boilerplate() {
 
     }
 
+    std::string rendered_rcpp, rendered_rhpp;
+    if (includetemplater) {
+        ERRHERE(".render.cpp");
+        template_varvalues rcppvars;
+        rcppvars.emplace("this", thisname);
+        rendered_rcpp = env.render(templates[cpp_bp_rendercpp_temp], rcppvars);
+
+        ERRHERE(".render.hpp");
+        template_varvalues rhppvars;
+        rhppvars.emplace("this", thisname);
+        rendered_rhpp = env.render(templates[cpp_bp_renderhpp_temp], rhppvars);
+    }
+
     ERRHERE(".makedir");
     if (!islibrary) {
         std::filesystem::create_directories(sourcedir);
+    }
+    if (includetemplater) {
+        std::filesystem::create_directories(sourcedir+"/templates");
     }
 
     ERRHERE(".files");
     careful_file_create(sourcedir+'/'+thisname+".cpp",rendered_cpp);
     careful_file_create(headerdir+'/'+thisname+".hpp",rendered_hpp);
+
+    if (includetemplater) {
+        careful_file_create(sourcedir+"/render.cpp",rendered_rcpp);
+        careful_file_create(sourcedir+"/render.hpp",rendered_rhpp);
+    }
 
     if (!islibrary) {
 

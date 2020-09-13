@@ -1,5 +1,5 @@
 #
-# Makefile for {{ this }}
+# Makefile for fzloghtml
 # (by Randal A. Koene, randalk@minduploading.org)
 #
 
@@ -28,7 +28,7 @@ MACHOPT= $(GCCTUNE) $(SSEOPT)
 FORMALIZERPATH=$(HOME)/src/formalizer
 COREINCLUDEPATH=$(FORMALIZERPATH)/core/include
 CORELIBPATH=$(FORMALIZERPATH)/core/lib
-FORMALIZERPATH_THIS=$(FORMALIZERPATH)/{{ tools_or_core }}/{{ this }}
+FORMALIZERPATH_THIS=$(FORMALIZERPATH)/tools/fzloghtml
 
 TEMPLATEDIR = -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\" 
 
@@ -109,7 +109,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/templater.o
 
 .PHONY: FORCE
 
-all: init {{ this }}
+all: init fzloghtml
 
 init: FORCE
 	@echo '-------------------------------------------------------------------'
@@ -117,16 +117,19 @@ init: FORCE
 	@echo 'Includes: $(CPPFLAGS)'
 	@echo '-------------------------------------------------------------------'
 
-{{ templater_target }}
-$(OBJ)/{{ this }}.o: {{ this }}.cpp {{ this }}.hpp version.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) {{ templater_macro }}-c {{ this }}.cpp -o $(OBJ)/{{ this }}.o
+$(OBJ)/render.o: render.cpp render.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(FORMALIZERROOT) $(TEMPLATEDIR) -c render.cpp -o $(OBJ)/render.o
 
-{{ this }}: $(OBJ)/{{ this }}.o {{ templater_obj }}$(CORE_OBJS)
-	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  {{ templater_macro }}$^ -o {{ this }} $(LIB_PATH)
+
+$(OBJ)/fzloghtml.o: fzloghtml.cpp fzloghtml.hpp version.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(TEMPLATEDIR) -c fzloghtml.cpp -o $(OBJ)/fzloghtml.o
+
+fzloghtml: $(OBJ)/fzloghtml.o render.o $(CORE_OBJS)
+	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $(TEMPLATEDIR) $^ -o fzloghtml $(LIB_PATH)
 
 clean:
-	cp -f {{ this }} {{ this }}.bak
-	rm -f $(OBJ)/*.o {{ this }}
+	cp -f fzloghtml fzloghtml.bak
+	rm -f $(OBJ)/*.o fzloghtml
 
 #doc++:
 #	rm -r -f html
