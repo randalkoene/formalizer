@@ -59,7 +59,7 @@ inline std::string TimeStamp_pq(time_t t) {
     return TimeStamp("'%Y%m%d %H:%M'",t);
 }
 
-time_t targetdate_from_timestamp_pq(std::string pqtimestamp);
+time_t epochtime_from_timestamp_pq(std::string pqtimestamp);
 
 /**
  * A simulation class that enables Postgres call testing.

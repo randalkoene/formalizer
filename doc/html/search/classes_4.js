@@ -1,7 +1,9 @@
 var searchData=
 [
-  ['formalizer_5fbase_5fstreams',['formalizer_base_streams',['../structfz_1_1formalizer__base__streams.html',1,'fz']]],
-  ['formalizer_5fstandard_5fprogram',['formalizer_standard_program',['../structfz_1_1formalizer__standard__program.html',1,'fz']]],
-  ['fzguide_5fsystem',['fzguide_system',['../structfzguide__system.html',1,'']]],
-  ['fzquerypq',['fzquerypq',['../structfzquerypq.html',1,'']]]
+  ['edge',['Edge',['../classfz_1_1Edge.html',1,'fz']]],
+  ['edge_5fid',['Edge_ID',['../classfz_1_1Edge__ID.html',1,'fz']]],
+  ['edge_5fid_5fkey',['Edge_ID_key',['../structfz_1_1Edge__ID__key.html',1,'fz']]],
+  ['edge_5fpq',['Edge_pq',['../classfz_1_1Edge__pq.html',1,'fz']]],
+  ['error_5finstance',['Error_Instance',['../structfz_1_1Error__Instance.html',1,'fz']]],
+  ['errors',['Errors',['../classfz_1_1Errors.html',1,'fz']]]
 ];

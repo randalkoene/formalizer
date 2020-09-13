@@ -195,12 +195,12 @@ def reset_graph(cmdargs):
         exit(0)
     
     print(f'Removing the Graph tables in {cmdargs.schemaname} schema from the {cmdargs.dbname} database.')
-    nodestable = cmdargs.schemaname + '.nodes'
-    edgestable = cmdargs.schemaname + '.edges'
-    topicstable = cmdargs.schemaname + '.topics'
-    retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS \"{edgestable}\" CASCADE;'")
-    retcode += try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS \"{nodestable}\" CASCADE;'")
-    retcode += try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS \"{topicstable}\" CASCADE;'")
+    nodestable = '"'+cmdargs.schemaname + '".nodes'
+    edgestable = '"'+cmdargs.schemaname + '".edges'
+    topicstable = '"'+cmdargs.schemaname + '".topics'
+    retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS {edgestable} CASCADE;'")
+    retcode += try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS {nodestable} CASCADE;'")
+    retcode += try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS {topicstable} CASCADE;'")
     if (retcode != 0):
         print(f'Attempt to remove tables failed.')
         exit(retcode)
@@ -216,12 +216,12 @@ def reset_log(cmdargs):
         exit(0)
     
     print(f'Removing the Log tables in {cmdargs.schemaname} schema from the {cmdargs.dbname} database.')
-    chunkstable = cmdargs.schemaname + '.chunks'
-    entriestable = cmdargs.schemaname + '.entries'
-    breakpointstable = cmdargs.schemaname + '.breakpoints'
-    retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS \"{breakpointstable}\" CASCADE;'")
-    retcode += try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS \"{chunkstable}\" CASCADE;'")
-    retcode += try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS \"{entriestable}\" CASCADE;'")
+    chunkstable = '"'+cmdargs.schemaname + '".chunks'
+    entriestable = '"'+cmdargs.schemaname + '".entries'
+    breakpointstable = '"'+cmdargs.schemaname + '".breakpoints'
+    retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS {breakpointstable} CASCADE;'")
+    retcode += try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS {chunkstable} CASCADE;'")
+    retcode += try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS {entriestable} CASCADE;'")
     if (retcode != 0):
         print(f'Attempt to remove tables failed.')
         exit(retcode)
@@ -239,7 +239,7 @@ def reset_metrics(cmdargs):
     print(f'Removing the Metrics tables in {cmdargs.schemaname} schema from the {cmdargs.dbname} database.')
     print('\nTHIS IS JUST A STUB.\n')
     retcode = 1
-    # retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS \"{metricstable}\" CASCADE;'")
+    # retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS {metricstable} CASCADE;'")
     if (retcode != 0):
         print(f'Attempt to remove tables failed.')
         exit(retcode)
@@ -255,8 +255,8 @@ def reset_guide(cmdargs):
         exit(0)
     
     print(f'Removing the Guide tables in {cmdargs.schemaname} schema from the {cmdargs.dbname} database.')
-    systemguidetable = cmdargs.schemaname + '.guide_system'
-    retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS \"{systemguidetable}\" CASCADE;'")
+    systemguidetable = '"'+cmdargs.schemaname + '".guide_system'
+    retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS {systemguidetable} CASCADE;'")
     if (retcode != 0):
         print(f'Attempt to remove tables failed.')
         exit(retcode)
@@ -272,7 +272,7 @@ if __name__ == '__main__':
 
     print(server_long_id+"\n")
 
-    parser = argparse.ArgumentParser(description='Setup or refresh a Formalizer environment.',epilog='Note that the schema name is also used for the fz(schema) role.')
+    parser = argparse.ArgumentParser(description='Setup or refresh a Formalizer environment.',epilog='Note that the schema name is also used for the fz(schema) role.\n\nReset "all" will delete the existing schema and then suggest -A.')
     parser.add_argument('-A', '--All', dest='doall', action="store_true", help='do all setup steps, ensure environment is ready')
     parser.add_argument('-1', '--One', metavar='setupaction', help='specify a step to do: database, schema, tables, fzuser, binaries')
     parser.add_argument('-d', '--database', dest='dbname', help='specify database name (default: formalizer)')
@@ -280,7 +280,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--permissions', dest='permissions', action='store_true', help=f'give access permissions to {config["cgiuser"]}')
     parser.add_argument('-m', '--makebins', dest='makebins', action='store_true', help='make Formalizer binaries available')
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='turn on verbose mode')
-    parser.add_argument('-R', '--reset', dest='reset', help='reset: all, graph, log, metrics, guide', epilog='Reset "all" will delete the existing schema and then suggest -A.')
+    parser.add_argument('-R', '--reset', dest='reset', help='reset: all, graph, log, metrics, guide')
 
     args = parser.parse_args()
 

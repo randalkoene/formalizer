@@ -232,4 +232,249 @@ std::string Logentry_pq::All_Logentry_Data_pqstr() {
            text_pqstr() + ')';
 }
 
+/**
+ * Load full Breakpoints table into Log::breakpoints.
+ * 
+ * We can only add Breakpoints by adding actual existing Log_chunk objects
+ * (which is a good safety mechanism). This means, that this function can
+ * really only be successfully called after calling `read_Chunks_pq()`.
+ * 
+ * @param apq data structure with active database connection pointer and schema name.
+ * @param log a Log object, typically with an existing chunks list but empty Breakpoints list.
+ */
+bool read_Breakpoints_pq(active_pq & apq, Log & log) {
+    if (!query_call_pq(apq.conn,"SELECT * FROM "+apq.pq_schemaname+".Breakpoints ORDER BY id",false)) return false;
+
+    //sample_query_data(conn,0,4,0,100,tmpout);
+
+    PGresult *res;
+
+    while ((res = PQgetResult(apq.conn))) { // It's good to use a loop for single row mode cases.
+
+        const int rows = PQntuples(res);
+        if (PQnfields(res)<1) ERRRETURNFALSE(__func__,"not enough fields in Breakpoints table");
+
+        //if (!get_Breakpoints_pq_field_numbers(res)) return false; //*** there is only one field at this time
+
+        for (int r = 0; r < rows; ++r) {
+
+            std::string tag = PQgetvalue(res, r, 0);
+            time_t bp_t = epochtime_from_timestamp_pq(PQgetvalue(res, r, 0));
+            if (bp_t<0)
+                ERRRETURNFALSE(__func__,"stored Breakpoint has undefined top Log chunk start time");
+
+            Log_chunk_ID_key chunkkey(bp_t);
+            Log_chunk * chunk = log.get_chunk(chunkkey);
+            if (!chunk)
+                ERRRETURNFALSE(__func__,"stored Breakpoint refers to Log chunk not found in Log");
+
+            log.get_Breakpoints().add_later_Breakpoint(*chunk); // append
+        }
+
+        PQclear(res);
+    }
+
+    return true;
+}
+
+const std::string pq_chunk_fieldnames[_pqlc_NUM] = {"id",
+                                                   "nid",
+                                                   "tclose"};
+
+const std::string pq_entry_fieldnames[_pqle_NUM] = {"id",
+                                                   "nid",
+                                                   "text"};
+
+unsigned int pq_chunk_field[_pqlc_NUM];
+unsigned int pq_entry_field[_pqle_NUM];
+
+/**
+ * Retrieve field column numbers for chunks query to make sure the
+ * correct field numbers are used. This is an extra safety measure
+ * in case formats are changed in the future and in case of potential
+ * database version mismatch.
+ * 
+ * This function updates the field numbers in `pq_chunk_field`.
+ * The field names that this version assumes are in the variable
+ * `pq_chunk_fieldnames`. The fields are enumerated with `pq_LCfields`.
+ * 
+ * @param res a valid pointer obtained by `PQgetResult()`.
+ * @return true if all the field names were found.
+ */
+bool get_Chunk_pq_field_numbers(PGresult *res) {
+    if (!res) return false;
+
+    for (auto i = 0; i<_pqlc_NUM; i++) {
+        if ((pq_chunk_field[i] = PQfnumber(res,pq_chunk_fieldnames[i].c_str())) < 0) {
+            ERRRETURNFALSE(__func__,"field '"+pq_chunk_fieldnames[i]+"' not found in database chunks table");
+        }
+    }
+    return true;
+}
+
+bool get_Entry_pq_field_numbers(PGresult *res) {
+    if (!res) return false;
+
+    for (auto i = 0; i<_pqle_NUM; i++) {
+        if ((pq_entry_field[i] = PQfnumber(res,pq_entry_fieldnames[i].c_str())) < 0) {
+            ERRRETURNFALSE(__func__,"field '"+pq_entry_fieldnames[i]+"' not found in database entries table");
+        }
+    }
+    return true;
+}
+
+/**
+ * Load full Chunks table into Log::chunks.
+ */
+bool read_Chunks_pq(active_pq & apq, Log & log) {
+    if (!query_call_pq(apq.conn,"SELECT * FROM "+apq.pq_schemaname+".Logchunks ORDER BY "+pq_chunk_fieldnames[pqlc_id],false)) return false;
+
+    //sample_query_data(conn,0,4,0,100,tmpout);
+  
+    PGresult *res;
+
+    while ((res = PQgetResult(apq.conn))) { // It's good to use a loop for single row mode cases.
+
+        const int rows = PQntuples(res);
+        if (PQnfields(res)<_pqlc_NUM) ERRRETURNFALSE(__func__,"not enough fields in chunks table");
+
+        if (!get_Chunk_pq_field_numbers(res)) return false;
+
+        for (int r = 0; r < rows; ++r) {
+
+            time_t chopen_t = epochtime_from_timestamp_pq(PQgetvalue(res, r, pq_chunk_field[pqlc_id]));
+            if (chopen_t<0)
+                ERRRETURNFALSE(__func__,"stored Chunk has undefined start time");
+
+            try {
+                Log_TimeStamp chunkstamp(chopen_t);
+
+                std::string nidstr(PQgetvalue(res, r, pq_chunk_field[pqlc_nid]));
+                try {
+                    Node_ID nid(nidstr);
+
+                    time_t chunkclose_t = epochtime_from_timestamp_pq(PQgetvalue(res, r, pq_chunk_field[pqlc_tclose])); // it might be open!
+
+                    log.add_later_Chunk(chunkstamp,nid,chunkclose_t);
+                } catch (ID_exception idexception) {
+                    ERRRETURNFALSE(__func__,"Invalid Node ID ["+nidstr+"], "+idexception.what());
+                }
+            } catch (ID_exception idexception) {
+                ERRRETURNFALSE(__func__,"Invalid Chunk ID ["+TimeStampYmdHM(chopen_t)+"], "+idexception.what());
+            }
+
+        }
+
+        PQclear(res);
+    }
+
+    return true;
+}
+
+/**
+ * Load full Entries table into Log::entries.
+ * 
+ * We can only add Entries while referring to existing Log_chunks
+ * (which is a good safety mechanism). This means, that this function can
+ * really only be successfully called after calling `read_Chunks_pq()`.
+ * 
+ * @param apq data structure with active database connection pointer and schema name.
+ * @param log a Log object, typically with an existing chunks list but empty Breakpoints list.
+ */
+bool read_Entries_pq(active_pq & apq, Log & log) {
+    if (!query_call_pq(apq.conn,"SELECT * FROM "+apq.pq_schemaname+".Logentries ORDER BY "+pq_entry_fieldnames[pqle_id],false)) return false;
+
+    //sample_query_data(conn,0,4,0,100,tmpout);
+  
+    PGresult *res;
+
+    while ((res = PQgetResult(apq.conn))) { // It's good to use a loop for single row mode cases.
+
+        const int rows = PQntuples(res);
+        if (PQnfields(res)<_pqle_NUM) ERRRETURNFALSE(__func__,"not enough fields in entries table");
+
+        if (!get_Entry_pq_field_numbers(res)) return false;
+
+        for (int r = 0; r < rows; ++r) {
+
+            std::string entryid_str(PQgetvalue(res, r, pq_entry_field[pqle_id]));
+            std::string nodeid_str(PQgetvalue(res, r, pq_entry_field[pqle_nid]));
+            std::string entrytext(PQgetvalue(res, r, pq_entry_field[pqle_text]));
+
+            // attempt to build a Log_entry_ID object
+            try {
+                const Log_entry_ID entryid(entryid_str);
+
+                const Log_chunk_ID_key chunkkey(entryid.key()); // no need to try, this one has to be valid if the entry ID was valid
+                Log_chunk * chunk = log.get_chunk(chunkkey);
+                if (!chunk)
+                    ERRRETURNFALSE(__func__,"stored Entry refers to Log chunk not found in Log");
+
+                std::unique_ptr<Log_entry> entry;
+                if (nodeid_str.empty()) { // make Log_entry object without Node specifier
+                    entry = std::make_unique<Log_entry>(entryid.key().idT, entrytext, chunk);
+                    chunk->add_Entry(*entry); // add to chunk.entries
+                    log.get_Entries().insert({entryid.key(),std::move(entry)}); // entry is now nullptr
+
+                } else {
+                    // attempt to build a Node_ID object
+                    try {
+                        const Node_ID nodeid(nodeid_str);
+
+                        // make Log_entry object with Node specifier
+                        entry = std::make_unique<Log_entry>(entryid.key().idT, entrytext, nodeid.key(), chunk);
+                        chunk->add_Entry(*entry);
+                        log.get_Entries().insert({entryid.key(),std::move(entry)}); // entry is now nullptr
+
+                    } catch (ID_exception idexception) {
+                        ERRRETURNFALSE(__func__, "invalid Node ID (" + nodeid_str + ") at Log entry [" + entryid_str + "], " + idexception.what()); // *** alternative: +",\ntreating as chunk-relative");
+                        /* only use the below if you use the ADDERROR() alternative:
+                        entry = std::make_unique<Log_entry>(entryid.key().idT, entrytext, chunk);
+                        chunk->add_Entry(*entry);
+                        log.get_Entries().insert({entryid.key(),std::move(entry)}); // entry is now nullptr
+                        */
+                    }
+                }
+            } catch (ID_exception idexception) {
+                ERRRETURNFALSE(__func__, "entry with invalid Log entry ID (" + entryid_str + "), " + idexception.what());
+            }
+
+        }
+
+        PQclear(res);
+    }
+
+    return true;
+}
+
+/**
+ * Load the full Log with all Log chunks, Log entries and Breakpoints from the PostgresSQL
+ * database.
+ * 
+ * @param log a Log for the Chunks, Entries and Breakpoints, typically empty.
+ * @param pa access object with database name and schema name.
+ * @return true if the Log was succesfully loaded from the database.
+ */
+bool load_Log_pq(Log & log, Postgres_access & pa) {
+    ERRHERE(".setup");
+    PGconn* conn = connection_setup_pq(pa.dbname);
+    if (!conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define LOAD_LOG_PQ_RETURN(r) { PQfinish(conn); return r; }
+    active_pq apq(conn,pa.pq_schemaname);
+
+    ERRHERE(".chunks");
+    if (!read_Chunks_pq(apq,log)) LOAD_LOG_PQ_RETURN(false);
+
+    ERRHERE(".entries");
+    if (!read_Entries_pq(apq,log)) LOAD_LOG_PQ_RETURN(false);
+
+    ERRHERE(".breakpoints");
+    if (!read_Breakpoints_pq(apq,log)) LOAD_LOG_PQ_RETURN(false);
+
+    LOAD_LOG_PQ_RETURN(true);
+}
+
+
 } // namespace fz

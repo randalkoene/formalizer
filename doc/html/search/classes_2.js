@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['dil2graph',['dil2graph',['../structdil2graph.html',1,'']]]
+  ['conversionmetrics',['ConversionMetrics',['../structConversionMetrics.html',1,'']]]
 ];

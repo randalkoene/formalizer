@@ -72,35 +72,51 @@ void Log_by_Node_chainable::set_Node_next_ptr(Log_entry * nextptr) { // give nul
 }
 
 /**
- * Slow brute force search for Log chunk by ID.
+ * Slow brute force search for index of and pointer to a Log chunk from its ID key.
  * 
  * This one should work if the ID is in there, even if the IDs are not sorted
  * correctly for some reason (i.e. if some IDs are not in correct temporal Log order).
  * 
  * @param chunk_id the Log chunk ID.
- * @return the index in the list, or ::size() if not found.
+ * @return the pair of index in the list and pointer to Log chunk, or [::size(), nullptr] if not found.
  */
-Log_chunk_ptr_deque::size_type Log_chunks_Deque::slow_find(const Log_chunk_ID_key chunk_id) const {
-    for (Log_chunk_ptr_deque::size_type idx = 0; idx < size(); ++idx) {
-        if (get_tbegin_key(idx) == chunk_id)
-            return idx;
+std::pair<Log_chunk_ptr_deque::size_type, Log_chunk*> Log_chunks_Deque::slow_find(const Log_chunk_ID_key chunk_id) const {
+    Log_chunk_ptr_deque::size_type i = 0;
+    for (const auto& chptr : (*this)) { //*** doing this because it's a deque, would use index if it were a vector
+        if (chptr->get_tbegin_key() == chunk_id)
+            return std::make_pair(i,chptr.get());
+
+        ++i; // so that we can also return an index
     }
-    return size();
+    return std::make_pair(size(),nullptr);
 }
 
 /**
- * Find index of Log chunk from its ID.
+ * Find index of and pointer to a Log chunk from its ID key.
  * 
  * This implementation attempts to be quick about it by relying on the sorted
  * order of Log chunks to apply a quick search method.
  * (This is actually probably the same as using std::binary_search.)
  * 
+ * Note A: During the search, we are requesting pointers in order to be able
+ * to return both at once (to make both index and pointer serach functions as
+ * fast as possible). But we skip testing for nullptr, because a nullptr
+ * should never be in the list in the first place. This is a calculated risk.
+ * 
+ * Note B: This function is not as fast as it could be. Checking a specific
+ * index of a deque is slower than in a vector. See the proposal in the
+ * card at https://trello.com/c/qYEwgsFs.
+ * 
+ * Note C: This function is unfortunately forced to go to slow_find() on
+ * occasion, because of IDs that are out of order. See the proposal in the
+ * card at https://trello.com/c/tiOWQkdP.
+ * 
  * @param chunk_id the Log chunk ID.
- * @return the index in the list, or ::size() if not found.
+ * @return the pair of index in the list and pointer to Log chunk, or [::size(), nullptr] if not found.
  */
-Log_chunk_ptr_deque::size_type Log_chunks_Deque::find(const Log_chunk_ID_key chunk_id) const {
+std::pair<Log_chunk_ptr_deque::size_type, Log_chunk*> Log_chunks_Deque::find_index_and_pointer(const Log_chunk_ID_key chunk_id) const {
     if (size()<1)
-        return 0;
+        return std::make_pair(0,nullptr);
     
     long lowerbound = 0;
     long upperbound = size()-1;
@@ -108,10 +124,12 @@ Log_chunk_ptr_deque::size_type Log_chunks_Deque::find(const Log_chunk_ID_key chu
 
     while (true) {
 
-        if (get_tbegin_key(tryidx) == chunk_id)
-            return tryidx;
+        Log_chunk * chunkptr = get_chunk(tryidx); // skipping null-test (see notes)
 
-        if (get_tbegin_key(tryidx) < chunk_id) {
+        if (chunkptr->get_tbegin_key() == chunk_id)
+            return std::make_pair(tryidx,chunkptr);
+
+        if (chunkptr->get_tbegin_key() < chunk_id) {
             lowerbound = tryidx + 1;
         } else {
             upperbound = tryidx - 1;
@@ -119,13 +137,37 @@ Log_chunk_ptr_deque::size_type Log_chunks_Deque::find(const Log_chunk_ID_key chu
 
         if (lowerbound > upperbound) {
             return slow_find(chunk_id);
-            //return size(); // not found
+            //return std::make_pair((size(),nullptr); // not found
         }
 
         tryidx = lowerbound + ((upperbound - lowerbound) / 2);
     }
 
     // never gets here
+}
+
+/**
+ * Find just the index of a Log chunk from its ID.
+ * 
+ * This uses the quick search.
+ * 
+ * @param chunk_id the Log chunk ID.
+ * @return the index in the list, or ::size() if not found.
+ */
+Log_chunk_ptr_deque::size_type Log_chunks_Deque::find(const Log_chunk_ID_key chunk_id) const {
+    return std::get<0>(find_index_and_pointer(chunk_id));
+}
+
+/**
+ * Find just the pointer reference to a Log chunk from its ID.
+ * 
+ * This uses the quick search.
+ * 
+ * @param chunk_id the Log chunk ID.
+ * @return pointer to the Log chunk, or nullptr if not found.
+ */
+Log_chunk * Log_chunks_Deque::get_chunk(const Log_chunk_ID_key chunk_id) const {
+    return std::get<1>(find_index_and_pointer(chunk_id));
 }
 
 /**

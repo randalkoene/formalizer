@@ -188,8 +188,8 @@ std::vector<std::string> array_from_pq(std::string pq_array_str) {
 }
 
 /**
- * Convert Postgres query result time stamp strings to Unix time
- * for Node target date parameter.
+ * Convert Postgres query result time stamp strings to Unix time,
+ * for example, for Node target date parameter.
  * 
  * The format returned by PQgetvalue() is '2015-01-03 16:00:00'.
  * As long as DATESTYLE has not been altered (e.g. with 'set datestyle
@@ -202,7 +202,7 @@ std::vector<std::string> array_from_pq(std::string pq_array_str) {
  * @return Unix time stamp as seconds since 00:00:00 UTC, January 1,
  *         1970 or -1 when unspecified or invalid format.
  */
-time_t targetdate_from_timestamp_pq(std::string pqtimestamp) {
+time_t epochtime_from_timestamp_pq(std::string pqtimestamp) {
     if (pqtimestamp.empty()) return -1;
     if ((pqtimestamp.front()<'0') || (pqtimestamp.front()>'9')) return -1;
 

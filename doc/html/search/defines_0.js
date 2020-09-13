@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['formalizer_5fmodule_5fid',['FORMALIZER_MODULE_ID',['../standard_8hpp.html#a36f8afd80ec3c835cb6d96c7b46d9b2d',1,'standard.hpp']]],
-  ['formalizer_5froot',['FORMALIZER_ROOT',['../boilerplate_8cpp.html#ae1a701dced22d78d0b3683244da740b7',1,'boilerplate.cpp']]],
-  ['fzout',['FZOUT',['../standard_8hpp.html#a064747df53cca0e56f0169a85be9c9d7',1,'standard.hpp']]]
+  ['_5f_5fgraphpostgres_5fhpp',['__GRAPHPOSTGRES_HPP',['../Graphpostgres_8hpp.html#a48915a6c3a11f6ba9ab43e6fbdf53931',1,'Graphpostgres.hpp']]],
+  ['_5f_5flogpostgres_5fhpp',['__LOGPOSTGRES_HPP',['../Logpostgres_8hpp.html#a1c717e936ac8e96231e150c4209fe490',1,'Logpostgres.hpp']]]
 ];

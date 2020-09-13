@@ -1,8 +1,7 @@
 var searchData=
 [
-  ['graph',['Graph',['../classfz_1_1Graph.html',1,'fz']]],
-  ['graph2dil',['graph2dil',['../structgraph2dil.html',1,'']]],
-  ['graph_5faccess',['Graph_access',['../structfz_1_1Graph__access.html',1,'fz']]],
-  ['guide_5fsnippet',['Guide_snippet',['../structfz_1_1Guide__snippet.html',1,'fz']]],
-  ['guide_5fsnippet_5fsystem',['Guide_snippet_system',['../structGuide__snippet__system.html',1,'']]]
+  ['formalizer_5fbase_5fstreams',['formalizer_base_streams',['../structfz_1_1formalizer__base__streams.html',1,'fz']]],
+  ['formalizer_5fstandard_5fprogram',['formalizer_standard_program',['../structfz_1_1formalizer__standard__program.html',1,'fz']]],
+  ['fzguide_5fsystem',['fzguide_system',['../structfzguide__system.html',1,'']]],
+  ['fzquerypq',['fzquerypq',['../structfzquerypq.html',1,'']]]
 ];

@@ -472,7 +472,7 @@ bool read_Nodes_pq(PGconn* conn, std::string schemaname, Graph & graph) {
                 node->set_completion(std::stof(PQgetvalue(res, r, pq_node_field[pqn_completion])));
                 node->set_required(atoi(PQgetvalue(res, r, pq_node_field[pqn_required])));
                 node->set_text_unchecked(PQgetvalue(res, r, pq_node_field[pqn_text]));
-                node->set_targetdate(targetdate_from_timestamp_pq(PQgetvalue(res, r, pq_node_field[pqn_targetdate])));
+                node->set_targetdate(epochtime_from_timestamp_pq(PQgetvalue(res, r, pq_node_field[pqn_targetdate])));
                 node->set_tdproperty(tdproperty_from_pq(PQgetvalue(res, r, pq_node_field[pqn_tdproperty])));
                 node->set_repeats(PQgetvalue(res, r, pq_node_field[pqn_isperiodic])[0]=='t');
                 node->set_tdpattern(tdpattern_from_pq(PQgetvalue(res, r, pq_node_field[pqn_tdperiodic])));

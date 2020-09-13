@@ -64,6 +64,9 @@ $(function() {
 &#160;
 
 <h3><a id="index_a"></a>- a -</h3><ul>
+<li>access_initialize()
+: <a class="el" href="structfz_1_1Postgres__access.html#a1372fa21dd5b1483c2e93721e243dc81">fz::Postgres_access</a>
+</li>
 <li>add_earlier_Chunk()
 : <a class="el" href="classfz_1_1Log.html#adaa84db4353ea130e2e681eae1524bbb">fz::Log</a>
 </li>
@@ -80,10 +83,19 @@ $(function() {
 : <a class="el" href="structfz_1_1formalizer__standard__program.html#a21a28e7fdc642d1def14a4fb93c2dba0">fz::formalizer_standard_program</a>
 </li>
 <li>add_topic()
-: <a class="el" href="classfz_1_1Node.html#a25180de16214e9463f4a098546ec2749">fz::Node</a>
+: <a class="el" href="classfz_1_1Node.html#acf00714840873c4882c55312c5038329">fz::Node</a>
+</li>
+<li>All_Breakpoint_Data_pqstr()
+: <a class="el" href="classfz_1_1Breakpoint__pq.html#a7e0377299953e10b324750098679ee24">fz::Breakpoint_pq</a>
 </li>
 <li>All_Edge_Data_pqstr()
 : <a class="el" href="classfz_1_1Edge__pq.html#a9df3350f9d6108f12a1abdf747dcc99c">fz::Edge_pq</a>
+</li>
+<li>All_Logchunk_Data_pqstr()
+: <a class="el" href="classfz_1_1Logchunk__pq.html#a3dc3155bef152702112e17b949959880">fz::Logchunk_pq</a>
+</li>
+<li>All_Logentry_Data_pqstr()
+: <a class="el" href="classfz_1_1Logentry__pq.html#adb618a7e3ab0bfcec44d0dd05159e8b0">fz::Logentry_pq</a>
 </li>
 <li>All_Node_Data_pqstr()
 : <a class="el" href="classfz_1_1Node__pq.html#aa1749c9e12f8989a0bd980557dc1490c">fz::Node_pq</a>
@@ -296,12 +308,19 @@ $(function() {
 
 <h3><a id="index_i"></a>- i -</h3><ul>
 <li>id_pqstr()
-: <a class="el" href="classfz_1_1Edge__pq.html#a1bbaa4f0feecb42178a0e89f8e96d422">fz::Edge_pq</a>
+: <a class="el" href="classfz_1_1Breakpoint__pq.html#a36f039edfafe4520f9d031a01d8a5e5c">fz::Breakpoint_pq</a>
+, <a class="el" href="classfz_1_1Edge__pq.html#a1bbaa4f0feecb42178a0e89f8e96d422">fz::Edge_pq</a>
+, <a class="el" href="classfz_1_1Logchunk__pq.html#a0706ee967882db60c284fbcd58a10ac9">fz::Logchunk_pq</a>
+, <a class="el" href="classfz_1_1Logentry__pq.html#a982f6de84647b52c6ab4bca0ee10ebf2">fz::Logentry_pq</a>
 , <a class="el" href="classfz_1_1Node__pq.html#a83a0b46832aec1647210c79e1f208380">fz::Node_pq</a>
 , <a class="el" href="classfz_1_1Topic__pq.html#a633598bc1613ebeac40c77eb7e223653">fz::Topic_pq</a>
 </li>
 <li>ID_TimeStamp()
 : <a class="el" href="structfz_1_1ID__TimeStamp.html#ab2bf499ce67fe3f89d57313e01783ade">fz::ID_TimeStamp</a>
+</li>
+<li>idstr()
+: <a class="el" href="structfz_1_1Guide__snippet.html#ad32c95e27892320bbb79ead05e35b5b1">fz::Guide_snippet</a>
+, <a class="el" href="structGuide__snippet__system.html#a0a66a798ab6e6a3ac5ff63c1aa771c63">Guide_snippet_system</a>
 </li>
 <li>importance_pqstr()
 : <a class="el" href="classfz_1_1Edge__pq.html#adbdd5292d35d3500a1bf3a0f709643e7">fz::Edge_pq</a>
@@ -369,6 +388,10 @@ $(function() {
 </li>
 <li>next_in_chain()
 : <a class="el" href="structfz_1_1Log__chain__target.html#a8bf52d8d6b069b3694101f99037f45ac">fz::Log_chain_target</a>
+</li>
+<li>nid_pqstr()
+: <a class="el" href="classfz_1_1Logchunk__pq.html#ab85e6d492cd3208dd5341572a9f235d1">fz::Logchunk_pq</a>
+, <a class="el" href="classfz_1_1Logentry__pq.html#a73b7a84580d752ea42aa0fc328bba0c8">fz::Logentry_pq</a>
 </li>
 <li>Node_by_id()
 : <a class="el" href="classfz_1_1Graph.html#a386138eacb233452cc00aaf3de31e033">fz::Graph</a>
@@ -547,6 +570,9 @@ $(function() {
 <li>targetdate_pqstr()
 : <a class="el" href="classfz_1_1Node__pq.html#a4b08560b627cb870f2eaa5a6e8328c98">fz::Node_pq</a>
 </li>
+<li>tclose_pqstr()
+: <a class="el" href="classfz_1_1Logchunk__pq.html#a7521cdfa1965ee868a899938f2ae1190">fz::Logchunk_pq</a>
+</li>
 <li>tdevery_pqstr()
 : <a class="el" href="classfz_1_1Node__pq.html#ab96056ee195adb989b8072887d7116b6">fz::Node_pq</a>
 </li>
@@ -560,7 +586,8 @@ $(function() {
 : <a class="el" href="classfz_1_1Node__pq.html#a527ed9c16390575cd8267d11e7ddec31">fz::Node_pq</a>
 </li>
 <li>text_pqstr()
-: <a class="el" href="classfz_1_1Node__pq.html#a77e298ff3c3b584ab937551bac497345">fz::Node_pq</a>
+: <a class="el" href="classfz_1_1Logentry__pq.html#a1aa5209fb02e43c1ab81b38c89d62513">fz::Logentry_pq</a>
+, <a class="el" href="classfz_1_1Node__pq.html#a77e298ff3c3b584ab937551bac497345">fz::Node_pq</a>
 </li>
 <li>Time()
 : <a class="el" href="classfz_1_1ReferenceTime.html#ac28f584193582243a4d3202b469463a0">fz::ReferenceTime</a>

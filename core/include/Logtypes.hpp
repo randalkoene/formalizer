@@ -236,10 +236,16 @@ struct Log_chunks_Deque: public Log_chunk_ptr_deque {
     Log_chunk * get_chunk(Log_chunk_ptr_deque::size_type idx) const;
 
     /// Find index of Log chunk pointer by ID key by brute force sequential search. Returns size() if not found.
-    Log_chunk_ptr_deque::size_type slow_find(const Log_chunk_ID_key chunk_id) const;
+    std::pair<Log_chunk_ptr_deque::size_type, Log_chunk*> Log_chunks_Deque::slow_find(const Log_chunk_ID_key chunk_id) const;
+
+    /// Fast search for index and pointer to Log chunk by ID key. Returns [size, nullptr] if not found.
+    std::pair<Log_chunk_ptr_deque::size_type, Log_chunk*> Log_chunks_Deque::find_index_and_pointer(const Log_chunk_ID_key chunk_id) const;
 
     /// Get index of Log chunk pointer by ID key. Returns size() if not found.
     Log_chunk_ptr_deque::size_type find(const Log_chunk_ID_key chunk_id) const;
+
+    /// Get pointer to Log chunk by ID key. Returns nullptr if not found.
+    Log_chunk * get_chunk(const Log_chunk_ID_key chunk_id) const;
 
     /// Find index of Log chunk by its ID closest to time t.
     Log_chunk_ptr_deque::size_type find(std::time_t t, bool later) const;
@@ -340,8 +346,10 @@ public:
 
     /// chunks table: get chunk
     Log_chunk * get_chunk(Log_chunk_ptr_deque::size_type idx) const { return chunks.get_chunk(idx); }
+    Log_chunk * get_chunk(const Log_chunk_ID_key chunk_idkey) const { return chunks.get_chunk(chunk_idkey); }
     Log_chunk_ID_key get_chunk_id_key(Log_chunk_ptr_deque::size_type idx) const { return chunks.get_key_copy(idx); }
     Log_chunk_ptr_deque::size_type find_chunk_by_key(const Log_chunk_ID_key chunk_idkey) const { return chunks.find(chunk_idkey); }
+    std::pair<Log_chunk_ptr_deque::size_type, Log_chunk*> find_chunk_index_and_pointer(const Log_chunk_ID_key chunk_id) const { return chunks.find_index_and_pointer(chunk_id); }
 
     /// breakpoints table: get breakpoint
     Log_chunk_ID_key & get_Breakpoint_first_chunk_id_key(Log_chunk_ID_key_deque::size_type idx) { return breakpoints.at(idx); }

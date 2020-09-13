@@ -40,6 +40,7 @@ class Log_chunk;
 
 // forward declarations to classes in here
 class Log_TimeStamp;
+class Log_chunk_ID_key;
 
 std::string Log_entry_ID_TimeStamp_to_string(const Log_TimeStamp idT);
 
@@ -124,6 +125,7 @@ struct Log_entry_ID_key {
 
     Log_entry_ID_key(const Log_TimeStamp& _idT);
     Log_entry_ID_key(std::time_t t, uint8_t _minorid = 1): idT(t,true,_minorid) {}
+    Log_entry_ID_key(const Log_chunk_ID_key& _idC, uint8_t _minorid = 1): idT(_idC.get_epoch_time(),false,_minorid) {} // no need to test valid if Log_chunk_ID_key was valid
     Log_entry_ID_key(std::string _idS);
 
     bool isnullkey() const { return idT.month == 0; }
@@ -157,6 +159,7 @@ struct Log_chunk_ID_key {
     Log_chunk_ID_key(): idT() {} /// Try to use this one only for container element initialization and such.
 
     Log_chunk_ID_key(const Log_TimeStamp& _idT);
+    Log_chunk_ID_key(const Log_entry_ID_key& _idE): idT(_idE.idT.get_epoch_time(),false,0) {} // no need to test valid if Log_entry_ID_key was valid
     Log_chunk_ID_key(std::time_t t): idT(t,true) {}
     Log_chunk_ID_key(std::string _idS);
 

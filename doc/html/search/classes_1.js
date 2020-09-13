@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['conversionmetrics',['ConversionMetrics',['../structConversionMetrics.html',1,'']]]
+  ['boilerplate',['boilerplate',['../structboilerplate.html',1,'']]],
+  ['breakpoint_5fpq',['Breakpoint_pq',['../classfz_1_1Breakpoint__pq.html',1,'fz']]]
 ];

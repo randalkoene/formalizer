@@ -61,7 +61,7 @@ enum pq_LBfields { pqlb_id, _pqlb_NUM };
  * - `pqlc_nid`: Node ID of the Node to which the chunk belongs.
  * - `pqlc_tclose`: Chunk close time (or infinity if the cuhnk is still open).
  */
-enum pq_LCfields { pqlc_id, pqlc_nid, pqlc_tclose, pqlc_NUM };
+enum pq_LCfields { pqlc_id, pqlc_nid, pqlc_tclose, _pqlc_NUM };
 
 /**
  * Log entry fields:
@@ -69,7 +69,7 @@ enum pq_LCfields { pqlc_id, pqlc_nid, pqlc_tclose, pqlc_NUM };
  *  - `pqle_nid`: possible Node ID when the entry does not belong to the same Node as the chunk.
  *  - `pqle_text`: Entry text content.
  */
-enum pq_LEfields { pqle_id, pqle_nid, pqle_text, pqle_NUM };
+enum pq_LEfields { pqle_id, pqle_nid, pqle_text, _pqle_NUM };
 
 //bool create_Enum_Types_pq(const active_pq & apq);
 
@@ -87,6 +87,7 @@ bool add_Logentry_pq(const active_pq & apq, const Log_entry & entry);
 
 bool store_Log_pq(const Log & log, Postgres_access & pa, void (*progressfunc)(unsigned long, unsigned long) = NULL);
 
+bool load_Log_pq(Log & log, Postgres_access & pa);
 
 /**
  * A data types conversion helper class that can deliver the Postgres Breakpoints table

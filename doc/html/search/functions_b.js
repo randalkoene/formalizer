@@ -2,6 +2,7 @@ var searchData=
 [
   ['nested_5finherit_5ftargetdate',['nested_inherit_targetdate',['../classfz_1_1Node.html#a20e11299205f7f310b51b52647e0e6ec',1,'fz::Node']]],
   ['next_5fin_5fchain',['next_in_chain',['../structfz_1_1Log__chain__target.html#a8bf52d8d6b069b3694101f99037f45ac',1,'fz::Log_chain_target']]],
+  ['nid_5fpqstr',['nid_pqstr',['../classfz_1_1Logchunk__pq.html#ab85e6d492cd3208dd5341572a9f235d1',1,'fz::Logchunk_pq::nid_pqstr()'],['../classfz_1_1Logentry__pq.html#a73b7a84580d752ea42aa0fc328bba0c8',1,'fz::Logentry_pq::nid_pqstr()']]],
   ['node_5fby_5fid',['Node_by_id',['../classfz_1_1Graph.html#a386138eacb233452cc00aaf3de31e033',1,'fz::Graph']]],
   ['node_5fby_5fidstr',['Node_by_idstr',['../classfz_1_1Graph.html#a498bc12182fb03eb8bf01923d3e953ab',1,'fz::Graph']]],
   ['node_5fid_5fkey',['Node_ID_key',['../structfz_1_1Node__ID__key.html#a20ca31a9dc6e7560ce50f7fb219f8427',1,'fz::Node_ID_key']]],
