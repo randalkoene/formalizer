@@ -30,6 +30,10 @@
 #include "dil2graph.hpp"
 #include "logtest.hpp"
 
+#ifdef __DIRECTGRAPH2DIL__
+    #include "../graph2dil/log2tl.hpp"
+#endif // __DIRECTGRAPH2DIL__
+
 using namespace fz;
 
 const Node_ID Lost_and_Found_node("20200820215834.1");
@@ -518,20 +522,21 @@ std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
         d2g.exit(exit_conversion_error);
     }
 
-    VOUT << "Finally, let's store the Log as Postgres data.\n\n";
+    FZOUT("Finally, let's store the Log as Postgres data.\n\n");
     ERRHERE(".store");
-    VOUT << "+----+----+----+---+\n";
-    VOUT << "|    :    :    :   |\n";
-    VOUT.flush();
-    d2g.ga.graph_access_initialize();
+    FZOUT("+----+----+----+---+\n");
+    FZOUT("|    :    :    :   |\n");
+    if (base.out)
+        base.out->flush();
+    d2g.ga.access_initialize();
     if (!store_Log_pq(*log, d2g.ga, node_pq_progress_func)) {
-        EOUT << "\nSomething went wrong! Unable to store (correctly) in Postgres database.\n";
+        FZERR("\nSomething went wrong! Unable to store (correctly) in Postgres database.\n");
         d2g.exit(exit_database_error);
     }
-    VOUT << "\nLog stored in Postgres database.\n\n";
+    FZOUT("\nLog stored in Postgres database.\n\n");
 
     if (SimPQ.SimulatingPQChanges()) {
-        VOUT << "Postgres database changes were SIMULATED. Writing Postgres call log to file at:\n/tmp/dil2graph-Postgres-calls.log\n\n";
+        FZOUT("Postgres database changes were SIMULATED. Writing Postgres call log to file at:\n/tmp/dil2graph-Postgres-calls.log\n\n");
         std::ofstream pqcallsfile;
         pqcallsfile.open("/tmp/dil2graph-Postgres-calls.log");
         pqcallsfile << SimPQ.GetLog() << '\n';
@@ -541,4 +546,73 @@ std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
     key_pause();
 
     return std::make_pair(tl, std::move(log));
+}
+
+void direct_graph2dil_Log2TL_test(Log * logptr, Graph * graphptr) {
+#ifdef __DIRECTGRAPH2DIL__
+    COMPILEDPING(std::cout,"PING-main.g2dtest\n");
+    if (logptr) {
+        VOUT << "\nNow, let's try converting the Log right back into Tak Log files.\n\n";
+        key_pause();
+
+        ERRHERE(".graph2dil");
+        if (!graphptr) {
+            ERRHERE(".loadGraph");
+            graphptr = d2g.ga.request_Graph_copy().get();
+            if (!graphptr) {
+                ADDERROR(__func__,"unable to load Graph");
+                d2g.exit(exit_database_error);
+            }
+            COMPILEDPING(std::cout,"PING-main.g2d-Logcaches\n");
+            if ((logptr != nullptr) && (graphptr != nullptr)) {
+                logptr->setup_Entry_node_caches(*graphptr); // here we can do this!
+                logptr->setup_Chunk_node_caches(*graphptr);
+            }
+        }
+
+        COMPILEDPING(std::cout,"PING-main.g2d-Log2TL\n");
+        Log2TL_conv_params params;
+        params.TLdirectory = DIRECTGRAPH2DIL_DIR;
+        params.IndexPath = DIRECTGRAPH2DIL_DIR "/../graph2dil-lists.html";
+        params.o = &VOUT;
+        params.from_idx = d2g.from_section;
+        params.to_idx = d2g.to_section;
+        if (!interactive_Log2TL_conversion(*graphptr, *logptr, params)) {
+            EOUT << "\nDirect conversion test back to Task Log files did not complete..\n";
+            d2g.exit(exit_general_error);
+        }
+        VOUT << "\nDirect conversion test back to Task Log files written to " << DIRECTGRAPH2DIL_DIR << '\n';
+        VOUT << "Hint: Try viewing it http://aether.local/formalizer/graph2dil/task-log.html\n\n";
+    }
+#else
+    FZOUT("Note: Direct graph2dil test not included. Please use the graph2dil program.\n");
+#endif // __DIRECTGRAPH2DIL__
+}
+
+void interactive_TL2Log_validation(Task_Log * tl, Log * log, Graph * graph) {
+    ERRHERE(".top");
+    if ((!tl) || (!log)) {
+        FZERR("Unable to validate due to tl==NULL or log==NULL\n");
+        d2g.exit(exit_general_error);
+    }
+    FZOUT("Now, let's validate the database by reloading the Log and comparing it with the one that was stored.\n");
+
+    ERRHERE(".reloadLog");
+    Log reloaded;
+    if (!load_Log_pq(reloaded, d2g.ga)) { // Not using d2g.ga.request_Log_copy(), because there might be no running server when we just created the database.
+        FZERR("\nSomething went wrong! Unable to load back from Postgres database.\n");
+        d2g.exit(exit_database_error);
+    }
+    FZOUT("Log re-loading data test:\n");
+    FZOUT("  Number of Entries      = "+std::to_string(reloaded.num_Entries())+'\n');
+    FZOUT("  Number of Chunks       = "+std::to_string(reloaded.num_Chunks())+'\n');
+    FZOUT("  Number of Breakpoints  = "+std::to_string(reloaded.num_Breakpoints())+"\n\n");
+    if (graph != nullptr) {
+        reloaded.setup_Entry_node_caches(*graph); // here we can do this!
+        reloaded.setup_Chunk_node_caches(*graph);
+    }
+
+    key_pause();
+
+    direct_graph2dil_Log2TL_test(&reloaded,graph);
 }

@@ -236,10 +236,10 @@ struct Log_chunks_Deque: public Log_chunk_ptr_deque {
     Log_chunk * get_chunk(Log_chunk_ptr_deque::size_type idx) const;
 
     /// Find index of Log chunk pointer by ID key by brute force sequential search. Returns size() if not found.
-    std::pair<Log_chunk_ptr_deque::size_type, Log_chunk*> Log_chunks_Deque::slow_find(const Log_chunk_ID_key chunk_id) const;
+    std::pair<Log_chunk_ptr_deque::size_type, Log_chunk*> slow_find(const Log_chunk_ID_key chunk_id) const;
 
     /// Fast search for index and pointer to Log chunk by ID key. Returns [size, nullptr] if not found.
-    std::pair<Log_chunk_ptr_deque::size_type, Log_chunk*> Log_chunks_Deque::find_index_and_pointer(const Log_chunk_ID_key chunk_id) const;
+    std::pair<Log_chunk_ptr_deque::size_type, Log_chunk*> find_index_and_pointer(const Log_chunk_ID_key chunk_id) const;
 
     /// Get index of Log chunk pointer by ID key. Returns size() if not found.
     Log_chunk_ptr_deque::size_type find(const Log_chunk_ID_key chunk_id) const;

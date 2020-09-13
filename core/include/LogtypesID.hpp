@@ -125,7 +125,7 @@ struct Log_entry_ID_key {
 
     Log_entry_ID_key(const Log_TimeStamp& _idT);
     Log_entry_ID_key(std::time_t t, uint8_t _minorid = 1): idT(t,true,_minorid) {}
-    Log_entry_ID_key(const Log_chunk_ID_key& _idC, uint8_t _minorid = 1): idT(_idC.get_epoch_time(),false,_minorid) {} // no need to test valid if Log_chunk_ID_key was valid
+    Log_entry_ID_key(const Log_chunk_ID_key& _idC, uint8_t _minorid = 1); // no need to test valid if Log_chunk_ID_key was valid
     Log_entry_ID_key(std::string _idS);
 
     bool isnullkey() const { return idT.month == 0; }

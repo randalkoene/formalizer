@@ -20,6 +20,7 @@
 #include "standard.hpp"
 #include "Graphtypes.hpp"
 #include "Logtypes.hpp"
+#include "Graphaccess.hpp"
 
 // local
 #include "log2tl.hpp"
@@ -34,8 +35,10 @@
 using namespace fz;
 
 enum flow_options {
-    flow_unknown = 0, /// no recognized request
-    flow_log2TL = 1,  /// request: convert Log to TL files
+    //flow_unknown = 0,   /// no recognized request
+    flow_all = 0,       /// default: convert Graph to DIL files and Log to TL files
+    flow_log2TL = 1,    /// request: convert Log to TL files
+    flow_graph2DIL = 2, /// request: convert Graph to DIL files
     flow_NUMoptions
 };
 
@@ -49,14 +52,17 @@ struct graph2dil: public formalizer_standard_program {
 
     flow_options flowcontrol;
 
-    graph2dil(): ga(add_option_args,add_usage_top), flowcontrol(flow_unknown) {
-        add_option_args += "L";
-        add_usage_top += " [-L]";
+    graph2dil(): ga(add_option_args,add_usage_top), flowcontrol(flow_all) { //(flow_unknown) {
+        add_option_args += "DL";
+        add_usage_top += " [-D] [-L]";
     }
 
     virtual void usage_hook() {
         ga.usage_hook();
+        FZOUT("    -D convert Graph to DIL Files\n");
         FZOUT("    -L convert Log to Task Log files\n");
+        FZOUT("\n");
+        FZOUT("Default behavior is to convert both Graph to DIL files and Log to Task Log files.\n");
     }
 
     virtual bool options_hook(char c, std::string cargs) {
@@ -65,7 +71,10 @@ struct graph2dil: public formalizer_standard_program {
 
         switch (c) {
 
-        case 'n':
+        case 'D':
+            flowcontrol = flow_graph2DIL;
+
+        case 'L':
             flowcontrol = flow_log2TL;
             return true;
 
@@ -106,9 +115,7 @@ bool flow_convert_Log2TL() {
     std::unique_ptr<Graph> graph = g2d.ga.request_Graph_copy();
 
     ERRHERE(".loadLog");
-    Log log;
-    //*** LOAD THE LOG
-    FZOUT("\n*** Log loading is still missing! There is no Log in the database yet.\n\n");
+    std::unique_ptr<Log> log = g2d.ga.request_Log_copy();
 
     ERRHERE(".goLog2TL");
     Log2TL_conv_params params;
@@ -117,11 +124,45 @@ bool flow_convert_Log2TL() {
     params.o = &std::cout;
     //params.from_idx = from_section;
     //params.to_idx = to_section;    
-    if (!interactive_Log2TL_conversion(*(graph.get()), log, params)) {
+    if (!interactive_Log2TL_conversion(*(graph.get()), *(log.get()), params)) {
         FZERR("\nNeed a database account to proceed. Defaults to $USER.\n");
         exit(exit_general_error);
     }
     
+    return true;
+}
+
+/**
+ * Program flow: Handle request to convert Graph to DIL Files and Detailed Items by ID file.
+ */
+bool flow_convert_Graph2DIL() {
+    ERRHERE(".prep");
+    if (!std::filesystem::create_directories(g2d.DILTLdirectory)) {
+        FZERR("\nUnable to create the output directory "+g2d.DILTLdirectory+".\n");
+        exit(exit_general_error);
+    }
+
+    ERRHERE(".loadGraph");
+    std::unique_ptr<Graph> graph = g2d.ga.request_Graph_copy();
+
+    //ERRHERE(".loadLog");
+    //std::unique_ptr<Log> log = g2d.ga.request_Log_copy();
+
+    ERRHERE(".goGraph2DIL");
+    FZERR("\n*** Graph to DIL Files conversion has not yet been implemented!\n\n");
+    /* *** This part does not exist yet!
+    Graph2DIL_conv_params params;
+    params.TLdirectory = g2d.DILTLdirectory;
+    params.IndexPath = g2d.DILTLindex;
+    params.o = &std::cout;
+    //params.from_idx = from_section;
+    //params.to_idx = to_section;    
+    if (!interactive_Graph2DIL_conversion(*(graph.get()), params)) {
+        FZERR("\nNeed a database account to proceed. Defaults to $USER.\n");
+        exit(exit_general_error);
+    }
+    */
+
     return true;
 }
 
@@ -136,10 +177,14 @@ int main(int argc, char *argv[]) {
         break;
     }
 
-    //*** THIS IS JUST A STUB!
+    case flow_graph2DIL: {
+        flow_convert_Graph2DIL();
+        break;
+    }
 
-    default: {
-        g2d.print_usage();
+    default: { // both
+        flow_convert_Graph2DIL();
+        flow_convert_Log2TL();
     }
 
     }

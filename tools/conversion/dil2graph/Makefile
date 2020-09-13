@@ -175,7 +175,7 @@ $(OBJ)/logtest.o: logtest.cpp logtest_templates.cpp logtest.hpp version.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(LOGTESTTEMPLATES) $(LOGTESTOUTPUTFILE) -c logtest.cpp -o $(OBJ)/logtest.o
 
 $(OBJ)/tl2log.o: tl2log.cpp tl2log.hpp version.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c tl2log.cpp -o $(OBJ)/tl2log.o
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(COMPILEDIRECTGRAPH2DIL) -c tl2log.cpp -o $(OBJ)/tl2log.o
 
 $(OBJ)/dil2graph.o: dil2graph.cpp dil2graph.hpp version.hpp $(OBJ)/dil2al_minimal.o
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(COMPILEDIRECTGRAPH2DIL) -c dil2graph.cpp -o $(OBJ)/dil2graph.o

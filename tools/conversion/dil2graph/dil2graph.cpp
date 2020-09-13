@@ -782,6 +782,7 @@ int main(int argc, char *argv[]) {
 
     case flow_tl_only: {
         auto [TLptr, _logptr] = interactive_TL2Log_conversion();
+        interactive_TL2Log_validation(TLptr, _logptr.get(), nullptr);
         logptr = std::move(_logptr);
         break;
     }
@@ -790,6 +791,7 @@ int main(int argc, char *argv[]) {
         auto [DILptr, _graphptr] = interactive_conversion();
         interactive_validation(DILptr, _graphptr);
         auto [TLptr, _logptr] = interactive_TL2Log_conversion();
+        interactive_TL2Log_validation(TLptr, _logptr.get(), _graphptr);
         graphptr.reset(_graphptr);
         logptr = std::move(_logptr);
         if ((logptr != nullptr) && (graphptr != nullptr)) {
@@ -800,42 +802,7 @@ int main(int argc, char *argv[]) {
 
     }
 
-#ifdef __DIRECTGRAPH2DIL__
-    COMPILEDPING(std::cout,"PING-main.g2dtest\n");
-    if (logptr) {
-        VOUT << "\nNow, let's try converting the Log right back into Tak Log files.\n\n";
-        key_pause();
-
-        ERRHERE(".graph2dil");
-        if (!graphptr) {
-            ERRHERE(".loadGraph");
-            graphptr = d2g.ga.request_Graph_copy();
-            if (!graphptr) {
-                ADDERROR(__func__,"unable to load Graph");
-                d2g.exit(exit_database_error);
-            }
-            COMPILEDPING(std::cout,"PING-main.g2d-Logcaches\n");
-            if ((logptr != nullptr) && (graphptr != nullptr)) {
-                logptr->setup_Entry_node_caches(*(graphptr.get())); // here we can do this!
-                logptr->setup_Chunk_node_caches(*(graphptr.get()));
-            }
-        }
-
-        COMPILEDPING(std::cout,"PING-main.g2d-Log2TL\n");
-        Log2TL_conv_params params;
-        params.TLdirectory = DIRECTGRAPH2DIL_DIR;
-        params.IndexPath = DIRECTGRAPH2DIL_DIR "/../graph2dil-lists.html";
-        params.o = &VOUT;
-        params.from_idx = d2g.from_section;
-        params.to_idx = d2g.to_section;
-        if (!interactive_Log2TL_conversion(*graphptr, *logptr, params)) {
-            EOUT << "\nDirect conversion test back to Task Log files did not complete..\n";
-            d2g.exit(exit_general_error);
-        }
-        VOUT << "\nDirect conversion test back to Task Log files written to " << DIRECTGRAPH2DIL_DIR << '\n';
-        VOUT << "Hint: Try viewing it http://aether.local/formalizer/graph2dil/task-log.html\n\n";
-    }
-#endif // __DIRECTGRAPH2DIL__
+    //direct_graph2dil_Log2TL_test(logptr.get(),graphptr.get()); //*** doing this in tl2log.cpp now
 
     return d2g.completed_ok();
 }

@@ -28,6 +28,8 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl);
 
 std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion();
 
+void interactive_TL2Log_validation(Task_Log * tl, Log * log, Graph * graph);
+
 void print_Log_metrics(Log & log, std::ostream & o, std::string indent);
 
 #endif // __TL2LOG_HPP

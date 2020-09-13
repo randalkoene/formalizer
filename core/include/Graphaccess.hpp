@@ -27,7 +27,10 @@
 
 namespace fz {
 
-class Graph; // forward declaration
+// foward declarations of classes external to this file
+class Graph;
+class Log;
+
 /**
  * A standardized way to access the Graph database.
  * 
@@ -56,6 +59,7 @@ struct Graph_access: public Postgres_access {
 #ifdef TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE
 public:
     std::unique_ptr<Graph> request_Graph_copy();
+    std::unique_ptr<Log> request_Log_copy();
 #endif
 
 };

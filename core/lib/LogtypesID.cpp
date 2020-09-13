@@ -390,6 +390,10 @@ Log_entry_ID_key::Log_entry_ID_key(const Log_TimeStamp& _idT) {
     if (!valid_Log_entry_ID(_idT,formerror)) throw(ID_exception(formerror));
 }
 
+Log_entry_ID_key::Log_entry_ID_key(const Log_chunk_ID_key& _idC, uint8_t _minorid): idT(_idC.get_epoch_time(),false,_minorid) {
+    // no need to test valid if Log_chunk_ID_key was valid
+}
+
 Log_entry_ID_key::Log_entry_ID_key(std::string _idS) {
     std::string formerror;
     if (!valid_Log_entry_ID(_idS,formerror,&idT)) throw(ID_exception(formerror));
