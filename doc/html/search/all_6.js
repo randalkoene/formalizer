@@ -7,6 +7,7 @@ var searchData=
   ['find_5fbreakpoint_5ftstamp_5fbefore_5fchunk',['find_Breakpoint_tstamp_before_chunk',['../classfz_1_1Log__Breakpoints.html#a1b63c265e76aca255759a2e01302865a',1,'fz::Log_Breakpoints::find_Breakpoint_tstamp_before_chunk()'],['../classfz_1_1Log.html#ad6ba43707098024e35c306f441ce2f73',1,'fz::Log::find_Breakpoint_tstamp_before_chunk()']]],
   ['find_5fby_5fid',['find_by_id',['../classfz_1_1Topic__Tags.html#acec903092006746c5387326da466b62b',1,'fz::Topic_Tags']]],
   ['find_5fby_5ftag',['find_by_tag',['../classfz_1_1Topic__Tags.html#ab528d5100e6ec9340f8ffc8e3bb99be7',1,'fz::Topic_Tags']]],
+  ['find_5findex_5fand_5fpointer',['find_index_and_pointer',['../structfz_1_1Log__chunks__Deque.html#adb10906a710f24c7e0a440df7bde0b25',1,'fz::Log_chunks_Deque']]],
   ['find_5for_5fadd_5ftopic',['find_or_add_Topic',['../classfz_1_1Topic__Tags.html#aea7ba8607f3ea08cd3e40a696df78525',1,'fz::Topic_Tags']]],
   ['find_5ftopic_5fby_5fid',['find_Topic_by_id',['../classfz_1_1Graph.html#a25cc71ae786452ce6be68f9c9c02034b',1,'fz::Graph']]],
   ['first_5fentry',['first_entry',['../classfz_1_1Log__chunk.html#aa5902ac54c3ed37404677cb435d397c8',1,'fz::Log_chunk']]],
@@ -19,11 +20,15 @@ var searchData=
   ['from_5fidx',['from_idx',['../structLog2TL__conv__params.html#aae34527e4977c8d734ae20ed361aeb5d',1,'Log2TL_conv_params']]],
   ['fz',['fz',['../namespacefz.html',1,'']]],
   ['fzguide_5fsystem',['fzguide_system',['../structfzguide__system.html',1,'fzguide_system'],['../structfzguide__system.html#a3df1a739455fb43a1b0ec96297df493a',1,'fzguide_system::fzguide_system()']]],
+  ['fzloghtml',['fzloghtml',['../structfzloghtml.html',1,'fzloghtml'],['../structfzloghtml.html#afe1674d6009c384a3653194113acd33a',1,'fzloghtml::fzloghtml()']]],
   ['fzout',['FZOUT',['../standard_8hpp.html#a064747df53cca0e56f0169a85be9c9d7',1,'standard.hpp']]],
   ['fzquerypq',['fzquerypq',['../structfzquerypq.html',1,'']]],
+  ['fzserverpq',['fzserverpq',['../structfzserverpq.html',1,'fzserverpq'],['../structfzserverpq.html#a2184eb7f08dc15e6278e7b764402c91a',1,'fzserverpq::fzserverpq()']]],
   ['formalizer',['Formalizer',['../index.html',1,'']]],
   ['fzguide_2esystem_20_2d_20_7b_7b_20brief_5ftitle_20_7d_7d_7d',['fzguide.system - {{ brief_title }}}',['../md_core_fzguide_8system_README.html',1,'']]],
   ['fzquerypq_20_2d_20single_20query_20formalizer_20server_20from_20postgres_20database',['fzquerypq - Single Query Formalizer Server from Postgres Database',['../md_core_fzquerypq_README.html',1,'']]],
+  ['fzserverpq_20_2d_20memory_2dresident_20graph_20server_20for_20the_20formalizer_20environment',['fzserverpq - Memory-resident Graph server for the Formalizer environment',['../md_core_fzserverpq_README.html',1,'']]],
   ['fzsetup_20_2d_20set_20up_20a_20formalizer_20environment',['fzsetup - Set up a Formalizer environment',['../md_core_fzsetup_README.html',1,'']]],
+  ['fzloghtml_20_2d_20_7b_7b_20brief_5ftitle_20_7d_7d_7d',['fzloghtml - {{ brief_title }}}',['../md_tools_interface_fzloghtml_README.html',1,'']]],
   ['formalizer_20tool_3a_20earlywiz',['Formalizer tool: earlywiz',['../md_tools_system_earlywiz_README.html',1,'']]]
 ];

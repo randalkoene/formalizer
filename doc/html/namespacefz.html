@@ -72,7 +72,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>fzserverpq is the Postgres-compatible version of the C++ implementation of teh Formalizer data server.  
+<p>On Ubuntu, to install the libpq libraries, including the libpq-fe.h header file, do: sudo apt-get install libpq-dev You may also have to add /usr/include or /usr/include/postgresql to the CPATH or to the includes in the Makefile, e.g.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
@@ -208,7 +208,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A data types conversion helper class that can deliver the Postgres Topics table equivalent INSERT value expression for all data content in a <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a>.  <a href="classfz_1_1Topic__pq.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Topic__Tags.html">Topic_Tags</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> tag data, indexed by <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> ID.  <a href="classfz_1_1Topic__Tags.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> tag data, arranged by integer Index-ID.  <a href="classfz_1_1Topic__Tags.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1year__month__day__t.html">year_month_day_t</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -371,14 +371,14 @@ Enumerations</h2></td></tr>
 <tr class="memitem:a229dcedb04cce4ee361097ae545fec1a"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a229dcedb04cce4ee361097ae545fec1a">pq_LCfields</a> { <b>pqlc_id</b>, 
 <b>pqlc_nid</b>, 
 <b>pqlc_tclose</b>, 
-<b>pqlc_NUM</b>
+<b>_pqlc_NUM</b>
  }<tr class="memdesc:a229dcedb04cce4ee361097ae545fec1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log chunk fields:  <a href="namespacefz.html#a229dcedb04cce4ee361097ae545fec1a">More...</a><br /></td></tr>
 </td></tr>
 <tr class="separator:a229dcedb04cce4ee361097ae545fec1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1adf8c508a2a57973cb07be9a12d345f"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a1adf8c508a2a57973cb07be9a12d345f">pq_LEfields</a> { <b>pqle_id</b>, 
 <b>pqle_nid</b>, 
 <b>pqle_text</b>, 
-<b>pqle_NUM</b>
+<b>_pqle_NUM</b>
  }<tr class="memdesc:a1adf8c508a2a57973cb07be9a12d345f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log entry fields:  <a href="namespacefz.html#a1adf8c508a2a57973cb07be9a12d345f">More...</a><br /></td></tr>
 </td></tr>
 <tr class="separator:a1adf8c508a2a57973cb07be9a12d345f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -437,7 +437,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>coreversion</b
 <tr class="memitem:a3cd066a32696261830f98ca59ce4a7f0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a3cd066a32696261830f98ca59ce4a7f0">Clean_Exit</a> (int ecode)</td></tr>
 <tr class="memdesc:a3cd066a32696261830f98ca59ce4a7f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clean up after yourself before you exit.  <a href="#a3cd066a32696261830f98ca59ce4a7f0">More...</a><br /></td></tr>
 <tr class="separator:a3cd066a32696261830f98ca59ce4a7f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9bde9da1de78d7bc0492b22eba9630e8"><td class="memItemLeft" align="right" valign="top">PGconn *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a9bde9da1de78d7bc0492b22eba9630e8">connection_setup_pq</a> (std::string <a class="el" href="namespacefz.html#ad4fdce135d088325b93bd26431b1f1c2">dbname</a>)</td></tr>
+<tr class="memitem:a9bde9da1de78d7bc0492b22eba9630e8"><td class="memItemLeft" align="right" valign="top">PGconn *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a9bde9da1de78d7bc0492b22eba9630e8">connection_setup_pq</a> (std::string dbname)</td></tr>
 <tr class="memdesc:a9bde9da1de78d7bc0492b22eba9630e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set up a connection with an existing Postgres database.  <a href="#a9bde9da1de78d7bc0492b22eba9630e8">More...</a><br /></td></tr>
 <tr class="separator:a9bde9da1de78d7bc0492b22eba9630e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa1a653de26479eb7d85b850ec2918c2a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#aa1a653de26479eb7d85b850ec2918c2a">simple_call_pq</a> (PGconn *conn, std::string astr)</td></tr>
@@ -523,16 +523,16 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>add_Node_pq</b> (PGco
 <tr class="memitem:ad481d21955c0be457141a73c619a3fbf"><td class="memItemLeft" align="right" valign="top"><a id="ad481d21955c0be457141a73c619a3fbf"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>add_Edge_pq</b> (PGconn *conn, std::string schemaname, const <a class="el" href="classfz_1_1Edge.html">Edge</a> *edge)</td></tr>
 <tr class="separator:ad481d21955c0be457141a73c619a3fbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1cb865200e35c530ff09a2a5c142c55a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a1cb865200e35c530ff09a2a5c142c55a">store_Graph_pq</a> (const <a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, std::string <a class="el" href="namespacefz.html#ad4fdce135d088325b93bd26431b1f1c2">dbname</a>, std::string schemaname, void(*progress_func)(unsigned long, unsigned long))</td></tr>
+<tr class="memitem:a1cb865200e35c530ff09a2a5c142c55a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a1cb865200e35c530ff09a2a5c142c55a">store_Graph_pq</a> (const <a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, std::string dbname, std::string schemaname, void(*progress_func)(unsigned long, unsigned long))</td></tr>
 <tr class="memdesc:a1cb865200e35c530ff09a2a5c142c55a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store all the Nodes and Edges of the <a class="el" href="classfz_1_1Graph.html">Graph</a> in the PostgreSQL database.  <a href="#a1cb865200e35c530ff09a2a5c142c55a">More...</a><br /></td></tr>
 <tr class="separator:a1cb865200e35c530ff09a2a5c142c55a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a615c9833189de86268653cf1fc95f092"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a615c9833189de86268653cf1fc95f092">load_Graph_pq</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, std::string <a class="el" href="namespacefz.html#ad4fdce135d088325b93bd26431b1f1c2">dbname</a>, std::string schemaname)</td></tr>
+<tr class="memitem:a615c9833189de86268653cf1fc95f092"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a615c9833189de86268653cf1fc95f092">load_Graph_pq</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, std::string dbname, std::string schemaname)</td></tr>
 <tr class="memdesc:a615c9833189de86268653cf1fc95f092"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load all the Nodes, Edges and Topics of the <a class="el" href="classfz_1_1Graph.html">Graph</a> from the PostgreSQL database.  <a href="#a615c9833189de86268653cf1fc95f092">More...</a><br /></td></tr>
 <tr class="separator:a615c9833189de86268653cf1fc95f092"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad24f78e052197d9844de69ba284cfade"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ad24f78e052197d9844de69ba284cfade">load_Node_parameter_interval</a> (std::string <a class="el" href="namespacefz.html#ad4fdce135d088325b93bd26431b1f1c2">dbname</a>, std::string schemaname, pq_Nfields param, unsigned long from_row, unsigned long num_rows)</td></tr>
+<tr class="memitem:ad24f78e052197d9844de69ba284cfade"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ad24f78e052197d9844de69ba284cfade">load_Node_parameter_interval</a> (std::string dbname, std::string schemaname, pq_Nfields param, unsigned long from_row, unsigned long num_rows)</td></tr>
 <tr class="memdesc:ad24f78e052197d9844de69ba284cfade"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load specific <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> parameter column interval from PostgreSQL database.  <a href="#ad24f78e052197d9844de69ba284cfade">More...</a><br /></td></tr>
 <tr class="separator:ad24f78e052197d9844de69ba284cfade"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aef824584d56abd3b06028a3925a9541c"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#aef824584d56abd3b06028a3925a9541c">load_Edge_parameter_interval</a> (std::string <a class="el" href="namespacefz.html#ad4fdce135d088325b93bd26431b1f1c2">dbname</a>, std::string schemaname, pq_Efields param, unsigned long from_row, unsigned long num_rows)</td></tr>
+<tr class="memitem:aef824584d56abd3b06028a3925a9541c"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#aef824584d56abd3b06028a3925a9541c">load_Edge_parameter_interval</a> (std::string dbname, std::string schemaname, pq_Efields param, unsigned long from_row, unsigned long num_rows)</td></tr>
 <tr class="memdesc:aef824584d56abd3b06028a3925a9541c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load specific <a class="el" href="classfz_1_1Edge.html">Edge</a> parameter column interval from PostgreSQL database.  <a href="#aef824584d56abd3b06028a3925a9541c">More...</a><br /></td></tr>
 <tr class="separator:aef824584d56abd3b06028a3925a9541c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba0e4f3360d11eff1bf1b4553a451180"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#aba0e4f3360d11eff1bf1b4553a451180">valid_Node_ID</a> (std::string id_str, std::string &amp;formerror, <a class="el" href="structfz_1_1ID__TimeStamp.html">ID_TimeStamp</a> *id_timestamp)</td></tr>
@@ -742,13 +742,18 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>pq_LElayout</b
 <tr class="memitem:a163df4ed695f0e00f7d1ff4c0efbf966"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a163df4ed695f0e00f7d1ff4c0efbf966">read_Breakpoints_pq</a> (<a class="el" href="structfz_1_1active__pq.html">active_pq</a> &amp;apq, <a class="el" href="classfz_1_1Log.html">Log</a> &amp;log)</td></tr>
 <tr class="memdesc:a163df4ed695f0e00f7d1ff4c0efbf966"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load full Breakpoints table into Log::breakpoints.  <a href="#a163df4ed695f0e00f7d1ff4c0efbf966">More...</a><br /></td></tr>
 <tr class="separator:a163df4ed695f0e00f7d1ff4c0efbf966"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af0c13e8ff9e09d7fa7218c9b024eee6e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#af0c13e8ff9e09d7fa7218c9b024eee6e">get_Chunk_pq_field_numbers</a> (PGresult *res)</td></tr>
+<tr class="memdesc:af0c13e8ff9e09d7fa7218c9b024eee6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve field column numbers for chunks query to make sure the correct field numbers are used.  <a href="#af0c13e8ff9e09d7fa7218c9b024eee6e">More...</a><br /></td></tr>
+<tr class="separator:af0c13e8ff9e09d7fa7218c9b024eee6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d216093fa5bf63db9826208d535ba7d"><td class="memItemLeft" align="right" valign="top"><a id="a8d216093fa5bf63db9826208d535ba7d"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>get_Entry_pq_field_numbers</b> (PGresult *res)</td></tr>
+<tr class="separator:a8d216093fa5bf63db9826208d535ba7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1bd1a378340fe3e82a15625ff6c4a7dd"><td class="memItemLeft" align="right" valign="top"><a id="a1bd1a378340fe3e82a15625ff6c4a7dd"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a1bd1a378340fe3e82a15625ff6c4a7dd">read_Chunks_pq</a> (<a class="el" href="structfz_1_1active__pq.html">active_pq</a> &amp;apq, <a class="el" href="classfz_1_1Log.html">Log</a> &amp;log)</td></tr>
 <tr class="memdesc:a1bd1a378340fe3e82a15625ff6c4a7dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load full Chunks table into Log::chunks. <br /></td></tr>
 <tr class="separator:a1bd1a378340fe3e82a15625ff6c4a7dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a83c7ea24b5f721c36c257241627954b9"><td class="memItemLeft" align="right" valign="top"><a id="a83c7ea24b5f721c36c257241627954b9"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a83c7ea24b5f721c36c257241627954b9">read_Entries_pq</a> (<a class="el" href="structfz_1_1active__pq.html">active_pq</a> &amp;apq, <a class="el" href="classfz_1_1Log.html">Log</a> &amp;log)</td></tr>
-<tr class="memdesc:a83c7ea24b5f721c36c257241627954b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load full Entries table into Log::entries. <br /></td></tr>
+<tr class="memitem:a83c7ea24b5f721c36c257241627954b9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a83c7ea24b5f721c36c257241627954b9">read_Entries_pq</a> (<a class="el" href="structfz_1_1active__pq.html">active_pq</a> &amp;apq, <a class="el" href="classfz_1_1Log.html">Log</a> &amp;log)</td></tr>
+<tr class="memdesc:a83c7ea24b5f721c36c257241627954b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load full Entries table into Log::entries.  <a href="#a83c7ea24b5f721c36c257241627954b9">More...</a><br /></td></tr>
 <tr class="separator:a83c7ea24b5f721c36c257241627954b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af542142d941cd3b6ed66b5b6ed7bc181"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Topic.html">Topic</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#af542142d941cd3b6ed66b5b6ed7bc181">main_topic</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;_graph, <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> &amp;chunk)</td></tr>
 <tr class="memdesc:af542142d941cd3b6ed66b5b6ed7bc181"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> of a <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk's <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a>, as indicated by the maximum Topic_Relevance value.  <a href="#af542142d941cd3b6ed66b5b6ed7bc181">More...</a><br /></td></tr>
@@ -777,10 +782,6 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="name
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:ad4fdce135d088325b93bd26431b1f1c2"><td class="memItemLeft" align="right" valign="top"><a id="ad4fdce135d088325b93bd26431b1f1c2"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ad4fdce135d088325b93bd26431b1f1c2">dbname</a></td></tr>
-<tr class="memdesc:ad4fdce135d088325b93bd26431b1f1c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Postgres database name. <br /></td></tr>
-<tr class="separator:ad4fdce135d088325b93bd26431b1f1c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad4cd30cfc5dc53430122ba5e9f7f3fc7"><td class="memItemLeft" align="right" valign="top"><a id="ad4cd30cfc5dc53430122ba5e9f7f3fc7"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ad4cd30cfc5dc53430122ba5e9f7f3fc7">errhint</a></td></tr>
 <tr class="memdesc:ad4cd30cfc5dc53430122ba5e9f7f3fc7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Global variable that can be updated to give a better hint about where exactly an error occurred. <br /></td></tr>
@@ -823,17 +824,25 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_edge_field
 <tr class="separator:acd3867ed7aa9968c6dc3743c08621727"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab47d47929bea0b332de69408d4880092"><td class="memItemLeft" align="right" valign="top">const std::map&lt; std::string, td_pattern &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>tdpatt_by_pqtdpatt</b></td></tr>
 <tr class="separator:ab47d47929bea0b332de69408d4880092"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a891acb04fd8751af330b359683bf1f32"><td class="memItemLeft" align="right" valign="top">const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>pq_chunk_fieldnames</b> [_pqlc_NUM]</td></tr>
+<tr class="separator:a891acb04fd8751af330b359683bf1f32"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75e1faf355d3b06d2b95e06e207f1cb7"><td class="memItemLeft" align="right" valign="top">const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>pq_entry_fieldnames</b> [_pqle_NUM]</td></tr>
+<tr class="separator:a75e1faf355d3b06d2b95e06e207f1cb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a88c60bcc3ec5facb69675fa478256a5a"><td class="memItemLeft" align="right" valign="top"><a id="a88c60bcc3ec5facb69675fa478256a5a"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_chunk_field</b> [_pqlc_NUM]</td></tr>
+<tr class="separator:a88c60bcc3ec5facb69675fa478256a5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5220e38267cfa691460e3665ae9aee1d"><td class="memItemLeft" align="right" valign="top"><a id="a5220e38267cfa691460e3665ae9aee1d"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_entry_field</b> [_pqle_NUM]</td></tr>
+<tr class="separator:a5220e38267cfa691460e3665ae9aee1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeab0d860bf18ea1cc2acb7577f4f294f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1ReferenceTime.html">ReferenceTime</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#aeab0d860bf18ea1cc2acb7577f4f294f">maintime</a></td></tr>
 <tr class="memdesc:aeab0d860bf18ea1cc2acb7577f4f294f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Every program that uses core Formalizer functions that depend on time stamping includes <a class="el" href="ReferenceTime_8hpp_source.html">ReferenceTime.hpp</a> (it is automatically included through <a class="el" href="TimeStamp_8hpp_source.html">TimeStamp.hpp</a>).  <a href="#aeab0d860bf18ea1cc2acb7577f4f294f">More...</a><br /></td></tr>
 <tr class="separator:aeab0d860bf18ea1cc2acb7577f4f294f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>fzserverpq is the Postgres-compatible version of the C++ implementation of teh Formalizer data server. </p>
+<div class="textblock"><p>On Ubuntu, to install the libpq libraries, including the libpq-fe.h header file, do: sudo apt-get install libpq-dev You may also have to add /usr/include or /usr/include/postgresql to the CPATH or to the includes in the Makefile, e.g. </p>
 <p>A simmple set of templating functions.</p>
 <p>This source file was separated out of Graphtypes.cpp in order to produce a separate compiled .obj file for <a class="el" href="classfz_1_1Graph.html">Graph</a> comparison (friend) helper utility functions.</p>
 <p>General collection of functions used in various Core and Tool programs.</p>
-<p>On Ubuntu, to install the libpq libraries, including the libpq-fe.h header file, do: sudo apt-get install libpq-dev You may also have to add /usr/include or /usr/include/postgresql to the CPATH or to the includes in the Makefile, e.g.</p>
-<p>For more information see: <a href="https://docs.google.com/document/d/1rYPFgzFgjkF1xGx3uABiXiaDR5sfmOzqYQRqSntcyyY/edit#heading=h.tarhfe395l5v">https://docs.google.com/document/d/1rYPFgzFgjkF1xGx3uABiXiaDR5sfmOzqYQRqSntcyyY/edit#heading=h.tarhfe395l5v</a> <a href="https://trello.com/c/S7SZUyeU">https://trello.com/c/S7SZUyeU</a></p>
 <p>-I/usr/include/postgresql.</p>
 <p>Those functions will not be needed by every program that needs the <a class="el" href="classfz_1_1Graph.html">Graph</a> data type header.</p>
 <p>In many cases, this can be a small fast replacement for a feature-rich templating library such as <code>inja</code>. </p>
@@ -1602,6 +1611,35 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_edge_field
 
 </div>
 </div>
+<a id="af0c13e8ff9e09d7fa7218c9b024eee6e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af0c13e8ff9e09d7fa7218c9b024eee6e">&#9670;&nbsp;</a></span>get_Chunk_pq_field_numbers()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::get_Chunk_pq_field_numbers </td>
+          <td>(</td>
+          <td class="paramtype">PGresult *&#160;</td>
+          <td class="paramname"><em>res</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Retrieve field column numbers for chunks query to make sure the correct field numbers are used. </p>
+<p>This is an extra safety measure in case formats are changed in the future and in case of potential database version mismatch.</p>
+<p>This function updates the field numbers in <code>pq_chunk_field</code>. The field names that this version assumes are in the variable <code>pq_chunk_fieldnames</code>. The fields are enumerated with <code>pq_LCfields</code>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">res</td><td>a valid pointer obtained by <code>PQgetResult()</code>. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if all the field names were found. </dd></dl>
+
+</div>
+</div>
 <a id="ac5e9d57226726175af8c8e276edd0c58"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac5e9d57226726175af8c8e276edd0c58">&#9670;&nbsp;</a></span>get_DIL_entry_num_superiors()</h2>
 
@@ -2252,10 +2290,10 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_edge_field
 
 <p>Find the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> of a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a>, as indicated by the maximum Topic_Relevance value. </p>
 <p>friend (utility) functions</p>
-<p>Note: This is a friend function in order to ensure that the search for the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is called only when a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> list can provid pointers to them.</p>
+<p>Note: This is a friend function in order to ensure that the search for the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is called only when a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a> list can provid pointers to them.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname"><a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a></td><td>a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> list. </td></tr>
+    <tr><td class="paramname"><a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a></td><td>a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a> list. </td></tr>
     <tr><td class="paramname">node</td><td>a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> for which the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> is requested. </td></tr>
   </table>
   </dd>
@@ -2291,10 +2329,10 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_edge_field
 </div><div class="memdoc">
 
 <p>Find the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> of a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a>, as indicated by the maximum Topic_Relevance value. </p>
-<p>Note: This is a friend function in order to ensure that the search for the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is called only when a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> list that is known to a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> can provid pointers to them.</p>
+<p>Note: This is a friend function in order to ensure that the search for the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is called only when a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a> list that is known to a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> can provid pointers to them.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">_graph</td><td>a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> that has a <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> list. </td></tr>
+    <tr><td class="paramname">_graph</td><td>a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> that has a <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a> list. </td></tr>
     <tr><td class="paramname">node</td><td>a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> for which the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> is requested. </td></tr>
   </table>
   </dd>
@@ -2331,10 +2369,10 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_edge_field
 
 <p>Find the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> of a <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk's <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a>, as indicated by the maximum Topic_Relevance value. </p>
 <p>friend (utility) functions</p>
-<p>Note: This is a friend function in order to ensure that the search for the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is called only when a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> list can provid pointers to them.</p>
+<p>Note: This is a friend function in order to ensure that the search for the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is called only when a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a> list can provid pointers to them.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">_graph</td><td>a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> with <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> list. </td></tr>
+    <tr><td class="paramname">_graph</td><td>a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> with <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a> list. </td></tr>
     <tr><td class="paramname">chunk</td><td>a <a class="el" href="classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk. ">Log_chunk</a> for which the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> is requested. </td></tr>
   </table>
   </dd>
@@ -2438,6 +2476,44 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_edge_field
 
 <p>Load full Breakpoints table into Log::breakpoints. </p>
 <p>We can only add Breakpoints by adding actual existing <a class="el" href="classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk. ">Log_chunk</a> objects (which is a good safety mechanism). This means, that this function can really only be successfully called after calling <code><a class="el" href="namespacefz.html#a1bd1a378340fe3e82a15625ff6c4a7dd" title="Load full Chunks table into Log::chunks. ">read_Chunks_pq()</a></code>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">apq</td><td>data structure with active database connection pointer and schema name. </td></tr>
+    <tr><td class="paramname">log</td><td>a <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> object, typically with an existing chunks list but empty Breakpoints list. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a83c7ea24b5f721c36c257241627954b9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a83c7ea24b5f721c36c257241627954b9">&#9670;&nbsp;</a></span>read_Entries_pq()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::read_Entries_pq </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfz_1_1active__pq.html">active_pq</a> &amp;&#160;</td>
+          <td class="paramname"><em>apq</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classfz_1_1Log.html">Log</a> &amp;&#160;</td>
+          <td class="paramname"><em>log</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Load full Entries table into Log::entries. </p>
+<p>We can only add Entries while referring to existing Log_chunks (which is a good safety mechanism). This means, that this function can really only be successfully called after calling <code><a class="el" href="namespacefz.html#a1bd1a378340fe3e82a15625ff6c4a7dd" title="Load full Chunks table into Log::chunks. ">read_Chunks_pq()</a></code>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">apq</td><td>data structure with active database connection pointer and schema name. </td></tr>
@@ -3608,6 +3684,20 @@ template&lt;typename Out &gt; </div>
 
 </div>
 </div>
+<a id="a891acb04fd8751af330b359683bf1f32"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a891acb04fd8751af330b359683bf1f32">&#9670;&nbsp;</a></span>pq_chunk_fieldnames</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::string fz::pq_chunk_fieldnames[_pqlc_NUM]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">= {<span class="stringliteral">&quot;id&quot;</span>,</div><div class="line">                                                   <span class="stringliteral">&quot;nid&quot;</span>,</div><div class="line">                                                   <span class="stringliteral">&quot;tclose&quot;</span>}</div></div><!-- fragment -->
+</div>
+</div>
 <a id="a593c105236196b2da156f585c6d7ae30"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a593c105236196b2da156f585c6d7ae30">&#9670;&nbsp;</a></span>pq_edge_fieldnames</h2>
 
@@ -3620,6 +3710,20 @@ template&lt;typename Out &gt; </div>
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">= {<span class="stringliteral">&quot;id&quot;</span>,</div><div class="line">                                                  <span class="stringliteral">&quot;dependency&quot;</span>,</div><div class="line">                                                  <span class="stringliteral">&quot;significance&quot;</span>,</div><div class="line">                                                  <span class="stringliteral">&quot;importance&quot;</span>,</div><div class="line">                                                  <span class="stringliteral">&quot;urgency&quot;</span>,</div><div class="line">                                                  <span class="stringliteral">&quot;priority&quot;</span>}</div></div><!-- fragment -->
+</div>
+</div>
+<a id="a75e1faf355d3b06d2b95e06e207f1cb7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a75e1faf355d3b06d2b95e06e207f1cb7">&#9670;&nbsp;</a></span>pq_entry_fieldnames</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::string fz::pq_entry_fieldnames[_pqle_NUM]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">= {<span class="stringliteral">&quot;id&quot;</span>,</div><div class="line">                                                   <span class="stringliteral">&quot;nid&quot;</span>,</div><div class="line">                                                   <span class="stringliteral">&quot;text&quot;</span>}</div></div><!-- fragment -->
 </div>
 </div>
 <a id="a4e2e72b75f6a44514c6175b6dd58988c"></a>

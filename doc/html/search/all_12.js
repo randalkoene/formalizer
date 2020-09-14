@@ -33,8 +33,10 @@ var searchData=
   ['topic_5fpq',['Topic_pq',['../classfz_1_1Topic__pq.html',1,'fz']]],
   ['topic_5frelevance',['Topic_Relevance',['../namespacefz.html#a4ef696382cc8a859adcdb76740012048',1,'fz']]],
   ['topic_5ftags',['Topic_Tags',['../classfz_1_1Topic__Tags.html',1,'fz']]],
+  ['topicbytag',['topicbytag',['../classfz_1_1Topic__Tags.html#a7c318efbcea8f26981febc496ac50555',1,'fz::Topic_Tags']]],
   ['topicrelevance_5fpqstr',['topicrelevance_pqstr',['../classfz_1_1Node__pq.html#ac45c766a1dc265ca677872d9eae9880d',1,'fz::Node_pq']]],
   ['topics',['topics',['../classfz_1_1Node.html#ade2811e5efa9705e9e76a42e695b63de',1,'fz::Node']]],
   ['topics_5fpqstr',['topics_pqstr',['../classfz_1_1Node__pq.html#a57e1624c1373e9381600f817ea4f3d45',1,'fz::Node_pq']]],
+  ['topictags',['topictags',['../classfz_1_1Topic__Tags.html#aaa2a2095fe49122339b44994604c8f5d',1,'fz::Topic_Tags']]],
   ['trim',['trim',['../namespacefz.html#acff76817b33dcd0a0c38c28e238ad2d3',1,'fz']]]
 ];

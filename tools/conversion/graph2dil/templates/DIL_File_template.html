@@ -1,0 +1,25 @@
+<HTML>
+<HEAD>
+<TITLE>DIL: {{ topictitle }}</TITLE>
+</HEAD>
+<BODY BGCOLOR="#000000" TEXT="#F0E0A0" LINK="#AFAFFF" VLINK="#7F7FFF">
+<H1><FONT COLOR="#00FF00">DIL: {{ topictitle }}</FONT></H1>
+
+<B>Topic Keywords, k_{top} (and relevance in [0,1]):</B> {{ keyrel_pairs }}
+<P>
+
+<TABLE WIDTH="100%" CELLPADDING=3 BORDER=2>
+<!-- dil2al: DIL begin -->
+
+{{ DIL_entries }}
+
+<!-- dil2al: DIL end -->
+</TABLE>
+
+
+<LI><A HREF="detailed-items-by-ID.html">Detailed Items by ID</A>
+<LI><A HREF="../lists.html#DIL">Topical Detailed Items Lists</A>
+<P>
+<HR>~/doc/<A HREF="../maincont.html">html</A>/<A HREF="../lists.html">lists</A>/{{ topicfile }}.html <FONT COLOR="#AFAFAF"><I>&nbsp;&nbsp;&nbsp;(created {{ firstYmd }}, Randal A. Koene)</I></FONT>
+
+</BODY>

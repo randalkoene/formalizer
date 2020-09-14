@@ -303,7 +303,7 @@ Log_chunk_ID_key_deque::size_type Log_Breakpoints::find_Breakpoint_index_before_
  * be used independent of the reference parameters in the Log_chunk
  * objects, which even works for arbitrary loaded lists of Log chunks.
  * 
- * This function is also used by the rapid search version `get_Node_targets()`,
+ * This function is also used by the rapid search version `get_Node_chain()`,
  * which calls this to find the first target, the head of the chain,
  * which is specifeid via the `onlyfirst` parameter.
  * 
@@ -317,7 +317,7 @@ Log_chunk_ID_key_deque::size_type Log_Breakpoints::find_Breakpoint_index_before_
 std::deque<Log_chain_target> Log::get_Node_chain_fullparse(const Node_ID node_id, bool onlyfirst) {
     std::deque<Log_chain_target> res;
 
-    for (auto it = chunks.begin(); it<chunks.end(); ++it) {
+    for (auto it = chunks.begin(); it!=chunks.end(); ++it) {
 
         // check the chunk first
         if ((*it)->get_NodeID().key().idT == node_id.key().idT) {
@@ -341,6 +341,53 @@ std::deque<Log_chain_target> Log::get_Node_chain_fullparse(const Node_ID node_id
 
     return res;
 }
+
+/**
+ * Parse all chunks connected to the Log - in reverse - and find the sequence
+ * of chunks and entries that belongs to a specific Node. Reverse search is
+ * probably a good option, because often referenced Node histories are likely
+ * those of recent Nodes with recent Log entries.
+ * 
+ * This can be used independent of the reference parameters in the Log_chunk
+ * objects, hence even works for arbitrary loaded lists of Log chunks.
+ * 
+ * This function requires that the `entries` list has been set up
+ * for all Log chunks.
+ * 
+ * @param node_id of the Node for which to collect its Log chain (history).
+ * @param onlylast flag if true return only the last target.
+ * @return a deque sorted list of chain targets found.
+ */
+std::deque<Log_chain_target> Log::get_Node_chain_fullparse_reverse(const Node_ID node_id, bool onlylast) {
+    std::deque<Log_chain_target> res;
+
+    for (auto rit = chunks.rbegin(); rit!=chunks.rend(); ++rit) {
+
+        // check the entries first
+        std::vector<Log_entry *> & chunkentries = (*rit)->get_entries();
+        for (auto erit = chunkentries.rbegin(); erit!=chunkentries.rend(); ++erit) {
+            Log_entry * e = (*erit);
+            if (!(e->get_nodeidkey().isnullkey())) {
+                if (e->get_nodeidkey() == node_id.key()) {
+                    res.emplace_front(e->get_id_key(),e);
+                    if (onlylast)
+                        return res;
+                }
+            }
+        }
+        // then check the chunk
+        if ((*rit)->get_NodeID().key().idT == node_id.key().idT) {
+            res.emplace_front((*rit)->get_tbegin_key(),rit->get());
+            if (onlylast)
+                return res;
+        }
+
+
+    }
+
+    return res;
+}
+
 
 /**
  * Quickly walk through the reference chain that belongs to the
@@ -371,6 +418,63 @@ std::deque<Log_chain_target> Log::get_Node_chain(const Node_ID node_id) {
     }
 
     return res;
+}
+
+/**
+ * Quickly walk through the reference chain - in reverse - that belongs to
+ * the specified Node and return all of its Log chunks and Log entries. Reverse
+ * search is probably a good option, because often referenced Node histories are
+ * likely those of recent Nodes with recent Log entries.
+ * 
+ * Note A: This function depends on valid rapid-access pointers
+ *         within `node_prev` and `node_next` variables in each
+ *         Log chunk and entry.
+ * Note B: This function (presently) works by building a brand-new
+ *         deque list with Log_chain_target copies (instead of
+ *         references). This decision is based on the assumption that
+ *         the list of targets is typically informative, providing
+ *         necessary access info to those targets, but you don't
+ *         accidentally want to break existing chains by modifying
+ *         elements of the deque list.
+ * 
+ * @param node_id of the Node for which to collect its Log chain (history).
+ * @return a deque sorted list of chain targets found.
+ */
+std::deque<Log_chain_target> Log::get_Node_chain_reverse(const Node_ID node_id) {
+    std::deque<Log_chain_target> res = get_Node_chain_fullparse_reverse(node_id,true);
+
+    if (res.empty())
+        return res;
+
+    for (const Log_chain_target * prev = res.front().prev_in_chain(); prev != nullptr; prev = prev->prev_in_chain()) {
+        res.emplace_front(*prev);
+    }
+
+    return res;
+}
+
+const Log_chain_target * Log::newest_Node_chain_element(const Node_ID node_id) {
+    // *** if not cached or if the cache is invalid (out of date)
+    std::deque<Log_chain_target> res = get_Node_chain_fullparse_reverse(node_id,true);
+
+    if (res.empty())
+        return nullptr;
+    
+    return &(res.back());
+}
+
+const Log_chain_target * Log::oldest_Node_chain_element(const Node_ID node_id) {
+    // *** if not cached or if the cache is invalid (out of date)
+    std::deque<Log_chain_target> res = get_Node_chain_fullparse_reverse(node_id,true);
+
+    if (res.empty())
+        return nullptr;
+
+    const Log_chain_target * prev = &(res.back());
+    while (prev->prev_in_chain())
+        prev = prev->prev_in_chain();
+
+    return prev;
 }
 
 /**

@@ -379,7 +379,11 @@ public:
 
     /// chunks table: select subset by Node
     std::deque<Log_chain_target> get_Node_chain_fullparse(const Node_ID node_id, bool onlyfirst = false);
+    std::deque<Log_chain_target> get_Node_chain_fullparse_reverse(const Node_ID node_id, bool onlylast = false);
     std::deque<Log_chain_target> get_Node_chain(const Node_ID node_id); /// This version requires valid prev/next references.
+    std::deque<Log_chain_target> get_Node_chain_reverse(const Node_ID node_id);
+    const Log_chain_target * newest_Node_chain_element(const Node_ID node_id);
+    const Log_chain_target * oldest_Node_chain_element(const Node_ID node_id);
 
     /// helper (utility) functions
     std::time_t oldest_chunk_t() { return (num_Chunks()>0) ? chunks.front()->get_open_time() : RTt_unspecified; }

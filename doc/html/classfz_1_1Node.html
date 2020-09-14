@@ -89,7 +89,7 @@ Collaboration diagram for fz::Node:</div>
 <area shape="rect" id="node3" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. " alt="" coords="9,95,131,121"/>
 <area shape="rect" id="node4" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. " alt="" coords="5,5,135,32"/>
 <area shape="rect" id="node5" href="classfz_1_1Graph.html" title="fz::Graph" alt="" coords="168,184,244,211"/>
-<area shape="rect" id="node6" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. " alt="" coords="155,95,265,121"/>
+<area shape="rect" id="node6" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID. " alt="" coords="155,95,265,121"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -338,7 +338,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Edge</b></td></tr>
 </div><div class="memdoc">
 
 <p>change parameters: topics </p>
-<p>id needs to exist in <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> first </p>
+<p>id needs to exist in <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a> first </p>
 
 </div>
 </div>
@@ -661,10 +661,10 @@ Where this function is concerned, any value in the local targetdate parameter is
 </div><div class="memdoc">
 
 <p>friend (utility) functions </p>
-<p>Note: This is a friend function in order to ensure that the search for the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is called only when a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> list can provid pointers to them.</p>
+<p>Note: This is a friend function in order to ensure that the search for the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is called only when a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a> list can provid pointers to them.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname"><a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a></td><td>a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> list. </td></tr>
+    <tr><td class="paramname"><a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a></td><td>a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a> list. </td></tr>
     <tr><td class="paramname">node</td><td>a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> for which the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> is requested. </td></tr>
   </table>
   </dd>
@@ -708,10 +708,10 @@ Where this function is concerned, any value in the local targetdate parameter is
 </div><div class="memdoc">
 
 <p>Find the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> of a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a>, as indicated by the maximum Topic_Relevance value. </p>
-<p>Note: This is a friend function in order to ensure that the search for the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is called only when a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> list that is known to a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> can provid pointers to them.</p>
+<p>Note: This is a friend function in order to ensure that the search for the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is called only when a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a> list that is known to a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> can provid pointers to them.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">_graph</td><td>a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> that has a <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. ">Topic_Tags</a> list. </td></tr>
+    <tr><td class="paramname">_graph</td><td>a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> that has a <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a> list. </td></tr>
     <tr><td class="paramname">node</td><td>a <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> for which the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> is requested. </td></tr>
   </table>
   </dd>

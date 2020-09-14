@@ -2,8 +2,9 @@ var searchData=
 [
   ['ga',['ga',['../structgraph2dil.html#af76bebb8b78cc690ec82156897acde3b',1,'graph2dil']]],
   ['get_5fbreakpoint_5ffirst_5fchunk_5fid_5fkey',['get_Breakpoint_first_chunk_id_key',['../classfz_1_1Log.html#a0e3a077806fb7e1f5e1fef80f5618b84',1,'fz::Log']]],
-  ['get_5fchunk',['get_chunk',['../structfz_1_1Log__chunks__Deque.html#a9566cf35938d374bea7ba7f3b1eada26',1,'fz::Log_chunks_Deque::get_chunk()'],['../classfz_1_1Log.html#afba980cd73eed71a0209795b818c49ce',1,'fz::Log::get_chunk()']]],
+  ['get_5fchunk',['get_chunk',['../structfz_1_1Log__chunks__Deque.html#a9566cf35938d374bea7ba7f3b1eada26',1,'fz::Log_chunks_Deque::get_chunk(Log_chunk_ptr_deque::size_type idx) const'],['../structfz_1_1Log__chunks__Deque.html#ad365887dacdb316dea8fb73024effae9',1,'fz::Log_chunks_Deque::get_chunk(const Log_chunk_ID_key chunk_id) const'],['../classfz_1_1Log.html#afba980cd73eed71a0209795b818c49ce',1,'fz::Log::get_chunk()']]],
   ['get_5fchunk_5ffirst_5fat_5fbreakpoint',['get_chunk_first_at_Breakpoint',['../classfz_1_1Log.html#ab0882d4a1381efc00e9b6756e08c4c82',1,'fz::Log']]],
+  ['get_5fchunk_5fpq_5ffield_5fnumbers',['get_Chunk_pq_field_numbers',['../namespacefz.html#af0c13e8ff9e09d7fa7218c9b024eee6e',1,'fz']]],
   ['get_5fchunks_5fid_5fn_5finterval',['get_Chunks_ID_n_interval',['../classfz_1_1Log.html#a740b87f036296573f8e615a221cd0939',1,'fz::Log']]],
   ['get_5fchunks_5fid_5ft_5finterval',['get_Chunks_ID_t_interval',['../classfz_1_1Log.html#a07c6c3750a23f52c04f850ce6c85e5c0',1,'fz::Log']]],
   ['get_5fchunks_5findex_5fn_5finterval',['get_Chunks_index_n_interval',['../classfz_1_1Log.html#a753299dbf5c12efdf9e232a5e42a5428',1,'fz::Log']]],
@@ -36,6 +37,7 @@ var searchData=
   ['get_5ftopictags',['get_topictags',['../classfz_1_1Topic__Tags.html#adc63576bdcdc06685a7d58ed43c097f4',1,'fz::Topic_Tags']]],
   ['graph',['Graph',['../classfz_1_1Graph.html',1,'fz::Graph'],['../classfz_1_1Node.html#a26c8aa7f2980338364cce5f38550c4fb',1,'fz::Node::graph()']]],
   ['graph2dil',['graph2dil',['../structgraph2dil.html',1,'']]],
+  ['graph2dil_2ehpp',['graph2dil.hpp',['../graph2dil_8hpp.html',1,'']]],
   ['graph_5faccess',['Graph_access',['../structfz_1_1Graph__access.html',1,'fz::Graph_access'],['../structfz_1_1Graph__access.html#afdb454c7d36764bdca602196802402f7',1,'fz::Graph_access::Graph_access()']]],
   ['graphpostgres_2ehpp',['Graphpostgres.hpp',['../Graphpostgres_8hpp.html',1,'']]],
   ['guide_5fsnippet',['Guide_snippet',['../structfz_1_1Guide__snippet.html',1,'fz']]],

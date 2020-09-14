@@ -399,8 +399,8 @@ void Node::set_text(const std::string utf8str) {
 }
 
 /**
- * Report the main Topic (by ID) of the Node, as indicated by the maximum
- * Topic_Relevance value.
+ * Report the main Topic Index-ID of the Node, as indicated by the maximum
+ * `Topic_Relevance` value.
  * 
  * @return Topic_ID of main Topic.
  */

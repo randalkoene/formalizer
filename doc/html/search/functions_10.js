@@ -22,7 +22,7 @@ var searchData=
   ['significance_5fpqstr',['significance_pqstr',['../classfz_1_1Edge__pq.html#a6d293a8400488c141831037ac2281d01',1,'fz::Edge_pq']]],
   ['simple_5fcall_5fpq',['simple_call_pq',['../namespacefz.html#aa1a653de26479eb7d85b850ec2918c2a',1,'fz']]],
   ['simulatechanges',['SimulateChanges',['../classfz_1_1Simulate__PQ__Changes.html#a4efeef60df7eb1e1b6dab40cd2c04067',1,'fz::Simulate_PQ_Changes']]],
-  ['slow_5ffind',['slow_find',['../structfz_1_1Log__chunks__Deque.html#a9cfafb4db53cc4c0af1b9e64c007ec17',1,'fz::Log_chunks_Deque']]],
+  ['slow_5ffind',['slow_find',['../structfz_1_1Log__chunks__Deque.html#a7e38f01358054658ab459004a8df7d27',1,'fz::Log_chunks_Deque']]],
   ['split',['split',['../namespacefz.html#a45a30fb04b5721cd05047bd4088fb8b0',1,'fz::split(const std::string &amp;s, char delim, Out result)'],['../namespacefz.html#ab7dc083b5c0e84d7d715161e462a321f',1,'fz::split(const std::string &amp;s, char delim)']]],
   ['store_5fgraph_5fpq',['store_Graph_pq',['../namespacefz.html#a1cb865200e35c530ff09a2a5c142c55a',1,'fz']]],
   ['store_5fguide_5fsnippet_5fpq',['store_Guide_snippet_pq',['../namespacefz.html#af8eebdb96e1f6ab62ce592c84ea3e669',1,'fz']]],

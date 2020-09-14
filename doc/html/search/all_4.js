@@ -1,7 +1,6 @@
 var searchData=
 [
   ['datestampymd',['DateStampYmd',['../namespacefz.html#a8f965a9972440886cdbba23dee898e6e',1,'fz']]],
-  ['dbname',['dbname',['../namespacefz.html#ad4fdce135d088325b93bd26431b1f1c2',1,'fz']]],
   ['depedges',['depedges',['../classfz_1_1Node.html#a1b72361faf162c0b85f8f0d2af4d01f2',1,'fz::Node']]],
   ['dependency_5fpqstr',['dependency_pqstr',['../classfz_1_1Edge__pq.html#a87bdf0fcecc46e35e7918685026b2714',1,'fz::Edge_pq']]],
   ['dest',['dest',['../structfzguide__system.html#a5c4886cc6df6550b55dfae83c3028446',1,'fzguide_system']]],

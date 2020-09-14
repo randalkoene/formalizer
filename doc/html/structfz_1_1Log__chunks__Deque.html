@@ -106,12 +106,18 @@ Public Member Functions</h2></td></tr>
 <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__chunks__Deque.html#a9566cf35938d374bea7ba7f3b1eada26">get_chunk</a> (Log_chunk_ptr_deque::size_type idx) const</td></tr>
 <tr class="memdesc:a9566cf35938d374bea7ba7f3b1eada26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get pointer to <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk by index. Returns nullptr if out of range. <br /></td></tr>
 <tr class="separator:a9566cf35938d374bea7ba7f3b1eada26"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9cfafb4db53cc4c0af1b9e64c007ec17"><td class="memItemLeft" align="right" valign="top">Log_chunk_ptr_deque::size_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__chunks__Deque.html#a9cfafb4db53cc4c0af1b9e64c007ec17">slow_find</a> (const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> chunk_id) const</td></tr>
-<tr class="memdesc:a9cfafb4db53cc4c0af1b9e64c007ec17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find index of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk pointer by ID key by brute force sequential search. Returns size() if not found.  <a href="#a9cfafb4db53cc4c0af1b9e64c007ec17">More...</a><br /></td></tr>
-<tr class="separator:a9cfafb4db53cc4c0af1b9e64c007ec17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e38f01358054658ab459004a8df7d27"><td class="memItemLeft" align="right" valign="top">std::pair&lt; Log_chunk_ptr_deque::size_type, <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__chunks__Deque.html#a7e38f01358054658ab459004a8df7d27">slow_find</a> (const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> chunk_id) const</td></tr>
+<tr class="memdesc:a7e38f01358054658ab459004a8df7d27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find index of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk pointer by ID key by brute force sequential search. Returns size() if not found.  <a href="#a7e38f01358054658ab459004a8df7d27">More...</a><br /></td></tr>
+<tr class="separator:a7e38f01358054658ab459004a8df7d27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb10906a710f24c7e0a440df7bde0b25"><td class="memItemLeft" align="right" valign="top">std::pair&lt; Log_chunk_ptr_deque::size_type, <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__chunks__Deque.html#adb10906a710f24c7e0a440df7bde0b25">find_index_and_pointer</a> (const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> chunk_id) const</td></tr>
+<tr class="memdesc:adb10906a710f24c7e0a440df7bde0b25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fast search for index and pointer to <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk by ID key. Returns [size, nullptr] if not found.  <a href="#adb10906a710f24c7e0a440df7bde0b25">More...</a><br /></td></tr>
+<tr class="separator:adb10906a710f24c7e0a440df7bde0b25"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a022e5eeee02139fc64575e5ab0aabf9b"><td class="memItemLeft" align="right" valign="top">Log_chunk_ptr_deque::size_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__chunks__Deque.html#a022e5eeee02139fc64575e5ab0aabf9b">find</a> (const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> chunk_id) const</td></tr>
 <tr class="memdesc:a022e5eeee02139fc64575e5ab0aabf9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get index of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk pointer by ID key. Returns size() if not found.  <a href="#a022e5eeee02139fc64575e5ab0aabf9b">More...</a><br /></td></tr>
 <tr class="separator:a022e5eeee02139fc64575e5ab0aabf9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad365887dacdb316dea8fb73024effae9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__chunks__Deque.html#ad365887dacdb316dea8fb73024effae9">get_chunk</a> (const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> chunk_id) const</td></tr>
+<tr class="memdesc:ad365887dacdb316dea8fb73024effae9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get pointer to <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk by ID key. Returns nullptr if not found.  <a href="#ad365887dacdb316dea8fb73024effae9">More...</a><br /></td></tr>
+<tr class="separator:ad365887dacdb316dea8fb73024effae9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5a15e162aaef38510c158f9b4ecd849a"><td class="memItemLeft" align="right" valign="top">Log_chunk_ptr_deque::size_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__chunks__Deque.html#a5a15e162aaef38510c158f9b4ecd849a">find</a> (std::time_t t, bool later) const</td></tr>
 <tr class="memdesc:a5a15e162aaef38510c158f9b4ecd849a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find index of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk by its ID closest to time t.  <a href="#a5a15e162aaef38510c158f9b4ecd849a">More...</a><br /></td></tr>
 <tr class="separator:a5a15e162aaef38510c158f9b4ecd849a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -143,8 +149,8 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Get index of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk pointer by ID key. Returns size() if not found. </p>
-<p>Find index of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk from its ID.</p>
-<p>This implementation attempts to be quick about it by relying on the sorted order of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks to apply a quick search method. (This is actually probably the same as using std::binary_search.)</p>
+<p>Find just the index of a <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk from its ID.</p>
+<p>This uses the quick search.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">chunk_id</td><td>the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk ID. </td></tr>
@@ -191,6 +197,67 @@ Friends</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the closest index in the list, or ::size() if not found. </dd></dl>
+
+</div>
+</div>
+<a id="adb10906a710f24c7e0a440df7bde0b25"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb10906a710f24c7e0a440df7bde0b25">&#9670;&nbsp;</a></span>find_index_and_pointer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::pair&lt; Log_chunk_ptr_deque::size_type, <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> * &gt; fz::Log_chunks_Deque::find_index_and_pointer </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a>&#160;</td>
+          <td class="paramname"><em>chunk_id</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Fast search for index and pointer to <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk by ID key. Returns [size, nullptr] if not found. </p>
+<p>Find index of and pointer to a <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk from its ID key.</p>
+<p>This implementation attempts to be quick about it by relying on the sorted order of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks to apply a quick search method. (This is actually probably the same as using std::binary_search.)</p>
+<p>Note A: During the search, we are requesting pointers in order to be able to return both at once (to make both index and pointer serach functions as fast as possible). But we skip testing for nullptr, because a nullptr should never be in the list in the first place. This is a calculated risk.</p>
+<p>Note B: This function is not as fast as it could be. Checking a specific index of a deque is slower than in a vector. See the proposal in the card at <a href="https://trello.com/c/qYEwgsFs">https://trello.com/c/qYEwgsFs</a>.</p>
+<p>Note C: This function is unfortunately forced to go to <a class="el" href="structfz_1_1Log__chunks__Deque.html#a7e38f01358054658ab459004a8df7d27" title="Find index of Log chunk pointer by ID key by brute force sequential search. Returns size() if not fou...">slow_find()</a> on occasion, because of IDs that are out of order. See the proposal in the card at <a href="https://trello.com/c/tiOWQkdP">https://trello.com/c/tiOWQkdP</a>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">chunk_id</td><td>the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk ID. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the pair of index in the list and pointer to <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk, or [::size(), nullptr] if not found. </dd></dl>
+
+</div>
+</div>
+<a id="ad365887dacdb316dea8fb73024effae9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad365887dacdb316dea8fb73024effae9">&#9670;&nbsp;</a></span>get_chunk()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> * fz::Log_chunks_Deque::get_chunk </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a>&#160;</td>
+          <td class="paramname"><em>chunk_id</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get pointer to <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk by ID key. Returns nullptr if not found. </p>
+<p>Find just the pointer reference to a <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk from its ID.</p>
+<p>This uses the quick search.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">chunk_id</td><td>the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk ID. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk, or nullptr if not found. </dd></dl>
 
 </div>
 </div>
@@ -262,14 +329,14 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="a9cfafb4db53cc4c0af1b9e64c007ec17"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9cfafb4db53cc4c0af1b9e64c007ec17">&#9670;&nbsp;</a></span>slow_find()</h2>
+<a id="a7e38f01358054658ab459004a8df7d27"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e38f01358054658ab459004a8df7d27">&#9670;&nbsp;</a></span>slow_find()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">Log_chunk_ptr_deque::size_type fz::Log_chunks_Deque::slow_find </td>
+          <td class="memname">std::pair&lt; Log_chunk_ptr_deque::size_type, <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> * &gt; fz::Log_chunks_Deque::slow_find </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a>&#160;</td>
           <td class="paramname"><em>chunk_id</em></td><td>)</td>
@@ -279,7 +346,7 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Find index of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk pointer by ID key by brute force sequential search. Returns size() if not found. </p>
-<p>Slow brute force search for <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk by ID.</p>
+<p>Slow brute force search for index of and pointer to a <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk from its ID key.</p>
 <p>This one should work if the ID is in there, even if the IDs are not sorted correctly for some reason (i.e. if some IDs are not in correct temporal <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> order).</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -287,7 +354,7 @@ Friends</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>the index in the list, or ::size() if not found. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>the pair of index in the list and pointer to <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk, or [::size(), nullptr] if not found. </dd></dl>
 
 </div>
 </div>

@@ -24,7 +24,7 @@ var searchData=
   ['simulate_5fpq_5fchanges',['Simulate_PQ_Changes',['../classfz_1_1Simulate__PQ__Changes.html',1,'fz']]],
   ['simulatechanges',['SimulateChanges',['../classfz_1_1Simulate__PQ__Changes.html#a4efeef60df7eb1e1b6dab40cd2c04067',1,'fz::Simulate_PQ_Changes']]],
   ['simulated_5fpq_5fcalls',['simulated_pq_calls',['../classfz_1_1Simulate__PQ__Changes.html#ada216770e7c972836116f828480891c1',1,'fz::Simulate_PQ_Changes']]],
-  ['slow_5ffind',['slow_find',['../structfz_1_1Log__chunks__Deque.html#a9cfafb4db53cc4c0af1b9e64c007ec17',1,'fz::Log_chunks_Deque']]],
+  ['slow_5ffind',['slow_find',['../structfz_1_1Log__chunks__Deque.html#a7e38f01358054658ab459004a8df7d27',1,'fz::Log_chunks_Deque']]],
   ['snippet',['snippet',['../structfz_1_1Guide__snippet.html#a2d151944e4ad0f87b5c97b69740abd7e',1,'fz::Guide_snippet']]],
   ['source',['source',['../structfzguide__system.html#a0e33fa3879f77fb3724dbe3ffd283201',1,'fzguide_system']]],
   ['split',['split',['../namespacefz.html#a45a30fb04b5721cd05047bd4088fb8b0',1,'fz::split(const std::string &amp;s, char delim, Out result)'],['../namespacefz.html#ab7dc083b5c0e84d7d715161e462a321f',1,'fz::split(const std::string &amp;s, char delim)']]],

@@ -319,15 +319,18 @@ public:
 // Only pointers, not the objects themselves. (See Dangerous code card in Software Engineering Update Trello board.)
 typedef std::vector<Topic*> Topic_Tags_Vector;
 
-/** Topic tag data, indexed by Topic ID.
+/** Topic tag data, arranged by integer Index-ID.
  * 
- * Topic objects are created during calls to find_or_add_Topic() in this class.
- * Those objects are destroyed when the instance of this class is deleted.
+ * This class relates each Topic to both an integer Index-ID and to a Tag-string.
+ * 
+ * - Topic objects can be found by using either of those two identifiers.
+ * - Topic objects are created during calls to find_or_add_Topic() in this class.
+ * - Those objects are destroyed when the instance of this class is deleted.
  */
 class Topic_Tags {
 protected:
-    Topic_Tags_Vector topictags;
-    std::map<std::string,Topic*> topicbytag;
+    Topic_Tags_Vector topictags;               ///< This provides Topic pointers by Topic Index-ID.
+    std::map<std::string, Topic *> topicbytag; ///< This provides Topic pointers by Tag-string key.
 
 public:
     ~Topic_Tags() { for (auto it = topictags.begin(); it!=topictags.end(); ++it) delete (*it); }
@@ -338,11 +341,42 @@ public:
     /// tables sizes
     Topic_Tags_Vector::size_type num_Topics() const { return topictags.size(); }
 
-    /// tables extend
+    /**
+     * Returns the id (index) of a topic tag and adds it to the list of topic
+     * tags if it was not already there.
+     * 
+     * If added:
+     * 
+     * 1. A new Topic object is created at the end of the `topictags` vector with
+     * `nextid`, `tag` and `title` as constructor parameters.
+     * 2. The new vector element is then called at index `nextid`, and a pointer to it is used
+     * as the value at key=`tag` to add to the `topicbytag` map.
+     * 
+     * Note that the found or newly generated topic index is compared with the
+     * compile-time constant `HIGH_TOPIC_INDEX_WARNING` to report very large indices
+     * considered to be probably mistaken.
+     * 
+     * @param tag a topic tag label.
+     * @param title a title string.
+     * @return id (index) of the topic tag in the `topictags` vector.
+     */
     Topic_ID find_or_add_Topic(std::string tag, std::string title);
 
-    /// get topic
+    /**
+     * Find a Topic in the Topic_Tags table by Topic ID.
+     * 
+     * @param _id a Topic ID.
+     * @return pointer to the Topic (or nullptr if not found).
+     */
     Topic * find_by_id(Topic_ID _id); // inlined below
+
+    /**
+     * Search the topicbytag map and return a pointer to the Topic if the tag
+     * was found.
+     * 
+     * @param _tag a topic tag label
+     * @return pointer to Topic object in topictags vector, or NULL if not found.
+     */
     Topic * find_by_tag(std::string _tag);
 
     /// friend (utility) functions
@@ -383,6 +417,8 @@ typedef std::map<Topic_ID,float> Topics_Set; // to keep relevance as well
 typedef std::set<Edge*> Edges_Set;
 
 /**
+ * The Node class is the principal object type within a Formalizer Graph.
+ * 
  * (A woefully incomplete class documentation.)
  * 
  * Note that the set_text_unchecked() member function provides a fast way
@@ -468,7 +504,17 @@ public:
     time_t effective_targetdate();
 
     /// helper functions
+
+    /**
+     * Report the main Topic Index-ID of the Node, as indicated by the maximum
+     * `Topic_Relevance` value.
+     * 
+     * @return Topic_ID of main Topic.
+     */
     Topic_ID main_topic_id();
+
+    const Edges_Set & sup_Edges() const { return supedges; }
+    const Edges_Set & dep_Edges() const { return depedges; }
 
     /// friend (utility) functions
     friend Topic * main_topic(Topic_Tags & topictags, Node & node); // friend function to ensure search with available Topic_Tags
@@ -494,7 +540,13 @@ public:
     Edge(Graph & graph, std::string id_str);
 
     // safely inspect data
-    auto get_id() const { return id; }
+    Edge_ID get_id() const { return id; }
+    std::string get_id_str() const { return id.str(); }
+    Edge_ID_key get_key() const { return id.key(); }
+    Node_ID_key get_dep_key() const { return id.key().dep; }
+    Node_ID_key get_sup_key() const { return id.key().sup; }
+    std::string get_dep_str() const { return id.key().dep.str(); }
+    std::string get_sup_str() const { return id.key().sup.str(); }
     Node* get_dep() const { return dep; }
     Node* get_sup() const { return sup; }
     float get_dependency() const { return dependency; }
@@ -572,9 +624,21 @@ public:
     Topic * find_Topic_by_id(Topic_ID _id) { return topics.find_by_id(_id); }
 
     /// crossref tables: topics x nodes
+
+    /**
+     * Find a pointer to the main Topic of a Node as indicated by the maximum
+     * `Topic_Relevance` value.
+     * 
+     * Note: To find the main Topic Index-ID instead use the function
+     *       `Node::main_topic_id()`.
+     * 
+     * @param Topic_Tags a valid Topic_Tags list.
+     * @param node a Node for which the main Topic is requested.
+     * @return a pointer to the Topic object (or nullptr if not found).
+     */
     Topic * main_Topic_of_Node(Node & node) { return main_topic(topics,node); }
 
-    // *** is this still in used??
+    // *** is this still in use??
     Node_Map & temptonodemap() { return nodes; }
 
     /// friend (utility) functions

@@ -11,5 +11,7 @@ var searchData=
   ['text',['text',['../classfz_1_1Node.html#a263525f4d8b7ca661a4c888b7f9abdb9',1,'fz::Node']]],
   ['title',['title',['../classfz_1_1Topic.html#a3f3da2cff064abd4ae67e2ff3a2e2e07',1,'fz::Topic']]],
   ['to_5fidx',['to_idx',['../structLog2TL__conv__params.html#aeb6fb69ac37c2d932d8bab81a5e8619a',1,'Log2TL_conv_params']]],
-  ['topics',['topics',['../classfz_1_1Node.html#ade2811e5efa9705e9e76a42e695b63de',1,'fz::Node']]]
+  ['topicbytag',['topicbytag',['../classfz_1_1Topic__Tags.html#a7c318efbcea8f26981febc496ac50555',1,'fz::Topic_Tags']]],
+  ['topics',['topics',['../classfz_1_1Node.html#ade2811e5efa9705e9e76a42e695b63de',1,'fz::Node']]],
+  ['topictags',['topictags',['../classfz_1_1Topic__Tags.html#aaa2a2095fe49122339b44994604c8f5d',1,'fz::Topic_Tags']]]
 ];

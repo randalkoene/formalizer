@@ -16,5 +16,5 @@
 <area shape="rect" id="node15" href="$structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. " alt="" coords="213,444,334,471"/>
 <area shape="rect" id="node16" href="$structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. " alt="" coords="5,444,135,471"/>
 <area shape="rect" id="node17" href="$classfz_1_1Graph.html" title="fz::Graph" alt="" coords="468,391,544,417"/>
-<area shape="rect" id="node18" href="$classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. " alt="" coords="219,391,328,417"/>
+<area shape="rect" id="node18" href="$classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID. " alt="" coords="219,391,328,417"/>
 </map>

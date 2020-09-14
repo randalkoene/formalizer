@@ -6,5 +6,5 @@
 <area shape="rect" id="node5" href="$structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. " alt="" coords="186,5,315,32"/>
 <area shape="rect" id="node6" href="$classfz_1_1Node.html" title="(A woefully incomplete class documentation.) " alt="" coords="133,288,205,315"/>
 <area shape="rect" id="node8" href="$classfz_1_1Graph.html" title="fz::Graph" alt="" coords="22,199,98,225"/>
-<area shape="rect" id="node9" href="$classfz_1_1Topic__Tags.html" title="Topic tag data, indexed by Topic ID. " alt="" coords="5,95,115,121"/>
+<area shape="rect" id="node9" href="$classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID. " alt="" coords="5,95,115,121"/>
 </map>

@@ -1,9 +1,11 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$structfz_1_1formalizer__standard__program.html" title="This structure registers a standard object with a set of expected parameters and functions for any st..." alt="" coords="5,125,160,166"/>
+<area shape="rect" id="node1" href="$structfz_1_1formalizer__standard__program.html" title="This structure registers a standard object with a set of expected parameters and functions for any st..." alt="" coords="5,175,160,217"/>
 <area shape="rect" id="node2" href="$structboilerplate.html" title="boilerplate" alt="" coords="225,5,306,32"/>
 <area shape="rect" id="node3" href="$structdil2graph.html" title="dil2graph" alt="" coords="228,56,303,83"/>
 <area shape="rect" id="node4" href="$structfzguide__system.html" title="fzguide_system" alt="" coords="208,107,323,133"/>
-<area shape="rect" id="node5" href="$structfzquerypq.html" title="fzquerypq" alt="" coords="226,157,305,184"/>
-<area shape="rect" id="node6" href="$structgraph2dil.html" title="graph2dil" alt="" coords="228,208,303,235"/>
-<area shape="rect" id="node7" href="$structnodeboard.html" title="nodeboard" alt="" coords="224,259,307,285"/>
+<area shape="rect" id="node5" href="$structfzloghtml.html" title="fzloghtml" alt="" coords="228,157,303,184"/>
+<area shape="rect" id="node6" href="$structfzquerypq.html" title="fzquerypq" alt="" coords="226,208,305,235"/>
+<area shape="rect" id="node7" href="$structfzserverpq.html" title="fzserverpq" alt="" coords="224,259,307,285"/>
+<area shape="rect" id="node8" href="$structgraph2dil.html" title="graph2dil" alt="" coords="228,309,303,336"/>
+<area shape="rect" id="node9" href="$structnodeboard.html" title="nodeboard" alt="" coords="224,360,307,387"/>
 </map>
