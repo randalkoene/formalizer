@@ -53,6 +53,29 @@ enum flow_options {
     flow_NUMoptions
 };
 
+enum template_id_enum {
+    DILFile_temp,
+    DILFile_entry_temp,
+    DILFile_entry_tail_temp,
+    DILFile_entry_head_temp,
+    DILbyID_temp,
+    DILbyID_entry_temp,
+    DILbyID_superior_temp,
+    NUM_temp
+};
+
+const std::vector<std::string> template_ids = {
+    "DIL_File_template.html",
+    "DIL_File_entry_template.html",
+    "DIL_File_entry_tail_template.html",
+    "DIL_File_entry_head_template.html",
+    "DILbyID_template.html",
+    "DILbyID_entry_template.html",
+    "DILbyID_superior_template.html"
+};
+
+typedef std::map<template_id_enum,std::string> graph2dil_templates;
+
 struct graph2dil: public formalizer_standard_program {
 
     std::string DILTLdirectory = GRAPH2DIL_OUTPUT_DIR; /// location for converted output files
@@ -151,30 +174,7 @@ bool flow_convert_Log2TL() {
     return true;
 }
 
-enum template_id_enum {
-    DILFile_temp,
-    DILFile_entry_temp,
-    DILFile_entry_tail_temp,
-    DILFile_entry_head_temp,
-    DILbyID_temp,
-    DILbyID_entry_temp,
-    DILbyID_superior_temp,
-    NUM_temp
-};
-
-const std::vector<std::string> template_ids = {
-    "DIL_File_template.html",
-    "DIL_File_entry_template.html",
-    "DIL_File_entry_tail_template.html",
-    "DIL_File_entry_head_template.html",
-    "DILbyID_template.html",
-    "DILbyID_entry_template.html",
-    "DILbyID_superior_template.html"
-};
-
-typedef std::map<template_id_enum,std::string> graph2dil_templates;
-
-bool load_templates(graph2dil_templates & templates) {
+bool load_graph2dil_templates(graph2dil_templates & templates) {
     templates.clear();
 
     for (int i = 0; i < NUM_temp; ++i) {
@@ -290,22 +290,22 @@ std::string render_TargetDate(Node & node) {
     std::string res;
     bool hasYmdHM;
     switch (node.get_tdproperty()) {
-    case 'fixed': {
+    case fixed: {
         res += 'F';
         hasYmdHM = true;
         break;
     }
-    case 'exact': {
+    case exact: {
         res += 'E';
         hasYmdHM = true;
         break;
     }
-    case 'inherit': { // should have no YmdHM digits, used to be shown by F? (see get_Node_tdproperty() comments in dil2graph.cpp)
+    case inherit: { // should have no YmdHM digits, used to be shown by F? (see get_Node_tdproperty() comments in dil2graph.cpp)
         res += 'F';
         hasYmdHM = false;
         break;
     }
-    case 'variable': { // does have YmdHM digits
+    case variable: { // does have YmdHM digits
         hasYmdHM = true;
         break;
     }
@@ -338,6 +338,19 @@ std::string render_TargetDate(Node & node) {
 }
 
 /**
+ * It seems that in dil2graph, most of the unspecified values were
+ * set to 0.0. In converting back, that means we cannot distinguish
+ * between values that appear as 0.0 or as ?.?. But note that this
+ * is also how the 'ME' DIL entry editing function has interpreted
+ * those values, showing those marked ?.? as 0.0.
+ */
+std::string render_Edge_Parameter(float parval) {
+    if (parval<=0.0) return "?.?";
+
+    return to_precision_string(parval,1);
+}
+
+/**
  * Render HTML formatted Superior data for the DIL-by-ID file.
  * 
  * Note that the data is constructed from a combination of Edge and
@@ -351,12 +364,12 @@ std::string render_TargetDate(Node & node) {
 std::string render_Superior(Edge & edge, Node & node) {
     template_varvalues varvals;
     varvals.emplace("sup_DIL_ID",edge.get_sup_str());
-    varvals.emplace("relevance",edge.get_dependency());
-    varvals.emplace("unbounded",edge.get_significance());
-    varvals.emplace("bounded",edge.get_importance());
+    varvals.emplace("relevance",render_Edge_Parameter(edge.get_dependency()));
+    varvals.emplace("unbounded",render_Edge_Parameter(edge.get_significance()));
+    varvals.emplace("bounded",render_Edge_Parameter(edge.get_importance()));
     varvals.emplace("targetdate_code",render_TargetDate(node));
-    varvals.emplace("urgency",edge.get_urgency());
-    varvals.emplace("priority",edge.get_priority());
+    varvals.emplace("urgency",render_Edge_Parameter(edge.get_urgency()));
+    varvals.emplace("priority",render_Edge_Parameter(edge.get_priority()));
     return g2d.env.render(g2d.templates[DILbyID_superior_temp], varvals);
 }
 
@@ -392,7 +405,7 @@ bool flow_convert_Graph2DIL() {
     }
 
     ERRHERE(".goGraph2DIL");
-    if (!load_templates(g2d.templates))
+    if (!load_graph2dil_templates(g2d.templates))
         ERRRETURNFALSE(__func__,"unable to load templates for Graph to DIL Files rendering");
 
     ERRHERE(".DILFiles");
