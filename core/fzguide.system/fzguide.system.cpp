@@ -76,7 +76,7 @@ void fzguide_system::usage_hook() {
     FZOUT("    -U System guide <subsection>\n");
     FZOUT("    -x System guide decimal index number <idx>\n");
     FZOUT("    -i read snippet content from <inputfile> (otherwise from STDIN)\n");
-    FZOUT("    -o write snippet content to <outputfile> (otherwise from STDOUT)\n");
+    FZOUT("    -o write snippet content to <outputfile> (otherwise to STDOUT)\n");
     FZOUT("    -F format result as: txt, html, fullhtml (default=none)\n");
 }
 

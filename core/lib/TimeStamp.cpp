@@ -39,7 +39,7 @@ namespace fz {
  * @param timestr a string containing the Formalizer time stamp.
  * @param noerror suppresses ADDERROR() for invalid time stamps.
  * @return local Unix time in seconds, negative integer code, or
- *         INVALID_TIME_STAMP.
+ *         RTt_invalid_time_stamp.
  */
 time_t time_stamp_time(std::string timestr, bool noerror) {
     struct tm ts;
@@ -86,6 +86,34 @@ time_t time_stamp_time(std::string timestr, bool noerror) {
     ts.tm_yday = 0;
     ts.tm_isdst = -1; // computed by mktime since indicated "unknown" here
     return mktime(&ts);
+}
+
+/**
+ * UNIX epoch time equivalent of a Year-Month-Day date-stamp such as
+ * 20200914 or 202009140100.
+ * 
+ * This function uses `time_stamp_time()` for time stamp format validation
+ * and conversion, but it allows pure date stamps consisting of just 8
+ * year, month and day digits, as well as 12 digit time stamps. In the
+ * 12 digit case, the last 4 digits can be optionally ignored (set to 0000)
+ * during conversion to UNIX epoch time.
+ * 
+ * @param timestr a string containing the Formalizer time stamp or date stamp.
+ * @param noerror suppresses ADDERROR() for invalid time stamps.
+ * @param ignoreHM optionally set any hour and minute digits to 0 during conversion.
+ * @return local Unix time in seconds, negative integer code, or
+ *         RTt_invalid_time_stamp.
+ */
+std::time_t ymd_stamp_time(std::string timestr, bool noerror, bool ignoreHM) {
+    if ((timestr.size()>=12) && ignoreHM) {
+        for (unsigned int i = 8; i < 12; ++i)
+            timestr[i] = '0';
+    } else {
+        if (timestr.size()==8)
+            timestr += "0000";
+    }
+
+    return time_stamp_time(timestr,noerror);
 }
 
 /**

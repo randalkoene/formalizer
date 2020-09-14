@@ -40,13 +40,13 @@ TEST=./test
 # Notes:
 # - to find the postgresql header files (e.g libpq-fe.h), do this: pg_config --includedir
 # - to find the postgresql library files fo this: pg_config --libdir
-# POSTGRESINC = /usr/include/postgresql
-# POSTGRESLIB = -L/usr/lib/x86_64-linux-gnu -lpq
+POSTGRESINC = /usr/include/postgresql
+POSTGRESLIB = -L/usr/lib/x86_64-linux-gnu -lpq
 
 # +----- begin: Essential include and library paths for this program -----+
 INCLUDES := -I$(CPATH) -I$(COREINCLUDEPATH)
-# INCLUDES += -I$(POSTGRESINC)
-# LIB_PATH = $(POSTGRESLIB)
+INCLUDES += -I$(POSTGRESINC)
+LIB_PATH = $(POSTGRESLIB)
 # +----- begin: Essential include and library paths for this program -----+
 
 # +----- begin: In case not included from CPATH -----+
@@ -97,13 +97,14 @@ CORE_OBJS += $(CORELIBPATH)/obj/standard.o
 CORE_OBJS += $(CORELIBPATH)/obj/general.o
 CORE_OBJS += $(CORELIBPATH)/obj/templater.o
 # CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
-# CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
-# CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
-# CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
-# CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
-# CORE_OBJS += $(CORELIBPATH)/obj/Graphaccess.o
-# CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
-# CORE_OBJS += $(CORELIBPATH)/obj/Logpostgres.o
+CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
+CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
+CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
+CORE_OBJS += $(CORELIBPATH)/obj/fzpostgres.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphaccess.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
+CORE_OBJS += $(CORELIBPATH)/obj/Logpostgres.o
 # CORE_OBJS += $(CORELIBPATH)/obj/dilaccess.o
 # +----- end  : Select Formalizer core library objects -----+
 

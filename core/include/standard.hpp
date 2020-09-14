@@ -90,12 +90,14 @@ extern formalizer_base_streams base;
  *           steps to the exit stack by calling add_to_exit_stack().
  */
 struct formalizer_standard_program {
-    std::string server_long_id; /// standardized module string
+    std::string server_long_id;         ///< standardized module string (see documentation)
 
-    std::string add_option_args; // more option argument characters, e.g. "n:F:"
-    std::string add_usage_top; // more options, e.g. " [-d <dbname>] [-m]"
+    std::string add_option_args;        ///< more option argument characters, e.g. "n:F:"
+    std::string add_usage_top;          ///< more options, e.g. " [-d <dbname>] [-m]"
+    std::deque<std::string> usage_head; ///< strings to print at the head of usage information
+    std::deque<std::string> usage_tail; ///< strings to print at the tail of usage information
 
-    bool quiet; // report less
+    bool quiet;                         ///< report less
 
     /**
      * Base initialization of standard Formalizer programs.

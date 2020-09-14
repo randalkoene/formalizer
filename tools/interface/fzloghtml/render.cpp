@@ -13,6 +13,7 @@
 
 // local
 #include "render.hpp"
+#include "fzloghtml.hpp"
 
 
 /// The Makefile attempts to provide this at compile time based on the source
@@ -28,15 +29,24 @@ using namespace fz;
 
 
 enum template_id_enum {
-    {{ a_template }}_temp,
+    LogHTML_head_temp,
+    LogHTML_tail_temp,
+    LogHTML_chunk_temp,
+    LogHTML_entry_temp,
     NUM_temp
 };
 
 const std::vector<std::string> template_ids = {
-    "{{ template_file }}_template.{{ ext }}",
+    "LogHTML_head_template.html",
+    "LogHTML_tail_template.html",
+    "LogHTML_chunk_template.html"
+    "LogHTML_entry_template.html"
 };
 
 typedef std::map<template_id_enum,std::string> fzloghtml_templates;
+
+render_environment env;
+fzloghtml_templates templates;
 
 bool load_templates(fzloghtml_templates & templates) {
     templates.clear();
@@ -49,17 +59,69 @@ bool load_templates(fzloghtml_templates & templates) {
     return true;
 }
 
+std::string render_Log_entry(Log_entry & entry) {
+    template_varvalues varvals;
+    varvals.emplace("minor_id",std::to_string(entry.get_minor_id()));
+    varvals.emplace("entry_text",entry.get_entrytext());
+    if (entry.same_node_as_chunk()) {
+        varvals.emplace("node_id","");
+    } else {
+        std::string nodestr(entry.get_nodeidkey().str());
+        varvals.emplace("node_id","[<a href=\"/cgi-bin/fzlink.py?id="+nodestr+"\">"+nodestr+"</a>]");
+    }
+    return env.render(templates[LogHTML_entry_temp],varvals);
+}
+
+/**
+ * Convert Log content between t_from and t_before to HTML using
+ * rending templates and send to designated output destination.
+ */
 bool render() {
-    render_environment env;
-    fzloghtml_templates templates;
     load_templates(templates);
 
-    template_varvalues varvals;
-    board.emplace("{{ a_variable }}",{{ a_string }});
-    std::string rendered_str = env.render(templates[{{ a_template }}_temp], varvals);
+    auto [from_idx, to_idx] = fzlh.log->get_Chunks_index_t_interval(fzlh.t_from, fzlh.t_before);
 
-    if (!string_to_file({{ a_path }},rendered_str))
-            ERRRETURNFALSE(__func__,"unable to write rendered output to file");
-    
+    std::string rendered_logcontent(templates[LogHTML_head_temp]);
+    rendered_logcontent.reserve(128*1024);
+
+    for (auto chunk_idx = from_idx; chunk_idx <= to_idx; ++chunk_idx) {
+
+        Log_chunk * chunkptr = fzlh.log->get_chunk(chunk_idx);
+        if (chunkptr) {
+            std::string combined_entries;
+            for (const auto& entryptr : chunkptr->get_entries()) {
+                if (entryptr) {
+                    combined_entries += render_Log_entry(*entryptr);
+                }
+            }
+
+            template_varvalues varvals;
+            varvals.emplace("node_id",chunkptr->get_NodeID().str());
+            varvals.emplace("t_chunkopen",chunkptr->get_tbegin_str());
+            time_t t_chunkclose = chunkptr->get_close_time();
+            if (t_chunkclose < chunkptr->get_open_time()) {
+                varvals.emplace("t_chunkclose","OPEN");
+            } else {
+                varvals.emplace("t_chunkclose",TimeStampYmdHM(t_chunkclose));
+            }
+            varvals.emplace("entries",combined_entries);
+            rendered_logcontent += env.render(templates[LogHTML_chunk_temp],varvals);
+        }
+    }
+
+    rendered_logcontent += templates[LogHTML_tail_temp];
+
+    // send to destination
+    if (fzlh.dest.empty()) { // to STDOUT
+        //VERBOSEOUT("Log interval:\n\n");
+        FZOUT(rendered_logcontent);
+    } else {
+        VERBOSEOUT("Writing HTML Log content to "+fzlh.dest+".\n\n");
+        if (!string_to_file(fzlh.dest,rendered_logcontent)) {
+            ADDERROR(__func__,"unable to write snippet to "+fzlh.dest);
+            fzlh.exit(exit_file_error);
+        }
+    }
+
     return true;
 }

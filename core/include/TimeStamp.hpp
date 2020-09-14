@@ -1,7 +1,7 @@
 // Copyright 2020 Randal A. Koene
 // License TBD
 
-/**
+/** @file TimeStamp.hpp
  * This header file declares Formalizer TimeStamp format and operations.
  * 
  * The corresponding source file is at core/lib/TimeStamp.cpp.
@@ -20,7 +20,58 @@
 
 namespace fz {
 
+/**
+ * Convert a Formalizer time stamp string into local Unix time.
+ * 
+ * Formalizer time stamp strings must have this format:
+ * 1) [^0-9]YYYYmmddHHMM (e.g. "202008140613", "__202109150714"), and,
+ * 2) the year must be >= 1900, or,
+ * 3) a negative integer code (e.g. "-2").
+ * 
+ * Negative integer codes are returned the equivalent negative integer so that
+ * special codes can be detected.
+ * 
+ * Non-digit characters preceding the digits of a proper time stamp are
+ * ignored and discarded. (This does not apply to negative integer codes.)
+ * 
+ * When the 'noerror' flag is set then no error message will be added
+ * if an invalid time stamp is encountered. This can be useful when this
+ * function is explicitly used to check for empty/unfinished/etc time
+ * stamps.
+ * 
+ * The 1900 test is a useful sanity check, because mangled time stamp
+ * strings can often lead to unlikely dates preceding the computing era.
+ * 
+ * This function is derived from dil2al/utilities.cc:time_stamp_time().
+ * Unlike that function, this one does not terminate the program when an
+ * invalid time stamp is encountered and uses no configuration flag to
+ * elicit such behavior. Instead, the special code RTt_invalid_time_stamp is
+ * returned in that case.
+ * 
+ * @param timestr a string containing the Formalizer time stamp.
+ * @param noerror suppresses ADDERROR() for invalid time stamps.
+ * @return local Unix time in seconds, negative integer code, or
+ *         RTt_invalid_time_stamp.
+ */
 std::time_t time_stamp_time(std::string timestr, bool noerror = false);
+
+/**
+ * UNIX epoch time equivalent of a Year-Month-Day date-stamp such as
+ * 20200914 or 202009140100.
+ * 
+ * This function uses `time_stamp_time()` for time stamp format validation
+ * and conversion, but it allows pure date stamps consisting of just 8
+ * year, month and day digits, as well as 12 digit time stamps. In the
+ * 12 digit case, the last 4 digits can be optionally ignored (set to 0000)
+ * during conversion to UNIX epoch time.
+ * 
+ * @param timestr a string containing the Formalizer time stamp or date stamp.
+ * @param noerror suppresses ADDERROR() for invalid time stamps.
+ * @param ignoreHM optionally set any hour and minute digits to 0 during conversion.
+ * @return local Unix time in seconds, negative integer code, or
+ *         RTt_invalid_time_stamp.
+ */
+std::time_t ymd_stamp_time(std::string timestr, bool noerror = false, bool ignoreHM = false);
 
 std::string TimeStamp(const char *dateformat, std::time_t t);
 

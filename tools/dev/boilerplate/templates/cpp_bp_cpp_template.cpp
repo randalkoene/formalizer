@@ -15,12 +15,13 @@
 #include <iostream>
 
 // core
-#include "version.hpp"
 #include "error.hpp"
 #include "standard.hpp"
 
 // local
+#include "version.hpp"
 #include "{{ this }}.hpp"
+{{ render_hpp }}
 
 
 using namespace fz;
@@ -35,6 +36,8 @@ using namespace fz;
 {{ this }}::{{ this }}() {
     //add_option_args += "x:";
     //add_usage_top += " [-x <something>]";
+    //usage_head.push_back("Description at the head of usage information.\n");
+    //usage_tail.push_back("Extra usage information.\n");
 }
 
 /**
@@ -42,7 +45,7 @@ using namespace fz;
  * help for program specific command line options.
  */
 void {{ this }}::usage_hook() {
-    //FZOUT("    -x something explanation\n");        
+    //FZOUT("    -x something explanation\n");
 }
 
 /**
@@ -88,7 +91,7 @@ int main(int argc, char *argv[]) {
     {{ th }}.init_top(argc, argv);
     {{ th }}.init(argc,argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 
-    FZOUT("\nThis a the stub.\n\n");
+    FZOUT("\nThis is a stub.\n\n");
     key_pause();
 
     switch ({{ th }}.flowcontrol) {

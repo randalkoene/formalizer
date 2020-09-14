@@ -122,6 +122,11 @@ int make_cpp_boilerplate() {
     template_varvalues cppvars;
     std::string rendered_cpp;
     cppvars.emplace("this",thisname);
+    if (includetemplater) {
+        cppvars.emplace("render_hpp","#include \"render.hpp\"");
+    } else {
+        cppvars.emplace("render_hpp","");
+    }
     if (!islibrary) {
         cppvars.emplace("th", abbreviation);
         cppvars.emplace("module_id", moduleid);

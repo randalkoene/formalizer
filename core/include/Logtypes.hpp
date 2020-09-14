@@ -123,9 +123,11 @@ public:
     const Log_entry_ID & get_id() const { return id; }
     uint8_t get_minor_id() const { return id.idkey.idT.minor_id; }
     const Node_ID_key & get_nodeidkey() const { return node_idkey; }
+    bool same_node_as_chunk() const { return (node_idkey.isnullkey()); }
     std::string & get_entrytext() { return entrytext; }
-    Node * get_Node() { return node; }
-    Node * get_Node(Graph & graph); // inlined below
+    Node *get_Node() { return node; }    ///< locally cached Node (can be nullptr)
+    Node *get_Node(Graph &graph);        ///< find node based on locally specified Node_ID (inlined below)
+    Node *get_local_or_inherited_Node(); ///< get locally specified or inherited pointer to Node
     Log_chunk * get_Chunk() { return chunk; }
     time_t get_epoch_time() const { return id.get_epoch_time(); }
 

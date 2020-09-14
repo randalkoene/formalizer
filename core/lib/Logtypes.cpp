@@ -478,6 +478,21 @@ const Log_chain_target * Log::oldest_Node_chain_element(const Node_ID node_id) {
 }
 
 /**
+ * Find a pointer to the Node that the Log entry belongs to, either
+ * directly if the Node is specified for that Log entry, or by
+ * inheriting the Node from the Log chunk that the Log entry is in.
+ * 
+ * @return A pointer to the Node this Log entry belongs to.
+ */
+Node * Log_entry::get_local_or_inherited_Node() {
+    if (same_node_as_chunk()) {
+        return get_Chunk()->get_Node();
+    } else {
+        return get_Node();
+    }
+}
+
+/**
  * This structure is used by `Log::setup_Chunk_nodeprevnext()` to build a proper
  * chain.
  * 

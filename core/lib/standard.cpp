@@ -95,6 +95,12 @@ void formalizer_standard_program::print_usage() {
     FZOUT("Usage: "+runnablename+" [-E <errfile>] [-W <warnfile>] [-q]"+add_usage_top+'\n');
     FZOUT("       "+runnablename+" <-v|-h>\n\n");
 
+    if (usage_head.size()>0) {
+        for (const auto& ustr : usage_head)
+            FZOUT(ustr);
+        FZOUT("\n");
+    }
+
     FZOUT("  Options:\n");
 
     usage_hook();
@@ -104,6 +110,12 @@ void formalizer_standard_program::print_usage() {
     FZOUT("    -q set quieter running\n");
     FZOUT("    -v print version info\n");
     FZOUT("    -h print this help\n\n")
+
+    if (usage_tail.size()>0) {
+        for (const auto& ustr : usage_tail)
+            FZOUT(ustr);
+        FZOUT("\n");
+    }
 
     FZOUT(server_long_id+"\n\n");
 }

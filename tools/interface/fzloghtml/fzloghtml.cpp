@@ -2,25 +2,30 @@
 // License TBD
 
 /**
- * {{ brief_description }}
+ * Generate HTML representation of requested Log records.
  * 
- * {{ long_description }}
+ * A specified (or default) interval of Log content is rendered as HTML.
  * 
- * For more about this, see {{ doc_reference }}.
+ * For more about this, see https://trello.com/c/usj9dcWi.
  */
 
 #define FORMALIZER_MODULE_ID "Formalizer:Interface:Log:HTML"
 
 // std
 #include <iostream>
+#include <memory>
 
 // core
-#include "version.hpp"
 #include "error.hpp"
 #include "standard.hpp"
+#include "general.hpp"
+#include "TimeStamp.hpp"
 
 // local
+#include "version.hpp"
 #include "fzloghtml.hpp"
+#include "render.hpp"
+
 
 
 using namespace fz;
@@ -32,9 +37,17 @@ fzloghtml fzlh;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzloghtml::fzloghtml() {
-    //add_option_args += "x:";
-    //add_usage_top += " [-x <something>]";
+fzloghtml::fzloghtml(): ga(add_option_args,add_usage_top), t_from(RTt_unspecified), t_before(RTt_unspecified), iscale(interval_none), interval(0) {
+    add_option_args += "1:2:o:d:H:w:";
+    add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-d <days>|-H <hours>|-w <weeks>] [-o <outputfile>]";
+    usage_head.push_back("Generate HTML representation of requested Log records.\n");
+    usage_tail.push_back(
+        "The <time-stamp1> and <time-stamp_2> arguments expect standardized\n"
+        "Formalizer time stamps, e.g. 202009140614, but will also accept date stamps\n"
+        "of analogous form, e.g. 20200914.\n"
+        "The default is:\n"
+        "  start from 24 hours before end of interval\n"
+        "  end at current time\n");
 }
 
 /**
@@ -42,7 +55,13 @@ fzloghtml::fzloghtml() {
  * help for program specific command line options.
  */
 void fzloghtml::usage_hook() {
-    //FZOUT("    -x something explanation\n");        
+    ga.usage_hook();
+    FZOUT("    -1 start from <time-stamp-1>\n");
+    FZOUT("    -2 end before <time-stamp-2>\n");
+    FZOUT("    -d interval size of <days>\n");
+    FZOUT("    -H interval size of <hours>\n");
+    FZOUT("    -w interval size of <weeks>\n");
+    FZOUT("    -o write HTML Log interval to <outputfile> (otherwise to STDOUT)\n");
 }
 
 /**
@@ -56,15 +75,53 @@ void fzloghtml::usage_hook() {
  * @param cargs is the optional parameter value provided for the option.
  */
 bool fzloghtml::options_hook(char c, std::string cargs) {
+    if (ga.options_hook(c,cargs))
+            return true;
 
     switch (c) {
 
-    /*
-    case 'x': {
-
+    case '1': {
+        time_t t = ymd_stamp_time(cargs);
+        if (t==RTt_invalid_time_stamp) {
+            VERBOSEERR("Invalid 'from' time or date stamp "+cargs+'\n');
+        } else {
+            t_from = t;
+        }
         break;
     }
-    */
+
+    case '2': {
+        time_t t = ymd_stamp_time(cargs);
+        if (t==RTt_invalid_time_stamp) {
+            VERBOSEERR("Invalid 'before' time or date stamp "+cargs+'\n');
+        } else {
+            t_before = t;
+        }
+        break;
+    }
+
+    case 'd': {
+        iscale = interval_days;
+        interval = atoi(cargs.c_str());
+        break;
+    }
+
+    case 'H': {
+        iscale = interval_hours;
+        interval = atoi(cargs.c_str());
+        break;
+    }
+
+    case 'w': {
+        iscale = interval_weeks;
+        interval = atoi(cargs.c_str());
+        break;
+    }
+
+    case 'o': {
+        dest = cargs;
+        return true;
+    }
 
     }
 
@@ -75,6 +132,9 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
  * Initialize configuration parameters.
  * Call this at the top of main().
  * 
+ * Note: If we wanted to take daylight savings time into account then we could use Howard
+ *       Hinnant's `date.h` library instead. See the card at https://trello.com/c/ANI2Bxei.
+ * 
  * @param argc command line parameters count forwarded from main().
  * @param argv command line parameters array forwarded from main().
  */
@@ -82,28 +142,71 @@ void fzloghtml::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen before standard initialization
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
     // *** add any initialization here that has to happen once in main(), for the derived class
+
+    // If only t_before or t_from is specified, see if we use a specified interval
+    if ((t_before==RTt_unspecified) && (t_from!=RTt_unspecified) && (iscale!=interval_none)) {
+        switch (iscale) {
+
+            case interval_weeks: {
+                t_before = t_from + interval*(7*24*60*60);
+            }
+
+            case interval_hours: {
+                t_before = t_from + interval*(60*60);
+            }
+
+            default: { // days
+                t_before = t_from + interval*(24*60*60);
+            }
+
+        }
+    }
+    if ((t_from==RTt_unspecified) && (t_before!=RTt_unspecified) && (iscale!=interval_none)) {
+        switch (iscale) {
+
+            case interval_weeks: {
+                t_from = t_before - interval*(7*24*60*60);
+            }
+
+            case interval_hours: {
+                t_from = t_before - interval*(60*60);
+            }
+
+            default: { // days
+                t_from = t_before - interval*(24*60*60);
+            }
+
+        }
+    }
+
+    // If necessary, set the default interval
+    if (t_before==RTt_unspecified) {
+        t_before = ActualTime();
+    }
+    if (t_from==RTt_unspecified) {
+        t_from = t_before - (24*60*60); // Daylight savings time is not taken into account at all.
+    }
+
+    //graph = ga.request_Graph_copy();
+    log = ga.request_Log_copy();
+
 }
 
 int main(int argc, char *argv[]) {
     fzlh.init_top(argc, argv);
     fzlh.init(argc,argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 
-    FZOUT("\nThis a the stub.\n\n");
-    key_pause();
-
-    switch (fzlh.flowcontrol) {
+    render();
 
     /*
-    case flow_something: {
-        return something();
-    }
-    */
+    switch (fzlh.flowcontrol) {
 
     default: {
         fzlh.print_usage();
     }
 
     }
+    */
 
     return fzlh.completed_ok();
 }

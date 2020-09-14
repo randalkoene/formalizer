@@ -13,6 +13,7 @@
 
 // local
 #include "render.hpp"
+#include "{{ this }}.hpp"
 
 
 /// The Makefile attempts to provide this at compile time based on the source
