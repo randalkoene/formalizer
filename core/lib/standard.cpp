@@ -215,15 +215,22 @@ void formalizer_standard_program::init(int argc, char *argv[], std::string versi
     standard.set_name(argv[0]);
 
     if (uses_config) {
-        VERBOSEOUT("** CONFIG NOTE: This standardized Formalizer component still needs a\n");
-        VERBOSEOUT("**              standardized method of configuration. See Trello card\n");
-        VERBOSEOUT("**              at https://trello.com/c/4B7x2kif.\n\n");
+        // *** This is where the actual configuration call or hook should probably be!
+        // (But we can't print the warning here, or else we can't suppress it with -q
+        // due to needing to parse the command line first.)
     }
 
+    // Note: Don't PRINT ANYTHING before parsing the command line in order to catch -q as needed!
     ERRHERE(".commandline");
     standard.set_id(module + " " + version + " (core v" + coreversion() + ")");
     commandline(argc,argv);
     VERBOSEOUT(id()+"\n\n");
+
+    if (uses_config) { // *** Remove this warning once a configuration method is implemented!
+        VERBOSEOUT("** CONFIG NOTE: This standardized Formalizer component still needs a\n");
+        VERBOSEOUT("**              standardized method of configuration. See Trello card\n");
+        VERBOSEOUT("**              at https://trello.com/c/4B7x2kif.\n\n");
+    }
 
     ERRHERE(".initreport");
     initialized = true;
