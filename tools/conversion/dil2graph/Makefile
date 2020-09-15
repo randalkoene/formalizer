@@ -8,6 +8,7 @@ SHELL=/usr/bin/bash
 # +----- begin: Output preconfigurations -----+
 STANDARD_STREAMS = -DFORMALIZER_BASE_OUT_OSTREAM_PTR=\&std::cout
 STANDARD_STREAMS += -DFORMALIZER_BASE_ERR_OSTREAM_PTR=\&std::cerr
+STANDARD_STREAMS += -DTESTSTREAMS
 # +----- end  : Output preconfigurations -----+
 
 ##########################################################
@@ -168,16 +169,16 @@ init: FORCE
 
 # add $(CPPTEMPWORKAROUND) as needed
 
-$(OBJ)/dil2al_minimal.o: dil2al_minimal.cpp dil2al_minimal.hpp version.hpp
+$(OBJ)/dil2al_minimal.o: dil2al_minimal.cpp dil2al_minimal.hpp version.hpp $(INC)/standard.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c dil2al_minimal.cpp -o $(OBJ)/dil2al_minimal.o
 
-$(OBJ)/logtest.o: logtest.cpp logtest_templates.cpp logtest.hpp version.hpp
+$(OBJ)/logtest.o: logtest.cpp logtest_templates.cpp logtest.hpp version.hpp $(INC)/standard.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(LOGTESTTEMPLATES) $(LOGTESTOUTPUTFILE) -c logtest.cpp -o $(OBJ)/logtest.o
 
-$(OBJ)/tl2log.o: tl2log.cpp tl2log.hpp version.hpp
+$(OBJ)/tl2log.o: tl2log.cpp tl2log.hpp version.hpp $(INC)/standard.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(COMPILEDIRECTGRAPH2DIL) -c tl2log.cpp -o $(OBJ)/tl2log.o
 
-$(OBJ)/dil2graph.o: dil2graph.cpp dil2graph.hpp version.hpp $(OBJ)/dil2al_minimal.o
+$(OBJ)/dil2graph.o: dil2graph.cpp dil2graph.hpp version.hpp $(OBJ)/dil2al_minimal.o $(INC)/standard.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(COMPILEDIRECTGRAPH2DIL) -c dil2graph.cpp -o $(OBJ)/dil2graph.o
 
 $(OBJECTDIRECTGRAPH2DIL): $(OBJECTDIRECTGRAPHDETECT)

@@ -10,6 +10,7 @@ var searchData=
   ['add_5foption_5fargs',['add_option_args',['../structfz_1_1formalizer__standard__program.html#ac70799cb4aa56195b9873aa96b4aa296',1,'fz::formalizer_standard_program']]],
   ['add_5fto_5fexit_5fstack',['add_to_exit_stack',['../structfz_1_1formalizer__standard__program.html#a21a28e7fdc642d1def14a4fb93c2dba0',1,'fz::formalizer_standard_program']]],
   ['add_5ftopic',['add_topic',['../classfz_1_1Node.html#a25180de16214e9463f4a098546ec2749',1,'fz::Node::add_topic(Topic_Tags &amp;topictags, Topic_ID topicid, float topicrelevance)'],['../classfz_1_1Node.html#acf00714840873c4882c55312c5038329',1,'fz::Node::add_topic(std::string tag, std::string title, float topicrelevance)']]],
+  ['add_5fusage_5ftop',['add_usage_top',['../structfz_1_1formalizer__standard__program.html#a3c3461b16f9c3a07e969e78004f4b1ec',1,'fz::formalizer_standard_program']]],
   ['all_5fbreakpoint_5fdata_5fpqstr',['All_Breakpoint_Data_pqstr',['../classfz_1_1Breakpoint__pq.html#a7e0377299953e10b324750098679ee24',1,'fz::Breakpoint_pq']]],
   ['all_5fedge_5fdata_5fpqstr',['All_Edge_Data_pqstr',['../classfz_1_1Edge__pq.html#a9df3350f9d6108f12a1abdf747dcc99c',1,'fz::Edge_pq']]],
   ['all_5flogchunk_5fdata_5fpqstr',['All_Logchunk_Data_pqstr',['../classfz_1_1Logchunk__pq.html#a3dc3155bef152702112e17b949959880',1,'fz::Logchunk_pq']]],

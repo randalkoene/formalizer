@@ -10,7 +10,7 @@
 <area shape="rect" id="node18" href="$classfz_1_1Log__entry.html" title="fz::Log_entry" alt="" coords="1245,429,1343,456"/>
 <area shape="rect" id="node8" href="$classfz_1_1Log__data.html" title="Log data base class providing shared parameters and functions. " alt="" coords="740,607,835,633"/>
 <area shape="rect" id="node9" href="$classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use. " alt="" coords="459,556,553,583"/>
-<area shape="rect" id="node14" href="$classfz_1_1Node.html" title="(A woefully incomplete class documentation.) " alt="" coords="751,556,823,583"/>
+<area shape="rect" id="node14" href="$classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. " alt="" coords="751,556,823,583"/>
 <area shape="rect" id="node10" href="$structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. " alt="" coords="213,620,334,647"/>
 <area shape="rect" id="node11" href="$structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. " alt="" coords="5,620,135,647"/>
 <area shape="rect" id="node17" href="$structfz_1_1Log__target.html" title="fz::Log_target\&lt; Log\l_entry_ID_key, Log_entry \&gt;" alt="" coords="1460,286,1644,327"/>

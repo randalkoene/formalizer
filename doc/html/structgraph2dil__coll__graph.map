@@ -1,5 +1,6 @@
 <map id="graph2dil" name="graph2dil">
 <area shape="rect" id="node2" href="$structfz_1_1formalizer__standard__program.html" title="This structure registers a standard object with a set of expected parameters and functions for any st..." alt="" coords="5,81,160,123"/>
-<area shape="rect" id="node3" href="$structfz_1_1Graph__access.html" title="A standardized way to access the Graph database. " alt="" coords="184,89,309,115"/>
-<area shape="rect" id="node4" href="$structfz_1_1Postgres__access.html" title="A standardized way to access the Formalizer database. " alt="" coords="175,5,318,32"/>
+<area shape="rect" id="node3" href="$structfz_1_1render__environment.html" title="Configuration for a template rendering environment. " alt="" coords="184,89,339,115"/>
+<area shape="rect" id="node4" href="$structfz_1_1Graph__access.html" title="A standardized way to access the Graph database. " alt="" coords="363,89,488,115"/>
+<area shape="rect" id="node5" href="$structfz_1_1Postgres__access.html" title="A standardized way to access the Formalizer database. " alt="" coords="354,5,497,32"/>
 </map>

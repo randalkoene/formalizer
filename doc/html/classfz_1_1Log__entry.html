@@ -99,7 +99,7 @@ Collaboration diagram for fz::Log_entry:</div>
 <area shape="rect" id="node13" href="structfz_1_1Log__entry__ID__key.html" title="Standardized Formalizer Log entry ID key. " alt="" coords="429,116,576,143"/>
 <area shape="rect" id="node8" href="classfz_1_1Log__data.html" title="Log data base class providing shared parameters and functions. " alt="" coords="707,437,801,464"/>
 <area shape="rect" id="node9" href="classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use. " alt="" coords="456,259,549,285"/>
-<area shape="rect" id="node14" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) " alt="" coords="718,360,790,387"/>
+<area shape="rect" id="node14" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. " alt="" coords="718,360,790,387"/>
 <area shape="rect" id="node10" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. " alt="" coords="213,287,334,313"/>
 <area shape="rect" id="node11" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. " alt="" coords="5,287,135,313"/>
 <area shape="rect" id="node18" href="classfz_1_1Log__entry__ID.html" title="fz::Log_entry_ID" alt="" coords="695,179,813,205"/>
@@ -123,7 +123,7 @@ Public Member Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Log_entry</b> (const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_id, std::string _entrytext, bool previschunk, const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_prev, bool nextischunk, const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_next, <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *_chunk=NULL)</td></tr>
 <tr class="separator:afbe90d0e84c062a74f9f6a27ca9d178a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8e0367664f5e6e6292b33783724ae6a2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#a8e0367664f5e6e6292b33783724ae6a2">set_Node_rapid_access</a> (<a class="el" href="classfz_1_1Node.html">Node</a> &amp;_node)</td></tr>
-<tr class="memdesc:a8e0367664f5e6e6292b33783724ae6a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> pointer to the same <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> as node_idkey if it was not set during construction.  <a href="#a8e0367664f5e6e6292b33783724ae6a2">More...</a><br /></td></tr>
+<tr class="memdesc:a8e0367664f5e6e6292b33783724ae6a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> pointer to the same <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> as node_idkey if it was not set during construction.  <a href="#a8e0367664f5e6e6292b33783724ae6a2">More...</a><br /></td></tr>
 <tr class="separator:a8e0367664f5e6e6292b33783724ae6a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a02c32d228d8039c11fe954aa25988bc6"><td class="memItemLeft" align="right" valign="top"><a id="a02c32d228d8039c11fe954aa25988bc6"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Chunk</b> (<a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *_chunk)</td></tr>
@@ -137,15 +137,23 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_minor_id</b> (
 <tr class="memitem:a0d8f19b1ce43063af3a9aebdba0882cb"><td class="memItemLeft" align="right" valign="top"><a id="a0d8f19b1ce43063af3a9aebdba0882cb"></a>
 const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_nodeidkey</b> () const</td></tr>
 <tr class="separator:a0d8f19b1ce43063af3a9aebdba0882cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e473aa2850a3b97e8da6eb5703e6968"><td class="memItemLeft" align="right" valign="top"><a id="a9e473aa2850a3b97e8da6eb5703e6968"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>same_node_as_chunk</b> () const</td></tr>
+<tr class="separator:a9e473aa2850a3b97e8da6eb5703e6968"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adbd33b9b067073c92ac77966af517b3d"><td class="memItemLeft" align="right" valign="top"><a id="adbd33b9b067073c92ac77966af517b3d"></a>
 std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_entrytext</b> ()</td></tr>
 <tr class="separator:adbd33b9b067073c92ac77966af517b3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b4666a7d84e280a3ae7e72ec3d82465"><td class="memItemLeft" align="right" valign="top"><a id="a3b4666a7d84e280a3ae7e72ec3d82465"></a>
-<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_Node</b> ()</td></tr>
+<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#a3b4666a7d84e280a3ae7e72ec3d82465">get_Node</a> ()</td></tr>
+<tr class="memdesc:a3b4666a7d84e280a3ae7e72ec3d82465"><td class="mdescLeft">&#160;</td><td class="mdescRight">locally cached <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> (can be nullptr) <br /></td></tr>
 <tr class="separator:a3b4666a7d84e280a3ae7e72ec3d82465"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a02387022844abf13e139c9e04de1ce6f"><td class="memItemLeft" align="right" valign="top"><a id="a02387022844abf13e139c9e04de1ce6f"></a>
-<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_Node</b> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph)</td></tr>
+<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#a02387022844abf13e139c9e04de1ce6f">get_Node</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph)</td></tr>
+<tr class="memdesc:a02387022844abf13e139c9e04de1ce6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">find node based on locally specified <a class="el" href="classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use. ">Node_ID</a> (inlined below) <br /></td></tr>
 <tr class="separator:a02387022844abf13e139c9e04de1ce6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a113bd5040cef8ef59bfc2de12ccbf2ae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#a113bd5040cef8ef59bfc2de12ccbf2ae">get_local_or_inherited_Node</a> ()</td></tr>
+<tr class="memdesc:a113bd5040cef8ef59bfc2de12ccbf2ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">get locally specified or inherited pointer to <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a>  <a href="#a113bd5040cef8ef59bfc2de12ccbf2ae">More...</a><br /></td></tr>
+<tr class="separator:a113bd5040cef8ef59bfc2de12ccbf2ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0aa93a5330db06e83a8d9ef8e712641d"><td class="memItemLeft" align="right" valign="top"><a id="a0aa93a5330db06e83a8d9ef8e712641d"></a>
 <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_Chunk</b> ()</td></tr>
 <tr class="separator:a0aa93a5330db06e83a8d9ef8e712641d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -226,7 +234,7 @@ const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a>&#160;<
 <tr class="separator:a04eac74f422b1970bafab2fda80315c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac5d3c4229775444699e1edb4e77efbef"><td class="memItemLeft" align="right" valign="top"><a id="ac5d3c4229775444699e1edb4e77efbef"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#ac5d3c4229775444699e1edb4e77efbef">entrytext</a></td></tr>
-<tr class="memdesc:ac5d3c4229775444699e1edb4e77efbef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reference to the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> this belongs to or zero-stamp. <br /></td></tr>
+<tr class="memdesc:ac5d3c4229775444699e1edb4e77efbef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reference to the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> this belongs to or zero-stamp. <br /></td></tr>
 <tr class="separator:ac5d3c4229775444699e1edb4e77efbef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a814753ce9b111e325e3d61b9e35a113d"><td class="memItemLeft" align="right" valign="top"><a id="a814753ce9b111e325e3d61b9e35a113d"></a>
 <a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#a814753ce9b111e325e3d61b9e35a113d">node</a> = nullptr</td></tr>
@@ -254,6 +262,27 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Log_chunk</b></td></
 <tr class="separator:add9bc2bc3db65f6597e5199cb52481e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a113bd5040cef8ef59bfc2de12ccbf2ae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a113bd5040cef8ef59bfc2de12ccbf2ae">&#9670;&nbsp;</a></span>get_local_or_inherited_Node()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfz_1_1Node.html">Node</a> * fz::Log_entry::get_local_or_inherited_Node </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>get locally specified or inherited pointer to <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> </p>
+<p>Find a pointer to the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> that the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entry belongs to, either directly if the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> is specified for that <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entry, or by inheriting the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> from the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk that the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entry is in.</p>
+<dl class="section return"><dt>Returns</dt><dd>A pointer to the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> this <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entry belongs to. </dd></dl>
+
+</div>
+</div>
 <a id="a8e0367664f5e6e6292b33783724ae6a2"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8e0367664f5e6e6292b33783724ae6a2">&#9670;&nbsp;</a></span>set_Node_rapid_access()</h2>
 
@@ -278,13 +307,14 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Log_chunk</b></td></
 </table>
 </div><div class="memdoc">
 
-<p>Set <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> pointer to the same <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> as node_idkey if it was not set during construction. </p>
+<p>Set <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> pointer to the same <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> as node_idkey if it was not set during construction. </p>
 <p>Set rapid-access node pointer. (See detailed description for <a class="el" href="classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk. ">Log_chunk</a> below.) </p>
 
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following file:<ul>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li>core/include/<a class="el" href="Logtypes_8hpp_source.html">Logtypes.hpp</a></li>
+<li>core/lib/Logtypes.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

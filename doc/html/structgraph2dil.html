@@ -83,8 +83,9 @@ Collaboration diagram for graph2dil:</div>
 <div class="center"><img src="structgraph2dil__coll__graph.png" border="0" usemap="#graph2dil_coll__map" alt="Collaboration graph"/></div>
 <map name="graph2dil_coll__map" id="graph2dil_coll__map">
 <area shape="rect" id="node2" href="structfz_1_1formalizer__standard__program.html" title="This structure registers a standard object with a set of expected parameters and functions for any st..." alt="" coords="5,81,160,123"/>
-<area shape="rect" id="node3" href="structfz_1_1Graph__access.html" title="A standardized way to access the Graph database. " alt="" coords="184,89,309,115"/>
-<area shape="rect" id="node4" href="structfz_1_1Postgres__access.html" title="A standardized way to access the Formalizer database. " alt="" coords="175,5,318,32"/>
+<area shape="rect" id="node3" href="structfz_1_1render__environment.html" title="Configuration for a template rendering environment. " alt="" coords="184,89,339,115"/>
+<area shape="rect" id="node4" href="structfz_1_1Graph__access.html" title="A standardized way to access the Graph database. " alt="" coords="363,89,488,115"/>
+<area shape="rect" id="node5" href="structfz_1_1Postgres__access.html" title="A standardized way to access the Formalizer database. " alt="" coords="354,5,497,32"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -151,19 +152,42 @@ std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bott
 <tr class="memitem:a17dc87ecffe46aaafb5e896c9df2cef8"><td class="memItemLeft" align="right" valign="top"><a id="a17dc87ecffe46aaafb5e896c9df2cef8"></a>
 flow_options&#160;</td><td class="memItemRight" valign="bottom"><b>flowcontrol</b></td></tr>
 <tr class="separator:a17dc87ecffe46aaafb5e896c9df2cef8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80ebe6ea2f1601316a96bca07dc663a5"><td class="memItemLeft" align="right" valign="top"><a id="a80ebe6ea2f1601316a96bca07dc663a5"></a>
+<a class="el" href="structfz_1_1render__environment.html">render_environment</a>&#160;</td><td class="memItemRight" valign="bottom"><b>env</b></td></tr>
+<tr class="separator:a80ebe6ea2f1601316a96bca07dc663a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a819f77284fc59e26c0eb80c7b9016485"><td class="memItemLeft" align="right" valign="top"><a id="a819f77284fc59e26c0eb80c7b9016485"></a>
+graph2dil_templates&#160;</td><td class="memItemRight" valign="bottom"><b>templates</b></td></tr>
+<tr class="separator:a819f77284fc59e26c0eb80c7b9016485"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a1dd15461b27958ca4a257f3bb2d9af"><td class="memItemLeft" align="right" valign="top"><a id="a5a1dd15461b27958ca4a257f3bb2d9af"></a>
+std::unique_ptr&lt; <a class="el" href="classfz_1_1Graph.html">Graph</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>graph</b></td></tr>
+<tr class="separator:a5a1dd15461b27958ca4a257f3bb2d9af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae76d779d92698b7289d4e88afcbb4f31"><td class="memItemLeft" align="right" valign="top"><a id="ae76d779d92698b7289d4e88afcbb4f31"></a>
+std::unique_ptr&lt; <a class="el" href="classfz_1_1Log.html">Log</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>log</b></td></tr>
+<tr class="separator:ae76d779d92698b7289d4e88afcbb4f31"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_structfz_1_1formalizer__standard__program"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_structfz_1_1formalizer__standard__program')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="structfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></td></tr>
 <tr class="memitem:a5697f8fb54a8d757e5d01cd08727bb56 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a5697f8fb54a8d757e5d01cd08727bb56"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>server_long_id</b></td></tr>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#a5697f8fb54a8d757e5d01cd08727bb56">server_long_id</a></td></tr>
+<tr class="memdesc:a5697f8fb54a8d757e5d01cd08727bb56 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">standardized module string (see documentation) <br /></td></tr>
 <tr class="separator:a5697f8fb54a8d757e5d01cd08727bb56 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac70799cb4aa56195b9873aa96b4aa296 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="ac70799cb4aa56195b9873aa96b4aa296"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#ac70799cb4aa56195b9873aa96b4aa296">add_option_args</a></td></tr>
-<tr class="memdesc:ac70799cb4aa56195b9873aa96b4aa296 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">standardized module string <br /></td></tr>
+<tr class="memdesc:ac70799cb4aa56195b9873aa96b4aa296 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">more option argument characters, e.g. "n:F:" <br /></td></tr>
 <tr class="separator:ac70799cb4aa56195b9873aa96b4aa296 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c3461b16f9c3a07e969e78004f4b1ec inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a3c3461b16f9c3a07e969e78004f4b1ec"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>add_usage_top</b></td></tr>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#a3c3461b16f9c3a07e969e78004f4b1ec">add_usage_top</a></td></tr>
+<tr class="memdesc:a3c3461b16f9c3a07e969e78004f4b1ec inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">more options, e.g. " [-d &lt;dbname&gt;] [-m]" <br /></td></tr>
 <tr class="separator:a3c3461b16f9c3a07e969e78004f4b1ec inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:affcb8912491e25f2ec7b74d4bdec966e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="affcb8912491e25f2ec7b74d4bdec966e"></a>
+std::deque&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#affcb8912491e25f2ec7b74d4bdec966e">usage_head</a></td></tr>
+<tr class="memdesc:affcb8912491e25f2ec7b74d4bdec966e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">strings to print at the head of usage information <br /></td></tr>
+<tr class="separator:affcb8912491e25f2ec7b74d4bdec966e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0602528020892b8c5ecd5f48e5d5759e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a0602528020892b8c5ecd5f48e5d5759e"></a>
+std::deque&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#a0602528020892b8c5ecd5f48e5d5759e">usage_tail</a></td></tr>
+<tr class="memdesc:a0602528020892b8c5ecd5f48e5d5759e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">strings to print at the tail of usage information <br /></td></tr>
+<tr class="separator:a0602528020892b8c5ecd5f48e5d5759e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5de5f9306c0800ff8eb2dd5b6a115938 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a5de5f9306c0800ff8eb2dd5b6a115938"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>quiet</b></td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#a5de5f9306c0800ff8eb2dd5b6a115938">quiet</a></td></tr>
+<tr class="memdesc:a5de5f9306c0800ff8eb2dd5b6a115938 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">report less <br /></td></tr>
 <tr class="separator:a5de5f9306c0800ff8eb2dd5b6a115938 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>

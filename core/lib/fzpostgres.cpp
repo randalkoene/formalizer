@@ -159,7 +159,7 @@ int sample_query_data(PGconn *conn, unsigned int rstart, unsigned int rend, unsi
  */
 bool create_Formalizer_schema_pq(PGconn* conn, std::string schemaname) {
     ERRHERE(".1");
-    std::string pq_makeschema("CREATE SCHEMA "+schemaname);
+    std::string pq_makeschema("CREATE SCHEMA IF NOT EXISTS "+schemaname);
     return simple_call_pq(conn,pq_makeschema);
 }
 

@@ -83,8 +83,8 @@ enum flow_options {
     flow_tl_only = 4     /// load and convert Task Log to Log
 };
 
-struct dil2graph: public formalizer_standard_program {
-
+class dil2graph: public formalizer_standard_program {
+public:
     //std::vector<std::string> cmdargs; /// copy of command line arguments
     //output_format_specifier output_format; /// the format used to deliver query results
 
@@ -97,62 +97,13 @@ struct dil2graph: public formalizer_standard_program {
 
     flow_options flowcontrol;
 
-    dil2graph() : from_section(0), to_section(9999999), ga(add_option_args, add_usage_top), flowcontrol(flow_everything) {
-        COMPILEDPING(std::cout, "PING-dil2graph().1\n");
-        add_option_args += "LDTmo:1:2:";
-        add_usage_top += " [-m] [-L|-D|-T] [-o <testfile>] [-1 <num1>] [-2 <num2>]";
-    }
+    bool TL_reconstruction_test;
 
-    virtual void usage_hook() {
-        ga.usage_hook();
-        FZOUT("    -m manual decisions (no automatic fixes)\n");
-        FZOUT("    -L load only (no conversion and storage)\n");
-        FZOUT("    -D DIL hierarchy conversion only\n");
-        FZOUT("    -T Task Log conversion only\n");
-        FZOUT("    -o specify path of test output file\n");
-        FZOUT("       (default: "+testfilepath+")\n");
-        FZOUT("    -1 1st section to reconstruct is <num1>\n");
-        FZOUT("    -2 last section to reconstruct is <num2>\n");
-    }
+    dil2graph();
 
-    virtual bool options_hook(char c, std::string cargs) {
-        if (ga.options_hook(c,cargs))
-            return true;
+    virtual void usage_hook();
 
-        switch (c) {
-
-        case 'm':
-            manual_decisions = true; // *** this variable is still outside of a struct (see tl2log.hpp/cpp)
-            return true;
-        
-        case 'L':
-            flowcontrol = flow_load_only;
-            return true;
-
-        case 'D':
-            flowcontrol = flow_dil_only;
-            return true;
-
-        case 'T':
-            flowcontrol = flow_tl_only;
-            return true;
-
-        case 'o':
-            testfilepath = cargs;
-            return true;
-
-        case '1':
-            from_section = std::atoi(cargs.c_str());
-            return true;
-
-        case '2':
-            to_section = std::atoi(cargs.c_str());
-            return true;
-
-        }
-
-       return false;
-    }
+    virtual bool options_hook(char c, std::string cargs);
 
     /**
      * Initialize configuration parameters.
@@ -161,13 +112,7 @@ struct dil2graph: public formalizer_standard_program {
      * @param argc command line parameters count forwarded from main().
      * @param argv command line parameters array forwarded from main().
      */
-    void init_top(int argc, char *argv[]) {
-        //*************** for (int i = 0; i < argc; ++i) cmdargs[i] = argv[i]; // do this before getopt mucks it up
-        init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
-
-        add_to_exit_stack(&exit_postop); // include exit steps needed for dil2al code
-        add_to_exit_stack(&exit_report);
-    }
+    void init_top(int argc, char *argv[]);
 
 };
 

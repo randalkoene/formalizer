@@ -61,13 +61,98 @@ dil2graph d2g;
 
 //std::string dbname; /// This is initialized to $USER.
 
+
+//----------------------------------------------------
+// Definitions of methods declared in dil2graph.hpp:
+//----------------------------------------------------
+
+dil2graph::dil2graph() : formalizer_standard_program(true), from_section(0), to_section(9999999),
+                         ga(add_option_args, add_usage_top), flowcontrol(flow_everything), TL_reconstruction_test(false) {
+    COMPILEDPING(std::cout, "PING-dil2graph().1\n");
+    add_option_args += "LDTmo:1:2:r";
+    add_usage_top += " [-m] [-L|-D|-T] [-o <testfile>] [-1 <num1>] [-2 <num2>] [-r]";
+}
+
+void dil2graph::usage_hook() {
+    ga.usage_hook();
+    FZOUT("    -m manual decisions (no automatic fixes)\n");
+    FZOUT("    -L load only (no conversion and storage)\n");
+    FZOUT("    -D DIL hierarchy conversion only\n");
+    FZOUT("    -T Task Log conversion only\n");
+    FZOUT("    -o specify path of test output file\n");
+    FZOUT("       (default: "+testfilepath+")\n");
+    FZOUT("    -1 1st section to reconstruct is <num1>\n");
+    FZOUT("    -2 last section to reconstruct is <num2>\n");
+    FZOUT("    -r include immediate Task Log reconstruction test\n");
+}
+
+bool dil2graph::options_hook(char c, std::string cargs) {
+    if (ga.options_hook(c,cargs))
+        return true;
+
+    switch (c) {
+
+    case 'm':
+        manual_decisions = true; // *** this variable is still outside of a struct (see tl2log.hpp/cpp)
+        return true;
+    
+    case 'L':
+        flowcontrol = flow_load_only;
+        return true;
+
+    case 'D':
+        flowcontrol = flow_dil_only;
+        return true;
+
+    case 'T':
+        flowcontrol = flow_tl_only;
+        return true;
+
+    case 'o':
+        testfilepath = cargs;
+        return true;
+
+    case '1':
+        from_section = std::atoi(cargs.c_str());
+        return true;
+
+    case '2':
+        to_section = std::atoi(cargs.c_str());
+        return true;
+    
+    case 'r':
+        TL_reconstruction_test = true;
+        return true;
+
+    }
+
+    return false;
+}
+
+/**
+ * Initialize configuration parameters.
+ * Call this at the top of main().
+ * 
+ * @param argc command line parameters count forwarded from main().
+ * @param argv command line parameters array forwarded from main().
+ */
+void dil2graph::init_top(int argc, char *argv[]) {
+    //*************** for (int i = 0; i < argc; ++i) cmdargs[i] = argv[i]; // do this before getopt mucks it up
+
+    init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
+
+    standard.add_to_exit_stack(&exit_postop,"exit_postop"); // include exit steps needed for dil2al code
+    standard.add_to_exit_stack(&exit_report,"exit_report");
+}
+
+
 //----------------------------------------------------
 // Definitions of functions declared in dil2graph.hpp:
 //----------------------------------------------------
 
 /// This wrapper is for backward compatibility needed for dil2al_minimal.hpp and dil2al linked object files.
 void Exit_Now(int status) {
-    d2g.exit(static_cast<exit_status_code>(status));
+    standard.exit(static_cast<exit_status_code>(status));
 }
 
 /**
@@ -514,7 +599,7 @@ int alt_main() {
     std::unique_ptr<Graph> graph = d2g.ga.request_Graph_copy();
     if (!graph) {
         ADDERROR(__func__,"unable to load Graph");
-        d2g.exit(exit_database_error);
+        standard.exit(exit_database_error);
     }
 
     VOUT << "Graph re-loading data test:\n";
@@ -524,7 +609,7 @@ int alt_main() {
 
     key_pause();
 
-    return d2g.completed_ok();
+    return standard.completed_ok();
 }
 
 std::pair<Detailed_Items_List *, Graph *> interactive_conversion() {
@@ -536,7 +621,7 @@ std::pair<Detailed_Items_List *, Graph *> interactive_conversion() {
     Detailed_Items_List *dil;
     if (!(dil = get_DIL_Graph())) {
         EOUT << "\nSomethihg went wrong! Unable to load Detailed Items List.\n";
-        d2g.exit(exit_DIL_error);
+        standard.exit(exit_DIL_error);
     }
     VOUT << "\nDetailed Items List loaded with " << dil->list.length() << " DIL_entry elements.\n\n";
 
@@ -548,7 +633,7 @@ std::pair<Detailed_Items_List *, Graph *> interactive_conversion() {
     Graph *graph;
     if ((graph = convert_DIL_to_Graph(dil, convmet)) == NULL) {
         EOUT << "\nSomething went wrong! Unable to convert to Graph.\n";
-        d2g.exit(exit_conversion_error);
+        standard.exit(exit_conversion_error);
     }
     VOUT << "\nDetailed Items List converted to Graph with " << graph->num_Nodes() << " Node elements.\n\n";
 
@@ -595,7 +680,7 @@ std::pair<Detailed_Items_List *, Graph *> interactive_conversion() {
         std::getline(cin, proceedchoice);
         if (proceedchoice != "proceed") {
             VOUT << "\nWise choice.\n";
-            d2g.exit(exit_cancel);
+            standard.exit(exit_cancel);
         } else
             VOUT << "Proceeding despite noted reservations.\n";
     } else
@@ -619,7 +704,7 @@ std::pair<Detailed_Items_List *, Graph *> interactive_conversion() {
     d2g.ga.access_initialize();
     if (!store_Graph_pq(*graph, d2g.ga.dbname, d2g.ga.pq_schemaname, node_pq_progress_func)) {
         EOUT << "\nSomething went wrong! Unable to store (correctly) in Postgres database.\n";
-        d2g.exit(exit_database_error);
+        standard.exit(exit_database_error);
     }
     VOUT << "\nGraph stored in Postgres database.\n\n";
 
@@ -648,7 +733,7 @@ void interactive_validation(Detailed_Items_List *dil, Graph *graph) {
     Graph reloaded;
     if (!load_Graph_pq(reloaded, d2g.ga.dbname, d2g.ga.pq_schemaname)) { // Not using d2g.ga.request_Graph_copy(), because there might be no running server when we just created the database.
         EOUT << "\nSomething went wrong! Unable to load back from Postgres database.\n";
-        d2g.exit(exit_database_error);
+        standard.exit(exit_database_error);
     }
     VOUT << "Graph re-loading data test:\n";
     VOUT << "  Number of Topics = " << reloaded.get_topics().get_topictags().size() << endl;
@@ -739,9 +824,6 @@ void interactive_validation(Detailed_Items_List *dil, Graph *graph) {
 
 int main(int argc, char *argv[]) {
     ERRHERE(".config");
-    cout << "** CONFIG NOTE: This tool (and its components from core) still need a\n";
-    cout << "**              standardized method of configuration. See Trello card\n";
-    cout << "**              at https://trello.com/c/4B7x2kif.\n\n";
     // *** +---- begin: Things that probably should be configurable -----+
     ErrQ.set_errfilepath("/var/www/html/formalizer/formalizer.core.error.ErrQ.log");
     WarnQ.set_errfilepath("/var/www/html/formalizer/formalizer.core.error.WarnQ.log");
@@ -804,7 +886,7 @@ int main(int argc, char *argv[]) {
 
     //direct_graph2dil_Log2TL_test(logptr.get(),graphptr.get()); //*** doing this in tl2log.cpp now
 
-    return d2g.completed_ok();
+    return standard.completed_ok();
 }
 
 /*

@@ -216,6 +216,20 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><div class="memdoc">
 
 <p>Returns the id (index) of a topic tag and adds it to the list of topic tags if it was not already there. </p>
+<p>If added:</p>
+<ol type="1">
+<li>A new <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is created at the end of the <code>topictags</code> vector with <code>nextid</code>, <code>tag</code> and <code>title</code> as constructor parameters.</li>
+<li>The new vector element is then called at index <code>nextid</code>, and a pointer to it is used as the value at key=<code>tag</code> to add to the <code>topicbytag</code> map.</li>
+</ol>
+<p>Note that the found or newly generated topic index is compared with the compile-time constant <code>HIGH_TOPIC_INDEX_WARNING</code> to report very large indices considered to be probably mistaken.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">tag</td><td>a topic tag label. </td></tr>
+    <tr><td class="paramname">title</td><td>a title string. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>id (index) of the topic tag in the <code>topictags</code> vector.</dd></dl>
 <p>If added: 1) A new <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object is created at the end of the topictags vector with nextid, tag and title as constructor parameters. 2) The new vector element is then called at index nextid, and a pointer to it is used as the value at key=tag to add to the topicbytag map.</p>
 <p>Note that the found or newly generated topic index is compared with the compile-time constant HIGH_TOPIC_INDEX_WARNING to report very large indices considered to be probably mistaken.</p>
 <dl class="params"><dt>Parameters</dt><dd>

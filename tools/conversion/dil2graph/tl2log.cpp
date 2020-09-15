@@ -485,7 +485,7 @@ std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
     Task_Log * tl;
     if (!(tl = get_Task_Log(base.out))) {
         FZERR("\nSomethihg went wrong! Unable to peruse Task Log.\n");
-        d2g.exit(exit_DIL_error);
+        standard.exit(exit_DIL_error);
     }
 
     if (!manual_decisions) {
@@ -507,7 +507,7 @@ std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
     std::unique_ptr<Log> log(convert_TL_to_Log(tl));
     if (log == nullptr) {
         FZERR("\nSomething went wrong! Unable to convert to Log.\n");
-        d2g.exit(exit_conversion_error);
+        standard.exit(exit_conversion_error);
     }
     FZOUT("\nTask Log converted to Log with "+std::to_string(log->num_Entries())+" entries.\n\n");
 
@@ -519,7 +519,7 @@ std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
     ERRHERE(".test");
     if (!test_Log_data(*log)) {
         FZERR("\nConverted Log data sampling test did not complete.\n");
-        d2g.exit(exit_conversion_error);
+        standard.exit(exit_conversion_error);
     }
 
     FZOUT("Finally, let's store the Log as Postgres data.\n\n");
@@ -531,7 +531,7 @@ std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
     d2g.ga.access_initialize();
     if (!store_Log_pq(*log, d2g.ga, node_pq_progress_func)) {
         FZERR("\nSomething went wrong! Unable to store (correctly) in Postgres database.\n");
-        d2g.exit(exit_database_error);
+        standard.exit(exit_database_error);
     }
     FZOUT("\nLog stored in Postgres database.\n\n");
 
@@ -561,7 +561,7 @@ void direct_graph2dil_Log2TL_test(Log * logptr, Graph * graphptr) {
             graphptr = d2g.ga.request_Graph_copy().get();
             if (!graphptr) {
                 ADDERROR(__func__,"unable to load Graph");
-                d2g.exit(exit_database_error);
+                standard.exit(exit_database_error);
             }
             COMPILEDPING(std::cout,"PING-main.g2d-Logcaches\n");
             if ((logptr != nullptr) && (graphptr != nullptr)) {
@@ -579,7 +579,7 @@ void direct_graph2dil_Log2TL_test(Log * logptr, Graph * graphptr) {
         params.to_idx = d2g.to_section;
         if (!interactive_Log2TL_conversion(*graphptr, *logptr, params)) {
             EOUT << "\nDirect conversion test back to Task Log files did not complete..\n";
-            d2g.exit(exit_general_error);
+            standard.exit(exit_general_error);
         }
         VOUT << "\nDirect conversion test back to Task Log files written to " << DIRECTGRAPH2DIL_DIR << '\n';
         VOUT << "Hint: Try viewing it http://aether.local/formalizer/graph2dil/task-log.html\n\n";
@@ -593,7 +593,7 @@ void interactive_TL2Log_validation(Task_Log * tl, Log * log, Graph * graph) {
     ERRHERE(".top");
     if ((!tl) || (!log)) {
         FZERR("Unable to validate due to tl==NULL or log==NULL\n");
-        d2g.exit(exit_general_error);
+        standard.exit(exit_general_error);
     }
     FZOUT("Now, let's validate the database by reloading the Log and comparing it with the one that was stored.\n");
 
@@ -601,7 +601,7 @@ void interactive_TL2Log_validation(Task_Log * tl, Log * log, Graph * graph) {
     Log reloaded;
     if (!load_Log_pq(reloaded, d2g.ga)) { // Not using d2g.ga.request_Log_copy(), because there might be no running server when we just created the database.
         FZERR("\nSomething went wrong! Unable to load back from Postgres database.\n");
-        d2g.exit(exit_database_error);
+        standard.exit(exit_database_error);
     }
     FZOUT("Log re-loading data test:\n");
     FZOUT("  Number of Entries      = "+std::to_string(reloaded.num_Entries())+'\n');
@@ -614,5 +614,7 @@ void interactive_TL2Log_validation(Task_Log * tl, Log * log, Graph * graph) {
 
     key_pause();
 
-    direct_graph2dil_Log2TL_test(&reloaded,graph);
+    if (d2g.TL_reconstruction_test) {
+        direct_graph2dil_Log2TL_test(&reloaded,graph);
+    }
 }

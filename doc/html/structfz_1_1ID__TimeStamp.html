@@ -74,7 +74,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Timestamp IDs in the format required for <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> IDs.  
+<p>Timestamp IDs in the format required for <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> IDs.  
  <a href="structfz_1_1ID__TimeStamp.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="Graphtypes_8hpp_source.html">Graphtypes.hpp</a>&gt;</code></p>
@@ -96,10 +96,10 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;</b> (con
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (const <a class="el" href="structfz_1_1ID__TimeStamp.html">ID_TimeStamp</a> &amp;rhs) const</td></tr>
 <tr class="separator:a50498957743b2361bc28529f154a7f86"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aebce4195d3ca1097c4eb30e286879c2f"><td class="memItemLeft" align="right" valign="top">std::tm&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1ID__TimeStamp.html#aebce4195d3ca1097c4eb30e286879c2f">get_local_time</a> ()</td></tr>
-<tr class="memdesc:aebce4195d3ca1097c4eb30e286879c2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert standardized Formalizer <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> ID time stamp into local time data object.  <a href="#aebce4195d3ca1097c4eb30e286879c2f">More...</a><br /></td></tr>
+<tr class="memdesc:aebce4195d3ca1097c4eb30e286879c2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert standardized Formalizer <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> ID time stamp into local time data object.  <a href="#aebce4195d3ca1097c4eb30e286879c2f">More...</a><br /></td></tr>
 <tr class="separator:aebce4195d3ca1097c4eb30e286879c2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a99e99b30f5cee03b20561767ba15956d"><td class="memItemLeft" align="right" valign="top">time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1ID__TimeStamp.html#a99e99b30f5cee03b20561767ba15956d">get_epoch_time</a> ()</td></tr>
-<tr class="memdesc:a99e99b30f5cee03b20561767ba15956d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert standardized Formalizer <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> ID time stamp into UNIX epoch time.  <a href="#a99e99b30f5cee03b20561767ba15956d">More...</a><br /></td></tr>
+<tr class="memdesc:a99e99b30f5cee03b20561767ba15956d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert standardized Formalizer <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> ID time stamp into UNIX epoch time.  <a href="#a99e99b30f5cee03b20561767ba15956d">More...</a><br /></td></tr>
 <tr class="separator:a99e99b30f5cee03b20561767ba15956d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
@@ -127,7 +127,7 @@ int16_t&#160;</td><td class="memItemRight" valign="bottom"><b>year</b></td></tr>
 <tr class="separator:abf2f00b608bdf2cd49187aec59a0335e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Timestamp IDs in the format required for <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> IDs. </p>
+<div class="textblock"><p>Timestamp IDs in the format required for <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> IDs. </p>
 <p>These include all time components from year to second, as well as an additional minor_id (this is NOT a decimal, since .10 is higher than .9). Note that the time formatting is not the same as in the C time structure 'tm'. Days and months count from 1. The year is given as is, not relative to the UNIX epoch. (By contrast, tm time subtracts 1900 years.)</p>
 <p>These structures are mainly used as unique IDs, but conversion to UNIX time is provided through member functions.</p>
 <p>Note: A non-standard ID time stamp can be created and used. The quick <a class="el" href="structfz_1_1ID__TimeStamp.html#a9b02acc981f81670c04c9cd862607c1b" title="standardization functions and operators ">isnullstamp()</a> test can detect the special case where non-standard values are used to create a null-stamp, so that the <a class="el" href="structfz_1_1ID__TimeStamp.html#aebce4195d3ca1097c4eb30e286879c2f" title="Convert standardized Formalizer Node ID time stamp into local time data object. ">get_local_time()</a> and <a class="el" href="structfz_1_1ID__TimeStamp.html#a99e99b30f5cee03b20561767ba15956d" title="Convert standardized Formalizer Node ID time stamp into UNIX epoch time. ">get_epoch_time()</a> functions return well defined results for those. For greater assurance, the <a class="el" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. ">Node_ID_key</a> and <a class="el" href="structfz_1_1Edge__ID__key.html" title="Standardized Formalizer Edge ID key. ">Edge_ID_key</a> classes call specific thorough <code>valid_...</code> test functions. </p>
@@ -155,9 +155,9 @@ int16_t&#160;</td><td class="memItemRight" valign="bottom"><b>year</b></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Convert standardized Formalizer <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> ID time stamp into UNIX epoch time. </p>
-<p>Note: This function ignores the <code>minor_id</code> value. The resulting time value is normally indicative of the time when the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> was created. It is theoretically possible for multiple Nodes to generate the same <a class="el" href="structfz_1_1ID__TimeStamp.html#a99e99b30f5cee03b20561767ba15956d" title="Convert standardized Formalizer Node ID time stamp into UNIX epoch time. ">get_epoch_time()</a> output if their IDs differed only in <code>minor_id</code>.</p>
-<dl class="section return"><dt>Returns</dt><dd>UNIX epoch time equivalent of <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> ID time stamp. </dd></dl>
+<p>Convert standardized Formalizer <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> ID time stamp into UNIX epoch time. </p>
+<p>Note: This function ignores the <code>minor_id</code> value. The resulting time value is normally indicative of the time when the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> was created. It is theoretically possible for multiple Nodes to generate the same <a class="el" href="structfz_1_1ID__TimeStamp.html#a99e99b30f5cee03b20561767ba15956d" title="Convert standardized Formalizer Node ID time stamp into UNIX epoch time. ">get_epoch_time()</a> output if their IDs differed only in <code>minor_id</code>.</p>
+<dl class="section return"><dt>Returns</dt><dd>UNIX epoch time equivalent of <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> ID time stamp. </dd></dl>
 
 </div>
 </div>
@@ -176,9 +176,9 @@ int16_t&#160;</td><td class="memItemRight" valign="bottom"><b>year</b></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Convert standardized Formalizer <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> ID time stamp into local time data object. </p>
+<p>Convert standardized Formalizer <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> ID time stamp into local time data object. </p>
 <p>Note: This function ignores the <code>minor_id</code> value.</p>
-<dl class="section return"><dt>Returns</dt><dd>local time data objet with converted <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> ID time stamp. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>local time data objet with converted <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> ID time stamp. </dd></dl>
 
 </div>
 </div>

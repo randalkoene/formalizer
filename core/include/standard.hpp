@@ -44,10 +44,11 @@
  * - Use `VERBOSEOUT(s)` to stream out to `base.out` when `standard.quiet==false`.
  * - Use `VERBOSEERR(s)` to stream out to `base.err` when `standard.quiet==false`.
  */
-#define FZOUT(s) { if (base.out) (*base.out) << s; }
-#define FZERR(s) { if (base.err) (*base.err) << s; }
-#define VERBOSEOUT(s) { if ((base.out) && (!standard.quiet)) (*base.out) << s; }
-#define VERBOSEERR(s) { if ((base.err) && (!standard.quiet)) (*base.err) << s; }
+#define FZOUT(s) { if (fz::base.out) (*fz::base.out) << s; }
+#define FZERR(s) { if (fz::base.err) (*fz::base.err) << s; }
+#define VERBOSEOUT(s) { if ((fz::base.out) && (!fz::standard.quiet)) (*fz::base.out) << s; }
+#define VERBOSEERR(s) { if ((fz::base.err) && (!fz::standard.quiet)) (*fz::base.err) << s; }
+#define VERYVERBOSEOUT(s) { if ((fz::base.out) && (fz::standard.veryverbose)) { (*fz::base.out) << s; fz::base.out->flush(); } }
 
 namespace fz {
 
@@ -72,6 +73,9 @@ void error_summary_wrapper();
 
 void clean_exit_wrapper();
 
+/**
+ * The standardized structure for standard stream redirection.
+ */
 struct formalizer_base_streams {
     std::ostream *out = &std::cout;//nullptr;      /// for example *cout
     std::ostream *err = &std::cerr;//nullptr;      /// for example *cerr
@@ -89,20 +93,20 @@ extern formalizer_base_streams base;
  *           or `standard::exit()`. You can add additional clean-up
  *           steps to the exit stack by calling add_to_exit_stack().
  */
-struct formalizer_standard_program {
+struct the_standard_object {
     std::string server_long_id;         ///< standardized module string (see documentation)
-
-    std::string add_option_args;        ///< more option argument characters, e.g. "n:F:"
-    std::string add_usage_top;          ///< more options, e.g. " [-d <dbname>] [-m]"
-    std::deque<std::string> usage_head; ///< strings to print at the head of usage information
-    std::deque<std::string> usage_tail; ///< strings to print at the tail of usage information
-
     bool quiet;                         ///< report less
+    bool veryverbose;                   ///< report much more
 
-    /**
-     * Base initialization of standard Formalizer programs.
-     */
-    formalizer_standard_program();
+    std::string runnablename;           ///< set this in formalizer_standard_program::init()
+
+    the_standard_object(): server_long_id(FORMALIZER_MODULE_ID), quiet(false), veryverbose(false) {}
+
+    /// Typically call set_name() from formalizer_standard_program::init().
+    void set_name(std::string argv0);
+
+    /// Typically call set_id() from formalizer_standard_program::init().
+    void set_id(std::string _severlongid);
 
     /**
      * You can call this instead of std::exit() if you like, same thing, same stack.
@@ -116,42 +120,75 @@ struct formalizer_standard_program {
 
     /**
      * Add additional steps to the exit() stack.
+     * 
+     * This affects all paths to exit. The additional exit hooks will be called whether
+     * the regular `exit()` function or a `formalizer_standard_program::exit()` derived
+     * function is called. It's a stack, so the order of the calls to the hooks is the
+     * reverse of the order in which they were added.
+     * 
+     * The exit hook function must be a regular function, not a method (member function)
+     * of a class, but you could always make a wrapper around a call to a method.
+     * 
+     * @param func Any void function that takes no parameters.
+     * @param label A string that names or describes the exit hook being added.
      */
-    void add_to_exit_stack(void (*func) (void)) {
-        // *** could add a step here to remember a list of exit steps that can be reported
-        if (atexit(func)!=0) {
-            ADDERROR(__func__,"unable to add clean exit function to exit stack");
-            error_summary_wrapper();
-            clean_exit_wrapper();
-            exit(exit_unable_to_stack_clean_exit);
-        }
-    }
-
-protected:
-    bool initialized = false; // This is used to test if standard.init() was called before permitting other things.
-
-    std::string runnablename;
-
-    void commandline(int argc, char *argv[]);
-
-public:
-    bool was_initialized() { return initialized; }
-
-    /**
-     * The standard initialization procedure. This should typically be called in
-     * the first line (or so) of `main()`. Whether that was done is tested by the
-     * `initialized` flag.
-     */
-    void init(int argc, char *argv[], std::string version, std::string module, std::ostream * o = nullptr, std::ostream * e = nullptr);
+    void add_to_exit_stack(void (*func) (void), std::string label);
 
     /**
      * An all-is-well exit call.
      */
     int completed_ok();
 
-    std::string const & name() { return runnablename; }
-
     void print_version();
+};
+
+/**
+ * This object projects one unique and clear interface with settings
+ * for standardized Formalizer programs, including exit hooks and
+ * other important requirements.
+ */
+extern the_standard_object standard;
+
+/**
+ * This class provides a framework for standardized Formalizer programs.
+ * It should be inherited by a local struct or class declared and defined
+ * in such a program.
+ * 
+ * Note: This does not replace variables or methods of the standard object
+ * `standard`, of which there should be just one, and which guarantees one
+ * clear interface with settings.
+ */
+class formalizer_standard_program {
+protected:
+    bool uses_config = true;  ///< This standard program uses standard configuration methods.
+    bool initialized = false; ///< This is used to test if standard.init() was called before permitting other things.
+
+    void commandline(int argc, char *argv[]);
+
+public:
+    std::string add_option_args;        ///< more option argument characters, e.g. "n:F:"
+    std::string add_usage_top;          ///< more options, e.g. " [-d <dbname>] [-m]"
+    std::deque<std::string> usage_head; ///< strings to print at the head of usage information
+    std::deque<std::string> usage_tail; ///< strings to print at the tail of usage information
+
+    /**
+     * Base initialization of standard Formalizer programs.
+     * 
+     * @param _usesconfig Does this standardized component make use of the standard configuration method.
+     */
+    formalizer_standard_program(bool _usesconfig);
+
+    bool was_initialized() { return initialized; }
+
+    /**
+     * The standard initialization procedure. This should typically be called in the first
+     * line (or so) of `main()`. Whether that was done is tested by the `initialized` flag.
+     */
+    void init(int argc, char *argv[], std::string version, std::string module, std::ostream * o = nullptr, std::ostream * e = nullptr);
+
+    std::string const & name() const { return standard.runnablename; }
+
+    std::string const & id() const { return standard.server_long_id; }
 
     void print_usage();
 
@@ -179,8 +216,6 @@ std::pair<int, std::string> safe_cmdline_options(int argc, char *argv[], std::st
 
 //*** It is not entirely clear if key_pause() should be here or in some stream utility set.
 void key_pause();
-
-extern formalizer_standard_program standard;
 
 } // namespace fz
 

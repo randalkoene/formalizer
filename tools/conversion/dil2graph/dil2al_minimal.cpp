@@ -8,11 +8,19 @@
  * the Makefile. (This approach is used for other functions, such as functions in dil2al/utilities.cc.)
  */
 
+//#define USE_COMPILEDPING
+
+// std
 #include <sys/wait.h>
 
+// core
 #include "error.hpp"
+#include "standard.hpp"
 
+// dil2al compatibility
 #include "dil2al.hh"
+
+// local
 #include "dil2al_minimal.hpp"
 
 
@@ -664,14 +672,21 @@ String generate_tag(String & tagid) {
 }
 
 void exit_report() {
+	VERYVERBOSEOUT("Resolving exit hook: exit_report\n");
     // loop warnings
     if (looplist) {
+		COMPILEDPING(std::cout,"PING-exit_report-looplist\n");
         ADDWARNING(__func__, "DIL_entry::Propagated_Target_Date(), loops detected at:");
         PLL_LOOP_FORWARD(DIL_entry, looplist->list.head(), 1) {
-			ADDWARNING("DIL#",e->chars());
+			//std::string loopstr = e->chars();
+			//ADDWARNING("DIL#",loopstr);
+			ADDWARNING(__func__,"Cannot report DIL# here - this caused segfaults.");
         }
+		COMPILEDPING(std::cout,"PING-exit_report-looplist-4\n");
         delete looplist;
+		looplist = nullptr;
     }
+	COMPILEDPING(std::cout,"PING-exit_report-done\n");
 }
 
 #ifdef INCLUDE_PROFILING_TIMERS
@@ -697,6 +712,7 @@ void readtimer(long & sec, long & usec) {
 #endif
 
 void exit_postop() {
+  VERYVERBOSEOUT("Resolving exit hook: exit_postop\n");
   // This does all of the things that we really should do for a clean
   // exit. For example, it flushes user interfaces, which insures that
   // all messages are received.
@@ -714,5 +730,4 @@ void exit_postop() {
   // Flushing IO streams (even though they probably already do that upon exit)
   if (eout) EOUT.flush();
   if (vout) VOUT.flush();
-
 }

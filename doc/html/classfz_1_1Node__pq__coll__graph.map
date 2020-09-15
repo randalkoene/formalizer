@@ -1,5 +1,5 @@
 <map id="fz::Node_pq" name="fz::Node_pq">
-<area shape="rect" id="node2" href="$classfz_1_1Node.html" title="(A woefully incomplete class documentation.) " alt="" coords="107,273,179,300"/>
+<area shape="rect" id="node2" href="$classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. " alt="" coords="107,273,179,300"/>
 <area shape="rect" id="node3" href="$classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use. " alt="" coords="42,184,135,211"/>
 <area shape="rect" id="node4" href="$structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. " alt="" coords="9,95,131,121"/>
 <area shape="rect" id="node5" href="$structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. " alt="" coords="5,5,135,32"/>

@@ -14,7 +14,7 @@ namespace fz {
 
 formalizer_base_streams base; // The standard base streams.
 
-formalizer_standard_program standard; /// The standard object for Formalizer programs.
+the_standard_object standard; ///< The standard object for Formalizer programs.
 
 /**
  * Safer parsing of command line parameters.
@@ -62,6 +62,7 @@ void key_pause() {
  * when formalizer_standard_program::exit() is used.)
  */
 void error_summary_wrapper() {
+    VERYVERBOSEOUT("Resolving exit hook: error_summary_wrapper\n");
     if ((base.out) && (!standard.quiet)) {
         ERRWARN_SUMMARY(*base.out);
     }
@@ -69,31 +70,64 @@ void error_summary_wrapper() {
 
 /// This does everyting that `fz::Clean_Exit()` does, and it is stacked.
 void clean_exit_wrapper() {
+    VERYVERBOSEOUT("Resolving exit hook: clean_exit_wrapper\n");
     ErrQ.output(ERRWARN_LOG_MODE);
     WarnQ.output(ERRWARN_LOG_MODE);
 }
 
-formalizer_standard_program::formalizer_standard_program(): quiet(false) {
+
+/// Set the runnablename once you have argv[0], typically in formalizer_standard_program::init().
+void the_standard_object::set_name(std::string argv0) {
+    standard.runnablename = argv0;
+    std::string::size_type slashpos = standard.runnablename.find_last_of('/');
+    if (slashpos != std::string::npos)
+        standard.runnablename.erase(0,slashpos+1);
+}
+
+void the_standard_object::set_id(std::string _serverlongid) {
+    server_long_id = _serverlongid;
+}
+
+/// (Almost) identical to regular exit(). (See details in standard.hpp.)
+void the_standard_object::exit(int exit_code) {
+    std::exit(exit_code);
+}
+
+/// Add additional steps to the exit() stack.
+void the_standard_object::add_to_exit_stack(void (*func) (void), std::string label) {
+    // *** could add a step here to remember a list of exit steps that can be reported
+    VERYVERBOSEOUT("Adding exit hook: "+label+'\n');
+    if (atexit(func)!=0) {
+        ADDERROR(__func__,"unable to add clean exit function to exit stack");
+        error_summary_wrapper();
+        clean_exit_wrapper();
+        exit(exit_unable_to_stack_clean_exit);
+    }
+}
+
+int the_standard_object::completed_ok() {
+    VERBOSEOUT(runnablename+" completed.\n");
+    exit(exit_ok);
+    return exit_ok;
+}
+
+void the_standard_object::print_version() {
+    FZOUT(runnablename+" "+server_long_id+'\n');
+}
+
+formalizer_standard_program::formalizer_standard_program(bool _usesconfig): uses_config(_usesconfig) {
     // Warning: Only put things here for which it does not matter if the
     // standard object is initialized later than a local object that
     // uses a derived class.
     COMPILEDPING(std::cout, "PING-formalizer_standard_program().1\n");
-}
-
-/// Almost identical to regular exit(). (See details in standard.hpp.)
-void formalizer_standard_program::exit(int exit_code) {
-    standard.quiet = quiet;
-    std::exit(exit_code);
-}
-
-void formalizer_standard_program::print_version() {
-    FZOUT(runnablename+" "+server_long_id+'\n');
+    standard.quiet = false;
+    standard.veryverbose = false;
 }
 
 //*** It could be useful to replace the below with use of the templater.hpp methods.
 void formalizer_standard_program::print_usage() {
-    FZOUT("Usage: "+runnablename+" [-E <errfile>] [-W <warnfile>] [-q]"+add_usage_top+'\n');
-    FZOUT("       "+runnablename+" <-v|-h>\n\n");
+    FZOUT("Usage: "+name()+" [-E <errfile>] [-W <warnfile>] [-q|-V]"+add_usage_top+'\n');
+    FZOUT("       "+name()+" <-v|-h>\n\n");
 
     if (usage_head.size()>0) {
         for (const auto& ustr : usage_head)
@@ -108,6 +142,7 @@ void formalizer_standard_program::print_usage() {
     FZOUT("    -E send error output to <errfile> (STDOUT=standard output)\n");
     FZOUT("    -W send warning output to <warnfile> (STDOUT=standard output)\n");
     FZOUT("    -q set quieter running\n");
+    FZOUT("    -V set very verbose running\n");
     FZOUT("    -v print version info\n");
     FZOUT("    -h print this help\n\n")
 
@@ -117,12 +152,12 @@ void formalizer_standard_program::print_usage() {
         FZOUT("\n");
     }
 
-    FZOUT(server_long_id+"\n\n");
+    FZOUT(id()+"\n\n");
 }
 
 void formalizer_standard_program::commandline(int argc, char *argv[]) {
     int optionindex;
-    add_option_args += "hqvE:W:";
+    add_option_args += "hqVvE:W:";
 
     while (true) {
         auto [c, option_arg] = safe_cmdline_options(argc, argv, add_option_args.c_str(), optionindex);
@@ -143,12 +178,17 @@ void formalizer_standard_program::commandline(int argc, char *argv[]) {
             break;
 
         case 'q':
-            quiet = true;
-            standard.quiet = true; // visible to all
+            standard.veryverbose = false;
+            standard.quiet = true;
+            break;
+
+        case 'V':
+            standard. veryverbose = true;
+            standard.quiet = false;
             break;
 
         case 'v':
-            print_version();
+            standard.print_version();
             exit(exit_ok);
 
         default:
@@ -159,34 +199,42 @@ void formalizer_standard_program::commandline(int argc, char *argv[]) {
 }
 
 void formalizer_standard_program::init(int argc, char *argv[], std::string version, std::string module, std::ostream * o, std::ostream * e) {
+    ERRHERE(".top");
     // Do these here so that they also work for derived classes.s
     base.out = o;
     base.err = e;
 
-    if (base.out) {
-        add_to_exit_stack(&clean_exit_wrapper);
+    // Do these first! We want to be able to use these hooks for any
+    // exits even during following init processing.
+    // ***if (base.out) { // *** I can't remember why this conditional was here, so I'm removing it for now and I'll see if something breaks! I need better documentation!!!
+    standard.add_to_exit_stack(&clean_exit_wrapper,"clean_exit_wrapper");
+    // ***}
+    standard.add_to_exit_stack(&error_summary_wrapper,"error_summary_wrapper");
+
+    ERRHERE(".config");
+    standard.set_name(argv[0]);
+
+    if (uses_config) {
+        VERBOSEOUT("** CONFIG NOTE: This standardized Formalizer component still needs a\n");
+        VERBOSEOUT("**              standardized method of configuration. See Trello card\n");
+        VERBOSEOUT("**              at https://trello.com/c/4B7x2kif.\n\n");
     }
-    add_to_exit_stack(&error_summary_wrapper);
 
-    runnablename = argv[0];
-    std::string::size_type slashpos = runnablename.find_last_of('/');
-    if (slashpos != std::string::npos)
-        runnablename.erase(0,slashpos+1);
-
-    server_long_id = module + " " + version + " (core v" + coreversion() + ")";
+    ERRHERE(".commandline");
+    standard.set_id(module + " " + version + " (core v" + coreversion() + ")");
     commandline(argc,argv);
-    if (!quiet) { 
-        FZOUT(server_long_id+"\n\n");
-    }
-    initialized = true;
-}
+    VERBOSEOUT(id()+"\n\n");
 
-int formalizer_standard_program::completed_ok() {
-    if (!quiet) {
-        FZOUT(runnablename+" completed.\n");
-    }
-    exit(exit_ok);
-    return exit_ok;
+    ERRHERE(".initreport");
+    initialized = true;
+    // standard.initialized = true; // *** do this here? it isn't really true but some variables are maintained either way
+
+    VERYVERBOSEOUT("Very verbose output activated.\n");
+    // Add this here, because the calls to `add_to_exit_stack()` above would not yet
+    // have had a chance to turn on `standard.veryverbose` before checking
+    // configuration or command line options.
+    VERYVERBOSEOUT("Adding exit hook: clean_exit_wrapper\n");
+    VERYVERBOSEOUT("Adding exit hook: error_summary_wrapper\n");
 }
 
 } // namespace fz

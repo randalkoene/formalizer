@@ -82,7 +82,9 @@ Collaboration diagram for fzloghtml:</div>
 <div class="dyncontent">
 <div class="center"><img src="structfzloghtml__coll__graph.png" border="0" usemap="#fzloghtml_coll__map" alt="Collaboration graph"/></div>
 <map name="fzloghtml_coll__map" id="fzloghtml_coll__map">
-<area shape="rect" id="node2" href="structfz_1_1formalizer__standard__program.html" title="This structure registers a standard object with a set of expected parameters and functions for any st..." alt="" coords="5,5,160,47"/>
+<area shape="rect" id="node2" href="structfz_1_1formalizer__standard__program.html" title="This structure registers a standard object with a set of expected parameters and functions for any st..." alt="" coords="5,81,160,123"/>
+<area shape="rect" id="node3" href="structfz_1_1Graph__access.html" title="A standardized way to access the Graph database. " alt="" coords="184,89,309,115"/>
+<area shape="rect" id="node4" href="structfz_1_1Postgres__access.html" title="A standardized way to access the Formalizer database. " alt="" coords="175,5,318,32"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -138,19 +140,52 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a770ece47c7fa4deef7a943c40571cd8d"><td class="memItemLeft" align="right" valign="top"><a id="a770ece47c7fa4deef7a943c40571cd8d"></a>
 flow_options&#160;</td><td class="memItemRight" valign="bottom"><b>flowcontrol</b></td></tr>
 <tr class="separator:a770ece47c7fa4deef7a943c40571cd8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2368ffc80e559f9b208e2c37e346112"><td class="memItemLeft" align="right" valign="top"><a id="aa2368ffc80e559f9b208e2c37e346112"></a>
+<a class="el" href="structfz_1_1Graph__access.html">Graph_access</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ga</b></td></tr>
+<tr class="separator:aa2368ffc80e559f9b208e2c37e346112"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26a3554a47f8437885851c9f9b9ce003"><td class="memItemLeft" align="right" valign="top"><a id="a26a3554a47f8437885851c9f9b9ce003"></a>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>t_from</b></td></tr>
+<tr class="separator:a26a3554a47f8437885851c9f9b9ce003"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7708332becb7497881ba522d8551c034"><td class="memItemLeft" align="right" valign="top"><a id="a7708332becb7497881ba522d8551c034"></a>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>t_before</b></td></tr>
+<tr class="separator:a7708332becb7497881ba522d8551c034"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6fc093d68405efbbbb8fea7698cf461b"><td class="memItemLeft" align="right" valign="top"><a id="a6fc093d68405efbbbb8fea7698cf461b"></a>
+interval_scale&#160;</td><td class="memItemRight" valign="bottom"><b>iscale</b></td></tr>
+<tr class="separator:a6fc093d68405efbbbb8fea7698cf461b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10e83e9e3010dd866a4384639e5fdb0d"><td class="memItemLeft" align="right" valign="top"><a id="a10e83e9e3010dd866a4384639e5fdb0d"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>interval</b></td></tr>
+<tr class="separator:a10e83e9e3010dd866a4384639e5fdb0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09265fc7eb02bb3ceb3b8f63118f7826"><td class="memItemLeft" align="right" valign="top"><a id="a09265fc7eb02bb3ceb3b8f63118f7826"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfzloghtml.html#a09265fc7eb02bb3ceb3b8f63118f7826">dest</a></td></tr>
+<tr class="memdesc:a09265fc7eb02bb3ceb3b8f63118f7826"><td class="mdescLeft">&#160;</td><td class="mdescRight">where to send rendered output (empty means STDOUT) <br /></td></tr>
+<tr class="separator:a09265fc7eb02bb3ceb3b8f63118f7826"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab60ecf2228a356215702a40cfc27286f"><td class="memItemLeft" align="right" valign="top"><a id="ab60ecf2228a356215702a40cfc27286f"></a>
+std::unique_ptr&lt; <a class="el" href="classfz_1_1Log.html">Log</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>log</b></td></tr>
+<tr class="separator:ab60ecf2228a356215702a40cfc27286f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_structfz_1_1formalizer__standard__program"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_structfz_1_1formalizer__standard__program')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="structfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></td></tr>
 <tr class="memitem:a5697f8fb54a8d757e5d01cd08727bb56 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a5697f8fb54a8d757e5d01cd08727bb56"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>server_long_id</b></td></tr>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#a5697f8fb54a8d757e5d01cd08727bb56">server_long_id</a></td></tr>
+<tr class="memdesc:a5697f8fb54a8d757e5d01cd08727bb56 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">standardized module string (see documentation) <br /></td></tr>
 <tr class="separator:a5697f8fb54a8d757e5d01cd08727bb56 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac70799cb4aa56195b9873aa96b4aa296 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="ac70799cb4aa56195b9873aa96b4aa296"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#ac70799cb4aa56195b9873aa96b4aa296">add_option_args</a></td></tr>
-<tr class="memdesc:ac70799cb4aa56195b9873aa96b4aa296 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">standardized module string <br /></td></tr>
+<tr class="memdesc:ac70799cb4aa56195b9873aa96b4aa296 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">more option argument characters, e.g. "n:F:" <br /></td></tr>
 <tr class="separator:ac70799cb4aa56195b9873aa96b4aa296 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c3461b16f9c3a07e969e78004f4b1ec inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a3c3461b16f9c3a07e969e78004f4b1ec"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>add_usage_top</b></td></tr>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#a3c3461b16f9c3a07e969e78004f4b1ec">add_usage_top</a></td></tr>
+<tr class="memdesc:a3c3461b16f9c3a07e969e78004f4b1ec inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">more options, e.g. " [-d &lt;dbname&gt;] [-m]" <br /></td></tr>
 <tr class="separator:a3c3461b16f9c3a07e969e78004f4b1ec inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:affcb8912491e25f2ec7b74d4bdec966e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="affcb8912491e25f2ec7b74d4bdec966e"></a>
+std::deque&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#affcb8912491e25f2ec7b74d4bdec966e">usage_head</a></td></tr>
+<tr class="memdesc:affcb8912491e25f2ec7b74d4bdec966e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">strings to print at the head of usage information <br /></td></tr>
+<tr class="separator:affcb8912491e25f2ec7b74d4bdec966e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0602528020892b8c5ecd5f48e5d5759e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a0602528020892b8c5ecd5f48e5d5759e"></a>
+std::deque&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#a0602528020892b8c5ecd5f48e5d5759e">usage_tail</a></td></tr>
+<tr class="memdesc:a0602528020892b8c5ecd5f48e5d5759e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">strings to print at the tail of usage information <br /></td></tr>
+<tr class="separator:a0602528020892b8c5ecd5f48e5d5759e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5de5f9306c0800ff8eb2dd5b6a115938 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a5de5f9306c0800ff8eb2dd5b6a115938"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>quiet</b></td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#a5de5f9306c0800ff8eb2dd5b6a115938">quiet</a></td></tr>
+<tr class="memdesc:a5de5f9306c0800ff8eb2dd5b6a115938 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">report less <br /></td></tr>
 <tr class="separator:a5de5f9306c0800ff8eb2dd5b6a115938 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
@@ -217,6 +252,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>runnablename</
 
 <p>Initialize configuration parameters. </p>
 <p>Call this at the top of main().</p>
+<p>Note: If we wanted to take daylight savings time into account then we could use Howard Hinnant's <code>date.h</code> library instead. See the card at <a href="https://trello.com/c/ANI2Bxei">https://trello.com/c/ANI2Bxei</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">argc</td><td>command line parameters count forwarded from main(). </td></tr>

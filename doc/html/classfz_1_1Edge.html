@@ -84,7 +84,7 @@ Collaboration diagram for fz::Edge:</div>
 <area shape="rect" id="node4" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. " alt="" coords="190,95,311,121"/>
 <area shape="rect" id="node7" href="classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use. " alt="" coords="123,199,216,225"/>
 <area shape="rect" id="node5" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. " alt="" coords="186,5,315,32"/>
-<area shape="rect" id="node6" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) " alt="" coords="133,288,205,315"/>
+<area shape="rect" id="node6" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. " alt="" coords="133,288,205,315"/>
 <area shape="rect" id="node8" href="classfz_1_1Graph.html" title="fz::Graph" alt="" coords="22,199,98,225"/>
 <area shape="rect" id="node9" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID. " alt="" coords="5,95,115,121"/>
 </map>
@@ -98,9 +98,27 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:adaf45b440449d84a5fb0c9a0688fbedf"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Edge.html#adaf45b440449d84a5fb0c9a0688fbedf">Edge</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, std::string id_str)</td></tr>
 <tr class="memdesc:adaf45b440449d84a5fb0c9a0688fbedf"><td class="mdescLeft">&#160;</td><td class="mdescRight">An <a class="el" href="classfz_1_1Edge.html">Edge</a> can only exist between two Nodes.  <a href="#adaf45b440449d84a5fb0c9a0688fbedf">More...</a><br /></td></tr>
 <tr class="separator:adaf45b440449d84a5fb0c9a0688fbedf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac24bb1cdd798bfe5d673de578141bb78"><td class="memItemLeft" align="right" valign="top"><a id="ac24bb1cdd798bfe5d673de578141bb78"></a>
-auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_id</b> () const</td></tr>
-<tr class="separator:ac24bb1cdd798bfe5d673de578141bb78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab05c185370b1902706b0642a35d8a7d1"><td class="memItemLeft" align="right" valign="top"><a id="ab05c185370b1902706b0642a35d8a7d1"></a>
+<a class="el" href="classfz_1_1Edge__ID.html">Edge_ID</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_id</b> () const</td></tr>
+<tr class="separator:ab05c185370b1902706b0642a35d8a7d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4bfa65c44ab7774964a3899de57c8d34"><td class="memItemLeft" align="right" valign="top"><a id="a4bfa65c44ab7774964a3899de57c8d34"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_id_str</b> () const</td></tr>
+<tr class="separator:a4bfa65c44ab7774964a3899de57c8d34"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afff10778af688a743fb5f6106bc2835d"><td class="memItemLeft" align="right" valign="top"><a id="afff10778af688a743fb5f6106bc2835d"></a>
+<a class="el" href="structfz_1_1Edge__ID__key.html">Edge_ID_key</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_key</b> () const</td></tr>
+<tr class="separator:afff10778af688a743fb5f6106bc2835d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3cc0b95047bc787dd024973b6f6f1d61"><td class="memItemLeft" align="right" valign="top"><a id="a3cc0b95047bc787dd024973b6f6f1d61"></a>
+<a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_dep_key</b> () const</td></tr>
+<tr class="separator:a3cc0b95047bc787dd024973b6f6f1d61"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2569c91758696c6cf03f4cb198da70f"><td class="memItemLeft" align="right" valign="top"><a id="ad2569c91758696c6cf03f4cb198da70f"></a>
+<a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_sup_key</b> () const</td></tr>
+<tr class="separator:ad2569c91758696c6cf03f4cb198da70f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab31cee0f52adfa59f44ac2855b42f28f"><td class="memItemLeft" align="right" valign="top"><a id="ab31cee0f52adfa59f44ac2855b42f28f"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_dep_str</b> () const</td></tr>
+<tr class="separator:ab31cee0f52adfa59f44ac2855b42f28f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abdf131b4e14a40818aaedff767f3b86b"><td class="memItemLeft" align="right" valign="top"><a id="abdf131b4e14a40818aaedff767f3b86b"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_sup_str</b> () const</td></tr>
+<tr class="separator:abdf131b4e14a40818aaedff767f3b86b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ccb813dd83b7d850fc9e96234c81310"><td class="memItemLeft" align="right" valign="top"><a id="a1ccb813dd83b7d850fc9e96234c81310"></a>
 <a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_dep</b> () const</td></tr>
 <tr class="separator:a1ccb813dd83b7d850fc9e96234c81310"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -203,13 +221,13 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><div class="memdoc">
 
 <p>An <a class="el" href="classfz_1_1Edge.html">Edge</a> can only exist between two Nodes. </p>
-<p>Therefore, if the actual <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> objects are not provided a <a class="el" href="classfz_1_1Graph.html">Graph</a> must be provided in which the Nodes with specified IDs must exist.</p>
+<p>Therefore, if the actual <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> objects are not provided a <a class="el" href="classfz_1_1Graph.html">Graph</a> must be provided in which the Nodes with specified IDs must exist.</p>
 <p>This constructor also adds the <a class="el" href="classfz_1_1Edge.html">Edge</a> to the <a class="el" href="classfz_1_1Graph.html">Graph</a>. No separate call is needed.</p>
 <p>Validity of the ID string is tested in the <a class="el" href="structfz_1_1Edge__ID__key.html" title="Standardized Formalizer Edge ID key. ">Edge_ID_key</a> via <a class="el" href="classfz_1_1Edge__ID.html" title="Edge ID that caches its ID stamp for frequent use. ">Edge_ID</a>.</p>
-<p>This constructor throws exceptions if the ID is invalid or if the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> objects indicated by the ID are not found.</p>
+<p>This constructor throws exceptions if the ID is invalid or if the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> objects indicated by the ID are not found.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">graph</td><td>a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> containing <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> objects. </td></tr>
+    <tr><td class="paramname">graph</td><td>a valid <a class="el" href="classfz_1_1Graph.html">Graph</a> containing <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> objects. </td></tr>
     <tr><td class="paramname">id_str</td><td>the <a class="el" href="classfz_1_1Edge.html">Edge</a> ID string, validity will be tested. </td></tr>
   </table>
   </dd>

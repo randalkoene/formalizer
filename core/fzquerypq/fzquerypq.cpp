@@ -51,5 +51,5 @@ int main(int argc, char *argv[]) {
 
     COMPILEDPING(std::cout,"PING-main().3\n");
     ERRHERE(".exitok");
-    return fzq.completed_ok();
+    return standard.completed_ok();
 }

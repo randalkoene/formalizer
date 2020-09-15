@@ -92,7 +92,7 @@ struct graph2dil: public formalizer_standard_program {
     std::unique_ptr<Graph> graph;
     std::unique_ptr<Log> log;
 
-    graph2dil(): ga(add_option_args,add_usage_top), flowcontrol(flow_all) { //(flow_unknown) {
+    graph2dil(): formalizer_standard_program(true), ga(add_option_args,add_usage_top), flowcontrol(flow_all) { //(flow_unknown) {
         add_option_args += "DL";
         add_usage_top += " [-D] [-L]";
     }
@@ -482,5 +482,5 @@ int main(int argc, char *argv[]) {
     }
 
     ERRHERE(".exitok");
-    return g2d.completed_ok();
+    return standard.completed_ok();
 }

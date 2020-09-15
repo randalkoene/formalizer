@@ -5,6 +5,7 @@ var searchData=
   ['sample_5fquery_5fdata',['sample_query_data',['../namespacefz.html#a59b42530ac38402a5656af5bdcac5be6',1,'fz']]],
   ['section_5fconverter',['section_Converter',['../structsection__Converter.html',1,'section_Converter'],['../structsection__Converter.html#a1b4a225b920d8335e0554f0711d5a561',1,'section_Converter::section_Converter()']]],
   ['section_5findexbuilder',['section_IndexBuilder',['../structsection__IndexBuilder.html',1,'section_IndexBuilder'],['../structsection__IndexBuilder.html#a9d310d1d8648ec1496c56c63388943af',1,'section_IndexBuilder::section_IndexBuilder()']]],
+  ['server_5flong_5fid',['server_long_id',['../structfz_1_1formalizer__standard__program.html#a5697f8fb54a8d757e5d01cd08727bb56',1,'fz::formalizer_standard_program']]],
   ['set_5fall_5fsemaphores',['set_all_semaphores',['../classfz_1_1Node.html#a0204ee1e8d0bcc62b27ec70db293ff56',1,'fz::Node::set_all_semaphores()'],['../classfz_1_1Graph.html#af7d7d17a420e43e58655a1d0e85850e5',1,'fz::Graph::set_all_semaphores()']]],
   ['set_5fclose_5ftime',['set_close_time',['../classfz_1_1Log__chunk.html#aaf759458d02ea19b450b69dfa12f8874',1,'fz::Log_chunk']]],
   ['set_5fnode_5fnext_5fptr',['set_Node_next_ptr',['../classfz_1_1Log__by__Node__chainable.html#acf89bf47645680279caf65805e3ac634',1,'fz::Log_by_Node_chainable::set_Node_next_ptr(Log_chunk *nextptr)'],['../classfz_1_1Log__by__Node__chainable.html#af55ea4a68dd3caea62ed594a190ca45a',1,'fz::Log_by_Node_chainable::set_Node_next_ptr(Log_entry *nextptr)']]],

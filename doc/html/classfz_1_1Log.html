@@ -195,13 +195,26 @@ Log_chunk_ID_key_deque::size_type&#160;</td><td class="memItemRight" valign="bot
 <tr class="memdesc:a753299dbf5c12efdf9e232a5e42a5428"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get an interval of n <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks with t_begin &gt;= t_from.  <a href="#a753299dbf5c12efdf9e232a5e42a5428">More...</a><br /></td></tr>
 <tr class="separator:a753299dbf5c12efdf9e232a5e42a5428"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ec7c92bd3d4b9c8806bc6c5fb5041d8"><td class="memItemLeft" align="right" valign="top">std::deque&lt; <a class="el" href="structfz_1_1Log__chain__target.html">Log_chain_target</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#a1ec7c92bd3d4b9c8806bc6c5fb5041d8">get_Node_chain_fullparse</a> (const <a class="el" href="classfz_1_1Node__ID.html">Node_ID</a> node_id, bool onlyfirst=false)</td></tr>
-<tr class="memdesc:a1ec7c92bd3d4b9c8806bc6c5fb5041d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">chunks table: select subset by <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a>  <a href="#a1ec7c92bd3d4b9c8806bc6c5fb5041d8">More...</a><br /></td></tr>
+<tr class="memdesc:a1ec7c92bd3d4b9c8806bc6c5fb5041d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">chunks table: select subset by <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a>  <a href="#a1ec7c92bd3d4b9c8806bc6c5fb5041d8">More...</a><br /></td></tr>
 <tr class="separator:a1ec7c92bd3d4b9c8806bc6c5fb5041d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4266e49a3045dba72a9daed76a5f263b"><td class="memItemLeft" align="right" valign="top">std::deque&lt; <a class="el" href="structfz_1_1Log__chain__target.html">Log_chain_target</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#a4266e49a3045dba72a9daed76a5f263b">get_Node_chain_fullparse_reverse</a> (const <a class="el" href="classfz_1_1Node__ID.html">Node_ID</a> node_id, bool onlylast=false)</td></tr>
+<tr class="memdesc:a4266e49a3045dba72a9daed76a5f263b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse all chunks connected to the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> - in reverse - and find the sequence of chunks and entries that belongs to a specific <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a>.  <a href="#a4266e49a3045dba72a9daed76a5f263b">More...</a><br /></td></tr>
+<tr class="separator:a4266e49a3045dba72a9daed76a5f263b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a65e54df7bb54ae553ef9e5b93ce85904"><td class="memItemLeft" align="right" valign="top">std::deque&lt; <a class="el" href="structfz_1_1Log__chain__target.html">Log_chain_target</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#a65e54df7bb54ae553ef9e5b93ce85904">get_Node_chain</a> (const <a class="el" href="classfz_1_1Node__ID.html">Node_ID</a> node_id)</td></tr>
-<tr class="memdesc:a65e54df7bb54ae553ef9e5b93ce85904"><td class="mdescLeft">&#160;</td><td class="mdescRight">Quickly walk through the reference chain that belongs to the specified <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> and return all of its <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries.  <a href="#a65e54df7bb54ae553ef9e5b93ce85904">More...</a><br /></td></tr>
+<tr class="memdesc:a65e54df7bb54ae553ef9e5b93ce85904"><td class="mdescLeft">&#160;</td><td class="mdescRight">Quickly walk through the reference chain that belongs to the specified <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> and return all of its <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries.  <a href="#a65e54df7bb54ae553ef9e5b93ce85904">More...</a><br /></td></tr>
 <tr class="separator:a65e54df7bb54ae553ef9e5b93ce85904"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab723cd177104b779811f8eec827b7a60"><td class="memItemLeft" align="right" valign="top">std::time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#ab723cd177104b779811f8eec827b7a60">oldest_chunk_t</a> ()</td></tr>
-<tr class="memdesc:ab723cd177104b779811f8eec827b7a60"><td class="mdescLeft">&#160;</td><td class="mdescRight">This version requires valid prev/next references.  <a href="#ab723cd177104b779811f8eec827b7a60">More...</a><br /></td></tr>
+<tr class="memitem:a3fcef1ab3169e986a5a58902772ab643"><td class="memItemLeft" align="right" valign="top">std::deque&lt; <a class="el" href="structfz_1_1Log__chain__target.html">Log_chain_target</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#a3fcef1ab3169e986a5a58902772ab643">get_Node_chain_reverse</a> (const <a class="el" href="classfz_1_1Node__ID.html">Node_ID</a> node_id)</td></tr>
+<tr class="memdesc:a3fcef1ab3169e986a5a58902772ab643"><td class="mdescLeft">&#160;</td><td class="mdescRight">This version requires valid prev/next references.  <a href="#a3fcef1ab3169e986a5a58902772ab643">More...</a><br /></td></tr>
+<tr class="separator:a3fcef1ab3169e986a5a58902772ab643"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10d043044e1a641a61dd2ea0bb6c514a"><td class="memItemLeft" align="right" valign="top"><a id="a10d043044e1a641a61dd2ea0bb6c514a"></a>
+const <a class="el" href="structfz_1_1Log__chain__target.html">Log_chain_target</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>newest_Node_chain_element</b> (const <a class="el" href="classfz_1_1Node__ID.html">Node_ID</a> node_id)</td></tr>
+<tr class="separator:a10d043044e1a641a61dd2ea0bb6c514a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98819789423a2712d06bae307e4313ed"><td class="memItemLeft" align="right" valign="top"><a id="a98819789423a2712d06bae307e4313ed"></a>
+const <a class="el" href="structfz_1_1Log__chain__target.html">Log_chain_target</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>oldest_Node_chain_element</b> (const <a class="el" href="classfz_1_1Node__ID.html">Node_ID</a> node_id)</td></tr>
+<tr class="separator:a98819789423a2712d06bae307e4313ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab723cd177104b779811f8eec827b7a60"><td class="memItemLeft" align="right" valign="top"><a id="ab723cd177104b779811f8eec827b7a60"></a>
+std::time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#ab723cd177104b779811f8eec827b7a60">oldest_chunk_t</a> ()</td></tr>
+<tr class="memdesc:ab723cd177104b779811f8eec827b7a60"><td class="mdescLeft">&#160;</td><td class="mdescRight">helper (utility) functions <br /></td></tr>
 <tr class="separator:ab723cd177104b779811f8eec827b7a60"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a30a3b1472b02370bd7687e3c209261b9"><td class="memItemLeft" align="right" valign="top"><a id="a30a3b1472b02370bd7687e3c209261b9"></a>
 std::time_t&#160;</td><td class="memItemRight" valign="bottom"><b>newest_chunk_t</b> ()</td></tr>
@@ -577,11 +590,11 @@ Friends</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Quickly walk through the reference chain that belongs to the specified <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> and return all of its <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries. </p>
+<p>Quickly walk through the reference chain that belongs to the specified <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> and return all of its <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries. </p>
 <p>Note A: This function depends on valid rapid-access pointers within <code>node_prev</code> and <code>node_next</code> variables in each <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk and entry. Note B: This function (presently) works by building a brand-new deque list with <a class="el" href="structfz_1_1Log__chain__target.html" title="This data structure is used to follow a chain by-Node through the Log that can lead to Log chunks or ...">Log_chain_target</a> copies (instead of references). This decision is based on the assumption that the list of targets is typically informative, providing necessary access info to those targets, but you don't accidentally want to break existing chains by modifying elements of the deque list.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">node_id</td><td>of the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> for which to collect its <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chain (history). </td></tr>
+    <tr><td class="paramname">node_id</td><td>of the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> for which to collect its <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chain (history). </td></tr>
   </table>
   </dd>
 </dl>
@@ -615,15 +628,86 @@ Friends</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>chunks table: select subset by <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> </p>
-<p>Parse all chunks connected to the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> and find the sequence of chunks and entries that belongs to a specific <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a>.</p>
+<p>chunks table: select subset by <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> </p>
+<p>Parse all chunks connected to the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> and find the sequence of chunks and entries that belongs to a specific <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a>.</p>
 <p>This is used by Log::setup_Chunk_nodeprevnext(), and it can also be used independent of the reference parameters in the <a class="el" href="classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk. ">Log_chunk</a> objects, which even works for arbitrary loaded lists of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks.</p>
-<p>This function is also used by the rapid search version <code>get_Node_targets()</code>, which calls this to find the first target, the head of the chain, which is specifeid via the <code>onlyfirst</code> parameter.</p>
+<p>This function is also used by the rapid search version <code><a class="el" href="classfz_1_1Log.html#a65e54df7bb54ae553ef9e5b93ce85904" title="Quickly walk through the reference chain that belongs to the specified Node and return all of its Log...">get_Node_chain()</a></code>, which calls this to find the first target, the head of the chain, which is specifeid via the <code>onlyfirst</code> parameter.</p>
 <p>This function requires that the <code>entries</code> list has been set up for all <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">node_id</td><td>of the <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> for which to collect its <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chain (history). </td></tr>
+    <tr><td class="paramname">node_id</td><td>of the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> for which to collect its <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chain (history). </td></tr>
     <tr><td class="paramname">onlyfirst</td><td>flag if true return only the first target. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a deque sorted list of chain targets found. </dd></dl>
+
+</div>
+</div>
+<a id="a4266e49a3045dba72a9daed76a5f263b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4266e49a3045dba72a9daed76a5f263b">&#9670;&nbsp;</a></span>get_Node_chain_fullparse_reverse()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::deque&lt; <a class="el" href="structfz_1_1Log__chain__target.html">Log_chain_target</a> &gt; fz::Log::get_Node_chain_fullparse_reverse </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classfz_1_1Node__ID.html">Node_ID</a>&#160;</td>
+          <td class="paramname"><em>node_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>onlylast</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Parse all chunks connected to the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> - in reverse - and find the sequence of chunks and entries that belongs to a specific <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a>. </p>
+<p>Reverse search is probably a good option, because often referenced <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> histories are likely those of recent Nodes with recent <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries.</p>
+<p>This can be used independent of the reference parameters in the <a class="el" href="classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk. ">Log_chunk</a> objects, hence even works for arbitrary loaded lists of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks.</p>
+<p>This function requires that the <code>entries</code> list has been set up for all <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">node_id</td><td>of the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> for which to collect its <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chain (history). </td></tr>
+    <tr><td class="paramname">onlylast</td><td>flag if true return only the last target. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a deque sorted list of chain targets found. </dd></dl>
+
+</div>
+</div>
+<a id="a3fcef1ab3169e986a5a58902772ab643"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3fcef1ab3169e986a5a58902772ab643">&#9670;&nbsp;</a></span>get_Node_chain_reverse()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::deque&lt; <a class="el" href="structfz_1_1Log__chain__target.html">Log_chain_target</a> &gt; fz::Log::get_Node_chain_reverse </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classfz_1_1Node__ID.html">Node_ID</a>&#160;</td>
+          <td class="paramname"><em>node_id</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This version requires valid prev/next references. </p>
+<p>Quickly walk through the reference chain - in reverse - that belongs to the specified <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> and return all of its <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries.</p>
+<p>Reverse search is probably a good option, because often referenced <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> histories are likely those of recent Nodes with recent <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries.</p>
+<p>Note A: This function depends on valid rapid-access pointers within <code>node_prev</code> and <code>node_next</code> variables in each <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk and entry. Note B: This function (presently) works by building a brand-new deque list with <a class="el" href="structfz_1_1Log__chain__target.html" title="This data structure is used to follow a chain by-Node through the Log that can lead to Log chunks or ...">Log_chain_target</a> copies (instead of references). This decision is based on the assumption that the list of targets is typically informative, providing necessary access info to those targets, but you don't accidentally want to break existing chains by modifying elements of the deque list.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">node_id</td><td>of the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> for which to collect its <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chain (history). </td></tr>
   </table>
   </dd>
 </dl>
@@ -656,34 +740,6 @@ Friends</h2></td></tr>
 
 <p>Call this after loading entries into the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> with valid <a class="el" href="classfz_1_1Graph.html">Graph</a>. </p>
 <p>tables: sizes </p>
-
-</div>
-</div>
-<a id="ab723cd177104b779811f8eec827b7a60"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab723cd177104b779811f8eec827b7a60">&#9670;&nbsp;</a></span>oldest_chunk_t()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::time_t fz::Log::oldest_chunk_t </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>This version requires valid prev/next references. </p>
-<p>helper (utility) functions </p>
 
 </div>
 </div>
@@ -725,7 +781,7 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Call this after loading entries into the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> with valid <a class="el" href="classfz_1_1Graph.html">Graph</a>. </p>
-<p>Parse the deque of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and assign all <code>node</code> cache pointers in acordance with <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> objects found in the <a class="el" href="classfz_1_1Graph.html">Graph</a>. </p>
+<p>Parse the deque of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and assign all <code>node</code> cache pointers in acordance with <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> objects found in the <a class="el" href="classfz_1_1Graph.html">Graph</a>. </p>
 
 </div>
 </div>
@@ -746,7 +802,7 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Call this after loading chunks and enties into the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a>. </p>
-<p>Parse the map of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries and assign all <code>node</code> cache pointers in acordance with <a class="el" href="classfz_1_1Node.html" title="(A woefully incomplete class documentation.) ">Node</a> objects found in the <a class="el" href="classfz_1_1Graph.html">Graph</a>. </p>
+<p>Parse the map of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries and assign all <code>node</code> cache pointers in acordance with <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> objects found in the <a class="el" href="classfz_1_1Graph.html">Graph</a>. </p>
 
 </div>
 </div>

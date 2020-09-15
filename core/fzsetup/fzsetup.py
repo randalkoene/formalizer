@@ -194,13 +194,17 @@ def reset_graph(cmdargs):
         print('That is always the safer option...\n')
         exit(0)
     
-    print(f'Removing the Graph tables in {cmdargs.schemaname} schema from the {cmdargs.dbname} database.')
+    print(f'Removing the Graph tables and types in {cmdargs.schemaname} schema from the {cmdargs.dbname} database.')
     nodestable = '"'+cmdargs.schemaname + '".nodes'
     edgestable = '"'+cmdargs.schemaname + '".edges'
     topicstable = '"'+cmdargs.schemaname + '".topics'
     retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS {edgestable} CASCADE;'")
     retcode += try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS {nodestable} CASCADE;'")
     retcode += try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS {topicstable} CASCADE;'")
+    tdpropertytype = '"'+cmdargs.schemaname + '".td_property'
+    retcode += try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TYPE IF EXISTS {tdpropertytype};'")
+    tdpatterntype = '"'+cmdargs.schemaname + '".td_pattern'
+    retcode += try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TYPE IF EXISTS {tdpatterntype};'")
     if (retcode != 0):
         print(f'Attempt to remove tables failed.')
         exit(retcode)
@@ -260,7 +264,7 @@ def reset_guide(cmdargs):
     if (retcode != 0):
         print(f'Attempt to remove tables failed.')
         exit(retcode)
-    
+
     print(f'The tables have been removed. Done.\n')
     exit(0)
 
