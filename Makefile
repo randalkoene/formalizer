@@ -32,6 +32,7 @@ CORECOMPDIRS += $(COREPATH)/fzserverpq
 TOOLSCOMPDIRS = $(TOOLSPATH)/conversion/dil2graph
 TOOLSCOMPDIRS += $(TOOLSPATH)/conversion/graph2dil
 TOOLSCOMPDIRS += $(TOOLSPATH)/dev/boilerplate
+TOOLSCOMPDIRS += $(TOOLSPATH)/interface/fzloghtml
 TOOLSCOMPDIRS += $(TOOLSPATH)/interface/nodeboard
 
 COMPILABLES = $(LIBCOMPDIRS) $(CORECOMPDIRS) $(TOOLSCOMPDIRS)
@@ -55,10 +56,10 @@ EXECUTABLES += $(COREPATH)/fzsetup/fzsetup.py
 # EXECUTABLES = $(COREPATH)/fzupdate/fzupdate
 
 EXECUTABLES += $(TOOLSPATH)/compat/dil2al-polldaemon.sh
-EXECUTABLES += $(TOOLSPATH)/dev/boilerplate/boilerplate
 EXECUTABLES += $(TOOLSPATH)/conversion/dil2graph/dil2graph
 EXECUTABLES += $(TOOLSPATH)/conversion/graph2dil/graph2dil
 EXECUTABLES += $(TOOLSPATH)/dev/boilerplate/boilerplate
+EXECUTABLES += $(TOOLSPATH)/dev/fzbuild/fzbuild.py
 # EXECUTABLES += $(TOOLSPATH)/glue/calendarsync/calendarsync
 # EXECUTABLES += $(TOOLSPATH)/glue/exact2calendar/exact2calendar
 # EXECUTABLES += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml

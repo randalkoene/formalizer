@@ -131,7 +131,7 @@ public:
     uint8_t get_minor_id() const { return id.idkey.idT.minor_id; }
     const Node_ID_key & get_nodeidkey() const { return node_idkey; }
     bool same_node_as_chunk() const { return (node_idkey.isnullkey()); }
-    std::string & get_entrytext() { return entrytext; }
+    const std::string & get_entrytext() { return entrytext; }
 
     /**
      * Set the Log_entry.entrytext parameter content and ensure that it contains

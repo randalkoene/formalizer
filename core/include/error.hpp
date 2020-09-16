@@ -25,12 +25,18 @@
  * You can also specify NO_ERR_HINTS if you just want no string copying in the way of maximum performance.
  */
 #ifdef NO_ERR_TRACE
-    #define ERRENTER(f) { }
-
     #ifdef NO_ERR_HINTS
+        #define ERRENTER(f) { }
+        #define ERRTRACE { }
         #define ERRHINT(h) { }
         #define ERRHERE(idx) { }
     #else
+        /// Treat this just like ERRHINT.
+        #define ERRENTER(f) errhint = f
+
+        /// Treat this just like ERRHERE.
+        #define ERRTRACE ERRHINT(__func__)
+
         /// Specify this at any point for more fine-grained ADDERROR/ADDWARNING info.
         #define ERRHINT(h) errhint = h
 
@@ -40,6 +46,9 @@
 #else
     /// Put this at the top of any function you wish to include in the trace.
     #define ERRENTER(f) Trace_This tracethis(f)
+
+    /// Simplified version that always puts __func__ on the trace.
+    #define ERRTRACE Trace_This tracethis(__func__)
 
     /// Specify this at milestones within a fucntion for fine-grained ADDERROR/ADDWARNING info.
     #define ERRHINT(f_milestone) errtracer.update_milestone(f_milestone)

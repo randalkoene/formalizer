@@ -509,7 +509,7 @@ std::vector<int> detect_DIL_Topics_Symlinks(const std::vector<std::string> &dilf
  * @return pointer to Graph, or NULL.
  */
 Graph *convert_DIL_to_Graph(Detailed_Items_List *dil, ConversionMetrics &convmet) {
-    ERRHERE(".1");
+    ERRTRACE;
     if (!dil)
         ERRRETURNNULL(__func__, "unable to build Graph from NULL Detailed_Items_List");
 
@@ -599,7 +599,7 @@ void node_pq_progress_func(unsigned long n, unsigned long ncount) {
 /// This is the main() that should actually be in a separate program.
 /// It is here only for testing purposes.
 int alt_main() {
-    ERRHERE(".1");
+    ERRTRACE;
 
     VOUT << "Operating in Load-only mode. Testing database loading.\n";
 
@@ -623,7 +623,7 @@ int alt_main() {
 }
 
 std::pair<Detailed_Items_List *, Graph *> interactive_conversion() {
-    ERRHERE(".1");
+    ERRTRACE;
     key_pause();
 
     VOUT << "Let's load the Detailed Items List:\n\n";
@@ -732,7 +732,7 @@ std::pair<Detailed_Items_List *, Graph *> interactive_conversion() {
 }
 
 void interactive_validation(Detailed_Items_List *dil, Graph *graph) {
-    ERRHERE(".1");
+    ERRTRACE;
     if ((!dil) || (!graph)) {
         EOUT << "Unable to validate due to dil==NULL or graph==NULL\n";
         Exit_Now(exit_general_error);
@@ -833,7 +833,7 @@ void interactive_validation(Detailed_Items_List *dil, Graph *graph) {
 }
 
 int main(int argc, char *argv[]) {
-    ERRHERE(".config");
+    ERRTRACE;
     // *** +---- begin: Things that probably should be configurable -----+
     ErrQ.set_errfilepath("/var/www/html/formalizer/formalizer.core.error.ErrQ.log");
     WarnQ.set_errfilepath("/var/www/html/formalizer/formalizer.core.error.WarnQ.log");
@@ -855,7 +855,7 @@ int main(int argc, char *argv[]) {
     initialize();
     verbose = false; // Turning off most messages from dil2al code.
 
-    ERRHERE(".flowcontrol");
+    ERRHERE(".flow");
     std::unique_ptr<Graph> graphptr;
     std::unique_ptr<Log> logptr;
     switch (d2g.flowcontrol) {

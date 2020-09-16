@@ -108,6 +108,7 @@ Task_Log * get_Task_Log(ostream * o) {
  * @return the number of entries that were extracted and added to the Log.
  */
 unsigned int convert_TL_Chunk_to_Log_entries(Log & log, std::string chunktext) {
+    ERRTRACE;
     std::vector<std::size_t> candidates;
 
     // find all candidate Log entry start positions
@@ -290,6 +291,7 @@ void print_Log_metrics(Log & log, ostream & o, std::string indent) {
 }
 
 const Node_ID convert_TL_DILref_to_Node_ID(TL_entry_content &TLentrycontent, Log & log, std::string chunkid_str, int &nodeid_result) {
+    ERRTRACE;
     std::string nodeid_str(TLentrycontent.dil.title.chars());
     try {
         const Node_ID nodeid(nodeid_str);
@@ -400,7 +402,7 @@ const Node_ID convert_TL_DILref_to_Node_ID(TL_entry_content &TLentrycontent, Log
  * @return pointer to Log, or nullptr.
  */
 std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
-    ERRHERE(".top");
+    ERRTRACE;
     if (!tl)
         ERRRETURNNULL(__func__, "unable to build Log from NULL Task_Log");
 
@@ -615,7 +617,7 @@ void Log_Integrity_Tests(Log & log) {
  * function to set up rapid-access.
  */
 std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
-    ERRHERE(".top");
+    ERRTRACE;
     key_pause();
 
     FZOUT("Let's prepare the Task Log for parsing:\n\n");
@@ -700,6 +702,7 @@ std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
 
 void direct_graph2dil_Log2TL_test(Log * logptr, Graph * graphptr) {
 #ifdef __DIRECTGRAPH2DIL__
+    ERRTRACE;
     COMPILEDPING(std::cout,"PING-main.g2dtest\n");
     if (logptr) {
         VOUT << "\nNow, let's try converting the Log right back into Tak Log files.\n\n";
@@ -740,7 +743,7 @@ void direct_graph2dil_Log2TL_test(Log * logptr, Graph * graphptr) {
 }
 
 void interactive_TL2Log_validation(Task_Log * tl, Log * log, Graph * graph) {
-    ERRHERE(".top");
+    ERRTRACE;
     if ((!tl) || (!log)) {
         FZERR("Unable to validate due to tl==NULL or log==NULL\n");
         standard.exit(exit_general_error);

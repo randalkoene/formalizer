@@ -39,7 +39,7 @@ std::string pq_LElayout(
  * @return true if table was successfully created.
  */
 bool create_Breakpoints_table_pq(const active_pq & apq) {
-    ERRHERE(".1");
+    ERRTRACE;
     if (!apq.conn)
         return false;
 
@@ -54,7 +54,7 @@ bool create_Breakpoints_table_pq(const active_pq & apq) {
  * @return true if table was successfully created.
  */
 bool create_Logchunks_table_pq(const active_pq & apq) {
-    ERRHERE(".1");
+    ERRTRACE;
     if (!apq.conn)
         return false;
 
@@ -69,7 +69,7 @@ bool create_Logchunks_table_pq(const active_pq & apq) {
  * @return true if table was successfully created.
  */
 bool create_Logentries_table_pq(const active_pq & apq) {
-    ERRHERE(".1");
+    ERRTRACE;
     if (!apq.conn)
         return false;
 
@@ -78,7 +78,7 @@ bool create_Logentries_table_pq(const active_pq & apq) {
 }
 
 bool add_Breakpoint_pq(const active_pq & apq, const Log_chunk_ID_key & bptopid) {
-    ERRHERE(".1");
+    ERRTRACE;
     if (!apq.conn)
         return false;
 
@@ -88,7 +88,7 @@ bool add_Breakpoint_pq(const active_pq & apq, const Log_chunk_ID_key & bptopid) 
 }
 
 bool add_Logchunk_pq(const active_pq & apq, const Log_chunk & chunk) {
-    ERRHERE(".1");
+    ERRTRACE;
     if (!apq.conn)
         return false;
 
@@ -98,7 +98,7 @@ bool add_Logchunk_pq(const active_pq & apq, const Log_chunk & chunk) {
 }
 
 bool add_Logentry_pq(const active_pq & apq, const Log_entry & entry) {
-    ERRHERE(".1");
+    ERRTRACE;
     if (!apq.conn)
         return false;
 
@@ -116,7 +116,7 @@ bool add_Logentry_pq(const active_pq & apq, const Log_entry & entry) {
  * @returns true if the Log was successfully stored in the database.
  */
 bool store_Log_pq(const Log & log, Postgres_access & pa, void (*progressfunc)(unsigned long, unsigned long)) {
-    ERRHERE(".setup");
+    ERRTRACE;
     active_pq apq;
     apq.conn = connection_setup_pq(pa.dbname);
     if (!apq.conn) return false;
@@ -131,10 +131,10 @@ bool store_Log_pq(const Log & log, Postgres_access & pa, void (*progressfunc)(un
     //ERRHERE(".enum");
     //if (!create_Enum_Types_pq(conn, schemaname)) STORE_LOG_PQ_RETURN(false);
 
-    ERRHERE(".breakpointstable");
+    ERRHERE(".bptable");
     if (!create_Breakpoints_table_pq(apq)) STORE_LOG_PQ_RETURN(false);
 
-    ERRHERE(".breakpoints");
+    ERRHERE(".bps");
     unsigned long n = log.num_Breakpoints();
     unsigned long ncount = 0;
     for (Log_chunk_ID_key_deque::size_type bpidx = 0; bpidx<n; ++bpidx) {
@@ -144,10 +144,10 @@ bool store_Log_pq(const Log & log, Postgres_access & pa, void (*progressfunc)(un
         if (progressfunc) (*progressfunc)(n,ncount);
     }
 
-    ERRHERE(".logchunkstable");
+    ERRHERE(".chunktable");
     if (!create_Logchunks_table_pq(apq)) STORE_LOG_PQ_RETURN(false);
 
-    ERRHERE(".logchunks");
+    ERRHERE(".chunks");
     n = log.num_Chunks();
     ncount = 0;
     for (Log_chunk_ptr_deque::size_type cidx = 0; cidx<n; ++cidx) {
@@ -157,10 +157,10 @@ bool store_Log_pq(const Log & log, Postgres_access & pa, void (*progressfunc)(un
         if (progressfunc) (*progressfunc)(n,ncount);
     }
 
-    ERRHERE(".logentriestable");
+    ERRHERE(".entriestable");
     if (!create_Logentries_table_pq(apq)) STORE_LOG_PQ_RETURN(false);
 
-    ERRHERE(".logentries");
+    ERRHERE(".entries");
     n = log.num_Entries();
     ncount = 0;
     for (auto eit = const_cast<Log *>(&log)->get_Entries().begin(); eit != const_cast<Log *>(&log)->get_Entries().end(); ++eit) {
@@ -244,6 +244,7 @@ std::string Logentry_pq::All_Logentry_Data_pqstr() {
  * @param log a Log object, typically with an existing chunks list but empty Breakpoints list.
  */
 bool read_Breakpoints_pq(active_pq & apq, Log & log) {
+    ERRTRACE;
     if (!query_call_pq(apq.conn,"SELECT * FROM "+apq.pq_schemaname+".Breakpoints ORDER BY id",false)) return false;
 
     //sample_query_data(conn,0,4,0,100,tmpout);
@@ -328,6 +329,7 @@ bool get_Entry_pq_field_numbers(PGresult *res) {
  * Load full Chunks table into Log::chunks.
  */
 bool read_Chunks_pq(active_pq & apq, Log & log) {
+    ERRTRACE;
     if (!query_call_pq(apq.conn,"SELECT * FROM "+apq.pq_schemaname+".Logchunks ORDER BY "+pq_chunk_fieldnames[pqlc_id],false)) return false;
 
     //sample_query_data(conn,0,4,0,100,tmpout);
@@ -383,6 +385,7 @@ bool read_Chunks_pq(active_pq & apq, Log & log) {
  * @param log a Log object, typically with an existing chunks list but empty Breakpoints list.
  */
 bool read_Entries_pq(active_pq & apq, Log & log) {
+    ERRTRACE;
     if (!query_call_pq(apq.conn,"SELECT * FROM "+apq.pq_schemaname+".Logentries ORDER BY "+pq_entry_fieldnames[pqle_id],false)) return false;
 
     //sample_query_data(conn,0,4,0,100,tmpout);
@@ -457,7 +460,7 @@ bool read_Entries_pq(active_pq & apq, Log & log) {
  * @return true if the Log was succesfully loaded from the database.
  */
 bool load_Log_pq(Log & log, Postgres_access & pa) {
-    ERRHERE(".setup");
+    ERRTRACE;
     PGconn* conn = connection_setup_pq(pa.dbname);
     if (!conn) return false;
 
