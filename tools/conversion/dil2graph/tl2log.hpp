@@ -24,6 +24,21 @@ Task_Log * get_Task_Log(std::ostream * o = nullptr);
 
 unsigned int convert_TL_Chunk_to_Log_entries(Log & log, std::string chunktext);
 
+/**
+ * Test the Log for logical inconsistencies and propose or apply fixes.
+ * 
+ * Examples of logical inconsistencies are:
+ * 
+ * - Missing Log chunk close times when the chunk is not the last one in the Log.
+ * - Log chunk IDs that appear to be out of temporal order.
+ * - Duplicate Log chunk IDs.
+ * 
+ * Fixes are applied automatically unless `manual_decisions` is true.
+ * 
+ * @param log A reference to a Log object containing Log chunks and entries.
+ */
+void Log_Integrity_Tests(Log & log);
+
 std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl);
 
 std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion();

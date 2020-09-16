@@ -66,11 +66,11 @@ dil2graph d2g;
 // Definitions of methods declared in dil2graph.hpp:
 //----------------------------------------------------
 
-dil2graph::dil2graph() : formalizer_standard_program(true), from_section(0), to_section(9999999),
+dil2graph::dil2graph() : formalizer_standard_program(true), proc_from(0), proc_to(99991231), from_section(0), to_section(9999999),
                          ga(add_option_args, add_usage_top), flowcontrol(flow_everything), TL_reconstruction_test(false) {
     COMPILEDPING(std::cout, "PING-dil2graph().1\n");
-    add_option_args += "LDTmo:1:2:r";
-    add_usage_top += " [-m] [-L|-D|-T] [-o <testfile>] [-1 <num1>] [-2 <num2>] [-r]";
+    add_option_args += "LDTmo:f:t:1:2:r";
+    add_usage_top += " [-m] [-L|-D|-T] [-o <testfile>] [-f <YYYYmmdd>] [-t <YYYYmmdd>] [-1 <num1>] [-2 <num2>] [-r]";
 }
 
 void dil2graph::usage_hook() {
@@ -81,8 +81,10 @@ void dil2graph::usage_hook() {
     FZOUT("    -T Task Log conversion only\n");
     FZOUT("    -o specify path of test output file\n");
     FZOUT("       (default: "+testfilepath+")\n");
-    FZOUT("    -1 1st section to reconstruct is <num1>\n");
-    FZOUT("    -2 last section to reconstruct is <num2>\n");
+    FZOUT("    -f process TL from TL file with <YYYYmmdd>\n");
+    FZOUT("    -t process TL to TL file with <YYYYmmdd> (inclusive)\n");
+    FZOUT("    -1 1st indexed TL section to reconstruct is <num1>\n");
+    FZOUT("    -2 last indexed TL section to reconstruct is <num2>\n");
     FZOUT("    -r include immediate Task Log reconstruction test\n");
 }
 
@@ -110,6 +112,14 @@ bool dil2graph::options_hook(char c, std::string cargs) {
 
     case 'o':
         testfilepath = cargs;
+        return true;
+
+    case 'f':
+        proc_from = std::atoi(cargs.c_str());
+        return true;
+
+    case 't':
+        proc_to= std::atoi(cargs.c_str());
         return true;
 
     case '1':

@@ -198,6 +198,8 @@ std::vector<std::string> array_from_pq(std::string pq_array_str) {
  * Empty or 'infinity' (or other non-numerical time stamps) are
  * interpreted as unspecified, for which -1 is returned.
  * 
+ * This uses the UTC / Local Time convention built into time_stamp_time().
+ * 
  * @param pqtimestamp a time stamp string obtained via PQgetvalue().
  * @return Unix time stamp as seconds since 00:00:00 UTC, January 1,
  *         1970 or -1 when unspecified or invalid format.

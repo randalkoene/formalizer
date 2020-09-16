@@ -88,6 +88,8 @@ public:
     //std::vector<std::string> cmdargs; /// copy of command line arguments
     //output_format_specifier output_format; /// the format used to deliver query results
 
+    unsigned long proc_from;
+    unsigned long proc_to;
     unsigned long from_section;
     unsigned long to_section;
 

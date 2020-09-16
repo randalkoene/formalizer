@@ -123,6 +123,7 @@ bool store_Log_pq(const Log & log, Postgres_access & pa, void (*progressfunc)(un
 
     // Define a clean return that closes the connection to the database and cleans up.
     #define STORE_LOG_PQ_RETURN(r) { PQfinish(apq.conn); return r; }
+    apq.pq_schemaname = pa.pq_schemaname;
 
     ERRHERE(".schema");
     if (!create_Formalizer_schema_pq(apq.conn, apq.pq_schemaname)) STORE_LOG_PQ_RETURN(false);

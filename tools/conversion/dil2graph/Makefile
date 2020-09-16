@@ -18,8 +18,28 @@ CC=gcc
 CCPP=g++ 
 ##########################################################
 
+##########################################################
+## Compiler Options
+## ----------------
+## debugging with vscode (update 2020-09-15):
+#COMPOPT= -g -O0
+#OPTSTR=debugging_with_vscode
+## debugging information (updates 2019-02-01):
+#COMPOPT= -g -Og
+#OPTSTR=editing_optimized_for_debugging
+## generate profile information for use with gprof:
+#COMPOPT= -g -O6
+#OPTSTR=profiling
+## optimized (USUALLY USE THIS ONE!):
+COMPOPT= -O3
+OPTSTR=MAX_optimized_NO_debug_symbols
+## optimized + debugging info (as per GDB recommendations 2019-02-01)
+#COMPOPT= -g -O3
+#OPTSTR=production_optimized_with_dbg_symbols
+##########################################################
+
 # Temporarily enable the following (later replace with graph2dil and server calls)
-COMPILEDIRECTGRAPH2DIL = -D__DIRECTGRAPH2DIL__ -DDIRECTGRAPH2DIL_DIR=\"/var/www/html/formalizer/graph2dil\"
+COMPILEDIRECTGRAPH2DIL = -D__DIRECTGRAPH2DIL__ -DDIRECTGRAPH2DIL_DIR=\"/var/www/html/formalizer/tools/conversion/graph2dil\"
 OBJECTDIRECTGRAPH2DIL = ../graph2dil/obj/log2tl.o
 OBJECTDIRECTGRAPHDETECT = ../graph2dil/log2tl.cpp
  
@@ -30,7 +50,7 @@ LOGTESTOUTPUTFILE = -DDEFAULT_LOGTEST_FILE=\"/var/www/html/formalizer/dil2graph-
 FORMALIZERPATH=$(HOME)/src/formalizer
 COREINCLUDEPATH=$(FORMALIZERPATH)/core/include
 CORELIBPATH=$(FORMALIZERPATH)/core/lib
-FORMALIZERPATH_THIS=$(FORMALIZERPATH)/tools/dil2graph
+FORMALIZERPATH_THIS=$(FORMALIZERPATH)/tools/conversion/dil2graph
 
 LOGTESTTEMPLATES = -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\"
 
@@ -96,23 +116,6 @@ REGEXSTR=regex-gnu_for_C++
 #SAFEREGEX=
 ## make no assumptions:
 SAFEREGEX= -D_BIGREGEX_SAFE_MATCHES
-##########################################################
-
-##########################################################
-## Compiler Options
-## ----------------
-## debugging information (updates 2019-02-01):
-#COMPOPT= -g -Og
-#OPTSTR=editing_optimized_for_debugging
-## generate profile information for use with gprof:
-#COMPOPT= -g -O6
-#OPTSTR=profiling
-## optimized (USUALLY USE THIS ONE!):
-COMPOPT= -O3
-OPTSTR=optimized
-## optimized + debugging info (as per GDB recommendations 2019-02-01)
-#COMPOPT= -g -O3
-#OPTSTR=production_optimized_with_dbg_symbols
 ##########################################################
 
 ##########################################################

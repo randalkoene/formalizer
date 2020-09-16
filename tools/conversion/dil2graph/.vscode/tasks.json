@@ -24,7 +24,7 @@
             "label": "make with Makefile",
             "command": "make",
             "options": {
-                "cwd": "${workspaceFolder}"
+                "cwd": "${fileDirname}"
             },
             "group": {
                 "kind": "build",

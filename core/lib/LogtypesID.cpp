@@ -218,6 +218,7 @@ std::tm Log_TimeStamp::get_local_time() const {
     tm.tm_mday = day;
     tm.tm_hour = hour;
     tm.tm_min = minute;
+    tm.tm_isdst = -1; // See https://trello.com/c/ANI2Bxei.
     return tm;
 }
 

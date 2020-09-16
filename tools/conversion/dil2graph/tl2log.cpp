@@ -383,6 +383,10 @@ const Node_ID convert_TL_DILref_to_Node_ID(TL_entry_content &TLentrycontent, Log
  * point to existing Log chunks. Instead, the `Log::setup_Chunk_nodeprevnext()`
  * function is called at the end of conversion to set up those references.
  * 
+ * Note C: This function does not make assumptions about the proper order
+ * and completeness of a Log. It simply converts from the Task Log to a
+ * v2.x Log. The Log_integrity_test() function can be called on the result.
+ * 
  * This function can be run in the absence of a Graph, but note that the
  * rapid-access `node` caches are not set up here for that reason. Run
  * `log->setup_Entry_node_caches(graph)` upon successful return from this
@@ -419,6 +423,13 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
         // previously processed chunk, which should now be at the front of the chunks
         // deque becomes breakpoint start for previously parsed TL file
         if (TLentrycontent->source.file != TLfilename.c_str()) {
+            // test here in case a lower-bound constraint was placed with the "-1" argument
+            if (d2g.proc_from!=0) {
+                if (TLfilename == (std::string(basedir.chars())+"/lists/"+std::to_string(d2g.proc_from)+".html")) {
+                    // we just passed the last (earliest) section that was within the constraints, we're done here
+                    break;
+                }
+            }
             if (!TLfilename.empty()) {
                 if (log->get_Chunks().empty())
                     ERRRETURNNULL(__func__,"unable to assign Log breakpoint without any Log chunks");
@@ -430,7 +441,7 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
         }
 
         // convert TL_entry_content into Log_chunk
-        const Log_chunk_ID chunkid(TimeStampYmdHM(TLentrycontent->_chunkstarttime));
+        const Log_chunk_ID chunkid(TimeStampYmdHM(TLentrycontent->_chunkstarttime)); // Use Log_integrity_test() to gaurantee uniqueness.
 
         ERRHERE(".revparse."+chunkid.str());
         int nodeid_result = 0; // 0 = skip chunk, 1 = keep chunk, -1 = fail conversion
@@ -469,6 +480,81 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
     return log;
 }
 
+typedef std::vector<Log_chunk*> Problem_Chunks;
+/// Check for possible logical problems in the Log and propose or apply fixes.
+#define EPOCH1999 (time_t)915177600
+#define MEGACHUNK (time_t)(7*24*60*60)
+void Log_Integrity_Tests(Log & log) {
+
+    // Deal with missing Log chunk close times.
+    time_t actualtime = ActualTime();
+    unsigned long topen_future = 0;
+    Problem_Chunks topenfuture;
+    unsigned long tclose_future = 0;
+    Problem_Chunks tclosefuture;
+    unsigned long topen_problems = 0;
+    Problem_Chunks topenproblems;
+    unsigned long tclose_problems = 0;
+    Problem_Chunks tcloseproblems;
+    unsigned long zero_duration = 0;
+    Problem_Chunks zeroduration;
+    unsigned long mega_chunk = 0;
+    Problem_Chunks megachunk;
+    Log_chunks_Deque & chunks = log.get_Chunks();
+    for (const auto& chunkptr : chunks) {
+        time_t t_open = chunkptr->get_open_time();
+        time_t t_close = chunkptr->get_close_time();
+        if (t_open<EPOCH1999) {
+            ++topen_problems;
+            topenproblems.push_back(chunkptr.get());
+        }
+        if (t_close<t_open) {
+            ++tclose_problems;
+            tcloseproblems.push_back(chunkptr.get());
+        } else {
+            if (t_close == t_open) {
+                ++zero_duration;
+                zeroduration.push_back(chunkptr.get());
+            } else {
+                if ((t_close-t_open)>MEGACHUNK) {
+                    ++mega_chunk;
+                    megachunk.push_back(chunkptr.get());
+                }
+            }
+        }
+        if (t_open > actualtime) {
+            ++topen_future;
+            topenfuture.push_back(chunkptr.get());
+        }
+        if (t_close > actualtime) {
+            ++tclose_future;
+            tclosefuture.push_back(chunkptr.get());
+        }
+    }
+    FZOUT("Log chunks open and close times summary:\n");
+    FZOUT("  open times before 1999   : "+std::to_string(topen_problems)+'\n');
+    FZOUT("  close time < open time   : "+std::to_string(tclose_problems)+'\n');
+    FZOUT("  zero duration chunks     : "+std::to_string(zero_duration)+'\n');
+    FZOUT("  unreasonably large chunks: "+std::to_string(mega_chunk)+'\n');
+    FZOUT("  open times in the future : "+std::to_string(topen_problems)+'\n');
+    FZOUT("  close times in the future: "+std::to_string(topen_problems)+'\n');
+    key_pause();
+    if (tclose_problems>0) { // Let's have a look at some
+        FZOUT("Close time < Open time examples:\n");
+        FZOUT("  Chunk ID: "+tcloseproblems[0]->get_tbegin_str()+'\n');
+        FZOUT("    open time : "+TimeStampYmdHM(tcloseproblems[0]->get_open_time())+'\n');
+        FZOUT("    close time: "+TimeStampYmdHM(tcloseproblems[0]->get_close_time())+'\n');
+        FZOUT("  Chunk ID: "+tcloseproblems[1]->get_tbegin_str()+'\n');
+        FZOUT("    open time : "+TimeStampYmdHM(tcloseproblems[1]->get_open_time())+'\n');
+        FZOUT("    close time: "+TimeStampYmdHM(tcloseproblems[1]->get_close_time())+'\n');
+        key_pause();
+    }
+    // Deal with duplicate Log chunk IDs.
+
+    // Deal with Log chunk IDs out of temporal order.
+
+}
+
 /**
  * This function can be run in the absence of a Graph, but note that the
  * rapid-access `node` caches are not set up here for that reason. Run
@@ -502,6 +588,14 @@ std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
 
     FZOUT("Now, let's convert the Task Log to Log format:\n\n");
     if (base.out) base.out->flush();
+    if ((d2g.proc_from!=0) || (d2g.proc_to<99991231)) {
+        FZOUT("Please note, section constraints have been applied:\n");
+        FZOUT("  from: "+std::to_string(d2g.proc_from)+'\n');
+        FZOUT("  to  : "+std::to_string(d2g.proc_to)+'\n');
+        if (d2g.proc_to<99991231) {
+            tl->chunktasklog = basedir+("/lists/task-log."+std::to_string(d2g.proc_to)+".html").c_str();
+        }
+    }
     ERRHERE(".convert");
     //ConversionMetrics convmet;
     std::unique_ptr<Log> log(convert_TL_to_Log(tl));
@@ -510,6 +604,9 @@ std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
         standard.exit(exit_conversion_error);
     }
     FZOUT("\nTask Log converted to Log with "+std::to_string(log->num_Entries())+" entries.\n\n");
+
+    FZOUT("Carrying out Log integrity tets with proposed corrections.\n\n");
+    Log_Integrity_Tests(*log);
 
     FZOUT("Summary of Log metrics:\n\n");
     print_Log_metrics(*log,*(base.out),"\t");

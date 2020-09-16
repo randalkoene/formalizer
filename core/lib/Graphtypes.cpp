@@ -175,12 +175,16 @@ std::string Node_ID_TimeStamp_to_string(const ID_TimeStamp idT) {
  */
 std::tm ID_TimeStamp::get_local_time() {
     std::tm tm = { 0 };
+    if (isnullstamp())
+        return tm;
+        
     tm.tm_year = year-1900;
     tm.tm_mon = month-1;
     tm.tm_mday = day;
     tm.tm_hour = hour;
     tm.tm_min = minute;
     tm.tm_sec = second;
+    tm.tm_isdst = -1; // See https://trello.com/c/ANI2Bxei.
     return tm;
 }
 

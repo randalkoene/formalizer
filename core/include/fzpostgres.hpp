@@ -54,6 +54,7 @@ bool create_Formalizer_schema_pq(PGconn* conn, std::string schemaname);
 
 std::vector<std::string> array_from_pq(std::string pq_array_str);
 
+/// Uses the UTC / Local Time convention built into TimeStamp().
 inline std::string TimeStamp_pq(time_t t) {
     if (t<0) return "'infinity'";
     return TimeStamp("'%Y%m%d %H:%M'",t);
