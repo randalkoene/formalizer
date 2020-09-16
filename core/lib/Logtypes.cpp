@@ -1,10 +1,13 @@
 // Copyright 2020 Randal A. Koene
 // License TBD
 
+// std
 #include <cstdint>
 #include <iomanip>
 #include <numeric>
 
+// core
+#include "utf8.hpp"
 #include "LogtypesID.hpp"
 #include "Logtypes.hpp"
 
@@ -69,6 +72,28 @@ void Log_by_Node_chainable::set_Node_next_ptr(Log_entry * nextptr) { // give nul
             node_next.entry.key = Log_entry_ID_key();
         }
     }
+}
+
+/**
+ * Set the Log_entry.entrytext parameter content and ensure that it contains
+ * valid UTF8 encoded content.
+ * 
+ * Attempts to assign content to the text parameter as provided, and
+ * replaces any invalid UTF8 code points with a replacement
+ * character. The default replacement character is the UTF8
+ * 'REPLACEMENT CHARACTER' 0xfffd.
+ * 
+ * If invalid UTF8 code points were encountered and replaced then it
+ * is reported through ADDWARNING.
+ * 
+ * Note 1: ASCII text is valid UTF8 text and will be assigned
+ *         unaltered.
+ * Note 2: This does not test for valid HTML5 at this time.
+ * 
+ * @param utf8str a string that should contain UTF8 encoded text.
+ */
+void Log_entry::set_text(const std::string utf8str) {
+    entrytext = utf8_safe(utf8str);
 }
 
 /**

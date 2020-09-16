@@ -141,6 +141,7 @@ CPPFLAGS= $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(SAFEREGEX) $(INCLUDES)
 # +----- begin: Select Formalizer core library objects -----+
 CORE_OBJS = $(CORELIBPATH)/obj/error.o
 CORE_OBJS += $(CORELIBPATH)/obj/general.o
+CORE_OBJS += $(CORELIBPATH)/obj/utf8.o
 CORE_OBJS += $(CORELIBPATH)/obj/standard.o
 CORE_OBJS += $(CORELIBPATH)/obj/templater.o
 CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
@@ -172,16 +173,16 @@ init: FORCE
 
 # add $(CPPTEMPWORKAROUND) as needed
 
-$(OBJ)/dil2al_minimal.o: dil2al_minimal.cpp dil2al_minimal.hpp version.hpp $(INC)/standard.hpp
+$(OBJ)/dil2al_minimal.o: dil2al_minimal.cpp dil2al_minimal.hpp version.hpp $(INC)/standard.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c dil2al_minimal.cpp -o $(OBJ)/dil2al_minimal.o
 
-$(OBJ)/logtest.o: logtest.cpp logtest_templates.cpp logtest.hpp version.hpp $(INC)/standard.hpp
+$(OBJ)/logtest.o: logtest.cpp logtest_templates.cpp logtest.hpp version.hpp $(INC)/standard.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(LOGTESTTEMPLATES) $(LOGTESTOUTPUTFILE) -c logtest.cpp -o $(OBJ)/logtest.o
 
-$(OBJ)/tl2log.o: tl2log.cpp tl2log.hpp version.hpp $(INC)/standard.hpp
+$(OBJ)/tl2log.o: tl2log.cpp tl2log.hpp version.hpp $(INC)/standard.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(COMPILEDIRECTGRAPH2DIL) -c tl2log.cpp -o $(OBJ)/tl2log.o
 
-$(OBJ)/dil2graph.o: dil2graph.cpp dil2graph.hpp version.hpp $(OBJ)/dil2al_minimal.o $(INC)/standard.hpp
+$(OBJ)/dil2graph.o: dil2graph.cpp dil2graph.hpp version.hpp $(OBJ)/dil2al_minimal.o $(INC)/standard.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(COMPILEDIRECTGRAPH2DIL) -c dil2graph.cpp -o $(OBJ)/dil2graph.o
 
 $(OBJECTDIRECTGRAPH2DIL): $(OBJECTDIRECTGRAPHDETECT)

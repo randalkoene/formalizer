@@ -1,7 +1,7 @@
 // Copyright 2020 Randal A. Koene
 // License TBD
 
-/**
+/** @file Logtypes.hpp
  * This header file declares Log types for use with the Formalizer.
  * These define the authoritative version of the data structure for use in C++ code.
  * 
@@ -104,17 +104,24 @@ protected:
     Log_chunk *chunk;
 
 public:
-    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, const Node_ID_key &_nodeidkey, Log_chunk * _chunk = NULL): id(_id), node_idkey(_nodeidkey), entrytext(_entrytext), node(nullptr), chunk(_chunk) {
+    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, const Node_ID_key &_nodeidkey, Log_chunk * _chunk = NULL): id(_id), node_idkey(_nodeidkey), node(nullptr), chunk(_chunk) {
         // Notice that we are not immediately attempting to set the `node` rapid-access cache that
         // would correspond with `node_idkey`. That is, beause we cannot be certain that this object
         // is being created within a context where the corresponding Node object actually ecists and
         // a pointer to it is identifiable. The rapid-access pointer must be set explicitly via
         // `set_Node_rapid_access()`, which can also be called by the parametrized overload of the
         // `get_Node()` member function.
+        set_text(_entrytext); // utf8 safe
     }
-    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, Log_chunk * _chunk = NULL): id(_id), entrytext(_entrytext), node(nullptr), chunk(_chunk) {}
-    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, const Node_ID_key &_nodeidkey, bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next, Log_chunk * _chunk = NULL) : id(_id), node_idkey(_nodeidkey), entrytext(_entrytext), node(nullptr), chunk(_chunk) {}
-    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next, Log_chunk * _chunk = NULL): Log_by_Node_chainable(previschunk,_prev,nextischunk,_next), id(_id), entrytext(_entrytext), node(nullptr), chunk(_chunk) {}
+    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, Log_chunk * _chunk = NULL): id(_id), node(nullptr), chunk(_chunk) {
+        set_text(_entrytext); // utf8 safe
+    }
+    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, const Node_ID_key &_nodeidkey, bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next, Log_chunk * _chunk = NULL) : id(_id), node_idkey(_nodeidkey), node(nullptr), chunk(_chunk) {
+        set_text(_entrytext); // utf8 safe
+    }
+    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next, Log_chunk * _chunk = NULL): Log_by_Node_chainable(previschunk,_prev,nextischunk,_next), id(_id), node(nullptr), chunk(_chunk) {
+        set_text(_entrytext); // utf8 safe
+    }
 
     /// Set Node pointer to the same Node as node_idkey if it was not set during construction.
     bool set_Node_rapid_access(Node & _node); // inlined below
@@ -125,6 +132,28 @@ public:
     const Node_ID_key & get_nodeidkey() const { return node_idkey; }
     bool same_node_as_chunk() const { return (node_idkey.isnullkey()); }
     std::string & get_entrytext() { return entrytext; }
+
+    /**
+     * Set the Log_entry.entrytext parameter content and ensure that it contains
+     * valid UTF8 encoded content.
+     * 
+     * Attempts to assign content to the text parameter as provided, and
+     * replaces any invalid UTF8 code points with a replacement
+     * character. The default replacement character is the UTF8
+     * 'REPLACEMENT CHARACTER' 0xfffd.
+     * 
+     * If invalid UTF8 code points were encountered and replaced then it
+     * is reported through ADDWARNING.
+     * 
+     * Note 1: ASCII text is valid UTF8 text and will be assigned
+     *         unaltered.
+     * Note 2: This does not test for valid HTML5 at this time.
+     * 
+     * @param utf8str a string that should contain UTF8 encoded text.
+     */
+    void set_text(const std::string utf8str);
+    void set_text_unchecked(const std::string utf8str) { entrytext = utf8str; } /// Use only where guaranteed!
+
     Node *get_Node() { return node; }    ///< locally cached Node (can be nullptr)
     Node *get_Node(Graph &graph);        ///< find node based on locally specified Node_ID (inlined below)
     Node *get_local_or_inherited_Node(); ///< get locally specified or inherited pointer to Node

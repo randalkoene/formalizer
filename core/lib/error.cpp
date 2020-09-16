@@ -8,11 +8,30 @@
 
 namespace fz {
 
-std::string errhint;
-
 Errors ErrQ(DEFAULT_ERRLOGPATH);
 Errors WarnQ(DEFAULT_WARNLOGPATH);
 
+#ifdef NO_ERR_TRACE
+
+std::string errhint;
+
+#else
+
+Stack_Tracer errtracer;
+
+/// Compose the full stack trace into one string. (Brackets are added by Errors::pretty_print().)
+std::string Stack_Tracer::print() {
+    std::string tracestr;
+    tracestr.reserve(errtracer.num_levels()*20);
+    for (StackTrace::size_type i = 0; i < errtracer.num_levels(); ++i) {
+        if (i!=0)
+            tracestr += ':';
+        tracestr += errtracer[i];
+    }
+    return tracestr;
+}
+
+#endif
 
 /**
  * Pushes a new error instance to the back of the queue of errors.
@@ -25,7 +44,19 @@ void Errors::push(std::string f, std::string e) {
         f = "unidentified";
     if (e.empty())
         e = "unspecified";
+
+#ifdef NO_ERR_TRACE
+
+    // push the hint on with the function and error message
     errq.push_back(Error_Instance(errhint, f, e));
+
+#else
+
+    // push the stack trace on with the function and error message
+    errq.push_back(Error_Instance(errtracer.print(),f,e));
+
+#endif
+
     if (!caching) {
         if (numflushed<1)
             output(ERRWARN_LOG_MODE);
@@ -67,7 +98,7 @@ int Errors::flush() {
  */
 std::string Errors::pretty_print() const {
     std::string estr;
-    for (auto it = errq.cbegin(); it != errq.cend(); ++it) estr += '[' + it->hint + "] " + it->func + ": " + it->err + '\n';
+    for (auto it = errq.cbegin(); it != errq.cend(); ++it) estr += '[' + it->tracehint + "] " + it->func + ": " + it->err + '\n';
     return estr;
 }
 

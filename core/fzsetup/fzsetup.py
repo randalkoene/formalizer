@@ -220,8 +220,8 @@ def reset_log(cmdargs):
         exit(0)
     
     print(f'Removing the Log tables in {cmdargs.schemaname} schema from the {cmdargs.dbname} database.')
-    chunkstable = '"'+cmdargs.schemaname + '".chunks'
-    entriestable = '"'+cmdargs.schemaname + '".entries'
+    chunkstable = '"'+cmdargs.schemaname + '".Logchunks'
+    entriestable = '"'+cmdargs.schemaname + '".Logentries'
     breakpointstable = '"'+cmdargs.schemaname + '".breakpoints'
     retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS {breakpointstable} CASCADE;'")
     retcode += try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'DROP TABLE IF EXISTS {chunkstable} CASCADE;'")

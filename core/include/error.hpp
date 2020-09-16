@@ -1,7 +1,7 @@
 // Copyright 2020 Randal A. Koene
 // License TBD
 
-/**
+/** @file error.hpp
  * This header file declares error handling classes and functions for use with core
  * Formalizer C++ code.
  * 
@@ -12,13 +12,42 @@
 #include "coreversion.hpp"
 #define __ERROR_HPP (__COREVERSION_HPP)
 
+// std
 #include <fstream>
 #include <string>
 #include <deque>
+#include <vector>
 
-/// A set of useful macros
-#define ERRHINT(h) errhint = h
-#define ERRHERE(idx) ERRHINT(std::string(__func__)+idx)
+/// +----- begin: A set of useful macros -----+
+
+/**
+ * You can specify NO_ERR_TRACE if you are confident that you don't need that and want to save a few cycles.
+ * You can also specify NO_ERR_HINTS if you just want no string copying in the way of maximum performance.
+ */
+#ifdef NO_ERR_TRACE
+    #define ERRENTER(f) { }
+
+    #ifdef NO_ERR_HINTS
+        #define ERRHINT(h) { }
+        #define ERRHERE(idx) { }
+    #else
+        /// Specify this at any point for more fine-grained ADDERROR/ADDWARNING info.
+        #define ERRHINT(h) errhint = h
+
+        /// A version of ERRHINT that automatically includes the function name.
+        #define ERRHERE(idx) ERRHINT(std::string(__func__)+idx)
+    #endif
+#else
+    /// Put this at the top of any function you wish to include in the trace.
+    #define ERRENTER(f) Trace_This tracethis(f)
+
+    /// Specify this at milestones within a fucntion for fine-grained ADDERROR/ADDWARNING info.
+    #define ERRHINT(f_milestone) errtracer.update_milestone(f_milestone)
+
+    /// A version of ERRHINT that automatically includes the function name.
+    #define ERRHERE(f_milestone) errtracer.update_milestone(std::string(__func__)+f_milestone)
+#endif
+
 
 #define ADDERROR(f,e) fz::ErrQ.push(f,e)
 #define ERRRETURNFALSE(f,e) { fz::ErrQ.push(f,e); return false; }
@@ -52,17 +81,77 @@
     #define ERRWARN_LOG_MODE (std::ofstream::out | std::ofstream::app)
 #endif
 
+// +----- end  : A set of useful macros -----+
+
 namespace fz {
 
-/// Global variable that can be updated to give a better hint about where exactly an error occurred.
-extern std::string errhint;
+#ifdef NO_ERR_TRACE
+    /// Global variable that can be updated to give a better hint about where exactly an error occurred.
+    extern std::string errhint;
+#endif
 
 struct Error_Instance {
-    std::string hint;
+    std::string tracehint;
     std::string func;
     std::string err;
-    Error_Instance(std::string h, std::string f, std::string e): hint(h), func(f), err(e) {}
+    Error_Instance(std::string h, std::string f, std::string e): tracehint(h), func(f), err(e) {}
 };
+
+#ifndef NO_ERR_TRACE
+
+/// Defining this type for easy swap-in/out of vector, deque, or other container types.
+typedef std::vector<std::string> StackTrace;
+
+/**
+ * This structure is used to collaboratively maintain a stack trace for use in both
+ * logged errors and exception handling.
+ * 
+ * Functions that wish to expose their place on the stack for easy tracing should
+ * use the defined ERRSTACK_ macros to collaboratively manage this stack.
+ * 
+ * For more backtground information, read the card at https://trello.com/c/lNwxlrbT.
+ */
+struct Stack_Tracer: public StackTrace {
+
+    /// The number of levels presently in the trace.
+    StackTrace::size_type num_levels() const { return size(); }
+
+    /// Replace the current deepest level descriptor to identify a new milestone within the function.
+    void update_milestone(const std::string milestone) { if (!empty()) back() = milestone; }
+
+    /// Return a string that combines the full current state of the stack trace.
+    std::string print();
+
+};
+
+/// The global stack tracer variable.
+extern Stack_Tracer errtracer;
+
+class Trace_This {
+protected:
+    StackTrace::size_type tracelevel;
+
+public:
+    /**
+     * Construct this as local variable when you enter a function. Remember
+     * the level of the stack trace upon entering.
+     * 
+     * @param extend Label to add for the extension of the trace.
+     */
+    Trace_This(const std::string extend): tracelevel(errtracer.num_levels()) {
+        errtracer.push_back(extend);
+    }
+
+    /**
+     * Upon exiting the function, this local variable destructor is called.
+     * The stack trace is returned to its level at entry.
+     */
+    ~Trace_This() {
+        errtracer.resize(tracelevel,"trace_error"); ///< A "trace_error" is shown for any levels that had been removed too early.
+    }
+};
+
+#endif
 
 /**
  * Maintain a queue of recent errors encountered in ErrQ and provide them on demand.

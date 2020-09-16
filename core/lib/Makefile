@@ -122,6 +122,9 @@ $(OBJ)/standard.o: standard.cpp $(INC)/standard.hpp
 $(OBJ)/general.o: general.cpp $(INC)/general.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c general.cpp -o $(OBJ)/general.o
 
+$(OBJ)/utf8.o: utf8.cpp $(INC)/utf8.hpp $(INC)/error.hpp
+	$(CCPP) $(CPPFLAGS) -c utf8.cpp -o $(OBJ)/utf8.o
+
 $(OBJ)/templater.o: templater.cpp $(INC)/templater.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c templater.cpp -o $(OBJ)/templater.o
 

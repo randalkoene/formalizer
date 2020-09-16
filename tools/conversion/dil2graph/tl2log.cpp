@@ -500,53 +500,106 @@ void Log_Integrity_Tests(Log & log) {
     Problem_Chunks zeroduration;
     unsigned long mega_chunk = 0;
     Problem_Chunks megachunk;
+
     Log_chunks_Deque & chunks = log.get_Chunks();
-    for (const auto& chunkptr : chunks) {
+    for (auto chit = chunks.begin(); chit != chunks.end(); ++chit) {
+    //for (const auto& chunkptr : chunks) {
+        Log_chunk * chunkptr = chit->get();
         time_t t_open = chunkptr->get_open_time();
         time_t t_close = chunkptr->get_close_time();
         if (t_open<EPOCH1999) {
             ++topen_problems;
-            topenproblems.push_back(chunkptr.get());
+            topenproblems.push_back(chunkptr);
         }
         if (t_close<t_open) {
-            ++tclose_problems;
-            tcloseproblems.push_back(chunkptr.get());
+            if (std::next(chit)!=chunks.end()) {
+                ++tclose_problems;
+                tcloseproblems.push_back(chunkptr);
+            }
         } else {
             if (t_close == t_open) {
                 ++zero_duration;
-                zeroduration.push_back(chunkptr.get());
+                zeroduration.push_back(chunkptr);
             } else {
                 if ((t_close-t_open)>MEGACHUNK) {
                     ++mega_chunk;
-                    megachunk.push_back(chunkptr.get());
+                    megachunk.push_back(chunkptr);
                 }
             }
         }
         if (t_open > actualtime) {
             ++topen_future;
-            topenfuture.push_back(chunkptr.get());
+            topenfuture.push_back(chunkptr);
         }
         if (t_close > actualtime) {
             ++tclose_future;
-            tclosefuture.push_back(chunkptr.get());
+            tclosefuture.push_back(chunkptr);
         }
     }
+
     FZOUT("Log chunks open and close times summary:\n");
     FZOUT("  open times before 1999   : "+std::to_string(topen_problems)+'\n');
     FZOUT("  close time < open time   : "+std::to_string(tclose_problems)+'\n');
     FZOUT("  zero duration chunks     : "+std::to_string(zero_duration)+'\n');
     FZOUT("  unreasonably large chunks: "+std::to_string(mega_chunk)+'\n');
-    FZOUT("  open times in the future : "+std::to_string(topen_problems)+'\n');
-    FZOUT("  close times in the future: "+std::to_string(topen_problems)+'\n');
+    FZOUT("  open times in the future : "+std::to_string(topen_future)+'\n');
+    FZOUT("  close times in the future: "+std::to_string(tclose_future)+"\n\n");
     key_pause();
-    if (tclose_problems>0) { // Let's have a look at some
-        FZOUT("Close time < Open time examples:\n");
-        FZOUT("  Chunk ID: "+tcloseproblems[0]->get_tbegin_str()+'\n');
-        FZOUT("    open time : "+TimeStampYmdHM(tcloseproblems[0]->get_open_time())+'\n');
-        FZOUT("    close time: "+TimeStampYmdHM(tcloseproblems[0]->get_close_time())+'\n');
-        FZOUT("  Chunk ID: "+tcloseproblems[1]->get_tbegin_str()+'\n');
-        FZOUT("    open time : "+TimeStampYmdHM(tcloseproblems[1]->get_open_time())+'\n');
-        FZOUT("    close time: "+TimeStampYmdHM(tcloseproblems[1]->get_close_time())+'\n');
+
+    if (topen_problems>0) {
+        FZOUT("Open times before 1999:\n");
+        for (unsigned int i = 0; i < topen_problems; ++i) {
+            FZOUT("  Chunk ID: "+topenproblems[i]->get_tbegin_str()+'\n');
+            FZOUT("    open time : "+TimeStampYmdHM(tcloseproblems[i]->get_open_time())+'\n');               
+        }
+        FZOUT('\n');
+        key_pause();
+    }
+    if (tclose_problems>0) {
+        FZOUT("Close time < Open time:\n");
+        for (unsigned int i = 0; i < tclose_problems; ++i) {
+            FZOUT("  Chunk ID: "+tcloseproblems[i]->get_tbegin_str()+'\n');
+            FZOUT("    open time : "+TimeStampYmdHM(tcloseproblems[i]->get_open_time())+'\n');
+            FZOUT("    close time: "+TimeStampYmdHM(tcloseproblems[i]->get_close_time())+'\n');
+        }
+        FZOUT('\n');
+        key_pause();
+    }
+    if (zero_duration>0) {
+        FZOUT("Zero duration chunks:\n");
+        for (unsigned int i = 0; i < zero_duration; ++i) {
+            FZOUT("  Chunk ID: "+zeroduration[i]->get_tbegin_str()+'\n');
+        }
+        FZOUT('\n');
+        key_pause();
+    }
+    if (mega_chunk>0) {
+        FZOUT("Unreasonably large chunks:\n");
+        for (unsigned int i = 0; i < mega_chunk; ++i) {
+            FZOUT("  Chunk ID: "+megachunk[i]->get_tbegin_str()+'\n');
+            FZOUT("    duration  : "+to_precision_string((double)(megachunk[i]->get_close_time() - megachunk[i]->get_open_time())/86400.0)+" days\n");
+            FZOUT("    open time : "+TimeStampYmdHM(megachunk[i]->get_open_time())+'\n');
+            FZOUT("    close time: "+TimeStampYmdHM(megachunk[i]->get_close_time())+'\n');
+        }
+        FZOUT('\n');
+        key_pause();
+    }
+    if (topen_future>0) {
+        FZOUT("Open times in the future:\n");
+        for (unsigned int i = 0; i < topen_future; ++i) {
+            FZOUT("  Chunk ID: "+topenfuture[i]->get_tbegin_str()+'\n');
+            FZOUT("    open time : "+TimeStampYmdHM(topenfuture[i]->get_open_time())+'\n');               
+        }
+        FZOUT('\n');
+        key_pause();
+    }
+    if (tclose_future>0) {
+        FZOUT("Close times in the future:\n");
+        for (unsigned int i = 0; i < tclose_future; ++i) {
+            FZOUT("  Chunk ID: "+tclosefuture[i]->get_tbegin_str()+'\n');
+            FZOUT("    close time : "+TimeStampYmdHM(tclosefuture[i]->get_open_time())+'\n');               
+        }
+        FZOUT('\n');
         key_pause();
     }
     // Deal with duplicate Log chunk IDs.

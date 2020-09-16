@@ -1,10 +1,12 @@
 // Copyright 2020 Randal A. Koene
 // License TBD
 
+// std
 #include <iomanip>
-#include "utfcpp/source/utf8.h"
 
+// core
 #include "general.hpp"
+#include "utf8.hpp"
 #include "Graphtypes.hpp"
 
 namespace fz {
@@ -379,7 +381,7 @@ time_t Node::effective_targetdate() {
 }
 
 /**
- * Set the Node.text parameter content an ensure that it contains
+ * Set the Node.text parameter content and ensure that it contains
  * valid UTF8 encoded content.
  * 
  * Attempts to assign content to the text parameter as provided, and
@@ -397,9 +399,7 @@ time_t Node::effective_targetdate() {
  * @param utf8str a string that should contain UTF8 encoded text.
  */
 void Node::set_text(const std::string utf8str) {
-    utf8::reset_utf_fixes();
-    text = utf8::replace_invalid(utf8str);
-    if (utf8::check_utf_fixes()>0) ADDWARNING(__func__,"replaced "+std::to_string(utf8::check_utf_fixes())+" invalid UTF8 code points in Node description ("+utf8str.substr(0,20)+"...)");
+    text = utf8_safe(utf8str);
 }
 
 /**
