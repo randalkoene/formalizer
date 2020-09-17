@@ -28,7 +28,7 @@ flow_control = {
     'clean_all' : False,
     'compile_lib' : False,
     'clean_lib' : False,
-    'build_di2graph' : False
+    'build_dil2graph' : False
 }
 
 def try_subprocess_check_output(thecmdstring):
@@ -54,25 +54,50 @@ Cleans and compiles all components needed for `dil2graph`. That includes:
 - `dil2graph`
 """
 def build_dil2graph():
-    print('Building dil2graph from scratch (dil2graph, core, log2tl).')
-    retcode = try_subprocess_check_output('cd '+config.sourceroot+'/core/lib && make clean && make')
+    print('Building dil2graph from scratch (dil2graph, core, log2tl).\n')
+    print('  Cleaning and compiling core library. This can take 2-3 minutes.')
+    retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/core/lib && make clean && make')
     if (retcode != 0):
         print('Unable to clean and make core libraries.')
         exit(retcode)   
     else:
-        retcode = try_subprocess_check_output('cd '+config.sourceroot+'/tools/conversion/graph2dil && make clean && make')
+        print('  Cleaning and compiling graph2dil (for the log2tl component). This can take a minute.')
+        retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/tools/conversion/graph2dil && make clean && make')
         if (retcode != 0):
             print('Unable to clean and make graph2dil (for log2tl component).')
             exit(retcode)
         else:
-            retcode = try_subprocess_check_output('cd '+config.sourceroot+'/tools/conversion/dil2graph && make clean && make')
+            print('  Cleaning and compiling dil2graph. This can take a minute.')
+            retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/tools/conversion/dil2graph && make clean && make')
             if (retcode != 0):
                 print('Unable to clean and make dil2graph.')
                 exit(retcode)
             else:
                 print('Build done.')
                 exit(0)
-    
+
+
+def compile_lib():
+    print('Compiling core library.\n')
+    retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/core/lib && make')
+    if (retcode != 0):
+        print('Unable to make core libraries.')
+        exit(retcode)   
+    else:
+        print('Compiling done.')
+        exit(0)
+
+
+def clean_lib():
+    print('Cleaning core library.\n')
+    retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/core/lib && make clean')
+    if (retcode != 0):
+        print('Unable to clean core libraries.')
+        exit(retcode)   
+    else:
+        print('Cleaning done.')
+        exit(0)
+
 
 if __name__ == '__main__':
 
@@ -84,27 +109,29 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Useful shortcuts for frequent build targets.')
     parser.add_argument('-M', '--MakeAll', dest='makeall', action="store_true", help='compile all build targets')
     parser.add_argument('-C', '--CleanAll', dest='cleanall', action="store_true", help='clean all build targets')
-    parser.add_argument('-L', '--MakeLib', dest='makelib', help='compile library objects')
-    parser.add_argument('-l', '--CleanLib', dest='cleanlib', help='clean library objects')
+    parser.add_argument('-L', '--MakeLib', dest='makelib', action="store_true", help='compile library objects')
+    parser.add_argument('-l', '--CleanLib', dest='cleanlib', action="store_true", help='clean library objects')
     parser.add_argument('-D', '--dil2graph', dest='dil2graph', action='store_true', help='Build dil2graph from scratch')
 
     args = parser.parse_args()
 
-    if args.verbose:
-        config['verbose'] = True
     if args.makeall:
-        config['compile_all'] = True
+        flow_control['compile_all'] = True
     if args.cleanall:
-        config['clean_all'] = True
+        flow_control['clean_all'] = True
     if args.makelib:
-        config['compile_lib'] = True
+        flow_control['compile_lib'] = True
     if args.cleanlib:
-        config['clean_lib'] = True
+        flow_control['clean_lib'] = True
     if args.dil2graph:
-        config['build_dil2graph'] = True
+        flow_control['build_dil2graph'] = True
 
     if flow_control['build_dil2graph']:
         build_dil2graph()
+    if flow_control['compile_lib']:
+        compile_lib()
+    if flow_control['clean_lib']:
+        clean_lib()
 
     print('Some options have not been implemented yet.\n')
 

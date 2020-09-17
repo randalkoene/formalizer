@@ -12,6 +12,16 @@ namespace fz {
 /**
  * Notes about the Postgres Log layout:
  * 
+ * - About the Log entry `minor_id`: Where Node elements are concerned, we made the assumption in the
+ *   2.x data structure that there would never be more than 9 created in the same second. Hence, the
+ *   minor_id required only 1 digit to store. The situation is different for Log entries. First of
+ *   all, the major part of the ID is only YYYYmmddHHMM (without seconds). Secondly, it is entirely
+ *   possible that a Log chunk could contain many more than 9 Log entries. Therefore, Log entry ID
+ *   storage requires more digit space for the `minor_id`. In the current version of the data
+ *   structure (see coreversion), we are assuming that, because the `minor_id` is encoded as a
+ *   `uint8_t`, there can be a maximum of 255 Log entries in a Log chunk. The `minor_id` is given
+ *   a 3 digit space in the `.logentries` Postgres table.
+ * 
  */
 
 std::string pq_LBlayout(
@@ -25,7 +35,7 @@ std::string pq_LClayout(
 );
 
 std::string pq_LElayout(
-    "id char(14),"  // pqle_id
+    "id char(16),"  // pqle_id (see notes at top)
     "nid char(16)," // pqle_nid
     "text text"     // pqle_text
 );
@@ -404,6 +414,8 @@ bool read_Entries_pq(active_pq & apq, Log & log) {
             std::string entryid_str(PQgetvalue(res, r, pq_entry_field[pqle_id]));
             std::string nodeid_str(PQgetvalue(res, r, pq_entry_field[pqle_nid]));
             std::string entrytext(PQgetvalue(res, r, pq_entry_field[pqle_text]));
+            rtrim(entryid_str);
+            rtrim(nodeid_str);
 
             // attempt to build a Log_entry_ID object
             try {
@@ -412,10 +424,10 @@ bool read_Entries_pq(active_pq & apq, Log & log) {
                 const Log_chunk_ID_key chunkkey(entryid.key()); // no need to try, this one has to be valid if the entry ID was valid
                 Log_chunk * chunk = log.get_chunk(chunkkey);
                 if (!chunk)
-                    ERRRETURNFALSE(__func__,"stored Entry refers to Log chunk not found in Log");
+                    ERRRETURNFALSE(__func__,"stored Entry ("+entryid_str+") refers to Log chunk not found in Log");
 
                 std::unique_ptr<Log_entry> entry;
-                if (nodeid_str.empty()) { // make Log_entry object without Node specifier
+                if (nodeid_str.empty() || (nodeid_str=="{null-key}")) { // make Log_entry object without Node specifier
                     entry = std::make_unique<Log_entry>(entryid.key().idT, entrytext, chunk);
                     chunk->add_Entry(*entry); // add to chunk.entries
                     log.get_Entries().insert({entryid.key(),std::move(entry)}); // entry is now nullptr
@@ -423,10 +435,11 @@ bool read_Entries_pq(active_pq & apq, Log & log) {
                 } else {
                     // attempt to build a Node_ID object
                     try {
-                        const Node_ID nodeid(nodeid_str);
+                        const Node_ID_key nodeidkey(nodeid_str);
+                        // const Node_ID nodeid(nodeid_str); // *** not sure why we were doing this
 
                         // make Log_entry object with Node specifier
-                        entry = std::make_unique<Log_entry>(entryid.key().idT, entrytext, nodeid.key(), chunk);
+                        entry = std::make_unique<Log_entry>(entryid.key().idT, entrytext, nodeidkey, chunk);
                         chunk->add_Entry(*entry);
                         log.get_Entries().insert({entryid.key(),std::move(entry)}); // entry is now nullptr
 

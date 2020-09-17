@@ -131,12 +131,12 @@ bool valid_Node_ID(const ID_TimeStamp &idT, std::string &formerror) {
 bool valid_Node_ID(std::string id_str, std::string &formerror, ID_TimeStamp *id_timestamp) {
 
     if (id_str.length() < 16)
-        VALID_NODE_ID_FAIL("string size");
+        VALID_NODE_ID_FAIL("string size: "+id_str);
     if (id_str[14] != '.')
-        VALID_NODE_ID_FAIL("format");
+        VALID_NODE_ID_FAIL("format: "+id_str);
     for (int i = 0; i < 14; i++)
         if (!isdigit(id_str[i]))
-            VALID_NODE_ID_FAIL("digits");
+            VALID_NODE_ID_FAIL("digits: "+id_str);
 
     ID_TimeStamp idT;
     idT.year = stoi(id_str.substr(0, 4));
