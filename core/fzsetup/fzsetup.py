@@ -38,6 +38,8 @@ flow_control = {
     'reset_guide' : False
 }
 
+
+
 def try_subprocess_check_output(thecmdstring):
     try:
         res = subprocess.check_output(thecmdstring, shell=True)
@@ -149,6 +151,19 @@ def make_binaries_available():
     else:
         print('Formalizer executables made available at ~/.formalizer/bin')
         print('Please update your PATH to include ~/.formalizer/bin!')
+
+
+def create_configtree():
+    import executables
+
+    for an_executable in executables.executables:
+        a_config_dir = '~/.formalizer/config/'+an_executable
+        retcode = try_subprocess_check_output(f'mkdir -p {a_config_dir}')
+        if (retcode != 0):
+            print('Unable to create the config directory {a_config_dir}')
+            exit(retcode)
+    
+    print('Configuration directories created under ~/.formalizer/config/.')
 
     
 def set_All_flowcontrol():
@@ -370,7 +385,7 @@ if __name__ == '__main__':
     if flow_control['create_configtree']:
         create_configtree()
 
-    print('Note: Some options have not been fully implemented yet.')
+    #print('Note: Some options have not been fully implemented yet.')
 
 
     exit(0)

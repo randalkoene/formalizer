@@ -24,13 +24,7 @@ config = {
 }
 
 flow_control = {
-    'compile_all' : False,
-    'clean_all' : False,
-    'compile_lib' : False,
-    'clean_lib' : False,
-    'build_dil2graph' : False,
-    'build_graph2dil' : False,
-    'build_fzloghtml' : False
+    'show_executables' : False
 }
 
 def try_subprocess_check_output(thecmdstring):
@@ -48,103 +42,44 @@ def try_subprocess_check_output(thecmdstring):
         return 0
 
 
+def print_in_columns(thelist):
+    if len(thelist) % 2 != 0:
+        thelist.append(" ")
 
-"""
-Cleans and compiles all components needed for `dil2graph`. That includes:
-- `core` libraries
-- `graph2dil` (for the optional `log2tl` component)
-- `dil2graph`
-"""
-def build_dil2graph():
-    print('Building dil2graph from scratch (dil2graph, core, log2tl).\n')
-    print('  Cleaning and compiling core library. This can take 2-3 minutes.')
-    retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/core/lib && make clean && make')
-    if (retcode != 0):
-        print('Unable to clean and make core libraries.')
-        exit(retcode)   
-    else:
-        print('  Cleaning and compiling graph2dil (for the log2tl component). This can take a minute.')
-        retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/tools/conversion/graph2dil && make clean && make')
-        if (retcode != 0):
-            print('Unable to clean and make graph2dil (for log2tl component).')
-            exit(retcode)
-        else:
-            print('  Cleaning and compiling dil2graph. This can take a minute.')
-            retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/tools/conversion/dil2graph && make clean && make')
-            if (retcode != 0):
-                print('Unable to clean and make dil2graph.')
-                exit(retcode)
-            else:
-                print('Build done.')
-                exit(0)
+    splitidx = int(len(thelist)/2)
+    thelist1 = thelist[0:splitidx]
+    thelist2 = thelist[splitidx:]
+
+    for item1, item2 in zip(thelist1,thelist2):
+        print('    {0:25} {1}'.format(item1, item2))
 
 
-"""
-Cleans and compiles all components needed for `graph2dil`. That includes:
-- `core` libraries
-- `graph2dil`
-"""
-def build_graph2dil():
-    print('Building graph2dil from scratch (graph2dil, core).\n')
-    print('  Cleaning and compiling core library. This can take 2-3 minutes.')
-    retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/core/lib && make clean && make')
-    if (retcode != 0):
-        print('Unable to clean and make core libraries.')
-        exit(retcode)   
-    else:
-        print('  Cleaning and compiling graph2dil. This can take a minute.')
-        retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/tools/conversion/graph2dil && make clean && make')
-        if (retcode != 0):
-            print('Unable to clean and make graph2dil.')
-            exit(retcode)
-        else:
-            print('Build done.')
-            exit(0)
+def show_executables():
+    import executables
 
+    print('The following Formalizer executable components are available:\n')
 
-"""
-Cleans and compiles all components needed for `fzloghtml`. That includes:
-- `core` libraries
-- `fzloghtml`
-"""
-def build_fzloghtml():
-    print('Building fzlogheml from scratch (fzloghtml, core).\n')
-    print('  Cleaning and compiling core library. This can take 2-3 minutes.')
-    retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/core/lib && make clean && make')
-    if (retcode != 0):
-        print('Unable to clean and make core libraries.')
-        exit(retcode)   
-    else:
-        print('  Cleaning and compiling fzloghtml. This can take a minute.')
-        retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/tools/interface/fzloghtml && make clean && make')
-        if (retcode != 0):
-            print('Unable to clean and make fzloghtml.')
-            exit(retcode)
-        else:
-            print('Build done.')
-            exit(0)
+    #print(*executables.executables, sep='\n')
+    print_in_columns(list(executables.executables))
 
+    print('\nFor information about individual components do one of these:\n'
+    '  - Call the executable with the "-h" option.\n'
+    '  - Read the corresponding section in the Formalizer documentation.\n\n'
+    'Note that this list does not include the following types of executables:\n'
+    '  - Executables that are exclusively callable as CGI handlers.\n'
+    '  - Executables provided exclusively for (temporary) active cross-\n'
+    '    compatible operation (from the formalizer/tools/compat sources).\n'
+    '\n')
+    exit(0)
 
-def compile_lib():
-    print('Compiling core library.\n')
-    retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/core/lib && make')
-    if (retcode != 0):
-        print('Unable to make core libraries.')
-        exit(retcode)   
-    else:
-        print('Compiling done.')
-        exit(0)
+def parse_options():
+    parser = argparse.ArgumentParser(description='Information about the installed Formalizer environment.')
+    parser.add_argument('-E', '--Executables', dest='executables', action="store_true", help='show executables provided')
 
+    args = parser.parse_args()
 
-def clean_lib():
-    print('Cleaning core library.\n')
-    retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/core/lib && make clean')
-    if (retcode != 0):
-        print('Unable to clean core libraries.')
-        exit(retcode)   
-    else:
-        print('Cleaning done.')
-        exit(0)
+    if args.executables:
+        flow_control['show_executables'] = True
 
 
 if __name__ == '__main__':
@@ -154,43 +89,11 @@ if __name__ == '__main__':
 
     print(server_long_id+"\n")
 
-    parser = argparse.ArgumentParser(description='Useful shortcuts for frequent build targets.')
-    parser.add_argument('-M', '--MakeAll', dest='makeall', action="store_true", help='compile all build targets')
-    parser.add_argument('-C', '--CleanAll', dest='cleanall', action="store_true", help='clean all build targets')
-    parser.add_argument('-L', '--MakeLib', dest='makelib', action="store_true", help='compile library objects')
-    parser.add_argument('-l', '--CleanLib', dest='cleanlib', action="store_true", help='clean library objects')
-    parser.add_argument('-D', '--dil2graph', dest='dil2graph', action='store_true', help='Build dil2graph from scratch')
-    parser.add_argument('-G', '--graph2dil', dest='graph2dil', action='store_true', help='Build graph2dil from scratch')
-    parser.add_argument('-H', '--fzloghtml', dest='fzloghtml', action='store_true', help='Build fzloghtml from scratch')
+    parse_options()
 
+    if flow_control['show_executables']:
+        show_executables()
 
-    args = parser.parse_args()
-
-    if args.makeall:
-        flow_control['compile_all'] = True
-    if args.cleanall:
-        flow_control['clean_all'] = True
-    if args.makelib:
-        flow_control['compile_lib'] = True
-    if args.cleanlib:
-        flow_control['clean_lib'] = True
-    if args.dil2graph:
-        flow_control['build_dil2graph'] = True
-    if args.graph2dil:
-        flow_control['build_graph2dil'] = True
-    if args.fzloghtml:
-        flow_control['build_fzloghtml'] = True
-
-    if flow_control['build_dil2graph']:
-        build_dil2graph()
-    if flow_control['compile_lib']:
-        compile_lib()
-    if flow_control['clean_lib']:
-        clean_lib()
-    if flow_control['build_graph2dil']:
-        build_graph2dil()
-    if flow_control['build_fzloghtml']:
-        build_fzloghtml()
 
     print('Some options have not been implemented yet.\n')
 
