@@ -65,6 +65,25 @@ std::unique_ptr<Log> Graph_access::request_Log_copy() {
     return logptr;
 }
 
+void Graph_access::rapid_access_init(Graph &graph, Log &log) {
+    log.setup_Chain_nodeprevnext();
+    log.setup_Entry_node_caches(graph);
+    log.setup_Chunk_node_caches(graph);
+}
+
+std::pair<std::unique_ptr<Graph>, std::unique_ptr<Log>> Graph_access::request_Graph_and_Log_copies_and_init() {
+    std::unique_ptr<Graph> graphptr = request_Graph_copy();
+    std::unique_ptr<Log> logptr = request_Log_copy();
+
+    if ((graphptr != nullptr) && (logptr != nullptr)) {
+        rapid_access_init(*(graphptr.get()),*(logptr.get()));
+        return std::make_pair(graphptr, logptr);
+        
+    } else {
+        return std::make_pair(nullptr,nullptr);
+    }
+}
+
 #endif // TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE
 
 } // namespace fz

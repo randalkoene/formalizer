@@ -139,12 +139,16 @@ struct graph2dil: public formalizer_standard_program {
 
         // For each of the possible program flow control choices that would not already
         // have exited, we need both the Graph and the full Log, so we may as well load them here.
-        ERRHERE(".loadGraph");
-        graph = ga.request_Graph_copy();
+        ERRHERE(".load");
+        std::tie(graph,log) = ga.request_Graph_and_Log_copies_and_init();
 
-        ERRHERE(".loadLog");
-        log = ga.request_Log_copy();
-
+        VERBOSEOUT("\nFormalizer Graph and Log data structures fully loaded:\n\n");
+        VERBOSEOUT("  Number of Nodes        = "+std::to_string(graph->num_Nodes())+'\n');
+        VERBOSEOUT("  Number of Edges        = "+std::to_string(graph->num_Edges())+'\n');
+        VERBOSEOUT("  Number of Topics       = "+std::to_string(graph->num_Topics())+'\n');
+        VERBOSEOUT("  Number of Entries      = "+std::to_string(log->num_Entries())+'\n');
+        VERBOSEOUT("  Number of Chunks       = "+std::to_string(log->num_Chunks())+'\n');
+        VERBOSEOUT("  Number of Breakpoints  = "+std::to_string(log->num_Breakpoints())+"\n\n");
     }
 
 } g2d;
@@ -153,7 +157,9 @@ struct graph2dil: public formalizer_standard_program {
  * Program flow: Handle request to convert Log to Task Log Files.
  */
 bool flow_convert_Log2TL() {
-    ERRHERE(".prep");
+    ERRTRACE;
+    key_pause();
+    
     if (!std::filesystem::create_directories(g2d.DILTLdirectory)) {
         FZERR("\nUnable to create the output directory "+g2d.DILTLdirectory+".\n");
         exit(exit_general_error);
@@ -398,6 +404,9 @@ std::string render_DILbyID_entry(Node & node) {
  * Program flow: Handle request to convert Graph to DIL Files and Detailed Items by ID file.
  */
 bool flow_convert_Graph2DIL() {
+    ERRTRACE;
+    key_pause();
+
     ERRHERE(".prep");
     if (!std::filesystem::create_directories(g2d.DILTLdirectory)) {
         FZERR("\nUnable to create the output directory "+g2d.DILTLdirectory+".\n");

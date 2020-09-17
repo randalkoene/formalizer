@@ -770,4 +770,25 @@ void interactive_TL2Log_validation(Task_Log * tl, Log * log, Graph * graph) {
     if (d2g.TL_reconstruction_test) {
         direct_graph2dil_Log2TL_test(&reloaded,graph);
     }
+
+    FZOUT(
+        "Please note that logged errors or warnings that did not cause the program\n"
+        "to exit are typically not considered significant and will have been dealt\n"
+        "with through minor fixes, as follows:\n"
+        "  - 'attempted Node_ID construction with invalid string size' while\n"
+        "    converting a Log chunk means that a Node ID was missing, such as\n"
+        "    when manual context notes were made in the v1.x format. Depending\n"
+        "    on whether the Log chunk had any entries with content or not,\n"
+        "    that will have been fixed either by 'replaced with Lost-and-Found Node'\n"
+        "    or by 'eliminated per user instruction'. (See the Warnings log.)\n"
+        "  - When Log entry conversion finds it has 'malformed Node context at Log\n"
+        "    entry', that is fixed by treating the Log entry as chunk relative, i.e.\n"
+        "    belonging to the same Node as the Log chunk interval.\n"
+        "  - The warning 'no Log entries found in Log chunk' can typically be safely\n"
+        "    ignored.\n"
+        "  - Any utf8 issues are automatically fixed by a utf8 text safety filter.\n"
+        "\n"
+        "The real and ultiamte test is to convert back with `graph2dil`. For more,\n"
+        "see Trello card https://trello.com/c/uPj0uO8r.\n\n"
+        );
 }

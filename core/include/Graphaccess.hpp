@@ -60,8 +60,9 @@ struct Graph_access: public Postgres_access {
 public:
     std::unique_ptr<Graph> request_Graph_copy();
     std::unique_ptr<Log> request_Log_copy();
+    void rapid_access_init(Graph &graph, Log &log);                                                  ///< Once both Graph and Log instances have been loaded.
+    std::pair<std::unique_ptr<Graph>, std::unique_ptr<Log>> request_Graph_and_Log_copies_and_init(); ///< Combine the three functions above.
 #endif
-
 };
 
 } // namespace fz

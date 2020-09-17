@@ -617,8 +617,8 @@ public:
  * @return true if successfully converted.
  */
 bool interactive_Log2TL_conversion(Graph & graph, Log & log, const Log2TL_conv_params & params) {
+    ERRTRACE;
     COMPILEDPING(std::cout,"PING-Log2TL.top\n");
-    ERRHERE(".top");
 
     Log_chunk_ID_key_deque::size_type from_idx = 0;
     Log_chunk_ID_key_deque::size_type to_idx = log.num_Breakpoints()-1;
