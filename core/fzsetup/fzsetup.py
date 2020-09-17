@@ -30,6 +30,7 @@ flow_control = {
     'create_tables' : False,
     'make_fzuser_role' : False,
     'make_binaries' : False,
+    'create_configtree' : False,
     'reset_environment' : False,
     'reset_graph' : False,
     'reset_log' : False,
@@ -156,6 +157,7 @@ def set_All_flowcontrol():
     flow_control['create_tables']=True
     flow_control['make_fzuser_role']=True
     flow_control['make_binaries']=True    
+    flow_control['create_configtree']=True
 
 
 """
@@ -269,20 +271,21 @@ def reset_guide(cmdargs):
     exit(0)
 
 
-if __name__ == '__main__':
+def parse_options():
+    theepilog = ('Note that the schema name is also used for the fz(schema) role.\n\n'
+    'Reset "all" will delete the existing schema and then suggest -A.\n'
+    'Selecting "-1 config" will normally create the configuration directories under\n'
+    'the user home Formalizer configuration root at ~/.formalizer/.\n\n'
+    '*** The -p option is not yet fully implemented! ***\n')
 
-    core_version = coreversion.coreversion()
-    server_long_id = f"Formalizer:Setup v{version} (core v{core_version})"
-
-    print(server_long_id+"\n")
-
-    parser = argparse.ArgumentParser(description='Setup or refresh a Formalizer environment.',epilog='Note that the schema name is also used for the fz(schema) role.\n\nReset "all" will delete the existing schema and then suggest -A.')
+    parser = argparse.ArgumentParser(description='Setup or refresh a Formalizer environment.',epilog=theepilog)
     parser.add_argument('-A', '--All', dest='doall', action="store_true", help='do all setup steps, ensure environment is ready')
-    parser.add_argument('-1', '--One', metavar='setupaction', help='specify a step to do: database, schema, tables, fzuser, binaries')
+    parser.add_argument('-1', '--One', metavar='setupaction', help='specify a step to do: database, schema, tables, fzuser, binaries, config')
     parser.add_argument('-d', '--database', dest='dbname', help='specify database name (default: formalizer)')
     parser.add_argument('-s', '--schema', dest='schemaname', help='specify schema name (default: $USER)')
     parser.add_argument('-p', '--permissions', dest='permissions', action='store_true', help=f'give access permissions to {config["cgiuser"]}')
-    parser.add_argument('-m', '--makebins', dest='makebins', action='store_true', help='make Formalizer binaries available')
+    #parser.add_argument('-m', '--makebins', dest='makebins', action='store_true', help='make Formalizer binaries available')
+    parser.add_argument('-C', '--configtree', dest='configtree', action='store_true', help='create the tree for Formalizer config data')
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='turn on verbose mode')
     parser.add_argument('-R', '--reset', dest='reset', help='reset: all, graph, log, metrics, guide')
 
@@ -307,6 +310,8 @@ if __name__ == '__main__':
             flow_control['make_fzuser_role']=True
         if (args.One == "binaries"):
             flow_control['make_binaries']=True
+        if (args.One == "config"):
+            flow_control['create_configtree']=True
     if args.reset:
         if (args.reset == "all"):
             flow_control['reset_environment']=True
@@ -319,7 +324,6 @@ if __name__ == '__main__':
         if (args.reset == "guide"):
             flow_control['reset_guide']=True
 
-
     print('Working with the following targets:\n')
     print(f'  Formalizer Postgres database name   : {args.dbname}')
     print(f'  Formalizer user or group schema name: {args.schemaname}\n')
@@ -329,6 +333,18 @@ if __name__ == '__main__':
     if (choice != 'y'):
         print('Ok. You can try again with different command arguments.\n')
         exit(0)
+
+    return args
+
+
+if __name__ == '__main__':
+
+    core_version = coreversion.coreversion()
+    server_long_id = f"Formalizer:Setup v{version} (core v{core_version})"
+
+    print(server_long_id+"\n")
+
+    args = parse_options()
 
     if flow_control['reset_environment']:
         reset_environment(args)
@@ -351,6 +367,10 @@ if __name__ == '__main__':
         make_fzuser_role(args,True)
     if flow_control['make_binaries']:
         make_binaries_available()
+    if flow_control['create_configtree']:
+        create_configtree()
+
+    print('Note: Some options have not been fully implemented yet.')
 
 
     exit(0)

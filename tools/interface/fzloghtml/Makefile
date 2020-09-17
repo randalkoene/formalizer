@@ -96,6 +96,7 @@ CORE_OBJS = $(CORELIBPATH)/obj/error.o
 CORE_OBJS += $(CORELIBPATH)/obj/standard.o
 CORE_OBJS += $(CORELIBPATH)/obj/general.o
 CORE_OBJS += $(CORELIBPATH)/obj/templater.o
+CORE_OBJS += $(CORELIBPATH)/obj/utf8.o
 # CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
 CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o

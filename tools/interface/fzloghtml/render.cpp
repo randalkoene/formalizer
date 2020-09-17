@@ -119,7 +119,7 @@ bool render() {
         VERBOSEOUT("Writing HTML Log content to "+fzlh.dest+".\n\n");
         if (!string_to_file(fzlh.dest,rendered_logcontent)) {
             ADDERROR(__func__,"unable to write snippet to "+fzlh.dest);
-            fzlh.exit(exit_file_error);
+            standard.exit(exit_file_error);
         }
     }
 

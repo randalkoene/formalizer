@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 #
-# fzbuild.py
+# fzinfo.py
 #
-# Randal A. Koene, 20200916
+# Randal A. Koene, 20200917
 #
-# Helpful script with shortcuts for frequent build targets.
+# Information about the installed Formalizer environment. See README.md for more.
 
 import os
 import sys

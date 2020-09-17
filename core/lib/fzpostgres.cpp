@@ -219,7 +219,7 @@ void Postgres_access::usage_hook() {
     FZOUT("    -d use Postgres database <dbname>\n");
     FZOUT("       (default is " DEFAULT_DBNAME  ")\n"); // used to be $USER, but this was clarified in https://trello.com/c/Lww33Lym
     FZOUT("    -s use Postgres schema <schemaname>\n");
-    FZOUT("       (default is $USER or formalizeruser)\n");
+    FZOUT("       (default is $USER with fallback to: formalizeruser)\n");
 }
 
 bool Postgres_access::options_hook(char c, std::string cargs) {

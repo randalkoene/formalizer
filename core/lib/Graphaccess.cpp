@@ -77,7 +77,7 @@ std::pair<std::unique_ptr<Graph>, std::unique_ptr<Log>> Graph_access::request_Gr
 
     if ((graphptr != nullptr) && (logptr != nullptr)) {
         rapid_access_init(*(graphptr.get()),*(logptr.get()));
-        return std::make_pair(graphptr, logptr);
+        return std::make_pair(std::move(graphptr), std::move(logptr));
         
     } else {
         return std::make_pair(nullptr,nullptr);

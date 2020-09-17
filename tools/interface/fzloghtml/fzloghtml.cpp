@@ -37,7 +37,7 @@ fzloghtml fzlh;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzloghtml::fzloghtml(): ga(add_option_args,add_usage_top), t_from(RTt_unspecified), t_before(RTt_unspecified), iscale(interval_none), interval(0) {
+fzloghtml::fzloghtml(): formalizer_standard_program(true), ga(add_option_args,add_usage_top), t_from(RTt_unspecified), t_before(RTt_unspecified), iscale(interval_none), interval(0) {
     add_option_args += "1:2:o:d:H:w:";
     add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-d <days>|-H <hours>|-w <weeks>] [-o <outputfile>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
@@ -194,7 +194,6 @@ void fzloghtml::init_top(int argc, char *argv[]) {
 
 int main(int argc, char *argv[]) {
     fzlh.init_top(argc, argv);
-    fzlh.init(argc,argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 
     render();
 
@@ -208,5 +207,5 @@ int main(int argc, char *argv[]) {
     }
     */
 
-    return fzlh.completed_ok();
+    return standard.completed_ok();
 }
