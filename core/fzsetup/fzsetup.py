@@ -21,7 +21,9 @@ version = "0.1.0-0.1"
 
 config = {
     'verbose' : False,
-    'cgiuser' : 'www-data'
+    'cgiuser' : 'www-data',
+    'configroot' : '~/.formalizer/config/',
+    'sourceroot' : '~/src/formalizer'
 }
 
 flow_control = {
@@ -157,13 +159,21 @@ def create_configtree():
     import executables
 
     for an_executable in executables.executables:
-        a_config_dir = '~/.formalizer/config/'+an_executable
+        a_config_dir = config['configroot']+an_executable
         retcode = try_subprocess_check_output(f'mkdir -p {a_config_dir}')
         if (retcode != 0):
             print('Unable to create the config directory {a_config_dir}')
             exit(retcode)
     
-    print('Configuration directories created under ~/.formalizer/config/.')
+    print(f'Configuration directories created under {config["configroot"]}.')
+
+    READMEsourcepath = config['sourceroot']+'/core/README.md'
+    retcode = try_subprocess_check_output(f'sed -n \'/### About configuration files/,$ p\' {READMEsourcepath} > {config["configroot"]}README.md')
+    if (retcode != 0):
+        print('Unable to create the README.md file in the config directory')
+        exit(retcode)
+    else:
+        print(f'Configuration README.md created at {config["configroot"]}README.md.\n')
 
     
 def set_All_flowcontrol():
@@ -300,7 +310,6 @@ def parse_options():
     parser.add_argument('-s', '--schema', dest='schemaname', help='specify schema name (default: $USER)')
     parser.add_argument('-p', '--permissions', dest='permissions', action='store_true', help=f'give access permissions to {config["cgiuser"]}')
     #parser.add_argument('-m', '--makebins', dest='makebins', action='store_true', help='make Formalizer binaries available')
-    parser.add_argument('-C', '--configtree', dest='configtree', action='store_true', help='create the tree for Formalizer config data')
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='turn on verbose mode')
     parser.add_argument('-R', '--reset', dest='reset', help='reset: all, graph, log, metrics, guide')
 

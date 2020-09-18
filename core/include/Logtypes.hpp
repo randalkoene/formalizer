@@ -431,6 +431,15 @@ public:
     //*** in case the rapid-access vector was not initialized or was corrupted.
 };
 
+// +----- begin: EXPERIMENTING -----+
+
+/// This variant of Log is used by smart on-demand Log caching modes.
+class Log_interval: public Log { // *** not sure if this should inherit Log
+
+};
+
+// +----- end  : EXPERIMENTING -----+
+
 // +----- begin: inline functions -----+
 
 /// Set rapid-access node pointer. (See detailed description for Log_chunk below.)

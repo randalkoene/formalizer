@@ -337,10 +337,13 @@ bool get_Entry_pq_field_numbers(PGresult *res) {
 
 /**
  * Load full Chunks table into Log::chunks.
+ * 
+ * EXPERIMENTING: With optional WHERE statement! Just in case this function can be reused
+ * for load_Log_interval()!
  */
-bool read_Chunks_pq(active_pq & apq, Log & log) {
+bool read_Chunks_pq(active_pq & apq, Log & log, std::string wherestr = "") {
     ERRTRACE;
-    if (!query_call_pq(apq.conn,"SELECT * FROM "+apq.pq_schemaname+".Logchunks ORDER BY "+pq_chunk_fieldnames[pqlc_id],false)) return false;
+    if (!query_call_pq(apq.conn,"SELECT * FROM "+apq.pq_schemaname+".Logchunks"+wherestr+" ORDER BY "+pq_chunk_fieldnames[pqlc_id],false)) return false;
 
     //sample_query_data(conn,0,4,0,100,tmpout);
   
@@ -391,12 +394,17 @@ bool read_Chunks_pq(active_pq & apq, Log & log) {
  * (which is a good safety mechanism). This means, that this function can
  * really only be successfully called after calling `read_Chunks_pq()`.
  * 
+ * EXPERIMENTING: With optional WHERE statement! Just in case this function can be reused
+ * for load_Log_interval()!
+ * 
  * @param apq data structure with active database connection pointer and schema name.
  * @param log a Log object, typically with an existing chunks list but empty Breakpoints list.
+ * @param wherestr An optional WHERE string to constrain which records are retrieved.
+ * @return true if successful.
  */
-bool read_Entries_pq(active_pq & apq, Log & log) {
+bool read_Entries_pq(active_pq & apq, Log & log, std::string wherestr = "") {
     ERRTRACE;
-    if (!query_call_pq(apq.conn,"SELECT * FROM "+apq.pq_schemaname+".Logentries ORDER BY "+pq_entry_fieldnames[pqle_id],false)) return false;
+    if (!query_call_pq(apq.conn,"SELECT * FROM "+apq.pq_schemaname+".Logentries"+wherestr+" ORDER BY "+pq_entry_fieldnames[pqle_id],false)) return false;
 
     //sample_query_data(conn,0,4,0,100,tmpout);
   
@@ -489,6 +497,47 @@ bool load_Log_pq(Log & log, Postgres_access & pa) {
 
     ERRHERE(".breakpoints");
     if (!read_Breakpoints_pq(apq,log)) LOAD_LOG_PQ_RETURN(false);
+
+    LOAD_LOG_PQ_RETURN(true);
+}
+
+/** EXPERIMENTAL!
+ * Load the Log chunks and Log entries with ID in a specified interval.
+ * 
+ * This can be used by smart on-demand Log caching modes.
+ * 
+ * @param log A Log for the Chunks and Entries, typically empty.
+ * @param pa Access object with database name and schema name.
+ * @param t_from Chunk and entry IDs must be >= `t_from`.
+ * @param t_to Chunk and entry IDs must be <= `t_to`. 
+ * @return True if the Log was succesfully loaded from the database.
+ */
+bool TEST_load_Log_interval_pq(Log_interval & log, Postgres_access & pa, time_t t_from, time_t t_to) {
+    ERRTRACE;
+    if (t_from > t_to)
+        return false;
+    if (t_from > ActualTime())
+        return false;
+
+    PGconn* conn = connection_setup_pq(pa.dbname);
+    if (!conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define LOAD_LOG_PQ_RETURN(r) { PQfinish(conn); return r; }
+    active_pq apq(conn,pa.pq_schemaname);
+
+    // Create Postgres time stamps in Postgres WHERE statement.
+    std::string wherestr(" WHERE id >= "+TimeStamp_pq(t_from)+" AND id <= "+TimeStamp_pq(t_to));
+
+    ERRHERE(".chunks");
+    if (!read_Chunks_pq(apq,log,wherestr)) LOAD_LOG_PQ_RETURN(false);
+
+    ERRHERE(".entries");
+    if (!read_Entries_pq(apq,log,wherestr)) LOAD_LOG_PQ_RETURN(false);
+
+    // *** Breakpoints are really only for backwards compatibility.
+    //ERRHERE(".breakpoints");
+    //if (!read_Breakpoints_pq(apq,log)) LOAD_LOG_PQ_RETURN(false);
 
     LOAD_LOG_PQ_RETURN(true);
 }
