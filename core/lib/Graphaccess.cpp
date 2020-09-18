@@ -33,7 +33,7 @@ std::unique_ptr<Graph> Graph_access::request_Graph_copy() {
 
     std::unique_ptr<Graph> graphptr = std::make_unique<Graph>();
 
-    if (!load_Graph_pq(*graphptr, dbname, pq_schemaname)) {
+    if (!load_Graph_pq(*graphptr, dbname(), pq_schemaname())) {
         FZERR("\nSomething went wrong! Unable to load Graph from Postgres database.\n");
         standard.exit(exit_database_error);
     }

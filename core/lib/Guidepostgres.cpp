@@ -39,18 +39,18 @@ bool store_Guide_snippet_pq(const Guide_snippet & snippet, Postgres_access & pa)
     if (snippet.empty()) return false;
 
     pa.access_initialize();
-    PGconn* conn = connection_setup_pq(pa.dbname);
+    PGconn* conn = connection_setup_pq(pa.dbname());
     if (!conn) return false;
 
     // Define a clean return that closes the connection to the database and cleans up.
     #define STORE_SNIPPET_PQ_RETURN(r) { PQfinish(conn); return r; }
 
-    active_pq apq(conn,pa.pq_schemaname);
+    active_pq apq(conn,pa.pq_schemaname());
     if (!create_Guide_table(apq,snippet.tablename,snippet.layout())) {
         STORE_SNIPPET_PQ_RETURN(false);
     }
 
-    std::string insertsnippetstr("INSERT INTO "+pa.pq_schemaname + "." + snippet.tablename + " VALUES (" + snippet.all_values_pqstr() + ')');
+    std::string insertsnippetstr("INSERT INTO "+pa.pq_schemaname() + "." + snippet.tablename + " VALUES (" + snippet.all_values_pqstr() + ')');
     if (!simple_call_pq(conn,insertsnippetstr)) {
         STORE_SNIPPET_PQ_RETURN(false);
     }
@@ -69,13 +69,13 @@ bool store_Guide_snippet_pq(const Guide_snippet & snippet, Postgres_access & pa)
 bool read_Guide_snippet_pq(Guide_snippet & snippet, Postgres_access & pa) {
     ERRHERE(".setup");
     pa.access_initialize();
-    PGconn* conn = connection_setup_pq(pa.dbname);
+    PGconn* conn = connection_setup_pq(pa.dbname());
     if (!conn) return false;
 
     // Define a clean return that closes the connection to the database and cleans up.
     #define LOAD_SNIPPET_PQ_RETURN(r) { PQfinish(conn); return r; }
 
-    if (!query_call_pq(conn,"SELECT snippet FROM "+pa.pq_schemaname+ "." + snippet.tablename+" WHERE id="+snippet.idstr(),false)) LOAD_SNIPPET_PQ_RETURN(false);
+    if (!query_call_pq(conn,"SELECT snippet FROM "+pa.pq_schemaname()+ "." + snippet.tablename+" WHERE id="+snippet.idstr(),false)) LOAD_SNIPPET_PQ_RETURN(false);
 
     //sample_query_data(conn,0,4,0,100,tmpout);
   

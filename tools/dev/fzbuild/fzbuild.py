@@ -199,7 +199,7 @@ if __name__ == '__main__':
     if args.cleanlib:
         flow_control['clean_lib'] = True
     if args.boilerplate:
-        flow_control['boilerplate'] = True
+        flow_control['build_boilerplate'] = True
     if args.dil2graph:
         flow_control['build_dil2graph'] = True
     if args.graph2dil:
@@ -207,7 +207,7 @@ if __name__ == '__main__':
     if args.fzloghtml:
         flow_control['build_fzloghtml'] = True
 
-    if flow_control['boilerplate']:
+    if flow_control['build_boilerplate']:
         build_boilerplate()
     if flow_control['build_dil2graph']:
         build_dil2graph()

@@ -128,6 +128,12 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
     return false;
 }
 
+/// Configure configurable parameters.
+bool fzlh_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
+    CONFIG_TEST_AND_SET_PAR(testconfig, "testconfig", parlabel, parvalue);
+    CONFIG_PAR_NOT_FOUND(parlabel);
+}
+
 /**
  * Initialize configuration parameters.
  * Call this at the top of main().
@@ -139,7 +145,14 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
  * @param argv command line parameters array forwarded from main().
  */
 void fzloghtml::init_top(int argc, char *argv[]) {
+    ERRTRACE;
     // *** add any initialization here that has to happen before standard initialization
+    if (!config.load()) {
+        const std::string configerrstr("Errors during configuration file processing");
+        ADDERROR(__func__,configerrstr);
+        VERBOSEERR(configerrstr);
+    }
+
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
     // *** add any initialization here that has to happen once in main(), for the derived class
 
@@ -194,6 +207,15 @@ void fzloghtml::init_top(int argc, char *argv[]) {
 
 int main(int argc, char *argv[]) {
     fzlh.init_top(argc, argv);
+
+    //*** TESTING
+    FZOUT("TESTING CONFIGURATION LOADING!\n");
+    FZOUT("Configuration parameters were set to:\n");
+    FZOUT("  dbname        : "+fzlh.ga.dbname()+'\n');
+    FZOUT("  pq_schemaname : "+fzlh.ga.pq_schemaname()+'\n');
+    FZOUT("  testconfig    : "+fzlh.config.testconfig+'\n');
+
+    return standard.completed_ok();
 
     render();
 

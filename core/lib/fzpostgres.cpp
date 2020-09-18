@@ -215,6 +215,22 @@ time_t epochtime_from_timestamp_pq(std::string pqtimestamp) {
     return time_stamp_time(pqtimestamp);
 }
 
+/// This includes the `load()` call directly in the constructor.
+fzpq_configurable::fzpq_configurable(): configurable("fzpostgres") {
+    if (!load()) {
+        const std::string configerrstr("Errors during configuration file processing");
+        ADDERROR(__func__,configerrstr);
+        VERBOSEERR(configerrstr);
+    }
+}
+
+/// Configure configurable parameters.
+bool fzpq_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
+    CONFIG_TEST_AND_SET_PAR(dbname, "dbname", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(pq_schemaname, "pq_schemaname", parlabel, parvalue);
+    CONFIG_PAR_NOT_FOUND(parlabel);
+}
+
 void Postgres_access::usage_hook() {
     FZOUT("    -d use Postgres database <dbname>\n");
     FZOUT("       (default is " DEFAULT_DBNAME  ")\n"); // used to be $USER, but this was clarified in https://trello.com/c/Lww33Lym
@@ -226,11 +242,11 @@ bool Postgres_access::options_hook(char c, std::string cargs) {
     switch (c) {
 
     case 'd':
-        dbname = cargs;
+        config.dbname = cargs;
         return true;
 
     case 's':
-        pq_schemaname = cargs;
+        config.pq_schemaname = cargs;
         return true;
     }
 
@@ -253,28 +269,28 @@ void Postgres_access::schemaname_error() {
 
 void Postgres_access::access_initialize() {
     COMPILEDPING(std::cout,"PING-access_initialize()\n");
-    if (dbname.empty()) { // attempt to get a default
-        dbname = DEFAULT_DBNAME;
+    if (dbname().empty()) { // attempt to get a default
+        config.dbname = DEFAULT_DBNAME;
         /* See how this was clarified and changed in https://trello.com/c/Lww33Lym.
         char *username = std::getenv("USER");
         if (username)
             dbname = username;
         */
     }
-    if (pq_schemaname.empty()) { // attempt to get a default
+    if (pq_schemaname().empty()) { // attempt to get a default
         char *username = std::getenv("USER");
         if (username)
-            pq_schemaname = username;
+            config.pq_schemaname = username;
     }
 
-    if (dbname.empty())
+    if (dbname().empty())
         dbname_error();
-    if (pq_schemaname.empty())
+    if (pq_schemaname().empty())
         schemaname_error();
 
     if (!standard.quiet) {
-        FZOUT("Postgres database selected: "+dbname+'\n');
-        FZOUT("Postgres schema selected  : "+pq_schemaname+'\n');
+        FZOUT("Postgres database selected: "+dbname()+'\n');
+        FZOUT("Postgres schema selected  : "+pq_schemaname()+'\n');
     }
 }
 

@@ -12,6 +12,7 @@ CC=gcc
 CCPP=g++ 
 ##########################################################
 
+CONFIGROOT=-DCONFIG_ROOT=\"$(HOME)/.formalizer/config\"
 DEFAULTDBNAME=-DDEFAULT_DBNAME=\"formalizer\"
 DEFAULTSCHEMA=-DDEFAULT_PQ_SCHEMANAME=\"$(USER)\"
 
@@ -116,8 +117,11 @@ init: FORCE
 $(OBJ)/error.o: error.cpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c error.cpp -o $(OBJ)/error.o
 
-$(OBJ)/standard.o: standard.cpp $(INC)/standard.hpp
+$(OBJ)/standard.o: standard.cpp $(INC)/standard.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c standard.cpp -o $(OBJ)/standard.o
+
+$(OBJ)/config.o: config.cpp $(INC)/config.hpp $(INC)/error.hpp
+	$(CCPP) $(CPPFLAGS) $(CONFIGROOT) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c config.cpp -o $(OBJ)/config.o
 
 $(OBJ)/general.o: general.cpp $(INC)/general.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c general.cpp -o $(OBJ)/general.o

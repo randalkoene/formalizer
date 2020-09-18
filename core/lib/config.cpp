@@ -9,43 +9,52 @@
 #include "general.hpp"
 #include "config.hpp"
 
-/// CONFIG_ROOT must be supplied by -D during make.
+/**
+ * CONFIG_ROOT must be supplied by -D during make.
+ * For example: CONFIGROOT=-DCONFIG_ROOT=\"$(HOME)/.formalizer/config\"
+ */
 #ifndef CONFIG_ROOT
     #define CONFIT_ROOT this_breaks
 #endif
 
 namespace fz {
 
+configurable::configurable(std::string thisprogram): processed(false) {
+    if (!thisprogram.empty())
+        configfile = std::string(CONFIG_ROOT)+'/'+thisprogram+"/config.json";
+}
+
 /**
- * Load the configuration file indicated by `config`, parse the
- * contents and set parameters through calls to `config::set_parameter()`.
+ * Load the configuration file indicated by `configfile`, parse the
+ * contents and set parameters through calls to `set_parameter()`.
  * 
  * Note: It is not an error if a configuration file does not exist. That
  * just means that no parameters have been specified and defaults are used.
  * Not finding a configuration file does generate a warning.
  * 
- * @param config A `configurable` with valid `configfile` specification.
  * @return True if the configuration file was successfully loaded and parsed.
  */
-bool configure::load(configurable & config) {
+bool configurable::load() {
     ERRTRACE;
-    if (config.configfile.empty())
+    if (processed)
+        return true; // not an error, calling multiple times is fine
+
+    processed = true;
+    if (configfile.empty())
         ERRRETURNFALSE(__func__,"Empty string in config.configfile");
 
-    std::string configpath(std::string(CONFIG_ROOT)+'/'+config.configfile);
-
     std::error_code ec;
-    if (!std::filesystem::exists(configpath,ec)) {
-        ADDWARNING(__func__,"No configuration file found at "+configpath+", default parameter values applied");
+    if (!std::filesystem::exists(configfile,ec)) {
+        ADDWARNING(__func__,"No configuration file found at "+configfile+", default parameter values applied");
         return true; // this is not an error
     }
 
     std::string configcontentstr;
-    if (!file_to_string(configpath,configcontentstr))
-        ERRRETURNFALSE(__func__,"Unable to load configuration file "+configpath);
+    if (!file_to_string(configfile,configcontentstr))
+        ERRRETURNFALSE(__func__,"Unable to load configuration file "+configfile);
 
-    if (!parse(configcontentstr, config))
-        ERRRETURNFALSE(__func__,"Unable to parse the contents of configuration file "+configpath)
+    if (!parse(configcontentstr))
+        ERRRETURNFALSE(__func__,"Unable to parse some or all contents of configuration file "+configfile)
 
     return true;
 }
@@ -83,9 +92,9 @@ std::pair<std::string, std::string> param_value(const std::string & par_value_pa
  * about this JSON subset format, see the README.md file.
  * 
  * @param configcontentstr A string containing the contents of the configuration file.
- * @param config A `configurable` with `set_parameter()` method.
+ * @return True if the configuration contents were successfully parsed.
  */
-bool configure::parse(std::string & configcontentstr, configurable & config) {
+bool configurable::parse(std::string & configcontentstr) {
     ERRTRACE;
     // trim away the opening bracket
     ltrim(configcontentstr);
@@ -101,12 +110,18 @@ bool configure::parse(std::string & configcontentstr, configurable & config) {
     auto configlines = split(configcontentstr,',');
 
     ERRHERE(".params");
+    bool parse_errors = false;
     for (const auto& it : configlines) {
         auto [parlabel, parvalue] = param_value(it);
         if (!parlabel.empty()) {
-            config.set_parameter(parlabel, parvalue);
+            if (!set_parameter(parlabel, parvalue)) {
+                ADDERROR(__func__,"Unable to parse configuration parameter: "+parlabel);
+                parse_errors = true;
+            }
         }
     }
+
+    return parse_errors;
 }
 
 } // namespace fz

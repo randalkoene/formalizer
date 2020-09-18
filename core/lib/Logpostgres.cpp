@@ -128,12 +128,12 @@ bool add_Logentry_pq(const active_pq & apq, const Log_entry & entry) {
 bool store_Log_pq(const Log & log, Postgres_access & pa, void (*progressfunc)(unsigned long, unsigned long)) {
     ERRTRACE;
     active_pq apq;
-    apq.conn = connection_setup_pq(pa.dbname);
+    apq.conn = connection_setup_pq(pa.dbname());
     if (!apq.conn) return false;
 
     // Define a clean return that closes the connection to the database and cleans up.
     #define STORE_LOG_PQ_RETURN(r) { PQfinish(apq.conn); return r; }
-    apq.pq_schemaname = pa.pq_schemaname;
+    apq.pq_schemaname = pa.pq_schemaname();
 
     ERRHERE(".schema");
     if (!create_Formalizer_schema_pq(apq.conn, apq.pq_schemaname)) STORE_LOG_PQ_RETURN(false);
@@ -482,12 +482,12 @@ bool read_Entries_pq(active_pq & apq, Log & log, std::string wherestr = "") {
  */
 bool load_Log_pq(Log & log, Postgres_access & pa) {
     ERRTRACE;
-    PGconn* conn = connection_setup_pq(pa.dbname);
+    PGconn* conn = connection_setup_pq(pa.dbname());
     if (!conn) return false;
 
     // Define a clean return that closes the connection to the database and cleans up.
     #define LOAD_LOG_PQ_RETURN(r) { PQfinish(conn); return r; }
-    active_pq apq(conn,pa.pq_schemaname);
+    active_pq apq(conn,pa.pq_schemaname());
 
     ERRHERE(".chunks");
     if (!read_Chunks_pq(apq,log)) LOAD_LOG_PQ_RETURN(false);
@@ -519,12 +519,12 @@ bool TEST_load_Log_interval_pq(Log_interval & log, Postgres_access & pa, time_t 
     if (t_from > ActualTime())
         return false;
 
-    PGconn* conn = connection_setup_pq(pa.dbname);
+    PGconn* conn = connection_setup_pq(pa.dbname());
     if (!conn) return false;
 
     // Define a clean return that closes the connection to the database and cleans up.
     #define LOAD_LOG_PQ_RETURN(r) { PQfinish(conn); return r; }
-    active_pq apq(conn,pa.pq_schemaname);
+    active_pq apq(conn,pa.pq_schemaname());
 
     // Create Postgres time stamps in Postgres WHERE statement.
     std::string wherestr(" WHERE id >= "+TimeStamp_pq(t_from)+" AND id <= "+TimeStamp_pq(t_to));

@@ -19,6 +19,7 @@
 
 // core
 //#include "error.hpp"
+#include "config.hpp"
 #include "TimeStamp.hpp"
 
 /**
@@ -101,13 +102,23 @@ struct active_pq {
     active_pq(PGconn * _conn, std::string _schemaname): conn(_conn), pq_schemaname(_schemaname) {}
 };
 
+class fzpq_configurable: public configurable {
+public:
+    fzpq_configurable();
+
+    bool set_parameter(const std::string & parlabel, const std::string & parvalue);
+
+    std::string dbname;
+    std::string pq_schemaname;
+
+};
+
 /**
  * A standardized way to access the Formalizer database.
  * 
  */
 struct Postgres_access {
-    std::string dbname;
-    std::string pq_schemaname;
+    fzpq_configurable config;
 
     bool is_server; /// authoritative server programs should set this flag
 
@@ -130,6 +141,11 @@ struct Postgres_access {
     void usage_hook();
 
     bool options_hook(char c, std::string cargs);
+
+    // Providing these to shield users of fzpostrges from further complexities about
+    // where the actual dbname and pq_schemaname variables reside.
+    const std::string & dbname() { return config.dbname; }
+    const std::string & pq_schemaname() { return config.pq_schemaname; }
 
 protected:
     void dbname_error();

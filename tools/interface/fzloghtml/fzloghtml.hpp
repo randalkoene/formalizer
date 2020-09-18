@@ -13,6 +13,7 @@
 
 // core
 #include "standard.hpp"
+#include "config.hpp"
 #include "Graphaccess.hpp"
 #include "Logtypes.hpp"
 
@@ -31,7 +32,17 @@ enum interval_scale {
     interval_weeks
 };
 
+class fzlh_configurable: public configurable {
+public:
+    fzlh_configurable(): configurable("fzloghtml") {}
+    bool set_parameter(const std::string & parlabel, const std::string & parvalue);
+
+    std::string testconfig; // *** JUST HERE FOR TESTING PURPOSES!
+};
+
 struct fzloghtml: public formalizer_standard_program {
+
+    fzlh_configurable config;
 
     flow_options flowcontrol;
 
