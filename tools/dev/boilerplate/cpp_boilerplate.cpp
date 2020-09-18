@@ -80,7 +80,7 @@ int make_cpp_boilerplate() {
     render_environment env;
     cpp_bp_templates templates;
     if (!load_templates(templates))
-        bp.exit(exit_file_error); // Don't continue if you don't have the templates.
+        standard.exit(exit_file_error); // Don't continue if you don't have the templates.
 
     std::string thisname = ask_string_input("Component name (e.g. boilerplate): ", false);
     std::string CAPSthis = thisname;
@@ -228,5 +228,5 @@ int make_cpp_boilerplate() {
         }
     }
 
-    return bp.completed_ok();
+    return standard.completed_ok();
 }

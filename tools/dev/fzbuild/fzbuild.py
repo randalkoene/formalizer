@@ -28,6 +28,7 @@ flow_control = {
     'clean_all' : False,
     'compile_lib' : False,
     'clean_lib' : False,
+    'build_boilerplate' : False,
     'build_dil2graph' : False,
     'build_graph2dil' : False,
     'build_fzloghtml' : False
@@ -47,6 +48,28 @@ def try_subprocess_check_output(thecmdstring):
             print(res)
         return 0
 
+
+"""
+Cleans and compiles all components needed for `boilerplate`. That includes:
+- `core` libraries
+- `boilerplate`
+"""
+def build_boilerplate():
+    print('Building boilerplate from scratch (boilerplate, core).\n')
+    print('  Cleaning and compiling core library. This can take 2-3 minutes.')
+    retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/core/lib && make clean && make')
+    if (retcode != 0):
+        print('Unable to clean and make core libraries.')
+        exit(retcode)   
+    else:
+        print('  Cleaning and compiling boilerplate. This can take a minute.')
+        retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/tools/dev/boilerplate && make clean && make')
+        if (retcode != 0):
+            print('Unable to clean and make boilerplate.')
+            exit(retcode)
+        else:
+            print('Build done.')
+            exit(0)
 
 
 """
@@ -159,6 +182,7 @@ if __name__ == '__main__':
     parser.add_argument('-C', '--CleanAll', dest='cleanall', action="store_true", help='clean all build targets')
     parser.add_argument('-L', '--MakeLib', dest='makelib', action="store_true", help='compile library objects')
     parser.add_argument('-l', '--CleanLib', dest='cleanlib', action="store_true", help='clean library objects')
+    parser.add_argument('-B', '--boilerplate', dest='boilerplate', action='store_true', help='Build boilerplate from scratch')
     parser.add_argument('-D', '--dil2graph', dest='dil2graph', action='store_true', help='Build dil2graph from scratch')
     parser.add_argument('-G', '--graph2dil', dest='graph2dil', action='store_true', help='Build graph2dil from scratch')
     parser.add_argument('-H', '--fzloghtml', dest='fzloghtml', action='store_true', help='Build fzloghtml from scratch')
@@ -174,6 +198,8 @@ if __name__ == '__main__':
         flow_control['compile_lib'] = True
     if args.cleanlib:
         flow_control['clean_lib'] = True
+    if args.boilerplate:
+        flow_control['boilerplate'] = True
     if args.dil2graph:
         flow_control['build_dil2graph'] = True
     if args.graph2dil:
@@ -181,6 +207,8 @@ if __name__ == '__main__':
     if args.fzloghtml:
         flow_control['build_fzloghtml'] = True
 
+    if flow_control['boilerplate']:
+        build_boilerplate()
     if flow_control['build_dil2graph']:
         build_dil2graph()
     if flow_control['compile_lib']:

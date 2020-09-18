@@ -38,7 +38,7 @@ using namespace fz;
 
 boilerplate bp;
 
-boilerplate::boilerplate() {
+boilerplate::boilerplate(): formalizer_standard_program(true) {
     add_option_args += "T:";
     add_usage_top += " [-T <target>]";
 }
@@ -170,12 +170,12 @@ std::string formalizer_path_dir(std::string compname, std::string category, bool
 void careful_file_create(std::string filename, std::string & filecontent) {
     if (std::filesystem::exists(filename)) {
         ADDERROR(__func__,"the file "+filename+" already exists");
-        bp.exit(exit_file_error);
+        standard.exit(exit_file_error);
     }
 
     if (!string_to_file(filename,filecontent)) {
         ADDERROR(__func__,"unable to write content to "+filename);
-        bp.exit(exit_file_error);
+        standard.exit(exit_file_error);
     }
 }
 
@@ -204,6 +204,6 @@ int main(int argc, char *argv[]) {
 
     }
 
-    return bp.completed_ok();
+    return standard.completed_ok();
 }
 
