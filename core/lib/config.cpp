@@ -109,7 +109,7 @@ bool configurable::parse(std::string & configcontentstr) {
     // trim away the opening bracket
     ltrim(configcontentstr);
     if (configcontentstr.front()=='{') { // not making a fuss if it's not there
-        configcontentstr.erase(0);
+        configcontentstr.erase(0,1);
     }
     // trim away the closing bracket
     rtrim(configcontentstr);
@@ -120,18 +120,18 @@ bool configurable::parse(std::string & configcontentstr) {
     auto configlines = split(configcontentstr,',');
 
     ERRHERE(".params");
-    bool parse_errors = false;
+    bool noerrors = true;
     for (const auto& it : configlines) {
         auto [parlabel, parvalue] = param_value(it);
         if (!parlabel.empty()) {
             if (!set_parameter(parlabel, parvalue)) {
                 ADDERROR(__func__,"Unable to parse configuration parameter: "+parlabel);
-                parse_errors = true;
+                noerrors = false;
             }
         }
     }
 
-    return parse_errors;
+    return noerrors;
 }
 
 } // namespace fz

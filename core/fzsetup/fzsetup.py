@@ -157,6 +157,7 @@ def make_binaries_available():
 
 def create_configtree():
     import executables
+    import coreconfigurable
 
     for an_executable in executables.executables:
         a_config_dir = config['configroot']+an_executable
@@ -165,6 +166,13 @@ def create_configtree():
             print('Unable to create the config directory {a_config_dir}')
             exit(retcode)
     
+    for a_configurable in coreconfigurable.coreconfigurable:
+        a_config_dir = config['configroot']+a_configurable
+        retcode = try_subprocess_check_output(f'mkdir -p {a_config_dir}')
+        if (retcode != 0):
+            print('Unable to create the config directory {a_config_dir}')
+            exit(retcode)
+
     print(f'Configuration directories created under {config["configroot"]}.')
 
     READMEsourcepath = config['sourceroot']+'/core/README.md'

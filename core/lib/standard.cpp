@@ -219,7 +219,7 @@ void formalizer_standard_program::init(int argc, char *argv[], std::string versi
     ERRHERE(".config");
     standard.set_name(argv[0]);
 
-    if (uses_config) {
+    if (uses_config) { // *** I think this has been replaced by the `configurable` method.
         // *** This is where the actual configuration call or hook should probably be!
         // (But we can't print the warning here, or else we can't suppress it with -q
         // due to needing to parse the command line first.)

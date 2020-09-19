@@ -147,19 +147,6 @@ bool fzlh_configurable::set_parameter(const std::string & parlabel, const std::s
 void fzloghtml::init_top(int argc, char *argv[]) {
     ERRTRACE;
     // *** add any initialization here that has to happen before standard initialization
-    /* TESTING THE OTHER APPROACH THROUGH `main_init_register`
-    if (!ga.config.load()) {
-        const std::string configerrstr("Errors during configuration file processing");
-        ADDERROR(__func__,configerrstr);
-        VERBOSEERR(configerrstr+'\n');
-    }
-    if (!config.load()) {
-        const std::string configerrstr("Errors during configuration file processing");
-        ADDERROR(__func__,configerrstr);
-        VERBOSEERR(configerrstr+'\n');
-    }
-    */
-
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
     // *** add any initialization here that has to happen once in main(), for the derived class
 
