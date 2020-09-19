@@ -52,6 +52,9 @@
 
 namespace fz {
 
+// Forward declaration
+class main_init_register;
+
 /**
  * Standardized exit codes for the Formalizer environment.
  */
@@ -163,6 +166,9 @@ protected:
     bool uses_config = true;  ///< This standard program uses standard configuration methods.
     bool initialized = false; ///< This is used to test if standard.init() was called before permitting other things.
 
+    //std::deque<bool (*) (void)> init_register_stack; ///< Here we store registered early init calls (see `main_init_register`).
+    std::deque<main_init_register *> init_register_stack;
+
     void commandline(int argc, char *argv[]);
 
 public:
@@ -179,6 +185,8 @@ public:
     formalizer_standard_program(bool _usesconfig);
 
     bool was_initialized() { return initialized; }
+
+    void add_registered_init(main_init_register * mir);//bool (*initfunc) (void)); ///< Called by the constructor of `main_init_register`.
 
     /**
      * The standard initialization procedure. This should typically be called in the first
@@ -210,6 +218,21 @@ public:
      */
     virtual bool options_hook(char c, std::string cargs) { return false; }
 
+};
+
+/**
+ * Classes that need an initialization function to be called first-thing upon
+ * entering `main()` (but not before that in the hazardous global variables
+ * constructor calls phase) should inherit this class.
+ * 
+ * Their initialization function will then be added to the `init_register_stack`
+ * of the `formalizer_standard_program` of which they are a part.
+ */
+class main_init_register {
+public:
+    main_init_register(formalizer_standard_program & fsp); //, bool (*initfunc) (void));
+
+    virtual bool init() = 0; ///< Define this, at least as a wrapper around any other function.
 };
 
 std::pair<int, std::string> safe_cmdline_options(int argc, char *argv[], std::string options, int &optindcopy);

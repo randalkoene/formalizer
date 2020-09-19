@@ -53,7 +53,7 @@ void Errors::push(std::string f, std::string e) {
 #else
 
     // push the stack trace on with the function and error message
-    errq.push_back(Error_Instance(errtracer.print(),f,e));
+    errq.emplace_back(Error_Instance(errtracer.print(),f,e));
 
 #endif
 

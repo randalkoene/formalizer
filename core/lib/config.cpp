@@ -19,9 +19,19 @@
 
 namespace fz {
 
-configurable::configurable(std::string thisprogram): processed(false) {
+configurable::configurable(std::string thisprogram, formalizer_standard_program & fsp): main_init_register(fsp), processed(false) {
     if (!thisprogram.empty())
         configfile = std::string(CONFIG_ROOT)+'/'+thisprogram+"/config.json";
+}
+
+bool configurable::init() {
+    if (!load()) {
+        const std::string configerrstr("Errors during configuration file processing");
+        VERBOSEERR(configerrstr+'\n');
+        ERRRETURNFALSE(__func__,configerrstr);
+    }
+
+    return true;
 }
 
 /**

@@ -37,7 +37,7 @@ fzloghtml fzlh;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzloghtml::fzloghtml(): formalizer_standard_program(true), ga(add_option_args,add_usage_top), t_from(RTt_unspecified), t_before(RTt_unspecified), iscale(interval_none), interval(0) {
+fzloghtml::fzloghtml(): formalizer_standard_program(true), config(*this), ga(*this, add_option_args,add_usage_top), t_from(RTt_unspecified), t_before(RTt_unspecified), iscale(interval_none), interval(0) {
     add_option_args += "1:2:o:d:H:w:";
     add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-d <days>|-H <hours>|-w <weeks>] [-o <outputfile>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
@@ -147,11 +147,18 @@ bool fzlh_configurable::set_parameter(const std::string & parlabel, const std::s
 void fzloghtml::init_top(int argc, char *argv[]) {
     ERRTRACE;
     // *** add any initialization here that has to happen before standard initialization
+    /* TESTING THE OTHER APPROACH THROUGH `main_init_register`
+    if (!ga.config.load()) {
+        const std::string configerrstr("Errors during configuration file processing");
+        ADDERROR(__func__,configerrstr);
+        VERBOSEERR(configerrstr+'\n');
+    }
     if (!config.load()) {
         const std::string configerrstr("Errors during configuration file processing");
         ADDERROR(__func__,configerrstr);
-        VERBOSEERR(configerrstr);
+        VERBOSEERR(configerrstr+'\n');
     }
+    */
 
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
     // *** add any initialization here that has to happen once in main(), for the derived class
@@ -206,6 +213,7 @@ void fzloghtml::init_top(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
+    ERRTRACE;
     fzlh.init_top(argc, argv);
 
     //*** TESTING

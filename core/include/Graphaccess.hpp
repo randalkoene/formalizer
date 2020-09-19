@@ -48,7 +48,7 @@ struct Graph_access: public Postgres_access {
      * @param add_usage_top_here receiving string where the option format is appended
      *                           to extend the top line of usage output.
      */
-    Graph_access(std::string & add_option_args_here, std::string & add_usage_top_here, bool _isserver = false): Postgres_access(add_option_args_here,add_usage_top_here,_isserver) {
+    Graph_access(formalizer_standard_program & fps, std::string & add_option_args_here, std::string & add_usage_top_here, bool _isserver = false): Postgres_access(fps, add_option_args_here,add_usage_top_here,_isserver) {
         //COMPILEDPING(std::cout, "PING-Graph_access().1\n");
         // This is better called just before a Graph request: graph_access_initialize();
     }

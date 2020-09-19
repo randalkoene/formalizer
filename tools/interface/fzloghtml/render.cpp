@@ -77,6 +77,7 @@ std::string render_Log_entry(Log_entry & entry) {
  * rending templates and send to designated output destination.
  */
 bool render() {
+    ERRTRACE;
     load_templates(templates);
 
     auto [from_idx, to_idx] = fzlh.log->get_Chunks_index_t_interval(fzlh.t_from, fzlh.t_before);

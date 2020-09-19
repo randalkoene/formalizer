@@ -124,6 +124,11 @@ formalizer_standard_program::formalizer_standard_program(bool _usesconfig): uses
     standard.veryverbose = false;
 }
 
+/// Add the init function of a `main_init_register` derived class to the `main_init_register` queue.
+void formalizer_standard_program::add_registered_init(main_init_register * mir) { //bool (*initfunc) (void)) {
+    init_register_stack.emplace_back(mir);//initfunc);
+}
+
 //*** It could be useful to replace the below with use of the templater.hpp methods.
 void formalizer_standard_program::print_usage() {
     FZOUT("Usage: "+name()+" [-E <errfile>] [-W <warnfile>] [-q|-V]"+add_usage_top+'\n');
@@ -219,6 +224,11 @@ void formalizer_standard_program::init(int argc, char *argv[], std::string versi
         // (But we can't print the warning here, or else we can't suppress it with -q
         // due to needing to parse the command line first.)
     }
+    if (!init_register_stack.empty()) { // call registered init functions
+        for (const auto& initfuncptr : init_register_stack) {
+            initfuncptr->init(); //(*initfuncptr)();
+        }
+    }
 
     // Note: Don't PRINT ANYTHING before parsing the command line in order to catch -q as needed!
     ERRHERE(".commandline");
@@ -242,6 +252,10 @@ void formalizer_standard_program::init(int argc, char *argv[], std::string versi
     // configuration or command line options.
     VERYVERBOSEOUT("Adding exit hook: clean_exit_wrapper\n");
     VERYVERBOSEOUT("Adding exit hook: error_summary_wrapper\n");
+}
+
+main_init_register::main_init_register(formalizer_standard_program & fsp) { //, bool (*initfunc) (void)) {
+    fsp.add_registered_init(this); //initfunc);
 }
 
 } // namespace fz

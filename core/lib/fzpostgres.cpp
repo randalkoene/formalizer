@@ -215,14 +215,7 @@ time_t epochtime_from_timestamp_pq(std::string pqtimestamp) {
     return time_stamp_time(pqtimestamp);
 }
 
-/// This includes the `load()` call directly in the constructor.
-fzpq_configurable::fzpq_configurable(): configurable("fzpostgres") {
-    if (!load()) {
-        const std::string configerrstr("Errors during configuration file processing");
-        ADDERROR(__func__,configerrstr);
-        VERBOSEERR(configerrstr);
-    }
-}
+fzpq_configurable::fzpq_configurable(formalizer_standard_program & fsp): configurable("fzpostgres", fsp) { }
 
 /// Configure configurable parameters.
 bool fzpq_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {

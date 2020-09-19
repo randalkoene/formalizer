@@ -12,6 +12,20 @@ CC=gcc
 CCPP=g++ 
 ##########################################################
 
+##########################################################
+## Compiler Options
+## ----------------
+## debugging information (updates 2019-02-01):
+#COMPOPT= -g -O0
+#OPTSTR=optimized_for_debugging
+## generate profile information for use with gprof:
+#COMPOPT= -g -O6
+#OPTSTR=profiling
+## optimized (USUALLY USE THIS ONE!):
+COMPOPT= -O3
+OPTSTR=optimized
+##########################################################
+
 CONFIGROOT=-DCONFIG_ROOT=\"$(HOME)/.formalizer/config\"
 DEFAULTDBNAME=-DDEFAULT_DBNAME=\"formalizer\"
 DEFAULTSCHEMA=-DDEFAULT_PQ_SCHEMANAME=\"$(USER)\"
@@ -64,23 +78,6 @@ CPPXTRA= $(MACHOPT) -mieee-fp -ffast-math -DDEFAULTHOMEDIR=\"$(HOME)\" -pedantic
 ##########################################################
 
 ##########################################################
-## Compiler Options
-## ----------------
-## debugging information (updates 2019-02-01):
-#COMPOPT= -g -Og
-#OPTSTR=editing_optimized_for_debugging
-## generate profile information for use with gprof:
-#COMPOPT= -g -O6
-#OPTSTR=profiling
-## optimized (USUALLY USE THIS ONE!):
-COMPOPT= -O3
-OPTSTR=optimized
-## optimized + debugging info (as per GDB recommendations 2019-02-01)
-#COMPOPT= -g -O3
-#OPTSTR=production_optimized_with_dbg_symbols
-##########################################################
-
-##########################################################
 ## C++ Specific Compiler Options
 ## -----------------------------
 ## debugging information:
@@ -120,7 +117,7 @@ $(OBJ)/error.o: error.cpp $(INC)/error.hpp
 $(OBJ)/standard.o: standard.cpp $(INC)/standard.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c standard.cpp -o $(OBJ)/standard.o
 
-$(OBJ)/config.o: config.cpp $(INC)/config.hpp $(INC)/error.hpp
+$(OBJ)/config.o: config.cpp $(INC)/config.hpp $(INC)/standard.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) $(CONFIGROOT) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c config.cpp -o $(OBJ)/config.o
 
 $(OBJ)/general.o: general.cpp $(INC)/general.hpp $(INC)/error.hpp

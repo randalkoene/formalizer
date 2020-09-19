@@ -11,7 +11,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}",
-            "args": [ "-T", "-f", "19991127", "-t", "19991127" ],
+            "args": [  ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

@@ -17,7 +17,7 @@
 //#include <>
 
 // core
-//#include "error.hpp"
+#include "standard.hpp"
 
 
 /// Use this handy macro within the `set_parameter()` function of classes inheriting `configurable`.
@@ -42,14 +42,16 @@ namespace fz {
  * 
  * This class is used to declare configurable parameters.
  */
-class configurable {
+class configurable: public main_init_register {
 protected:
     std::string configfile; ///< This is set in the constructor.
 
     bool processed; ///< Flag used to ensure a configuration file is normally processed only once.
 
 public:
-    configurable(std::string thisprogram);
+    configurable(std::string thisprogram, formalizer_standard_program & fsp);
+
+    virtual bool init(); ///< This resides on the `fsp.main_register_stack`.
 
     /**
      * This method must be defined in configurable Formalizer components and
@@ -83,9 +85,12 @@ public:
      * will be run just like command line parsing will be run, and it will occur
      * before corresponding parameters are set on the command line.
      * 
-     * Another natural location could be in the constructor of the class that
-     * inherits configurable - if the state of the program is ready for this
-     * at the time when the constructor is called.
+     * BEWARE: While tempting, do NOT call `load()` from the global variable
+     * constructor of the class that inherits configurable. The order in which
+     * global variables from different translation units (source files) are
+     * initialized is undefined! This means segfaults that are difficult
+     * to track down may occur, for example if the `load()` function calls
+     * a function in `error.cpp`. See, for example, https://trello.com/c/rjFzbRpT.
      * 
      * Don't worry about multiple calls (as can happen within options_hook()).
      * This function checks and sets a flag to ensure it processes the configuration

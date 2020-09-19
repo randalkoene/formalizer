@@ -19,6 +19,9 @@
 
 using namespace fz;
 
+// Forward declarations
+struct fzloghtml;
+
 enum flow_options {
     flow_unknown = 0, /// no recognized request
     //flow_something = 1,     /// request: make boilerplate for C++ program
@@ -34,7 +37,7 @@ enum interval_scale {
 
 class fzlh_configurable: public configurable {
 public:
-    fzlh_configurable(): configurable("fzloghtml") {}
+    fzlh_configurable(formalizer_standard_program & fsp): configurable("fzloghtml", fsp) {}
     bool set_parameter(const std::string & parlabel, const std::string & parvalue);
 
     std::string testconfig; // *** JUST HERE FOR TESTING PURPOSES!

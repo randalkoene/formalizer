@@ -103,7 +103,8 @@ struct Error_Instance {
     std::string tracehint;
     std::string func;
     std::string err;
-    Error_Instance(std::string h, std::string f, std::string e): tracehint(h), func(f), err(e) {}
+    Error_Instance() {}
+    Error_Instance(const std::string h, const std::string f, const std::string e): tracehint(h), func(f), err(e) {}
 };
 
 #ifndef NO_ERR_TRACE

@@ -19,6 +19,7 @@
 
 // core
 //#include "error.hpp"
+#include "standard.hpp"
 #include "config.hpp"
 #include "TimeStamp.hpp"
 
@@ -104,7 +105,7 @@ struct active_pq {
 
 class fzpq_configurable: public configurable {
 public:
-    fzpq_configurable();
+    fzpq_configurable(formalizer_standard_program & fsp);
 
     bool set_parameter(const std::string & parlabel, const std::string & parvalue);
 
@@ -130,7 +131,7 @@ struct Postgres_access {
      * @param add_usage_top_here receiving string where the option format is appended
      *                           to extend the top line of usage output.
      */
-    Postgres_access(std::string & add_option_args_here, std::string & add_usage_top_here, bool _isserver = false): is_server(_isserver) {
+    Postgres_access(formalizer_standard_program & fsp, std::string & add_option_args_here, std::string & add_usage_top_here, bool _isserver = false): config(fsp), is_server(_isserver) {
         //COMPILEDPING(std::cout, "PING-Graph_access().1\n");
         add_option_args_here += "d:s:";
         add_usage_top_here += " [-d <dbname>] [-s <schemaname>]";
