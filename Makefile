@@ -56,6 +56,7 @@ EXECUTABLES += $(COREPATH)/fzsetup/fzsetup.py
 # EXECUTABLES = $(COREPATH)/fzupdate/fzupdate
 
 EXECUTABLES += $(TOOLSPATH)/compat/dil2al-polldaemon.sh
+EXECUTABLES += $(TOOLSPATH)/compat/v1xv2x-refresh.sh
 EXECUTABLES += $(TOOLSPATH)/conversion/dil2graph/dil2graph
 EXECUTABLES += $(TOOLSPATH)/conversion/graph2dil/graph2dil
 EXECUTABLES += $(TOOLSPATH)/dev/boilerplate/boilerplate
