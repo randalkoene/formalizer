@@ -70,8 +70,25 @@ $(function() {
 <p>In brief, as of 2020-09-09, these criteria are that something belongs in <code>core</code> if:</p>
 <ol type="1">
 <li>It is an essential component. There is no other lower-level program that supplies the essential content.</li>
-<li>A program performs a task that is clearly categorized as belonging to one of the first three abstraction layers: the <b>Data Layer</b>, the <b>Database Layer</b>, or the <b>Data Server Layer</b>. </li>
+<li>A program performs a task that is clearly categorized as belonging to one of the first three abstraction layers: the <b>Data Layer</b>, the <b>Database Layer</b>, or the <b>Data Server Layer</b>.</li>
 </ol>
+<h3>Dependencies</h3>
+<ul>
+<li>The essential <code>core</code> <em>Data Layer</em> components <code><a class="el" href="Graphtypes_8hpp_source.html">Graphtypes.hpp</a></code> and <code><a class="el" href="Logtypes_8hpp.html" title="This header file declares Log types for use with the Formalizer. ">Logtypes.hpp</a></code> depend on the <code>utfcpp</code> library, an open source library for UTF8 text safety.</li>
+<li>The <em>Database Layer</em> components <code>Graphpostgre.hpp</code> and <code><a class="el" href="Logpostgres_8hpp.html" title="This header file declares Log Postgres types for use with the Formalizer. ">Logpostgres.hpp</a></code> depend on the authoritative Postgres C library <code>libpq</code>.</li>
+</ul>
+<h3>About configuration files</h3>
+<p>Core libraries and Formalizer standardized programs expect configuration files arranged within a <code>.formalizer/config/this-component/</code> directory, where <code>this-component</code> is the library component or program in question. The configuration directories can be initialized by running <code>fzsetup.py -C</code>.</p>
+<p>The format of the configuration files is is a subset of JSON, as follows:</p>
+<div class="fragment"><div class="line">{</div><div class="line">&quot;variable_name1&quot; : &quot;some string value&quot;,</div><div class="line">&quot;variable_name2&quot; : 157,</div><div class="line">&quot;variable_name3&quot; : &quot;SOME_IDENTIFIER_OR_LABELED_SETTING&quot;</div><div class="line">}</div></div><!-- fragment --><p>Reasons:</p>
+<ul>
+<li>It may pay off to remain close to a known standard when then is little performance benefit to be had by using one of the others.</li>
+<li>That format appears to be immediately loadable in Python as a <code>dict</code>.</li>
+<li>Colon is just as good as equal sign.</li>
+<li>Comma is just as good as semicolon.</li>
+<li>By avoiding the recursive depth of regular JSON for now, parsing is kept very simple.</li>
+</ul>
+<p>For more, see <a href="https://trello.com/c/4B7x2kif">https://trello.com/c/4B7x2kif</a>. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

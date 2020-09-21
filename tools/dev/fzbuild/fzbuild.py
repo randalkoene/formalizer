@@ -8,22 +8,37 @@
 
 import os
 import sys
-sys.path.append(os.getenv('HOME')+'/src/formalizer/core/lib')
-sys.path.append(os.getenv('HOME')+'/src/formalizer/core/include')
-
 import argparse
 import subprocess
-
-import coreversion
+import json
 
 version = "0.1.0-0.1"
 
-config = {
-    'verbose' : False,
-    'sourceroot': '~/src/formalizer' 
-}
+# Standardized expectations.
+userhome = os.getenv('HOME')
+fzuserbase = userhome + '/.formalizer'
+fzsetupconfigdir = fzuserbase+'/config/fzsetup.py'
+fzsetupconfig = fzsetupconfigdir+'/config.json'
+
+try:
+    with open(fzsetupconfig) as f:
+        config = json.load(f)
+
+except FileNotFoundError:
+    print('Unable to load fundamental standard configuration data.\nPlease run `fzsetup -l` first to self-initialize and check the results.\n')
+    exit(1)
+
+# Enable us to import standardized Formalizer Python components.
+fzcorelibdir = config['sourceroot'] + '/core/lib'
+fzcoreincludedir = config['sourceroot'] + '/core/include'
+sys.path.append(fzcorelibdir)
+sys.path.append(fzcoreincludedir)
+
+# core components
+import coreversion
 
 flow_control = {
+    'make_docs' : False,
     'compile_all' : False,
     'clean_all' : False,
     'compile_lib' : False,
@@ -47,6 +62,30 @@ def try_subprocess_check_output(thecmdstring):
         if config['verbose']:
             print(res)
         return 0
+
+
+"""
+Update Doxygen documentation.
+"""
+def make_docs():
+    print('Updating Doxygen documentation.\n')
+    doxybuildcmd = 'cd ' + config['sourceroot'] + ' && make doxygen'
+    retcode = try_subprocess_check_output(doxybuildcmd)
+    if (retcode != 0):
+        print('Unable to remake Doxygen documentation.')
+        exit(retcode)
+    
+    print('Doxygen documentation rebuilt.\n')
+    doxycopy = input('Copy Doxygen documentation to web root for web interface to docs? (y/N) ')
+    if (doxycopy == 'y'):
+        doxycopycmd = 'rm -rf ' + config["wwwdoxyroot"] + ' && cp -r ' + config["doxyroot"] + ' ' + config["wwwdoxyroot"]
+        retcode = try_subprocess_check_output(doxycopycmd)
+        if (retcode != 0):
+            print(f'Unable to copy Doxygen documentation to {config["wwwdoxyroot"]}.')
+            exit(retcode)
+    
+    print('Done.\n\n')
+    exit(0)
 
 
 """
@@ -178,6 +217,7 @@ if __name__ == '__main__':
     print(server_long_id+"\n")
 
     parser = argparse.ArgumentParser(description='Useful shortcuts for frequent build targets.')
+    parser.add_argument('-d', '--Doxygen', dest='makedocs', action="store_true", help='update Doxygen documentation')
     parser.add_argument('-M', '--MakeAll', dest='makeall', action="store_true", help='compile all build targets')
     parser.add_argument('-C', '--CleanAll', dest='cleanall', action="store_true", help='clean all build targets')
     parser.add_argument('-L', '--MakeLib', dest='makelib', action="store_true", help='compile library objects')
@@ -190,6 +230,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    if args.makedocs:
+        flow_control['make_docs'] = True
     if args.makeall:
         flow_control['compile_all'] = True
     if args.cleanall:
@@ -207,6 +249,8 @@ if __name__ == '__main__':
     if args.fzloghtml:
         flow_control['build_fzloghtml'] = True
 
+    if flow_control['make_docs']:
+        make_docs()
     if flow_control['build_boilerplate']:
         build_boilerplate()
     if flow_control['build_dil2graph']:

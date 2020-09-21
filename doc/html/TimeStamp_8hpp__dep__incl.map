@@ -1,7 +1,7 @@
 <map id="core/include/TimeStamp.hpp" name="core/include/TimeStamp.hpp">
 <area shape="rect" id="node2" href="$fzpostgres_8hpp_source.html" title="core/include/fzpostgres.hpp" alt="" coords="565,162,748,189"/>
 <area shape="rect" id="node11" href="$Graphtypes_8hpp_source.html" title="core/include/Graphtypes.hpp" alt="" coords="1025,80,1213,107"/>
-<area shape="rect" id="node13" href="$Logtypes_8hpp_source.html" title="core/include/Logtypes.hpp" alt="" coords="959,244,1133,271"/>
+<area shape="rect" id="node13" href="$Logtypes_8hpp.html" title="This header file declares Log types for use with the Formalizer. " alt="" coords="959,244,1133,271"/>
 <area shape="rect" id="node17" href="$LogtypesID_8hpp_source.html" title="core/include/LogtypesID.hpp" alt="" coords="1552,162,1740,189"/>
 <area shape="rect" id="node3" href="$Graphaccess_8hpp_source.html" title="core/include/Graphaccess.hpp" alt="" coords="445,244,644,271"/>
 <area shape="rect" id="node8" href="$Guidepostgres_8hpp_source.html" title="core/include/Guidepostgres.hpp" alt="" coords="94,244,299,271"/>

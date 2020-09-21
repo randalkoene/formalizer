@@ -67,6 +67,8 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="classfz_1_1Errors-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -78,12 +80,24 @@ $(function() {
  <a href="classfz_1_1Errors.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="error_8hpp_source.html">error.hpp</a>&gt;</code></p>
+<div class="dynheader">
+Collaboration diagram for fz::Errors:</div>
+<div class="dyncontent">
+<div class="center"><img src="classfz_1_1Errors__coll__graph.png" border="0" usemap="#fz_1_1Errors_coll__map" alt="Collaboration graph"/></div>
+<map name="fz_1_1Errors_coll__map" id="fz_1_1Errors_coll__map">
+<area shape="rect" id="node2" href="classfz_1_1err__configbase.html" title="fz::err_configbase" alt="" coords="5,81,132,108"/>
+<area shape="rect" id="node3" href="classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="17,5,121,32"/>
+</map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a1e003aa1ca8d892dee1280ef2838cdba"><td class="memItemLeft" align="right" valign="top"><a id="a1e003aa1ca8d892dee1280ef2838cdba"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Errors</b> (std::string efp)</td></tr>
 <tr class="separator:a1e003aa1ca8d892dee1280ef2838cdba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6325e93504cd1104c72b7992e7a58e2"><td class="memItemLeft" align="right" valign="top"><a id="ad6325e93504cd1104c72b7992e7a58e2"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>init</b> ()</td></tr>
+<tr class="separator:ad6325e93504cd1104c72b7992e7a58e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a27984ea5d185a47bba63036fa3cb158c"><td class="memItemLeft" align="right" valign="top"><a id="a27984ea5d185a47bba63036fa3cb158c"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_errfilepath</b> (std::string efp)</td></tr>
 <tr class="separator:a27984ea5d185a47bba63036fa3cb158c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -93,9 +107,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_errfilepat
 <tr class="memitem:a90d891ec4025e9a74f9aac517beb0254"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Errors.html#a90d891ec4025e9a74f9aac517beb0254">push</a> (std::string f, std::string e)</td></tr>
 <tr class="memdesc:a90d891ec4025e9a74f9aac517beb0254"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pushes a new error instance to the back of the queue of errors.  <a href="#a90d891ec4025e9a74f9aac517beb0254">More...</a><br /></td></tr>
 <tr class="separator:a90d891ec4025e9a74f9aac517beb0254"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad23c6de949c3c1ecc1251754908279d6"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Errors.html#ad23c6de949c3c1ecc1251754908279d6">pretty_print</a> () const</td></tr>
-<tr class="memdesc:ad23c6de949c3c1ecc1251754908279d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concatenate all errors in the error queue in a single string.  <a href="#ad23c6de949c3c1ecc1251754908279d6">More...</a><br /></td></tr>
-<tr class="separator:ad23c6de949c3c1ecc1251754908279d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa766e6f97807f5ce6584ecec8dad72e8"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Errors.html#aa766e6f97807f5ce6584ecec8dad72e8">pretty_print</a> ()</td></tr>
+<tr class="memdesc:aa766e6f97807f5ce6584ecec8dad72e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concatenate all errors in the error queue in a single string.  <a href="#aa766e6f97807f5ce6584ecec8dad72e8">More...</a><br /></td></tr>
+<tr class="separator:aa766e6f97807f5ce6584ecec8dad72e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab22d290508d043fa1f5c5c225f3d03c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfz_1_1Error__Instance.html">Error_Instance</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Errors.html#ab22d290508d043fa1f5c5c225f3d03c0">pop</a> ()</td></tr>
 <tr class="memdesc:ab22d290508d043fa1f5c5c225f3d03c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pops the oldest error from the front of the queue of errors.  <a href="#ab22d290508d043fa1f5c5c225f3d03c0">More...</a><br /></td></tr>
 <tr class="separator:ab22d290508d043fa1f5c5c225f3d03c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -127,6 +141,21 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>pinging</b> ()</td></
 <tr class="memdesc:ac21660b9b891aacbc2895c77eef70b2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stream error messages to file and flush the queue.  <a href="#ac21660b9b891aacbc2895c77eef70b2c">More...</a><br /></td></tr>
 <tr class="separator:ac21660b9b891aacbc2895c77eef70b2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:ab4ffdf1225354e2f0dcb510f4c90bb3d"><td class="memItemLeft" align="right" valign="top"><a id="ab4ffdf1225354e2f0dcb510f4c90bb3d"></a>
+<a class="el" href="classfz_1_1err__configbase.html">err_configbase</a>&#160;</td><td class="memItemRight" valign="bottom"><b>config</b></td></tr>
+<tr class="separator:ab4ffdf1225354e2f0dcb510f4c90bb3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:a1d3d1b36b041b73e2ae48e38ce458cb2"><td class="memItemLeft" align="right" valign="top"><a id="a1d3d1b36b041b73e2ae48e38ce458cb2"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>print_first_timecode</b> ()</td></tr>
+<tr class="separator:a1d3d1b36b041b73e2ae48e38ce458cb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d48a214cf318b08e905a370746ba036"><td class="memItemLeft" align="right" valign="top"><a id="a1d48a214cf318b08e905a370746ba036"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>print_updated_timecode</b> ()</td></tr>
+<tr class="separator:a1d48a214cf318b08e905a370746ba036"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
 <tr class="memitem:a56d8b6bbd601c60bc23dc9b645e0fc72"><td class="memItemLeft" align="right" valign="top"><a id="a56d8b6bbd601c60bc23dc9b645e0fc72"></a>
@@ -144,6 +173,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>caching</b></td></tr>
 <tr class="memitem:a290f84801be49e5bb6d800261b1e9caf"><td class="memItemLeft" align="right" valign="top"><a id="a290f84801be49e5bb6d800261b1e9caf"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>ping</b></td></tr>
 <tr class="separator:a290f84801be49e5bb6d800261b1e9caf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b830b3cbc98bdf4881119955fc5f2de"><td class="memItemLeft" align="right" valign="top"><a id="a4b830b3cbc98bdf4881119955fc5f2de"></a>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>timecode</b></td></tr>
+<tr class="separator:a4b830b3cbc98bdf4881119955fc5f2de"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Maintain a queue of recent errors encountered in ErrQ and provide them on demand. </p>
@@ -217,8 +249,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>ping</b></td></tr>
 
 </div>
 </div>
-<a id="ad23c6de949c3c1ecc1251754908279d6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad23c6de949c3c1ecc1251754908279d6">&#9670;&nbsp;</a></span>pretty_print()</h2>
+<a id="aa766e6f97807f5ce6584ecec8dad72e8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa766e6f97807f5ce6584ecec8dad72e8">&#9670;&nbsp;</a></span>pretty_print()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -227,7 +259,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>ping</b></td></tr>
           <td class="memname">std::string fz::Errors::pretty_print </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">

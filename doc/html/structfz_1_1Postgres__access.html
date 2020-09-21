@@ -87,12 +87,23 @@ Inheritance diagram for fz::Postgres_access:</div>
 <area shape="rect" id="node2" href="structfz_1_1Graph__access.html" title="A standardized way to access the Graph database. " alt="" coords="14,80,139,107"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
+<div class="dynheader">
+Collaboration diagram for fz::Postgres_access:</div>
+<div class="dyncontent">
+<div class="center"><img src="structfz_1_1Postgres__access__coll__graph.png" border="0" usemap="#fz_1_1Postgres__access_coll__map" alt="Collaboration graph"/></div>
+<map name="fz_1_1Postgres__access_coll__map" id="fz_1_1Postgres__access_coll__map">
+<area shape="rect" id="node2" href="classfz_1_1fzpq__configurable.html" title="fz::fzpq_configurable" alt="" coords="59,157,202,184"/>
+<area shape="rect" id="node3" href="classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="75,81,186,108"/>
+<area shape="rect" id="node4" href="classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="5,5,109,32"/>
+<area shape="rect" id="node5" href="classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="134,5,277,32"/>
+</map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aa2789306a48995910e3f4ff010efcc0f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Postgres__access.html#aa2789306a48995910e3f4ff010efcc0f">Postgres_access</a> (std::string &amp;add_option_args_here, std::string &amp;add_usage_top_here, bool _isserver=false)</td></tr>
-<tr class="memdesc:aa2789306a48995910e3f4ff010efcc0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">authoritative server programs should set this flag  <a href="#aa2789306a48995910e3f4ff010efcc0f">More...</a><br /></td></tr>
-<tr class="separator:aa2789306a48995910e3f4ff010efcc0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ece179a60c6b4e0b6fcc653fd213866"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Postgres__access.html#a1ece179a60c6b4e0b6fcc653fd213866">Postgres_access</a> (<a class="el" href="classfz_1_1formalizer__standard__program.html">formalizer_standard_program</a> &amp;fsp, std::string &amp;add_option_args_here, std::string &amp;add_usage_top_here, bool _isserver=false)</td></tr>
+<tr class="memdesc:a1ece179a60c6b4e0b6fcc653fd213866"><td class="mdescLeft">&#160;</td><td class="mdescRight">authoritative server programs should set this flag  <a href="#a1ece179a60c6b4e0b6fcc653fd213866">More...</a><br /></td></tr>
+<tr class="separator:a1ece179a60c6b4e0b6fcc653fd213866"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1372fa21dd5b1483c2e93721e243dc81"><td class="memItemLeft" align="right" valign="top"><a id="a1372fa21dd5b1483c2e93721e243dc81"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Postgres__access.html#a1372fa21dd5b1483c2e93721e243dc81">access_initialize</a> ()</td></tr>
 <tr class="memdesc:a1372fa21dd5b1483c2e93721e243dc81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call this before attempting to open a database connection. <br /></td></tr>
@@ -103,15 +114,18 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>usage_hook</b> ()</td
 <tr class="memitem:af3d53be92261ed29ece5bcd1a24d4ec3"><td class="memItemLeft" align="right" valign="top"><a id="af3d53be92261ed29ece5bcd1a24d4ec3"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>options_hook</b> (char c, std::string cargs)</td></tr>
 <tr class="separator:af3d53be92261ed29ece5bcd1a24d4ec3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a735ca221bc930e67f6213c7ef8263861"><td class="memItemLeft" align="right" valign="top"><a id="a735ca221bc930e67f6213c7ef8263861"></a>
+const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>dbname</b> ()</td></tr>
+<tr class="separator:a735ca221bc930e67f6213c7ef8263861"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97e27cc2b561518a8c642822a970a2a2"><td class="memItemLeft" align="right" valign="top"><a id="a97e27cc2b561518a8c642822a970a2a2"></a>
+const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>pq_schemaname</b> ()</td></tr>
+<tr class="separator:a97e27cc2b561518a8c642822a970a2a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:ac9817a58ed88006bf8f0f156953be3b7"><td class="memItemLeft" align="right" valign="top"><a id="ac9817a58ed88006bf8f0f156953be3b7"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>dbname</b></td></tr>
-<tr class="separator:ac9817a58ed88006bf8f0f156953be3b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf548158c3fcbcfaff3070ebac9adec3"><td class="memItemLeft" align="right" valign="top"><a id="adf548158c3fcbcfaff3070ebac9adec3"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>pq_schemaname</b></td></tr>
-<tr class="separator:adf548158c3fcbcfaff3070ebac9adec3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06dbfd15b75655fc622723d6eb5e95eb"><td class="memItemLeft" align="right" valign="top"><a id="a06dbfd15b75655fc622723d6eb5e95eb"></a>
+<a class="el" href="classfz_1_1fzpq__configurable.html">fzpq_configurable</a>&#160;</td><td class="memItemRight" valign="bottom"><b>config</b></td></tr>
+<tr class="separator:a06dbfd15b75655fc622723d6eb5e95eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a028dcbb9bd70ac1e81162676c8397aea"><td class="memItemLeft" align="right" valign="top"><a id="a028dcbb9bd70ac1e81162676c8397aea"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_server</b></td></tr>
 <tr class="separator:a028dcbb9bd70ac1e81162676c8397aea"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -128,8 +142,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>schemaname_error</b> 
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A standardized way to access the Formalizer database. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="aa2789306a48995910e3f4ff010efcc0f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa2789306a48995910e3f4ff010efcc0f">&#9670;&nbsp;</a></span>Postgres_access()</h2>
+<a id="a1ece179a60c6b4e0b6fcc653fd213866"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ece179a60c6b4e0b6fcc653fd213866">&#9670;&nbsp;</a></span>Postgres_access()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -140,6 +154,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>schemaname_error</b> 
         <tr>
           <td class="memname">fz::Postgres_access::Postgres_access </td>
           <td>(</td>
+          <td class="paramtype"><a class="el" href="classfz_1_1formalizer__standard__program.html">formalizer_standard_program</a> &amp;&#160;</td>
+          <td class="paramname"><em>fsp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">std::string &amp;&#160;</td>
           <td class="paramname"><em>add_option_args_here</em>, </td>
         </tr>

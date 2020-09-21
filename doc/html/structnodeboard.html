@@ -74,7 +74,7 @@ Inheritance diagram for nodeboard:</div>
 <div class="dyncontent">
 <div class="center"><img src="structnodeboard__inherit__graph.png" border="0" usemap="#nodeboard_inherit__map" alt="Inheritance graph"/></div>
 <map name="nodeboard_inherit__map" id="nodeboard_inherit__map">
-<area shape="rect" id="node2" href="structfz_1_1formalizer__standard__program.html" title="This structure registers a standard object with a set of expected parameters and functions for any st..." alt="" coords="5,5,160,47"/>
+<area shape="rect" id="node2" href="classfz_1_1formalizer__standard__program.html" title="This class provides a framework for standardized Formalizer programs. " alt="" coords="5,5,160,47"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -82,9 +82,13 @@ Collaboration diagram for nodeboard:</div>
 <div class="dyncontent">
 <div class="center"><img src="structnodeboard__coll__graph.png" border="0" usemap="#nodeboard_coll__map" alt="Collaboration graph"/></div>
 <map name="nodeboard_coll__map" id="nodeboard_coll__map">
-<area shape="rect" id="node2" href="structfz_1_1formalizer__standard__program.html" title="This structure registers a standard object with a set of expected parameters and functions for any st..." alt="" coords="5,81,160,123"/>
-<area shape="rect" id="node3" href="structfz_1_1Graph__access.html" title="A standardized way to access the Graph database. " alt="" coords="184,89,309,115"/>
-<area shape="rect" id="node4" href="structfz_1_1Postgres__access.html" title="A standardized way to access the Formalizer database. " alt="" coords="175,5,318,32"/>
+<area shape="rect" id="node2" href="classfz_1_1formalizer__standard__program.html" title="This class provides a framework for standardized Formalizer programs. " alt="" coords="5,323,160,364"/>
+<area shape="rect" id="node3" href="structfz_1_1Graph__access.html" title="A standardized way to access the Graph database. " alt="" coords="184,330,309,357"/>
+<area shape="rect" id="node4" href="structfz_1_1Postgres__access.html" title="A standardized way to access the Formalizer database. " alt="" coords="175,247,318,273"/>
+<area shape="rect" id="node5" href="classfz_1_1fzpq__configurable.html" title="fz::fzpq_configurable" alt="" coords="175,157,318,184"/>
+<area shape="rect" id="node6" href="classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="191,81,302,108"/>
+<area shape="rect" id="node7" href="classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="121,5,225,32"/>
+<area shape="rect" id="node8" href="classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="250,5,393,32"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -97,82 +101,71 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="memitem:a9082331a1ff663d5e33c4062b2cda2ef"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnodeboard.html#a9082331a1ff663d5e33c4062b2cda2ef">options_hook</a> (char c, std::string cargs)</td></tr>
 <tr class="memdesc:a9082331a1ff663d5e33c4062b2cda2ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replace this options processing hook by inheriting the class and specifying a derived version of this virtual member function.  <a href="#a9082331a1ff663d5e33c4062b2cda2ef">More...</a><br /></td></tr>
 <tr class="separator:a9082331a1ff663d5e33c4062b2cda2ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_structfz_1_1formalizer__standard__program"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_structfz_1_1formalizer__standard__program')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="structfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></td></tr>
-<tr class="memitem:a2186f43b0225a8b5e4d5bb44162eebb8 inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a2186f43b0225a8b5e4d5bb44162eebb8"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#a2186f43b0225a8b5e4d5bb44162eebb8">formalizer_standard_program</a> ()</td></tr>
-<tr class="memdesc:a2186f43b0225a8b5e4d5bb44162eebb8 inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base initialization of standard Formalizer programs. <br /></td></tr>
-<tr class="separator:a2186f43b0225a8b5e4d5bb44162eebb8 inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a96b26e4e551e8de1b1bad082d67ba600 inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#a96b26e4e551e8de1b1bad082d67ba600">exit</a> (int exit_code)</td></tr>
-<tr class="memdesc:a96b26e4e551e8de1b1bad082d67ba600 inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">You can call this instead of std::exit() if you like, same thing, same stack.  <a href="structfz_1_1formalizer__standard__program.html#a96b26e4e551e8de1b1bad082d67ba600">More...</a><br /></td></tr>
-<tr class="separator:a96b26e4e551e8de1b1bad082d67ba600 inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a21a28e7fdc642d1def14a4fb93c2dba0 inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a21a28e7fdc642d1def14a4fb93c2dba0"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#a21a28e7fdc642d1def14a4fb93c2dba0">add_to_exit_stack</a> (void(*func)(void))</td></tr>
-<tr class="memdesc:a21a28e7fdc642d1def14a4fb93c2dba0 inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add additional steps to the <a class="el" href="structfz_1_1formalizer__standard__program.html#a96b26e4e551e8de1b1bad082d67ba600" title="You can call this instead of std::exit() if you like, same thing, same stack. ">exit()</a> stack. <br /></td></tr>
-<tr class="separator:a21a28e7fdc642d1def14a4fb93c2dba0 inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a479cfc809e5b72c7e218da64d40872 inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a3a479cfc809e5b72c7e218da64d40872"></a>
+<tr class="inherit_header pub_methods_classfz_1_1formalizer__standard__program"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classfz_1_1formalizer__standard__program')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></td></tr>
+<tr class="memitem:a5ed1aa517fb32a549d09966f487da224 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1formalizer__standard__program.html#a5ed1aa517fb32a549d09966f487da224">formalizer_standard_program</a> (bool _usesconfig)</td></tr>
+<tr class="memdesc:a5ed1aa517fb32a549d09966f487da224 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base initialization of standard Formalizer programs.  <a href="classfz_1_1formalizer__standard__program.html#a5ed1aa517fb32a549d09966f487da224">More...</a><br /></td></tr>
+<tr class="separator:a5ed1aa517fb32a549d09966f487da224 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a479cfc809e5b72c7e218da64d40872 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a3a479cfc809e5b72c7e218da64d40872"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>was_initialized</b> ()</td></tr>
-<tr class="separator:a3a479cfc809e5b72c7e218da64d40872 inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a45047ba06545cc81bed14a8216bb0e19 inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#a45047ba06545cc81bed14a8216bb0e19">init</a> (int argc, char *argv[], std::string version, std::string module, std::ostream *o=nullptr, std::ostream *e=nullptr)</td></tr>
-<tr class="memdesc:a45047ba06545cc81bed14a8216bb0e19 inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">The standard initialization procedure.  <a href="structfz_1_1formalizer__standard__program.html#a45047ba06545cc81bed14a8216bb0e19">More...</a><br /></td></tr>
-<tr class="separator:a45047ba06545cc81bed14a8216bb0e19 inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac4a66254ca109d3874c82bef80ea0a9b inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="ac4a66254ca109d3874c82bef80ea0a9b"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#ac4a66254ca109d3874c82bef80ea0a9b">completed_ok</a> ()</td></tr>
-<tr class="memdesc:ac4a66254ca109d3874c82bef80ea0a9b inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">An all-is-well exit call. <br /></td></tr>
-<tr class="separator:ac4a66254ca109d3874c82bef80ea0a9b inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b9e571cf4e4bc70a7ca4e756659fd0a inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a2b9e571cf4e4bc70a7ca4e756659fd0a"></a>
-std::string const  &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>name</b> ()</td></tr>
-<tr class="separator:a2b9e571cf4e4bc70a7ca4e756659fd0a inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af7a70279ded13d9f3d7fae3b08701839 inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="af7a70279ded13d9f3d7fae3b08701839"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>print_version</b> ()</td></tr>
-<tr class="separator:af7a70279ded13d9f3d7fae3b08701839 inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:affdb7cbf2fd144228c859719abfd286a inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="affdb7cbf2fd144228c859719abfd286a"></a>
+<tr class="separator:a3a479cfc809e5b72c7e218da64d40872 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee211ce054a9cdee7f9357034a536d70 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="aee211ce054a9cdee7f9357034a536d70"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1formalizer__standard__program.html#aee211ce054a9cdee7f9357034a536d70">add_registered_init</a> (<a class="el" href="classfz_1_1main__init__register.html">main_init_register</a> *mir)</td></tr>
+<tr class="memdesc:aee211ce054a9cdee7f9357034a536d70 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add the init function of a <code><a class="el" href="classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first-thing upon entering main() (but not b...">main_init_register</a></code> derived class to the <code><a class="el" href="classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first-thing upon entering main() (but not b...">main_init_register</a></code> queue. <br /></td></tr>
+<tr class="separator:aee211ce054a9cdee7f9357034a536d70 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45047ba06545cc81bed14a8216bb0e19 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1formalizer__standard__program.html#a45047ba06545cc81bed14a8216bb0e19">init</a> (int argc, char *argv[], std::string version, std::string module, std::ostream *o=nullptr, std::ostream *e=nullptr)</td></tr>
+<tr class="memdesc:a45047ba06545cc81bed14a8216bb0e19 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">The standard initialization procedure.  <a href="classfz_1_1formalizer__standard__program.html#a45047ba06545cc81bed14a8216bb0e19">More...</a><br /></td></tr>
+<tr class="separator:a45047ba06545cc81bed14a8216bb0e19 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a3bfe1678f1b4eb99597f3f3b0e87b3 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a4a3bfe1678f1b4eb99597f3f3b0e87b3"></a>
+std::string const  &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>name</b> () const</td></tr>
+<tr class="separator:a4a3bfe1678f1b4eb99597f3f3b0e87b3 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29b913840dff96a510e9fa81dd90a190 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a29b913840dff96a510e9fa81dd90a190"></a>
+std::string const  &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>id</b> () const</td></tr>
+<tr class="separator:a29b913840dff96a510e9fa81dd90a190 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:affdb7cbf2fd144228c859719abfd286a inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="affdb7cbf2fd144228c859719abfd286a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>print_usage</b> ()</td></tr>
-<tr class="separator:affdb7cbf2fd144228c859719abfd286a inherit pub_methods_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:affdb7cbf2fd144228c859719abfd286a inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:aa9935aa11855f5c3b4f4f8acfa6d79db"><td class="memItemLeft" align="right" valign="top"><a id="aa9935aa11855f5c3b4f4f8acfa6d79db"></a>
 <a class="el" href="structfz_1_1Graph__access.html">Graph_access</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ga</b></td></tr>
 <tr class="separator:aa9935aa11855f5c3b4f4f8acfa6d79db"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_attribs_structfz_1_1formalizer__standard__program"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_structfz_1_1formalizer__standard__program')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="structfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></td></tr>
-<tr class="memitem:a5697f8fb54a8d757e5d01cd08727bb56 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a5697f8fb54a8d757e5d01cd08727bb56"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#a5697f8fb54a8d757e5d01cd08727bb56">server_long_id</a></td></tr>
-<tr class="memdesc:a5697f8fb54a8d757e5d01cd08727bb56 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">standardized module string (see documentation) <br /></td></tr>
-<tr class="separator:a5697f8fb54a8d757e5d01cd08727bb56 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac70799cb4aa56195b9873aa96b4aa296 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="ac70799cb4aa56195b9873aa96b4aa296"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#ac70799cb4aa56195b9873aa96b4aa296">add_option_args</a></td></tr>
-<tr class="memdesc:ac70799cb4aa56195b9873aa96b4aa296 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">more option argument characters, e.g. "n:F:" <br /></td></tr>
-<tr class="separator:ac70799cb4aa56195b9873aa96b4aa296 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3c3461b16f9c3a07e969e78004f4b1ec inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a3c3461b16f9c3a07e969e78004f4b1ec"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#a3c3461b16f9c3a07e969e78004f4b1ec">add_usage_top</a></td></tr>
-<tr class="memdesc:a3c3461b16f9c3a07e969e78004f4b1ec inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">more options, e.g. " [-d &lt;dbname&gt;] [-m]" <br /></td></tr>
-<tr class="separator:a3c3461b16f9c3a07e969e78004f4b1ec inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:affcb8912491e25f2ec7b74d4bdec966e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="affcb8912491e25f2ec7b74d4bdec966e"></a>
-std::deque&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#affcb8912491e25f2ec7b74d4bdec966e">usage_head</a></td></tr>
-<tr class="memdesc:affcb8912491e25f2ec7b74d4bdec966e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">strings to print at the head of usage information <br /></td></tr>
-<tr class="separator:affcb8912491e25f2ec7b74d4bdec966e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0602528020892b8c5ecd5f48e5d5759e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a0602528020892b8c5ecd5f48e5d5759e"></a>
-std::deque&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#a0602528020892b8c5ecd5f48e5d5759e">usage_tail</a></td></tr>
-<tr class="memdesc:a0602528020892b8c5ecd5f48e5d5759e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">strings to print at the tail of usage information <br /></td></tr>
-<tr class="separator:a0602528020892b8c5ecd5f48e5d5759e inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5de5f9306c0800ff8eb2dd5b6a115938 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a5de5f9306c0800ff8eb2dd5b6a115938"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html#a5de5f9306c0800ff8eb2dd5b6a115938">quiet</a></td></tr>
-<tr class="memdesc:a5de5f9306c0800ff8eb2dd5b6a115938 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">report less <br /></td></tr>
-<tr class="separator:a5de5f9306c0800ff8eb2dd5b6a115938 inherit pub_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_attribs_classfz_1_1formalizer__standard__program"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classfz_1_1formalizer__standard__program')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></td></tr>
+<tr class="memitem:ac70799cb4aa56195b9873aa96b4aa296 inherit pub_attribs_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="ac70799cb4aa56195b9873aa96b4aa296"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1formalizer__standard__program.html#ac70799cb4aa56195b9873aa96b4aa296">add_option_args</a></td></tr>
+<tr class="memdesc:ac70799cb4aa56195b9873aa96b4aa296 inherit pub_attribs_classfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">more option argument characters, e.g. "n:F:" <br /></td></tr>
+<tr class="separator:ac70799cb4aa56195b9873aa96b4aa296 inherit pub_attribs_classfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c3461b16f9c3a07e969e78004f4b1ec inherit pub_attribs_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a3c3461b16f9c3a07e969e78004f4b1ec"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1formalizer__standard__program.html#a3c3461b16f9c3a07e969e78004f4b1ec">add_usage_top</a></td></tr>
+<tr class="memdesc:a3c3461b16f9c3a07e969e78004f4b1ec inherit pub_attribs_classfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">more options, e.g. " [-d &lt;dbname&gt;] [-m]" <br /></td></tr>
+<tr class="separator:a3c3461b16f9c3a07e969e78004f4b1ec inherit pub_attribs_classfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:affcb8912491e25f2ec7b74d4bdec966e inherit pub_attribs_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="affcb8912491e25f2ec7b74d4bdec966e"></a>
+std::deque&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1formalizer__standard__program.html#affcb8912491e25f2ec7b74d4bdec966e">usage_head</a></td></tr>
+<tr class="memdesc:affcb8912491e25f2ec7b74d4bdec966e inherit pub_attribs_classfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">strings to print at the head of usage information <br /></td></tr>
+<tr class="separator:affcb8912491e25f2ec7b74d4bdec966e inherit pub_attribs_classfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0602528020892b8c5ecd5f48e5d5759e inherit pub_attribs_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a0602528020892b8c5ecd5f48e5d5759e"></a>
+std::deque&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1formalizer__standard__program.html#a0602528020892b8c5ecd5f48e5d5759e">usage_tail</a></td></tr>
+<tr class="memdesc:a0602528020892b8c5ecd5f48e5d5759e inherit pub_attribs_classfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">strings to print at the tail of usage information <br /></td></tr>
+<tr class="separator:a0602528020892b8c5ecd5f48e5d5759e inherit pub_attribs_classfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
-<tr class="inherit_header pro_methods_structfz_1_1formalizer__standard__program"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_structfz_1_1formalizer__standard__program')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="structfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></td></tr>
-<tr class="memitem:a029920e7c624841cf73715c59c73be63 inherit pro_methods_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a029920e7c624841cf73715c59c73be63"></a>
+<tr class="inherit_header pro_methods_classfz_1_1formalizer__standard__program"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classfz_1_1formalizer__standard__program')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></td></tr>
+<tr class="memitem:a029920e7c624841cf73715c59c73be63 inherit pro_methods_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a029920e7c624841cf73715c59c73be63"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>commandline</b> (int argc, char *argv[])</td></tr>
-<tr class="separator:a029920e7c624841cf73715c59c73be63 inherit pro_methods_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pro_attribs_structfz_1_1formalizer__standard__program"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_structfz_1_1formalizer__standard__program')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="structfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></td></tr>
-<tr class="memitem:a8d9978cb5fb515426657d43142861082 inherit pro_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a8d9978cb5fb515426657d43142861082"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>initialized</b> = false</td></tr>
-<tr class="separator:a8d9978cb5fb515426657d43142861082 inherit pro_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5578b34f05b5ab46447d92a8d08dec8 inherit pro_attribs_structfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="aa5578b34f05b5ab46447d92a8d08dec8"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>runnablename</b></td></tr>
-<tr class="separator:aa5578b34f05b5ab46447d92a8d08dec8 inherit pro_attribs_structfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a029920e7c624841cf73715c59c73be63 inherit pro_methods_classfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pro_attribs_classfz_1_1formalizer__standard__program"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classfz_1_1formalizer__standard__program')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></td></tr>
+<tr class="memitem:a642fd90834fdb38deffbb66f565bb5df inherit pro_attribs_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a642fd90834fdb38deffbb66f565bb5df"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1formalizer__standard__program.html#a642fd90834fdb38deffbb66f565bb5df">uses_config</a> = true</td></tr>
+<tr class="memdesc:a642fd90834fdb38deffbb66f565bb5df inherit pro_attribs_classfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">This standard program uses standard configuration methods. <br /></td></tr>
+<tr class="separator:a642fd90834fdb38deffbb66f565bb5df inherit pro_attribs_classfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d9978cb5fb515426657d43142861082 inherit pro_attribs_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a8d9978cb5fb515426657d43142861082"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1formalizer__standard__program.html#a8d9978cb5fb515426657d43142861082">initialized</a> = false</td></tr>
+<tr class="memdesc:a8d9978cb5fb515426657d43142861082 inherit pro_attribs_classfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is used to test if standard.init() was called before permitting other things. <br /></td></tr>
+<tr class="separator:a8d9978cb5fb515426657d43142861082 inherit pro_attribs_classfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8796f1b69c8dedec1e3810ab72a16ac6 inherit pro_attribs_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="a8796f1b69c8dedec1e3810ab72a16ac6"></a>
+std::deque&lt; <a class="el" href="classfz_1_1main__init__register.html">main_init_register</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>init_register_stack</b></td></tr>
+<tr class="separator:a8796f1b69c8dedec1e3810ab72a16ac6 inherit pro_attribs_classfz_1_1formalizer__standard__program"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a id="a9082331a1ff663d5e33c4062b2cda2ef"></a>
@@ -218,7 +211,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>runnablename</
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="structfz_1_1formalizer__standard__program.html#a6c8c67bdb62186673b6015f122850364">fz::formalizer_standard_program</a>.</p>
+<p>Reimplemented from <a class="el" href="classfz_1_1formalizer__standard__program.html#a6c8c67bdb62186673b6015f122850364">fz::formalizer_standard_program</a>.</p>
 
 </div>
 </div>

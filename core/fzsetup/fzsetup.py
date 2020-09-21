@@ -47,7 +47,9 @@ except FileNotFoundError:
         'cgiuser' : 'www-data',
         'configroot' : fzuserbase+'/config/',
         'sourceroot' : userhome+'/src/formalizer',
-        'wwwhostroot' : '/var/www/html'
+        'wwwhostroot' : '/var/www/html',
+        'doxyroot' : userhome+'/src/formalizer/doc/html',
+        'wwwdoxyroot' : '/var/www/html/formalizer/doxygen-html'
     }
     retcode = try_subprocess_check_output(f'mkdir -p {fzsetupconfigdir}')
     if (retcode != 0):
@@ -256,7 +258,7 @@ def init_webtree():
         print(f'Unable to create the web interface directory {webtreeroot}. See the fzsetup README.md.')
         exit(retcode)
 
-    errtoweb = input('\nWould you like to inspect Formalizer reported warnings and errors through the web interface? (Y/n) ')
+    errtoweb = input('\nWould you like to inspect Formalizer reported warnings and errors through the web interface?\n(Other parameters of the error configuration file will not be modified.) (Y/n) ')
     if (errtoweb != 'n'):
         setup_error_reports_to_web()
 
@@ -277,6 +279,8 @@ def list_assumptions():
     print(f'  sourceroot  : {config["sourceroot"]}')
     print(f'  cgiuser     : {config["cgiuser"]}')
     print(f'  wwwhostroot : {config["wwwhostroot"]}')
+    print(f'  doxyroot    : {config["doxyroot"]}')
+    print(f'  wwwdoxyroot : {config["wwwdoxyroot"]}')
     exit(0)
 
 

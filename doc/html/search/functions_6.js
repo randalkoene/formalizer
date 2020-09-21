@@ -37,5 +37,5 @@ var searchData=
   ['get_5ftopic_5fpq_5ffield_5fnumbers',['get_Topic_pq_field_numbers',['../namespacefz.html#afe38748c6da4110ea71ee010642d3606',1,'fz']]],
   ['get_5ftopics',['get_topics',['../classfz_1_1Graph.html#ab437522fb000d5d982f789d287465292',1,'fz::Graph']]],
   ['get_5ftopictags',['get_topictags',['../classfz_1_1Topic__Tags.html#adc63576bdcdc06685a7d58ed43c097f4',1,'fz::Topic_Tags']]],
-  ['graph_5faccess',['Graph_access',['../structfz_1_1Graph__access.html#afdb454c7d36764bdca602196802402f7',1,'fz::Graph_access']]]
+  ['graph_5faccess',['Graph_access',['../structfz_1_1Graph__access.html#a9aefaa60dcbcce0775c209a19b965d1a',1,'fz::Graph_access']]]
 ];

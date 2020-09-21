@@ -13,6 +13,7 @@ var searchData=
   ['log_5fentry',['Log_entry',['../classfz_1_1Log__entry.html',1,'fz']]],
   ['log_5fentry_5fid',['Log_entry_ID',['../classfz_1_1Log__entry__ID.html',1,'fz']]],
   ['log_5fentry_5fid_5fkey',['Log_entry_ID_key',['../structfz_1_1Log__entry__ID__key.html',1,'fz']]],
+  ['log_5finterval',['Log_interval',['../classfz_1_1Log__interval.html',1,'fz']]],
   ['log_5ftarget',['Log_target',['../structfz_1_1Log__target.html',1,'fz']]],
   ['log_5ftarget_3c_20log_5fchunk_5fid_5fkey_2c_20log_5fchunk_20_3e',['Log_target&lt; Log_chunk_ID_key, Log_chunk &gt;',['../structfz_1_1Log__target.html',1,'fz']]],
   ['log_5ftarget_3c_20log_5fentry_5fid_5fkey_2c_20log_5fentry_20_3e',['Log_target&lt; Log_entry_ID_key, Log_entry &gt;',['../structfz_1_1Log__target.html',1,'fz']]],

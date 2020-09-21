@@ -8,6 +8,7 @@ var searchData=
   ['node_5fid_5fkey',['Node_ID_key',['../structfz_1_1Node__ID__key.html#a20ca31a9dc6e7560ce50f7fb219f8427',1,'fz::Node_ID_key']]],
   ['nullsnippet',['nullsnippet',['../structGuide__snippet__system.html#a998ef52d900aa0557b132948b817a351',1,'Guide_snippet_system::nullsnippet()'],['../structfz_1_1Guide__snippet.html#abbd65d5addec1dfb782c578e32a92f46',1,'fz::Guide_snippet::nullsnippet()']]],
   ['num_5fentries',['num_Entries',['../classfz_1_1Log.html#a031e4f5ab45a70e7c5d13d02e4ed986c',1,'fz::Log']]],
+  ['num_5flevels',['num_levels',['../structfz_1_1Stack__Tracer.html#ac270950e993e0b265df5b744df12a924',1,'fz::Stack_Tracer']]],
   ['num_5fnodes',['num_Nodes',['../classfz_1_1Graph.html#a7d62ec8055c75d1871c22056846d3250',1,'fz::Graph']]],
   ['num_5ftopics',['num_Topics',['../classfz_1_1Topic__Tags.html#a3643a8276b840f704929e94c60250276',1,'fz::Topic_Tags']]]
 ];

@@ -85,14 +85,13 @@ $(function() {
 <code>#include &lt;cstdlib&gt;</code><br />
 <code>#include &lt;ostream&gt;</code><br />
 <code>#include &lt;memory&gt;</code><br />
-<code>#include &quot;error.hpp&quot;</code><br />
+<code>#include &lt;deque&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for standard.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="standard_8hpp__incl.png" border="0" usemap="#core_2include_2standard_8hpp" alt=""/></div>
 <map name="core_2include_2standard_8hpp" id="core_2include_2standard_8hpp">
-<area shape="rect" id="node2" href="coreversion_8hpp_source.html" title="coreversion.hpp" alt="" coords="299,155,414,181"/>
-<area shape="rect" id="node9" href="error_8hpp_source.html" title="error.hpp" alt="" coords="485,80,558,107"/>
+<area shape="rect" id="node2" href="coreversion_8hpp_source.html" title="coreversion.hpp" alt="" coords="5,80,120,107"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -100,14 +99,29 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="standard_8hpp__dep__incl.png" border="0" usemap="#core_2include_2standard_8hppdep" alt=""/></div>
 <map name="core_2include_2standard_8hppdep" id="core_2include_2standard_8hppdep">
-<area shape="rect" id="node2" href="fzguide_8system_8hpp_source.html" title="core/fzguide.system\l/fzguide.system.hpp" alt="" coords="5,87,145,129"/>
-<area shape="rect" id="node3" href="fzquerypq_8hpp_source.html" title="core/fzquerypq/fzquerypq.hpp" alt="" coords="170,95,365,121"/>
-<area shape="rect" id="node4" href="fzserverpq_8hpp_source.html" title="core/fzserverpq/fzserverpq.hpp" alt="" coords="389,95,591,121"/>
-<area shape="rect" id="node5" href="dil2graph_8hpp_source.html" title="tools/conversion/dil2graph\l/dil2graph.hpp" alt="" coords="615,87,789,129"/>
-<area shape="rect" id="node6" href="boilerplate_8cpp.html" title="boilerplate is the authoritative source code stub generator for Formalizer development. " alt="" coords="810,184,949,225"/>
-<area shape="rect" id="node7" href="boilerplate_8hpp_source.html" title="tools/dev/boilerplate\l/boilerplate.hpp" alt="" coords="863,87,1002,129"/>
-<area shape="rect" id="node8" href="cpp__bp__hpp__template_8hpp_source.html" title="tools/dev/boilerplate\l/templates/cpp_bp_hpp\l_template.hpp" alt="" coords="1026,80,1183,136"/>
-<area shape="rect" id="node9" href="fzloghtml_8hpp_source.html" title="tools/interface/fzloghtml\l/fzloghtml.hpp" alt="" coords="1208,87,1369,129"/>
+<area shape="rect" id="node2" href="fzguide_8system_8hpp_source.html" title="core/fzguide.system\l/fzguide.system.hpp" alt="" coords="653,363,793,404"/>
+<area shape="rect" id="node3" href="fzquerypq_8hpp_source.html" title="core/fzquerypq/fzquerypq.hpp" alt="" coords="43,370,237,397"/>
+<area shape="rect" id="node4" href="fzserverpq_8hpp_source.html" title="core/fzserverpq/fzserverpq.hpp" alt="" coords="261,370,464,397"/>
+<area shape="rect" id="node5" href="config_8hpp_source.html" title="core/include/config.hpp" alt="" coords="933,95,1089,121"/>
+<area shape="rect" id="node12" href="dil2graph_8hpp_source.html" title="tools/conversion/dil2graph\l/dil2graph.hpp" alt="" coords="584,616,757,657"/>
+<area shape="rect" id="node15" href="fzloghtml_8hpp_source.html" title="tools/interface/fzloghtml\l/fzloghtml.hpp" alt="" coords="1511,527,1673,568"/>
+<area shape="rect" id="node19" href="boilerplate_8cpp.html" title="boilerplate is the authoritative source code stub generator for Formalizer development. " alt="" coords="1855,273,1993,315"/>
+<area shape="rect" id="node20" href="fzpostgres_8hpp_source.html" title="core/include/fzpostgres.hpp" alt="" coords="663,191,846,218"/>
+<area shape="rect" id="node23" href="boilerplate_8hpp_source.html" title="tools/dev/boilerplate\l/boilerplate.hpp" alt="" coords="1905,184,2044,225"/>
+<area shape="rect" id="node24" href="cpp__bp__hpp__template_8hpp_source.html" title="tools/dev/boilerplate\l/templates/cpp_bp_hpp\l_template.hpp" alt="" coords="1956,80,2113,136"/>
+<area shape="rect" id="node6" href="error_8hpp.html" title="This header file declares error handling classes and functions for use with core Formalizer C++ code..." alt="" coords="937,191,1084,218"/>
+<area shape="rect" id="node7" href="Graphtypes_8hpp_source.html" title="core/include/Graphtypes.hpp" alt="" coords="1131,281,1319,307"/>
+<area shape="rect" id="node9" href="Logtypes_8hpp.html" title="This header file declares Log types for use with the Formalizer. " alt="" coords="754,452,929,479"/>
+<area shape="rect" id="node16" href="LogtypesID_8hpp_source.html" title="core/include/LogtypesID.hpp" alt="" coords="869,370,1057,397"/>
+<area shape="rect" id="node8" href="Graphpostgres_8hpp.html" title="This header file declares Graph, Node aned Edge Postgres types for use with the Formalizer. " alt="" coords="1325,370,1531,397"/>
+<area shape="rect" id="node17" href="graph2dil_8hpp.html" title="This header file is used for declarations specific to the graph2dil tool. " alt="" coords="1556,363,1729,404"/>
+<area shape="rect" id="node18" href="nbrender_8hpp_source.html" title="tools/interface/nodeboard\l/nbrender.hpp" alt="" coords="1081,363,1249,404"/>
+<area shape="rect" id="node10" href="Logpostgres_8hpp.html" title="This header file declares Log Postgres types for use with the Formalizer. " alt="" coords="539,534,731,561"/>
+<area shape="rect" id="node11" href="logtest_8hpp_source.html" title="tools/conversion/dil2graph\l/logtest.hpp" alt="" coords="755,527,928,568"/>
+<area shape="rect" id="node13" href="tl2log_8hpp_source.html" title="tools/conversion/dil2graph\l/tl2log.hpp" alt="" coords="952,527,1125,568"/>
+<area shape="rect" id="node14" href="log2tl_8hpp_source.html" title="tools/conversion/graph2dil\l/log2tl.hpp" alt="" coords="1149,527,1323,568"/>
+<area shape="rect" id="node21" href="Graphaccess_8hpp_source.html" title="core/include/Graphaccess.hpp" alt="" coords="379,281,578,307"/>
+<area shape="rect" id="node22" href="Guidepostgres_8hpp_source.html" title="core/include/Guidepostgres.hpp" alt="" coords="652,281,857,307"/>
 </map>
 </div>
 </div>
@@ -116,9 +130,16 @@ This graph shows which files directly or indirectly include this file:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__base__streams.html">fz::formalizer_base_streams</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The standardized structure for standard stream redirection.  <a href="structfz_1_1formalizer__base__streams.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This structure registers a <code>standard</code> object with a set of expected parameters and functions for any standardized Formalizer program.  <a href="structfz_1_1formalizer__standard__program.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1the__standard__object.html">fz::the_standard_object</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This structure registers a <code>standard</code> object with a set of expected parameters and functions for any standardized Formalizer program.  <a href="structfz_1_1the__standard__object.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This class provides a framework for standardized Formalizer programs.  <a href="classfz_1_1formalizer__standard__program.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1main__init__register.html">fz::main_init_register</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Classes that need an initialization function to be called first-thing upon entering <code>main()</code> (but not before that in the hazardous global variables constructor calls phase) should inherit this class.  <a href="classfz_1_1main__init__register.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
@@ -142,18 +163,21 @@ Macros</h2></td></tr>
 <tr class="memitem:a500105e7e98d147dd52003c9a46fbcb2"><td class="memItemLeft" align="right" valign="top"><a id="a500105e7e98d147dd52003c9a46fbcb2"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>FORMALIZER_BASE_ERR_OSTREAM_PTR</b>&#160;&#160;&#160;(nullptr)</td></tr>
 <tr class="separator:a500105e7e98d147dd52003c9a46fbcb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a064747df53cca0e56f0169a85be9c9d7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="standard_8hpp.html#a064747df53cca0e56f0169a85be9c9d7">FZOUT</a>(s)&#160;&#160;&#160;{ if (base.out) (*base.out) &lt;&lt; s; }</td></tr>
+<tr class="memitem:a064747df53cca0e56f0169a85be9c9d7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="standard_8hpp.html#a064747df53cca0e56f0169a85be9c9d7">FZOUT</a>(s)&#160;&#160;&#160;{ if (fz::base.out) (*fz::base.out) &lt;&lt; s; }</td></tr>
 <tr class="memdesc:a064747df53cca0e56f0169a85be9c9d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Utility macros for regular and verbose out and err streams.  <a href="#a064747df53cca0e56f0169a85be9c9d7">More...</a><br /></td></tr>
 <tr class="separator:a064747df53cca0e56f0169a85be9c9d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aff04d4d0b1fac2c73e199083ccbecfb0"><td class="memItemLeft" align="right" valign="top"><a id="aff04d4d0b1fac2c73e199083ccbecfb0"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>FZERR</b>(s)&#160;&#160;&#160;{ if (base.err) (*base.err) &lt;&lt; s; }</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>FZERR</b>(s)&#160;&#160;&#160;{ if (fz::base.err) (*fz::base.err) &lt;&lt; s; }</td></tr>
 <tr class="separator:aff04d4d0b1fac2c73e199083ccbecfb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a873f7af637067b2f3ddd413c0e8d0306"><td class="memItemLeft" align="right" valign="top"><a id="a873f7af637067b2f3ddd413c0e8d0306"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>VERBOSEOUT</b>(s)&#160;&#160;&#160;{ if ((base.out) &amp;&amp; (!standard.quiet)) (*base.out) &lt;&lt; s; }</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>VERBOSEOUT</b>(s)&#160;&#160;&#160;{ if ((fz::base.out) &amp;&amp; (!fz::standard.quiet)) (*fz::base.out) &lt;&lt; s; }</td></tr>
 <tr class="separator:a873f7af637067b2f3ddd413c0e8d0306"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec979d5a861665c68d1ad1c461f96e86"><td class="memItemLeft" align="right" valign="top"><a id="aec979d5a861665c68d1ad1c461f96e86"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>VERBOSEERR</b>(s)&#160;&#160;&#160;{ if ((base.err) &amp;&amp; (!standard.quiet)) (*base.err) &lt;&lt; s; }</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>VERBOSEERR</b>(s)&#160;&#160;&#160;{ if ((fz::base.err) &amp;&amp; (!fz::standard.quiet)) (*fz::base.err) &lt;&lt; s; }</td></tr>
 <tr class="separator:aec979d5a861665c68d1ad1c461f96e86"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a00a72320fd98d5fad8334f6bac8d7cbf"><td class="memItemLeft" align="right" valign="top"><a id="a00a72320fd98d5fad8334f6bac8d7cbf"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>VERYVERBOSEOUT</b>(s)&#160;&#160;&#160;{ if ((fz::base.out) &amp;&amp; (fz::standard.veryverbose)) { (*fz::base.out) &lt;&lt; s; fz::base.out-&gt;flush(); } }</td></tr>
+<tr class="separator:a00a72320fd98d5fad8334f6bac8d7cbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -186,7 +210,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="name
 <tr class="memdesc:ae7dba8841daadafb13e8b74c2ea661b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">This does everyting that <code><a class="el" href="namespacefz.html#a3cd066a32696261830f98ca59ce4a7f0" title="Clean up after yourself before you exit. ">fz::Clean_Exit()</a></code> does, and it is stacked. <br /></td></tr>
 <tr class="separator:ae7dba8841daadafb13e8b74c2ea661b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a72c04fc5a7860678e9156bd32b5aa1"><td class="memItemLeft" align="right" valign="top">std::pair&lt; int, std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a4a72c04fc5a7860678e9156bd32b5aa1">fz::safe_cmdline_options</a> (int argc, char *argv[], std::string options, int &amp;optindcopy)</td></tr>
-<tr class="memdesc:a4a72c04fc5a7860678e9156bd32b5aa1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The standard object for Formalizer programs.  <a href="namespacefz.html#a4a72c04fc5a7860678e9156bd32b5aa1">More...</a><br /></td></tr>
+<tr class="memdesc:a4a72c04fc5a7860678e9156bd32b5aa1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Safer parsing of command line parameters.  <a href="namespacefz.html#a4a72c04fc5a7860678e9156bd32b5aa1">More...</a><br /></td></tr>
 <tr class="separator:a4a72c04fc5a7860678e9156bd32b5aa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aac327c945f41c63fef32c002d058fb7c"><td class="memItemLeft" align="right" valign="top"><a id="aac327c945f41c63fef32c002d058fb7c"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#aac327c945f41c63fef32c002d058fb7c">fz::key_pause</a> ()</td></tr>
@@ -198,9 +222,9 @@ Variables</h2></td></tr>
 <tr class="memitem:a5bd4b0fb0c54c1b32ee6a18e72bfccf1"><td class="memItemLeft" align="right" valign="top"><a id="a5bd4b0fb0c54c1b32ee6a18e72bfccf1"></a>
 formalizer_base_streams&#160;</td><td class="memItemRight" valign="bottom"><b>fz::base</b></td></tr>
 <tr class="separator:a5bd4b0fb0c54c1b32ee6a18e72bfccf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1175f0f5292c6aa0a3ef62087b19acc9"><td class="memItemLeft" align="right" valign="top"><a id="a1175f0f5292c6aa0a3ef62087b19acc9"></a>
-formalizer_standard_program&#160;</td><td class="memItemRight" valign="bottom"><b>fz::standard</b></td></tr>
-<tr class="separator:a1175f0f5292c6aa0a3ef62087b19acc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a812e6aee98e3ba6635c8fc4bed8ad57c"><td class="memItemLeft" align="right" valign="top">the_standard_object&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a812e6aee98e3ba6635c8fc4bed8ad57c">fz::standard</a></td></tr>
+<tr class="memdesc:a812e6aee98e3ba6635c8fc4bed8ad57c"><td class="mdescLeft">&#160;</td><td class="mdescRight">This object projects one unique and clear interface with settings for standardized Formalizer programs, including exit hooks and other important requirements.  <a href="namespacefz.html#a812e6aee98e3ba6635c8fc4bed8ad57c">More...</a><br /></td></tr>
+<tr class="separator:a812e6aee98e3ba6635c8fc4bed8ad57c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This header file declares standard structures and functions that should be used with any standardized Formalizer C++ program. </p>
@@ -217,7 +241,7 @@ formalizer_standard_program&#160;</td><td class="memItemRight" valign="bottom"><
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">s</td><td>)</td>
-          <td>&#160;&#160;&#160;{ if (base.out) (*base.out) &lt;&lt; s; }</td>
+          <td>&#160;&#160;&#160;{ if (fz::base.out) (*fz::base.out) &lt;&lt; s; }</td>
         </tr>
       </table>
 </div><div class="memdoc">

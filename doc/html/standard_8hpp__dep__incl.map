@@ -1,10 +1,25 @@
 <map id="core/include/standard.hpp" name="core/include/standard.hpp">
-<area shape="rect" id="node2" href="$fzguide_8system_8hpp_source.html" title="core/fzguide.system\l/fzguide.system.hpp" alt="" coords="5,87,145,129"/>
-<area shape="rect" id="node3" href="$fzquerypq_8hpp_source.html" title="core/fzquerypq/fzquerypq.hpp" alt="" coords="170,95,365,121"/>
-<area shape="rect" id="node4" href="$fzserverpq_8hpp_source.html" title="core/fzserverpq/fzserverpq.hpp" alt="" coords="389,95,591,121"/>
-<area shape="rect" id="node5" href="$dil2graph_8hpp_source.html" title="tools/conversion/dil2graph\l/dil2graph.hpp" alt="" coords="615,87,789,129"/>
-<area shape="rect" id="node6" href="$boilerplate_8cpp.html" title="boilerplate is the authoritative source code stub generator for Formalizer development. " alt="" coords="810,184,949,225"/>
-<area shape="rect" id="node7" href="$boilerplate_8hpp_source.html" title="tools/dev/boilerplate\l/boilerplate.hpp" alt="" coords="863,87,1002,129"/>
-<area shape="rect" id="node8" href="$cpp__bp__hpp__template_8hpp_source.html" title="tools/dev/boilerplate\l/templates/cpp_bp_hpp\l_template.hpp" alt="" coords="1026,80,1183,136"/>
-<area shape="rect" id="node9" href="$fzloghtml_8hpp_source.html" title="tools/interface/fzloghtml\l/fzloghtml.hpp" alt="" coords="1208,87,1369,129"/>
+<area shape="rect" id="node2" href="$fzguide_8system_8hpp_source.html" title="core/fzguide.system\l/fzguide.system.hpp" alt="" coords="653,363,793,404"/>
+<area shape="rect" id="node3" href="$fzquerypq_8hpp_source.html" title="core/fzquerypq/fzquerypq.hpp" alt="" coords="43,370,237,397"/>
+<area shape="rect" id="node4" href="$fzserverpq_8hpp_source.html" title="core/fzserverpq/fzserverpq.hpp" alt="" coords="261,370,464,397"/>
+<area shape="rect" id="node5" href="$config_8hpp_source.html" title="core/include/config.hpp" alt="" coords="933,95,1089,121"/>
+<area shape="rect" id="node12" href="$dil2graph_8hpp_source.html" title="tools/conversion/dil2graph\l/dil2graph.hpp" alt="" coords="584,616,757,657"/>
+<area shape="rect" id="node15" href="$fzloghtml_8hpp_source.html" title="tools/interface/fzloghtml\l/fzloghtml.hpp" alt="" coords="1511,527,1673,568"/>
+<area shape="rect" id="node19" href="$boilerplate_8cpp.html" title="boilerplate is the authoritative source code stub generator for Formalizer development. " alt="" coords="1855,273,1993,315"/>
+<area shape="rect" id="node20" href="$fzpostgres_8hpp_source.html" title="core/include/fzpostgres.hpp" alt="" coords="663,191,846,218"/>
+<area shape="rect" id="node23" href="$boilerplate_8hpp_source.html" title="tools/dev/boilerplate\l/boilerplate.hpp" alt="" coords="1905,184,2044,225"/>
+<area shape="rect" id="node24" href="$cpp__bp__hpp__template_8hpp_source.html" title="tools/dev/boilerplate\l/templates/cpp_bp_hpp\l_template.hpp" alt="" coords="1956,80,2113,136"/>
+<area shape="rect" id="node6" href="$error_8hpp.html" title="This header file declares error handling classes and functions for use with core Formalizer C++ code..." alt="" coords="937,191,1084,218"/>
+<area shape="rect" id="node7" href="$Graphtypes_8hpp_source.html" title="core/include/Graphtypes.hpp" alt="" coords="1131,281,1319,307"/>
+<area shape="rect" id="node9" href="$Logtypes_8hpp.html" title="This header file declares Log types for use with the Formalizer. " alt="" coords="754,452,929,479"/>
+<area shape="rect" id="node16" href="$LogtypesID_8hpp_source.html" title="core/include/LogtypesID.hpp" alt="" coords="869,370,1057,397"/>
+<area shape="rect" id="node8" href="$Graphpostgres_8hpp.html" title="This header file declares Graph, Node aned Edge Postgres types for use with the Formalizer. " alt="" coords="1325,370,1531,397"/>
+<area shape="rect" id="node17" href="$graph2dil_8hpp.html" title="This header file is used for declarations specific to the graph2dil tool. " alt="" coords="1556,363,1729,404"/>
+<area shape="rect" id="node18" href="$nbrender_8hpp_source.html" title="tools/interface/nodeboard\l/nbrender.hpp" alt="" coords="1081,363,1249,404"/>
+<area shape="rect" id="node10" href="$Logpostgres_8hpp.html" title="This header file declares Log Postgres types for use with the Formalizer. " alt="" coords="539,534,731,561"/>
+<area shape="rect" id="node11" href="$logtest_8hpp_source.html" title="tools/conversion/dil2graph\l/logtest.hpp" alt="" coords="755,527,928,568"/>
+<area shape="rect" id="node13" href="$tl2log_8hpp_source.html" title="tools/conversion/dil2graph\l/tl2log.hpp" alt="" coords="952,527,1125,568"/>
+<area shape="rect" id="node14" href="$log2tl_8hpp_source.html" title="tools/conversion/graph2dil\l/log2tl.hpp" alt="" coords="1149,527,1323,568"/>
+<area shape="rect" id="node21" href="$Graphaccess_8hpp_source.html" title="core/include/Graphaccess.hpp" alt="" coords="379,281,578,307"/>
+<area shape="rect" id="node22" href="$Guidepostgres_8hpp_source.html" title="core/include/Guidepostgres.hpp" alt="" coords="652,281,857,307"/>
 </map>

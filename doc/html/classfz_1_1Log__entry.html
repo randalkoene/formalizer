@@ -140,12 +140,17 @@ const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;&
 <tr class="memitem:a9e473aa2850a3b97e8da6eb5703e6968"><td class="memItemLeft" align="right" valign="top"><a id="a9e473aa2850a3b97e8da6eb5703e6968"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>same_node_as_chunk</b> () const</td></tr>
 <tr class="separator:a9e473aa2850a3b97e8da6eb5703e6968"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adbd33b9b067073c92ac77966af517b3d"><td class="memItemLeft" align="right" valign="top"><a id="adbd33b9b067073c92ac77966af517b3d"></a>
-std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_entrytext</b> ()</td></tr>
-<tr class="separator:adbd33b9b067073c92ac77966af517b3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3b4666a7d84e280a3ae7e72ec3d82465"><td class="memItemLeft" align="right" valign="top"><a id="a3b4666a7d84e280a3ae7e72ec3d82465"></a>
-<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#a3b4666a7d84e280a3ae7e72ec3d82465">get_Node</a> ()</td></tr>
-<tr class="memdesc:a3b4666a7d84e280a3ae7e72ec3d82465"><td class="mdescLeft">&#160;</td><td class="mdescRight">locally cached <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> (can be nullptr) <br /></td></tr>
+<tr class="memitem:a2ee50570809de8d859d719cd726e004a"><td class="memItemLeft" align="right" valign="top"><a id="a2ee50570809de8d859d719cd726e004a"></a>
+const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_entrytext</b> ()</td></tr>
+<tr class="separator:a2ee50570809de8d859d719cd726e004a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed8de05a005d46e9e46a6b986dc02929"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#aed8de05a005d46e9e46a6b986dc02929">set_text</a> (const std::string utf8str)</td></tr>
+<tr class="memdesc:aed8de05a005d46e9e46a6b986dc02929"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the <a class="el" href="classfz_1_1Log__entry.html#ac5d3c4229775444699e1edb4e77efbef" title="Reference to the Node this belongs to or zero-stamp. ">Log_entry.entrytext</a> parameter content and ensure that it contains valid UTF8 encoded content.  <a href="#aed8de05a005d46e9e46a6b986dc02929">More...</a><br /></td></tr>
+<tr class="separator:aed8de05a005d46e9e46a6b986dc02929"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aedd571afdd2d79291abd527ae19bb4b2"><td class="memItemLeft" align="right" valign="top"><a id="aedd571afdd2d79291abd527ae19bb4b2"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_text_unchecked</b> (const std::string utf8str)</td></tr>
+<tr class="separator:aedd571afdd2d79291abd527ae19bb4b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b4666a7d84e280a3ae7e72ec3d82465"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#a3b4666a7d84e280a3ae7e72ec3d82465">get_Node</a> ()</td></tr>
+<tr class="memdesc:a3b4666a7d84e280a3ae7e72ec3d82465"><td class="mdescLeft">&#160;</td><td class="mdescRight">Use only where guaranteed!  <a href="#a3b4666a7d84e280a3ae7e72ec3d82465">More...</a><br /></td></tr>
 <tr class="separator:a3b4666a7d84e280a3ae7e72ec3d82465"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a02387022844abf13e139c9e04de1ce6f"><td class="memItemLeft" align="right" valign="top"><a id="a02387022844abf13e139c9e04de1ce6f"></a>
 <a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#a02387022844abf13e139c9e04de1ce6f">get_Node</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph)</td></tr>
@@ -283,6 +288,34 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Log_chunk</b></td></
 
 </div>
 </div>
+<a id="a3b4666a7d84e280a3ae7e72ec3d82465"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b4666a7d84e280a3ae7e72ec3d82465">&#9670;&nbsp;</a></span>get_Node()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfz_1_1Node.html">Node</a>* fz::Log_entry::get_Node </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Use only where guaranteed! </p>
+<p>locally cached <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> (can be nullptr) </p>
+
+</div>
+</div>
 <a id="a8e0367664f5e6e6292b33783724ae6a2"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8e0367664f5e6e6292b33783724ae6a2">&#9670;&nbsp;</a></span>set_Node_rapid_access()</h2>
 
@@ -309,6 +342,35 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Log_chunk</b></td></
 
 <p>Set <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> pointer to the same <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> as node_idkey if it was not set during construction. </p>
 <p>Set rapid-access node pointer. (See detailed description for <a class="el" href="classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk. ">Log_chunk</a> below.) </p>
+
+</div>
+</div>
+<a id="aed8de05a005d46e9e46a6b986dc02929"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aed8de05a005d46e9e46a6b986dc02929">&#9670;&nbsp;</a></span>set_text()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fz::Log_entry::set_text </td>
+          <td>(</td>
+          <td class="paramtype">const std::string&#160;</td>
+          <td class="paramname"><em>utf8str</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the <a class="el" href="classfz_1_1Log__entry.html#ac5d3c4229775444699e1edb4e77efbef" title="Reference to the Node this belongs to or zero-stamp. ">Log_entry.entrytext</a> parameter content and ensure that it contains valid UTF8 encoded content. </p>
+<p>Attempts to assign content to the text parameter as provided, and replaces any invalid UTF8 code points with a replacement character. The default replacement character is the UTF8 'REPLACEMENT CHARACTER' 0xfffd.</p>
+<p>If invalid UTF8 code points were encountered and replaced then it is reported through ADDWARNING.</p>
+<p>Note 1: ASCII text is valid UTF8 text and will be assigned unaltered. Note 2: This does not test for valid HTML5 at this time.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">utf8str</td><td>a string that should contain UTF8 encoded text. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

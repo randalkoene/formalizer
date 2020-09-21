@@ -1,6 +1,7 @@
 var searchData=
 [
   ['layout',['layout',['../structGuide__snippet__system.html#a8edbcecb37961b7b03a5c84236a33a07',1,'Guide_snippet_system::layout()'],['../structfz_1_1Guide__snippet.html#ad1b292205c4142e501554dd322cf9d69',1,'fz::Guide_snippet::layout()']]],
+  ['load',['load',['../classfz_1_1configbase.html#ae2537c2f6edc9e42031bfb674094d823',1,'fz::configbase']]],
   ['load_5fedge_5fparameter_5finterval',['load_Edge_parameter_interval',['../namespacefz.html#aef824584d56abd3b06028a3925a9541c',1,'fz']]],
   ['load_5fgraph_5fpq',['load_Graph_pq',['../namespacefz.html#a615c9833189de86268653cf1fc95f092',1,'fz']]],
   ['load_5flog_5fpq',['load_Log_pq',['../namespacefz.html#a5688f3a5a5bb5066690ccff97430eaaa',1,'fz']]],

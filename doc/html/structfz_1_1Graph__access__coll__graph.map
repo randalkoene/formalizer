@@ -1,3 +1,7 @@
 <map id="fz::Graph_access" name="fz::Graph_access">
-<area shape="rect" id="node2" href="$structfz_1_1Postgres__access.html" title="A standardized way to access the Formalizer database. " alt="" coords="5,5,148,32"/>
+<area shape="rect" id="node2" href="$structfz_1_1Postgres__access.html" title="A standardized way to access the Formalizer database. " alt="" coords="59,247,202,273"/>
+<area shape="rect" id="node3" href="$classfz_1_1fzpq__configurable.html" title="fz::fzpq_configurable" alt="" coords="59,157,202,184"/>
+<area shape="rect" id="node4" href="$classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="75,81,186,108"/>
+<area shape="rect" id="node5" href="$classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="5,5,109,32"/>
+<area shape="rect" id="node6" href="$classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="134,5,277,32"/>
 </map>

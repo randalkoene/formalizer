@@ -74,9 +74,16 @@ $(function() {
 <li>Add members to the fz-group role, starting with the user role (defaulting to <code>$USER</code>) and the httpd CGI user role (defaulting to <code>www-data</code>).</li>
 <li>Give ownership of the user schema (<code>$USER</code>, by default) to the fz-group role.</li>
 <li>Create fresh (empty) versions of the Formalizer data structure tables.</li>
-<li>Grant authorizations to tables to specified roles, starting with the user role (defaulting to <code>$USER</code>) and the httpd CGI user role (defaulting to <code>www-data</code>). <hr/>
+<li>Grant authorizations to tables to specified roles, starting with the user role (defaulting to <code>$USER</code>) and the httpd CGI user role (defaulting to <code>www-data</code>).</li>
+<li>Creating a directory tree for <code>config</code> files. Existing configuration directories and files are not removed or modified. <hr/>
 </li>
 </ul>
+<h2>Before running this program</h2>
+<ol type="1">
+<li>Make sure that the Formalizer source tree is accessible. (Confirm that its root is in the expected place as per <code>sourceroot</code> in the <code>fzsetup.py</code> configuration, and as per <code>FORMALIZERPATH</code> in the root <code>Makefile</code>.)</li>
+<li>Make sure that the directory where the Formalizer web interaction directory tree will be placed is accessible and writable for this user. (For example, you may have to run:<code>sudo chown randalk:randalk /var/www/html</code>.)</li>
+</ol>
+<p>(Possibly put some more here, right now the program already properly deals with the situation where its own configuration file does not yet exist.) </p><hr/>
 <p>This utility is up-to-date to current Formalizer environment standards. Conversion from earlier format and protocol standards is done by separate conversion utilities, such as <code>tools/dil2graph</code>. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->

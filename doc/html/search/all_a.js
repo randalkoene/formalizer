@@ -1,6 +1,7 @@
 var searchData=
 [
   ['layout',['layout',['../structGuide__snippet__system.html#a8edbcecb37961b7b03a5c84236a33a07',1,'Guide_snippet_system::layout()'],['../structfz_1_1Guide__snippet.html#ad1b292205c4142e501554dd322cf9d69',1,'fz::Guide_snippet::layout()']]],
+  ['load',['load',['../classfz_1_1configbase.html#ae2537c2f6edc9e42031bfb674094d823',1,'fz::configbase']]],
   ['load_5fedge_5fparameter_5finterval',['load_Edge_parameter_interval',['../namespacefz.html#aef824584d56abd3b06028a3925a9541c',1,'fz']]],
   ['load_5fgraph_5fpq',['load_Graph_pq',['../namespacefz.html#a615c9833189de86268653cf1fc95f092',1,'fz']]],
   ['load_5flog_5fpq',['load_Log_pq',['../namespacefz.html#a5688f3a5a5bb5066690ccff97430eaaa',1,'fz']]],
@@ -23,6 +24,7 @@ var searchData=
   ['log_5fentry_5fid',['Log_entry_ID',['../classfz_1_1Log__entry__ID.html',1,'fz']]],
   ['log_5fentry_5fid_5fkey',['Log_entry_ID_key',['../structfz_1_1Log__entry__ID__key.html',1,'fz::Log_entry_ID_key'],['../structfz_1_1Log__entry__ID__key.html#acf2141ca75d98b7ec13651cd09184047',1,'fz::Log_entry_ID_key::Log_entry_ID_key()']]],
   ['log_5fentry_5fiterator_5finterval',['Log_entry_iterator_interval',['../namespacefz.html#a33950887af9a1dfe223b82b40edc2b1f',1,'fz']]],
+  ['log_5finterval',['Log_interval',['../classfz_1_1Log__interval.html',1,'fz']]],
   ['log_5fspan_5fin_5fdays',['Log_span_in_days',['../classfz_1_1Log.html#a49bce55e40ccb0a64160c64e30acaaa0',1,'fz::Log::Log_span_in_days()'],['../namespacefz.html#ab99ee1f9eb33cd43975a1e2ba185affc',1,'fz::Log_span_in_days()']]],
   ['log_5fspan_5fin_5fseconds',['Log_span_in_seconds',['../classfz_1_1Log.html#aff8571d0bb6aad25c78696fc8c3dcc1a',1,'fz::Log::Log_span_in_seconds()'],['../namespacefz.html#a99de56e900ef8f39ac539d88521905ab',1,'fz::Log_span_in_seconds()']]],
   ['log_5fspan_5fyears_5fmonths_5fdays',['Log_span_years_months_days',['../classfz_1_1Log.html#aaf04470fdb14a1ee2b7271a55413b583',1,'fz::Log::Log_span_years_months_days()'],['../namespacefz.html#ac852c19de9635df74fca9eab2d419e5b',1,'fz::Log_span_years_months_days()']]],
@@ -33,5 +35,6 @@ var searchData=
   ['logchunk_5fpq',['Logchunk_pq',['../classfz_1_1Logchunk__pq.html',1,'fz']]],
   ['logentry_5fpq',['Logentry_pq',['../classfz_1_1Logentry__pq.html',1,'fz']]],
   ['logpostgres_2ehpp',['Logpostgres.hpp',['../Logpostgres_8hpp.html',1,'']]],
+  ['logtypes_2ehpp',['Logtypes.hpp',['../Logtypes_8hpp.html',1,'']]],
   ['ltrim',['ltrim',['../namespacefz.html#a7f17dcd15946bcb9a7fd70bf65e6fcc9',1,'fz']]]
 ];

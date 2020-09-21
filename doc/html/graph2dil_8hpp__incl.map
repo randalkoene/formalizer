@@ -1,8 +1,10 @@
 <map id="tools/conversion/graph2dil/graph2dil.hpp" name="tools/conversion/graph2dil/graph2dil.hpp">
 <area shape="rect" id="node2" href="$tools_2conversion_2graph2dil_2version_8hpp_source.html" title="version.hpp" alt="" coords="5,95,95,121"/>
-<area shape="rect" id="node6" href="$Graphtypes_8hpp_source.html" title="Graphtypes.hpp" alt="" coords="290,95,405,121"/>
-<area shape="rect" id="node7" href="$coreversion_8hpp_source.html" title="coreversion.hpp" alt="" coords="317,319,431,345"/>
-<area shape="rect" id="node12" href="$error_8hpp_source.html" title="error.hpp" alt="" coords="179,244,252,271"/>
-<area shape="rect" id="node15" href="$TimeStamp_8hpp.html" title="This header file declares Formalizer TimeStamp format and operations. " alt="" coords="442,169,557,196"/>
-<area shape="rect" id="node17" href="$ReferenceTime_8hpp_source.html" title="ReferenceTime.hpp" alt="" coords="277,244,413,271"/>
+<area shape="rect" id="node6" href="$Graphtypes_8hpp_source.html" title="Graphtypes.hpp" alt="" coords="398,95,513,121"/>
+<area shape="rect" id="node7" href="$coreversion_8hpp_source.html" title="coreversion.hpp" alt="" coords="674,393,789,420"/>
+<area shape="rect" id="node12" href="$error_8hpp.html" title="This header file declares error handling classes and functions for use with core Formalizer C++ code..." alt="" coords="500,169,573,196"/>
+<area shape="rect" id="node21" href="$TimeStamp_8hpp.html" title="This header file declares Formalizer TimeStamp format and operations. " alt="" coords="674,169,789,196"/>
+<area shape="rect" id="node15" href="$config_8hpp_source.html" title="config.hpp" alt="" coords="455,244,538,271"/>
+<area shape="rect" id="node16" href="$standard_8hpp.html" title="This header file declares standard structures and functions that should be used with any standardized..." alt="" coords="389,319,487,345"/>
+<area shape="rect" id="node23" href="$ReferenceTime_8hpp_source.html" title="ReferenceTime.hpp" alt="" coords="663,244,799,271"/>
 </map>
