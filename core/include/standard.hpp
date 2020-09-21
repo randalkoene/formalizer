@@ -21,9 +21,12 @@
 #include <cstdlib>
 #include <ostream>
 #include <memory>
+#include <deque>
 
 // core
-#include "error.hpp"
+// Note: Purposely keep error.hpp out of here (it can be in standard.cpp).
+//       This is helpful in case standard.hpp needs to be included in
+//       config.hpp, and we wish to avoid mutual inclusions.
 
 /// Provide the following through -D in Makefile
 #ifndef FORMALIZER_MODULE_ID

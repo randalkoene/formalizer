@@ -9,6 +9,7 @@ Note: The `coreconfigurable` variable is a tuple instead of a list, which is muc
       like a macro.
 """ 
 coreconfigurable = (
+    'error',
     'fzpostgres',
     'standard'
     )

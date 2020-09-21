@@ -15,6 +15,9 @@
 #include "coreversion.hpp"
 #define __REFERENCETIME_HPP (__COREVERSION_HPP)
 
+// std
+#include <ctime>
+
 namespace fz {
 
 /**

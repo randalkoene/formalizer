@@ -19,10 +19,7 @@
 
 namespace fz {
 
-configurable::configurable(std::string thisprogram, formalizer_standard_program & fsp): main_init_register(fsp), processed(false) {
-    if (!thisprogram.empty())
-        configfile = std::string(CONFIG_ROOT)+'/'+thisprogram+"/config.json";
-}
+configurable::configurable(std::string thisprogram, formalizer_standard_program & fsp): configbase(thisprogram), main_init_register(fsp) {}
 
 bool configurable::init() {
     if (!load()) {
@@ -32,6 +29,11 @@ bool configurable::init() {
     }
 
     return true;
+}
+
+configbase::configbase(std::string thisprogram): processed(false) {
+    if (!thisprogram.empty())
+        configfile = std::string(CONFIG_ROOT)+'/'+thisprogram+"/config.json";
 }
 
 /**
@@ -44,7 +46,7 @@ bool configurable::init() {
  * 
  * @return True if the configuration file was successfully loaded and parsed.
  */
-bool configurable::load() {
+bool configbase::load() {
     ERRTRACE;
     if (processed)
         return true; // not an error, calling multiple times is fine
@@ -104,7 +106,7 @@ std::pair<std::string, std::string> param_value(const std::string & par_value_pa
  * @param configcontentstr A string containing the contents of the configuration file.
  * @return True if the configuration contents were successfully parsed.
  */
-bool configurable::parse(std::string & configcontentstr) {
+bool configbase::parse(std::string & configcontentstr) {
     ERRTRACE;
     // trim away the opening bracket
     ltrim(configcontentstr);

@@ -26,32 +26,49 @@
         par = confvalue; \
         return true; \
     } }
+
+/// Use this handy macro within the `set_parameter()` function of classes inheriting `configurable`.
+#define CONFIG_TEST_AND_SET_FLAG(flagenablefunc, flagdisablefunc, parname, conflabel, confvalue) { \
+    if (parname == conflabel) { \
+        if (confvalue=="true") { \
+            (flagenablefunc)(); \
+        } else if (confvalue=="false") { \
+            (flagdisablefunc)(); \
+        } \
+    } \
+}
+
 /// Use this macro after the whole list of applicable parameter tests in `set_parameter()`.
 #define CONFIG_PAR_NOT_FOUND(conflabel) ERRRETURNFALSE(__func__,"Configuration parameter ("+conflabel+") not recognized")
 
 namespace fz {
 
 /**
- * Formalizer standard programs that can use configuration files
- * should include a class that inherits `configurable` and that
- * provides method implementation for `set_parameter()`.
+ * This is the base component for Formalizer configuration file
+ * configuration parameter loading and parsing. Formalizer
+ * library components can use this base directly for the
+ * configuration of predictably located global configuration
+ * parameters. (See, for example, how the `standard` library
+ * component applies this in `init()` with the `ErrQ` and
+ * `WarnQ` global targets.) In other cases, where programs use
+ * parameters provided by local struct or class definitions that
+ * are not always around and in restricted scope, they should
+ * instead inherit the `configurable` class below.
  * 
- * It makes sense to include an instance of that class as a
- * member variable of the local class derivation of
- * `formalizer_standard_program`.
- * 
- * This class is used to declare configurable parameters.
+ * This class enforces method implementation for `set_parameter()`.
+ * The `configurable` class also enforces method implementation
+ * for `init()`, as well as registration in a `init_register_stack`
+ * so that configuration files are guaranteed to be parsed upon
+ * entering `main()` in a standardized program.
  */
-class configurable: public main_init_register {
+class configbase {
 protected:
     std::string configfile; ///< This is set in the constructor.
 
     bool processed; ///< Flag used to ensure a configuration file is normally processed only once.
 
 public:
-    configurable(std::string thisprogram, formalizer_standard_program & fsp);
-
-    virtual bool init(); ///< This resides on the `fsp.main_register_stack`.
+    configbase(std::string thisprogram);
 
     /**
      * This method must be defined in configurable Formalizer components and
@@ -77,6 +94,9 @@ public:
      * In `formalizer_standard_program` code that defines an `init_top()`
      * function (which calls the standard `init()`), a natural fit is to make
      * this call at the top of that function, before the call to `init()`.
+     * 
+     * The better choice is now to use the `main_init_register` approach
+     * available by inheriting the `configurable` class (below).
      * 
      * In `formalizer_standard_program` code and in core components that provide
      * command line configuration hooks (e.g. fzpostgres) AND that require at least
@@ -123,6 +143,33 @@ public:
      * @return True if configuration parsing was successfully completed.
      */
     bool parse(std::string & configcontentstr);
+
+    const std::string & get_configfile() const { return configfile; }
+};
+
+
+/**
+ * Formalizer standard programs that can use configuration files
+ * should include a class that inherits `configurable` and that
+ * provides method implementation for `set_parameter()`.
+ * 
+ * It makes sense to include an instance of that class as a
+ * member variable of the local class derivation of
+ * `formalizer_standard_program`.
+ * 
+ * Please also read the description of the `configbase` class
+ * above, and documentation at https://trello.com/c/4B7x2kif.
+ * These explain when to use `configurable` and when simply
+ * to use `configbase`.
+ * 
+ * This class is used to declare configurable parameters.
+ */
+class configurable: public configbase, main_init_register {
+public:
+    configurable(std::string thisprogram, formalizer_standard_program & fsp);
+
+    virtual bool init(); ///< This resides on the `fsp.main_register_stack`.
+
 };
 
 

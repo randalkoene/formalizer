@@ -33,7 +33,7 @@ using namespace fz;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-{{ this }}::{{ this }}() {
+{{ this }}::{{ this }}() {{ construct_inherited_config_access_etc }} {
     //add_option_args += "x:";
     //add_usage_top += " [-x <something>]";
     //usage_head.push_back("Description at the head of usage information.\n");
@@ -74,6 +74,8 @@ bool {{ this }}::options_hook(char c, std::string cargs) {
     return false;
 }
 
+{{ config_set_parameter_implementation }}
+
 /**
  * Initialize configuration parameters.
  * Call this at the top of main().
@@ -82,12 +84,16 @@ bool {{ this }}::options_hook(char c, std::string cargs) {
  * @param argv command line parameters array forwarded from main().
  */
 void {{ this }}::init_top(int argc, char *argv[]) {
+    ERRTRACE;
+
     // *** add any initialization here that has to happen before standard initialization
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
     // *** add any initialization here that has to happen once in main(), for the derived class
 }
 
 int main(int argc, char *argv[]) {
+    ERRTRACE;
+
     {{ th }}.init_top(argc, argv);
     {{ th }}.init(argc,argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 

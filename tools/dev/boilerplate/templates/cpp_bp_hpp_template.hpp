@@ -12,7 +12,9 @@
 #define __{{ CAPSthis }}_HPP (__VERSION_HPP)
 
 // core
+{{ config_include }}
 #include "standard.hpp"
+{{ Graph_of_Log_access_include }}
 
 using namespace fz;
 
@@ -22,9 +24,15 @@ enum flow_options {
     flow_NUMoptions
 };
 
+{{ th_configurable_or_configbase }}
+
 struct {{ this }}: public formalizer_standard_program {
 
+    {{ config_support }}
+
     flow_options flowcontrol;
+
+    {{ Graph_or_Log_access_support }}
 
     {{ this }}();
 

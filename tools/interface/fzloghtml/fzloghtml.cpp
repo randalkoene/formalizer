@@ -9,6 +9,8 @@
  * For more about this, see https://trello.com/c/usj9dcWi.
  */
 
+//#define USE_COMPILEDPING
+
 #define FORMALIZER_MODULE_ID "Formalizer:Interface:Log:HTML"
 
 // std
@@ -37,7 +39,7 @@ fzloghtml fzlh;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzloghtml::fzloghtml(): formalizer_standard_program(true), config(*this), ga(*this, add_option_args,add_usage_top), t_from(RTt_unspecified), t_before(RTt_unspecified), iscale(interval_none), interval(0) {
+fzloghtml::fzloghtml(): formalizer_standard_program(false), config(*this), ga(*this, add_option_args,add_usage_top), t_from(RTt_unspecified), t_before(RTt_unspecified), iscale(interval_none), interval(0) {
     add_option_args += "1:2:o:d:H:w:";
     add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-d <days>|-H <hours>|-w <weeks>] [-o <outputfile>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
@@ -203,15 +205,6 @@ int main(int argc, char *argv[]) {
     ERRTRACE;
     fzlh.init_top(argc, argv);
 
-    //*** TESTING
-    FZOUT("TESTING CONFIGURATION LOADING!\n");
-    FZOUT("Configuration parameters were set to:\n");
-    FZOUT("  dbname        : "+fzlh.ga.dbname()+'\n');
-    FZOUT("  pq_schemaname : "+fzlh.ga.pq_schemaname()+'\n');
-    FZOUT("  testconfig    : "+fzlh.config.testconfig+'\n');
-
-    return standard.completed_ok();
-
     render();
 
     /*
@@ -226,3 +219,15 @@ int main(int argc, char *argv[]) {
 
     return standard.completed_ok();
 }
+
+/*
+    FZOUT("TESTING CONFIGURATION LOADING!\n");
+    FZOUT("Configuration parameters were set to:\n");
+    FZOUT("  dbname        : "+fzlh.ga.dbname()+'\n');
+    FZOUT("  pq_schemaname : "+fzlh.ga.pq_schemaname()+'\n');
+    FZOUT("  testconfig    : "+fzlh.config.testconfig+'\n');
+    FZOUT("  errlogpath    : "+ErrQ.get_errfilepath()+'\n');
+    FZOUT("  warnlogpath    : "+WarnQ.get_errfilepath()+'\n');
+
+    return standard.completed_ok();
+*/

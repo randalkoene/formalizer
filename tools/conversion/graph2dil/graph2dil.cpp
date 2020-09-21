@@ -92,7 +92,7 @@ struct graph2dil: public formalizer_standard_program {
     std::unique_ptr<Graph> graph;
     std::unique_ptr<Log> log;
 
-    graph2dil(): formalizer_standard_program(true), ga(add_option_args,add_usage_top), flowcontrol(flow_all) { //(flow_unknown) {
+    graph2dil(): formalizer_standard_program(true), ga(*this,add_option_args,add_usage_top), flowcontrol(flow_all) { //(flow_unknown) {
         add_option_args += "DL";
         add_usage_top += " [-D] [-L]";
     }

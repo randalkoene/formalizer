@@ -7,6 +7,7 @@
 //#include <utility>
 
 // core
+#include "error.hpp"
 #include "standard.hpp"
 #include "Graphtypes.hpp"
 
@@ -224,6 +225,7 @@ void formalizer_standard_program::init(int argc, char *argv[], std::string versi
         // (But we can't print the warning here, or else we can't suppress it with -q
         // due to needing to parse the command line first.)
     }
+    ErrQ.init(); // this one uses `configbase` instead of `configurable` (it also takes care of WarnQ)
     if (!init_register_stack.empty()) { // call registered init functions
         for (const auto& initfuncptr : init_register_stack) {
             initfuncptr->init(); //(*initfuncptr)();
@@ -236,7 +238,7 @@ void formalizer_standard_program::init(int argc, char *argv[], std::string versi
     commandline(argc,argv);
     VERBOSEOUT(id()+"\n\n");
 
-    if (uses_config) { // *** Remove this warning once a configuration method is implemented!
+    if (uses_config) { // *** Remove this warning once a configuration method is in use!
         VERBOSEOUT("** CONFIG NOTE: This standardized Formalizer component still needs a\n");
         VERBOSEOUT("**              standardized method of configuration. See Trello card\n");
         VERBOSEOUT("**              at https://trello.com/c/4B7x2kif.\n\n");

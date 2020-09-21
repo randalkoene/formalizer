@@ -18,6 +18,9 @@
 #include <deque>
 #include <vector>
 
+// core
+#include "config.hpp"
+
 /// +----- begin: A set of useful macros -----+
 
 /**
@@ -161,7 +164,14 @@ public:
     }
 };
 
-#endif
+#endif // NO_ERR_TRACE
+
+class err_configbase: public configbase {
+public:
+    err_configbase();
+
+    virtual bool set_parameter(const std::string & parlabel, const std::string & parvalue);
+};
 
 /**
  * Maintain a queue of recent errors encountered in ErrQ and provide them on demand.
@@ -172,18 +182,29 @@ public:
  * whatever way you wish.
  */
 class Errors {
+    friend err_configbase;
 protected:
     std::deque<Error_Instance> errq;
     std::string errfilepath;
     int numflushed;
     bool caching;
     bool ping;
+    time_t timecode;
+
+    std::string print_first_timecode();
+    std::string print_updated_timecode();
+
 public:
-    Errors(std::string efp): errfilepath(efp), numflushed(0), caching(true), ping(false) {}
+    err_configbase config; // Notice that this is purposely configbase derived (not configurable derived).
+
+    Errors(std::string efp);
+
+    bool init();
+
     void set_errfilepath(std::string efp) { errfilepath = efp; }
     std::string get_errfilepath() const { return errfilepath; }
     void push(std::string f, std::string e);
-    std::string pretty_print() const;
+    std::string pretty_print();
     Error_Instance pop();
     int flush();
     int num() const { return errq.size(); }

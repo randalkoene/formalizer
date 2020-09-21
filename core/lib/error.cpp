@@ -1,9 +1,14 @@
 // Copyright 2020 Randal A. Koene
 // License TBD
 
+// std
 #include <iostream>
 #include <fstream>
 
+// core
+#include "ReferenceTime.hpp"
+#include "TimeStamp.hpp"
+#include "config.hpp"
 #include "error.hpp"
 
 namespace fz {
@@ -32,6 +37,32 @@ std::string Stack_Tracer::print() {
 }
 
 #endif
+
+err_configbase::err_configbase(): configbase("error") {
+}
+
+bool err_configbase::set_parameter(const std::string &parlabel, const std::string &parvalue) {
+    CONFIG_TEST_AND_SET_PAR(ErrQ.errfilepath, "errlogpath", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(WarnQ.errfilepath, "warnlogpath", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_FLAG(ErrQ.enable_caching, ErrQ.disable_caching, "errcaching", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_FLAG(ErrQ.enable_caching, ErrQ.disable_caching, "errcaching", parlabel, parvalue);
+    CONFIG_PAR_NOT_FOUND(parlabel);
+}
+
+Errors::Errors(std::string efp): errfilepath(efp), numflushed(0), caching(true), ping(false) {
+    timecode = ActualTime();
+}
+
+// See https://trello.com/c/4B7x2kif/102-configuration-files#comment-5f65941fc72f72665b0b52cf.
+bool Errors::init() {
+    if (!config.load()) {
+        const std::string configerrstr("Errors during "+config.get_configfile()+" processing");
+        VERBOSEERR(configerrstr+'\n');
+        ERRRETURNFALSE(__func__,configerrstr);
+    }
+
+    return true;
+}
 
 /**
  * Pushes a new error instance to the back of the queue of errors.
@@ -91,14 +122,37 @@ int Errors::flush() {
     return s;
 }
 
+std::string Errors::print_first_timecode() {
+    return "Time Code at START OF PROGRAM: "+TimeStampYmdHM(timecode)+'\n';
+}
+
+std::string Errors::print_updated_timecode() {
+    return "Time Code UPDATE: "+TimeStampYmdHM(timecode)+'\n';
+}
+
 /**
  * Concatenate all errors in the error queue in a single string.
  * 
  * @return string of error content in order of occurrence.
  */
-std::string Errors::pretty_print() const {
+std::string Errors::pretty_print() {
     std::string estr;
-    for (auto it = errq.cbegin(); it != errq.cend(); ++it) estr += '[' + it->tracehint + "] " + it->func + ": " + it->err + '\n';
+
+    // If this is the first output, or if a day has passed since the last time code then include one.
+    if (num() > 0) {
+        if (numflushed < 1) {
+            estr += print_first_timecode();
+        }
+        time_t t = ActualTime();
+        if (t > (timecode+(24*60*60))) {
+            timecode = t;
+            estr += print_updated_timecode();
+        }
+    }
+
+    for (auto it = errq.cbegin(); it != errq.cend(); ++it)
+        estr += '[' + it->tracehint + "] " + it->func + ": " + it->err + '\n';
+
     return estr;
 }
 
@@ -149,5 +203,43 @@ void Clean_Exit(int ecode) {
     WarnQ.output(ERRWARN_LOG_MODE);
     exit(ecode);
 }
+
+// +----- begin: EXPERIMENTAL -----+
+#ifdef INCLUDE_EXPERIMENTAL
+
+/**
+ * This experimental code is an attempt to try to (briefly) catch segfault,
+ * just to flush error queues.
+ * 
+ * See the card at: https://trello.com/c/G6OPJKeq
+ */
+
+void segfault_sigaction(int signal, siginfo_t *si, void *arg)
+{
+    ErrQ.output(ERRWARN_LOG_MODE);
+    //printf("Caught segfault at address %p\n", si->si_addr); //*** using printf is actually dangerous
+    exit(0); // should use a better code, or can we hand it back to the regular handler?
+}
+
+void setup_segfault_handler() {
+    struct sigaction sa;
+
+    memset(&sa, 0, sizeof(struct sigaction));
+    sigemptyset(&sa.sa_mask);
+    sa.sa_sigaction = segfault_sigaction;
+    sa.sa_flags   = SA_SIGINFO;
+
+    sigaction(SIGSEGV, &sa, NULL);
+
+}
+
+void test_segfault() {
+    int * foo = NULL;
+    *foo = 1;
+}
+#endif // INCLUDE_EXPERIMENTAL
+
+// +----- end  : EXPERIMENTAL -----+
+
 
 } // namespace fz

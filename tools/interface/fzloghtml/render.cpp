@@ -6,6 +6,11 @@
  * 
  */
 
+//#define USE_COMPILEDPING
+#ifdef USE_COMPILEDPING
+    #include <iostream>
+#endif
+
 // core
 #include "error.hpp"
 #include "general.hpp"
@@ -39,7 +44,7 @@ enum template_id_enum {
 const std::vector<std::string> template_ids = {
     "LogHTML_head_template.html",
     "LogHTML_tail_template.html",
-    "LogHTML_chunk_template.html"
+    "LogHTML_chunk_template.html",
     "LogHTML_entry_template.html"
 };
 
@@ -78,14 +83,21 @@ std::string render_Log_entry(Log_entry & entry) {
  */
 bool render() {
     ERRTRACE;
+
     load_templates(templates);
+
+    VERYVERBOSEOUT("Finding Log chunks from "+TimeStampYmdHM(fzlh.t_from)+" before "+TimeStampYmdHM(fzlh.t_before)+'\n');
 
     auto [from_idx, to_idx] = fzlh.log->get_Chunks_index_t_interval(fzlh.t_from, fzlh.t_before);
 
     std::string rendered_logcontent(templates[LogHTML_head_temp]);
     rendered_logcontent.reserve(128*1024);
 
+    COMPILEDPING(std::cout,"PING: got templates\n");
+
     for (auto chunk_idx = from_idx; chunk_idx <= to_idx; ++chunk_idx) {
+
+        COMPILEDPING(std::cout,"PING: commencing chunk idx#"+std::to_string(chunk_idx)+'\n');
 
         Log_chunk * chunkptr = fzlh.log->get_chunk(chunk_idx);
         if (chunkptr) {

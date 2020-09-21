@@ -67,7 +67,7 @@ dil2graph d2g;
 //----------------------------------------------------
 
 dil2graph::dil2graph() : formalizer_standard_program(true), proc_from(0), proc_to(99991231), from_section(0), to_section(9999999),
-                         ga(add_option_args, add_usage_top), flowcontrol(flow_everything), TL_reconstruction_test(false) {
+                         ga(*this, add_option_args, add_usage_top), flowcontrol(flow_everything), TL_reconstruction_test(false) {
     COMPILEDPING(std::cout, "PING-dil2graph().1\n");
     add_option_args += "LDTmo:f:t:1:2:r";
     add_usage_top += " [-m] [-L|-D|-T] [-o <testfile>] [-f <YYYYmmdd>] [-t <YYYYmmdd>] [-1 <num1>] [-2 <num2>] [-r]";
@@ -712,7 +712,7 @@ std::pair<Detailed_Items_List *, Graph *> interactive_conversion() {
     VOUT << "|    :    :    :   |\n";
     VOUT.flush();
     d2g.ga.access_initialize();
-    if (!store_Graph_pq(*graph, d2g.ga.dbname, d2g.ga.pq_schemaname, node_pq_progress_func)) {
+    if (!store_Graph_pq(*graph, d2g.ga.dbname(), d2g.ga.pq_schemaname(), node_pq_progress_func)) {
         EOUT << "\nSomething went wrong! Unable to store (correctly) in Postgres database.\n";
         standard.exit(exit_database_error);
     }
@@ -741,7 +741,7 @@ void interactive_validation(Detailed_Items_List *dil, Graph *graph) {
 
     ERRHERE(".reloadGraph");
     Graph reloaded;
-    if (!load_Graph_pq(reloaded, d2g.ga.dbname, d2g.ga.pq_schemaname)) { // Not using d2g.ga.request_Graph_copy(), because there might be no running server when we just created the database.
+    if (!load_Graph_pq(reloaded, d2g.ga.dbname(), d2g.ga.pq_schemaname())) { // Not using d2g.ga.request_Graph_copy(), because there might be no running server when we just created the database.
         EOUT << "\nSomething went wrong! Unable to load back from Postgres database.\n";
         standard.exit(exit_database_error);
     }
@@ -771,7 +771,7 @@ void interactive_validation(Detailed_Items_List *dil, Graph *graph) {
     DIL_entry *e = dil->list.head();
     auto n_it = graph->begin_Nodes();
     auto r_it = reloaded.begin_Nodes();
-    auto v = load_Node_parameter_interval(d2g.ga.dbname, d2g.ga.pq_schemaname, pqn_id, 0, 10);
+    auto v = load_Node_parameter_interval(d2g.ga.dbname(), d2g.ga.pq_schemaname(), pqn_id, 0, 10);
     for (unsigned int i = 0; i < 10; i++) {
         if (e) {
             rowstr += e->str() + '\t';

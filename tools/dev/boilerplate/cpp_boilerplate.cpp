@@ -163,7 +163,7 @@ int make_cpp_boilerplate() {
                 "	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(FORMALIZERROOT) $(TEMPLATEDIR) -c render.cpp -o $(OBJ)/render.o\n"
                 "\n");
             Makefilevars.emplace("templater_macro","$(TEMPLATEDIR) ");
-            Makefilevars.emplace("templater_obj","render.o ");
+            Makefilevars.emplace("templater_obj","$(OBJ)/render.o ");
         } else {
             Makefilevars.emplace("templater_target","");
             Makefilevars.emplace("templater_macro","");
