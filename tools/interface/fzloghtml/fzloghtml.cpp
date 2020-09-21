@@ -193,7 +193,7 @@ void fzloghtml::init_top(int argc, char *argv[]) {
 
     // If necessary, set the default interval
     if (t_before==RTt_unspecified) {
-        t_before = ; // *** was: t_before = ActualTime();
+        t_before = log->newest_chunk_t()+1; // Add one second to include that chunk. // *** was: t_before = ActualTime();
     }
     if (t_from==RTt_unspecified) {
         t_from = t_before - (24*60*60); // Daylight savings time is not taken into account at all.

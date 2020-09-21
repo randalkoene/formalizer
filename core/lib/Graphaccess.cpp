@@ -25,8 +25,8 @@ namespace fz {
  */
 std::unique_ptr<Graph> Graph_access::request_Graph_copy() {
     if (!is_server) {
-        FZOUT("\n*** This program is still using a temporary direct-load of Graph data.");
-        FZOUT("\n*** Please replace that with access through fzserverpq as soon as possible!\n\n");
+        VERBOSEOUT("\n*** This program is still using a temporary direct-load of Graph data.");
+        VERBOSEOUT("\n*** Please replace that with access through fzserverpq as soon as possible!\n\n");
     }
 
     access_initialize();
@@ -49,8 +49,8 @@ std::unique_ptr<Graph> Graph_access::request_Graph_copy() {
  */
 std::unique_ptr<Log> Graph_access::request_Log_copy() {
     if (!is_server) {
-        FZOUT("\n*** This program is still using a temporary direct-load of Log data.");
-        FZOUT("\n*** Please replace that with access through fzserverpq(-log) as soon as possible!\n\n");
+        VERBOSEOUT("\n*** This program is still using a temporary direct-load of Log data.");
+        VERBOSEOUT("\n*** Please replace that with access through fzserverpq(-log) as soon as possible!\n\n");
     }
 
     access_initialize();
