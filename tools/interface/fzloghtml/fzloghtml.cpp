@@ -49,7 +49,7 @@ fzloghtml::fzloghtml(): formalizer_standard_program(false), config(*this), ga(*t
         "of analogous form, e.g. 20200914.\n"
         "The default is:\n"
         "  start from 24 hours before end of interval\n"
-        "  end at current time\n");
+        "  end at most recent Log entry\n");
 }
 
 /**
@@ -188,16 +188,16 @@ void fzloghtml::init_top(int argc, char *argv[]) {
         }
     }
 
+    //graph = ga.request_Graph_copy();
+    log = ga.request_Log_copy();
+
     // If necessary, set the default interval
     if (t_before==RTt_unspecified) {
-        t_before = ActualTime();
+        t_before = ; // *** was: t_before = ActualTime();
     }
     if (t_from==RTt_unspecified) {
         t_from = t_before - (24*60*60); // Daylight savings time is not taken into account at all.
     }
-
-    //graph = ga.request_Graph_copy();
-    log = ga.request_Log_copy();
 
 }
 

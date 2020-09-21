@@ -6,42 +6,20 @@
 #
 # The `fzsetup` utility is the authoritative method to prepare or refresh a Formalizer environment.
 
+# std
 import os
 import sys
-sys.path.append(os.getenv('HOME')+'/src/formalizer/core/lib')
-sys.path.append(os.getenv('HOME')+'/src/formalizer/core/include')
-
+import json
 import argparse
 import subprocess
 
-import Graphpostgres
-import coreversion
+# Standardized expectations.
+userhome = os.getenv('HOME')
+fzuserbase = userhome + '/.formalizer'
+fzsetupconfigdir = fzuserbase+'/config/fzsetup.py'
+fzsetupconfig = fzsetupconfigdir+'/config.json'
 
-version = "0.1.0-0.1"
-
-config = {
-    'verbose' : False,
-    'cgiuser' : 'www-data',
-    'configroot' : '~/.formalizer/config/',
-    'sourceroot' : '~/src/formalizer'
-}
-
-flow_control = {
-    'create_database' : False,
-    'create_schema' : False,
-    'create_tables' : False,
-    'make_fzuser_role' : False,
-    'make_binaries' : False,
-    'create_configtree' : False,
-    'reset_environment' : False,
-    'reset_graph' : False,
-    'reset_log' : False,
-    'reset_metrics' : False,
-    'reset_guide' : False
-}
-
-
-
+# We need this everywhere to run various shell commands.
 def try_subprocess_check_output(thecmdstring):
     try:
         res = subprocess.check_output(thecmdstring, shell=True)
@@ -55,6 +33,59 @@ def try_subprocess_check_output(thecmdstring):
         if config['verbose']:
             print(res)
         return 0
+
+
+# Handle the case where even fzsetup.py does not have a configuration file yet.
+try:
+    with open(fzsetupconfig) as f:
+        config = json.load(f)
+
+except FileNotFoundError:
+    print('Creating configuration file for fzsetup.py.\n')
+    config = {
+        'verbose' : False,
+        'cgiuser' : 'www-data',
+        'configroot' : fzuserbase+'/config/',
+        'sourceroot' : userhome+'/src/formalizer',
+        'wwwhostroot' : '/var/www/html'
+    }
+    retcode = try_subprocess_check_output(f'mkdir -p {fzsetupconfigdir}')
+    if (retcode != 0):
+        print(f'Unable to create the config directory {fzsetupconfigdir}')
+        exit(retcode)
+    with open(fzsetupconfig,'w') as cfgfile:
+        json.dump(config, cfgfile, indent = 4, sort_keys=True)
+
+else:
+    assert len(config) > 0
+
+# Enable us to import standardized Formalizer Python components.
+fzcorelibdir = config['sourceroot'] + '/core/lib'
+fzcoreincludedir = config['sourceroot'] + '/core/include'
+sys.path.append(fzcorelibdir)
+sys.path.append(fzcoreincludedir)
+
+# core components
+import Graphpostgres
+import coreversion
+
+version = "0.1.0-0.1"
+
+flow_control = {
+    'create_database' : False,
+    'create_schema' : False,
+    'create_tables' : False,
+    'make_fzuser_role' : False,
+    'make_binaries' : False,
+    'create_configtree' : False,
+    'init_webtree' : False,
+    'reset_environment' : False,
+    'reset_graph' : False,
+    'reset_log' : False,
+    'reset_metrics' : False,
+    'reset_guide' : False
+}
+
 
 def database_exists(dbname):
     try:
@@ -154,7 +185,11 @@ def make_binaries_available():
         print('Formalizer executables made available at ~/.formalizer/bin')
         print('Please update your PATH to include ~/.formalizer/bin!')
 
-
+"""
+Creates a directory tree for configuration files. This does not delete any
+already existing directories or files, except that the README.md file in
+the config directory is regenerated.
+"""
 def create_configtree():
     import executables
     import coreconfigurable
@@ -163,14 +198,14 @@ def create_configtree():
         a_config_dir = config['configroot']+an_executable
         retcode = try_subprocess_check_output(f'mkdir -p {a_config_dir}')
         if (retcode != 0):
-            print('Unable to create the config directory {a_config_dir}')
+            print(f'Unable to create the config directory {a_config_dir}')
             exit(retcode)
     
     for a_configurable in coreconfigurable.coreconfigurable:
         a_config_dir = config['configroot']+a_configurable
         retcode = try_subprocess_check_output(f'mkdir -p {a_config_dir}')
         if (retcode != 0):
-            print('Unable to create the config directory {a_config_dir}')
+            print(f'Unable to create the config directory {a_config_dir}')
             exit(retcode)
 
     print(f'Configuration directories created under {config["configroot"]}.')
@@ -183,6 +218,48 @@ def create_configtree():
     else:
         print(f'Configuration README.md created at {config["configroot"]}README.md.\n')
 
+
+def setup_error_reports_to_web():
+    errconfigfile = config['configroot'] + 'error/config.json'
+    try:
+        with open(errconfigfile) as f:
+            err_config = json.load(f)
+
+    except FileNotFoundError:
+        print('Creating configuration file for error core component.\n')
+        err_config = {
+            'errlogpath' : config['wwwhostroot']+'/formalizer/formalizer.core.error.ErrQ.log',
+            'warnlogpath' : config['wwwhostroot']+'/formalizer/formalizer.core.error.WarnQ.log',
+            'errcaching' : False,
+            'warncaching' : False
+        }
+        webroot = config['wwwhostroot']+'/formalizer'
+        retcode = try_subprocess_check_output(f'mkdir -p {webroot}')
+        if (retcode != 0):
+            print(f'Unable to create the web itnerface directory {webroot}')
+            exit(retcode)
+        with open(errconfigfile,'w') as errcfgfile:
+            json.dump(err_config, errcfgfile, indent = 4, sort_keys=True)
+        
+        return
+    
+    err_config['errlogpath'] = config['wwwhostroot']+'/formalizer/formalizer.core.error.ErrQ.log'
+    err_config['warnlogpath'] = config['wwwhostroot']+'/formalizer/formalizer.core.error.WarnQ.log'
+    with open(errconfigfile,'w') as errcfgfile:
+        json.dump(err_config, errcfgfile, indent = 4, sort_keys=True)
+
+
+def init_webtree():
+    webtreeroot = config['wwwhostroot']
+    retcode = try_subprocess_check_output(f'mkdir -p {webtreeroot}')
+    if (retcode != 0):
+        print(f'Unable to create the web interface directory {webtreeroot}. See the fzsetup README.md.')
+        exit(retcode)
+
+    errtoweb = input('\nWould you like to inspect Formalizer reported warnings and errors through the web interface? (Y/n) ')
+    if (errtoweb != 'n'):
+        setup_error_reports_to_web()
+
     
 def set_All_flowcontrol():
     flow_control['create_database']=True
@@ -191,6 +268,16 @@ def set_All_flowcontrol():
     flow_control['make_fzuser_role']=True
     flow_control['make_binaries']=True    
     flow_control['create_configtree']=True
+    flow_control['init_webtree']=True
+
+
+def list_assumptions():
+    print('Fundamental assumptions (based on config and more):\n')
+    print(f'  configroot  : {config["configroot"]}')
+    print(f'  sourceroot  : {config["sourceroot"]}')
+    print(f'  cgiuser     : {config["cgiuser"]}')
+    print(f'  wwwhostroot : {config["wwwhostroot"]}')
+    exit(0)
 
 
 """
@@ -308,18 +395,21 @@ def parse_options():
     theepilog = ('Note that the schema name is also used for the fz(schema) role.\n\n'
     'Reset "all" will delete the existing schema and then suggest -A.\n'
     'Selecting "-1 config" will normally create the configuration directories under\n'
-    'the user home Formalizer configuration root at ~/.formalizer/.\n\n'
+    'the user home Formalizer configuration root at ~/.formalizer/. Existing\n'
+    'configuration directories and files are not removed or changed, but the\n'
+    'README.md file in the config directory is recreated.\n\n'
     '*** The -p option is not yet fully implemented! ***\n')
 
     parser = argparse.ArgumentParser(description='Setup or refresh a Formalizer environment.',epilog=theepilog)
     parser.add_argument('-A', '--All', dest='doall', action="store_true", help='do all setup steps, ensure environment is ready')
-    parser.add_argument('-1', '--One', metavar='setupaction', help='specify a step to do: database, schema, tables, fzuser, binaries, config')
+    parser.add_argument('-1', '--One', metavar='setupaction', help='specify a step to do: database, schema, tables, fzuser, binaries, config, web')
     parser.add_argument('-d', '--database', dest='dbname', help='specify database name (default: formalizer)')
     parser.add_argument('-s', '--schema', dest='schemaname', help='specify schema name (default: $USER)')
     parser.add_argument('-p', '--permissions', dest='permissions', action='store_true', help=f'give access permissions to {config["cgiuser"]}')
     #parser.add_argument('-m', '--makebins', dest='makebins', action='store_true', help='make Formalizer binaries available')
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='turn on verbose mode')
     parser.add_argument('-R', '--reset', dest='reset', help='reset: all, graph, log, metrics, guide')
+    parser.add_argument('-l', '--list', dest='list', action="store_true", help='list roots and other fundamental assumptions')
 
     args = parser.parse_args()
 
@@ -329,6 +419,8 @@ def parse_options():
         args.schemaname = os.getenv('USER')
     if args.verbose:
         config['verbose'] = True
+    if args.list:
+        list_assumptions()
     if args.doall:
         set_All_flowcontrol()
     if args.One:
@@ -344,6 +436,8 @@ def parse_options():
             flow_control['make_binaries']=True
         if (args.One == "config"):
             flow_control['create_configtree']=True
+        if (args.One == "web"):
+            flow_control['init_webtree']=True
     if args.reset:
         if (args.reset == "all"):
             flow_control['reset_environment']=True
@@ -401,6 +495,8 @@ if __name__ == '__main__':
         make_binaries_available()
     if flow_control['create_configtree']:
         create_configtree()
+    if flow_control['init_webtree']:
+        init_webtree()
 
     #print('Note: Some options have not been fully implemented yet.')
 
