@@ -19,6 +19,11 @@
                 </UL>
                 (The PATH is typically something like: <CODE>/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin</CODE>)
             </P>
+            <P>
+                <b>Important:</b> The <code>cgi-www</code> user cannot write to the <code>/var/www/html/formalizer</code> directory tree.
+                This means that any claims that error output is being written to a file there are false. Instead, try redirecting error
+                output to STDOUT, e.g.: <code>./fzloghtml -E STDOUT -d formalizer -s randalk</code>
+            </P>
 
             <input type="submit" value="Submit" />
         </form>

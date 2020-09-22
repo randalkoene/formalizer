@@ -158,15 +158,25 @@ def grant_fzuser_access(cmdargs,beverbose):
 def make_fzuser_role(cmdargs,beverbose):
     fzuser = f"fz{cmdargs.schemaname}"
     cgiuser = config['cgiuser']
-    print(f'Creating {fzuser} role if it does not already exist.')
+    print(f'Creating {fzuser} role, {cgiuser} role, and access permissions if any of those do not already exist.')
     retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'CREATE ROLE \"{cgiuser}\";'")
-    retcode += try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'CREATE ROLE \"{fzuser}\";'")
-    retcode += try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'GRANT \"{fzuser}\" TO \"{cmdargs.schemaname}\";'")
-    retcode += try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'GRANT \"{fzuser}\" TO \"{cgiuser}\";'")
-    retcode += try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'ALTER SCHEMA \"{cmdargs.schemaname}\" OWNER TO \"{fzuser}\";'")
-    retcode += grant_fzuser_access(cmdargs,False)
     if (retcode != 0):
-        print(f'Creating {cgiuser} and {fzuser} roles, and giving ownership and access permissions failed.')
+        print(f'The {cgiuser} role may already exist. If necessary, use `psql -d formalizer -c \'\\du\'` to confirm.')
+    retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'CREATE ROLE \"{fzuser}\";'")
+    if (retcode != 0):
+        print(f'The {fzuser} role may already exist. If necessary, use `psql -d formalizer -c \'\\du\'` to confirm.')
+    retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'GRANT \"{fzuser}\" TO \"{cmdargs.schemaname}\";'")
+    if (retcode != 0):
+        print(f'The {cmdargs.schemaname} role may already be a member of group role {fzuser}. If necessary, use `psql -d formalizer -c \'\\du\'` to confirm.')
+    retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'GRANT \"{fzuser}\" TO \"{cgiuser}\";'")
+    if (retcode != 0):
+        print(f'The {cgiuser} role may already be a member of group role {fzuser}. If necessary, use `psql -d formalizer -c \'\\du\'` to confirm.')
+    retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'ALTER SCHEMA \"{cmdargs.schemaname}\" OWNER TO \"{fzuser}\";'")
+    if (retcode != 0):
+        print(f'The {cmdargs.schemaname} schema may already be owned by {fzuser}. If necessary, use `psql -d formalizer -c \'\\dn\'` to confirm.')
+    retcode = grant_fzuser_access(cmdargs,False)
+    if (retcode != 0):
+        print(f'Giving {cgiuser} access permissions to the {cmdargs.schemaname} schema failed.')
         exit(retcode)
     if beverbose:
         print(f'The {fzuser} role owns schema {cmdargs.schemaname} in database {cmdargs.dbname}, and  {cgiuser} and {fzuser} roles have access permissions to schema {cmdargs.schemaname}.')

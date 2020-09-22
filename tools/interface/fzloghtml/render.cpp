@@ -90,8 +90,12 @@ bool render() {
 
     auto [from_idx, to_idx] = fzlh.log->get_Chunks_index_t_interval(fzlh.t_from, fzlh.t_before);
 
-    std::string rendered_logcontent(templates[LogHTML_head_temp]);
+    std::string rendered_logcontent;
     rendered_logcontent.reserve(128*1024);
+
+    if (!fzlh.noframe) {
+        rendered_logcontent += templates[LogHTML_head_temp];
+    }
 
     COMPILEDPING(std::cout,"PING: got templates\n");
 
@@ -109,7 +113,9 @@ bool render() {
             }
 
             template_varvalues varvals;
-            varvals.emplace("node_id",chunkptr->get_NodeID().str());
+            std::string nodestr = chunkptr->get_NodeID().str();
+            varvals.emplace("node_id",nodestr);
+            varvals.emplace("node_link","/cgi-bin/fzlink.py?id="+nodestr);
             varvals.emplace("t_chunkopen",chunkptr->get_tbegin_str());
             time_t t_chunkclose = chunkptr->get_close_time();
             if (t_chunkclose < chunkptr->get_open_time()) {
@@ -122,7 +128,9 @@ bool render() {
         }
     }
 
-    rendered_logcontent += templates[LogHTML_tail_temp];
+    if (!fzlh.noframe) {
+        rendered_logcontent += templates[LogHTML_tail_temp];
+    }
 
     // send to destination
     if (fzlh.dest.empty()) { // to STDOUT

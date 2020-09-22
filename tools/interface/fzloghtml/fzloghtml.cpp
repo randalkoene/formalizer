@@ -39,9 +39,10 @@ fzloghtml fzlh;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzloghtml::fzloghtml(): formalizer_standard_program(false), config(*this), ga(*this, add_option_args,add_usage_top), t_from(RTt_unspecified), t_before(RTt_unspecified), iscale(interval_none), interval(0) {
-    add_option_args += "1:2:o:d:H:w:";
-    add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-d <days>|-H <hours>|-w <weeks>] [-o <outputfile>]";
+fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), ga(*this, add_option_args, add_usage_top),
+                         t_from(RTt_unspecified), t_before(RTt_unspecified), iscale(interval_none), interval(0), noframe(false) {
+    add_option_args += "1:2:o:D:H:w:N";
+    add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
     usage_tail.push_back(
         "The <time-stamp1> and <time-stamp_2> arguments expect standardized\n"
@@ -60,10 +61,11 @@ void fzloghtml::usage_hook() {
     ga.usage_hook();
     FZOUT("    -1 start from <time-stamp-1>\n");
     FZOUT("    -2 end before <time-stamp-2>\n");
-    FZOUT("    -d interval size of <days>\n");
+    FZOUT("    -D interval size of <days>\n");
     FZOUT("    -H interval size of <hours>\n");
     FZOUT("    -w interval size of <weeks>\n");
     FZOUT("    -o write HTML Log interval to <outputfile> (otherwise to STDOUT)\n");
+    FZOUT("    -N no HTML page frame\n");
 }
 
 /**
@@ -86,42 +88,49 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
         time_t t = ymd_stamp_time(cargs);
         if (t==RTt_invalid_time_stamp) {
             VERBOSEERR("Invalid 'from' time or date stamp "+cargs+'\n');
+            break;
         } else {
             t_from = t;
         }
-        break;
+        return true;
     }
 
     case '2': {
         time_t t = ymd_stamp_time(cargs);
         if (t==RTt_invalid_time_stamp) {
             VERBOSEERR("Invalid 'before' time or date stamp "+cargs+'\n');
+            break;
         } else {
             t_before = t;
         }
-        break;
+        return true;
     }
 
-    case 'd': {
+    case 'D': {
         iscale = interval_days;
         interval = atoi(cargs.c_str());
-        break;
+        return true;
     }
 
     case 'H': {
         iscale = interval_hours;
         interval = atoi(cargs.c_str());
-        break;
+        return true;
     }
 
     case 'w': {
         iscale = interval_weeks;
         interval = atoi(cargs.c_str());
-        break;
+        return true;
     }
 
     case 'o': {
         dest = cargs;
+        return true;
+    }
+
+    case 'N': {
+        noframe = true;
         return true;
     }
 

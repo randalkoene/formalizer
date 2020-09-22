@@ -16,6 +16,7 @@ FORMALIZERPATH_THIS=$(FORMALIZERPATH)
 
 EXEDIR=$(HOME)/.formalizer/bin
 CGIDIR=/usr/lib/cgi-bin
+WEBINTERFACESDIR=/var/www/html/formalizer
 
 INC=$(COREINCLUDEPATH)
 OBJ=./obj
@@ -78,9 +79,18 @@ EXECUTABLES += $(TOOLSPATH)/system/requestmanual/requestmanual.py
 # EXECUTABLES += $(TOOLSPATH)/system/schedule/favorvariable/favorvariable
 # EXECUTABLES += $(TOOLSPATH)/system/syswizard/syswizard
 
+# symbolic links to executables for CGI scripts to call upon
+SYMBIN = 
+SYMBIN += $(COREPATH)/fzquerypq/fzquerypq
+SYMBIN += $(TOOLSPATH)/interface/fzloghtml/fzloghtml
+
+# CGI scripts that need to be copied to $(CGIDIR)
 CGIEXE = $(TOOLSPATH)/interface/logentry-form/logentry-form.py
-# CGIEXE += $(TOOLSPATH)/interface/fzlink/fzlink
-CGIEXE += $(COREPATH)/fzquerypq/fzquerypq
+CGIEXE += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-cgi.py
+CGIEXE += $(TOOLSPATH)/interface/fzlink/fzlink.py
+
+WEBINTERFACES = 
+WEBINTERFACES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-form.html
 # +----- end  : Select Formalizer executables -----+
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
@@ -111,7 +121,9 @@ $(TOOLSCOMPDIRS): $(LIBCOMPDIRS)
 executables: $(EXECUTABLES)
 	mkdir -p $(EXEDIR)
 	ln -f -s $(EXECUTABLES) $(EXEDIR)/
-	sudo ln -f -s $(CGIEXE) $(CGIDIR)/
+	sudo ln -f -s $(SYMBIN) $(CGIDIR)/
+	sudo cp -f $(CGIEXE) $(CGIDIR)/
+	cp -f $(WEBINTERFACES) $(WEBINTERFACESDIR)/
 
 # call `make doxygen` to refresh code documentation
 doxygen: FORCE

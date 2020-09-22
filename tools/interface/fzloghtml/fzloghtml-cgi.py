@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 #
-# Randal A. Koene, 20200902
+# Randal A. Koene, 20200921
+#
+# This CGI handler provides a near-verbatim equivalent access to fzloghtml via web form.
 
 # Import modules for CGI handling 
 try:
@@ -23,47 +25,43 @@ from subprocess import Popen, PIPE
 form = cgi.FieldStorage() 
 
 # Get data from fields
-node_id = form.getvalue('node_id')
-logchunk_id  = form.getvalue('logchunk_id')
+startfrom = form.getvalue('startfrom')
+endbefore  = form.getvalue('endbefore')
+daysinterval  = form.getvalue('daysinterval')
+weeksinterval  = form.getvalue('weeksinterval')
+hoursinterval  = form.getvalue('hoursinterval')
 
 print("Content-type:text/html\n\n")
 print("<html>")
 print("<head>")
 print('<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">')
-print("<title>Test Prototype: Request a Node and Log Chunk</title>")
+print("<title>Formalizer: HTML FORM interface to fzloghtml</title>")
 print("</head>")
 print("<body>")
 
 thisscript = os.path.realpath(__file__)
 print(f'(For dev reference, this script is at {thisscript}.)')
 
-print("<h1>Test Prototype: Request a Node and Log Chunk</h1>\n<p></p>")
-print("<h2>Node %s and Log Chunk %s</h2>" % (node_id, logchunk_id))
-print("<table>")
+print("<h1>Formalizer: HTML FORM interface to fzloghtml</h1>\n<p></p>")
+#print("<table>")
 
-if node_id:
-    thecmd = "./fzquerypq -q -d formalizer -s randalk -n "+node_id+" -E STDOUT -F html"
+cmdoptions = ""
+
+if startfrom:
+    cmdoptions += ' -1 '+startfrom
+if endbefore:
+    cmdoptions += ' -2 '+endbefore
+if daysinterval:
+    cmdoptions += ' -D '+daysinterval
+if weeksinterval:
+    cmdoptions += ' -w '+weeksinterval
+if hoursinterval:
+    cmdoptions += ' -H '+hoursinterval 
+
+if cmdoptions:
+    thecmd = "./fzloghtml -q -d formalizer -s randalk -E STDOUT -N "+cmdoptions
     print('Using this command: ',thecmd)
-    try:
-        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
-        (child_stdin,child_stdout) = (p.stdin, p.stdout)
-        child_stdin.close()
-        result = child_stdout.read()
-        child_stdout.close()
-        print(result)
-        #print(result.replace('\n', '<BR>'))
-
-    except Exception as ex:                
-        print(ex)
-        f = StringIO()
-        print_exc(file=f)
-        a = f.getvalue().splitlines()
-        for line in a:
-            print(line)
-
-if logchunk_id:
-    thecmd = "./fzloghtml -q -d formalizer -s randalk -1 "+logchunk_id+" -D 1 -E STDOUT"
-    print('Using this command: ',thecmd)
+    print('<br>\n')
     try:
         p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
         (child_stdin,child_stdout) = (p.stdin, p.stdout)
@@ -86,6 +84,6 @@ if logchunk_id:
 #    print("Please fill in the name and addr fields.")
 #    return
 
-print("</table>")
+#print("</table>")
 print("</body>")
 print("</html>")

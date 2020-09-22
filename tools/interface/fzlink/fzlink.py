@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 #
-# Randal A. Koene, 20200902
+# Randal A. Koene, 20200921
+#
+# CGI script to forward Node, Log chunk and Log entry ID references to a handler.
 
 # Import modules for CGI handling 
 try:
@@ -23,47 +25,43 @@ from subprocess import Popen, PIPE
 form = cgi.FieldStorage() 
 
 # Get data from fields
-node_id = form.getvalue('node_id')
-logchunk_id  = form.getvalue('logchunk_id')
+id = form.getvalue('id')
 
 print("Content-type:text/html\n\n")
 print("<html>")
 print("<head>")
 print('<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">')
-print("<title>Test Prototype: Request a Node and Log Chunk</title>")
+print("<title>Formalizer: fzlink handler</title>")
 print("</head>")
 print("<body>")
 
 thisscript = os.path.realpath(__file__)
 print(f'(For dev reference, this script is at {thisscript}.)')
 
-print("<h1>Test Prototype: Request a Node and Log Chunk</h1>\n<p></p>")
-print("<h2>Node %s and Log Chunk %s</h2>" % (node_id, logchunk_id))
-print("<table>")
+print("<h1>Formalizer: fzlink handler</h1>\n<p></p>")
+#print("<table>")
 
-if node_id:
-    thecmd = "./fzquerypq -q -d formalizer -s randalk -n "+node_id+" -E STDOUT -F html"
+thecmd = ""
+if id:
+    idlen = len(id)
+    if (idlen==12):
+        # Log chunk ID
+        thecmd = "./fzloghtml -q -d formalizer -s randalk -E STDOUT -D 1 -1 "+id
+    else:
+        if (idlen>12):
+            if (id[12]=='.'):
+                # Log entry ID (show the chunk)
+                chunkid = id[0:12]
+                thecmd = "./fzloghtml -q -d formalizer -s randalk -E STDOUT -D 1 -1 "+chunkid
+            else:
+                if (idlen==16):
+                    # Node ID
+                    thecmd = "./fzquerypq -q -d formalizer -s randalk -E STDOUT -F html -n "+id
+    
+
+if thecmd:
     print('Using this command: ',thecmd)
-    try:
-        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
-        (child_stdin,child_stdout) = (p.stdin, p.stdout)
-        child_stdin.close()
-        result = child_stdout.read()
-        child_stdout.close()
-        print(result)
-        #print(result.replace('\n', '<BR>'))
-
-    except Exception as ex:                
-        print(ex)
-        f = StringIO()
-        print_exc(file=f)
-        a = f.getvalue().splitlines()
-        for line in a:
-            print(line)
-
-if logchunk_id:
-    thecmd = "./fzloghtml -q -d formalizer -s randalk -1 "+logchunk_id+" -D 1 -E STDOUT"
-    print('Using this command: ',thecmd)
+    print('<br>\n<table>\n')
     try:
         p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
         (child_stdin,child_stdout) = (p.stdin, p.stdout)

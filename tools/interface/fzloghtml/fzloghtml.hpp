@@ -55,6 +55,7 @@ struct fzloghtml: public formalizer_standard_program {
     time_t t_before;
     interval_scale iscale;
     unsigned int interval;
+    bool noframe;
 
     std::string dest;   ///< where to send rendered output (empty means STDOUT)
 
