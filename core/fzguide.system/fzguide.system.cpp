@@ -58,7 +58,9 @@ std::map<fgs_subsection,const std::string> subsectiontag = {
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzguide_system::fzguide_system(): section(fgs_am), subsection(fgs_wakeup), decimalidx(1.0), format(format_none), flowcontrol(flow_unknown), pa(add_option_args, add_usage_top, true) {
+fzguide_system::fzguide_system() : formalizer_standard_program(false), section(fgs_am), subsection(fgs_wakeup),
+                                   decimalidx(1.0), format(format_none), flowcontrol(flow_unknown),
+                                   pa(*this, add_option_args, add_usage_top, true) {
     add_option_args += "SRAPU:x:i:o:F:";
     add_usage_top += " <-S|-R> [-A|-P] [-U <subsection>] [-x <idx>] [-i <inputfile>] [-o <outputfile>] [-F <format>]";
 }
@@ -91,6 +93,7 @@ void fzguide_system::usage_hook() {
  * @param cargs is the optional parameter value provided for the option.
  */
 bool fzguide_system::options_hook(char c, std::string cargs) {
+    ERRTRACE;
     if (pa.options_hook(c,cargs))
         return true;
 
@@ -171,6 +174,7 @@ bool fzguide_system::options_hook(char c, std::string cargs) {
  * @param argv command line parameters array forwarded from main().
  */
 void fzguide_system::init_top(int argc, char *argv[]) {
+    ERRTRACE;
     // *** add any initialization here that has to happen before standard initialization
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
     // *** add any initialization here that has to happen once in main(), for the derived class
@@ -196,18 +200,19 @@ std::string Guide_snippet_system::all_values_pqstr() const {
 
 
 int store_snippet() {
+    ERRTRACE;
     Guide_snippet_system snippet;
     if (fgs.source.empty()) { // from STDIN
         VERBOSEOUT("Collecting snippet to store to the System Guide from STDIN until EOF (CTRL+D)...\n\n");
         if (!stream_to_string(std::cin,snippet.snippet)) {
             ADDERROR(__func__,"unable to read snippet from STDIN");
-            fgs.exit(exit_file_error);
+            standard.exit(exit_file_error);
         }
     } else {
         VERBOSEOUT("Collecting snippet to store to the System Guide from "+fgs.source+"...\n\n");
         if (!file_to_string(fgs.source,snippet.snippet)) {
             ADDERROR(__func__,"unable to read snippet from "+fgs.source);
-            fgs.exit(exit_file_error);
+            standard.exit(exit_file_error);
         }
     }
 
@@ -216,10 +221,10 @@ int store_snippet() {
 
     if (!store_Guide_snippet_pq(snippet, fgs.pa)) {
         ADDERROR(__func__,"unable to store snippet");
-        fgs.exit(exit_database_error);
+        standard.exit(exit_database_error);
     }
 
-    return fgs.completed_ok();
+    return standard.completed_ok();
 }
 
 enum template_id_enum {
@@ -238,6 +243,7 @@ const std::vector<std::string> template_ids = {
 typedef std::map<template_id_enum,std::string> format_templates;
 
 bool load_templates(format_templates & templates) {
+    ERRTRACE;
     templates.clear();
 
     VERBOSEOUT("Using template directory: "+template_dir+'\n');
@@ -251,10 +257,11 @@ bool load_templates(format_templates & templates) {
 }
 
 std::string format_snippet(const std::string & snippet) {
+    ERRTRACE;
     render_environment env;
     format_templates templates;
     if (!load_templates(templates))
-        fgs.exit(exit_file_error); // Don't continue if you don't have the templates.
+        standard.exit(exit_file_error); // Don't continue if you don't have the templates.
 
     template_varvalues formatvars;        
     switch (fgs.format) {
@@ -288,12 +295,13 @@ std::string format_snippet(const std::string & snippet) {
 }
 
 int read_snippet() {
+    ERRTRACE;
     Guide_snippet_system snippet(fgs);
     VERBOSEOUT("Reading snippet from "+snippet.tablename+" with ID="+snippet.idstr()+"\n\n");
 
     if (!read_Guide_snippet_pq(snippet,fgs.pa)) {
         ADDERROR(__func__,"unable to read snippet");
-        fgs.exit(exit_database_error);
+        standard.exit(exit_database_error);
     }
 
     std::string rendered_snippet;
@@ -310,14 +318,15 @@ int read_snippet() {
         VERBOSEOUT("Writing snippet content to "+fgs.dest+".\n\n");
         if (!string_to_file(fgs.dest,rendered_snippet)) {
             ADDERROR(__func__,"unable to write snippet to "+fgs.dest);
-            fgs.exit(exit_file_error);
+            standard.exit(exit_file_error);
         }
     }
 
-    return fgs.completed_ok();
+    return standard.completed_ok();
 }
 
 int main(int argc, char *argv[]) {
+    ERRTRACE;
     fgs.init_top(argc, argv);
 
     switch (fgs.flowcontrol) {
@@ -336,5 +345,5 @@ int main(int argc, char *argv[]) {
 
     }
 
-    return fgs.completed_ok();
+    return standard.completed_ok();
 }
