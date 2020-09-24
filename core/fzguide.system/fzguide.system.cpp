@@ -48,6 +48,7 @@
 #include "general.hpp"
 #include "fzpostgres.hpp"
 #include "templater.hpp"
+#include "utf8.hpp"
 
 // local
 #include "fzguide.system.hpp"
@@ -248,19 +249,21 @@ std::string Guide_snippet_system::all_values_pqstr() const {
 int store_snippet() {
     ERRTRACE;
     Guide_snippet_system snippet;
+    std::string utf8_unsafe;
     if (fgs.source.empty()) { // from STDIN
         VERBOSEOUT("Collecting snippet to store to the System Guide from STDIN until EOF (CTRL+D)...\n\n");
-        if (!stream_to_string(std::cin,snippet.snippet)) {
+        if (!stream_to_string(std::cin,utf8_unsafe)) {
             ADDERROR(__func__,"unable to read snippet from STDIN");
             standard.exit(exit_file_error);
         }
     } else {
         VERBOSEOUT("Collecting snippet to store to the System Guide from "+fgs.source+"...\n\n");
-        if (!file_to_string(fgs.source,snippet.snippet)) {
+        if (!file_to_string(fgs.source,utf8_unsafe)) {
             ADDERROR(__func__,"unable to read snippet from "+fgs.source);
             standard.exit(exit_file_error);
         }
     }
+    snippet.snippet = utf8_safe(utf8_unsafe,true);
 
     snippet.set_id(fgs);
     VERBOSEOUT("Storing snippet to "+snippet.tablename+" with ID="+snippet.idstr()+"\n\n");
