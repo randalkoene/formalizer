@@ -87,6 +87,7 @@ struct Guide_snippet_system: public Guide_snippet {
     std::string idxstr;
 
     Guide_snippet_system(): Guide_snippet("guide_system") {}
+    Guide_snippet_system(const std::string & idstr, const std::string & snippetstr);
     Guide_snippet_system(const fzguide_system & _fzgs): Guide_snippet("guide_system") { set_id(_fzgs); }
 
     void set_id(const fzguide_system & _fzgs);
@@ -96,6 +97,8 @@ struct Guide_snippet_system: public Guide_snippet {
     virtual std::string idstr() const;
 
     virtual std::string all_values_pqstr() const;
+
+    virtual Guide_snippet * clone() const;
 
     virtual bool nullsnippet() const { return (chapter.empty() || sectionnum.empty() || subsectionnum.empty() || subsection.empty() || idxstr.empty() || snippet.empty()); }
 

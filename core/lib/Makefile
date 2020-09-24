@@ -144,6 +144,9 @@ $(OBJ)/Graphcompare.o: Graphcompare.cpp $(INC)/Graphtypes.hpp
 $(OBJ)/Graphtypes.o: Graphtypes.cpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c Graphtypes.cpp -o $(OBJ)/Graphtypes.o
 
+$(OBJ)/Graphshared.o: Graphshared.cpp $(INC)/Graphshared.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
+	$(CCPP) $(CPPFLAGS) -c Graphshared.cpp -o $(OBJ)/Graphshared.o
+
 $(OBJ)/LogtypesID.o: LogtypesID.cpp $(INC)/LogtypesID.hpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c LogtypesID.cpp -o $(OBJ)/LogtypesID.o
 

@@ -59,6 +59,50 @@ bool store_Guide_snippet_pq(const Guide_snippet & snippet, Postgres_access & pa)
 }
 
 /**
+ * Store multiple Guide snippets in the PostgreSQL database. Creates the table if necessary.
+ * 
+ * At least the first element (index 0) of the vector must contain a valid `tablename` and
+ * must produce valid `layout()` information.
+ * 
+ * @param snippets a vector guide snippets.
+ * @param pa a standard database access stucture with database name and schema name.
+ * @returns true if the snippet was successfully stored in the database.
+ */
+bool store_Guide_multi_snippet_pq(const std::vector<Guide_snippet_ptr> & snippets, Postgres_access & pa) {
+    ERRTRACE;
+    if (snippets.empty()) return false;
+
+    pa.access_initialize();
+    PGconn* conn = connection_setup_pq(pa.dbname());
+    if (!conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define STORE_SNIPPET_PQ_RETURN(r) { PQfinish(conn); return r; }
+
+    active_pq apq(conn,pa.pq_schemaname());
+    if (!create_Guide_table(apq,snippets[0]->tablename,snippets[0]->layout())) {
+        STORE_SNIPPET_PQ_RETURN(false);
+    }
+
+    std::string insertcmdtargetstr("INSERT INTO "+pa.pq_schemaname() + "." + snippets[0]->tablename + " VALUES (");
+
+    for (size_t i = 0; i < snippets.size(); ++i) {
+
+        if (snippets[i]->snippet.empty()) {
+            ADDWARNING(__func__, "Empty guide snippet skipped (index="+std::to_string(i)+')');
+            continue;
+        }
+
+        std::string insertsnippetstr(insertcmdtargetstr + snippets[i]->all_values_pqstr() + ')');
+        if (!simple_call_pq(conn,insertsnippetstr)) {
+            STORE_SNIPPET_PQ_RETURN(false);
+        }
+    }
+
+    STORE_SNIPPET_PQ_RETURN(true);
+}
+
+/**
  * Read a single snippet from a Guide table in the database.
  * 
  * The `snippet` should specify `snippet.tablename` and a working `idstr()` method.

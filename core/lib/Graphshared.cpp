@@ -11,6 +11,9 @@
 
 namespace fz {
 
+// temporarily out to prevent library make problems
+#ifdef IS_READY_TO_COMPILE
+
 Node_ID_shr::Node_ID_shr(const Node_ID & nid): idkey(nid.key()) {
     std::strncpy(idS_cache, nid.str().c_str(), NODE_ID_STRSZ); // automatically pads zeros
 }
@@ -37,5 +40,7 @@ Topic_shr::Topic_shr(const Topic & topic): id(topic.get_id()), supid(topic.get_s
         }
     }
 }
+
+#endif // IS_READY_TO_COMPILE
 
 } // namespace fz

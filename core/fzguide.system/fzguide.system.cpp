@@ -36,10 +36,13 @@
 
 #define FORMALIZER_MODULE_ID "Formalizer:Server:Guide:System"
 
+//#define TESTING_FZGUIDE
+
 // std
 #include <cstdlib>
 #include <iostream>
 #include <map>
+#include <memory>
 
 // core
 #include "version.hpp"
@@ -225,6 +228,22 @@ void fzguide_system::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen once in main(), for the derived class
 }
 
+Guide_snippet_system::Guide_snippet_system(const std::string & idstr, const std::string & snippetstr): Guide_snippet("guide_system") {
+    std::vector<std::string> id_components = split(idstr,':');
+    if (id_components.size()!=5) {
+        ADDERROR(__func__, "Invalid ID: "+idstr);
+        standard.exit(exit_general_error);
+    }
+
+    chapter = id_components[0];
+    sectionnum = id_components[1];
+    subsectionnum = id_components[2];
+    subsection = id_components[3];
+    idxstr = id_components[4];
+
+    snippet = snippetstr;
+}
+
 void Guide_snippet_system::set_id(const fzguide_system & _fzgs) {
     chapter = chaptertag[_fzgs.chapter];
     sectionnum = to_precision_string(_fzgs.sectionnum,1,'0',4);
@@ -245,6 +264,69 @@ std::string Guide_snippet_system::all_values_pqstr() const {
     return idstr()+", $txt$"+snippet+"$txt$";
 }
 
+Guide_snippet * Guide_snippet_system::clone() const {
+    return new Guide_snippet_system(*this);
+}
+
+int store_multi_snippet(const std::string & utf8safestr) {
+    // skip preamble
+    size_t pos = utf8safestr.find("<!-- begin: content -->\n");
+    if (pos == std::string::npos) {
+        ADDERROR(__func__,"Missing begin content marker in multi-snippet data");
+        standard.exit(exit_general_error);
+    }
+
+    pos += 24;
+    // build vector of snippets
+    std::vector<Guide_snippet_ptr> snippets;
+    while (true) {
+        pos = utf8safestr.find("<!-- ID={",pos);
+        if (pos == std::string::npos)
+            break;
+
+        pos += 9;
+        size_t id_endpos = utf8safestr.find('}',pos);
+        if (id_endpos == std::string::npos)
+            break;
+
+        std::string idstr = utf8safestr.substr(pos,id_endpos-pos);
+        pos = utf8safestr.find('\n',id_endpos);
+        if (pos == std::string::npos)
+            break;
+        
+        pos += 1;
+        size_t snippet_endpos = utf8safestr.find("<!-- ID={",pos);
+        if (snippet_endpos == std::string::npos) {
+            snippet_endpos = utf8safestr.find("<!-- end  : content -->",pos);
+            if (snippet_endpos == std::string::npos)
+                break;
+        }
+
+        std::string snippetstr = utf8safestr.substr(pos,snippet_endpos-pos);
+        pos = snippet_endpos;
+
+        Guide_snippet_ptr guidesnippet = std::make_unique<Guide_snippet_system>(idstr,snippetstr);
+        snippets.emplace_back(guidesnippet->clone());
+    }
+
+    if (snippets.empty()) {
+        ADDERROR(__func__,"No valid snippets found in multi-snippet data");
+        standard.exit(exit_general_error);
+    }
+
+    VERBOSEOUT("Storing multi-snippets to "+snippets[0]->tablename+"\n\n");
+
+    if (!store_Guide_multi_snippet_pq(snippets, fgs.pa)) {
+        ADDERROR(__func__,"unable to store multi-snippets");
+        standard.exit(exit_database_error);
+    }
+
+#ifdef TESTING_FZGUIDE
+    FZOUT("Postgres operations were simulated. Here are the Postgres commands:\n\n"+SimPQ.GetLog());
+#endif
+
+    return standard.completed_ok();
+}
 
 int store_snippet() {
     ERRTRACE;
@@ -264,13 +346,17 @@ int store_snippet() {
         }
     }
     snippet.snippet = utf8_safe(utf8_unsafe,true);
+    if (snippet.snippet.substr(0,16)=="<!-- FZGUIDE -->") {
+        return store_multi_snippet(snippet.snippet);
 
-    snippet.set_id(fgs);
-    VERBOSEOUT("Storing snippet to "+snippet.tablename+" with ID="+snippet.idstr()+"\n\n");
+    } else {
+        snippet.set_id(fgs);
+        VERBOSEOUT("Storing snippet to "+snippet.tablename+" with ID="+snippet.idstr()+"\n\n");
 
-    if (!store_Guide_snippet_pq(snippet, fgs.pa)) {
-        ADDERROR(__func__,"unable to store snippet");
-        standard.exit(exit_database_error);
+        if (!store_Guide_snippet_pq(snippet, fgs.pa)) {
+            ADDERROR(__func__,"unable to store snippet");
+            standard.exit(exit_database_error);
+        }
     }
 
     return standard.completed_ok();
@@ -381,6 +467,10 @@ int read_snippet() {
 int main(int argc, char *argv[]) {
     ERRTRACE;
     fgs.init_top(argc, argv);
+
+#ifdef TESTING_FZGUIDE
+    SimPQ.SimulateChanges();
+#endif
 
     switch (fgs.flowcontrol) {
 

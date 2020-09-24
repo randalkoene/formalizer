@@ -69,6 +69,12 @@ constexpr size_t TOPIC_TITLE_STRSZ = 60+1;
 constexpr size_t TOPIC_KEYREL_ARRSZ = 16;
 constexpr size_t TOPIC_TAGS_ARRSZ = 1000;
 
+// temporarily out to prevent library make problems
+#ifdef IS_READY_TO_COMPILE
+
+
+class Graph_shr;
+
 /**
  * Sharable version of Node_ID.
  */
@@ -186,7 +192,7 @@ class Node_shr {
     friend class Edge;
 protected:
     const Node_ID_shr id;
-    Topics_Set_shr topics[];
+    Topics_Set_shr * topics;
     float valuation;
     float completion;
     time_t required;
@@ -199,8 +205,8 @@ protected:
     int tdspan;
 
     Graph_shr *graph;
-    Edges_Set_shr supedges[];
-    Edges_Set_shr depedges[];
+    Edges_Set_shr * supedges;
+    Edges_Set_shr * depedges;
  
     #define SEM_TRAVERSED 1
     mutable int semaphore;
@@ -299,9 +305,9 @@ public:
     errcodes error = g_noerrors; /// Stores a code for the most recent error encountered.
 protected:
     // keeping nodes protected here purely as a precaution against accidental map modification
-    Node_Map_shr nodes[];
+    Node_Map_shr * nodes;
     size_t nodesnum = 0;
-    Edge_Map_shr edges[];
+    Edge_Map_shr * edges;
     size_t edgesnum = 0;
     Topic_Tags_shr topics;
 
@@ -353,6 +359,7 @@ public:
     Node_Map_shr * temptonodemap() { return nodes; }
 };
 
+#endif // IS_READY_TO_COMPILE
 
 } // namespace fz
 
