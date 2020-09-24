@@ -88,9 +88,11 @@ SYMBIN += $(TOOLSPATH)/interface/fzloghtml/fzloghtml
 CGIEXE = $(TOOLSPATH)/interface/logentry-form/logentry-form.py
 CGIEXE += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzlink/fzlink.py
+CGIEXE += $(TOOLSPATH)/core/fzguide.system/fzguide.system-cgi.py
 
 WEBINTERFACES = 
 WEBINTERFACES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-form.html
+WEBINTERFACES += $(TOOLSPATH)/core/fzguide.system/fzguide.system-form.html
 # +----- end  : Select Formalizer executables -----+
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html

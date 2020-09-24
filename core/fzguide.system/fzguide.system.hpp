@@ -2,7 +2,14 @@
 // License TBD
 
 /**
- * {{ header_description }}
+ * Authoritative server of System guide content.
+ * 
+ * This Formalizer environment server program provides a target independent authoritative source
+ * for content in the System guide. The server program `fzguide.system` carries out interactions
+ * with the underlying database to retrieve guide content or store new guide content.
+ * 
+ * For more about this, see the README.md file and cards at https://trello.com/c/6Bt1nyBz and
+ * https://trello.com/c/TQ9lVjuH.
  * 
  * Versioning is based on https://semver.org/ and the C++ header defines __FZGUIDE_SYSTEM_HPP.
  */
