@@ -39,7 +39,7 @@ enum flow_options {
     flow_NUMoptions
 };
 
-enum fgs_section {
+enum fgs_chapter {
     fgs_am = 0,
     fgs_pm = 1,
     fgs_NUMsections
@@ -53,7 +53,9 @@ enum fgs_subsection {
 
 struct fzguide_system: public formalizer_standard_program {
 
-    fgs_section section;
+    fgs_chapter chapter;
+    float sectionnum;
+    float subsectionnum;
     fgs_subsection subsection;
     float decimalidx;
     std::string source; ///< where to get snippet content (empty means STDIN)
@@ -78,7 +80,9 @@ extern fzguide_system fgs;
 
 struct Guide_snippet_system: public Guide_snippet {
 
-    std::string section;
+    std::string chapter;
+    std::string sectionnum;
+    std::string subsectionnum;
     std::string subsection;
     std::string idxstr;
 
@@ -93,7 +97,7 @@ struct Guide_snippet_system: public Guide_snippet {
 
     virtual std::string all_values_pqstr() const;
 
-    virtual bool nullsnippet() const { return (section.empty() || subsection.empty() || idxstr.empty() || snippet.empty()); }
+    virtual bool nullsnippet() const { return (chapter.empty() || sectionnum.empty() || subsectionnum.empty() || subsection.empty() || idxstr.empty() || snippet.empty()); }
 
 };
 

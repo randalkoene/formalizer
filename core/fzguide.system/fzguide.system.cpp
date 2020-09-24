@@ -1,7 +1,7 @@
 // Copyright 2020 Randal A. Koene
 // License TBD
 
-/**
+/** @file fzguide.system.cpp
  * Authoritative server of System guide content.
  * 
  * This Formalizer environment server program provides a target independent authoritative source
@@ -10,6 +10,28 @@
  * 
  * For more about this, see the README.md file and cards at https://trello.com/c/6Bt1nyBz and
  * https://trello.com/c/TQ9lVjuH.
+ * 
+ * The guide table is composed of rows with 2 columnes (fields):
+ * 
+ * - id key : A composite ID that identifies uniquely where the entry belongs.
+ * - snippet: The text content of the entry.
+ * 
+ * The id key is composed as follows:
+ * 
+ * {chapter_label}:{section_number}:{subsection_number}:{subsection_label}:{index_number}
+ * 
+ * Where:
+ * 
+ * - chapter_label is a text label (e.g. "AM").
+ * - section_number is a decimal number > 0.0 (e.g. "01.1")
+ * - subsection_number is a decimal number > 0.0 (e.g. "01.1")
+ * - subsection_label is a text label (e.g. "wakeup")
+ * - index_number if a decimal number > 0.0 (e.g. "01.1")
+ * 
+ * The special subsection label "SEC" is used to indicate that the entry contains a
+ * section header instead of normal entry content. In that case, subsection_number and
+ * index_number are both ignored and are presented as "01.1".
+ * 
  */
 
 #define FORMALIZER_MODULE_ID "Formalizer:Server:Guide:System"
@@ -43,12 +65,13 @@ using namespace fz;
 /// The local class derived from `formalizer_standard_program`.
 fzguide_system fgs;
 
+/// See the description of the guide entries format at the top of thie file.
 const std::string pq_guide_system_layout(
-    "id char(32) PRIMARY KEY," // e.g. section:subsection:index (e.g. "morning:wakeup:02.0")
-    "snippet text"             // a descriptive text
+    "id char(64) PRIMARY KEY, " // e.g. section:subsection:index (e.g. "morning:wakeup:02.0")
+    "snippet text"              // a descriptive text
 );
 
-std::map<fgs_section,const std::string> sectiontag = {
+std::map<fgs_chapter,const std::string> chaptertag = {
     { fgs_am, "am" },
     { fgs_pm, "pm" }
 };
@@ -61,11 +84,11 @@ std::map<fgs_subsection,const std::string> subsectiontag = {
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzguide_system::fzguide_system() : formalizer_standard_program(false), section(fgs_am), subsection(fgs_wakeup),
-                                   decimalidx(1.0), format(format_none), flowcontrol(flow_unknown),
+fzguide_system::fzguide_system() : formalizer_standard_program(false), chapter(fgs_am), sectionnum(1.0), subsectionnum(1.0),
+                                   subsection(fgs_wakeup), decimalidx(1.0), format(format_none), flowcontrol(flow_unknown),
                                    pa(*this, add_option_args, add_usage_top, true) {
-    add_option_args += "SRAPU:x:i:o:F:";
-    add_usage_top += " <-S|-R> [-A|-P] [-U <subsection>] [-x <idx>] [-i <inputfile>] [-o <outputfile>] [-F <format>]";
+    add_option_args += "SRAPH:u:U:x:i:o:F:";
+    add_usage_top += " <-S|-R> [-A|-P] [-H <section_num>] [-u <subsection_num>] [-U <subsection>] [-x <idx>] [-i <inputfile>] [-o <outputfile>] [-F <format>]";
 }
 
 /**
@@ -76,10 +99,12 @@ void fzguide_system::usage_hook() {
     pa.usage_hook();
     FZOUT("    -S Store new snippet in System guide\n");
     FZOUT("    -R Read snippet from System guide\n");
-    FZOUT("    -A System guide section: AM\n");
-    FZOUT("    -P System guide section: PM\n");
-    FZOUT("    -U System guide <subsection>\n");
-    FZOUT("    -x System guide decimal index number <idx>\n");
+    FZOUT("    -A AM - System guide chapter\n");
+    FZOUT("    -P PM - System guide chapter\n");
+    FZOUT("    -H System guide decimal <section_num> > 0.0 (e.g. '01.1')\n");
+    FZOUT("    -u System guide decimal <subsection_num> > 0.0 (e.g. '01.1')\n");
+    FZOUT("    -U System guide <subsection> label\n");
+    FZOUT("    -x System guide decimal index number <idx> > 0.0\n");
     FZOUT("    -i read snippet content from <inputfile> (otherwise from STDIN)\n");
     FZOUT("    -o write snippet content to <outputfile> (otherwise to STDOUT)\n");
     FZOUT("    -F format result as: txt, html, fullhtml (default=none)\n");
@@ -113,12 +138,28 @@ bool fzguide_system::options_hook(char c, std::string cargs) {
     }
 
     case 'A': {
-        section = fgs_am;
+        chapter = fgs_am;
         return true;
     }
 
     case 'P': {
-        section = fgs_pm;
+        chapter = fgs_pm;
+        return true;
+    }
+
+    case 'H': {
+        float idx_float = atof(cargs.c_str());
+        if (idx_float<=0.0)
+            return false;
+        sectionnum = idx_float;
+        return true;
+    }
+
+    case 'u': {
+        float idx_float = atof(cargs.c_str());
+        if (idx_float<=0.0)
+            return false;
+        subsectionnum = idx_float;
         return true;
     }
 
@@ -184,7 +225,9 @@ void fzguide_system::init_top(int argc, char *argv[]) {
 }
 
 void Guide_snippet_system::set_id(const fzguide_system & _fzgs) {
-    section = sectiontag[_fzgs.section];
+    chapter = chaptertag[_fzgs.chapter];
+    sectionnum = to_precision_string(_fzgs.sectionnum,1,'0',4);
+    subsectionnum = to_precision_string(_fzgs.subsectionnum,1,'0',4);
     subsection = subsectiontag[_fzgs.subsection];
     idxstr = to_precision_string(_fzgs.decimalidx,1,'0',4);
 }
@@ -194,7 +237,7 @@ std::string Guide_snippet_system::layout() const {
 }
 
 std::string Guide_snippet_system::idstr() const {
-    return "'"+section+':'+subsection+':'+idxstr+"'";
+    return "'"+chapter+':'+sectionnum+':'+subsectionnum+':'+subsection+':'+idxstr+"'";
 }
 
 std::string Guide_snippet_system::all_values_pqstr() const {
@@ -270,7 +313,9 @@ std::string format_snippet(const std::string & snippet) {
     switch (fgs.format) {
 
         case format_txt: {
-            formatvars.emplace("section",sectiontag[fgs.section]);
+            formatvars.emplace("chapter",chaptertag[fgs.chapter]);
+            formatvars.emplace("sectionnum",to_precision_string(fgs.sectionnum,1,'0',4));
+            formatvars.emplace("subsectionnum",to_precision_string(fgs.subsectionnum,1,'0',4));
             formatvars.emplace("subsection",subsectiontag[fgs.subsection]);
             formatvars.emplace("index",to_precision_string(fgs.decimalidx,1,'0',4));
             formatvars.emplace("snippet",snippet);
@@ -283,7 +328,9 @@ std::string format_snippet(const std::string & snippet) {
         }
 
         case format_fullhtml: {
-            formatvars.emplace("section",sectiontag[fgs.section]);
+            formatvars.emplace("chapter",chaptertag[fgs.chapter]);
+            formatvars.emplace("sectionnum",to_precision_string(fgs.sectionnum,1,'0',4));
+            formatvars.emplace("subsectionnum",to_precision_string(fgs.subsectionnum,1,'0',4));
             formatvars.emplace("subsection",subsectiontag[fgs.subsection]);
             formatvars.emplace("index",to_precision_string(fgs.decimalidx,1,'0',4));
             formatvars.emplace("snippet",snippet);

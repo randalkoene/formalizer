@@ -1,5 +1,7 @@
-section   : {{ section }}
-subsection: {{ subsection }}
-index     : {{ index }}
+chapter          : {{ chapter }}
+section number   : {{ sectionnum }}
+subsection number: {{ subsectionnum }} 
+subsection       : {{ subsection }}
+index            : {{ index }}
 
 {{ snippet }}

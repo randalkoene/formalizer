@@ -43,8 +43,8 @@ COMPILABLES = $(LIBCOMPDIRS) $(CORECOMPDIRS) $(TOOLSCOMPDIRS)
 EXECUTABLES =
 # EXECUTABLES = $(COREPATH)/fzaddnode/fzaddnode
 # EXECUTABLES = $(COREPATH)/fzedit/fzedit
-EXECUTABLES += $(COREPATH)/fzguide.system/fzguide.system
 EXECUTABLES += $(COREPATH)/fzinfo/fzinfo.py
+EXECUTABLES += $(COREPATH)/fzguide.system/fzguide.system
 # EXECUTABLES = $(COREPATH)/fzlog/fzlog
 EXECUTABLES += $(COREPATH)/fzquerypq/fzquerypq
 EXECUTABLES += $(COREPATH)/fzserverpq/fzserverpq
@@ -88,11 +88,11 @@ SYMBIN += $(TOOLSPATH)/interface/fzloghtml/fzloghtml
 CGIEXE = $(TOOLSPATH)/interface/logentry-form/logentry-form.py
 CGIEXE += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzlink/fzlink.py
-CGIEXE += $(TOOLSPATH)/core/fzguide.system/fzguide.system-cgi.py
+CGIEXE += $(COREPATH)/fzguide.system/fzguide.system-cgi.py
 
 WEBINTERFACES = 
 WEBINTERFACES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-form.html
-WEBINTERFACES += $(TOOLSPATH)/core/fzguide.system/fzguide.system-form.html
+WEBINTERFACES += $(COREPATH)/fzguide.system/fzguide.system-form.html
 # +----- end  : Select Formalizer executables -----+
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
