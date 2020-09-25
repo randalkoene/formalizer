@@ -89,15 +89,42 @@ void split(const std::string &s, char delim, Out result) {
  * It lets you do things like pass the result directly to a function like this:
  * f(split(s, d, v)) while still having the benefit of a pre-allocated vector if you like.
  * 
- * @param s a string.
- * @param delim a delimiter character.
- * @return a vector of strings.
+ * @param s A string.
+ * @param delim A delimiter character.
+ * @return A vector of strings.
  */
 std::vector<std::string> split(const std::string &s, char delim) {
     std::vector<std::string> elems;
     split(s, delim, std::back_inserter(elems));
     return elems;
 }
+
+/**
+ * Efficient concatenation of strings from vector of strings with optional delimiter.
+ * 
+ * @param svec Vector of strings.
+ * @param delim Optional delimiter string.
+ * @return A string composed of all strings in the vector, each separated by the delimiter.
+ */
+std::string join(const std::vector<std::string> & svec, const std::string delim) {
+    if (svec.empty())
+        return "";
+
+    if (delim.empty()) { // separating these for efficiency
+        std::string s;
+        for (const auto &element : svec)
+            s += element;
+        return s;
+
+    } else {
+        std::string s(svec.front());
+        std::for_each(std::next(svec.begin()), svec.end(), [&](const std::string &element) {
+            s += delim + element;
+        });
+        return s;
+    }
+}
+
 
 /**
  * Write the full contents of a string to a file.

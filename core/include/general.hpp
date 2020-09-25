@@ -32,6 +32,8 @@ void split(const std::string &s, char delim, Out result);
 
 std::vector<std::string> split(const std::string &s, char delim);
 
+std::string join(const std::vector<std::string> & svec, const std::string delim = "");
+
 /**
  * Trim whitespace from the front of a string.
  * 

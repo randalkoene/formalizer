@@ -10,16 +10,16 @@
 
     <form action="/cgi-bin/fzguide.system-cgi.py" method="post">
 
-        <input type="radio" id="AM" name="chapter" value="AM">
+        <input type="checkbox" name="spec_chapter" checked> <input type="radio" id="AM" name="chapter" value="AM" checked>
         <label for="AM">AM chapter</label><br>
         <input type="radio" id="PM" name="chapter" value="PM">
         <label for="PM">PM chapter</label><br>
-        <input type="number" name="sectionnum" min="0.0" max="99.9" value="1.0"> Section number (decimal)<br />
-        <input type="number" name="subsectionnum" min="0.0" max="99.9" value="1.0"> Subsection number (decimal)<br />
-        <input type="text" name="subsection"> Subsection label (e.g. "wakeup"), <b>see note!</b><br />
-        <input type="number" name="decimalindex" min="0.0" max="99.9" value="1.0"> Decimal Index within subsection<br />
+        <input type="checkbox" name="spec_sectionnum" checked> <input type="number" name="sectionnum" min="0.0" max="99.9" value="1.1" step=".1"> Section number (decimal)<br />
+        <input type="checkbox" name="spec_subsectionnum" checked> <input type="number" name="subsectionnum" min="0.0" max="99.9" value="1.1" step=".1"> Subsection number (decimal)<br />
+        <input type="checkbox" name="spec_subsection" checked> <input type="text" name="subsection" value="SEC"> Subsection label (e.g. "wakeup"), <b>see note!</b><br />
+        <input type="checkbox" name="spec_index" checked> <input type="number" name="decimalindex" min="0.0" max="99.9" value="1.1" step=".1"> Decimal Index within subsection<br />
 
-        <input type="submit" value="Read" />
+        <input type="submit" name="submit" value="Read" />
     </form>
 
     <p>Note: The special subsection label "SEC" specifies a Section Header for which the Section number and
@@ -29,17 +29,25 @@
     <form action="/cgi-bin/fzguide.system-cgi.py" method="post">
 
         <textarea name="content" rows="5" cols="80">(snippet content here)</textarea>
+        <p></p>
 
-        <input type="radio" id="AM" name="chapter" value="AM">
+        <input type="radio" id="AM" name="chapter" value="AM" checked>
         <label for="AM">AM chapter</label><br>
         <input type="radio" id="PM" name="chapter" value="PM">
         <label for="PM">PM chapter</label><br>
-        <input type="number" name="sectionnum" min="0.0" max="99.9" value="1.0"> Section number (decimal)<br />
-        <input type="number" name="subsectionnum" min="0.0" max="99.9" value="1.0"> Subsection number (decimal)<br />
+        <input type="number" name="sectionnum" min="0.0" max="99.9" value="1.0" step=".1"> Section number (decimal)<br />
+        <input type="number" name="subsectionnum" min="0.0" max="99.9" value="1.0" step=".1"> Subsection number (decimal)<br />
         <input type="text" name="subsection"> Subsection label (e.g. "wakeup"), <b>see note!</b><br />
-        <input type="number" name="decimalindex" min="0.0" max="99.9" value="1.0"> Decimal Index within subsection<br />
+        <input type="number" name="decimalindex" min="0.0" max="99.9" value="1.0" step=".1"> Decimal Index within subsection<br />
      
-        <input type="submit" value="Store" />
+        <input type="submit" name="submit" value="Store" />
+    </form>
+
+    <p></p>
+
+    <form action="/cgi-bin/fzguide.system-cgi.py" method="post">
+        
+        <input type="submit" name="submit" value="ListIDs" />
     </form>
 
 </body>

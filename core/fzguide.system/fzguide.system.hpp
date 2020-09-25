@@ -20,6 +20,7 @@
 
 // core
 #include "standard.hpp"
+#include "templater.hpp"
 #include "Guidepostgres.hpp"
 
 using namespace fz;
@@ -36,22 +37,36 @@ enum flow_options {
     flow_unknown = 0, /// no recognized request
     flow_store = 1,   /// store new snippet
     flow_read = 2,    /// read snippet
+    flow_listIDs = 3, /// list all snippet IDs
     flow_NUMoptions
 };
 
 enum fgs_chapter {
-    fgs_am = 0,
-    fgs_pm = 1,
+    fgs_any = 0,
+    fgs_am = 1,
+    fgs_pm = 2,
     fgs_NUMsections
 };
 
 enum fgs_subsection {
-    fgs_SEC = 0,
-    fgs_wakeup = 1,
-    fgs_catchup = 2,
+    fgs_unspecified = 0,
+    fgs_SEC = 1,
+    fgs_wakeup = 2,
+    fgs_catchup = 3,
+    fgs_calendar = 4,
+    fgs_AL_update = 5,
     // *** this needs a lot more
     fgs_NUMsubsections
 };
+
+enum template_id_enum {
+    format_txt_temp = format_txt,
+    format_html_temp = format_html,
+    format_fullhtml_temp = format_fullhtml,
+    NUM_temp
+};
+
+typedef std::map<template_id_enum,std::string> format_templates;
 
 struct fzguide_system: public formalizer_standard_program {
 
@@ -68,6 +83,10 @@ struct fzguide_system: public formalizer_standard_program {
 
     Postgres_access pa;
 
+    render_environment env;
+    format_templates templates;
+    bool templatesloaded;
+
     fzguide_system();
 
     virtual void usage_hook();
@@ -75,6 +94,9 @@ struct fzguide_system: public formalizer_standard_program {
     virtual bool options_hook(char c, std::string cargs);
 
     void init_top(int argc, char *argv[]);
+
+    bool nullsnippet() const { return (chapter == fgs_any && sectionnum <= 0.0 && subsectionnum <= 0.0 && subsection == fgs_unspecified && decimalidx <= 0.0); }
+    bool multisnippet() const { return (chapter == fgs_any || sectionnum <= 0.0 || subsectionnum <= 0.0 || subsection == fgs_unspecified || decimalidx <= 0.0); }
 
 };
 
@@ -102,8 +124,11 @@ struct Guide_snippet_system: public Guide_snippet {
 
     virtual Guide_snippet * clone() const;
 
-    virtual bool nullsnippet() const { return (chapter.empty() || sectionnum.empty() || subsectionnum.empty() || subsection.empty() || idxstr.empty() || snippet.empty()); }
+    virtual bool nullsnippet() const { return (chapter.empty() && sectionnum.empty() && subsectionnum.empty() && subsection.empty() && idxstr.empty()); }
 
+    virtual bool multisnippet() const { return (chapter=="(any)" || sectionnum=="00.0" || subsectionnum=="00.0" || subsection=="(any)" || idxstr=="00.0"); }
+
+    void set_pq_wildcards();
 };
 
 #endif // __FZGUIDE_SYSTEM_HPP

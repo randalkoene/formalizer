@@ -6,6 +6,7 @@
 
 // core
 #include "error.hpp"
+#include "general.hpp"
 #include "fzpostgres.hpp"
 #include "Guidepostgres.hpp"
 
@@ -149,5 +150,116 @@ bool read_Guide_snippet_pq(Guide_snippet & snippet, Postgres_access & pa) {
     LOAD_SNIPPET_PQ_RETURN(true);
 }
 
+/**
+ * Read all IDs from Guide table in the database.
+ * 
+ * The `snippet` should specify `snippet.tablename`.
+ * 
+ * @param[in] snippet Data structure that clearly identifies the table in `snippet.tablename`.
+ * @param[in] pa Access data with database name and schema name.
+ * @param[out] ids Vector of ID strings, each of which can be parsed for its components.
+ * @return True if successful.
+ */
+bool read_Guide_IDs_pq(Guide_snippet & snippet, Postgres_access & pa, std::vector<std::string> & ids) {
+    ERRTRACE;
+    pa.access_initialize();
+    PGconn* conn = connection_setup_pq(pa.dbname());
+    if (!conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define LOAD_SNIPPET_PQ_RETURN(r) { PQfinish(conn); return r; }
+
+    std::string pqcmdstr = "SELECT id FROM "+pa.pq_schemaname()+ "." + snippet.tablename;
+    if (!query_call_pq(conn, pqcmdstr, false)) LOAD_SNIPPET_PQ_RETURN(false);
+
+    //sample_query_data(conn,0,4,0,100,tmpout);
+  
+    PGresult *res;
+
+    while ((res = PQgetResult(conn))) { // It's good to use a loop for single row mode cases.
+
+        const int rows = PQntuples(res);
+        if (PQnfields(res)< 1) {
+            ADDERROR(__func__,"not enough fields in snippet result");
+            LOAD_SNIPPET_PQ_RETURN(false);
+        }
+
+        //if (!get_Node_pq_field_numbers(res)) LOAD_SNIPPET_PQ_RETURN(false); // *** we only asked for one field
+
+        for (int r = 0; r < rows; ++r) {
+
+            ids.emplace_back(PQgetvalue(res, r, 0));
+            rtrim(ids.back()); // as the returned values seems to be space padded
+
+        }
+
+        PQclear(res);
+    }
+
+    LOAD_SNIPPET_PQ_RETURN(true);
+}
+
+/**
+ * Read multiple snippets from Guide table in the database.
+ * 
+ * The `snippet` should specify the filtered subset by specifying those parts
+ * of the ID that should be matched and leaving other parts unspecified. This
+ * function is shared for various guide tables and does not know the actual
+ * class of `snippet`. Therefore, the translation from Guide-specific ID
+ * components and wildcards to a Postgres key wildcards needs to be done
+ * before calling this function, so that `snippet.idstr()` returns the
+ * right filter for "WHERE id LIKE '<something>'".
+ * 
+ * Note that a `nullsnippet()` is interpreted as "read everything".
+ * 
+ * @param[in] snippet Data structure that clearly specifies the filter as described.
+ * @param[in] pa Access data with database name and schema name.
+ * @param[out] snippets Vector of snippet strings.
+ * @return True if successful.
+ */
+bool read_Guide_multi_snippets_pq(Guide_snippet & snippet, Postgres_access & pa, std::vector<std::string> & ids, std::vector<std::string> & snippets) {
+    ERRTRACE;
+    pa.access_initialize();
+    PGconn* conn = connection_setup_pq(pa.dbname());
+    if (!conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define LOAD_SNIPPET_PQ_RETURN(r) { PQfinish(conn); return r; }
+
+    // Translate our Guide filter wildcards into Postgres wildcards.
+
+    std::string pqcmdstr = "SELECT * FROM "+pa.pq_schemaname()+ "." + snippet.tablename;
+    if (!snippet.nullsnippet())
+        pqcmdstr += " WHERE id LIKE "+snippet.idstr();
+
+    if (!query_call_pq(conn, pqcmdstr, false)) LOAD_SNIPPET_PQ_RETURN(false);
+
+    //sample_query_data(conn,0,4,0,100,tmpout);
+  
+    PGresult *res;
+
+    while ((res = PQgetResult(conn))) { // It's good to use a loop for single row mode cases.
+
+        const int rows = PQntuples(res);
+        if (PQnfields(res)< 2) { // we need both for a multi-read
+            ADDERROR(__func__,"not enough fields in snippet result");
+            LOAD_SNIPPET_PQ_RETURN(false);
+        }
+
+        //if (!get_Node_pq_field_numbers(res)) LOAD_SNIPPET_PQ_RETURN(false); // *** we only asked for one field
+
+        for (int r = 0; r < rows; ++r) {
+
+            ids.emplace_back(PQgetvalue(res, r, 0));
+            snippets.emplace_back(PQgetvalue(res, r, 1));
+            rtrim(ids.back()); // as the returned values seems to be space padded
+
+        }
+
+        PQclear(res);
+    }
+
+    LOAD_SNIPPET_PQ_RETURN(true);
+}
 
 } // namespace fz

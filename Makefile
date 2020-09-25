@@ -84,6 +84,7 @@ EXECUTABLES += $(TOOLSPATH)/system/requestmanual/requestmanual.py
 SYMBIN = 
 SYMBIN += $(COREPATH)/fzquerypq/fzquerypq
 SYMBIN += $(TOOLSPATH)/interface/fzloghtml/fzloghtml
+SYMBIN += $(COREPATH)/fzguide.system/fzguide.system
 
 # CGI scripts that need to be copied to $(CGIDIR)
 CGIEXE = $(TOOLSPATH)/interface/logentry-form/logentry-form.py

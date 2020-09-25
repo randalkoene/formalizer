@@ -76,25 +76,32 @@ const std::string pq_guide_system_layout(
 );
 
 std::map<fgs_chapter,const std::string> chaptertag = {
+    { fgs_any, "(any)" },
     { fgs_am, "am" },
     { fgs_pm, "pm" }
 };
 
 std::map<fgs_subsection,const std::string> subsectiontag = {
+    { fgs_unspecified, "(any)" },
     { fgs_SEC, "SEC" },
     { fgs_wakeup, "wakeup" },
-    { fgs_catchup, "catchup" }
+    { fgs_catchup, "catchup" },
+    { fgs_calendar, "calendar" },
+    { fgs_AL_update, "AL_update" }
 };
 
 /**
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzguide_system::fzguide_system() : formalizer_standard_program(false), chapter(fgs_am), sectionnum(1.1), subsectionnum(1.1),
-                                   subsection(fgs_SEC), decimalidx(1.1), format(format_none), flowcontrol(flow_unknown),
-                                   pa(*this, add_option_args, add_usage_top, true) {
-    add_option_args += "SRAPH:u:U:x:i:o:F:";
-    add_usage_top += " <-S|-R> [-A|-P] [-H <section_num>] [-u <subsection_num>] [-U <subsection>] [-x <idx>] [-i <inputfile>] [-o <outputfile>] [-F <format>]";
+fzguide_system::fzguide_system() : formalizer_standard_program(false), chapter(fgs_any), sectionnum(0.0), subsectionnum(0.0),
+                                   subsection(fgs_unspecified), decimalidx(0.0), format(format_none), flowcontrol(flow_unknown),
+                                   pa(*this, add_option_args, add_usage_top, true), templatesloaded(false) {
+    add_option_args += "SRLAPH:u:U:x:i:o:F:";
+    add_usage_top += " <-S|-R|-L> [-A|-P] [-H <section_num>] [-u <subsection_num>] [-U <subsection>] [-x <idx>] [-i <inputfile>] [-o <outputfile>] [-F <format>]";
+
+    usage_tail.emplace_back("Note that when Reading (-R), identifiers left unspecified are interpreted\n"
+                            "as wildcards. Specifying nothing therefore means requesting everything.\n");
 }
 
 /**
@@ -105,6 +112,7 @@ void fzguide_system::usage_hook() {
     pa.usage_hook();
     FZOUT("    -S Store new snippet in System guide\n");
     FZOUT("    -R Read snippet from System guide\n");
+    FZOUT("    -L List all snippet IDs from System guide\n");
     FZOUT("    -A AM - System guide chapter\n");
     FZOUT("    -P PM - System guide chapter\n");
     FZOUT("    -H System guide decimal <section_num> > 0.0 (e.g. '01.1')\n");
@@ -140,6 +148,11 @@ bool fzguide_system::options_hook(char c, std::string cargs) {
 
     case 'R': {
         flowcontrol = flow_read;
+        return true;
+    }
+
+    case 'L': {
+        flowcontrol = flow_listIDs;
         return true;
     }
 
@@ -253,11 +266,13 @@ Guide_snippet_system::Guide_snippet_system(const std::string & idstr, const std:
 }
 
 void Guide_snippet_system::set_id(const fzguide_system & _fzgs) {
-    chapter = chaptertag[_fzgs.chapter];
-    sectionnum = to_precision_string(_fzgs.sectionnum,1,'0',4);
-    subsectionnum = to_precision_string(_fzgs.subsectionnum,1,'0',4);
-    subsection = subsectiontag[_fzgs.subsection];
-    idxstr = to_precision_string(_fzgs.decimalidx,1,'0',4);
+    if (!_fzgs.nullsnippet()) {
+        chapter = chaptertag[_fzgs.chapter];
+        sectionnum = to_precision_string(_fzgs.sectionnum,1,'0',4);
+        subsectionnum = to_precision_string(_fzgs.subsectionnum,1,'0',4);
+        subsection = subsectiontag[_fzgs.subsection];
+        idxstr = to_precision_string(_fzgs.decimalidx,1,'0',4);
+    }
 }
 
 std::string Guide_snippet_system::layout() const {
@@ -275,6 +290,33 @@ std::string Guide_snippet_system::all_values_pqstr() const {
 Guide_snippet * Guide_snippet_system::clone() const {
     return new Guide_snippet_system(*this);
 }
+
+// Translate to Postgres wildcards.
+void Guide_snippet_system::set_pq_wildcards() {
+    if (nullsnippet())
+        return; // nothing to do, this is recognized as "everything"
+
+    if (multisnippet()) {
+        if (chapter == "(any)")
+            chapter = "%";
+        if (fgs.sectionnum<=0.0)
+            sectionnum = "%";
+        if (fgs.subsectionnum<=0.0)
+            subsectionnum = "%";
+        if (subsection == "(any)")
+            subsection = "%";
+        if (fgs.decimalidx<=0.0)
+            idxstr = "%";
+    }
+}
+
+/*
+The whole guide: SELECT snippet FROM randalk.guide_system
+The whole AM chapter: SELECT snippet FROM randalk.guide_system WHERE id LIKE 'am%'
+The whole AM chapter section 2: SELECT snippet FROM randalk.guide_system WHERE id LIKE 'am:02%'
+The whole AM chapter, AL_update subsection: SELECT snippet FROM randalk.guide_system WHERE id LIKE 'am:02%:AL_update:%'
+All AL_update subsections in all chapters: SELECT snippet FROM randalk.guide_system WHERE id LIKE '%:AL_update:%'
+*/
 
 int store_multi_snippet(const std::string & utf8safestr) {
     // skip preamble
@@ -370,22 +412,16 @@ int store_snippet() {
     return standard.completed_ok();
 }
 
-enum template_id_enum {
-    format_txt_temp = format_txt,
-    format_html_temp = format_html,
-    format_fullhtml_temp = format_fullhtml,
-    NUM_temp
-};
-
 const std::vector<std::string> template_ids = {
     "format_txt_template.txt",
     "format_html_template.html",
     "format_fullhtml_template.html"
 };
 
-typedef std::map<template_id_enum,std::string> format_templates;
-
 bool load_templates(format_templates & templates) {
+    if (fgs.templatesloaded) // previously loaded
+        return true;
+
     ERRTRACE;
     templates.clear();
 
@@ -396,14 +432,13 @@ bool load_templates(format_templates & templates) {
             ERRRETURNFALSE(__func__, "unable to load " + template_ids[i]);
     }
 
+    fgs.templatesloaded = true;
     return true;
 }
 
 std::string format_snippet(const std::string & snippet) {
     ERRTRACE;
-    render_environment env;
-    format_templates templates;
-    if (!load_templates(templates))
+    if (!load_templates(fgs.templates))
         standard.exit(exit_file_error); // Don't continue if you don't have the templates.
 
     template_varvalues formatvars;        
@@ -438,7 +473,7 @@ std::string format_snippet(const std::string & snippet) {
             break;
 
     }
-    return env.render(templates[(template_id_enum) fgs.format],formatvars);
+    return fgs.env.render(fgs.templates[(template_id_enum) fgs.format],formatvars);
 }
 
 int read_snippet() {
@@ -472,6 +507,125 @@ int read_snippet() {
     return standard.completed_ok();
 }
 
+int list_IDs() {
+    ERRTRACE;
+    Guide_snippet_system snippet(fgs);
+    VERBOSEOUT("Listing snippet IDs from "+snippet.tablename+"\n\n");
+
+    std::vector<std::string> ids;
+    if (!read_Guide_IDs_pq(snippet, fgs.pa, ids)) {
+        ADDERROR(__func__,"unable to read IDs");
+        standard.exit(exit_database_error);
+    }
+
+    std::string rendered_IDs;
+    if ((fgs.format == format_none) || (fgs.format == format_txt)) {
+        rendered_IDs = join(ids,"\n")+'\n';
+    } else { // either of the html formats
+        rendered_IDs = join(ids,"<br />\n")+"<br />\n";
+    }
+
+    if (fgs.dest.empty()) { // to STDOUT
+        VERBOSEOUT("List of IDs:\n\n");
+        FZOUT(rendered_IDs);
+    } else {
+        VERBOSEOUT("Writing List of IDs to "+fgs.dest+".\n\n");
+        if (!string_to_file(fgs.dest,rendered_IDs)) {
+            ADDERROR(__func__,"unable to write List of IDs to "+fgs.dest);
+            standard.exit(exit_file_error);
+        }
+    }
+
+    return standard.completed_ok();
+}
+
+std::string multi_format_snippet(const std::string & id, const std::string & snippet) {
+    ERRTRACE;
+    if (!load_templates(fgs.templates))
+        standard.exit(exit_file_error); // Don't continue if you don't have the templates.
+
+    std::vector<std::string> id_components = split(id,':');
+
+    template_varvalues formatvars;        
+    switch (fgs.format) {
+
+        case format_txt: {
+            formatvars.emplace("chapter",id_components[0]);
+            formatvars.emplace("sectionnum",id_components[1]);
+            formatvars.emplace("subsectionnum",id_components[2]);
+            formatvars.emplace("subsection",id_components[3]);
+            formatvars.emplace("index",id_components[4]);
+            formatvars.emplace("snippet",snippet);
+            break;
+        }
+
+        case format_html: {
+            formatvars.emplace("snippet",snippet);
+            break;
+        }
+
+        case format_fullhtml: {
+            formatvars.emplace("chapter",id_components[0]);
+            formatvars.emplace("sectionnum",id_components[1]);
+            formatvars.emplace("subsectionnum",id_components[2]);
+            formatvars.emplace("subsection",id_components[3]);
+            formatvars.emplace("index",id_components[4]);
+            formatvars.emplace("snippet",snippet);
+            if (id_components[3]=="SEC") {
+                formatvars.emplace("checkbox_space","");
+            } else {
+                formatvars.emplace("checkbox_space","<input type=\"checkbox\" name=\""+id+"\">");
+            }
+            break;
+        }
+
+        default:
+            break;
+
+    }
+    return fgs.env.render(fgs.templates[(template_id_enum) fgs.format],formatvars);
+}
+
+int read_multi_snippet() {
+    ERRTRACE;
+    Guide_snippet_system snippet(fgs);
+    VERBOSEOUT("Reading multiple snippets from "+snippet.tablename+" with ID="+snippet.idstr()+"\n\n");
+
+    // Translate System Guide specific ID components with wildcards to a version that
+    // idstr() can properly deliver to a Postgres command.
+    snippet.set_pq_wildcards();
+
+    std::vector<std::string> ids;
+    std::vector<std::string> snippets;
+    if (!read_Guide_multi_snippets_pq(snippet, fgs.pa, ids, snippets)) {
+        ADDERROR(__func__,"unable to read snippets");
+        standard.exit(exit_database_error);
+    }
+
+    std::string rendered_snippets;
+    if ((fgs.format == format_none) || (fgs.format == format_txt)) {
+        rendered_snippets = join(snippets,"\n\n")+"\n\n";
+    } else { // either of the html formats
+        for (size_t i = 0; i < snippets.size(); ++i) {
+            rendered_snippets += multi_format_snippet(ids[i],snippets[i]);
+        }
+        //rendered_snippets = join(snippets,"<br />\n")+"<br />\n";
+    }
+
+    if (fgs.dest.empty()) { // to STDOUT
+        VERBOSEOUT("Multi-snippet content:\n\n");
+        FZOUT(rendered_snippets);
+    } else {
+        VERBOSEOUT("Writing multi-snippet content to "+fgs.dest+".\n\n");
+        if (!string_to_file(fgs.dest,rendered_snippets)) {
+            ADDERROR(__func__,"unable to write multi-snippets to "+fgs.dest);
+            standard.exit(exit_file_error);
+        }
+    }
+
+    return standard.completed_ok();
+}
+
 int main(int argc, char *argv[]) {
     ERRTRACE;
     fgs.init_top(argc, argv);
@@ -487,14 +641,20 @@ int main(int argc, char *argv[]) {
     }
 
     case flow_read: {
-        return read_snippet();
+        if (fgs.multisnippet()) {
+            return read_multi_snippet();
+        } else {
+            return read_snippet();
+        }
+    }
+
+    case flow_listIDs: {
+        return list_IDs();
     }
 
     default: {
         fgs.print_usage();
     }
-
-
 
     }
 

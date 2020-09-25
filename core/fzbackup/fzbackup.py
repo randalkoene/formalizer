@@ -38,7 +38,7 @@ sys.path.append(fzcoreincludedir)
 import coreversion
 
 fzbackupconfigdir = fzuserbase+'/config/fzbackup.py'
-fzbackupconfig = fzsetupconfigdir+'/config.json'
+fzbackupconfig = fzbackupconfigdir+'/config.json'
 
 
 # We need this everywhere to run various shell commands.
@@ -125,7 +125,7 @@ def make_backup():
     
     # create the backup name
     now = datetime.now()
-    timestamp = now.strftime('%y%m%d%H%M')
+    timestamp = now.strftime('%Y%m%d%H%M')
     backuppath = backupconfig["backuproot"]+"formalizer-postgres-backup-"+timestamp+".gz"
 
     # do the pg_dump to the designated file
