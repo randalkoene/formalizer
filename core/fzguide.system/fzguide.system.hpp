@@ -46,7 +46,9 @@ enum fgs_chapter {
 };
 
 enum fgs_subsection {
-    fgs_wakeup = 0,
+    fgs_SEC = 0,
+    fgs_wakeup = 1,
+    fgs_catchup = 2,
     // *** this needs a lot more
     fgs_NUMsubsections
 };

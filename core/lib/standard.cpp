@@ -189,7 +189,7 @@ void formalizer_standard_program::commandline(int argc, char *argv[]) {
             break;
 
         case 'V':
-            standard. veryverbose = true;
+            standard.veryverbose = true;
             standard.quiet = false;
             break;
 

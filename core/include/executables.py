@@ -19,6 +19,7 @@ Note: The `executables` variable is a tuple instead of a list, which is much
       like a macro.
 """ 
 executables = (
+    'fzbackup.py',
     'fzguide.system',
     'fzinfo.py',
     'fzquerypq',

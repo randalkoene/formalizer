@@ -81,15 +81,17 @@ std::map<fgs_chapter,const std::string> chaptertag = {
 };
 
 std::map<fgs_subsection,const std::string> subsectiontag = {
-    { fgs_wakeup, "wakeup" }
+    { fgs_SEC, "SEC" },
+    { fgs_wakeup, "wakeup" },
+    { fgs_catchup, "catchup" }
 };
 
 /**
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzguide_system::fzguide_system() : formalizer_standard_program(false), chapter(fgs_am), sectionnum(1.0), subsectionnum(1.0),
-                                   subsection(fgs_wakeup), decimalidx(1.0), format(format_none), flowcontrol(flow_unknown),
+fzguide_system::fzguide_system() : formalizer_standard_program(false), chapter(fgs_am), sectionnum(1.1), subsectionnum(1.1),
+                                   subsection(fgs_SEC), decimalidx(1.1), format(format_none), flowcontrol(flow_unknown),
                                    pa(*this, add_option_args, add_usage_top, true) {
     add_option_args += "SRAPH:u:U:x:i:o:F:";
     add_usage_top += " <-S|-R> [-A|-P] [-H <section_num>] [-u <subsection_num>] [-U <subsection>] [-x <idx>] [-i <inputfile>] [-o <outputfile>] [-F <format>]";
@@ -167,11 +169,17 @@ bool fzguide_system::options_hook(char c, std::string cargs) {
         return true;
     }
 
-    case 'U': {
-        if (cargs == "wakeup") {
-            subsection = fgs_wakeup;
-            return true;
+    case 'U': { // find the matching subsection, if it is defined
+        for (const auto & [subseckey, subsecstr] : subsectiontag) {
+            if (subsecstr == cargs) {
+                subsection = subseckey;
+                return true;
+            }
         }
+
+        std::string warnstr = "Unrecognized subsection title ("+cargs+"). The authoritative list is at the top of the fzguide.system source files.";
+        ADDWARNING(__func__,warnstr);
+        VERBOSEOUT(warnstr+"\n\n");
         return false;
     }
 
@@ -485,6 +493,8 @@ int main(int argc, char *argv[]) {
     default: {
         fgs.print_usage();
     }
+
+
 
     }
 

@@ -43,6 +43,7 @@ COMPILABLES = $(LIBCOMPDIRS) $(CORECOMPDIRS) $(TOOLSCOMPDIRS)
 EXECUTABLES =
 # EXECUTABLES = $(COREPATH)/fzaddnode/fzaddnode
 # EXECUTABLES = $(COREPATH)/fzedit/fzedit
+EXECUTABLES += $(COREPATH)/fzbackup/fzbackup.py
 EXECUTABLES += $(COREPATH)/fzinfo/fzinfo.py
 EXECUTABLES += $(COREPATH)/fzguide.system/fzguide.system
 # EXECUTABLES = $(COREPATH)/fzlog/fzlog

@@ -119,7 +119,8 @@ bool read_Guide_snippet_pq(Guide_snippet & snippet, Postgres_access & pa) {
     // Define a clean return that closes the connection to the database and cleans up.
     #define LOAD_SNIPPET_PQ_RETURN(r) { PQfinish(conn); return r; }
 
-    if (!query_call_pq(conn,"SELECT snippet FROM "+pa.pq_schemaname()+ "." + snippet.tablename+" WHERE id="+snippet.idstr(),false)) LOAD_SNIPPET_PQ_RETURN(false);
+    std::string pqcmdstr = "SELECT snippet FROM "+pa.pq_schemaname()+ "." + snippet.tablename+" WHERE id="+snippet.idstr();
+    if (!query_call_pq(conn, pqcmdstr, false)) LOAD_SNIPPET_PQ_RETURN(false);
 
     //sample_query_data(conn,0,4,0,100,tmpout);
   
