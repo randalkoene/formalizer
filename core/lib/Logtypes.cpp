@@ -693,6 +693,57 @@ void Log::setup_Chunk_node_caches(Graph & graph) {
 }
 
 /**
+ * Prune duplicate chunks.
+ * 
+ * Note that this does not take care of entries that may be connected to a pruned
+ * chunk. In other words, this is better done before add_entries_to_chunks().
+ */
+unsigned long Log::prune_duplicate_chunks() {
+    Log_chunk_ID_key_set chunkkeyset;
+    unsigned long pruned = 0;
+    for (auto it = chunks.begin(); it != chunks.end(); ++it) {
+        auto ret = chunkkeyset.emplace((*it)->get_tbegin_key());
+        if (!ret.second) {
+            chunks.erase(it);
+            ++pruned;
+        }
+    }
+    return pruned;
+}
+
+/**
+ * If Log_entry objects were created without immediately specifying a corresponding
+ * Log_chunk object (created earlier), i.e. if using a 2-pass method, then parse
+ * the list of entries and connect entries with chunks.
+ */
+bool Log::add_entries_to_chunks() {
+    for (auto & [entrykey, entryptr] : entries) {
+        const Log_chunk_ID_key chunkkey(entrykey); // no need to try, this one has to be valid if the entry ID was valid
+        Log_chunk * chunk = get_chunk(chunkkey);
+        if (!chunk)
+            ERRRETURNFALSE(__func__,"entry ("+entrykey.str()+") refers to Log chunk not found in Log");
+
+        entryptr->set_Chunk(chunk);
+        chunk->add_Entry(*entryptr);
+    }
+    return true;
+}
+
+/*
+*** This was not quite implemented to the point where it works, as it turned out that I didn't need it yet.
+void Log::add_earlier_unique_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose) {
+    if (find_chunk_by_key(_tbegin)>=chunks.size()) {
+        chunks.push_front(std::make_unique<Log_chunk>(_tbegin,_nodeid,_tclose));
+    }
+}
+void Log::add_later_unique_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose) {
+    if (find_chunk_by_key(_tbegin)>=chunks.size()) {
+        chunks.push_back(std::make_unique<Log_chunk>(_tbegin,_nodeid,_tclose));
+    }
+}
+*/
+
+/**
  * Get a pair of iterators that indicate the begin and end of an interval of
  * Log entry objects. Both `interval_front` and `interval_back` must exist in
  * the map of Log entries. Otherwise, a pair of out-of-range iterators set to
@@ -903,6 +954,20 @@ Log_chunk_index_interval Log::get_Chunks_index_n_interval(std::time_t t_from, un
         to_idx = chunks.size()-1;
     
     return std::make_pair(from_idx,to_idx);
+}
+
+/**
+ * Generate a set of Log chunk ID keys that corresponds to the ID keys of all
+ * entries in the Log.
+ * 
+ * @return A set of `Log_chunk_ID_key` objects.
+ */
+Log_chunk_ID_key_set Log::chunk_key_list_from_entries() {
+    Log_chunk_ID_key_set chunkkeyset;
+    for (const auto& [entrykey, entryptr]: entries) {
+        chunkkeyset.emplace(entrykey);
+    }
+    return chunkkeyset;
 }
 
 // +----- begin: friend functions -----+

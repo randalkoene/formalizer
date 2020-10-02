@@ -104,13 +104,27 @@ protected:
     Log_chunk *chunk;
 
 public:
+    /**
+     * Log entry constructor. The variants are somewhat similar, providing less or more information
+     * up front.
+     * 
+     * Notice that we are not immediately attempting to set the `node` rapid-access cache that
+     * would correspond with `node_idkey`. That is, beause we cannot be certain that this object
+     * is being created within a context where the corresponding Node object actually exists and
+     * a pointer to it is identifiable. The rapid-access pointer must be set explicitly via
+     * `set_Node_rapid_access()`, which can also be called by the parametrized overload of the
+     * `get_Node()` member function.
+     * 
+     * @param id A valid Log entry ID stamp.
+     * @param _entrytext The Log entry textual content. It will be made utf8 safe.
+     * @param _nodeifkey Optional valid Node ID key identifying the Node that owns this entry.
+     * @param _chunk Optional valid pointer to a `Log_chunk` object (this can be an extra safety measure).
+     * @param previschunk Optional chaining flag that specifies the preceding in chain is a chunk (or not).
+     * @param _prev Optional valid Log chunk or entry ID stamp that specifies the preceding in chain.
+     * @param nextischunk Optional chaining flag that specifies the next in chain is a chunk (or not).
+     * @param _next Optional valid Log chunk or entry ID statmp that specifies the next in chain.
+     */
     Log_entry(const Log_TimeStamp &_id, std::string _entrytext, const Node_ID_key &_nodeidkey, Log_chunk * _chunk = NULL): id(_id), node_idkey(_nodeidkey), node(nullptr), chunk(_chunk) {
-        // Notice that we are not immediately attempting to set the `node` rapid-access cache that
-        // would correspond with `node_idkey`. That is, beause we cannot be certain that this object
-        // is being created within a context where the corresponding Node object actually ecists and
-        // a pointer to it is identifiable. The rapid-access pointer must be set explicitly via
-        // `set_Node_rapid_access()`, which can also be called by the parametrized overload of the
-        // `get_Node()` member function.
         set_text(_entrytext); // utf8 safe
     }
     Log_entry(const Log_TimeStamp &_id, std::string _entrytext, Log_chunk * _chunk = NULL): id(_id), node(nullptr), chunk(_chunk) {
@@ -319,6 +333,8 @@ public:
     Log_chunk_ID_key_deque::size_type find_Breakpoint_index_before_chaintarget(const Log_chain_target & chaintarget);
 };
 
+typedef std::set<Log_chunk_ID_key> Log_chunk_ID_key_set;
+
 /**
  * ### Log
  * 
@@ -357,9 +373,12 @@ protected:
     Log_Breakpoints breakpoints;
 public:
     /// finalizing setup
-    void setup_Chain_nodeprevnext(); /// Call this after loading chunks and enties into the Log.
+    void setup_Chain_nodeprevnext(); /// Call this after loading chunks and entries into the Log.
     void setup_Entry_node_caches(Graph & graph); /// Call this after loading entries into the Log with valid Graph.
     void setup_Chunk_node_caches(Graph & graph); /// Call this after loading entries into the Log with valid Graph.
+
+    unsigned long prune_duplicate_chunks(); /// Remove any duplicate Log chunks.
+    bool add_entries_to_chunks(); /// Connect entries to chunks if that was not done during Log_entry construction. (2-pass method.)
 
     /// tables: sizes
     Log_entries_Map::size_type num_Entries() const { return entries.size(); }
@@ -374,6 +393,8 @@ public:
     /// chunks table: extend
     void add_earlier_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose) { chunks.push_front(std::make_unique<Log_chunk>(_tbegin,_nodeid,_tclose)); }
     void add_later_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose) { chunks.push_back(std::make_unique<Log_chunk>(_tbegin,_nodeid, _tclose)); }
+    //void add_earlier_unique_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose); //***half implemented
+    //void add_later_unique_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose);
 
     /// chunks table: get chunk
     Log_chunk * get_chunk(Log_chunk_ptr_deque::size_type idx) const { return chunks.get_chunk(idx); }
@@ -387,7 +408,7 @@ public:
     std::string get_Breakpoint_first_chunk_id_str(Log_chunk_ID_key_deque::size_type idx) { return Log_chunk_ID_TimeStamp_to_string( breakpoints.at(idx).idT ); }
     std::string get_Breakpoint_Ymd_str(Log_chunk_ID_key_deque::size_type idx) { return Log_TimeStamp_to_Ymd_string( breakpoints.at(idx).idT ); }
 
-    /// crossref tabless: chunks x breakpoints
+    /// crossref tables: chunks x breakpoints
     Log_chunk_ptr_deque::size_type get_chunk_first_at_Breakpoint(Log_chunk_ID_key_deque::size_type idx) { return find_chunk_by_key(get_Breakpoint_first_chunk_id_key(idx)); }
 
     /// crossref tables: breakpoints x chunks
@@ -419,6 +440,7 @@ public:
     /// helper (utility) functions
     std::time_t oldest_chunk_t() { return (num_Chunks()>0) ? chunks.front()->get_open_time() : RTt_unspecified; }
     std::time_t newest_chunk_t() { return (num_Chunks()>0) ? chunks.back()->get_open_time() : RTt_unspecified; }
+    Log_chunk_ID_key_set chunk_key_list_from_entries();
 
     // friend functions
     friend std::vector<Log_chunks_Deque::size_type> Breakpoint_Indices(Log & log);
@@ -429,6 +451,19 @@ public:
   
     //*** Can define a helper function to `refresh_Chunk_entries(Log_chunk_ID_key_deque::size_type idx)`
     //*** in case the rapid-access vector was not initialized or was corrupted.
+};
+
+/**
+ * Filter structure used to set up selective Log reading. The Log data that
+ * meets the filter specificaions is loaded and added to the existing Log
+ * object.
+ */
+struct Log_filter {
+    time_t t_from; ///< Chunk and entry IDs must be >= `t_from`, RTt_unspecified means don't add a lower bound.
+    time_t t_to;   ///< Chunk and entry IDs must be <= `t_to`, RTt_unspecified means don't add an upper bound.
+    Node_ID_key nkey; ///< Node ID must match, nullkey means don't add this constraint.
+    // *** maybe add a specifier here to use or not use parts of a chunk that don't belong to the Node (if some entries do)
+    Log_filter(): t_from(RTt_unspecified), t_to(RTt_unspecified) {}
 };
 
 // +----- begin: EXPERIMENTING -----+

@@ -1,0 +1,151 @@
+<!-- FZGUIDE -->
+<!-- ID={am:03.1:01.1:SEC:01.1} -->
+Check LVL3
+
+A few notes:
+- DO NOT force yourself to stick with the chapter/section/subsection/index divisions that seem to be in the previous HTML version.
+- Simply apply sane divisions. Clearly, the whole thing is System Guide. Clearly, a big chunk is in the AM chapter, and another in the PM chapter.
+- You can come up with additional chapters if you like.
+- You don't have to call the whole AM metrics batch "Morning Metrics". You can apply additional section headers if you like.
+- Where the previous version had several big cells per subsection, you can assign major and minor subsection numbers to those.
+- And then you can use whole index numbers for points within those cells, leaving the decimals for later insertions.
+
+<!-- begin: content -->
+<!-- ID={am:03.1:02.1:Track LVL3:01.1} -->
+Check and complete LVL3 tracking for the day before. [<span style="background: #ffff00">p</span>]
+<!-- ID={am:03.1:03.1:Challenges:01.1} -->
+Quickly check if any Nodes immediately point out Challenges (that have not yet been identified). Challenges are identifies as being more than just a Decision. Decisions do belong at the top of the schedule. Challenges belong early in the day. Challenges will eventually probably involve a decision, but they first need a bit of work to figure out how to deal with them. (You can collect more identifiers of Challenges as you learn to identify them over the next days.)
+<!-- ID={am:03.1:03.1:Challenges:02.1} -->
+Create a new Node for each Challenge as needed.
+<!-- ID={am:03.1:03.1:Challenges:03.1} -->
+Tag a Node that has a Challenge in it (where that was not already done). (In v1.x, use the @CHALLENGE@ in-text tag.)
+<!-- ID={am:03.1:03.1:Challenges:04.1} -->
+Put the number of Challenges identified this day into the corresponding metric (Daily Metrics, Challenges Identified).
+<!-- ID={am:03.1:03.1:Challenges:05.1} -->
+Near-term Challenges should now be appearing on the Decisions &amp; Challenges board (whether auto-generated in v2.x or manually placed in v1.x).
+<!-- ID={am:03.1:03.1:Challenges:06.1} -->
+Move Nodes tagged with Challenges to the top of the schedule.
+<!-- ID={am:03.1:04.1:Check #1:01.1} -->
+Check and update the <a href="https://www.google.com/url?q=https://docs.google.com/spreadsheets/d/1LeVD95TeBv_3QNby-Robe_BXS20g3WJEO3udy9mIb8I/edit%23gid%3D28288720&amp;sa=D&amp;ust=1584744607775000">Helpful</a> sheet for yesterday. Select all appropriate checkboxes. [<span style="background: #ffff00">p</span>]
+<!-- ID={am:04.1:01.1:SEC:01.1} -->
+Reward &amp; Recovery
+<!-- ID={am:04.1:02.1:Time Off:01.1} -->
+<font color="#0000ff">If applying a day off</font>, carefully blank scores and score calculations that apply to that day, keeping in mind where it mentions “yesterday” or “today”. This is a day off from most of System use and monitoring, not merely scheduled and intended health or leisure activity. For more information, see the <a href="https://docs.google.com/document/d/1rYPFgzFgjkF1xGx3uABiXiaDR5sfmOzqYQRqSntcyyY/edit#heading=h.uozyv0hanicq">'Unstructured Days' documentation</a>.[<span style="background: #ffff00">p</span>]    
+<!-- ID={am:04.1:02.1:Time Off:02.1} -->
+<font color="#0000ff">If applying a morning of sleeping in and/or taking it easy</font>, schedule that ahead of time just like any other social or personal event. It is a sensible thing to do for reward and recovery after many full days, and particularly when dealing with increasing fatigue (see TL#201806030615.1). In this case, simply use the System as normally as possible, accounting for the reward and recovery time like any other task on the schedule. This is presently applied as a reward, so should also be accounted as such (see the <a href="https://www.google.com/url?q=https://docs.google.com/spreadsheets/d/1oDD4moypes9qII1olFaLWhydOPCWFa7f_u6hWXTZVP4/edit%23gid%3D2091547244&amp;sa=D&amp;ust=1584744607778000">Rewards</a> sheet)!
+<!-- ID={am:05.1:01.1:SEC:01.1} -->
+Update the parameters for the <a href="https://www.google.com/url?q=https://docs.google.com/spreadsheets/d/1LeVD95TeBv_3QNby-Robe_BXS20g3WJEO3udy9mIb8I/edit%23gid%3D1839706421&amp;sa=D&amp;ust=1584744607780000">Time Tracking</a> score:
+<!-- ID={am:05.1:02.1:Score:01.1} -->
+Confirm if the number of expected hours in Time Tracking are correct for the day (or for the next few days). If here are circumstances that require changes in those expectations then apply those changes.
+<!-- ID={am:05.1:02.1:Score:02.1} -->
+<font color="#0000ff">Run the <font face="Courier, monospace">self-eval-show.sh</font> script</font> to automatically calculate several of the parameter values based on data in the Log. [<span style="background: #00ff00">a</span>]</font>
+<!-- ID={am:05.1:02.1:Score:03.1} -->
+<font color="#0000ff">Infrastructure</font>: Yesterday, did you do both Morning Metrics and Main AL update (2), just one of those (1), or none (0)? Also, already mark 1 score there for today for working on the Metrics. [<span style="background: #00ff00">a</span>]
+<!-- ID={am:05.1:02.1:Score:04.1} -->
+<font color="#0000ff">First intentional was priority</font>: Check the TL. Was the first "intentional" task done a (highest) priority for that day? This is meant to curb productive procrastination. [<span style="background: #00ff00">a</span>]
+<!-- ID={am:05.1:02.1:Score:05.1} -->
+<font color="#0000ff">Non-priorities took turns</font>: Check the TL. Intentional tasks that are not a (highest) priority should take turns rather than getting deeply lost in them. If you worked on no Intentional tasks then also enter “no”, but if you only worked on priority Intentional tasks then enter “N/A”, as there is no penalty for that. [<span style="background: #00ff00">a</span>]
+<!-- ID={am:05.1:02.1:Score:06.1} -->
+<font color="#0000ff">Non-priorities max. 30%</font>: Non-priority intentionals should account for a maximum of 30% of time worked on intentionals during the day. After updating the AL, add up the time allocated in the day to non-priority tasks (except: sleep, lunch, dinner, exercise, coffee &amp; shower, AL update, self-evaluation, behavior check, and taking stock). E.g.
+<ol type="a">
+    <li><code>nonpriority=0.33+1+0.67 = 2</code>
+    <li><code>priority=0.67+1+0.33+0.33+0.67+1+1 = 5</code>
+    <li><code>nonpriority/(nonpriority+priority) = 0.28571 (less than 30 percent)</code> [<span style="background: #00ff00">a</span>]
+</ol>
+<!-- ID={am:05.1:02.1:Score:07.1} -->
+<font color="#0000ff">Noted tasks on drives</font>: If you have what amounts to regular/frequent time consumed by driving (e.g. a commute) then did you use some of that time productively, for example, by carrying out thinking related to tasks? If you didn’t have such driving time just mark this as ‘yes’ or ‘N/A’ (they receive the same score, since one is not penalized for not driving).
+<!-- ID={am:05.1:02.1:Score:08.1} -->
+<font color="#0000ff">Violations of behavior change</font>: Check the TL. Count the number of instances where you violated the way your Behavior Change conditioning is supposed to work. For example: [<span style="background: #ffff00">p</span>]
+<ol type="a">
+    <script type="text/javascript">
+        var violsum = 0;
+        function toggleCheckbox(element){
+            if (element.checked)
+                violsum += 1;
+            else
+                violsum -= 1;
+            document.getElementById("viol-total").innerHTML = "(Number of violations: " + violsum + ")";
+        }
+    </script>
+    <li><input type="checkbox" id="viol1" name="viol1" value="1" onchange="toggleCheckbox(this)"><label for="viol1">If you apply a reward that you didn't earn.</label>
+    <li><input type="checkbox" id="viol2" name="viol2" value="1" onchange="toggleCheckbox(this)"><label for="viol2">If you check Facebook more than once per day or for longer than 40 minutes.</label>
+    <li><input type="checkbox" id="viol3" name="viol3" value="1" onchange="toggleCheckbox(this)"><label for="viol3">If you check online news more than once per day or for longer than
+    40 minutes.</label>
+    <li><input type="checkbox" id="viol4" name="viol4" value="1" onchange="toggleCheckbox(this)"><label for="viol4">If you watch Youtube clips more than once per day or for longer than
+    40 minutes.</label>
+    <li><input type="checkbox" id="viol5" name="viol5" value="1" onchange="toggleCheckbox(this)"><label for="viol5">If you check online news in the morning.</label>
+    <li><input type="checkbox" id="viol6" name="viol6" value="1" onchange="toggleCheckbox(this)"><label for="viol6">If you watch videos in the morning.</label>
+    <li><input type="checkbox" id="viol7" name="viol7" value="1" onchange="toggleCheckbox(this)"><label for="viol7">If you eat a meal before noon (and get sleepy).</label>
+</ol>
+<p id="viol-total">(Number of violations: 0)</p>
+<!-- ID={am:05.1:02.1:Score:09.1} -->
+<font color="#0000ff">Update the 7-day average and standard deviations for sleep</font>. [<span style="background: #00ff00">a</span>]
+<!-- ID={am:05.1:02.1:Score:10.1} -->
+<font color="#0000ff">Take note of scores that are </font> <span style="background: #00ff00">highlighted</span> and that correspond with milestones that earn rewards. Specifically, if the “scores” value lights up green, go to the <a href="https://www.google.com/url?q=https://docs.google.com/spreadsheets/d/1oDD4moypes9qII1olFaLWhydOPCWFa7f_u6hWXTZVP4/edit%23gid%3D1180724961&amp;sa=D&amp;ust=1584744607787000">Change Milestones &amp; Positives: Track-Log</a>&nbsp;sheet and add a line with: yesterday’s date, the Time Tracking Score 85%+ achievement, and 1 earned reward. [<span style="background: #00ff00">a</span>]
+<!-- ID={am:06.1:01.1:SEC:01.1} -->
+Update the parameters for the <a href="https://www.google.com/url?q=https://docs.google.com/spreadsheets/d/1LeVD95TeBv_3QNby-Robe_BXS20g3WJEO3udy9mIb8I/edit%23gid%3D0&amp;sa=D&amp;ust=1584744607789000">Daily</a>&nbsp;score.<br/> Carefully note which ones refer to “yesterday” and which ones refer to "today":
+<!-- ID={am:06.1:02.1:Score:01.1} -->
+<font color="#0000ff">Yesterday was a day well spent</font>: In general, 'well spent' refers to either spending time in direct alignment with your Values (like in an Ideal Situation), or making progress on your Personal Roadmap. All time, all days, spent with fears on my mind, i.e. days spent with Escapist tendencies, feel wrong and wasted, with the wish to do them over. So, all days like that should also be noted as such. If it’s hard to determine whether, overall, the day was well spent or not well spent, then the best parameter value may be 'neutral'.
+<!-- ID={am:06.1:02.1:Score:02.1} -->
+<font color="#0000ff">Waking up enthused about what I’ll be doing today</font>: You really felt immediately enthusiastic, looking forward to what you know is coming up. A ‘no’ implies some level of dread or dislike for what is coming up. Pick ‘neutral’ if neither applies.
+<!-- ID={am:06.1:02.1:Score:03.1} -->
+<font color="#0000ff">Percentage of work time yesterday on my goals &amp; projects (not someone else's)</font>: See the related information about this issue in the sections <a href="#id.o58ymoqr83g1">Ideal Scenario</a>, <a href="#id.dvq87d5fnpro">Facts</a>&nbsp;of the Notes on Change document. Estimate the number of hours spent on goals and projects and the hours spent on someone else’s goals and projects. With that you can get an estimated percentage. If you did no work at all then enter 0%, except if it was intentional (e.g. vacation), for which you enter "N/A". [<span style="background: #00ff00">a</span>]
+<!-- ID={am:06.1:02.1:Score:04.1} -->
+<font color="#0000ff">Tracked Food intake yesterday + Brushed Teeth?</font>: If you brushed your teeth and you kept track of what you eat (at least calories) then this is a ‘yes’. Otherwise, it is a ‘no’ (except in usual circumstances, where just brushing teeth can suffice to earn a 'yes'). [<span style="background: #ffff00">p</span>]
+<!-- ID={am:06.1:02.1:Score:05.1} -->
+<font color="#0000ff">Slept well &amp; enough last night?</font>: Did you sleep at least 5 hours last night, and was the sleep restful?
+<!-- ID={am:06.1:02.1:Score:06.1} -->
+<font color="#0000ff">Yesterday, did I prepare enough in advance for the day's tasks?</font>: Normally, this means following the System, and at least updating the AL. Under unusual circumstances, such as while on a multi-day trip it can simply and directly mean being prepared for the next part of the journey. [<span style="background: #ffff00">p</span>]
+<!-- ID={am:06.1:02.1:Score:07.1} -->
+<font color="#0000ff">Yesterday, did I limit my entertainment video watching well?</font>: Unlike the Violations in Time Tracking, this does not apply specifically to Youtube, but to all video entertainment. It is specifically meant to curb and temper movie or series watching habits. It is okay to occasionally do such things as part of solo or socializing entertainment. The limit is therefore applied as follows: Either, no more than 1 hour per day, or no more than one movie as long as you didn’t spend time like this the previous day (thereby averaging it out to no more than 1 hour per day). Cumulative Youtube watching counts the same way. If necessary, this same test may be applied to computer gaming.
+<!-- ID={am:06.1:02.1:Score:08.1} -->
+<font color="#0000ff">Yesterday, was I as productive as I should be?</font>: Did you do what was essential for the day, and did you use the hours available for productivity well? Another way to check this is, did you do scheduled appointments, and did you work on Priorities, Intentions, and make Progress during available hours. <font color="#ff0000"><span style="background: #ffff00">This parameter is a lot fuzzier than the newer Intentions, Progress and Value tracking in Time Tracking, and perhaps it should be replaced with those or deliver what is essentially a computed judgement based on them. For example, you can compare those with the calculated hours 'available to intentional effort'. If we use a formula that is something like 'yes' if <code>max(Intentional,Progress)&gt;=min(6,0.65*available)</code> then, in addition to the direct progress measurements, this can tease out whether there are too many non-productive time intervals in a day, such as for driving, community tasks, etc. This deserves testing, and it deserves some more thought, because it might be better to just try to measure such things more directly. Now testing this formulaic approach: <code>Daily!J1068 =if(max('Time Tracking'!O865, 'Time Tracking'!P865 )&gt;=min(6,0.65*'Time Tracking'!K865),"yes","no")</code></span></font> [<span style="background: #00ff00">a</span>]
+<!-- ID={am:06.1:02.1:Score:09.1} -->
+<font color="#0000ff"><span style="background: transparent">Yesterday, did I come up with a new financial idea?</span></font>: This can be a whole new I.P., or it can be a major insight or development of an I.P. that takes it in a new direction. Or, it can be systematic identification of I.P. directions, or the specification of multiple significantly different ways an I.P. could be done. [<span style="background: #00ff00">a</span>]
+<!-- ID={am:06.1:02.1:Score:10.1} -->
+<font color="#0000ff">Yesterday's Exercise Score</font>: Automatically calculated.
+<!-- ID={am:06.1:02.1:Score:11.1} -->
+<font color="#0000ff">Today, I prioritized important tasks and gave them more time in the schedule</font>: Confirm that the AL for today, a) includes more non-sleeping time given to important (e.g. income earning) tasks than to other tasks, and b) that as many as possible of the lower priority tasks appear at times later in the day than the important tasks. [<span style="background: #00ff00">a</span>]
+<!-- ID={am:06.1:02.1:Score:12.1} -->
+Check the TL to confirm that <font color="#0000ff">yesterday’s possible exercise entries (specific Exercise columns)</font> were correctly updated during the day.
+<!-- ID={am:06.1:02.1:Score:13.1} -->
+<font color="#b2b2b2">Weight: This is not presently measured</font>.
+<!-- ID={am:06.1:02.1:Score:14.1} -->
+Check the TL to confirm that other <font color="#0000ff">Daily 'fill in during the day' parameters</font>&nbsp;were correctly filled in. These are the columns from 'Sum of calories...' to 'Saying no when I should'. <B>In particular, take note of DAFs handled and Milestone Criteria Steps achieved.</B>
+<ul>
+    <li>Did you <b>achieve a Milestone</b>, i.e. <b>complete a Project</b>? If so, then a) mark the accomplishment in the Milestones Track Log sheet, b) add the accomplishment to the <a href="https://docs.google.com/document/d/1wS3nYBu_Cv9MM6K_B6aM-R74iJ894Bak7xy42d68DB0/edit">Projects document</a>, and c) make sure that the next-up Milestone is properly selected and set as regards the Milestone Steps and Points Testing sheets.
+    <li>Is an <b>Active Milestone at risk of not being achieved as intended</b>, because the activities that should be working towards it have been <b>watered down</b>? If so, revisit that Milestone (or create a task to do so) to more clearly specify how those tasks need to be done to achieve the Milestone. See the description of the 'yellow flag' <a href="https://docs.google.com/document/d/1rYPFgzFgjkF1xGx3uABiXiaDR5sfmOzqYQRqSntcyyY/edit#bookmark=id.pkdo8adxpxqa">in the System Documentation</a> or in <a href="task-log.20200423.html#202004240556.1">TL#202004240556.1</a>.
+    <li>Are there tasks that <b>clearly do make advances towards Active Milestones</b>, that are not very minor dependencies of tasksk that do earn a Step, and that presently <b>do not earn a Step</b>? If so, add a tag to their description that defines them as <b>@STEPEARNING:(milestone):(steplabel)@</b>, add information about them to the list of Steps in the Milestone DIL entry description, and update the required total for that Active Milestone on the <b>Milestone Steps</b> sheet.
+</ul>
+<!-- ID={am:06.1:02.1:Score:15.1} -->
+<font color="#0000ff">Yesterday's Ideal Situation (IS) Score</font>: Presently meaningless, but is automatically calculated.
+<!-- ID={am:06.1:02.1:Score:16.1} -->
+<font color="#0000ff">Yesterday's Behavior System Adherence (BSA) Score</font>: This is automatically calculated. For more information, please see the <a href="#h.kq56rw2xbnsf">Mental Exercise, Do What I Intend</a> section of the Notes on Change. Note that "Yesterday's" means that a score entered on the row for Thursday describes behavior from Wednesday. Taking this forward correctly is taken into account, for example, to the Modified BSA scoring of the same day.
+<!-- ID={am:06.1:02.1:Score:17.1} -->
+<font color="#0000ff">COND: 75%+ for 5 days</font>, <font color="#0000ff">COND: 5 of 7 days well spent</font>, and <font color="#0000ff">COND: 5+ days productive</font>: These are all calculated automatically.
+<!-- ID={am:06.1:02.1:Score:18.1} -->
+<font color="#0000ff">Take note of scores that are</font> <span style="background: #00ff00">highlighted</span> and that correspond with milestones that earn rewards. Specifically: [<span style="background: #00ff00">a</span>]
+<ol type="a">
+    <li>If <b>Yesterday's Behavior System Adherence (BSA) Score</b> lights up green then go to the <a href="https://www.google.com/url?q=https://docs.google.com/spreadsheets/d/1oDD4moypes9qII1olFaLWhydOPCWFa7f_u6hWXTZVP4/edit%23gid%3D1180724961&amp;sa=D&amp;ust=1584744607799000">Change Milestones &amp; Positives: Track-Log</a> sheet and add a line with: yesterday's date, the BSA Score 90%+ achievement, and 1 earned reward.
+    <li>If <b>COND: 5 of 7 days well spent</b> lights up green then go to the <a href="https://www.google.com/url?q=https://docs.google.com/spreadsheets/d/1oDD4moypes9qII1olFaLWhydOPCWFa7f_u6hWXTZVP4/edit%23gid%3D1180724961&amp;sa=D&amp;ust=1584744607800000">Change Milestones &amp; Positives: Track-Log</a> sheet and add a line with: yesterday's date, the 5+ days out of the past 7 well spent achievement, and 1 earned reward.
+    <li>If <b>COND: 5+ days productive</b> lights up green then go to the <a href="https://www.google.com/url?q=https://docs.google.com/spreadsheets/d/1oDD4moypes9qII1olFaLWhydOPCWFa7f_u6hWXTZVP4/edit%23gid%3D1180724961&amp;sa=D&amp;ust=1584744607801000">Change Milestones &amp; Positives: Track-Log</a> sheet and add a line with: yesterday's date, the 5+ days productive achievement, and 1 earned reward.
+</ol>
+<!-- ID={am:07.1:01.1:SEC:01.1} -->
+Update the <a href="https://www.google.com/url?q=https://docs.google.com/spreadsheets/d/1LeVD95TeBv_3QNby-Robe_BXS20g3WJEO3udy9mIb8I/edit%23gid%3D283348546&amp;sa=D&amp;ust=1584744607803000">Nonlinear BSA Modification</a> score. Notice that part of that goes along with today's date, while another part only goes up to yesterday (as indicated by the grayed out cells). [<span style="background: #ffff00">p</span>]
+<!-- ID={am:07.1:02.1:Score:01.1} -->
+<font color="#0000ff">Take care to notice productive procrastination</font> in a day's activities. Productive procrastination occurs when:
+<ol type="a">
+    <li>A task that may ultimately be purposeful is given significant time and attention even though it was <b>not prioritized or scheduled</b> accordingly. In essence, focus on that task was used as an excuse to avoid priority tasks.
+    <li>Task activity that begins according to the scheduled priority order is <b>excessively extended</b> (multiple times the original scheduled time required, 2x or more), pushing other priority tasks back in the process. The correct thing to do would instead be to pause, take perspective, identify the new time-consuming approach to the task, and make DIL and AL updates accordingly, then proceed with a confirmed balanced set of activities. The productively procrastinated time is then <code>'actual
+        time spent' - ('time required'*2)</code>.
+</ol>
+<!-- ID={am:07.1:02.1:Score:02.1} -->
+<font color="#0000ff">Take note if the Modified BSA score has reached a new milestone level</font>. If so then go to the <a href="https://www.google.com/url?q=https://docs.google.com/spreadsheets/d/1oDD4moypes9qII1olFaLWhydOPCWFa7f_u6hWXTZVP4/edit%23gid%3D1180724961&amp;sa=D&amp;ust=1584744607805000">Change Milestones &amp; Positives: Track-Log</a> sheet, take note of the milestone achieved and enter a Major Reward Earned.
+<!-- ID={am:07.1:02.1:Score:03.1} -->
+See the <a href="https://www.google.com/url?q=https://docs.google.com/spreadsheets/d/1LeVD95TeBv_3QNby-Robe_BXS20g3WJEO3udy9mIb8I/edit%23gid%3D2111843376&amp;sa=D&amp;ust=1584744607805000">graph</a> to notice trends and personal system insights.
+<!-- ID={am:07.1:02.1:Score:04.1} -->
+<b>Note that there is also a way to earn back some of the day's score despite procrastination!</b> This rule exists to motivate fixing mistakes rather than giving up on the day. (See below.)
+<!-- ID={am:07.1:03.1:Insight Graphs:01.1} -->
+Check the <a href="https://www.google.com/url?q=https://docs.google.com/spreadsheets/d/1LeVD95TeBv_3QNby-Robe_BXS20g3WJEO3udy9mIb8I/edit%23gid%3D964163666&amp;sa=D&amp;ust=1584744607807000">Points Testing</a> insights graphs and projection data. (This is still an experimental attempt to give focused insight about
+    progress on a Path in the Personal Roadmap.) [<span style="background: #00ff00">a</span>]
+<!-- end  : content -->

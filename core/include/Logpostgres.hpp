@@ -89,7 +89,7 @@ bool store_Log_pq(const Log & log, Postgres_access & pa, void (*progressfunc)(un
 
 bool load_Log_pq(Log & log, Postgres_access & pa);
 
-bool TEST_load_Log_interval_pq(Log_interval & log);
+bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & filter);
 
 /**
  * A data types conversion helper class that can deliver the Postgres Breakpoints table

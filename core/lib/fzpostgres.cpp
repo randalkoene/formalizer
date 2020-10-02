@@ -261,6 +261,9 @@ void Postgres_access::schemaname_error() {
 }
 
 void Postgres_access::access_initialize() {
+    if (initialized)
+        return;
+
     COMPILEDPING(std::cout,"PING-access_initialize()\n");
     if (dbname().empty()) { // attempt to get a default
         config.dbname = DEFAULT_DBNAME;
@@ -285,6 +288,7 @@ void Postgres_access::access_initialize() {
         FZOUT("Postgres database selected: "+dbname()+'\n');
         FZOUT("Postgres schema selected  : "+pq_schemaname()+'\n');
     }
+    initialized = true;
 }
 
 

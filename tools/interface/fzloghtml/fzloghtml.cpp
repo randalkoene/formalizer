@@ -40,7 +40,7 @@ fzloghtml fzlh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), ga(*this, add_option_args, add_usage_top),
-                         t_from(RTt_unspecified), t_before(RTt_unspecified), iscale(interval_none), interval(0), noframe(false) {
+                         iscale(interval_none), interval(0), noframe(false) {
     add_option_args += "1:2:o:D:H:w:N";
     add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
@@ -90,7 +90,7 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
             VERBOSEERR("Invalid 'from' time or date stamp "+cargs+'\n');
             break;
         } else {
-            t_from = t;
+            filter.t_from = t;
         }
         return true;
     }
@@ -101,7 +101,7 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
             VERBOSEERR("Invalid 'before' time or date stamp "+cargs+'\n');
             break;
         } else {
-            t_before = t;
+            filter.t_to = t;
         }
         return true;
     }
@@ -162,51 +162,54 @@ void fzloghtml::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen once in main(), for the derived class
 
     // If only t_before or t_from is specified, see if we use a specified interval
-    if ((t_before==RTt_unspecified) && (t_from!=RTt_unspecified) && (iscale!=interval_none)) {
+    if ((filter.t_to==RTt_unspecified) && (filter.t_from!=RTt_unspecified) && (iscale!=interval_none)) {
         switch (iscale) {
 
             case interval_weeks: {
-                t_before = t_from + interval*(7*24*60*60);
+                filter.t_to = filter.t_from + interval*(7*24*60*60);
             }
 
             case interval_hours: {
-                t_before = t_from + interval*(60*60);
+                filter.t_to = filter.t_from + interval*(60*60);
             }
 
             default: { // days
-                t_before = t_from + interval*(24*60*60);
+                filter.t_to = filter.t_from + interval*(24*60*60);
             }
 
         }
     }
-    if ((t_from==RTt_unspecified) && (t_before!=RTt_unspecified) && (iscale!=interval_none)) {
+    if ((filter.t_from==RTt_unspecified) && (filter.t_to!=RTt_unspecified) && (iscale!=interval_none)) {
         switch (iscale) {
 
             case interval_weeks: {
-                t_from = t_before - interval*(7*24*60*60);
+                filter.t_from = filter.t_to - interval*(7*24*60*60);
             }
 
             case interval_hours: {
-                t_from = t_before - interval*(60*60);
+                filter.t_from = filter.t_to - interval*(60*60);
             }
 
             default: { // days
-                t_from = t_before - interval*(24*60*60);
+                filter.t_from = filter.t_to - interval*(24*60*60);
             }
 
         }
+    }
+
+    // We can leave filter.t_to unspecified, since that automatically means to the most recent.
+    // ***But we need to somehow set the start of the default interval.
+    if (filter.t_from==RTt_unspecified) {
+        //***????? t_from = t_before - (24*60*60); // Daylight savings time is not taken into account at all.
     }
 
     //graph = ga.request_Graph_copy();
-    log = ga.request_Log_copy();
+    //log = ga.request_Log_copy(); *** This has to change... not every request needs the whole log. See https://trello.com/c/O9dcTm9L and https://trello.com/c/EppSyY9Y.
+    Log_filter filter;
+    log = ga.request_Log_excerpt(filter);
 
-    // If necessary, set the default interval
-    if (t_before==RTt_unspecified) {
-        t_before = log->newest_chunk_t()+1; // Add one second to include that chunk. // *** was: t_before = ActualTime();
-    }
-    if (t_from==RTt_unspecified) {
-        t_from = t_before - (24*60*60); // Daylight savings time is not taken into account at all.
-    }
+    // *** Should we call log.setup_Chain_nodeprevnext() ?
+
 
 }
 

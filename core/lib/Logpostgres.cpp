@@ -338,8 +338,7 @@ bool get_Entry_pq_field_numbers(PGresult *res) {
 /**
  * Load full Chunks table into Log::chunks.
  * 
- * EXPERIMENTING: With optional WHERE statement! Just in case this function can be reused
- * for load_Log_interval()!
+ * With optional WHERE statement.
  */
 bool read_Chunks_pq(active_pq & apq, Log & log, std::string wherestr = "") {
     ERRTRACE;
@@ -473,6 +472,87 @@ bool read_Entries_pq(active_pq & apq, Log & log, std::string wherestr = "") {
 }
 
 /**
+ * First-Pass Load of Entries into Log::entries.
+ * 
+ * This version of the database table query loads entries data and creates
+ * Log_entry objects but does not yet associate Log_chunks. It can be used
+ * to prepare Log entries in advance where a sequence of passes is needed.
+ * 
+ * Note that this functions DOES NOT do `chunk->add_Entry()`. A second pass
+ * is needed to accomplish that.
+ * 
+ * See for example how this is used in Load_Node_history_pq().
+ * 
+ * With optional WHERE statement.
+ * 
+ * @param apq data structure with active database connection pointer and schema name.
+ * @param log a Log object that is added to.
+ * @param wherestr An optional WHERE string to constrain which records are retrieved.
+ * @return true if successful.
+ */
+bool read_Entries_first_pass_pq(active_pq & apq, Log & log, std::string wherestr = "") {
+    ERRTRACE;
+    if (!query_call_pq(apq.conn,"SELECT * FROM "+apq.pq_schemaname+".Logentries"+wherestr+" ORDER BY "+pq_entry_fieldnames[pqle_id],false)) return false;
+
+    //sample_query_data(conn,0,4,0,100,tmpout);
+  
+    PGresult *res;
+
+    while ((res = PQgetResult(apq.conn))) { // It's good to use a loop for single row mode cases.
+
+        const int rows = PQntuples(res);
+        if (PQnfields(res)<_pqle_NUM) ERRRETURNFALSE(__func__,"not enough fields in entries table");
+
+        if (!get_Entry_pq_field_numbers(res)) return false;
+
+        for (int r = 0; r < rows; ++r) {
+
+            std::string entryid_str(PQgetvalue(res, r, pq_entry_field[pqle_id]));
+            std::string nodeid_str(PQgetvalue(res, r, pq_entry_field[pqle_nid]));
+            std::string entrytext(PQgetvalue(res, r, pq_entry_field[pqle_text]));
+            rtrim(entryid_str);
+            rtrim(nodeid_str);
+
+            // attempt to build a Log_entry_ID object
+            try {
+                const Log_entry_ID entryid(entryid_str);
+                // Note that this version does NOT require a corresponding Log chunk!
+
+                std::unique_ptr<Log_entry> entry;
+                if (nodeid_str.empty() || (nodeid_str=="{null-key}")) { // make Log_entry object without Node specifier
+                    entry = std::make_unique<Log_entry>(entryid.key().idT, entrytext);
+                    log.get_Entries().insert({entryid.key(),std::move(entry)}); // entry is now nullptr
+
+                } else {
+                    // attempt to build a Node_ID object
+                    try {
+                        const Node_ID_key nodeidkey(nodeid_str);
+
+                        // make Log_entry object with Node specifier
+                        entry = std::make_unique<Log_entry>(entryid.key().idT, entrytext, nodeidkey);
+                        log.get_Entries().insert({entryid.key(),std::move(entry)}); // entry is now nullptr
+
+                    } catch (ID_exception idexception) {
+                        ERRRETURNFALSE(__func__, "invalid Node ID (" + nodeid_str + ") at Log entry [" + entryid_str + "], " + idexception.what()); // *** alternative: +",\ntreating as chunk-relative");
+                        /* only use the below if you use the ADDERROR() alternative:
+                        entry = std::make_unique<Log_entry>(entryid.key().idT, entrytext, chunk);
+                        log.get_Entries().insert({entryid.key(),std::move(entry)}); // entry is now nullptr
+                        */
+                    }
+                }
+            } catch (ID_exception idexception) {
+                ERRRETURNFALSE(__func__, "entry with invalid Log entry ID (" + entryid_str + "), " + idexception.what());
+            }
+
+        }
+
+        PQclear(res);
+    }
+
+    return true;
+}
+
+/**
  * Load the full Log with all Log chunks, Log entries and Breakpoints from the PostgresSQL
  * database.
  * 
@@ -501,22 +581,70 @@ bool load_Log_pq(Log & log, Postgres_access & pa) {
     LOAD_LOG_PQ_RETURN(true);
 }
 
-/** EXPERIMENTAL!
- * Load the Log chunks and Log entries with ID in a specified interval.
+/**
+ * Find all of the Log chunks and Log entries (within the interval) that belong to
+ * a specified Node, in two phases.
  * 
- * This can be used by smart on-demand Log caching modes.
+ * This function is called by load_partial_Log_pq() if the filter specifies a Node.
  * 
- * @param log A Log for the Chunks and Entries, typically empty.
+ * @param apq Access object with database name and schema name.
+ * @param log Log object where Chunks and Entries are added.
+ * @param chunkwherestr A prepared PQ WHERE string specifying Node and possibly time interval.
+ * @param entrywherestr A prepared PQ WHERE string specifying Node.
+ */
+bool load_Node_history_pq(active_pq & apq, Log & log, const std::string & chunkwherestr, const std::string & entrywherestr) {
+    ERRTRACE;
+    // Phase 1: Collect all of the chunks and entries that explicitly belong to the specified Node.
+    if (!read_Chunks_pq(apq,log,chunkwherestr)) return false;
+    if (!read_Entries_first_pass_pq(apq,log,entrywherestr)) return false; // Typically entries with NID different from their chunk.
+
+    // Phase 2: Collect all remaining entries within the collected chunks and remaining chunks that collected entries are in.
+    Log_chunk_ID_key_set chunkkeyset = log.chunk_key_list_from_entries();
+    if (chunkkeyset.size()>0) {
+        // converting set of keys to WHERE IN query (fortunately, the command length limit is huge, see https://stackoverflow.com/a/4937695)
+        std::string whereinstr(" WHERE id IN (");
+        whereinstr.reserve(20+chunkkeyset.size()*(12+3));
+        for (const auto & chunkkey : chunkkeyset) {
+            whereinstr += '\'' + chunkkey.str() + "',";
+        }
+        whereinstr.back() = ')'; // *** you might need to add ORDER BY
+        if (!read_Chunks_pq(apq,log,whereinstr)) return false; // This can handle making a duplicate, but we should prune those.
+        log.prune_duplicate_chunks();
+        log.add_entries_to_chunks(); // completes read_Entries_first_pass_pq() by doing the second part.
+    }
+    if (log.num_Chunks()>0) {
+        std::string whereinstr(" WHERE SUBSTRING(id,1,12) IN (");
+        whereinstr.reserve(40+log.num_Chunks()*(12+3));
+        for (const auto & chunkptr : log.get_Chunks()) {
+            whereinstr += '\'' + chunkptr.get()->get_tbegin_str() + "',";
+        }
+        whereinstr.back() = ')'; // *** you might need to add ORDER BY
+        if (!read_Entries_pq(apq,log,whereinstr)) return false; // inserting into map automatically deals with duplicates
+    }
+    return true;
+}
+
+/**
+ * Load the Log chunks and Log entries that satisfy a specific filter.
+ * 
+ * The filter may specify a time interval and may specify a Node to which the
+ * Log chunks and Log entries must belong.
+ * 
+ * This can also be used by smart on-demand Log caching modes.
+ * 
+ * @param log A Log for the Chunks and Entries, can be empty or may be added to.
  * @param pa Access object with database name and schema name.
- * @param t_from Chunk and entry IDs must be >= `t_from`.
- * @param t_to Chunk and entry IDs must be <= `t_to`. 
+ * @param filter A selective Log reading filter structure.
  * @return True if the Log was succesfully loaded from the database.
  */
-bool TEST_load_Log_interval_pq(Log_interval & log, Postgres_access & pa, time_t t_from, time_t t_to) {
+bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & filter) {
     ERRTRACE;
-    if (t_from > t_to)
+    bool use_t_from = filter.t_from != RTt_unspecified;
+    bool use_t_to = filter.t_to != RTt_unspecified;
+    bool use_nkey = !filter.nkey.isnullkey();
+    if (use_t_from && use_t_to && (filter.t_from > filter.t_to))
         return false;
-    if (t_from > ActualTime())
+    if (use_t_from && (filter.t_from > ActualTime()))
         return false;
 
     PGconn* conn = connection_setup_pq(pa.dbname());
@@ -526,14 +654,39 @@ bool TEST_load_Log_interval_pq(Log_interval & log, Postgres_access & pa, time_t 
     #define LOAD_LOG_PQ_RETURN(r) { PQfinish(conn); return r; }
     active_pq apq(conn,pa.pq_schemaname());
 
-    // Create Postgres time stamps in Postgres WHERE statement.
-    std::string wherestr(" WHERE id >= "+TimeStamp_pq(t_from)+" AND id <= "+TimeStamp_pq(t_to));
+    // Create Postgres WHERE statement.
+    std::string chunkwherestr;
+    std::string entrywherestr;
+    if (use_t_from || use_t_to || use_nkey) {
+        chunkwherestr += " WHERE ";
+        if (use_t_from) {
+            chunkwherestr += "id >= "+TimeStamp_pq(filter.t_from);
+            if ((use_t_to) || (use_nkey))
+                chunkwherestr += " AND ";
+        }
+        if (use_t_to) {
+            chunkwherestr += "id <= "+TimeStamp_pq(filter.t_to);
+            if (use_nkey)
+                chunkwherestr += " AND ";
+        }
+    }
+
+    if (use_nkey) { // if Node specified then take this branch
+        std::string nidstr = "nid == '"+filter.nkey.str()+"'";
+        chunkwherestr += nidstr;
+        entrywherestr += " WHERE "+nidstr;
+        if (load_Node_history_pq(apq,log,chunkwherestr,entrywherestr)) {
+            LOAD_LOG_PQ_RETURN(true);
+        } else {
+            LOAD_LOG_PQ_RETURN(false);
+        }
+    }
 
     ERRHERE(".chunks");
-    if (!read_Chunks_pq(apq,log,wherestr)) LOAD_LOG_PQ_RETURN(false);
+    if (!read_Chunks_pq(apq,log,chunkwherestr)) LOAD_LOG_PQ_RETURN(false);
 
     ERRHERE(".entries");
-    if (!read_Entries_pq(apq,log,wherestr)) LOAD_LOG_PQ_RETURN(false);
+    if (!read_Entries_pq(apq,log,entrywherestr)) LOAD_LOG_PQ_RETURN(false);
 
     // *** Breakpoints are really only for backwards compatibility.
     //ERRHERE(".breakpoints");

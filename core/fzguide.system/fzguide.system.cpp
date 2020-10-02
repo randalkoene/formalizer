@@ -78,16 +78,29 @@ const std::string pq_guide_system_layout(
 std::map<fgs_chapter,const std::string> chaptertag = {
     { fgs_any, "(any)" },
     { fgs_am, "am" },
+    { fgs_act, "act"},
     { fgs_pm, "pm" }
 };
 
 std::map<fgs_subsection,const std::string> subsectiontag = {
     { fgs_unspecified, "(any)" },
     { fgs_SEC, "SEC" },
+    { fgs_NOTE, "NOTE" },
     { fgs_wakeup, "wakeup" },
     { fgs_catchup, "catchup" },
     { fgs_calendar, "calendar" },
-    { fgs_AL_update, "AL_update" }
+    { fgs_AL_update, "AL_update" },
+    { fgs_Track_LVL3, "Track LVL3" },
+    { fgs_Challenges, "Challenges" },
+    { fgs_Check_1, "Check #1" },
+    { fgs_Time_Off, "Time Off" },
+    { fgs_Score, "Score" },
+    { fgs_Insight_Graphs, "Insight Graphs" },
+    { fgs_Outcomes, "Outcomes" },
+    { fgs_Communications, "Communications" },
+    { fgs_Positive, "Positive" },
+    { fgs_LVL3, "LVL3" },
+    { fgs_Decisions_and_Challenges, "Decisions and Challenges" }
 };
 
 /**
@@ -97,11 +110,17 @@ std::map<fgs_subsection,const std::string> subsectiontag = {
 fzguide_system::fzguide_system() : formalizer_standard_program(false), chapter(fgs_any), sectionnum(0.0), subsectionnum(0.0),
                                    subsection(fgs_unspecified), decimalidx(0.0), format(format_none), flowcontrol(flow_unknown),
                                    pa(*this, add_option_args, add_usage_top, true), templatesloaded(false) {
-    add_option_args += "SRLAPH:u:U:x:i:o:F:";
-    add_usage_top += " <-S|-R|-L> [-A|-P] [-H <section_num>] [-u <subsection_num>] [-U <subsection>] [-x <idx>] [-i <inputfile>] [-o <outputfile>] [-F <format>]";
+    add_option_args += "SRLATPH:u:U:x:i:o:F:";
+    add_usage_top += " <-S|-R|-L> [-A|-T|-P] [-H <section_num>] [-u <subsection_num>] [-U <subsection>] [-x <idx>] [-i <inputfile>] [-o <outputfile>] [-F <format>]";
 
-    usage_tail.emplace_back("Note that when Reading (-R), identifiers left unspecified are interpreted\n"
+    usage_tail.emplace_back("Note 1: When Reading (-R), identifiers left unspecified are interpreted\n"
                             "as wildcards. Specifying nothing therefore means requesting everything.\n");
+    usage_tail.emplace_back("Note 2: When Storing (-S) from a file (-i), that file can contain many\n"
+                            "snippets if it is formatted with specific codes. Importantly, the file\n"
+                            "must begin with <!-- FZGUIDE -->. Only snippets between the markers\n"
+                            "<!-- begin: content --> and <!-- end  : content --> are processed, and\n"
+                            "each snippet must begin with an ID code, e.g:\n"
+                            "  <!-- ID={am:01.1:01.1:SEC:01.1} -->\n");
 }
 
 /**
@@ -114,6 +133,7 @@ void fzguide_system::usage_hook() {
     FZOUT("    -R Read snippet from System guide\n");
     FZOUT("    -L List all snippet IDs from System guide\n");
     FZOUT("    -A AM - System guide chapter\n");
+    FZOUT("    -T ACT - System guide chapter\n");
     FZOUT("    -P PM - System guide chapter\n");
     FZOUT("    -H System guide decimal <section_num> > 0.0 (e.g. '01.1')\n");
     FZOUT("    -u System guide decimal <subsection_num> > 0.0 (e.g. '01.1')\n");
@@ -158,6 +178,11 @@ bool fzguide_system::options_hook(char c, std::string cargs) {
 
     case 'A': {
         chapter = fgs_am;
+        return true;
+    }
+
+    case 'T': {
+        chapter = fgs_act;
         return true;
     }
 

@@ -51,8 +51,8 @@ struct fzloghtml: public formalizer_standard_program {
 
     Graph_access ga;
 
-    time_t t_from;
-    time_t t_before;
+    Log_filter filter;
+
     interval_scale iscale;
     unsigned int interval;
     bool noframe;

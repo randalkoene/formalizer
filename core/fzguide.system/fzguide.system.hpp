@@ -44,18 +44,30 @@ enum flow_options {
 enum fgs_chapter {
     fgs_any = 0,
     fgs_am = 1,
-    fgs_pm = 2,
+    fgs_act = 2,
+    fgs_pm = 3,
     fgs_NUMsections
 };
 
 enum fgs_subsection {
     fgs_unspecified = 0,
     fgs_SEC = 1,
-    fgs_wakeup = 2,
-    fgs_catchup = 3,
-    fgs_calendar = 4,
-    fgs_AL_update = 5,
-    // *** this needs a lot more
+    fgs_NOTE = 2,
+    fgs_wakeup = 3,
+    fgs_catchup = 4,
+    fgs_calendar = 5,
+    fgs_AL_update = 6,
+    fgs_Track_LVL3 = 7,
+    fgs_Challenges = 8,
+    fgs_Check_1 = 9,
+    fgs_Time_Off = 10,
+    fgs_Score = 11,
+    fgs_Insight_Graphs = 12,
+    fgs_Outcomes = 13,
+    fgs_Communications = 14,
+    fgs_Positive = 15,
+    fgs_LVL3 = 16,
+    fgs_Decisions_and_Challenges = 17,
     fgs_NUMsubsections
 };
 

@@ -123,6 +123,8 @@ struct Postgres_access {
 
     bool is_server; /// authoritative server programs should set this flag
 
+    bool initialized;
+
     /**
      * Carry out initializations needed to enable access to the Postgres database.
      * 
@@ -131,7 +133,7 @@ struct Postgres_access {
      * @param add_usage_top_here receiving string where the option format is appended
      *                           to extend the top line of usage output.
      */
-    Postgres_access(formalizer_standard_program & fsp, std::string & add_option_args_here, std::string & add_usage_top_here, bool _isserver = false): config(fsp), is_server(_isserver) {
+    Postgres_access(formalizer_standard_program & fsp, std::string & add_option_args_here, std::string & add_usage_top_here, bool _isserver = false): config(fsp), is_server(_isserver), initialized(false) {
         //COMPILEDPING(std::cout, "PING-Graph_access().1\n");
         add_option_args_here += "d:s:";
         add_usage_top_here += " [-d <dbname>] [-s <schemaname>]";

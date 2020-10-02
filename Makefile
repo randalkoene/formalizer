@@ -95,6 +95,7 @@ CGIEXE += $(COREPATH)/fzguide.system/fzguide.system-cgi.py
 WEBINTERFACES = 
 WEBINTERFACES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-form.html
 WEBINTERFACES += $(COREPATH)/fzguide.system/fzguide.system-form.html
+WEBINTERFACES += $(TOOLSPATH)/system/metrics/sysmet-add/sysmet-add-form.html
 # +----- end  : Select Formalizer executables -----+
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html

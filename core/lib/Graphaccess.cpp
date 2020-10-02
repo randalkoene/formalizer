@@ -65,6 +65,25 @@ std::unique_ptr<Log> Graph_access::request_Log_copy() {
     return logptr;
 }
 
+std::unique_ptr<Log> Graph_access::request_Log_excerpt(const Log_filter & filter){
+    /* We're actually presently testing if this is fine.
+    if (!is_server) {
+        VERBOSEOUT("\n*** This program is still using a temporary direct-load of Log data.");
+        VERBOSEOUT("\n*** Please replace that with access through fzserverpq(-log) as soon as possible!\n\n");
+    }*/
+
+    access_initialize(); // this can handle being called multiple times (in case of additive filtering)
+
+    std::unique_ptr<Log> logptr = std::make_unique<Log>();
+
+    if (!load_partial_Log_pq(*logptr, *this, filter)) {
+        FZERR("\nSomething went wrong! Unable to load Log from Postgres database.\n");
+        standard.exit(exit_database_error);
+    }
+
+    return logptr;
+}
+
 void Graph_access::rapid_access_init(Graph &graph, Log &log) {
     log.setup_Chain_nodeprevnext();
     log.setup_Entry_node_caches(graph);
