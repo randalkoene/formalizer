@@ -64,6 +64,12 @@ inline std::string TimeStamp_pq(time_t t) {
 
 time_t epochtime_from_timestamp_pq(std::string pqtimestamp);
 
+enum PQ_Command_Variant {
+    pq_command_runsilent, ///< this is the default
+    pq_command_log,       ///< run and write to log file
+    pq_command_simulate   ///< write to log file only
+};
+
 /**
  * A simulation class that enables Postgres call testing.
  * 
@@ -75,18 +81,19 @@ time_t epochtime_from_timestamp_pq(std::string pqtimestamp);
  */
 class Simulate_PQ_Changes {
 protected:
-    bool simulate_pq_changes = false; /// Set this to test Postgres calls.
+    PQ_Command_Variant simulate_pq_changes = pq_command_runsilent; /// Change this to log or simulate Postgres calls.
     std::string simulated_pq_calls; /// Postgres calls are appended here when simulated.
 
 public:
     std::string simPQfile; /// Path to the file where simulated Postgres calls should be logged.
 
-    void SimulateChanges() { simulate_pq_changes = true; }
-    void ActualChanges() { simulate_pq_changes = false; }
-    bool SimulatingPQChanges() const { return simulate_pq_changes; }
+    void SimulateChanges() { simulate_pq_changes = pq_command_simulate; }
+    void LogChanges() { simulate_pq_changes = pq_command_log; }
+    void ActualChanges() { simulate_pq_changes = pq_command_runsilent; }
+    bool SimulatingPQChanges() const { return simulate_pq_changes == pq_command_simulate; }
     void AddToSimLog(std::string & pqcall) { simulated_pq_calls += pqcall + '\n'; }
-    bool SimPQChangesAndLog(std::string & pqcall) {
-        if (simulate_pq_changes) AddToSimLog(pqcall);
+    PQ_Command_Variant SimPQChangesAndLog(std::string & pqcall) {
+        if (simulate_pq_changes != pq_command_runsilent) AddToSimLog(pqcall);
         return simulate_pq_changes;
     }
     //std::string GetSimPQlogpath() { return simPQfile; }

@@ -686,6 +686,18 @@ bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & fil
     ERRHERE(".chunks");
     if (!read_Chunks_pq(apq,log,chunkwherestr)) LOAD_LOG_PQ_RETURN(false);
 
+    if (use_t_from) {
+        if (use_t_to) {
+            entrywherestr += " WHERE SUBSTRING(id,1,12) BETWEEN " + TimeStamp_pq(filter.t_from) + " AND " + TimeStamp_pq(filter.t_to);
+        } else {
+            entrywherestr += " WHERE SUBSTRING(id,1,12) >= " + TimeStamp_pq(filter.t_from);
+        }
+    } else {
+        if (use_t_to) {
+            entrywherestr += " WHERE SUBSTRING(id,1,12) <= " + TimeStamp_pq(filter.t_to);
+        }
+    }
+
     ERRHERE(".entries");
     if (!read_Entries_pq(apq,log,entrywherestr)) LOAD_LOG_PQ_RETURN(false);
 

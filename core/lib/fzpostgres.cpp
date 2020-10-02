@@ -58,7 +58,7 @@ PGconn* connection_setup_pq(std::string dbname) {
 /**
  * Send a simple action call to a Postgres database.
  * 
- * Note: If the global flag simulate_pq_changes==true then this function does not execute
+ * Note: If the global flag simulate_pq_changes==pq_command_simulate then this function does not execute
  * Postgres calls. Instead, the call string will be added to simulated_pq_calls.
  * 
  * @param conn active database connection.
@@ -68,7 +68,7 @@ PGconn* connection_setup_pq(std::string dbname) {
 bool simple_call_pq(PGconn* conn, std::string astr) {
     if (!conn) ERRRETURNFALSE(__func__,"unable to call database action without active database connection");
 
-    if (SimPQ.SimPQChangesAndLog(astr))
+    if (SimPQ.SimPQChangesAndLog(astr) == pq_command_simulate)
         return true;
 
     // See the example at http://zetcode.com/db/postgresqlc/
@@ -101,7 +101,7 @@ bool simple_call_pq(PGconn* conn, std::string astr) {
 bool query_call_pq(PGconn* conn, std::string qstr, bool request_single_row_mode) {
     if (!conn) ERRRETURNFALSE(__func__,"unable to call database action without active database connection");
 
-    if (SimPQ.SimPQChangesAndLog(qstr))
+    if (SimPQ.SimPQChangesAndLog(qstr) == pq_command_simulate)
         return true;
 
     if (!PQsendQuery(conn, qstr.c_str())) {
@@ -231,7 +231,6 @@ void simPQ_report_wrapper() {
 
 /// Configure configurable parameters.
 bool fzpq_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
-    std::cout << "Yup got here.\n"; std::cout.flush();
     // Make sure that any simulated Postgres calls are stored to file upon exit.
     if (!exit_report_hooked_in) { // call this one only once
         standard.add_to_exit_stack(&simPQ_report_wrapper,"simPQ_report_wrapper");
@@ -248,8 +247,8 @@ Postgres_access::Postgres_access(formalizer_standard_program &fsp, std::string &
                                  std::string &add_usage_top_here, bool _isserver) : config(fsp),
                                  is_server(_isserver), initialized(false) {
     //COMPILEDPING(std::cout, "PING-Graph_access().1\n");
-    add_option_args_here += "d:s:Q";
-    add_usage_top_here += " [-d <dbname>] [-s <schemaname>] [-Q]";
+    add_option_args_here += "d:s:Q:";
+    add_usage_top_here += " [-d <dbname>] [-s <schemaname>] [-Q <normal|sim|log>]";
 }
 
 void Postgres_access::usage_hook() {
@@ -257,7 +256,7 @@ void Postgres_access::usage_hook() {
     FZOUT("       (default is " DEFAULT_DBNAME  ")\n"); // used to be $USER, but this was clarified in https://trello.com/c/Lww33Lym
     FZOUT("    -s use Postgres schema <schemaname>\n");
     FZOUT("       (default is $USER with fallback to: formalizeruser)\n");
-    FZOUT("    -Q simulate Postgres commands\n");
+    FZOUT("    -Q Postgres commands: simulate or log while carrying out\n");
     FZOUT("       (write to "+SimPQ.simPQfile+")\n");
 }
 
@@ -275,8 +274,21 @@ bool Postgres_access::options_hook(char c, std::string cargs) {
     }
 
     case 'Q': {
-        SimPQ.SimulateChanges();
-        return true;
+        if (cargs=="log") {
+            SimPQ.LogChanges();
+            return true;
+        }
+        if (cargs=="sim") {
+            SimPQ.SimulateChanges();
+            return true;
+        }
+        if (cargs=="normal") {
+            SimPQ.ActualChanges();
+            return true;
+        }
+        VERBOSEERR("Unknown option -Q "+cargs+" ignored.\n");
+        ADDERROR(__func__, "Unknown option -Q "+cargs+" ignored.");
+        return false;
     }
 
     }

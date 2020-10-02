@@ -48,9 +48,11 @@ fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), ga(*
         "The <time-stamp1> and <time-stamp_2> arguments expect standardized\n"
         "Formalizer time stamps, e.g. 202009140614, but will also accept date stamps\n"
         "of analogous form, e.g. 20200914.\n"
-        "The default is:\n"
+        "Without a Node specification, the default is:\n"
         "  start from 24 hours before end of interval\n"
-        "  end at most recent Log entry\n");
+        "  end at most recent Log entry\n"
+        "With a Node specification but no time stamps, the default is:\n"
+        "  complete Node history\n");
 }
 
 /**
@@ -61,7 +63,7 @@ void fzloghtml::usage_hook() {
     ga.usage_hook();
     FZOUT("    -n belongs to <node-ID>\n");
     FZOUT("    -1 start from <time-stamp-1>\n");
-    FZOUT("    -2 end before <time-stamp-2>\n");
+    FZOUT("    -2 end at <time-stamp-2>\n");
     FZOUT("    -D interval size of <days>\n");
     FZOUT("    -H interval size of <hours>\n");
     FZOUT("    -w interval size of <weeks>\n");
@@ -203,21 +205,26 @@ void fzloghtml::init_top(int argc, char *argv[]) {
         }
     }
 
-    // We can leave filter.t_to unspecified, since that automatically means to the most recent.
-    // ***But we need to somehow set the start of the default interval. For now, let's just set it to
-    //    A day before the current time. If necessary, I can later decide to read the lastest entry to
-    //    make it a day from that.
-    if (filter.t_from==RTt_unspecified) {
-        if (filter.t_to==RTt_unspecified) {
-            filter.t_from = ActualTime() - (24*60*60); // Daylight savings time is not taken into account at all.
-        } else {
-            filter.t_from = filter.t_to - (24*60*60); // Daylight savings time is not taken into account at all.
+    // Note that RTt_unspecified means not to impose a constraint on the corresponding t variable (see Log_filter in Logtypes.hpp).
+    if (filter.nkey.isnullkey()) { // with a Node specifier, unbounded is fine, without one, the default should be constrained
+        // We can leave filter.t_to unspecified, since that automatically means to the most recent.
+        // ***But we need to somehow set the start of the default interval. For now, let's just set it to
+        //    A day before the current time. If necessary, I can later decide to read the lastest entry to
+        //    make it a day from that.
+        if (filter.t_from==RTt_unspecified) {
+            if (filter.t_to==RTt_unspecified) {
+                filter.t_from = ActualTime() - (24*60*60); // Daylight savings time is not taken into account at all.
+            } else {
+                filter.t_from = filter.t_to - (24*60*60); // Daylight savings time is not taken into account at all.
+            }
         }
     }
 
     //graph = ga.request_Graph_copy();
     //log = ga.request_Log_copy(); *** This has to change... not every request needs the whole log. See https://trello.com/c/O9dcTm9L and https://trello.com/c/EppSyY9Y.
-    Log_filter filter;
+    std::cout << "filter.t_from = " << TimeStampYmdHM(filter.t_from) << '\n';
+    std::cout << "filter.t_to = " << TimeStampYmdHM(filter.t_to) << '\n';
+    std::cout << "filter.nkey = " << filter.nkey.str() << '\n';
     log = ga.request_Log_excerpt(filter);
 
     // *** Should we call log.setup_Chain_nodeprevnext() ?
@@ -249,7 +256,7 @@ int main(int argc, char *argv[]) {
     FZOUT("TESTING CONFIGURATION LOADING!\n");
     FZOUT("Configuration parameters were set to:\n");
     FZOUT("  dbname        : "+fzlh.ga.dbname()+'\n');
-    FZOUT("  pq_schemaname : "+fzlh.ga.pq_schemaname()+'\n');
+    FZOUT("  pq_schemaname : "+fzlh.ga.pq_schemaname()+'\n');p
     FZOUT("  testconfig    : "+fzlh.config.testconfig+'\n');
     FZOUT("  errlogpath    : "+ErrQ.get_errfilepath()+'\n');
     FZOUT("  warnlogpath    : "+WarnQ.get_errfilepath()+'\n');

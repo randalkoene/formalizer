@@ -86,7 +86,11 @@ bool render() {
 
     load_templates(templates);
 
-    VERYVERBOSEOUT("Finding Log chunks from "+TimeStampYmdHM(fzlh.filter.t_from)+" before "+TimeStampYmdHM(fzlh.filter.t_to)+'\n');
+    if (fzlh.filter.nkey.isnullkey()) {
+        VERYVERBOSEOUT("Finding Log chunks from "+TimeStampYmdHM(fzlh.filter.t_from)+" to "+TimeStampYmdHM(fzlh.filter.t_to)+'\n');
+    } else {
+        VERYVERBOSEOUT("Finding the Log history of Node "+fzlh.filter.nkey.str()+'\n');
+    }
 
     auto [from_idx, to_idx] = fzlh.log->get_Chunks_index_t_interval(fzlh.filter.t_from, fzlh.filter.t_to);
 
