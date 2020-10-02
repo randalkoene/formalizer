@@ -35,7 +35,7 @@ fzserverpq fzs;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzserverpq::fzserverpq(): ga(add_option_args, add_usage_top, true), flowcontrol(flow_unknown) {
+fzserverpq::fzserverpq(): formalizer_standard_program(false), ga(*this, add_option_args, add_usage_top, true), flowcontrol(flow_unknown) {
     //add_option_args += "x:";
     //add_usage_top += " [-x <something>]";
 }
@@ -94,7 +94,7 @@ std::unique_ptr<Graph> init_resident_Graph() {
     std::unique_ptr<Graph> graph = fzs.ga.request_Graph_copy();
     if (!graph) {
         ADDERROR(__func__,"unable to load Graph");
-        fzs.exit(exit_database_error);
+        standard.exit(exit_database_error);
     }
     return graph;
 }
@@ -122,5 +122,5 @@ int main(int argc, char *argv[]) {
 
     }
 
-    return fzs.completed_ok();
+    return standard.completed_ok();
 }

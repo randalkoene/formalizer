@@ -79,6 +79,8 @@ protected:
     std::string simulated_pq_calls; /// Postgres calls are appended here when simulated.
 
 public:
+    std::string simPQfile; /// Path to the file where simulated Postgres calls should be logged.
+
     void SimulateChanges() { simulate_pq_changes = true; }
     void ActualChanges() { simulate_pq_changes = false; }
     bool SimulatingPQChanges() const { return simulate_pq_changes; }
@@ -87,6 +89,7 @@ public:
         if (simulate_pq_changes) AddToSimLog(pqcall);
         return simulate_pq_changes;
     }
+    //std::string GetSimPQlogpath() { return simPQfile; }
     std::string & GetLog() { return simulated_pq_calls; }
 };
 
@@ -111,6 +114,7 @@ public:
 
     std::string dbname;
     std::string pq_schemaname;
+    bool exit_report_hooked_in;
 
 };
 
@@ -133,11 +137,7 @@ struct Postgres_access {
      * @param add_usage_top_here receiving string where the option format is appended
      *                           to extend the top line of usage output.
      */
-    Postgres_access(formalizer_standard_program & fsp, std::string & add_option_args_here, std::string & add_usage_top_here, bool _isserver = false): config(fsp), is_server(_isserver), initialized(false) {
-        //COMPILEDPING(std::cout, "PING-Graph_access().1\n");
-        add_option_args_here += "d:s:";
-        add_usage_top_here += " [-d <dbname>] [-s <schemaname>]";
-    }
+    Postgres_access(formalizer_standard_program & fsp, std::string & add_option_args_here, std::string & add_usage_top_here, bool _isserver = false);
 
     void access_initialize(); ///< Call this before attempting to open a database connection.
 

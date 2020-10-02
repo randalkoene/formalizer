@@ -127,7 +127,7 @@ struct the_standard_object {
     /**
      * Add additional steps to the exit() stack.
      * 
-     * This affects all paths to exit. The additional exit hooks will be called whether
+     * This affects all paths to exit. The additional exit hooks will be called if
      * the regular `exit()` function or a `formalizer_standard_program::exit()` derived
      * function is called. It's a stack, so the order of the calls to the hooks is the
      * reverse of the order in which they were added.

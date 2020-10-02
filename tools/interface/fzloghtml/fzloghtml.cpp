@@ -41,8 +41,8 @@ fzloghtml fzlh;
  */
 fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), ga(*this, add_option_args, add_usage_top),
                          iscale(interval_none), interval(0), noframe(false) {
-    add_option_args += "1:2:o:D:H:w:N";
-    add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N]";
+    add_option_args += "n:1:2:o:D:H:w:N";
+    add_usage_top += " [-n <node-ID>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
     usage_tail.push_back(
         "The <time-stamp1> and <time-stamp_2> arguments expect standardized\n"
@@ -59,6 +59,7 @@ fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), ga(*
  */
 void fzloghtml::usage_hook() {
     ga.usage_hook();
+    FZOUT("    -n belongs to <node-ID>\n");
     FZOUT("    -1 start from <time-stamp-1>\n");
     FZOUT("    -2 end before <time-stamp-2>\n");
     FZOUT("    -D interval size of <days>\n");
@@ -83,6 +84,11 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
             return true;
 
     switch (c) {
+
+    case 'n': {
+        filter.nkey = Node_ID_key(cargs);
+        return true;
+    }
 
     case '1': {
         time_t t = ymd_stamp_time(cargs);
@@ -198,9 +204,15 @@ void fzloghtml::init_top(int argc, char *argv[]) {
     }
 
     // We can leave filter.t_to unspecified, since that automatically means to the most recent.
-    // ***But we need to somehow set the start of the default interval.
+    // ***But we need to somehow set the start of the default interval. For now, let's just set it to
+    //    A day before the current time. If necessary, I can later decide to read the lastest entry to
+    //    make it a day from that.
     if (filter.t_from==RTt_unspecified) {
-        //***????? t_from = t_before - (24*60*60); // Daylight savings time is not taken into account at all.
+        if (filter.t_to==RTt_unspecified) {
+            filter.t_from = ActualTime() - (24*60*60); // Daylight savings time is not taken into account at all.
+        } else {
+            filter.t_from = filter.t_to - (24*60*60); // Daylight savings time is not taken into account at all.
+        }
     }
 
     //graph = ga.request_Graph_copy();
@@ -215,6 +227,7 @@ void fzloghtml::init_top(int argc, char *argv[]) {
 
 int main(int argc, char *argv[]) {
     ERRTRACE;
+
     fzlh.init_top(argc, argv);
 
     render();

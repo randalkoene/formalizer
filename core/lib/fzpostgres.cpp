@@ -215,13 +215,41 @@ time_t epochtime_from_timestamp_pq(std::string pqtimestamp) {
     return time_stamp_time(pqtimestamp);
 }
 
-fzpq_configurable::fzpq_configurable(formalizer_standard_program & fsp): configurable("fzpostgres", fsp) { }
+fzpq_configurable::fzpq_configurable(formalizer_standard_program & fsp): configurable("fzpostgres", fsp), exit_report_hooked_in(false) { }
+
+/// An exit hook function that ensures any simulated Postgres calls are written to a file.
+void simPQ_report_wrapper() {
+    VERYVERBOSEOUT("Resolving exit hook: simPQ_report_wrapper\n");
+    if (SimPQ.SimulatingPQChanges()) {
+        VERBOSEOUT("Postgres database changes have been SIMULATED.\nWriting Postgres call log to file at:\n"+SimPQ.simPQfile+"\n\n");
+        std::ofstream pqcallsfile;
+        pqcallsfile.open(SimPQ.simPQfile);
+        pqcallsfile << SimPQ.GetLog() << '\n';
+        pqcallsfile.close();
+    }
+}
 
 /// Configure configurable parameters.
 bool fzpq_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
+    std::cout << "Yup got here.\n"; std::cout.flush();
+    // Make sure that any simulated Postgres calls are stored to file upon exit.
+    if (!exit_report_hooked_in) { // call this one only once
+        standard.add_to_exit_stack(&simPQ_report_wrapper,"simPQ_report_wrapper");
+        exit_report_hooked_in = true;
+    }
     CONFIG_TEST_AND_SET_PAR(dbname, "dbname", parlabel, parvalue);
     CONFIG_TEST_AND_SET_PAR(pq_schemaname, "pq_schemaname", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_FLAG(SimPQ.SimulateChanges,SimPQ.ActualChanges,"simulate_PQ",parlabel,parvalue);
+    CONFIG_TEST_AND_SET_PAR(SimPQ.simPQfile, "simPQfile", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
+}
+
+Postgres_access::Postgres_access(formalizer_standard_program &fsp, std::string &add_option_args_here,
+                                 std::string &add_usage_top_here, bool _isserver) : config(fsp),
+                                 is_server(_isserver), initialized(false) {
+    //COMPILEDPING(std::cout, "PING-Graph_access().1\n");
+    add_option_args_here += "d:s:Q";
+    add_usage_top_here += " [-d <dbname>] [-s <schemaname>] [-Q]";
 }
 
 void Postgres_access::usage_hook() {
@@ -229,18 +257,28 @@ void Postgres_access::usage_hook() {
     FZOUT("       (default is " DEFAULT_DBNAME  ")\n"); // used to be $USER, but this was clarified in https://trello.com/c/Lww33Lym
     FZOUT("    -s use Postgres schema <schemaname>\n");
     FZOUT("       (default is $USER with fallback to: formalizeruser)\n");
+    FZOUT("    -Q simulate Postgres commands\n");
+    FZOUT("       (write to "+SimPQ.simPQfile+")\n");
 }
 
 bool Postgres_access::options_hook(char c, std::string cargs) {
     switch (c) {
 
-    case 'd':
+    case 'd': {
         config.dbname = cargs;
         return true;
+    }
 
-    case 's':
+    case 's': {
         config.pq_schemaname = cargs;
         return true;
+    }
+
+    case 'Q': {
+        SimPQ.SimulateChanges();
+        return true;
+    }
+
     }
 
     return false;

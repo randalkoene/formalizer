@@ -603,9 +603,9 @@ bool load_Node_history_pq(active_pq & apq, Log & log, const std::string & chunkw
     if (chunkkeyset.size()>0) {
         // converting set of keys to WHERE IN query (fortunately, the command length limit is huge, see https://stackoverflow.com/a/4937695)
         std::string whereinstr(" WHERE id IN (");
-        whereinstr.reserve(20+chunkkeyset.size()*(12+3));
+        whereinstr.reserve(20+chunkkeyset.size()*(20+3));
         for (const auto & chunkkey : chunkkeyset) {
-            whereinstr += '\'' + chunkkey.str() + "',";
+            whereinstr += TimeStamp_pq(chunkkey.get_epoch_time()) + ','; // '\'' + chunkkey.str() + "',";
         }
         whereinstr.back() = ')'; // *** you might need to add ORDER BY
         if (!read_Chunks_pq(apq,log,whereinstr)) return false; // This can handle making a duplicate, but we should prune those.
@@ -614,8 +614,9 @@ bool load_Node_history_pq(active_pq & apq, Log & log, const std::string & chunkw
     }
     if (log.num_Chunks()>0) {
         std::string whereinstr(" WHERE SUBSTRING(id,1,12) IN (");
-        whereinstr.reserve(40+log.num_Chunks()*(12+3));
+        whereinstr.reserve(40+log.num_Chunks()*(20+3));
         for (const auto & chunkptr : log.get_Chunks()) {
+            //whereinstr += TimeStamp_pq(chunkptr.get()->get_open_time()) + ',';
             whereinstr += '\'' + chunkptr.get()->get_tbegin_str() + "',";
         }
         whereinstr.back() = ')'; // *** you might need to add ORDER BY

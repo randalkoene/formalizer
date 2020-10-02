@@ -121,7 +121,7 @@ $(OBJ)/render.o: render.cpp render.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(FORMALIZERROOT) $(TEMPLATEDIR) -DANOTHER_TEMPLATE_DIR=/home/randalk/src/formalizer/tools/interface/fzloghtml -c render.cpp -o $(OBJ)/render.o
 
 
-$(OBJ)/fzloghtml.o: fzloghtml.cpp fzloghtml.hpp version.hpp
+$(OBJ)/fzloghtml.o: fzloghtml.cpp fzloghtml.hpp version.hpp $(INC)/Graphaccess.hpp $(INC)/Logtypes.hpp 
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(TEMPLATEDIR) -c fzloghtml.cpp -o $(OBJ)/fzloghtml.o
 
 fzloghtml: $(OBJ)/fzloghtml.o $(OBJ)/render.o $(CORE_OBJS)

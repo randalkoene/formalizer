@@ -86,9 +86,9 @@ bool render() {
 
     load_templates(templates);
 
-    VERYVERBOSEOUT("Finding Log chunks from "+TimeStampYmdHM(fzlh.t_from)+" before "+TimeStampYmdHM(fzlh.t_before)+'\n');
+    VERYVERBOSEOUT("Finding Log chunks from "+TimeStampYmdHM(fzlh.filter.t_from)+" before "+TimeStampYmdHM(fzlh.filter.t_to)+'\n');
 
-    auto [from_idx, to_idx] = fzlh.log->get_Chunks_index_t_interval(fzlh.t_from, fzlh.t_before);
+    auto [from_idx, to_idx] = fzlh.log->get_Chunks_index_t_interval(fzlh.filter.t_from, fzlh.filter.t_to);
 
     std::string rendered_logcontent;
     rendered_logcontent.reserve(128*1024);
