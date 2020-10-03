@@ -981,7 +981,7 @@ void Node_histories::init(Log & log) {
         if (it == end()) {
             history_ptr hptr = std::make_unique<Node_history>();
             hptr->chunks.emplace(chunk->get_tbegin_key());
-            emplace(nkey, hptr);
+            emplace(nkey, std::move(hptr));
         } else {
             it->second->chunks.emplace(chunk->get_tbegin_key());
         }
@@ -998,7 +998,7 @@ void Node_histories::init(Log & log) {
         if (it == end()) {
             history_ptr hptr = std::make_unique<Node_history>();
             hptr->entries.emplace(entrykey);
-            emplace(nkey, hptr);
+            emplace(nkey, std::move(hptr));
         } else {
             it->second->entries.emplace(entrykey);
         }

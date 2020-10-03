@@ -116,13 +116,16 @@ init: FORCE
 	@echo 'Includes: $(CPPFLAGS)'
 	@echo '-------------------------------------------------------------------'
 
+$(OBJ)/refresh.o: fzquerypq.hpp $(COREINCLUDEPATH)/standard.hpp $(COREINCLUDEPATH)/Logpostgres.hpp
+	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $(TEMPLATEDIR) -c refresh.cpp -o $(OBJ)/refresh.o
+
 $(OBJ)/servenodedata.o: fzquerypq.hpp $(COREINCLUDEPATH)/standard.hpp
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $(TEMPLATEDIR) -c servenodedata.cpp -o $(OBJ)/servenodedata.o
 
 $(OBJ)/fzquerypq.o: fzquerypq.cpp fzquerypq.hpp $(COREINCLUDEPATH)/standard.hpp $(COREINCLUDEPATH)/error.hpp
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $(TEMPLATEDIR) -c fzquerypq.cpp -o $(OBJ)/fzquerypq.o
 
-fzquerypq: $(OBJ)/fzquerypq.o $(OBJ)/servenodedata.o $(CORE_OBJS)
+fzquerypq: $(OBJ)/fzquerypq.o $(OBJ)/servenodedata.o $(OBJ)/refresh.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $^ -o fzquerypq $(LIB_PATH)
 
 clean:

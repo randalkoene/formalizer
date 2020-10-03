@@ -790,5 +790,7 @@ void interactive_TL2Log_validation(Task_Log * tl, Log * log, Graph * graph) {
         "\n"
         "The real and ultiamte test is to convert back with `graph2dil`. For more,\n"
         "see Trello card https://trello.com/c/uPj0uO8r.\n\n"
+        "Recommendation: Run `fzquerypq -R histories` to generate the Node histories\n"
+        "                cache table.\n\n"
         );
 }

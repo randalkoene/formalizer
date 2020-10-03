@@ -10,7 +10,7 @@
 #include "error.hpp"
 #include "standard.hpp"
 //#include "general.hpp"
-#include "Graphtypes.hpp"
+//#include "Graphtypes.hpp"
 #include "Logpostgres.hpp"
 
 // local
