@@ -708,5 +708,103 @@ bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & fil
     LOAD_LOG_PQ_RETURN(true);
 }
 
+std::string chunk_key_list_pq(const Log_chunk_ID_key_set & chunks) {
+    if (chunks.empty())
+        return "";
+
+    std::string arraystr;
+    arraystr.reserve(chunks.size()*16);
+    for (const auto & chunkkey : chunks) {
+        arraystr += '\'' + chunkkey.str() + "',";
+    }
+    arraystr.pop_back();
+    return arraystr;
+}
+
+std::string entry_key_list_pq(const Log_entry_ID_key_set & entries) {
+    if (entries.empty())
+        return "";
+
+    std::string arraystr;
+    arraystr.reserve(entries.size()*20);
+    for (const auto & entrykey : entries) {
+        arraystr += '\'' + entrykey.str() + "',";
+    }
+    arraystr.pop_back();
+    return arraystr;
+}
+
+/**
+ * Store a Node_history object to a cache table in the database to
+ * speed up generation of a Node-specific Log history.
+ * 
+ * @param nodehist A Node_history object.
+ * @param pa Access object with valid database and schema identifiers.
+ * @return True if cache table storage was successful.
+ */
+bool store_Node_history(const Node_histories & nodehist, Postgres_access & pa) {
+    ERRTRACE;
+    active_pq apq;
+    apq.conn = connection_setup_pq(pa.dbname());
+    if (!apq.conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define STORE_LOG_PQ_RETURN(r) { PQfinish(apq.conn); return r; }
+    apq.pq_schemaname = pa.pq_schemaname();
+
+    ERRHERE(".clear");
+    std::string tablename(apq.pq_schemaname+".histories");
+    const std::string clearstr("DROP TABLE IF EXISTS "+tablename+" CASCADE");
+    if (!simple_call_pq(apq.conn, clearstr)) {
+        ADDERROR(__func__, "Unable to drop previous histories cache table");
+        STORE_LOG_PQ_RETURN(false);
+    }
+ 
+    ERRHERE(".create");
+    const std::string createstr("CREATE TABLE "+tablename+" (nid char(16) PRIMARY KEY, chunkids char(12)[], entryids char(16)[])");
+    if (!simple_call_pq(apq.conn, createstr)) {
+        ADDERROR(__func__, "Unable to create histories cache table");
+        STORE_LOG_PQ_RETURN(false);
+    }
+
+    ERRHERE(".cache");
+    for (const auto & [nidkey, historyptr] : nodehist) {
+        std::string insertstr = "INSERT INTO "+tablename+" VALUES ('"+nidkey.str()+"',ARRAY["+chunk_key_list_pq(historyptr->chunks)+"],ARRAY["+entry_key_list_pq(historyptr->entries)+"])";
+        if (!simple_call_pq(apq.conn, insertstr)) {
+            ADDERROR(__func__, "Unable to insert values into histories cache table. Postgres command: "+insertstr.substr(0,1024));
+            STORE_LOG_PQ_RETURN(false);
+        }
+    }
+
+    STORE_LOG_PQ_RETURN(true);
+}
+
+/**
+ * Refresh the Node history cache table.
+ * 
+ * @param pa Access object with valid database and schema identifiers.
+ * @return True if the refresh was successful.
+ */
+bool refresh_Node_history_cache(Postgres_access & pa) {
+    std::unique_ptr<Log> logptr = std::make_unique<Log>();
+
+    // Load the complete Log.
+    if (!load_Log_pq(*logptr, pa)) {
+        FZERR("\nSomething went wrong! Unable to load Log from Postgres database.\n");
+        standard.exit(exit_database_error);
+    }
+
+    logptr->setup_Chain_nodeprevnext();
+
+    Node_histories nodehist(*(logptr.get()));
+
+    if (!store_Node_history(nodehist, pa)) {
+        FZERR("\nSomething went wrong! Unable to store Node history cache in Postgres database.\n");
+        standard.exit(exit_database_error);
+    }
+
+    return true;
+}
+
 
 } // namespace fz

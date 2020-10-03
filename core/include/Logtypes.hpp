@@ -334,6 +334,7 @@ public:
 };
 
 typedef std::set<Log_chunk_ID_key> Log_chunk_ID_key_set;
+typedef std::set<Log_entry_ID_key> Log_entry_ID_key_set;
 
 /**
  * ### Log
@@ -465,6 +466,28 @@ struct Log_filter {
     // *** maybe add a specifier here to use or not use parts of a chunk that don't belong to the Node (if some entries do)
     Log_filter(): t_from(RTt_unspecified), t_to(RTt_unspecified) {}
 };
+
+/**
+ * Log history by Node expressed as a list of Log chunks and a list of
+ * Log entries for each Node for which there is a history.
+ * 
+ * This is used, for example, to create and maintain a cache table that
+ * speeds of Node history retrieval. (E.g., see its use in fzloghtml.)
+ */
+struct Node_history {
+    Log_chunk_ID_key_set chunks;
+    Log_entry_ID_key_set entries;
+};
+
+typedef std::unique_ptr<Node_history> history_ptr;
+
+class Node_histories: public std::map<Node_ID_key, history_ptr> {
+public:
+    Node_histories() {}
+    Node_histories(Log & log) { init(log); }
+    void init(Log & log);
+};
+
 
 // +----- begin: EXPERIMENTING -----+
 

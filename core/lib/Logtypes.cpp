@@ -970,6 +970,41 @@ Log_chunk_ID_key_set Log::chunk_key_list_from_entries() {
     return chunkkeyset;
 }
 
+/// Parse all chunks and entries, and assign them to their Node ID keys.
+void Node_histories::init(Log & log) {
+    for (const auto & chunk : log.get_Chunks()) {
+        Node_ID_key nkey(chunk->get_NodeID().key());
+        if (nkey.isnullkey())
+            continue; // This would actually be an error...
+        
+        auto it = find(nkey);
+        if (it == end()) {
+            history_ptr hptr = std::make_unique<Node_history>();
+            hptr->chunks.emplace(chunk->get_tbegin_key());
+            emplace(nkey, hptr);
+        } else {
+            it->second->chunks.emplace(chunk->get_tbegin_key());
+        }
+    }
+    for (const auto & [entrykey, entryptr] : log.get_Entries()) {
+        Node_ID_key nkey(entryptr->get_nodeidkey());
+        if (nkey.isnullkey()) { // belongs to the same Node as the surrounding chunk
+            nkey = entryptr->get_Chunk()->get_NodeID().key(); // *** Mildly risky, there should really be no nullptr here.
+        }
+        if (nkey.isnullkey())
+            continue; // This would actually be an error...
+        
+        auto it = find(nkey);
+        if (it == end()) {
+            history_ptr hptr = std::make_unique<Node_history>();
+            hptr->entries.emplace(entrykey);
+            emplace(nkey, hptr);
+        } else {
+            it->second->entries.emplace(entrykey);
+        }
+    }
+}
+
 // +----- begin: friend functions -----+
 
 /**
