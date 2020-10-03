@@ -22,6 +22,7 @@ using namespace fz;
 enum flow_options {
     flow_unknown = 0, /// no recognized request
     flow_node = 1,    /// serve requested Node data
+    flow_refresh_histories = 2, /// refresh Node histories cache table
     flow_NUMoptions
 };
 
@@ -45,8 +46,8 @@ struct fzquerypq: public formalizer_standard_program {
 
     fzquerypq() : formalizer_standard_program(true), output_format(output_txt), ga(*this, add_option_args, add_usage_top, true), flowcontrol(flow_unknown) {
         COMPILEDPING(std::cout, "PING-fzquerypq().1\n");
-        add_option_args += "n:F:";
-        add_usage_top += " [-n <Node-ID>]";
+        add_option_args += "n:F:R:";
+        add_usage_top += " [-n <Node-ID>] [-F txt|html] [-R histories]";
     }
 
     virtual void usage_hook() {
@@ -56,6 +57,8 @@ struct fzquerypq: public formalizer_standard_program {
         FZOUT("       available formats:\n");
         FZOUT("       txt = basic ASCII text template\n")
         FZOUT("       html = HTML template\n");
+        FZOUT("    -R refresh:\n");
+        FZOUT("       histories = Node histories cache table\n");
     }
 
     bool set_output_format(const std::string & cargs) {
@@ -79,14 +82,26 @@ struct fzquerypq: public formalizer_standard_program {
 
         switch (c) {
 
-        case 'n':
+        case 'n': {
             flowcontrol = flow_node;
             node_idstr = cargs;
             return true;
+        }
         
-        case 'F':
+        case 'F': {
             set_output_format(cargs);
             return true;
+        }
+
+        case 'R': {
+            if (cargs=="histories") {
+                flowcontrol = flow_refresh_histories;
+                return true;
+            }
+            ADDERROR(__func__, "Unknown option -R "+cargs);
+            VERBOSEERR("Unknown option -R "+cargs+'\n');
+            return false;
+        }
 
         }
 

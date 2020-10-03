@@ -24,6 +24,7 @@
 // local
 #include "fzquerypq.hpp"
 #include "servenodedata.hpp"
+#include "refresh.hpp"
 
 
 using namespace fz;
@@ -31,6 +32,7 @@ using namespace fz;
 fzquerypq fzq;
 
 int main(int argc, char *argv[]) {
+    ERRTRACE;
     COMPILEDPING(std::cout, "PING-main().1\n");
     ERRHERE(".init");
     fzq.init_top(argc, argv);
@@ -40,6 +42,11 @@ int main(int argc, char *argv[]) {
 
     case flow_node: {
         serve_request_Node_data();
+        break;
+    }
+
+    case flow_refresh_histories: {
+        refresh_Node_histories_cache_table();
         break;
     }
 

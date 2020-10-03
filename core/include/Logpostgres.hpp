@@ -92,6 +92,14 @@ bool load_Log_pq(Log & log, Postgres_access & pa);
 bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & filter);
 
 /**
+ * Refresh the Node history cache table.
+ * 
+ * @param pa Access object with valid database and schema identifiers.
+ * @return True if the refresh was successful.
+ */
+bool refresh_Node_history_cache_pq(Postgres_access & pa);
+
+/**
  * A data types conversion helper class that can deliver the Postgres Breakpoints table
  * equivalent INSERT value expression for all data content in a Breakpoints.
  * 

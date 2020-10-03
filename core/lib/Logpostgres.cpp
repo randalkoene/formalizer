@@ -581,19 +581,109 @@ bool load_Log_pq(Log & log, Postgres_access & pa) {
     LOAD_LOG_PQ_RETURN(true);
 }
 
+#define USE_NODE_HISTORY_CACHE_TABLE
+#ifdef USE_NODE_HISTORY_CACHE_TABLE
+const std::string pq_history_fieldnames[3] = {"nid",
+                                              "chunkids",
+                                              "entryids"};
+
+unsigned int pq_history_field[3];
+
+bool get_History_pq_field_numbers(PGresult *res) {
+    if (!res) return false;
+
+    for (auto i = 0; i<3; i++) {
+        if ((pq_history_field[i] = PQfnumber(res,pq_history_fieldnames[i].c_str())) < 0) {
+            ERRRETURNFALSE(__func__,"field '"+pq_history_fieldnames[i]+"' not found in database histories cache table");
+        }
+    }
+    return true;
+}
+
+/**
+ * Get lists of Log chunks and Log entries from the Node history cache table and
+ * load all of the chunks and entries listed there into a Log object.
+ * 
+ * This function is called by `load_partial_Log_pq()` if the filter specifies a Node.
+ * 
+ * @param apq Access object with database name and schema name.
+ * @param log Log object where Chunks and Entries are added.
+ * @param filter A Log_filter structure where at least the nkey is specified.
+ * @param chunkwherestr A prepared PQ WHERE string specifying Node and possibly time interval.
+ * @param entrywherestr A prepared PQ WHERE string specifying Node.
+ * @return True if successfully loaded into Log.
+ */
+bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter, std::string & chunkwherestr, std::string & entrywherestr) {
+    ERRTRACE;
+    std::string loadstr("SELECT * FROM "+apq.pq_schemaname+".histories WHERE nid = '"+filter.nkey.str()+"'");
+    if (!query_call_pq(apq.conn, loadstr, false)) {
+        std::string errstr("Unable to load Node history references from cache table. Perhaps run `fzquerypq -R histories`.");
+        ADDERROR(__func__, errstr);
+        VERBOSEERR(errstr+'\n');
+        return false; // *** you might need to explicitly allow for nodes without histories
+    }
+
+    PGresult *res;
+
+    while ((res = PQgetResult(apq.conn))) { // It's good to use a loop for single row mode cases.
+
+        const int rows = PQntuples(res);
+        if (PQnfields(res)<3) ERRRETURNFALSE(__func__,"not enough fields in histories cache table");
+
+        if (!get_History_pq_field_numbers(res)) return false;
+
+        for (int r = 0; r < rows; ++r) {
+
+            std::string nodeid_str(PQgetvalue(res, r, pq_entry_field[0]));
+            std::string chunkids_str(PQgetvalue(res, r, pq_entry_field[1]));
+            std::string entryids_str(PQgetvalue(res, r, pq_entry_field[2]));
+            //rtrim(entryids_str);
+            //rtrim(chunkids_str);
+
+            // set up the WHERE IN part first, then possibly add WHERE >= and WHERE <= parts
+            chunkwherestr = " WHERE id IN [" + chunkids_str + "]";
+            entrywherestr = " WHERE id IN [" + entryids_str + "]";
+
+            if (filter.t_from != RTt_unspecified) {
+                std::string YmdHM('\''+TimeStampYmdHM(filter.t_from)+'\'');
+                chunkwherestr += " AND id >= " + YmdHM;
+                entrywherestr += " AND SUBSTRING(id,1,12) >= " + YmdHM;
+            }
+            if (filter.t_to != RTt_unspecified) {
+                std::string YmdHM('\''+TimeStampYmdHM(filter.t_to)+'\'');
+                chunkwherestr += " AND id <= " + YmdHM;
+                entrywherestr += " AND SUBSTRING(id,1,12) <= " + YmdHM;
+            }
+
+            if (!read_Chunks_pq(apq,log,chunkwherestr)) return false;
+            if (!read_Entries_pq(apq,log,entrywherestr)) return false;
+        }
+
+        PQclear(res);
+    }
+
+    return true;
+}    
+#else
 /**
  * Find all of the Log chunks and Log entries (within the interval) that belong to
  * a specified Node, in two phases.
  * 
- * This function is called by load_partial_Log_pq() if the filter specifies a Node.
+ * This function is called by `load_partial_Log_pq()` if the filter specifies a Node.
  * 
  * @param apq Access object with database name and schema name.
  * @param log Log object where Chunks and Entries are added.
+ * @param filter A Log_filter structure where at least the nkey is specified.
  * @param chunkwherestr A prepared PQ WHERE string specifying Node and possibly time interval.
  * @param entrywherestr A prepared PQ WHERE string specifying Node.
+ * @return True if successfully loaded into Log.
  */
-bool load_Node_history_pq(active_pq & apq, Log & log, const std::string & chunkwherestr, const std::string & entrywherestr) {
+bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter, std::string & chunkwherestr, std::string & entrywherestr) {
     ERRTRACE;
+    std::string nidstr = "nid = '"+filter.nkey.str()+"'";
+    chunkwherestr += nidstr;
+    entrywherestr += " WHERE "+nidstr;
+    
     // Phase 1: Collect all of the chunks and entries that explicitly belong to the specified Node.
     if (!read_Chunks_pq(apq,log,chunkwherestr)) return false;
     if (!read_Entries_first_pass_pq(apq,log,entrywherestr)) return false; // Typically entries with NID different from their chunk.
@@ -624,6 +714,7 @@ bool load_Node_history_pq(active_pq & apq, Log & log, const std::string & chunkw
     }
     return true;
 }
+#endif
 
 /**
  * Load the Log chunks and Log entries that satisfy a specific filter.
@@ -673,14 +764,8 @@ bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & fil
     }
 
     if (use_nkey) { // if Node specified then take this branch
-        std::string nidstr = "nid = '"+filter.nkey.str()+"'";
-        chunkwherestr += nidstr;
-        entrywherestr += " WHERE "+nidstr;
-        if (load_Node_history_pq(apq,log,chunkwherestr,entrywherestr)) {
-            LOAD_LOG_PQ_RETURN(true);
-        } else {
-            LOAD_LOG_PQ_RETURN(false);
-        }
+        bool res = load_Node_history_pq(apq,log,filter,chunkwherestr,entrywherestr);
+        LOAD_LOG_PQ_RETURN(res);
     }
 
     ERRHERE(".chunks");
@@ -742,7 +827,7 @@ std::string entry_key_list_pq(const Log_entry_ID_key_set & entries) {
  * @param pa Access object with valid database and schema identifiers.
  * @return True if cache table storage was successful.
  */
-bool store_Node_history(const Node_histories & nodehist, Postgres_access & pa) {
+bool store_Node_history_pq(const Node_histories & nodehist, Postgres_access & pa) {
     ERRTRACE;
     active_pq apq;
     apq.conn = connection_setup_pq(pa.dbname());
@@ -785,7 +870,7 @@ bool store_Node_history(const Node_histories & nodehist, Postgres_access & pa) {
  * @param pa Access object with valid database and schema identifiers.
  * @return True if the refresh was successful.
  */
-bool refresh_Node_history_cache(Postgres_access & pa) {
+bool refresh_Node_history_cache_pq(Postgres_access & pa) {
     std::unique_ptr<Log> logptr = std::make_unique<Log>();
 
     // Load the complete Log.
@@ -798,7 +883,7 @@ bool refresh_Node_history_cache(Postgres_access & pa) {
 
     Node_histories nodehist(*(logptr.get()));
 
-    if (!store_Node_history(nodehist, pa)) {
+    if (!store_Node_history_pq(nodehist, pa)) {
         FZERR("\nSomething went wrong! Unable to store Node history cache in Postgres database.\n");
         standard.exit(exit_database_error);
     }
