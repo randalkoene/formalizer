@@ -62,6 +62,10 @@ inline std::string TimeStamp_pq(time_t t) {
     return TimeStamp("'%Y%m%d %H:%M'",t);
 }
 
+inline std::string TimeStamp_to_TimeStamp_pq(const std::string & tstamp) {
+    return '\'' + tstamp.substr(0,8) + ' ' + tstamp.substr(8,2) + ':' + tstamp.substr(10,2) + '\'';
+}
+
 time_t epochtime_from_timestamp_pq(std::string pqtimestamp);
 
 enum PQ_Command_Variant {

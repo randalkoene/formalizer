@@ -600,6 +600,12 @@ bool get_History_pq_field_numbers(PGresult *res) {
     return true;
 }
 
+void replace_double_quotes(std::string & s) {
+    for (size_t i = 0; i < s.size(); ++i)
+        if (s[i]=='"')
+            s[i] = '\'';
+}
+
 /**
  * Get lists of Log chunks and Log entries from the Node history cache table and
  * load all of the chunks and entries listed there into a Log object.
@@ -623,6 +629,10 @@ bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter,
         return false; // *** you might need to explicitly allow for nodes without histories
     }
 
+    std::string nodeid_str;
+    std::string chunkids_str;
+    std::string entryids_str;
+
     PGresult *res;
 
     while ((res = PQgetResult(apq.conn))) { // It's good to use a loop for single row mode cases.
@@ -634,32 +644,56 @@ bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter,
 
         for (int r = 0; r < rows; ++r) {
 
-            std::string nodeid_str(PQgetvalue(res, r, pq_entry_field[0]));
-            std::string chunkids_str(PQgetvalue(res, r, pq_entry_field[1]));
-            std::string entryids_str(PQgetvalue(res, r, pq_entry_field[2]));
+            nodeid_str += PQgetvalue(res, r, pq_history_field[0]);
+            chunkids_str += PQgetvalue(res, r, pq_history_field[1]);
+            entryids_str += PQgetvalue(res, r, pq_history_field[2]);
             //rtrim(entryids_str);
             //rtrim(chunkids_str);
 
-            // set up the WHERE IN part first, then possibly add WHERE >= and WHERE <= parts
-            chunkwherestr = " WHERE id IN [" + chunkids_str + "]";
-            entrywherestr = " WHERE id IN [" + entryids_str + "]";
-
-            if (filter.t_from != RTt_unspecified) {
-                std::string YmdHM('\''+TimeStampYmdHM(filter.t_from)+'\'');
-                chunkwherestr += " AND id >= " + YmdHM;
-                entrywherestr += " AND SUBSTRING(id,1,12) >= " + YmdHM;
-            }
-            if (filter.t_to != RTt_unspecified) {
-                std::string YmdHM('\''+TimeStampYmdHM(filter.t_to)+'\'');
-                chunkwherestr += " AND id <= " + YmdHM;
-                entrywherestr += " AND SUBSTRING(id,1,12) <= " + YmdHM;
-            }
-
-            if (!read_Chunks_pq(apq,log,chunkwherestr)) return false;
-            if (!read_Entries_pq(apq,log,entrywherestr)) return false;
         }
 
         PQclear(res);
+    }
+
+    // set up the WHERE IN part first, then possibly add WHERE >= and WHERE <= parts
+    bool haschunks = chunkids_str.size() >= 12;
+    bool hasentries = entryids_str.size() >= 14; // can be false if a Node only has an empty chunk
+    if (haschunks) {
+        if (chunkids_str.front() == '{')
+            chunkids_str.erase(0,1);
+        if (chunkids_str.back() == '}')
+            chunkids_str.pop_back();
+        auto chunkidsvec = split(chunkids_str,',');
+        chunkwherestr = " WHERE id IN (";
+        chunkwherestr.reserve(30+chunkidsvec.size()*24);
+        for (const auto & chunkidstr : chunkidsvec) {
+            chunkwherestr += TimeStamp_to_TimeStamp_pq(chunkidstr) + ',';
+        }
+        chunkwherestr.back() = ')';
+    }
+    if (hasentries) {
+        replace_double_quotes(entryids_str);
+        if (entryids_str.front() == '{')
+            entryids_str.erase(0,1);
+        if (entryids_str.back() == '}')
+            entryids_str.pop_back();
+        entrywherestr = " WHERE id IN (" + entryids_str + ")";
+    }
+
+    if (filter.t_from != RTt_unspecified) {
+        chunkwherestr += " AND id >= " + TimeStamp_pq(filter.t_from);
+        entrywherestr += " AND SUBSTRING(id,1,12) >= '" + TimeStampYmdHM(filter.t_from) + '\'';
+    }
+    if (filter.t_to != RTt_unspecified) {
+        chunkwherestr += " AND id <= " + TimeStamp_pq(filter.t_to);
+        entrywherestr += " AND SUBSTRING(id,1,12) <= '" + TimeStampYmdHM(filter.t_to) + '\'';
+    }
+
+    if (haschunks) {
+        if (!read_Chunks_pq(apq,log,chunkwherestr)) return false;
+    }
+    if (hasentries) {
+        if (!read_Entries_pq(apq,log,entrywherestr)) return false;
     }
 
     return true;
@@ -795,27 +829,27 @@ bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & fil
 
 std::string chunk_key_list_pq(const Log_chunk_ID_key_set & chunks) {
     if (chunks.empty())
-        return "";
+        return "'{}'"; // this version doesn't need an explicit type case for empty array
 
-    std::string arraystr;
-    arraystr.reserve(chunks.size()*16);
+    std::string arraystr("ARRAY[");
+    arraystr.reserve(10+chunks.size()*16);
     for (const auto & chunkkey : chunks) {
         arraystr += '\'' + chunkkey.str() + "',";
     }
-    arraystr.pop_back();
+    arraystr.back() = ']';
     return arraystr;
 }
 
 std::string entry_key_list_pq(const Log_entry_ID_key_set & entries) {
     if (entries.empty())
-        return "";
+        return "'{}'"; // this version doesn't need an explicit type case for empty array
 
-    std::string arraystr;
-    arraystr.reserve(entries.size()*20);
+    std::string arraystr("ARRAY[");
+    arraystr.reserve(10+entries.size()*20);
     for (const auto & entrykey : entries) {
         arraystr += '\'' + entrykey.str() + "',";
     }
-    arraystr.pop_back();
+    arraystr.back() = ']';
     return arraystr;
 }
 
@@ -854,7 +888,7 @@ bool store_Node_history_pq(const Node_histories & nodehist, Postgres_access & pa
 
     ERRHERE(".cache");
     for (const auto & [nidkey, historyptr] : nodehist) {
-        std::string insertstr = "INSERT INTO "+tablename+" VALUES ('"+nidkey.str()+"',ARRAY["+chunk_key_list_pq(historyptr->chunks)+"],ARRAY["+entry_key_list_pq(historyptr->entries)+"])";
+        std::string insertstr = "INSERT INTO "+tablename+" VALUES ('"+nidkey.str()+"',"+chunk_key_list_pq(historyptr->chunks)+','+entry_key_list_pq(historyptr->entries)+')';
         if (!simple_call_pq(apq.conn, insertstr)) {
             ADDERROR(__func__, "Unable to insert values into histories cache table. Postgres command: "+insertstr.substr(0,1024));
             STORE_LOG_PQ_RETURN(false);
