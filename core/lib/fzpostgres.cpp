@@ -220,8 +220,10 @@ fzpq_configurable::fzpq_configurable(formalizer_standard_program & fsp): configu
 /// An exit hook function that ensures any simulated Postgres calls are written to a file.
 void simPQ_report_wrapper() {
     VERYVERBOSEOUT("Resolving exit hook: simPQ_report_wrapper\n");
-    if (SimPQ.SimulatingPQChanges()) {
-        VERBOSEOUT("Postgres database changes have been SIMULATED.\nWriting Postgres call log to file at:\n"+SimPQ.simPQfile+"\n\n");
+    if (SimPQ.LoggingPQChanges()) {
+        if (SimPQ.SimulatingPQChanges())
+            VERBOSEOUT("Postgres database changes have been SIMULATED.\n");
+        VERBOSEOUT("Writing Postgres call log to file at:\n"+SimPQ.simPQfile+"\n\n");
         std::ofstream pqcallsfile;
         pqcallsfile.open(SimPQ.simPQfile);
         pqcallsfile << SimPQ.GetLog() << '\n';
@@ -233,6 +235,7 @@ void simPQ_report_wrapper() {
 bool fzpq_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     // Make sure that any simulated Postgres calls are stored to file upon exit.
     if (!exit_report_hooked_in) { // call this one only once
+        VERBOSEOUT("Adding exit hook: simPQ_report_wrapper\n");
         standard.add_to_exit_stack(&simPQ_report_wrapper,"simPQ_report_wrapper");
         exit_report_hooked_in = true;
     }

@@ -673,7 +673,7 @@ bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & fil
     }
 
     if (use_nkey) { // if Node specified then take this branch
-        std::string nidstr = "nid == '"+filter.nkey.str()+"'";
+        std::string nidstr = "nid = '"+filter.nkey.str()+"'";
         chunkwherestr += nidstr;
         entrywherestr += " WHERE "+nidstr;
         if (load_Node_history_pq(apq,log,chunkwherestr,entrywherestr)) {

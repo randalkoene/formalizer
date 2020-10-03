@@ -40,7 +40,7 @@ public:
     fzlh_configurable(formalizer_standard_program & fsp): configurable("fzloghtml", fsp) {}
     bool set_parameter(const std::string & parlabel, const std::string & parvalue);
 
-    std::string testconfig; // *** JUST HERE FOR TESTING PURPOSES!
+    std::string dest;   ///< where to send rendered output (empty means STDOUT)
 };
 
 struct fzloghtml: public formalizer_standard_program {
@@ -56,8 +56,6 @@ struct fzloghtml: public formalizer_standard_program {
     interval_scale iscale;
     unsigned int interval;
     bool noframe;
-
-    std::string dest;   ///< where to send rendered output (empty means STDOUT)
 
     std::unique_ptr<Log> log;
 

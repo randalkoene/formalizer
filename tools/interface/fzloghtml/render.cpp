@@ -78,7 +78,7 @@ std::string render_Log_entry(Log_entry & entry) {
 }
 
 /**
- * Convert Log content between t_from and t_before to HTML using
+ * Convert Log content that was retrieved with filtering to HTML using
  * rending templates and send to designated output destination.
  */
 bool render() {
@@ -92,7 +92,11 @@ bool render() {
         VERYVERBOSEOUT("Finding the Log history of Node "+fzlh.filter.nkey.str()+'\n');
     }
 
-    auto [from_idx, to_idx] = fzlh.log->get_Chunks_index_t_interval(fzlh.filter.t_from, fzlh.filter.t_to);
+    //auto [from_idx, before_idx] = fzlh.log->get_Chunks_index_t_interval(fzlh.filter.t_from, fzlh.filter.t_to);
+    //++before_idx;
+
+    Log_chunk_ptr_deque::size_type from_idx = 0;
+    Log_chunk_ptr_deque::size_type before_idx = fzlh.log->num_Chunks();
 
     std::string rendered_logcontent;
     rendered_logcontent.reserve(128*1024);
@@ -103,7 +107,7 @@ bool render() {
 
     COMPILEDPING(std::cout,"PING: got templates\n");
 
-    for (auto chunk_idx = from_idx; chunk_idx <= to_idx; ++chunk_idx) {
+    for (auto chunk_idx = from_idx; chunk_idx < before_idx; ++chunk_idx) {
 
         COMPILEDPING(std::cout,"PING: commencing chunk idx#"+std::to_string(chunk_idx)+'\n');
 
@@ -137,13 +141,13 @@ bool render() {
     }
 
     // send to destination
-    if (fzlh.dest.empty()) { // to STDOUT
+    if (fzlh.config.dest.empty()) { // to STDOUT
         //VERBOSEOUT("Log interval:\n\n");
         FZOUT(rendered_logcontent);
     } else {
-        VERBOSEOUT("Writing HTML Log content to "+fzlh.dest+".\n\n");
-        if (!string_to_file(fzlh.dest,rendered_logcontent)) {
-            ADDERROR(__func__,"unable to write snippet to "+fzlh.dest);
+        VERBOSEOUT("Writing HTML Log content to "+fzlh.config.dest+".\n\n");
+        if (!string_to_file(fzlh.config.dest,rendered_logcontent)) {
+            ADDERROR(__func__,"unable to write snippet to "+fzlh.config.dest);
             standard.exit(exit_file_error);
         }
     }

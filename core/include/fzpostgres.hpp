@@ -91,6 +91,7 @@ public:
     void LogChanges() { simulate_pq_changes = pq_command_log; }
     void ActualChanges() { simulate_pq_changes = pq_command_runsilent; }
     bool SimulatingPQChanges() const { return simulate_pq_changes == pq_command_simulate; }
+    bool LoggingPQChanges() const { return simulate_pq_changes != pq_command_runsilent; }
     void AddToSimLog(std::string & pqcall) { simulated_pq_calls += pqcall + '\n'; }
     PQ_Command_Variant SimPQChangesAndLog(std::string & pqcall) {
         if (simulate_pq_changes != pq_command_runsilent) AddToSimLog(pqcall);

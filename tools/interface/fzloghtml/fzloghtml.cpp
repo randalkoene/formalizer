@@ -133,7 +133,7 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
     }
 
     case 'o': {
-        dest = cargs;
+        config.dest = cargs;
         return true;
     }
 
@@ -149,7 +149,7 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
 
 /// Configure configurable parameters.
 bool fzlh_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
-    CONFIG_TEST_AND_SET_PAR(testconfig, "testconfig", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(dest, "outputfile", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
 
@@ -222,10 +222,16 @@ void fzloghtml::init_top(int argc, char *argv[]) {
 
     //graph = ga.request_Graph_copy();
     //log = ga.request_Log_copy(); *** This has to change... not every request needs the whole log. See https://trello.com/c/O9dcTm9L and https://trello.com/c/EppSyY9Y.
-    std::cout << "filter.t_from = " << TimeStampYmdHM(filter.t_from) << '\n';
-    std::cout << "filter.t_to = " << TimeStampYmdHM(filter.t_to) << '\n';
-    std::cout << "filter.nkey = " << filter.nkey.str() << '\n';
+    VERYVERBOSEOUT("\nfilter:\n");
+    VERYVERBOSEOUT("  t_from = "+TimeStampYmdHM(filter.t_from)+'\n');
+    VERYVERBOSEOUT("  t_to   = "+TimeStampYmdHM(filter.t_to)+'\n');
+    VERYVERBOSEOUT("  Node   = "+filter.nkey.str()+"\n\n");
+
     log = ga.request_Log_excerpt(filter);
+
+    VERYVERBOSEOUT("\nfound:\n");
+    VERYVERBOSEOUT("  chunks : "+std::to_string(log->num_Chunks())+'\n');
+    VERYVERBOSEOUT("  entries: "+std::to_string(log->num_Entries())+"\n\n");
 
     // *** Should we call log.setup_Chain_nodeprevnext() ?
 
