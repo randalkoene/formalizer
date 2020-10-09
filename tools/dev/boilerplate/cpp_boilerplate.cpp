@@ -227,7 +227,11 @@ int make_cpp_boilerplate() {
         if (iscore) {
             Makefilevars.emplace("tools_or_core","core");
         } else {
-            Makefilevars.emplace("tools_or_core","tools");
+            std::string toolsorcorestr("tools");
+            if (!category.empty()) {
+                toolsorcorestr += '/' + category;
+            }
+            Makefilevars.emplace("tools_or_core",toolsorcorestr);
         }
         if (includetemplater) {
             Makefilevars.emplace("templater_target","$(OBJ)/render.o: render.cpp render.hpp\n"
@@ -293,16 +297,17 @@ int make_cpp_boilerplate() {
         careful_file_create(sourcedir+"/version.hpp",rendered_version);
 
         if (iscore) {
-            FZOUT("Please remember to add EXECUTABLES += $(COREPATH)/"+thisname+'/'+thisname+" to the root Makefile.\n");
+            FZOUT("\nPlease remember to add:\n\tEXECUTABLES += $(COREPATH)/"+thisname+'/'+thisname+"\nto the root Makefile.\n");
         } else {
-            FZOUT("Please remember to add EXECUTABLES += $(TOOLSPATH)/"+thisname+'/'+thisname+" to the root Makefile.\n");
+            FZOUT("\nPlease remember to add:\n\tEXECUTABLES += $(TOOLSPATH)/"+thisname+'/'+thisname+"\nto the root Makefile.\n");
         }
-        FZOUT("Also, please check for any necessary updates of SYMBIN, CGIEXE or WEBINTERFACES in the root Makefile.\n");
+        FZOUT("\nPlease check for any necessary updates of:\n\tSYMBIN, CGIEXE or WEBINTERFACES\nin the root Makefile.\n");
     }
     if (uses_config) {
-        FZOUT("Please add to executables.py or coreconfigurable.py, so that `fzsetup.py -1 config` prepares the configuration file location.\n");
+        FZOUT("\nPlease add to:\n\texecutables.py, or,\n\tcoreconfigurable.py,\nso that `fzsetup.py -1 config` prepares the configuration file location.\n");
     }
-    FZOUT("Please check `fzinfo` in case information about this new component needs to be added.\n");
+    FZOUT("\nPlease check `fzinfo` in case information about this new component needs to be added.\n");
+    FZOUT("\nPlease consider adding a build rule for this component to `fzbuild.py`.\n");
 
     return standard.completed_ok();
 }

@@ -1,5 +1,5 @@
 #
-# Makefile for {{ this }}
+# Makefile for fzgraphhtml
 # (by Randal A. Koene, randalk@minduploading.org)
 #
 
@@ -28,7 +28,7 @@ MACHOPT= $(GCCTUNE) $(SSEOPT)
 FORMALIZERPATH=$(HOME)/src/formalizer
 COREINCLUDEPATH=$(FORMALIZERPATH)/core/include
 CORELIBPATH=$(FORMALIZERPATH)/core/lib
-FORMALIZERPATH_THIS=$(FORMALIZERPATH)/{{ tools_or_core }}/{{ this }}
+FORMALIZERPATH_THIS=$(FORMALIZERPATH)/tools/interface/fzgraphhtml
 
 TEMPLATEDIR = -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\" 
 
@@ -114,7 +114,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
 
 .PHONY: FORCE
 
-all: init {{ this }}
+all: init fzgraphhtml
 
 init: FORCE
 	@echo '-------------------------------------------------------------------'
@@ -122,16 +122,19 @@ init: FORCE
 	@echo 'Includes: $(CPPFLAGS)'
 	@echo '-------------------------------------------------------------------'
 
-{{ templater_target }}
-$(OBJ)/{{ this }}.o: {{ this }}.cpp {{ this }}.hpp version.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) {{ templater_macro }}-c {{ this }}.cpp -o $(OBJ)/{{ this }}.o
+$(OBJ)/render.o: render.cpp render.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(FORMALIZERROOT) $(TEMPLATEDIR) -c render.cpp -o $(OBJ)/render.o
 
-{{ this }}: $(OBJ)/{{ this }}.o {{ templater_obj }}$(CORE_OBJS)
-	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  {{ templater_macro }}$^ -o {{ this }} $(LIB_PATH)
+
+$(OBJ)/fzgraphhtml.o: fzgraphhtml.cpp fzgraphhtml.hpp version.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(TEMPLATEDIR) -c fzgraphhtml.cpp -o $(OBJ)/fzgraphhtml.o
+
+fzgraphhtml: $(OBJ)/fzgraphhtml.o $(OBJ)/render.o $(CORE_OBJS)
+	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $(TEMPLATEDIR) $^ -o fzgraphhtml $(LIB_PATH)
 
 clean:
-	cp -f {{ this }} {{ this }}.bak
-	rm -f $(OBJ)/*.o {{ this }}
+	cp -f fzgraphhtml fzgraphhtml.bak
+	rm -f $(OBJ)/*.o fzgraphhtml
 
 #doc++:
 #	rm -r -f html

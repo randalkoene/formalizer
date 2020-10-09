@@ -46,7 +46,8 @@ flow_control = {
     'build_boilerplate' : False,
     'build_dil2graph' : False,
     'build_graph2dil' : False,
-    'build_fzloghtml' : False
+    'build_fzloghtml' : False,
+    'build_fzgraphhtml' : False,
 }
 
 def try_subprocess_check_output(thecmdstring):
@@ -170,7 +171,7 @@ Cleans and compiles all components needed for `fzloghtml`. That includes:
 - `fzloghtml`
 """
 def build_fzloghtml():
-    print('Building fzlogheml from scratch (fzloghtml, core).\n')
+    print('Building fzloghtml from scratch (fzloghtml, core).\n')
     print('  Cleaning and compiling core library. This can take 2-3 minutes.')
     retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/core/lib && make clean && make')
     if (retcode != 0):
@@ -181,6 +182,29 @@ def build_fzloghtml():
         retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/tools/interface/fzloghtml && make clean && make')
         if (retcode != 0):
             print('Unable to clean and make fzloghtml.')
+            exit(retcode)
+        else:
+            print('Build done.')
+            exit(0)
+
+
+"""
+Cleans and compiles all components needed for `fzgraphhtml`. That includes:
+- `core` libraries
+- `fzgraphhtml`
+"""
+def build_fzgraphhtml():
+    print('Building fzgraphhtml from scratch (fzgraphhtml, core).\n')
+    print('  Cleaning and compiling core library. This can take 2-3 minutes.')
+    retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/core/lib && make clean && make')
+    if (retcode != 0):
+        print('Unable to clean and make core libraries.')
+        exit(retcode)   
+    else:
+        print('  Cleaning and compiling fzgraphhtml. This can take a minute.')
+        retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/tools/interface/fzgraphhtml && make clean && make')
+        if (retcode != 0):
+            print('Unable to clean and make fzgraphhtml.')
             exit(retcode)
         else:
             print('Build done.')
@@ -224,8 +248,9 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--CleanLib', dest='cleanlib', action="store_true", help='clean library objects')
     parser.add_argument('-B', '--boilerplate', dest='boilerplate', action='store_true', help='Build boilerplate from scratch')
     parser.add_argument('-D', '--dil2graph', dest='dil2graph', action='store_true', help='Build dil2graph from scratch')
-    parser.add_argument('-G', '--graph2dil', dest='graph2dil', action='store_true', help='Build graph2dil from scratch')
+    parser.add_argument('-g', '--graph2dil', dest='graph2dil', action='store_true', help='Build graph2dil from scratch')
     parser.add_argument('-H', '--fzloghtml', dest='fzloghtml', action='store_true', help='Build fzloghtml from scratch')
+    parser.add_argument('-G', '--fzgraphhtml', dest='fzgraphhtml', action='store_true', help='Build fzgraphhtml from scratch')
 
 
     args = parser.parse_args()
@@ -248,6 +273,8 @@ if __name__ == '__main__':
         flow_control['build_graph2dil'] = True
     if args.fzloghtml:
         flow_control['build_fzloghtml'] = True
+    if args.fzgraphhtml:
+        flow_control['build_fzgraphhtml'] = True
 
     if flow_control['make_docs']:
         make_docs()
@@ -263,6 +290,8 @@ if __name__ == '__main__':
         build_graph2dil()
     if flow_control['build_fzloghtml']:
         build_fzloghtml()
+    if flow_control['build_fzgraphhtml']:
+        build_fzgraphhtml()
 
     print('Some options have not been implemented yet.\n')
 

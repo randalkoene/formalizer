@@ -14,7 +14,7 @@
 // core
 {{ config_include }}
 #include "standard.hpp"
-{{ Graph_or_Log_access_include }}
+// #include "Graphaccess.hpp"
 
 using namespace fz;
 
@@ -32,7 +32,7 @@ struct {{ this }}: public formalizer_standard_program {
 
     flow_options flowcontrol;
 
-    {{ Graph_or_Log_access_support }}//Graph_access ga;
+    // Graph_access ga; // to include Graph or Log access support
 
     {{ this }}();
 

@@ -13,7 +13,7 @@
 
 // local
 #include "render.hpp"
-#include "{{ this }}.hpp"
+#include "fzgraphhtml.hpp"
 
 
 /// The Makefile attempts to provide this at compile time based on the source
@@ -37,9 +37,9 @@ const std::vector<std::string> template_ids = {
     "example_templatefile_template.ext" // replace withi actual
 };
 
-typedef std::map<template_id_enum,std::string> {{ this }}_templates;
+typedef std::map<template_id_enum,std::string> fzgraphhtml_templates;
 
-bool load_templates({{ this }}_templates & templates) {
+bool load_templates(fzgraphhtml_templates & templates) {
     templates.clear();
 
     for (int i = 0; i < NUM_temp; ++i) {
@@ -52,7 +52,7 @@ bool load_templates({{ this }}_templates & templates) {
 
 bool render() {
     render_environment env;
-    {{ this }}_templates templates;
+    fzgraphhtml_templates templates;
     load_templates(templates);
 
     template_varvalues varvals;

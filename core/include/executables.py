@@ -29,6 +29,7 @@ executables = (
     'graph2dil',
     'boilerplate',
     'fzbuild.py',
+    'fzgraphhtml',
     'fzloghtml',
     'nodeboard',
     'earlywiz.py',

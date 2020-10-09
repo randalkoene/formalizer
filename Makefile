@@ -34,6 +34,7 @@ TOOLSCOMPDIRS = $(TOOLSPATH)/conversion/dil2graph
 TOOLSCOMPDIRS += $(TOOLSPATH)/conversion/graph2dil
 TOOLSCOMPDIRS += $(TOOLSPATH)/dev/boilerplate
 TOOLSCOMPDIRS += $(TOOLSPATH)/interface/fzloghtml
+TOOLSCOMPDIRS += $(TOOLSPATH)/interface/fzgraphhtml
 TOOLSCOMPDIRS += $(TOOLSPATH)/interface/nodeboard
 
 COMPILABLES = $(LIBCOMPDIRS) $(CORECOMPDIRS) $(TOOLSCOMPDIRS)
@@ -65,7 +66,7 @@ EXECUTABLES += $(TOOLSPATH)/dev/boilerplate/boilerplate
 EXECUTABLES += $(TOOLSPATH)/dev/fzbuild/fzbuild.py
 # EXECUTABLES += $(TOOLSPATH)/glue/calendarsync/calendarsync
 # EXECUTABLES += $(TOOLSPATH)/glue/exact2calendar/exact2calendar
-# EXECUTABLES += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml
+EXECUTABLES += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml
 EXECUTABLES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml
 # EXECUTABLES += $(TOOLSPATH)/interface/fzvizgraph/fzvizgraph
 # EXECUTABLES += $(TOOLSPATH)/interface/fzvizmilestones/fzvizmilestones
@@ -83,16 +84,19 @@ EXECUTABLES += $(TOOLSPATH)/system/requestmanual/requestmanual.py
 # symbolic links to executables for CGI scripts to call upon
 SYMBIN = 
 SYMBIN += $(COREPATH)/fzquerypq/fzquerypq
+SYMBIN += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml
 SYMBIN += $(TOOLSPATH)/interface/fzloghtml/fzloghtml
 SYMBIN += $(COREPATH)/fzguide.system/fzguide.system
 
 # CGI scripts that need to be copied to $(CGIDIR)
 CGIEXE = $(TOOLSPATH)/interface/logentry-form/logentry-form.py
+# CGIEXE += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzlink/fzlink.py
 CGIEXE += $(COREPATH)/fzguide.system/fzguide.system-cgi.py
 
 WEBINTERFACES = 
+# WEBINTERFACES += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-form.html
 WEBINTERFACES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-form.html
 WEBINTERFACES += $(COREPATH)/fzguide.system/fzguide.system-form.html
 WEBINTERFACES += $(TOOLSPATH)/system/metrics/sysmet-add/sysmet-add-form.html
