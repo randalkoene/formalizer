@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['standard_2ehpp',['standard.hpp',['../standard_8hpp.html',1,'']]]
+  ['logpostgres_2ehpp',['Logpostgres.hpp',['../Logpostgres_8hpp.html',1,'']]],
+  ['logtypes_2ehpp',['Logtypes.hpp',['../Logtypes_8hpp.html',1,'']]]
 ];

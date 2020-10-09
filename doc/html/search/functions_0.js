@@ -4,6 +4,7 @@ var searchData=
   ['actualtime',['ActualTime',['../namespacefz.html#ae767b87541ed3adf95ef80fb4cab307e',1,'fz']]],
   ['add_5fearlier_5fchunk',['add_earlier_Chunk',['../classfz_1_1Log.html#adaa84db4353ea130e2e681eae1524bbb',1,'fz::Log']]],
   ['add_5fedge',['add_Edge',['../classfz_1_1Graph.html#a067be0e3a6f83267289cd753c13b6f10',1,'fz::Graph']]],
+  ['add_5fentries_5fto_5fchunks',['add_entries_to_chunks',['../classfz_1_1Log.html#a6901a00db8db29ba3f1bc31ce4664c20',1,'fz::Log']]],
   ['add_5fentry',['add_Entry',['../classfz_1_1Log__chunk.html#abfee983761a70c789592f9254f00269b',1,'fz::Log_chunk']]],
   ['add_5fnode',['add_Node',['../classfz_1_1Graph.html#a86b00272cee9c59ad014f4a1d6dceba1',1,'fz::Graph']]],
   ['add_5fregistered_5finit',['add_registered_init',['../classfz_1_1formalizer__standard__program.html#aee211ce054a9cdee7f9357034a536d70',1,'fz::formalizer_standard_program']]],

@@ -33,7 +33,7 @@ using namespace fz;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-{{ this }}::{{ this }}() {{ construct_inherited_config_access_etc }} {
+{{ this }}::{{ this }}() {{ construct_inherited_config_access_etc }} { //ga(*this, add_option_args, add_usage_top)
     //add_option_args += "x:";
     //add_usage_top += " [-x <something>]";
     //usage_head.push_back("Description at the head of usage information.\n");
@@ -45,6 +45,7 @@ using namespace fz;
  * help for program specific command line options.
  */
 void {{ this }}::usage_hook() {
+    //ga.usage_hook();
     //FZOUT("    -x something explanation\n");
 }
 
@@ -59,6 +60,8 @@ void {{ this }}::usage_hook() {
  * @param cargs is the optional parameter value provided for the option.
  */
 bool {{ this }}::options_hook(char c, std::string cargs) {
+    //if (ga.options_hook(c,cargs))
+    //        return true;
 
     switch (c) {
 
@@ -95,7 +98,6 @@ int main(int argc, char *argv[]) {
     ERRTRACE;
 
     {{ th }}.init_top(argc, argv);
-    {{ th }}.init(argc,argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 
     FZOUT("\nThis is a stub.\n\n");
     key_pause();
@@ -114,5 +116,5 @@ int main(int argc, char *argv[]) {
 
     }
 
-    return {{ th }}.completed_ok();
+    return standard.completed_ok();
 }

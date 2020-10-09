@@ -1,8 +1,3 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="25,81,129,108"/>
-<area shape="rect" id="node2" href="$classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="204,31,315,57"/>
-<area shape="rect" id="node5" href="$classfz_1_1err__configbase.html" title="fz::err_configbase" alt="" coords="196,81,323,108"/>
-<area shape="rect" id="node3" href="$classfz_1_1fzpq__configurable.html" title="fz::fzpq_configurable" alt="" coords="371,5,513,32"/>
-<area shape="rect" id="node4" href="$classfzlh__configurable.html" title="fzlh_configurable" alt="" coords="382,56,502,83"/>
-<area shape="rect" id="node6" href="$classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="5,31,148,57"/>
+<area shape="rect" id="node1" href="$classfz_1_1Logentry__pq.html" title="A data types conversion helper class that can deliver the Postgres Log entries table equivalent INSER..." alt="" coords="5,5,117,32"/>
 </map>

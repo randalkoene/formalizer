@@ -1,8 +1,11 @@
 <map id="core/include/Logtypes.hpp" name="core/include/Logtypes.hpp">
-<area shape="rect" id="node2" href="$Logpostgres_8hpp.html" title="This header file declares Log Postgres types for use with the Formalizer. " alt="" coords="5,87,197,114"/>
-<area shape="rect" id="node3" href="$logtest_8hpp_source.html" title="tools/conversion/dil2graph\l/logtest.hpp" alt="" coords="221,80,395,121"/>
-<area shape="rect" id="node5" href="$tl2log_8hpp_source.html" title="tools/conversion/dil2graph\l/tl2log.hpp" alt="" coords="419,80,592,121"/>
-<area shape="rect" id="node6" href="$log2tl_8hpp_source.html" title="tools/conversion/graph2dil\l/log2tl.hpp" alt="" coords="616,80,789,121"/>
-<area shape="rect" id="node7" href="$fzloghtml_8hpp_source.html" title="tools/interface/fzloghtml\l/fzloghtml.hpp" alt="" coords="814,80,975,121"/>
-<area shape="rect" id="node4" href="$dil2graph_8hpp_source.html" title="tools/conversion/dil2graph\l/dil2graph.hpp" alt="" coords="320,169,493,211"/>
+<area shape="rect" id="node2" href="$Graphaccess_8hpp_source.html" title="core/include/Graphaccess.hpp" alt="" coords="261,87,459,114"/>
+<area shape="rect" id="node6" href="$fzloghtml_8hpp_source.html" title="tools/interface/fzloghtml\l/fzloghtml.hpp" alt="" coords="451,169,613,211"/>
+<area shape="rect" id="node7" href="$Logpostgres_8hpp.html" title="This header file declares Log Postgres types for use with the Formalizer. " alt="" coords="533,87,725,114"/>
+<area shape="rect" id="node8" href="$logtest_8hpp_source.html" title="tools/conversion/dil2graph\l/logtest.hpp" alt="" coords="749,80,923,121"/>
+<area shape="rect" id="node9" href="$tl2log_8hpp_source.html" title="tools/conversion/dil2graph\l/tl2log.hpp" alt="" coords="947,80,1120,121"/>
+<area shape="rect" id="node10" href="$log2tl_8hpp_source.html" title="tools/conversion/graph2dil\l/log2tl.hpp" alt="" coords="1144,80,1317,121"/>
+<area shape="rect" id="node3" href="$fzquerypq_8hpp_source.html" title="core/fzquerypq/fzquerypq.hpp" alt="" coords="5,177,200,203"/>
+<area shape="rect" id="node4" href="$fzserverpq_8hpp_source.html" title="core/fzserverpq/fzserverpq.hpp" alt="" coords="224,177,427,203"/>
+<area shape="rect" id="node5" href="$dil2graph_8hpp_source.html" title="tools/conversion/dil2graph\l/dil2graph.hpp" alt="" coords="749,169,923,211"/>
 </map>

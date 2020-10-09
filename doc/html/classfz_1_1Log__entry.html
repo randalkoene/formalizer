@@ -110,8 +110,8 @@ Collaboration diagram for fz::Log_entry:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ab771f0d2697c24dedb50580ad66e088f"><td class="memItemLeft" align="right" valign="top"><a id="ab771f0d2697c24dedb50580ad66e088f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Log_entry</b> (const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_id, std::string _entrytext, const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;_nodeidkey, <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *_chunk=NULL)</td></tr>
+<tr class="memitem:ab771f0d2697c24dedb50580ad66e088f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#ab771f0d2697c24dedb50580ad66e088f">Log_entry</a> (const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_id, std::string _entrytext, const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;_nodeidkey, <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *_chunk=NULL)</td></tr>
+<tr class="memdesc:ab771f0d2697c24dedb50580ad66e088f"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entry constructor.  <a href="#ab771f0d2697c24dedb50580ad66e088f">More...</a><br /></td></tr>
 <tr class="separator:ab771f0d2697c24dedb50580ad66e088f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae62d069eeecc7e857d378a624a3db649"><td class="memItemLeft" align="right" valign="top"><a id="ae62d069eeecc7e857d378a624a3db649"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Log_entry</b> (const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_id, std::string _entrytext, <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *_chunk=NULL)</td></tr>
@@ -266,6 +266,72 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Log</b></td></tr>
 class&#160;</td><td class="memItemRight" valign="bottom"><b>Log_chunk</b></td></tr>
 <tr class="separator:add9bc2bc3db65f6597e5199cb52481e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="ab771f0d2697c24dedb50580ad66e088f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab771f0d2697c24dedb50580ad66e088f">&#9670;&nbsp;</a></span>Log_entry()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">fz::Log_entry::Log_entry </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;&#160;</td>
+          <td class="paramname"><em>_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>_entrytext</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;&#160;</td>
+          <td class="paramname"><em>_nodeidkey</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *&#160;</td>
+          <td class="paramname"><em>_chunk</em> = <code>NULL</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entry constructor. </p>
+<p>The variants are somewhat similar, providing less or more information up front.</p>
+<p>Notice that we are not immediately attempting to set the <code>node</code> rapid-access cache that would correspond with <code>node_idkey</code>. That is, beause we cannot be certain that this object is being created within a context where the corresponding <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> object actually exists and a pointer to it is identifiable. The rapid-access pointer must be set explicitly via <code><a class="el" href="classfz_1_1Log__entry.html#a8e0367664f5e6e6292b33783724ae6a2" title="Set Node pointer to the same Node as node_idkey if it was not set during construction. ">set_Node_rapid_access()</a></code>, which can also be called by the parametrized overload of the <code><a class="el" href="classfz_1_1Log__entry.html#a3b4666a7d84e280a3ae7e72ec3d82465" title="Use only where guaranteed! ">get_Node()</a></code> member function.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">id</td><td>A valid <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entry ID stamp. </td></tr>
+    <tr><td class="paramname">_entrytext</td><td>The <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entry textual content. It will be made utf8 safe. </td></tr>
+    <tr><td class="paramname">_nodeifkey</td><td>Optional valid <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> ID key identifying the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> that owns this entry. </td></tr>
+    <tr><td class="paramname">_chunk</td><td>Optional valid pointer to a <code><a class="el" href="classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk. ">Log_chunk</a></code> object (this can be an extra safety measure). </td></tr>
+    <tr><td class="paramname">previschunk</td><td>Optional chaining flag that specifies the preceding in chain is a chunk (or not). </td></tr>
+    <tr><td class="paramname">_prev</td><td>Optional valid <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk or entry ID stamp that specifies the preceding in chain. </td></tr>
+    <tr><td class="paramname">nextischunk</td><td>Optional chaining flag that specifies the next in chain is a chunk (or not). </td></tr>
+    <tr><td class="paramname">_next</td><td>Optional valid <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk or entry ID statmp that specifies the next in chain. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a id="a113bd5040cef8ef59bfc2de12ccbf2ae"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a113bd5040cef8ef59bfc2de12ccbf2ae">&#9670;&nbsp;</a></span>get_local_or_inherited_Node()</h2>

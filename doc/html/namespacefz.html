@@ -165,6 +165,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__entry__ID__key.html">Log_entry_ID_key</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Standardized Formalizer <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entry ID key.  <a href="structfz_1_1Log__entry__ID__key.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__filter.html">Log_filter</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filter structure used to set up selective <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> reading.  <a href="structfz_1_1Log__filter.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__interval.html">Log_interval</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This variant of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> is used by smart on-demand <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> caching modes.  <a href="classfz_1_1Log__interval.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -185,6 +188,11 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Node.html">Node</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> class is the principal object type within a Formalizer <a class="el" href="classfz_1_1Graph.html">Graph</a>.  <a href="classfz_1_1Node.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Node__histories.html">Node_histories</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Node__history.html">Node_history</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfz_1_1Log.html" title="Log">Log</a> history by <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> expressed as a list of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and a list of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries for each <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> for which there is a history.  <a href="structfz_1_1Node__history.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Node__ID.html">Node_ID</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> ID that caches its ID stamp for frequent use.  <a href="classfz_1_1Node__ID.html#details">More...</a><br /></td></tr>
@@ -272,6 +280,9 @@ typedef std::map&lt; <a class="el" href="structfz_1_1Edge__ID__key.html">Edge_ID
 <tr class="memitem:af5c125ce4a1d727d1fa039f07d6e6b15"><td class="memItemLeft" align="right" valign="top"><a id="af5c125ce4a1d727d1fa039f07d6e6b15"></a>
 typedef std::vector&lt; <a class="el" href="classfz_1_1Node.html">Node</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Node_Index</b></td></tr>
 <tr class="separator:af5c125ce4a1d727d1fa039f07d6e6b15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a802569f5b5ba6ee365ce8707d3028bcc"><td class="memItemLeft" align="right" valign="top"><a id="a802569f5b5ba6ee365ce8707d3028bcc"></a>
+typedef std::unique_ptr&lt; <a class="el" href="structfz_1_1Guide__snippet.html">Guide_snippet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Guide_snippet_ptr</b></td></tr>
+<tr class="separator:a802569f5b5ba6ee365ce8707d3028bcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a005101cd3360f7440301c8c033b397f8"><td class="memItemLeft" align="right" valign="top">typedef std::map&lt; const <a class="el" href="structfz_1_1Log__entry__ID__key.html">Log_entry_ID_key</a>, std::unique_ptr&lt; <a class="el" href="classfz_1_1Log__entry.html">Log_entry</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a005101cd3360f7440301c8c033b397f8">Log_entries_Map</a></td></tr>
 <tr class="memdesc:a005101cd3360f7440301c8c033b397f8"><td class="mdescLeft">&#160;</td><td class="mdescRight"><h3><a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries (map)</h3>
  <a href="#a005101cd3360f7440301c8c033b397f8">More...</a><br /></td></tr>
@@ -295,6 +306,15 @@ typedef std::pair&lt; <a class="el" href="structfz_1_1Log__chunk__ID__key.html">
 typedef std::deque&lt; <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a19097fed21f7b5e73117677bb009ba08">Log_chunk_ID_key_deque</a></td></tr>
 <tr class="memdesc:a19097fed21f7b5e73117677bb009ba08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Short-hand for this container type. <br /></td></tr>
 <tr class="separator:a19097fed21f7b5e73117677bb009ba08"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c3b710573b0155e170e3b4a2404e75a"><td class="memItemLeft" align="right" valign="top"><a id="a5c3b710573b0155e170e3b4a2404e75a"></a>
+typedef std::set&lt; <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Log_chunk_ID_key_set</b></td></tr>
+<tr class="separator:a5c3b710573b0155e170e3b4a2404e75a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c19c7e2dd2fd0e2a5ab5eeb0625475e"><td class="memItemLeft" align="right" valign="top"><a id="a5c19c7e2dd2fd0e2a5ab5eeb0625475e"></a>
+typedef std::set&lt; <a class="el" href="structfz_1_1Log__entry__ID__key.html">Log_entry_ID_key</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Log_entry_ID_key_set</b></td></tr>
+<tr class="separator:a5c19c7e2dd2fd0e2a5ab5eeb0625475e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75ea99aced23646f7446c32da77dd10f"><td class="memItemLeft" align="right" valign="top"><a id="a75ea99aced23646f7446c32da77dd10f"></a>
+typedef std::unique_ptr&lt; <a class="el" href="structfz_1_1Node__history.html">Node_history</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>history_ptr</b></td></tr>
+<tr class="separator:a75ea99aced23646f7446c32da77dd10f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a03fa686034d8685dd4cd88b74e9e5132"><td class="memItemLeft" align="right" valign="top"><a id="a03fa686034d8685dd4cd88b74e9e5132"></a>
 typedef <a class="el" href="structfz_1_1Log__target.html">Log_target</a>&lt; <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a>, <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Log_chunk_target</b></td></tr>
 <tr class="separator:a03fa686034d8685dd4cd88b74e9e5132"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -319,6 +339,11 @@ typedef std::tuple&lt; unsigned int, unsigned int, unsigned int &gt;&#160;</td><
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
+<tr class="memitem:ad68bce1f115f5d6e9618e1ea1518e30a"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ad68bce1f115f5d6e9618e1ea1518e30a">PQ_Command_Variant</a> { <a class="el" href="namespacefz.html#ad68bce1f115f5d6e9618e1ea1518e30aaa635b87c5a7bfc8edbc3de36ac5d63c2">pq_command_runsilent</a>, 
+<a class="el" href="namespacefz.html#ad68bce1f115f5d6e9618e1ea1518e30aac0b188614f2dcefaa28cee9e0c37ddde">pq_command_log</a>, 
+<a class="el" href="namespacefz.html#ad68bce1f115f5d6e9618e1ea1518e30aac66415affc9c53289c3b68d2b6d3a432">pq_command_simulate</a>
+ }</td></tr>
+<tr class="separator:ad68bce1f115f5d6e9618e1ea1518e30a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab6fa1d38b1f961757e7f352be3764d8f"><td class="memItemLeft" align="right" valign="top"><a id="ab6fa1d38b1f961757e7f352be3764d8f"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>pq_Tfields</b> { <br />
 &#160;&#160;<b>pqt_id</b>, 
 <b>pqt_supid</b>, 
@@ -488,6 +513,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>coreversion</b
 std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a852bc7a9cba819521f01ce09cc041461">TimeStamp_pq</a> (time_t t)</td></tr>
 <tr class="memdesc:a852bc7a9cba819521f01ce09cc041461"><td class="mdescLeft">&#160;</td><td class="mdescRight">Uses the UTC / Local Time convention built into TimeStamp(). <br /></td></tr>
 <tr class="separator:a852bc7a9cba819521f01ce09cc041461"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac15aaf01d7bc6c1c2a92065d3b03312b"><td class="memItemLeft" align="right" valign="top"><a id="ac15aaf01d7bc6c1c2a92065d3b03312b"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>TimeStamp_to_TimeStamp_pq</b> (const std::string &amp;tstamp)</td></tr>
+<tr class="separator:ac15aaf01d7bc6c1c2a92065d3b03312b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a40b1a728ffe05a3aca94bc24daff0e"><td class="memItemLeft" align="right" valign="top">time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a8a40b1a728ffe05a3aca94bc24daff0e">epochtime_from_timestamp_pq</a> (std::string pqtimestamp)</td></tr>
 <tr class="memdesc:a8a40b1a728ffe05a3aca94bc24daff0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert Postgres query result time stamp strings to Unix time, for example, for <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> target date parameter.  <a href="#a8a40b1a728ffe05a3aca94bc24daff0e">More...</a><br /></td></tr>
 <tr class="separator:a8a40b1a728ffe05a3aca94bc24daff0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -508,6 +536,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="name
 <tr class="memitem:ab7dc083b5c0e84d7d715161e462a321f"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ab7dc083b5c0e84d7d715161e462a321f">split</a> (const std::string &amp;s, char delim)</td></tr>
 <tr class="memdesc:ab7dc083b5c0e84d7d715161e462a321f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a vector containing pieces of a string.  <a href="#ab7dc083b5c0e84d7d715161e462a321f">More...</a><br /></td></tr>
 <tr class="separator:ab7dc083b5c0e84d7d715161e462a321f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab58aac8e7a504103a1f9fd7f005f4a35"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ab58aac8e7a504103a1f9fd7f005f4a35">join</a> (const std::vector&lt; std::string &gt; &amp;svec, const std::string delim)</td></tr>
+<tr class="memdesc:ab58aac8e7a504103a1f9fd7f005f4a35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Efficient concatenation of strings from vector of strings with optional delimiter.  <a href="#ab58aac8e7a504103a1f9fd7f005f4a35">More...</a><br /></td></tr>
+<tr class="separator:ab58aac8e7a504103a1f9fd7f005f4a35"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7f17dcd15946bcb9a7fd70bf65e6fcc9"><td class="memItemLeft" align="right" valign="top">std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a7f17dcd15946bcb9a7fd70bf65e6fcc9">ltrim</a> (std::string &amp;s, const char *t=&quot; \\\)</td></tr>
 <tr class="memdesc:a7f17dcd15946bcb9a7fd70bf65e6fcc9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Trim whitespace from the front of a string.  <a href="#a7f17dcd15946bcb9a7fd70bf65e6fcc9">More...</a><br /></td></tr>
 <tr class="separator:a7f17dcd15946bcb9a7fd70bf65e6fcc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -580,9 +611,18 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>Node_ID_TimeSt
 <tr class="memitem:af8eebdb96e1f6ab62ce592c84ea3e669"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#af8eebdb96e1f6ab62ce592c84ea3e669">store_Guide_snippet_pq</a> (const <a class="el" href="structfz_1_1Guide__snippet.html">Guide_snippet</a> &amp;snippet, <a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;pa)</td></tr>
 <tr class="memdesc:af8eebdb96e1f6ab62ce592c84ea3e669"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store a new Guide snippet in the PostgreSQL database.  <a href="#af8eebdb96e1f6ab62ce592c84ea3e669">More...</a><br /></td></tr>
 <tr class="separator:af8eebdb96e1f6ab62ce592c84ea3e669"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84b38593fec552b574f1ca8e56d3b254"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a84b38593fec552b574f1ca8e56d3b254">store_Guide_multi_snippet_pq</a> (const std::vector&lt; Guide_snippet_ptr &gt; &amp;snippets, <a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;pa)</td></tr>
+<tr class="memdesc:a84b38593fec552b574f1ca8e56d3b254"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store multiple Guide snippets in the PostgreSQL database.  <a href="#a84b38593fec552b574f1ca8e56d3b254">More...</a><br /></td></tr>
+<tr class="separator:a84b38593fec552b574f1ca8e56d3b254"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae2f30f53fd171c9a6c7f03cf96c983ba"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ae2f30f53fd171c9a6c7f03cf96c983ba">read_Guide_snippet_pq</a> (<a class="el" href="structfz_1_1Guide__snippet.html">Guide_snippet</a> &amp;snippet, <a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;pa)</td></tr>
 <tr class="memdesc:ae2f30f53fd171c9a6c7f03cf96c983ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a single snippet from a Guide table in the database.  <a href="#ae2f30f53fd171c9a6c7f03cf96c983ba">More...</a><br /></td></tr>
 <tr class="separator:ae2f30f53fd171c9a6c7f03cf96c983ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0faf48a147699ffdf8906e6f230f1aae"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a0faf48a147699ffdf8906e6f230f1aae">read_Guide_IDs_pq</a> (<a class="el" href="structfz_1_1Guide__snippet.html">Guide_snippet</a> &amp;snippet, <a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;pa, std::vector&lt; std::string &gt; &amp;ids)</td></tr>
+<tr class="memdesc:a0faf48a147699ffdf8906e6f230f1aae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read all IDs from Guide table in the database.  <a href="#a0faf48a147699ffdf8906e6f230f1aae">More...</a><br /></td></tr>
+<tr class="separator:a0faf48a147699ffdf8906e6f230f1aae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a8d75e81f8c4ebd34f0e25be2e4144d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a0a8d75e81f8c4ebd34f0e25be2e4144d">read_Guide_multi_snippets_pq</a> (<a class="el" href="structfz_1_1Guide__snippet.html">Guide_snippet</a> &amp;snippet, <a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;pa, std::vector&lt; std::string &gt; &amp;ids, std::vector&lt; std::string &gt; &amp;snippets)</td></tr>
+<tr class="memdesc:a0a8d75e81f8c4ebd34f0e25be2e4144d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read multiple snippets from Guide table in the database.  <a href="#a0a8d75e81f8c4ebd34f0e25be2e4144d">More...</a><br /></td></tr>
+<tr class="separator:a0a8d75e81f8c4ebd34f0e25be2e4144d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a125c22828646b624c8e4f4775f84dc5d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a125c22828646b624c8e4f4775f84dc5d">create_Breakpoints_table_pq</a> (const <a class="el" href="structfz_1_1active__pq.html">active_pq</a> &amp;apq)</td></tr>
 <tr class="memdesc:a125c22828646b624c8e4f4775f84dc5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new database table for Breakpoints.  <a href="#a125c22828646b624c8e4f4775f84dc5d">More...</a><br /></td></tr>
 <tr class="separator:a125c22828646b624c8e4f4775f84dc5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -607,9 +647,12 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>add_Logentry_pq</b> (
 <tr class="memitem:a5688f3a5a5bb5066690ccff97430eaaa"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a5688f3a5a5bb5066690ccff97430eaaa">load_Log_pq</a> (<a class="el" href="classfz_1_1Log.html">Log</a> &amp;log, <a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;pa)</td></tr>
 <tr class="memdesc:a5688f3a5a5bb5066690ccff97430eaaa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load the full <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> with all <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks, <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries and Breakpoints from the PostgresSQL database.  <a href="#a5688f3a5a5bb5066690ccff97430eaaa">More...</a><br /></td></tr>
 <tr class="separator:a5688f3a5a5bb5066690ccff97430eaaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1b0e676f27bed9001b55fc70a1c97cc8"><td class="memItemLeft" align="right" valign="top"><a id="a1b0e676f27bed9001b55fc70a1c97cc8"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>TEST_load_Log_interval_pq</b> (<a class="el" href="classfz_1_1Log__interval.html">Log_interval</a> &amp;log)</td></tr>
-<tr class="separator:a1b0e676f27bed9001b55fc70a1c97cc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a87cb582cc69257b4d2a364f7da5f47c0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a87cb582cc69257b4d2a364f7da5f47c0">load_partial_Log_pq</a> (<a class="el" href="classfz_1_1Log.html">Log</a> &amp;log, <a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;pa, const <a class="el" href="structfz_1_1Log__filter.html">Log_filter</a> &amp;filter)</td></tr>
+<tr class="memdesc:a87cb582cc69257b4d2a364f7da5f47c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries that satisfy a specific filter.  <a href="#a87cb582cc69257b4d2a364f7da5f47c0">More...</a><br /></td></tr>
+<tr class="separator:a87cb582cc69257b4d2a364f7da5f47c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a669984ccbebfe6dbd9a4d962aded0012"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a669984ccbebfe6dbd9a4d962aded0012">refresh_Node_history_cache_pq</a> (<a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;pa)</td></tr>
+<tr class="memdesc:a669984ccbebfe6dbd9a4d962aded0012"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refresh the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> history cache table.  <a href="#a669984ccbebfe6dbd9a4d962aded0012">More...</a><br /></td></tr>
+<tr class="separator:a669984ccbebfe6dbd9a4d962aded0012"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab2f47cae19dab82915dc813045ee3cfe"><td class="memItemLeft" align="right" valign="top">unsigned long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ab2f47cae19dab82915dc813045ee3cfe">Entries_total_text</a> (<a class="el" href="namespacefz.html#a005101cd3360f7440301c8c033b397f8">Log_entries_Map</a> &amp;entries)</td></tr>
 <tr class="memdesc:ab2f47cae19dab82915dc813045ee3cfe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate the total number of characters in <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entry description text in the specified map.  <a href="#ab2f47cae19dab82915dc813045ee3cfe">More...</a><br /></td></tr>
 <tr class="separator:ab2f47cae19dab82915dc813045ee3cfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -701,6 +744,10 @@ std::pair&lt; std::string, std::string &gt;&#160;</td><td class="memItemRight" v
 <tr class="memitem:acf44b9878517c39c7fc3b53d7c7f56a6"><td class="memItemLeft" align="right" valign="top"><a id="acf44b9878517c39c7fc3b53d7c7f56a6"></a>
 <a class="el" href="classfz_1_1Errors.html">Errors</a>&#160;</td><td class="memItemRight" valign="bottom"><b>WarnQ</b> (DEFAULT_WARNLOGPATH)</td></tr>
 <tr class="separator:acf44b9878517c39c7fc3b53d7c7f56a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac92c33335884636dc87618708050f5dc"><td class="memItemLeft" align="right" valign="top"><a id="ac92c33335884636dc87618708050f5dc"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ac92c33335884636dc87618708050f5dc">simPQ_report_wrapper</a> ()</td></tr>
+<tr class="memdesc:ac92c33335884636dc87618708050f5dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">An exit hook function that ensures any simulated Postgres calls are written to a file. <br /></td></tr>
+<tr class="separator:ac92c33335884636dc87618708050f5dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a34b84c36d3ebbf295bcbd154874858b3"><td class="memItemLeft" align="right" valign="top"><a id="a34b84c36d3ebbf295bcbd154874858b3"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>identical_Topics</b> (const <a class="el" href="classfz_1_1Topic.html">Topic</a> &amp;topic1, const <a class="el" href="classfz_1_1Topic.html">Topic</a> &amp;topic2, std::string &amp;trace)</td></tr>
 <tr class="separator:a34b84c36d3ebbf295bcbd154874858b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -797,9 +844,27 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>get_Entry_pq_field_nu
 <tr class="memitem:ae33a508dd163fea401543abc5f20a8a2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ae33a508dd163fea401543abc5f20a8a2">read_Entries_pq</a> (<a class="el" href="structfz_1_1active__pq.html">active_pq</a> &amp;apq, <a class="el" href="classfz_1_1Log.html">Log</a> &amp;log, std::string wherestr=&quot;&quot;)</td></tr>
 <tr class="memdesc:ae33a508dd163fea401543abc5f20a8a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load full Entries table into Log::entries.  <a href="#ae33a508dd163fea401543abc5f20a8a2">More...</a><br /></td></tr>
 <tr class="separator:ae33a508dd163fea401543abc5f20a8a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad35c1e0f1b89afb3f7d1ecb898710296"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ad35c1e0f1b89afb3f7d1ecb898710296">TEST_load_Log_interval_pq</a> (<a class="el" href="classfz_1_1Log__interval.html">Log_interval</a> &amp;log, <a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;pa, time_t t_from, time_t t_to)</td></tr>
-<tr class="memdesc:ad35c1e0f1b89afb3f7d1ecb898710296"><td class="mdescLeft">&#160;</td><td class="mdescRight">EXPERIMENTAL! Load the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries with ID in a specified interval.  <a href="#ad35c1e0f1b89afb3f7d1ecb898710296">More...</a><br /></td></tr>
-<tr class="separator:ad35c1e0f1b89afb3f7d1ecb898710296"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0924e10402414b80f16c8ca32a95e4ad"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a0924e10402414b80f16c8ca32a95e4ad">read_Entries_first_pass_pq</a> (<a class="el" href="structfz_1_1active__pq.html">active_pq</a> &amp;apq, <a class="el" href="classfz_1_1Log.html">Log</a> &amp;log, std::string wherestr=&quot;&quot;)</td></tr>
+<tr class="memdesc:a0924e10402414b80f16c8ca32a95e4ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">First-Pass Load of Entries into Log::entries.  <a href="#a0924e10402414b80f16c8ca32a95e4ad">More...</a><br /></td></tr>
+<tr class="separator:a0924e10402414b80f16c8ca32a95e4ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07c6fa427c22259b7632366d7d009d46"><td class="memItemLeft" align="right" valign="top"><a id="a07c6fa427c22259b7632366d7d009d46"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>get_History_pq_field_numbers</b> (PGresult *res)</td></tr>
+<tr class="separator:a07c6fa427c22259b7632366d7d009d46"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44746243b35649cc63d0d6b478695a2e"><td class="memItemLeft" align="right" valign="top"><a id="a44746243b35649cc63d0d6b478695a2e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>replace_double_quotes</b> (std::string &amp;s)</td></tr>
+<tr class="separator:a44746243b35649cc63d0d6b478695a2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab1a495d238d3b9443ea475cecdfb126d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ab1a495d238d3b9443ea475cecdfb126d">load_Node_history_pq</a> (<a class="el" href="structfz_1_1active__pq.html">active_pq</a> &amp;apq, <a class="el" href="classfz_1_1Log.html">Log</a> &amp;log, const <a class="el" href="structfz_1_1Log__filter.html">Log_filter</a> &amp;filter, std::string &amp;chunkwherestr, std::string &amp;entrywherestr)</td></tr>
+<tr class="memdesc:ab1a495d238d3b9443ea475cecdfb126d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get lists of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries from the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> history cache table and load all of the chunks and entries listed there into a <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> object.  <a href="#ab1a495d238d3b9443ea475cecdfb126d">More...</a><br /></td></tr>
+<tr class="separator:ab1a495d238d3b9443ea475cecdfb126d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9fc70e10f68c650a94ac774d642f7f85"><td class="memItemLeft" align="right" valign="top"><a id="a9fc70e10f68c650a94ac774d642f7f85"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>chunk_key_list_pq</b> (const Log_chunk_ID_key_set &amp;chunks)</td></tr>
+<tr class="separator:a9fc70e10f68c650a94ac774d642f7f85"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a57ace339ac0d550b72e670755881b1"><td class="memItemLeft" align="right" valign="top"><a id="a5a57ace339ac0d550b72e670755881b1"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>entry_key_list_pq</b> (const Log_entry_ID_key_set &amp;entries)</td></tr>
+<tr class="separator:a5a57ace339ac0d550b72e670755881b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5fb6b12160bc081fe25f613a84eaacdb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a5fb6b12160bc081fe25f613a84eaacdb">store_Node_history_pq</a> (const <a class="el" href="classfz_1_1Node__histories.html">Node_histories</a> &amp;nodehist, <a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;pa)</td></tr>
+<tr class="memdesc:a5fb6b12160bc081fe25f613a84eaacdb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store a <a class="el" href="structfz_1_1Node__history.html" title="Log history by Node expressed as a list of Log chunks and a list of Log entries for each Node for whi...">Node_history</a> object to a cache table in the database to speed up generation of a Node-specific <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> history.  <a href="#a5fb6b12160bc081fe25f613a84eaacdb">More...</a><br /></td></tr>
+<tr class="separator:a5fb6b12160bc081fe25f613a84eaacdb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af542142d941cd3b6ed66b5b6ed7bc181"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Topic.html">Topic</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#af542142d941cd3b6ed66b5b6ed7bc181">main_topic</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;_graph, <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> &amp;chunk)</td></tr>
 <tr class="memdesc:af542142d941cd3b6ed66b5b6ed7bc181"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> of a <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk's <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a>, as indicated by the maximum Topic_Relevance value.  <a href="#af542142d941cd3b6ed66b5b6ed7bc181">More...</a><br /></td></tr>
 <tr class="separator:af542142d941cd3b6ed66b5b6ed7bc181"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -840,6 +905,27 @@ Variables</h2></td></tr>
 <tr class="memitem:aba84cce5b733cf4ca721bd800103b1c4"><td class="memItemLeft" align="right" valign="top"><a id="aba84cce5b733cf4ca721bd800103b1c4"></a>
 <a class="el" href="classfz_1_1Simulate__PQ__Changes.html">Simulate_PQ_Changes</a>&#160;</td><td class="memItemRight" valign="bottom"><b>SimPQ</b></td></tr>
 <tr class="separator:aba84cce5b733cf4ca721bd800103b1c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc2e6fb9c1745757fd6019d8546038b5"><td class="memItemLeft" align="right" valign="top">constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#abc2e6fb9c1745757fd6019d8546038b5">NODE_ID_STRSZ</a> = 16+1</td></tr>
+<tr class="memdesc:abc2e6fb9c1745757fd6019d8546038b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reusable directly from Graphtypes:  <a href="#abc2e6fb9c1745757fd6019d8546038b5">More...</a><br /></td></tr>
+<tr class="separator:abc2e6fb9c1745757fd6019d8546038b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6d7911385f100d7569a3cfb28a10ae6"><td class="memItemLeft" align="right" valign="top"><a id="ad6d7911385f100d7569a3cfb28a10ae6"></a>
+constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>EDGE_ID_STRSZ</b> = 16+1+16+1</td></tr>
+<tr class="separator:ad6d7911385f100d7569a3cfb28a10ae6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaea81244aed520480a5ee7b70775e18e"><td class="memItemLeft" align="right" valign="top"><a id="aaea81244aed520480a5ee7b70775e18e"></a>
+constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>TOPIC_KEYWORD_STRSZ</b> = 40+1</td></tr>
+<tr class="separator:aaea81244aed520480a5ee7b70775e18e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a34cacce2f62a38eb6b7ae99dbe1f712d"><td class="memItemLeft" align="right" valign="top"><a id="a34cacce2f62a38eb6b7ae99dbe1f712d"></a>
+constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>TOPIC_TAG_STRSZ</b> = 60+1</td></tr>
+<tr class="separator:a34cacce2f62a38eb6b7ae99dbe1f712d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afae6a4d28eb79c270b61ab5b636d8646"><td class="memItemLeft" align="right" valign="top"><a id="afae6a4d28eb79c270b61ab5b636d8646"></a>
+constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>TOPIC_TITLE_STRSZ</b> = 60+1</td></tr>
+<tr class="separator:afae6a4d28eb79c270b61ab5b636d8646"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a752067f6df08348dbc7cf60f2f20fe94"><td class="memItemLeft" align="right" valign="top"><a id="a752067f6df08348dbc7cf60f2f20fe94"></a>
+constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>TOPIC_KEYREL_ARRSZ</b> = 16</td></tr>
+<tr class="separator:a752067f6df08348dbc7cf60f2f20fe94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4acec9be9e7b87772b0134e343c6d29"><td class="memItemLeft" align="right" valign="top"><a id="aa4acec9be9e7b87772b0134e343c6d29"></a>
+constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>TOPIC_TAGS_ARRSZ</b> = 1000</td></tr>
+<tr class="separator:aa4acec9be9e7b87772b0134e343c6d29"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5946fa5b803240f1c0cd734f214c8c15"><td class="memItemLeft" align="right" valign="top">const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>td_property_str</b> [_tdprop_num]</td></tr>
 <tr class="separator:a5946fa5b803240f1c0cd734f214c8c15"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a64dd91504fdcea08cc7617a5314ec6d2"><td class="memItemLeft" align="right" valign="top">const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>td_pattern_str</b> [_patt_num]</td></tr>
@@ -879,6 +965,11 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_chunk_fiel
 <tr class="memitem:a5220e38267cfa691460e3665ae9aee1d"><td class="memItemLeft" align="right" valign="top"><a id="a5220e38267cfa691460e3665ae9aee1d"></a>
 unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_entry_field</b> [_pqle_NUM]</td></tr>
 <tr class="separator:a5220e38267cfa691460e3665ae9aee1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7fc3e17bc68db256eb5e791bd38a0224"><td class="memItemLeft" align="right" valign="top">const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>pq_history_fieldnames</b> [3]</td></tr>
+<tr class="separator:a7fc3e17bc68db256eb5e791bd38a0224"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8016bd002284cb01795f9e54b9771126"><td class="memItemLeft" align="right" valign="top"><a id="a8016bd002284cb01795f9e54b9771126"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_history_field</b> [3]</td></tr>
+<tr class="separator:a8016bd002284cb01795f9e54b9771126"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeab0d860bf18ea1cc2acb7577f4f294f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1ReferenceTime.html">ReferenceTime</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#aeab0d860bf18ea1cc2acb7577f4f294f">maintime</a></td></tr>
 <tr class="memdesc:aeab0d860bf18ea1cc2acb7577f4f294f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Every program that uses core Formalizer functions that depend on time stamping includes <a class="el" href="ReferenceTime_8hpp_source.html">ReferenceTime.hpp</a> (it is automatically included through <a class="el" href="TimeStamp_8hpp.html" title="This header file declares Formalizer TimeStamp format and operations. ">TimeStamp.hpp</a>).  <a href="#aeab0d860bf18ea1cc2acb7577f4f294f">More...</a><br /></td></tr>
 <tr class="separator:aeab0d860bf18ea1cc2acb7577f4f294f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -946,6 +1037,28 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_entry_fiel
 <p>Standardized exit codes for the Formalizer environment. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a95a7b508456ccb1691f487ed136d52d4a705b1561a859fa4dfba9b3e3045d9f24"></a>exit_NUMENUMS&#160;</td><td class="fielddoc"><p>this one simplifies corresponding array definition, e.g. char[exit_NUMENUMS] </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ad68bce1f115f5d6e9618e1ea1518e30a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad68bce1f115f5d6e9618e1ea1518e30a">&#9670;&nbsp;</a></span>PQ_Command_Variant</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="namespacefz.html#ad68bce1f115f5d6e9618e1ea1518e30a">fz::PQ_Command_Variant</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ad68bce1f115f5d6e9618e1ea1518e30aaa635b87c5a7bfc8edbc3de36ac5d63c2"></a>pq_command_runsilent&#160;</td><td class="fielddoc"><p>this is the default </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ad68bce1f115f5d6e9618e1ea1518e30aac0b188614f2dcefaa28cee9e0c37ddde"></a>pq_command_log&#160;</td><td class="fielddoc"><p>run and write to log file </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ad68bce1f115f5d6e9618e1ea1518e30aac66415affc9c53289c3b68d2b6d3a432"></a>pq_command_simulate&#160;</td><td class="fielddoc"><p>write to log file only </p>
 </td></tr>
 </table>
 
@@ -1939,6 +2052,44 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_entry_fiel
 
 </div>
 </div>
+<a id="ab58aac8e7a504103a1f9fd7f005f4a35"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab58aac8e7a504103a1f9fd7f005f4a35">&#9670;&nbsp;</a></span>join()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string fz::join </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>svec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string&#160;</td>
+          <td class="paramname"><em>delim</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Efficient concatenation of strings from vector of strings with optional delimiter. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">svec</td><td>Vector of strings. </td></tr>
+    <tr><td class="paramname">delim</td><td>Optional delimiter string. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A string composed of all strings in the vector, each separated by the delimiter. </dd></dl>
+
+</div>
+</div>
 <a id="add2e1a49e1871f23c757c97c84484676"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#add2e1a49e1871f23c757c97c84484676">&#9670;&nbsp;</a></span>keyrel_from_pq()</h2>
 
@@ -2122,6 +2273,66 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_entry_fiel
 
 </div>
 </div>
+<a id="ab1a495d238d3b9443ea475cecdfb126d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1a495d238d3b9443ea475cecdfb126d">&#9670;&nbsp;</a></span>load_Node_history_pq()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::load_Node_history_pq </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfz_1_1active__pq.html">active_pq</a> &amp;&#160;</td>
+          <td class="paramname"><em>apq</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classfz_1_1Log.html">Log</a> &amp;&#160;</td>
+          <td class="paramname"><em>log</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structfz_1_1Log__filter.html">Log_filter</a> &amp;&#160;</td>
+          <td class="paramname"><em>filter</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>chunkwherestr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>entrywherestr</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get lists of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries from the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> history cache table and load all of the chunks and entries listed there into a <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> object. </p>
+<p>This function is called by <code><a class="el" href="namespacefz.html#a87cb582cc69257b4d2a364f7da5f47c0" title="Load the Log chunks and Log entries that satisfy a specific filter. ">load_partial_Log_pq()</a></code> if the filter specifies a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">apq</td><td>Access object with database name and schema name. </td></tr>
+    <tr><td class="paramname">log</td><td><a class="el" href="classfz_1_1Log.html" title="Log">Log</a> object where Chunks and Entries are added. </td></tr>
+    <tr><td class="paramname">filter</td><td>A <a class="el" href="structfz_1_1Log__filter.html" title="Filter structure used to set up selective Log reading. ">Log_filter</a> structure where at least the nkey is specified. </td></tr>
+    <tr><td class="paramname">chunkwherestr</td><td>A prepared PQ WHERE string specifying <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> and possibly time interval. </td></tr>
+    <tr><td class="paramname">entrywherestr</td><td>A prepared PQ WHERE string specifying <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a>. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if successfully loaded into <a class="el" href="classfz_1_1Log.html" title="Log">Log</a>. </dd></dl>
+
+</div>
+</div>
 <a id="ad24f78e052197d9844de69ba284cfade"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad24f78e052197d9844de69ba284cfade">&#9670;&nbsp;</a></span>load_Node_parameter_interval()</h2>
 
@@ -2180,6 +2391,53 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_entry_fiel
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a vector with string elements, one for each row. </dd></dl>
+
+</div>
+</div>
+<a id="a87cb582cc69257b4d2a364f7da5f47c0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a87cb582cc69257b4d2a364f7da5f47c0">&#9670;&nbsp;</a></span>load_partial_Log_pq()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::load_partial_Log_pq </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfz_1_1Log.html">Log</a> &amp;&#160;</td>
+          <td class="paramname"><em>log</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;&#160;</td>
+          <td class="paramname"><em>pa</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structfz_1_1Log__filter.html">Log_filter</a> &amp;&#160;</td>
+          <td class="paramname"><em>filter</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Load the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries that satisfy a specific filter. </p>
+<p>The filter may specify a time interval and may specify a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> to which the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries must belong.</p>
+<p>This can also be used by smart on-demand <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> caching modes.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">log</td><td>A <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> for the Chunks and Entries, can be empty or may be added to. </td></tr>
+    <tr><td class="paramname">pa</td><td>Access object with database name and schema name. </td></tr>
+    <tr><td class="paramname">filter</td><td>A selective <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> reading filter structure. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> was succesfully loaded from the database. </dd></dl>
 
 </div>
 </div>
@@ -2570,7 +2828,56 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_entry_fiel
 </div><div class="memdoc">
 
 <p>Load full Chunks table into Log::chunks. </p>
-<p>EXPERIMENTING: With optional WHERE statement! Just in case this function can be reused for load_Log_interval()! </p>
+<p>With optional WHERE statement. </p>
+
+</div>
+</div>
+<a id="a0924e10402414b80f16c8ca32a95e4ad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0924e10402414b80f16c8ca32a95e4ad">&#9670;&nbsp;</a></span>read_Entries_first_pass_pq()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::read_Entries_first_pass_pq </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfz_1_1active__pq.html">active_pq</a> &amp;&#160;</td>
+          <td class="paramname"><em>apq</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classfz_1_1Log.html">Log</a> &amp;&#160;</td>
+          <td class="paramname"><em>log</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>wherestr</em> = <code>&quot;&quot;</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>First-Pass Load of Entries into Log::entries. </p>
+<p>This version of the database table query loads entries data and creates <a class="el" href="classfz_1_1Log__entry.html">Log_entry</a> objects but does not yet associate Log_chunks. It can be used to prepare <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries in advance where a sequence of passes is needed.</p>
+<p>Note that this functions DOES NOT do <code>chunk-&gt;add_Entry()</code>. A second pass is needed to accomplish that.</p>
+<p>See for example how this is used in Load_Node_history_pq().</p>
+<p>With optional WHERE statement.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">apq</td><td>data structure with active database connection pointer and schema name. </td></tr>
+    <tr><td class="paramname">log</td><td>a <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> object that is added to. </td></tr>
+    <tr><td class="paramname">wherestr</td><td>An optional WHERE string to constrain which records are retrieved. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if successful. </dd></dl>
 
 </div>
 </div>
@@ -2621,6 +2928,115 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_entry_fiel
 
 </div>
 </div>
+<a id="a0faf48a147699ffdf8906e6f230f1aae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0faf48a147699ffdf8906e6f230f1aae">&#9670;&nbsp;</a></span>read_Guide_IDs_pq()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::read_Guide_IDs_pq </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfz_1_1Guide__snippet.html">Guide_snippet</a> &amp;&#160;</td>
+          <td class="paramname"><em>snippet</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;&#160;</td>
+          <td class="paramname"><em>pa</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>ids</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Read all IDs from Guide table in the database. </p>
+<p>The <code>snippet</code> should specify <code>snippet.tablename</code>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">snippet</td><td>Data structure that clearly identifies the table in <code>snippet.tablename</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">pa</td><td>Access data with database name and schema name. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">ids</td><td>Vector of ID strings, each of which can be parsed for its components. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if successful. </dd></dl>
+
+</div>
+</div>
+<a id="a0a8d75e81f8c4ebd34f0e25be2e4144d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a8d75e81f8c4ebd34f0e25be2e4144d">&#9670;&nbsp;</a></span>read_Guide_multi_snippets_pq()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::read_Guide_multi_snippets_pq </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfz_1_1Guide__snippet.html">Guide_snippet</a> &amp;&#160;</td>
+          <td class="paramname"><em>snippet</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;&#160;</td>
+          <td class="paramname"><em>pa</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>ids</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>snippets</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Read multiple snippets from Guide table in the database. </p>
+<p>The <code>snippet</code> should specify the filtered subset by specifying those parts of the ID that should be matched and leaving other parts unspecified. This function is shared for various guide tables and does not know the actual class of <code>snippet</code>. Therefore, the translation from Guide-specific ID components and wildcards to a Postgres key wildcards needs to be done before calling this function, so that <code>snippet.idstr()</code> returns the right filter for "WHERE id LIKE '&lt;something&gt;'".</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">snippet</td><td>Data structure that clearly specifies the filter as described. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">pa</td><td>Access data with database name and schema name. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">snippets</td><td>Vector of snippet strings. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if successful.</dd></dl>
+<p>The <code>snippet</code> should specify the filtered subset by specifying those parts of the ID that should be matched and leaving other parts unspecified. This function is shared for various guide tables and does not know the actual class of <code>snippet</code>. Therefore, the translation from Guide-specific ID components and wildcards to a Postgres key wildcards needs to be done before calling this function, so that <code>snippet.idstr()</code> returns the right filter for "WHERE id LIKE '&lt;something&gt;'".</p>
+<p>Note that a <code>nullsnippet()</code> is interpreted as "read everything".</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">snippet</td><td>Data structure that clearly specifies the filter as described. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">pa</td><td>Access data with database name and schema name. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">snippets</td><td>Vector of snippet strings. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if successful. </dd></dl>
+
+</div>
+</div>
 <a id="ae2f30f53fd171c9a6c7f03cf96c983ba"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae2f30f53fd171c9a6c7f03cf96c983ba">&#9670;&nbsp;</a></span>read_Guide_snippet_pq()</h2>
 
@@ -2656,6 +3072,33 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_entry_fiel
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a669984ccbebfe6dbd9a4d962aded0012"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a669984ccbebfe6dbd9a4d962aded0012">&#9670;&nbsp;</a></span>refresh_Node_history_cache_pq()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::refresh_Node_history_cache_pq </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;&#160;</td>
+          <td class="paramname"><em>pa</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Refresh the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> history cache table. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pa</td><td>Access object with valid database and schema identifiers. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if the refresh was successful. </dd></dl>
 
 </div>
 </div>
@@ -2881,7 +3324,7 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_entry_fiel
 </div><div class="memdoc">
 
 <p>Send a simple action call to a Postgres database. </p>
-<p>Note: If the global flag simulate_pq_changes==true then this function does not execute Postgres calls. Instead, the call string will be added to simulated_pq_calls.</p>
+<p>Note: If the global flag simulate_pq_changes==pq_command_simulate then this function does not execute Postgres calls. Instead, the call string will be added to simulated_pq_calls.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">conn</td><td>active database connection. </td></tr>
@@ -2970,12 +3413,12 @@ template&lt;typename Out &gt; </div>
 <p>This uses the <a class="el" href="namespacefz.html#a45a30fb04b5721cd05047bd4088fb8b0" title="Put pieces of a string into a pre-constructed vector. ">split()</a> template above. It lets you do things like pass the result directly to a function like this: f(split(s, d, v)) while still having the benefit of a pre-allocated vector if you like.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">s</td><td>a string. </td></tr>
-    <tr><td class="paramname">delim</td><td>a delimiter character. </td></tr>
+    <tr><td class="paramname">s</td><td>A string. </td></tr>
+    <tr><td class="paramname">delim</td><td>A delimiter character. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>a vector of strings. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A vector of strings. </dd></dl>
 
 </div>
 </div>
@@ -3028,6 +3471,46 @@ template&lt;typename Out &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the <a class="el" href="classfz_1_1Graph.html">Graph</a> was successfully stored in the database. </dd></dl>
+
+</div>
+</div>
+<a id="a84b38593fec552b574f1ca8e56d3b254"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84b38593fec552b574f1ca8e56d3b254">&#9670;&nbsp;</a></span>store_Guide_multi_snippet_pq()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::store_Guide_multi_snippet_pq </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; Guide_snippet_ptr &gt; &amp;&#160;</td>
+          <td class="paramname"><em>snippets</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;&#160;</td>
+          <td class="paramname"><em>pa</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Store multiple Guide snippets in the PostgreSQL database. </p>
+<p>Creates the table if necessary.</p>
+<p>At least the first element (index 0) of the vector must contain a valid <code>tablename</code> and must produce valid <code>layout()</code> information.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">snippets</td><td>a vector guide snippets. </td></tr>
+    <tr><td class="paramname">pa</td><td>a standard database access stucture with database name and schema name. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the snippet was successfully stored in the database. </dd></dl>
 
 </div>
 </div>
@@ -3112,6 +3595,44 @@ template&lt;typename Out &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> was successfully stored in the database. </dd></dl>
+
+</div>
+</div>
+<a id="a5fb6b12160bc081fe25f613a84eaacdb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5fb6b12160bc081fe25f613a84eaacdb">&#9670;&nbsp;</a></span>store_Node_history_pq()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::store_Node_history_pq </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classfz_1_1Node__histories.html">Node_histories</a> &amp;&#160;</td>
+          <td class="paramname"><em>nodehist</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;&#160;</td>
+          <td class="paramname"><em>pa</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Store a <a class="el" href="structfz_1_1Node__history.html" title="Log history by Node expressed as a list of Log chunks and a list of Log entries for each Node for whi...">Node_history</a> object to a cache table in the database to speed up generation of a Node-specific <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> history. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">nodehist</td><td>A <a class="el" href="structfz_1_1Node__history.html" title="Log history by Node expressed as a list of Log chunks and a list of Log entries for each Node for whi...">Node_history</a> object. </td></tr>
+    <tr><td class="paramname">pa</td><td>Access object with valid database and schema identifiers. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if cache table storage was successful. </dd></dl>
 
 </div>
 </div>
@@ -3258,59 +3779,6 @@ template&lt;typename Out &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the write from string was successful. </dd></dl>
-
-</div>
-</div>
-<a id="ad35c1e0f1b89afb3f7d1ecb898710296"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad35c1e0f1b89afb3f7d1ecb898710296">&#9670;&nbsp;</a></span>TEST_load_Log_interval_pq()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool fz::TEST_load_Log_interval_pq </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classfz_1_1Log__interval.html">Log_interval</a> &amp;&#160;</td>
-          <td class="paramname"><em>log</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;&#160;</td>
-          <td class="paramname"><em>pa</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">time_t&#160;</td>
-          <td class="paramname"><em>t_from</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">time_t&#160;</td>
-          <td class="paramname"><em>t_to</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>EXPERIMENTAL! Load the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries with ID in a specified interval. </p>
-<p>This can be used by smart on-demand <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> caching modes.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">log</td><td>A <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> for the Chunks and Entries, typically empty. </td></tr>
-    <tr><td class="paramname">pa</td><td>Access object with database name and schema name. </td></tr>
-    <tr><td class="paramname">t_from</td><td>Chunk and entry IDs must be &gt;= <code>t_from</code>. </td></tr>
-    <tr><td class="paramname">t_to</td><td>Chunk and entry IDs must be &lt;= <code>t_to</code>. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>True if the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> was succesfully loaded from the database. </dd></dl>
 
 </div>
 </div>
@@ -3934,6 +4402,25 @@ template&lt;typename Out &gt; </div>
 
 </div>
 </div>
+<a id="abc2e6fb9c1745757fd6019d8546038b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc2e6fb9c1745757fd6019d8546038b5">&#9670;&nbsp;</a></span>NODE_ID_STRSZ</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr size_t fz::NODE_ID_STRSZ = 16+1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Reusable directly from Graphtypes: </p>
+<p><a class="el" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. ">ID_TimeStamp</a> <a class="el" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. ">Node_ID_key</a> <a class="el" href="structfz_1_1Edge__ID__key.html" title="Standardized Formalizer Edge ID key. ">Edge_ID_key</a> Keyword_Relevance Topic_ID td_property td_property_str (this array of strings does not change) td_pattern td_pattern_str (this array of strings does not change) <a class="el" href="classfz_1_1Edge.html">Edge</a></p>
+<p>Needs replacement:</p>
+<p><a class="el" href="classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use. ">Node_ID</a> (idS_cache) <a class="el" href="classfz_1_1Edge__ID.html" title="Edge ID that caches its ID stamp for frequent use. ">Edge_ID</a> (idS_cache) <a class="el" href="structfz_1_1Topic__Keyword.html" title="Type for real-valued Keyword relevance (to Topic), presently assumed to be in the interval [0...">Topic_Keyword</a> (keyword) <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> (tag, title, keyrel) Topic_Tags_Vector <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a> (topictags, topicbytag) Topics_Set Edges_Set <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> (id, topics, text, supedges, depedges) Node_Map Edge_Map Node_Index <a class="el" href="classfz_1_1Graph.html">Graph</a> (nodes, edges, topics, ) </p>
+
+</div>
+</div>
 <a id="a891acb04fd8751af330b359683bf1f32"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a891acb04fd8751af330b359683bf1f32">&#9670;&nbsp;</a></span>pq_chunk_fieldnames</h2>
 
@@ -3974,6 +4461,20 @@ template&lt;typename Out &gt; </div>
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">= {<span class="stringliteral">&quot;id&quot;</span>,</div><div class="line">                                                   <span class="stringliteral">&quot;nid&quot;</span>,</div><div class="line">                                                   <span class="stringliteral">&quot;text&quot;</span>}</div></div><!-- fragment -->
+</div>
+</div>
+<a id="a7fc3e17bc68db256eb5e791bd38a0224"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7fc3e17bc68db256eb5e791bd38a0224">&#9670;&nbsp;</a></span>pq_history_fieldnames</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::string fz::pq_history_fieldnames[3]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">= {<span class="stringliteral">&quot;nid&quot;</span>,</div><div class="line">                                              <span class="stringliteral">&quot;chunkids&quot;</span>,</div><div class="line">                                              <span class="stringliteral">&quot;entryids&quot;</span>}</div></div><!-- fragment -->
 </div>
 </div>
 <a id="a4e2e72b75f6a44514c6175b6dd58988c"></a>

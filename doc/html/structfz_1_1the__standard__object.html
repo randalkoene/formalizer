@@ -152,7 +152,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
 </div><div class="memdoc">
 
 <p>Add additional steps to the <a class="el" href="structfz_1_1the__standard__object.html#ac2481c85fb6a8cbba12b905b428d82f4" title="You can call this instead of std::exit() if you like, same thing, same stack. ">exit()</a> stack. </p>
-<p>This affects all paths to exit. The additional exit hooks will be called whether the regular <code><a class="el" href="structfz_1_1the__standard__object.html#ac2481c85fb6a8cbba12b905b428d82f4" title="You can call this instead of std::exit() if you like, same thing, same stack. ">exit()</a></code> function or a <code>formalizer_standard_program::exit()</code> derived function is called. It's a stack, so the order of the calls to the hooks is the reverse of the order in which they were added.</p>
+<p>This affects all paths to exit. The additional exit hooks will be called if the regular <code><a class="el" href="structfz_1_1the__standard__object.html#ac2481c85fb6a8cbba12b905b428d82f4" title="You can call this instead of std::exit() if you like, same thing, same stack. ">exit()</a></code> function or a <code>formalizer_standard_program::exit()</code> derived function is called. It's a stack, so the order of the calls to the hooks is the reverse of the order in which they were added.</p>
 <p>The exit hook function must be a regular function, not a method (member function) of a class, but you could always make a wrapper around a call to a method.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">

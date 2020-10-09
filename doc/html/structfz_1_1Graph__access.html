@@ -109,6 +109,9 @@ std::unique_ptr&lt; <a class="el" href="classfz_1_1Graph.html">Graph</a> &gt;&#1
 <tr class="memitem:aee511ee3c5271890929d67c7bc8ed10b"><td class="memItemLeft" align="right" valign="top"><a id="aee511ee3c5271890929d67c7bc8ed10b"></a>
 std::unique_ptr&lt; <a class="el" href="classfz_1_1Log.html">Log</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>request_Log_copy</b> ()</td></tr>
 <tr class="separator:aee511ee3c5271890929d67c7bc8ed10b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1589c4431ce1f9eff560d1f5791810b0"><td class="memItemLeft" align="right" valign="top"><a id="a1589c4431ce1f9eff560d1f5791810b0"></a>
+std::unique_ptr&lt; <a class="el" href="classfz_1_1Log.html">Log</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>request_Log_excerpt</b> (const <a class="el" href="structfz_1_1Log__filter.html">Log_filter</a> &amp;filter)</td></tr>
+<tr class="separator:a1589c4431ce1f9eff560d1f5791810b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af1096df7fffad5f281ccbd6415cd751f"><td class="memItemLeft" align="right" valign="top"><a id="af1096df7fffad5f281ccbd6415cd751f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Graph__access.html#af1096df7fffad5f281ccbd6415cd751f">rapid_access_init</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, <a class="el" href="classfz_1_1Log.html">Log</a> &amp;log)</td></tr>
 <tr class="memdesc:af1096df7fffad5f281ccbd6415cd751f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Once both <a class="el" href="classfz_1_1Graph.html">Graph</a> and <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> instances have been loaded. <br /></td></tr>
@@ -119,7 +122,7 @@ std::pair&lt; std::unique_ptr&lt; <a class="el" href="classfz_1_1Graph.html">Gra
 <tr class="separator:af14618f532bb1eed0d9f2835d22c36ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_structfz_1_1Postgres__access"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_structfz_1_1Postgres__access')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="structfz_1_1Postgres__access.html">fz::Postgres_access</a></td></tr>
 <tr class="memitem:a1ece179a60c6b4e0b6fcc653fd213866 inherit pub_methods_structfz_1_1Postgres__access"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Postgres__access.html#a1ece179a60c6b4e0b6fcc653fd213866">Postgres_access</a> (<a class="el" href="classfz_1_1formalizer__standard__program.html">formalizer_standard_program</a> &amp;fsp, std::string &amp;add_option_args_here, std::string &amp;add_usage_top_here, bool _isserver=false)</td></tr>
-<tr class="memdesc:a1ece179a60c6b4e0b6fcc653fd213866 inherit pub_methods_structfz_1_1Postgres__access"><td class="mdescLeft">&#160;</td><td class="mdescRight">authoritative server programs should set this flag  <a href="structfz_1_1Postgres__access.html#a1ece179a60c6b4e0b6fcc653fd213866">More...</a><br /></td></tr>
+<tr class="memdesc:a1ece179a60c6b4e0b6fcc653fd213866 inherit pub_methods_structfz_1_1Postgres__access"><td class="mdescLeft">&#160;</td><td class="mdescRight">Carry out initializations needed to enable access to the Postgres database.  <a href="structfz_1_1Postgres__access.html#a1ece179a60c6b4e0b6fcc653fd213866">More...</a><br /></td></tr>
 <tr class="separator:a1ece179a60c6b4e0b6fcc653fd213866 inherit pub_methods_structfz_1_1Postgres__access"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1372fa21dd5b1483c2e93721e243dc81 inherit pub_methods_structfz_1_1Postgres__access"><td class="memItemLeft" align="right" valign="top"><a id="a1372fa21dd5b1483c2e93721e243dc81"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Postgres__access.html#a1372fa21dd5b1483c2e93721e243dc81">access_initialize</a> ()</td></tr>
@@ -147,6 +150,10 @@ Additional Inherited Members</h2></td></tr>
 <tr class="memitem:a028dcbb9bd70ac1e81162676c8397aea inherit pub_attribs_structfz_1_1Postgres__access"><td class="memItemLeft" align="right" valign="top"><a id="a028dcbb9bd70ac1e81162676c8397aea"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_server</b></td></tr>
 <tr class="separator:a028dcbb9bd70ac1e81162676c8397aea inherit pub_attribs_structfz_1_1Postgres__access"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab68f0be86f929f758457cc63a1ee8a1c inherit pub_attribs_structfz_1_1Postgres__access"><td class="memItemLeft" align="right" valign="top"><a id="ab68f0be86f929f758457cc63a1ee8a1c"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Postgres__access.html#ab68f0be86f929f758457cc63a1ee8a1c">initialized</a></td></tr>
+<tr class="memdesc:ab68f0be86f929f758457cc63a1ee8a1c inherit pub_attribs_structfz_1_1Postgres__access"><td class="mdescLeft">&#160;</td><td class="mdescRight">authoritative server programs should set this flag <br /></td></tr>
+<tr class="separator:ab68f0be86f929f758457cc63a1ee8a1c inherit pub_attribs_structfz_1_1Postgres__access"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_structfz_1_1Postgres__access"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_structfz_1_1Postgres__access')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="structfz_1_1Postgres__access.html">fz::Postgres_access</a></td></tr>
 <tr class="memitem:a286357a8b1cdb5ca6cc9ef5807b042a2 inherit pro_methods_structfz_1_1Postgres__access"><td class="memItemLeft" align="right" valign="top"><a id="a286357a8b1cdb5ca6cc9ef5807b042a2"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>dbname_error</b> ()</td></tr>

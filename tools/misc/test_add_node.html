@@ -1,0 +1,87 @@
+<html>
+
+<head>
+
+</head>
+
+<body>
+
+    <p>
+        This test is an example entry form that could be used to add a Node. A very similar form could be used to edit a
+        Node.
+    </p>
+
+    <form>
+
+        <p>
+            Node <b>{{ node-id }}</b>
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td><input type="number" name="valuation"> valuation</td>
+                    <td>(typically [1.0,3.0])</td>
+                </tr>
+                <tr>
+                    <td><input type="number" name="required"> hours required</td>
+                    <td>(normally keep it constrained or make multiple Nodes)</td>
+                </tr>
+                <tr>
+                    <td>completion ratio starts at 0.0</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><input type="number" name="targetdate"> target date</td> <td>(YYYYmmddHHMM format)</td>
+                </tr>
+                <tr>
+                    <td span=2>
+                        <input type="radio" name="tdproperty" value="unspecified" checked> unspecified
+                        <input type="radio" name="tdproperty" value="variable" checked> variable
+                        <input type="radio" name="tdproperty" value="inherited" checked> inherited
+                        <input type="radio" name="tdproperty" value="fixed" checked> fixed
+                        <input type="radio" name="tdproperty" value="exact" checked> exact
+                    </td>
+                </tr>
+                <tr>
+                    <td>every <input type="number" name="tdevery" value="1"></td> <td>for span <input type="number" name="tdspan" value="0"> instances (0=unlimited)</td>
+                </tr>
+                <tr>
+                    <td span=2>repeat
+                        <input type="radio" name="tdpattern" value="none"> never
+                        <input type="radio" name="tdpattern" value="days"> days
+                        <input type="radio" name="tdpattern" value="workdays"> workdays
+                        <input type="radio" name="tdpattern" value="weeks"> weeks
+                        <input type="radio" name="tdpattern" value="fortnights"> fortnights
+                        <input type="radio" name="tdpattern" value="months"> months
+                        <input type="radio" name="tdpattern" value="eofmonths"> end of month offsets
+                        <input type="radio" name="tdpattern" value="years"> years
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>Node description:</p>
+        <textarea>
+
+        </textarea>
+        <p>
+            The description is typically in HTML format and can contain Node and Log references that are automatically
+            recognized and converted into links.
+        </p>
+
+        <p>Established superiors:</p>
+        <ul>
+            <li>...</li>
+        </ul>
+
+        <p>Established dependencies:</p>
+        <ul>
+            <li>...</li>
+        </ul>
+
+    </form>
+
+</body>
+
+</html>

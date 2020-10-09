@@ -88,6 +88,9 @@ Collaboration diagram for Guide_snippet_system:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:aac979fe40da3d2442fe3a1a2e7afb56b"><td class="memItemLeft" align="right" valign="top"><a id="aac979fe40da3d2442fe3a1a2e7afb56b"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Guide_snippet_system</b> (const std::string &amp;<a class="el" href="structGuide__snippet__system.html#a0a66a798ab6e6a3ac5ff63c1aa771c63">idstr</a>, const std::string &amp;snippetstr)</td></tr>
+<tr class="separator:aac979fe40da3d2442fe3a1a2e7afb56b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa7920a8044cebefaff6c7d6cb576e14f"><td class="memItemLeft" align="right" valign="top"><a id="aa7920a8044cebefaff6c7d6cb576e14f"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Guide_snippet_system</b> (const <a class="el" href="structfzguide__system.html">fzguide_system</a> &amp;_fzgs)</td></tr>
 <tr class="separator:aa7920a8044cebefaff6c7d6cb576e14f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -106,10 +109,21 @@ virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class=
 virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structGuide__snippet__system.html#a812570de610a76508af44d7001da9e74">all_values_pqstr</a> () const</td></tr>
 <tr class="memdesc:a812570de610a76508af44d7001da9e74"><td class="mdescLeft">&#160;</td><td class="mdescRight">inherit this base class and define this function <br /></td></tr>
 <tr class="separator:a812570de610a76508af44d7001da9e74"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3563e39839f10a1d0e6bc8a849047b8"><td class="memItemLeft" align="right" valign="top"><a id="ab3563e39839f10a1d0e6bc8a849047b8"></a>
+virtual <a class="el" href="structfz_1_1Guide__snippet.html">Guide_snippet</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structGuide__snippet__system.html#ab3563e39839f10a1d0e6bc8a849047b8">clone</a> () const</td></tr>
+<tr class="memdesc:ab3563e39839f10a1d0e6bc8a849047b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">define these to enable emplace_back() to Guide_snippet_ptr vector <br /></td></tr>
+<tr class="separator:ab3563e39839f10a1d0e6bc8a849047b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a998ef52d900aa0557b132948b817a351"><td class="memItemLeft" align="right" valign="top"><a id="a998ef52d900aa0557b132948b817a351"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structGuide__snippet__system.html#a998ef52d900aa0557b132948b817a351">nullsnippet</a> () const</td></tr>
 <tr class="memdesc:a998ef52d900aa0557b132948b817a351"><td class="mdescLeft">&#160;</td><td class="mdescRight">inherit this base class and define this function <br /></td></tr>
 <tr class="separator:a998ef52d900aa0557b132948b817a351"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa3eaca1e19ace632ff34a85dce1b0e2a"><td class="memItemLeft" align="right" valign="top"><a id="aa3eaca1e19ace632ff34a85dce1b0e2a"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structGuide__snippet__system.html#aa3eaca1e19ace632ff34a85dce1b0e2a">multisnippet</a> () const</td></tr>
+<tr class="memdesc:aa3eaca1e19ace632ff34a85dce1b0e2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">inherit this base class and define this function <br /></td></tr>
+<tr class="separator:aa3eaca1e19ace632ff34a85dce1b0e2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a423217e2ef8ad61073e2867ef7406406"><td class="memItemLeft" align="right" valign="top"><a id="a423217e2ef8ad61073e2867ef7406406"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_pq_wildcards</b> ()</td></tr>
+<tr class="separator:a423217e2ef8ad61073e2867ef7406406"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_structfz_1_1Guide__snippet"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_structfz_1_1Guide__snippet')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="structfz_1_1Guide__snippet.html">fz::Guide_snippet</a></td></tr>
 <tr class="memitem:a3b1b860e26aa8c62a48152e8caadbe01 inherit pub_methods_structfz_1_1Guide__snippet"><td class="memItemLeft" align="right" valign="top"><a id="a3b1b860e26aa8c62a48152e8caadbe01"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Guide_snippet</b> (std::string _tablename)</td></tr>
@@ -120,9 +134,15 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>empty</b> () const</t
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:ad46a3ef74060ad95089dcf25d6dbef6b"><td class="memItemLeft" align="right" valign="top"><a id="ad46a3ef74060ad95089dcf25d6dbef6b"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>section</b></td></tr>
-<tr class="separator:ad46a3ef74060ad95089dcf25d6dbef6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc7fd6c684ca3557850bcdc6c86ddd12"><td class="memItemLeft" align="right" valign="top"><a id="abc7fd6c684ca3557850bcdc6c86ddd12"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>chapter</b></td></tr>
+<tr class="separator:abc7fd6c684ca3557850bcdc6c86ddd12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af23ae9ba885b5c00e112517381c7a588"><td class="memItemLeft" align="right" valign="top"><a id="af23ae9ba885b5c00e112517381c7a588"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>sectionnum</b></td></tr>
+<tr class="separator:af23ae9ba885b5c00e112517381c7a588"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a647b47245701276e6cfdab6f353f936f"><td class="memItemLeft" align="right" valign="top"><a id="a647b47245701276e6cfdab6f353f936f"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>subsectionnum</b></td></tr>
+<tr class="separator:a647b47245701276e6cfdab6f353f936f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a692eff48d0983ae4f01af6bc9f2a96d9"><td class="memItemLeft" align="right" valign="top"><a id="a692eff48d0983ae4f01af6bc9f2a96d9"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>subsection</b></td></tr>
 <tr class="separator:a692eff48d0983ae4f01af6bc9f2a96d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -141,7 +161,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
 </table>
 <hr/>The documentation for this struct was generated from the following files:<ul>
 <li>core/fzguide.system/<a class="el" href="fzguide_8system_8hpp_source.html">fzguide.system.hpp</a></li>
-<li>core/fzguide.system/fzguide.system.cpp</li>
+<li>core/fzguide.system/<a class="el" href="fzguide_8system_8cpp.html">fzguide.system.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

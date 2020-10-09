@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Formalizer: fzguide.system - {{ brief_title }}}</title>
+<title>Formalizer: fzguide.system - Authoritative server of System guide content.</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -62,10 +62,21 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="headertitle">
-<div class="title">fzguide.system - {{ brief_title }}} </div>  </div>
+<div class="title">fzguide.system - Authoritative server of System guide content. </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>{{ readme_description }}</p>
+<div class="textblock"><p>This Formalizer environment server program provides a target independent authoritative source for content in the System guide. The server program <code>fzguide.system</code> carries out interactions with the underlying database to retrieve guide content or store new guide content.</p>
+<p>Examples are:</p>
+<ul>
+<li>The AM System Morning protocol guide.</li>
+<li>The PM System Evening protocol guide.</li>
+</ul>
+<hr/>
+<p>The <code>fzguide.system-cgi.py</code> tool is provided as a CGI handler, together with the <code>fzguide.system-form.html</code> HTML page, as an alternative but straightforward web interface to the <code>fzguide.system</code> server.</p>
+<p>The server, the CGI handler, and the HTML page can all be installed from the Formalizer source code root by running <code>make</code> on the <code>executables</code> target. For example:</p>
+<div class="fragment"><div class="line">cd ~/src/formalizer</div><div class="line">make executables</div></div><!-- fragment --> <hr/>
+<p>The <code>system-guide.20200912-flat.html</code> file is a snapshot flat HTML file created by removing unnecessary page formatting bulk from the v1.x iteration of the authoritative System Summary (which was found at <code>~/doc/tex/Change/NoC-System-Summary.html</code>). Its contents form the initial individual entries for the guide sections in the database.</p>
+<p>The <code>example_snippet.txt</code> file shows in rudimentary form what a single snippet (entry) can look like. </p><hr/>
 <p>Randal A. Koene, 2020 </p>
 </div></div><!-- contents -->
 <!-- start footer part -->

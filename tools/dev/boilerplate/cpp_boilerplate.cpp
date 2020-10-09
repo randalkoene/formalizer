@@ -4,6 +4,18 @@
 /**
  * cpp_boilerplate is the authoritative C++ source code stub generator for Formalizer development.
  * 
+ * The options provided by this boilerplate are:
+ * - core / tools component
+ * - core:library component / core:standalone component
+ * - tools component with filesystem category detailing
+ * - include template rendering
+ * - standard program with standard program derived class, version, module id.
+ * - standardized config parameters from config tree
+ * - configuration via init register configurable or via configbase
+ * - Graph or Log access is presently included just through hints in comments
+ * 
+ * - TEST all the different variants, make sure they even compile, delete the tests when done
+ * 
  * For more about this, see the Trello card at https://trello.com/c/8czp28zx.
  */
 
@@ -45,6 +57,10 @@ enum template_id_enum {
     cpp_bp_version_temp,
     cpp_bp_rendercpp_temp,
     cpp_bp_renderhpp_temp,
+    cpp_bp_hpp_configurable_temp,
+    cpp_bp_cpp_configurable_temp,
+    cpp_bp_hpp_configbase_temp,
+    cpp_bp_cpp_configbase_temp,
     NUM_temp
 };
 
@@ -57,7 +73,11 @@ const std::vector<std::string> template_ids = {
     "cpp_bp_README_template",
     "cpp_bp_version_template.hpp",
     "cpp_bp_render_template.cpp",
-    "cpp_bp_render_template.hpp"
+    "cpp_bp_render_template.hpp",
+    "cpp_bp_hpp_configurable_template.hpp",
+    "cpp_bp_cpp_configurable_template.cpp",
+    "cpp_bp_hpp_configbase_template.hpp",
+    "cpp_bp_cpp_configbase_template.cpp"
 };
 
 typedef std::map<template_id_enum,std::string> cpp_bp_templates;
@@ -106,6 +126,12 @@ int make_cpp_boilerplate() {
     std::string headerdir = formalizer_path_dir(thisname,category,iscore,islibrary,true);
     std::string sourcedir = formalizer_path_dir(thisname,category,iscore,islibrary,false);
 
+    bool uses_config = ask_boolean_choice("Uses standardized config file? [y]/[N] ",'y',"INCLUDE CONFIG METHOD","NO CONFIG PARAMETERS");
+    bool configurable = false;
+    if (uses_config) {
+        configurable = !ask_boolean_choice("Configurable at program start via init register? [Y]/[n]",'n',"USES CONFIGBASE","USES CONFIGURABLE");
+    }
+
     bool includetemplater = false;
     if (!islibrary) {
         includetemplater = ask_boolean_choice("Include template rendering file? [y]/[N] ",'y',"INCLUDE TEMPLATE RENDERING","NO TEMPLATE RENDERING");
@@ -127,6 +153,27 @@ int make_cpp_boilerplate() {
     } else {
         cppvars.emplace("render_hpp","");
     }
+    if (uses_config) {
+        if (configurable) {
+            cppvars.emplace("construct_inherited_config_access_etc", ": formalizer_standard_program(false), config(*this)");
+            template_varvalues cppconfvars;
+            std::string rendered_cppconfig;
+            cppconfvars.emplace("th",abbreviation);
+            rendered_cppconfig = env.render(templates[cpp_bp_cpp_configurable_temp], cppconfvars);
+            cppvars.emplace("config_set_parameter_implementation", rendered_cppconfig);
+        } else {
+            cppvars.emplace("construct_inherited_config_access_etc", ": formalizer_standard_program(false)");
+            template_varvalues cppconfvars;
+            std::string rendered_cppconfig;
+            cppconfvars.emplace("th",abbreviation);
+            cppconfvars.emplace("this",thisname);
+            rendered_cppconfig = env.render(templates[cpp_bp_cpp_configbase_temp], cppconfvars);
+            cppvars.emplace("config_set_parameter_implementation", rendered_cppconfig);
+        }
+    } else {
+        cppvars.emplace("construct_inherited_config_access_etc", ": formalizer_standard_program(false)");
+        cppvars.emplace("config_set_parameter_implementation", "");
+    }
     if (!islibrary) {
         cppvars.emplace("th", abbreviation);
         cppvars.emplace("module_id", moduleid);
@@ -140,6 +187,30 @@ int make_cpp_boilerplate() {
     std::string rendered_hpp;
     hppvars.emplace("this",thisname);
     hppvars.emplace("CAPSthis",CAPSthis);
+    if (uses_config) {
+        hppvars.emplace("config_include", "#include \"config.hpp\"");
+        if (configurable) {
+            template_varvalues hppconfvars;
+            std::string rendered_hppconfig;
+            hppconfvars.emplace("this",thisname);
+            hppconfvars.emplace("th",abbreviation);
+            rendered_hppconfig = env.render(templates[cpp_bp_hpp_configurable_temp], hppconfvars);
+            hppvars.emplace("th_configurable_or_configbase",rendered_hppconfig);
+            hppvars.emplace("config_support",abbreviation+"_configurable config;");
+        } else {
+            template_varvalues hppconfvars;
+            std::string rendered_hppconfig;
+            hppconfvars.emplace("th",abbreviation);
+            rendered_hppconfig = env.render(templates[cpp_bp_hpp_configbase_temp], hppconfvars);
+            hppvars.emplace("th_configurable_or_configbase",rendered_hppconfig);
+            hppvars.emplace("config_support","friend "+abbreviation+"_configbase;\n\t"+abbreviation+"_configbase config;");
+        }
+    } else {
+        hppvars.emplace("config_include", "");
+        hppvars.emplace("th_configurable_or_configbase", "");
+        hppvars.emplace("config_support", "");
+    }
+    
     if (!islibrary) {
         hppvars.emplace("th", abbreviation);
         rendered_hpp = env.render(templates[cpp_bp_hpp_temp], hppvars);
@@ -222,11 +293,16 @@ int make_cpp_boilerplate() {
         careful_file_create(sourcedir+"/version.hpp",rendered_version);
 
         if (iscore) {
-            FZOUT("Please remember to add EXECUTABLES += $(COREPATH)/"+thisname+'/'+thisname+" to the root Makefile.");
+            FZOUT("Please remember to add EXECUTABLES += $(COREPATH)/"+thisname+'/'+thisname+" to the root Makefile.\n");
         } else {
-            FZOUT("Please remember to add EXECUTABLES += $(TOOLSPATH)/"+thisname+'/'+thisname+" to the root Makefile.");
+            FZOUT("Please remember to add EXECUTABLES += $(TOOLSPATH)/"+thisname+'/'+thisname+" to the root Makefile.\n");
         }
+        FZOUT("Also, please check for any necessary updates of SYMBIN, CGIEXE or WEBINTERFACES in the root Makefile.\n");
     }
+    if (uses_config) {
+        FZOUT("Please add to executables.py or coreconfigurable.py, so that `fzsetup.py -1 config` prepares the configuration file location.\n");
+    }
+    FZOUT("Please check `fzinfo` in case information about this new component needs to be added.\n");
 
     return standard.completed_ok();
 }

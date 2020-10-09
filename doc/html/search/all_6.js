@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['fgs',['fgs',['../fzguide_8system_8cpp.html#a4e37b8af505928ef23c9fbabbcc09066',1,'fzguide.system.cpp']]],
   ['file_5fto_5fstring',['file_to_string',['../namespacefz.html#aac311316b5a762d53489ec1135d88479',1,'fz']]],
   ['find',['find',['../structfz_1_1Log__chunks__Deque.html#a022e5eeee02139fc64575e5ab0aabf9b',1,'fz::Log_chunks_Deque::find(const Log_chunk_ID_key chunk_id) const'],['../structfz_1_1Log__chunks__Deque.html#a5a15e162aaef38510c158f9b4ecd849a',1,'fz::Log_chunks_Deque::find(std::time_t t, bool later) const']]],
   ['find_5fbreakpoint_5findex_5fbefore_5fchunk',['find_Breakpoint_index_before_chunk',['../classfz_1_1Log__Breakpoints.html#ad5205b8306e07be5f17bed88907db4e9',1,'fz::Log_Breakpoints']]],
@@ -19,6 +20,7 @@ var searchData=
   ['formalizer_5fstandard_5fprogram',['formalizer_standard_program',['../classfz_1_1formalizer__standard__program.html',1,'fz::formalizer_standard_program'],['../classfz_1_1formalizer__standard__program.html#a5ed1aa517fb32a549d09966f487da224',1,'fz::formalizer_standard_program::formalizer_standard_program()']]],
   ['from_5fidx',['from_idx',['../structLog2TL__conv__params.html#aae34527e4977c8d734ae20ed361aeb5d',1,'Log2TL_conv_params']]],
   ['fz',['fz',['../namespacefz.html',1,'']]],
+  ['fzguide_2esystem_2ecpp',['fzguide.system.cpp',['../fzguide_8system_8cpp.html',1,'']]],
   ['fzguide_5fsystem',['fzguide_system',['../structfzguide__system.html',1,'fzguide_system'],['../structfzguide__system.html#a3df1a739455fb43a1b0ec96297df493a',1,'fzguide_system::fzguide_system()']]],
   ['fzlh_5fconfigurable',['fzlh_configurable',['../classfzlh__configurable.html',1,'']]],
   ['fzloghtml',['fzloghtml',['../structfzloghtml.html',1,'fzloghtml'],['../structfzloghtml.html#afe1674d6009c384a3653194113acd33a',1,'fzloghtml::fzloghtml()']]],
@@ -27,7 +29,8 @@ var searchData=
   ['fzquerypq',['fzquerypq',['../structfzquerypq.html',1,'']]],
   ['fzserverpq',['fzserverpq',['../structfzserverpq.html',1,'fzserverpq'],['../structfzserverpq.html#a2184eb7f08dc15e6278e7b764402c91a',1,'fzserverpq::fzserverpq()']]],
   ['formalizer',['Formalizer',['../index.html',1,'']]],
-  ['fzguide_2esystem_20_2d_20_7b_7b_20brief_5ftitle_20_7d_7d_7d',['fzguide.system - {{ brief_title }}}',['../md_core_fzguide_8system_README.html',1,'']]],
+  ['fzbackup_20_2d_20formalizer_20core_20utility_20to_20back_20up_20the_20formalizer_20environment',['fzbackup - Formalizer core utility to back up the Formalizer environment',['../md_core_fzbackup_README.html',1,'']]],
+  ['fzguide_2esystem_20_2d_20authoritative_20server_20of_20system_20guide_20content_2e',['fzguide.system - Authoritative server of System guide content.',['../md_core_fzguide_8system_README.html',1,'']]],
   ['fzbuild_20_2d_20information_20about_20the_20installed_20formalizer_20environment',['fzbuild - Information about the installed Formalizer environment',['../md_core_fzinfo_README.html',1,'']]],
   ['fzquerypq_20_2d_20single_20query_20formalizer_20server_20from_20postgres_20database',['fzquerypq - Single Query Formalizer Server from Postgres Database',['../md_core_fzquerypq_README.html',1,'']]],
   ['fzserverpq_20_2d_20memory_2dresident_20graph_20server_20for_20the_20formalizer_20environment',['fzserverpq - Memory-resident Graph server for the Formalizer environment',['../md_core_fzserverpq_README.html',1,'']]],

@@ -96,7 +96,10 @@ if (submit=="Read"):
         if (chapter=="AM"):
             cmdoptions += ' -A '
         else:
-            cmdoptions += ' -P '
+            if (chapter=="ACT"):
+                cmdoptions += ' -T '
+            else:
+                cmdoptions += ' -P '
 
     if spec_sectionnum:
         cmdoptions += ' -H '+sectionnum

@@ -106,12 +106,15 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="Logtypes_8hpp__dep__incl.png" border="0" usemap="#core_2include_2Logtypes_8hppdep" alt=""/></div>
 <map name="core_2include_2Logtypes_8hppdep" id="core_2include_2Logtypes_8hppdep">
-<area shape="rect" id="node2" href="Logpostgres_8hpp.html" title="This header file declares Log Postgres types for use with the Formalizer. " alt="" coords="5,87,197,114"/>
-<area shape="rect" id="node3" href="logtest_8hpp_source.html" title="tools/conversion/dil2graph\l/logtest.hpp" alt="" coords="221,80,395,121"/>
-<area shape="rect" id="node5" href="tl2log_8hpp_source.html" title="tools/conversion/dil2graph\l/tl2log.hpp" alt="" coords="419,80,592,121"/>
-<area shape="rect" id="node6" href="log2tl_8hpp_source.html" title="tools/conversion/graph2dil\l/log2tl.hpp" alt="" coords="616,80,789,121"/>
-<area shape="rect" id="node7" href="fzloghtml_8hpp_source.html" title="tools/interface/fzloghtml\l/fzloghtml.hpp" alt="" coords="814,80,975,121"/>
-<area shape="rect" id="node4" href="dil2graph_8hpp_source.html" title="tools/conversion/dil2graph\l/dil2graph.hpp" alt="" coords="320,169,493,211"/>
+<area shape="rect" id="node2" href="Graphaccess_8hpp_source.html" title="core/include/Graphaccess.hpp" alt="" coords="261,87,459,114"/>
+<area shape="rect" id="node6" href="fzloghtml_8hpp_source.html" title="tools/interface/fzloghtml\l/fzloghtml.hpp" alt="" coords="451,169,613,211"/>
+<area shape="rect" id="node7" href="Logpostgres_8hpp.html" title="This header file declares Log Postgres types for use with the Formalizer. " alt="" coords="533,87,725,114"/>
+<area shape="rect" id="node8" href="logtest_8hpp_source.html" title="tools/conversion/dil2graph\l/logtest.hpp" alt="" coords="749,80,923,121"/>
+<area shape="rect" id="node9" href="tl2log_8hpp_source.html" title="tools/conversion/dil2graph\l/tl2log.hpp" alt="" coords="947,80,1120,121"/>
+<area shape="rect" id="node10" href="log2tl_8hpp_source.html" title="tools/conversion/graph2dil\l/log2tl.hpp" alt="" coords="1144,80,1317,121"/>
+<area shape="rect" id="node3" href="fzquerypq_8hpp_source.html" title="core/fzquerypq/fzquerypq.hpp" alt="" coords="5,177,200,203"/>
+<area shape="rect" id="node4" href="fzserverpq_8hpp_source.html" title="core/fzserverpq/fzserverpq.hpp" alt="" coords="224,177,427,203"/>
+<area shape="rect" id="node5" href="dil2graph_8hpp_source.html" title="tools/conversion/dil2graph\l/dil2graph.hpp" alt="" coords="749,169,923,211"/>
 </map>
 </div>
 </div>
@@ -141,6 +144,14 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html">fz::Log</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><h3><a class="el" href="classfz_1_1Log.html" title="Log">Log</a></h3>
  <a href="classfz_1_1Log.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__filter.html">fz::Log_filter</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filter structure used to set up selective <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> reading.  <a href="structfz_1_1Log__filter.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Node__history.html">fz::Node_history</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfz_1_1Log.html" title="Log">Log</a> history by <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> expressed as a list of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and a list of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries for each <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> for which there is a history.  <a href="structfz_1_1Node__history.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Node__histories.html">fz::Node_histories</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__interval.html">fz::Log_interval</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This variant of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> is used by smart on-demand <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> caching modes.  <a href="classfz_1_1Log__interval.html#details">More...</a><br /></td></tr>
@@ -183,6 +194,15 @@ typedef std::pair&lt; Log_chunk_ID_key, Log_chunk_ID_key &gt;&#160;</td><td clas
 typedef std::deque&lt; Log_chunk_ID_key &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a19097fed21f7b5e73117677bb009ba08">fz::Log_chunk_ID_key_deque</a></td></tr>
 <tr class="memdesc:a19097fed21f7b5e73117677bb009ba08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Short-hand for this container type. <br /></td></tr>
 <tr class="separator:a19097fed21f7b5e73117677bb009ba08"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c3b710573b0155e170e3b4a2404e75a"><td class="memItemLeft" align="right" valign="top"><a id="a5c3b710573b0155e170e3b4a2404e75a"></a>
+typedef std::set&lt; Log_chunk_ID_key &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>fz::Log_chunk_ID_key_set</b></td></tr>
+<tr class="separator:a5c3b710573b0155e170e3b4a2404e75a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c19c7e2dd2fd0e2a5ab5eeb0625475e"><td class="memItemLeft" align="right" valign="top"><a id="a5c19c7e2dd2fd0e2a5ab5eeb0625475e"></a>
+typedef std::set&lt; Log_entry_ID_key &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>fz::Log_entry_ID_key_set</b></td></tr>
+<tr class="separator:a5c19c7e2dd2fd0e2a5ab5eeb0625475e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75ea99aced23646f7446c32da77dd10f"><td class="memItemLeft" align="right" valign="top"><a id="a75ea99aced23646f7446c32da77dd10f"></a>
+typedef std::unique_ptr&lt; Node_history &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>fz::history_ptr</b></td></tr>
+<tr class="separator:a75ea99aced23646f7446c32da77dd10f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
