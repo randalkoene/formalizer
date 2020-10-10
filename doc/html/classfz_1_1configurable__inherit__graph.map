@@ -1,6 +1,7 @@
 <map id="fz::configurable" name="fz::configurable">
 <area shape="rect" id="node4" href="$classfz_1_1fzpq__configurable.html" title="fz::fzpq_configurable" alt="" coords="5,155,148,181"/>
-<area shape="rect" id="node5" href="$classfzlh__configurable.html" title="fzlh_configurable" alt="" coords="173,155,293,181"/>
-<area shape="rect" id="node2" href="$classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="29,5,133,32"/>
-<area shape="rect" id="node3" href="$classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="157,5,300,32"/>
+<area shape="rect" id="node5" href="$classfzgh__configurable.html" title="fzgh_configurable" alt="" coords="172,155,296,181"/>
+<area shape="rect" id="node6" href="$classfzlh__configurable.html" title="fzlh_configurable" alt="" coords="321,155,441,181"/>
+<area shape="rect" id="node2" href="$classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="109,5,213,32"/>
+<area shape="rect" id="node3" href="$classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="237,5,380,32"/>
 </map>

@@ -22,6 +22,7 @@ executables = (
     'fzbackup.py',
     'fzguide.system',
     'fzinfo.py',
+    'fzlog',
     'fzquerypq',
     'fzserverpq',
     'fzsetup.py',
