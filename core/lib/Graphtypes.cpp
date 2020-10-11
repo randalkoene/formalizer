@@ -32,8 +32,8 @@ namespace fz {
  * @param title a title string.
  * @return id (index) of the topic tag in the topictags vector.
  */
-uint16_t Topic_Tags::find_or_add_Topic(std::string tag, std::string title) {
-    Topic * topic = find_by_tag(tag);
+uint16_t Topic_Tags::find_or_add_Topic(std::string tag, std::string title, const void_allocator &void_alloc) {
+    Topic * topic = find_by_tag(tag, void_alloc);
     if (topic) {
         unsigned int foundid = topic->get_id();
         //+"/"+topic->get_tag()
@@ -43,14 +43,18 @@ uint16_t Topic_Tags::find_or_add_Topic(std::string tag, std::string title) {
     unsigned int nextid = topictags.size();
     if (nextid>UINT16_MAX) throw(std::overflow_error("Topics_Tags exceeds uint16_t tags capacity"));
     if (nextid>HIGH_TOPIC_INDEX_WARNING) ADDWARNING(__func__,"suspiciously large index topictags.size()="+std::to_string(nextid)+" for topic "+tag);
-    Topic * newtopic = new Topic(nextid, tag, title); /// keyword,relevance pairs are added by a separate call
+    Topic * newtopic = new Topic(nextid, tag, title, void_alloc); /// keyword,relevance pairs are added by a separate call
     topictags.emplace_back(newtopic);
     if (topictags[nextid]->get_id()!=nextid) ADDWARNING(__func__,"wrong index at topictags["+std::to_string(nextid)+"].get_id()="+std::to_string(topictags[nextid]->get_id()));
-    topicbytag[tag] = newtopic;
+    Topic_String tstr(void_alloc);
+    tstr = tag.c_str();
+    topicbytag[tstr] = newtopic;
     //if (tag=="components") ADDWARNING(__func__,"components Topic object at "+std::to_string((long) topicbytag[tag])+" from "+std::to_string((long) &(topictags[nextid])));
     if (topicbytag.size()!=topictags.size())
         ADDWARNING(__func__,"topicbytag map and topictags vector sizes differ after adding topic "+tag);
-    if (topicbytag[tag]->get_id()!=nextid)
+    //Topic_String tstr(void_alloc);
+    //tstr = tag.c_str();
+    if (topicbytag[tstr]->get_id()!=nextid)
         ADDWARNING(__func__,"topicbytag[\""+tag+"\"]->get_id()!="+std::to_string(nextid));
     return nextid;
 }
@@ -62,152 +66,18 @@ uint16_t Topic_Tags::find_or_add_Topic(std::string tag, std::string title) {
  * @param _tag a topic tag label
  * @return pointer to Topic object in topictags vector, or NULL if not found.
  */
-Topic * Topic_Tags::find_by_tag(std::string _tag) {
+Topic * Topic_Tags::find_by_tag(std::string _tag, const void_allocator &void_alloc) {
     if (_tag.empty()) return NULL;
-    auto it = topicbytag.find(_tag);
+    Topic_String tstr(void_alloc);
+    tstr = _tag.c_str();
+    auto it = topicbytag.find(tstr);
     if (it==topicbytag.end()) return NULL;
     //if (it->second->get_id()>1000) ADDWARNING(__func__,"this seems wrong at iterator for "+it->first+ " at "+std::to_string((long) it->second));
     return it->second;
 }
 
-const std::string td_property_str[_tdprop_num] = {"unspecified",
-                                                  "inherit",
-                                                  "variable",
-                                                  "fixed",
-                                                  "exact"};
-
-const std::string td_pattern_str[_patt_num] =  {"patt_daily",
-                                                "patt_workdays",
-                                                "patt_weekly",
-                                                "patt_biweekly",
-                                                "patt_monthly",
-                                                "patt_endofmonthoffset",
-                                                "patt_yearly",
-                                                "OLD_patt_span",
-                                                "patt_nonperiodic"};
-
-#define VALID_NODE_ID_FAIL(f) \
-    {                         \
-        formerror = f;        \
-        return false;         \
-    }
-
-/**
- * Test if a ID_TimeStamp can be used as a valid Node_ID.
- * 
- * Note that years before 1999 are disqualified,
- * since the Formalizer did not exist before then.
- * 
- * @param idT reference to an ID_TimeStamp object.
- * @param formerror a string that collects specific error information if there is any.
- * @return true if valid.
- */
-bool valid_Node_ID(const ID_TimeStamp &idT, std::string &formerror) {
-    if (idT.year < 1999)
-        VALID_NODE_ID_FAIL("year");
-    if ((idT.month < 1) || (idT.month > 12))
-        VALID_NODE_ID_FAIL("month");
-    if ((idT.day < 1) || (idT.day > 31))
-        VALID_NODE_ID_FAIL("day");
-    if (idT.hour > 23)
-        VALID_NODE_ID_FAIL("hour");
-    if (idT.minute > 59)
-        VALID_NODE_ID_FAIL("minute");
-    if (idT.second > 59)
-        VALID_NODE_ID_FAIL("second");
-    if (idT.minor_id < 1)
-        VALID_NODE_ID_FAIL("minor_id");
-    return true;
-}
-
-/**
- * Test if a string can be used to form a valid Node_ID.
- * 
- * Checks string length, period separating time stamp from minor ID,
- * all digits in time stamp and minor ID, and time stamp components
- * within valid ranges. Note that years before 1999 are disqualified,
- * since the Formalizer did not exist before then.
- * 
- * @param id_str a string of the format YYYYmmddHHMMSS.num.
- * @param formerror a string that collects specific error information if there is any.
- * @param id_timestamp if not NULL, receives valid components.
- * @return true if valid.
- */
-bool valid_Node_ID(std::string id_str, std::string &formerror, ID_TimeStamp *id_timestamp) {
-
-    if (id_str.length() < 16)
-        VALID_NODE_ID_FAIL("string size: "+id_str);
-    if (id_str[14] != '.')
-        VALID_NODE_ID_FAIL("format: "+id_str);
-    for (int i = 0; i < 14; i++)
-        if (!isdigit(id_str[i]))
-            VALID_NODE_ID_FAIL("digits: "+id_str);
-
-    ID_TimeStamp idT;
-    idT.year = stoi(id_str.substr(0, 4));
-    idT.month = stoi(id_str.substr(4, 2));
-    idT.day = stoi(id_str.substr(6, 2));
-    idT.hour = stoi(id_str.substr(8, 2));
-    idT.minute = stoi(id_str.substr(10, 2));
-    idT.second = stoi(id_str.substr(12, 2));
-    idT.minor_id = stoi(id_str.substr(15));
-    if (!valid_Node_ID(idT, formerror))
-        return false;
-
-    if (id_timestamp)
-        *id_timestamp = idT;
-    return true;
-}
-
-std::string Node_ID_TimeStamp_to_string(const ID_TimeStamp idT) {
-    std::stringstream ss;
-    ss << std::setfill('0')
-       << std::setw(4) << (int) idT.year
-       << std::setw(2) << (int) idT.month
-       << std::setw(2) << (int) idT.day
-       << std::setw(2) << (int) idT.hour
-       << std::setw(2) << (int) idT.minute
-       << std::setw(2) << (int) idT.second
-       << '.' << std::setw(1) << (int) idT.minor_id;
-    return ss.str();
-}
-
-/**
- * Convert standardized Formalizer Node ID time stamp into local time
- * data object.
- * 
- * Note: This function ignores the `minor_id` value.
- * 
- * @return local time data objet with converted Node ID time stamp.
- */
-std::tm ID_TimeStamp::get_local_time() {
-    std::tm tm = { 0 };
-    if (isnullstamp())
-        return tm;
-        
-    tm.tm_year = year-1900;
-    tm.tm_mon = month-1;
-    tm.tm_mday = day;
-    tm.tm_hour = hour;
-    tm.tm_min = minute;
-    tm.tm_sec = second;
-    tm.tm_isdst = -1; // See https://trello.com/c/ANI2Bxei.
-    return tm;
-}
-
-Node_ID_key::Node_ID_key(const ID_TimeStamp& _idT) { //}: idC( { .id_major = 0, .id_minor = 0 } ) {
-    idT=_idT;
-    std::string formerror;
-    if (!valid_Node_ID(_idT,formerror)) throw(ID_exception(formerror));
-}
-
-Node_ID_key::Node_ID_key(std::string _idS) { //}: idC( { .id_major = 0, .id_minor = 0 } ) {
-    std::string formerror;
-    if (!valid_Node_ID(_idS,formerror,&idT)) throw(ID_exception(formerror));
-}
-
-Node_ID::Node_ID(const ID_TimeStamp _idT): idkey(_idT) {
-    idS_cache = Node_ID_TimeStamp_to_string(idkey.idT);
+Node_ID::Node_ID(const ID_TimeStamp _idT, const void_allocator &void_alloc): idkey(_idT), idS_cache("",void_alloc) {
+    idS_cache = Node_ID_TimeStamp_to_string(idkey.idT).c_str();
 }
 
 bool Node::add_topic(Topic_Tags &topictags, uint16_t topicid, float topicrelevance) {
@@ -219,8 +89,8 @@ bool Node::add_topic(Topic_Tags &topictags, uint16_t topicid, float topicrelevan
     return ret.second; // was it actually added?
 }
 
-bool Node::add_topic(Topic_Tags &topictags, std::string tag, std::string title, float topicrelevance) {
-    uint16_t id = topictags.find_or_add_Topic(tag, title);
+bool Node::add_topic(Topic_Tags &topictags, std::string tag, std::string title, float topicrelevance, const void_allocator &void_alloc) {
+    uint16_t id = topictags.find_or_add_Topic(tag, title, void_alloc);
     auto ret = topics.emplace(id,topicrelevance);
     return ret.second;
 }
@@ -230,9 +100,9 @@ bool Node::add_topic(uint16_t topicid, float topicrelevance) {
     return add_topic(graph->topics, topicid, topicrelevance); // NOTICE: Accessing friend class member variable directly to avoid const issues with get_topics().
 }
 
-bool Node::add_topic(std::string tag, std::string title, float topicrelevance) {
+bool Node::add_topic(std::string tag, std::string title, float topicrelevance, const void_allocator &void_alloc) {
     if (!graph) return false;
-    return add_topic(graph->topics, tag, title, topicrelevance); // NOTICE: Accessing friend class member variable directly to avoid const issues with get_topics().
+    return add_topic(graph->topics, tag, title, topicrelevance, void_alloc); // NOTICE: Accessing friend class member variable directly to avoid const issues with get_topics().
 }
 
 bool Node::remove_topic(uint16_t id) {
@@ -240,10 +110,10 @@ bool Node::remove_topic(uint16_t id) {
     return (topics.erase(id)>0);
 }
 
-bool Node::remove_topic(std::string tag) {
+bool Node::remove_topic(std::string tag, const void_allocator &void_alloc) {
     if (!graph) return false;
     if (topics.size()<=1) return false; /// By convention, you must have at least one topic tag.
-    Topic* topic = graph->topics.find_by_tag(tag);
+    Topic* topic = graph->topics.find_by_tag(tag, void_alloc);
     if (!topic) return false;
     return remove_topic(topic->get_id());
 }
@@ -404,7 +274,7 @@ time_t Node::effective_targetdate() {
  * @param utf8str a string that should contain UTF8 encoded text.
  */
 void Node::set_text(const std::string utf8str) {
-    text = utf8_safe(utf8str);
+    text = utf8_safe(utf8str).c_str();
 }
 
 /**
@@ -423,27 +293,16 @@ Topic_ID Node::main_topic_id() {
     return main_id;
 }
 
-Edge_ID_key::Edge_ID_key(std::string _idS) {
-    std::string formerror;
-    size_t arrowpos = _idS.find('>');
-    if (arrowpos==std::string::npos) {
-        formerror = "arrow";
-        throw(ID_exception(formerror));
-    }
-    if (!valid_Node_ID(_idS.substr(0,arrowpos),formerror,&dep.idT)) throw(ID_exception(formerror));
-    if (!valid_Node_ID(_idS.substr(arrowpos+1),formerror,&sup.idT)) throw(ID_exception(formerror));
-}
-
-Edge_ID::Edge_ID(Edge_ID_key _idkey): idkey(_idkey) {
+Edge_ID::Edge_ID(Edge_ID_key _idkey, const void_allocator &void_alloc): idkey(_idkey), idS_cache("", void_alloc) {
     std::string formerror;
     if (!valid_Node_ID(idkey.dep.idT,formerror)) throw(ID_exception(formerror));
     if (!valid_Node_ID(idkey.sup.idT,formerror)) throw(ID_exception(formerror));
 
-    idS_cache = Node_ID_TimeStamp_to_string(idkey.dep.idT)+'>'+Node_ID_TimeStamp_to_string(idkey.sup.idT);
+    idS_cache = (Node_ID_TimeStamp_to_string(idkey.dep.idT)+'>'+Node_ID_TimeStamp_to_string(idkey.sup.idT)).c_str();
 }
 
-Edge_ID::Edge_ID(Node &_dep, Node &_sup): idkey(_dep.get_id().key(),_sup.get_id().key()) {
-    idS_cache = Node_ID_TimeStamp_to_string(idkey.dep.idT)+'>'+Node_ID_TimeStamp_to_string(idkey.sup.idT);
+Edge_ID::Edge_ID(Node &_dep, Node &_sup, const void_allocator &void_alloc): idkey(_dep.get_id().key(),_sup.get_id().key()), idS_cache("", void_alloc) {
+    idS_cache = (Node_ID_TimeStamp_to_string(idkey.dep.idT)+'>'+Node_ID_TimeStamp_to_string(idkey.sup.idT)).c_str();
 }
 
 /**
@@ -462,7 +321,7 @@ Edge_ID::Edge_ID(Node &_dep, Node &_sup): idkey(_dep.get_id().key(),_sup.get_id(
  * @param graph a valid Graph containing Node objects.
  * @param id_str the Edge ID string, validity will be tested.
  */
-Edge::Edge(Graph & graph, std::string id_str): id(id_str) {
+Edge::Edge(Graph & graph, std::string id_str, const void_allocator &void_alloc): id(id_str.c_str(), void_alloc) {
     std::string formerror;
     if (!(dep = graph.Node_by_id(id.key().dep))) {
         formerror = "dependency not found";

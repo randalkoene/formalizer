@@ -149,11 +149,14 @@ $(OBJ)/dilaccess.o: dilaccess.cpp $(INC)/dilaccess.hpp $(INC)/error.hpp
 $(OBJ)/Graphcompare.o: Graphcompare.cpp $(INC)/Graphtypes.hpp
 	$(CCPP) $(CPPFLAGS) -c Graphcompare.cpp -o $(OBJ)/Graphcompare.o
 
+$(OBJ)/Graphbase.o: Graphbase.cpp $(INC)/Graphbase.hpp $(INC)/error.hpp $(INC)/TimeStamp.hpp
+	$(CCPP) $(CPPFLAGS) -c Graphbase.cpp -o $(OBJ)/Graphbase.o
+
 $(OBJ)/Graphtypes.o: Graphtypes.cpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c Graphtypes.cpp -o $(OBJ)/Graphtypes.o
 
-$(OBJ)/Graphshared.o: Graphshared.cpp $(INC)/Graphshared.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
-	$(CCPP) $(CPPFLAGS) -c Graphshared.cpp -o $(OBJ)/Graphshared.o
+$(OBJ)/Graphunshared.o: Graphunshared.cpp $(INC)/Graphunshared.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
+	$(CCPP) $(CPPFLAGS) -c Graphunshared.cpp -o $(OBJ)/Graphunshared.o
 
 $(OBJ)/LogtypesID.o: LogtypesID.cpp $(INC)/LogtypesID.hpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c LogtypesID.cpp -o $(OBJ)/LogtypesID.o
