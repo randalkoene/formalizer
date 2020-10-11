@@ -46,12 +46,17 @@
 #include "coreversion.hpp"
 #define __GRAPHTYPES_HPP (__COREVERSION_HPP)
 
+// Boost libraries need the following.
+#pragma GCC diagnostic warning "-Wuninitialized"
+
+// std
 #include <ctime>
 #include <cstdint>
 #include <map>
 #include <set>
 #include <vector>
 
+// core
 #include "error.hpp"
 #include "TimeStamp.hpp"
 
@@ -77,20 +82,51 @@
 
 namespace fz {
 
+// Forward declarations for reference before further detailing.
+struct Node_ID_key;
+struct Edge_ID_key;
+struct Topic_Keyword;
+class Topic;
+class Node;
+class Edge;
+class Graph;
+
+/// Formalizer specific base types for ease of modification (fixed size)
+typedef uint8_t GraphID8bit;
+typedef uint16_t GraphIDyear;
+typedef float Keyword_Relevance;    /// Type for real-valued Keyword relevance (to Topic), presently assumed to be in the interval [0.0,1.0]
+typedef uint16_t Topic_ID;            /// Type for unique Topic IDs
+typedef float Topic_Relevance;        /// Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0.0,1.0]
+typedef float Graphdecimal;
+typedef int Graphsigned;
+typedef bool Graphflag;
+
+/// Formalizer specific base types for ease of modification (container types)
+typedef std::string GraphIDcache;
+typedef std::string Keyword_String;
+typedef std::string Topic_String;
+typedef std::vector<Topic_Keyword> Topic_KeyRel_Vector;
+typedef std::vector<Topic*> Topic_Tags_Vector; ///< Only pointers, not the objects themselves. (See Dangerous code card in Software Engineering Update Trello board.)
+typedef std::map<std::string, Topic *> TopicbyTag_Map;
+typedef std::map<Topic_ID,float> Topics_Set; // to keep relevance as well (otherwise we could use a set)
+typedef std::set<Edge*> Edges_Set;
+typedef std::string Node_utf8_text;
+typedef std::map<Node_ID_key,Node*> Node_Map;
+typedef std::map<Edge_ID_key,Edge*> Edge_Map;
+typedef std::vector<Node*> Node_Index;
+
 #define NODE_NULLKEY_STR "{null-key}"
 
-class Graph; /// Declared here for friend class declarations before further detailing.
-class Node;  /// Declared here for reference before further detailing.
-class Edge;  /// Declared here for reference before further detailing.
+static constexpr const char* const node_exception_stub = "attempted Node_ID construction with invalid ";
 
+/// Exception thrown when a Node ID is of invalid form.
 class ID_exception {
     std::string idexceptioncase;
-    static constexpr const char* const stub = "attempted Node_ID construction with invalid ";
 public:
     ID_exception(std::string _idexceptioncase) : idexceptioncase(_idexceptioncase) {
-        ADDERROR("Node_ID::Node_ID",stub+idexceptioncase);
+        ADDERROR("Node_ID::Node_ID",node_exception_stub+idexceptioncase);
     }
-    std::string what() { return std::string(stub + idexceptioncase); }
+    std::string what() { return std::string(node_exception_stub) + idexceptioncase; }
 };
 
 /**
@@ -112,13 +148,13 @@ public:
  *       call specific thorough `valid_...` test functions.
  */
 struct ID_TimeStamp {
-    uint8_t minor_id;
-    uint8_t second;
-    uint8_t minute;
-    uint8_t hour;
-    uint8_t day;
-    uint8_t month;
-    int16_t year;
+    GraphID8bit minor_id;
+    GraphID8bit second;
+    GraphID8bit minute;
+    GraphID8bit hour;
+    GraphID8bit day;
+    GraphID8bit month;
+    GraphIDyear year;
 
     /// Initializes as NODE_NULL_IDSTAMP.
     ID_TimeStamp(): minor_id(0), second(0), minute(0), hour(0), day(0), month(0), year(0) {}
@@ -211,7 +247,7 @@ struct Node_ID_key { // used to be a union with `ID Compare idC;` (see comments 
 class Node_ID {
 protected:
     Node_ID_key idkey;
-    std::string idS_cache; // cached string version of the ID to speed things up
+    GraphIDcache idS_cache; // cached string version of the ID to speed things up
 public:
     Node_ID(std::string _idS): idkey(_idS), idS_cache(_idS) {}
     Node_ID(const ID_TimeStamp _idT);
@@ -262,11 +298,10 @@ struct Edge_ID_key {
 class Edge_ID {
 protected:
     Edge_ID_key idkey;
-    std::string idS_cache; // cached string version of the ID to speed things up
+    GraphIDcache idS_cache; // cached string version of the ID to speed things up
 public:
     //Edge_ID(std::string dep_idS, std::string sup_idS); // Not clear that this one is ever needed
     Edge_ID(std::string _idS): idkey(_idS), idS_cache(_idS) {} /// Try to use this one only for container element initialization and such.
-
     Edge_ID(Edge_ID_key _idkey);
     Edge_ID(Node &_dep, Node &_sup);
 
@@ -276,26 +311,22 @@ public:
     std::string str() const { return idS_cache; }
 };
 
-typedef float Keyword_Relevance;    /// Type for real-valued Keyword relevance (to Topic), presently assumed to be in the interval [0.0,1.0]
-
 struct Topic_Keyword {
-    std::string keyword;
+    Keyword_String keyword;
     Keyword_Relevance relevance;
 
     Topic_Keyword(std::string k, Keyword_Relevance r): keyword(k), relevance(r) {}
 };
 
 #define HIGH_TOPIC_INDEX_WARNING 1000 /// at this index number report a warning just in case it is in error
-typedef uint16_t Topic_ID;            /// Type for unique Topic IDs
-typedef float Topic_Relevance;        /// Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0.0,1.0]
 
 class Topic {
 protected:
-    Topic_ID id;                       /// unique number that is equal to the index in the Topic_Tags vector
-    Topic_ID supid;                    /// optional id/index of superior topic (for grouping), none if supid==id
-    std::string tag;                   /// unique tag label (the original tags are derived directly from DIL file names)
-    std::string title;                 /// optional topic title (e.g. obtained from DIL file)
-    std::vector<Topic_Keyword> keyrel; /// optional list of keywords and relevance ratios
+    Topic_ID id;                /// unique number that is equal to the index in the Topic_Tags vector
+    Topic_ID supid;             /// optional id/index of superior topic (for grouping), none if supid==id
+    Topic_String tag;           /// unique tag label (the original tags are derived directly from DIL file names)
+    Topic_String title;         /// optional topic title (e.g. obtained from DIL file)
+    Topic_KeyRel_Vector keyrel; /// optional list of keywords and relevance ratios
 
 public:
     Topic(Topic_ID _id, std::string _tag, std::string _title): id(_id), supid(_id), tag(_tag), title(_title) {}
@@ -307,7 +338,7 @@ public:
     std::string get_title() const { return title; }
 
     /// table references
-    const std::vector<Topic_Keyword> & get_keyrel() const { return keyrel; }
+    const Topic_KeyRel_Vector & get_keyrel() const { return keyrel; }
 
     /// change parameters
     void set_supid(Topic_ID _supid) { supid = _supid; }
@@ -315,9 +346,6 @@ public:
     /// friend (utility) functions
     friend bool identical_Topics(const Topic & topic1, const Topic & topic2, std::string & trace);
 };
-
-// Only pointers, not the objects themselves. (See Dangerous code card in Software Engineering Update Trello board.)
-typedef std::vector<Topic*> Topic_Tags_Vector;
 
 /** Topic tag data, arranged by integer Index-ID.
  * 
@@ -329,8 +357,8 @@ typedef std::vector<Topic*> Topic_Tags_Vector;
  */
 class Topic_Tags {
 protected:
-    Topic_Tags_Vector topictags;               ///< This provides Topic pointers by Topic Index-ID.
-    std::map<std::string, Topic *> topicbytag; ///< This provides Topic pointers by Tag-string key.
+    Topic_Tags_Vector topictags; ///< This provides Topic pointers by Topic Index-ID.
+    TopicbyTag_Map topicbytag;   ///< This provides Topic pointers by Tag-string key.
 
 public:
     ~Topic_Tags() { for (auto it = topictags.begin(); it!=topictags.end(); ++it) delete (*it); }
@@ -395,8 +423,6 @@ extern const std::string td_property_str[_tdprop_num];
 enum td_pattern { patt_daily, patt_workdays, patt_weekly, patt_biweekly, patt_monthly, patt_endofmonthoffset, patt_yearly, OLD_patt_span, patt_nonperiodic, _patt_num };
 extern const std::string td_pattern_str[_patt_num];
 
-//typedef std::set<Topic_ID> Topics_Set;
-typedef std::map<Topic_ID,float> Topics_Set; // to keep relevance as well
 
 // *** WE REALLY NEED SOME CLASS COMMENTS (at least some of what was at DIL_entry or link to docs)
 /**
@@ -414,8 +440,6 @@ typedef std::map<Topic_ID,float> Topics_Set; // to keep relevance as well
  *         files), so that Node data was stored. A Node could not belong to zero DIL Files.
  */
 
-typedef std::set<Edge*> Edges_Set;
-
 /**
  * The Node class is the principal object type within a Formalizer Graph.
  * 
@@ -430,18 +454,18 @@ class Node {
     friend class Graph;
     friend class Edge;
 protected:
-    const Node_ID id;       /// unique Node identifier
-    Topics_Set topics;      /// a map of pairs of unique topic tag index and relevance value
-    float valuation;        /// presently only using values 0.0 and greater (typically [1.0,3.0])
-    float completion;       /// 1.0 = done, -1.0 = obsolete, -2.0 = replaced, -3.0 = done differently, -4.0 = no longer possible / did not come to pass
-    time_t required;        /// seconds
-    std::string text;       /// by default assumed to contain UTF8 HTML5
-    time_t targetdate;      /// when tdproperty=unspecified then targetdate should be set to -1
-    td_property tdproperty; /// unspecified, inherit, variable, fixed, exact
-    bool repeats;           /// must be false if tdproperty is unspecified or variable
-    td_pattern tdpattern;   /// can be used to remember an optional periodicity even if isperiodic=false
-    int tdevery;            /// multiplier for pattern interval
-    int tdspan;             /// count of number of repetitions
+    const Node_ID id;        /// unique Node identifier
+    Topics_Set topics;       /// a map of pairs of unique topic tag index and relevance value
+    Graphdecimal valuation;  /// presently only using values 0.0 and greater (typically [1.0,3.0])
+    Graphdecimal completion; /// 1.0 = done, -1.0 = obsolete, -2.0 = replaced, -3.0 = done differently, -4.0 = no longer possible / did not come to pass
+    time_t required;         /// seconds
+    Node_utf8_text text;     /// by default assumed to contain UTF8 HTML5
+    time_t targetdate;       /// when tdproperty=unspecified then targetdate should be set to -1
+    td_property tdproperty;  /// unspecified, inherit, variable, fixed, exact
+    Graphflag repeats;       /// must be false if tdproperty is unspecified or variable
+    td_pattern tdpattern;    /// can be used to remember an optional periodicity even if isperiodic=false
+    Graphsigned tdevery;     /// multiplier for pattern interval
+    Graphsigned tdspan;      /// count of number of repetitions
 
     Graph *graph;       /// this is set when the Node is added to a Graph
     Edges_Set supedges; /// this set maintained for rapid Edge access to superior Nodes
@@ -466,7 +490,7 @@ public:
     float get_valuation() const { return valuation; }
     float get_completion() const { return completion; }
     time_t get_required() const { return required; }
-    const std::string & get_text() const { return text; }
+    const Node_utf8_text & get_text() const { return text; }
     time_t get_targetdate() const { return targetdate; }
     std::string get_targetdate_str() const { return TimeStampYmdHM(targetdate); }
     td_property get_tdproperty() const { return tdproperty; }
@@ -526,14 +550,14 @@ class Edge {
     friend class Node;
 protected:
     const Edge_ID id;
-    float dependency;
-    float significance; // (also known as unbounded importance)
-    float importance; // (also known as bounded importance)
-    float urgency; // (also known as computed urgency)
-    float priority; // (also known as computed priority)
+    Graphdecimal dependency;
+    Graphdecimal significance; // (also known as unbounded importance)
+    Graphdecimal importance;   // (also known as bounded importance)
+    Graphdecimal urgency;      // (also known as computed urgency)
+    Graphdecimal priority;     // (also known as computed priority)
 
-    Node* dep; // rapid access
-    Node* sup; // rapid access
+    Node *dep; // rapid access
+    Node *sup; // rapid access
 
 public:
     Edge(Node &_dep, Node &_sup): id(_dep,_sup), dep(&_dep), sup(&_sup) {}
@@ -565,12 +589,6 @@ public:
     /// friend (utility) functions
     friend bool identical_Edges(Edge & edge1, Edge & edge2, std::string & trace);
 };
-
-typedef std::map<Node_ID_key,Node*> Node_Map;
-
-typedef std::map<Edge_ID_key,Edge*> Edge_Map;
-
-typedef std::vector<Node*> Node_Index;
 
 class Graph {
     friend class Node;

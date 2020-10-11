@@ -5,6 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/usr/include/postgresql",
+                "/home/randalk/local/include",
                 "/home/randalk/src/include",
                 "/home/randalk/src/formalizer/core/include",
                 "/home/randalk/src/dil2al",

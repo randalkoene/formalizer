@@ -9,6 +9,9 @@
 #include "utf8.hpp"
 #include "Graphtypes.hpp"
 
+// Boost libraries need the following.
+#pragma GCC diagnostic warning "-Wuninitialized"
+
 namespace fz {
 
 /**
@@ -40,13 +43,15 @@ uint16_t Topic_Tags::find_or_add_Topic(std::string tag, std::string title) {
     unsigned int nextid = topictags.size();
     if (nextid>UINT16_MAX) throw(std::overflow_error("Topics_Tags exceeds uint16_t tags capacity"));
     if (nextid>HIGH_TOPIC_INDEX_WARNING) ADDWARNING(__func__,"suspiciously large index topictags.size()="+std::to_string(nextid)+" for topic "+tag);
-    Topic * newtopic = new Topic(nextid,tag,title); /// keyword,relevance pairs are added by a separate call
+    Topic * newtopic = new Topic(nextid, tag, title); /// keyword,relevance pairs are added by a separate call
     topictags.emplace_back(newtopic);
     if (topictags[nextid]->get_id()!=nextid) ADDWARNING(__func__,"wrong index at topictags["+std::to_string(nextid)+"].get_id()="+std::to_string(topictags[nextid]->get_id()));
     topicbytag[tag] = newtopic;
     //if (tag=="components") ADDWARNING(__func__,"components Topic object at "+std::to_string((long) topicbytag[tag])+" from "+std::to_string((long) &(topictags[nextid])));
-    if (topicbytag.size()!=topictags.size()) ADDWARNING(__func__,"topicbytag map and topictags vector sizes differ after adding topic "+tag);
-    if (topicbytag[tag]->get_id()!=nextid) ADDWARNING(__func__,"topicbytag[\""+tag+"\"]->get_id()!="+std::to_string(nextid));
+    if (topicbytag.size()!=topictags.size())
+        ADDWARNING(__func__,"topicbytag map and topictags vector sizes differ after adding topic "+tag);
+    if (topicbytag[tag]->get_id()!=nextid)
+        ADDWARNING(__func__,"topicbytag[\""+tag+"\"]->get_id()!="+std::to_string(nextid));
     return nextid;
 }
 
@@ -215,7 +220,7 @@ bool Node::add_topic(Topic_Tags &topictags, uint16_t topicid, float topicrelevan
 }
 
 bool Node::add_topic(Topic_Tags &topictags, std::string tag, std::string title, float topicrelevance) {
-    uint16_t id = topictags.find_or_add_Topic(tag,title);
+    uint16_t id = topictags.find_or_add_Topic(tag, title);
     auto ret = topics.emplace(id,topicrelevance);
     return ret.second;
 }

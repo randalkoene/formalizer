@@ -330,8 +330,8 @@ bool get_Edge_pq_field_numbers(PGresult *res) {
  * @param relevancestr string containing the textual array of relevance values.
  * @return vector of Topic_Keyword pairs of (keyword,relevance).
  */
-std::vector<Topic_Keyword> keyrel_from_pq(std::string keywordstr, std::string relevancestr) {
-    std::vector<Topic_Keyword> krels;
+Topic_KeyRel_Vector keyrel_from_pq(std::string keywordstr, std::string relevancestr) {
+    Topic_KeyRel_Vector krels;
     auto kvec = array_from_pq(keywordstr);
     auto rvec = array_from_pq(relevancestr);
     if (kvec.size()!=rvec.size()) {
@@ -374,7 +374,7 @@ bool read_Topics_pq(PGconn* conn, std::string schemaname, Topic_Tags & topictags
             int supid = std::atoi(PQgetvalue(res,r, pq_topic_field[pqt_supid]));
             if (id!=supid) topic->set_supid(supid);
 
-            std::vector<Topic_Keyword> * tkr = const_cast<std::vector<Topic_Keyword> *>(&topic->get_keyrel()); // explicitly making this modifiable
+            Topic_KeyRel_Vector * tkr = const_cast<Topic_KeyRel_Vector *>(&topic->get_keyrel()); // explicitly making this modifiable
             *tkr = keyrel_from_pq(PQgetvalue(res, r, pq_topic_field[pqt_keyword]),PQgetvalue(res, r, pq_topic_field[pqt_relevance]));
 
         }

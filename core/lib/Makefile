@@ -38,16 +38,24 @@ INC=$(COREINCLUDEPATH)
 OBJ=./obj
 TEST=./test
 
+# To find the Boost libraries
+# See the note on POSIX systems in Building Boost.Interprocess at https://www.boost.org/doc/libs/1_38_0/doc/html/interprocess.html#interprocess.intro.introduction_building_interprocess.
+BOOSTINTERPROCESSLIB_REQS = -lrt -lpthread
+LOCALINC = $(HOME)/local/include
+LOCALLIB = $(BOOSTINTERPROCESSLIB_REQS)
+
 #INCLUDES= -I$(HOME)/src/include
 # to find the postgresql header files (e.g libpq-fe.h), do this: pg_config --includedir
-INCLUDES= -I$(CPATH) -I$(COREINCLUDEPATH) -I/usr/include/postgresql
+INCLUDES = -I$(CPATH) -I$(COREINCLUDEPATH) -I/usr/include/postgresql
+INCLUDES += -I$(LOCALINC)
 
 # Add this include directory for dilaccess.cpp and programs that use it.
 # Using this links in a lot!
 DIL2AL=$(HOME)/src/dil2al
 
 # to find the postgresql library files fo this: pg_config --libdir
-LIB_PATH= -L/usr/lib/x86_64-linux-gnu -lpq
+LIB_PATH = -L/usr/lib/x86_64-linux-gnu -lpq
+LIB_PATH += $(POSTGRESLIB) $(LOCALLIB)
 
 ##########################################################
 ## Machine selection
