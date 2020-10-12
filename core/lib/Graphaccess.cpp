@@ -23,7 +23,8 @@ namespace fz {
  * 
  * Replace this function as soon as possible!
  */
-std::unique_ptr<Graph> Graph_access::request_Graph_copy() {
+Graph * Graph_access::request_Graph_copy(bool remove_on_exit) {
+//std::unique_ptr<Graph> Graph_access::request_Graph_copy() {
     if (!is_server) {
         VERBOSEOUT("\n*** This program is still using a temporary direct-load of Graph data.");
         VERBOSEOUT("\n*** Please replace that with access through fzserverpq as soon as possible!\n\n");
@@ -31,13 +32,19 @@ std::unique_ptr<Graph> Graph_access::request_Graph_copy() {
 
     access_initialize();
 
-    std::unique_ptr<Graph> graphptr = std::make_unique<Graph>();
+    graphmemman.set_remove_on_exit(remove_on_exit);
+    //std::unique_ptr<Graph> graphptr = graphmemman.allocate_Graph_in_shared_memory();
+    Graph * graphptr = graphmemman.allocate_Graph_in_shared_memory();
+    if (!graphptr)
+        return nullptr;
+
+    //std::unique_ptr<Graph> graphptr = std::make_unique<Graph>();
 
     if (!load_Graph_pq(*graphptr, dbname(), pq_schemaname())) {
         FZERR("\nSomething went wrong! Unable to load Graph from Postgres database.\n");
         standard.exit(exit_database_error);
     }
-
+  
     return graphptr;
 }
 
@@ -90,12 +97,15 @@ void Graph_access::rapid_access_init(Graph &graph, Log &log) {
     log.setup_Chunk_node_caches(graph);
 }
 
-std::pair<std::unique_ptr<Graph>, std::unique_ptr<Log>> Graph_access::request_Graph_and_Log_copies_and_init() {
-    std::unique_ptr<Graph> graphptr = request_Graph_copy();
+std::pair<Graph*, std::unique_ptr<Log>> Graph_access::request_Graph_and_Log_copies_and_init() {
+//std::pair<std::unique_ptr<Graph>, std::unique_ptr<Log>> Graph_access::request_Graph_and_Log_copies_and_init() {
+    //std::unique_ptr<Graph> graphptr = request_Graph_copy();
+    Graph * graphptr = request_Graph_copy();
     std::unique_ptr<Log> logptr = request_Log_copy();
 
     if ((graphptr != nullptr) && (logptr != nullptr)) {
-        rapid_access_init(*(graphptr.get()),*(logptr.get()));
+        //rapid_access_init(*(graphptr.get()),*(logptr.get()));
+        rapid_access_init(*graphptr,*(logptr.get()));
         return std::make_pair(std::move(graphptr), std::move(logptr));
         
     } else {

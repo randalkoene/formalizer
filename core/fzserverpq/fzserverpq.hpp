@@ -18,8 +18,8 @@
 using namespace fz;
 
 enum flow_options {
-    flow_unknown = 0, /// no recognized request
-    //flow_something = 1,     /// request: make boilerplate for C++ program
+    flow_unknown = 0,        /// no recognized request
+    flow_resident_graph = 1, /// request: load the Graph into shared memory and stay resident
     flow_NUMoptions
 };
 

@@ -14,6 +14,110 @@
 
 namespace fz {
 
+graph_mem_managers graphmemman; ///< Global access to shared memory managers for Graph data structures.
+
+graph_mem_managers::~graph_mem_managers() {
+    if (remove_on_exit) {
+        for (const auto & [name, manager] : managers) {
+            bi::shared_memory_object::remove(name.c_str());
+        }
+    }
+}
+
+bool graph_mem_managers::add_manager(std::string segname, segment_memory_t & segmem, void_allocator & allocinst) {
+    if (segname.empty())
+        return false;
+
+    shared_memory_manager smm(segmem, allocinst);
+    return managers.emplace(segname, smm).second;
+}
+
+bool graph_mem_managers::set_active(std::string segname) {
+    auto it = managers.find(segname);
+    if (it == managers.end()) {
+        active = nullptr; // to prevent accidentally continuing with references to the wrong segment
+        return false;
+    }
+
+    active = &(it->second);
+    return true;
+}
+
+segment_memory_t * graph_mem_managers::get_segmem() const {
+    if (!active)
+        throw(Shared_Memory_exception("none are active"));
+
+    return active->segmem_ptr;
+}
+
+const segment_manager_t & graph_mem_managers::get_segman() const {
+    if (!active)
+        throw(Shared_Memory_exception("none are active"));
+
+    return *(active->segmem_ptr->get_segment_manager());
+}
+
+const void_allocator & graph_mem_managers::get_allocator() const {
+    if (!active)
+        throw(Shared_Memory_exception("none are active"));
+
+    return *(active->alloc_inst_ptr);
+}
+
+segment_memory_t * graph_mem_managers::allocate_and_activate_shared_memory(std::string segment_name, unsigned long segmentsize) {
+    if (segment_name.empty())
+        return nullptr;
+
+    if (segmentsize<1)
+        return nullptr;
+
+    bi::shared_memory_object::remove(segment_name.c_str()); // erase any previous shared memory with same name
+    //bi::remove_shared_memory_on_destroy remove_on_destroy(segment_name.c_str()); // this calls remove in its destructor
+
+    segment_memory_t * segment = new segment_memory_t(bi::create_only, segment_name.c_str(), segmentsize);
+
+    void_allocator * alloc_inst = new void_allocator(segment->get_segment_manager());
+
+    add_manager(segment_name, *segment, *alloc_inst);
+    set_active(segment_name);
+
+    return segment;
+}
+
+//std::unique_ptr<Graph> graph_mem_managers::allocate_Graph_in_shared_memory() {
+Graph * graph_mem_managers::allocate_Graph_in_shared_memory() {
+
+    segment_memory_t * segment = allocate_and_activate_shared_memory("fzgraph", 20*1024*1024); // *** improve this wild guess
+    if (!segment)
+        return nullptr;
+
+    return segment->construct<Graph>("graph")(); // *** no parameters // std::less<char_string>(), alloc_inst);
+}
+/*
+    Graph * gptr = segment->construct<Graph>("graph")(); // *** no parameters // std::less<char_string>(), alloc_inst);
+    std::unique_ptr<Graph> graphptr(gptr);
+    return graphptr;
+}
+*/
+
+std::string graph_mem_managers::info() { //bi::managed_shared_memory & segment) {
+    if (!active)
+        return "";
+    
+    auto segmem_ptr = active->segmem_ptr;
+    if (!segmem_ptr)
+        return "";
+
+    unsigned long the_result = segmem_ptr->get_size() - segmem_ptr->get_free_memory();
+    std::string info_str("Shared memory information:");    
+    info_str += "\n  number of named objects  = " + std::to_string(segmem_ptr->get_num_named_objects());
+    info_str += "\n  number of unique objects = " + std::to_string(segmem_ptr->get_num_unique_objects());
+    info_str += "\n  size                     = " + std::to_string(segmem_ptr->get_size());
+    info_str += "\n  free memory              = " + std::to_string(segmem_ptr->get_free_memory());
+    info_str += "\n  memory used              = " + std::to_string(the_result) + '\n';
+    return info_str;
+}
+
 /**
  * Returns the id (index) of a topic tag and adds it to the list of topic
  * tags if it was not already there.
@@ -32,30 +136,47 @@ namespace fz {
  * @param title a title string.
  * @return id (index) of the topic tag in the topictags vector.
  */
-uint16_t Topic_Tags::find_or_add_Topic(std::string tag, std::string title, const void_allocator &void_alloc) {
-    Topic * topic = find_by_tag(tag, void_alloc);
+uint16_t Topic_Tags::find_or_add_Topic(std::string tag, std::string title) {
+    Topic * topic = find_by_tag(tag);
     if (topic) {
         unsigned int foundid = topic->get_id();
         //+"/"+topic->get_tag()
-        if (foundid>HIGH_TOPIC_INDEX_WARNING) ADDWARNING(__func__,"suspiciously large index topic->get_id()="+std::to_string(foundid)+" for topic "+tag);
+        if (foundid>HIGH_TOPIC_INDEX_WARNING) ADDWARNING(__func__,"suspiciously large index topic->get_id()="+std::to_string(foundid)+(" for topic "+tag).c_str());
         return foundid;
     }
     unsigned int nextid = topictags.size();
     if (nextid>UINT16_MAX) throw(std::overflow_error("Topics_Tags exceeds uint16_t tags capacity"));
-    if (nextid>HIGH_TOPIC_INDEX_WARNING) ADDWARNING(__func__,"suspiciously large index topictags.size()="+std::to_string(nextid)+" for topic "+tag);
-    Topic * newtopic = new Topic(nextid, tag, title, void_alloc); /// keyword,relevance pairs are added by a separate call
-    topictags.emplace_back(newtopic);
-    if (topictags[nextid]->get_id()!=nextid) ADDWARNING(__func__,"wrong index at topictags["+std::to_string(nextid)+"].get_id()="+std::to_string(topictags[nextid]->get_id()));
-    Topic_String tstr(void_alloc);
-    tstr = tag.c_str();
-    topicbytag[tstr] = newtopic;
-    //if (tag=="components") ADDWARNING(__func__,"components Topic object at "+std::to_string((long) topicbytag[tag])+" from "+std::to_string((long) &(topictags[nextid])));
-    if (topicbytag.size()!=topictags.size())
-        ADDWARNING(__func__,"topicbytag map and topictags vector sizes differ after adding topic "+tag);
-    //Topic_String tstr(void_alloc);
-    //tstr = tag.c_str();
-    if (topicbytag[tstr]->get_id()!=nextid)
-        ADDWARNING(__func__,"topicbytag[\""+tag+"\"]->get_id()!="+std::to_string(nextid));
+    if (nextid>HIGH_TOPIC_INDEX_WARNING) ADDWARNING(__func__,"suspiciously large index topictags.size()="+std::to_string(nextid)+(" for topic "+tag).c_str());
+    //Topic * newtopic = new Topic(nextid, tag, title); /// keyword,relevance pairs are added by a separate call
+
+    segment_memory_t * smem = graphmemman.get_segmem();
+    if (smem) {
+
+        Topic * newtopic = smem->construct<Topic>(bi::anonymous_instance)(nextid, tag, title); /// keyword,relevance pairs are added by a separate call
+
+        if (newtopic) {
+            topictags.emplace_back(newtopic);
+            if (topictags[nextid]->get_id()!=nextid)
+                ADDWARNING(__func__,"wrong index at topictags["+std::to_string(nextid)+"].get_id()="+std::to_string(topictags[nextid]->get_id()));
+
+            Topic_String tstr(graphmemman.get_allocator());
+            tstr = tag.c_str();
+            topicbytag[tstr] = newtopic;
+            //if (tag=="components") ADDWARNING(__func__,"components Topic object at "+std::to_string((long) topicbytag[tag])+" from "+std::to_string((long) &(topictags[nextid])));
+            if (topicbytag.size()!=topictags.size())
+                ADDWARNING(__func__,("topicbytag map and topictags vector sizes differ after adding topic "+tag).c_str());
+
+            //Topic_String tstr(void_alloc);
+            //tstr = tag.c_str();
+            if (topicbytag[tstr]->get_id()!=nextid)
+                ADDWARNING(__func__,("topicbytag[\""+tag+"\"]->get_id()!=").c_str()+std::to_string(nextid));
+        } else {
+            ADDERROR(__func__, "unable to construct new Topic in shared memory segment");
+        }
+    } else {
+        ADDERROR(__func__, "unable to access shared memory segment");
+    }
+
     return nextid;
 }
 
@@ -66,9 +187,9 @@ uint16_t Topic_Tags::find_or_add_Topic(std::string tag, std::string title, const
  * @param _tag a topic tag label
  * @return pointer to Topic object in topictags vector, or NULL if not found.
  */
-Topic * Topic_Tags::find_by_tag(std::string _tag, const void_allocator &void_alloc) {
+Topic * Topic_Tags::find_by_tag(std::string _tag) {
     if (_tag.empty()) return NULL;
-    Topic_String tstr(void_alloc);
+    Topic_String tstr(graphmemman.get_allocator());
     tstr = _tag.c_str();
     auto it = topicbytag.find(tstr);
     if (it==topicbytag.end()) return NULL;
@@ -76,7 +197,7 @@ Topic * Topic_Tags::find_by_tag(std::string _tag, const void_allocator &void_all
     return it->second;
 }
 
-Node_ID::Node_ID(const ID_TimeStamp _idT, const void_allocator &void_alloc): idkey(_idT), idS_cache("",void_alloc) {
+Node_ID::Node_ID(const ID_TimeStamp _idT): idkey(_idT), idS_cache("", graphmemman.get_allocator()) {
     idS_cache = Node_ID_TimeStamp_to_string(idkey.idT).c_str();
 }
 
@@ -89,8 +210,8 @@ bool Node::add_topic(Topic_Tags &topictags, uint16_t topicid, float topicrelevan
     return ret.second; // was it actually added?
 }
 
-bool Node::add_topic(Topic_Tags &topictags, std::string tag, std::string title, float topicrelevance, const void_allocator &void_alloc) {
-    uint16_t id = topictags.find_or_add_Topic(tag, title, void_alloc);
+bool Node::add_topic(Topic_Tags &topictags, std::string tag, std::string title, float topicrelevance) {
+    uint16_t id = topictags.find_or_add_Topic(tag.c_str(), title.c_str());
     auto ret = topics.emplace(id,topicrelevance);
     return ret.second;
 }
@@ -100,9 +221,9 @@ bool Node::add_topic(uint16_t topicid, float topicrelevance) {
     return add_topic(graph->topics, topicid, topicrelevance); // NOTICE: Accessing friend class member variable directly to avoid const issues with get_topics().
 }
 
-bool Node::add_topic(std::string tag, std::string title, float topicrelevance, const void_allocator &void_alloc) {
+bool Node::add_topic(std::string tag, std::string title, float topicrelevance) {
     if (!graph) return false;
-    return add_topic(graph->topics, tag, title, topicrelevance, void_alloc); // NOTICE: Accessing friend class member variable directly to avoid const issues with get_topics().
+    return add_topic(graph->topics, tag, title, topicrelevance); // NOTICE: Accessing friend class member variable directly to avoid const issues with get_topics().
 }
 
 bool Node::remove_topic(uint16_t id) {
@@ -110,10 +231,10 @@ bool Node::remove_topic(uint16_t id) {
     return (topics.erase(id)>0);
 }
 
-bool Node::remove_topic(std::string tag, const void_allocator &void_alloc) {
+bool Node::remove_topic(std::string tag) {
     if (!graph) return false;
     if (topics.size()<=1) return false; /// By convention, you must have at least one topic tag.
-    Topic* topic = graph->topics.find_by_tag(tag, void_alloc);
+    Topic* topic = graph->topics.find_by_tag(tag);
     if (!topic) return false;
     return remove_topic(topic->get_id());
 }
@@ -293,7 +414,7 @@ Topic_ID Node::main_topic_id() {
     return main_id;
 }
 
-Edge_ID::Edge_ID(Edge_ID_key _idkey, const void_allocator &void_alloc): idkey(_idkey), idS_cache("", void_alloc) {
+Edge_ID::Edge_ID(Edge_ID_key _idkey): idkey(_idkey), idS_cache("", graphmemman.get_allocator()) {
     std::string formerror;
     if (!valid_Node_ID(idkey.dep.idT,formerror)) throw(ID_exception(formerror));
     if (!valid_Node_ID(idkey.sup.idT,formerror)) throw(ID_exception(formerror));
@@ -301,7 +422,7 @@ Edge_ID::Edge_ID(Edge_ID_key _idkey, const void_allocator &void_alloc): idkey(_i
     idS_cache = (Node_ID_TimeStamp_to_string(idkey.dep.idT)+'>'+Node_ID_TimeStamp_to_string(idkey.sup.idT)).c_str();
 }
 
-Edge_ID::Edge_ID(Node &_dep, Node &_sup, const void_allocator &void_alloc): idkey(_dep.get_id().key(),_sup.get_id().key()), idS_cache("", void_alloc) {
+Edge_ID::Edge_ID(Node &_dep, Node &_sup): idkey(_dep.get_id().key(),_sup.get_id().key()), idS_cache("", graphmemman.get_allocator()) {
     idS_cache = (Node_ID_TimeStamp_to_string(idkey.dep.idT)+'>'+Node_ID_TimeStamp_to_string(idkey.sup.idT)).c_str();
 }
 
@@ -321,7 +442,7 @@ Edge_ID::Edge_ID(Node &_dep, Node &_sup, const void_allocator &void_alloc): idke
  * @param graph a valid Graph containing Node objects.
  * @param id_str the Edge ID string, validity will be tested.
  */
-Edge::Edge(Graph & graph, std::string id_str, const void_allocator &void_alloc): id(id_str.c_str(), void_alloc) {
+Edge::Edge(Graph & graph, std::string id_str): id(id_str.c_str()) {
     std::string formerror;
     if (!(dep = graph.Node_by_id(id.key().dep))) {
         formerror = "dependency not found";
@@ -337,7 +458,15 @@ Edge::Edge(Graph & graph, std::string id_str, const void_allocator &void_alloc):
     }
 }
 
+/**
+ * Note that this function will only allow insertion of a Node that was created in
+ * the same shared memory segment.
+ */
 bool Graph::add_Node(Node &node) {
+    auto insttype = bi::managed_shared_memory::get_instance_type(&node);
+    if ((insttype != bi::named_type) && (insttype != bi::anonymous_type))
+        return false; // node is unknown to shared memory management // *** not necessarily same segment!!!
+
     std::pair<Node_Map::iterator, bool> ret;
     ret = nodes.insert(std::pair<Node_ID_key, Node *>(node.get_id().key(), &node));
     if (!ret.second)
@@ -355,7 +484,32 @@ bool Graph::add_Node(Node *node) {
     return add_Node(*node);
 }
 
+
+Node * Graph::create_Node(std::string id_str) {
+    segment_memory_t * smem = graphmemman.get_segmem();
+    if (!smem)
+        return nullptr;
+
+    return smem->construct<Node>(bi::anonymous_instance)(id_str);
+}
+
+Node * Graph::create_and_add_Node(std::string id_str) {
+    Node * nptr = create_Node(id_str);
+    if (!nptr)
+        return nullptr;
+    
+    if (!add_Node(nptr)) {
+        graphmemman.get_segmem()->destroy_ptr(nptr);
+        return nullptr;
+    }
+    return nptr;
+}
+
 bool Graph::add_Edge(Edge &edge) {
+    auto insttype = bi::managed_shared_memory::get_instance_type(&edge);
+    if ((insttype != bi::named_type) && (insttype != bi::anonymous_type))
+        return false; // node is unknown to shared memory management // *** not necessarily same segment!!!
+
     std::pair<Edge_Map::iterator, bool> ret;
     ret = edges.insert(std::pair<Edge_ID_key, Edge *>(edge.get_id().key(), &edge));
     if (!ret.second) {
@@ -374,6 +528,14 @@ bool Graph::add_Edge(Edge *edge) {
         return false;
     }
     return add_Edge(*edge);
+}
+
+Edge * Graph::create_and_add_Edge(std::string id_str) {
+    segment_memory_t * smem = graphmemman.get_segmem();
+    if (!smem)
+        return nullptr;
+
+    return smem->construct<Edge>(bi::anonymous_instance)(*this,id_str); // this does adding to Graph as well
 }
 
 bool Graph::remove_Edge(Edge &edge) {
@@ -459,5 +621,13 @@ Topic * main_topic(Graph & _graph, Node & node) {
 }
 
 // +----- end  : friend functions -----+
+
+std::string Graph_Info(Graph & graph) {
+    std::string info_str("Graph info:");
+    info_str += "\n  number of Topics = " + std::to_string(graph.get_topics().get_topictags().size());
+    info_str += "\n  number of Nodes  = " + std::to_string(graph.num_Nodes());
+    info_str += "\n  number of Edges  = " + std::to_string(graph.num_Edges()) + '\n';
+    return info_str;
+}
 
 } // namespace fz

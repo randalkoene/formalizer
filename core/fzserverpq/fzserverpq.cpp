@@ -2,13 +2,13 @@
 // License TBD
 
 /**
- * fzserverpq is the Postgres-compatible version of the C++ implementation of teh Formalizer data server.
+ * fzserverpq is the Postgres-compatible version of the C++ implementation of the Formalizer data server.
  * 
  * For more information see:
  * https://docs.google.com/document/d/1rYPFgzFgjkF1xGx3uABiXiaDR5sfmOzqYQRqSntcyyY/edit#heading=h.tarhfe395l5v
  * https://trello.com/c/S7SZUyeU
  * 
- * For more about this, see {{ doc_reference }}.
+ * For more about this, see https://trello.com/c/S7SZUyeU.
  */
 
 #define FORMALIZER_MODULE_ID "Formalizer:Server:Graph:Postgres"
@@ -17,7 +17,6 @@
 #include <iostream>
 
 // core
-#include "version.hpp"
 #include "error.hpp"
 #include "standard.hpp"
 #include "Graphtypes.hpp"
@@ -36,8 +35,8 @@ fzserverpq fzs;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzserverpq::fzserverpq(): formalizer_standard_program(false), ga(*this, add_option_args, add_usage_top, true), flowcontrol(flow_unknown) {
-    //add_option_args += "x:";
-    //add_usage_top += " [-x <something>]";
+    add_option_args += "G";
+    add_usage_top += " [-G]";
 }
 
 /**
@@ -46,7 +45,7 @@ fzserverpq::fzserverpq(): formalizer_standard_program(false), ga(*this, add_opti
  */
 void fzserverpq::usage_hook() {
     ga.usage_hook();
-    //FZOUT("    -x something explanation\n");        
+    FZOUT("    -G Load Graph and stay resident in memory\n");
 }
 
 /**
@@ -65,12 +64,10 @@ bool fzserverpq::options_hook(char c, std::string cargs) {
 
     switch (c) {
 
-    /*
-    case 'x': {
-
-        break;
+    case 'G': {
+        flowcontrol = flow_resident_graph;
+        return true;
     }
-    */
 
     }
 
@@ -90,31 +87,30 @@ void fzserverpq::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen once in main(), for the derived class
 }
 
-std::unique_ptr<Graph> init_resident_Graph() {
-    std::unique_ptr<Graph> graph = fzs.ga.request_Graph_copy();
+void load_Graph_and_stay_resident() {
+
+    Graph * graph = fzs.ga.request_Graph_copy();
     if (!graph) {
         ADDERROR(__func__,"unable to load Graph");
-        standard.exit(exit_database_error);
+        return;
     }
-    return graph;
+
+    VERYVERBOSEOUT(graphmemman.info());
+    VERYVERBOSEOUT(Graph_Info(*graph));
+
+    key_pause();
 }
 
 int main(int argc, char *argv[]) {
+    ERRTRACE;
     fzs.init_top(argc, argv);
-    fzs.init(argc,argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
-
-    std::unique_ptr<Graph> graph = init_resident_Graph();
-
-    FZOUT("\nThis is a stub.\n\n");
-    key_pause();
 
     switch (fzs.flowcontrol) {
 
-    /*
-    case flow_something: {
-        return something();
+    case flow_resident_graph: {
+        load_Graph_and_stay_resident();
+        break;
     }
-    */
 
     default: {
         fzs.print_usage();

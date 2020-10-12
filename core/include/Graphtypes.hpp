@@ -71,37 +71,73 @@ namespace bi = boost::interprocess;
 #include "TimeStamp.hpp"
 #include "Graphbase.hpp"
 
-/*
-#ifndef MAXTIME_T
-
-#ifdef _TYPEBITS
-#define HITIME_T ((time_t)(((unsigned long)1) << (_TYPEBITS(time_t) - 1)))
-#else
-#define HITIME_T ((time_t)(((unsigned long)1) << (BITS(time_t) - 1)))
-#endif // _TYPEBITS
-*/
-/*
-   The following is a precaution for the localtime() function on 64 bit platforms,
-   because localtime() often cannot produce time stamps with years greater than 9999.
-*/
-/*
-#ifdef __x86_64__
-#define MAXTIME_T 253202544000
-#else
-#define MAXTIME_T ((time_t)(~HITIME_T))
-#endif // __x86_64__
-
-#endif // MAXTIME_T
-*/
-
 namespace fz {
 
 /// Formalizer specific base types for ease of modification (container types)
+typedef bi::managed_shared_memory segment_memory_t;
 typedef bi::managed_shared_memory::segment_manager segment_manager_t; // the shared memory segment manager
 typedef bi::allocator<void, segment_manager_t> void_allocator; // convertible to any other allocator<T> (we can use one allocator for all inner containers)
 
-extern void_allocator graph_alloc; ///< a global allocator to share among Graph components in the same segment
-extern std::map<std::string, void_allocator> graph_allocators;
+static constexpr const char* const shared_mem_exception_stub = "attempted to obtain shared memory manager or allocator while ";
+
+/// Exception thrown manager or allocator are requested when none are active.
+class Shared_Memory_exception {
+    std::string sharedmemexceptioncase;
+public:
+    Shared_Memory_exception(std::string _sharedmemexceptioncase) : sharedmemexceptioncase(_sharedmemexceptioncase) {
+        ADDERROR("graph_mem_managers",shared_mem_exception_stub+sharedmemexceptioncase);
+    }
+    std::string what() { return std::string(shared_mem_exception_stub) + sharedmemexceptioncase; }
+};
+
+/// Every shared memory segment (e.g. for a different copy of a Graph) can have its own instance of these references.
+struct shared_memory_manager {
+    segment_memory_t * segmem_ptr;
+    const void_allocator * alloc_inst_ptr;
+    shared_memory_manager(segment_memory_t & _segmem, void_allocator & allocinst): segmem_ptr(&_segmem), alloc_inst_ptr(&allocinst) {}
+};
+
+/**
+ * Keep track of multiple shared memory segments, switch which one is
+ * considered active for allocator use, and provide manager and allocator
+ * references.
+ * 
+ * This class simplifies working with one or more shared memory segments,
+ * for example, for separate copies of the Graph, while still keeping
+ * memory allocation simple for container classes by having them work
+ * with the active set. (No need to provide allocators as parameters in
+ * functions within Graphtypes and beyond.)
+ * 
+ * Note that some of the methods in this class will throw an exception
+ * if a segment manager or void allocator is requested when none are
+ * active (nullptr). This is a safety measure to ensure that programs
+ * using this class do in fact set up at least one manager and allocator.
+ */
+class graph_mem_managers {
+protected:
+    std::map<std::string, shared_memory_manager> managers;
+    shared_memory_manager * active;
+    bool remove_on_exit;
+public:
+    graph_mem_managers(): active(nullptr), remove_on_exit(true) {}
+    ~graph_mem_managers();
+    bool add_manager(std::string segname, segment_memory_t & segmem, void_allocator & allocinst);
+    bool set_active(std::string segname);
+    void set_remove_on_exit(bool _removeonexit) { remove_on_exit = _removeonexit; }
+    shared_memory_manager * get_active() const { return active; }
+    segment_memory_t * get_segmem() const;
+    const segment_manager_t & get_segman() const;
+    const void_allocator & get_allocator() const;
+
+    segment_memory_t * allocate_and_activate_shared_memory(std::string segment_name, unsigned long segmentsize);
+    //std::unique_ptr<Graph> allocate_Graph_in_shared_memory(); // *** gets tricky with Boost Interprocess
+    Graph * allocate_Graph_in_shared_memory();
+    std::string info();
+};
+
+extern graph_mem_managers graphmemman; ///< Global access to shared memory managers for Graph data structures.
+
+
 
 typedef bi::allocator<char, segment_manager_t> char_allocator;
 typedef bi::basic_string<char, std::char_traits<char>, char_allocator> GraphIDcache;
@@ -149,8 +185,8 @@ protected:
     Node_ID_key idkey;
     GraphIDcache idS_cache; // cached string version of the ID to speed things up
 public:
-    Node_ID(std::string _idS, const void_allocator &void_alloc): idkey(_idS), idS_cache(_idS.c_str(), void_alloc) {}
-    Node_ID(const ID_TimeStamp _idT, const void_allocator &void_alloc);
+    Node_ID(std::string _idS): idkey(_idS), idS_cache(_idS.c_str(), graphmemman.get_allocator()) {}
+    Node_ID(const ID_TimeStamp _idT);
 
     Node_ID() = delete; // explicitly forbid the default constructor, just in case
 
@@ -167,9 +203,9 @@ protected:
     GraphIDcache idS_cache; // cached string version of the ID to speed things up
 public:
     //Edge_ID(std::string dep_idS, std::string sup_idS); // Not clear that this one is ever needed
-    Edge_ID(std::string _idS, const void_allocator &void_alloc): idkey(_idS), idS_cache(_idS.c_str(), void_alloc) {} /// Try to use this one only for container element initialization and such.
-    Edge_ID(Edge_ID_key _idkey, const void_allocator &void_alloc);
-    Edge_ID(Node &_dep, Node &_sup, const void_allocator &void_alloc);
+    Edge_ID(std::string _idS): idkey(_idS), idS_cache(_idS.c_str(), graphmemman.get_allocator()) {} /// Try to use this one only for container element initialization and such.
+    Edge_ID(Edge_ID_key _idkey);
+    Edge_ID(Node &_dep, Node &_sup);
 
     Edge_ID() = delete; // explicitly forbid the default constructor, just in case
 
@@ -181,7 +217,7 @@ struct Topic_Keyword {
     Keyword_String keyword;
     Keyword_Relevance relevance;
 
-    Topic_Keyword(std::string k, Keyword_Relevance r, const void_allocator &void_alloc): keyword(k.c_str(), void_alloc), relevance(r) {}
+    Topic_Keyword(std::string k, Keyword_Relevance r): keyword(k.c_str(), graphmemman.get_allocator()), relevance(r) {}
 };
 
 class Topic {
@@ -193,13 +229,17 @@ protected:
     Topic_KeyRel_Vector keyrel; /// optional list of keywords and relevance ratios
 
 public:
-    Topic(Topic_ID _id, std::string _tag, std::string _title, const void_allocator &void_alloc): id(_id), supid(_id), tag(_tag.c_str(), void_alloc), title(_title.c_str(), void_alloc), keyrel(void_alloc) {}
+    // To make sure this is only created via bi::construc or as part of Topic_Tags_Vector (there via [] operator).
+    Topic(Topic_ID _id, std::string _tag, std::string _title) : id(_id), supid(_id), tag(_tag.c_str(), graphmemman.get_allocator()),
+                                                                title(_title.c_str(), graphmemman.get_allocator()),
+                                                                keyrel(graphmemman.get_allocator()) {}
 
+public:
     /// safely inspect parameters
     Topic_ID get_id() const { return id; }
     Topic_ID get_supid() const { return supid; }
-    std::string get_tag() const { return tag.c_str(); }
-    std::string get_title() const { return title.c_str(); }
+    const Topic_String & get_tag() const { return tag; }
+    const Topic_String & get_title() const { return title; }
 
     /// table references
     const Topic_KeyRel_Vector & get_keyrel() const { return keyrel; }
@@ -225,7 +265,7 @@ protected:
     TopicbyTag_Map topicbytag;   ///< This provides Topic pointers by Tag-string key.
 
 public:
-    Topic_Tags(const void_allocator &void_alloc): topictags(void_alloc), topicbytag(void_alloc) {}
+    Topic_Tags(): topictags(graphmemman.get_allocator()), topicbytag(graphmemman.get_allocator()) {}
     ~Topic_Tags() { for (auto it = topictags.begin(); it!=topictags.end(); ++it) delete (*it); }
 
     /// tables references
@@ -253,7 +293,7 @@ public:
      * @param title a title string.
      * @return id (index) of the topic tag in the `topictags` vector.
      */
-    Topic_ID find_or_add_Topic(std::string tag, std::string title, const void_allocator &void_alloc);
+    Topic_ID find_or_add_Topic(std::string tag, std::string title);
 
     /**
      * Find a Topic in the Topic_Tags table by Topic ID.
@@ -270,7 +310,7 @@ public:
      * @param _tag a topic tag label
      * @return pointer to Topic object in topictags vector, or NULL if not found.
      */
-    Topic * find_by_tag(std::string _tag, const void_allocator &void_alloc);
+    Topic * find_by_tag(std::string _tag);
 
     /// friend (utility) functions
     friend bool identical_Topic_Tags(Topic_Tags & ttags1, Topic_Tags & ttags2, std::string & trace);
@@ -317,7 +357,16 @@ protected:
     time_t inherit_targetdate();        // may be called by effective_targetdate()
 
 public:
-    Node(std::string id_str, const void_allocator &void_alloc) : id(id_str.c_str(), void_alloc), topics(void_alloc), text(void_alloc), supedges(void_alloc), depedges(void_alloc) {}
+    // Protected constructor to ensure Nodes are created in the correct type of memory.
+    Node(std::string id_str) : id(id_str.c_str()), topics(graphmemman.get_allocator()),
+                               text(graphmemman.get_allocator()), supedges(graphmemman.get_allocator()),
+                               depedges(graphmemman.get_allocator()) {}
+    //Node() : id(""), topics(graphmemman.get_allocator()),
+    //                           text(graphmemman.get_allocator()), supedges(graphmemman.get_allocator()),
+    //                           depedges(graphmemman.get_allocator()) {}
+
+public:
+    // No public constructor to ensure that Nodes are created by Graphs that are allocator aware.
 
     // safely inspect data
     const Node_ID &get_id() const { return id; }
@@ -337,11 +386,11 @@ public:
 
     /// change parameters: topics
     bool add_topic(Topic_Tags &topictags, Topic_ID topicid, float topicrelevance);
-    bool add_topic(Topic_Tags &topictags, std::string tag, std::string title, float topicrelevance, const void_allocator &void_alloc);
+    bool add_topic(Topic_Tags &topictags, std::string tag, std::string title, float topicrelevance);
     bool add_topic(Topic_ID topicid, float topicrelevance); /// Use this version if the Node is already in a Graph
-    bool add_topic(std::string tag, std::string title, float topicrelevance, const void_allocator &void_alloc); /// Use this version if the Node is already in a Graph
+    bool add_topic(std::string tag, std::string title, float topicrelevance); /// Use this version if the Node is already in a Graph
     bool remove_topic(uint16_t id);
-    bool remove_topic(std::string tag, const void_allocator &void_alloc);
+    bool remove_topic(std::string tag);
 
     /// change parameters: state 
     void set_valuation(float v) { valuation = v; }
@@ -383,6 +432,7 @@ public:
 };
 
 class Edge {
+    friend class Graph;
     friend class Node;
 protected:
     const Edge_ID id;
@@ -396,9 +446,11 @@ protected:
     Node *sup; // rapid access
 
 public:
-    Edge(Node &_dep, Node &_sup, const void_allocator &void_alloc): id(_dep,_sup, void_alloc), dep(&_dep), sup(&_sup) {}
-    Edge(Graph & graph, std::string id_str, const void_allocator &void_alloc);
+    // Create only through graph with awareness of allocators.
+    Edge(Node &_dep, Node &_sup): id(_dep,_sup), dep(&_dep), sup(&_sup) {}
+    Edge(Graph & graph, std::string id_str);
 
+public:
     // safely inspect data
     Edge_ID get_id() const { return id; }
     std::string get_id_str() const { return id.str(); }
@@ -442,7 +494,7 @@ protected:
     void set_all_semaphores(int sval);
 
 public:
-    Graph(const void_allocator &void_alloc): nodes(void_alloc), edges(void_alloc), topics(void_alloc) {}
+    Graph(): nodes(graphmemman.get_allocator()), edges(graphmemman.get_allocator()) {}
 
     /// tables references
     const Topic_Tags & get_topics() const { return topics; }
@@ -453,12 +505,15 @@ public:
     Topic_Tags_Vector::size_type num_Topics() const { return topics.num_Topics(); }
 
     /// nodes table: extend
-    bool add_Node(Node &node);
-    bool add_Node(Node *node);
+    bool add_Node(Node &node); // only allow Nodes allocated in the same shared segment
+    bool add_Node(Node *node); // only allow Nodes allocated in the same shared segment
+    Node * create_Node(std::string id_str); // create Node in the same shared segment
+    Node * create_and_add_Node(std::string id_str); // create and immediately insert
 
     /// edges table: extend
-    bool add_Edge(Edge &edge);
+    bool add_Edge(Edge &edge); // only allow Edges allocated in the same shared segment
     bool add_Edge(Edge *edge);
+    Edge * create_and_add_Edge(std::string id_str); // create and immediately insert
 
     /// edges table: reduce
     bool remove_Edge(Edge &edge);
@@ -561,6 +616,8 @@ inline Edge * Graph::Edge_by_id(const Edge_ID_key & id) const {
 }
 
 // +----- end  : inline member functions -----+
+
+std::string Graph_Info(Graph & graph);
 
 } // namespace fz
 

@@ -43,10 +43,18 @@ TEST=./test
 POSTGRESINC = /usr/include/postgresql
 POSTGRESLIB = -L/usr/lib/x86_64-linux-gnu -lpq
 
+# To find the Boost libraries
+# See the note on POSIX systems in Building Boost.Interprocess at https://www.boost.org/doc/libs/1_38_0/doc/html/interprocess.html#interprocess.intro.introduction_building_interprocess.
+BOOSTINTERPROCESSLIB_REQS = -lrt -lpthread
+LOCALINC = $(HOME)/local/include
+LOCALLIB = $(BOOSTINTERPROCESSLIB_REQS)
+
 # +----- begin: Essential include and library paths for this program -----+
 INCLUDES := -I$(CPATH) -I$(COREINCLUDEPATH)
 INCLUDES += -I$(POSTGRESINC)
+INCLUDES += -I$(LOCALINC)
 LIB_PATH = $(POSTGRESLIB)
+LIB_PATH += $(LOCALLIB)
 # +----- begin: Essential include and library paths for this program -----+
 
 # +----- begin: In case not included from CPATH -----+
@@ -96,9 +104,10 @@ CORE_OBJS = $(CORELIBPATH)/obj/error.o
 CORE_OBJS += $(CORELIBPATH)/obj/standard.o
 CORE_OBJS += $(CORELIBPATH)/obj/config.o
 CORE_OBJS += $(CORELIBPATH)/obj/general.o
-CORE_OBJS += $(CORELIBPATH)/obj/templater.o
+# CORE_OBJS += $(CORELIBPATH)/obj/templater.o
 # CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
 CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphbase.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
 CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
 CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o

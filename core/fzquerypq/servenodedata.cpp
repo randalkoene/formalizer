@@ -83,7 +83,8 @@ void serve_request_Node_data() {
     }
 
     ERRHERE(".loadGraph");
-    std::unique_ptr<Graph> graph = fzq.ga.request_Graph_copy();
+    //std::unique_ptr<Graph> graph = fzq.ga.request_Graph_copy();
+    Graph * graph = fzq.ga.request_Graph_copy();
     if (!graph) {
         ADDERROR(__func__,"unable to load Graph");
         return;
@@ -98,4 +99,7 @@ void serve_request_Node_data() {
     } else {
         FZERR("invalid Node ID: "+fzq.node_idstr);
     }
+
+    VERYVERBOSEOUT(graphmemman.info());
+    VERYVERBOSEOUT(Graph_Info(*graph));
 }

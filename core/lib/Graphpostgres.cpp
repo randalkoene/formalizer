@@ -331,7 +331,7 @@ bool get_Edge_pq_field_numbers(PGresult *res) {
  * @return vector of Topic_Keyword pairs of (keyword,relevance).
  */
 Topic_KeyRel_Vector keyrel_from_pq(std::string keywordstr, std::string relevancestr) {
-    Topic_KeyRel_Vector krels;
+    Topic_KeyRel_Vector krels(graphmemman.get_allocator());
     auto kvec = array_from_pq(keywordstr);
     auto rvec = array_from_pq(relevancestr);
     if (kvec.size()!=rvec.size()) {
@@ -364,13 +364,17 @@ bool read_Topics_pq(PGconn* conn, std::string schemaname, Topic_Tags & topictags
 
         for (int r = 0; r < rows; ++r) {
 
-            std::string tag = PQgetvalue(res, r, pq_topic_field[pqt_tag]);
-            std::string title = PQgetvalue(res, r, pq_topic_field[pqt_title]);
+            char * tag = PQgetvalue(res, r, pq_topic_field[pqt_tag]);
+            char * title = PQgetvalue(res, r, pq_topic_field[pqt_title]);
             int id = std::atoi(PQgetvalue(res,r, pq_topic_field[pqt_id]));
             int new_id = topictags.find_or_add_Topic(tag,title);
             if (id!=new_id) ERRRETURNFALSE(__func__,"stored topic id does not match newly generated id");
 
-            Topic * topic = topictags.get_topictags()[id];
+            Topic * topic = topictags.get_topictags()[id]; // allocated by [] operator of vector (uses graphmemman.get_allocator(), see class Topic_Tags)
+            if (!topic) {
+                ERRRETURNFALSE(__func__, "unknown error while attempting to add Topic with id#"+std::to_string(id));
+            }
+            
             int supid = std::atoi(PQgetvalue(res,r, pq_topic_field[pqt_supid]));
             if (id!=supid) topic->set_supid(supid);
 
@@ -454,14 +458,13 @@ bool read_Nodes_pq(PGconn* conn, std::string schemaname, Graph & graph) {
 
             std::string id = PQgetvalue(res, r, pq_node_field[pqn_id]);
             try {
-                Node * node = new Node(id);
-
-                if (!graph.add_Node(node)) {
+                Node * node = graph.create_and_add_Node(id);
+                if (!node) {
                     if (graph.error == Graph::g_adddupnode) {
                         ERRRETURNFALSE(__func__,"duplicate Node ["+id+']');
                     } else {
                         ERRRETURNFALSE(__func__,"unknown error while attempting to add Node");
-                    }
+                    }                    
                 }
 
                 if (!node_topics_from_pq(*node,PQgetvalue(res, r, pq_node_field[pqn_topics]),PQgetvalue(res, r, pq_node_field[pqn_topicrelevance]))) {
@@ -509,7 +512,14 @@ bool read_Edges_pq(PGconn* conn, std::string schemaname, Graph & graph) {
 
             std::string id = PQgetvalue(res, r, pq_edge_field[pqe_id]);
             try {
-                Edge * edge = new Edge(graph,id); // Adding to graph already happens in this call.
+                Edge * edge = graph.create_and_add_Edge(id);
+                if (!edge) {
+                    if (graph.error == Graph::g_adddupedge) {
+                        ERRRETURNFALSE(__func__,"duplicate Edge ["+id+']');
+                    } else {
+                        ERRRETURNFALSE(__func__,"unknown error while attempting to add Edge");
+                    }                    
+                }
 
                 edge->set_dependency(std::stof(PQgetvalue(res, r, pq_edge_field[pqe_dependency])));
                 edge->set_importance(std::stof(PQgetvalue(res, r, pq_edge_field[pqe_importance])));
@@ -682,18 +692,18 @@ std::string Topic_pq::supid_pqstr() {
 /// Return the tag string between dollar-quoted tags that prevent any issues with characters in the tag.
 std::string Topic_pq::tag_pqstr() {
     // Using the Postgres dollar-quoted tag method means no need to escape any characters within the text!
-    return "$txt$"+topic->get_tag()+"$txt$";
+    return "$txt$"+std::string(topic->get_tag().c_str())+"$txt$";
 }
 
 /// Return the title string between dollar-quoted tags that prevent any issues with characters in the title.
 std::string Topic_pq::title_pqstr() {
     // Using the Postgres dollar-quoted tag method means no need to escape any characters within the text!
-    return "$txt$"+topic->get_title()+"$txt$";
+    return "$txt$"+std::string(topic->get_title().c_str())+"$txt$";
 }
 
 /// Return the comma delimited string of keywords inside the ARRAY[] constructor.
 std::string Topic_pq::All_Topic_keyword_pqstr() {
-    const std::vector<Topic_Keyword> &k = topic->get_keyrel();
+    const Topic_KeyRel_Vector &k = topic->get_keyrel();
     if (k.size()<1) {
         // ADDWARNING(__func__,"Topic "+topic->get_tag()+" has zero keywords, which breaks backward compatible convention.");
         return "ARRAY[]";
@@ -703,17 +713,17 @@ std::string Topic_pq::All_Topic_keyword_pqstr() {
         auto comma_fold_impl = [&k](auto it, auto& comma_fold_ref) mutable {
             if (it == k.end())
                 return std::string("]");
-            return ",'" + it->keyword + "'" + comma_fold_ref(std::next(it),comma_fold_ref);
+            return ",'" + std::string(it->keyword.c_str()) + "'" + comma_fold_ref(std::next(it),comma_fold_ref);
         };
         return comma_fold_impl(it,comma_fold_impl);
     };
 
-    return "ARRAY['"+k.begin()->keyword + "'" + comma_fold(std::next(k.begin()));
+    return "ARRAY['"+std::string(k.begin()->keyword.c_str()) + "'" + comma_fold(std::next(k.begin()));
 }
 
 /// Return the coma delimeted 3-digit precision representation of keyword relevances inside the ARRAY[] constructor.
 std::string Topic_pq::All_Topic_relevance_pqstr() {
-    const std::vector<Topic_Keyword> &k = topic->get_keyrel();
+    const Topic_KeyRel_Vector &k = topic->get_keyrel();
     if (k.size()<1) {
         // ADDWARNING(__func__,"Topic "+topic->get_tag()+" has zero keywords, which breaks backward compatible convention.");
         return "ARRAY[]";
@@ -825,7 +835,7 @@ std::string Node_pq::required_pqstr() {
 /// Return the text between dollar-quoted tags that prevent any issues with characters in the text.
 std::string Node_pq::text_pqstr() {
     // Using the Postgres dollar-quoted tag method means no need to escape any characters within the text!
-    return "$txt$"+node->get_text()+"$txt$";
+    return "$txt$"+std::string(node->get_text())+"$txt$";
 }
 
 /// Return a target date time stamp that is recognized by Postgres.
