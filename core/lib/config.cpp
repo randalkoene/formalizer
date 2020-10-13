@@ -7,6 +7,8 @@
 // core
 #include "error.hpp"
 #include "general.hpp"
+#include "stringio.hpp"
+#include "jsonlite.hpp"
 #include "config.hpp"
 
 /**
@@ -71,31 +73,6 @@ bool configbase::load() {
     return true;
 }
 
-/// Extract parameter label and parameter value.
-std::pair<std::string, std::string> param_value(const std::string & par_value_pair) {
-    std::string::size_type pos;
-    if ((pos = par_value_pair.find('"')) == std::string::npos) {
-        return std::make_pair("","");
-    }
-    auto start = pos+1;
-    if ((pos = par_value_pair.find('"',start)) == std::string::npos) {
-        return std::make_pair("","");
-    }
-    std::string parlabel(par_value_pair.substr(start,pos-start));
-    if ((pos = par_value_pair.find(':',pos+1)) == std::string::npos) {
-        return std::make_pair("","");
-    }
-    if ((pos = par_value_pair.find('"',pos+1)) == std::string::npos) {
-        return std::make_pair("","");
-    }
-    start = pos+1;
-    if ((pos = par_value_pair.find('"',start)) == std::string::npos) {
-        return std::make_pair("","");
-    }
-    std::string parvalue(par_value_pair.substr(start,pos-start));
-    return std::make_pair(parlabel,parvalue);
-}
-
 /**
  * Parse the contents of a configuration file.
  * 
@@ -108,23 +85,12 @@ std::pair<std::string, std::string> param_value(const std::string & par_value_pa
  */
 bool configbase::parse(std::string & configcontentstr) {
     ERRTRACE;
-    // trim away the opening bracket
-    ltrim(configcontentstr);
-    if (configcontentstr.front()=='{') { // not making a fuss if it's not there
-        configcontentstr.erase(0,1);
-    }
-    // trim away the closing bracket
-    rtrim(configcontentstr);
-    if (configcontentstr.back()=='}') { // no big deal if it's missing
-        configcontentstr.pop_back();
-    }
-    // split at the commas
-    auto configlines = split(configcontentstr,',');
+    auto configlines = json_get_param_value_lines(configcontentstr);
 
     ERRHERE(".params");
     bool noerrors = true;
     for (const auto& it : configlines) {
-        auto [parlabel, parvalue] = param_value(it);
+        auto [parlabel, parvalue] = json_param_value(it);
         if (!parlabel.empty()) {
             if (!set_parameter(parlabel, parvalue)) {
                 ADDERROR(__func__,"Unable to parse configuration parameter: "+parlabel);

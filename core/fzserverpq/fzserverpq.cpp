@@ -19,12 +19,12 @@
 // core
 #include "error.hpp"
 #include "standard.hpp"
+#include "proclock.hpp"
 #include "Graphtypes.hpp"
 #include "Graphinfo.hpp"
 
 // local
 #include "fzserverpq.hpp"
-
 
 using namespace fz;
 
@@ -90,16 +90,37 @@ void fzserverpq::init_top(int argc, char *argv[]) {
 
 void load_Graph_and_stay_resident() {
 
+    // create the lockfile to indicate the presence of this server
+    int lockfile_ret = check_and_make_lockfile(fzs.lockfilepath, "");
+    if (lockfile_ret != 0) {
+        if (lockfile_ret == 1) {
+            ADDERROR(__func__, "Another instance of this server may be running. The lock file already exists at "+std::string(fzs.lockfilepath));
+            VERBOSEERR("The lock file already exists at "+std::string(fzs.lockfilepath)+".\nAnother instance of this server may be running.\n");
+            standard.exit(exit_general_error);
+        }
+        ADDERROR(__func__, "Unable to make lockfile at "+std::string(fzs.lockfilepath));
+        VERBOSEERR("Unable to make lockfile at "+std::string(fzs.lockfilepath)+".\n");
+        standard.exit(exit_general_error);
+    }      
+
+    #define RETURN_AFTER_UNLOCKING { \
+        if (remove_lockfile(fzs.lockfilepath) != 0) { \
+            ADDERROR(__func__, "Unable to remove lockfile before exiting"); \
+        } \
+        return; \
+    }
+
     Graph * graph = fzs.ga.request_Graph_copy();
     if (!graph) {
         ADDERROR(__func__,"unable to load Graph");
-        return;
+        RETURN_AFTER_UNLOCKING;
     }
 
     VERYVERBOSEOUT(graphmemman.info());
     VERYVERBOSEOUT(Graph_Info(*graph));
 
     key_pause();
+    RETURN_AFTER_UNLOCKING;
 }
 
 int main(int argc, char *argv[]) {

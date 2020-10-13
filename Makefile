@@ -69,6 +69,7 @@ EXECUTABLES += $(TOOLSPATH)/dev/fzbuild/fzbuild.py
 # EXECUTABLES += $(TOOLSPATH)/glue/exact2calendar/exact2calendar
 EXECUTABLES += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml
 EXECUTABLES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml
+EXECUTABLES += $(TOOLSPATH)/interface/fzserver-info/fzserver-info
 # EXECUTABLES += $(TOOLSPATH)/interface/fzvizgraph/fzvizgraph
 # EXECUTABLES += $(TOOLSPATH)/interface/fzvizmilestones/fzvizmilestones
 EXECUTABLES += $(TOOLSPATH)/interface/nodeboard/nodeboard
@@ -88,6 +89,7 @@ SYMBIN += $(COREPATH)/fzlog/fzlog
 SYMBIN += $(COREPATH)/fzquerypq/fzquerypq
 SYMBIN += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml
 SYMBIN += $(TOOLSPATH)/interface/fzloghtml/fzloghtml
+SYMBIN += $(TOOLSPATH)/interface/fzserver-info/fzserver-info
 SYMBIN += $(COREPATH)/fzguide.system/fzguide.system
 
 # CGI scripts that need to be copied to $(CGIDIR)

@@ -15,6 +15,14 @@
 #include "standard.hpp"
 #include "Graphaccess.hpp"
 
+/**
+ * FORMALIZER_ROOT must be supplied by -D during make.
+ * For example: FORMALIZERROOT=-DFORMALIZER_ROOT=\"$(HOME)/.formalizer\"
+ */
+#ifndef FORMALIZER_ROOT
+    #define FORMALIZER_ROOT this_breaks
+#endif
+
 using namespace fz;
 
 enum flow_options {
@@ -28,6 +36,8 @@ struct fzserverpq: public formalizer_standard_program {
     Graph_access ga;
 
     flow_options flowcontrol;
+
+    static constexpr const char * lockfilepath = FORMALIZER_ROOT "/.fzserverpq.lock";
 
     fzserverpq();
 

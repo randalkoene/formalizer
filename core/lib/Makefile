@@ -125,14 +125,23 @@ $(OBJ)/error.o: error.cpp $(INC)/error.hpp
 $(OBJ)/standard.o: standard.cpp $(INC)/standard.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c standard.cpp -o $(OBJ)/standard.o
 
-$(OBJ)/config.o: config.cpp $(INC)/config.hpp $(INC)/standard.hpp $(INC)/error.hpp
+$(OBJ)/config.o: config.cpp $(INC)/config.hpp $(INC)/standard.hpp $(INC)/jsonlite.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) $(CONFIGROOT) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c config.cpp -o $(OBJ)/config.o
 
-$(OBJ)/general.o: general.cpp $(INC)/general.hpp $(INC)/error.hpp
+$(OBJ)/general.o: general.cpp $(INC)/general.hpp
 	$(CCPP) $(CPPFLAGS) -c general.cpp -o $(OBJ)/general.o
+
+$(OBJ)/stringio.o: stringio.cpp $(INC)/error.hpp
+	$(CCPP) $(CPPFLAGS) -c stringio.cpp -o $(OBJ)/stringio.o
+
+$(OBJ)/proclock.o: proclock.cpp $(INC)/error.hpp $(INC)/TimeStamp.hpp
+	$(CCPP) $(CPPFLAGS) -c proclock.cpp -o $(OBJ)/proclock.o
 
 $(OBJ)/utf8.o: utf8.cpp $(INC)/utf8.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c utf8.cpp -o $(OBJ)/utf8.o
+
+$(OBJ)/jsonlite.o: jsonlite.cpp $(INC)/jsonlite.hpp $(INC)/general.hpp
+	$(CCPP) $(CPPFLAGS) -c jsonlite.cpp -o $(OBJ)/jsonlite.o
 
 $(OBJ)/templater.o: templater.cpp $(INC)/templater.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c templater.cpp -o $(OBJ)/templater.o

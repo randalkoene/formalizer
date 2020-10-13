@@ -32,6 +32,7 @@ executables = (
     'fzbuild.py',
     'fzgraphhtml',
     'fzloghtml',
+    'fzserver-info',
     'nodeboard',
     'earlywiz.py',
     'requestmanual.py'

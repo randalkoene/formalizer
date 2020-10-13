@@ -1,5 +1,5 @@
 #
-# Makefile for fzserverpq
+# Makefile for fzserver-info
 # (by Randal A. Koene, randalk@minduploading.org)
 #
 
@@ -28,9 +28,9 @@ MACHOPT= $(GCCTUNE) $(SSEOPT)
 FORMALIZERPATH=$(HOME)/src/formalizer
 COREINCLUDEPATH=$(FORMALIZERPATH)/core/include
 CORELIBPATH=$(FORMALIZERPATH)/core/lib
-FORMALIZERPATH_THIS=$(FORMALIZERPATH)/core/fzserverpq
+FORMALIZERPATH_THIS=$(FORMALIZERPATH)/tools/interface/fzserver-info
 
-TEMPLATEDIR = -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\"
+TEMPLATEDIR = -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\" 
 FORMALIZERROOT=-DFORMALIZER_ROOT=\"$(HOME)/.formalizer\"
 
 INC=$(COREINCLUDEPATH)
@@ -101,32 +101,34 @@ CPPFLAGS = $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(INCLUDES)
 # +----- end  : Putting together the C++ flags -----+
 
 # +----- begin: Select Formalizer core library objects -----+
-CORE_OBJS = $(CORELIBPATH)/obj/error.o
-CORE_OBJS += $(CORELIBPATH)/obj/standard.o
+CORE_OBJS = 
+CORE_OBJS += $(CORELIBPATH)/obj/error.o
 CORE_OBJS += $(CORELIBPATH)/obj/config.o
+CORE_OBJS += $(CORELIBPATH)/obj/standard.o
 CORE_OBJS += $(CORELIBPATH)/obj/general.o
 CORE_OBJS += $(CORELIBPATH)/obj/proclock.o
 CORE_OBJS += $(CORELIBPATH)/obj/stringio.o
 CORE_OBJS += $(CORELIBPATH)/obj/jsonlite.o
-# CORE_OBJS += $(CORELIBPATH)/obj/templater.o
-# CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
+CORE_OBJS += $(CORELIBPATH)/obj/templater.o
+CORE_OBJS += $(CORELIBPATH)/obj/fzpostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
+# CORE_OBJS += $(CORELIBPATH)/obj/Graphaccess.o
+# CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphbase.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphinfo.o
-CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
-CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
-CORE_OBJS += $(CORELIBPATH)/obj/fzpostgres.o
-CORE_OBJS += $(CORELIBPATH)/obj/Graphaccess.o
-CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
-CORE_OBJS += $(CORELIBPATH)/obj/Logpostgres.o
+# CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
+# CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
+# CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
+# CORE_OBJS += $(CORELIBPATH)/obj/Logpostgres.o
+# CORE_OBJS += $(CORELIBPATH)/obj/Guidepostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/utf8.o
 # CORE_OBJS += $(CORELIBPATH)/obj/dilaccess.o
 # +----- end  : Select Formalizer core library objects -----+
 
 .PHONY: FORCE
 
-all: init fzserverpq
+all: init fzserver-info
 
 init: FORCE
 	@echo '-------------------------------------------------------------------'
@@ -134,15 +136,19 @@ init: FORCE
 	@echo 'Includes: $(CPPFLAGS)'
 	@echo '-------------------------------------------------------------------'
 
-$(OBJ)/fzserverpq.o: fzserverpq.cpp fzserverpq.hpp version.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) $(FORMALIZERROOT) $(STANDARD_STREAMS) -c fzserverpq.cpp -o $(OBJ)/fzserverpq.o
+$(OBJ)/render.o: render.cpp render.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(FORMALIZERROOT) $(TEMPLATEDIR) -c render.cpp -o $(OBJ)/render.o
 
-fzserverpq: $(OBJ)/fzserverpq.o $(CORE_OBJS)
-	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $^ -o fzserverpq $(LIB_PATH)
+
+$(OBJ)/fzserver-info.o: fzserver-info.cpp fzserver-info.hpp version.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(FORMALIZERROOT) $(STANDARD_STREAMS) $(TEMPLATEDIR) -c fzserver-info.cpp -o $(OBJ)/fzserver-info.o
+
+fzserver-info: $(OBJ)/fzserver-info.o $(OBJ)/render.o $(CORE_OBJS)
+	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $(TEMPLATEDIR) $^ -o fzserver-info $(LIB_PATH)
 
 clean:
-	cp -f fzserverpq fzserverpq.bak
-	rm -f $(OBJ)/*.o fzserverpq
+	cp -f fzserver-info fzserver-info.bak
+	rm -f $(OBJ)/*.o fzserver-info
 
 #doc++:
 #	rm -r -f html
