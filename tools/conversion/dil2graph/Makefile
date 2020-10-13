@@ -39,9 +39,9 @@ OPTSTR=MAX_optimized_NO_debug_symbols
 ##########################################################
 
 # Temporarily enable the following (later replace with graph2dil and server calls)
-COMPILEDIRECTGRAPH2DIL = -D__DIRECTGRAPH2DIL__ -DDIRECTGRAPH2DIL_DIR=\"/var/www/html/formalizer/tools/conversion/graph2dil\"
-OBJECTDIRECTGRAPH2DIL = ../graph2dil/obj/log2tl.o
-OBJECTDIRECTGRAPHDETECT = ../graph2dil/log2tl.cpp
+# COMPILEDIRECTGRAPH2DIL = -D__DIRECTGRAPH2DIL__ -DDIRECTGRAPH2DIL_DIR=\"/var/www/html/formalizer/tools/conversion/graph2dil\"
+# OBJECTDIRECTGRAPH2DIL = ../graph2dil/obj/log2tl.o
+# OBJECTDIRECTGRAPHDETECT = ../graph2dil/log2tl.cpp
  
 # Define (uncomment) the following to set a different precompiled default
 # output path for logtest.
