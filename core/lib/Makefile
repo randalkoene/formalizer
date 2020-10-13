@@ -155,6 +155,9 @@ $(OBJ)/Graphbase.o: Graphbase.cpp $(INC)/Graphbase.hpp $(INC)/error.hpp $(INC)/T
 $(OBJ)/Graphtypes.o: Graphtypes.cpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c Graphtypes.cpp -o $(OBJ)/Graphtypes.o
 
+$(OBJ)/Graphinfo.o: Graphinfo.cpp $(INC)/Graphinfo.hpp $(INC)/Graphtypes.hpp $(INC)/error.hpp
+	$(CCPP) $(CPPFLAGS) -c Graphinfo.cpp -o $(OBJ)/Graphinfo.o
+
 $(OBJ)/Graphunshared.o: Graphunshared.cpp $(INC)/Graphunshared.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c Graphunshared.cpp -o $(OBJ)/Graphunshared.o
 

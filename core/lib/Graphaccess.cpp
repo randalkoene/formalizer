@@ -113,6 +113,34 @@ std::pair<Graph*, std::unique_ptr<Log>> Graph_access::request_Graph_and_Log_copi
     }
 }
 
+/**
+ * This is similar to `request_Graph_and_Log_copies_and_init()` but uses the memory resident
+ * Graph instead of loading one from the database.
+ */
+std::pair<Graph *, std::unique_ptr<Log>> Graph_access::access_shared_Graph_and_request_Log_copy_with_init() {
+
+    Graph * graphptr = graphmemman.find_Graph_in_shared_memory();
+    if (!graphptr) {
+        ADDERROR(__func__, "Memory resident Graph not found");
+        VERBOSEERR("Memory resident Graph not found.\n");
+        return std::make_pair(nullptr,nullptr);;
+    }
+
+    std::unique_ptr<Log> logptr = request_Log_copy();
+
+    if ((graphptr != nullptr) && (logptr != nullptr)) {
+        //rapid_access_init(*(graphptr.get()),*(logptr.get()));
+        rapid_access_init(*graphptr,*(logptr.get()));
+        return std::make_pair(std::move(graphptr), std::move(logptr));
+        
+    } else {
+        return std::make_pair(nullptr,nullptr);
+    }
+
+}
+
+
+
 #endif // TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE
 
 } // namespace fz

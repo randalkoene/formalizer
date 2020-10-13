@@ -338,7 +338,8 @@ td_pattern get_Node_tdpattern(DIL_entry &e) {
  */
 Node *convert_DIL_entry_to_Node(DIL_entry &e, Graph &graph, ConversionMetrics &convmet) {
     try {
-        Node *node = new Node(std::string(e.str()));
+        //Node *node = new Node(std::string(e.str()));
+        Node *node = graph.create_Node(std::string(e.str()));
         if (node) {
             if (convert_DIL_Topics_to_topics(const_cast<Topic_Tags &>(graph.get_topics()), *node, e) < 1) {
                 EOUT << "Converted no topics for [DIL#" << e.str() << "]\n";
@@ -385,7 +386,8 @@ Edge *convert_DIL_Superior_to_Edge(DIL_entry &depentry, DIL_entry &supentry, DIL
     if ((!dep) || (!sup))
         return NULL;
 
-    Edge *edge = new Edge(*dep, *sup);
+    //Edge *edge = new Edge(*dep, *sup);
+    Edge *edge = graph.create_Edge(*dep, *sup);
 
     if (edge) {
         edge->set_dependency(dilsup.relevance);
@@ -409,10 +411,10 @@ Edge *convert_DIL_Superior_to_Edge(DIL_entry &depentry, DIL_entry &supentry, DIL
  * 
  * @return a vector containing strings of the form Keyword (Relevance).
  */
-std::vector<Topic_Keyword> get_DIL_Topics_File_KeyRels(std::string dilfilepath) {
+Topic_KeyRel_Vector get_DIL_Topics_File_KeyRels(std::string dilfilepath) {
     std::string diltopicfiles = shellcmd2str("sed -n 's/^[<]B[>]Topic Keywords, k_{top} (and relevance in [[]0,1[]]):[<].B[>]\\(.*\\)$/\\1/p' " + dilfilepath);
     std::vector<std::string> krelstrvec = split(diltopicfiles, ',');
-    std::vector<Topic_Keyword> krels;
+    Topic_KeyRel_Vector krels(graphmemman.get_allocator());
     for (auto it = krelstrvec.begin(); it != krelstrvec.end(); ++it) {
         std::string keyword;
         auto relpos = it->find_first_of("(");
@@ -458,7 +460,7 @@ unsigned int collect_topic_keyword_relevance_pairs(Topic *topic) {
     dilfilepath += RELLISTSDIR;
     dilfilepath += topic->get_tag() + ".html";
     // open the file and find keyword,relevance pairs, and copy those to the keyrel vector
-    std::vector<Topic_Keyword> *tkr = const_cast<std::vector<Topic_Keyword> *>(&topic->get_keyrel()); // explicitly making this modifiable
+    Topic_KeyRel_Vector *tkr = const_cast<Topic_KeyRel_Vector *>(&topic->get_keyrel()); // explicitly making this modifiable
     *tkr = get_DIL_Topics_File_KeyRels(dilfilepath);
 
     return topic->get_keyrel().size();
@@ -514,7 +516,8 @@ Graph *convert_DIL_to_Graph(Detailed_Items_List *dil, ConversionMetrics &convmet
         ERRRETURNNULL(__func__, "unable to build Graph from NULL Detailed_Items_List");
 
     // Start an empty Graph
-    Graph *graph = new Graph();
+    //Graph *graph = new Graph();
+    Graph * graph = graphmemman.allocate_Graph_in_shared_memory();
     if (!graph)
         ERRRETURNNULL(__func__, "unable to initialize Graph");
 
@@ -562,7 +565,7 @@ Graph *convert_DIL_to_Graph(Detailed_Items_List *dil, ConversionMetrics &convmet
     // Add any keyword,relevance pairs or identified Topics
     const Topic_Tags_Vector &t = graph->get_topics().get_topictags();
     for (auto it = t.begin(); it != t.end(); ++it) {
-        if (collect_topic_keyword_relevance_pairs(*it) < 1) {
+        if (collect_topic_keyword_relevance_pairs(it->get()) < 1) {
             convmet.topicsanskeyrel++;
             VOUT << "No keyword,relevance pairs found for topic " << (*it)->get_tag() << " (unusual but possible)\n";
         }
@@ -606,7 +609,7 @@ int alt_main() {
     key_pause();
 
     ERRHERE(".loadGraph");
-    std::unique_ptr<Graph> graph = d2g.ga.request_Graph_copy();
+    Graph * graph = d2g.ga.request_Graph_copy();
     if (!graph) {
         ADDERROR(__func__,"unable to load Graph");
         standard.exit(exit_database_error);

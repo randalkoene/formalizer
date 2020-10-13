@@ -1,8 +1,13 @@
 // Copyright 2020 Randal A. Koene
 // License TBD
 
+//#define USE_COMPILEDPING
+
 // std
 #include <iomanip>
+
+// Boost
+#include <boost/interprocess/exceptions.hpp>
 
 // core
 #include "general.hpp"
@@ -100,6 +105,27 @@ Graph * graph_mem_managers::allocate_Graph_in_shared_memory() {
 }
 */
 
+Graph * graph_mem_managers::find_Graph_in_shared_memory() {
+    std::string segment_name("fzgraph");
+    try {
+        segment_memory_t * segment = new segment_memory_t(bi::open_only, segment_name.c_str()); // was bi::open_read_only
+
+        void_allocator * alloc_inst = new void_allocator(segment->get_segment_manager());
+
+        add_manager(segment_name, *segment, *alloc_inst);
+        set_active(segment_name);
+        set_remove_on_exit(false); // looks like you're a client and not a server here
+
+        VERYVERBOSEOUT(info());
+
+        return segment->find<Graph>("graph").first;
+
+    } catch (const bi::interprocess_exception & ipexception) {
+        ERRRETURNNULL(__func__,"Unable to access shared memory 'fzgraph', "+std::string(ipexception.what()));
+        VERBOSEERR("Unable to access shared memory 'fzgraph', "+std::string(ipexception.what())+'\n');
+    }
+}
+
 std::string graph_mem_managers::info() { //bi::managed_shared_memory & segment) {
     if (!active)
         return "";
@@ -156,6 +182,7 @@ uint16_t Topic_Tags::find_or_add_Topic(std::string tag, std::string title) {
 
         if (newtopic) {
             topictags.emplace_back(newtopic);
+
             if (topictags[nextid]->get_id()!=nextid)
                 ADDWARNING(__func__,"wrong index at topictags["+std::to_string(nextid)+"].get_id()="+std::to_string(topictags[nextid]->get_id()));
 
@@ -194,7 +221,7 @@ Topic * Topic_Tags::find_by_tag(std::string _tag) {
     auto it = topicbytag.find(tstr);
     if (it==topicbytag.end()) return NULL;
     //if (it->second->get_id()>1000) ADDWARNING(__func__,"this seems wrong at iterator for "+it->first+ " at "+std::to_string((long) it->second));
-    return it->second;
+    return it->second.get();
 }
 
 Node_ID::Node_ID(const ID_TimeStamp _idT): idkey(_idT), idS_cache("", graphmemman.get_allocator()) {
@@ -468,7 +495,7 @@ bool Graph::add_Node(Node &node) {
         return false; // node is unknown to shared memory management // *** not necessarily same segment!!!
 
     std::pair<Node_Map::iterator, bool> ret;
-    ret = nodes.insert(std::pair<Node_ID_key, Node *>(node.get_id().key(), &node));
+    ret = nodes.insert(std::pair<Node_ID_key, Graph_Node_ptr>(node.get_id().key(), &node));
     if (!ret.second)
         error = g_adddupnode;
     else
@@ -511,7 +538,7 @@ bool Graph::add_Edge(Edge &edge) {
         return false; // node is unknown to shared memory management // *** not necessarily same segment!!!
 
     std::pair<Edge_Map::iterator, bool> ret;
-    ret = edges.insert(std::pair<Edge_ID_key, Edge *>(edge.get_id().key(), &edge));
+    ret = edges.insert(std::pair<Edge_ID_key, Graph_Edge_ptr>(edge.get_id().key(), &edge));
     if (!ret.second) {
         error = g_adddupedge;
         return false;
@@ -528,6 +555,14 @@ bool Graph::add_Edge(Edge *edge) {
         return false;
     }
     return add_Edge(*edge);
+}
+
+Edge * Graph::create_Edge(Node &_dep, Node &_sup) {
+    segment_memory_t * smem = graphmemman.get_segmem();
+    if (!smem)
+        return nullptr;
+    
+    return smem->construct<Edge>(bi::anonymous_instance)(_dep, _sup); // not yet added to Graph
 }
 
 Edge * Graph::create_and_add_Edge(std::string id_str) {
@@ -575,7 +610,7 @@ void Graph::set_all_semaphores(int sval) {
 Node_Index Graph::get_Indexed_Nodes() const {
     Node_Index nodeindex;
     for (const auto& nodekp: nodes) {
-        nodeindex.push_back(nodekp.second);
+        nodeindex.push_back(nodekp.second.get());
     }
     return nodeindex;
 }
@@ -621,13 +656,5 @@ Topic * main_topic(Graph & _graph, Node & node) {
 }
 
 // +----- end  : friend functions -----+
-
-std::string Graph_Info(Graph & graph) {
-    std::string info_str("Graph info:");
-    info_str += "\n  number of Topics = " + std::to_string(graph.get_topics().get_topictags().size());
-    info_str += "\n  number of Nodes  = " + std::to_string(graph.num_Nodes());
-    info_str += "\n  number of Edges  = " + std::to_string(graph.num_Edges()) + '\n';
-    return info_str;
-}
 
 } // namespace fz

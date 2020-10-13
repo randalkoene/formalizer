@@ -67,6 +67,7 @@ public:
     //std::pair<std::unique_ptr<Graph>, std::unique_ptr<Log>> request_Graph_and_Log_copies_and_init(); ///< Combine the three functions above.
     std::pair<Graph*, std::unique_ptr<Log>> request_Graph_and_Log_copies_and_init(); ///< Combine the three functions above.
 #endif
+    std::pair<Graph *, std::unique_ptr<Log>> access_shared_Graph_and_request_Log_copy_with_init();
 };
 
 } // namespace fz

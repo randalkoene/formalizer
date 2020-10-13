@@ -207,7 +207,7 @@ bool store_Graph_pq(const Graph& graph, std::string dbname, std::string schemana
     unsigned long n = graph.get_topics().get_topictags().size();
     unsigned long ncount = 0;
     for (auto topic = graph.get_topics().get_topictags().begin(); topic != graph.get_topics().get_topictags().end(); ++topic) {
-        if (!add_Topic_pq(conn, schemaname,(*topic))) STORE_GRAPH_PQ_RETURN(false);
+        if (!add_Topic_pq(conn, schemaname,topic->get())) STORE_GRAPH_PQ_RETURN(false);
         ncount++;
         if (progress_func) (*progress_func)(n,ncount);
     }
@@ -219,7 +219,7 @@ bool store_Graph_pq(const Graph& graph, std::string dbname, std::string schemana
     n = graph.num_Nodes();
     ncount = 0;
     for (auto node = graph.begin_Nodes(); node != graph.end_Nodes(); ++node) {
-        if (!add_Node_pq(conn, schemaname,node->second)) STORE_GRAPH_PQ_RETURN(false);
+        if (!add_Node_pq(conn, schemaname,node->second.get())) STORE_GRAPH_PQ_RETURN(false);
         ncount++;
         if (progress_func) (*progress_func)(n,ncount);
     }
@@ -231,7 +231,7 @@ bool store_Graph_pq(const Graph& graph, std::string dbname, std::string schemana
     n = graph.num_Edges();
     ncount = 0;
     for (auto edge = graph.begin_Edges(); edge != graph.end_Edges(); ++edge) {
-        if (!add_Edge_pq(conn, schemaname,edge->second)) STORE_GRAPH_PQ_RETURN(false);
+        if (!add_Edge_pq(conn, schemaname,edge->second.get())) STORE_GRAPH_PQ_RETURN(false);
         ncount++;
         if (progress_func) (*progress_func)(n,ncount);
     }
@@ -370,7 +370,7 @@ bool read_Topics_pq(PGconn* conn, std::string schemaname, Topic_Tags & topictags
             int new_id = topictags.find_or_add_Topic(tag,title);
             if (id!=new_id) ERRRETURNFALSE(__func__,"stored topic id does not match newly generated id");
 
-            Topic * topic = topictags.get_topictags()[id]; // allocated by [] operator of vector (uses graphmemman.get_allocator(), see class Topic_Tags)
+            Topic * topic = topictags.get_topictags()[id].get(); // allocated by [] operator of vector (uses graphmemman.get_allocator(), see class Topic_Tags)
             if (!topic) {
                 ERRRETURNFALSE(__func__, "unknown error while attempting to add Topic with id#"+std::to_string(id));
             }

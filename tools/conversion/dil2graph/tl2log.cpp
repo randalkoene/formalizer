@@ -705,16 +705,17 @@ void direct_graph2dil_Log2TL_test(Log * logptr, Graph * graphptr) {
     ERRTRACE;
     COMPILEDPING(std::cout,"PING-main.g2dtest\n");
     if (logptr) {
-        VOUT << "\nNow, let's try converting the Log right back into Tak Log files.\n\n";
+        VOUT << "\nNow, let's try converting the Log right back into Task Log files.\n\n";
         key_pause();
 
         ERRHERE(".graph2dil");
         if (!graphptr) {
             ERRHERE(".loadGraph");
-            graphptr = d2g.ga.request_Graph_copy().get();
+            //graphptr = d2g.ga.request_Graph_copy().get();
+            graphptr = graphmemman.find_Graph_in_shared_memory();
             if (!graphptr) {
-                ADDERROR(__func__,"unable to load Graph");
-                standard.exit(exit_database_error);
+                ADDERROR(__func__,"unable to find Graph in shared memory");
+                standard.exit(exit_database_error); // *** should porbably be a different error now
             }
             COMPILEDPING(std::cout,"PING-main.g2d-Logcaches\n");
             if ((logptr != nullptr) && (graphptr != nullptr)) {

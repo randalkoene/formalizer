@@ -161,7 +161,7 @@ bool identical_Graphs(Graph & graph1, Graph & graph2, std::string & trace) {
 
     std::string traceroot = "G.nodes:";
     for (auto nm = graph1.nodes.begin(); nm != graph1.nodes.end(); ++nm) {
-        Node * n1 = nm->second;
+        Node * n1 = nm->second.get();
         Node * n2 = graph2.Node_by_id(nm->first);
         trace = traceroot + nm->second->get_id().str();
         if ((!n1) || (!n2)) return false;
@@ -171,7 +171,7 @@ bool identical_Graphs(Graph & graph1, Graph & graph2, std::string & trace) {
 
     traceroot = "G.edges:";
     for (auto em = graph1.edges.begin(); em != graph1.edges.end(); ++em) {
-        Edge * e1 = em->second;
+        Edge * e1 = em->second.get();
         Edge * e2 = graph2.Edge_by_id(em->first);
         trace = traceroot + em->second->get_id().str();
         if ((!e1) || (!e2)) return false;

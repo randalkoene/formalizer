@@ -20,6 +20,7 @@
 #include "error.hpp"
 #include "standard.hpp"
 #include "Graphtypes.hpp"
+#include "Graphinfo.hpp"
 
 // local
 #include "fzserverpq.hpp"

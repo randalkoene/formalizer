@@ -89,7 +89,7 @@ struct graph2dil: public formalizer_standard_program {
     render_environment env;
     graph2dil_templates templates;
 
-    std::unique_ptr<Graph> graph;
+    Graph * graph;
     std::unique_ptr<Log> log;
 
     graph2dil(): formalizer_standard_program(true), ga(*this,add_option_args,add_usage_top), flowcontrol(flow_all) { //(flow_unknown) {
@@ -140,7 +140,7 @@ struct graph2dil: public formalizer_standard_program {
         // For each of the possible program flow control choices that would not already
         // have exited, we need both the Graph and the full Log, so we may as well load them here.
         ERRHERE(".load");
-        std::tie(graph,log) = ga.request_Graph_and_Log_copies_and_init();
+        std::tie(graph,log) = ga.access_shared_Graph_and_request_Log_copy_with_init();
 
         VERBOSEOUT("\nFormalizer Graph and Log data structures fully loaded:\n\n");
         VERBOSEOUT("  Number of Nodes        = "+std::to_string(graph->num_Nodes())+'\n');
@@ -172,7 +172,7 @@ bool flow_convert_Log2TL() {
     params.o = &std::cout;
     //params.from_idx = from_section;
     //params.to_idx = to_section;    
-    if (!interactive_Log2TL_conversion(*(g2d.graph.get()), *(g2d.log.get()), params)) {
+    if (!interactive_Log2TL_conversion(*(g2d.graph), *(g2d.log.get()), params)) {
         FZERR("\nNeed a database account to proceed. Defaults to $USER.\n");
         exit(exit_general_error);
     }
@@ -207,7 +207,7 @@ Node_Index_by_Topic make_Node_Index_by_Topic(Graph & graph) {
     
     // Loop through all Nodes and assign each to its major Topic.
     for (auto node_it = graph.begin_Nodes(); node_it != graph.end_Nodes(); ++node_it) {
-        Node * nptr = node_it->second; // *** Slightly risky: Not testing to see if node_it->second is nullptr. Nodes are assumed.
+        Node * nptr = node_it->second.get(); // *** Slightly risky: Not testing to see if node_it->second is nullptr. Nodes are assumed.
         Topic_ID maintopic = nptr->main_topic_id();
 
         if (maintopic>graph.num_Topics()) {
@@ -268,7 +268,7 @@ std::string render_Node2DILentry(Node & node) {
  * @param keyrelvec Reference to a vector of Topic_Keyword structures.
  * @return HTML-ready string list.
  */
-std::string Topic_Keywords_to_KeyRel_List(const std::vector<Topic_Keyword> & keyrelvec) {
+std::string Topic_Keywords_to_KeyRel_List(const Topic_KeyRel_Vector & keyrelvec) {
     std::string res;
     for (unsigned int i = 0; i < keyrelvec.size(); ++i) {
         if (i>0) {
@@ -442,7 +442,7 @@ bool flow_convert_Graph2DIL() {
         varvals.emplace("DIL_entries",DILFile_str);
         std::string rendered_DILFile_str = g2d.env.render(g2d.templates[DILFile_temp], varvals);
 
-        std::string DILFile_path = g2d.DILTLdirectory+'/'+topicptr->get_tag()+".html";
+        std::string DILFile_path = (g2d.DILTLdirectory+'/')+topicptr->get_tag().c_str()+".html";
         if (!string_to_file(DILFile_path,rendered_DILFile_str))
             ERRRETURNFALSE(__func__,"unable to write rendered DIL File contents to file "+DILFile_path);
 

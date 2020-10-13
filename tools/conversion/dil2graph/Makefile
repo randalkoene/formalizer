@@ -60,12 +60,22 @@ INC=$(COREINCLUDEPATH)
 OBJ=./obj
 TEST=./test
 
-#INCLUDES= -I$(HOME)/src/include
-# to find the postgresql header files (e.g libpq-fe.h), do this: pg_config --includedir
-INCLUDES= -I$(CPATH) -I$(DIL2AL) -I$(COREINCLUDEPATH) -I/usr/include/postgresql
-
 # to find the postgresql library files fo this: pg_config --libdir
-LIB_PATH= -L/usr/lib/x86_64-linux-gnu -lpq
+LIB_PATH = -L/usr/lib/x86_64-linux-gnu -lpq
+
+# To find the Boost libraries
+# See the note on POSIX systems in Building Boost.Interprocess at https://www.boost.org/doc/libs/1_38_0/doc/html/interprocess.html#interprocess.intro.introduction_building_interprocess.
+BOOSTINTERPROCESSLIB_REQS = -lrt -lpthread
+LOCALINC = $(HOME)/local/include
+LOCALLIB = $(BOOSTINTERPROCESSLIB_REQS)
+
+# +----- begin: Essential include and library paths for this program -----+
+# to find the postgresql header files (e.g libpq-fe.h), do this: pg_config --includedir
+INCLUDES := -I$(CPATH) -I$(COREINCLUDEPATH)
+INCLUDES += -I/usr/include/postgresql -I$(DIL2AL)
+INCLUDES += -I$(LOCALINC)
+LIB_PATH += $(LOCALLIB)
+# +----- begin: Essential include and library paths for this program -----+
 
 ##########################################################
 ## Machine selection
@@ -147,6 +157,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/standard.o
 CORE_OBJS += $(CORELIBPATH)/obj/templater.o
 CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
 CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphbase.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
 CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
 CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o

@@ -61,7 +61,7 @@ Node *convert_DIL_entry_to_Node(DIL_entry &e, Graph &graph, ConversionMetrics &c
 
 Edge *convert_DIL_Superior_to_Edge(DIL_entry &depentry, DIL_entry &supentry, DIL_Superiors &dilsup, Graph &graph, ConversionMetrics &convmet);
 
-std::vector<Topic_Keyword> get_DIL_Topics_File_KeyRels(std::string dilfilepath);
+Topic_KeyRel_Vector get_DIL_Topics_File_KeyRels(std::string dilfilepath);
 
 unsigned int collect_topic_keyword_relevance_pairs(Topic *topic);
 

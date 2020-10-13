@@ -11,18 +11,21 @@
 
 #define FORMALIZER_MODULE_ID "Formalizer:Interface:Graph:HTML"
 
+//#define USE_COMPILEDPING
+
 // std
 #include <iostream>
 
 // core
 #include "error.hpp"
 #include "standard.hpp"
+#include "Graphtypes.hpp"
+#include "Graphinfo.hpp"
 
 // local
 #include "version.hpp"
 #include "fzgraphhtml.hpp"
 #include "render.hpp"
-
 
 using namespace fz;
 
@@ -34,8 +37,8 @@ fzgraphhtml fzgh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    //add_option_args += "x:";
-    //add_usage_top += " [-x <something>]";
+    add_option_args += "n:";
+    add_usage_top += " [-n <node-ID>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     //usage_tail.push_back("Extra usage information.\n");
 }
@@ -46,7 +49,7 @@ fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) {
  */
 void fzgraphhtml::usage_hook() {
     //ga.usage_hook();
-    //FZOUT("    -x something explanation\n");
+    FZOUT("    -n Show data for Node with <node-ID>\n");
 }
 
 /**
@@ -65,13 +68,12 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
 
     switch (c) {
 
-    /*
-    case 'x': {
-
-        break;
+    case 'n': {
+        flowcontrol = flow_node;
+        node_idstr = cargs;
+        return true;
     }
-    */
-
+   
     }
 
     return false;
@@ -101,21 +103,56 @@ void fzgraphhtml::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen once in main(), for the derived class
 }
 
+void test_other_graph_info(Graph & graph) {
+
+    //VERYVERBOSEOUT(List_Topics(graph, "\n"));
+
+    VERYVERBOSEOUT('\n'+Nodes_statistics_string(Nodes_statistics(graph)));
+
+    VERYVERBOSEOUT("\nNumber of Edges with non-zero edge data = "+std::to_string(Edges_with_data(graph))+'\n');
+
+}
+
+void test_get_node_info() {
+
+    Graph * graph_ptr = graphmemman.find_Graph_in_shared_memory();
+    if (!graph_ptr) {
+        ADDERROR(__func__, "Memory resident Graph not found");
+        FZERR("Memory resident Graph not found.\n");
+        return;
+    }
+
+    VERYVERBOSEOUT(Graph_Info(*graph_ptr));
+
+    test_other_graph_info(*graph_ptr);
+
+    Node * nodeptr = graph_ptr->Node_by_idstr(fzgh.node_idstr);
+    if (!nodeptr) {
+        ADDERROR(__func__, "Node ["+fzgh.node_idstr+"] not found in Graph");
+        FZERR("Node ["+fzgh.node_idstr+"] not found in Graph.\n");
+        return;
+    }
+
+    FZOUT("\nNode "+fzgh.node_idstr+":\n\n");
+
+    FZOUT("  ID ="+nodeptr->get_id_str()+'\n');
+
+    FZOUT(nodeptr->get_text());
+
+}
+
+
 int main(int argc, char *argv[]) {
     ERRTRACE;
 
     fzgh.init_top(argc, argv);
 
-    FZOUT("\nThis is a stub.\n\n");
-    key_pause();
-
     switch (fzgh.flowcontrol) {
 
-    /*
-    case flow_something: {
-        return something();
+    case flow_node: {
+        test_get_node_info();
+        break;
     }
-    */
 
     default: {
         fzgh.print_usage();

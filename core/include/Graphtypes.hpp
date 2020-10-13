@@ -73,6 +73,12 @@ namespace bi = boost::interprocess;
 
 namespace fz {
 
+/// Formalizer specific base types for ease of modification (movable pointers)
+typedef bi::offset_ptr<Graph> Graph_Graph_ptr;
+typedef bi::offset_ptr<Topic> Graph_Topic_ptr;
+typedef bi::offset_ptr<Node> Graph_Node_ptr;
+typedef bi::offset_ptr<Edge> Graph_Edge_ptr;
+
 /// Formalizer specific base types for ease of modification (container types)
 typedef bi::managed_shared_memory segment_memory_t;
 typedef bi::managed_shared_memory::segment_manager segment_manager_t; // the shared memory segment manager
@@ -131,7 +137,8 @@ public:
 
     segment_memory_t * allocate_and_activate_shared_memory(std::string segment_name, unsigned long segmentsize);
     //std::unique_ptr<Graph> allocate_Graph_in_shared_memory(); // *** gets tricky with Boost Interprocess
-    Graph * allocate_Graph_in_shared_memory();
+    Graph * allocate_Graph_in_shared_memory(); ///< server, allocate a shared memory segment and construct an empty Graph
+    Graph * find_Graph_in_shared_memory(); ///< client, find a Graph in an existing shared memory segment
     std::string info();
 };
 
@@ -148,34 +155,34 @@ typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Node_utf8
 typedef bi::allocator<Topic_Keyword, segment_manager_t> Topic_Keyword_allocator;
 typedef bi::vector<Topic_Keyword, Topic_Keyword_allocator> Topic_KeyRel_Vector;
 
-typedef bi::allocator<Topic*, segment_manager_t> TopicPtr_allocator;
-typedef bi::vector<Topic*, TopicPtr_allocator> Topic_Tags_Vector;
+typedef bi::allocator<Graph_Topic_ptr, segment_manager_t> TopicPtr_allocator;
+typedef bi::vector<Graph_Topic_ptr, TopicPtr_allocator> Topic_Tags_Vector;
 
-//typedef bi::allocator<Node*, segment_manager_t> NodePtr_allocator;
-//typedef bi::vector<Node*, NodePtr_allocator> Node_Index;
+//typedef bi::allocator<Graph_Node_ptr, segment_manager_t> NodePtr_allocator;
+//typedef bi::vector<Graph_Node_ptr, NodePtr_allocator> Node_Index;
 
-typedef bi::allocator<Edge*, segment_manager_t> EdgePtr_allocator;
-typedef bi::set<Edge*, std::less<Edge*>, EdgePtr_allocator> Edges_Set;
+typedef bi::allocator<Graph_Edge_ptr, segment_manager_t> EdgePtr_allocator;
+typedef bi::set<Graph_Edge_ptr, std::less<Graph_Edge_ptr>, EdgePtr_allocator> Edges_Set;
 
-typedef std::pair<const Topic_String, Topic*> Topic_Map_value_type;
-//typedef std::pair<Topic_String, Topic*> movable_to_Topic_Map_value_type;
+typedef std::pair<const Topic_String, Graph_Topic_ptr> Topic_Map_value_type;
+//typedef std::pair<Topic_String, Graph_Topic_ptr> movable_to_Topic_Map_value_type;
 typedef bi::allocator<Topic_Map_value_type, segment_manager_t> Topic_Map_value_type_allocator;
-typedef bi::map<Topic_String, Topic*, std::less<Topic_String>, Topic_Map_value_type_allocator> TopicbyTag_Map;
+typedef bi::map<Topic_String, Graph_Topic_ptr, std::less<Topic_String>, Topic_Map_value_type_allocator> TopicbyTag_Map;
 
 typedef std::pair<const Topic_ID, float> Topics_Set_value_type;
 //typedef std::pair<Topic_ID, float> movable_to_Topics_Set_value_type;
 typedef bi::allocator<Topics_Set_value_type, segment_manager_t> Topics_Set_value_type_allocator;
 typedef bi::map<Topic_ID, float, std::less<Topic_ID>, Topics_Set_value_type_allocator> Topics_Set;
 
-typedef std::pair<const Node_ID_key, Node*> Node_Map_value_type;
-//typedef std::pair<Node_ID_key, Node*> movable_to_Node_Map_value_type;
+typedef std::pair<const Node_ID_key, Graph_Node_ptr> Node_Map_value_type;
+//typedef std::pair<Node_ID_key, Graph_Node_ptr> movable_to_Node_Map_value_type;
 typedef bi::allocator<Node_Map_value_type, segment_manager_t> Node_Map_value_type_allocator;
-typedef bi::map<Node_ID_key, Node*, std::less<Node_ID_key>, Node_Map_value_type_allocator> Node_Map;
+typedef bi::map<Node_ID_key, Graph_Node_ptr, std::less<Node_ID_key>, Node_Map_value_type_allocator> Node_Map;
 
-typedef std::pair<const Edge_ID_key, Edge*> Edge_Map_value_type;
-//typedef std::pair<Edge_ID_key, Edge*> movable_to_Edge_Map_value_type;
+typedef std::pair<const Edge_ID_key, Graph_Edge_ptr> Edge_Map_value_type;
+//typedef std::pair<Edge_ID_key, Graph_Edge_ptr> movable_to_Edge_Map_value_type;
 typedef bi::allocator<Edge_Map_value_type, segment_manager_t> Edge_Map_value_type_allocator;
-typedef bi::map<Edge_ID_key, Edge*, std::less<Edge_ID_key>, Edge_Map_value_type_allocator> Edge_Map;
+typedef bi::map<Edge_ID_key, Graph_Edge_ptr, std::less<Edge_ID_key>, Edge_Map_value_type_allocator> Edge_Map;
 
 /**
  * Node ID that caches its ID stamp for frequent use.
@@ -266,7 +273,7 @@ protected:
 
 public:
     Topic_Tags(): topictags(graphmemman.get_allocator()), topicbytag(graphmemman.get_allocator()) {}
-    ~Topic_Tags() { for (auto it = topictags.begin(); it!=topictags.end(); ++it) delete (*it); }
+    //~Topic_Tags() { for (auto it = topictags.begin(); it!=topictags.end(); ++it) delete (*it); }
 
     /// tables references
     const Topic_Tags_Vector &get_topictags() const { return topictags; }
@@ -343,7 +350,7 @@ protected:
     Graphsigned tdevery;     /// multiplier for pattern interval
     Graphsigned tdspan;      /// count of number of repetitions
 
-    Graph *graph;       /// this is set when the Node is added to a Graph
+    Graph_Graph_ptr graph;   /// this is set when the Node is added to a Graph
     Edges_Set supedges; /// this set maintained for rapid Edge access to superior Nodes
     Edges_Set depedges; /// this set maintained for rapid Edge access to dependency Nodes
  
@@ -442,8 +449,8 @@ protected:
     Graphdecimal urgency;      // (also known as computed urgency)
     Graphdecimal priority;     // (also known as computed priority)
 
-    Node *dep; // rapid access
-    Node *sup; // rapid access
+    Graph_Node_ptr dep; // rapid access
+    Graph_Node_ptr sup; // rapid access
 
 public:
     // Create only through graph with awareness of allocators.
@@ -459,8 +466,8 @@ public:
     Node_ID_key get_sup_key() const { return id.key().sup; }
     std::string get_dep_str() const { return id.key().dep.str(); }
     std::string get_sup_str() const { return id.key().sup.str(); }
-    Node* get_dep() const { return dep; }
-    Node* get_sup() const { return sup; }
+    Node* get_dep() const { return dep.get(); }
+    Node* get_sup() const { return sup.get(); }
     float get_dependency() const { return dependency; }
     float get_significance() const { return significance; }
     float get_importance() const { return importance; }
@@ -513,6 +520,7 @@ public:
     /// edges table: extend
     bool add_Edge(Edge &edge); // only allow Edges allocated in the same shared segment
     bool add_Edge(Edge *edge);
+    Edge * create_Edge(Node &_dep, Node &_sup); // creates (without adding to Graph)
     Edge * create_and_add_Edge(std::string id_str); // create and immediately insert
 
     /// edges table: reduce
@@ -570,7 +578,7 @@ public:
  */
 inline Topic * Topic_Tags::find_by_id(Topic_ID _id) {
     if (_id>=topictags.size()) return nullptr;
-    return topictags.at(_id);
+    return topictags.at(_id).get();
 }
 
 /**
@@ -582,7 +590,7 @@ inline Topic * Topic_Tags::find_by_id(Topic_ID _id) {
 inline Node * Graph::Node_by_id(const Node_ID_key & id) const {
     auto it = nodes.find(id);
     if (it==nodes.end()) return nullptr;
-    return it->second;
+    return it->second.get();
 }
 
 /**
@@ -612,12 +620,10 @@ inline Node * Graph::Node_by_idstr(std::string idstr) const {
 inline Edge * Graph::Edge_by_id(const Edge_ID_key & id) const {
     auto it = edges.find(id);
     if (it==edges.end()) return nullptr;
-    return it->second;
+    return it->second.get();
 }
 
 // +----- end  : inline member functions -----+
-
-std::string Graph_Info(Graph & graph);
 
 } // namespace fz
 

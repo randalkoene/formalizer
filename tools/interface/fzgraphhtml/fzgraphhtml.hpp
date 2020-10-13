@@ -20,10 +20,9 @@ using namespace fz;
 
 enum flow_options {
     flow_unknown = 0, /// no recognized request
-    //flow_something = 1,     /// request: make boilerplate for C++ program
+    flow_node = 1,    /// request: show data for Node
     flow_NUMoptions
 };
-
 
 class fzgh_configurable: public configurable {
 public:
@@ -39,6 +38,8 @@ struct fzgraphhtml: public formalizer_standard_program {
     fzgh_configurable config;
 
     flow_options flowcontrol;
+
+    std::string node_idstr;
 
     // Graph_access ga; // to include Graph or Log access support
 
