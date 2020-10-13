@@ -25,7 +25,7 @@ using namespace fz;
 struct nodeboard: public formalizer_standard_program {
     Graph_access ga;
 
-    nodeboard(): ga(add_option_args,add_usage_top) {
+    nodeboard(): formalizer_standard_program(false), ga(*this, add_option_args, add_usage_top) {
         //add_option_args += "n:";
         //add_usage_top += " [-n <Node-ID>]";
     }
@@ -52,17 +52,23 @@ struct nodeboard: public formalizer_standard_program {
 int main(int argc, char *argv[]) {
     nb.init(argc,argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 
-    FZOUT("\nThis is a test. Let's go get the Graph, so that we have some Nodes to work with.\n\n");
+    FZOUT("\nThis is a test. Let's go find the Graph, so that we have some Nodes to work with.\n\n");
     key_pause();
 
-    std::unique_ptr<Graph> graph = nb.ga.request_Graph_copy();
+    //std::unique_ptr<Graph> graph = nb.ga.request_Graph_copy();
+    Graph * graph = graphmemman.find_Graph_in_shared_memory();
+    if (!graph) {
+        ADDERROR(__func__, "Memory resident Graph not found");
+        FZERR("Memory resident Graph not found.\n");
+        standard.exit(exit_general_error);
+    }
 
     FZOUT("\nThe Graph has "+std::to_string(graph->num_Nodes())+" Nodes.\n\n");
 
-    if (!node_board_render(*(graph.get()))) {
+    if (!node_board_render(*graph)) {
         ADDERROR(__func__,"unable to render node board");
-        nb.exit(exit_general_error);
+        standard.exit(exit_general_error);
     }
 
-    return nb.completed_ok();
+    return standard.completed_ok();
 }
