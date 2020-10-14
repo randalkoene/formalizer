@@ -106,14 +106,15 @@ class Graph;
 /// Formalizer specific base types for ease of modification (fixed size)
 typedef uint8_t GraphID8bit;
 typedef uint16_t GraphIDyear;
-typedef float Keyword_Relevance;    /// Type for real-valued Keyword relevance (to Topic), presently assumed to be in the interval [0.0,1.0]
-typedef uint16_t Topic_ID;            /// Type for unique Topic IDs
-typedef float Topic_Relevance;        /// Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0.0,1.0]
+typedef float Keyword_Relevance; /// Type for real-valued Keyword relevance (to Topic), presently assumed to be in the interval [0.0,1.0]
+typedef uint16_t Topic_ID;       /// Type for unique Topic IDs
+typedef float Topic_Relevance;   /// Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0.0,1.0]
 typedef float Graphdecimal;
 typedef int Graphsigned;
 typedef bool Graphflag;
 
-typedef std::vector<Node*> Node_Index;
+typedef std::vector<Node *> Node_Index;
+typedef std::map<time_t, Node *> targetdate_sorted_Nodes; ///< Sorting is done by the key comparison function.
 
 typedef std::map<std::string, std::string> Graph_info_label_value_pairs;
 

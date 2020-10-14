@@ -41,6 +41,15 @@ std::string Nodes_statistics_string(const Nodes_Stats & nstats);
 
 unsigned long Edges_with_data(Graph & graph);
 
+/**
+ * Selects all Nodes that are incomplete and lists them by (inherited)
+ * target date.
+ * 
+ * @param graph A valid Graph data structure.
+ * @return A map of pointers to nodes by effective targetdate.
+ */
+targetdate_sorted_Nodes Nodes_incomplete_by_targetdate(Graph & graph);
+
 } // namespace fz
 
 #endif // __GRAPHINFO_HPP

@@ -15,6 +15,6 @@
 
 using namespace fz;
 
-bool render();
+bool render_incomplete_nodes();
 
 #endif // __RENDER_HPP

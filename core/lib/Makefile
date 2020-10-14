@@ -140,6 +140,9 @@ $(OBJ)/proclock.o: proclock.cpp $(INC)/error.hpp $(INC)/TimeStamp.hpp
 $(OBJ)/utf8.o: utf8.cpp $(INC)/utf8.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c utf8.cpp -o $(OBJ)/utf8.o
 
+$(OBJ)/html.o: html.cpp $(INC)/html.hpp
+	$(CCPP) $(CPPFLAGS) -c html.cpp -o $(OBJ)/html.o
+
 $(OBJ)/jsonlite.o: jsonlite.cpp $(INC)/jsonlite.hpp $(INC)/general.hpp
 	$(CCPP) $(CPPFLAGS) -c jsonlite.cpp -o $(OBJ)/jsonlite.o
 

@@ -37,10 +37,10 @@ fzgraphhtml fzgh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:";
-    add_usage_top += " [-n <node-ID>]";
+    add_option_args += "n:I::o:";
+    add_usage_top += " [-n <node-ID>] [-I [num]] [-o <output-path>]";
     //usage_head.push_back("Description at the head of usage information.\n");
-    //usage_tail.push_back("Extra usage information.\n");
+    usage_tail.push_back("When no [num] is provided then the configured value is used.\n");
 }
 
 /**
@@ -50,6 +50,23 @@ fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) {
 void fzgraphhtml::usage_hook() {
     //ga.usage_hook();
     FZOUT("    -n Show data for Node with <node-ID>\n");
+    FZOUT("    -I Show data for [num] incomplete Nodes (all=no limit)\n");
+    FZOUT("    -o Rendered output to <output-path> (\"STDOUT\" is default)\n");
+}
+
+unsigned int parvalue_to_num_to_show(const std::string & parvalue) {
+    if (parvalue.empty())
+        return 0;
+
+    unsigned int vmax = std::numeric_limits<unsigned int>::max();
+    if (parvalue == "all")
+        return vmax;
+
+    long val = atol(parvalue.c_str());
+    if (val > vmax)
+        return vmax;
+
+    return val;
 }
 
 /**
@@ -73,6 +90,18 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
         node_idstr = cargs;
         return true;
     }
+
+    case 'I': {
+        flowcontrol = flow_incomplete;
+        if (!cargs.empty()) // optional
+            config.num_to_show = parvalue_to_num_to_show(cargs);
+        return true;
+    }
+
+    case 'o': {
+        config.rendered_out_path = cargs;
+        return true;
+    }
    
     }
 
@@ -82,7 +111,9 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
 
 /// Configure configurable parameters.
 bool fzgh_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
-    //CONFIG_TEST_AND_SET_PAR(example_par, "examplepar", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(num_to_show, "num_to_show", parlabel, parvalue_to_num_to_show(parvalue));
+    CONFIG_TEST_AND_SET_PAR(excerpt_length, "excerpt_length", parlabel, atoi(parvalue.c_str()));
+    CONFIG_TEST_AND_SET_PAR(rendered_out_path, "rendered_out_path", parlabel, parvalue);
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
@@ -122,7 +153,7 @@ void test_get_node_info() {
         return;
     }
 
-    VERYVERBOSEOUT(Graph_Info(*graph_ptr));
+    VERYVERBOSEOUT(Graph_Info_str(*graph_ptr));
 
     test_other_graph_info(*graph_ptr);
 
@@ -151,6 +182,11 @@ int main(int argc, char *argv[]) {
 
     case flow_node: {
         test_get_node_info();
+        break;
+    }
+
+    case flow_incomplete: {
+        render_incomplete_nodes();
         break;
     }
 

@@ -506,6 +506,7 @@ public:
 
     /// tables references
     const Topic_Tags & get_topics() const { return topics; }
+    const Node_Map & get_nodes() const { return nodes; }
 
     /// tables sizes
     Node_Map::size_type num_Nodes() const { return nodes.size(); }
@@ -557,9 +558,6 @@ public:
      * @return a pointer to the Topic object (or nullptr if not found).
      */
     Topic * main_Topic_of_Node(Node & node) { return main_topic(topics,node); }
-
-    // *** is this still in use??
-    Node_Map & temptonodemap() { return nodes; }
 
     /// friend (utility) functions
     friend bool identical_Graphs(Graph & graph1, Graph & graph2, std::string & trace);
