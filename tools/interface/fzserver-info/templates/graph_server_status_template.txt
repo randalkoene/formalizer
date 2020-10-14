@@ -1,0 +1,27 @@
+Server process:
+
+    process status    = {{ proc_status }}
+    lockfile status   = {{ lock_status }}
+    lockfile location = {{ lockfile }}
+
+Shared memory information:
+
+    number of named objects  = {{ num_named }}
+    number of unique objects = {{ num_unique }}
+    size                     = {{ size }}
+    free memory              = {{ free }}
+    memory used              = {{ used }}
+
+Graph info:
+
+    number of Topics = {{ num_topics }}
+    number of Nodes  = {{ num_nodes }}
+    number of Edges  = {{ num_edges }}
+
+Nodes statistics:
+
+    Nodes completed  = {{ nodes_comp }}
+    Nodes open       = {{ nodes_open }}
+    Nodes other      = {{ nodes_other }}
+    Seconds used for all completed = {{ sec_comp }}
+    Seconds required for all open  = {{ sec_open}}

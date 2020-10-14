@@ -9,7 +9,7 @@
 // core
 #include "error.hpp"
 #include "general.hpp"
-#include "templater.hpp"
+#include "stringio.hpp"
 
 // local
 #include "render.hpp"
@@ -29,12 +29,14 @@ using namespace fz;
 
 
 enum template_id_enum {
-    example_template_temp, // replace with actual
+    graph_server_status_txt_temp,
+    graph_server_status_html_temp,
     NUM_temp
 };
 
 const std::vector<std::string> template_ids = {
-    "example_templatefile_template.ext" // replace withi actual
+    "graph_server_status_template.txt",
+    "graph_server_status_template.html"
 };
 
 typedef std::map<template_id_enum,std::string> fzserver_info_templates;
@@ -50,17 +52,27 @@ bool load_templates(fzserver_info_templates & templates) {
     return true;
 }
 
-bool render() {
+bool render_graph_server_status(const template_varvalues & statusinfo) {
     render_environment env;
     fzserver_info_templates templates;
     load_templates(templates);
 
-    template_varvalues varvals;
-    varvals.emplace("{{ a_variable }}","{{ a_string }}"); // replace with actual
-    std::string rendered_str = env.render(templates[example_template_temp], varvals);
+    std::string rendered_str;
+    if (fzsi.output_format == output_html) {
+        rendered_str = env.render(templates[graph_server_status_html_temp], statusinfo);
+    } else { // output_txt is the default
+        rendered_str = env.render(templates[graph_server_status_txt_temp], statusinfo);
+    }
 
-    if (!string_to_file("an/example/output/file/path",rendered_str)) // replace with actual
-            ERRRETURNFALSE(__func__,"unable to write rendered output to file");
-    
+    if (fzsi.config.info_out_path == "STDOUT") {
+        FZOUT(rendered_str);
+    } else {
+        if (!string_to_file(fzsi.config.info_out_path,rendered_str)) {
+            ERRRETURNFALSE(__func__,"unable to write rendered output to "+fzsi.config.info_out_path);
+        } else {
+            VERBOSEOUT("Graph server status info sent to file at "+fzsi.config.info_out_path+'\n');
+        }
+    }
+
     return true;
 }

@@ -97,6 +97,7 @@ CGIEXE = $(TOOLSPATH)/interface/logentry-form/logentry-form.py
 # CGIEXE += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzlink/fzlink.py
+CGIEXE += $(TOOLSPATH)/interface/fzserver-info/fzserver-info-cgi.py
 CGIEXE += $(COREPATH)/fzguide.system/fzguide.system-cgi.py
 
 WEBINTERFACES = 

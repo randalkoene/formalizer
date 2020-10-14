@@ -79,7 +79,9 @@ segment_memory_t * graph_mem_managers::allocate_and_activate_shared_memory(std::
     bi::shared_memory_object::remove(segment_name.c_str()); // erase any previous shared memory with same name
     //bi::remove_shared_memory_on_destroy remove_on_destroy(segment_name.c_str()); // this calls remove in its destructor
 
-    segment_memory_t * segment = new segment_memory_t(bi::create_only, segment_name.c_str(), segmentsize);
+    bi::permissions per;
+    per.set_unrestricted(); // *** we might want to tighten this later, for now this is needed for web based access
+    segment_memory_t * segment = new segment_memory_t(bi::create_only, segment_name.c_str(), segmentsize, 0, per);
 
     void_allocator * alloc_inst = new void_allocator(segment->get_segment_manager());
 
@@ -116,7 +118,7 @@ Graph * graph_mem_managers::find_Graph_in_shared_memory() {
         set_active(segment_name);
         set_remove_on_exit(false); // looks like you're a client and not a server here
 
-        VERYVERBOSEOUT(info());
+        VERYVERBOSEOUT(info_str());
 
         return segment->find<Graph>("graph").first;
 
@@ -126,7 +128,23 @@ Graph * graph_mem_managers::find_Graph_in_shared_memory() {
     }
 }
 
-std::string graph_mem_managers::info() { //bi::managed_shared_memory & segment) {
+void graph_mem_managers::info(Graph_info_label_value_pairs & meminfo) { //bi::managed_shared_memory & segment) {
+    if (!active)
+        return;
+    
+    auto segmem_ptr = active->segmem_ptr;
+    if (!segmem_ptr)
+        return;
+
+    unsigned long the_result = segmem_ptr->get_size() - segmem_ptr->get_free_memory();    
+    meminfo["num_named"] = std::to_string(segmem_ptr->get_num_named_objects());
+    meminfo["num_unique"] = std::to_string(segmem_ptr->get_num_unique_objects());
+    meminfo["size"] = std::to_string(segmem_ptr->get_size());
+    meminfo["free"] = std::to_string(segmem_ptr->get_free_memory());
+    meminfo["used"] = std::to_string(the_result);
+}
+
+std::string graph_mem_managers::info_str() { //bi::managed_shared_memory & segment) {
     if (!active)
         return "";
     

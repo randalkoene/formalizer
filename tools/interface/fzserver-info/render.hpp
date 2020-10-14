@@ -12,9 +12,11 @@
 #include "version.hpp"
 #define __RENDER_HPP (__VERSION_HPP)
 
+// core
+#include "templater.hpp"
 
 using namespace fz;
 
-bool render();
+bool render_graph_server_status(const template_varvalues & statusinfo);
 
 #endif // __RENDER_HPP

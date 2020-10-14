@@ -139,7 +139,8 @@ public:
     //std::unique_ptr<Graph> allocate_Graph_in_shared_memory(); // *** gets tricky with Boost Interprocess
     Graph * allocate_Graph_in_shared_memory(); ///< server, allocate a shared memory segment and construct an empty Graph
     Graph * find_Graph_in_shared_memory(); ///< client, find a Graph in an existing shared memory segment
-    std::string info();
+    void info(Graph_info_label_value_pairs & meminfo);
+    std::string info_str();
 };
 
 extern graph_mem_managers graphmemman; ///< Global access to shared memory managers for Graph data structures.

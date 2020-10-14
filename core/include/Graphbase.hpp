@@ -64,7 +64,7 @@
 // std
 //#include <ctime>
 //#include <cstdint>
-//#include <map>
+#include <map>
 //#include <set>
 #include <vector>
 
@@ -114,6 +114,8 @@ typedef int Graphsigned;
 typedef bool Graphflag;
 
 typedef std::vector<Node*> Node_Index;
+
+typedef std::map<std::string, std::string> Graph_info_label_value_pairs;
 
 #define NODE_NULLKEY_STR "{null-key}"
 #define HIGH_TOPIC_INDEX_WARNING 1000 /// at this index number report a warning just in case it is in error

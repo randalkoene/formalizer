@@ -32,12 +32,18 @@ enum flow_options {
     flow_NUMoptions
 };
 
+enum output_format_specifier {
+    output_txt,
+    output_html,
+    output_NUMENUMS
+};
+
 class fzsi_configurable: public configurable {
 public:
     fzsi_configurable(formalizer_standard_program & fsp): configurable("fzserver-info", fsp) {}
     bool set_parameter(const std::string & parlabel, const std::string & parvalue);
 
-    //std::string example_par;   ///< example of configurable parameter
+    std::string info_out_path = "STDOUT";  ///< path to send info output to (STDOUT for standard output)
 };
 
 
@@ -47,6 +53,8 @@ struct fzserver_info: public formalizer_standard_program {
 
     flow_options flowcontrol;
 
+    output_format_specifier output_format; /// the format used to deliver query results
+
     // Graph_access ga; // to include Graph or Log access support
 
     static constexpr const char * lockfilepath = FORMALIZER_ROOT "/.fzserverpq.lock";
@@ -54,6 +62,8 @@ struct fzserver_info: public formalizer_standard_program {
     fzserver_info();
 
     virtual void usage_hook();
+
+    bool set_output_format(const std::string & cargs);
 
     virtual bool options_hook(char c, std::string cargs);
 

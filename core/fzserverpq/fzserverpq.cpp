@@ -116,8 +116,8 @@ void load_Graph_and_stay_resident() {
         RETURN_AFTER_UNLOCKING;
     }
 
-    VERYVERBOSEOUT(graphmemman.info());
-    VERYVERBOSEOUT(Graph_Info(*graph));
+    VERYVERBOSEOUT(graphmemman.info_str());
+    VERYVERBOSEOUT(Graph_Info_str(*graph));
 
     key_pause();
     RETURN_AFTER_UNLOCKING;

@@ -1,0 +1,101 @@
+<html>
+<head>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<title>Formalizer: Graph server status</title>
+<style>
+th {
+    text-align: left;
+  }
+</style>
+</head>
+<body>
+
+<h1>Formalizer: Graph server status</h1>
+
+<table>
+<tbody>
+    <tr>
+        <th span=2>Server process:</th>
+    </tr>
+    <tr>
+        <td>process status</td>
+        <td>{{ proc_status }}</td>
+    </tr>
+    <tr>
+        <td>lockfile status</td>
+        <td>{{ lock_status }}</td>
+    </tr>
+    <tr>
+        <td>lockfile location</td>
+        <td>{{ lockfile }}</td>
+    </tr>
+
+    <tr>
+        <th span=2>Shared memory information:</th>
+    </tr>
+    <tr>
+        <td>number of named objects</td>
+        <td>{{ num_named }}</td>
+    </tr>
+    <tr>
+        <td>number of unique objects</td>
+        <td>{{ num_unique }}</td>
+    </tr>
+    <tr>
+        <td>size</td>
+        <td>{{ size }}</td>
+    </tr>
+    <tr>
+        <td>free memory</td>
+        <td>{{ free }}</td>
+    </tr>
+    <tr>
+        <td>memory used</td>
+        <td>{{ used }}</td>
+    </tr>
+
+    <tr>
+        <th span=2>Graph info:</th>
+    </tr>
+    <tr>
+        <td>number of Topics</td>
+        <td>{{ num_topics }}</td>
+    </tr>
+    <tr>
+        <td>number of Nodes</td>
+        <td>{{ num_nodes }}</td>
+    </tr>
+    <tr>
+        <td>number of Edges</td>
+        <td>{{ num_edges }}</td>
+    </tr>
+
+    <tr>
+        <th span=2>Nodes statistics:</th>
+    </tr>
+    <tr>
+        <td>Nodes completed</td>
+        <td>{{ nodes_comp }}</td>
+    </tr>
+    <tr>
+        <td>Nodes open</td>
+        <td>{{ nodes_open }}</td>
+    </tr>
+    <tr>
+        <td>Nodes other</td>
+        <td>{{ nodes_other }}</td>
+    </tr>
+    <tr>
+        <td>Seconds used for all completed</td>
+        <td>{{ sec_comp }}</td>
+    </tr>
+    <tr>
+        <td>Seconds required for all open</td>
+        <td>{{ sec_open}}</td>
+    </tr>
+
+</tbody>
+</table>
+
+</body>
+</html>

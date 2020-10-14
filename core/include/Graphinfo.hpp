@@ -19,7 +19,9 @@
 
 namespace fz {
 
-std::string Graph_Info(Graph & graph);
+void Graph_Info(Graph & graph, Graph_info_label_value_pairs & graphinfo);
+
+std::string Graph_Info_str(Graph & graph);
 
 std::string List_Topics(Graph & graph, std::string delim);
 
@@ -32,6 +34,8 @@ struct Nodes_Stats {
 };
 
 Nodes_Stats Nodes_statistics(Graph & graph);
+
+void Nodes_statistics_pairs(const Nodes_Stats & nstats, Graph_info_label_value_pairs & nodesinfo);
 
 std::string Nodes_statistics_string(const Nodes_Stats & nstats);
 

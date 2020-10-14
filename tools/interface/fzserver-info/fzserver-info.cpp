@@ -39,11 +39,11 @@ fzserver_info fzsi;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzserver_info::fzserver_info() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "G";
-    add_usage_top += " [-G]";
+fzserver_info::fzserver_info() : formalizer_standard_program(false), config(*this), output_format(output_txt) { //ga(*this, add_option_args, add_usage_top)
+    add_option_args += "Go:F:";
+    add_usage_top += " [-G] [-o <info-output-path>] [-F txt|html]";
     //usage_head.push_back("Description at the head of usage information.\n");
-    //usage_tail.push_back("Extra usage information.\n");
+    usage_tail.push_back("The <info-output-path> STDOUT sends to standard out and is the default.\n");
 }
 
 /**
@@ -53,6 +53,26 @@ fzserver_info::fzserver_info() : formalizer_standard_program(false), config(*thi
 void fzserver_info::usage_hook() {
     //ga.usage_hook();
     FZOUT("    -G Get Graph server status.\n");
+    FZOUT("    -o Send info output to <info-output-path>.\n");
+    FZOUT("    -F specify output format\n");
+    FZOUT("       available formats:\n");
+    FZOUT("       txt = basic ASCII text template\n")
+    FZOUT("       html = HTML template\n");
+}
+
+bool fzserver_info::set_output_format(const std::string & cargs) {
+    if (cargs == "html") {
+        output_format = output_html;
+        return true;
+    }
+    if (cargs == "txt") {
+        output_format = output_txt;
+        return true;
+    }
+    ADDERROR(__func__,"unknown output format: "+cargs);
+    FZERR("unknown output format: "+cargs);
+    exit(exit_command_line_error);
+    return false; // never gets here
 }
 
 /**
@@ -76,6 +96,16 @@ bool fzserver_info::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'o': {
+        config.info_out_path = cargs;
+        return true;
+    }
+
+    case 'F': {
+        set_output_format(cargs);
+        return true;
+    }
+
     }
 
     return false;
@@ -84,7 +114,7 @@ bool fzserver_info::options_hook(char c, std::string cargs) {
 
 /// Configure configurable parameters.
 bool fzsi_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
-    //CONFIG_TEST_AND_SET_PAR(example_par, "examplepar", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(info_out_path, "info_out_path", parlabel, parvalue);
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
@@ -105,6 +135,50 @@ void fzserver_info::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen once in main(), for the derived class
 }
 
+void server_process_info(Graph_info_label_value_pairs & serverinfo) {
+    std::string lockfile_status_str;
+    std::string process_status_str;
+    std::string lockfilecontent;
+
+    int lockfile_status = check_and_read_lockfile(fzsi.lockfilepath, lockfilecontent);
+
+    switch (lockfile_status) {
+
+        case 0: {
+            lockfile_status_str = "not found";
+            process_status_str = "inactive";
+            break;
+        }
+
+        case 1: {
+            lockfile_status_str = "exists";
+            jsonlite_label_value_pairs jsonpars = json_get_label_value_pairs_from_string(lockfilecontent);
+            if (jsonpars.find("pid") == jsonpars.end()) {
+                lockfile_status_str += " (MISSING PID)";
+            } else {
+                lockfile_status_str += " (PID="+jsonpars["pid"]+')';
+                pid_t pid = atoi(jsonpars["pid"].c_str());
+                int proc_status = get_process_status(pid);
+                if (proc_status == 1) {
+                    process_status_str = "active";
+                } else {
+                    process_status_str = "NOT FOUND (inactive)";
+                }
+            }
+            break;
+        }
+
+        default: {
+            lockfile_status_str = "ERROR";
+            process_status_str = "UNKNOWN";
+        }
+    }
+
+    serverinfo["lockfile"] = fzsi.lockfilepath;
+    serverinfo["lock_status"] = lockfile_status_str;
+    serverinfo["proc_status"] = process_status_str;
+}
+
 int graph_server_status() {
     Graph * graph_ptr = graphmemman.find_Graph_in_shared_memory();
     if (!graph_ptr) {
@@ -113,47 +187,21 @@ int graph_server_status() {
         standard.exit(exit_general_error);
     }
 
-    FZOUT(graphmemman.info()+'\n');
+    Graph_info_label_value_pairs meminfo;
+    Graph_info_label_value_pairs graphinfo;
+    Graph_info_label_value_pairs nodesinfo;
+    Graph_info_label_value_pairs serverinfo;
 
-    FZOUT(Graph_Info(*graph_ptr));
+    graphmemman.info(meminfo);
+    Graph_Info(*graph_ptr, graphinfo);
+    Nodes_statistics_pairs(Nodes_statistics(*graph_ptr), nodesinfo);
+    server_process_info(serverinfo);
 
-    FZOUT('\n'+Nodes_statistics_string(Nodes_statistics(*graph_ptr))+'\n');
+    meminfo.merge(graphinfo);
+    meminfo.merge(nodesinfo);
+    meminfo.merge(serverinfo);
 
-    std::string lockfilecontent;
-    int lockfile_status = check_and_read_lockfile(fzsi.lockfilepath, lockfilecontent);
-    std::string lockfile_status_str(fzsi.lockfilepath);
-    std::string process_status_str;
-    switch (lockfile_status) {
-
-        case 0: {
-            lockfile_status_str += " not found";
-            process_status_str = "inactive";
-        }
-
-        case 1: {
-            lockfile_status_str += " exists";
-            jsonlite_label_value_pairs jsonpars = json_get_label_value_pairs_from_string(lockfilecontent);
-            if (jsonpars.find("pid") == jsonpars.end()) {
-                lockfile_status_str += " (MISSING PID)";
-            } else {
-                lockfile_status_str += " (PID="+jsonpars["pid"]+')';
-                pid_t pid = atoi(jsonpars["pid"].c_str());
-                if (test_process_running(pid)) {
-                    process_status_str = "active";
-                } else {
-                    process_status_str = "NOT FOUND (inactive)";
-                }
-            }
-        }
-
-        default: {
-            lockfile_status_str += " ERROR";
-            process_status_str = "UNKNOWN";
-        }
-    }
-
-    FZOUT("\nfzserverpq lock file status: "+lockfile_status_str);
-    FZOUT("\nfzserverpq process status  : "+process_status_str+"\n\n");
+    render_graph_server_status(meminfo);
 
     return standard.completed_ok();
 }

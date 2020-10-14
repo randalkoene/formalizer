@@ -14,6 +14,7 @@
 #include "error.hpp"
 #include "TimeStamp.hpp"
 #include "jsonlite.hpp"
+#include "general.hpp"
 #include "stringio.hpp"
 #include "proclock.hpp"
 
@@ -30,12 +31,56 @@ pid_t this_program_process_ID() {
 }
 
 /**
+ * Get process status from /proc.
+ * 
+ * @param pid Process ID.
+ * @return 1 if the process is running or sleeping normally, 0 if not found, -1 if error.
+ */
+int get_process_status(pid_t pid) {
+    std::string proc_file_path("/proc/"+std::to_string((unsigned int) pid)+"/stat");
+    if (!std::filesystem::exists(proc_file_path))
+        return 0;
+
+    // Reading /proc/pid/stat takes special care. See the man page of proc and online recommendations.
+    std::string proc_stat_str;
+    FILE * fp = fopen(proc_file_path.c_str(), "r");
+    if (!fp) {
+        ADDERROR(__func__, "Unable to read process file in "+proc_file_path);
+        return -1;
+    }
+    pid_t _pid;
+    char name[32];
+    char state;
+    int ret = fscanf(fp,"%d %s %c", &_pid, name, &state); // using this, because file_to_string() throws length exception
+    fclose(fp);
+    if (ret != 3) {
+        ADDERROR(__func__, "Unable to parse process file in "+proc_file_path);
+        return -1;
+    }
+
+    /*if (file_to_string(proc_file_path, proc_stat_str)) {
+        ADDERROR(__func__, "Unable to read process file in "+proc_file_path);
+        return -1;
+    }
+    std::vector<std::string> stat_strings = split(proc_stat_str,' ');
+    char state = stat_strings[2][0];*/
+    if ((state=='R') || (state=='S')) {
+        return 1;
+    }
+    ADDERROR(__func__, std::string("Process is in problematic state: ")+state);
+    return -1;
+}
+
+/**
  * Test if a process with a specific PID is running.
  * 
  * This uses the kill() function with signal 0, which sends no
  * actual signal but still performs error checking.
  * 
  * To use, #include <sys/types.h>, #include <signal.h>.
+ * 
+ * @param pid Process ID.
+ * @return True if found and running.
  */
 bool test_process_running(pid_t pid) {
     int ret = kill(pid, 0);

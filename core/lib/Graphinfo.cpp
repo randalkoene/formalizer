@@ -11,7 +11,13 @@
 
 namespace fz {
 
-std::string Graph_Info(Graph & graph) {
+void Graph_Info(Graph & graph, Graph_info_label_value_pairs & graphinfo) {
+    graphinfo["num_topics"] = std::to_string(graph.get_topics().get_topictags().size());
+    graphinfo["num_nodes"] = std::to_string(graph.num_Nodes());
+    graphinfo["num_edges"] = std::to_string(graph.num_Edges());
+}
+
+std::string Graph_Info_str(Graph & graph) {
     std::string info_str("Graph info:");
     info_str += "\n  number of Topics = " + std::to_string(graph.get_topics().get_topictags().size());
     info_str += "\n  number of Nodes  = " + std::to_string(graph.num_Nodes());
@@ -65,6 +71,14 @@ Nodes_Stats Nodes_statistics(Graph & graph) {
         }
     }
     return nstats;
+}
+
+void Nodes_statistics_pairs(const Nodes_Stats & nstats, Graph_info_label_value_pairs & nodesinfo) {
+    nodesinfo["nodes_comp"] = std::to_string(nstats.num_completed);
+    nodesinfo["nodes_open"] = std::to_string(nstats.num_open);
+    nodesinfo["nodes_other"] = std::to_string(nstats.num_other);
+    nodesinfo["sec_comp"] = std::to_string(nstats.sum_required_completed);
+    nodesinfo["sec_open"] = std::to_string(nstats.sum_required_open);
 }
 
 std::string Nodes_statistics_string(const Nodes_Stats & nstats) {

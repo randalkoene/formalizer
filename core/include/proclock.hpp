@@ -24,6 +24,14 @@ namespace fz {
 pid_t this_program_process_ID();
 
 /**
+ * Get process status from /proc.
+ * 
+ * @param pid Process ID.
+ * @return 1 if the process is running or sleeping normally, 0 if not found, -1 if error.
+ */
+int get_process_status(pid_t pid);
+
+/**
  * Test if a process with a specific PID is running.
  * 
  * This uses the kill() function with signal 0, which sends no
