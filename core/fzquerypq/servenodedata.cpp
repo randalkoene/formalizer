@@ -10,7 +10,9 @@
 #include "error.hpp"
 #include "standard.hpp"
 #include "general.hpp"
+#include "stringio.hpp"
 #include "Graphtypes.hpp"
+#include "Graphinfo.hpp"
 #include "templater.hpp"
 
 // local
@@ -100,6 +102,6 @@ void serve_request_Node_data() {
         FZERR("invalid Node ID: "+fzq.node_idstr);
     }
 
-    VERYVERBOSEOUT(graphmemman.info());
-    VERYVERBOSEOUT(Graph_Info(*graph));
+    VERYVERBOSEOUT(graphmemman.info_str());
+    VERYVERBOSEOUT(Graph_Info_str(*graph));
 }

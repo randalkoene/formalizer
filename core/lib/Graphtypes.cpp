@@ -243,7 +243,7 @@ Topic * Topic_Tags::find_by_tag(std::string _tag) {
     return it->second.get();
 }
 
-Node_ID::Node_ID(const ID_TimeStamp _idT): idkey(_idT), idS_cache("", graphmemman.get_allocator()) {
+Node_ID::Node_ID(const ID_TimeStamp _idT): idkey(_idT), idS_cache("") { // , graphmemman.get_allocator()) {
     idS_cache = Node_ID_TimeStamp_to_string(idkey.idT).c_str();
 }
 
@@ -460,7 +460,7 @@ Topic_ID Node::main_topic_id() {
     return main_id;
 }
 
-Edge_ID::Edge_ID(Edge_ID_key _idkey): idkey(_idkey), idS_cache("", graphmemman.get_allocator()) {
+Edge_ID::Edge_ID(Edge_ID_key _idkey): idkey(_idkey), idS_cache("") { //, graphmemman.get_allocator()) {
     std::string formerror;
     if (!valid_Node_ID(idkey.dep.idT,formerror)) throw(ID_exception(formerror));
     if (!valid_Node_ID(idkey.sup.idT,formerror)) throw(ID_exception(formerror));
@@ -468,7 +468,7 @@ Edge_ID::Edge_ID(Edge_ID_key _idkey): idkey(_idkey), idS_cache("", graphmemman.g
     idS_cache = (Node_ID_TimeStamp_to_string(idkey.dep.idT)+'>'+Node_ID_TimeStamp_to_string(idkey.sup.idT)).c_str();
 }
 
-Edge_ID::Edge_ID(Node &_dep, Node &_sup): idkey(_dep.get_id().key(),_sup.get_id().key()), idS_cache("", graphmemman.get_allocator()) {
+Edge_ID::Edge_ID(Node &_dep, Node &_sup): idkey(_dep.get_id().key(),_sup.get_id().key()), idS_cache("") { //, graphmemman.get_allocator()) {
     idS_cache = (Node_ID_TimeStamp_to_string(idkey.dep.idT)+'>'+Node_ID_TimeStamp_to_string(idkey.sup.idT)).c_str();
 }
 

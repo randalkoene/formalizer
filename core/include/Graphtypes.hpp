@@ -145,10 +145,17 @@ public:
 
 extern graph_mem_managers graphmemman; ///< Global access to shared memory managers for Graph data structures.
 
-
+static constexpr size_t Graph_ID_STR_LEN = 2*20; // Must fit both Node and Edge ID strings.
 
 typedef bi::allocator<char, segment_manager_t> char_allocator;
-typedef bi::basic_string<char, std::char_traits<char>, char_allocator> GraphIDcache;
+// There is no need for GraphIDcache to be a container class with allocator (see TL#202010150635.1).
+//typedef bi::basic_string<char, std::char_traits<char>, char_allocator> GraphIDcache;
+struct GraphIDcache {
+    char s[Graph_ID_STR_LEN];
+    GraphIDcache(std::string _s) { std::copy(_s.begin(), _s.end(), s); }
+    GraphIDcache & operator= (std::string _s) { std::copy(_s.begin(), _s.end(), s); return *this; }
+    const char * c_str() const { return s; }
+};
 typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Keyword_String;
 typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Topic_String;
 typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Node_utf8_text;
@@ -193,7 +200,7 @@ protected:
     Node_ID_key idkey;
     GraphIDcache idS_cache; // cached string version of the ID to speed things up
 public:
-    Node_ID(std::string _idS): idkey(_idS), idS_cache(_idS.c_str(), graphmemman.get_allocator()) {}
+    Node_ID(std::string _idS): idkey(_idS), idS_cache(_idS.c_str()) {} // idS_cache(_idS.c_str(), graphmemman.get_allocator()) {}
     Node_ID(const ID_TimeStamp _idT);
 
     Node_ID() = delete; // explicitly forbid the default constructor, just in case
@@ -211,7 +218,7 @@ protected:
     GraphIDcache idS_cache; // cached string version of the ID to speed things up
 public:
     //Edge_ID(std::string dep_idS, std::string sup_idS); // Not clear that this one is ever needed
-    Edge_ID(std::string _idS): idkey(_idS), idS_cache(_idS.c_str(), graphmemman.get_allocator()) {} /// Try to use this one only for container element initialization and such.
+    Edge_ID(std::string _idS): idkey(_idS), idS_cache(_idS.c_str()) {} // , graphmemman.get_allocator()) {} /// Try to use this one only for container element initialization and such.
     Edge_ID(Edge_ID_key _idkey);
     Edge_ID(Node &_dep, Node &_sup);
 
