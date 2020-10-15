@@ -68,6 +68,7 @@ namespace bi = boost::interprocess;
 
 // core
 #include "error.hpp"
+#include "general.hpp"
 #include "TimeStamp.hpp"
 #include "Graphbase.hpp"
 
@@ -151,9 +152,9 @@ typedef bi::allocator<char, segment_manager_t> char_allocator;
 // There is no need for GraphIDcache to be a container class with allocator (see TL#202010150635.1).
 //typedef bi::basic_string<char, std::char_traits<char>, char_allocator> GraphIDcache;
 struct GraphIDcache {
-    char s[Graph_ID_STR_LEN];
-    GraphIDcache(std::string _s) { std::copy(_s.begin(), _s.end(), s); }
-    GraphIDcache & operator= (std::string _s) { std::copy(_s.begin(), _s.end(), s); return *this; }
+    char s[Graph_ID_STR_LEN] = { 0 }; // initialize whole buffer to null
+    GraphIDcache(std::string _s) { safecpy(_s, s, Graph_ID_STR_LEN); }
+    GraphIDcache & operator= (std::string _s) { safecpy(_s, s, Graph_ID_STR_LEN); return *this; }
     const char * c_str() const { return s; }
 };
 typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Keyword_String;

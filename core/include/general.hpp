@@ -69,6 +69,17 @@ inline std::string &trim(std::string &s, const char *t = " \t\n\r\f\v") {
     return ltrim(rtrim(s, t), t);
 }
 
+/**
+ * Safely copy from a string (not null-terminated) to a char buffer of limited
+ * size. This can even include null-characters that were in the string. This
+ * is safer than std::copy(), string::copy(), strcpy() or strncpy().
+ * 
+ * @param str A string.
+ * @param buf Pointer to a limited-size character buffer.
+ * @param bufsize Size of the character buffer (counting all chars, even if one is meant for '\0').
+ */
+void safecpy(std::string & str, char * buf, size_t bufsize);
+
 } // namespace fz
 
 #endif // __GENERAL_HPP

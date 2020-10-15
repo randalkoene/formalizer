@@ -6,6 +6,7 @@
  */
 
 // std
+#include <cstring>
 #include <array>
 #include <vector>
 #include <memory>
@@ -122,6 +123,30 @@ std::string join(const std::vector<std::string> & svec, const std::string delim)
         });
         return s;
     }
+}
+
+/**
+ * Safely copy from a string (not null-terminated) to a char buffer of limited
+ * size. This can even include null-characters that were in the string. This
+ * is safer than std::copy(), string::copy(), strcpy() or strncpy().
+ * 
+ * @param str A string.
+ * @param buf Pointer to a limited-size character buffer.
+ * @param bufsize Size of the character buffer (counting all chars, even if one is meant for '\0').
+ */
+void safecpy(std::string & str, char * buf, size_t bufsize) {
+    if (bufsize<1)
+        return;
+
+    --bufsize; // counts from [0]
+    if (str.size()<bufsize) // copy the string or up to buffer capacity
+        bufsize = str.size();
+    buf[bufsize] = 0; // make sure it is now null-terminated
+
+    if (bufsize<1)
+        return;
+
+    memcpy(buf, str.data(), bufsize);
 }
 
 } // namespace fz
