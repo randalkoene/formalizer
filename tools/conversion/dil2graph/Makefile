@@ -22,7 +22,7 @@ CCPP=g++
 ## Compiler Options
 ## ----------------
 ## debugging with vscode (update 2020-09-15):
-#COMPOPT= -g -O0
+#OMPOPT= -g -O0
 #OPTSTR=debugging_with_vscode
 ## debugging information (updates 2019-02-01):
 #COMPOPT= -g -Og
@@ -152,6 +152,8 @@ CPPFLAGS= $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(SAFEREGEX) $(INCLUDES)
 CORE_OBJS = $(CORELIBPATH)/obj/error.o
 CORE_OBJS += $(CORELIBPATH)/obj/config.o
 CORE_OBJS += $(CORELIBPATH)/obj/general.o
+CORE_OBJS += $(CORELIBPATH)/obj/stringio.o
+CORE_OBJS += $(CORELIBPATH)/obj/jsonlite.o
 CORE_OBJS += $(CORELIBPATH)/obj/utf8.o
 CORE_OBJS += $(CORELIBPATH)/obj/standard.o
 CORE_OBJS += $(CORELIBPATH)/obj/templater.o

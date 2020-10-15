@@ -41,7 +41,7 @@ void Log_Integrity_Tests(Log & log);
 
 std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl);
 
-std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion();
+std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion(Graph * graph_ptr);
 
 void interactive_TL2Log_validation(Task_Log * tl, Log * log, Graph * graph);
 

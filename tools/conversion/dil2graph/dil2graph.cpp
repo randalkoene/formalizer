@@ -19,6 +19,8 @@
 
 #define FORMALIZER_MODULE_ID "Formalizer:Conversion:DIL2Graph"
 
+//#define USE_COMPILEDPING
+
 // std
 #include <array>
 #include <cstdio>
@@ -32,9 +34,12 @@
 #include <sys/wait.h>
 #include <vector>
 
+#define INCLUDE_DIL2AL
 // dil2al compatibility
+#ifdef INCLUDE_DIL2AL
 #include "dil2al.hh"
 #include "dil2al_minimal.hpp"
+#endif // INCLUDE_DIL2AL
 
 // core
 #include "error.hpp"
@@ -42,12 +47,16 @@
 #include "general.hpp"
 #include "Graphtypes.hpp"
 #include "Graphpostgres.hpp"
+#ifdef INCLUDE_DIL2AL
 #include "dilaccess.hpp"
+#endif // INCLUDE_DIL2AL
 
 // local
 #include "dil2graph.hpp"
+#ifdef INCLUDE_DIL2AL
 #include "tl2log.hpp"
 #include "logtest.hpp"
+#endif // INCLUDE_DIL2AL
 
 #ifdef __DIRECTGRAPH2DIL__
     #include "../graph2dil/log2tl.hpp"
@@ -75,6 +84,7 @@ dil2graph::dil2graph() : formalizer_standard_program(true), proc_from(0), proc_t
 
 void dil2graph::usage_hook() {
     ga.usage_hook();
+#ifdef INCLUDE_DIL2AL
     FZOUT("    -m manual decisions (no automatic fixes)\n");
     FZOUT("    -L load only (no conversion and storage)\n");
     FZOUT("    -D DIL hierarchy conversion only\n");
@@ -86,6 +96,7 @@ void dil2graph::usage_hook() {
     FZOUT("    -1 1st indexed TL section to reconstruct is <num1>\n");
     FZOUT("    -2 last indexed TL section to reconstruct is <num2>\n");
     FZOUT("    -r include immediate Task Log reconstruction test\n");
+#endif // INCLUDE_DIl2AL
 }
 
 bool dil2graph::options_hook(char c, std::string cargs) {
@@ -94,9 +105,11 @@ bool dil2graph::options_hook(char c, std::string cargs) {
 
     switch (c) {
 
+#ifdef INCLUDE_DIL2AL
     case 'm':
         manual_decisions = true; // *** this variable is still outside of a struct (see tl2log.hpp/cpp)
         return true;
+#endif // INCLUDE_DIL2AL
     
     case 'L':
         flowcontrol = flow_load_only;
@@ -110,9 +123,11 @@ bool dil2graph::options_hook(char c, std::string cargs) {
         flowcontrol = flow_tl_only;
         return true;
 
+#ifdef INCLUDE_DIL2AL
     case 'o':
         testfilepath = cargs;
         return true;
+#endif // INCLUDE_DIL2AL
 
     case 'f':
         proc_from = std::atoi(cargs.c_str());
@@ -151,8 +166,10 @@ void dil2graph::init_top(int argc, char *argv[]) {
 
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 
+#ifdef INCLUDE_DIL2AL
     standard.add_to_exit_stack(&exit_postop,"exit_postop"); // include exit steps needed for dil2al code
     standard.add_to_exit_stack(&exit_report,"exit_report");
+#endif
 }
 
 
@@ -165,6 +182,7 @@ void Exit_Now(int status) {
     standard.exit(static_cast<exit_status_code>(status));
 }
 
+#ifdef INCLUDE_DIL2AL
 /**
  * Uses the topical DIL file name to create a topic tag.
  * 
@@ -399,6 +417,7 @@ Edge *convert_DIL_Superior_to_Edge(DIL_entry &depentry, DIL_entry &supentry, DIL
 
     return edge;
 }
+#endif // INCLUDE_DIL2AL
 
 /**
  * Find the keyword,relevance pairs in a DIL Topical File.
@@ -442,6 +461,8 @@ Topic_KeyRel_Vector get_DIL_Topics_File_KeyRels(std::string dilfilepath) {
     return krels;
 }
 
+
+#ifdef INCLUDE_DIL2AL
 /**
  * Search the DIL Topic File that corresponds with the topic for defined
  * keyword,relevance pairs and add those to the keyrel vector.
@@ -465,6 +486,7 @@ unsigned int collect_topic_keyword_relevance_pairs(Topic *topic) {
 
     return topic->get_keyrel().size();
 }
+#endif
 
 /**
  * Detect if DIL Topic Files are actual or symlinks.
@@ -503,23 +525,35 @@ std::vector<int> detect_DIL_Topics_Symlinks(const std::vector<std::string> &dilf
     return symlinks;
 }
 
+#ifdef INCLUDE_DIL2AL
 /**
  * Convert a complete Detailed_Items_List to Graph format.
  * 
+ * Note: Even though this is where the Graph is constructed, this function
+ * demands that a valid Graph object pointer be provided. This is to ensure
+ * that the allocate_Graph_in_shared_memory() function has already been
+ * called, because that shared memory is needed for various Node_ID() objects
+ * that rely on it even without a Graph data structure (see tl2log.cpp).
+ * 
  * @param dil pointer to a valid Detailed_Items_List.
  * @param convmet a structure that stores metrics about the conversion process.
+ * @param graph An empty Graph to build into.
  * @return pointer to Graph, or NULL.
  */
-Graph *convert_DIL_to_Graph(Detailed_Items_List *dil, ConversionMetrics &convmet) {
+Graph *convert_DIL_to_Graph(Detailed_Items_List *dil, ConversionMetrics &convmet, Graph * graph) {
     ERRTRACE;
     if (!dil)
         ERRRETURNNULL(__func__, "unable to build Graph from NULL Detailed_Items_List");
+    if (!graph)
+        ERRRETURNNULL(__func__, "missing empty Graph to build into (we need the shared memory right from the start)");
 
     // Start an empty Graph
     //Graph *graph = new Graph();
-    Graph * graph = graphmemman.allocate_Graph_in_shared_memory();
+    /*
+    Graph * graph = graphmemman.allocate_Graph_in_shared_memory(); // *** see Note above.
     if (!graph)
         ERRRETURNNULL(__func__, "unable to initialize Graph");
+    */
 
     ERRHERE(".2");
     // Add all the DIL_entry nodes to the Graph as Node objects
@@ -573,6 +607,7 @@ Graph *convert_DIL_to_Graph(Detailed_Items_List *dil, ConversionMetrics &convmet
 
     return graph;
 }
+#endif // INCLUDE_DIL2AL
 
 //----------------------------------------------------
 // Definitions of file-local scope functions:
@@ -584,8 +619,8 @@ Graph *convert_DIL_to_Graph(Detailed_Items_List *dil, ConversionMetrics &convmet
  */
 void node_pq_progress_func(unsigned long n, unsigned long ncount) {
     if (ncount >= n) {
-        VOUT << "==\n";
-        VOUT.flush();
+        FZOUT("==\n");
+        base.out->flush();
         return;
     }
     unsigned long tenth = n / 10;
@@ -594,8 +629,8 @@ void node_pq_progress_func(unsigned long n, unsigned long ncount) {
     if (ncount < tenth)
         return;
     if ((ncount % tenth) == 0) {
-        VOUT << "==";
-        VOUT.flush();
+        FZOUT("==");
+        base.out->flush();
     }
 }
 
@@ -604,7 +639,7 @@ void node_pq_progress_func(unsigned long n, unsigned long ncount) {
 int alt_main() {
     ERRTRACE;
 
-    VOUT << "Operating in Load-only mode. Testing database loading.\n";
+    FZOUT("Operating in Load-only mode. Testing database loading.\n");
 
     key_pause();
 
@@ -615,17 +650,19 @@ int alt_main() {
         standard.exit(exit_database_error);
     }
 
-    VOUT << "Graph re-loading data test:\n";
-    VOUT << "  Number of Topics = " << graph->get_topics().get_topictags().size() << '\n';
-    VOUT << "  Number of Nodes  = " << graph->num_Nodes() << '\n';
-    VOUT << "  Number of Edges  = " << graph->num_Edges() << "\n\n";
+    FZOUT("Graph re-loading data test:\n");
+    FZOUT("  Number of Topics = "+std::to_string(graph->get_topics().get_topictags().size())+'\n');
+    FZOUT("  Number of Nodes  = "+std::to_string(graph->num_Nodes())+'\n');
+    FZOUT("  Number of Edges  = "+std::to_string(graph->num_Edges())+"\n\n");
 
     key_pause();
 
     return standard.completed_ok();
 }
 
-std::pair<Detailed_Items_List *, Graph *> interactive_conversion() {
+#ifdef INCLUDE_DIL2AL
+/// This needs a valid pointer to an empty Graph object. (See Note above for details.)
+std::pair<Detailed_Items_List *, Graph *> interactive_conversion(Graph * graph_ptr) {
     ERRTRACE;
     key_pause();
 
@@ -644,7 +681,7 @@ std::pair<Detailed_Items_List *, Graph *> interactive_conversion() {
     ERRHERE(".3");
     ConversionMetrics convmet;
     Graph *graph;
-    if ((graph = convert_DIL_to_Graph(dil, convmet)) == NULL) {
+    if ((graph = convert_DIL_to_Graph(dil, convmet, graph_ptr)) == NULL) {
         EOUT << "\nSomething went wrong! Unable to convert to Graph.\n";
         standard.exit(exit_conversion_error);
     }
@@ -743,7 +780,8 @@ void interactive_validation(Detailed_Items_List *dil, Graph *graph) {
     VOUT << "Now, let's validate the database by reloading the Graph and comparing it with the one that was stored.\n";
 
     ERRHERE(".reloadGraph");
-    Graph reloaded;
+    graphmemman.allocate_and_activate_shared_memory("reloadgraph", 20*1024*1024);
+    Graph reloaded; // It is possible to put this on the heap while its parts are constructed in shared memory.
     if (!load_Graph_pq(reloaded, d2g.ga.dbname(), d2g.ga.pq_schemaname())) { // Not using d2g.ga.request_Graph_copy(), because there might be no running server when we just created the database.
         EOUT << "\nSomething went wrong! Unable to load back from Postgres database.\n";
         standard.exit(exit_database_error);
@@ -834,8 +872,10 @@ void interactive_validation(Detailed_Items_List *dil, Graph *graph) {
 
     key_pause();
 }
+#endif // INCLUDE_DIL2AL
 
 int main(int argc, char *argv[]) {
+    COMPILEDPING(std::cout,"ENTERED MAIN\n");
     ERRTRACE;
     // *** +---- begin: Things that probably should be configurable -----+
     ErrQ.set_errfilepath("/var/www/html/formalizer/formalizer.core.error.ErrQ.log");
@@ -843,10 +883,13 @@ int main(int argc, char *argv[]) {
     ErrQ.disable_caching(); // more granular, more work, less chance of losing error messages
     //ErrQ.enable_pinging(); // turn this on when hunting for the cause of a segfault
     // *** +---- end  : Things that probably should be configurable -----+
-    
+
+    COMPILEDPING(std::cout,"JUST BEFORE INIT\n");
     ERRHERE(".init");
     d2g.init_top(argc, argv);
 
+#ifdef INCLUDE_DIL2AL
+    COMPILEDPING(std::cout,"JUST BEFORE DIL2ALINIT\n");
     ERRHERE(".dil2alinit");
     din = &cin;
     eout = FORMALIZER_BASE_ERR_OSTREAM_PTR;
@@ -857,9 +900,16 @@ int main(int argc, char *argv[]) {
     Output_Log_Append(curtime + '\n');
     initialize();
     verbose = false; // Turning off most messages from dil2al code.
+#endif // INCLUDE_DIL2AL
 
+    COMPILEDPING(std::cout,"JUST BEFORE FLOW\n");
     ERRHERE(".flow");
-    std::unique_ptr<Graph> graphptr;
+    Graph * graphptr = graphmemman.allocate_Graph_in_shared_memory(); // *** see Note above.
+    if (!graphptr) {
+        ADDERROR(__func__, "unable to initialize Graph");
+        FZERR("unable to initialize Graph");
+        standard.exit(exit_general_error);
+    }
     std::unique_ptr<Log> logptr;
     switch (d2g.flowcontrol) {
 
@@ -869,31 +919,39 @@ int main(int argc, char *argv[]) {
     }
 
     case flow_dil_only: {
-        auto [DILptr, _graphptr] = interactive_conversion();
+#ifdef INCLUDE_DIL2AL
+        auto [DILptr, _graphptr] = interactive_conversion(graphptr);
         interactive_validation(DILptr, _graphptr);
-        graphptr.reset(_graphptr);
+        //graphptr.reset(_graphptr);
+#endif // INCLUDE_DIL2AL
         break;
     }
 
+
     case flow_tl_only: {
-        auto [TLptr, _logptr] = interactive_TL2Log_conversion();
+#ifdef INCLUDE_DIL2AL
+        auto [TLptr, _logptr] = interactive_TL2Log_conversion(graphptr);
         interactive_TL2Log_validation(TLptr, _logptr.get(), nullptr);
         logptr = std::move(_logptr);
+#endif // INCLUDE_DIL2AL
         break;
     }
 
     default: { // flow_everything
-        auto [DILptr, _graphptr] = interactive_conversion();
+#ifdef INCLUDE_DIL2AL
+        auto [DILptr, _graphptr] = interactive_conversion(graphptr);
         interactive_validation(DILptr, _graphptr);
-        auto [TLptr, _logptr] = interactive_TL2Log_conversion();
+        auto [TLptr, _logptr] = interactive_TL2Log_conversion(graphptr);
         interactive_TL2Log_validation(TLptr, _logptr.get(), _graphptr);
-        graphptr.reset(_graphptr);
+        //graphptr.reset(_graphptr);
         logptr = std::move(_logptr);
         if ((logptr != nullptr) && (graphptr != nullptr)) {
-            logptr->setup_Entry_node_caches(*(graphptr.get())); // here we can do this!
-            logptr->setup_Chunk_node_caches(*(graphptr.get()));
+            logptr->setup_Entry_node_caches(*graphptr); // here we can do this!
+            logptr->setup_Chunk_node_caches(*graphptr);
         }
+#endif // INCLUDE_DIL2AL
     }
+
 
     }
 

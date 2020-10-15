@@ -123,9 +123,10 @@ Graph * graph_mem_managers::find_Graph_in_shared_memory() {
         return segment->find<Graph>("graph").first;
 
     } catch (const bi::interprocess_exception & ipexception) {
-        ERRRETURNNULL(__func__,"Unable to access shared memory 'fzgraph', "+std::string(ipexception.what()));
         VERBOSEERR("Unable to access shared memory 'fzgraph', "+std::string(ipexception.what())+'\n');
+        ERRRETURNNULL(__func__,"Unable to access shared memory 'fzgraph', "+std::string(ipexception.what()));
     }
+    return nullptr;
 }
 
 void graph_mem_managers::info(Graph_info_label_value_pairs & meminfo) { //bi::managed_shared_memory & segment) {

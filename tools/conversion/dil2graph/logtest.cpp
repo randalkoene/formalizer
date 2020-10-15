@@ -15,6 +15,7 @@
 
 // core
 #include "general.hpp"
+#include "stringio.hpp"
 #include "standard.hpp"
 #include "TimeStamp.hpp"
 #include "templater.hpp"

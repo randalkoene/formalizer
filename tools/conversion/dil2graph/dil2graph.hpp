@@ -11,17 +11,24 @@
 #include "version.hpp"
 #define __DIL2GRAPH_HPP (__VERSION_HPP)
 
+#define INCLUDE_DIL2AL
+#ifdef INCLUDE_DIL2AL
 // dil2al compatibility
 #include "dil2al_minimal.hpp"
+#endif // INCLUDE_DIL2AL
 
 // core
 #include "standard.hpp"
+#ifdef INCLUDE_DIL2AL
 #include "dilaccess.hpp"
+#endif // INCLUDE_DIL2AL
 #include "Graphaccess.hpp"
 
 // local
+#ifdef INCLUDE_DIL2AL
 #include "logtest.hpp"
 #include "tl2log.hpp"
+#endif // INCLUDE_DIL2AL
 
 using namespace fz;
 
@@ -47,6 +54,7 @@ struct ConversionMetrics {
     }
 };
 
+#ifdef INCLUDE_DIL2AL
 std::string convert_DIL_Topics_file_to_tag(DIL_Topical_List &diltopic);
 
 int convert_DIL_Topics_to_topics(Topic_Tags &topics, Node &node, DIL_entry &entry);
@@ -65,11 +73,10 @@ Topic_KeyRel_Vector get_DIL_Topics_File_KeyRels(std::string dilfilepath);
 
 unsigned int collect_topic_keyword_relevance_pairs(Topic *topic);
 
-std::vector<int> detect_DIL_Topics_Symlinks(const std::vector<std::string> &dilfilepaths, int &num);
-
-std::vector<int> detect_DIL_Topics_Symlinks(const std::vector<std::string> &dilfilepaths, int &num);
-
 Graph *convert_DIL_to_Graph(Detailed_Items_List *dil, ConversionMetrics &convmet);
+#endif // INCLUDE_DIL2AL
+
+std::vector<int> detect_DIL_Topics_Symlinks(const std::vector<std::string> &dilfilepaths, int &num);
 
 void Exit_Now(int status); // needed in dil2al_minimal.cpp and dil2al linked object files
 

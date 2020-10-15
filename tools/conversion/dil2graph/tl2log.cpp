@@ -36,9 +36,17 @@
 
 using namespace fz;
 
-const Node_ID Lost_and_Found_node("20200820215834.1");
+// Note: To enable the use of these Node_ID objects, we ensure that an empty Graph object
+//       is constructed immediately in shared memory (see Note in dil2graph.cpp). That
+//       shared memory is needed here for the Node_ID.idS_cache, even though the Node_ID
+//       objects themselves can be created on the heap here. (That is allowed, because
+//       these instances are not needed in an actual shared memory context here.)
+//       They cannot be initialized here and instead need to be initialized somewhere
+//       before use, but after the shared memory has been created. Otherwise you end
+//       up with segfaults, as in TL#202010142158.7.
+Node_ID * Lost_and_Found_node = nullptr; // ("20200820215834.1");
 //const Node_ID Null_node("19000101000000.1");
-const Node_ID Null_node("20200820215834.1");
+Node_ID * Null_node = nullptr; // ("20200820215834.1");
 
 bool manual_decisions = false;
 unsigned int auto_eliminate_duration_threshold = 20; // in minutes
@@ -330,7 +338,7 @@ const Node_ID convert_TL_DILref_to_Node_ID(TL_entry_content &TLentrycontent, Log
             ADDWARNING(__func__, "invalid Node ID in Log chunk [" + chunkid_str + "] replaced with Lost-and-Found Node");
             ++num_fixes_applied;
             nodeid_result=1;
-            return Lost_and_Found_node;
+            return (*Lost_and_Found_node);
 
         } else {
             if (decision == 's') {
@@ -347,7 +355,7 @@ const Node_ID convert_TL_DILref_to_Node_ID(TL_entry_content &TLentrycontent, Log
                     FZOUT("\nUnforuntately, that one was invalid as well.\n");
                     ADDERROR(__func__, "invalid alternate Node ID (" + enterstr + ") provided by user at TL chunk [" + chunkid_str + "], " + idexception.what());
                     nodeid_result=-1;
-                    return Null_node;
+                    return (*Null_node);
 
                 }
             } else {
@@ -356,13 +364,13 @@ const Node_ID convert_TL_DILref_to_Node_ID(TL_entry_content &TLentrycontent, Log
                     FZOUT("\nEliminating that node.\n");
                     ++num_fixes_applied;
                     nodeid_result=0;
-                    return Null_node;
+                    return (*Null_node);
 
                 } else {
                     FZOUT("\nExiting.\n");
                     ADDERROR(__func__, "invalid Node ID (" + nodeid_str + ") at TL chunk [" + chunkid_str + "], " + idexception.what());
                     nodeid_result=-1;
-                    return Null_node;
+                    return (*Null_node);
 
                 }
             }
@@ -405,6 +413,11 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
     ERRTRACE;
     if (!tl)
         ERRRETURNNULL(__func__, "unable to build Log from NULL Task_Log");
+
+    if (!Lost_and_Found_node)
+        Lost_and_Found_node = new Node_ID("20200820215834.1"); // making them on the heap (see one of the Notes above)
+    if (!Null_node)
+        Null_node = new Node_ID("20200820215834.1");
 
     // Start an empty Log
     std::unique_ptr<Log> log = make_unique<Log>();
@@ -615,9 +628,20 @@ void Log_Integrity_Tests(Log & log) {
  * rapid-access `node` caches are not set up here for that reason. Run
  * `log->setup_Entry_node_caches(graph)` upon successful return from this
  * function to set up rapid-access.
+ * 
+ * Note that graph_ptr may be pointing to an empty Graph that exists only
+ * to ensure that shared memory is available for Node_ID objects used here.
  */
-std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion() {
+std::pair<Task_Log *, std::unique_ptr<Log>> interactive_TL2Log_conversion(Graph * graph_ptr) {
     ERRTRACE;
+    if (!graph_ptr) {
+        FZERR("\nWe really need a Graph object, even an empty one, for the shared memory.\n");
+    }
+
+    if (!Lost_and_Found_node)
+        Lost_and_Found_node = new Node_ID("20200820215834.1"); // making them on the heap (see one of the Notes above)
+    if (!Null_node)
+        Null_node = new Node_ID("20200820215834.1");
     key_pause();
 
     FZOUT("Let's prepare the Task Log for parsing:\n\n");
