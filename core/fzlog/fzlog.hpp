@@ -14,16 +14,28 @@
 // core
 #include "config.hpp"
 #include "standard.hpp"
-// #include "Graphaccess.hpp"
+#include "Graphaccess.hpp"
 
 using namespace fz;
 
 enum flow_options {
-    flow_unknown = 0, /// no recognized request
-    //flow_something = 1,     /// request: make boilerplate for C++ program
+    flow_unknown = 0,    /// no recognized request
+    flow_make_entry = 1, /// request: make Log entry
     flow_NUMoptions
 };
 
+struct entry_data {
+    std::string specific_node_id; ///< if empty then same as Log chunk
+    Node * node_ptr = nullptr;
+    Graph * graph_ptr = nullptr;
+    Log log; // *** Maybe you should turn this into unique_ptr<Log> and do make_unique<Log>() after main().
+    Log_chunk * c_newest = nullptr;
+    time_t newest_chunk_t = -1;
+    bool is_open = false;
+    Log_entry * e_newest = nullptr;
+    uint8_t newest_minor_id = 0;
+    std::string utf8_text;
+};
 
 class fzl_configurable: public configurable {
 public:
@@ -40,7 +52,9 @@ struct fzlog: public formalizer_standard_program {
 
     flow_options flowcontrol;
 
-    // Graph_access ga; // to include Graph or Log access support
+    entry_data edata;
+
+    Graph_access ga; // to include Graph or Log access support
 
     fzlog();
 

@@ -5,6 +5,13 @@
  * This header file declares Shared Memory Graph, Node and Edge types for use with the Formalizer.
  * These define the shared memory authoritative version of the data structure for use in C++ code.
  * 
+ * This header file contains multple sections:
+ * - essential types and memory management classes
+ * - essential Graph data structure classes
+ * - element-wise functions operating on Graphtypes (this could be moved to a separate header)
+ * 
+ * Functions operating on multi-element subsets are in Graphinfo.hpp.
+ * 
  * Versioning is based on https://semver.org/ and the C++ header defines __GRAPHTYPES_HPP.
  */
 
@@ -124,6 +131,7 @@ class graph_mem_managers {
 protected:
     std::map<std::string, shared_memory_manager> managers;
     shared_memory_manager * active;
+    std::string active_name;
     bool remove_on_exit;
 public:
     graph_mem_managers(): active(nullptr), remove_on_exit(true) {}
@@ -132,6 +140,7 @@ public:
     bool set_active(std::string segname);
     void set_remove_on_exit(bool _removeonexit) { remove_on_exit = _removeonexit; }
     shared_memory_manager * get_active() const { return active; }
+    const std::string & get_active_name() const { return active_name; }
     segment_memory_t * get_segmem() const;
     const segment_manager_t & get_segman() const;
     const void_allocator & get_allocator() const;
@@ -631,6 +640,28 @@ inline Edge * Graph::Edge_by_id(const Edge_ID_key & id) const {
 }
 
 // +----- end  : inline member functions -----+
+
+// +----- begin: element-wise functions operating on Graphtypes -----+
+
+typedef std::pair<Node*, Graph *> Node_Graph_ptr_pair;
+
+/**
+ * Find a Node in a Graph by its ID key from a string.
+ * 
+ * The Graph is obtained from shared memory (if available) if a valid pointer
+ * is not already provided.
+ * 
+ * Note: If the Graph is found (or already known), but the Node is not found
+ *       then the pair returned contains the valid Graph pointer and a nullptr
+ *       for the Node.
+ * 
+ * @param node_idstr A string specifying a Node ID key.
+ * @param graph_ptr A pointer to the Graph, if previously identified in shared memory.
+ * @return a pair of valid pointers to a Node and to the Graph, or nullptr for Node or Graph not found.
+ */
+Node_Graph_ptr_pair find_Node_by_idstr(const std::string & node_idstr, Graph * graph_ptr);
+
+// +----- end  : element-wise functions operating on Graphtypes -----+
 
 } // namespace fz
 

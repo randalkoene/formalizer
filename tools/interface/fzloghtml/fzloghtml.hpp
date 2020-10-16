@@ -37,10 +37,10 @@ enum interval_scale {
 
 class fzlh_configurable: public configurable {
 public:
-    fzlh_configurable(formalizer_standard_program & fsp): configurable("fzloghtml", fsp) {}
+    fzlh_configurable(formalizer_standard_program & fsp): configurable("fzloghtml", fsp), dest("STDOUT") {}
     bool set_parameter(const std::string & parlabel, const std::string & parvalue);
 
-    std::string dest;   ///< where to send rendered output (empty means STDOUT)
+    std::string dest;   ///< where to send rendered output (default: "STDOUT")
 };
 
 struct fzloghtml: public formalizer_standard_program {

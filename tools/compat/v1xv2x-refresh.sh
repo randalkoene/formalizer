@@ -35,6 +35,10 @@ if [ "$proceed" = "y" ]; then
         dil2graph
 
         echo ""
+        echo "Refreshing fzuser access and permissions..."
+        fzsetup -1 fzuser
+
+        echo ""
         echo "v1xv2x-refresh.sh completed."
     fi
 fi

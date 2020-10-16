@@ -67,7 +67,7 @@ void fzloghtml::usage_hook() {
     FZOUT("    -D interval size of <days>\n");
     FZOUT("    -H interval size of <hours>\n");
     FZOUT("    -w interval size of <weeks>\n");
-    FZOUT("    -o write HTML Log interval to <outputfile> (otherwise to STDOUT)\n");
+    FZOUT("    -o write HTML Log interval to <outputfile> (default=STDOUT)\n");
     FZOUT("    -N no HTML page frame\n");
 }
 

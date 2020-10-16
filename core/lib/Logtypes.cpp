@@ -956,6 +956,20 @@ Log_chunk_index_interval Log::get_Chunks_index_n_interval(std::time_t t_from, un
     return std::make_pair(from_idx,to_idx);
 }
 
+Log_chunk * Log::get_newest_Chunk() {
+    if (chunks.empty())
+        return nullptr;
+
+    return chunks.back().get();
+}
+
+Log_entry * Log::get_newest_Entry() {
+    if (entries.empty())
+        return nullptr;
+
+    return std::prev(entries.end())->second.get();
+}
+
 /**
  * Generate a set of Log chunk ID keys that corresponds to the ID keys of all
  * entries in the Log.

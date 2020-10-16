@@ -59,7 +59,7 @@ if hoursinterval:
     cmdoptions += ' -H '+hoursinterval 
 
 if cmdoptions:
-    thecmd = "./fzloghtml -q -d formalizer -s randalk -E STDOUT -N "+cmdoptions
+    thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -N "+cmdoptions
     print('Using this command: ',thecmd)
     print('<br>\n')
     try:

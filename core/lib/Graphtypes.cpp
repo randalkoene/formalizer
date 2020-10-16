@@ -41,10 +41,12 @@ bool graph_mem_managers::set_active(std::string segname) {
     auto it = managers.find(segname);
     if (it == managers.end()) {
         active = nullptr; // to prevent accidentally continuing with references to the wrong segment
+        active_name = "";
         return false;
     }
 
     active = &(it->second);
+    active_name = segname;
     return true;
 }
 
@@ -137,7 +139,8 @@ void graph_mem_managers::info(Graph_info_label_value_pairs & meminfo) { //bi::ma
     if (!segmem_ptr)
         return;
 
-    unsigned long the_result = segmem_ptr->get_size() - segmem_ptr->get_free_memory();    
+    unsigned long the_result = segmem_ptr->get_size() - segmem_ptr->get_free_memory();
+    meminfo["active_name"] = active_name;
     meminfo["num_named"] = std::to_string(segmem_ptr->get_num_named_objects());
     meminfo["num_unique"] = std::to_string(segmem_ptr->get_num_unique_objects());
     meminfo["size"] = std::to_string(segmem_ptr->get_size());
@@ -154,7 +157,8 @@ std::string graph_mem_managers::info_str() { //bi::managed_shared_memory & segme
         return "";
 
     unsigned long the_result = segmem_ptr->get_size() - segmem_ptr->get_free_memory();
-    std::string info_str("Shared memory information:");    
+    std::string info_str("Shared memory information:");
+    info_str += "\n  selected shared segment  = " + active_name;
     info_str += "\n  number of named objects  = " + std::to_string(segmem_ptr->get_num_named_objects());
     info_str += "\n  number of unique objects = " + std::to_string(segmem_ptr->get_num_unique_objects());
     info_str += "\n  size                     = " + std::to_string(segmem_ptr->get_size());
@@ -675,5 +679,47 @@ Topic * main_topic(Graph & _graph, Node & node) {
 }
 
 // +----- end  : friend functions -----+
+
+// +----- begin: element-wise functions operating on Graphtypes -----+
+
+/**
+ * Find a Node in a Graph by its ID key from a string.
+ * 
+ * The Graph is obtained from shared memory (if available) if a valid pointer
+ * is not already provided.
+ * 
+ * Note: If the Graph is found (or already known), but the Node is not found
+ *       then the pair returned contains the valid Graph pointer and a nullptr
+ *       for the Node.
+ * 
+ * @param node_idstr A string specifying a Node ID key.
+ * @param graph_ptr A pointer to the Graph, if previously identified in shared memory.
+ * @return a pair of valid pointers to a Node and to the Graph, or nullptr for Node or Graph not found.
+ */
+Node_Graph_ptr_pair find_Node_by_idstr(const std::string & node_idstr, Graph * graph_ptr) {
+    if (!graph_ptr) {
+
+        graph_ptr = graphmemman.find_Graph_in_shared_memory();
+        if (!graph_ptr) {
+            std::string errstr("Memory resident Graph not found in shared segment ("+graphmemman.get_active_name()+')');
+            ADDERROR(__func__, errstr);
+            VERBOSEERR(errstr+'\n');
+            return std::make_pair(nullptr, nullptr);
+        }
+
+    }
+
+    Node * node_ptr = graph_ptr->Node_by_idstr(node_idstr);
+    if (!node_ptr) {
+        std::string errstr("Node ["+node_idstr+"] not found in Graph");
+        ADDERROR(__func__, errstr);
+        VERBOSEERR(errstr+'\n');
+        return std::make_pair(nullptr, graph_ptr);
+    }
+
+    return std::make_pair(node_ptr, graph_ptr);
+}
+
+// +----- end  : element-wise functions operating on Graphtypes -----+
 
 } // namespace fz

@@ -14,6 +14,7 @@
 // core
 #include "error.hpp"
 #include "general.hpp"
+#include "stringio.hpp"
 #include "templater.hpp"
 
 // local
@@ -141,7 +142,7 @@ bool render() {
     }
 
     // send to destination
-    if (fzlh.config.dest.empty()) { // to STDOUT
+    if ((fzlh.config.dest.empty()) || (fzlh.config.dest == "STDOUT")) { // to STDOUT
         //VERBOSEOUT("Log interval:\n\n");
         FZOUT(rendered_logcontent);
     } else {

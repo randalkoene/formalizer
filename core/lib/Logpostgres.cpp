@@ -183,6 +183,29 @@ bool store_Log_pq(const Log & log, Postgres_access & pa, void (*progressfunc)(un
     STORE_LOG_PQ_RETURN(true);
 }
 
+/**
+ * Append Entry to existing table in schema of PostgreSQL database.
+ * 
+ * @param log a Log containing all of the Chunks and Entries.
+ * @param pa access object with database name and Formalizer schema name.
+ * @param progress_func points to an optional progress indicator function.
+ * @returns true if the Log was successfully stored in the database.
+ */
+bool append_Log_entry_pq(const Log_entry & entry, Postgres_access & pa) {
+    ERRTRACE;
+    active_pq apq;
+    apq.conn = connection_setup_pq(pa.dbname());
+    if (!apq.conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define STORE_LOG_PQ_RETURN(r) { PQfinish(apq.conn); return r; }
+    apq.pq_schemaname = pa.pq_schemaname();
+
+    ERRHERE(".append");
+    if (!add_Logentry_pq(apq, entry)) STORE_LOG_PQ_RETURN(false);
+
+    STORE_LOG_PQ_RETURN(true);
+}
 
 // ======================================
 // Definitions of class member functions:
@@ -338,11 +361,11 @@ bool get_Entry_pq_field_numbers(PGresult *res) {
 /**
  * Load full Chunks table into Log::chunks.
  * 
- * With optional WHERE statement.
+ * With optional WHERE statement and optional LIMIT and direction statement.
  */
-bool read_Chunks_pq(active_pq & apq, Log & log, std::string wherestr = "") {
+bool read_Chunks_pq(active_pq & apq, Log & log, std::string wherestr = "", std::string limitdirstr = "") {
     ERRTRACE;
-    if (!query_call_pq(apq.conn,"SELECT * FROM "+apq.pq_schemaname+".Logchunks"+wherestr+" ORDER BY "+pq_chunk_fieldnames[pqlc_id],false)) return false;
+    if (!query_call_pq(apq.conn,"SELECT * FROM "+apq.pq_schemaname+".Logchunks"+wherestr+" ORDER BY "+pq_chunk_fieldnames[pqlc_id]+limitdirstr,false)) return false;
 
     //sample_query_data(conn,0,4,0,100,tmpout);
   
@@ -754,7 +777,12 @@ bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter,
  * Load the Log chunks and Log entries that satisfy a specific filter.
  * 
  * The filter may specify a time interval and may specify a Node to which the
- * Log chunks and Log entries must belong.
+ * Log chunks and Log entries must belong. The filter can also specify a
+ * limit on the number of Log chunks to load, and it can specify loading
+ * back-to-front (i.e. from latest to earliest).
+ * 
+ * Note: Presently, using a limit or back-to-front does not (yet) work
+ *       with a specified Node.
  * 
  * This can also be used by smart on-demand Log caching modes.
  * 
@@ -772,6 +800,15 @@ bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & fil
         return false;
     if (use_t_from && (filter.t_from > ActualTime()))
         return false;
+
+    unsigned long limit = filter.limit;
+    if (use_t_from && use_t_to) {
+        limit = 0; // Having both t_from and t_to overrides limit.
+    }
+    bool back_to_front = filter.back_to_front;
+    if (use_t_from || use_t_to) {
+        back_to_front = false; // Loading direction is meaningless if t_from or t_to are specified.
+    }
 
     PGconn* conn = connection_setup_pq(pa.dbname());
     if (!conn) return false;
@@ -798,13 +835,31 @@ bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & fil
     }
 
     if (use_nkey) { // if Node specified then take this branch
-        bool res = load_Node_history_pq(apq,log,filter,chunkwherestr,entrywherestr);
+        bool res = load_Node_history_pq(apq, log, filter, chunkwherestr, entrywherestr);
         LOAD_LOG_PQ_RETURN(res);
     }
 
-    ERRHERE(".chunks");
-    if (!read_Chunks_pq(apq,log,chunkwherestr)) LOAD_LOG_PQ_RETURN(false);
+    // Create Postgres LIMIT and direction statement.
+    std::string limitdirstr;
+    if (back_to_front) {
+        limitdirstr += " DESC";
+    }
+    if (limit>0) {
+        limitdirstr += " LIMIT "+std::to_string(limit);
+    }
 
+    ERRHERE(".chunks");
+    if (!read_Chunks_pq(apq, log, chunkwherestr, limitdirstr)) LOAD_LOG_PQ_RETURN(false);
+
+    // If loading was constrained by a filter then always read the entries that belong
+    // to the chunks that were read.
+    if (use_t_from || use_t_to || (limit>0)) {
+        // *** Not sure if this works properly if log was not empty, i.e. if the entries of
+        //     some chunks may already have been loaded.
+        entrywherestr += " WHERE SUBSTRING(id,1,12) BETWEEN " + TimeStamp_pq(log.oldest_chunk_t()) + " AND " + TimeStamp_pq(log.newest_chunk_t());
+    }
+
+    /* Replaced with the clause above where entries to load is determined by chunks loaded.
     if (use_t_from) {
         if (use_t_to) {
             entrywherestr += " WHERE SUBSTRING(id,1,12) BETWEEN " + TimeStamp_pq(filter.t_from) + " AND " + TimeStamp_pq(filter.t_to);
@@ -816,6 +871,7 @@ bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & fil
             entrywherestr += " WHERE SUBSTRING(id,1,12) <= " + TimeStamp_pq(filter.t_to);
         }
     }
+    */
 
     ERRHERE(".entries");
     if (!read_Entries_pq(apq,log,entrywherestr)) LOAD_LOG_PQ_RETURN(false);
@@ -826,6 +882,27 @@ bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & fil
 
     LOAD_LOG_PQ_RETURN(true);
 }
+
+/**
+ * Load the last Log chunk and last Log entry in the table.
+ * 
+ * This function uses a `Log_filter` that specifies end-to-front reading
+ * limited to 1 chunk and calls `load_partial_Log_pq()`.
+ * 
+ * @param log A Log for the Chunks and Entries, can be empty or may be added to.
+ * @param pa Access object with database name and schema name.
+ * @return True if the last chunk and last entry were successfully loaded from the database.
+ */
+bool load_last_chunk_and_entry_pq(Log & log, Postgres_access & pa) {
+    ERRTRACE;
+
+    Log_filter filter;
+    filter.limit = 1;
+    filter.back_to_front = true;
+
+    return load_partial_Log_pq(log, pa, filter);
+}
+
 
 std::string chunk_key_list_pq(const Log_chunk_ID_key_set & chunks) {
     if (chunks.empty())

@@ -150,29 +150,25 @@ void test_other_graph_info(Graph & graph) {
 
 void test_get_node_info() {
 
-    Graph * graph_ptr = graphmemman.find_Graph_in_shared_memory();
-    if (!graph_ptr) {
-        ADDERROR(__func__, "Memory resident Graph not found");
-        FZERR("Memory resident Graph not found.\n");
-        return;
+    auto [node_ptr, graph_ptr] = find_Node_by_idstr(fzgh.node_idstr, nullptr);
+
+    if (graph_ptr) {
+
+        VERYVERBOSEOUT(Graph_Info_str(*graph_ptr));
+
+        test_other_graph_info(*graph_ptr);
+
     }
 
-    VERYVERBOSEOUT(Graph_Info_str(*graph_ptr));
+    if (node_ptr) {
 
-    test_other_graph_info(*graph_ptr);
+        FZOUT("\nNode "+fzgh.node_idstr+":\n\n");
 
-    Node * nodeptr = graph_ptr->Node_by_idstr(fzgh.node_idstr);
-    if (!nodeptr) {
-        ADDERROR(__func__, "Node ["+fzgh.node_idstr+"] not found in Graph");
-        FZERR("Node ["+fzgh.node_idstr+"] not found in Graph.\n");
-        return;
+        FZOUT("  ID ="+node_ptr->get_id_str()+'\n');
+
+        FZOUT(node_ptr->get_text());
+
     }
-
-    FZOUT("\nNode "+fzgh.node_idstr+":\n\n");
-
-    FZOUT("  ID ="+nodeptr->get_id_str()+'\n');
-
-    FZOUT(nodeptr->get_text());
 
 }
 

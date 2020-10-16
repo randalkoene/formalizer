@@ -6,6 +6,7 @@ Server process:
 
 Shared memory information:
 
+    selected shared segment  = {{ active_name }}
     number of named objects  = {{ num_named }}
     number of unique objects = {{ num_unique }}
     size                     = {{ size }}

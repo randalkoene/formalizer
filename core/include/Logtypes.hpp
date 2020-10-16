@@ -230,6 +230,7 @@ public:
     std::string get_tbegin_str() const { return t_begin.str(); } /// Log_chunk ID string
     std::time_t get_open_time() const { return t_begin.get_epoch_time(); }
     std::time_t get_close_time() const { return t_close; }
+    bool is_open() const { return (t_close<0); }
     Log_entry_ID_key & get_first_entry() { return first_entry; }
 
     /// change parameters
@@ -441,6 +442,8 @@ public:
     /// helper (utility) functions
     std::time_t oldest_chunk_t() { return (num_Chunks()>0) ? chunks.front()->get_open_time() : RTt_unspecified; }
     std::time_t newest_chunk_t() { return (num_Chunks()>0) ? chunks.back()->get_open_time() : RTt_unspecified; }
+    Log_chunk * get_newest_Chunk();
+    Log_entry * get_newest_Entry();
     Log_chunk_ID_key_set chunk_key_list_from_entries();
 
     // friend functions
@@ -464,7 +467,9 @@ struct Log_filter {
     time_t t_to;   ///< Chunk and entry IDs must be <= `t_to`, RTt_unspecified means don't add an upper bound.
     Node_ID_key nkey; ///< Node ID must match, nullkey means don't add this constraint.
     // *** maybe add a specifier here to use or not use parts of a chunk that don't belong to the Node (if some entries do)
-    Log_filter(): t_from(RTt_unspecified), t_to(RTt_unspecified) {}
+    unsigned long limit; ///< Limit to specific number of Log chunks (can be used with t_from or t_to, or neither), 0 means unlimited.
+    bool back_to_front; ///< Reverse the order of selection if not constrained by t_from or t_to.
+    Log_filter(): t_from(RTt_unspecified), t_to(RTt_unspecified), limit(0), back_to_front(false) {}
 };
 
 /**

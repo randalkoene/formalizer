@@ -1,9 +1,10 @@
 // Copyright 2020 Randal A. Koene
 // License TBD
 
-/**
+/** @file Graphinfo.hpp
  * This header file declares basic information gathering functions for use with
- * Graph data structures.
+ * Graph data structures. The functions collected in this header are (mostly) of
+ * the sort that collect information for multi-element subsets of the Graph.
  * 
  * Versioning is based on https://semver.org/ and the C++ header defines __GRAPHINFO_HPP.
  */

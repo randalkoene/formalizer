@@ -87,9 +87,31 @@ bool add_Logentry_pq(const active_pq & apq, const Log_entry & entry);
 
 bool store_Log_pq(const Log & log, Postgres_access & pa, void (*progressfunc)(unsigned long, unsigned long) = NULL);
 
+/**
+ * Append Entry to existing table in schema of PostgreSQL database.
+ * 
+ * @param log a Log containing all of the Chunks and Entries.
+ * @param pa access object with database name and Formalizer schema name.
+ * @param progress_func points to an optional progress indicator function.
+ * @returns true if the Log was successfully stored in the database.
+ */
+bool append_Log_entry_pq(const Log_entry & entry, Postgres_access & pa);
+
 bool load_Log_pq(Log & log, Postgres_access & pa);
 
 bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & filter);
+
+/**
+ * Load the last Log chunk and last Log entry in the table.
+ * 
+ * This function uses a `Log_filter` that specifies end-to-front reading
+ * limited to 1 chunk and calls `load_partial_Log_pq()`.
+ * 
+ * @param log A Log for the Chunks and Entries, can be empty or may be added to.
+ * @param pa Access object with database name and schema name.
+ * @return True if the last chunk and last entry were successfully loaded from the database.
+ */
+bool load_last_chunk_and_entry_pq(Log & log, Postgres_access & pa);
 
 /**
  * Refresh the Node history cache table.
