@@ -186,6 +186,9 @@ $(OBJ)/fzpostgres.o: fzpostgres.cpp $(INC)/fzpostgres.hpp $(INC)/error.hpp \
 $(OBJ)/Graphaccess.o: Graphaccess.cpp $(INC)/Graphaccess.hpp $(INC)/standard.hpp $(INC)/fzpostgres.hpp
 	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c Graphaccess.cpp -o $(OBJ)/Graphaccess.o
 
+$(OBJ)/Logaccess.o: Logaccess.cpp $(INC)/Logaccess.hpp $(INC)/standard.hpp $(INC)/Logpostgres.hpp $(INC)/fzpostgres.hpp
+	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c Logaccess.cpp -o $(OBJ)/Logaccess.o
+
 $(OBJ)/Graphpostgres.o: Graphpostgres.cpp $(INC)/Graphpostgres.hpp $(INC)/Graphtypes.hpp \
 						$(INC)/fzpostgres.hpp $(INC)/general.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c Graphpostgres.cpp -o $(OBJ)/Graphpostgres.o

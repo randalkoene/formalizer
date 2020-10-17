@@ -15,7 +15,7 @@
 
 namespace fz {
 
-#ifdef TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE
+//#ifdef TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE
 
 /**
  * A temporary stand-in while access to Graph data through fzserverpq is not yet
@@ -141,6 +141,6 @@ std::pair<Graph *, std::unique_ptr<Log>> Graph_access::access_shared_Graph_and_r
 
 
 
-#endif // TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE
+//#endif // TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE
 
 } // namespace fz

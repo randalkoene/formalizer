@@ -9,6 +9,7 @@
 
 #include "error.hpp"
 #include "general.hpp"
+#include "stringio.hpp"
 #include "Graphtypes.hpp"
 #include "templater.hpp"
 

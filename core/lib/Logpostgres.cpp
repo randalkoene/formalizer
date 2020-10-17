@@ -243,9 +243,29 @@ std::string Logchunk_pq::All_Logchunk_Data_pqstr() {
            tclose_pqstr() + ')';
 }
 
+/**
+ * This function converts the Log entry minor ID to a three digit zero-padded
+ * integer for storage in Postgres. This does not affect how the minor ID is
+ * retrieved and converted back to its constituent part of a Log entry ID.
+ * This is done to ensure that order comparisons and sorting in Postgres are
+ * produce the same results as with the lexical comparison operators defined
+ * for Log_TimeStamp.
+ * 
+ * @param minor_id A Log entry minor-ID number.
+ * @return A zero-padded three digit numerical string.
+ */
+std::string entry_minor_id_pq(unsigned int minor_id) {
+    char minor_id_digits[4] = "000";
+    minor_id_digits[2] += (minor_id % 10);
+    minor_id_digits[1] += ((minor_id/10) % 10);
+    minor_id_digits[0] += ((minor_id/100) % 10);
+    return minor_id_digits;
+}
+
 /// Return the Log entry ID between apostrophes.
 std::string Logentry_pq::id_pqstr() {
-    return "'"+entry->get_id_str()+"'";
+    return "'"+entry->get_id_str().substr(0,13)+entry_minor_id_pq(entry->get_minor_id())+"'";
+    //return "'"+entry->get_id_str()+"'";
 }
 
 /// Return the Log entry Node ID between apostrophes.
@@ -845,6 +865,7 @@ bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & fil
         limitdirstr += " DESC";
     }
     if (limit>0) {
+
         limitdirstr += " LIMIT "+std::to_string(limit);
     }
 
@@ -856,7 +877,10 @@ bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & fil
     if (use_t_from || use_t_to || (limit>0)) {
         // *** Not sure if this works properly if log was not empty, i.e. if the entries of
         //     some chunks may already have been loaded.
-        entrywherestr += " WHERE SUBSTRING(id,1,12) BETWEEN " + TimeStamp_pq(log.oldest_chunk_t()) + " AND " + TimeStamp_pq(log.newest_chunk_t());
+        // For the corrections applied here, see TL#202010161950, but note that those were not yet full corrections.
+        entrywherestr += " WHERE SUBSTRING(id,1,12) BETWEEN '" + TimeStampYmdHM(log.oldest_chunk_t()) + "' AND '" + TimeStampYmdHM(log.newest_chunk_t()) + '\'';
+
+        //entrywherestr += " WHERE SUBSTRING(id,1,12) BETWEEN " + TimeStamp_pq(log.oldest_chunk_t()) + " AND " + TimeStamp_pq(log.newest_chunk_t()+3600);
     }
 
     /* Replaced with the clause above where entries to load is determined by chunks loaded.

@@ -19,6 +19,7 @@
 #include "error.hpp"
 #include "standard.hpp"
 #include "general.hpp"
+#include "stringio.hpp"
 #include "Graphtypes.hpp"
 #include "Logtypes.hpp"
 #include "Graphaccess.hpp"

@@ -22,6 +22,7 @@
 // core
 #include "error.hpp"
 #include "general.hpp"
+#include "stringio.hpp"
 #include "templater.hpp"
 #include "Logtypes.hpp"
 #include "Graphtypes.hpp"

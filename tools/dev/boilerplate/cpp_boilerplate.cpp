@@ -27,6 +27,7 @@
 
 // core
 #include "error.hpp"
+#include "stringio.hpp"
 #include "standard.hpp"
 #include "general.hpp"
 #include "templater.hpp"

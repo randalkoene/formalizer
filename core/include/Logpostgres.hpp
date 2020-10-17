@@ -83,6 +83,8 @@ bool add_Breakpoint_pq(const active_pq & apq, const Log_chunk_ID_key & bptopid);
 
 bool add_Logchunk_pq(const active_pq & apq, const Log_chunk & chunk);
 
+std::string entry_minor_id_pq(unsigned int minor_id);
+
 bool add_Logentry_pq(const active_pq & apq, const Log_entry & entry);
 
 bool store_Log_pq(const Log & log, Postgres_access & pa, void (*progressfunc)(unsigned long, unsigned long) = NULL);

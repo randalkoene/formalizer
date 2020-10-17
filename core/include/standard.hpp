@@ -243,6 +243,11 @@ std::pair<int, std::string> safe_cmdline_options(int argc, char *argv[], std::st
 //*** It is not entirely clear if key_pause() should be here or in some stream utility set.
 void key_pause();
 
+/// Another set of exit options, these with potential messages.
+int standard_exit_success(std::string veryverbose_message);
+int standard_exit_error(int exit_code, std::string error_message, const char * problem__func__);
+int standard_exit(bool success, std::string veryverbose_message, int exit_code, std::string error_message, const char * problem__func__);
+
 } // namespace fz
 
 #endif // __STANDARD_HPP

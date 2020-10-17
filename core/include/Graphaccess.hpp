@@ -23,8 +23,9 @@
 #include "Logtypes.hpp"
 #include "fzpostgres.hpp"
 
+// *** The following is a little outdated, as the functions are still in use, but now they do use shared memory.
 // *** The following will be removed once the fzserverpq is ready.
-#define TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE
+//#define TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE
 
 namespace fz {
 
@@ -57,7 +58,7 @@ struct Graph_access: public Postgres_access {
     //void usage_hook(); // *** presently identical to Postgres_access::usage_hook()
     //bool options_hook(char c, std::string cargs); // *** presently identical to Postgres_access::options_hook()
 
-#ifdef TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE
+//#ifdef TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE
 public:
     //std::unique_ptr<Graph> request_Graph_copy();
     Graph * request_Graph_copy(bool remove_on_exit = true); // *** switched to this, because Boost Interprocess has difficulty with smart pointers
@@ -66,7 +67,7 @@ public:
     void rapid_access_init(Graph &graph, Log &log);                                                  ///< Once both Graph and Log instances have been loaded.
     //std::pair<std::unique_ptr<Graph>, std::unique_ptr<Log>> request_Graph_and_Log_copies_and_init(); ///< Combine the three functions above.
     std::pair<Graph*, std::unique_ptr<Log>> request_Graph_and_Log_copies_and_init(); ///< Combine the three functions above.
-#endif
+//#endif
     std::pair<Graph *, std::unique_ptr<Log>> access_shared_Graph_and_request_Log_copy_with_init();
 };
 

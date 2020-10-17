@@ -16,6 +16,7 @@
 #include "config.hpp"
 #include "Graphaccess.hpp"
 #include "Logtypes.hpp"
+#include "Logaccess.hpp"
 
 using namespace fz;
 
@@ -23,8 +24,9 @@ using namespace fz;
 struct fzloghtml;
 
 enum flow_options {
-    flow_unknown = 0, /// no recognized request
-    //flow_something = 1,     /// request: make boilerplate for C++ program
+    flow_unknown = 0,      /// no recognized request
+    flow_log_interval = 1, /// request: read and render Log interval
+    flow_most_recent = 2,  /// request: data about most recent Log entry
     flow_NUMoptions
 };
 
@@ -33,6 +35,12 @@ enum interval_scale {
     interval_days,
     interval_hours,
     interval_weeks
+};
+
+enum most_recent_format {
+    most_recent_raw,
+    most_recent_txt,
+    most_recent_html
 };
 
 class fzlh_configurable: public configurable {
@@ -57,7 +65,10 @@ struct fzloghtml: public formalizer_standard_program {
     unsigned int interval;
     bool noframe;
 
-    std::unique_ptr<Log> log;
+    entry_data edata;
+    //std::unique_ptr<Log> log;
+
+    most_recent_format recent_format;
 
     fzloghtml();
 
@@ -66,6 +77,10 @@ struct fzloghtml: public formalizer_standard_program {
     virtual bool options_hook(char c, std::string cargs);
 
     void init_top(int argc, char *argv[]);
+
+    void set_filter();
+
+    void get_Log_interval();
 
 };
 

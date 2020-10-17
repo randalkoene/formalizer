@@ -1,0 +1,7 @@
+Log Most Recent
+
+  Chunk ID       : {{ chunk_id }}
+  Chunk status   : {{ chunk_status }}
+
+  Entry minor-ID : {{ entry_minor_id }}
+  Entry ID       : {{ entry_id }}

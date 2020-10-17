@@ -112,6 +112,29 @@ int the_standard_object::completed_ok() {
     return exit_ok;
 }
 
+/// Another set of exit options, these with potential messages.
+int standard_exit_success(std::string veryverbose_message) {
+    if (!veryverbose_message.empty()) {
+        VERYVERBOSEOUT(veryverbose_message);
+    }
+    return standard.completed_ok();
+}
+
+int standard_exit_error(int exit_code, std::string error_message, const char * problem__func__) {
+    ADDERROR(problem__func__, error_message);
+    VERBOSEERR(error_message+'\n');
+    standard.exit(exit_code);
+    return exit_code;
+}
+
+int standard_exit(bool success, std::string veryverbose_message, int exit_code, std::string error_message, const char * problem__func__) {
+    if (success)
+        return standard_exit_success(veryverbose_message);
+    
+    return standard_exit_error(exit_code, error_message, problem__func__);
+}
+
+
 void the_standard_object::print_version() {
     FZOUT(runnablename+" "+server_long_id+'\n');
 }

@@ -115,6 +115,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/fzpostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphaccess.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/Logpostgres.o
+CORE_OBJS += $(CORELIBPATH)/obj/Logaccess.o
 # CORE_OBJS += $(CORELIBPATH)/obj/dilaccess.o
 # +----- end  : Select Formalizer core library objects -----+
 
@@ -139,8 +140,8 @@ fzloghtml: $(OBJ)/fzloghtml.o $(OBJ)/render.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $(TEMPLATEDIR) $^ -o fzloghtml $(LIB_PATH)
 
 clean:
-	cp -f fzloghtml fzloghtml.bak
 	rm -f $(OBJ)/*.o fzloghtml
+
 
 #doc++:
 #	rm -r -f html

@@ -97,6 +97,9 @@ bool valid_Log_entry_ID(std::string id_str, std::string &formerror, Log_TimeStam
     idT.hour = stoi(id_str.substr(8, 2));
     idT.minute = stoi(id_str.substr(10, 2));
     idT.minor_id = stoi(id_str.substr(13));
+
+    //std::cout << "TESTING-LOGENTRY-ID: size=" << id_str.size() << " (" << id_str << ") minor_id=" << (int) idT.minor_id << " substr=" << id_str.substr(13) << '\n';
+
     if (!valid_Log_entry_ID(idT, formerror))
         return false;
 

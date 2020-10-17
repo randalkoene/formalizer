@@ -172,7 +172,7 @@ int make_entry(entry_data & edata) {
     check_specific_node(edata);
     get_newest_Log_data(edata);
 
-    verbose_test_output(edata);
+    //verbose_test_output(edata);
 
     // *** maybe add a try-catch here
     Log_TimeStamp log_stamp(edata.newest_chunk_t,true,edata.newest_minor_id+1);

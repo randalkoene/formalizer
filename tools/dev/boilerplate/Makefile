@@ -120,6 +120,8 @@ CPPFLAGS = $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(INCLUDES)
 # +----- begin: Select Formalizer core library objects -----+
 CORE_OBJS = $(CORELIBPATH)/obj/error.o
 CORE_OBJS += $(CORELIBPATH)/obj/standard.o
+CORE_OBJS += $(CORELIBPATH)/obj/stringio.o
+CORE_OBJS += $(CORELIBPATH)/obj/jsonlite.o
 CORE_OBJS += $(CORELIBPATH)/obj/config.o
 CORE_OBJS += $(CORELIBPATH)/obj/general.o
 CORE_OBJS += $(CORELIBPATH)/obj/templater.o

@@ -16,6 +16,7 @@
 // std
 #include <iostream>
 #include <memory>
+#include <charconv>
 
 // core
 #include "error.hpp"
@@ -39,10 +40,10 @@ fzloghtml fzlh;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), ga(*this, add_option_args, add_usage_top),
-                         iscale(interval_none), interval(0), noframe(false) {
-    add_option_args += "n:1:2:o:D:H:w:N";
-    add_usage_top += " [-n <node-ID>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N]";
+fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
+                         iscale(interval_none), interval(0), noframe(false), recent_format(most_recent_html) {
+    add_option_args += "n:1:2:o:D:H:w:Nc:rRF:";
+    add_usage_top += " [-n <node-ID>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-F <raw|txt|html>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
     usage_tail.push_back(
         "The <time-stamp1> and <time-stamp_2> arguments expect standardized\n"
@@ -52,7 +53,9 @@ fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), ga(*
         "  start from 24 hours before end of interval\n"
         "  end at most recent Log entry\n"
         "With a Node specification but no time stamps, the default is:\n"
-        "  complete Node history\n");
+        "  complete Node history\n"
+        "Interval start or end specified by time-stamp or relative offset takes\n"
+        "precedence over number of chunks or reverse from most recent.\n");
 }
 
 /**
@@ -67,6 +70,11 @@ void fzloghtml::usage_hook() {
     FZOUT("    -D interval size of <days>\n");
     FZOUT("    -H interval size of <hours>\n");
     FZOUT("    -w interval size of <weeks>\n");
+    FZOUT("    -c interval size of <num> Log chunks\n");
+    FZOUT("    -r interval from most recent\n");
+    FZOUT("    -R most recent Log data\n");
+    FZOUT("    -F format of most recent Log data:\n");
+    FZOUT("       raw, txt, html (default)\n");
     FZOUT("    -o write HTML Log interval to <outputfile> (default=STDOUT)\n");
     FZOUT("    -N no HTML page frame\n");
 }
@@ -116,19 +124,19 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
 
     case 'D': {
         iscale = interval_days;
-        interval = atoi(cargs.c_str());
+        std::from_chars(cargs.data(), cargs.data()+cargs.size(), interval);
         return true;
     }
 
     case 'H': {
         iscale = interval_hours;
-        interval = atoi(cargs.c_str());
+        std::from_chars(cargs.data(), cargs.data()+cargs.size(), interval);
         return true;
     }
 
     case 'w': {
         iscale = interval_weeks;
-        interval = atoi(cargs.c_str());
+        std::from_chars(cargs.data(), cargs.data()+cargs.size(), interval);
         return true;
     }
 
@@ -139,6 +147,34 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
 
     case 'N': {
         noframe = true;
+        return true;
+    }
+
+    case 'c': {
+        std::from_chars(cargs.data(), cargs.data()+cargs.size(), filter.limit);
+        return true;
+    }
+
+    case 'r': {
+        filter.back_to_front = true;
+        return true;
+    }
+
+    case 'R': {
+        flowcontrol = flow_most_recent;
+        return true;
+    }
+
+    case 'F': {
+        if (cargs == "raw") {
+            fzlh.recent_format = most_recent_raw;
+        } else {
+            if (cargs == "txt") {
+                fzlh.recent_format = most_recent_txt;
+            } else {
+                fzlh.recent_format = most_recent_html;
+            }
+        }
         return true;
     }
 
@@ -168,6 +204,10 @@ void fzloghtml::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen before standard initialization
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
     // *** add any initialization here that has to happen once in main(), for the derived class
+
+}
+
+void fzloghtml::set_filter() {
 
     // If only t_before or t_from is specified, see if we use a specified interval
     if ((filter.t_to==RTt_unspecified) && (filter.t_from!=RTt_unspecified) && (iscale!=interval_none)) {
@@ -227,15 +267,29 @@ void fzloghtml::init_top(int argc, char *argv[]) {
     VERYVERBOSEOUT("  t_to   = "+TimeStampYmdHM(filter.t_to)+'\n');
     VERYVERBOSEOUT("  Node   = "+filter.nkey.str()+"\n\n");
 
-    log = ga.request_Log_excerpt(filter);
+}
+
+void fzloghtml::get_Log_interval() {
+
+    edata.log_ptr = ga.request_Log_excerpt(filter);
 
     VERYVERBOSEOUT("\nfound:\n");
-    VERYVERBOSEOUT("  chunks : "+std::to_string(log->num_Chunks())+'\n');
-    VERYVERBOSEOUT("  entries: "+std::to_string(log->num_Entries())+"\n\n");
+    VERYVERBOSEOUT("  chunks : "+std::to_string(edata.log_ptr->num_Chunks())+'\n');
+    VERYVERBOSEOUT("  entries: "+std::to_string(edata.log_ptr->num_Entries())+"\n\n");
 
     // *** Should we call log.setup_Chain_nodeprevnext() ?
 
+}
 
+bool read_and_render_Log_interval() {
+    fzlh.set_filter();
+    fzlh.get_Log_interval();
+    return render_Log_interval();
+}
+
+bool most_recent_data() {
+    get_newest_Log_data(fzlh.ga, fzlh.edata);
+    return render_Log_most_recent();
 }
 
 int main(int argc, char *argv[]) {
@@ -243,17 +297,23 @@ int main(int argc, char *argv[]) {
 
     fzlh.init_top(argc, argv);
 
-    render();
+    // currently, flow_log_interval is the default
 
-    /*
     switch (fzlh.flowcontrol) {
+
+    case flow_log_interval: {
+        return standard_exit(read_and_render_Log_interval(), "Log interval rendered.\n", exit_file_error, "Unable to render interval", __func__);
+    }
+
+    case flow_most_recent: {
+        return standard_exit(most_recent_data(), "Most recent Log data obtained.\n", exit_file_error, "Unable to obtain most recent Log data", __func__);
+    }
 
     default: {
         fzlh.print_usage();
     }
 
     }
-    */
 
     return standard.completed_ok();
 }

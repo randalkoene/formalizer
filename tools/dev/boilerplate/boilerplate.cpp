@@ -22,6 +22,7 @@
 // core
 #include "version.hpp"
 #include "error.hpp"
+#include "stringio.hpp"
 #include "standard.hpp"
 #include "general.hpp"
 
