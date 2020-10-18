@@ -208,45 +208,87 @@ void fzloghtml::init_top(int argc, char *argv[]) {
 }
 
 void fzloghtml::set_filter() {
-
-    // If only t_before or t_from is specified, see if we use a specified interval
-    if ((filter.t_to==RTt_unspecified) && (filter.t_from!=RTt_unspecified) && (iscale!=interval_none)) {
-        switch (iscale) {
-
-            case interval_weeks: {
-                filter.t_to = filter.t_from + interval*(7*24*60*60);
+    if (!((filter.t_from!=RTt_unspecified) && (filter.t_to!=RTt_unspecified))) { // not a fully absolute time interval
+        if (iscale != interval_none) {
+            if ((filter.t_from==RTt_unspecified) && (filter.t_to==RTt_unspecified)) { // relative interval from most recent
+                get_newest_Log_data(fzlh.ga, fzlh.edata);
+                filter.t_to = fzlh.edata.newest_chunk_t;                
             }
-
-            case interval_hours: {
-                filter.t_to = filter.t_from + interval*(60*60);
+            if ((filter.t_to==RTt_unspecified) && (filter.t_from!=RTt_unspecified)) {
+                switch (iscale) { // relative interval from a specified time
+                case interval_weeks: {
+                    filter.t_to = filter.t_from + interval*(7*24*60*60);
+                }
+                case interval_hours: {
+                    filter.t_to = filter.t_from + interval*(60*60);
+                }
+                default: { // days
+                    filter.t_to = filter.t_from + interval*(24*60*60);
+                }
+                }
+            } else {
+                switch (iscale) { // relative interval to a specified time
+                case interval_weeks: {
+                    filter.t_from = filter.t_to - interval * (7 * 24 * 60 * 60);
+                }
+                case interval_hours: {
+                    filter.t_from = filter.t_to - interval * (60 * 60);
+                }
+                default: { // days
+                    filter.t_from = filter.t_to - interval * (24 * 60 * 60);
+                }
+                }
             }
-
-            default: { // days
-                filter.t_to = filter.t_from + interval*(24*60*60);
+        } else {
+            if (filter.t_from!=RTt_unspecified) {
+                if (filter.limit>0) { // number of chunks from a specified time
+                } else { // from specified time (set a limit)
+                    filter.t_to = filter.t_from + (24*60*60); // one day default
+                }
+            } else {
+                if (filter.back_to_front) {
+                    if (filter.limit>0) {
+                        if (filter.t_to!=RTt_unspecified) { // number of chunks earlier from specified time
+                            // all good
+                        } else { // number of chunks earlier from most recent
+                            //get_newest_Log_data(fzlh.ga, fzlh.edata);
+                            //filter.t_to = fzlh.edata.newest_chunk_t;
+                        }
+                    } else {
+                        if (filter.t_to!=RTt_unspecified) { // earlier from specified time (set a limit)
+                            filter.t_from = filter.t_to - (24*60*60); // one day default
+                        } else { // earlier from most recent (set a limit)
+                            get_newest_Log_data(fzlh.ga, fzlh.edata);
+                            filter.t_to = fzlh.edata.newest_chunk_t;
+                            filter.t_from = filter.t_to - (24*60*60); // one day default
+                        }
+                    }
+                } else {
+                    if (filter.limit>0) {
+                        if (filter.t_to!=RTt_unspecified) { // number of chunks to specified time (flip it!)
+                            filter.back_to_front = true;
+                        } else { // number of chunks from most recent
+                            filter.back_to_front = true;
+                        }
+                    } else {
+                        if (filter.t_to!=RTt_unspecified) { // to specified time (set a limit)
+                            filter.t_from = filter.t_to - (24*60*60); // one day default
+                        } else { // set default
+                            get_newest_Log_data(fzlh.ga, fzlh.edata);
+                            filter.t_to = fzlh.edata.newest_chunk_t;
+                            filter.t_from = filter.t_to - (24*60*60); // one day default
+                        }
+                    }
+                }
             }
-
         }
     }
-    if ((filter.t_from==RTt_unspecified) && (filter.t_to!=RTt_unspecified) && (iscale!=interval_none)) {
-        switch (iscale) {
 
-            case interval_weeks: {
-                filter.t_from = filter.t_to - interval*(7*24*60*60);
-            }
+    // A filter.nkey is a whole other situation.
 
-            case interval_hours: {
-                filter.t_from = filter.t_to - interval*(60*60);
-            }
-
-            default: { // days
-                filter.t_from = filter.t_to - interval*(24*60*60);
-            }
-
-        }
-    }
-
+    /*
     // Note that RTt_unspecified means not to impose a constraint on the corresponding t variable (see Log_filter in Logtypes.hpp).
-    if (filter.nkey.isnullkey()) { // with a Node specifier, unbounded is fine, without one, the default should be constrained
+    if (filter.nkey.isnullkey() && unlimited) { // with a Node specifier, unbounded is fine, without one, the default should be constrained
         // We can leave filter.t_to unspecified, since that automatically means to the most recent.
         // ***But we need to somehow set the start of the default interval. For now, let's just set it to
         //    A day before the current time. If necessary, I can later decide to read the lastest entry to
@@ -259,13 +301,11 @@ void fzloghtml::set_filter() {
             }
         }
     }
+    */
 
     //graph = ga.request_Graph_copy();
     //log = ga.request_Log_copy(); *** This has to change... not every request needs the whole log. See https://trello.com/c/O9dcTm9L and https://trello.com/c/EppSyY9Y.
-    VERYVERBOSEOUT("\nfilter:\n");
-    VERYVERBOSEOUT("  t_from = "+TimeStampYmdHM(filter.t_from)+'\n');
-    VERYVERBOSEOUT("  t_to   = "+TimeStampYmdHM(filter.t_to)+'\n');
-    VERYVERBOSEOUT("  Node   = "+filter.nkey.str()+"\n\n");
+    VERYVERBOSEOUT(filter.info_str());
 
 }
 

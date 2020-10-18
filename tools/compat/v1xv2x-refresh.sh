@@ -36,7 +36,7 @@ if [ "$proceed" = "y" ]; then
 
         echo ""
         echo "Refreshing fzuser access and permissions..."
-        fzsetup -1 fzuser
+        fzsetup.py -1 fzuser
 
         echo ""
         echo "v1xv2x-refresh.sh completed."

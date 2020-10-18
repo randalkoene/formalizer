@@ -30,8 +30,35 @@ endbefore  = form.getvalue('endbefore')
 daysinterval  = form.getvalue('daysinterval')
 weeksinterval  = form.getvalue('weeksinterval')
 hoursinterval  = form.getvalue('hoursinterval')
+numchunks = form.getvalue('numchunks')
+node = form.getvalue('node')
+frommostrecent = form.getvalue('frommostrecent')
+mostrecentdata = form.getvalue('mostrecentdata')
 
 print("Content-type:text/html\n\n")
+
+if mostrecentdata:
+    thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -R"
+    try:
+        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
+        (child_stdin,child_stdout) = (p.stdin, p.stdout)
+        child_stdin.close()
+        result = child_stdout.read()
+        child_stdout.close()
+        print(result)
+        #print(result.replace('\n', '<BR>'))
+
+    except Exception as ex:                
+        print(ex)
+        f = StringIO()
+        print_exc(file=f)
+        a = f.getvalue().splitlines()
+        for line in a:
+            print(line)
+
+    sys.exit(0)
+
+
 print("<html>")
 print("<head>")
 print('<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">')
@@ -56,7 +83,13 @@ if daysinterval:
 if weeksinterval:
     cmdoptions += ' -w '+weeksinterval
 if hoursinterval:
-    cmdoptions += ' -H '+hoursinterval 
+    cmdoptions += ' -H '+hoursinterval
+if numchunks:
+    cmdoptions += ' -c '+numchunks
+if frommostrecent:
+    cmdoptions += ' -r '
+if node:
+    cmdoptions += ' -n '+node
 
 if cmdoptions:
     thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -N "+cmdoptions

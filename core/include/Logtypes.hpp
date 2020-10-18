@@ -257,11 +257,15 @@ public:
  */
 typedef std::map<const Log_entry_ID_key,std::unique_ptr<Log_entry>> Log_entries_Map;
 
-/// Interval type for the Log_entries_Map;
+/// Interval type for the Log_entries_Map
 typedef std::pair<Log_entries_Map::iterator, Log_entries_Map::iterator> Log_entry_iterator_interval;
 
 /// Short-hand for this container type.
-typedef std::deque<std::unique_ptr<Log_chunk>> Log_chunk_ptr_deque;
+//typedef std::deque<std::unique_ptr<Log_chunk>> Log_chunk_ptr_deque;
+typedef std::map<Log_chunk_ID_key, std::unique_ptr<Log_chunk>> Log_chunk_ptr_map;
+
+/// Interval type for the Log_chunks_Map
+typedef std::pair<Log_chunk_ptr_map::iterator, Log_chunk_ptr_map::iterator> Log_chunk_iterator_interval;
 
 /**
  * ### Log chunks (deque list)
@@ -269,7 +273,8 @@ typedef std::deque<std::unique_ptr<Log_chunk>> Log_chunk_ptr_deque;
  * A deque list of smart pointers to Log chunks.
  * This is how chunks are connected in the Log data structure.
  */
-struct Log_chunks_Deque: public Log_chunk_ptr_deque {
+struct Log_chunks_Map: public Log_chunk_ptr_map {
+//struct Log_chunks_Deque: public Log_chunk_ptr_deque {
 
     /// Get reference to ID key of Log chunk by index. Throws an @exception if out of range.
     const Log_chunk_ID_key & get_tbegin_key(Log_chunk_ptr_deque::size_type idx) const;
@@ -373,7 +378,8 @@ typedef std::set<Log_entry_ID_key> Log_entry_ID_key_set;
 class Log {
 protected:
     Log_entries_Map entries;
-    Log_chunks_Deque chunks;
+    Log_chunks_Map chunks;
+    //Log_chunks_Deque chunks;
     Log_Breakpoints breakpoints;
 public:
     /// finalizing setup
@@ -472,6 +478,8 @@ struct Log_filter {
     unsigned long limit; ///< Limit to specific number of Log chunks (can be used with t_from or t_to, or neither), 0 means unlimited.
     bool back_to_front; ///< Reverse the order of selection if not constrained by t_from or t_to.
     Log_filter(): t_from(RTt_unspecified), t_to(RTt_unspecified), limit(0), back_to_front(false) {}
+
+    std::string info_str() const;
 };
 
 /**

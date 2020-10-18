@@ -83,6 +83,8 @@ std::unique_ptr<Log> Graph_access::request_Log_excerpt(const Log_filter & filter
 
     std::unique_ptr<Log> logptr = std::make_unique<Log>();
 
+    //VERBOSEOUT(filter.info_str());
+
     if (!load_partial_Log_pq(*logptr, *this, filter)) {
         FZERR("\nSomething went wrong! Unable to load Log from Postgres database.\n");
         standard.exit(exit_database_error);

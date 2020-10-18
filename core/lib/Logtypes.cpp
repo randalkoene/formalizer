@@ -970,6 +970,16 @@ Log_entry * Log::get_newest_Entry() {
     return std::prev(entries.end())->second.get();
 }
 
+std::string Log_filter::info_str() const {
+    std::string infostr("filter:");
+    infostr += "\n\tt_from = "+TimeStampYmdHM(t_from);
+    infostr += "\n\tt_to   = "+TimeStampYmdHM(t_to);
+    infostr += "\n\tnkey   = "+nkey.str();
+    infostr += "\n\tlimit  = "+std::to_string(limit);
+    infostr += (back_to_front ? "\n\tback_to_front = true\n" : "\n\tback_to_front = false\n");
+    return infostr;
+}
+
 /**
  * Generate a set of Log chunk ID keys that corresponds to the ID keys of all
  * entries in the Log.
