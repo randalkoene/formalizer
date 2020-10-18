@@ -40,12 +40,25 @@ protected:
 public:
     ReferenceTime(): emulated_time(RTt_unspecified) {}
     ReferenceTime(std::time_t _emtime): emulated_time(_emtime) {}
+    ReferenceTime(std::string &add_option_args_here, std::string &add_usage_top_here); // e.g. see how fzlog uses this
 
     std::time_t Time();
 
     void switch_to_actual_time() { emulated_time = RTt_unspecified; }
     void change_reference_time(std::time_t _emtime) { emulated_time = _emtime; }
+
+    void usage_hook();
+
+    /**
+     * Add this to local options_hook() calls if an emulated time should be
+     * settable. If so, then make sure to test for `RTt_invalid_time_stamp`
+     * in case an invalid time stamp was given.
+     */
+    bool options_hook(char c, std::string cargs);
+
 };
+
+//extern ReferenceTime maintime; // *** We haven't used this yet. Instead, see how ReferenceTime is uzed in fzlog.
 
 } // namespace fz
 

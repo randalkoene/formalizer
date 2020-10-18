@@ -45,6 +45,8 @@
 #include "Graphtypes.hpp"
 #include "LogtypesID.hpp"
 
+#define FZ_TCHUNK_OPEN -1
+
 namespace fz {
 
 //class Log_TimeStamp;
@@ -198,7 +200,7 @@ protected:
     // These three must be provided when the object is created.
     const Log_chunk_ID t_begin;   /// The time stamp when a Log chunk begins.
     const Node_ID node_id;        /// The Node to which the Log chunk belongs.
-    std::time_t t_close;          /// The time when a Log chunk was closed (-1 if not closed).
+    std::time_t t_close;          /// The time when a Log chunk was closed, -1 (FZ_TCHUNK_OPEN) if not closed.
     Log_entry_ID_key first_entry; /// ID of the first Log_entry in the chunk (once created).
 
     // The following are maintained for rapid access where possible.

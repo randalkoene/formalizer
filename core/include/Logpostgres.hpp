@@ -92,12 +92,33 @@ bool store_Log_pq(const Log & log, Postgres_access & pa, void (*progressfunc)(un
 /**
  * Append Entry to existing table in schema of PostgreSQL database.
  * 
- * @param log a Log containing all of the Chunks and Entries.
- * @param pa access object with database name and Formalizer schema name.
- * @param progress_func points to an optional progress indicator function.
- * @returns true if the Log was successfully stored in the database.
+ * @param entry A valid Log entry object.
+ * @param pa Access object with database name and Formalizer schema name.
+ * @returns True if the Log entry was successfully stored in the database.
  */
 bool append_Log_entry_pq(const Log_entry & entry, Postgres_access & pa);
+
+/**
+ * Close the Chunk specified, which must already exist within a table in
+ * schema of PostgreSQL database.
+ * 
+ * @param chunk A valid Log chunk object with valid t_close time.
+ * @param pa Access object with database name and Formalizer schema name.
+ * @returns True if the Log chunk was successfully updated to closed status.
+ */
+bool close_Log_chunk_pq(const Log_chunk & chunk, Postgres_access & pa);
+
+/**
+ * Append Chunk to existing table in schema of PostgreSQL database.
+ * 
+ * Note: Please make sure that you close any open Log chunk before appending
+ *       a new one!
+ * 
+ * @param chunk A valid Log chunk object.
+ * @param pa Access object with database name and Formalizer schema name.
+ * @returns True if the Log chunk was successfully stored in the database.
+ */
+bool append_Log_chunk_pq(const Log_chunk & chunk, Postgres_access & pa);
 
 bool load_Log_pq(Log & log, Postgres_access & pa);
 
