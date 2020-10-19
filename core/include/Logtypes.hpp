@@ -126,22 +126,22 @@ public:
      * @param nextischunk Optional chaining flag that specifies the next in chain is a chunk (or not).
      * @param _next Optional valid Log chunk or entry ID statmp that specifies the next in chain.
      */
-    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, const Node_ID_key &_nodeidkey, Log_chunk * _chunk = NULL): id(_id), node_idkey(_nodeidkey), node(nullptr), chunk(_chunk) {
+    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, const Node_ID_key &_nodeidkey, const Log_chunk * _chunk = NULL): id(_id), node_idkey(_nodeidkey), node(nullptr), chunk(const_cast<Log_chunk *>(_chunk)) {
         set_text(_entrytext); // utf8 safe
     }
-    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, Log_chunk * _chunk = NULL): id(_id), node(nullptr), chunk(_chunk) {
+    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, const Log_chunk * _chunk = NULL): id(_id), node(nullptr), chunk(const_cast<Log_chunk *>(_chunk)) {
         set_text(_entrytext); // utf8 safe
     }
-    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, const Node_ID_key &_nodeidkey, bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next, Log_chunk * _chunk = NULL) : id(_id), node_idkey(_nodeidkey), node(nullptr), chunk(_chunk) {
+    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, const Node_ID_key &_nodeidkey, bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next, const Log_chunk * _chunk = NULL) : id(_id), node_idkey(_nodeidkey), node(nullptr), chunk(const_cast<Log_chunk *>(_chunk)) {
         set_text(_entrytext); // utf8 safe
     }
-    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next, Log_chunk * _chunk = NULL): Log_by_Node_chainable(previschunk,_prev,nextischunk,_next), id(_id), node(nullptr), chunk(_chunk) {
+    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next, const Log_chunk * _chunk = NULL): Log_by_Node_chainable(previschunk,_prev,nextischunk,_next), id(_id), node(nullptr), chunk(const_cast<Log_chunk *>(_chunk)) {
         set_text(_entrytext); // utf8 safe
     }
 
     /// Set Node pointer to the same Node as node_idkey if it was not set during construction.
     bool set_Node_rapid_access(Node & _node); // inlined below
-    void set_Chunk(Log_chunk * _chunk) { chunk = _chunk; }
+    void set_Chunk(const Log_chunk * _chunk) { chunk = const_cast<Log_chunk *>(_chunk); }
 
     const Log_entry_ID & get_id() const { return id; }
     uint8_t get_minor_id() const { return id.idkey.idT.minor_id; }
@@ -255,20 +255,17 @@ public:
  * Consecutive entries (ordered by ID) are the primary records of the Log,
  * as stored in database format.
  */
-typedef std::map<const Log_entry_ID_key,std::unique_ptr<Log_entry>> Log_entries_Map;
+typedef std::map<const Log_entry_ID_key, std::unique_ptr<Log_entry>> Log_entries_Map;
 
 /// Interval type for the Log_entries_Map
 typedef std::pair<Log_entries_Map::iterator, Log_entries_Map::iterator> Log_entry_iterator_interval;
 
-/// Short-hand for this container type.
-//typedef std::deque<std::unique_ptr<Log_chunk>> Log_chunk_ptr_deque;
-typedef std::map<Log_chunk_ID_key, std::unique_ptr<Log_chunk>> Log_chunk_ptr_map;
-
-/// Interval type for the Log_chunks_Map
-typedef std::pair<Log_chunk_ptr_map::iterator, Log_chunk_ptr_map::iterator> Log_chunk_iterator_interval;
+/// Short-hands for this container type.
+typedef std::pair<const Log_chunk_ID_key, std::unique_ptr<Log_chunk>> Log_chunk_ptr_map_element;
+typedef std::map<const Log_chunk_ID_key, std::unique_ptr<Log_chunk>> Log_chunk_ptr_map;
 
 /**
- * ### Log chunks (deque list)
+ * ### Log chunks (map)
  * 
  * A deque list of smart pointers to Log chunks.
  * This is how chunks are connected in the Log data structure.
@@ -276,41 +273,60 @@ typedef std::pair<Log_chunk_ptr_map::iterator, Log_chunk_ptr_map::iterator> Log_
 struct Log_chunks_Map: public Log_chunk_ptr_map {
 //struct Log_chunks_Deque: public Log_chunk_ptr_deque {
 
-    /// Get reference to ID key of Log chunk by index. Throws an @exception if out of range.
-    const Log_chunk_ID_key & get_tbegin_key(Log_chunk_ptr_deque::size_type idx) const;
+    /// Get reference to ID key of Log chunk by index.
+    const Log_chunk_ID_key & get_tbegin_key(Log_chunk_ptr_map::iterator idx) const { return idx->first; }
 
     /// Get a copy of the ID key of Log chunk by index, or null-key if out of range.
-    Log_chunk_ID_key get_key_copy(Log_chunk_ptr_deque::size_type idx) const;
+    Log_chunk_ID_key get_key_copy(Log_chunk_ptr_map::const_iterator idx) const;
 
-    /// Get reference to TimeStamp of Log chunk by index. Throws an @exception if out of range.
-    const Log_TimeStamp & get_tbegin_idT(Log_chunk_ptr_deque::size_type idx) const;
+    /// Get reference to TimeStamp of Log chunk by index.
+    const Log_TimeStamp & get_tbegin_idT(Log_chunk_ptr_map::iterator idx) const { return idx->second->get_tbegin_idT(); }
 
     /// Get pointer to Log chunk by index. Returns nullptr if out of range.
-    Log_chunk * get_chunk(Log_chunk_ptr_deque::size_type idx) const;
+    const Log_chunk * get_chunk(Log_chunk_ptr_map::const_iterator idx) const;
 
     /// Find index of Log chunk pointer by ID key by brute force sequential search. Returns size() if not found.
-    std::pair<Log_chunk_ptr_deque::size_type, Log_chunk*> slow_find(const Log_chunk_ID_key chunk_id) const;
+    //std::pair<Log_chunk_ptr_map::iterator, Log_chunk*> slow_find(const Log_chunk_ID_key chunk_id) const;
 
     /// Fast search for index and pointer to Log chunk by ID key. Returns [size, nullptr] if not found.
-    std::pair<Log_chunk_ptr_deque::size_type, Log_chunk*> find_index_and_pointer(const Log_chunk_ID_key chunk_id) const;
+    std::pair<Log_chunk_ptr_map::const_iterator, const Log_chunk*> find_index_and_pointer(const Log_chunk_ID_key chunk_id) const;
 
     /// Get index of Log chunk pointer by ID key. Returns size() if not found.
-    Log_chunk_ptr_deque::size_type find(const Log_chunk_ID_key chunk_id) const;
+    //Log_chunk_ptr_map::iterator find(const Log_chunk_ID_key chunk_id) const;
 
     /// Get pointer to Log chunk by ID key. Returns nullptr if not found.
-    Log_chunk * get_chunk(const Log_chunk_ID_key chunk_id) const;
+    const Log_chunk * get_chunk(const Log_chunk_ID_key chunk_id) const;
 
-    /// Find index of Log chunk by its ID closest to time t.
-    Log_chunk_ptr_deque::size_type find(std::time_t t, bool later) const;
+    /**
+     * Find index of Log chunk by its ID closest to time t.
+     * 
+     * This search will return either the index for the Log chunk with the
+     * same start time, or the nearest above or below, depending on the
+     * `later` flag.
+     * 
+     * If the start time provided would not convert to a valid Log ID time
+     * stamp then this function returns an iterator to the earliest element
+     * in the map if `throw_if_invalid` is false. Otherwise it throws an
+     * ID_exception.
+     * 
+     * @param t The Log chunk start time to search for.
+     * @param later Find start time >= t, otherwise find start time <= t.
+     * @param throw_if_invalid If true then requests with invalid t throw an ID_exception.
+     * @return The closest index in the list, or end() if not found.
+     */
+    Log_chunk_ptr_map::const_iterator find_nearest(std::time_t t, bool later, bool throw_if_invalid = false) const;
 
     // friend functions
     /// Sum of durations of Log chunks.
-    friend unsigned long Chunks_total_minutes(Log_chunks_Deque & chunks);
+    friend unsigned long Chunks_total_minutes(Log_chunks_Map & chunks);
 };
 
 /// Interval types for the Log_chunks_Deque.
-typedef std::pair<Log_chunk_ptr_deque::size_type, Log_chunk_ptr_deque::size_type> Log_chunk_index_interval;
-typedef std::pair<Log_chunk_ID_key, Log_chunk_ID_key> Log_chunk_ID_interval;
+//typedef std::pair<Log_chunk_ptr_deque::size_type, Log_chunk_ptr_deque::size_type> Log_chunk_index_interval;
+/// Interval type for the Log_chunks_Map
+typedef std::pair<Log_chunk_ptr_map::iterator, Log_chunk_ptr_map::iterator> Log_chunk_iterator_interval;
+typedef std::pair<Log_chunk_ptr_map::const_iterator, Log_chunk_ptr_map::const_iterator> Log_chunk_const_iterator_interval;
+typedef std::pair<const Log_chunk_ID_key, const Log_chunk_ID_key> Log_chunk_ID_interval;
 
 /// Short-hand for this container type.
 typedef std::deque<Log_chunk_ID_key> Log_chunk_ID_key_deque;
@@ -326,11 +342,11 @@ class Log_Breakpoints: protected Log_chunk_ID_key_deque {
     friend class Log;
 public:
     // breakpoints table: extend
-    void add_earlier_Breakpoint(Log_chunk & chunk) { push_front(chunk.get_tbegin_key()); }
-    void add_later_Breakpoint(Log_chunk & chunk) { push_back(chunk.get_tbegin_key()); }
+    void add_earlier_Breakpoint(const Log_chunk & chunk) { push_front(chunk.get_tbegin_key()); }
+    void add_later_Breakpoint(const Log_chunk & chunk) { push_back(chunk.get_tbegin_key()); }
 
     // breakpoints table: get breakpoint
-    Log_chunk_ID_key & get_chunk_id_key(Log_chunk_ID_key_deque::size_type idx) { return at(idx); }
+    const Log_chunk_ID_key & get_chunk_id_key(Log_chunk_ID_key_deque::size_type idx) { return at(idx); }
     std::string get_chunk_id_str(Log_chunk_ID_key_deque::size_type idx) { return Log_chunk_ID_TimeStamp_to_string( at(idx).idT ); }
     std::string get_Ymd_str(Log_chunk_ID_key_deque::size_type idx) { return Log_TimeStamp_to_Ymd_string( at(idx).idT ); }
 
@@ -379,7 +395,6 @@ class Log {
 protected:
     Log_entries_Map entries;
     Log_chunks_Map chunks;
-    //Log_chunks_Deque chunks;
     Log_Breakpoints breakpoints;
 public:
     /// finalizing setup
@@ -392,26 +407,25 @@ public:
 
     /// tables: sizes
     Log_entries_Map::size_type num_Entries() const { return entries.size(); }
-    Log_chunks_Deque::size_type num_Chunks() const { return chunks.size(); }
+    Log_chunks_Map::size_type num_Chunks() const { return chunks.size(); }
     Log_chunk_ID_key_deque::size_type num_Breakpoints() const { return breakpoints.size(); }
 
     /// tables: references
     Log_entries_Map & get_Entries() { return entries; }
-    Log_chunks_Deque & get_Chunks() { return chunks; }
+    Log_chunks_Map & get_Chunks() { return chunks; }
     Log_Breakpoints & get_Breakpoints() { return breakpoints; }
 
     /// chunks table: extend
-    void add_earlier_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose) { chunks.push_front(std::make_unique<Log_chunk>(_tbegin,_nodeid,_tclose)); }
-    void add_later_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose) { chunks.push_back(std::make_unique<Log_chunk>(_tbegin,_nodeid, _tclose)); }
+    void add_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose) { chunks.emplace(_tbegin,std::make_unique<Log_chunk>(_tbegin,_nodeid,_tclose)); }
     //void add_earlier_unique_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose); //***half implemented
     //void add_later_unique_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose);
 
     /// chunks table: get chunk
-    Log_chunk * get_chunk(Log_chunk_ptr_deque::size_type idx) const { return chunks.get_chunk(idx); }
-    Log_chunk * get_chunk(const Log_chunk_ID_key chunk_idkey) const { return chunks.get_chunk(chunk_idkey); }
-    Log_chunk_ID_key get_chunk_id_key(Log_chunk_ptr_deque::size_type idx) const { return chunks.get_key_copy(idx); }
-    Log_chunk_ptr_deque::size_type find_chunk_by_key(const Log_chunk_ID_key chunk_idkey) const { return chunks.find(chunk_idkey); }
-    std::pair<Log_chunk_ptr_deque::size_type, Log_chunk*> find_chunk_index_and_pointer(const Log_chunk_ID_key chunk_id) const { return chunks.find_index_and_pointer(chunk_id); }
+    const Log_chunk * get_chunk(Log_chunk_ptr_map::iterator idx) const { return chunks.get_chunk(idx); }
+    const Log_chunk * get_chunk(const Log_chunk_ID_key chunk_idkey) const { return chunks.get_chunk(chunk_idkey); }
+    Log_chunk_ID_key get_chunk_id_key(Log_chunk_ptr_map::const_iterator idx) const { return chunks.get_key_copy(idx); }
+    Log_chunk_ptr_map::const_iterator find_chunk_by_key(const Log_chunk_ID_key chunk_idkey) const { return chunks.find(chunk_idkey); }
+    std::pair<Log_chunk_ptr_map::const_iterator, const Log_chunk*> find_chunk_index_and_pointer(const Log_chunk_ID_key chunk_id) const { return chunks.find_index_and_pointer(chunk_id); }
 
     /// breakpoints table: get breakpoint
     Log_chunk_ID_key & get_Breakpoint_first_chunk_id_key(Log_chunk_ID_key_deque::size_type idx) { return breakpoints.at(idx); }
@@ -419,7 +433,8 @@ public:
     std::string get_Breakpoint_Ymd_str(Log_chunk_ID_key_deque::size_type idx) { return Log_TimeStamp_to_Ymd_string( breakpoints.at(idx).idT ); }
 
     /// crossref tables: chunks x breakpoints
-    Log_chunk_ptr_deque::size_type get_chunk_first_at_Breakpoint(Log_chunk_ID_key_deque::size_type idx) { return find_chunk_by_key(get_Breakpoint_first_chunk_id_key(idx)); }
+    //Log_chunk_ptr_deque::size_type get_chunk_first_at_Breakpoint(Log_chunk_ID_key_deque::size_type idx) { return find_chunk_by_key(get_Breakpoint_first_chunk_id_key(idx)); }
+    Log_chunk_ptr_map::const_iterator get_chunk_first_at_Breakpoint(Log_chunk_ID_key_deque::size_type idx) { return find_chunk_by_key(get_Breakpoint_first_chunk_id_key(idx)); }
 
     /// crossref tables: breakpoints x chunks
     const Log_chunk_ID_key & find_Breakpoint_tstamp_before_chunk(const Log_chunk_ID_key key) { return breakpoints.find_Breakpoint_tstamp_before_chunk(key); }
@@ -436,8 +451,10 @@ public:
     /// chunks table: select interval, from chunk / time, to chunk / time / count
     Log_chunk_ID_interval get_Chunks_ID_t_interval(std::time_t t_from, std::time_t t_before);
     Log_chunk_ID_interval get_Chunks_ID_n_interval(std::time_t t_from, unsigned long n);
-    Log_chunk_index_interval get_Chunks_index_t_interval(std::time_t t_from, std::time_t t_before);
-    Log_chunk_index_interval get_Chunks_index_n_interval(std::time_t t_from, unsigned long n);
+    //Log_chunk_index_interval get_Chunks_index_t_interval(std::time_t t_from, std::time_t t_before);
+    //Log_chunk_index_interval get_Chunks_index_n_interval(std::time_t t_from, unsigned long n);
+    Log_chunk_const_iterator_interval get_Chunks_index_t_interval(std::time_t t_from, std::time_t t_before);
+    Log_chunk_const_iterator_interval get_Chunks_index_n_interval(std::time_t t_from, unsigned long n);
 
     /// chunks table: select subset by Node
     std::deque<Log_chain_target> get_Node_chain_fullparse(const Node_ID node_id, bool onlyfirst = false);
@@ -448,15 +465,19 @@ public:
     const Log_chain_target * oldest_Node_chain_element(const Node_ID node_id);
 
     /// helper (utility) functions
-    std::time_t oldest_chunk_t() { return (num_Chunks()>0) ? chunks.front()->get_open_time() : RTt_unspecified; }
-    std::time_t newest_chunk_t() { return (num_Chunks()>0) ? chunks.back()->get_open_time() : RTt_unspecified; }
+    //std::time_t oldest_chunk_t() { return (num_Chunks()>0) ? chunks.front()->get_open_time() : RTt_unspecified; }
+    //std::time_t newest_chunk_t() { return (num_Chunks()>0) ? chunks.back()->get_open_time() : RTt_unspecified; }
+    std::time_t oldest_chunk_t() { return (num_Chunks()>0) ? chunks.begin()->second->get_open_time() : RTt_unspecified; }
+    std::time_t newest_chunk_t() { return (num_Chunks()>0) ? std::prev(chunks.end())->second->get_open_time() : RTt_unspecified; }
     Log_chunk * get_newest_Chunk();
     Log_entry * get_newest_Entry();
     Log_chunk_ID_key_set chunk_key_list_from_entries();
 
     // friend functions
-    friend std::vector<Log_chunks_Deque::size_type> Breakpoint_Indices(Log & log);
-    friend std::vector<Log_chunks_Deque::size_type> Chunks_per_Breakpoint(Log & log);
+    //friend std::vector<Log_chunks_Deque::size_type> Breakpoint_Indices(Log & log);
+    //friend std::vector<Log_chunks_Deque::size_type> Chunks_per_Breakpoint(Log & log);
+    friend std::vector<Log_chunks_Map::iterator> Breakpoint_Indices(Log & log);
+    friend std::vector<size_t> Chunks_per_Breakpoint(Log & log);
     friend unsigned long Log_span_in_seconds(Log & log);
     friend double Log_span_in_days(Log & log);
     friend ymd_tuple Log_span_years_months_days(Log & log);
@@ -503,15 +524,6 @@ public:
     void init(Log & log);
 };
 
-
-// +----- begin: EXPERIMENTING -----+
-
-/// This variant of Log is used by smart on-demand Log caching modes.
-class Log_interval: public Log { // *** not sure if this should inherit Log
-
-};
-
-// +----- end  : EXPERIMENTING -----+
 
 // +----- begin: inline functions -----+
 
@@ -605,31 +617,37 @@ inline int Log_chunk::duration_minutes() const {
     return duration_seconds() / 60;
 }
 
-/// Get reference to ID key of Log chunk by index. Throws an @exception if out of range.
-inline const Log_chunk_ID_key & Log_chunks_Deque::get_tbegin_key(Log_chunk_ptr_deque::size_type idx) const {
-    return at(idx)->get_tbegin_key();
-}
-
 /// Get a copy of the ID key of Log chunk by index, or null-key if out of range.
-inline Log_chunk_ID_key Log_chunks_Deque::get_key_copy(Log_chunk_ptr_deque::size_type idx) const {
-    if (idx>=size())
+inline Log_chunk_ID_key Log_chunks_Map::get_key_copy(Log_chunk_ptr_map::const_iterator idx) const {
+    if (idx == end())
         return Log_chunk_ID_key(); // return a null-key
 
-    return at(idx)->get_tbegin_key();
-}
-
-/// Get reference to TimeStamp of Log chunk by index. Throws an @exception if out of range.
-inline const Log_TimeStamp & Log_chunks_Deque::get_tbegin_idT(Log_chunk_ptr_deque::size_type idx) const {
-    return at(idx)->get_tbegin_idT();
+    return idx->first;
 }
 
 /// Get pointer to Log chunk by index. Returns nullptr if out of range.
-inline Log_chunk * Log_chunks_Deque::get_chunk(Log_chunk_ptr_deque::size_type idx) const {
-    if (idx>=size())
+inline const Log_chunk * Log_chunks_Map::get_chunk(Log_chunk_ptr_map::const_iterator idx) const {
+    if (idx == end())
         return nullptr;
 
-    return at(idx).get();
+    return idx->second.get();
 }
+
+/// Get pointer to Log chunk by ID key. Returns nullptr if not found.
+inline const Log_chunk * Log_chunks_Map::get_chunk(const Log_chunk_ID_key chunk_id) const {
+    auto it = find(chunk_id);
+    return get_chunk(it);
+}
+
+/// Fast search for index and pointer to Log chunk by ID key. Returns [size, nullptr] if not found.
+inline std::pair<Log_chunk_ptr_map::const_iterator, const Log_chunk*> Log_chunks_Map::find_index_and_pointer(const Log_chunk_ID_key chunk_id) const {
+    auto it = find(chunk_id);
+    if (it == end())
+        return std::make_pair(it, nullptr);
+
+    return std::make_pair(it, it->second.get());
+}
+
 
 // +----- end  : inline functions -----+
 

@@ -160,9 +160,8 @@ bool store_Log_pq(const Log & log, Postgres_access & pa, void (*progressfunc)(un
     ERRHERE(".chunks");
     n = log.num_Chunks();
     ncount = 0;
-    for (Log_chunk_ptr_deque::size_type cidx = 0; cidx<n; ++cidx) {
-        Log_chunk * chunkptr = const_cast<Log *>(&log)->get_chunk(cidx); // *** slightly risky, untested pointer
-        if (!add_Logchunk_pq(apq, *chunkptr)) STORE_LOG_PQ_RETURN(false);
+    for (const auto & [chunk_key, chunk_ptr] : const_cast<Log *>(&log)->get_Chunks()) { // had to remove const to use get_Chunks() here
+        if (!add_Logchunk_pq(apq, *chunk_ptr)) STORE_LOG_PQ_RETURN(false);
         ncount++;
         if (progressfunc) (*progressfunc)(n,ncount);
     }
@@ -370,7 +369,7 @@ bool read_Breakpoints_pq(active_pq & apq, Log & log) {
                 ERRRETURNFALSE(__func__,"stored Breakpoint has undefined top Log chunk start time");
 
             Log_chunk_ID_key chunkkey(bp_t);
-            Log_chunk * chunk = log.get_chunk(chunkkey);
+            const Log_chunk * chunk = log.get_chunk(chunkkey);
             if (!chunk)
                 ERRRETURNFALSE(__func__,"stored Breakpoint refers to Log chunk not found in Log");
 
@@ -464,7 +463,7 @@ bool read_Chunks_pq(active_pq & apq, Log & log, std::string wherestr = "", std::
 
                     time_t chunkclose_t = epochtime_from_timestamp_pq(PQgetvalue(res, r, pq_chunk_field[pqlc_tclose])); // it might be open!
 
-                    log.add_later_Chunk(chunkstamp,nid,chunkclose_t);
+                    log.add_Chunk(chunkstamp,nid,chunkclose_t);
                 } catch (ID_exception idexception) {
                     ERRRETURNFALSE(__func__,"Invalid Node ID ["+nidstr+"], "+idexception.what());
                 }
@@ -523,14 +522,14 @@ bool read_Entries_pq(active_pq & apq, Log & log, std::string wherestr = "") {
                 const Log_entry_ID entryid(entryid_str);
 
                 const Log_chunk_ID_key chunkkey(entryid.key()); // no need to try, this one has to be valid if the entry ID was valid
-                Log_chunk * chunk = log.get_chunk(chunkkey);
+                const Log_chunk * chunk = log.get_chunk(chunkkey);
                 if (!chunk)
                     ERRRETURNFALSE(__func__,"stored Entry ("+entryid_str+") refers to Log chunk not found in Log");
 
                 std::unique_ptr<Log_entry> entry;
                 if (nodeid_str.empty() || (nodeid_str=="{null-key}")) { // make Log_entry object without Node specifier
                     entry = std::make_unique<Log_entry>(entryid.key().idT, entrytext, chunk);
-                    chunk->add_Entry(*entry); // add to chunk.entries
+                    const_cast<Log_chunk *>(chunk)->add_Entry(*entry); // add to chunk.entries
                     log.get_Entries().insert({entryid.key(),std::move(entry)}); // entry is now nullptr
 
                 } else {
@@ -541,7 +540,7 @@ bool read_Entries_pq(active_pq & apq, Log & log, std::string wherestr = "") {
 
                         // make Log_entry object with Node specifier
                         entry = std::make_unique<Log_entry>(entryid.key().idT, entrytext, nodeidkey, chunk);
-                        chunk->add_Entry(*entry);
+                        const_cast<Log_chunk *>(chunk)->add_Entry(*entry);
                         log.get_Entries().insert({entryid.key(),std::move(entry)}); // entry is now nullptr
 
                     } catch (ID_exception idexception) {

@@ -113,12 +113,6 @@ bool render_Log_interval() {
         VERYVERBOSEOUT("Finding the Log history of Node "+fzlh.filter.nkey.str()+'\n');
     }
 
-    //auto [from_idx, before_idx] = fzlh.log->get_Chunks_index_t_interval(fzlh.filter.t_from, fzlh.filter.t_to);
-    //++before_idx;
-
-    Log_chunk_ptr_deque::size_type from_idx = 0;
-    Log_chunk_ptr_deque::size_type before_idx = fzlh.edata.log_ptr->num_Chunks();
-
     std::string rendered_logcontent;
     rendered_logcontent.reserve(128*1024);
 
@@ -128,11 +122,10 @@ bool render_Log_interval() {
 
     COMPILEDPING(std::cout,"PING: got templates\n");
 
-    for (auto chunk_idx = from_idx; chunk_idx < before_idx; ++chunk_idx) {
+    for (const auto & [chunk_key, chunkptr] : fzlh.edata.log_ptr->get_Chunks()) {
 
         COMPILEDPING(std::cout,"PING: commencing chunk idx#"+std::to_string(chunk_idx)+'\n');
 
-        Log_chunk * chunkptr = fzlh.edata.log_ptr->get_chunk(chunk_idx);
         if (chunkptr) {
             std::string combined_entries;
             for (const auto& entryptr : chunkptr->get_entries()) {

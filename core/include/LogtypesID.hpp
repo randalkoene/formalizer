@@ -31,6 +31,8 @@
 namespace fz {
 
 #define LOG_NULLKEY_STR "{null-key}"
+// The Unix epoch-time equivalent of the earliest valid ID time stamp in 1999.
+#define LOG_ID_FIRST_VALID_TEPOCH 915177600
 
 // forward declarations to classes from Logtypes.hpp
 class Log;

@@ -96,6 +96,7 @@ void Log_entry::set_text(const std::string utf8str) {
     entrytext = utf8_safe(utf8str);
 }
 
+#ifdef USING_DEQUE_CHUNKS
 /**
  * Slow brute force search for index of and pointer to a Log chunk from its ID key.
  * 
@@ -105,7 +106,7 @@ void Log_entry::set_text(const std::string utf8str) {
  * @param chunk_id the Log chunk ID.
  * @return the pair of index in the list and pointer to Log chunk, or [::size(), nullptr] if not found.
  */
-std::pair<Log_chunk_ptr_deque::size_type, Log_chunk*> Log_chunks_Deque::slow_find(const Log_chunk_ID_key chunk_id) const {
+std::pair<Log_chunk_ptr_map::iterator, Log_chunk*> Log_chunks_Map::slow_find(const Log_chunk_ID_key chunk_id) const {
     Log_chunk_ptr_deque::size_type i = 0;
     for (const auto& chptr : (*this)) { //*** doing this because it's a deque, would use index if it were a vector
         if (chptr->get_tbegin_key() == chunk_id)
@@ -255,6 +256,53 @@ Log_chunk_ptr_deque::size_type Log_chunks_Deque::find(std::time_t t, bool later)
 
     // never gets here
 }
+#endif // USING_DEQUE_CHUNKS
+
+/**
+ * Find index of Log chunk by its ID closest to time t.
+ * 
+ * This search will return either the index for the Log chunk with the
+ * same start time, or the nearest above or below, depending on the
+ * `later` flag.
+ * 
+ * If the start time provided would not convert to a valid Log ID time
+ * stamp then this function returns an iterator to the earliest element
+ * in the map if `throw_if_invalid` is false. Otherwise it throws an
+ * ID_exception.
+ * 
+ * @param t The Log chunk start time to search for.
+ * @param later Find start time >= t, otherwise find start time <= t.
+ * @param throw_if_invalid If true then requests with invalid t throw an ID_exception.
+ * @return The closest index in the list, or end() if not found.
+ */
+Log_chunk_ptr_map::const_iterator Log_chunks_Map::find_nearest(std::time_t t, bool later, bool throw_if_invalid) const {
+    if (t < LOG_ID_FIRST_VALID_TEPOCH) {
+        if (throw_if_invalid) {
+            std::string formerror("Attempted Log ID search with epoch time ("+std::to_string(t)+") that converts to invalid Log ID\n");
+            throw(ID_exception(formerror));
+        }
+        return begin(); // const_cast<Log_chunks_Map *>(this)->begin(); -- use this if returning ::iterator
+    }
+
+    if (empty())
+        return end(); // const_cast<Log_chunks_Map *>(this)->end(); -- use this if returning ::iterator
+
+    const Log_chunk_ID_key search_key(t);
+    if (later) { // find ID key corresponding to time >= t
+        auto it_after_search_key = upper_bound(search_key); // const_cast<Log_chunks_Map *>(this)->upper_bound(search_key); // this can be end()
+        if (it_after_search_key != begin()) { // we're looking for >= t, not just > t
+            auto it_prev_after = std::prev(it_after_search_key);
+            if (it_prev_after->first == search_key) {
+                return it_prev_after;
+            }
+        }
+        return it_after_search_key;
+
+    } else { // find ID key corresponding to time <= t
+        auto it_same_or_before_search_key = lower_bound(search_key); // const_cast<Log_chunks_Map *>(this)->lower_bound(search_key); // includes equal
+        return it_same_or_before_search_key;
+    }
+}
 
 /**
  * Find the Breakpoint section to which the Log chunk with the given
@@ -345,14 +393,14 @@ std::deque<Log_chain_target> Log::get_Node_chain_fullparse(const Node_ID node_id
     for (auto it = chunks.begin(); it!=chunks.end(); ++it) {
 
         // check the chunk first
-        if ((*it)->get_NodeID().key().idT == node_id.key().idT) {
-            res.emplace_back((*it)->get_tbegin_key(),it->get());
+        if (it->second->get_NodeID().key().idT == node_id.key().idT) {
+            res.emplace_back(it->first,it->second.get());
             if (onlyfirst)
                 return res;
         }
 
         // then check its entries
-        for (const auto& e : (*it)->get_entries()) {
+        for (const auto& e : it->second->get_entries()) {
             if (!(e->get_nodeidkey().isnullkey())) {
                 if (e->get_nodeidkey() == node_id.key()) {
                     res.emplace_back(e->get_id_key(),e);
@@ -389,7 +437,7 @@ std::deque<Log_chain_target> Log::get_Node_chain_fullparse_reverse(const Node_ID
     for (auto rit = chunks.rbegin(); rit!=chunks.rend(); ++rit) {
 
         // check the entries first
-        std::vector<Log_entry *> & chunkentries = (*rit)->get_entries();
+        std::vector<Log_entry *> & chunkentries = rit->second->get_entries();
         for (auto erit = chunkentries.rbegin(); erit!=chunkentries.rend(); ++erit) {
             Log_entry * e = (*erit);
             if (!(e->get_nodeidkey().isnullkey())) {
@@ -401,8 +449,8 @@ std::deque<Log_chain_target> Log::get_Node_chain_fullparse_reverse(const Node_ID
             }
         }
         // then check the chunk
-        if ((*rit)->get_NodeID().key().idT == node_id.key().idT) {
-            res.emplace_front((*rit)->get_tbegin_key(),rit->get());
+        if (rit->second->get_NodeID().key().idT == node_id.key().idT) {
+            res.emplace_front(rit->first,rit->second.get());
             if (onlylast)
                 return res;
         }
@@ -590,7 +638,7 @@ void Log::setup_Chain_nodeprevnext() {
 
     std::map<Node_ID_key,Node_Targets_cursor> cursors;
 
-    for (const auto& chunkptr : chunks) { // .begin(); it != chunks.end(); ++it) {
+    for (const auto& [chunk_key, chunkptr] : chunks) { // .begin(); it != chunks.end(); ++it) {
 
         // first, link the chunk to the right chain
         Log_chunk * chunk = chunkptr.get();
@@ -661,7 +709,7 @@ void Log::setup_Entry_node_caches(Graph & graph) {
  * in acordance with Node objects found in the Graph.
  */
 void Log::setup_Chunk_node_caches(Graph & graph) {
-    for (const auto& chunkptr : chunks) {
+    for (const auto& [chunk_key, chunkptr] : chunks) {
         Log_chunk * chunk = chunkptr.get();
 
         if (!chunk) {
@@ -697,12 +745,14 @@ void Log::setup_Chunk_node_caches(Graph & graph) {
  * 
  * Note that this does not take care of entries that may be connected to a pruned
  * chunk. In other words, this is better done before add_entries_to_chunks().
+ * 
+ * NOTE: Now that chunks is a map this function is probably superfluous.
  */
 unsigned long Log::prune_duplicate_chunks() {
     Log_chunk_ID_key_set chunkkeyset;
     unsigned long pruned = 0;
     for (auto it = chunks.begin(); it != chunks.end(); ++it) {
-        auto ret = chunkkeyset.emplace((*it)->get_tbegin_key());
+        auto ret = chunkkeyset.emplace(it->first);
         if (!ret.second) {
             chunks.erase(it);
             ++pruned;
@@ -719,12 +769,12 @@ unsigned long Log::prune_duplicate_chunks() {
 bool Log::add_entries_to_chunks() {
     for (auto & [entrykey, entryptr] : entries) {
         const Log_chunk_ID_key chunkkey(entrykey); // no need to try, this one has to be valid if the entry ID was valid
-        Log_chunk * chunk = get_chunk(chunkkey);
+        const Log_chunk * chunk = get_chunk(chunkkey);
         if (!chunk)
             ERRRETURNFALSE(__func__,"entry ("+entrykey.str()+") refers to Log chunk not found in Log");
 
         entryptr->set_Chunk(chunk);
-        chunk->add_Entry(*entryptr);
+        const_cast<Log_chunk *>(chunk)->add_Entry(*entryptr);
     }
     return true;
 }
@@ -872,12 +922,13 @@ Log_entry_iterator_interval Log::get_Entries_n_interval(std::time_t t_from, unsi
  * @return a pair of Log chunk ID keys.
  */
 Log_chunk_ID_interval Log::get_Chunks_ID_t_interval(std::time_t t_from, std::time_t t_before) {
-    auto [from_idx, to_idx] = get_Chunks_index_t_interval(t_from,t_before);
+    //auto [from_idx, to_idx] = get_Chunks_index_t_interval(t_from,t_before);
+    auto interval = get_Chunks_index_t_interval(t_from,t_before);
 
-    if (from_idx>=chunks.size())
+    if (interval.second == chunks.end()) //(from_idx == chunks.end())
         return std::make_pair(Log_chunk_ID_key(),Log_chunk_ID_key()); // returning null-key pair
 
-    return std::make_pair(get_chunk_id_key(from_idx),get_chunk_id_key(to_idx));
+    return std::make_pair(get_chunk_id_key(interval.first), get_chunk_id_key(interval.second)); // std::make_pair(get_chunk_id_key(from_idx),get_chunk_id_key(to_idx));
 }
 
 /**
@@ -894,7 +945,7 @@ Log_chunk_ID_interval Log::get_Chunks_ID_t_interval(std::time_t t_from, std::tim
 Log_chunk_ID_interval Log::get_Chunks_ID_n_interval(std::time_t t_from, unsigned long n) {
     auto [from_idx, to_idx] = get_Chunks_index_t_interval(t_from,n);
 
-    if (from_idx>=chunks.size())
+    if (from_idx == chunks.end())
         return std::make_pair(Log_chunk_ID_key(),Log_chunk_ID_key()); // returning null-key pair
 
     return std::make_pair(get_chunk_id_key(from_idx),get_chunk_id_key(to_idx));
@@ -913,17 +964,17 @@ Log_chunk_ID_interval Log::get_Chunks_ID_n_interval(std::time_t t_from, unsigned
  *         a pair of indices beyond the range of existing Log chunks if
  *         no Log chunks have start times within the interval.
  */
-Log_chunk_index_interval Log::get_Chunks_index_t_interval(std::time_t t_from, std::time_t t_before) {
+Log_chunk_const_iterator_interval Log::get_Chunks_index_t_interval(std::time_t t_from, std::time_t t_before) {
     std::time_t t_to = t_before - 1;
 
     if (t_to<t_from)
-        return std::make_pair(num_Chunks(),num_Chunks());
+        return std::make_pair(chunks.end(), chunks.end());
 
-    Log_chunk_ptr_deque::size_type from_idx = chunks.find(t_from,true);
-    if (from_idx>=chunks.size())
+    Log_chunk_ptr_map::const_iterator from_idx = chunks.find_nearest(t_from,true);
+    if (from_idx == chunks.end())
         return std::make_pair(from_idx,from_idx);
 
-    Log_chunk_ptr_deque::size_type to_idx = chunks.find(t_to,false);
+    Log_chunk_ptr_map::const_iterator to_idx = chunks.find_nearest(t_to,false);
 
     return std::make_pair(from_idx,to_idx);
 }
@@ -941,17 +992,17 @@ Log_chunk_index_interval Log::get_Chunks_index_t_interval(std::time_t t_from, st
  *         a pair of indices beyond the range of existing Log chunks if
  *         no Log chunks were found for the interval.
  */
-Log_chunk_index_interval Log::get_Chunks_index_n_interval(std::time_t t_from, unsigned long n) {
+Log_chunk_const_iterator_interval Log::get_Chunks_index_n_interval(std::time_t t_from, unsigned long n) {
     if (n==0)
-        return std::make_pair(num_Chunks(),num_Chunks());
+        return std::make_pair(chunks.end(), chunks.end());
 
-    Log_chunk_ptr_deque::size_type from_idx = chunks.find(t_from,true);
-    if (from_idx>=chunks.size())
+    Log_chunk_ptr_map::const_iterator from_idx = chunks.find_nearest(t_from,true);
+    if (from_idx == chunks.end())
         return std::make_pair(from_idx,from_idx);
 
-    Log_chunk_ptr_deque::size_type to_idx = from_idx + (n-1);
-    if (to_idx >= chunks.size())
-        to_idx = chunks.size()-1;
+    Log_chunk_ptr_map::const_iterator to_idx = std::next(from_idx, (n-1));
+    if (to_idx == chunks.end())
+        to_idx = std::prev(chunks.end());
     
     return std::make_pair(from_idx,to_idx);
 }
@@ -960,7 +1011,7 @@ Log_chunk * Log::get_newest_Chunk() {
     if (chunks.empty())
         return nullptr;
 
-    return chunks.back().get();
+    return std::prev(chunks.end())->second.get();
 }
 
 Log_entry * Log::get_newest_Entry() {
@@ -996,7 +1047,7 @@ Log_chunk_ID_key_set Log::chunk_key_list_from_entries() {
 
 /// Parse all chunks and entries, and assign them to their Node ID keys.
 void Node_histories::init(Log & log) {
-    for (const auto & chunk : log.get_Chunks()) {
+    for (const auto & [chunk_key, chunk] : log.get_Chunks()) {
         Node_ID_key nkey(chunk->get_NodeID().key());
         if (nkey.isnullkey())
             continue; // This would actually be an error...
@@ -1065,13 +1116,13 @@ Topic * main_topic(Graph & _graph, Log_chunk & chunk) {
  * @param log a Log object where all Log chunks are in the chunks deque.
  * @return a vector of indices into log::chunks.
  */
-std::vector<Log_chunks_Deque::size_type> Breakpoint_Indices(Log & log) {
-    std::vector<Log_chunks_Deque::size_type> indices(log.num_Breakpoints());
+std::vector<Log_chunks_Map::iterator> Breakpoint_Indices(Log & log) {
+    std::vector<Log_chunks_Map::iterator> indices(log.num_Breakpoints());
     for (std::deque<Log_chunk_ID_key>::size_type i = 0; i < log.num_Breakpoints(); ++i) {
-        Log_chunk_ptr_deque::size_type idx = log.get_Chunks().find(log.breakpoints.get_chunk_id_key(i));
-        if (idx>=log.get_Chunks().size()) {
+        Log_chunk_ptr_map::iterator idx = log.get_Chunks().find(log.breakpoints.get_chunk_id_key(i));
+        if (idx == log.get_Chunks().end()) {
             ADDERROR(__func__,"Log breakpoint["+std::to_string(i)+"]="+log.breakpoints.get_chunk_id_str(i)+" is not a known Log chunk");
-            indices[i] = log.num_Chunks(); // indicates not found
+            indices[i] = log.chunks.end(); // indicates not found
         } else {
             indices[i] = idx;
         }
@@ -1121,14 +1172,26 @@ ymd_tuple Log_span_years_months_days(Log & log) {
  * @param log a Log object where all Log chunks are in the chunks deque.
  * @return a vector of counts.
  */
-std::vector<Log_chunks_Deque::size_type> Chunks_per_Breakpoint(Log & log) {
+std::vector<size_t> Chunks_per_Breakpoint(Log & log) {
+    std::vector<size_t> chunks_per_bp;
     auto chunkindices = Breakpoint_Indices(log);
-    chunkindices.push_back(log.num_Chunks() - 1); // append the latest Log chunk index
+    for (auto bp_it = chunkindices.begin(); bp_it != chunkindices.end(); ++bp_it) {
+        auto next_bp_it = std::next(bp_it);
+        if (next_bp_it == chunkindices.end()) { // count to end
+            chunks_per_bp[chunks_per_bp.size()] = distance(*bp_it,log.chunks.end());
+        } else { // count to next breakpoint
+            chunks_per_bp[chunks_per_bp.size()] = distance(*bp_it,*next_bp_it);
+        }
+    }
+    return chunks_per_bp;
+}
+/*
+    chunkindices.push_back(std::prev(log.chunks.end())); // append the latest Log chunk index
     auto diff = chunkindices;                     // easy way to make sure it's the same type and size
     std::adjacent_difference(chunkindices.begin(), chunkindices.end(), diff.begin());
     diff.erase(diff.begin()); // trim diff[0], see std::adjacent_difference()
     return diff;
-}
+*/
 
 /**
  * Calculate the total number of minutes logged for all Log chunks in the
@@ -1137,11 +1200,11 @@ std::vector<Log_chunks_Deque::size_type> Chunks_per_Breakpoint(Log & log) {
  * @param chunks a deque containing a sorted list Log_chunk pointers.
  * @return the sum total of time logged in minutes.
  */
-unsigned long Chunks_total_minutes(Log_chunks_Deque & chunks) {
+unsigned long Chunks_total_minutes(Log_chunks_Map & chunks) {
     struct {
-        unsigned long operator()(unsigned long total, const std::unique_ptr<Log_chunk> & chunkptr) {
-            if (chunkptr)
-                return total + chunkptr->duration_minutes();
+        unsigned long operator()(unsigned long total, Log_chunk_ptr_map_element & chunkptr) {
+            if (chunkptr.second)
+                return total + chunkptr.second->duration_minutes();
             return total;
         }
     } duration_adder;
