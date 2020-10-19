@@ -129,8 +129,8 @@ public:
     Log_chunk_ID_key_deque::size_type bridx;
 
     std::string yyyymmdd;
-    Log_chunk_ptr_deque::size_type chunk_begin_idx; // index of first chunk in section
-    Log_chunk_ptr_deque::size_type chunk_end_limit; // one past index of last chunk in section
+    Log_chunk_ptr_map::const_iterator chunk_begin_idx; // index of first chunk in section
+    Log_chunk_ptr_map::const_iterator chunk_end_limit; // one past index of last chunk in section
     bool has_prev_section;
     bool has_next_section;
     std::string prev_yyyymmdd;
@@ -140,7 +140,7 @@ public:
 
     section_Converter() = delete; // explicitly forbid the default constructor, just in case
     section_Converter(render_environment &_env, section_templates &_templates, Graph &_graph, Log &_log,
-                      Log_chunks_Deque::size_type _bridx) : status(section_ok), env(_env), templates(_templates),
+                      Log_chunk_ID_key_deque::size_type _bridx) : status(section_ok), env(_env), templates(_templates),
                       graph(_graph), log(_log), bridx(_bridx) {
 
         if (bridx >= log.num_Breakpoints()) {
@@ -151,7 +151,7 @@ public:
             yyyymmdd = log.get_Breakpoint_Ymd_str(bridx);
             chunk_begin_idx = log.get_chunk_first_at_Breakpoint(bridx); // find the actual object
 
-            if (chunk_begin_idx>=log.num_Chunks()) {
+            if (chunk_begin_idx == log.get_Chunks().end()) {
                 status = section_fist_chunk_not_found;
                 ADDERROR(__func__,"section first chunk not found "+log.get_Breakpoint_first_chunk_id_str(bridx));
 
@@ -167,14 +167,14 @@ public:
                     has_next_section = (bridx+offset) < log.num_Breakpoints();
                     if (has_next_section) {
                         chunk_end_limit = log.get_chunk_first_at_Breakpoint(bridx+offset);
-                        if (chunk_end_limit < log.num_Chunks()) {
+                        if (chunk_end_limit != log.get_Chunks().end()) {
                             next_yyyymmdd = log.get_Breakpoint_Ymd_str(bridx+offset);
                             break;
                         }
                         ++offset;
                         
                     } else {
-                        chunk_end_limit = log.num_Chunks();
+                        chunk_end_limit = log.get_Chunks().end();
 
                     }
                 } while (has_next_section);
@@ -277,42 +277,45 @@ public:
     /**
      * Render a Log chunk's references to preceding and following Log chunks.
      */
-    std::string render_chunk_ALprev(unsigned long c) {
-        if (c==0) {
+    std::string render_chunk_ALprev(Log_chunk_ptr_map::const_iterator c) { //(unsigned long c) {
+        if (c == log.get_Chunks().begin()) { //==0) {
             return templates[chunk_ALnoprev_temp]; // no need to render
         }
 
         ADDERRPING("#1");
         template_varvalues ALprevdata;
-        if ((c - 1) < chunk_begin_idx) {
+        if (c == chunk_begin_idx) { //if ((c - 1) < chunk_begin_idx) {
+            // *** SHOULD THE NEXT ONE BE "task-log."+log.get_Breakpoint_Ymd_str(bridx - 1)+".html#"
             ALprevdata.emplace("ALprevsectionyyyymmdd",log.get_Breakpoint_Ymd_str(bridx - 1));
         } else {
             ALprevdata.emplace("ALprevsectionyyyymmdd",yyyymmdd);
         }
-        Log_chunk *pcptr = log.get_chunk(c - 1);
+
+        const Log_chunk * pcptr = log.get_chunk(std::prev(c)); //(c - 1);
         if (!pcptr) {
-            ADDERROR(__func__,"previous chunk (idx="+std::to_string(c-1)+") returned nullptr");
+            ADDERROR(__func__, "previous chunk (before "+c->second->get_tbegin_str()+") returned nullptr");
         } else {
             ALprevdata.emplace("ALprevchunkstartyyyymmddhhmm",pcptr->get_tbegin_str());
         }
         return env.render(templates[chunk_ALprev_temp], ALprevdata);
     }
 
-    std::string render_chunk_ALnext(unsigned long c) {
-        if ((c + 1) >= log.num_Chunks()) {
+    std::string render_chunk_ALnext(Log_chunk_ptr_map::const_iterator c) {
+        if (std::next(c) == log.get_Chunks().end()) { //(c + 1) >= log.num_Chunks()) {
             return templates[chunk_ALnonext_temp]; // no need to render
         }
 
         ADDERRPING("#1");
         template_varvalues ALnextdata;
-        if ((c + 1) >= chunk_end_limit) {
+        if (std::next(c) == chunk_end_limit) { // (c + 1) >= chunk_end_limit) {
             ALnextdata.emplace("ALnextsectionyyyymmdd","task-log."+log.get_Breakpoint_Ymd_str(bridx + 1)+".html#");
         } else {
             ALnextdata.emplace("ALnextsectionyyyymmdd","#"); // All but the last in section are relative!
         }
-        Log_chunk * ncptr = log.get_chunk(c + 1);
+
+        const Log_chunk * ncptr = log.get_chunk(std::next(c));
         if (!ncptr) { // always be careful
-            ADDERROR(__func__,"next chunk (idx="+std::to_string(c+1)+") returned nullptr");
+            ADDERROR(__func__, "next chunk (after "+c->second->get_tbegin_str()+") returned nullptr");
         } else {
             ALnextdata.emplace("ALnextchunkstartyyyymmddhhmm",ncptr->get_tbegin_str());
         }
@@ -364,16 +367,16 @@ public:
         COMPILEDPING(std::cout,"PING-render_chunks\n");
         chunks.clear();
 
-        for (unsigned long c = chunk_begin_idx; c < chunk_end_limit; ++c) {
+        for (auto c = chunk_begin_idx; c != chunk_end_limit; ++c) {
 
             COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".1\n");
-            Log_chunk * cptr = log.get_chunk(c);
+            const Log_chunk * cptr = log.get_chunk(c);
             if (!cptr) { // always be careful around pointers
-                ADDERROR(__func__,"chunk (idx="+std::to_string(c)+") was nullptr (should never happen!)");
+                ADDERROR(__func__,"chunk (with key "+c->first.str()+") was nullptr (should never happen!)");
                 continue;
             }
 
-            Log_chunk & chunk = *cptr;
+            const Log_chunk & chunk = *cptr;
             std::string chunkidstr(chunk.get_tbegin_str());
             ERRHERE(chunkidstr);
             template_varvalues chunkdata;
@@ -389,7 +392,8 @@ public:
             //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".3a\n");
             if (graph.num_Topics()>0) {
                 //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".3b\n");
-                Topic * maintopic = main_topic(graph,chunk);
+                Log_chunk * nonconst_cptr = const_cast<Log_chunk *>(cptr);
+                Topic * maintopic = main_topic(graph, *nonconst_cptr); //chunk);
                 if (maintopic) {
                     //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".3c-i\n");
                     chunkdata.emplace("nodetopicid", maintopic->get_tag());
@@ -408,10 +412,10 @@ public:
             chunkdata.emplace("nodeid",chunk.get_NodeID().str());
 
             //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".4\n");
-            chunkdata.emplace("nodeprev",render_chunk_nodeprev(chunk));
+            chunkdata.emplace("nodeprev",render_chunk_nodeprev(*(const_cast<Log_chunk*>(&chunk))));
 
             //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".5\n");
-            chunkdata.emplace("nodenext",render_chunk_nodenext(chunk));
+            chunkdata.emplace("nodenext",render_chunk_nodenext(*(const_cast<Log_chunk*>(&chunk))));
 
             time_t chunkclose = chunk.get_close_time();
             if (chunkclose<0) {
@@ -423,7 +427,7 @@ public:
             //COMPILEDPING(std::cout,"PING-render_chunks#"+std::to_string(c)+".6\n");
             // Needs valid rapid-access `entries` vector.
             entry.clear();
-            auto entries = chunk.get_entries();
+            auto entries = const_cast<Log_chunk*>(&chunk)->get_entries();
             for (unsigned long e_idx = 0; e_idx < entries.size(); ++e_idx) {
 
                 Log_entry * e = entries[e_idx];

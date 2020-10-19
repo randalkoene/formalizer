@@ -1,5 +1,5 @@
 #
-# Makefile for {{ this }}
+# Makefile for fzaddnode
 # (by Randal A. Koene, randalk@minduploading.org)
 #
 
@@ -28,7 +28,7 @@ MACHOPT= $(GCCTUNE) $(SSEOPT)
 FORMALIZERPATH=$(HOME)/src/formalizer
 COREINCLUDEPATH=$(FORMALIZERPATH)/core/include
 CORELIBPATH=$(FORMALIZERPATH)/core/lib
-FORMALIZERPATH_THIS=$(FORMALIZERPATH)/{{ tools_or_core }}/{{ this }}
+FORMALIZERPATH_THIS=$(FORMALIZERPATH)/core/fzaddnode
 
 TEMPLATEDIR = -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\" 
 
@@ -111,20 +111,22 @@ CORE_OBJS += $(CORELIBPATH)/obj/templater.o
 CORE_OBJS += $(CORELIBPATH)/obj/fzpostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Graphaccess.o
-# CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
-# CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
+CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphbase.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphinfo.o
 # CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Logpostgres.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Guidepostgres.o
-# CORE_OBJS += $(CORELIBPATH)/obj/utf8.o
+CORE_OBJS += $(CORELIBPATH)/obj/utf8.o
 # CORE_OBJS += $(CORELIBPATH)/obj/dilaccess.o
 # +----- end  : Select Formalizer core library objects -----+
 
 .PHONY: FORCE
 
-all: init {{ this }}
+all: init fzaddnode
 
 init: FORCE
 	@echo '-------------------------------------------------------------------'
@@ -132,16 +134,16 @@ init: FORCE
 	@echo 'Includes: $(CPPFLAGS)'
 	@echo '-------------------------------------------------------------------'
 
-{{ templater_target }}
-$(OBJ)/{{ this }}.o: {{ this }}.cpp {{ this }}.hpp version.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) {{ templater_macro }}-c {{ this }}.cpp -o $(OBJ)/{{ this }}.o
 
-{{ this }}: $(OBJ)/{{ this }}.o {{ templater_obj }}$(CORE_OBJS)
-	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  {{ templater_macro }}$^ -o {{ this }} $(LIB_PATH)
+$(OBJ)/fzaddnode.o: fzaddnode.cpp fzaddnode.hpp version.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c fzaddnode.cpp -o $(OBJ)/fzaddnode.o
+
+fzaddnode: $(OBJ)/fzaddnode.o $(CORE_OBJS)
+	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o fzaddnode $(LIB_PATH)
 
 clean:
-	cp -f {{ this }} {{ this }}.bak
-	rm -f $(OBJ)/*.o {{ this }}
+	cp -f fzaddnode fzaddnode.bak
+	rm -f $(OBJ)/*.o fzaddnode
 
 #doc++:
 #	rm -r -f html

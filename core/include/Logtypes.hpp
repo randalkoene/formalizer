@@ -421,7 +421,7 @@ public:
     //void add_later_unique_Chunk(const Log_TimeStamp &_tbegin, const Node_ID &_nodeid, std::time_t _tclose);
 
     /// chunks table: get chunk
-    const Log_chunk * get_chunk(Log_chunk_ptr_map::iterator idx) const { return chunks.get_chunk(idx); }
+    const Log_chunk * get_chunk(Log_chunk_ptr_map::const_iterator idx) const { return chunks.get_chunk(idx); }
     const Log_chunk * get_chunk(const Log_chunk_ID_key chunk_idkey) const { return chunks.get_chunk(chunk_idkey); }
     Log_chunk_ID_key get_chunk_id_key(Log_chunk_ptr_map::const_iterator idx) const { return chunks.get_key_copy(idx); }
     Log_chunk_ptr_map::const_iterator find_chunk_by_key(const Log_chunk_ID_key chunk_idkey) const { return chunks.find(chunk_idkey); }

@@ -43,7 +43,7 @@ COMPILABLES = $(LIBCOMPDIRS) $(CORECOMPDIRS) $(TOOLSCOMPDIRS)
 
 # +----- begin: Select Formalizer executables -----+
 EXECUTABLES =
-# EXECUTABLES += $(COREPATH)/fzaddnode/fzaddnode
+EXECUTABLES += $(COREPATH)/fzaddnode/fzaddnode
 # EXECUTABLES += $(COREPATH)/fzedit/fzedit
 EXECUTABLES += $(COREPATH)/fzbackup/fzbackup.py
 EXECUTABLES += $(COREPATH)/fzinfo/fzinfo.py
@@ -85,6 +85,7 @@ EXECUTABLES += $(TOOLSPATH)/system/requestmanual/requestmanual.py
 
 # symbolic links to executables for CGI scripts to call upon
 SYMBIN = 
+SYMBIN += $(COREPATH)/fzlog/fzaddnode
 SYMBIN += $(COREPATH)/fzlog/fzlog
 SYMBIN += $(COREPATH)/fzquerypq/fzquerypq
 SYMBIN += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml

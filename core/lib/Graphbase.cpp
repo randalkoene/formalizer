@@ -117,6 +117,40 @@ std::string Node_ID_TimeStamp_to_string(const ID_TimeStamp idT) {
 }
 
 /**
+ * Create a usable Node ID TimeStamp from an epoch time and a
+ * minor-ID.
+ * 
+ * This can also be used to produce valid Node ID TimeStamps without
+ * the node-ID extension by specifying `minor_id = 0`. (See for
+ * example how that is used in `fzaddnode` to generate a base for
+ * a Node ID before choosing the minor-ID.)
+ * 
+ * Valid epoch times must be greater than 1999-01-01 00:00:00.
+ * If `throw_if_invalid` is true then an invalid epoch time
+ * causes ID_exception to be thrown.
+ * 
+ * @param t A valid epoch time for a Node ID.
+ * @param minor_id A single-digit minor-ID (0 means time stamp only).
+ * @param throw_if_invalid If true then throw ID_exception for invalid specifications.
+ * @return A string with a valid Node ID TimeStamp, including minor-ID if given (or empty if invalid).
+ */
+std::string Node_ID_TimeStamp_from_epochtime(time_t t, uint8_t minor_id, bool throw_if_invalid) {
+    if ((t < NODE_ID_FIRST_VALID_TEPOCH) || (minor_id > 9)) {
+        if (throw_if_invalid) {
+            std::string formerror(" with epoch time ("+std::to_string(t)+") that converts to invalid Node ID\n");
+            throw(ID_exception(formerror));
+        }
+        return "";
+    }
+
+    std::string nodeid_str = TimeStamp("%Y%m%d%H%M%S", t);
+    if (minor_id > 0) {
+        nodeid_str += '.' + std::to_string(minor_id);
+    }
+    return nodeid_str;
+}
+
+/**
  * Convert standardized Formalizer Node ID time stamp into local time
  * data object.
  * 
@@ -148,6 +182,13 @@ Node_ID_key::Node_ID_key(const ID_TimeStamp& _idT) { //}: idC( { .id_major = 0, 
 Node_ID_key::Node_ID_key(std::string _idS) { //}: idC( { .id_major = 0, .id_minor = 0 } ) {
     std::string formerror;
     if (!valid_Node_ID(_idS,formerror,&idT)) throw(ID_exception(formerror));
+}
+
+Node_ID_key::Node_ID_key(time_t t, uint8_t minor_id) {
+    std::string formerror;
+    if ((minor_id<1) || (minor_id>9)) throw(ID_exception(formerror));
+    std::string node_idstr = Node_ID_TimeStamp_from_epochtime(t, minor_id, true);
+    if (!valid_Node_ID(node_idstr,formerror,&idT)) throw(ID_exception(formerror));
 }
 
 Edge_ID_key::Edge_ID_key(std::string _idS) {

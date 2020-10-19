@@ -127,7 +127,7 @@ unsigned int convert_TL_Chunk_to_Log_entries(Log & log, std::string chunktext) {
     if (candidates.size()<1)
         return 0;
 
-    Log_chunk * chunk = (log.get_Chunks().front()).get();
+    Log_chunk * chunk = log.get_Chunks().begin()->second.get(); //(log.get_Chunks().front()).get();
     if (!chunk)
         return 0;
 
@@ -312,7 +312,8 @@ const Node_ID convert_TL_DILref_to_Node_ID(TL_entry_content &TLentrycontent, Log
         unsigned int mins_duration = 0;
         if (!(log.get_Chunks().empty())) {
             time_t thischunk = time_stamp_time(chunkid_str);
-            time_t laterchunk = log.get_Chunks().front()->get_open_time();
+            time_t laterchunk = log.get_Chunks().begin()->second->get_open_time();
+            //time_t laterchunk = log.get_Chunks().front()->get_open_time();
             mins_duration = (laterchunk - thischunk) / 60;
         }
 
@@ -449,7 +450,8 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
                 if (log->get_Chunks().empty())
                     ERRRETURNNULL(__func__,"unable to assign Log breakpoint without any Log chunks");
 
-                log->get_Breakpoints().add_earlier_Breakpoint(*log->get_Chunks().front());
+                log->get_Breakpoints().add_earlier_Breakpoint(*(log->get_Chunks().begin()->second));
+                //log->get_Breakpoints().add_earlier_Breakpoint(*log->get_Chunks().front());
 
             }
             TLfilename = TLentrycontent->source.file.chars();
@@ -469,7 +471,7 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
         // function by the call to log->setup_Chunk_nodeprevnext().
 
         if (nodeid_result>0) {
-            log->add_earlier_Chunk(chunkid.key().idT,nodeid,TLentrycontent->chunkendtime);
+            log->add_Chunk(chunkid.key().idT,nodeid,TLentrycontent->chunkendtime);
         } else {
             continue; // This skips parsing the chunk for entries as well.
         }
@@ -487,7 +489,8 @@ std::unique_ptr<Log> convert_TL_to_Log(Task_Log * tl) {
     if (TLfilename.empty())
         ERRRETURNNULL(__func__, "no Task Log files found");
 
-    log->get_Breakpoints().add_earlier_Breakpoint(*log->get_Chunks().front());
+    log->get_Breakpoints().add_earlier_Breakpoint(*(log->get_Chunks().begin()->second));
+    //log->get_Breakpoints().add_earlier_Breakpoint(*log->get_Chunks().front());
 
     ERRHERE(".chainbynode");
     log->setup_Chain_nodeprevnext();
@@ -516,10 +519,10 @@ void Log_Integrity_Tests(Log & log) {
     unsigned long mega_chunk = 0;
     Problem_Chunks megachunk;
 
-    Log_chunks_Deque & chunks = log.get_Chunks();
+    Log_chunks_Map & chunks = log.get_Chunks();
     for (auto chit = chunks.begin(); chit != chunks.end(); ++chit) {
     //for (const auto& chunkptr : chunks) {
-        Log_chunk * chunkptr = chit->get();
+        Log_chunk * chunkptr = chit->second.get();
         time_t t_open = chunkptr->get_open_time();
         time_t t_close = chunkptr->get_close_time();
         if (t_open<EPOCH1999) {

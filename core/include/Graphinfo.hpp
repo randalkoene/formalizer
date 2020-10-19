@@ -51,6 +51,19 @@ unsigned long Edges_with_data(Graph & graph);
  */
 targetdate_sorted_Nodes Nodes_incomplete_by_targetdate(Graph & graph);
 
+/**
+ * Selects all Nodes that have Node IDs (i.e. creation times) within
+ * a specified time interval.
+ * 
+ * For example, see how this is used in `fzaddnode`.
+ * 
+ * @param graph A valid Graph data structure.
+ * @param earliest The earliest epoch-time equivalent Node-ID.
+ * @param before The epoch-time equivalent beyond the Node-ID interval.
+ * @return A map of pointers to nodes by Node_ID_key.
+ */
+key_sorted_Nodes Nodes_created_in_time_interval(Graph & graph, time_t earliest, time_t before);
+
 } // namespace fz
 
 #endif // __GRAPHINFO_HPP

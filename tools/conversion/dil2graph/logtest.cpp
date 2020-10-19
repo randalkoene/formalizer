@@ -101,8 +101,8 @@ struct render_Breakpoint {
 
         std::string firstchunk_rendered;
         auto chunk_idx = log.get_Chunks().find(chunk_key);
-        if (chunk_idx<log.get_Chunks().size()) {
-            Log_chunk * chunk = log.get_Chunks().at(chunk_idx).get();
+        if (chunk_idx != log.get_Chunks().end()) { // size()) {
+            Log_chunk * chunk = chunk_idx->second.get(); // log.get_Chunks().at(chunk_idx).get();
             firstchunk_rendered += sample_Chunk_HTML(env,*chunk);
         } else {
             firstchunk_rendered += testchunk_notfound;
@@ -137,7 +137,7 @@ bool test_Log_data(Log & log) {
 
     ERRHERE(".chunks");
     if (log.num_Chunks()>=1) {
-        Log_chunk * chunk = log.get_Chunks().back().get();
+        Log_chunk * chunk = std::prev(log.get_Chunks().end())->second.get(); // .back().get();
         testpagedata.emplace("chunks",sample_Chunk_HTML(env,*chunk));
     } else {
         testpagedata.emplace("chunks",zerochunks);

@@ -114,12 +114,15 @@ typedef int Graphsigned;
 typedef bool Graphflag;
 
 typedef std::vector<Node *> Node_Index;
-typedef std::map<time_t, Node *> targetdate_sorted_Nodes; ///< Sorting is done by the key comparison function.
+typedef std::map<time_t, Node *> targetdate_sorted_Nodes; ///< Sorting is done by the time_t key comparison function.
+typedef std::map<const Node_ID_key, Node *> key_sorted_Nodes;
 
 typedef std::map<std::string, std::string> Graph_info_label_value_pairs;
 
 #define NODE_NULLKEY_STR "{null-key}"
 #define HIGH_TOPIC_INDEX_WARNING 1000 /// at this index number report a warning just in case it is in error
+// The Unix epoch-time equivalent of the earliest valid ID time stamp in 1999.
+#define NODE_ID_FIRST_VALID_TEPOCH 915177600
 
 /**
  * For more information about td_property values, as well as future expansions, please
@@ -246,6 +249,7 @@ struct Node_ID_key { // used to be a union with `ID Compare idC;` (see comments 
 
     Node_ID_key(const ID_TimeStamp& _idT);
     Node_ID_key(std::string _idS);
+    Node_ID_key(time_t t, uint8_t minor_id);
 
     /// standardization functions and operators
     bool isnullkey() const { return idT.month == 0; }
@@ -298,6 +302,26 @@ bool valid_Node_ID(std::string id_str, std::string &formerror, ID_TimeStamp *id_
 bool valid_Node_ID(const ID_TimeStamp &idT, std::string &formerror);
 
 std::string Node_ID_TimeStamp_to_string(const ID_TimeStamp idT);
+
+/**
+ * Create a usable Node ID TimeStamp from an epoch time and a
+ * minor-ID.
+ * 
+ * This can also be used to produce valid Node ID TimeStamps without
+ * the node-ID extension by specifying `minor_id = 0`. (See for
+ * example how that is used in `fzaddnode` to generate a base for
+ * a Node ID before choosing the minor-ID.)
+ * 
+ * Valid epoch times must be greater than 1999-01-01 00:00:00.
+ * If `throw_if_invalid` is true then an invalid epoch time
+ * causes ID_exception to be thrown.
+ * 
+ * @param t A valid epoch time for a Node ID.
+ * @param minor_id A single-digit minor-ID (0 means time stamp only).
+ * @param throw_if_invalid If true then throw ID_exception for invalid specifications.
+ * @return A string with a valid Node ID TimeStamp, including minor-ID if given (or empty if invalid).
+ */
+std::string Node_ID_TimeStamp_from_epochtime(time_t t, uint8_t minor_id = 0, bool throw_if_invalid = false);
 
 // +----- end  : standardization functions -----+
 

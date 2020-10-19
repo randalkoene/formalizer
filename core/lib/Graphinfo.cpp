@@ -126,4 +126,31 @@ targetdate_sorted_Nodes Nodes_incomplete_by_targetdate(Graph & graph) {
     return nodes; // automatic copy elision std::move(nodes);
 }
 
+/**
+ * Selects all Nodes that have Node IDs (i.e. creation times) within
+ * a specified time interval.
+ * 
+ * For example, see how this is used in `fzaddnode`.
+ * 
+ * @param graph A valid Graph data structure.
+ * @param earliest The earliest epoch-time equivalent Node-ID.
+ * @param before The epoch-time equivalent beyond the Node-ID interval.
+ * @return A map of pointers to nodes by Node_ID_key.
+ */
+key_sorted_Nodes Nodes_created_in_time_interval(Graph & graph, time_t earliest, time_t before) {
+    key_sorted_Nodes nodes;
+    if (before <= earliest)
+        return nodes;
+
+    const Node_ID_key key_earliest(earliest, 1);
+    const Node_ID_key key_before(before, 1);
+    auto it_same_or_later = graph.get_nodes().lower_bound(key_earliest);
+    auto it_before = graph.get_nodes().upper_bound(key_before);
+    for (auto it = it_same_or_later; it != it_before; ++it) {
+        nodes.emplace(it->first, it->second.get());
+    }
+
+    return nodes;
+}
+
 } // namespace fz
