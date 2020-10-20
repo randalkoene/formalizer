@@ -180,23 +180,9 @@ void verbose_test_output(const entry_data & edata) {
 
 bool make_entry(entry_data & edata) {
     ERRTRACE;
-    if (edata.utf8_text.empty()) {
-        if (fzl.config.content_file.empty()) {
-            standard_exit_error(exit_general_error, "Missing Log entry content", __func__);
-        }
-        if (fzl.config.content_file == "STDIN") {
-            if (!stream_to_string(std::cin, edata.utf8_text)) {
-                standard_exit_error(exit_file_error, "Unable to obtain entry content from standard input", __func__);
-            }
-        } else {
-            if (!file_to_string(fzl.config.content_file, edata.utf8_text)) {
-                standard_exit_error(exit_file_error, "Unable to obtain entry content from file at "+fzl.config.content_file, __func__);
-            }
-        }
-        if (edata.utf8_text.empty()) {
-            standard_exit_error(exit_general_error, "Missing Log entry content", __func__);
-        }
-    }
+    auto [exit_code, errstr] = get_content(edata.utf8_text, fzl.config.content_file, "Log entry");
+    if (exit_code != exit_ok)
+        standard_exit_error(exit_code, errstr, __func__);
 
     check_specific_node(edata);
     get_newest_Log_data(fzl.ga ,edata);

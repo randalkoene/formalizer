@@ -11,9 +11,13 @@
 #include "version.hpp"
 #define __FZADDNODE_HPP (__VERSION_HPP)
 
+// std
+#include <vector>
+
 // core
 #include "config.hpp"
 #include "standard.hpp"
+#include "Graphbase.hpp"
 // #include "Graphaccess.hpp"
 
 using namespace fz;
@@ -29,14 +33,25 @@ enum flow_options {
     flow_NUMoptions
 };
 
+typedef std::vector<const Node_ID_key> Node_ID_key_Vector;
+
 class fzan_configurable: public configurable {
 public:
     fzan_configurable(formalizer_standard_program & fsp): configurable("fzaddnode", fsp) {}
     bool set_parameter(const std::string & parlabel, const std::string & parvalue);
 
-    //std::string example_par;   ///< example of configurable parameter
+    std::string content_file; ///< Optional file path for description text content.
+    Graphdecimal hours = 0.0;
+    Graphdecimal valuation = 0.0;
+    Node_ID_key_Vector superiors;
+    Node_ID_key_Vector dependencies;
+    std::vector<std::string> topics;
+    time_t targetdate;
+    td_property tdproperty;
+    td_pattern tdpattern;
+    Graphsigned tdevery;
+    Graphsigned tdspan;
 };
-
 
 class fzaddnode: public formalizer_standard_program {
 protected:
@@ -47,6 +62,7 @@ public:
 
     flow_options flowcontrol;
 
+    std::string utf8_text;
 
     // Graph_access ga; // to include Graph or Log access support
 

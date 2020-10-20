@@ -147,8 +147,25 @@ public:
 
     segment_memory_t * allocate_and_activate_shared_memory(std::string segment_name, unsigned long segmentsize);
     //std::unique_ptr<Graph> allocate_Graph_in_shared_memory(); // *** gets tricky with Boost Interprocess
-    Graph * allocate_Graph_in_shared_memory(); ///< server, allocate a shared memory segment and construct an empty Graph
-    Graph * find_Graph_in_shared_memory(); ///< client, find a Graph in an existing shared memory segment
+    Graph_ptr allocate_Graph_in_shared_memory(); ///< server, allocate a shared memory segment and construct an empty Graph
+    Graph_ptr find_Graph_in_shared_memory(); ///< client, find a Graph in an existing shared memory segment
+    /**
+     * Get a Graph pointer from a pointer variable or set that variable
+     * to the Graph address in shared memory if the variable was set to
+     * nullptr.
+     * 
+     * For example, see how this is used in Graphmodify.cpp and in
+     * fzaddnode.cpp.
+     * 
+     * Note: If the pointer variable provided is not nullptr then it is
+     *       assumed that it contains a valid pointer to a Graph in
+     *       shared memory. Therefore, make sure to initialize the
+     *       pointer variable to nullptr at the start of a program!
+     * 
+     * @param graph_ptr A reference to a pointer variable.
+     * @return The address of a Graph in shared memory or nullptr if not found.
+     */
+    Graph_ptr graph_mem_managers::get_Graph(Graph_ptr & graph_ptr);
     void info(Graph_info_label_value_pairs & meminfo);
     std::string info_str();
 };

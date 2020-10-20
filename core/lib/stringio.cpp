@@ -133,4 +133,36 @@ bool stream_to_string(std::istream &in, std::string & s) {
     return true; // *** might want to test the `badbit` mentioned in documentation
 }
 
+/**
+ * Try to fill a string with text content if it was empty.
+ * 
+ * E.g. see how this is used in fzaddnode.cpp.
+ * 
+ * @param utf8_text A string reference to receive the content (if not already present).
+ * @param content_path A possible path to a file containing text content.
+ * @param errmsg_target A short string to be used in error messages.
+ * @return A pair with a proposed exit code (exit_ok if no problem) and possible error message (empty if no problem).
+ */
+std::pair<exit_status_code, std::string> get_content(std::string & utf8_text, const std::string content_path, const std::string errmsg_target) {
+    ERRTRACE;
+    if (utf8_text.empty()) {
+        if (content_path.empty()) {
+            return std::make_pair(exit_missing_parameter, "Missing "+errmsg_target+" content");
+        }
+        if (content_path == "STDIN") {
+            if (!stream_to_string(std::cin, utf8_text)) {
+                return std::make_pair(exit_file_error, "Unable to obtain "+errmsg_target+" content from standard input");
+            }
+        } else {
+            if (!file_to_string(content_path, utf8_text)) {
+                return std::make_pair(exit_file_error, "Unable to obtain "+errmsg_target+" content from file at "+content_path);
+            }
+        }
+        if (utf8_text.empty()) {
+            return std::make_pair(exit_missing_data, "Missing "+errmsg_target+" content");
+        }
+    }
+    return std::make_pair(exit_ok, "");
+}
+
 } // namespace fz

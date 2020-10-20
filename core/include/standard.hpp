@@ -58,23 +58,6 @@ namespace fz {
 // Forward declaration
 class main_init_register;
 
-/**
- * Standardized exit codes for the Formalizer environment.
- */
-enum exit_status_code {
-    exit_ok,
-    exit_general_error,
-    exit_database_error,
-    exit_unknown_option,
-    exit_cancel,
-    exit_conversion_error,
-    exit_DIL_error,
-    exit_unable_to_stack_clean_exit,
-    exit_command_line_error,
-    exit_file_error,
-    exit_NUMENUMS ///< this one simplifies corresponding array definition, e.g. char[exit_NUMENUMS]
-    };
-
 void error_summary_wrapper();
 
 void clean_exit_wrapper();

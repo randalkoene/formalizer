@@ -25,6 +25,9 @@ typedef std::vector<std::string> jsonlite_lines;
 typedef std::pair<std::string, std::string> jsonlite_label_value_pair;
 typedef std::map<jsonlite_parlabel, jsonlite_parvalue> jsonlite_label_value_pairs;
 
+/// Identify json key labels that are actually comments.
+bool is_json_comment(const std::string & keylabel);
+
 /**
  * Extract parameter label and parameter value from a content line.
  * 

@@ -94,7 +94,7 @@ segment_memory_t * graph_mem_managers::allocate_and_activate_shared_memory(std::
 }
 
 //std::unique_ptr<Graph> graph_mem_managers::allocate_Graph_in_shared_memory() {
-Graph * graph_mem_managers::allocate_Graph_in_shared_memory() {
+Graph_ptr graph_mem_managers::allocate_Graph_in_shared_memory() {
 
     segment_memory_t * segment = allocate_and_activate_shared_memory("fzgraph", 20*1024*1024); // *** improve this wild guess
     if (!segment)
@@ -109,7 +109,7 @@ Graph * graph_mem_managers::allocate_Graph_in_shared_memory() {
 }
 */
 
-Graph * graph_mem_managers::find_Graph_in_shared_memory() {
+Graph_ptr graph_mem_managers::find_Graph_in_shared_memory() {
     std::string segment_name("fzgraph");
     try {
         segment_memory_t * segment = new segment_memory_t(bi::open_only, segment_name.c_str()); // was bi::open_read_only
@@ -129,6 +129,31 @@ Graph * graph_mem_managers::find_Graph_in_shared_memory() {
         ERRRETURNNULL(__func__,"Unable to access shared memory 'fzgraph', "+std::string(ipexception.what()));
     }
     return nullptr;
+}
+
+/**
+ * Get a Graph pointer from a pointer variable or set that variable
+ * to the Graph address in shared memory if the variable was set to
+ * nullptr.
+ * 
+ * For example, see how this is used in Graphmodify.cpp and in
+ * fzaddnode.cpp.
+ * 
+ * Note: If the pointer variable provided is not nullptr then it is
+ *       assumed that it contains a valid pointer to a Graph in
+ *       shared memory. Therefore, make sure to initialize the
+ *       pointer variable to nullptr at the start of a program!
+ * 
+ * @param graph_ptr A reference to a pointer variable.
+ * @return The address of a Graph in shared memory or nullptr if not found.
+ */
+Graph_ptr graph_mem_managers::get_Graph(Graph_ptr & graph_ptr) {
+    if (!graph_ptr) {
+
+        graph_ptr = find_Graph_in_shared_memory(); // returns nullptr if not found
+
+    }
+    return graph_ptr;
 }
 
 void graph_mem_managers::info(Graph_info_label_value_pairs & meminfo) { //bi::managed_shared_memory & segment) {

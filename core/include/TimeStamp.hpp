@@ -81,6 +81,9 @@ inline std::string TimeStampYmdHM(std::time_t t) { return TimeStamp("%Y%m%d%H%M"
 /// Generate a Formalizer standardized date stamp (YYYYmmdd).
 inline std::string DateStampYmd(std::time_t t) { return TimeStamp("%Y%m%d",t); }
 
+std::time_t today_start_time() { return ymd_stamp_time(DateStampYmd(ActualTime())); }
+std::time_t today_end_time() { return ymd_stamp_time(DateStampYmd(ActualTime())+"2359"); }
+
 /// Generate a Formalizer standardized file backup extension (YYYYmmdd.bak).
 inline std::string BackupStampYmd() { return DateStampYmd(ActualTime())+".bak"; }
 

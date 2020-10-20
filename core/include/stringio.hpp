@@ -32,6 +32,18 @@ inline std::string string_from_file(std::string path, std::ifstream::iostate * r
 
 bool stream_to_string(std::istream &in, std::string & s);
 
+/**
+ * Try to fill a string with text content if it was empty.
+ * 
+ * E.g. see how this is used in fzaddnode.cpp.
+ * 
+ * @param utf8_text A string reference to receive the content (if not already present).
+ * @param content_path A possible path to a file containing text content.
+ * @param errmsg_target A short string to be used in error messages.
+ * @return A pair with a proposed exit code (exit_ok if no problem) and possible error message (empty if no problem).
+ */
+std::pair<exit_status_code, std::string> get_content(std::string & utf8_text, const std::string content_path, const std::string errmsg_target);
+
 } // namespace fz
 
 #endif // __STRINGIO_HPP

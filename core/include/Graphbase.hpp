@@ -103,6 +103,8 @@ class Node;
 class Edge;
 class Graph;
 
+typedef Graph* Graph_ptr;
+
 /// Formalizer specific base types for ease of modification (fixed size)
 typedef uint8_t GraphID8bit;
 typedef uint16_t GraphIDyear;

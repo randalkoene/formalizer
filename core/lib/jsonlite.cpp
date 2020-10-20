@@ -15,10 +15,31 @@
 namespace fz {
 
 /**
+ * Identify json key labels that are actually comments.
+ * 
+ * E.g. see how this is used in config.cpp.
+ */
+bool is_json_comment(const std::string & keylabel) {
+    if (keylabel.empty())
+        return false;
+
+    if ((keylabel.front() == '_') && (keylabel.back() == '_'))
+        return true;
+
+    return false;
+}
+
+/**
  * Extract parameter label and parameter value from a content line.
  * 
  * A line typically has this format:
  *   '"somelabel" : "somevalue"'
+ * 
+ * Note that JSON does not support comments as such. To add comments
+ * simply add some data such as '"__comment1__" : "This is a comment."'.
+ * 
+ * And to deactivate a configuration option, just turn the variable
+ * key into a comment.
  * 
  * @param par_value_pair A string in the expected format.
  * @return A pair of strings representing the parameter and the value.

@@ -91,7 +91,7 @@ bool configbase::parse(std::string & configcontentstr) {
     bool noerrors = true;
     for (const auto& it : configlines) {
         auto [parlabel, parvalue] = json_param_value(it);
-        if (!parlabel.empty()) {
+        if ((!parlabel.empty()) && (!is_json_comment(parlabel))) {
             if (!set_parameter(parlabel, parvalue)) {
                 ADDERROR(__func__,"Unable to parse configuration parameter: "+parlabel);
                 noerrors = false;
