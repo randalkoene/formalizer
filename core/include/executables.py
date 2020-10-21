@@ -19,8 +19,8 @@ Note: The `executables` variable is a tuple instead of a list, which is much
       like a macro.
 """ 
 executables = (
-    'fzaddnode',
     'fzbackup.py',
+    'fzgraphedit',
     'fzguide.system',
     'fzinfo.py',
     'fzlog',

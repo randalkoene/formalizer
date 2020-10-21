@@ -2,7 +2,7 @@
 // License TBD
 
 /**
- * The fzaddnode tool is the authoritative core component with which to
+ * The fzgraphedit tool is the authoritative core component with which to
  * add new Nodes and their initial Edges to the Graph.
  * 
  * {{ long_description }}
@@ -30,19 +30,19 @@
 
 // local
 #include "version.hpp"
-#include "fzaddnode.hpp"
+#include "fzgraphedit.hpp"
 
 
 using namespace fz;
 
 /// The local class derived from `formalizer_standard_program`.
-fzaddnode fzan;
+fzgraphedit fzge;
 
 /**
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzaddnode::fzaddnode() : formalizer_standard_program(false), graph_ptr(nullptr), config(*this) { //ga(*this, add_option_args, add_usage_top)
+fzgraphedit::fzgraphedit() : formalizer_standard_program(false), graph_ptr(nullptr), config(*this) { //ga(*this, add_option_args, add_usage_top)
     add_option_args += "T:f:H:v:S:D:t:g:p:r:e:s:";
     add_usage_top += " [-T <text>] [-f <content-file>] [-H <hours>] [-v <val>] [-S <sups>] [-D <deps>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>]";
     //usage_head.push_back("Description at the head of usage information.\n");
@@ -64,7 +64,7 @@ std::string NodeIDs_to_string(const Node_ID_key_Vector & nodeidvec) {
  * Add FZOUT statements for each line of the usage info to print as
  * help for program specific command line options.
  */
-void fzaddnode::usage_hook() {
+void fzgraphedit::usage_hook() {
     //ga.usage_hook();
     FZOUT("    -T description <text> from the command line\n");
     FZOUT("    -f description text from <content-file> (\"STDIN\" for stdin until eof, CTRL+D)\n");
@@ -158,7 +158,7 @@ Node_ID_key_Vector parse_config_NodeIDs(const std::string & parvalue) {
  * conversion was not poossible. That is a good precaution against otherwise
  * hard to notice bugs in configuration files.
  */
-bool fzan_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
+bool fzge_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     // *** You could also implement try-catch here to gracefully report problems with configuration files.
     CONFIG_TEST_AND_SET_PAR(content_file, "content_file", parlabel, parvalue);
     CONFIG_TEST_AND_SET_PAR(hours, "hours", parlabel, std::stof(parvalue));
@@ -185,7 +185,7 @@ bool fzan_configurable::set_parameter(const std::string & parlabel, const std::s
  * @param c is the character that identifies a specific option.
  * @param cargs is the optional parameter value provided for the option.
  */
-bool fzaddnode::options_hook(char c, std::string cargs) {
+bool fzgraphedit::options_hook(char c, std::string cargs) {
     //if (ga.options_hook(c,cargs))
     //        return true;
 
@@ -263,7 +263,7 @@ bool fzaddnode::options_hook(char c, std::string cargs) {
  * @param argc command line parameters count forwarded from main().
  * @param argv command line parameters array forwarded from main().
  */
-void fzaddnode::init_top(int argc, char *argv[]) {
+void fzgraphedit::init_top(int argc, char *argv[]) {
     ERRTRACE;
 
     // *** add any initialization here that has to happen before standard initialization
@@ -273,13 +273,13 @@ void fzaddnode::init_top(int argc, char *argv[]) {
 
 int make_node() {
     ERRTRACE;
-    auto [exit_code, errstr] = get_content(fzan.utf8_text, fzan.config.content_file, "Node description");
+    auto [exit_code, errstr] = get_content(fzge.utf8_text, fzge.config.content_file, "Node description");
     if (exit_code != exit_ok)
         standard_exit_error(exit_code, errstr, __func__);
 
     // Determine probably memory space needed.
     // *** MORE HERE
-    unsigned long segsize = sizeof(fzan.utf8_text)+fzan.utf8_text.capacity() + 1024; // *** wild guess
+    unsigned long segsize = sizeof(fzge.utf8_text)+fzge.utf8_text.capacity() + 1024; // *** wild guess
     // Determine a unique segment name to share with `fzserverpq`
     std::string segname(unique_name_Graphmod());
     Graph_modifications * graphmod_ptr = allocate_Graph_modifications_in_shared_memory(segname, segsize);
@@ -293,15 +293,15 @@ int make_node() {
     VERBOSEOUT("Making Node "+node_ptr->get_id_str()+'\n');
 
     // Set up Node parameters
-    node_ptr->set_text(fzan.utf8_text);
-    node_ptr->set_required((unsigned int) fzan.config.hours*3600);
-    node_ptr->set_valuation(fzan.config.valuation);
-    node_ptr->set_targetdate(fzan.config.targetdate);
-    node_ptr->set_tdproperty(fzan.config.tdproperty);
-    node_ptr->set_tdpattern(fzan.config.tdpattern);
-    node_ptr->set_tdevery(fzan.config.tdevery);
-    node_ptr->set_tdspan(fzan.config.tdspan);
-    node_ptr->set_repeats((fzan.config.tdpattern != patt_nonperiodic) && (fzan.config.tdproperty != variable) && (fzan.config.tdproperty != unspecified));
+    node_ptr->set_text(fzge.utf8_text);
+    node_ptr->set_required((unsigned int) fzge.config.hours*3600);
+    node_ptr->set_valuation(fzge.config.valuation);
+    node_ptr->set_targetdate(fzge.config.targetdate);
+    node_ptr->set_tdproperty(fzge.config.tdproperty);
+    node_ptr->set_tdpattern(fzge.config.tdpattern);
+    node_ptr->set_tdevery(fzge.config.tdevery);
+    node_ptr->set_tdspan(fzge.config.tdspan);
+    node_ptr->set_repeats((fzge.config.tdpattern != patt_nonperiodic) && (fzge.config.tdproperty != variable) && (fzge.config.tdproperty != unspecified));
 
     // main topic
     // *** THIS REQUIRES A BIT OF THOUGHT
@@ -320,18 +320,18 @@ int make_node() {
 int main(int argc, char *argv[]) {
     ERRTRACE;
 
-    fzan.init_top(argc, argv);
+    fzge.init_top(argc, argv);
 
-    fzan.flowcontrol = flow_make_node; // *** There are no other options yet.
+    FALLOC_FL_ZERO_RANGE.flowcontrol = flow_make_node; // *** There are no other options yet.
 
-    switch (fzan.flowcontrol) {
+    switch (fzge.flowcontrol) {
 
     case flow_make_node: {
         return make_node();
     }
 
     default: {
-        fzan.print_usage();
+        fzge.print_usage();
     }
 
     }

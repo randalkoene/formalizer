@@ -1,5 +1,5 @@
 #
-# Makefile for fzaddnode
+# Makefile for fzgraphedit
 # (by Randal A. Koene, randalk@minduploading.org)
 #
 
@@ -28,7 +28,7 @@ MACHOPT= $(GCCTUNE) $(SSEOPT)
 FORMALIZERPATH=$(HOME)/src/formalizer
 COREINCLUDEPATH=$(FORMALIZERPATH)/core/include
 CORELIBPATH=$(FORMALIZERPATH)/core/lib
-FORMALIZERPATH_THIS=$(FORMALIZERPATH)/core/fzaddnode
+FORMALIZERPATH_THIS=$(FORMALIZERPATH)/core/fzgraphedit
 
 TEMPLATEDIR = -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\" 
 
@@ -126,7 +126,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/utf8.o
 
 .PHONY: FORCE
 
-all: init fzaddnode
+all: init fzgraphedit
 
 init: FORCE
 	@echo '-------------------------------------------------------------------'
@@ -135,15 +135,15 @@ init: FORCE
 	@echo '-------------------------------------------------------------------'
 
 
-$(OBJ)/fzaddnode.o: fzaddnode.cpp fzaddnode.hpp version.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c fzaddnode.cpp -o $(OBJ)/fzaddnode.o
+$(OBJ)/fzgraphedit.o: fzgraphedit.cpp fzgraphedit.hpp version.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c fzgraphedit.cpp -o $(OBJ)/fzgraphedit.o
 
-fzaddnode: $(OBJ)/fzaddnode.o $(CORE_OBJS)
-	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o fzaddnode $(LIB_PATH)
+fzgraphedit: $(OBJ)/fzgraphedit.o $(CORE_OBJS)
+	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o fzgraphedit $(LIB_PATH)
 
 clean:
-	cp -f fzaddnode fzaddnode.bak
-	rm -f $(OBJ)/*.o fzaddnode
+	cp -f fzgraphedit fzgraphedit.bak
+	rm -f $(OBJ)/*.o fzgraphedit
 
 #doc++:
 #	rm -r -f html

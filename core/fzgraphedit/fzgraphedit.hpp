@@ -4,12 +4,12 @@
 /**
  * {{ header_description }}
  * 
- * Versioning is based on https://semver.org/ and the C++ header defines __FZADDNODE_HPP.
+ * Versioning is based on https://semver.org/ and the C++ header defines __FZGRAPHEDIT_HPP.
  */
 
-#ifndef __FZADDNODE_HPP
+#ifndef __FZGRAPHEDIT_HPP
 #include "version.hpp"
-#define __FZADDNODE_HPP (__VERSION_HPP)
+#define __FZGRAPHEDIT_HPP (__VERSION_HPP)
 
 // std
 #include <vector>
@@ -23,7 +23,7 @@
 using namespace fz;
 
 // Forward declarations
-#ifndef __GRAPHTYPES_HPP
+#ifndef __GRAPHBASE_HPP
 class Graph;
 #endif
 
@@ -35,9 +35,9 @@ enum flow_options {
 
 typedef std::vector<const Node_ID_key> Node_ID_key_Vector;
 
-class fzan_configurable: public configurable {
+class fzge_configurable: public configurable {
 public:
-    fzan_configurable(formalizer_standard_program & fsp): configurable("fzaddnode", fsp) {}
+    fzge_configurable(formalizer_standard_program & fsp): configurable("fzgraphedit", fsp) {}
     bool set_parameter(const std::string & parlabel, const std::string & parvalue);
 
     std::string content_file; ///< Optional file path for description text content.
@@ -53,12 +53,12 @@ public:
     Graphsigned tdspan;
 };
 
-class fzaddnode: public formalizer_standard_program {
+class fzgraphedit: public formalizer_standard_program {
 protected:
     Graph * graph_ptr;
 
 public:
-    fzan_configurable config;
+    fzge_configurable config;
 
     flow_options flowcontrol;
 
@@ -66,7 +66,7 @@ public:
 
     // Graph_access ga; // to include Graph or Log access support
 
-    fzaddnode();
+    fzgraphedit();
 
     virtual void usage_hook();
 
@@ -78,6 +78,6 @@ public:
 
 };
 
-extern fzaddnode fzan;
+extern fzgraphedit fzge;
 
-#endif // __FZADDNODE_HPP
+#endif // __FZGRAPHEDIT_HPP
