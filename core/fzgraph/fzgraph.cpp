@@ -2,7 +2,7 @@
 // License TBD
 
 /**
- * The fzgraphedit tool is the authoritative core component with which to
+ * The fzgraph tool is the authoritative core component with which to
  * add new Nodes and their initial Edges to the Graph.
  * 
  * {{ long_description }}
@@ -42,7 +42,7 @@
 
 // local
 #include "version.hpp"
-#include "fzgraphedit.hpp"
+#include "fzgraph.hpp"
 #include "addnode.hpp"
 #include "addedge.hpp"
 

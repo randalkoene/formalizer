@@ -17,7 +17,7 @@
 //#include "config.hpp"
 //#include "standard.hpp"
 //#include "Graphbase.hpp"
-#include "fzgraphedit.hpp"
+#include "fzgraph.hpp"
 
 using namespace fz;
 

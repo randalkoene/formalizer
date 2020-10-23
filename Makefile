@@ -28,6 +28,7 @@ LIBCOMPDIRS = $(COREPATH)/lib
 
 CORECOMPDIRS = $(COREPATH)/fzguide.system
 CORECOMPDIRS = $(COREPATH)/fzlog
+CORECOMPDIRS = $(COREPATH)/fzgraph
 CORECOMPDIRS += $(COREPATH)/fzquerypq
 CORECOMPDIRS += $(COREPATH)/fzserverpq
 
@@ -43,7 +44,7 @@ COMPILABLES = $(LIBCOMPDIRS) $(CORECOMPDIRS) $(TOOLSCOMPDIRS)
 
 # +----- begin: Select Formalizer executables -----+
 EXECUTABLES =
-EXECUTABLES += $(COREPATH)/fzgraphedit/fzgraphedit
+EXECUTABLES += $(COREPATH)/fzgraph/fzgraph
 # EXECUTABLES += $(COREPATH)/fzedit/fzedit
 EXECUTABLES += $(COREPATH)/fzbackup/fzbackup.py
 EXECUTABLES += $(COREPATH)/fzinfo/fzinfo.py
@@ -85,7 +86,7 @@ EXECUTABLES += $(TOOLSPATH)/system/requestmanual/requestmanual.py
 
 # symbolic links to executables for CGI scripts to call upon
 SYMBIN = 
-SYMBIN += $(COREPATH)/fzgraphedit/fzgraphedit
+SYMBIN += $(COREPATH)/fzgraph/fzgraph
 SYMBIN += $(COREPATH)/fzlog/fzlog
 SYMBIN += $(COREPATH)/fzquerypq/fzquerypq
 SYMBIN += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml

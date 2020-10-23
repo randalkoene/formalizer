@@ -71,6 +71,17 @@ const void_allocator & graph_mem_managers::get_allocator() const {
     return *(active->alloc_inst_ptr);
 }
 
+/// Get allocator for the active segment.
+const void_allocator & graph_mem_managers::get_allocator(std::string segname) const {
+    auto it = managers.find(segname);
+    if (it == managers.end()) {
+        throw(Shared_Memory_exception("shared segment "+segname+" not found in "+std::string(__func__)));
+    }
+
+    return *(it->second.alloc_inst_ptr);
+}
+
+/// Get allocator for named segment. The active segment is not changed.
 segment_memory_t * graph_mem_managers::allocate_and_activate_shared_memory(std::string segment_name, unsigned long segmentsize) {
     if (segment_name.empty())
         return nullptr;

@@ -149,7 +149,8 @@ public:
     const std::string & get_active_name() const { return active_name; }
     segment_memory_t * get_segmem() const;
     const segment_manager_t & get_segman() const;
-    const void_allocator & get_allocator() const;
+    const void_allocator & get_allocator() const; ///< Get allocator for the active segment.
+    const void_allocator & get_allocator(std::string segname) const; ///< Get allocator for named segment (does not change active)
 
     segment_memory_t * allocate_and_activate_shared_memory(std::string segment_name, unsigned long segmentsize);
     //std::unique_ptr<Graph> allocate_Graph_in_shared_memory(); // *** gets tricky with Boost Interprocess
@@ -171,7 +172,7 @@ public:
      * @param graph_ptr A reference to a pointer variable.
      * @return The address of a Graph in shared memory or nullptr if not found.
      */
-    Graph_ptr graph_mem_managers::get_Graph(Graph_ptr & graph_ptr);
+    Graph_ptr get_Graph(Graph_ptr & graph_ptr);
     void info(Graph_info_label_value_pairs & meminfo);
     std::string info_str();
 };
@@ -496,13 +497,13 @@ protected:
     Graph_Node_ptr dep; // rapid access
     Graph_Node_ptr sup; // rapid access
 
-    // This one was created for Graph_modifications to use in building a modifications request stack.
-    Edge(const Node_ID_key & _dep, const Node_ID_key & _sup): id(Edge_ID_key(_dep, _sup)) {}
-
 public:
     // Create only through graph with awareness of allocators.
     Edge(Node &_dep, Node &_sup): id(_dep,_sup), dep(&_dep), sup(&_sup) {}
     Edge(Graph & graph, std::string id_str);
+
+    // This one was created for Graph_modifications to use in building a modifications request stack.
+    Edge(const Node_ID_key & _dep, const Node_ID_key & _sup): id(Edge_ID_key(_dep, _sup)) {}
 
 public:
     // safely inspect data
@@ -528,7 +529,7 @@ public:
     void set_urgency(float u) { urgency = u; }
     void set_priority(float p) { priority = p; }
 
-    void Edge::copy_content(Edge & from_edge);
+    void copy_content(Edge & from_edge);
 
     /// friend (utility) functions
     friend bool identical_Edges(Edge & edge1, Edge & edge2, std::string & trace);

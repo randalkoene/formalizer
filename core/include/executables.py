@@ -20,7 +20,7 @@ Note: The `executables` variable is a tuple instead of a list, which is much
 """ 
 executables = (
     'fzbackup.py',
-    'fzgraphedit',
+    'fzgraph',
     'fzguide.system',
     'fzinfo.py',
     'fzlog',

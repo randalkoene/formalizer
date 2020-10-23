@@ -1,5 +1,5 @@
 #
-# Makefile for fzgraphedit
+# Makefile for fzgraph
 # (by Randal A. Koene, randalk@minduploading.org)
 #
 
@@ -28,7 +28,7 @@ MACHOPT= $(GCCTUNE) $(SSEOPT)
 FORMALIZERPATH=$(HOME)/src/formalizer
 COREINCLUDEPATH=$(FORMALIZERPATH)/core/include
 CORELIBPATH=$(FORMALIZERPATH)/core/lib
-FORMALIZERPATH_THIS=$(FORMALIZERPATH)/core/fzgraphedit
+FORMALIZERPATH_THIS=$(FORMALIZERPATH)/core/fzgraph
 
 TEMPLATEDIR = -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\" 
 
@@ -141,15 +141,15 @@ $(OBJ)/addedge.o: addedge.cpp addedge.hpp fzgraphedit.hpp
 $(OBJ)/addnode.o: addnode.cpp addnode.hpp fzgraphedit.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c addnode.cpp -o $(OBJ)/addnode.o
 
-$(OBJ)/fzgraphedit.o: fzgraphedit.cpp fzgraphedit.hpp version.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c fzgraphedit.cpp -o $(OBJ)/fzgraphedit.o
+$(OBJ)/fzgraph.o: fzgraph.cpp fzgraph.hpp version.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c fzgraph.cpp -o $(OBJ)/fzgraph.o
 
-fzgraphedit: $(OBJ)/fzgraphedit.o $(OBJ)$/addnode.o $(OBJ)$/addedge.o $(CORE_OBJS)
-	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o fzgraphedit $(LIB_PATH)
+fzgraph: $(OBJ)/fzgraph.o $(OBJ)$/addnode.o $(OBJ)$/addedge.o $(CORE_OBJS)
+	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o fzgraph $(LIB_PATH)
 
 clean:
-	cp -f fzgraphedit fzgraphedit.bak
-	rm -f $(OBJ)/*.o fzgraphedit
+	cp -f fzgraph fzgraph.bak
+	rm -f $(OBJ)/*.o fzgraph
 
 #doc++:
 #	rm -r -f html

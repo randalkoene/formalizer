@@ -37,6 +37,22 @@ sys.path.append(fzcoreincludedir)
 # core components
 import coreversion
 
+compile_dirs = {
+    "lib" : "/core/lib",
+    "fzgraph" : "/core/fzgraph",
+    "fzguide.system" : "/core/fzguide.system",
+    "fzlog" : "core/fzlog",
+    "fzquerypq" : "core/fzquerypq",
+    "fzserverpq" : "core/fzserverpq",
+    "dil2graph" : "tools/conversion/dil2graph",
+    "graph2dil" : "tools/conversion/graph2dil",
+    "boilerplate" : "tools/dev/boilerplate",
+    "fzgraphhtml" : "tools/interface/fzgraphhtml",
+    "fzloghtml" : "tools/interface/fzloghtml",
+    "fzserver-info" : "tools/interface/fzserver-info",
+    "nodeboard" : "tools/interface/nodeboard"
+}
+
 flow_control = {
     'make_docs' : False,
     'compile_all' : False,
@@ -232,6 +248,31 @@ def clean_lib():
         print('Cleaning done.')
         exit(0)
 
+def clean_all():
+    print('Cleaning all compilation directories.\n')
+    for compilable in compile_dirs:
+        print('\t'+compilable)
+        retcode = try_subprocess_check_output('cd '+config['sourceroot']+compile_dirs[compilable]' && make')
+        if (retcode != 0):
+            print(f'Unable to clean {compilable}.')
+            exit(retcode)   
+
+    print('Cleaning done.')
+    exit(0)
+
+
+def compile_all():
+    print('Compiling all compilables.\n')
+    for compilable in compile_dirs:
+        print('\t'+compilable)
+        retcode = try_subprocess_check_output('cd '+config['sourceroot']+compile_dirs[compilable]' && make clean')
+        if (retcode != 0):
+            print(f'Unable to compile {compilable}.')
+            exit(retcode)   
+
+    print('Compiling done.')
+    exit(0)
+
 
 if __name__ == '__main__':
 
@@ -292,7 +333,11 @@ if __name__ == '__main__':
         build_fzloghtml()
     if flow_control['build_fzgraphhtml']:
         build_fzgraphhtml()
+    if flow_control['clean_all']:
+        clean_all()
+    if flow_control['compile_all']:
+        compile_all()
 
-    print('Some options have not been implemented yet.\n')
+    print('Some options may not have been implemented yet.\n')
 
     exit(0)

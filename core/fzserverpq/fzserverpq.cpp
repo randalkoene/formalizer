@@ -111,6 +111,11 @@ void pseudo_signal_wait() {
 
 #ifdef TESTING_CLIENT_SERVER_SOCKETS
 // ----- begin: Test here then move -----
+/**
+ * Set up an IPv4 TCP socket on specified port and listen for client connections from any address.
+ * 
+ * See https://man7.org/linux/man-pages/man7/ip.7.html
+ */
 bool server_socket_listen() {
     int server_fd, new_socket, valread; 
     struct sockaddr_in address; 
@@ -140,13 +145,21 @@ bool server_socket_listen() {
     if (listen(server_fd, 3) < 0) { 
         perror("listen"); 
         exit(EXIT_FAILURE); 
-    } 
-    if ((new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0) { 
-        perror("accept"); 
-        exit(EXIT_FAILURE); 
-    } 
+    }
 
     while (true) {
+        
+        // This is receiving the address that is connecting. https://man7.org/linux/man-pages/man2/accept.2.html
+        // As described in the man page, if the socket is blocking (as it is here) then it will block,
+        // i.e. wait, until a connection request appears. Alternatively, there are several ways
+        // described in the Description section of the man page for non-blocking approaches that
+        // can involve polling or an interrupt to give attention to a connection request.
+        // While blocked, the process consumes no CPU (e.g. see https://stackoverflow.com/questions/23108140/why-do-blocking-functions-not-use-100-cpu).
+        if ((new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0) { 
+            perror("accept"); 
+            exit(EXIT_FAILURE); 
+        } 
+
         // read string send by client 
         valread = read(new_socket, str, sizeof(str)); 
         //int i, j, temp; 
