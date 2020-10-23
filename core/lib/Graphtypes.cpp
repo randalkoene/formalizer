@@ -22,10 +22,10 @@ namespace fz {
 graph_mem_managers graphmemman; ///< Global access to shared memory managers for Graph data structures.
 
 graph_mem_managers::~graph_mem_managers() {
-    if (remove_on_exit) {
-        for (const auto & [name, manager] : managers) {
+    //if (remove_on_exit) {
+    for (const auto & [name, manager] : managers) {
+        if (manager.remove_on_exit)
             bi::shared_memory_object::remove(name.c_str());
-        }
     }
 }
 
@@ -474,6 +474,32 @@ void Node::set_text(const std::string utf8str) {
 }
 
 /**
+ * Copy all the content from one Node object to another.
+ * 
+ * See for example how this is used in `Graph_modify_add_node()`.
+ * 
+ * Note: This does NOT include edges, because an Edge is an object at Graph
+ *       level, not fully within a Node's scope.
+ * 
+ * @param from_node A Node object from which to copy all data to this Node.
+ */
+void Node::copy_content(Node & from_node) {
+    set_valuation(from_node.get_valuation());
+    set_completion(from_node.get_completion());
+    set_required(from_node.get_required());
+    set_text_unchecked(from_node.get_text().c_str()); //*(const_cast<std::string *>(&from_node.get_text())));
+    set_targetdate(from_node.get_targetdate());
+    set_tdproperty(from_node.get_tdproperty());
+    set_repeats(from_node.get_repeats());
+    set_tdpattern(from_node.get_tdpattern());
+    set_tdevery(from_node.get_tdevery());
+    set_tdspan(from_node.get_tdspan());
+    for (const auto & [topic_id, topic_rel] : from_node.get_topics()) {
+        add_topic(topic_id, topic_rel);
+    }
+}
+
+/**
  * Report the main Topic Index-ID of the Node, as indicated by the maximum
  * `Topic_Relevance` value.
  * 
@@ -531,6 +557,21 @@ Edge::Edge(Graph & graph, std::string id_str): id(id_str.c_str()) {
         formerror = "unable to add to Graph";
         throw(ID_exception(formerror));
     }
+}
+
+/**
+ * Copy all the content from one Edge object to another.
+ * 
+ * See for example how this is used in `Graph_modify_add_edge()`.
+ * 
+ * @param from_edge An Edge object from which to copy all data to this Edge.
+ */
+void Edge::copy_content(Edge & from_edge) {
+    set_dependency(from_edge.get_dependency());
+    set_significance(from_edge.get_significance());
+    set_importance(from_edge.get_importance());
+    set_urgency(from_edge.get_urgency());
+    set_priority(from_edge.get_priority());
 }
 
 /**

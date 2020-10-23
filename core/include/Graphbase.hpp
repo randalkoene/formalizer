@@ -103,6 +103,8 @@ class Node;
 class Edge;
 class Graph;
 
+typedef Node* Node_ptr;
+typedef Edge* Edge_ptr;
 typedef Graph* Graph_ptr;
 
 /// Formalizer specific base types for ease of modification (fixed size)

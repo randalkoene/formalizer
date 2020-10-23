@@ -37,6 +37,8 @@ struct fzserverpq: public formalizer_standard_program {
 
     flow_options flowcontrol;
 
+    Graph * graph_ptr;
+
     static constexpr const char * lockfilepath = FORMALIZER_ROOT "/.fzserverpq.lock";
 
     fzserverpq();
@@ -50,5 +52,16 @@ struct fzserverpq: public formalizer_standard_program {
 };
 
 extern fzserverpq fzs;
+
+/**
+ * Find the shared memory segment with the indicated request
+ * stack, then process that stack by first carrying out
+ * validity checks on all stack elements and then responding
+ * to each request.
+ * 
+ * @param segname The shared memory segment name provided for the request stack.
+ * @return 
+ */
+bool handle_request_stack(std::string segname);
 
 #endif // __FZSERVERPQ_HPP

@@ -135,10 +135,16 @@ init: FORCE
 	@echo '-------------------------------------------------------------------'
 
 
+$(OBJ)/addedge.o: addedge.cpp addedge.hpp fzgraphedit.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c addedge.cpp -o $(OBJ)/addedge.o
+
+$(OBJ)/addnode.o: addnode.cpp addnode.hpp fzgraphedit.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c addnode.cpp -o $(OBJ)/addnode.o
+
 $(OBJ)/fzgraphedit.o: fzgraphedit.cpp fzgraphedit.hpp version.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c fzgraphedit.cpp -o $(OBJ)/fzgraphedit.o
 
-fzgraphedit: $(OBJ)/fzgraphedit.o $(CORE_OBJS)
+fzgraphedit: $(OBJ)/fzgraphedit.o $(OBJ)$/addnode.o $(OBJ)$/addedge.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o fzgraphedit $(LIB_PATH)
 
 clean:

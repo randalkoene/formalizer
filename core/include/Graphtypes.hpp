@@ -81,6 +81,11 @@ namespace bi = boost::interprocess;
 
 namespace fz {
 
+// Forward declaration so that Graph_modifications can call a protected Edge constructor.
+#ifndef __GRAPHMODIFY_HPP
+class Graph_modifications;
+#endif
+
 /// Formalizer specific base types for ease of modification (movable pointers)
 typedef bi::offset_ptr<Graph> Graph_Graph_ptr;
 typedef bi::offset_ptr<Topic> Graph_Topic_ptr;
@@ -108,7 +113,8 @@ public:
 struct shared_memory_manager {
     segment_memory_t * segmem_ptr;
     const void_allocator * alloc_inst_ptr;
-    shared_memory_manager(segment_memory_t & _segmem, void_allocator & allocinst): segmem_ptr(&_segmem), alloc_inst_ptr(&allocinst) {}
+    bool remove_on_exit;
+    shared_memory_manager(segment_memory_t & _segmem, void_allocator & allocinst): segmem_ptr(&_segmem), alloc_inst_ptr(&allocinst), remove_on_exit(true) {}
 };
 
 /**
@@ -132,13 +138,13 @@ protected:
     std::map<std::string, shared_memory_manager> managers;
     shared_memory_manager * active;
     std::string active_name;
-    bool remove_on_exit;
+    //bool remove_on_exit;
 public:
-    graph_mem_managers(): active(nullptr), remove_on_exit(true) {}
+    graph_mem_managers(): active(nullptr) {} //, remove_on_exit(true) {}
     ~graph_mem_managers();
     bool add_manager(std::string segname, segment_memory_t & segmem, void_allocator & allocinst);
     bool set_active(std::string segname);
-    void set_remove_on_exit(bool _removeonexit) { remove_on_exit = _removeonexit; }
+    void set_remove_on_exit(bool _removeonexit) { if (active) active->remove_on_exit = _removeonexit; }
     shared_memory_manager * get_active() const { return active; }
     const std::string & get_active_name() const { return active_name; }
     segment_memory_t * get_segmem() const;
@@ -155,7 +161,7 @@ public:
      * nullptr.
      * 
      * For example, see how this is used in Graphmodify.cpp and in
-     * fzaddnode.cpp.
+     * fzgraphedit.cpp.
      * 
      * Note: If the pointer variable provided is not nullptr then it is
      *       assumed that it contains a valid pointer to a Graph in
@@ -451,6 +457,8 @@ public:
     void set_tdevery(int multiplier) { tdevery = multiplier; }
     void set_tdspan(int count) { tdspan = count; }
 
+    void copy_content(Node & from_node);
+
     /// Graph relative operations
     time_t effective_targetdate();
 
@@ -476,6 +484,7 @@ public:
 class Edge {
     friend class Graph;
     friend class Node;
+    friend class Graph_modifications;
 protected:
     const Edge_ID id;
     Graphdecimal dependency;
@@ -486,6 +495,9 @@ protected:
 
     Graph_Node_ptr dep; // rapid access
     Graph_Node_ptr sup; // rapid access
+
+    // This one was created for Graph_modifications to use in building a modifications request stack.
+    Edge(const Node_ID_key & _dep, const Node_ID_key & _sup): id(Edge_ID_key(_dep, _sup)) {}
 
 public:
     // Create only through graph with awareness of allocators.
@@ -515,6 +527,8 @@ public:
     void set_importance(float i) { importance = i; }
     void set_urgency(float u) { urgency = u; }
     void set_priority(float p) { priority = p; }
+
+    void Edge::copy_content(Edge & from_edge);
 
     /// friend (utility) functions
     friend bool identical_Edges(Edge & edge1, Edge & edge2, std::string & trace);
@@ -548,13 +562,13 @@ public:
     Topic_Tags_Vector::size_type num_Topics() const { return topics.num_Topics(); }
 
     /// nodes table: extend
-    bool add_Node(Node &node); // only allow Nodes allocated in the same shared segment
-    bool add_Node(Node *node); // only allow Nodes allocated in the same shared segment
-    Node * create_Node(std::string id_str); // create Node in the same shared segment
+    bool add_Node(Node &node); // only allow Nodes allocated in the active shared segment
+    bool add_Node(Node *node); // only allow Nodes allocated in the active shared segment
+    Node * create_Node(std::string id_str); // create Node in the active shared segment
     Node * create_and_add_Node(std::string id_str); // create and immediately insert
 
     /// edges table: extend
-    bool add_Edge(Edge &edge); // only allow Edges allocated in the same shared segment
+    bool add_Edge(Edge &edge); // only allow Edges allocated in the active shared segment
     bool add_Edge(Edge *edge);
     Edge * create_Edge(Node &_dep, Node &_sup); // creates (without adding to Graph)
     Edge * create_and_add_Edge(std::string id_str); // create and immediately insert

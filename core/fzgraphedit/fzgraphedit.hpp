@@ -26,31 +26,51 @@ using namespace fz;
 #ifndef __GRAPHBASE_HPP
 class Graph;
 #endif
+#ifndef __GRAPHMODIFY_HPP
+class Graph_modifications;
+#endif
 
 enum flow_options {
     flow_unknown = 0,   /// no recognized request
     flow_make_node = 1, /// request: make new Node
+    flow_make_edge = 2, /// request: make new Edge
     flow_NUMoptions
 };
 
 typedef std::vector<const Node_ID_key> Node_ID_key_Vector;
 
-class fzge_configurable: public configurable {
-public:
-    fzge_configurable(formalizer_standard_program & fsp): configurable("fzgraphedit", fsp) {}
-    bool set_parameter(const std::string & parlabel, const std::string & parvalue);
-
-    std::string content_file; ///< Optional file path for description text content.
+/// Data structure used when building an Add-Node request, initialized to compile-time default values.
+struct Node_data {
+    std::string utf8_text;
     Graphdecimal hours = 0.0;
     Graphdecimal valuation = 0.0;
+    std::vector<std::string> topics;
+    time_t targetdate = RTt_unspecified;
+    td_property tdproperty = variable;
+    td_pattern tdpattern = patt_nonperiodic;
+    Graphsigned tdevery = 0;
+    Graphsigned tdspan = 1;
+};
+
+/// Data structure used when building an Add-Edge request, initialized to compile-time default values.
+struct Edge_data {
+    Graphdecimal dependency = 0.0;
+    Graphdecimal significance = 0.0;
+    Graphdecimal importance = 0.0;
+    Graphdecimal urgency = 0.0;
+    Graphdecimal priority = 0.0;
+};
+
+class fzge_configurable : public configurable {
+public:
+    fzge_configurable(formalizer_standard_program &fsp) : configurable("fzgraphedit", fsp) {}
+    bool set_parameter(const std::string &parlabel, const std::string &parvalue);
+
+    std::string content_file; ///< Optional file path for description text content.
+    Node_data nd;             ///< Default values that can be used for Add-Node requets.
+    Edge_data ed;             ///< Default values that can be used for Add-Edge requets.
     Node_ID_key_Vector superiors;
     Node_ID_key_Vector dependencies;
-    std::vector<std::string> topics;
-    time_t targetdate;
-    td_property tdproperty;
-    td_pattern tdpattern;
-    Graphsigned tdevery;
-    Graphsigned tdspan;
 };
 
 class fzgraphedit: public formalizer_standard_program {
@@ -61,8 +81,6 @@ public:
     fzge_configurable config;
 
     flow_options flowcontrol;
-
-    std::string utf8_text;
 
     // Graph_access ga; // to include Graph or Log access support
 

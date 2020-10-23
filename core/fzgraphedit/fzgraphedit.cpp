@@ -16,6 +16,18 @@
 #include <iostream>
 #include <iterator>
 
+#define TESTING_CLIENT_SERVER_SOCKETS
+#ifdef TESTING_CLIENT_SERVER_SOCKETS
+#include <arpa/inet.h> 
+#include <netinet/in.h> 
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <string.h> 
+#include <sys/socket.h> 
+#include <unistd.h> 
+#define PORT 8090 
+#endif
+
 // core
 #include "error.hpp"
 #include "standard.hpp"
@@ -31,6 +43,8 @@
 // local
 #include "version.hpp"
 #include "fzgraphedit.hpp"
+#include "addnode.hpp"
+#include "addedge.hpp"
 
 
 using namespace fz;
@@ -43,10 +57,16 @@ fzgraphedit fzge;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphedit::fzgraphedit() : formalizer_standard_program(false), graph_ptr(nullptr), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "T:f:H:v:S:D:t:g:p:r:e:s:";
-    add_usage_top += " [-T <text>] [-f <content-file>] [-H <hours>] [-v <val>] [-S <sups>] [-D <deps>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>]";
+    add_option_args += "M:T:f:H:a:S:D:t:g:p:r:e:s:Y:G:I:U:P:";
+    add_usage_top += " [-M node|edges] [-T <text>] [-f <content-file>] [-H <hours>] [-a <val>] [-S <sups>] [-D <deps>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>]";
     //usage_head.push_back("Description at the head of usage information.\n");
-    //usage_tail.push_back("Extra usage information.\n");
+    usage_tail.push_back(
+        "When making a Node, by convention we expect at least one superior, although\n"
+        "it is not enforced.\n"
+        "When making one or more Edges, the list of superior and dependency nodes\n"
+        "are paired up and must be of equal length.\n"
+        "Lists of superiors or dependencies, as well as topics, expect comma\n"
+        "delimiters.\n");
 }
 
 std::string NodeIDs_to_string(const Node_ID_key_Vector & nodeidvec) {
@@ -66,18 +86,24 @@ std::string NodeIDs_to_string(const Node_ID_key_Vector & nodeidvec) {
  */
 void fzgraphedit::usage_hook() {
     //ga.usage_hook();
+    FZOUT("    -M make 'node' or 'edges'\n");
     FZOUT("    -T description <text> from the command line\n");
     FZOUT("    -f description text from <content-file> (\"STDIN\" for stdin until eof, CTRL+D)\n");
-    FZOUT("    -H hours required (default: "+to_precision_string(config.hours)+")\n");
-    FZOUT("    -v valuation (default: "+to_precision_string(config.valuation)+")\n");
+    FZOUT("    -H hours required (default: "+to_precision_string(config.nd.hours)+")\n");
+    FZOUT("    -a valuation (default: "+to_precision_string(config.nd.valuation)+")\n");
     FZOUT("    -S list of superior Node IDs (default: "+NodeIDs_to_string(config.superiors)+")\n");
     FZOUT("    -D list of dependency Node IDs (default: "+NodeIDs_to_string(config.dependencies)+")\n");
-    FZOUT("    -t target date time stamp (default: "+TimeStampYmdHM(config.targetdate)+")\n");
-    FZOUT("    -g topic tags (default: "+join(config.topics,",")+")\n");
-    FZOUT("    -p target date property (default: "+td_property_str[config.tdproperty]+")\n");
-    FZOUT("    -r repeat pattern (default: "+td_pattern_str[config.tdpattern]+")\n");
-    FZOUT("    -e every (default multiplier: "+std::to_string(config.tdevery)+")\n");
-    FZOUT("    -s span (default iterations: "+std::to_string(config.tdspan)+")\n");
+    FZOUT("    -t target date time stamp (default: "+TimeStampYmdHM(config.nd.targetdate)+")\n");
+    FZOUT("    -g topic tags (default: "+join(config.nd.topics,",")+")\n");
+    FZOUT("    -p target date property (default: "+td_property_str[config.nd.tdproperty]+")\n");
+    FZOUT("    -r repeat pattern (default: "+td_pattern_str[config.nd.tdpattern]+")\n");
+    FZOUT("    -e every (default multiplier: "+std::to_string(config.nd.tdevery)+")\n");
+    FZOUT("    -s span (default iterations: "+std::to_string(config.nd.tdspan)+")\n");
+    FZOUT("    -Y edge dependency (default: "+to_precision_string(config.ed.dependency)+")\n");
+    FZOUT("    -G edge significance (default: "+to_precision_string(config.ed.significance)+")\n");
+    FZOUT("    -I edge importance (default: "+to_precision_string(config.ed.importance)+")\n");
+    FZOUT("    -U edge urgency (default: "+to_precision_string(config.ed.urgency)+")\n");
+    FZOUT("    -P edge priority (default: "+to_precision_string(config.ed.priority)+")\n");
 }
 
 time_t interpret_config_targetdate(const std::string & parvalue) {
@@ -161,16 +187,21 @@ Node_ID_key_Vector parse_config_NodeIDs(const std::string & parvalue) {
 bool fzge_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     // *** You could also implement try-catch here to gracefully report problems with configuration files.
     CONFIG_TEST_AND_SET_PAR(content_file, "content_file", parlabel, parvalue);
-    CONFIG_TEST_AND_SET_PAR(hours, "hours", parlabel, std::stof(parvalue));
-    CONFIG_TEST_AND_SET_PAR(valuation, "valuation", parlabel, std::stof(parvalue));
+    CONFIG_TEST_AND_SET_PAR(nd.hours, "hours", parlabel, std::stof(parvalue));
+    CONFIG_TEST_AND_SET_PAR(nd.valuation, "valuation", parlabel, std::stof(parvalue));
     CONFIG_TEST_AND_SET_PAR(superiors, "superiors", parlabel, parse_config_NodeIDs(parvalue));
     CONFIG_TEST_AND_SET_PAR(dependencies, "dependencies", parlabel, parse_config_NodeIDs(parvalue));
-    CONFIG_TEST_AND_SET_PAR(topics, "topics", parlabel, parse_config_topics(parvalue));
-    CONFIG_TEST_AND_SET_PAR(targetdate, "targetdate", parlabel, interpret_config_targetdate(parvalue));
-    CONFIG_TEST_AND_SET_PAR(tdproperty, "tdproperty", parlabel, interpret_config_tdproperty(parvalue));
-    CONFIG_TEST_AND_SET_PAR(tdpattern, "tdpattern", parlabel, interpret_config_tdpattern(parvalue));
-    CONFIG_TEST_AND_SET_PAR(tdevery, "tdevery", parlabel, std::stoi(parvalue));
-    CONFIG_TEST_AND_SET_PAR(tdspan, "tdspan", parlabel, std::stoi(parvalue));
+    CONFIG_TEST_AND_SET_PAR(nd.topics, "topics", parlabel, parse_config_topics(parvalue));
+    CONFIG_TEST_AND_SET_PAR(nd.targetdate, "targetdate", parlabel, interpret_config_targetdate(parvalue));
+    CONFIG_TEST_AND_SET_PAR(nd.tdproperty, "tdproperty", parlabel, interpret_config_tdproperty(parvalue));
+    CONFIG_TEST_AND_SET_PAR(nd.tdpattern, "tdpattern", parlabel, interpret_config_tdpattern(parvalue));
+    CONFIG_TEST_AND_SET_PAR(nd.tdevery, "tdevery", parlabel, std::stoi(parvalue));
+    CONFIG_TEST_AND_SET_PAR(nd.tdspan, "tdspan", parlabel, std::stoi(parvalue));
+    CONFIG_TEST_AND_SET_PAR(ed.dependency, "dependency", parlabel, std::stof(parvalue));
+    CONFIG_TEST_AND_SET_PAR(ed.significance, "significance", parlabel, std::stof(parvalue));
+    CONFIG_TEST_AND_SET_PAR(ed.importance, "importance", parlabel, std::stof(parvalue));
+    CONFIG_TEST_AND_SET_PAR(ed.urgency, "urgency", parlabel, std::stof(parvalue));
+    CONFIG_TEST_AND_SET_PAR(ed.priority, "priority", parlabel, std::stof(parvalue));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
@@ -191,8 +222,20 @@ bool fzgraphedit::options_hook(char c, std::string cargs) {
 
     switch (c) {
 
+    case 'M': {
+        if (cargs=="node") {
+            flowcontrol = flow_make_node;
+            return true;
+        }
+        if (cargs=="edges") {
+            flowcontrol = flow_make_edge;
+            return true;
+        }
+        return false;
+    }
+
     case 'T': {
-        utf8_text = utf8_safe(cargs);
+        config.nd.utf8_text = utf8_safe(cargs);
         return true;
     }
 
@@ -202,12 +245,12 @@ bool fzgraphedit::options_hook(char c, std::string cargs) {
     }
 
     case 'H': {
-        config.hours = std::stof(cargs);
+        config.nd.hours = std::stof(cargs);
         return true;
     }
 
-    case 'v': {
-        config.valuation = std::stof(cargs);
+    case 'a': {
+        config.nd.valuation = std::stof(cargs);
         return true;
     }
 
@@ -222,32 +265,57 @@ bool fzgraphedit::options_hook(char c, std::string cargs) {
     }
 
     case 't': {
-        config.targetdate = interpret_config_targetdate(cargs);
+        config.nd.targetdate = interpret_config_targetdate(cargs);
         return true;
     }
 
     case 'g': {
-        config.topics = parse_config_topics(cargs);
+        config.nd.topics = parse_config_topics(cargs);
         return true;
     }
 
     case 'p': {
-        config.tdproperty = interpret_config_tdproperty(cargs);
+        config.nd.tdproperty = interpret_config_tdproperty(cargs);
         return true;
     }
 
     case 'r': {
-        config.tdpattern = interpret_config_tdpattern(cargs);
+        config.nd.tdpattern = interpret_config_tdpattern(cargs);
         return true;
     }
 
     case 'e': {
-        config.tdevery = std::stoi(cargs);
+        config.nd.tdevery = std::stoi(cargs);
         return true;
     }
 
     case 's': {
-        config.tdspan = std::stoi(cargs);
+        config.nd.tdspan = std::stoi(cargs);
+        return true;
+    }
+
+    case 'Y': {
+        config.ed.dependency = std::stof(cargs);
+        return true;
+    }
+
+    case 'G': {
+        config.ed.significance = std::stof(cargs);
+        return true;
+    }
+
+    case 'I': {
+        config.ed.importance = std::stof(cargs);
+        return true;
+    }
+
+    case 'U': {
+        config.ed.urgency = std::stof(cargs);
+        return true;
+    }
+
+    case 'P': {
+        config.ed.priority = std::stof(cargs);
         return true;
     }
 
@@ -271,45 +339,137 @@ void fzgraphedit::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen once in main(), for the derived class
 }
 
+#ifdef TESTING_CLIENT_SERVER_SOCKETS
+// ----- begin: Test here then move -----
+bool client_socket_message(std::string request_str) {
+    struct sockaddr_in address; 
+    int sock = 0, valread; 
+    struct sockaddr_in serv_addr; 
+    char str[100]; 
+  
+    //printf("\nInput the string:"); 
+    //scanf("%[^\n]s", str); 
+  
+    char buffer[1024] = { 0 }; 
+  
+    // Creating socket file descriptor 
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) { 
+        printf("\n Socket creation error \n"); 
+        return false; 
+    } 
+  
+    memset(&serv_addr, '0', sizeof(serv_addr)); 
+    serv_addr.sin_family = AF_INET; 
+    serv_addr.sin_port = htons(PORT); 
+  
+    // Convert IPv4 and IPv6 addresses from 
+    // text to binary form 127.0.0.1 is local 
+    // host IP address, this address should be 
+    // your system local host IP address 
+    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) { 
+        printf("\nAddress not supported \n"); 
+        return false; 
+    } 
+  
+    // connect the socket 
+    if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) { 
+        printf("\nConnection Failed \n"); 
+        return false; 
+    } 
+  
+    int l; // = strlen(str); 
+  
+    // send string to server side 
+    //send(sock, str, sizeof(str), 0); 
+    send(sock, request_str.c_str(), request_str.size()+1, 0);
+
+    // read string sent by server 
+    valread = read(sock, str, l); 
+  
+    //printf("%s\n", str); 
+    std::string response_str(str);
+
+    if (response_str == "RESULTS") {
+        FZOUT("Success! Results are in shared 'results' data structure.\n");
+    } else {
+        if (response_str == "ERROR") {
+            FZOUT("An error occurred. See the error message in the shared 'error' data structure.\n");
+        } else {
+            FZOUT("Unknown response: "+response_str+'\n');
+        }
+    }
+  
+    return true; 
+}
+// ----- end  : Test here then move -----
+#endif
+
 int make_node() {
     ERRTRACE;
-    auto [exit_code, errstr] = get_content(fzge.utf8_text, fzge.config.content_file, "Node description");
+    auto [exit_code, errstr] = get_content(fzge.config.nd.utf8_text, fzge.config.content_file, "Node description");
     if (exit_code != exit_ok)
         standard_exit_error(exit_code, errstr, __func__);
 
     // Determine probably memory space needed.
     // *** MORE HERE
-    unsigned long segsize = sizeof(fzge.utf8_text)+fzge.utf8_text.capacity() + 1024; // *** wild guess
+    unsigned long segsize = sizeof(fzge.config.nd.utf8_text)+fzge.config.nd.utf8_text.capacity() + 1024; // *** wild guess
     // Determine a unique segment name to share with `fzserverpq`
     std::string segname(unique_name_Graphmod());
     Graph_modifications * graphmod_ptr = allocate_Graph_modifications_in_shared_memory(segname, segsize);
     if (!graphmod_ptr)
         standard_exit_error(exit_general_error, "Unable to create shared segment for modifications requests (name="+segname+", size="+std::to_string(segsize)+')', __func__);
 
-    Node * node_ptr = graphmod_ptr->request_add_Node();
-    if (!node_ptr)
-        standard_exit_error(exit_general_error, "Unable to create new Node object in shared segment ("+graphmemman.get_active_name()+')', __func__);
+    Node * node_ptr = nullptr;
+    if ((node_ptr = add_Node_request(*graphmod_ptr, fzge.config.nd)) == nullptr) {
+        standard_exit_error(exit_general_error, "Unable to prepare Add-Node request", __func__);
+    }
 
-    VERBOSEOUT("Making Node "+node_ptr->get_id_str()+'\n');
+    for (const auto & supkey : fzge.config.superiors) {
+        if (!add_Edge_request(*graphmod_ptr, node_ptr->get_id().key(), supkey, fzge.config.ed)) {
+            standard_exit_error(exit_general_error, "Unable to prepare Add-Edge request to superior", __func__);
+        }
+    }
 
-    // Set up Node parameters
-    node_ptr->set_text(fzge.utf8_text);
-    node_ptr->set_required((unsigned int) fzge.config.hours*3600);
-    node_ptr->set_valuation(fzge.config.valuation);
-    node_ptr->set_targetdate(fzge.config.targetdate);
-    node_ptr->set_tdproperty(fzge.config.tdproperty);
-    node_ptr->set_tdpattern(fzge.config.tdpattern);
-    node_ptr->set_tdevery(fzge.config.tdevery);
-    node_ptr->set_tdspan(fzge.config.tdspan);
-    node_ptr->set_repeats((fzge.config.tdpattern != patt_nonperiodic) && (fzge.config.tdproperty != variable) && (fzge.config.tdproperty != unspecified));
+    for (const auto & depkey : fzge.config.dependencies) {
+        if (!add_Edge_request(*graphmod_ptr, depkey, node_ptr->get_id().key(), fzge.config.ed)) {
+            standard_exit_error(exit_general_error, "Unable to prepare Add-Edge request from dependency", __func__);
+        }
+    }
 
-    // main topic
-    // *** THIS REQUIRES A BIT OF THOUGHT
+    client_socket_message(segname);
 
-    // Superior Nodes (you could also establish dependencies)
-    // *** THIS REQUIRES ADDITIONAL ITEMS ON THE REQUESTS STACK
+    FZOUT("Here we'd be waiting for the server to respond with the status of our request...\n");
+    key_pause();
 
-    // *** let's find out how much space is consumed in shared memory when a Node is created, improve our estimate!
+    return standard.completed_ok();
+}
+
+int make_edges() {
+    ERRTRACE;
+
+    if (fzge.config.superiors.size() != fzge.config.dependencies.size()) {
+        standard_exit_error(exit_general_error, "The list of superiors and list of dependencies must be of equal size", __func__);
+    }
+    if (fzge.config.superiors.empty()) {
+        standard_exit_error(exit_general_error, "At least one superior and dependency pair are needed", __func__);
+    }
+
+    // Determine probably memory space needed.
+    // *** MORE HERE
+    unsigned long segsize = fzge.config.superiors.size()*1024; // *** wild guess
+    // Determine a unique segment name to share with `fzserverpq`
+    std::string segname(unique_name_Graphmod());
+    Graph_modifications * graphmod_ptr = allocate_Graph_modifications_in_shared_memory(segname, segsize);
+    if (!graphmod_ptr)
+        standard_exit_error(exit_general_error, "Unable to create shared segment for modifications requests (name="+segname+", size="+std::to_string(segsize)+')', __func__);
+
+    for (size_t i = 0; i < fzge.config.superiors.size(); ++i) {
+        if (!add_Edge_request(*graphmod_ptr, fzge.config.dependencies[i], fzge.config.superiors[i], fzge.config.ed)) {
+            standard_exit_error(exit_general_error, "Unable to prepare Add-Edge request from "+fzge.config.dependencies[i].str()+" to "+fzge.config.superiors[i].str(), __func__);
+        }
+    }
+
+    client_socket_message(segname);
 
     FZOUT("Here we'd be waiting for the server to respond with the status of our request...\n");
     key_pause();
@@ -322,12 +482,14 @@ int main(int argc, char *argv[]) {
 
     fzge.init_top(argc, argv);
 
-    FALLOC_FL_ZERO_RANGE.flowcontrol = flow_make_node; // *** There are no other options yet.
-
     switch (fzge.flowcontrol) {
 
     case flow_make_node: {
         return make_node();
+    }
+
+    case flow_make_edge: {
+        return make_edges();
     }
 
     default: {
