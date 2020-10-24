@@ -273,10 +273,12 @@ void fzloghtml::set_filter() {
                     } else {
                         if (filter.t_to!=RTt_unspecified) { // to specified time (set a limit)
                             filter.t_from = filter.t_to - (24*60*60); // one day default
-                        } else { // set default
-                            get_newest_Log_data(fzlh.ga, fzlh.edata);
-                            filter.t_to = fzlh.edata.newest_chunk_t;
-                            filter.t_from = filter.t_to - (24*60*60); // one day default
+                        } else { // set default (no Log constraints were set at all)
+                            if (filter.nkey.isnullkey()) { // for Node history the default is the full history
+                                get_newest_Log_data(fzlh.ga, fzlh.edata);
+                                filter.t_to = fzlh.edata.newest_chunk_t;
+                                filter.t_from = filter.t_to - (24*60*60); // one day default
+                            }
                         }
                     }
                 }

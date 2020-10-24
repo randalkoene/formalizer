@@ -700,10 +700,51 @@ void replace_double_quotes(std::string & s) {
 }
 
 /**
+ * Unfortunately, Postgres output strings with array data cannot simply be used
+ * unmodified as array input data. Here are some things this needs to do:
+ * - If there are double quotes in the string then it's almost ready, just
+ *   replace those with single quotes.
+ * - Otherwise, you have to put single quotes around every of the comma
+ *   delimited elements.
+ */
+void convert_array_output_to_input_pq(std::string & entryids_str) {
+    if (entryids_str.empty())
+        return;
+
+    if (entryids_str[0]=='"') {
+        replace_double_quotes(entryids_str);
+        return;
+    }
+
+    char * buf = new char[2*entryids_str.size()];
+    size_t bufpos = 0;
+    buf[bufpos] = '\''; ++bufpos;
+    for (size_t i = 0; i < entryids_str.size(); ++i) {
+        if (entryids_str[i] == ',') {
+            buf[bufpos] = '\''; ++bufpos;
+            buf[bufpos] = ','; ++bufpos;
+            buf[bufpos] = '\''; ++bufpos;
+            continue;
+        }
+        buf[bufpos] = entryids_str[i]; ++bufpos;
+    }
+    buf[bufpos] = '\''; ++bufpos;
+    buf[bufpos] = '\0';
+    entryids_str = buf;
+    delete[] buf;
+}
+
+/**
  * Get lists of Log chunks and Log entries from the Node history cache table and
  * load all of the chunks and entries listed there into a Log object.
  * 
  * This function is called by `load_partial_Log_pq()` if the filter specifies a Node.
+ * 
+ * Note that the history cache reflects a Node's actual chain of chunks and
+ * entries. This does NOT include chunks that belong to other Nodes, even if those
+ * chunks contain entries that belong to this node.
+ * Consequently, IF the presentation of a Node history should include only
+ * complete chunks then chunks and extra entries need to be added to the history.
  * 
  * @param apq Access object with database name and schema name.
  * @param log Log object where Chunks and Entries are added.
@@ -748,6 +789,15 @@ bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter,
         PQclear(res);
     }
 
+    // *** We need to make the complete set of chunks here, probably by converting the
+    //     strings back to actual Node_histories sets for the Node. Then we can
+    //     quickly and easily run through all of the entries, adding corresponding
+    //     Log chunk ID key's to the chunk set (without duplication).
+    //     Then we can use the list of chunks to make the WHERE id IN string for
+    //     chunk loading. And we can use the same string and SUBSTRING(id) to
+    //     load all of the entries that belong in those chunks.
+
+    Node_history nodehist;
     // set up the WHERE IN part first, then possibly add WHERE >= and WHERE <= parts
     bool haschunks = chunkids_str.size() >= 12;
     bool hasentries = entryids_str.size() >= 14; // can be false if a Node only has an empty chunk
@@ -757,35 +807,72 @@ bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter,
         if (chunkids_str.back() == '}')
             chunkids_str.pop_back();
         auto chunkidsvec = split(chunkids_str,',');
+        // Add all of these chunks owned by the Node to the set of chunks.
+        for (auto & chunkid_str : chunkidsvec) {
+            try {
+                nodehist.chunks.emplace(chunkid_str);
+            } catch (ID_exception idexception) {
+                ERRRETURNFALSE(__func__,"Invalid Chunk ID ["+chunkid_str+"], "+idexception.what());
+            }
+        }
+    }
+    /*
         chunkwherestr = " WHERE id IN (";
         chunkwherestr.reserve(30+chunkidsvec.size()*24);
         for (const auto & chunkidstr : chunkidsvec) {
             chunkwherestr += TimeStamp_to_TimeStamp_pq(chunkidstr) + ',';
         }
         chunkwherestr.back() = ')';
-    }
+    }*/
     if (hasentries) {
-        replace_double_quotes(entryids_str);
         if (entryids_str.front() == '{')
             entryids_str.erase(0,1);
         if (entryids_str.back() == '}')
             entryids_str.pop_back();
-        entrywherestr = " WHERE id IN (" + entryids_str + ")";
+        auto entryidsvec = split(entryids_str,',');
+        // Make sure the chunks surrounding these entries are also included.
+        for (auto & entryid_str : entryidsvec) {
+            try {
+                nodehist.chunks.emplace(entryid_str.substr(0,12)); // the set type discards duplicates
+            } catch (ID_exception idexception) {
+                ERRRETURNFALSE(__func__,"Invalid Entry ID ["+entryid_str+"], "+idexception.what());
+            }
+        }
+        haschunks = true; // even if only due to additions from entries
     }
+    /*
+        //replace_double_quotes(entryids_str); // *** doesn't seem to be a thing anymore (see https://trello.com/c/dZ5NBr5r)
+        convert_array_output_to_input_pq(entryids_str); // replaced due to https://trello.com/c/dZ5NBr5r
 
-    if (filter.t_from != RTt_unspecified) {
-        chunkwherestr += " AND id >= " + TimeStamp_pq(filter.t_from);
-        entrywherestr += " AND SUBSTRING(id,1,12) >= '" + TimeStampYmdHM(filter.t_from) + '\'';
-    }
-    if (filter.t_to != RTt_unspecified) {
-        chunkwherestr += " AND id <= " + TimeStamp_pq(filter.t_to);
-        entrywherestr += " AND SUBSTRING(id,1,12) <= '" + TimeStampYmdHM(filter.t_to) + '\'';
-    }
+        entrywherestr = " WHERE id IN (" + entryids_str + ")";
+    }*/
 
     if (haschunks) {
+        // Now the full WHERE string for the chunks (and the entries).
+        chunkwherestr = " WHERE id IN (";
+        entrywherestr = " WHERE SUBSTRING(id,1,12) IN (";
+        chunkwherestr.reserve(30+nodehist.chunks.size()*24);
+        entrywherestr.reserve(60+nodehist.chunks.size()*24);
+        for (const auto & chunkidkey : nodehist.chunks) {
+            time_t t = chunkidkey.get_epoch_time();
+            chunkwherestr += TimeStamp_pq(t) + ',';
+            //chunkwherestr += TimeStamp_to_TimeStamp_pq(chunkidstr) + ',';
+            entrywherestr += '\''+TimeStampYmdHM(t) + "',";
+        }
+        chunkwherestr.back() = ')';
+        entrywherestr.back() = ')';
+
+        if (filter.t_from != RTt_unspecified) {
+            chunkwherestr += " AND id >= " + TimeStamp_pq(filter.t_from);
+            entrywherestr += " AND SUBSTRING(id,1,12) >= '" + TimeStampYmdHM(filter.t_from) + '\'';
+        }
+        if (filter.t_to != RTt_unspecified) {
+            chunkwherestr += " AND id <= " + TimeStamp_pq(filter.t_to);
+            entrywherestr += " AND SUBSTRING(id,1,12) <= '" + TimeStampYmdHM(filter.t_to) + '\'';
+        }
+
         if (!read_Chunks_pq(apq,log,chunkwherestr)) return false;
-    }
-    if (hasentries) {
+
         if (!read_Entries_pq(apq,log,entrywherestr)) return false;
     }
 
@@ -998,7 +1085,7 @@ std::string entry_key_list_pq(const Log_entry_ID_key_set & entries) {
     std::string arraystr("ARRAY[");
     arraystr.reserve(10+entries.size()*20);
     for (const auto & entrykey : entries) {
-        arraystr += '\'' + entrykey.str() + "',";
+        arraystr += '\'' + entrykey.str().substr(0,13)+entry_minor_id_pq(entrykey.idT.minor_id) + "',"; // Updated to use the new minor-ID format for Log entries!
     }
     arraystr.back() = ']';
     return arraystr;

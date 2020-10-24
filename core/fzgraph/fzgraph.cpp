@@ -57,8 +57,8 @@ fzgraphedit fzge;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphedit::fzgraphedit() : formalizer_standard_program(false), graph_ptr(nullptr), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "M:T:f:H:a:S:D:t:g:p:r:e:s:Y:G:I:U:P:";
-    add_usage_top += " [-M node|edges] [-T <text>] [-f <content-file>] [-H <hours>] [-a <val>] [-S <sups>] [-D <deps>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>]";
+    add_option_args += "M:T:f:H:a:S:D:t:g:p:r:e:s:Y:G:I:U:P:z";
+    add_usage_top += " [-M node|edges] [-T <text>] [-f <content-file>] [-H <hours>] [-a <val>] [-S <sups>] [-D <deps>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>] [-z]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "When making a Node, by convention we expect at least one superior, although\n"
@@ -104,6 +104,7 @@ void fzgraphedit::usage_hook() {
     FZOUT("    -I edge importance (default: "+to_precision_string(config.ed.importance)+")\n");
     FZOUT("    -U edge urgency (default: "+to_precision_string(config.ed.urgency)+")\n");
     FZOUT("    -P edge priority (default: "+to_precision_string(config.ed.priority)+")\n");
+    FZOUT("    -z stop the Graph server\n");
 }
 
 time_t interpret_config_targetdate(const std::string & parvalue) {
@@ -320,6 +321,11 @@ bool fzgraphedit::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'z': {
+        flowcontrol = flow_stop_server;
+        return true;
+    }
+
     }
 
     return false;
@@ -483,6 +489,12 @@ int make_edges() {
     return standard.completed_ok();
 }
 
+int stop_server() {
+    VERBOSEOUT("Sending STOP request to Graph server.\n");
+    client_socket_message("STOP");
+    return standard.completed_ok();
+}
+
 int main(int argc, char *argv[]) {
     ERRTRACE;
 
@@ -496,6 +508,10 @@ int main(int argc, char *argv[]) {
 
     case flow_make_edge: {
         return make_edges();
+    }
+
+    case flow_stop_server: {
+        return stop_server();
     }
 
     default: {

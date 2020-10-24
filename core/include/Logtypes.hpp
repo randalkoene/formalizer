@@ -509,10 +509,15 @@ struct Log_filter {
  * 
  * This is used, for example, to create and maintain a cache table that
  * speeds of Node history retrieval. (E.g., see its use in fzloghtml.)
+ * 
+ * Note that because the set of chunks is Node-specific, when presenting
+ * Log chunks that contain all elements of a Node's history it is
+ * necessary to add chunks for entries that belong to the Node but are
+ * within a chunk that belongs to a different Node.
  */
 struct Node_history {
-    Log_chunk_ID_key_set chunks;
-    Log_entry_ID_key_set entries;
+    Log_chunk_ID_key_set chunks;  ///< Only chunks that explicitly belong to the Node.
+    Log_entry_ID_key_set entries; ///< Entries that belong to the Node both explicitly and implicitly (due to surrounding Chunk).
 };
 
 typedef std::unique_ptr<Node_history> history_ptr;

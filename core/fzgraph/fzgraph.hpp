@@ -31,9 +31,10 @@ class Graph_modifications;
 #endif
 
 enum flow_options {
-    flow_unknown = 0,   /// no recognized request
-    flow_make_node = 1, /// request: make new Node
-    flow_make_edge = 2, /// request: make new Edge
+    flow_unknown = 0,     /// no recognized request
+    flow_make_node = 1,   /// request: make new Node
+    flow_make_edge = 2,   /// request: make new Edge
+    flow_stop_server = 3, /// request: stop the Graph server
     flow_NUMoptions
 };
 
