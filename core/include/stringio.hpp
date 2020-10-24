@@ -16,6 +16,9 @@
 // std
 #include <fstream>
 
+// core (needed here for exit_status_code)
+#include "error.hpp"
+
 namespace fz {
 
 bool string_to_file(std::string path, std::string & s, std::ofstream::iostate * writestate = nullptr);

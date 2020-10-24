@@ -142,7 +142,7 @@ fzlog: $(OBJ)/fzlog.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o fzlog $(LIB_PATH)
 
 clean:
-	cp -f fzlog fzlog.bak
+	cp -f fzlog fzlog.bak 2>/dev/null || :
 	rm -f $(OBJ)/*.o fzlog
 
 #doc++:

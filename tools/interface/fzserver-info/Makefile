@@ -147,7 +147,7 @@ fzserver-info: $(OBJ)/fzserver-info.o $(OBJ)/render.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $(TEMPLATEDIR) $^ -o fzserver-info $(LIB_PATH)
 
 clean:
-	cp -f fzserver-info fzserver-info.bak
+	cp -f fzserver-info fzserver-info.bak 2>/dev/null || :
 	rm -f $(OBJ)/*.o fzserver-info
 
 #doc++:

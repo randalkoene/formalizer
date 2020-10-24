@@ -165,7 +165,7 @@ graph2dil: $(OBJ)/graph2dil.o $(OBJ)/log2tl.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $(OUTPUTPRECONFIGS) $^ -o graph2dil $(LIB_PATH)
 
 clean:
-	cp -f graph2dil graph2dil.bak
+	cp -f graph2dil graph2dil.bak 2>/dev/null || :
 	rm -f $(OBJ)/*.o graph2dil
 
 #doc++:

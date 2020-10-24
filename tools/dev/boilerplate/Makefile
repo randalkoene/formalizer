@@ -155,7 +155,7 @@ boilerplate: $(OBJ)/boilerplate.o $(OBJ)/cpp_boilerplate.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $(FORMALIZERROOT) $(TEMPLATEDIR) $^ -o boilerplate $(LIB_PATH)
 
 clean:
-	cp -f boilerplate boilerplate.bak
+	cp -f boilerplate boilerplate.bak 2>/dev/null || :
 	rm -f $(OBJ)/*.o boilerplate
 
 #doc++:

@@ -41,16 +41,16 @@ compile_dirs = {
     "lib" : "/core/lib",
     "fzgraph" : "/core/fzgraph",
     "fzguide.system" : "/core/fzguide.system",
-    "fzlog" : "core/fzlog",
-    "fzquerypq" : "core/fzquerypq",
-    "fzserverpq" : "core/fzserverpq",
-    "dil2graph" : "tools/conversion/dil2graph",
-    "graph2dil" : "tools/conversion/graph2dil",
-    "boilerplate" : "tools/dev/boilerplate",
-    "fzgraphhtml" : "tools/interface/fzgraphhtml",
-    "fzloghtml" : "tools/interface/fzloghtml",
-    "fzserver-info" : "tools/interface/fzserver-info",
-    "nodeboard" : "tools/interface/nodeboard"
+    "fzlog" : "/core/fzlog",
+    "fzquerypq" : "/core/fzquerypq",
+    "fzserverpq" : "/core/fzserverpq",
+    "dil2graph" : "/tools/conversion/dil2graph",
+    "graph2dil" : "/tools/conversion/graph2dil",
+    "boilerplate" : "/tools/dev/boilerplate",
+    "fzgraphhtml" : "/tools/interface/fzgraphhtml",
+    "fzloghtml" : "/tools/interface/fzloghtml",
+    "fzserver-info" : "/tools/interface/fzserver-info",
+    "nodeboard" : "/tools/interface/nodeboard"
 }
 
 flow_control = {
@@ -252,7 +252,7 @@ def clean_all():
     print('Cleaning all compilation directories.\n')
     for compilable in compile_dirs:
         print('\t'+compilable)
-        retcode = try_subprocess_check_output('cd '+config['sourceroot']+compile_dirs[compilable]' && make')
+        retcode = try_subprocess_check_output('cd '+config['sourceroot']+compile_dirs[compilable]+' && make clean')
         if (retcode != 0):
             print(f'Unable to clean {compilable}.')
             exit(retcode)   
@@ -265,7 +265,7 @@ def compile_all():
     print('Compiling all compilables.\n')
     for compilable in compile_dirs:
         print('\t'+compilable)
-        retcode = try_subprocess_check_output('cd '+config['sourceroot']+compile_dirs[compilable]' && make clean')
+        retcode = try_subprocess_check_output('cd '+config['sourceroot']+compile_dirs[compilable]+' && make')
         if (retcode != 0):
             print(f'Unable to compile {compilable}.')
             exit(retcode)   

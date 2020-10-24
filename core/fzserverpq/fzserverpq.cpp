@@ -121,8 +121,8 @@ bool server_socket_listen() {
     struct sockaddr_in address; 
     char str[100]; 
     int addrlen = sizeof(address); 
-    char buffer[1024] = { 0 }; 
-    char* hello = "Hello from server"; 
+    //char buffer[1024] = { 0 }; 
+    //char* hello = "Hello from server"; 
   
     // Creating socket file descriptor 
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) { 
@@ -162,6 +162,12 @@ bool server_socket_listen() {
 
         // read string send by client 
         valread = read(new_socket, str, sizeof(str)); 
+        if (valread==0) {
+            ADDWARNING(__func__, "EOF encountered");
+        }
+        if (valread<0) {
+            ADDERROR(__func__, "Socket read error");
+        }
         //int i, j, temp; 
         //int l = strlen(str);
         std::string request_str(str);
@@ -227,9 +233,10 @@ bool node_id_in_request_stack(Graph_modifications & graphmod, const Node_ID_key 
  * @return True if everything is valid, false if the stack should be rejected.
  */
 bool request_stack_valid(Graph_modifications & graphmod, std::string segname) {
-    if (!fzs.graph_ptr)
+    if (!fzs.graph_ptr) {
         prepare_error_response(segname, exit_resident_graph_missing, "Memory resident Graph not available for request validation");
         return false;
+    }
 
     for (const auto & gmoddata : graphmod.data) {
 

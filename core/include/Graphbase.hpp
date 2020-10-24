@@ -181,6 +181,7 @@ struct ID_TimeStamp {
 
     /// Initializes as NODE_NULL_IDSTAMP.
     ID_TimeStamp(): minor_id(0), second(0), minute(0), hour(0), day(0), month(0), year(0) {}
+    //ID_TimeStamp(const ID_TimeStamp & _idT): minor_id(_idT.minor_id), second(_idT.second), hour(_idT.hour), day(_idT.day), month(_idT.month), year(_idT.year) {}
 
     /// standardization functions and operators
     bool isnullstamp() const { return (month == 0) || (year<1900); }
@@ -250,6 +251,8 @@ struct Node_ID_key { // used to be a union with `ID Compare idC;` (see comments 
     ID_TimeStamp idT;
 
     Node_ID_key(): idT() {} /// Try to use this one only for container element initialization and such.
+    Node_ID_key(const Node_ID_key & _nodeidkey): idT(_nodeidkey.idT) {} // And this one for emplace.
+    //Node_ID_key(const Node_ID_key & _nodeidkey): idT(*(const_cast<ID_TimeStamp *>(&_nodeidkey.idT))) {} // And this one for emplace.
 
     Node_ID_key(const ID_TimeStamp& _idT);
     Node_ID_key(std::string _idS);
@@ -287,6 +290,7 @@ struct Edge_ID_key {
     Node_ID_key sup;
 
     Edge_ID_key() {} /// Try to use this one only for container element initialization and such.
+    Edge_ID_key(const Edge_ID_key & _edgeidkey): dep(_edgeidkey.dep), sup(_edgeidkey.sup) {} // And this one for emplace.
 
     Edge_ID_key(Node_ID_key _depkey, Node_ID_key _supkey): dep(_depkey), sup(_supkey) {}
     Edge_ID_key(std::string _idS);

@@ -37,7 +37,7 @@ enum flow_options {
     flow_NUMoptions
 };
 
-typedef std::vector<const Node_ID_key> Node_ID_key_Vector;
+typedef std::vector<Node_ID_key> Node_ID_key_Vector;
 
 /// Data structure used when building an Add-Node request, initialized to compile-time default values.
 struct Node_data {

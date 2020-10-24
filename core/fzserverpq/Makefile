@@ -114,6 +114,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphbase.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphinfo.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphmodify.o
 CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
 CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
 CORE_OBJS += $(CORELIBPATH)/obj/fzpostgres.o
@@ -141,7 +142,7 @@ fzserverpq: $(OBJ)/fzserverpq.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $^ -o fzserverpq $(LIB_PATH)
 
 clean:
-	cp -f fzserverpq fzserverpq.bak
+	cp -f fzserverpq fzserverpq.bak 2>/dev/null || :
 	rm -f $(OBJ)/*.o fzserverpq
 
 #doc++:

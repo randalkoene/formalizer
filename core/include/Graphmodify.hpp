@@ -58,11 +58,11 @@ struct Graphmod_error {
  */
 struct Graphmod_result {
     Graph_modification_request request_handled;
-    const Node_ID_key node_key;   ///< Return ID if an Add-Node request was handled successfully.
-    const Edge_ID_key edge_key;   ///< Return ID if an Add-Edge request was handled successfully.
+    Node_ID_key node_key;   ///< Return ID if an Add-Node request was handled successfully.
+    Edge_ID_key edge_key;   ///< Return ID if an Add-Edge request was handled successfully.
 
-    Graphmod_result(const Node_ID_key _nkey) : request_handled(graphmod_add_node), node_key(_nkey) {}
-    Graphmod_result(const Edge_ID_key _ekey) : request_handled(graphmod_add_edge), edge_key(_ekey) {}
+    Graphmod_result(const Node_ID_key & _nkey) : request_handled(graphmod_add_node), node_key(_nkey) {}
+    Graphmod_result(const Edge_ID_key & _ekey) : request_handled(graphmod_add_edge), edge_key(_ekey) {}
 };
 
 typedef bi::allocator<Graphmod_result, segment_manager_t> Graphmod_result_allocator;

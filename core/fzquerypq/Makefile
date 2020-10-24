@@ -141,6 +141,7 @@ fzquerypq: $(OBJ)/fzquerypq.o $(OBJ)/servenodedata.o $(OBJ)/refresh.o $(CORE_OBJ
 	$(CCPP) $(CPPFLAGS) $^ -o fzquerypq $(LIB_PATH)
 
 clean:
+	cp -f fzquerypq fzquerypq.bak 2>/dev/null || :
 	rm -f $(OBJ)/*.o fzquerypq
 
 #doc++:

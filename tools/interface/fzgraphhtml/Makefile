@@ -146,9 +146,8 @@ fzgraphhtml: $(OBJ)/fzgraphhtml.o $(OBJ)/render.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $(TEMPLATEDIR) $^ -o fzgraphhtml $(LIB_PATH)
 
 clean:
+	cp -f fzgraphhtml fzgraphhtml.bak 2>/dev/null || :
 	rm -f $(OBJ)/*.o fzgraphhtml
-	cp -f fzgraphhtml fzgraphhtml.bak
-
 
 #doc++:
 #	rm -r -f html

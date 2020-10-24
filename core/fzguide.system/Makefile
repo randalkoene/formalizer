@@ -97,6 +97,8 @@ CORE_OBJS += $(CORELIBPATH)/obj/error.o
 CORE_OBJS += $(CORELIBPATH)/obj/config.o
 CORE_OBJS += $(CORELIBPATH)/obj/standard.o
 CORE_OBJS += $(CORELIBPATH)/obj/general.o
+CORE_OBJS += $(CORELIBPATH)/obj/stringio.o
+CORE_OBJS += $(CORELIBPATH)/obj/jsonlite.o
 CORE_OBJS += $(CORELIBPATH)/obj/templater.o
 # CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
 CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
@@ -129,7 +131,7 @@ fzguide.system: $(OBJ)/fzguide.system.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(TEMPLATEDIR) $(STANDARD_STREAMS) $^ -o fzguide.system $(LIB_PATH)
 
 clean:
-	cp -f fzguide.system fzguide.system.bak
+	cp -f fzguide.system fzguide.system.bak 2>/dev/null || :
 	rm -f $(OBJ)/*.o fzguide.system
 
 #doc++:

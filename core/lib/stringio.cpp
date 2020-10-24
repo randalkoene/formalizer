@@ -9,7 +9,7 @@
 #include <filesystem>
 
 // core
-#include "error.hpp"
+//#include "error.hpp"
 #include "stringio.hpp"
 
 namespace fz {

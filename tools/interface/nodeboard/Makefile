@@ -140,7 +140,7 @@ nodeboard: $(OBJ)/nodeboard.o $(OBJ)/nbrender.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $^ -o nodeboard $(LIB_PATH)
 
 clean:
-	cp -f nodeboard nodeboard.bak
+	cp -f nodeboard nodeboard.bak 2>/dev/null || :
 	rm -f $(OBJ)/*.o nodeboard
 
 #doc++:

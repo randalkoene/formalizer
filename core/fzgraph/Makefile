@@ -115,6 +115,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphbase.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphinfo.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphmodify.o
 # CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
@@ -126,7 +127,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/utf8.o
 
 .PHONY: FORCE
 
-all: init fzgraphedit
+all: init fzgraph
 
 init: FORCE
 	@echo '-------------------------------------------------------------------'
@@ -135,20 +136,20 @@ init: FORCE
 	@echo '-------------------------------------------------------------------'
 
 
-$(OBJ)/addedge.o: addedge.cpp addedge.hpp fzgraphedit.hpp
+$(OBJ)/addedge.o: addedge.cpp addedge.hpp fzgraph.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c addedge.cpp -o $(OBJ)/addedge.o
 
-$(OBJ)/addnode.o: addnode.cpp addnode.hpp fzgraphedit.hpp
+$(OBJ)/addnode.o: addnode.cpp addnode.hpp fzgraph.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c addnode.cpp -o $(OBJ)/addnode.o
 
 $(OBJ)/fzgraph.o: fzgraph.cpp fzgraph.hpp version.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c fzgraph.cpp -o $(OBJ)/fzgraph.o
 
-fzgraph: $(OBJ)/fzgraph.o $(OBJ)$/addnode.o $(OBJ)$/addedge.o $(CORE_OBJS)
+fzgraph: $(OBJ)/fzgraph.o $(OBJ)/addnode.o $(OBJ)/addedge.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o fzgraph $(LIB_PATH)
 
 clean:
-	cp -f fzgraph fzgraph.bak
+	cp -f fzgraph fzgraph.bak 2>/dev/null || :
 	rm -f $(OBJ)/*.o fzgraph
 
 #doc++:

@@ -207,7 +207,7 @@ dil2graph: $(OBJ)/dil2graph.o $(OBJ)/tl2log.o $(OBJ)/logtest.o $(OBJ)/dil2al_min
 	$(CCPP) $(CPPFLAGS) $^ -o dil2graph $(LIB_PATH)
 
 clean:
-	cp -f dil2graph dil2graph.bak
+	cp -f dil2graph dil2graph.bak 2>/dev/null || :
 	rm -f $(OBJ)/*.o dil2graph
 
 #doc++:

@@ -109,7 +109,7 @@ void the_standard_object::add_to_exit_stack(void (*func) (void), std::string lab
 int the_standard_object::completed_ok() {
     VERBOSEOUT(runnablename+" completed.\n");
     exit(exit_ok);
-    return exit_ok;
+    //return exit_ok;
 }
 
 /// Another set of exit options, these with potential messages.
@@ -124,7 +124,7 @@ int standard_exit_error(int exit_code, std::string error_message, const char * p
     ADDERROR(problem__func__, error_message);
     VERBOSEERR(error_message+'\n');
     standard.exit(exit_code);
-    return exit_code;
+    //return exit_code;
 }
 
 int standard_exit(bool success, std::string veryverbose_message, int exit_code, std::string error_message, const char * problem__func__) {

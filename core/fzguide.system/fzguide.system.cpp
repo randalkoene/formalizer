@@ -49,6 +49,7 @@
 #include "error.hpp"
 #include "standard.hpp"
 #include "general.hpp"
+#include "stringio.hpp"
 #include "fzpostgres.hpp"
 #include "templater.hpp"
 #include "utf8.hpp"

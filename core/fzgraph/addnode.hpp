@@ -17,9 +17,17 @@
 //#include "config.hpp"
 //#include "standard.hpp"
 //#include "Graphbase.hpp"
-#include "fzgraph.hpp"
+//#include "fzgraph.hpp"
 
 using namespace fz;
+
+// forward declarations
+#ifndef __GRAPHMODIFY_HPP
+class Graph_modifications;
+#endif
+#ifndef __FZGRAPHEDIT_HPP
+struct Node_data;
+#endif
 
 Node * add_Node_request(Graph_modifications & gm, Node_data & nd);
 

@@ -72,7 +72,7 @@ fzgraphedit::fzgraphedit() : formalizer_standard_program(false), graph_ptr(nullp
 std::string NodeIDs_to_string(const Node_ID_key_Vector & nodeidvec) {
     std::string nodeids_str;
     for (const auto & nodeidkey : nodeidvec) {
-        nodeids_str += nodeidkey.str(); + ',';
+        nodeids_str += nodeidkey.str() + ',';
     }
     if (!nodeids_str.empty())
         nodeids_str.pop_back();
@@ -159,6 +159,7 @@ td_pattern interpret_config_tdpattern(const std::string & parvalue) {
     }
 
     standard_exit_error(exit_bad_config_value, "Invalid configured td_pattern default: "+parvalue, __func__);
+    //return (td_pattern) 0; // never reaches this
 }
 
 Node_ID_key_Vector parse_config_NodeIDs(const std::string & parvalue) {
@@ -342,51 +343,56 @@ void fzgraphedit::init_top(int argc, char *argv[]) {
 #ifdef TESTING_CLIENT_SERVER_SOCKETS
 // ----- begin: Test here then move -----
 bool client_socket_message(std::string request_str) {
-    struct sockaddr_in address; 
-    int sock = 0, valread; 
-    struct sockaddr_in serv_addr; 
-    char str[100]; 
-  
-    //printf("\nInput the string:"); 
-    //scanf("%[^\n]s", str); 
-  
-    char buffer[1024] = { 0 }; 
-  
-    // Creating socket file descriptor 
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) { 
-        printf("\n Socket creation error \n"); 
-        return false; 
-    } 
-  
-    memset(&serv_addr, '0', sizeof(serv_addr)); 
-    serv_addr.sin_family = AF_INET; 
-    serv_addr.sin_port = htons(PORT); 
-  
-    // Convert IPv4 and IPv6 addresses from 
-    // text to binary form 127.0.0.1 is local 
-    // host IP address, this address should be 
-    // your system local host IP address 
-    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) { 
-        printf("\nAddress not supported \n"); 
-        return false; 
-    } 
-  
-    // connect the socket 
-    if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) { 
-        printf("\nConnection Failed \n"); 
-        return false; 
-    } 
-  
-    int l; // = strlen(str); 
+    //struct sockaddr_in address;
+    int sock = 0;
+    struct sockaddr_in serv_addr;
+    char str[100];
+
+    //printf("\nInput the string:");
+    //scanf("%[^\n]s", str);
+    //char buffer[1024] = { 0 };
+
+    // Creating socket file descriptor
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        printf("\n Socket creation error \n");
+        return false;
+    }
+
+    memset(&serv_addr, '0', sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(PORT);
+
+    // Convert IPv4 and IPv6 addresses from
+    // text to binary form 127.0.0.1 is local
+    // host IP address, this address should be
+    // your system local host IP address
+    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
+        printf("\nAddress not supported \n");
+        return false;
+    }
+
+    // connect the socket
+    if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
+        printf("\nConnection Failed \n");
+        return false;
+    }
+
+    int l = strlen(str);
   
     // send string to server side 
     //send(sock, str, sizeof(str), 0); 
     send(sock, request_str.c_str(), request_str.size()+1, 0);
 
-    // read string sent by server 
-    valread = read(sock, str, l); 
-  
-    //printf("%s\n", str); 
+    // read string sent by server
+    ssize_t valread = read(sock, str, l);
+    if (valread==0) {
+        FZOUT("Server response reached EOF.\n");
+    }
+    if (valread<0) {
+        FZERR("Server response read returned ERROR.\n");
+    }
+
+    //printf("%s\n", str);
     std::string response_str(str);
 
     if (response_str == "RESULTS") {
@@ -398,8 +404,8 @@ bool client_socket_message(std::string request_str) {
             FZOUT("Unknown response: "+response_str+'\n');
         }
     }
-  
-    return true; 
+
+    return true;
 }
 // ----- end  : Test here then move -----
 #endif

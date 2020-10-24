@@ -105,7 +105,7 @@ struct the_standard_object {
      * This version of exit copies `quiet` explicitly to `standard.quiet`, so
      * that `error_summary_wrapper` can see it.
      */
-    void exit(int exit_code);
+    [[noreturn]] void exit(int exit_code);
 
     /**
      * Add additional steps to the exit() stack.
@@ -126,7 +126,7 @@ struct the_standard_object {
     /**
      * An all-is-well exit call.
      */
-    int completed_ok();
+    [[noreturn]] int completed_ok();
 
     void print_version();
 };
@@ -228,7 +228,7 @@ void key_pause();
 
 /// Another set of exit options, these with potential messages.
 int standard_exit_success(std::string veryverbose_message);
-int standard_exit_error(int exit_code, std::string error_message, const char * problem__func__);
+[[noreturn]] int standard_exit_error(int exit_code, std::string error_message, const char * problem__func__);
 int standard_exit(bool success, std::string veryverbose_message, int exit_code, std::string error_message, const char * problem__func__);
 
 } // namespace fz

@@ -140,6 +140,7 @@ fzloghtml: $(OBJ)/fzloghtml.o $(OBJ)/render.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $(TEMPLATEDIR) $^ -o fzloghtml $(LIB_PATH)
 
 clean:
+	cp -f fzloghtml fzloghtml.bak 2>/dev/null || :
 	rm -f $(OBJ)/*.o fzloghtml
 
 

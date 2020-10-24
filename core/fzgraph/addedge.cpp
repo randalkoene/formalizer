@@ -27,7 +27,7 @@
 #include "Graphmodify.hpp"
 
 // local
-#include "fzgraphedit.hpp"
+#include "fzgraph.hpp"
 #include "addedge.hpp"
 
 
