@@ -26,6 +26,7 @@ form = cgi.FieldStorage()
 
 # Get data from fields
 id = form.getvalue('id')
+alt = form.getvalue('alt')
 
 print("Content-type:text/html\n\n")
 print("<html>")
@@ -34,14 +35,23 @@ print('<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">')
 print("<title>Formalizer: fzlink handler</title>")
 print("</head>")
 print("<body>")
+print('<style type="text/css">')
+print('.chktop { ')
+print('    background-color: #B0C4F5;')
+print('}')
+#print("table tr.chktop { background: #B0C4F5; }")
+print("</style>")
+
 
 thisscript = os.path.realpath(__file__)
-print(f'(For dev reference, this script is at {thisscript}.)')
+print(f'<!--(For dev reference, this script is at {thisscript}.) -->')
 
-print("<h1>Formalizer: fzlink handler</h1>\n<p></p>")
+#print("<h3>Formalizer: fzlink handler</h3>\n<p></p>")
+print("[Formalizer: fzlink handler]\n<p></p>")
 #print("<table>")
 
 thecmd = ""
+altcmd = ""
 if id:
     idlen = len(id)
     if (idlen==12):
@@ -56,12 +66,19 @@ if id:
             else:
                 if (idlen==16):
                     # Node ID
-                    thecmd = "./fzquerypq -q -d formalizer -s randalk -E STDOUT -F html -n "+id
+                    thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -n "+id
+                    #thecmd = "./fzquerypq -q -d formalizer -s randalk -E STDOUT -F html -n "+id
+                    if alt:
+                        if (alt=="hist50"):
+                            altcmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -N -c 50 -n "+id
+                        else:
+                            if (alt=="histfull"):
+                                altcmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -N -n "+id
     
 
 if thecmd:
-    print('Using this command: ',thecmd)
-    print('<br>\n<table>\n')
+    print(f'\n<!-- Primary command: {thecmd} -->\n')
+    print('<br>\n<table><tbody>\n')
     try:
         p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
         (child_stdin,child_stdout) = (p.stdin, p.stdout)
@@ -79,11 +96,32 @@ if thecmd:
         for line in a:
             print(line)
 
-#if "name" not in form or "addr" not in form:
-#    print("<H1>Error</H1>")
-#    print("Please fill in the name and addr fields.")
-#    return
+    print("</tbody></table>")
 
-print("</table>")
-print("</body>")
-print("</html>")
+if altcmd:
+    print(f'\n<!-- Secondary command: {altcmd} -->\n')
+    print('<br>\n<table><tbody>\n')
+    print('<br>\n\n')
+    try:
+        p = Popen(altcmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
+        (child_stdin,child_stdout) = (p.stdin, p.stdout)
+        child_stdin.close()
+        result = child_stdout.read()
+        child_stdout.close()
+        print(result)
+        #print(result.replace('\n', '<BR>'))
+
+    except Exception as ex:                
+        print(ex)
+        f = StringIO()
+        print_exc(file=f)
+        a = f.getvalue().splitlines()
+        for line in a:
+            print(line)
+    
+    print("</tbody></table>")
+
+    if (alt=="hist50"):
+        print(f'\n<br>\n<p>\n[<a href="/cgi-bin/fzlink.py?id={id}&alt=histfull">full history</a>]\n</p>\n<br>\n')
+
+print("<hr>\n</body>\n</html>")

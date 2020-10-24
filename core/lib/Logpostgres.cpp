@@ -847,6 +847,21 @@ bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter,
         entrywherestr = " WHERE id IN (" + entryids_str + ")";
     }*/
 
+    // Temporal constraints are imposed by comparators in the WHERE string, but
+    // a number of chunks limit needs to be established on the collected set
+    // first if there is one.
+    if ((filter.limit>0) && (nodehist.chunks.size()>filter.limit)) {
+        // *** I haven't yet found documentation about whether std::prev(begin()) is safe,
+        //     so, I'm doing this the long way to avoid possible debugging for now.
+        auto keepfrom_it = nodehist.chunks.end();
+        for (unsigned long i = filter.limit; i>0; --i) {
+            if (keepfrom_it != nodehist.chunks.begin()) {
+                --keepfrom_it;
+            }
+        }
+        nodehist.chunks.erase(nodehist.chunks.begin(),keepfrom_it);
+    }
+
     if (haschunks) {
         // Now the full WHERE string for the chunks (and the entries).
         chunkwherestr = " WHERE id IN (";

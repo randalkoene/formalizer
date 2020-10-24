@@ -27,5 +27,5 @@ void refresh_Node_histories_cache_table() {
         VERBOSEERR("\nUnable to refresh Node histories cache table.\n\n");
         return;
     }
-    VERBOSEOUT("Done.\n");
+    VERBOSEOUT("Done.\n\nNote: To enable web based access to Node histories, you may need to\nre-establish ownership/permissions by running `fzsetup -1 fzuser`.\n");
 }

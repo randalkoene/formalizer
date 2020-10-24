@@ -105,6 +105,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/stringio.o
 CORE_OBJS += $(CORELIBPATH)/obj/jsonlite.o
 CORE_OBJS += $(CORELIBPATH)/obj/templater.o
 CORE_OBJS += $(CORELIBPATH)/obj/utf8.o
+CORE_OBJS += $(CORELIBPATH)/obj/html.o
 # CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
 CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphbase.o

@@ -38,13 +38,17 @@ enum template_id_enum {
     node_pars_in_list_html_temp,
     node_pars_in_list_head_html_temp,
     node_pars_in_list_tail_html_temp,
+    node_txt_temp,
+    node_html_temp,
     NUM_temp
 };
 
 const std::vector<std::string> template_ids = {
     "node_pars_in_list_template.html",
     "node_pars_in_list_head_template.html",
-    "node_pars_in_list_tail_template.html"
+    "node_pars_in_list_tail_template.html",
+    "Node_template.txt",
+    "Node_template.html"
 };
 
 typedef std::map<template_id_enum,std::string> fzgraphhtml_templates;
@@ -118,4 +122,43 @@ bool render_incomplete_nodes() {
     }
     
     return true;
+}
+
+/**
+ * Individual Node data rendering.
+ * 
+ * Note: We will probably be unifying this with the Node
+ * rendering code of `fzquerypq`, even though the data here
+ * comes from the memory-resident Graph. See the proposal
+ * at https://trello.com/c/jJamMykM. When unifying these, 
+ * the output rendering format may be specified by an enum
+ * as in the code in fzquerypq:servenodedata.cpp.
+ * 
+ * The rendering format is specified in `fzq.output_format`.
+ * 
+ * @param node A valid Node object.
+ * @param render_format Specifies the rendering output format.
+ * @return A string with rendered Node data according to the chosen format.
+ */
+std::string render_Node_data(Node & node, unsigned int render_format) {
+    render_environment env;
+    fzgraphhtml_templates templates;
+
+    load_templates(templates);
+
+    template_varvalues nodevars;
+    nodevars.emplace("node-id", node.get_id_str());
+    nodevars.emplace("node-text", node.get_text());
+
+    switch (render_format) {
+
+    case 1:
+        return env.render(templates[node_html_temp], nodevars);
+
+    default:
+        return env.render(templates[node_txt_temp], nodevars);
+
+    }
+
+    return ""; // never gets here
 }

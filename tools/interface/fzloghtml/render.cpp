@@ -16,6 +16,7 @@
 #include "general.hpp"
 #include "stringio.hpp"
 #include "templater.hpp"
+#include "html.hpp"
 
 // local
 #include "render.hpp"
@@ -74,7 +75,7 @@ bool load_templates(fzloghtml_templates & templates) {
 std::string render_Log_entry(Log_entry & entry) {
     template_varvalues varvals;
     varvals.emplace("minor_id",std::to_string(entry.get_minor_id()));
-    varvals.emplace("entry_text",entry.get_entrytext());
+    varvals.emplace("entry_text",make_embeddable_html(entry.get_entrytext()));
     if (entry.same_node_as_chunk()) {
         varvals.emplace("node_id","");
     } else {
@@ -140,10 +141,18 @@ bool render_Log_interval() {
             varvals.emplace("node_link","/cgi-bin/fzlink.py?id="+nodestr);
             varvals.emplace("t_chunkopen",chunkptr->get_tbegin_str());
             time_t t_chunkclose = chunkptr->get_close_time();
+            time_t t_chunkopen = chunkptr->get_open_time();
             if (t_chunkclose < chunkptr->get_open_time()) {
                 varvals.emplace("t_chunkclose","OPEN");
+                varvals.emplace("t_diff","");
             } else {
                 varvals.emplace("t_chunkclose",TimeStampYmdHM(t_chunkclose));
+                time_t t_diff = (t_chunkclose - t_chunkopen)/60; // mins
+                if (t_diff >= 120) {
+                    varvals.emplace("t_diff", to_precision_string(((double) t_diff)/60.0, 2, ' ', 5)+" hrs");
+                } else {
+                    varvals.emplace("t_diff", std::to_string(t_diff)+" mins");
+                }
             }
             varvals.emplace("entries",combined_entries);
             rendered_logcontent += env.render(templates[LogHTML_chunk_temp],varvals);

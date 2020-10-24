@@ -357,8 +357,8 @@ public:
     Log_chunk_ID_key_deque::size_type find_Breakpoint_index_before_chaintarget(const Log_chain_target & chaintarget);
 };
 
-typedef std::set<Log_chunk_ID_key> Log_chunk_ID_key_set;
-typedef std::set<Log_entry_ID_key> Log_entry_ID_key_set;
+typedef std::set<Log_chunk_ID_key, std::less<Log_chunk_ID_key>> Log_chunk_ID_key_set;
+typedef std::set<Log_entry_ID_key, std::less<Log_entry_ID_key>> Log_entry_ID_key_set;
 
 /**
  * ### Log

@@ -235,7 +235,7 @@ void simPQ_report_wrapper() {
 bool fzpq_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     // Make sure that any simulated Postgres calls are stored to file upon exit.
     if (!exit_report_hooked_in) { // call this one only once
-        VERBOSEOUT("Adding exit hook: simPQ_report_wrapper\n");
+        VERYVERBOSEOUT("Adding exit hook: simPQ_report_wrapper\n");
         standard.add_to_exit_stack(&simPQ_report_wrapper,"simPQ_report_wrapper");
         exit_report_hooked_in = true;
     }

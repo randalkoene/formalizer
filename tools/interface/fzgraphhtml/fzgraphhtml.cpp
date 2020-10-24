@@ -19,6 +19,7 @@
 // core
 #include "error.hpp"
 #include "standard.hpp"
+#include "stringio.hpp"
 #include "Graphtypes.hpp"
 #include "Graphinfo.hpp"
 
@@ -38,7 +39,7 @@ fzgraphhtml fzgh;
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
     add_option_args += "n:IN:o:";
-    add_usage_top += " [-n <node-ID>] [-I] [N <num>] [-o <output-path>]";
+    add_usage_top += " [-n <node-ID>] [-I] [-N <num>] [-o <output-path>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("When no [N <num>] is provided then the configured value is used.\n");
 }
@@ -148,7 +149,8 @@ void test_other_graph_info(Graph & graph) {
 
 }
 
-void test_get_node_info() {
+void get_node_info() {
+    ERRTRACE;
 
     auto [node_ptr, graph_ptr] = find_Node_by_idstr(fzgh.node_idstr, nullptr);
 
@@ -158,16 +160,24 @@ void test_get_node_info() {
 
         test_other_graph_info(*graph_ptr);
 
+    } else {
+        standard_exit_error(exit_resident_graph_missing, "Unable to access memory-resident Graph.", __func__);
     }
 
+    ERRHERE(".render");
     if (node_ptr) {
 
-        FZOUT("\nNode "+fzgh.node_idstr+":\n\n");
+        std::string rendered_node_data(render_Node_data(*node_ptr));
 
-        FZOUT("  ID ="+node_ptr->get_id_str()+'\n');
+        if (fzgh.config.rendered_out_path == "STDOUT") {
+            FZOUT(rendered_node_data);
+        } else {
+            if (!string_to_file(fzgh.config.rendered_out_path, rendered_node_data))
+                standard_exit_error(exit_file_error, "Unable to write rendered page to file.", __func__);
+        }
 
-        FZOUT(node_ptr->get_text());
-
+    } else {
+        standard_exit_error(exit_bad_request_data, "Invalid Node ID: "+fzgh.node_idstr, __func__);
     }
 
 }
@@ -181,7 +191,7 @@ int main(int argc, char *argv[]) {
     switch (fzgh.flowcontrol) {
 
     case flow_node: {
-        test_get_node_info();
+        get_node_info();
         break;
     }
 

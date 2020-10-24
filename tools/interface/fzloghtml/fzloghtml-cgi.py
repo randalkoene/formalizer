@@ -65,12 +65,18 @@ print('<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">')
 print("<title>Formalizer: HTML FORM interface to fzloghtml</title>")
 print("</head>")
 print("<body>")
+print('<style type="text/css">')
+print('.chktop { ')
+print('    background-color: #B0C4F5;')
+print('}')
+#print("table tr.chktop { background: #B0C4F5; }")
+print("</style>")
 
 thisscript = os.path.realpath(__file__)
 print(f'(For dev reference, this script is at {thisscript}.)')
 
 print("<h1>Formalizer: HTML FORM interface to fzloghtml</h1>\n<p></p>")
-#print("<table>")
+print("<table><tbody>")
 
 cmdoptions = ""
 
@@ -117,6 +123,6 @@ if cmdoptions:
 #    print("Please fill in the name and addr fields.")
 #    return
 
-#print("</table>")
+print("</tbody></table>")
 print("</body>")
 print("</html>")
