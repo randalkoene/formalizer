@@ -81,6 +81,7 @@ struct Graphmod_results {
     Graphmod_result_Vector results;
 
     Graphmod_results(std::string segname) : results(graphmemman.get_allocator(segname)) {}
+    std::string info_str();
 };
 
 /**
@@ -156,8 +157,14 @@ std::string unique_name_Graphmod();
 /// See for example how this is used in fzserverpq.
 Graphmod_error * prepare_error_response(std::string segname, exit_status_code ecode, std::string errmsg);
 
+/// See for example how this is used in fzgraph.
+Graphmod_error * find_error_response_in_shared_memory(std::string segment_name);
+
 /// See for example how this is used in fzserverpq.
 Graphmod_results * initialized_results_response(std::string segname);
+
+/// See for example how this is used in fzgraph.
+Graphmod_results * find_results_response_in_shared_memory(std::string segment_name);
 
 /// Create a Node in the Graph's shared segment and add it to the Graph.
 Node_ptr Graph_modify_add_node(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);

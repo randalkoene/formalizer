@@ -143,6 +143,26 @@ public:
     graph_mem_managers(): active(nullptr) {} //, remove_on_exit(true) {}
     ~graph_mem_managers();
     bool add_manager(std::string segname, segment_memory_t & segmem, void_allocator & allocinst);
+    /**
+     * Remove a manager from the set of managers and delete the
+     * corresponding allocator and segment memory objects -
+     * but do not destroy the shared memory.
+     * 
+     * Call this after you have finished working with the shared memory
+     * that another process created and that you are not responsible for.
+     * By removing the manager and associated objects you can prevent
+     * accidentally working with stale shared memory pointes, and you can
+     * receive new pointers with the same name in the future.
+     * 
+     * Note: Removing shared memory is a separate operation that can
+     *       be called explicitly or by having set `remove_on_exit`. It
+     *       is normally the responsibility of the process that created
+     *       the shared memory to do so.
+     * 
+     * @param segname Name of the managed segment to forget.
+     * @param return True if the named manager existed and was successfully removed.
+     */
+    bool forget_manager(std::string segname);
     bool set_active(std::string segname);
     void set_remove_on_exit(bool _removeonexit) { if (active) active->remove_on_exit = _removeonexit; }
     shared_memory_manager * get_active() const { return active; }
@@ -592,6 +612,8 @@ public:
 
     /// topics table: get topic
     Topic * find_Topic_by_id(Topic_ID _id) { return topics.find_by_id(_id); }
+    Topic * find_Topic_by_tag(std::string _tag) { return topics.find_by_tag(_tag); }
+    bool topics_exist(const Topics_Set & topicsset); // See how fzserverpq uses this.
 
     /// crossref tables: topics x nodes
 

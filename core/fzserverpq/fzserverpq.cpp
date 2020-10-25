@@ -175,8 +175,10 @@ bool server_socket_listen() {
         // *** You could identify other types of requests here first.
         //     But for now, let's just assume all requests just deliver the segment naem for a request stack.
         //if (request_str == "")
-        if (request_str == "STOP")
+        if (request_str == "STOP") {
+            // *** probably close and free up the bound connection here as well.
             break;
+        }
 
         if (handle_request_stack(request_str)) {
             // send back results
@@ -187,6 +189,8 @@ bool server_socket_listen() {
             std::string response_str("ERROR");
             send(new_socket, response_str.c_str(), response_str.size()+1, 0);
         }
+        graphmemman.forget_manager(request_str); // remove shared memory references that likely become stale when client is done
+        // *** probably close and free up the bound connection here as well.
     }
     //printf("\nString sent by client:%s\n", str); 
 
@@ -252,7 +256,13 @@ bool request_stack_valid(Graph_modifications & graphmod, std::string segname) {
                     prepare_error_response(segname, exit_bad_request_data, "Proposed Node ID ("+gmoddata.node_ptr->get_id_str()+") for add node request already exists");
                     return false;
                 }
-                // *** does anything else need to be validated (e.g topic)?
+
+                // confirm that the supplied topic tags are all known
+                if (!fzs.graph_ptr->topics_exist(gmoddata.node_ptr->get_topics())) {
+                    prepare_error_response(segname, exit_bad_request_data, "Unknown Topic ID(s) in add node request");
+                    return false;
+                }
+                // *** does anything else need to be validated?
                 break;
             }
 

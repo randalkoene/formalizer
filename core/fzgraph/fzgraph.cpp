@@ -348,7 +348,10 @@ void fzgraphedit::init_top(int argc, char *argv[]) {
 
 #ifdef TESTING_CLIENT_SERVER_SOCKETS
 // ----- begin: Test here then move -----
-bool client_socket_message(std::string request_str) {
+/**
+ * @return Communication result code, 1 = success response, 0 = error response, -1 = unknown / no response.
+ */
+int client_socket_message(std::string request_str, std::string server_ip_address) {
     //struct sockaddr_in address;
     int sock = 0;
     struct sockaddr_in serv_addr;
@@ -360,27 +363,28 @@ bool client_socket_message(std::string request_str) {
 
     // Creating socket file descriptor
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        printf("\n Socket creation error \n");
-        return false;
+        ADDERROR(__func__, "Socket creation error.");
+        VERBOSEERR("Socket creation error.\n");
+        return -1;
     }
 
     memset(&serv_addr, '0', sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(PORT);
 
-    // Convert IPv4 and IPv6 addresses from
-    // text to binary form 127.0.0.1 is local
-    // host IP address, this address should be
-    // your system local host IP address
-    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
-        printf("\nAddress not supported \n");
-        return false;
+    // Convert IPv4 and IPv6 addresses from text to binary form, where
+    // `server_ip_address` is a valid IP address (e.g. 127.0.0.1).
+    if (inet_pton(AF_INET, server_ip_address.c_str(), &serv_addr.sin_addr) <= 0) {
+        ADDERROR(__func__, "Address not supported: "+server_ip_address);
+        VERBOSEERR("Address not supported: "+server_ip_address+'\n');
+        return -1;
     }
 
     // connect the socket
     if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
-        printf("\nConnection Failed \n");
-        return false;
+        ADDERROR(__func__, "Connection Failed.");
+        VERBOSEERR("Connection Failed.\n");
+        return -1;
     }
 
     int l = strlen(str);
@@ -392,26 +396,67 @@ bool client_socket_message(std::string request_str) {
     // read string sent by server
     ssize_t valread = read(sock, str, l);
     if (valread==0) {
-        FZOUT("Server response reached EOF.\n");
+        VERBOSEOUT("Server response reached EOF.\n");
     }
     if (valread<0) {
-        FZERR("Server response read returned ERROR.\n");
+        VERBOSEOUT("Server response read returned ERROR.\n");
     }
 
     //printf("%s\n", str);
     std::string response_str(str);
 
     if (response_str == "RESULTS") {
-        FZOUT("Success! Results are in shared 'results' data structure.\n");
+        VERBOSEOUT("Success! Results are in shared 'results' data structure.\n");
     } else {
         if (response_str == "ERROR") {
-            FZOUT("An error occurred. See the error message in the shared 'error' data structure.\n");
+            VERBOSEERR("An error occurred. See the error message in the shared 'error' data structure.\n");
+            ADDERROR(__func__, "An error occurred. See the error message in the shared 'error' data structure.");
+            return 0;
         } else {
-            FZOUT("Unknown response: "+response_str+'\n');
+            VERBOSEERR("Unknown response: "+response_str+'\n');
+            ADDERROR(__func__, "Unknown response: "+response_str+'\n');
+            return -1;
         }
     }
 
-    return true;
+    return 1;
+}
+
+/**
+ * Contact the server with the unique label of shared memory
+ * containing data for a Graph modification request.
+ * 
+ * Prints information about results unless `-q` was specified.
+ * 
+ * Note: The address of the server is hard coded to 127.0.0.1 here,
+ *       because this modification request method uses shared
+ *       memory, which is (outside of shared-memory clusters) only
+ *       possible on the same machine.
+ * 
+ * @param segname The unique shared memory segment label.
+ * @return The socket call result, 1 = ok, 0 = error info, -1 = other error.
+ */
+int server_request_with_shared_data(std::string segname) {
+
+    int ret = client_socket_message(segname, "127.0.0.1");
+
+    if (ret == 0) { // there is an error specification in a `Graphmod_error` object
+        Graphmod_error * errdata = find_error_response_in_shared_memory(segname);
+        if (!errdata) {
+            standard_exit_error(exit_missing_data, "Unable to find the error message structure in shared memory", __func__);
+        }
+        standard_exit_error(errdata->exit_code, errdata->message, __func__);
+    } else {
+        if (ret > 0) { // there is information about the results
+            Graphmod_results * resdata = find_results_response_in_shared_memory(segname);
+            if (!resdata) {
+                standard_exit_error(exit_missing_data, "Unable to find the results message structure in shared memory", __func__);
+            }
+            VERBOSEOUT(resdata->info_str());
+        }
+    }
+
+    return ret;
 }
 // ----- end  : Test here then move -----
 #endif
@@ -422,9 +467,9 @@ int make_node() {
     if (exit_code != exit_ok)
         standard_exit_error(exit_code, errstr, __func__);
 
-    // Determine probably memory space needed.
-    // *** MORE HERE
-    unsigned long segsize = sizeof(fzge.config.nd.utf8_text)+fzge.config.nd.utf8_text.capacity() + 1024; // *** wild guess
+    // Determine probable memory space needed.
+    // *** MORE HERE TO BETTER ESTIMATE THAT
+    unsigned long segsize = sizeof(fzge.config.nd.utf8_text)+fzge.config.nd.utf8_text.capacity() + 10240; // *** wild guess
     // Determine a unique segment name to share with `fzserverpq`
     std::string segname(unique_name_Graphmod());
     Graph_modifications * graphmod_ptr = allocate_Graph_modifications_in_shared_memory(segname, segsize);
@@ -448,12 +493,9 @@ int make_node() {
         }
     }
 
-    client_socket_message(segname);
+    int ret = server_request_with_shared_data(segname);
 
-    FZOUT("Here we'd be waiting for the server to respond with the status of our request...\n");
-    key_pause();
-
-    return standard.completed_ok();
+    return standard.completed_ok(); // *** could put standard_exit(ret==1, ...) here instead
 }
 
 int make_edges() {
@@ -467,8 +509,8 @@ int make_edges() {
     }
 
     // Determine probably memory space needed.
-    // *** MORE HERE
-    unsigned long segsize = fzge.config.superiors.size()*1024; // *** wild guess
+    // *** MORE HERE TO BETTER ESTIMATE THAT
+    unsigned long segsize = fzge.config.superiors.size()*10240; // *** wild guess
     // Determine a unique segment name to share with `fzserverpq`
     std::string segname(unique_name_Graphmod());
     Graph_modifications * graphmod_ptr = allocate_Graph_modifications_in_shared_memory(segname, segsize);
@@ -481,17 +523,14 @@ int make_edges() {
         }
     }
 
-    client_socket_message(segname);
+    int ret = server_request_with_shared_data(segname);
 
-    FZOUT("Here we'd be waiting for the server to respond with the status of our request...\n");
-    key_pause();
-
-    return standard.completed_ok();
+    return standard.completed_ok(); // *** could put standard_exit(ret==1, ...) here instead
 }
 
 int stop_server() {
     VERBOSEOUT("Sending STOP request to Graph server.\n");
-    client_socket_message("STOP");
+    client_socket_message("STOP", "127.0.0.1");
     return standard.completed_ok();
 }
 

@@ -37,6 +37,41 @@ bool graph_mem_managers::add_manager(std::string segname, segment_memory_t & seg
     return managers.emplace(segname, smm).second;
 }
 
+/**
+ * Remove a manager from the set of managers and delete the
+ * corresponding allocator and segment memory objects -
+ * but do not destroy the shared memory.
+ * 
+ * Call this after you have finished working with the shared memory
+ * that another process created and that you are not responsible for.
+ * By removing the manager and associated objects you can prevent
+ * accidentally working with stale shared memory pointes, and you can
+ * receive new pointers with the same name in the future.
+ * 
+ * Note: Removing shared memory is a separate operation that can
+ *       be called explicitly or by having set `remove_on_exit`. It
+ *       is normally the responsibility of the process that created
+ *       the shared memory to do so.
+ * 
+ * @param segname Name of the managed segment to forget.
+ * @param return True if the named manager existed and was successfully removed.
+ */
+bool graph_mem_managers::forget_manager(std::string segname) {
+    auto it = managers.find(segname);
+    if (it == managers.end())
+        return false;
+    
+    delete it->second.segmem_ptr;
+    delete it->second.alloc_inst_ptr;
+    managers.erase(it);
+
+    if (active_name == segname) {
+        active = nullptr;
+        active_name = "";
+    }
+    return true;
+}
+
 bool graph_mem_managers::set_active(std::string segname) {
     auto it = managers.find(segname);
     if (it == managers.end()) {
@@ -713,6 +748,23 @@ Node_Index Graph::get_Indexed_Nodes() const {
         nodeindex.push_back(nodekp.second.get());
     }
     return nodeindex;
+}
+
+/**
+ * Confirm the existence of all Topic IDs in a set.
+ * 
+ * See for example how fzserverpq uses this to validate all of the Topic-IDs
+ * provided for a new Node to be added to the Graph.
+ * 
+ * @param topicsset A set of Topic-IDs (and relevance values).
+ * @return True if they all exist.
+ */
+bool Graph::topics_exist(const Topics_Set & topicsset) {
+    for (const auto & [topicid, topicrel] : topicsset) {
+        if (!find_Topic_by_id(topicid))
+            return false;
+    }
+    return true;
 }
 
 // +----- begin: friend functions -----+

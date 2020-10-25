@@ -17,6 +17,33 @@ Graphmod_error::Graphmod_error(exit_status_code ecode, std::string msg) : exit_c
     safecpy(msg, message, 256);
 }
 
+std::string Graphmod_results::info_str() {
+    std::string infostr("Graph modifications:");
+    if (results.empty()) {
+        infostr += "\n\tnone\n";
+        return infostr;
+    }
+
+    for (const auto & modres : results) {
+        switch (modres.request_handled) {
+            case graphmod_add_node: {
+                infostr += "\n\tadded Node with ID "+modres.node_key.str();
+                break;
+            }
+            case graphmod_add_edge: {
+                infostr += "\n\tadded Edge with ID "+modres.edge_key.str();
+                break;
+            }
+            default {
+                // this should never happen
+                infostr += "\n\tunrecognized modification request!";
+            }
+        }
+    }
+    infostr += '\n';
+    return infostr;
+}
+
 std::string unique_name_Graphmod() {
     return TimeStamp("%Y%m%d%H%M%S",ActualTime());
 }
@@ -73,6 +100,14 @@ Graphmod_error * prepare_error_response(std::string segname, exit_status_code ec
     return graphmoderror_ptr;
 }
 
+/// See for example how this is used in fzgraph.
+Graphmod_error * find_error_response_in_shared_memory(std::string segment_name) {
+    if (!graphmemman.set_active(segment_name))
+        return nullptr;
+
+    return graphmemman.get_segmem()->find<Graphmod_error>("error").first;
+}
+
 /// See for example how this is used in fzserverpq.
 Graphmod_results * initialized_results_response(std::string segname) {
     if (!graphmemman.set_active(segname))
@@ -87,6 +122,14 @@ Graphmod_results * initialized_results_response(std::string segname) {
         return nullptr;
     
     return graphmodresults_ptr;
+}
+
+/// See for example how this is used in fzgraph.
+Graphmod_results * find_results_response_in_shared_memory(std::string segment_name) {
+    if (!graphmemman.set_active(segment_name))
+        return nullptr;
+
+    return graphmemman.get_segmem()->find<Graphmod_results>("results").first;
 }
 
 /// Create a Node in the Graph's shared segment and add it to the Graph.
