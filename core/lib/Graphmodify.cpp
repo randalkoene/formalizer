@@ -34,7 +34,7 @@ std::string Graphmod_results::info_str() {
                 infostr += "\n\tadded Edge with ID "+modres.edge_key.str();
                 break;
             }
-            default {
+            default: {
                 // this should never happen
                 infostr += "\n\tunrecognized modification request!";
             }
@@ -86,48 +86,64 @@ Graph_modifications * find_Graph_modifications_in_shared_memory(std::string segm
 
 /// See for example how this is used in fzserverpq.
 Graphmod_error * prepare_error_response(std::string segname, exit_status_code ecode, std::string errmsg) {
-    if (!graphmemman.set_active(segname))
+    if (!graphmemman.set_active(segname)) {
+        ADDERROR(__func__, "Unable to activate segment "+segname+" for error message "+errmsg);
         return nullptr;
+    }
 
     segment_memory_t * smem = graphmemman.get_segmem();
-    if (!smem)
+    if (!smem) {
+        ADDERROR(__func__, "Shared segment pointer was null pointer");
         return nullptr;
+    }
 
     Graphmod_error * graphmoderror_ptr = smem->construct<Graphmod_error>("error")(ecode, errmsg);
-    if (!graphmoderror_ptr)
+    if (!graphmoderror_ptr) {
+        ADDERROR(__func__, "Unable to construct Graphmod_error object for error message "+errmsg);
         return nullptr;
+    }
     
     return graphmoderror_ptr;
 }
 
 /// See for example how this is used in fzgraph.
 Graphmod_error * find_error_response_in_shared_memory(std::string segment_name) {
-    if (!graphmemman.set_active(segment_name))
+    if (!graphmemman.set_active(segment_name)) {
+        ADDERROR(__func__, "Shared segment "+segment_name+" not found");
         return nullptr;
+    }
 
     return graphmemman.get_segmem()->find<Graphmod_error>("error").first;
 }
 
 /// See for example how this is used in fzserverpq.
 Graphmod_results * initialized_results_response(std::string segname) {
-    if (!graphmemman.set_active(segname))
+    if (!graphmemman.set_active(segname)) {
+        ADDERROR(__func__, "Unable to activate segment "+segname+" for results data");
         return nullptr;
+    }
 
     segment_memory_t * smem = graphmemman.get_segmem();
-    if (!smem)
+    if (!smem) {
+        ADDERROR(__func__, "Shared segment pointer was null pointer");
         return nullptr;
+    }
 
     Graphmod_results * graphmodresults_ptr = smem->construct<Graphmod_results>("results")(segname);
-    if (!graphmodresults_ptr)
+    if (!graphmodresults_ptr) {
+        ADDERROR(__func__, "Unable to construct Graphmod_results object for results data");
         return nullptr;
+    }
     
     return graphmodresults_ptr;
 }
 
 /// See for example how this is used in fzgraph.
 Graphmod_results * find_results_response_in_shared_memory(std::string segment_name) {
-    if (!graphmemman.set_active(segment_name))
+    if (!graphmemman.set_active(segment_name)) {
+        ADDERROR(__func__, "Unable to activate segment "+segment_name+" for results data");
         return nullptr;
+    }
 
     return graphmemman.get_segmem()->find<Graphmod_results>("results").first;
 }
@@ -137,8 +153,10 @@ Node_ptr Graph_modify_add_node(Graph & graph, const std::string & graph_segname,
     if (!gmoddata.node_ptr)
         return nullptr;
 
-    if (!graphmemman.set_active(graph_segname))
+    if (!graphmemman.set_active(graph_segname)) {
+        ADDERROR(__func__, "Unable to activate segment "+graph_segname+" for Node construction");
         return nullptr;
+    }
 
     Node & requested_node = *gmoddata.node_ptr;
     Node_ptr node_ptr = graph.create_and_add_Node(requested_node.get_id_str());
@@ -154,8 +172,10 @@ Edge_ptr Graph_modify_add_edge(Graph & graph, const std::string & graph_segname,
     if (!gmoddata.edge_ptr)    void copy_content(Node & from_node);
         return nullptr;
 
-    if (!graphmemman.set_active(graph_segname))
+    if (!graphmemman.set_active(graph_segname)) {
+        ADDERROR(__func__, "Unable to activate segment "+graph_segname+" for Edge construction");
         return nullptr;
+    }
 
     Edge & requested_edge = *gmoddata.edge_ptr;
     Edge_ptr edge_ptr = graph.create_and_add_Edge(requested_edge.get_id_str());
@@ -198,16 +218,20 @@ std::string Graph_modifications::generate_unique_Node_ID_str() {
 Node * Graph_modifications::request_add_Node() {
     // Create new Node object in the shared memory segment being used to share a modifications request stack.
     segment_memory_t * smem = graphmemman.get_segmem();
-    if (!smem)
+    if (!smem) {
+        ADDERROR(__func__, "Shared segment pointer was null pointer");
         return nullptr;
+    }
 
     std::string nodeid_str = generate_unique_Node_ID_str();
     if (nodeid_str.empty())
         return nullptr;
 
     Node * node_ptr = smem->construct<Node>(bi::anonymous_instance)(nodeid_str); // this normal pointer is emplaced into an offset_ptr
-    if (!node_ptr)
+    if (!node_ptr) {
+        ADDERROR(__func__, "Unable to construct Node in shared memory");
         return nullptr;
+    }
 
     data.emplace_back(graphmod_add_node, node_ptr);
     return node_ptr;
@@ -217,12 +241,16 @@ Node * Graph_modifications::request_add_Node() {
 Edge * Graph_modifications::request_add_Edge(const Node_ID_key & depkey, const Node_ID_key & supkey) {
     // Create new Edge object in the shared memory segment being used to share a modifications request stack.
     segment_memory_t * smem = graphmemman.get_segmem();
-    if (!smem)
+    if (!smem) {
+        ADDERROR(__func__, "Shared segment pointer was null pointer");
         return nullptr;
+    }
 
     Edge * edge_ptr = smem->construct<Edge>(bi::anonymous_instance)(depkey, supkey); // this normal pointer is emplaced into an offset_ptr
-    if (!edge_ptr)
+    if (!edge_ptr) {
+        ADDERROR(__func__, "Unable to construct Edge in shared memory");
         return nullptr;
+    }
     
     data.emplace_back(graphmod_add_edge, edge_ptr);
     return edge_ptr;

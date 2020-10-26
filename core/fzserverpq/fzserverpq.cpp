@@ -24,7 +24,8 @@
 #include <string.h> 
 #include <sys/socket.h> 
 #include <unistd.h> 
-#define PORT 8090 
+#include <arpa/inet.h>
+#include <cstring>
 #endif
 
 // core
@@ -47,10 +48,24 @@ fzserverpq fzs;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzserverpq::fzserverpq() : formalizer_standard_program(false), ga(*this, add_option_args, add_usage_top, true),
+fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga(*this, add_option_args, add_usage_top, true),
                            flowcontrol(flow_unknown), graph_ptr(nullptr) {
-    add_option_args += "G";
-    add_usage_top += " [-G]";
+    add_option_args += "Gp:";
+    add_usage_top += " [-G] [-p <port-number>]";
+}
+
+/**
+ * Configure configurable parameters.
+ * 
+ * Note that this can throw exceptions, such as std::invalid_argument when a
+ * conversion was not poossible. That is a good precaution against otherwise
+ * hard to notice bugs in configuration files.
+ */
+bool fzs_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
+    // *** You could also implement try-catch here to gracefully report problems with configuration files.
+    CONFIG_TEST_AND_SET_PAR(port_number, "port_number", parlabel, std::stoi(parvalue));
+    //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
+    CONFIG_PAR_NOT_FOUND(parlabel);
 }
 
 /**
@@ -60,6 +75,7 @@ fzserverpq::fzserverpq() : formalizer_standard_program(false), ga(*this, add_opt
 void fzserverpq::usage_hook() {
     ga.usage_hook();
     FZOUT("    -G Load Graph and stay resident in memory\n");
+    FZOUT("    -p Specify <port-number> on which the sever will listen\n");
 }
 
 /**
@@ -80,6 +96,11 @@ bool fzserverpq::options_hook(char c, std::string cargs) {
 
     case 'G': {
         flowcontrol = flow_resident_graph;
+        return true;
+    }
+
+    case 'p': {
+        config.port_number = std::stoi(cargs);
         return true;
     }
 
@@ -115,11 +136,14 @@ void pseudo_signal_wait() {
  * Set up an IPv4 TCP socket on specified port and listen for client connections from any address.
  * 
  * See https://man7.org/linux/man-pages/man7/ip.7.html
+ * 
+ * @param port_number The port number to listen on.
  */
-bool server_socket_listen() {
+bool server_socket_listen(uint16_t port_number) {
+    #define str_SIZE 100
     int server_fd, new_socket, valread; 
     struct sockaddr_in address; 
-    char str[100]; 
+    char str[str_SIZE]; 
     int addrlen = sizeof(address); 
     //char buffer[1024] = { 0 }; 
     //char* hello = "Hello from server"; 
@@ -127,12 +151,24 @@ bool server_socket_listen() {
     // Creating socket file descriptor 
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) { 
         perror("socket failed"); 
-        exit(EXIT_FAILURE); 
-    } 
-  
+        exit(EXIT_FAILURE);
+    }
+
+    // Let the server bind again to the same address and port in case it crashed and restarted with minimal delay.
+    int enable = 1;
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (const char *) &enable, sizeof(enable)) < 0) {
+        perror("setsockopt(SO_REUSEADDR) failed");
+        exit(EXIT_FAILURE);
+    }
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, (const char *) &enable, sizeof(enable)) < 0) {
+        perror("setsockopt(SO_REUSEPORT) failed");
+        exit(EXIT_FAILURE);
+    }
+    VERYVERBOSEOUT("Socket initialized at port: "+std::to_string(port_number)+'\n');
+
     address.sin_family = AF_INET; 
     address.sin_addr.s_addr = INADDR_ANY; 
-    address.sin_port = htons(PORT); 
+    address.sin_port = htons(port_number); 
   
     // Forcefully attaching socket to 
     // the port 8090 
@@ -148,6 +184,7 @@ bool server_socket_listen() {
     }
 
     while (true) {
+        VERYVERBOSEOUT("Bound and listening to all incoming addresses.\n");
         
         // This is receiving the address that is connecting. https://man7.org/linux/man-pages/man2/accept.2.html
         // As described in the man page, if the socket is blocking (as it is here) then it will block,
@@ -155,18 +192,22 @@ bool server_socket_listen() {
         // described in the Description section of the man page for non-blocking approaches that
         // can involve polling or an interrupt to give attention to a connection request.
         // While blocked, the process consumes no CPU (e.g. see https://stackoverflow.com/questions/23108140/why-do-blocking-functions-not-use-100-cpu).
-        if ((new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0) { 
-            perror("accept"); 
-            exit(EXIT_FAILURE); 
-        } 
+        if ((new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0) {
+            perror("accept");
+            exit(EXIT_FAILURE);
+        }
+        VERYVERBOSEOUT("Connection accepted from: "+std::string(inet_ntoa(address.sin_addr))+'\n');
 
-        // read string send by client 
+        // read string send by client
+        memset(str, 0, str_SIZE); // just playing it safe
         valread = read(new_socket, str, sizeof(str)); 
         if (valread==0) {
             ADDWARNING(__func__, "EOF encountered");
+            VERYVERBOSEOUT("Read encountered EOF.\n");
         }
         if (valread<0) {
             ADDERROR(__func__, "Socket read error");
+            VERYVERBOSEOUT("Socket read error.\n");
         }
         //int i, j, temp; 
         //int l = strlen(str);
@@ -177,36 +218,26 @@ bool server_socket_listen() {
         //if (request_str == "")
         if (request_str == "STOP") {
             // *** probably close and free up the bound connection here as well.
+            VERYVERBOSEOUT("STOP request received. Exiting server listen loop.\n");
             break;
         }
 
+        VERYVERBOSEOUT("Received Graph request with data share "+request_str+".\n");
         if (handle_request_stack(request_str)) {
             // send back results
+            VERYVERBOSEOUT("Sending response with successful results data.\n");
             std::string response_str("RESULTS");
             send(new_socket, response_str.c_str(), response_str.size()+1, 0);
         } else {
             // send back error
+            VERYVERBOSEOUT("Sending error response with error data.\n");
             std::string response_str("ERROR");
             send(new_socket, response_str.c_str(), response_str.size()+1, 0);
         }
         graphmemman.forget_manager(request_str); // remove shared memory references that likely become stale when client is done
         // *** probably close and free up the bound connection here as well.
     }
-    //printf("\nString sent by client:%s\n", str); 
-
-    /*
-    // loop to reverse the string 
-    for (i = 0, j = l - 1; i < j; i++, j--) { 
-        temp = str[i]; 
-        str[i] = str[j]; 
-        str[j] = temp; 
-    } 
-  
-    // send reversed string to client 
-    // by send system call 
-    send(new_socket, str, sizeof(str), 0); 
-    printf("\nModified string sent to client\n"); 
-    */
+    close(server_fd); 
 
     return true; 
 }
@@ -291,6 +322,7 @@ bool request_stack_valid(Graph_modifications & graphmod, std::string segname) {
         }
 
     }
+    VERYVERBOSEOUT("Request stack is valid.\n");
     return true;
 }
 
@@ -384,7 +416,7 @@ void load_Graph_and_stay_resident() {
     VERYVERBOSEOUT(graphmemman.info_str());
     VERYVERBOSEOUT(Graph_Info_str(*fzs.graph_ptr));
 
-    server_socket_listen();
+    server_socket_listen(fzs.config.port_number);
     //key_pause();
     RETURN_AFTER_UNLOCKING;
 }

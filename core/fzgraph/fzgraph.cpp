@@ -25,7 +25,6 @@
 #include <string.h> 
 #include <sys/socket.h> 
 #include <unistd.h> 
-#define PORT 8090 
 #endif
 
 // core
@@ -188,6 +187,7 @@ Node_ID_key_Vector parse_config_NodeIDs(const std::string & parvalue) {
  */
 bool fzge_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     // *** You could also implement try-catch here to gracefully report problems with configuration files.
+    CONFIG_TEST_AND_SET_PAR(port_number, "port_number", parlabel, std::stoi(parvalue));
     CONFIG_TEST_AND_SET_PAR(content_file, "content_file", parlabel, parvalue);
     CONFIG_TEST_AND_SET_PAR(nd.hours, "hours", parlabel, std::stof(parvalue));
     CONFIG_TEST_AND_SET_PAR(nd.valuation, "valuation", parlabel, std::stof(parvalue));
@@ -351,11 +351,12 @@ void fzgraphedit::init_top(int argc, char *argv[]) {
 /**
  * @return Communication result code, 1 = success response, 0 = error response, -1 = unknown / no response.
  */
-int client_socket_message(std::string request_str, std::string server_ip_address) {
+int client_socket_message(std::string request_str, std::string server_ip_address, uint16_t port_number) {
     //struct sockaddr_in address;
+    #define str_SIZE 100
     int sock = 0;
     struct sockaddr_in serv_addr;
-    char str[100];
+    char str[str_SIZE];
 
     //printf("\nInput the string:");
     //scanf("%[^\n]s", str);
@@ -370,7 +371,7 @@ int client_socket_message(std::string request_str, std::string server_ip_address
 
     memset(&serv_addr, '0', sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
+    serv_addr.sin_port = htons(port_number);
 
     // Convert IPv4 and IPv6 addresses from text to binary form, where
     // `server_ip_address` is a valid IP address (e.g. 127.0.0.1).
@@ -387,13 +388,18 @@ int client_socket_message(std::string request_str, std::string server_ip_address
         return -1;
     }
 
+    VERYVERBOSEOUT("Connected to server at "+server_ip_address+':'+std::to_string(port_number)+".\n");
+
     int l = strlen(str);
-  
+
+    VERYVERBOSEOUT("Sending request: "+request_str+'\n');
+
     // send string to server side 
     //send(sock, str, sizeof(str), 0); 
     send(sock, request_str.c_str(), request_str.size()+1, 0);
 
     // read string sent by server
+    memset(str, 0, str_SIZE); // just playing it safe
     ssize_t valread = read(sock, str, l);
     if (valread==0) {
         VERBOSEOUT("Server response reached EOF.\n");
@@ -401,6 +407,7 @@ int client_socket_message(std::string request_str, std::string server_ip_address
     if (valread<0) {
         VERBOSEOUT("Server response read returned ERROR.\n");
     }
+    close(sock);
 
     //printf("%s\n", str);
     std::string response_str(str);
@@ -438,7 +445,7 @@ int client_socket_message(std::string request_str, std::string server_ip_address
  */
 int server_request_with_shared_data(std::string segname) {
 
-    int ret = client_socket_message(segname, "127.0.0.1");
+    int ret = client_socket_message(segname, "127.0.0.1",fzge.config.port_number);
 
     if (ret == 0) { // there is an error specification in a `Graphmod_error` object
         Graphmod_error * errdata = find_error_response_in_shared_memory(segname);
@@ -493,7 +500,8 @@ int make_node() {
         }
     }
 
-    int ret = server_request_with_shared_data(segname);
+    //int ret =
+    server_request_with_shared_data(segname);
 
     return standard.completed_ok(); // *** could put standard_exit(ret==1, ...) here instead
 }
@@ -523,14 +531,15 @@ int make_edges() {
         }
     }
 
-    int ret = server_request_with_shared_data(segname);
+    //int ret = 
+    server_request_with_shared_data(segname);
 
     return standard.completed_ok(); // *** could put standard_exit(ret==1, ...) here instead
 }
 
 int stop_server() {
     VERBOSEOUT("Sending STOP request to Graph server.\n");
-    client_socket_message("STOP", "127.0.0.1");
+    client_socket_message("STOP", "127.0.0.1", fzge.config.port_number);
     return standard.completed_ok();
 }
 

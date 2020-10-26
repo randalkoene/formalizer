@@ -12,6 +12,7 @@
 #define __FZSERVERPQ_HPP (__VERSION_HPP)
 
 // core
+#include "config.hpp"
 #include "standard.hpp"
 #include "Graphaccess.hpp"
 
@@ -31,7 +32,17 @@ enum flow_options {
     flow_NUMoptions
 };
 
+class fzs_configurable : public configurable {
+public:
+    fzs_configurable(formalizer_standard_program &fsp) : configurable("fzserverpq", fsp) {}
+    bool set_parameter(const std::string &parlabel, const std::string &parvalue);
+
+    uint16_t port_number = 8090;   ///< Default port number to listen on.
+};
+
 struct fzserverpq: public formalizer_standard_program {
+
+    fzs_configurable config;
 
     Graph_access ga;
 

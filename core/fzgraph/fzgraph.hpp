@@ -67,9 +67,10 @@ public:
     fzge_configurable(formalizer_standard_program &fsp) : configurable("fzgraphedit", fsp) {}
     bool set_parameter(const std::string &parlabel, const std::string &parvalue);
 
-    std::string content_file; ///< Optional file path for description text content.
-    Node_data nd;             ///< Default values that can be used for Add-Node requets.
-    Edge_data ed;             ///< Default values that can be used for Add-Edge requets.
+    uint16_t port_number = 8090; ///< Default port number at which server is expected.
+    std::string content_file;    ///< Optional file path for description text content.
+    Node_data nd;                ///< Default values that can be used for Add-Node requets.
+    Edge_data ed;                ///< Default values that can be used for Add-Edge requets.
     Node_ID_key_Vector superiors;
     Node_ID_key_Vector dependencies;
 };
