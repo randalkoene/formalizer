@@ -118,7 +118,7 @@ typedef int Graphsigned;
 typedef bool Graphflag;
 
 typedef std::vector<Node *> Node_Index;
-typedef std::map<time_t, Node *> targetdate_sorted_Nodes; ///< Sorting is done by the time_t key comparison function.
+typedef std::multimap<time_t, Node *> targetdate_sorted_Nodes; ///< Sorting is done by the time_t key comparison function.
 typedef std::map<const Node_ID_key, Node *> key_sorted_Nodes;
 
 typedef std::map<std::string, std::string> Graph_info_label_value_pairs;

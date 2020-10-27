@@ -140,6 +140,12 @@ $(OBJ)/proclock.o: proclock.cpp $(INC)/error.hpp $(INC)/TimeStamp.hpp
 $(OBJ)/utf8.o: utf8.cpp $(INC)/utf8.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c utf8.cpp -o $(OBJ)/utf8.o
 
+$(OBJ)/tcpclient.o: tcpclient.cpp $(INC)/tcpclient.hpp $(INC)/error.hpp $(INC)/standard.hpp
+	$(CCPP) $(CPPFLAGS) -c tcpclient.cpp -o $(OBJ)/tcpclient.o
+
+$(OBJ)/tcpserver.o: tcpserver.cpp $(INC)/tcpserver.hpp $(INC)/error.hpp $(INC)/standard.hpp
+	$(CCPP) $(CPPFLAGS) -c tcpserver.cpp -o $(OBJ)/tcpserver.o
+
 $(OBJ)/html.o: html.cpp $(INC)/html.hpp
 	$(CCPP) $(CPPFLAGS) -c html.cpp -o $(OBJ)/html.o
 

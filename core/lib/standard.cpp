@@ -134,6 +134,12 @@ int standard_exit(bool success, std::string veryverbose_message, int exit_code, 
     return standard_exit_error(exit_code, error_message, problem__func__);
 }
 
+/// A function that combines ADDERROR and VERBOSEERR without exit. Always returns false
+bool standard_error(std::string error_message, const char * problem__func__) {
+    ADDERROR(problem__func__, error_message);
+    VERBOSEERR(error_message+'\n');
+    return false;
+}
 
 void the_standard_object::print_version() {
     FZOUT(runnablename+" "+server_long_id+'\n');

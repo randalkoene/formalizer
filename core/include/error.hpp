@@ -116,6 +116,7 @@ enum exit_status_code {
     exit_bad_config_value,
     exit_resident_graph_missing,
     exit_bad_request_data,
+    exit_communication_error,
     exit_NUMENUMS ///< this one simplifies corresponding array definition, e.g. char[exit_NUMENUMS]
     };
 

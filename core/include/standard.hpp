@@ -231,6 +231,9 @@ int standard_exit_success(std::string veryverbose_message);
 [[noreturn]] int standard_exit_error(int exit_code, std::string error_message, const char * problem__func__);
 int standard_exit(bool success, std::string veryverbose_message, int exit_code, std::string error_message, const char * problem__func__);
 
+/// A function that combines ADDERROR and VERBOSEERR without exit. Always returns false.
+bool standard_error(std::string error_message, const char * problem__func__);
+
 } // namespace fz
 
 #endif // __STANDARD_HPP

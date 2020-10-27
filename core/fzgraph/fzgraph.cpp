@@ -16,17 +16,6 @@
 #include <iostream>
 #include <iterator>
 
-#define TESTING_CLIENT_SERVER_SOCKETS
-#ifdef TESTING_CLIENT_SERVER_SOCKETS
-#include <arpa/inet.h> 
-#include <netinet/in.h> 
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <string.h> 
-#include <sys/socket.h> 
-#include <unistd.h> 
-#endif
-
 // core
 #include "error.hpp"
 #include "standard.hpp"
@@ -38,6 +27,7 @@
 #include "Graphinfo.hpp"
 #include "Graphmodify.hpp"
 #include "utf8.hpp"
+#include "tcpclient.hpp"
 
 // local
 #include "version.hpp"
@@ -346,137 +336,6 @@ void fzgraphedit::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen once in main(), for the derived class
 }
 
-#ifdef TESTING_CLIENT_SERVER_SOCKETS
-// ----- begin: Test here then move -----
-/**
- * A minimal TCP client communication function used to make the server aware of a request
- * specified by data in shared memory.
- * 
- * Note: This client-server messaging function is only meant to be used with short pre-defined
- *       message strings, while data is shared through shared memory. A different function
- *       should be used for generic client-server stream communication.
- * 
- * @param request_str A string that identifies the shared memory segment for request data.
- * @param server_ip_address Normally this is "127.0.0.1" for shared memory exchanges.
- * @param port_number An agreed port number for the communication.
- * @param expected_resp The server response string expected for the request made, e.g. RESULTS, STOPPING.
- * @return Communication result code, 1 = success response, 0 = error response, -1 = unknown / no response.
- */
-int client_socket_shmem_request(std::string request_str, std::string server_ip_address, uint16_t port_number, std::string expected_resp) {
-    //struct sockaddr_in address;
-    #define str_SIZE 100
-    int sock = 0;
-    struct sockaddr_in serv_addr;
-    char str[str_SIZE];
-
-    //printf("\nInput the string:");
-    //scanf("%[^\n]s", str);
-    //char buffer[1024] = { 0 };
-
-    // Creating socket file descriptor
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        ADDERROR(__func__, "Socket creation error.");
-        VERBOSEERR("Socket creation error.\n");
-        return -1;
-    }
-
-    memset(&serv_addr, '0', sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(port_number);
-
-    // Convert IPv4 and IPv6 addresses from text to binary form, where
-    // `server_ip_address` is a valid IP address (e.g. 127.0.0.1).
-    if (inet_pton(AF_INET, server_ip_address.c_str(), &serv_addr.sin_addr) <= 0) {
-        ADDERROR(__func__, "Address not supported: "+server_ip_address);
-        VERBOSEERR("Address not supported: "+server_ip_address+'\n');
-        return -1;
-    }
-
-    // connect the socket
-    if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
-        ADDERROR(__func__, "Connection Failed.");
-        VERBOSEERR("Connection Failed.\n");
-        return -1;
-    }
-
-    VERYVERBOSEOUT("\nConnected to server at "+server_ip_address+':'+std::to_string(port_number)+".\n");
-
-    VERYVERBOSEOUT("Sending request: "+request_str+'\n');
-
-    // send string to server side 
-    //send(sock, str, sizeof(str), 0); 
-    send(sock, request_str.c_str(), request_str.size()+1, 0);
-
-    // read string sent by server
-    memset(str, 0, str_SIZE); // just playing it safe
-    ssize_t valread = read(sock, str, sizeof(str));
-    if (valread==0) {
-        VERBOSEOUT("Server response reached EOF.\n");
-    }
-    if (valread<0) {
-        VERBOSEOUT("Server response read returned ERROR.\n");
-    }
-    close(sock);
-
-    //printf("%s\n", str);
-    std::string response_str(str);
-
-    if (response_str == expected_resp) {
-        VERBOSEOUT("Successful response received.\n");
-    } else {
-        if (response_str == "ERROR") {
-            VERBOSEERR("An error occurred.\nCheck a possible shared 'error' data structure for error message.\n");
-            ADDERROR(__func__, "An error occurred. Check a possible shared 'error' data structure for error message.");
-            return 0;
-        } else {
-            VERBOSEERR("Unknown response: "+response_str+'\n');
-            ADDERROR(__func__, "Unknown response: "+response_str+'\n');
-            return -1;
-        }
-    }
-
-    return 1;
-}
-
-/**
- * Contact the server with the unique label of shared memory
- * containing data for a Graph modification request.
- * 
- * Prints information about results unless `-q` was specified.
- * 
- * Note: The address of the server is hard coded to 127.0.0.1 here,
- *       because this modification request method uses shared
- *       memory, which is (outside of shared-memory clusters) only
- *       possible on the same machine.
- * 
- * @param segname The unique shared memory segment label.
- * @return The socket call result, 1 = ok, 0 = error info, -1 = other error.
- */
-int server_request_with_shared_data(std::string segname) {
-
-    int ret = client_socket_shmem_request(segname, "127.0.0.1",fzge.config.port_number, "RESULTS");
-
-    if (ret == 0) { // there is an error specification in a `Graphmod_error` object
-        Graphmod_error * errdata = find_error_response_in_shared_memory(segname);
-        if (!errdata) {
-            standard_exit_error(exit_missing_data, "No error message structure in shared memory", __func__);
-        }
-        standard_exit_error(errdata->exit_code, errdata->message, __func__);
-    } else {
-        if (ret > 0) { // there is information about the results
-            Graphmod_results * resdata = find_results_response_in_shared_memory(segname);
-            if (!resdata) {
-                standard_exit_error(exit_missing_data, "Unable to find the results message structure in shared memory", __func__);
-            }
-            VERBOSEOUT(resdata->info_str()+'\n');
-        }
-    }
-
-    return ret;
-}
-// ----- end  : Test here then move -----
-#endif
-
 int make_node() {
     ERRTRACE;
     auto [exit_code, errstr] = get_content(fzge.config.nd.utf8_text, fzge.config.content_file, "Node description");
@@ -509,10 +368,10 @@ int make_node() {
         }
     }
 
-    //int ret =
-    server_request_with_shared_data(segname);
+    auto ret = server_request_with_shared_data(segname, fzge.config.port_number);
+    standard.exit(ret);
 
-    return standard.completed_ok(); // *** could put standard_exit(ret==1, ...) here instead
+    //return standard.completed_ok(); // *** could put standard_exit(ret==1, ...) here instead
 }
 
 int make_edges() {
@@ -540,16 +399,25 @@ int make_edges() {
         }
     }
 
-    //int ret = 
-    server_request_with_shared_data(segname);
+    auto ret = server_request_with_shared_data(segname, fzge.config.port_number);
+    standard.exit(ret);
 
-    return standard.completed_ok(); // *** could put standard_exit(ret==1, ...) here instead
+    //return standard.completed_ok(); // *** could put standard_exit(ret==1, ...) here instead
 }
 
 int stop_server() {
     VERBOSEOUT("Sending STOP request to Graph server.\n");
-    client_socket_shmem_request("STOP", "127.0.0.1", fzge.config.port_number, "STOPPING");
-    return standard.completed_ok();
+    std::string response_str;
+    if (!client_socket_shmem_request("STOP", "127.0.0.1", fzge.config.port_number, response_str)) {
+        standard_exit_error(exit_communication_error, "Communication error.", __func__);
+    }
+
+    if (response_str == "STOPPING") {
+        VERBOSEOUT("Server stopping.\n");
+        standard.completed_ok();
+    }
+
+    return standard_exit_error(exit_general_error, "Unknown response: "+response_str, __func__);
 }
 
 int main(int argc, char *argv[]) {

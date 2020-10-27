@@ -14,6 +14,7 @@
 // core
 #include "config.hpp"
 #include "standard.hpp"
+#include "tcpserver.hpp"
 #include "Graphaccess.hpp"
 
 /**
@@ -40,7 +41,7 @@ public:
     uint16_t port_number = 8090;   ///< Default port number to listen on.
 };
 
-struct fzserverpq: public formalizer_standard_program {
+struct fzserverpq: public formalizer_standard_program, public shared_memory_server {
 
     fzs_configurable config;
 
@@ -59,6 +60,8 @@ struct fzserverpq: public formalizer_standard_program {
     virtual bool options_hook(char c, std::string cargs);
 
     void init_top(int argc, char *argv[]);
+
+    virtual void handle_request_with_data_share(int new_socket, const std::string & segment_name);
 
 };
 
