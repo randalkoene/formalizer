@@ -102,15 +102,20 @@ exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server
 
         std::string request_str(str);
 
-        // *** You could identify other types of requests here first.
-        //     But for now, let's just assume all requests just deliver the segment name for a request stack.
         if (request_str == "STOP") {
-            // *** probably close and free up the bound connection here as well.
             VERYVERBOSEOUT("STOP request received. Exiting server listen loop.\n");
             std::string response_str("STOPPING");
             send(new_socket, response_str.c_str(), response_str.size()+1, 0);
             //sleep(1); // this might actually be necessary for the client to receive the whole response
             break;
+        }
+
+        if (request_str == "PING") {
+            VERYVERBOSEOUT("PING request received. Responding.\n");
+            std::string response_str("LISTENING");
+            send(new_socket, response_str.c_str(), response_str.size()+1, 0);
+            //sleep(1); // this might actually be necessary for the client to receive the whole response
+            continue;           
         }
 
         // If it was not (one of) the specific requests handled above then it specifies the

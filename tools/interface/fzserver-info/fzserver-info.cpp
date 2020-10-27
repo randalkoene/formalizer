@@ -24,6 +24,7 @@
 #include "jsonlite.hpp"
 #include "Graphtypes.hpp"
 #include "Graphinfo.hpp"
+#include "tcpclient.hpp"
 
 // local
 #include "version.hpp"
@@ -115,6 +116,7 @@ bool fzserver_info::options_hook(char c, std::string cargs) {
 /// Configure configurable parameters.
 bool fzsi_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     CONFIG_TEST_AND_SET_PAR(info_out_path, "info_out_path", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(port_number, "port_number", parlabel, std::stoi(parvalue));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
@@ -134,6 +136,24 @@ void fzserver_info::init_top(int argc, char *argv[]) {
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
     // *** add any initialization here that has to happen once in main(), for the derived class
 }
+
+bool ping_server() {
+    VERYVERBOSEOUT("Sending PING request to Graph server.\n");
+    std::string response_str;
+    if (!client_socket_shmem_request("PING", "127.0.0.1", fzsi.config.port_number, response_str)) {
+        return standard_error("Communication error.", __func__);
+    }
+
+    if (response_str != "LISTENING") {
+        return standard_error("Unknown response: "+response_str, __func__);
+        VERBOSEOUT("Server stopping.\n");
+        standard.completed_ok();
+    }
+
+    VERYVERBOSEOUT("Server response: LISTENING\n");
+    return true;
+}
+
 
 void server_process_info(Graph_info_label_value_pairs & serverinfo) {
     std::string lockfile_status_str;
@@ -177,6 +197,11 @@ void server_process_info(Graph_info_label_value_pairs & serverinfo) {
     serverinfo["lockfile"] = fzsi.lockfilepath;
     serverinfo["lock_status"] = lockfile_status_str;
     serverinfo["proc_status"] = process_status_str;
+    if (ping_server()) {
+        serverinfo["ping_status"] = "LISTENING";
+    } else {
+        serverinfo["ping_status"] = "OFF-LINE";
+    }
 }
 
 int graph_server_status() {

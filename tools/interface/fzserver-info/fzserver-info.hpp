@@ -38,14 +38,14 @@ enum output_format_specifier {
     output_NUMENUMS
 };
 
-class fzsi_configurable: public configurable {
+class fzsi_configurable : public configurable {
 public:
-    fzsi_configurable(formalizer_standard_program & fsp): configurable("fzserver-info", fsp) {}
-    bool set_parameter(const std::string & parlabel, const std::string & parvalue);
+    fzsi_configurable(formalizer_standard_program &fsp) : configurable("fzserver-info", fsp) {}
+    bool set_parameter(const std::string &parlabel, const std::string &parvalue);
 
-    std::string info_out_path = "STDOUT";  ///< path to send info output to (STDOUT for standard output)
+    std::string info_out_path = "STDOUT"; ///< path to send info output to (STDOUT for standard output)
+    uint16_t port_number = 8090;          ///< the expected Graph server port number
 };
-
 
 struct fzserver_info: public formalizer_standard_program {
 

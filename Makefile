@@ -95,7 +95,9 @@ SYMBIN += $(TOOLSPATH)/interface/fzserver-info/fzserver-info
 SYMBIN += $(COREPATH)/fzguide.system/fzguide.system
 
 # CGI scripts that need to be copied to $(CGIDIR)
-CGIEXE = $(TOOLSPATH)/interface/logentry-form/logentry-form.py
+CGIEXE =
+CGIEXE += $(COREPATH)/fzgraph/fzgraph-cgi.py
+CGIEXE += $(TOOLSPATH)/interface/logentry-form/logentry-form.py
 CGIEXE += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzlink/fzlink.py
@@ -103,6 +105,7 @@ CGIEXE += $(TOOLSPATH)/interface/fzserver-info/fzserver-info-cgi.py
 CGIEXE += $(COREPATH)/fzguide.system/fzguide.system-cgi.py
 
 WEBINTERFACES = 
+WEBINTERFACES += $(COREPATH)/fzgraph/add_node.html
 # WEBINTERFACES += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-form.html
 WEBINTERFACES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-form.html
 WEBINTERFACES += $(COREPATH)/fzguide.system/fzguide.system-form.html
