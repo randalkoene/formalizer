@@ -150,8 +150,9 @@ Graphmod_results * find_results_response_in_shared_memory(std::string segment_na
 
 /// Create a Node in the Graph's shared segment and add it to the Graph.
 Node_ptr Graph_modify_add_node(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata) {
-    if (!gmoddata.node_ptr)
+    if (!gmoddata.node_ptr) {
         return nullptr;
+    }
 
     if (!graphmemman.set_active(graph_segname)) {
         ADDERROR(__func__, "Unable to activate segment "+graph_segname+" for Node construction");
@@ -160,8 +161,9 @@ Node_ptr Graph_modify_add_node(Graph & graph, const std::string & graph_segname,
 
     Node & requested_node = *gmoddata.node_ptr;
     Node_ptr node_ptr = graph.create_and_add_Node(requested_node.get_id_str());
-    if (!node_ptr)
+    if (!node_ptr) {
         return nullptr;
+    }
     
     node_ptr->copy_content(requested_node);
     return node_ptr;
@@ -169,8 +171,9 @@ Node_ptr Graph_modify_add_node(Graph & graph, const std::string & graph_segname,
 
 /// Create an Edge in the Graph's shared segment and add it to the Graph.
 Edge_ptr Graph_modify_add_edge(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata) {
-    if (!gmoddata.edge_ptr)    void copy_content(Node & from_node);
+    if (!gmoddata.edge_ptr) {
         return nullptr;
+    }
 
     if (!graphmemman.set_active(graph_segname)) {
         ADDERROR(__func__, "Unable to activate segment "+graph_segname+" for Edge construction");
@@ -179,8 +182,9 @@ Edge_ptr Graph_modify_add_edge(Graph & graph, const std::string & graph_segname,
 
     Edge & requested_edge = *gmoddata.edge_ptr;
     Edge_ptr edge_ptr = graph.create_and_add_Edge(requested_edge.get_id_str());
-    if (!edge_ptr)
+    if (!edge_ptr) {
         return nullptr;
+    }
     
     edge_ptr->copy_content(requested_edge);
     return edge_ptr;

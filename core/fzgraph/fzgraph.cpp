@@ -349,9 +349,20 @@ void fzgraphedit::init_top(int argc, char *argv[]) {
 #ifdef TESTING_CLIENT_SERVER_SOCKETS
 // ----- begin: Test here then move -----
 /**
+ * A minimal TCP client communication function used to make the server aware of a request
+ * specified by data in shared memory.
+ * 
+ * Note: This client-server messaging function is only meant to be used with short pre-defined
+ *       message strings, while data is shared through shared memory. A different function
+ *       should be used for generic client-server stream communication.
+ * 
+ * @param request_str A string that identifies the shared memory segment for request data.
+ * @param server_ip_address Normally this is "127.0.0.1" for shared memory exchanges.
+ * @param port_number An agreed port number for the communication.
+ * @param expected_resp The server response string expected for the request made, e.g. RESULTS, STOPPING.
  * @return Communication result code, 1 = success response, 0 = error response, -1 = unknown / no response.
  */
-int client_socket_message(std::string request_str, std::string server_ip_address, uint16_t port_number) {
+int client_socket_shmem_request(std::string request_str, std::string server_ip_address, uint16_t port_number, std::string expected_resp) {
     //struct sockaddr_in address;
     #define str_SIZE 100
     int sock = 0;
@@ -388,9 +399,7 @@ int client_socket_message(std::string request_str, std::string server_ip_address
         return -1;
     }
 
-    VERYVERBOSEOUT("Connected to server at "+server_ip_address+':'+std::to_string(port_number)+".\n");
-
-    int l = strlen(str);
+    VERYVERBOSEOUT("\nConnected to server at "+server_ip_address+':'+std::to_string(port_number)+".\n");
 
     VERYVERBOSEOUT("Sending request: "+request_str+'\n');
 
@@ -400,7 +409,7 @@ int client_socket_message(std::string request_str, std::string server_ip_address
 
     // read string sent by server
     memset(str, 0, str_SIZE); // just playing it safe
-    ssize_t valread = read(sock, str, l);
+    ssize_t valread = read(sock, str, sizeof(str));
     if (valread==0) {
         VERBOSEOUT("Server response reached EOF.\n");
     }
@@ -412,12 +421,12 @@ int client_socket_message(std::string request_str, std::string server_ip_address
     //printf("%s\n", str);
     std::string response_str(str);
 
-    if (response_str == "RESULTS") {
-        VERBOSEOUT("Success! Results are in shared 'results' data structure.\n");
+    if (response_str == expected_resp) {
+        VERBOSEOUT("Successful response received.\n");
     } else {
         if (response_str == "ERROR") {
-            VERBOSEERR("An error occurred. See the error message in the shared 'error' data structure.\n");
-            ADDERROR(__func__, "An error occurred. See the error message in the shared 'error' data structure.");
+            VERBOSEERR("An error occurred.\nCheck a possible shared 'error' data structure for error message.\n");
+            ADDERROR(__func__, "An error occurred. Check a possible shared 'error' data structure for error message.");
             return 0;
         } else {
             VERBOSEERR("Unknown response: "+response_str+'\n');
@@ -445,12 +454,12 @@ int client_socket_message(std::string request_str, std::string server_ip_address
  */
 int server_request_with_shared_data(std::string segname) {
 
-    int ret = client_socket_message(segname, "127.0.0.1",fzge.config.port_number);
+    int ret = client_socket_shmem_request(segname, "127.0.0.1",fzge.config.port_number, "RESULTS");
 
     if (ret == 0) { // there is an error specification in a `Graphmod_error` object
         Graphmod_error * errdata = find_error_response_in_shared_memory(segname);
         if (!errdata) {
-            standard_exit_error(exit_missing_data, "Unable to find the error message structure in shared memory", __func__);
+            standard_exit_error(exit_missing_data, "No error message structure in shared memory", __func__);
         }
         standard_exit_error(errdata->exit_code, errdata->message, __func__);
     } else {
@@ -459,7 +468,7 @@ int server_request_with_shared_data(std::string segname) {
             if (!resdata) {
                 standard_exit_error(exit_missing_data, "Unable to find the results message structure in shared memory", __func__);
             }
-            VERBOSEOUT(resdata->info_str());
+            VERBOSEOUT(resdata->info_str()+'\n');
         }
     }
 
@@ -539,7 +548,7 @@ int make_edges() {
 
 int stop_server() {
     VERBOSEOUT("Sending STOP request to Graph server.\n");
-    client_socket_message("STOP", "127.0.0.1", fzge.config.port_number);
+    client_socket_shmem_request("STOP", "127.0.0.1", fzge.config.port_number, "STOPPING");
     return standard.completed_ok();
 }
 

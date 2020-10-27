@@ -167,7 +167,7 @@ void get_node_info() {
     ERRHERE(".render");
     if (node_ptr) {
 
-        std::string rendered_node_data(render_Node_data(*node_ptr));
+        std::string rendered_node_data(render_Node_data(*graph_ptr, *node_ptr));
 
         if (fzgh.config.rendered_out_path == "STDOUT") {
             FZOUT(rendered_node_data);

@@ -29,10 +29,11 @@ bool render_incomplete_nodes();
  * 
  * The rendering format is specified in `fzq.output_format`.
  * 
+ * @param graph A valid Graph.
  * @param node A valid Node object.
  * @param render_format Specifies the rendering output format.
  * @return A string with rendered Node data according to the chosen format.
  */
-std::string render_Node_data(Node & node, unsigned int render_format = 1);
+std::string render_Node_data(Graph & graph, Node & node, unsigned int render_format = 1);
 
 #endif // __RENDER_HPP

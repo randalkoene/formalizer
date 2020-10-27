@@ -40,7 +40,7 @@ Edge * add_Edge_request(Graph_modifications & gm, const Node_ID_key & depkey, co
     if (!edge_ptr)
         standard_exit_error(exit_general_error, "Unable to create new Edge object in shared segment ("+graphmemman.get_active_name()+')', __func__);
 
-    VERBOSEOUT("Making Edge "+edge_ptr->get_id_str()+'\n');
+    VERBOSEOUT("\nMaking Edge "+edge_ptr->get_id_str()+'\n');
 
     // Set up Edge parameters
     edge_ptr->set_dependency(ed.dependency);

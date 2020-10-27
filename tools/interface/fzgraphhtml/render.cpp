@@ -124,6 +124,57 @@ bool render_incomplete_nodes() {
     return true;
 }
 
+std::string render_Node_topics(Graph & graph, Node & node) {
+    auto topictagsvec = Topic_tags_of_Node(graph, node);
+    std::string topics_str;
+    int i = 0;
+    for (const auto & [tagstr, tagrel] : topictagsvec) {
+        if (i>0) {
+            topics_str += ", ";
+        }
+        topics_str += tagstr + " (" + to_precision_string(tagrel,1) + ')';
+        ++i;
+    }
+    return topics_str;
+}
+
+std::string render_Node_superiors(Graph & graph, Node & node) {
+    std::string sups_str;
+    for (const auto & edge_ptr : node.sup_Edges()) {
+        if (edge_ptr) {
+            sups_str += "<li>" + edge_ptr->get_id_str() + ": ";
+            Node * sup_ptr = edge_ptr->get_sup();
+            if (!sup_ptr) {
+                ADDERROR(__func__, "Node "+node.get_id_str()+" has missing superior at Edge "+edge_ptr->get_id_str());
+            } else {
+                std::string htmltext(sup_ptr->get_text().c_str());
+                sups_str += remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length);
+            }
+            sups_str += "</li>\n";
+        }
+    }
+    return sups_str;
+}
+
+std::string render_Node_dependencies(Graph & graph, Node & node) {
+    std::string deps_str;
+    for (const auto & edge_ptr : node.dep_Edges()) {
+        if (edge_ptr) {
+            deps_str += "<li>" + edge_ptr->get_id_str() + ": ";
+            Node * dep_ptr = edge_ptr->get_dep();
+            if (!dep_ptr) {
+                ADDERROR(__func__, "Node "+node.get_id_str()+" has missing dependency at Edge "+edge_ptr->get_id_str());
+            } else {
+                std::string htmltext(dep_ptr->get_text().c_str());
+                deps_str += remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length);
+            }
+            deps_str += "</li>\n";
+        }
+    }
+    return deps_str;
+}
+
+
 /**
  * Individual Node data rendering.
  * 
@@ -136,19 +187,47 @@ bool render_incomplete_nodes() {
  * 
  * The rendering format is specified in `fzq.output_format`.
  * 
+ * @param graph A valid Graph.
  * @param node A valid Node object.
  * @param render_format Specifies the rendering output format.
  * @return A string with rendered Node data according to the chosen format.
  */
-std::string render_Node_data(Node & node, unsigned int render_format) {
+std::string render_Node_data(Graph & graph, Node & node, unsigned int render_format) {
     render_environment env;
     fzgraphhtml_templates templates;
 
     load_templates(templates);
 
     template_varvalues nodevars;
+    long required_mins = node.get_required() / 60;
+    double required_hrs = (double) required_mins / 60.0;
+    td_property tdprop = node.get_tdproperty();
+    td_pattern tdpatt = node.get_tdpattern();
+
     nodevars.emplace("node-id", node.get_id_str());
     nodevars.emplace("node-text", node.get_text());
+    nodevars.emplace("comp", to_precision_string(node.get_completion()));
+    nodevars.emplace("req_hrs", to_precision_string(required_hrs));
+    nodevars.emplace("req_mins", std::to_string(required_mins));
+    nodevars.emplace("val", to_precision_string(node.get_valuation()));
+    nodevars.emplace("eff_td", TimeStampYmdHM(node.effective_targetdate()));
+    if (tdprop<_tdprop_num) {
+        nodevars.emplace("td_prop", td_property_str[tdprop]);
+    } else {
+        nodevars.emplace("td_prop", "(unrecognized)");
+        ADDERROR(__func__, "Node "+node.get_id_str()+" has unrecognized TD property "+std::to_string((int) tdprop));
+    }
+    if (tdpatt<_patt_num) {
+        nodevars.emplace("td_patt", td_pattern_str[tdpatt]);
+    } else {
+        nodevars.emplace("td_patt", "(unrecognized)");
+        ADDERROR(__func__, "Node "+node.get_id_str()+" has unrecognized TD pattern "+std::to_string((int) tdpatt));
+    }
+    nodevars.emplace("td_every", std::to_string(node.get_tdevery()));
+    nodevars.emplace("td_span", std::to_string(node.get_tdspan()));
+    nodevars.emplace("topics", render_Node_topics(graph, node));
+    nodevars.emplace("superiors", render_Node_superiors(graph, node));
+    nodevars.emplace("dependencies", render_Node_dependencies(graph, node));
 
     switch (render_format) {
 

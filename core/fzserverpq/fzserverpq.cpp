@@ -135,7 +135,12 @@ void pseudo_signal_wait() {
 /**
  * Set up an IPv4 TCP socket on specified port and listen for client connections from any address.
  * 
- * See https://man7.org/linux/man-pages/man7/ip.7.html
+ * See https://man7.org/linux/man-pages/man7/ip.7.html.
+ * 
+ * Note: Only some errors return a detailed error message in an error data structure. Those
+ *       are typically errors that were caught during validation of the request data. Other
+ *       errors may not do so, although they will typically still log the error on the
+ *       server side.
  * 
  * @param port_number The port number to listen on.
  */
@@ -184,7 +189,7 @@ bool server_socket_listen(uint16_t port_number) {
     }
 
     while (true) {
-        VERYVERBOSEOUT("Bound and listening to all incoming addresses.\n");
+        VERYVERBOSEOUT("\nBound and listening to all incoming addresses.\n\n");
         
         // This is receiving the address that is connecting. https://man7.org/linux/man-pages/man2/accept.2.html
         // As described in the man page, if the socket is blocking (as it is here) then it will block,
@@ -219,6 +224,9 @@ bool server_socket_listen(uint16_t port_number) {
         if (request_str == "STOP") {
             // *** probably close and free up the bound connection here as well.
             VERYVERBOSEOUT("STOP request received. Exiting server listen loop.\n");
+            std::string response_str("STOPPING");
+            send(new_socket, response_str.c_str(), response_str.size()+1, 0);
+            //sleep(1); // this might actually be necessary for the client to receive the whole response
             break;
         }
 
@@ -230,16 +238,16 @@ bool server_socket_listen(uint16_t port_number) {
             send(new_socket, response_str.c_str(), response_str.size()+1, 0);
         } else {
             // send back error
-            VERYVERBOSEOUT("Sending error response with error data.\n");
+            VERYVERBOSEOUT("Sending error response. An 'error' data structure may or may not exist.\n");
             std::string response_str("ERROR");
             send(new_socket, response_str.c_str(), response_str.size()+1, 0);
         }
         graphmemman.forget_manager(request_str); // remove shared memory references that likely become stale when client is done
         // *** probably close and free up the bound connection here as well.
     }
-    close(server_fd); 
+    close(server_fd);
 
-    return true; 
+    return true;
 }
 // ----- end  : Test here then move -----
 #endif

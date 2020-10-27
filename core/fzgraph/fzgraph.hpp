@@ -64,7 +64,7 @@ struct Edge_data {
 
 class fzge_configurable : public configurable {
 public:
-    fzge_configurable(formalizer_standard_program &fsp) : configurable("fzgraphedit", fsp) {}
+    fzge_configurable(formalizer_standard_program &fsp) : configurable("fzgraph", fsp) {}
     bool set_parameter(const std::string &parlabel, const std::string &parvalue);
 
     uint16_t port_number = 8090; ///< Default port number at which server is expected.
@@ -94,7 +94,7 @@ public:
 
     void init_top(int argc, char *argv[]);
 
-    Graph * get_Graph();
+    Graph * get_Graph() { return graphmemman.get_Graph(graph_ptr); } ///< Get a pointer to the resident-memory Graph.
 
 };
 

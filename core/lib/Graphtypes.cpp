@@ -851,4 +851,18 @@ Node_Graph_ptr_pair find_Node_by_idstr(const std::string & node_idstr, Graph * g
 
 // +----- end  : element-wise functions operating on Graphtypes -----+
 
+Tag_Label_Real_Value_Vector Topic_tags_of_Node(Graph & graph, Node & node) {
+    Tag_Label_Real_Value_Vector res;
+    const Topics_Set & tset = node.get_topics();
+    for (const auto & [t_id, t_rel] : tset) {
+        Topic * topic_ptr = graph.find_Topic_by_id(t_id);
+        if (!topic_ptr) {
+            ADDERROR(__func__, "Node "+node.get_id_str()+" has unknown Topic with ID "+std::to_string(t_id));
+        } else {
+            res.emplace_back(std::make_pair(topic_ptr->get_tag().c_str(), t_rel));
+        }
+    }
+    return res;
+}
+
 } // namespace fz

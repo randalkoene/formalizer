@@ -40,7 +40,7 @@ Node * add_Node_request(Graph_modifications & gm, Node_data & nd) {
     if (!node_ptr)
         standard_exit_error(exit_general_error, "Unable to create new Node object in shared segment ("+graphmemman.get_active_name()+')', __func__);
 
-    VERBOSEOUT("Making Node "+node_ptr->get_id_str()+'\n');
+    VERBOSEOUT("\nMaking Node "+node_ptr->get_id_str()+'\n');
 
     // Set up Node parameters
     node_ptr->set_text(nd.utf8_text);
@@ -54,7 +54,17 @@ Node * add_Node_request(Graph_modifications & gm, Node_data & nd) {
     node_ptr->set_repeats((nd.tdpattern != patt_nonperiodic) && (nd.tdproperty != variable) && (nd.tdproperty != unspecified));
 
     // main topic
-    // *** THIS REQUIRES A BIT OF THOUGHT
+    Graph * graph_ptr = fzge.get_Graph();
+    if (!graph_ptr)
+        standard_exit_error(exit_resident_graph_missing, "Unable to access the memory-resident Graph", __func__);
+
+    for (const auto & tag_str : nd.topics) {
+        Topic * topic_ptr = graph_ptr->find_Topic_by_tag(tag_str);
+        if (!topic_ptr) {
+            standard_exit_error(exit_general_error, "Unknown Topic: "+tag_str, __func__);
+        }
+        node_ptr->add_topic(topic_ptr->get_id(), 1.0);
+    }
 
     // *** let's find out how much space is consumed in shared memory when a Node is created, improve our estimate!
 

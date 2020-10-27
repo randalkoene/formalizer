@@ -636,6 +636,8 @@ public:
 
 // +----- begin: standardization functions -----+
 
+Tag_Label_Real_Value_Vector Topic_tags_of_Node(Graph & graph, Node & node);
+
 // +----- end  : standardization functions -----+
 
 // +----- begin: inline member functions -----+

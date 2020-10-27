@@ -123,6 +123,9 @@ typedef std::map<const Node_ID_key, Node *> key_sorted_Nodes;
 
 typedef std::map<std::string, std::string> Graph_info_label_value_pairs;
 
+typedef std::pair<std::string, float> Tag_Label_Real_Value; ///< Such as used with Topics and various possible defined tags.
+typedef std::vector<Tag_Label_Real_Value> Tag_Label_Real_Value_Vector;
+
 #define NODE_NULLKEY_STR "{null-key}"
 #define HIGH_TOPIC_INDEX_WARNING 1000 /// at this index number report a warning just in case it is in error
 // The Unix epoch-time equivalent of the earliest valid ID time stamp in 1999.
