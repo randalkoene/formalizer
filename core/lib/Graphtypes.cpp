@@ -549,9 +549,15 @@ void Node::copy_content(Node & from_node) {
  * Report the main Topic Index-ID of the Node, as indicated by the maximum
  * `Topic_Relevance` value.
  * 
+ * If there are no topics then UNKNOWN_TOPIC_ID is returned.
+ * 
  * @return Topic_ID of main Topic.
  */
 Topic_ID Node::main_topic_id() {
+    if (topics.empty()) {
+        return UNKNOWN_TOPIC_ID;
+    }
+
     Topic_ID main_id = 0;
     Topic_Relevance max_rel = 0.0;
     for (const auto& [t_id, t_rel] : topics) {
@@ -748,6 +754,15 @@ Node_Index Graph::get_Indexed_Nodes() const {
         nodeindex.push_back(nodekp.second.get());
     }
     return nodeindex;
+}
+
+std::string Graph::find_Topic_Tag_by_id(Topic_ID _id) {
+    Topic * topic_ptr = topics.find_by_id(_id);
+    if (topic_ptr) {
+        return topic_ptr->get_tag().c_str();
+    } else {
+        return "UNKNOWN";
+    }
 }
 
 /**

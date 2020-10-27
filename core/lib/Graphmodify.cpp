@@ -164,7 +164,7 @@ Node_ptr Graph_modify_add_node(Graph & graph, const std::string & graph_segname,
     if (!node_ptr) {
         return nullptr;
     }
-    
+   
     node_ptr->copy_content(requested_node);
     return node_ptr;
 }

@@ -128,6 +128,7 @@ typedef std::vector<Tag_Label_Real_Value> Tag_Label_Real_Value_Vector;
 
 #define NODE_NULLKEY_STR "{null-key}"
 #define HIGH_TOPIC_INDEX_WARNING 1000 /// at this index number report a warning just in case it is in error
+#define UNKNOWN_TOPIC_ID UINT16_MAX   /// this value is returned if unknown, e.g see Node::main_topic()
 // The Unix epoch-time equivalent of the earliest valid ID time stamp in 1999.
 #define NODE_ID_FIRST_VALID_TEPOCH 915177600
 

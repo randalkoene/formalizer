@@ -613,6 +613,7 @@ public:
     /// topics table: get topic
     Topic * find_Topic_by_id(Topic_ID _id) { return topics.find_by_id(_id); }
     Topic * find_Topic_by_tag(std::string _tag) { return topics.find_by_tag(_tag); }
+    std::string find_Topic_Tag_by_id(Topic_ID _id);
     bool topics_exist(const Topics_Set & topicsset); // See how fzserverpq uses this.
 
     /// crossref tables: topics x nodes
