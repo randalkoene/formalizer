@@ -4,6 +4,9 @@
 #
 # Randal A. Koene, 20200921
 #
+# Updates:
+#   20201027 Added `fzquery -R histories` and another `fzsetup.py -1 fzuser` option.
+#
 # A shorthand for the steps involved in removing and replacing v2.x
 # database tables for Graph and Log content, and to regenerate those
 # with `dil2graph`.
@@ -37,6 +40,20 @@ if [ "$proceed" = "y" ]; then
         echo ""
         echo "Refreshing fzuser access and permissions..."
         fzsetup.py -1 fzuser
+
+        echo "We can do the recommended fzquerypq -R histories now, if you wish? (Y/n) "
+        read refreshhistories
+        if [ "$refreshhistories" != "n" ]; then
+
+            echo "Refreshing Node histories cache..."
+            fzquerypq -R histories
+
+            echo ""
+            echo "Refreshing fzuser access and permissions for the cache..."
+            fzsetup.py -1 fzuser
+
+
+        fi
 
         echo ""
         echo "v1xv2x-refresh.sh completed."

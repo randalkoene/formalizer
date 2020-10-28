@@ -124,5 +124,6 @@ if cmdoptions:
 #    return
 
 print("</tbody></table>")
+print('<a name="END">&nbsp;</a>')
 print("</body>")
 print("</html>")
