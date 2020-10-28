@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<HTML>
+
+<HEAD>
+    <style>
+        .button {
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            transition-duration: 0.4s;
+            cursor: pointer;
+        }
+
+        .button1 {
+            background-color: white;
+            color: black;
+            border: 2px solid #4CAF50;
+        }
+
+        .button1:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .button2 {
+            background-color: white;
+            color: black;
+            border: 2px solid #008CBA;
+        }
+
+        .button2:hover {
+            background-color: #008CBA;
+            color: white;
+        }
+    </style>
+    <TITLE>Formalizer Development: INDEX to Test Output</TITLE>
+    </HEAD>
+    <BODY>
+    <H1>Formalizer Development: INDEX to Test Output</H1>
+    
+    <button class="button button1" onclick="location.href='/cgi-bin/fzserver-info-cgi.py';">Server Status</button>
+    <button class="button button2" onclick="location.href='/cgi-bin/fzgraphhtml-cgi.py';">Next Nodes</button>
+    <button class="button button2" onclick="location.href='/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END';">Recent Log</button>
+    <button class="button button1" onclick="window.open('/cgi-bin/fzguide.system-cgi.py?submit=Read','_blank');">Morning Protocol</button>
+    <button class="button button2" onclick="window.open('https://docs.google.com/spreadsheets/d/1LeVD95TeBv_3QNby-Robe_BXS20g3WJEO3udy9mIb8I/edit#gid=0','_blank');">Metrics</button>
+    <button class="button button1" onclick="window.open('https://docs.google.com/spreadsheets/d/1p1lLpNOy6OeBQC_MNpzRqsLCPFEpnaF-ZfEAZ1KlRFc/edit#gid=1467656114','_blank');">DAF &amp; Comm</button>
+    <button class="button button2" onclick="window.open('https://docs.google.com/spreadsheets/d/1oDD4moypes9qII1olFaLWhydOPCWFa7f_u6hWXTZVP4/edit#gid=1180724961','_blank');">Reward &amp; Positive</button>
+    <button class="button button1" onclick="location.href='https://docs.google.com/document/d/1lBYknyQHhlhlqYZ3gku7OFTuM5FpFXV62jE2ETOnjv4/edit#heading=h.6algess7d8zh';">Notes on Change</button>
+    <br>
+    Boards: <button class="button button2" onclick="window.open('https://trello.com/b/mnu1VKIn','_blank');">Challenges</button>
+    <button class="button button1" onclick="window.open('https://trello.com/b/t2RmUmlN','_blank');">Milestones</button>
+    <button class="button button2" onclick="window.open('https://trello.com/b/cOCvAYh4','_blank');">Roadmap</button>
+    <button class="button button1" onclick="window.open('https://trello.com/b/e3sHVgMT','_blank');">Metrics</button>
+    <button class="button button2" onclick="window.open('https://trello.com/b/tlgXjZBm','_blank');">Experiments</button>
+    <button class="button button1" onclick="window.open('https://trello.com/b/ptGdOpzW','_blank');">Concierge</button>
+    <br>
+    Current Tracks: <button class="button button1" onclick="window.open('https://docs.google.com/spreadsheets/d/1waOYiKalOIPgX_1yORaSS6rCO5GH9LC2o2Pqz9dFjDI/edit#gid=1079149791','_blank');">LEARNED-LVL4</button>
+    <button class="button button2" onclick="window.open('https://trello.com/b/kdNO6dFD','_blank');">SFBAY-REGULAR-JOB</button>
+    <button class="button button1" onclick="window.open('https://trello.com/b/PEfStDEN','_blank');">FORMALIZER-NEWAL-METHOD</button>
+    <button class="button button2" onclick="window.open('https://trello.com/b/uMW6fb4e','_blank');">Formalizer Tools</button>
+    <button class="button button1" onclick="window.open('https://trello.com/b/ABTA2xEA','_blank');">CARBONCOPIES</button>
+    <br>
+    Information: <button class="button button2" onclick="window.open('https://trello.com/b/BIRsdsnE','_blank');">C++ / C</button>
+    <button class="button button1" onclick="window.open('https://trello.com/b/Jjli7nWA','_blank');">Software Engineering</button>
+    <button class="button button2" onclick="window.open('https://trello.com/b/yPGMhTGw','_blank');">Science</button>
+    <button class="button button1" onclick="window.open('https://trello.com/b/aE1VCkGj','_blank');">NMA Data Science</button>
+    
+    <hr>
+
+    <H3>Dynamic Web Interfaces Testing</H3>
+
+    The following are dynamically generated (CGI) links. These are used to collect information and to test processes involved with browser-based dynamic web interaction with the Formalizer.
+
+    <P>(Note: Some of these would be considered unsafe if made available through an externally accessible IP address!)</P>
+
+    <UL>
+        <P>
+            <LI><a href="/cgi-bin/fzserver-info-cgi.py">Formalizer: Graph server status</a></LI>
+        </P>
+        <P>
+            <LI><a href="/cgi-bin/fzgraphhtml-cgi.py">Formalizer: fzgraphhtml CGI call</a></LI>
+        </P>
+        <P>
+            <LI><a href="fzloghtml-form.html">Formalizer: fzloghtml FORM interface</a></LI>
+        </P>
+        <P>
+            <LI><a href="fzguide.system-form.html">Formalizer: fzguide.system FORM interface</a></LI>
+        </P>
+        <P>
+            <LI><a href="add_node.html">Formalizer: Add Node interface</a></LI>
+        </P>
+        <P>
+            <LI><a href="sysmet-add-form.html">Formalizer: sysmet-add FORM interface</a></LI>
+        </P>
+        <P>
+            <LI><a href="/cgi-bin/listenv.sh">List CGI Environment Variables</a></LI>
+        </P>
+        <P>
+            <LI><a href="test_python_cgiformget.html">Misc. Test Prototypes: Python CGI Node / Log Request</a></LI>
+        </P>
+        <P>
+            <LI><a href="test_python_cgianalysis.html">Misc. Test Prototypes: Python CGI Call Analysis</a></LI>
+        </P>
+        <P>
+            <LI><a href="test_visual_counters.html">Misc. Test Prototypes: Javascript Visual Counters</a></LI>
+        </P>
+        <P>
+            <LI><a href="test_add_node.html">Misc. Test Prototypes: Add Node</a></LI>
+        </P>
+    </UL>
+
+    <hr>
+
+    <H3>Error and Warning Logs, and Simulated Call Logs</H3>
+
+    The following are links to ErrQ and WarnQ logged output generated by Formalizer core and tools components that directed the log output to these web visible link locations.
+
+    <UL>
+        <LI><a href="formalizer.core.server.error.ErrQ.log">Formalizer Server Error log</a></LI>
+        <P></P>      
+        <LI><a href="formalizer.core.error.ErrQ.log">Formalizer Error log</a></LI>
+        <P></P>
+        <LI><a href="formalizer.core.error.WarnQ.log">Formalizer Warnings log</a></LI>
+        <P></P>
+        <LI><a href="formalizer.core.fzpostgres.SimPQ.log">Formalizer Simulated Postgres Command log</a></LI>
+    </UL>
+
+    <hr>
+
+    <h3>Doxygen documentation</h3>
+
+    <ul>
+        <li>Formalizer documentation: <a href="doxygen-html/index.html">doxygen-html/index.html</a></li>
+    </ul>
+
+    <hr>
+
+    <H3>Static Test Output</H3>
+
+    The following are links to output generated by Formalizer core and tools components. To evaluate their behavior, inspect the output.
+
+    <UL>
+        <LI><a href="dil2graph-testlogdata.html">dil2graph: Test Log Data</a></LI>
+        <P></P>
+        <LI><a href="graph2dil-lists.html">graph2dil: Lists Entry Point (graph2dil-lists.html)</a></LI>
+        <P></P>
+        <LI><a href="graph2dil/task-log.html">graph2dil: Task Log Head (graph2dil/task-log.html)</a></LI>
+        <P></P>
+        <LI><a href="test_node_card.html">nodeboard: Test Node Card</a></LI>
+        <P></P>
+        <LI><a href="formalizer.tools.interfaces.fzloghtml.Output.html">fzloghtml: Output</a></LI>
+        <P></P>
+    </UL>
+  
+    <hr>
+
+    <h3>Preserved older top indices</h3>
+
+    Link to (probably outdated) Formalizer files copy (not a symlink): <a href="formalizer/lists.html">Task Log</a>
+
+    <P>
+    
+    Link to Formalizer Development INDEX to Test Output: <a href="formalizer/development-tests-INDEX.html">INDEX to Test Output</a>
+    
+    
+    <P>Make Log Entry (use with dil2al-polldaemon.sh): <a href="formalizer/logentry-form_fullpage.template.html">Log Entry Form</a></P>
+    
+    <P></P>
+    
+    Here is the link to the original Ubuntu-Apache2 Default Page: <a href="ubuntu-apache2-index.html">ubuntu-apache2-index.html</a> (this used to be index.html).
+    
+    <hr>
+
+
+    </BODY>
+    
+    </HTML>
