@@ -102,6 +102,11 @@ exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server
 
         std::string request_str(str);
 
+        if (request_str.substr(0,4) == "GET ") { // a special purpose request from a browser interface
+            server.handle_special_purpose_request(new_socket, request_str);
+            continue;
+        }
+
         if (request_str == "STOP") {
             VERYVERBOSEOUT("STOP request received. Exiting server listen loop.\n");
             std::string response_str("STOPPING");

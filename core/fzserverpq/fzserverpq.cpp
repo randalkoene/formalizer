@@ -21,6 +21,7 @@
 // core
 #include "error.hpp"
 #include "standard.hpp"
+#include "general.hpp"
 #include "proclock.hpp"
 #include "Graphtypes.hpp"
 #include "Graphinfo.hpp"
@@ -126,6 +127,33 @@ void fzserverpq::handle_request_with_data_share(int new_socket, const std::strin
         send(new_socket, response_str.c_str(), response_str.size()+1, 0);
     }
     graphmemman.forget_manager(segment_name); // remove shared memory references that likely become stale when client is done
+}
+
+void fzserverpq::handle_special_purpose_request(int new_socket, const std::string & request_str) {
+    VERYVERBOSEOUT("Received Special Purpose request "+request_str+".\n");
+    auto requestvec = split(request_str,' ');
+    if (requestvec.size()<2) {
+        VERYVERBOSEOUT("Missing request. Responding with: 400 Bad Request.\n");
+        std::string response_str("400 Bad Request\n");
+        send(new_socket, response_str.c_str(), response_str.size()+1, 0);
+        return;
+    }
+
+    if (requestvec[1].substr(0,4) == "/fz/") { // (one type of) recognized Formalizer special purpose request
+        if (requestvec[1].substr(4) == "status") {
+            VERYVERBOSEOUT("Stutus request received. Responding.\n");
+            std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
+            std::string status_html("<html>\n<body>\nServer status: LISTENING\n</body>\n</html>\n");
+            response_str += std::to_string(status_html.size()) + "\n\n" + status_html;
+            send(new_socket, response_str.c_str(), response_str.size()+1, 0);
+            return;
+        }
+    }
+
+    // no known request encountered and handled
+    VERYVERBOSEOUT("Request type is unrecognized. Responding with: 400 Bad Request.\n");
+    std::string response_str("400 Bad Request\n");
+    send(new_socket, response_str.c_str(), response_str.size()+1, 0);
 }
 
 /// See if a Node ID key is one of the Nodes being added in this request.

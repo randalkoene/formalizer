@@ -16,7 +16,8 @@ FORMALIZERPATH_THIS=$(FORMALIZERPATH)
 
 EXEDIR=$(HOME)/.formalizer/bin
 CGIDIR=/usr/lib/cgi-bin
-WEBINTERFACESDIR=/var/www/html/formalizer
+WEBBASEDIR=/var/www/html
+WEBINTERFACESDIR=$(WEBBASEDIR)/formalizer
 
 INC=$(COREINCLUDEPATH)
 OBJ=./obj
@@ -110,6 +111,9 @@ WEBINTERFACES += $(COREPATH)/fzgraph/add_node.html
 WEBINTERFACES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-form.html
 WEBINTERFACES += $(COREPATH)/fzguide.system/fzguide.system-form.html
 WEBINTERFACES += $(TOOLSPATH)/system/metrics/sysmet-add/sysmet-add-form.html
+
+TOPLEVEL =
+TOPLEVEL += $(TOOLSPATH)/system/top/index.html
 # +----- end  : Select Formalizer executables -----+
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
@@ -143,6 +147,7 @@ executables: $(EXECUTABLES)
 	sudo ln -f -s $(SYMBIN) $(CGIDIR)/
 	sudo cp -f $(CGIEXE) $(CGIDIR)/
 	cp -f $(WEBINTERFACES) $(WEBINTERFACESDIR)/
+	cp -f $(TOPLEVEL) $(WEBBASEDIR)/
 
 # call `make doxygen` to refresh code documentation
 doxygen: FORCE

@@ -63,6 +63,8 @@ struct fzserverpq: public formalizer_standard_program, public shared_memory_serv
 
     virtual void handle_request_with_data_share(int new_socket, const std::string & segment_name);
 
+    virtual void handle_special_purpose_request(int new_socket, const std::string & request_str);
+
 };
 
 extern fzserverpq fzs;
