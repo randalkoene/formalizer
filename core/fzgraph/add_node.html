@@ -35,6 +35,12 @@
                     <td><input type="number" name="targetdate"> target date</td> <td>(YYYYmmddHHMM format)</td>
                 </tr>
                 <tr>
+                    <td><input type="date" id="alt_targetdate" name="alt_targetdate" value=""> target date</td> <td>(local format)</td>
+                    <script>
+                    document.getElementById('alt_targetdate').value = new Date().toISOString().substring(0, 10);
+                    </script>
+                </tr>
+                <tr>
                     <td span=2>
                         <input type="radio" name="tdproperty" value="unspecified" checked> unspecified
                         <input type="radio" name="tdproperty" value="variable" checked> variable

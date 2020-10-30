@@ -3,90 +3,53 @@
 
 <HEAD>
     <link rel="icon" href="/favicon.png">
+    <link rel="stylesheet" href="/fz.css">
     <style>
-        html,body {
-            font-family:Verdana,sans-serif;
-            font-size:15px;line-height:1.5
-        }
-        html {
-            overflow-x:hidden
-        }
-        h1 {
-            font-size:36px
-        }
-        h2 {
-            font-size:30px
-        }
-        h3 {
-            font-size:24px
-        }
-        h4 {
-            font-size:20px
-        }
-        h5 {
-            font-size:18px
-        }
-        h6 {
-            font-size:16px
-        }
-        .w3-serif {
-            font-family:serif
-        }
-        h1,h2,h3,h4,h5,h6 {
-            font-family:"Segoe UI",Arial,sans-serif;
-            font-weight:400;margin:10px 0
-        }
-        .w3-wide{
-            letter-spacing:4px
-        }
-        hr {
-            border:0;
-            border-top:1px solid #eee;
-            margin:20px 0
-        }
-        .button {
-            border: none;
-            color: white;
-            padding: 8px 16px;
+        #clock {
+            position: fixed;
+            top: 0px;
+            right: 0px;
+            margin: 20px auto;
+            padding: 0;
+            background: #999;
             text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            transition-duration: 0.4s;
-            cursor: pointer;
+            line-height: 40px;
+            color: #000;
+            font-size: 34px;
+            font-family: calibri;
         }
-
-        .button1 {
-            background-color: white;
-            color: black;
-            border: 2px solid #4CAF50;
+        #classical {
+            position: fixed;
+            bottom: 0px;
+            right: 0px;
         }
-
-        .button1:hover {
-            background-color: #4CAF50;
-            color: white;
+        #EBM {
+            position: fixed;
+            bottom: 50px;
+            right: 0px;
         }
-
-        .button2 {
-            background-color: white;
-            color: black;
-            border: 2px solid #008CBA;
+        #industrial {
+            position: fixed;
+            bottom: 100px;
+            right: 0px;
         }
-
-        .button2:hover {
-            background-color: #008CBA;
-            color: white;
+        #meditative {
+            position: fixed;
+            bottom: 150px;
+            right: 0px;
         }
     </style>
     <TITLE>Formalizer Environment v2.0a - Top</TITLE>
     </HEAD>
-    <BODY>
+    <BODY onload="javascript:clockStart()">
     <H1>Formalizer Environment v2.0a - Top</H1>
     
-    <button class="button button1" onclick="location.href='/cgi-bin/fzserver-info-cgi.py';">Server Status</button>
-    <button class="button button2" onclick="location.href='/cgi-bin/fzgraphhtml-cgi.py';">Next Nodes</button>
-    <button class="button button2" onclick="location.href='/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END';">Recent Log</button>
+    <!-- <p id="clock"></p> -->
+    <button id="clock" class="button button2">_____</button>
+
+    <button class="button button1" onclick="window.open('/cgi-bin/fzserver-info-cgi.py','_blank');">Server Status</button>
+    <button class="button button2" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py','_blank');">Next Nodes</button>
+    <button class="button button2" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END','_blank');">Recent Log</button>
     <button class="button button1" onclick="window.open('/cgi-bin/fzguide.system-cgi.py?submit=Read','_blank');">Morning Protocol</button>
     <button class="button button2" onclick="window.open('https://docs.google.com/spreadsheets/d/1LeVD95TeBv_3QNby-Robe_BXS20g3WJEO3udy9mIb8I/edit#gid=0','_blank');">Metrics</button>
     <button class="button button1" onclick="window.open('https://docs.google.com/spreadsheets/d/1p1lLpNOy6OeBQC_MNpzRqsLCPFEpnaF-ZfEAZ1KlRFc/edit#gid=1467656114','_blank');">DAF &amp; Comm</button>
@@ -111,114 +74,109 @@
     <button class="button button1" onclick="window.open('https://trello.com/b/Jjli7nWA','_blank');">Software Engineering</button>
     <button class="button button2" onclick="window.open('https://trello.com/b/yPGMhTGw','_blank');">Science</button>
     <button class="button button1" onclick="window.open('https://trello.com/b/aE1VCkGj','_blank');">NMA Data Science</button>
-    
+    <button class="button button2" onclick="window.open('/formalizer/ready-docs.html','_blank');">Ready Docs</button>
+    <br>
+    Action: <button class="button button1" onclick="window.open('/formalizer/add_node.html','_blank');">Add Node</button>
+    <button class="button button2" onclick="window.alert('Not yet implemented.');">Add Log Entry</button>
+    <button class="button button1" onclick="light_or_dark();">Light / Dark</button>
+
+    <button id="classical" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPxdxF1BhIPpl6s08kllCLs5','_blank');">classical</button>
+    <button id="EBM" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPzyg3_daMmuG79hZ56uHeCy','_blank');">EBM</button>
+    <button id="industrial" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPwXtRPtB6dyUFg3CC0Fbreo','_blank');">industrial</button>
+    <button id="meditative" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPypoHjDibsdYpTg606q8V1F','_blank');">meditative</button>
+
     <hr>
-
-    <H3>Dynamic Web Interfaces Testing</H3>
-
-    The following are dynamically generated (CGI) links. These are used to collect information and to test processes involved with browser-based dynamic web interaction with the Formalizer.
-
-    <P>(Note: Some of these would be considered unsafe if made available through an externally accessible IP address!)</P>
 
     <UL>
         <P>
-            <LI><a href="/cgi-bin/fzserver-info-cgi.py">Formalizer: Graph server status</a></LI>
+            <LI><a href="/formalizer/fzloghtml-form.html">Formalizer: fzloghtml FORM interface</a></LI>
         </P>
         <P>
-            <LI><a href="/cgi-bin/fzgraphhtml-cgi.py">Formalizer: fzgraphhtml CGI call</a></LI>
+            <LI><a href="/formalizer/fzguide.system-form.html">Formalizer: fzguide.system FORM interface</a></LI>
         </P>
         <P>
-            <LI><a href="fzloghtml-form.html">Formalizer: fzloghtml FORM interface</a></LI>
-        </P>
-        <P>
-            <LI><a href="fzguide.system-form.html">Formalizer: fzguide.system FORM interface</a></LI>
-        </P>
-        <P>
-            <LI><a href="add_node.html">Formalizer: Add Node interface</a></LI>
-        </P>
-        <P>
-            <LI><a href="sysmet-add-form.html">Formalizer: sysmet-add FORM interface</a></LI>
-        </P>
-        <P>
-            <LI><a href="/cgi-bin/listenv.sh">List CGI Environment Variables</a></LI>
-        </P>
-        <P>
-            <LI><a href="test_python_cgiformget.html">Misc. Test Prototypes: Python CGI Node / Log Request</a></LI>
-        </P>
-        <P>
-            <LI><a href="test_python_cgianalysis.html">Misc. Test Prototypes: Python CGI Call Analysis</a></LI>
-        </P>
-        <P>
-            <LI><a href="test_visual_counters.html">Misc. Test Prototypes: Javascript Visual Counters</a></LI>
-        </P>
-        <P>
-            <LI><a href="test_add_node.html">Misc. Test Prototypes: Add Node</a></LI>
+            <LI><a href="/formalizer/sysmet-add-form.html">Formalizer: sysmet-add FORM interface</a></LI>
         </P>
     </UL>
 
     <hr>
 
-    <H3>Error and Warning Logs, and Simulated Call Logs</H3>
+    <H3>Error, Warning and optional Call Logs</H3>
 
-    The following are links to ErrQ and WarnQ logged output generated by Formalizer core and tools components that directed the log output to these web visible link locations.
+    Links to inspedct common default ErrQ and WarnQ logging output files used by Formalizer core and tools components.
 
     <UL>
-        <LI><a href="formalizer.core.server.error.ErrQ.log">Formalizer Server Error log</a></LI>
+        <LI><a href="/formalizer/formalizer.core.server.error.ErrQ.log">Server Errors log</a></LI>
         <P></P>      
-        <LI><a href="formalizer.core.error.ErrQ.log">Formalizer Error log</a></LI>
+        <LI><a href="/formalizer/formalizer.core.error.ErrQ.log">Errors log</a></LI>
         <P></P>
-        <LI><a href="formalizer.core.error.WarnQ.log">Formalizer Warnings log</a></LI>
+        <LI><a href="/formalizer/formalizer.core.error.WarnQ.log">Warnings log</a></LI>
         <P></P>
-        <LI><a href="formalizer.core.fzpostgres.SimPQ.log">Formalizer Simulated Postgres Command log</a></LI>
+        <LI><a href="/formalizer/formalizer.core.fzpostgres.SimPQ.log">Postgres Commands log</a></LI>
     </UL>
 
     <hr>
 
-    <h3>Doxygen documentation</h3>
+    <h3>Documentation &amp; Development</h3>
 
     <ul>
-        <li>Formalizer documentation: <a href="doxygen-html/index.html">doxygen-html/index.html</a></li>
+        <li><a href="/formalizer/doxygen-html/index.html">Doxygen Index</a></li>
+    </ul>
+
+    <ul>
+        <li><a href="formalizer/development-tests-INDEX.html">Development Tests Index</a></li>
     </ul>
 
     <hr>
 
-    <H3>Static Test Output</H3>
+    <h3>Formalizer 1.x - dil2al</h3>
 
-    The following are links to output generated by Formalizer core and tools components. To evaluate their behavior, inspect the output.
-
-    <UL>
-        <LI><a href="dil2graph-testlogdata.html">dil2graph: Test Log Data</a></LI>
-        <P></P>
-        <LI><a href="graph2dil-lists.html">graph2dil: Lists Entry Point (graph2dil-lists.html)</a></LI>
-        <P></P>
-        <LI><a href="graph2dil/task-log.html">graph2dil: Task Log Head (graph2dil/task-log.html)</a></LI>
-        <P></P>
-        <LI><a href="test_node_card.html">nodeboard: Test Node Card</a></LI>
-        <P></P>
-        <LI><a href="formalizer.tools.interfaces.fzloghtml.Output.html">fzloghtml: Output</a></LI>
-        <P></P>
-    </UL>
-  
+    <p>Irregularly updated copy of Formalizer 1.x data files: <a href="formalizer/lists.html">Task Log</a></p>
+    
+    <P>For use with <code>dil2al-polldaemon.sh</code>: <a href="formalizer/logentry-form_fullpage.template.html">Log Entry Form</a></P>
+    
     <hr>
-
-    <h3>Preserved older top indices</h3>
-
-    Link to (probably outdated) Formalizer files copy (not a symlink): <a href="formalizer/lists.html">Task Log</a>
-
-    <P>
     
-    Link to Formalizer Development INDEX to Test Output: <a href="formalizer/development-tests-INDEX.html">INDEX to Test Output</a>
-    
-    
-    <P>Make Log Entry (use with dil2al-polldaemon.sh): <a href="formalizer/logentry-form_fullpage.template.html">Log Entry Form</a></P>
-    
-    <P></P>
-    
-    Here is the link to the original Ubuntu-Apache2 Default Page: <a href="ubuntu-apache2-index.html">ubuntu-apache2-index.html</a> (this used to be index.html).
+    <p>Ubuntu-Apache2 Default Page: <a href="ubuntu-apache2-index.html">ubuntu-apache2-index.html</a></p>
     
     <hr>
 
 
+    <!-- clock script adapted from https://codepen.io/kase/pen/LxNzWj -->
+    <script type="text/javascript">
+    function updateClock() {
+        var currentTime = new Date();
+        // Operating System Clock Hours for 24h clock
+        var currentHours = currentTime.getHours();
+        // Operating System Clock Minutes
+        var currentMinutes = currentTime.getMinutes();
+        // Operating System Clock Seconds
+        //var currentSeconds = currentTime.getSeconds();
+        // Adding 0 if Minutes & Seconds is More or Less than 10
+        currentMinutes = (currentMinutes < 10 ? "0" : "") + currentMinutes;
+        //currentSeconds = (currentSeconds < 10 ? "0" : "") + currentSeconds;
+        // display first 24h clock and after line break 12h version
+        var currentTimeString = currentHours + ":" + currentMinutes; // + ":" + currentSeconds;
+        // print clock js in div #clock.
+        document.getElementById("clock").innerHTML = currentTimeString;
+        //var t = setTimeout(function(){ updateClock() }, 1000); /* setting timer */ // this actually blows up the stack!
+    }
+    // let's skip using jQuery $(document).ready(function () { setInterval(updateClock, 1000); } );
+    //updateClock(); // initiate the process
+    function clockStart() {
+        updateClock();
+        var idval = setInterval(updateClock, 60000); // update each minute, since we're not showing seconds here
+    }
+    var lightdark = 1;
+    function light_or_dark() {
+        if (lightdark > 0) {
+            document.body.style.background = "#ffffff";
+        } else {
+            document.body.style.background = "#7f7f7f";
+        }
+        lightdark = 1 - lightdark;
+    }
+    </script>
     </BODY>
     
     </HTML>

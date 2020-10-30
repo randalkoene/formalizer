@@ -114,6 +114,7 @@ WEBINTERFACES += $(TOOLSPATH)/system/metrics/sysmet-add/sysmet-add-form.html
 
 TOPLEVEL =
 TOPLEVEL += $(TOOLSPATH)/system/top/index.html
+TOPLEVEL += $(TOOLSPATH)/interface/resources/fz.css
 # +----- end  : Select Formalizer executables -----+
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
@@ -147,7 +148,7 @@ executables: $(EXECUTABLES)
 	sudo ln -f -s $(SYMBIN) $(CGIDIR)/
 	sudo cp -f $(CGIEXE) $(CGIDIR)/
 	cp -f $(WEBINTERFACES) $(WEBINTERFACESDIR)/
-	cp -f $(TOPLEVEL) $(WEBBASEDIR)/
+	sudo cp -f $(TOPLEVEL) $(WEBBASEDIR)/
 
 # call `make doxygen` to refresh code documentation
 doxygen: FORCE

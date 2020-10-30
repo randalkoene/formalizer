@@ -31,7 +31,7 @@ alt = form.getvalue('alt')
 print("Content-type:text/html\n\n")
 print("<html>")
 print("<head>")
-print('<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">')
+print('<link rel="stylesheet" href="/fz.css">')
 print("<title>Formalizer: fzlink handler</title>")
 print("</head>")
 print("<body>")
@@ -47,7 +47,7 @@ thisscript = os.path.realpath(__file__)
 print(f'<!--(For dev reference, this script is at {thisscript}.) -->')
 
 #print("<h3>Formalizer: fzlink handler</h3>\n<p></p>")
-print("[Formalizer: fzlink handler]\n<p></p>")
+print("<!-- [Formalizer: fzlink handler]\n<p></p> -->")
 #print("<table>")
 
 thecmd = ""
@@ -122,6 +122,7 @@ if altcmd:
     print("</tbody></table>")
 
     if (alt=="hist50"):
-        print(f'\n<br>\n<p>\n[<a href="/cgi-bin/fzlink.py?id={id}&alt=histfull">full history</a>]\n</p>\n<br>\n')
+        #print(f'\n<br>\n<p>\n[<a href="/cgi-bin/fzlink.py?id={id}&alt=histfull">full history</a>]\n</p>\n<br>\n')
+        print(f'\n<br>\n<p>\n<button class="button button2" onclick="location.href=\'/cgi-bin/fzlink.py?id={id}&alt=histfull\';">full history</button>\n</p>\n<br>\n')
 
 print("<hr>\n</body>\n</html>")
