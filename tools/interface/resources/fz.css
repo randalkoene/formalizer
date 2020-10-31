@@ -51,8 +51,17 @@ margin: 4px 2px;
 transition-duration: 0.4s;
 cursor: pointer;
 }
+:root {
+--color-bg: white;
+}
+[data-theme="dark"] {
+--color-bg: LightSteelBlue;
+}
+body {
+background-color: var(--color-bg);
+}
 .button1 {
-background-color: white;
+background-color: var(--color-bg);
 color: black;
 border: 2px solid #4CAF50;
 }
@@ -61,7 +70,7 @@ background-color: #4CAF50;
 color: white;
 }
 .button2 {
-background-color: white;
+background-color: var(--color-bg);
 color: black;
 border: 2px solid #008CBA;
 }
@@ -78,3 +87,4 @@ border: 2px solid #581f04;
 background-color: #b14b11;
 color: white;
 }
+

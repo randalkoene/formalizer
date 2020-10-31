@@ -170,9 +170,11 @@
     var lightdark = 1;
     function light_or_dark() {
         if (lightdark > 0) {
-            document.body.style.background = "#ffffff";
+            //document.body.style.background = "#ffffff";
+            document.body.removeAttribute('data-theme');
         } else {
-            document.body.style.background = "#7f7f7f";
+            //document.body.style.background = "#7f7f7f";
+            document.body.setAttribute('data-theme', 'dark');
         }
         lightdark = 1 - lightdark;
     }
