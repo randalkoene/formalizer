@@ -115,6 +115,7 @@ WEBINTERFACES += $(TOOLSPATH)/system/metrics/sysmet-add/sysmet-add-form.html
 TOPLEVEL =
 TOPLEVEL += $(TOOLSPATH)/system/top/index.html
 TOPLEVEL += $(TOOLSPATH)/interface/resources/fz.css
+TOPLEVEL += $(TOOLSPATH)/interface/resources/fz-cards.css
 # +----- end  : Select Formalizer executables -----+
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html

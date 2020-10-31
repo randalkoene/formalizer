@@ -38,8 +38,8 @@ fzgraphhtml fzgh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:IN:o:";
-    add_usage_top += " [-n <node-ID>] [-I] [-N <num>] [-o <output-path>]";
+    add_option_args += "n:IN:o:C";
+    add_usage_top += " [-n <node-ID>] [-I] [-N <num>] [-o <output-path>] [-C]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("When no [N <num>] is provided then the configured value is used.\n");
 }
@@ -54,6 +54,7 @@ void fzgraphhtml::usage_hook() {
     FZOUT("    -I Show data for incomplete Nodes\n");
     FZOUT("    -N Show data for [num] elements (all=no limit)\n");
     FZOUT("    -o Rendered output to <output-path> (\"STDOUT\" is default)\n");
+    FZOUT("    -C (TEST) card output format\n");
 }
 
 unsigned int parvalue_to_num_to_show(const std::string & parvalue) {
@@ -105,6 +106,11 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
 
     case 'o': {
         config.rendered_out_path = cargs;
+        return true;
+    }
+
+    case 'C': {
+        test_cards = true;
         return true;
     }
    

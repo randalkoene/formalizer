@@ -40,6 +40,7 @@ enum template_id_enum {
     node_pars_in_list_tail_html_temp,
     node_txt_temp,
     node_html_temp,
+    node_pars_in_list_card_temp,
     NUM_temp
 };
 
@@ -48,7 +49,8 @@ const std::vector<std::string> template_ids = {
     "node_pars_in_list_head_template.html",
     "node_pars_in_list_tail_template.html",
     "Node_template.txt",
-    "Node_template.html"
+    "Node_template.html",
+    "node_pars_in_list_card_template.html"
 };
 
 typedef std::map<template_id_enum,std::string> fzgraphhtml_templates;
@@ -104,7 +106,11 @@ bool render_incomplete_nodes() {
             varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
             //varvals.emplace("excerpt",remove_html(htmltext).substr(0,fzgh.config.excerpt_length));
 
-            rendered_page += env.render(templates[node_pars_in_list_html_temp], varvals);
+            if (fzgh.test_cards) {
+                rendered_page += env.render(templates[node_pars_in_list_card_temp], varvals);
+            } else {
+                rendered_page += env.render(templates[node_pars_in_list_html_temp], varvals);
+            }
 
         }
 

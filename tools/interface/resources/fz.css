@@ -24,6 +24,10 @@ font-size:18px
 h6 {
 font-size:16px
 }
+.fz-tiny{font-size:10px}
+.fz-small{font-size:12px}
+.fz-medium{font-size:15px}
+.fz-large{font-size:18px}
 .w3-serif {
 font-family:serif
 }
@@ -34,6 +38,8 @@ font-weight:400;margin:10px 0
 .w3-wide{
 letter-spacing:4px
 }
+.fz-blue,.fz-hover-blue:hover{color:#fff;background-color:#2196F3}
+.fz-light-grey,.fz-hover-light-grey:hover,.fz-light-gray,.fz-hover-light-gray:hover{color:#000;background-color:#f1f1f1}
 hr {
 border:0;
 border-top:1px solid #eee;

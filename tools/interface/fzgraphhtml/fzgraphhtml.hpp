@@ -44,6 +44,8 @@ struct fzgraphhtml: public formalizer_standard_program {
 
     std::string node_idstr;
 
+    bool test_cards = false;
+
     // Graph_access ga; // to include Graph or Log access support
 
     fzgraphhtml();
