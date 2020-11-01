@@ -10,6 +10,7 @@ FORMALIZERPATH=$(HOME)/src/formalizer
 COREINCLUDEPATH=$(FORMALIZERPATH)/core/include
 COREPATH=$(FORMALIZERPATH)/core
 TOOLSPATH=$(FORMALIZERPATH)/tools
+MEDIAPATH=$(FORMALIZERPATH)/media
 FORMALIZERPATH_THIS=$(FORMALIZERPATH)
 
 #TEMPLATEDIR = -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\" 
@@ -116,6 +117,9 @@ TOPLEVEL =
 TOPLEVEL += $(TOOLSPATH)/system/top/index.html
 TOPLEVEL += $(TOOLSPATH)/interface/resources/fz.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/fz-cards.css
+TOPLEVEL += $(MEDIAPATH)/favicon-192x192.png
+TOPLEVEL += $(MEDIAPATH)/favicon-32x32.png
+TOPLEVEL += $(MEDIAPATH)/favicon-16x16.png
 # +----- end  : Select Formalizer executables -----+
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
