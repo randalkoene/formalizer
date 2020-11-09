@@ -12,6 +12,7 @@
 #include "general.hpp"
 #include "Graphtypes.hpp"
 #include "fzpostgres.hpp"
+#include "Graphmodify.hpp"
 #include "Graphpostgres.hpp"
 
 
@@ -240,6 +241,85 @@ bool store_Graph_pq(const Graph& graph, std::string dbname, std::string schemana
     //*** database format, e.g. possibly caches of up and down edges lists, etc.
 
     STORE_GRAPH_PQ_RETURN(true);
+}
+
+/**
+ * Process the defined set of possible modifications of Graph data and carry
+ * out those modifications in the database.
+ * 
+ * This is called after modifications have been made in the in-memory Graph
+ * data structure. See, for example, how this is used in
+ * `fzserverpq:handle_request_stack()`.
+ * 
+ * Note: For development information about the proposed set of possible
+ *       modifications, see https://trello.com/c/FxSP8If8.
+ * 
+ * @param graph A valid Graph structure that contains modified data.
+ * @param dbname The Postgres database name.
+ * @param schemaname The Postgres schema name for Formalizer data.
+ * @param Graphmod_results A data structure detailing modifications to apply.
+ */
+bool handle_Graph_modifications_pq(const Graph & graph, std::string dbname, std::string schemaname, Graphmod_results & modifications) {
+    ERRTRACE;
+    if (modifications.results.empty()) {
+        ERRRETURNFALSE(__func__, "There are no in-memory Graph changes to send to storage.");
+    }
+
+    PGconn* conn = connection_setup_pq(dbname);
+    if (!conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define MODIFY_GRAPH_PQ_RETURN(r) { PQfinish(conn); return r; }
+
+    for (const auto & change_data : modifications.results) {
+
+        switch (change_data.request_handled) {
+
+            case graphmod_add_node: {
+                Node * n = graph.Node_by_id(change_data.node_key);
+                if (n) {
+                    if (!add_Node_pq(conn, schemaname, n)) {
+                        MODIFY_GRAPH_PQ_RETURN(false);
+                    }
+                } else {
+                    ADDERROR(__func__, "New Node "+change_data.node_key.str()+" not found in Graph");
+                    MODIFY_GRAPH_PQ_RETURN(false);
+                }
+                #ifdef USE_CHANGE_HISTORY
+                // this is an example of a place where the state of a change history record would be
+                // updated to `applied-in-storage`. See https://trello.com/c/FxSP8If8.
+                #endif
+                break;
+            }
+
+            case graphmod_add_edge: {
+                Edge * e = graph.Edge_by_id(change_data.edge_key);
+                if (e) {
+                    if (!add_Edge_pq(conn, schemaname, e)) {
+                        MODIFY_GRAPH_PQ_RETURN(false);
+                    }
+                } else {
+                    ADDERROR(__func__, "New Edge "+change_data.edge_key.str()+" not found in Graph");
+                    MODIFY_GRAPH_PQ_RETURN(false);
+                }
+                #ifdef USE_CHANGE_HISTORY
+                // this is an example of a place where the state of a change history record would be
+                // updated to `applied-in-storage`. See https://trello.com/c/FxSP8If8.
+                #endif
+                break;
+            }
+
+            default: {
+                // This should never happen.
+                ADDERROR(__func__, "Unrecognized modification request ("+std::to_string((int) change_data.request_handled)+')');
+                MODIFY_GRAPH_PQ_RETURN(false);
+            }
+
+        }
+
+    }
+
+    MODIFY_GRAPH_PQ_RETURN(true);
 }
 
 const std::string pq_topic_fieldnames[_pqt_NUM] = {"id",

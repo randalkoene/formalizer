@@ -26,6 +26,7 @@
 #include "Graphtypes.hpp"
 #include "Graphinfo.hpp"
 #include "Graphmodify.hpp"
+#include "Graphpostgres.hpp"
 
 // local
 #include "fzserverpq.hpp"
@@ -262,7 +263,8 @@ bool handle_request_stack(std::string segname) {
     Graphmod_results * results_ptr = initialized_results_response(segname);
     if (!results_ptr)
         ERRRETURNFALSE(__func__, "Unable to initialize results object");
-
+   
+    // carry out all in-memory modifications first, which should catch any inconsistencies
     for (const auto & gmoddata : graphmod_ptr->data) {
 
         switch(gmoddata.request) {
@@ -270,16 +272,20 @@ bool handle_request_stack(std::string segname) {
             case graphmod_add_node: {
                 Node_ptr node_ptr = Graph_modify_add_node(*fzs.graph_ptr, graph_segname, gmoddata);
                 if (!node_ptr)
-                    ERRRETURNFALSE(__func__, "Graph modify add node failed. Warning! Parts of the requested stack of modifications may have been carried out!");
+                    ERRRETURNFALSE(__func__, "Graph modify add node failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
                 
                 results_ptr->results.emplace_back(node_ptr->get_id().key());
+                #ifdef USE_CHANGE_HISTORY
+                // this is an example of a place where a change history record can be created and where the
+                // state of the change can be set to `applied-in-memory`. See https://trello.com/c/FxSP8If8.
+                #endif
                 break;
             }
 
             case graphmod_add_edge: {
                 Edge_ptr edge_ptr = Graph_modify_add_edge(*fzs.graph_ptr, graph_segname, gmoddata);
                 if (!edge_ptr)
-                    ERRRETURNFALSE(__func__, "Graph modify add edge failed. Warning! Parts of the requested stack of modifications may have been carried out!");
+                    ERRRETURNFALSE(__func__, "Graph modify add edge failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
                 
                 results_ptr->results.emplace_back(edge_ptr->get_id().key());
                 break;
@@ -293,6 +299,11 @@ bool handle_request_stack(std::string segname) {
 
     }
 
+    // Here is the call to the database-dependent library for modifications in the database.
+    if (!handle_Graph_modifications_pq(*fzs.graph_ptr, fzs.ga.config.dbname, fzs.ga.config.pq_schemaname, *results_ptr)) {
+        ERRRETURNFALSE(__func__, "Unable to send in-memory Graph changes to storage.");
+    }
+ 
     return true;
 }
 
