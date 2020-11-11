@@ -188,7 +188,7 @@ results in Formalizer core and tools executables being available through
 symbolic links from ~/.formalizer/bin.
 """
 def make_binaries_available():
-    print('Calling `make` in Foramlizer source root to creaet ~/.formalizer/bin')
+    print('Calling `make` in Foramlizer source root to create ~/.formalizer/bin')
     retcode = try_subprocess_check_output('cd ~/src/formalizer && make')
     if (retcode != 0):
         print('Unable to call Formalizer root `make`')

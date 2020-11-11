@@ -213,6 +213,7 @@ struct GraphIDcache {
 typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Keyword_String;
 typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Topic_String;
 typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Node_utf8_text;
+typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Named_List_String;
 
 typedef bi::allocator<Topic_Keyword, segment_manager_t> Topic_Keyword_allocator;
 typedef bi::vector<Topic_Keyword, Topic_Keyword_allocator> Topic_KeyRel_Vector;
@@ -245,6 +246,16 @@ typedef std::pair<const Edge_ID_key, Graph_Edge_ptr> Edge_Map_value_type;
 //typedef std::pair<Edge_ID_key, Graph_Edge_ptr> movable_to_Edge_Map_value_type;
 typedef bi::allocator<Edge_Map_value_type, segment_manager_t> Edge_Map_value_type_allocator;
 typedef bi::map<Edge_ID_key, Graph_Edge_ptr, std::less<Edge_ID_key>, Edge_Map_value_type_allocator> Edge_Map;
+
+typedef bi::allocator<Node_ID_key, segment_manager_t> Node_ID_key_allocator;
+/**
+ * A type used for named Lists (or ordered collections) of Nodes.
+ * For detailed information see https://trello.com/c/zcUpEAXi, and for reasons
+ * why these Lists store Node ID keys instead of shared-memory pointers to
+ * Nodes see:
+ * https://trello.com/c/zcUpEAXi/189-fzserverpq-named-lists#comment-5fac08dc178a257eb6f953ac
+ */
+typedef bi::vector<const Node_ID_key, Node_ID_key_allocator> Node_List;
 
 /**
  * Node ID that caches its ID stamp for frequent use.
@@ -555,6 +566,19 @@ public:
     friend bool identical_Edges(Edge & edge1, Edge & edge2, std::string & trace);
 };
 
+/**
+ * A named List (or ordered collections) of Nodes.
+ * For detailed information see https://trello.com/c/zcUpEAXi.
+ */
+struct Named_Node_List {
+    //Named_List_String name; // *** the name is the map key
+    Node_List list;
+    Named_Node_List(): list(graphmemman.get_allocator()) {} // name("", graphmemman.get_allocator()),
+};
+typedef std::pair<const Named_List_String, Named_Node_List> Named_Node_List_Map_value_type;
+typedef bi::allocator<Named_Node_List_Map_value_type, segment_manager_t> Named_Node_List_Map_value_type_allocator;
+typedef bi::map<Named_List_String, Named_Node_List, std::less<Named_List_String>, Named_Node_List_Map_value_type_allocator> Named_Node_List_Map;
+
 class Graph {
     friend class Node;
 public:
@@ -565,6 +589,7 @@ protected:
     Node_Map nodes;
     Edge_Map edges;
     Topic_Tags topics;
+    Named_Node_List_Map namedlists;
 
     bool warn_loops = true;
 
