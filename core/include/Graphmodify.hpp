@@ -141,6 +141,8 @@ public:
     Node * request_add_Node();
     /// Build an ADD EDGE request. Returns a pointer to the Edge data being created (in shared memory).
     Edge * request_add_Edge(const Node_ID_key & depkey, const Node_ID_key & supkey);
+    /// Build a Named Node List request. Returns a pointer to Named_Node_List_Element data (in shared memory).
+    Named_Node_List_Element * Graph_modifications::request_Named_Node_List_Element(Graph_modification_request request, const std::string _name, const Node_ID_key & nkey);
 
 };
 

@@ -35,6 +35,9 @@ enum flow_options {
     flow_make_node = 1,   /// request: make new Node
     flow_make_edge = 2,   /// request: make new Edge
     flow_stop_server = 3, /// request: stop the Graph server
+    flow_add_to_list = 4, /// request: add Node(s) to Named Node List
+    flow_remove_from_list = 5, /// request: remove Node(s) from Named Node List
+    flow_delete_list = 6, // request: delete Named Node List
     flow_NUMoptions
 };
 
@@ -73,6 +76,7 @@ public:
     Edge_data ed;                ///< Default values that can be used for Add-Edge requets.
     Node_ID_key_Vector superiors;
     Node_ID_key_Vector dependencies;
+    std::string listname;        ///< Default Named Node List (e.g. "superiors").
 };
 
 class fzgraphedit: public formalizer_standard_program {

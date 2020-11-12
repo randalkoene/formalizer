@@ -18,6 +18,11 @@
             font-size: 34px;
             font-family: calibri;
         }
+        #duplicate {
+            position: fixed;
+            top: 70px;
+            right: 0px;
+        }
         #classical {
             position: fixed;
             bottom: 0px;
@@ -46,6 +51,7 @@
     
     <!-- <p id="clock"></p> -->
     <button id="clock" class="button button2">_____</button>
+    <button id="duplicate" class="button button2" onclick="window.open('/index.html','_blank');">duplicate</button>
 
     <button class="button button1" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py','_blank');">Next Nodes</button>
     <button class="button button2" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END','_blank');">Recent Log</button>
@@ -180,7 +186,7 @@
         updateClock();
         var idval = setInterval(updateClock, 60000); // update each minute, since we're not showing seconds here
     }
-    var lightdark = 1;
+    var lightdark = 0;
     function light_or_dark() {
         if (lightdark > 0) {
             //document.body.style.background = "#ffffff";

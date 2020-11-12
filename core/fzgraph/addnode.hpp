@@ -31,4 +31,6 @@ struct Node_data;
 
 Node * add_Node_request(Graph_modifications & gm, Node_data & nd);
 
+int make_node();
+
 #endif // __FZGRAPHEDIT_ADDNODE_HPP

@@ -53,3 +53,34 @@ Edge * add_Edge_request(Graph_modifications & gm, const Node_ID_key & depkey, co
 
     return edge_ptr;
 }
+
+int make_edges() {
+    ERRTRACE;
+
+    if (fzge.config.superiors.size() != fzge.config.dependencies.size()) {
+        standard_exit_error(exit_general_error, "The list of superiors and list of dependencies must be of equal size", __func__);
+    }
+    if (fzge.config.superiors.empty()) {
+        standard_exit_error(exit_general_error, "At least one superior and dependency pair are needed", __func__);
+    }
+
+    // Determine probably memory space needed.
+    // *** MORE HERE TO BETTER ESTIMATE THAT
+    unsigned long segsize = fzge.config.superiors.size()*10240; // *** wild guess
+    // Determine a unique segment name to share with `fzserverpq`
+    std::string segname(unique_name_Graphmod());
+    Graph_modifications * graphmod_ptr = allocate_Graph_modifications_in_shared_memory(segname, segsize);
+    if (!graphmod_ptr)
+        standard_exit_error(exit_general_error, "Unable to create shared segment for modifications requests (name="+segname+", size="+std::to_string(segsize)+')', __func__);
+
+    for (size_t i = 0; i < fzge.config.superiors.size(); ++i) {
+        if (!add_Edge_request(*graphmod_ptr, fzge.config.dependencies[i], fzge.config.superiors[i], fzge.config.ed)) {
+            standard_exit_error(exit_general_error, "Unable to prepare Add-Edge request from "+fzge.config.dependencies[i].str()+" to "+fzge.config.superiors[i].str(), __func__);
+        }
+    }
+
+    auto ret = server_request_with_shared_data(segname, fzge.config.port_number);
+    standard.exit(ret);
+
+    //return standard.completed_ok(); // *** could put standard_exit(ret==1, ...) here instead
+}

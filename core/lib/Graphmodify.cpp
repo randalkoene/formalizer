@@ -310,4 +310,22 @@ Edge * Graph_modifications::request_add_Edge(const Node_ID_key & depkey, const N
     return edge_ptr;
 }
 
+Named_Node_List_Element * Graph_modifications::request_Named_Node_List_Element(Graph_modification_request request, const std::string _name, const Node_ID_key & nkey) {
+    // Create new Named_Node_List_Element object in the shared memory segment being used to share a modifications request stack.
+    segment_memory_t * smem = graphmemman.get_segmem();
+    if (!smem) {
+        ADDERROR(__func__, "Shared segment pointer was null pointer");
+        return nullptr;
+    }
+
+    Named_Node_List_Element * listelement_ptr = smem->construct<Named_Node_List_Element>(bi::anonymous_instance)(_name, nkey); // this normal pointer is emplaced into an offset_ptr
+    if (!listelement_ptr) {
+        ADDERROR(__func__, "Unable to construct Named Node List Element in shared memory");
+        return nullptr;
+    }
+    
+    data.emplace_back(request, listelement_ptr);
+    return listelement_ptr;
+}
+
 } // namespace fz

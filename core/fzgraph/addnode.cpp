@@ -2,7 +2,7 @@
 // License TBD
 
 /**
- * The Add Node request functions of the fzgraphedit tool.
+ * The Add Node request functions of the fzgraph tool.
  * 
  * {{ long_description }}
  * 
@@ -16,7 +16,6 @@
 /*
 #include "error.hpp"
 #include "standard.hpp"
-#include "stringio.hpp"
 #include "general.hpp"
 #include "ReferenceTime.hpp"
 #include "Graphbase.hpp"
@@ -24,11 +23,14 @@
 #include "Graphinfo.hpp"
 #include "utf8.hpp"
 */
+#include "stringio.hpp"
 #include "Graphmodify.hpp"
+#include "tcpclient.hpp"
 
 // local
 #include "fzgraph.hpp"
 #include "addnode.hpp"
+#include "addedge.hpp"
 
 
 using namespace fz;
@@ -73,4 +75,42 @@ Node * add_Node_request(Graph_modifications & gm, Node_data & nd) {
     // *** let's find out how much space is consumed in shared memory when a Node is created, improve our estimate!
 
     return node_ptr;
+}
+
+int make_node() {
+    ERRTRACE;
+    auto [exit_code, errstr] = get_content(fzge.config.nd.utf8_text, fzge.config.content_file, "Node description");
+    if (exit_code != exit_ok)
+        standard_exit_error(exit_code, errstr, __func__);
+
+    // Determine probable memory space needed.
+    // *** MORE HERE TO BETTER ESTIMATE THAT
+    unsigned long segsize = sizeof(fzge.config.nd.utf8_text)+fzge.config.nd.utf8_text.capacity() + 10240; // *** wild guess
+    // Determine a unique segment name to share with `fzserverpq`
+    std::string segname(unique_name_Graphmod());
+    Graph_modifications * graphmod_ptr = allocate_Graph_modifications_in_shared_memory(segname, segsize);
+    if (!graphmod_ptr)
+        standard_exit_error(exit_general_error, "Unable to create shared segment for modifications requests (name="+segname+", size="+std::to_string(segsize)+')', __func__);
+
+    Node * node_ptr = nullptr;
+    if ((node_ptr = add_Node_request(*graphmod_ptr, fzge.config.nd)) == nullptr) {
+        standard_exit_error(exit_general_error, "Unable to prepare Add-Node request", __func__);
+    }
+
+    for (const auto & supkey : fzge.config.superiors) {
+        if (!add_Edge_request(*graphmod_ptr, node_ptr->get_id().key(), supkey, fzge.config.ed)) {
+            standard_exit_error(exit_general_error, "Unable to prepare Add-Edge request to superior", __func__);
+        }
+    }
+
+    for (const auto & depkey : fzge.config.dependencies) {
+        if (!add_Edge_request(*graphmod_ptr, depkey, node_ptr->get_id().key(), fzge.config.ed)) {
+            standard_exit_error(exit_general_error, "Unable to prepare Add-Edge request from dependency", __func__);
+        }
+    }
+
+    auto ret = server_request_with_shared_data(segname, fzge.config.port_number);
+    standard.exit(ret);
+
+    //return standard.completed_ok(); // *** could put standard_exit(ret==1, ...) here instead
 }

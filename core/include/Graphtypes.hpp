@@ -597,6 +597,8 @@ typedef bi::map<Named_List_String, Named_Node_List, std::less<Named_List_String>
 struct Named_Node_List_Element {
     Named_List_String name;
     const Node_ID_key nkey;
+    Named_Node_List_Element() {}
+    Named_Node_List_Element(const std::string _name, const Node_ID_key & _nkey) : name(_name), nkey(_nkey) {}
 };
 typedef bi::offset_ptr<Named_Node_List_Element> Named_Node_List_Element_ptr; // this pointer can be used in shared memory (e.g. see Graphmod_data)
 

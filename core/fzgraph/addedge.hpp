@@ -23,4 +23,6 @@ using namespace fz;
 
 Edge * add_Edge_request(Graph_modifications & gm, const Node_ID_key & depkey, const Node_ID_key & supkey, Edge_data & ed);
 
+int make_edges();
+
 #endif // __FZGRAPHEDIT_ADDEDGE_HPP

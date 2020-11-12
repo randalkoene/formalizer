@@ -34,6 +34,7 @@
 #include "fzgraph.hpp"
 #include "addnode.hpp"
 #include "addedge.hpp"
+#include "namednodelist.hpp"
 
 
 using namespace fz;
@@ -46,8 +47,8 @@ fzgraphedit fzge;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphedit::fzgraphedit() : formalizer_standard_program(false), graph_ptr(nullptr), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "M:T:f:H:a:S:D:t:g:p:r:e:s:Y:G:I:U:P:z";
-    add_usage_top += " [-M node|edges] [-T <text>] [-f <content-file>] [-H <hours>] [-a <val>] [-S <sups>] [-D <deps>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>] [-z]";
+    add_option_args += "M:L:T:f:H:a:S:D:t:g:p:r:e:s:Y:G:I:U:P:l:z";
+    add_usage_top += " [-M node|edges] [-L add|remove|delete] [-T <text>] [-f <content-file>] [-H <hours>] [-a <val>] [-S <sups>] [-D <deps>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>] [-l <name>] [-z]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "When making a Node, by convention we expect at least one superior, although\n"
@@ -55,7 +56,9 @@ fzgraphedit::fzgraphedit() : formalizer_standard_program(false), graph_ptr(nullp
         "When making one or more Edges, the list of superior and dependency nodes\n"
         "are paired up and must be of equal length.\n"
         "Lists of superiors or dependencies, as well as topics, expect comma\n"
-        "delimiters.\n");
+        "delimiters.\n"
+        "When modifying a Named Node List (-L), the list name is provided with the -l\n"
+        "option and one or more Node IDs can be provided with the -S and -D options.\n");
 }
 
 std::string NodeIDs_to_string(const Node_ID_key_Vector & nodeidvec) {
@@ -76,6 +79,7 @@ std::string NodeIDs_to_string(const Node_ID_key_Vector & nodeidvec) {
 void fzgraphedit::usage_hook() {
     //ga.usage_hook();
     FZOUT("    -M make 'node' or 'edges'\n");
+    FZOUT("    -L modify Named Node List: 'add' to, 'remove' from, or 'delete'\n");
     FZOUT("    -T description <text> from the command line\n");
     FZOUT("    -f description text from <content-file> (\"STDIN\" for stdin until eof, CTRL+D)\n");
     FZOUT("    -H hours required (default: "+to_precision_string(config.nd.hours)+")\n");
@@ -93,6 +97,7 @@ void fzgraphedit::usage_hook() {
     FZOUT("    -I edge importance (default: "+to_precision_string(config.ed.importance)+")\n");
     FZOUT("    -U edge urgency (default: "+to_precision_string(config.ed.urgency)+")\n");
     FZOUT("    -P edge priority (default: "+to_precision_string(config.ed.priority)+")\n");
+    FZOUT("    -l the <name> of a Named Node List\n");
     FZOUT("    -z stop the Graph server\n");
 }
 
@@ -226,6 +231,22 @@ bool fzgraphedit::options_hook(char c, std::string cargs) {
         return false;
     }
 
+    case 'L': {
+        if (cargs=="add") {
+            flowcontrol = flow_add_to_list;
+            return true;
+        }
+        if (cargs=="remove") {
+            flowcontrol = flow_remove_from_list;
+            return true;
+        }
+        if (cargs=="delete") {
+            flowcontrol = flow_delete_list;
+            return true;
+        }
+        return false;
+    }
+
     case 'T': {
         config.nd.utf8_text = utf8_safe(cargs);
         return true;
@@ -311,6 +332,11 @@ bool fzgraphedit::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'l': {
+        config.listname = cargs;
+        return true;
+    }
+
     case 'z': {
         flowcontrol = flow_stop_server;
         return true;
@@ -334,75 +360,6 @@ void fzgraphedit::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen before standard initialization
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
     // *** add any initialization here that has to happen once in main(), for the derived class
-}
-
-int make_node() {
-    ERRTRACE;
-    auto [exit_code, errstr] = get_content(fzge.config.nd.utf8_text, fzge.config.content_file, "Node description");
-    if (exit_code != exit_ok)
-        standard_exit_error(exit_code, errstr, __func__);
-
-    // Determine probable memory space needed.
-    // *** MORE HERE TO BETTER ESTIMATE THAT
-    unsigned long segsize = sizeof(fzge.config.nd.utf8_text)+fzge.config.nd.utf8_text.capacity() + 10240; // *** wild guess
-    // Determine a unique segment name to share with `fzserverpq`
-    std::string segname(unique_name_Graphmod());
-    Graph_modifications * graphmod_ptr = allocate_Graph_modifications_in_shared_memory(segname, segsize);
-    if (!graphmod_ptr)
-        standard_exit_error(exit_general_error, "Unable to create shared segment for modifications requests (name="+segname+", size="+std::to_string(segsize)+')', __func__);
-
-    Node * node_ptr = nullptr;
-    if ((node_ptr = add_Node_request(*graphmod_ptr, fzge.config.nd)) == nullptr) {
-        standard_exit_error(exit_general_error, "Unable to prepare Add-Node request", __func__);
-    }
-
-    for (const auto & supkey : fzge.config.superiors) {
-        if (!add_Edge_request(*graphmod_ptr, node_ptr->get_id().key(), supkey, fzge.config.ed)) {
-            standard_exit_error(exit_general_error, "Unable to prepare Add-Edge request to superior", __func__);
-        }
-    }
-
-    for (const auto & depkey : fzge.config.dependencies) {
-        if (!add_Edge_request(*graphmod_ptr, depkey, node_ptr->get_id().key(), fzge.config.ed)) {
-            standard_exit_error(exit_general_error, "Unable to prepare Add-Edge request from dependency", __func__);
-        }
-    }
-
-    auto ret = server_request_with_shared_data(segname, fzge.config.port_number);
-    standard.exit(ret);
-
-    //return standard.completed_ok(); // *** could put standard_exit(ret==1, ...) here instead
-}
-
-int make_edges() {
-    ERRTRACE;
-
-    if (fzge.config.superiors.size() != fzge.config.dependencies.size()) {
-        standard_exit_error(exit_general_error, "The list of superiors and list of dependencies must be of equal size", __func__);
-    }
-    if (fzge.config.superiors.empty()) {
-        standard_exit_error(exit_general_error, "At least one superior and dependency pair are needed", __func__);
-    }
-
-    // Determine probably memory space needed.
-    // *** MORE HERE TO BETTER ESTIMATE THAT
-    unsigned long segsize = fzge.config.superiors.size()*10240; // *** wild guess
-    // Determine a unique segment name to share with `fzserverpq`
-    std::string segname(unique_name_Graphmod());
-    Graph_modifications * graphmod_ptr = allocate_Graph_modifications_in_shared_memory(segname, segsize);
-    if (!graphmod_ptr)
-        standard_exit_error(exit_general_error, "Unable to create shared segment for modifications requests (name="+segname+", size="+std::to_string(segsize)+')', __func__);
-
-    for (size_t i = 0; i < fzge.config.superiors.size(); ++i) {
-        if (!add_Edge_request(*graphmod_ptr, fzge.config.dependencies[i], fzge.config.superiors[i], fzge.config.ed)) {
-            standard_exit_error(exit_general_error, "Unable to prepare Add-Edge request from "+fzge.config.dependencies[i].str()+" to "+fzge.config.superiors[i].str(), __func__);
-        }
-    }
-
-    auto ret = server_request_with_shared_data(segname, fzge.config.port_number);
-    standard.exit(ret);
-
-    //return standard.completed_ok(); // *** could put standard_exit(ret==1, ...) here instead
 }
 
 int stop_server() {
@@ -437,6 +394,18 @@ int main(int argc, char *argv[]) {
 
     case flow_stop_server: {
         return stop_server();
+    }
+
+    case flow_add_to_list: {
+        return add_to_list();
+    }
+
+    case flow_remove_from_list: {
+        return remove_from_list();
+    }
+
+    case flow_delete_list: {
+        return delete_list();
     }
 
     default: {
