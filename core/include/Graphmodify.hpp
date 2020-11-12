@@ -26,6 +26,9 @@ namespace fz {
 enum Graph_modification_request {
     graphmod_add_node,
     graphmod_add_edge,
+    namedlist_add,
+    namedlist_remove,
+    namedlist_delete,
     NUM_graphmod_requests
 };
 
@@ -60,9 +63,11 @@ struct Graphmod_result {
     Graph_modification_request request_handled;
     Node_ID_key node_key;   ///< Return ID if an Add-Node request was handled successfully.
     Edge_ID_key edge_key;   ///< Return ID if an Add-Edge request was handled successfully.
+    Named_List_String resstr; ///< Return string information about the result (e.g. name of Named Node List).
 
-    Graphmod_result(const Node_ID_key & _nkey) : request_handled(graphmod_add_node), node_key(_nkey) {}
-    Graphmod_result(const Edge_ID_key & _ekey) : request_handled(graphmod_add_edge), edge_key(_ekey) {}
+    Graphmod_result(Graph_modification_request _request, const Node_ID_key & _nkey) : request_handled(_request), node_key(_nkey) {}
+    Graphmod_result(Graph_modification_request _request, const Edge_ID_key & _ekey) : request_handled(_request), edge_key(_ekey) {}
+    Graphmod_result(Graph_modification_request _request, const std::string _name, const Node_ID_key & _nkey) : request_handled(_request), node_key(_nkey), resstr(_name) {}
 };
 
 typedef bi::allocator<Graphmod_result, segment_manager_t> Graphmod_result_allocator;
@@ -87,16 +92,18 @@ struct Graphmod_results {
 /**
  * This is the data structure used for elements of the request stack for
  * Graph modification. Each part of the modification requested is represented
- * by one of these elements, including the data that is pointed to by either
- * node_ptr or edge_ptr.
+ * by one of these elements, including the data that is pointed to by one or
+ * more of the shared memory pointers.
  */
 struct Graphmod_data {
     Graph_modification_request request;
     Graph_Node_ptr node_ptr;
     Graph_Edge_ptr edge_ptr;
+    Named_Node_List_Element_ptr nodelist_ptr;
 
-    Graphmod_data(Graph_modification_request _request, Node * _node_ptr) : request(_request), node_ptr(_node_ptr), edge_ptr(nullptr) {}
-    Graphmod_data(Graph_modification_request _request, Edge * _edge_ptr) : request(_request), node_ptr(nullptr), edge_ptr(_edge_ptr) {}
+    Graphmod_data(Graph_modification_request _request, Node * _node_ptr) : request(_request), node_ptr(_node_ptr), edge_ptr(nullptr), nodelist_ptr(nullptr) {}
+    Graphmod_data(Graph_modification_request _request, Edge * _edge_ptr) : request(_request), node_ptr(nullptr), edge_ptr(_edge_ptr), nodelist_ptr(nullptr) {}
+    Graphmod_data(Graph_modification_request _request, Named_Node_List_Element * _nodelist_ptr) : request(_request), node_ptr(nullptr), edge_ptr(nullptr), nodelist_ptr(_nodelist_ptr) {}
 };
 
 typedef bi::allocator<Graphmod_data, segment_manager_t> Graphmod_data_allocator;
@@ -171,6 +178,15 @@ Node_ptr Graph_modify_add_node(Graph & graph, const std::string & graph_segname,
 
 /// Create an Edge in the Graph's shared segment and add it to the Graph.
 Edge_ptr Graph_modify_add_edge(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
+
+/// Add a Node to a Named Node List.
+Named_Node_List_ptr Graph_modify_list_add(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
+
+/// Remove a Node from a Named Node List.
+bool Graph_modify_list_remove(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
+
+/// Deleta a Named Node List.
+bool Graph_modify_list_delete(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
 
 } // namespace fz
 

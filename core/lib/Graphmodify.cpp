@@ -190,6 +190,56 @@ Edge_ptr Graph_modify_add_edge(Graph & graph, const std::string & graph_segname,
     return edge_ptr;
 }
 
+/// Add a Node to a Named Node List.
+Named_Node_List_ptr Graph_modify_list_add(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata) {
+    if (!gmoddata.nodelist_ptr) {
+        return nullptr;
+    }
+
+    if (!graphmemman.set_active(graph_segname)) {
+        ADDERROR(__func__, "Unable to activate segment "+graph_segname+" for Node ID key addition to Named Node List");
+        return nullptr;
+    }
+
+    Named_Node_List_Element & requested_element = *gmoddata.nodelist_ptr;
+    Node * node_ptr = graph.Node_by_id(requested_element.nkey);
+    if (!node_ptr) {
+        return nullptr;
+    }
+
+    return graph.add_to_List(requested_element.name.c_str(), *node_ptr);
+}
+
+/// Remove a Node from a Named Node List.
+bool Graph_modify_list_remove(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata) {
+    if (!gmoddata.nodelist_ptr) {
+        return false;
+    }
+
+    if (!graphmemman.set_active(graph_segname)) {
+        ADDERROR(__func__, "Unable to activate segment "+graph_segname+" for Node ID key removal from Named Node List");
+        return false;
+    }
+
+    Named_Node_List_Element & requested_element = *gmoddata.nodelist_ptr;
+    return graph.remove_from_List(requested_element.name.c_str(), requested_element.nkey);
+}
+
+/// Deleta a Named Node List.
+bool Graph_modify_list_delete(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata) {
+    if (!gmoddata.nodelist_ptr) {
+        return false;
+    }
+
+    if (!graphmemman.set_active(graph_segname)) {
+        ADDERROR(__func__, "Unable to activate segment "+graph_segname+" for deletion of Named Node List");
+        return false;
+    }
+
+    Named_Node_List_Element & requested_element = *gmoddata.nodelist_ptr;
+    return graph.delete_List(requested_element.name.c_str());
+}
+
 Graph_modifications::Graph_modifications() : data(graphmemman.get_allocator()) {
     graph_ptr = nullptr;
     if (!graphmemman.get_Graph(graph_ptr)) {

@@ -210,10 +210,20 @@ struct GraphIDcache {
     GraphIDcache & operator= (std::string _s) { safecpy(_s, s, Graph_ID_STR_LEN); return *this; }
     const char * c_str() const { return s; }
 };
+
+static constexpr size_t Named_List_String_LEN = 80;
+struct Named_List_String {
+    char s[Named_List_String_LEN] = { 0 }; // initialize whole buffer to null
+    Named_List_String() {}
+    Named_List_String(std::string _s) { safecpy(_s, s, Named_List_String_LEN); }
+    Named_List_String & operator= (std::string _s) { safecpy(_s, s, Named_List_String_LEN); return *this; }
+    const char * c_str() const { return s; }
+};
+
 typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Keyword_String;
 typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Topic_String;
 typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Node_utf8_text;
-typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Named_List_String;
+//typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Named_List_String;
 
 typedef bi::allocator<Topic_Keyword, segment_manager_t> Topic_Keyword_allocator;
 typedef bi::vector<Topic_Keyword, Topic_Keyword_allocator> Topic_KeyRel_Vector;
@@ -574,10 +584,21 @@ struct Named_Node_List {
     //Named_List_String name; // *** the name is the map key
     Node_List list;
     Named_Node_List(): list(graphmemman.get_allocator()) {} // name("", graphmemman.get_allocator()),
+    Named_Node_List(const Node_ID_key & nkey): list(graphmemman.get_allocator()) { list.emplace_back(nkey); }
 };
+typedef Named_Node_List * Named_Node_List_ptr; // use this pointer only within the context of one program (not to be stored in shared memory)
 typedef std::pair<const Named_List_String, Named_Node_List> Named_Node_List_Map_value_type;
 typedef bi::allocator<Named_Node_List_Map_value_type, segment_manager_t> Named_Node_List_Map_value_type_allocator;
 typedef bi::map<Named_List_String, Named_Node_List, std::less<Named_List_String>, Named_Node_List_Map_value_type_allocator> Named_Node_List_Map;
+/**
+ * This shared memory data structure is used in Graphmodify and fzserverpq.
+ * (Perhaps it should be defined in Graphmodify.hpp.)
+ */
+struct Named_Node_List_Element {
+    Named_List_String name;
+    const Node_ID_key nkey;
+};
+typedef bi::offset_ptr<Named_Node_List_Element> Named_Node_List_Element_ptr; // this pointer can be used in shared memory (e.g. see Graphmod_data)
 
 class Graph {
     friend class Node;
@@ -640,6 +661,11 @@ public:
     Topic * find_Topic_by_tag(std::string _tag) { return topics.find_by_tag(_tag); }
     std::string find_Topic_Tag_by_id(Topic_ID _id);
     bool topics_exist(const Topics_Set & topicsset); // See how fzserverpq uses this.
+
+    /// namedlists
+    Named_Node_List_ptr add_to_List(const std::string _name, const Node & node);
+    bool remove_from_List(const std::string _name, const Node_ID_key & nkey);
+    bool delete_List(const std::string _name);
 
     /// crossref tables: topics x nodes
 

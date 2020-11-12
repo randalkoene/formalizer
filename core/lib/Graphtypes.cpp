@@ -626,6 +626,57 @@ void Edge::copy_content(Edge & from_edge) {
     set_priority(from_edge.get_priority());
 }
 
+/// If successful this returns a pointer to the Named List where the Node was appended.
+Named_Node_List_ptr Graph::add_to_List(const std::string _name, const Node & node) {
+    if (_name.empty()) {
+        return nullptr;
+    }
+    Named_List_String namekey(_name.c_str());
+    auto it = namedlists.find(namekey);
+    if (it == namedlists.end()) { // new named List
+        auto [n_it, listadded] = namedlists.emplace(_name.c_str(), node.get_id().key());
+        if (!listadded) {
+            return nullptr;
+        } else {
+            return &(n_it->second);
+        }
+    } else {
+        it->second.list.emplace_back(node.get_id().key());
+        return &(it->second);
+    }
+}
+
+bool Graph::remove_from_List(const std::string _name, const Node_ID_key & nkey) {
+    if (_name.empty()) {
+        return false;
+    }
+    Named_List_String namekey(_name.c_str());
+    auto it = namedlists.find(namekey);
+    if (it == namedlists.end()) {
+        return false;
+    }
+    Node_List & nodelist = it->second.list;
+    for (auto n_it = nodelist.begin(); n_it != nodelist.end(); ++n_it) {
+        if (*n_it == nkey) {
+            nodelist.erase(n_it);
+            if (nodelist.empty()) {
+                return (namedlists.erase(namekey)>0);
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Graph::delete_List(const std::string _name) {
+    if (_name.empty()) {
+        return false;
+    }
+    Named_List_String namekey(_name.c_str());
+    return (namedlists.erase(namekey)>0);
+}
+
+
 /**
  * Note that this function will only allow insertion of a Node that was created in
  * the same shared memory segment.

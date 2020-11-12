@@ -213,7 +213,7 @@ bool request_stack_valid(Graph_modifications & graphmod, std::string segname) {
             case graphmod_add_edge: {
                 // confirm that both dep and sup Node IDs exist in either the Graph or as nodes being added
                 if (!gmoddata.edge_ptr) {
-                    prepare_error_response(segname, exit_missing_data, "Missing Edge date in add node request");
+                    prepare_error_response(segname, exit_missing_data, "Missing Edge data in add edge request");
                     return false;
                 }
                 if ((!fzs.graph_ptr->Node_by_id(gmoddata.edge_ptr->get_dep_key())) && (!node_id_in_request_stack(graphmod, gmoddata.edge_ptr->get_dep_key()))) {
@@ -224,6 +224,29 @@ bool request_stack_valid(Graph_modifications & graphmod, std::string segname) {
                     prepare_error_response(segname, exit_bad_request_data, "Destination (superior) Node ID ("+gmoddata.edge_ptr->get_sup_str()+") not found in Graph for add edge request");
                     return false;
                 }
+                break;
+            }
+
+            case namedlist_add: {
+                if (!gmoddata.nodelist_ptr) {
+                    prepare_error_response(segname, exit_missing_data, "Missing Named Node List data in add to list request");
+                    return false;
+                }                
+                // confirm that the Node ID to add to the Named Node List exists in the Graph
+                if ((!fzs.graph_ptr->Node_by_id(gmoddata.nodelist_ptr->nkey)) && (!node_id_in_request_stack(graphmod, gmoddata.nodelist_ptr->nkey))) {
+                    prepare_error_response(segname, exit_bad_request_data, "Node ID ("+gmoddata.nodelist_ptr->nkey.str()+") not found in Graph for add to list request");
+                    return false;
+                }
+                break;
+            }
+
+            case namedlist_remove: {
+                // all good, attempting to remove one that isn't there will not corrupt anything
+                break;
+            }
+
+            case namedlist_delete: {
+                // all good, attempting to delete a list that doesn't exist will not corrupt anything
                 break;
             }
 
@@ -274,7 +297,7 @@ bool handle_request_stack(std::string segname) {
                 if (!node_ptr)
                     ERRRETURNFALSE(__func__, "Graph modify add node failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
                 
-                results_ptr->results.emplace_back(node_ptr->get_id().key());
+                results_ptr->results.emplace_back(graphmod_add_node, node_ptr->get_id().key());
                 #ifdef USE_CHANGE_HISTORY
                 // this is an example of a place where a change history record can be created and where the
                 // state of the change can be set to `applied-in-memory`. See https://trello.com/c/FxSP8If8.
@@ -287,7 +310,34 @@ bool handle_request_stack(std::string segname) {
                 if (!edge_ptr)
                     ERRRETURNFALSE(__func__, "Graph modify add edge failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
                 
-                results_ptr->results.emplace_back(edge_ptr->get_id().key());
+                results_ptr->results.emplace_back(graphmod_add_edge, edge_ptr->get_id().key());
+                break;
+            }
+
+            case namedlist_add: {
+                Named_Node_List_ptr nodelist_ptr = Graph_modify_list_add(*fzs.graph_ptr, graph_segname, gmoddata);
+                if (!nodelist_ptr)
+                    ERRRETURNFALSE(__func__, "Graph modify add to Named Node List failed.");
+
+                results_ptr->results.emplace_back(namedlist_add, gmoddata.nodelist_ptr->name.c_str(), gmoddata.nodelist_ptr->nkey);
+                break;
+            }
+
+            case namedlist_remove: {
+                bool res = Graph_modify_list_remove(*fzs.graph_ptr, graph_segname, gmoddata);
+                if (!res)
+                    ERRRETURNFALSE(__func__, "Graph modify remove from Named Node List failed.");
+
+                results_ptr->results.emplace_back(namedlist_remove, gmoddata.nodelist_ptr->name.c_str(), gmoddata.nodelist_ptr->nkey);
+                break;
+            }
+
+            case namedlist_delete: {
+                bool res = Graph_modify_list_delete(*fzs.graph_ptr, graph_segname, gmoddata);
+                if (!res)
+                    ERRRETURNFALSE(__func__, "Graph modify delete Named Node List failed.");
+
+                results_ptr->results.emplace_back(namedlist_delete, gmoddata.nodelist_ptr->name.c_str(), gmoddata.nodelist_ptr->nkey);
                 break;
             }
 
