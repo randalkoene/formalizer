@@ -44,6 +44,20 @@ fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga
                            flowcontrol(flow_unknown), graph_ptr(nullptr) {
     add_option_args += "Gp:";
     add_usage_top += " [-G] [-p <port-number>]";
+    usage_tail.push_back(
+        "The limited number of command line options are generally used only to start\n"
+        "the server. The server interacts with clients through the combination of a\n"
+        "TCP socket at the specified port and shared memory data exchanges.\n"
+        "The following are recognized requests:\n"
+        "  'GET ' followed by a path such as '/fz/status', browser HTTP-like request\n"
+        "  'PATCH ' is much like GET, but used to request a modification\n"
+        "  'STOP' stops and terminates the server (`fzgraph -z` sends this)\n"
+        "  'PING' requests a readiness response from the server\n"
+        "Any other string read at the socket is interpreted as the name of a shared\n"
+        "memory segment that contains a Graph_modifications object named 'graphmod'\n"
+        "with a stack of modification requests.\n"
+        "Note that '/fz/' paths are special Formalizer handles for which the response\n"
+        "content is generated dynamically (somewhat analogous to files in /proc).\n");
 }
 
 /**
@@ -130,6 +144,55 @@ void fzserverpq::handle_request_with_data_share(int new_socket, const std::strin
     graphmemman.forget_manager(segment_name); // remove shared memory references that likely become stale when client is done
 }
 
+bool handle_named_list_direct_request(std::string namedlistreqstr) {
+    size_t name_endpos = namedlistreqstr.find('?');
+    if ((name_endpos == std::string::npos) || (name_endpos == 0)) {
+        return false;
+    }
+
+    std::string list_name(namedlistreqstr.substr(0,name_endpos));
+    ++name_endpos;
+
+    if (namedlistreqstr.substr(name_endpos,4) == "add=") {
+        try {
+            Node_ID_key nkey(namedlistreqstr.substr(name_endpos+4,16));
+            // confirm that the Node ID to add to the Named Node List exists in the Graph
+            Node * node_ptr = fzs.graph_ptr->Node_by_id(nkey);
+            if (!node_ptr) {
+                return standard_error("Node ID ("+nkey.str()+") not found in Graph for add to list request", __func__);
+            } else {
+                if (!fzs.graph_ptr->add_to_List(list_name, *node_ptr)) {
+                    return standard_error("Unable to add Node "+nkey.str()+" to Named Node List "+list_name, __func__);
+                }
+                return true;
+            }
+        } catch (ID_exception idexception) {
+            return standard_error("Named Node List add request has invalid Node ID ["+namedlistreqstr.substr(name_endpos+4,16)+"], "+idexception.what(), __func__);
+        }
+    }
+        
+    if (namedlistreqstr.substr(name_endpos,7) == "remove=") {
+        try {
+            Node_ID_key nkey(namedlistreqstr.substr(name_endpos+7,16));
+            if (!fzs.graph_ptr->remove_from_List(list_name, *node_ptr)) {
+                return standard_error("Unable to remove Node "+nkey.str()+" from Named Node List "+list_name, __func__);
+            }
+            return true;
+        } catch (ID_exception idexception) {
+            return standard_error("Named Node List remove request has invalid Node ID ["+namedlistreqstr.substr(name_endpos+4,16)+"], "+idexception.what(), __func__);
+        }
+    }
+
+    if (namedlistreqstr.substr(name_endpos,7) == "delete=") {
+        if (!fzs.graph_ptr->delete_List(list_name)) {
+            return standard_error("Unable to delete Named Node List "+list_name, __func__);
+        }
+        return true;
+    }
+
+    return false;
+}
+
 void fzserverpq::handle_special_purpose_request(int new_socket, const std::string & request_str) {
     VERYVERBOSEOUT("Received Special Purpose request "+request_str+".\n");
     auto requestvec = split(request_str,' ');
@@ -140,19 +203,40 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
         return;
     }
 
+    // Note that we're not really bothering to distinguish GET and PATCH here.
+    // Instead, we're just using CGI FORM GET-method URL encoding to identify modification requests.
+
     if (requestvec[1].substr(0,4) == "/fz/") { // (one type of) recognized Formalizer special purpose request
+
         if (requestvec[1].substr(4) == "status") {
-            VERYVERBOSEOUT("Stutus request received. Responding.\n");
+            VERYVERBOSEOUT("Status request received. Responding.\n");
             std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
             std::string status_html("<html>\n<body>\nServer status: LISTENING\n</body>\n</html>\n");
             response_str += std::to_string(status_html.size()) + "\n\n" + status_html;
             send(new_socket, response_str.c_str(), response_str.size()+1, 0);
             return;
         }
+
+        if (requestvec[1].substr(4,6) == "graph/") {
+
+            if (requestvec[1].substr(10,11) == "namedlists/") {
+
+                if (handle_named_list_direct_request(requestvec[1].substr(21))) {
+                    VERYVERBOSEOUT("Named Node List modification request handled. Responding.\n");
+                    std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
+                    std::string status_html("<html>\n<body>\nNamed Node List modified.\n</body>\n</html>\n");
+                    response_str += std::to_string(status_html.size()) + "\n\n" + status_html;
+                    send(new_socket, response_str.c_str(), response_str.size()+1, 0);
+                    return;
+                }
+
+            }
+
+        }
     }
 
     // no known request encountered and handled
-    VERYVERBOSEOUT("Request type is unrecognized. Responding with: 400 Bad Request.\n");
+    VERBOSEOUT("Request type is unrecognized. Responding with: 400 Bad Request.\n");
     std::string response_str("400 Bad Request\n");
     send(new_socket, response_str.c_str(), response_str.size()+1, 0);
 }

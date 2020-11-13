@@ -166,7 +166,7 @@ Node_ID_key_Vector parse_config_NodeIDs(const std::string & parvalue) {
     nodeid_strings = split(parvalue, ',');
     for (auto & nodeid_str : nodeid_strings) {
         trim(nodeid_str);
-        nodekeys.emplace_back(nodeid_str);
+        nodekeys.emplace_back(nodeid_str); // *** note that this isn't catching exceptions
     }
 
     return nodekeys;

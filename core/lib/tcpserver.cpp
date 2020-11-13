@@ -32,7 +32,7 @@ namespace fz {
  * @return Server listen outcome, expressed in exit codes (exit_ok, exit_general_error, etc).
  */
 exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server & server) {
-    #define str_SIZE 100
+    #define str_SIZE 1024
     int server_fd, new_socket, valread;
     struct sockaddr_in address;
     char str[str_SIZE];
@@ -102,7 +102,7 @@ exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server
 
         std::string request_str(str);
 
-        if (request_str.substr(0,4) == "GET ") { // a special purpose request from a browser interface
+        if ((request_str.substr(0,4) == "GET ") || (request_str.substr(0,6) == "PATCH ")) { // a special purpose request from a browser interface
             server.handle_special_purpose_request(new_socket, request_str);
             continue;
         }
