@@ -391,7 +391,7 @@ public:
      * @param _id a Topic ID.
      * @return pointer to the Topic (or nullptr if not found).
      */
-    Topic * find_by_id(Topic_ID _id); // inlined below
+    Topic * find_by_id(Topic_ID _id) const; // inlined below
 
     /**
      * Search the topicbytag map and return a pointer to the Topic if the tag
@@ -518,7 +518,7 @@ public:
     const Edges_Set & dep_Edges() const { return depedges; }
 
     /// friend (utility) functions
-    friend Topic * main_topic(Topic_Tags & topictags, Node & node); // friend function to ensure search with available Topic_Tags
+    friend Topic * main_topic(const Topic_Tags & topictags, const Node & node); // friend function to ensure search with available Topic_Tags
     friend Topic * main_topic(Graph & _graph, Node & node);
     friend bool identical_Nodes(Node & node1, Node & node2, std::string & trace);
 };
@@ -665,6 +665,8 @@ public:
     bool topics_exist(const Topics_Set & topicsset); // See how fzserverpq uses this.
 
     /// namedlists
+    std::vector<std::string> get_List_names() const;
+    Named_Node_List_ptr get_List(const std::string _name);
     Named_Node_List_ptr add_to_List(const std::string _name, const Node & node);
     bool remove_from_List(const std::string _name, const Node_ID_key & nkey);
     bool delete_List(const std::string _name);
@@ -682,7 +684,7 @@ public:
      * @param node a Node for which the main Topic is requested.
      * @return a pointer to the Topic object (or nullptr if not found).
      */
-    Topic * main_Topic_of_Node(Node & node) { return main_topic(topics,node); }
+    Topic * main_Topic_of_Node(const Node & node) const { return main_topic(topics,node); }
 
     /// friend (utility) functions
     friend bool identical_Graphs(Graph & graph1, Graph & graph2, std::string & trace);
@@ -702,7 +704,7 @@ Tag_Label_Real_Value_Vector Topic_tags_of_Node(Graph & graph, Node & node);
  * @param _id a Topic ID.
  * @return pointer to the Topic (or nullptr if not found).
  */
-inline Topic * Topic_Tags::find_by_id(Topic_ID _id) {
+inline Topic * Topic_Tags::find_by_id(Topic_ID _id) const {
     if (_id>=topictags.size()) return nullptr;
     return topictags.at(_id).get();
 }

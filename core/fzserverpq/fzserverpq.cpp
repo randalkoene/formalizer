@@ -174,7 +174,7 @@ bool handle_named_list_direct_request(std::string namedlistreqstr) {
     if (namedlistreqstr.substr(name_endpos,7) == "remove=") {
         try {
             Node_ID_key nkey(namedlistreqstr.substr(name_endpos+7,16));
-            if (!fzs.graph_ptr->remove_from_List(list_name, *node_ptr)) {
+            if (!fzs.graph_ptr->remove_from_List(list_name, nkey)) {
                 return standard_error("Unable to remove Node "+nkey.str()+" from Named Node List "+list_name, __func__);
             }
             return true;

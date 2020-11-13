@@ -66,58 +66,54 @@ bool load_templates(fzgraphhtml_templates & templates) {
     return true;
 }
 
-bool render_incomplete_nodes() {
-
-    Graph * graph_ptr = graphmemman.find_Graph_in_shared_memory();
-    if (!graph_ptr) {
-        ADDERROR(__func__, "Memory resident Graph not found");
-        FZERR("Memory resident Graph not found.\n");
-        standard.exit(exit_general_error);
+/**
+ * Call this to render parameters of a Node on a single line of a list of Nodes.
+ * For example, this selection of data is shown when Nodes are listed in a schedule.
+ * 
+ * @param rendered_page String to which the rendered line is appended.
+ * @param graph Reference to the Graph in which the Node resides.
+ * @param node Reference to the Node to render.
+ * @param tdate Target date to show (e.g. effective target date or locally specified target date).
+ * @param env Rendering environment in use.
+ * @param templates Loaded rendering templates in use.
+ */
+void render_Node_pars_on_list_line(std::string & rendered_page, const Graph & graph, const Node & node, time_t tdate, render_environment & env, fzgraphhtml_templates & templates) {
+    // *** this can be more efficient if rendered_page, graph, env and templates are all in fzgh.
+    template_varvalues varvals;
+    varvals.emplace("node_id",node.get_id_str());
+    Topic * topic_ptr = graph.main_Topic_of_Node(node);
+    if (topic_ptr) {
+        varvals.emplace("topic",topic_ptr->get_tag());
+    } else {
+        varvals.emplace("topic","MISSING TOPIC!");
     }
+    varvals.emplace("targetdate",TimeStampYmdHM(tdate));
+    varvals.emplace("req_hrs",to_precision_string(((double) node.get_required())/3600.0));
+    varvals.emplace("tdprop",td_property_str[node.get_tdproperty()]);
+    std::string htmltext(node.get_text().c_str());
+    varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
+    //varvals.emplace("excerpt",remove_html(htmltext).substr(0,fzgh.config.excerpt_length));
 
-    targetdate_sorted_Nodes incomplete_nodes = Nodes_incomplete_by_targetdate(*graph_ptr);
-    unsigned int num_render = (fzgh.config.num_to_show > incomplete_nodes.size()) ? incomplete_nodes.size() : fzgh.config.num_to_show;
+    if (fzgh.test_cards) {
+        rendered_page += env.render(templates[node_pars_in_list_card_temp], varvals);
+    } else {
+        rendered_page += env.render(templates[node_pars_in_list_html_temp], varvals);
+    }
+}
 
-    render_environment env;
-    fzgraphhtml_templates templates;
+void prepare_to_render_Nodes_in_list(unsigned int num_render, fzgraphhtml_templates & templates, std::string & rendered_page) {
+    // *** this can be more efficient if rendered_page, graph, env and templates are all in fzgh.
     load_templates(templates);
-
-    std::string rendered_page;
     rendered_page.reserve(num_render * (2 * templates[node_pars_in_list_html_temp].size()) +
                           templates[node_pars_in_list_head_html_temp].size() +
                           templates[node_pars_in_list_tail_html_temp].size());
+    // *** this is where an option to include or not include HTML head and tail frame could be added
     rendered_page += templates[node_pars_in_list_head_html_temp];
+}
 
-    for (const auto & [tdate, node_ptr] : incomplete_nodes) {
-
-        if (node_ptr) {
-            template_varvalues varvals;
-            varvals.emplace("node_id",node_ptr->get_id_str());
-            Topic * topic_ptr = graph_ptr->main_Topic_of_Node(*node_ptr);
-            if (topic_ptr) {
-                varvals.emplace("topic",topic_ptr->get_tag());
-            } else {
-                varvals.emplace("topic","MISSING TOPIC!");
-            }
-            varvals.emplace("targetdate",TimeStampYmdHM(tdate));
-            varvals.emplace("req_hrs",to_precision_string(((double) node_ptr->get_required())/3600.0));
-            varvals.emplace("tdprop",td_property_str[node_ptr->get_tdproperty()]);
-            std::string htmltext(node_ptr->get_text().c_str());
-            varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
-            //varvals.emplace("excerpt",remove_html(htmltext).substr(0,fzgh.config.excerpt_length));
-
-            if (fzgh.test_cards) {
-                rendered_page += env.render(templates[node_pars_in_list_card_temp], varvals);
-            } else {
-                rendered_page += env.render(templates[node_pars_in_list_html_temp], varvals);
-            }
-
-        }
-
-        if (--num_render == 0)
-            break;
-    }
-
+bool present_rendered_Nodes_in_list(std::string & rendered_page, fzgraphhtml_templates & templates) {
+    // *** this can be more efficient if rendered_page, graph, env and templates are all in fzgh.
+    // *** this is where an option to include or not include HTML head and tail frame could be added
     rendered_page += templates[node_pars_in_list_tail_html_temp];
 
     if (fzgh.config.rendered_out_path == "STDOUT") {
@@ -126,8 +122,93 @@ bool render_incomplete_nodes() {
         if (!string_to_file(fzgh.config.rendered_out_path,rendered_page))
             ERRRETURNFALSE(__func__,"unable to write rendered page to file");
     }
-    
     return true;
+}
+
+bool render_incomplete_nodes() {
+
+    Graph * graph_ptr = graphmemman.find_Graph_in_shared_memory();
+    if (!graph_ptr) {
+        standard_exit_error(exit_general_error, "Memory resident Graph not found.", __func__);
+    }
+
+    targetdate_sorted_Nodes incomplete_nodes = Nodes_incomplete_by_targetdate(*graph_ptr);
+    unsigned int num_render = (fzgh.config.num_to_show > incomplete_nodes.size()) ? incomplete_nodes.size() : fzgh.config.num_to_show;
+
+    render_environment env;
+    fzgraphhtml_templates templates;
+    std::string rendered_page;
+    prepare_to_render_Nodes_in_list(num_render, templates, rendered_page);
+
+    for (const auto & [tdate, node_ptr] : incomplete_nodes) {
+
+        if (node_ptr) {
+            render_Node_pars_on_list_line(rendered_page, *graph_ptr, *node_ptr, tdate, env, templates);
+        }
+
+        if (--num_render == 0)
+            break;
+    }
+
+    return present_rendered_Nodes_in_list(rendered_page, templates);
+}
+
+bool render_named_node_list_names(const Graph & graph) {
+    std::vector<std::string> list_names_vec = graph.get_List_names();
+
+    unsigned int num_render = (fzgh.config.num_to_show > list_names_vec.size()) ? list_names_vec.size() : fzgh.config.num_to_show;
+
+    render_environment env;
+    fzgraphhtml_templates templates;
+    std::string rendered_page;
+    prepare_to_render_Nodes_in_list(num_render, templates, rendered_page);
+
+    for (const auto & name : list_names_vec) {
+
+        rendered_page += "\n<tr><td>" + name + "</td></tr>\n";
+
+    }
+
+    return present_rendered_Nodes_in_list(rendered_page, templates);
+}
+
+bool render_named_node_list() {
+
+    Graph * graph_ptr = graphmemman.find_Graph_in_shared_memory();
+    if (!graph_ptr) {
+        standard_exit_error(exit_general_error, "Memory resident Graph not found.", __func__);
+    }
+
+    if (fzgh.list_name == "?") {
+        return render_named_node_list_names(*graph_ptr);
+    }
+
+    Named_Node_List_ptr namedlist_ptr = graph_ptr->get_List(fzgh.list_name);
+    if (!namedlist_ptr) {
+        standard_exit_error(exit_general_error, "Named Node List "+fzgh.list_name+" not found.", __func__);
+    }
+
+    unsigned int num_render = (fzgh.config.num_to_show > namedlist_ptr->list.size()) ? namedlist_ptr->list.size() : fzgh.config.num_to_show;
+
+    render_environment env;
+    fzgraphhtml_templates templates;
+    std::string rendered_page;
+    prepare_to_render_Nodes_in_list(num_render, templates, rendered_page);
+
+    for (const auto & nkey : namedlist_ptr->list) {
+
+        Node * node_ptr = graph_ptr->Node_by_id(nkey);
+        if (node_ptr) {
+            render_Node_pars_on_list_line(rendered_page, *graph_ptr, *node_ptr, node_ptr->effective_targetdate(), env, templates);
+        } else {
+            standard_error("Node "+nkey.str()+" not found in Graph, skipping", __func__);
+        }
+
+        if (--num_render == 0)
+            break;
+    }
+
+    return present_rendered_Nodes_in_list(rendered_page, templates);
 }
 
 std::string render_Node_topics(Graph & graph, Node & node) {

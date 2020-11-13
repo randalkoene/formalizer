@@ -17,6 +17,8 @@ using namespace fz;
 
 bool render_incomplete_nodes();
 
+bool render_named_node_list();
+
 /**
  * Individual Node data rendering.
  * 

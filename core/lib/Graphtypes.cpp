@@ -626,6 +626,26 @@ void Edge::copy_content(Edge & from_edge) {
     set_priority(from_edge.get_priority());
 }
 
+std::vector<std::string> Graph::get_List_names() const {
+    std::vector<std::string> names_vec;
+    for (const auto & [nls, nnl] : namedlists) {
+        names_vec.emplace_back(nls.c_str());
+    }
+    return names_vec;
+}
+
+Named_Node_List_ptr Graph::get_List(const std::string _name) {
+    if (_name.empty()) {
+        return nullptr;
+    }
+    Named_List_String namekey(_name.c_str());
+    auto it = namedlists.find(namekey);
+    if (it == namedlists.end()) {
+        return nullptr;
+    }
+    return &(it->second);
+}
+
 /// If successful this returns a pointer to the Named List where the Node was appended.
 Named_Node_List_ptr Graph::add_to_List(const std::string _name, const Node & node) {
     if (_name.empty()) {
@@ -847,7 +867,7 @@ bool Graph::topics_exist(const Topics_Set & topicsset) {
  * @param node a Node for which the main Topic is requested.
  * @return a pointer to the Topic object (or nullptr if not found).
  */
-Topic * main_topic(Topic_Tags & topictags, Node & node) {
+Topic * main_topic(const Topic_Tags & topictags, const Node & node) {
     Topic * maintopic = nullptr;
     Topic_Relevance max_rel = 0.0;
     for (const auto& [t_id, t_rel] : node.topics) {

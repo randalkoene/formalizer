@@ -68,7 +68,8 @@
         "complex": "cpp",
         "cfenv": "cpp",
         "typeindex": "cpp",
-        "charconv": "cpp"
+        "charconv": "cpp",
+        "strstream": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

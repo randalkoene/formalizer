@@ -22,6 +22,7 @@ enum flow_options {
     flow_unknown = 0,    ///< no recognized request
     flow_node = 1,       ///< request: show data for Node
     flow_incomplete = 2, ///< request: show incomplete Nodes by effective targetdate
+    flow_named_list = 3, ///< request: show Nodes in Named Node List
     flow_NUMoptions
 };
 
@@ -43,6 +44,8 @@ struct fzgraphhtml: public formalizer_standard_program {
     flow_options flowcontrol;
 
     std::string node_idstr;
+
+    std::string list_name;
 
     bool test_cards = false;
 
