@@ -41,6 +41,13 @@ enum flow_options {
     flow_NUMoptions
 };
 
+enum NNL_after_use {
+    nnl_delete = 0, /// delete Named Node Lists after using them
+    nnl_keep = 1, /// keep Named Node Lists after using them
+    nnl_ask = 2, /// ask whether to delete or keep Named Node Lists after using them
+    nnl_NUMoptions
+};
+
 typedef std::vector<Node_ID_key> Node_ID_key_Vector;
 
 /// Data structure used when building an Add-Node request, initialized to compile-time default values.
@@ -76,6 +83,7 @@ public:
     Edge_data ed;                ///< Default values that can be used for Add-Edge requets.
     Node_ID_key_Vector superiors;
     Node_ID_key_Vector dependencies;
+    NNL_after_use supdep_after_use = nnl_delete;
     std::string listname;        ///< Default Named Node List (e.g. "superiors").
 };
 
@@ -87,6 +95,9 @@ public:
     fzge_configurable config;
 
     flow_options flowcontrol;
+
+    bool supdep_from_cmdline;
+    bool nnl_supdep_used;
 
     // Graph_access ga; // to include Graph or Log access support
 

@@ -77,6 +77,72 @@ Node * add_Node_request(Graph_modifications & gm, Node_data & nd) {
     return node_ptr;
 }
 
+/**
+ * Select the source for superiors and dependencies.
+ * 
+ * 1. The command line takes precedence.
+ * 2. Named Node Lists 'superiors' and 'dependencies' are next in line.
+ * 3. Anything specified in the configuration file is the default.
+ */
+void sup_dep_source() {
+    if (fzge.supdep_from_cmdline) {
+        VERYVERBOSEOUT("Using superiors and/or dependencies specified on the command line.\n");
+        return;
+    }
+
+    Graph * graph_ptr = fzge.get_Graph();
+    if (!graph_ptr) {
+        standard_exit_error(exit_resident_graph_missing, "Unable to access the memory-resident Graph", __func__);
+    }
+
+    Named_Node_List_ptr suplist_ptr = graph_ptr->get_List("superiors");
+    Named_Node_List_ptr deplist_ptr = graph_ptr->get_List("dependencies");
+    if ((!suplist_ptr) && (!deplist_ptr)) {
+        VERYVERBOSEOUT("Using superiors and/or dependencies configured defaults.\n");
+        return;
+    }
+
+    fzge.config.superiors.clear();
+    fzge.config.dependencies.clear();
+    if (suplist_ptr) {
+        for (const auto & nkey : suplist_ptr->list) {
+            fzge.config.superiors.emplace_back(nkey);
+        }
+    }
+    if (deplist_ptr) {
+        for (const auto & nkey : deplist_ptr->list) {
+            fzge.config.dependencies.emplace_back(nkey);
+        }
+    }
+    VERYVERBOSEOUT("Using superiors and/or dependencies from Named Node Lists.\n");
+}
+
+void sup_dep_postop(exit_status_code ret) {
+    if (!fzge.nnl_supdep_used) {
+        return;
+    }
+    if (fzge.config.supdep_after_use == nnl_keep) {
+        return;
+    }
+    if (ret != exit_ok) {
+        VERBOSEOUT("The superiors and dependencies Named Node Lists have been retained for potential retry.\n");
+        return;
+    }
+    if (fzge.config.supdep_after_use == nnl_ask) {
+        if (!default_choice("Delete or keep superiors and dependencies Named Node Lists used (D/k)? ",'k')) {
+            VERBOSEOUT("Retaining superiors and dependencies Named Node Lists.\n");
+            return;
+        }
+    }
+    Graph * graph_ptr = fzge.get_Graph();
+    if (!graph_ptr) {
+        standard_exit_error(exit_resident_graph_missing, "Unable to access the memory-resident Graph", __func__);
+    }
+    graph_ptr->delete_List("superiors");
+    graph_ptr->delete_List("dependencies");
+    VERBOSEOUT("The superiors and dependencies Named Node Lists have been deleted after use.\n");
+}
+
 int make_node() {
     ERRTRACE;
     auto [exit_code, errstr] = get_content(fzge.config.nd.utf8_text, fzge.config.content_file, "Node description");
@@ -97,6 +163,8 @@ int make_node() {
         standard_exit_error(exit_general_error, "Unable to prepare Add-Node request", __func__);
     }
 
+    sup_dep_source();
+
     for (const auto & supkey : fzge.config.superiors) {
         if (!add_Edge_request(*graphmod_ptr, node_ptr->get_id().key(), supkey, fzge.config.ed)) {
             standard_exit_error(exit_general_error, "Unable to prepare Add-Edge request to superior", __func__);
@@ -110,6 +178,7 @@ int make_node() {
     }
 
     auto ret = server_request_with_shared_data(segname, fzge.config.port_number);
+    sup_dep_postop(ret);
     standard.exit(ret);
 
     //return standard.completed_ok(); // *** could put standard_exit(ret==1, ...) here instead

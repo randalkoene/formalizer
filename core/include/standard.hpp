@@ -225,6 +225,7 @@ std::pair<int, std::string> safe_cmdline_options(int argc, char *argv[], std::st
 
 //*** It is not entirely clear if key_pause() should be here or in some stream utility set.
 void key_pause();
+bool default_choice(const std::string question, char not_default);
 
 /// Another set of exit options, these with potential messages.
 int standard_exit_success(std::string veryverbose_message);

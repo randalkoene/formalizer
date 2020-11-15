@@ -54,6 +54,19 @@ void key_pause() {
     std::getline(std::cin, enterstr);
 }
 
+/// A very simple function to interactively make a binary choice.
+bool default_choice(const std::string question, char not_default) {
+    FZOUT(question);
+    std::string enterstr;
+    std::getline(std::cin, enterstr);
+    if (!enterstr.empty()) {
+        if (enterstr[0] == not_default) {
+            return false;
+        }
+    }
+    return true;
+}
+
 /**
  * A wrapped version of ERRWARN_SUMMARY that can be stacked.
  * 

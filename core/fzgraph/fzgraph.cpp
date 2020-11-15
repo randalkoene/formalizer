@@ -46,13 +46,16 @@ fzgraphedit fzge;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzgraphedit::fzgraphedit() : formalizer_standard_program(false), graph_ptr(nullptr), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "M:L:T:f:H:a:S:D:t:g:p:r:e:s:Y:G:I:U:P:l:z";
-    add_usage_top += " [-M node|edges] [-L add|remove|delete] [-T <text>] [-f <content-file>] [-H <hours>] [-a <val>] [-S <sups>] [-D <deps>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>] [-l <name>] [-z]";
+fzgraphedit::fzgraphedit() : formalizer_standard_program(false), graph_ptr(nullptr), config(*this),
+                             supdep_from_cmdline(false), nnl_supdep_used(false) { //ga(*this, add_option_args, add_usage_top)
+    add_option_args += "M:L:T:f:H:a:S:D:t:g:p:r:e:s:Y:G:I:U:P:l:d:z";
+    add_usage_top += " [-M node|edges] [-L add|remove|delete] [-T <text>] [-f <content-file>] [-H <hours>] [-a <val>] [-S <sups>] [-D <deps>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>] [-l <name>] [-d <ask|keep|delete>] [-z]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "When making a Node, by convention we expect at least one superior, although\n"
-        "it is not enforced.\n"
+        "it is not enforced. The preference order for sources that can provide\n"
+        "superiors and dependencies is: command line, Named Node Lists ('superiors',\n"
+        "'depdendencies'), configuration file."
         "When making one or more Edges, the list of superior and dependency nodes\n"
         "are paired up and must be of equal length.\n"
         "Lists of superiors or dependencies, as well as topics, expect comma\n"
@@ -98,6 +101,7 @@ void fzgraphedit::usage_hook() {
     FZOUT("    -U edge urgency (default: "+to_precision_string(config.ed.urgency)+")\n");
     FZOUT("    -P edge priority (default: "+to_precision_string(config.ed.priority)+")\n");
     FZOUT("    -l the <name> of a Named Node List\n");
+    FZOUT("    -d after using superiors & dependencies Lists, delete (default), keep, ask\n");
     FZOUT("    -z stop the Graph server\n");
 }
 
@@ -172,6 +176,18 @@ Node_ID_key_Vector parse_config_NodeIDs(const std::string & parvalue) {
     return nodekeys;
 }
 
+NNL_after_use interpret_config_supdep_after_use(const std::string & parvalue) {
+    if (parvalue == "delete") {
+        return nnl_delete;
+    }
+    if (parvalue == "keep") {
+        return nnl_keep;
+    }
+    if (parvalue == "ask") {
+        return nnl_ask;
+    }
+    standard_exit_error(exit_bad_config_value, "Invalid configured supdep_after_use default: "+parvalue, __func__);
+}
 
 /**
  * Configure configurable parameters.
@@ -199,6 +215,7 @@ bool fzge_configurable::set_parameter(const std::string & parlabel, const std::s
     CONFIG_TEST_AND_SET_PAR(ed.importance, "importance", parlabel, std::stof(parvalue));
     CONFIG_TEST_AND_SET_PAR(ed.urgency, "urgency", parlabel, std::stof(parvalue));
     CONFIG_TEST_AND_SET_PAR(ed.priority, "priority", parlabel, std::stof(parvalue));
+    CONFIG_TEST_AND_SET_PAR(supdep_after_use, "supdep_after_use", parlabel, interpret_config_supdep_after_use(parvalue));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
@@ -269,11 +286,13 @@ bool fzgraphedit::options_hook(char c, std::string cargs) {
 
     case 'S': {
         config.superiors = parse_config_NodeIDs(cargs);
+        supdep_from_cmdline = true;
         return true;
     }
 
     case 'D': {
         config.dependencies = parse_config_NodeIDs(cargs);
+        supdep_from_cmdline = true;
         return true;
     }
 
@@ -334,6 +353,11 @@ bool fzgraphedit::options_hook(char c, std::string cargs) {
 
     case 'l': {
         config.listname = cargs;
+        return true;
+    }
+
+    case 'd': {
+        config.supdep_after_use = interpret_config_supdep_after_use(cargs);
         return true;
     }
 
