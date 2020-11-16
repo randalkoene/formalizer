@@ -38,8 +38,8 @@ fzgraphhtml fzgh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:IN:o:C";
-    add_usage_top += " [-n <node-ID>] [-I] [-L <name|?>] [-N <num>] [-o <output-path>] [-C]";
+    add_option_args += "n:IN:o:eC";
+    add_usage_top += " [-n <node-ID>] [-I] [-L <name|?>] [-N <num>] [-o <output-path>] [-e] [-C]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("When no [N <num>] is provided then the configured value is used.\n");
 }
@@ -55,6 +55,7 @@ void fzgraphhtml::usage_hook() {
     FZOUT("    -L Show data for Nodes in Named Node List, or show Names if '?'\n");
     FZOUT("    -N Show data for [num] elements (all=no limit)\n");
     FZOUT("    -o Rendered output to <output-path> (\"STDOUT\" is default)\n");
+    FZOUT("    -e Embeddable, no head and tail templates\n");
     FZOUT("    -C (TEST) card output format\n");
 }
 
@@ -116,6 +117,11 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'e': {
+        config.embeddable = true;
+        return true;
+    }
+
     case 'C': {
         test_cards = true;
         return true;
@@ -126,12 +132,20 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
     return false;
 }
 
+bool parvalue_to_bool(const std::string & parvalue) {
+    if (parvalue == "true") {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 /// Configure configurable parameters.
 bool fzgh_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     CONFIG_TEST_AND_SET_PAR(num_to_show, "num_to_show", parlabel, parvalue_to_num_to_show(parvalue));
     CONFIG_TEST_AND_SET_PAR(excerpt_length, "excerpt_length", parlabel, atoi(parvalue.c_str()));
     CONFIG_TEST_AND_SET_PAR(rendered_out_path, "rendered_out_path", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(embeddable, "embeddable", parlabel, parvalue_to_bool(parvalue));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }

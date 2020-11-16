@@ -22,43 +22,54 @@ from subprocess import Popen, PIPE
 # cgitb.enable(display=0, logdir="/tmp/test_python_cgiformget.log")
 
 # Create instance of FieldStorage 
-#form = cgi.FieldStorage() 
+form = cgi.FieldStorage() 
 
 # Get data from fields
 #startfrom = form.getvalue('startfrom')
+id = form.getvalue('id')
+srclist = form.getvalue('srclist')
 
-print("Content-type:text/html\n\n")
+if id:
+    # Make the command for fzgraphhtml with custom template file instead of named_node_list_in_list_template.html
+    # Make page head, including form input for new Named Node List to add to
+    # Include a remove-from-srclist button if srclist was not empty
+    # Call fzgraphhtml (try-except)
+    # Make page tail
+    pass
 
-#thisscript = os.path.realpath(__file__)
-#print(f'(For dev reference, this script is at {thisscript}.)')
+else:
+    print("Content-type:text/html\n\n")
 
-#cmdoptions = ""
+    #thisscript = os.path.realpath(__file__)
+    #print(f'(For dev reference, this script is at {thisscript}.)')
 
-#if startfrom:
-#    cmdoptions += ' -1 '+startfrom
+    #cmdoptions = ""
 
-#if cmdoptions:
+    #if startfrom:
+    #    cmdoptions += ' -1 '+startfrom
 
-thecmd = "./fzgraphhtml -q -I -o STDOUT -E STDOUT"
-#print('Using this command: ',thecmd)
-#print('<br>\n')
+    #if cmdoptions:
 
-try:
-    p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
-    (child_stdin,child_stdout) = (p.stdin, p.stdout)
-    child_stdin.close()
-    result = child_stdout.read()
-    child_stdout.close()
-    print(result)
-    #print(result.replace('\n', '<BR>'))
+    thecmd = "./fzgraphhtml -q -I -o STDOUT -E STDOUT"
+    #print('Using this command: ',thecmd)
+    #print('<br>\n')
 
-except Exception as ex:                
-    print(ex)
-    f = StringIO()
-    print_exc(file=f)
-    a = f.getvalue().splitlines()
-    for line in a:
-        print(line)
+    try:
+        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
+        (child_stdin,child_stdout) = (p.stdin, p.stdout)
+        child_stdin.close()
+        result = child_stdout.read()
+        child_stdout.close()
+        print(result)
+        #print(result.replace('\n', '<BR>'))
+
+    except Exception as ex:                
+        print(ex)
+        f = StringIO()
+        print_exc(file=f)
+        a = f.getvalue().splitlines()
+        for line in a:
+            print(line)
 
 #if "name" not in form or "addr" not in form:
 #    print("<H1>Error</H1>")

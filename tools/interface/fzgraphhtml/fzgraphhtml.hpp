@@ -34,6 +34,7 @@ public:
     unsigned int num_to_show = 256;   ///< number of Nodes (or other elements) to render
     unsigned int excerpt_length = 80; ///< number of characters to include in excerpts
     std::string rendered_out_path = "STDOUT";
+    bool embeddable = false;
 };
 
 
