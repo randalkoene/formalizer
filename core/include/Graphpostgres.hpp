@@ -89,6 +89,12 @@ std::vector<std::string> load_Edge_parameter_interval(std::string dbname, std::s
 
 bool handle_Graph_modifications_pq(const Graph & graph, std::string dbname, std::string schemaname, Graphmod_results & modifications);
 
+bool Init_Named_Node_Lists_pq(std::string dbname, std::string schemaname);
+
+bool Delete_Named_Node_List_pq(std::string dbname, std::string schemaname, std::string listname);
+
+bool Update_Named_Node_List_pq(std::string dbname, std::string schemaname, std::string listname, Graph & graph);
+
 /**
  * A data types conversion helper class that can deliver the Postgres Topics table
  * equivalent INSERT value expression for all data content in a Topic.

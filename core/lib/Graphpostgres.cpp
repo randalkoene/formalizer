@@ -86,6 +86,11 @@ std::string pq_topiclayout(
     "keyword text[],"
     "relevance real[]");
 
+std::string pq_NNLlayout(
+    "name char(81) PRIMARY KEY," // e.g. superiors
+    "features smallint,"
+    "nodeids char(16)[]"
+);
 
 /**
  * Create enumerated types in database for Node and Edge data.
@@ -1004,6 +1009,142 @@ std::string Edge_pq::All_Edge_Data_pqstr() {
            importance_pqstr() + ',' +
            urgency_pqstr() + ',' +
            priority_pqstr() + ')';
+}
+
+/**
+ * Postgres storage of Named Node Lists:
+ * 
+ * The current implementation is meant to be easy and not error prone. All Named Node Lists are kept
+ * in the same table to avoid having to find tables or strays if there is any desynchronization.
+ * Also, any modification of a Named Node List updates that entire stored List. This way, the
+ * Postgres function does not need to know or care about exactly which element of a list (which
+ * can contain multiple copies of the same Node ID) was added or removed. The Postgres stored
+ * version is simply made to reflect the state of the in-memory List.
+ * 
+ * This is probably not the most rapid implementation. If the Formalizer ever ends up carrying out
+ * many List manipulations for large Lists then it may be worthwhile to reimplement in a manner
+ * where only carefully indicated individual elements are updated.
+ * 
+ * - The 'NamedNodeLists' table contains all Named Node Lists, each one is a table row.
+ * - Each row specifies the name of the List, a features code (yet to be utilized), and then an
+ *   array that holds all Node IDs.
+ * 
+ * Supported operations are:
+ * - Initialize NamedNodeLists (deletes existing and starts fresh).
+ * - Update a List (creates or replaces a row with new content).
+ * - Delete a List (removes a row).
+ */
+
+/**
+ * Initialize the NamedNodeLists table.
+ * 
+ * @param dbname Database name.
+ * @param schemaname Formalizer schema name (usually Graph_access::pq_schemaname) 
+ * @returns True if initialized successfully.
+ */
+bool Init_Named_Node_Lists_pq(std::string dbname, std::string schemaname) {
+    ERRTRACE;
+
+    PGconn* conn = connection_setup_pq(dbname);
+    if (!conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define INIT_NNL_PQ_RETURN(r) { PQfinish(conn); return r; }
+
+    // Drop previous NamedNodeLists table if it exists
+    std::string tablename(schemaname+".NamedNodeLists");
+    const std::string clearstr("DROP TABLE IF EXISTS "+tablename+" CASCADE");
+    if (!simple_call_pq(conn, clearstr)) {
+        ADDERROR(__func__, "Unable to drop existing NamedNodeLists cache table");
+        INIT_NNL_PQ_RETURN(false);
+    }
+
+    // Create fresh NamedNodeLists table
+    std::string pq_maketable("CREATE TABLE "+tablename+" ("+pq_NNLlayout+')');
+    if (!simple_call_pq(conn,pq_maketable)) {
+        ADDERROR(__func__, "Unable to create NamedNodeLists cache table");
+        INIT_NNL_PQ_RETURN(false);
+    }
+
+    INIT_NNL_PQ_RETURN(true);
+}
+
+/**
+ * Delete a Named Node List from the NamedNodeLists table.
+ * 
+ * @param dbname Database name.
+ * @param schemaname Formalizer schema name (usually Graph_access::pq_schemaname)
+ * @param listname Named Node List name.
+ * @returns True if successfully deleted.
+ */
+bool Delete_Named_Node_List_pq(std::string dbname, std::string schemaname, std::string listname) {
+    ERRTRACE;
+
+    PGconn* conn = connection_setup_pq(dbname);
+    if (!conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define DELETE_NNL_PQ_RETURN(r) { PQfinish(conn); return r; }
+
+    // Drop previous NamedNodeLists table if it exists
+    std::string tablename(schemaname+".NamedNodeLists");
+    const std::string deletestr("DELETE FROM "+tablename+" WHERE name = '"+listname+"'");
+    if (!simple_call_pq(conn, deletestr)) {
+        ADDERROR(__func__, "Unable to delete Named Node List "+listname);
+        DELETE_NNL_PQ_RETURN(false);
+    }
+
+    DELETE_NNL_PQ_RETURN(true);
+}
+
+/**
+ * Update a Named Node List in the NamedNodeLists table.
+ * 
+ * @param dbname Database name.
+ * @param schemaname Formalizer schema name (usually Graph_access::pq_schemaname)
+ * @param listname Named Node List name.
+ * @param graph Graph that contains the Named Node Lists.
+ * @returns True if successfully deleted.
+ */
+bool Update_Named_Node_List_pq(std::string dbname, std::string schemaname, std::string listname, Graph & graph) {
+    ERRTRACE;
+
+    if (listname.empty()) {
+        return false;
+    }
+    Named_Node_List_ptr nodelist_ptr = graph.get_List(listname);
+    if (!nodelist_ptr) {
+        return false;
+    }
+
+    PGconn* conn = connection_setup_pq(dbname);
+    if (!conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define UPDATE_NNL_PQ_RETURN(r) { PQfinish(conn); return r; }
+
+    // Convert Named Node List data and insert or update row in table
+    std::string tablename(schemaname+".NamedNodeLists");
+    std::string featurestr(std::to_string(nodelist_ptr->features));
+    std::string nodeidsstr("ARRAY [");
+    if (nodelist_ptr->list.size()>0) {
+        for (const auto & nkey : nodelist_ptr->list) {
+            nodeidsstr += '\'' + nkey.str() + "',";
+        }
+        nodeidsstr.back() = ']';
+    } else {
+        nodeidsstr += ']';
+    }
+    std::string nnl_values_str('\''+listname+"',"+featurestr+','+nodeidsstr);
+    const std::string updatestr("INSERT INTO " + tablename + " (name, features, nodeids) VALUES (" +
+                                nnl_values_str + ") ON CONFLICT (name) DO UPDATE SET features = " + featurestr +
+                                ", nodeids = " + nodeidsstr);
+    if (!simple_call_pq(conn, updatestr)) {
+        ADDERROR(__func__, "Unable to update Named Node List "+listname);
+        UPDATE_NNL_PQ_RETURN(false);
+    }
+
+    UPDATE_NNL_PQ_RETURN(true);
 }
 
 } // namespace fz
