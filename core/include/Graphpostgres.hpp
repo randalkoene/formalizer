@@ -64,6 +64,7 @@ struct Graphmod_results; // actual declaration is in Graphmodify.hpp
 enum pq_Tfields { pqt_id, pqt_supid, pqt_tag, pqt_title, pqt_keyword, pqt_relevance, _pqt_NUM };
 enum pq_Nfields { pqn_id, pqn_topics, pqn_topicrelevance, pqn_valuation, pqn_completion, pqn_required, pqn_text, pqn_targetdate, pqn_tdproperty, pqn_isperiodic, pqn_tdperiodic, pqn_tdevery, pqn_tdspan, _pqn_NUM };
 enum pq_Efields { pqe_id, pqe_dependency, pqe_significance, pqe_importance, pqe_urgency, pqe_priority, _pqe_NUM };
+enum pq_NNLfields { pqNNL_name, pqNNL_features, pqNNL_nodeids, _pqNNL_NUM };
 
 bool create_Enum_Types_pq(PGconn* conn, std::string schemaname);
 
@@ -94,6 +95,8 @@ bool Init_Named_Node_Lists_pq(std::string dbname, std::string schemaname);
 bool Delete_Named_Node_List_pq(std::string dbname, std::string schemaname, std::string listname);
 
 bool Update_Named_Node_List_pq(std::string dbname, std::string schemaname, std::string listname, Graph & graph);
+
+bool load_Named_Node_Lists_pq(Graph& graph, std::string dbname, std::string schemaname);
 
 /**
  * A data types conversion helper class that can deliver the Postgres Topics table

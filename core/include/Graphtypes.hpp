@@ -583,8 +583,9 @@ public:
 struct Named_Node_List {
     //Named_List_String name; // *** the name is the map key
     Node_List list;
-    Named_Node_List(): list(graphmemman.get_allocator()) {} // name("", graphmemman.get_allocator()),
-    Named_Node_List(const Node_ID_key & nkey): list(graphmemman.get_allocator()) { list.emplace_back(nkey); }
+    int features;
+    Named_Node_List(): list(graphmemman.get_allocator()), features(0) {} // name("", graphmemman.get_allocator()),
+    Named_Node_List(const Node_ID_key & nkey): list(graphmemman.get_allocator()), features(0) { list.emplace_back(nkey); }
 };
 typedef Named_Node_List * Named_Node_List_ptr; // use this pointer only within the context of one program (not to be stored in shared memory)
 typedef std::pair<const Named_List_String, Named_Node_List> Named_Node_List_Map_value_type;
@@ -650,7 +651,7 @@ public:
     auto begin_Nodes() const { return nodes.begin(); }
     auto end_Nodes() const { return nodes.end(); }
     Node * Node_by_id(const Node_ID_key & id) const; // inlined below
-    Node * Node_by_idstr(std::string idstr) const; // inclined below
+    Node * Node_by_idstr(std::string idstr) const; // inlined below
     Node_Index get_Indexed_Nodes() const;
 
     /// edges table: get edge
@@ -670,6 +671,8 @@ public:
     Named_Node_List_ptr add_to_List(const std::string _name, const Node & node);
     bool remove_from_List(const std::string _name, const Node_ID_key & nkey);
     bool delete_List(const std::string _name);
+    void reset_Lists() { namedlists.clear(); }
+
 
     /// crossref tables: topics x nodes
 

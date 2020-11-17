@@ -1147,4 +1147,99 @@ bool Update_Named_Node_List_pq(std::string dbname, std::string schemaname, std::
     UPDATE_NNL_PQ_RETURN(true);
 }
 
+const std::string pq_NNL_fieldnames[_pqNNL_NUM] = {"name",
+                                                  "features",
+                                                  "nodeids"};
+unsigned int pq_NNL_field[_pqNNL_NUM];
+
+bool get_NNL_pq_field_numbers(PGresult *res) {
+    if (!res) return false;
+
+    for (auto i = 0; i<_pqNNL_NUM; i++) {
+        if ((pq_NNL_field[i] = PQfnumber(res,pq_NNL_fieldnames[i].c_str())) < 0) {
+            ERRRETURNFALSE(__func__,"field '"+pq_NNL_fieldnames[i]+"' not found in database Named Node Lists table");
+        }
+    }
+    return true;
+}
+
+/**
+ * Load Named Node Lists into memory-resident cache.
+ * 
+ * Note: This deletes any Named Node Lists data that was already in the Graph.
+ * 
+ * @param graph Graph that will contain the Named Node Lists.
+ * @param dbname Database name.
+ * @param schemaname Formalizer schema name (usually Graph_access::pq_schemaname)
+ * @returns True if successfully loaded.
+ */
+bool load_Named_Node_Lists_pq(Graph& graph, std::string dbname, std::string schemaname) {
+    ERRTRACE;
+
+    PGconn* conn = connection_setup_pq(dbname);
+    if (!conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define LOAD_NNL_PQ_RETURN(r) { PQfinish(conn); return r; }
+
+
+    std::string loadstr("SELECT * FROM "+schemaname+".NamedNodeLists");
+    if (!query_call_pq(conn, loadstr, false)) {
+        std::string errstr("Unable to load Named Node Lists from database into memory resident structure. Perhaps run `fzquerypq -R namedlists`.");
+        ADDERROR(__func__, errstr);
+        VERBOSEERR(errstr+'\n');
+        LOAD_NNL_PQ_RETURN(false);
+    }
+
+    std::string name_str;
+    std::string feature_str;
+    std::string nodeids_str;
+
+    graph.reset_Lists();
+
+    PGresult *res;
+
+    while ((res = PQgetResult(conn))) { // It's good to use a loop for single row mode cases.
+
+        const int rows = PQntuples(res);
+        if (PQnfields(res)<3) {
+            std::string errstr("not enough fields in Named Node Llists cache table");
+            ADDERROR(__func__, errstr);
+            VERBOSEERR(errstr+'\n');
+            LOAD_NNL_PQ_RETURN(false);
+        }
+
+        if (!get_NNL_pq_field_numbers(res)) return false;
+
+        for (int r = 0; r < rows; ++r) {
+
+            name_str += PQgetvalue(res, r, pq_NNL_field[0]);
+            feature_str += PQgetvalue(res, r, pq_NNL_field[1]);
+            nodeids_str += PQgetvalue(res, r, pq_NNL_field[2]);
+            //rtrim(name_str);
+            if (nodeids_str.front() == '{')
+                nodeids_str.erase(0,1);
+            if (nodeids_str.back() == '}')
+                nodeids_str.pop_back();
+            auto nkey_str_vec = split(nodeids_str,',');
+            Named_Node_List_ptr namedlist_ptr = nullptr;
+            for (const auto & nkey_str : nkey_str_vec) {
+                Node_ptr node_ptr = graph.Node_by_idstr(nkey_str); //*** do we have to remove '' from front and back?
+                if (!node_ptr) {
+                    std::string errstr("Stored Named Node List "+name_str+" contains a Node ID not found in the Graph");
+                    ADDERROR(__func__, errstr);
+                    VERBOSEERR(errstr+'\n');
+                    LOAD_NNL_PQ_RETURN(false);
+                }
+                namedlist_ptr = graph.add_to_List(name_str, *node_ptr);
+            }
+            namedlist_ptr->features = std::atoi(feature_str.c_str());
+        }
+
+        PQclear(res);
+    }
+
+    LOAD_NNL_PQ_RETURN(true);
+}
+
 } // namespace fz
