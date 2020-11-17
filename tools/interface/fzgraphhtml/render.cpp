@@ -33,19 +33,7 @@
 
 using namespace fz;
 
-
-enum template_id_enum {
-    node_pars_in_list_html_temp,
-    node_pars_in_list_head_html_temp,
-    node_pars_in_list_tail_html_temp,
-    named_node_list_in_list_html_temp,
-    node_txt_temp,
-    node_html_temp,
-    node_pars_in_list_card_temp,
-    NUM_temp
-};
-
-const std::vector<std::string> template_ids = {
+std::vector<std::string> template_ids = {
     "node_pars_in_list_template.html",
     "node_pars_in_list_head_template.html",
     "node_pars_in_list_tail_template.html",

@@ -38,6 +38,10 @@ tdspan = form.getvalue('tdspan')
 topics = form.getvalue('topics')
 superiors = form.getvalue('superiors')
 dependencies = form.getvalue('dependencies')
+add = form.getvalue('add')
+namedlist = form.getvalue('namedlist')
+remove = form.getvalue('remove')
+delete = form.getvalue('delete')
 
 if valuation:
     cmdoptions += ' -a '+valuation
@@ -59,6 +63,45 @@ if superiors:
     cmdoptions += ' -S "'+superiors+'"'
 if dependencies:
     cmdoptions += ' -D "'+dependencies+'"'
+if namedlist:
+    cmdoptions += ' -l "'+namedlist+'"'
+if add:
+    cmdoptions += ' -L add -S "'+add+'"'
+if remove:
+    cmdoptions += ' -L remove -S "'+remove+'"'
+if delete:
+    cmdoptions += ' -L delete'
+
+if namedlist:
+    thecmd = "./fzgraph -q -E STDOUT "+cmdoptions
+    print("Content-type:text/html\n\n")
+
+    print("<html>")
+    print("<head>")
+    print("<title>Formalizer: fzgraph Modify Named Node List result</title>")
+    print("</head>")
+    print("<body>")
+    print(f'\n<!-- Primary command: {thecmd} -->\n')
+    try:
+        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
+        (child_stdin,child_stdout) = (p.stdin, p.stdout)
+        child_stdin.close()
+        result = child_stdout.read()
+        child_stdout.close()
+        print(result)
+        print('Modified.')
+
+    except Exception as ex:                
+        print(ex)
+        f = StringIO()
+        print_exc(file=f)
+        a = f.getvalue().splitlines()
+        for line in a:
+            print(line)
+
+    print('</body></html>')
+    sys.exit(0)
+
 
 nodetextdir = "/var/www/webdata/formalizer/"
 if os.path.isfile(nodetextdir+"nodetext.html"):
@@ -98,7 +141,7 @@ try:
     print("<html>")
     print("<head>")
     print('<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">')
-    print("<title>Formalizer: HTML FORM interface to fzloghtml</title>")
+    print("<title>Formalizer: fzgraph Add Node result</title>")
     print("</head>")
     print("<body>")
     print('<style type="text/css">')

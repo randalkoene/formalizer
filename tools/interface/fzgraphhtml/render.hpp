@@ -15,6 +15,19 @@
 
 using namespace fz;
 
+enum template_id_enum {
+    node_pars_in_list_html_temp,
+    node_pars_in_list_head_html_temp,
+    node_pars_in_list_tail_html_temp,
+    named_node_list_in_list_html_temp,
+    node_txt_temp,
+    node_html_temp,
+    node_pars_in_list_card_temp,
+    NUM_temp
+};
+
+extern std::vector<std::string> template_ids;
+
 bool render_incomplete_nodes();
 
 bool render_named_node_list();

@@ -38,8 +38,8 @@ fzgraphhtml fzgh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:IN:o:eC";
-    add_usage_top += " [-n <node-ID>] [-I] [-L <name|?>] [-N <num>] [-o <output-path>] [-e] [-C]";
+    add_option_args += "n:IN:o:eT:C";
+    add_usage_top += " [-n <node-ID>] [-I] [-L <name|?>] [-N <num>] [-o <output-path>] [-e] [-T <named|node|Node>=<path>] [-C]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("When no [N <num>] is provided then the configured value is used.\n");
 }
@@ -56,6 +56,7 @@ void fzgraphhtml::usage_hook() {
     FZOUT("    -N Show data for [num] elements (all=no limit)\n");
     FZOUT("    -o Rendered output to <output-path> (\"STDOUT\" is default)\n");
     FZOUT("    -e Embeddable, no head and tail templates\n");
+    FZOUT("    -T Use custom template instead of named, node or single Node\n");
     FZOUT("    -C (TEST) card output format\n");
 }
 
@@ -72,6 +73,31 @@ unsigned int parvalue_to_num_to_show(const std::string & parvalue) {
         return vmax;
 
     return val;
+}
+
+bool custom_template(const std::string & cargs) {
+    size_t equalpos = cargs.find('=');
+    if (equalpos == std::string::npos) {
+        return false;
+    }
+    std::string replace_template = cargs.substr(0,equalpos);
+    ++equalpos;
+    if (equalpos>=cargs.size()) {
+        return false;
+    }
+    if (replace_template == "named") {
+        template_ids[named_node_list_in_list_html_temp] = cargs.substr(equalpos);
+        return true;
+    }
+    if (replace_template == "node") {
+        template_ids[node_pars_in_list_html_temp] = cargs.substr(equalpos);
+        return true;
+    }
+    if (replace_template == "Node") {
+        template_ids[node_html_temp] = cargs.substr(equalpos);
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -120,6 +146,10 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
     case 'e': {
         config.embeddable = true;
         return true;
+    }
+
+    case 'T': {
+        return custom_template(cargs);
     }
 
     case 'C': {
