@@ -15,6 +15,7 @@
 #include "Graphmodify.hpp"
 #include "Graphpostgres.hpp"
 
+#define PERSISTENT_NAMED_NODE_LISTS
 
 namespace fz {
 
@@ -248,6 +249,15 @@ bool store_Graph_pq(const Graph& graph, std::string dbname, std::string schemana
     STORE_GRAPH_PQ_RETURN(true);
 }
 
+struct NNLmod_update {
+    Named_List_String list_name;
+    bool modified; ///< modified or deleted
+
+    NNLmod_update(const std::string _name, bool _modified) : list_name(_name), modified(_modified) {}
+};
+typedef std::set<NNLmod_update> NNLmod_update_set;
+//typedef std::map<Named_List_String, bool> NNLmod_update_set;
+
 /**
  * Process the defined set of possible modifications of Graph data and carry
  * out those modifications in the database.
@@ -275,6 +285,8 @@ bool handle_Graph_modifications_pq(const Graph & graph, std::string dbname, std:
 
     // Define a clean return that closes the connection to the database and cleans up.
     #define MODIFY_GRAPH_PQ_RETURN(r) { PQfinish(conn); return r; }
+
+    NNLmod_update_set nnlupdates;
 
     for (const auto & change_data : modifications.results) {
 
@@ -314,6 +326,25 @@ bool handle_Graph_modifications_pq(const Graph & graph, std::string dbname, std:
                 break;
             }
 
+            case namedlist_add: {
+                nnlupdates.emplace(change_data.resstr, true);
+                break;
+            }
+
+            case namedlist_remove: {
+                if (const_cast<Graph *>(&graph)->get_List(change_data.resstr.c_str())) { // was the List removed after removing the last Node?
+                    nnlupdates.emplace(change_data.resstr, true);
+                } else {
+                    nnlupdates.emplace(change_data.resstr, false);
+                }
+                break;
+            }
+
+            case namedlist_delete: {
+                nnlupdates.emplace(change_data.resstr, false);
+                break;
+            }
+
             default: {
                 // This should never happen.
                 ADDERROR(__func__, "Unrecognized modification request ("+std::to_string((int) change_data.request_handled)+')');
@@ -324,7 +355,24 @@ bool handle_Graph_modifications_pq(const Graph & graph, std::string dbname, std:
 
     }
 
-    MODIFY_GRAPH_PQ_RETURN(true);
+    PQfinish(conn);
+
+    // Here we deal with the Named Node List modification synchronizations
+    #ifdef PERSISTENT_NAMED_NODE_LISTS
+    for (const auto & nnl_update : nnlupdates) {
+        if (nnl_update.modified) {
+            if (!Update_Named_Node_List_pq(dbname, schemaname, nnl_update.list_name.c_str(), *(const_cast<Graph *>(&graph)))) {
+                return standard_error("Synchronizing Named Node List update to database failed", __func__);
+            }
+        } else {
+            if (!Delete_Named_Node_List_pq(dbname, schemaname, nnl_update.list_name.c_str())) {
+                return standard_error("Synchronizing Named Node List deletion in database failed", __func__);
+            }
+        }
+    }
+    #endif
+
+    return true;
 }
 
 const std::string pq_topic_fieldnames[_pqt_NUM] = {"id",

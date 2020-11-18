@@ -31,6 +31,8 @@
 // local
 #include "fzserverpq.hpp"
 
+#define PERSISTENT_NAMED_NODE_LISTS
+
 using namespace fz;
 
 /// The local class derived from `formalizer_standard_program`.
@@ -164,19 +166,30 @@ bool handle_named_list_direct_request(std::string namedlistreqstr) {
                 if (!fzs.graph_ptr->add_to_List(list_name, *node_ptr)) {
                     return standard_error("Unable to add Node "+nkey.str()+" to Named Node List "+list_name, __func__);
                 }
+                // synchronize with stored List
+                #ifdef PERSISTENT_NAMED_NODE_LISTS
+                if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), list_name, *fzs.graph_ptr)) {
+                    return standard_error("Synchronizing Named Node List update to database failed", __func__);
+                }
+                #endif
                 return true;
             }
         } catch (ID_exception idexception) {
             return standard_error("Named Node List add request has invalid Node ID ["+namedlistreqstr.substr(name_endpos+4,16)+"], "+idexception.what(), __func__);
         }
     }
-        
+
     if (namedlistreqstr.substr(name_endpos,7) == "remove=") {
         try {
             Node_ID_key nkey(namedlistreqstr.substr(name_endpos+7,16));
             if (!fzs.graph_ptr->remove_from_List(list_name, nkey)) {
                 return standard_error("Unable to remove Node "+nkey.str()+" from Named Node List "+list_name, __func__);
             }
+            #ifdef PERSISTENT_NAMED_NODE_LISTS
+            if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), list_name, *fzs.graph_ptr)) {
+                return standard_error("Synchronizing Named Node List update to database failed", __func__);
+            }
+            #endif
             return true;
         } catch (ID_exception idexception) {
             return standard_error("Named Node List remove request has invalid Node ID ["+namedlistreqstr.substr(name_endpos+4,16)+"], "+idexception.what(), __func__);
@@ -187,6 +200,11 @@ bool handle_named_list_direct_request(std::string namedlistreqstr) {
         if (!fzs.graph_ptr->delete_List(list_name)) {
             return standard_error("Unable to delete Named Node List "+list_name, __func__);
         }
+        #ifdef PERSISTENT_NAMED_NODE_LISTS
+        if (!Delete_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), list_name)) {
+            return standard_error("Synchronizing Named Node List deletion in database failed", __func__);
+        }
+        #endif
         return true;
     }
 
@@ -404,6 +422,7 @@ bool handle_request_stack(std::string segname) {
                     ERRRETURNFALSE(__func__, "Graph modify add to Named Node List failed.");
 
                 results_ptr->results.emplace_back(namedlist_add, gmoddata.nodelist_ptr->name.c_str(), gmoddata.nodelist_ptr->nkey);
+                // synchronization with database is done outside the for-loop to minimize the number of updates
                 break;
             }
 
@@ -413,6 +432,7 @@ bool handle_request_stack(std::string segname) {
                     ERRRETURNFALSE(__func__, "Graph modify remove from Named Node List failed.");
 
                 results_ptr->results.emplace_back(namedlist_remove, gmoddata.nodelist_ptr->name.c_str(), gmoddata.nodelist_ptr->nkey);
+                // synchronization with database is done outside the for-loop to minimize the number of updates
                 break;
             }
 
