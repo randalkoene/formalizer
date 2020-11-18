@@ -14,6 +14,11 @@ namespace fz {
 
 Simulate_PQ_Changes SimPQ;
 
+const std::string pq_commands_str[_pqcommand_NUM] = {
+    "runsilent",
+    "log",
+    "simulate"};
+
 /**
  * Set up a connection with an existing Postgres database.
  * 

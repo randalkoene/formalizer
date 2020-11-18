@@ -55,6 +55,7 @@ fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga
         "  'PATCH ' is much like GET, but used to request a modification\n"
         "  'STOP' stops and terminates the server (`fzgraph -z` sends this)\n"
         "  'PING' requests a readiness response from the server\n"
+        "  'DBMODE' rotate through database modes (runsilent, log, simulate)\n"
         "Any other string read at the socket is interpreted as the name of a shared\n"
         "memory segment that contains a Graph_modifications object named 'graphmod'\n"
         "with a stack of modification requests.\n"
@@ -211,6 +212,14 @@ bool handle_named_list_direct_request(std::string namedlistreqstr) {
     return false;
 }
 
+void show_db_mode(int new_socket) {
+    VERYVERBOSEOUT("Database mode: "+SimPQ.PQChanges_Mode_str()+'\n');
+    std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
+    std::string mode_html("<html>\n<body>\nDatabase mode: "+SimPQ.PQChanges_Mode_str()+"\n</body>\n</html>\n");
+    response_str += std::to_string(mode_html.size()) + "\n\n" + mode_html;
+    send(new_socket, response_str.c_str(), response_str.size()+1, 0);
+}
+
 void fzserverpq::handle_special_purpose_request(int new_socket, const std::string & request_str) {
     VERYVERBOSEOUT("Received Special Purpose request "+request_str+".\n");
     auto requestvec = split(request_str,' ');
@@ -234,6 +243,35 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
             send(new_socket, response_str.c_str(), response_str.size()+1, 0);
             return;
         }
+
+        if (requestvec[1].substr(4,3) == "db/") {
+
+            if (requestvec[1].substr(7,4) == "mode") {
+
+                if (requestvec[1].size()>11) { // change mode
+
+                    if (requestvec[1].substr(11,8) == "?set=run") {
+                        SimPQ.ActualChanges();
+                        show_db_mode(new_socket);
+                        return;
+                    } else if (requestvec[1].substr(11,8) == "?set=log") {
+                        SimPQ.LogChanges();
+                        show_db_mode(new_socket);
+                        return;
+                    } else if (requestvec[1].substr(11,8) == "?set=sim") {
+                        SimPQ.SimulateChanges();
+                        show_db_mode(new_socket);
+                        return;
+                    }
+
+                } else { // report mode
+                    show_db_mode(new_socket);
+                    return;
+                }
+
+            }
+
+        } 
 
         if (requestvec[1].substr(4,6) == "graph/") {
 
