@@ -39,6 +39,7 @@ public:
     bool set_parameter(const std::string &parlabel, const std::string &parvalue);
 
     uint16_t port_number = 8090;   ///< Default port number to listen on.
+    bool persistent_NNL = true;    ///< Default Named Node Lists are synchronized in-memory and database.
 };
 
 struct fzserverpq: public formalizer_standard_program, public shared_memory_server {

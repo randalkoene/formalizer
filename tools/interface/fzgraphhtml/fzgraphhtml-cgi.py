@@ -48,6 +48,24 @@ listpagehead = '''<html>
 
 '''
 
+listpagehead_nomodif = '''<html>
+<head>
+<title>Named Node List: {list_name}</title>
+</head>
+<body>
+<h3>Named Node List: {list_name}</h3>
+
+'''
+
+listpagehead_alllists = '''<html>
+<head>
+<title>Named Node Lists</title>
+</head>
+<body>
+<h3>Named Node Lists</h3>
+
+'''
+
 listpagetail = '''</tbody></table>
 </body>
 </html>
@@ -90,38 +108,66 @@ if id:
     print(listpagetail)
 
 else:
-    print("Content-type:text/html\n\n")
+    if srclist:
+        thecmd = "./fzgraphhtml -q -L '"+srclist+"' -o STDOUT -E STDOUT"
+        print("Content-type:text/html\n\n")
+        if srclist == '?':
+            print(listpagehead_alllists)
+        else:
+            print(listpagehead_nomodif.format(list_name=srclist))
+        # Include a remove-from-srclist button if srclist was not empty
+        try:
+            p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
+            (child_stdin,child_stdout) = (p.stdin, p.stdout)
+            child_stdin.close()
+            result = child_stdout.read()
+            child_stdout.close()
+            print(result)
 
-    #thisscript = os.path.realpath(__file__)
-    #print(f'(For dev reference, this script is at {thisscript}.)')
+        except Exception as ex:                
+            print(ex)
+            f = StringIO()
+            print_exc(file=f)
+            a = f.getvalue().splitlines()
+            for line in a:
+                print(line)
 
-    #cmdoptions = ""
+        # Make page tail
+        print(listpagetail)
 
-    #if startfrom:
-    #    cmdoptions += ' -1 '+startfrom
+    else:
+        print("Content-type:text/html\n\n")
 
-    #if cmdoptions:
+        #thisscript = os.path.realpath(__file__)
+        #print(f'(For dev reference, this script is at {thisscript}.)')
 
-    thecmd = "./fzgraphhtml -q -I -o STDOUT -E STDOUT"
-    #print('Using this command: ',thecmd)
-    #print('<br>\n')
+        #cmdoptions = ""
 
-    try:
-        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
-        (child_stdin,child_stdout) = (p.stdin, p.stdout)
-        child_stdin.close()
-        result = child_stdout.read()
-        child_stdout.close()
-        print(result)
-        #print(result.replace('\n', '<BR>'))
+        #if startfrom:
+        #    cmdoptions += ' -1 '+startfrom
 
-    except Exception as ex:                
-        print(ex)
-        f = StringIO()
-        print_exc(file=f)
-        a = f.getvalue().splitlines()
-        for line in a:
-            print(line)
+        #if cmdoptions:
+
+        thecmd = "./fzgraphhtml -q -I -o STDOUT -E STDOUT"
+        #print('Using this command: ',thecmd)
+        #print('<br>\n')
+
+        try:
+            p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
+            (child_stdin,child_stdout) = (p.stdin, p.stdout)
+            child_stdin.close()
+            result = child_stdout.read()
+            child_stdout.close()
+            print(result)
+            #print(result.replace('\n', '<BR>'))
+
+        except Exception as ex:                
+            print(ex)
+            f = StringIO()
+            print_exc(file=f)
+            a = f.getvalue().splitlines()
+            for line in a:
+                print(line)
 
 #if "name" not in form or "addr" not in form:
 #    print("<H1>Error</H1>")

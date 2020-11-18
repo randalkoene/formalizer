@@ -31,8 +31,6 @@
 // local
 #include "fzserverpq.hpp"
 
-#define PERSISTENT_NAMED_NODE_LISTS
-
 using namespace fz;
 
 /// The local class derived from `formalizer_standard_program`.
@@ -55,12 +53,21 @@ fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga
         "  'PATCH ' is much like GET, but used to request a modification\n"
         "  'STOP' stops and terminates the server (`fzgraph -z` sends this)\n"
         "  'PING' requests a readiness response from the server\n"
-        "  'DBMODE' rotate through database modes (runsilent, log, simulate)\n"
         "Any other string read at the socket is interpreted as the name of a shared\n"
         "memory segment that contains a Graph_modifications object named 'graphmod'\n"
         "with a stack of modification requests.\n"
         "Note that '/fz/' paths are special Formalizer handles for which the response\n"
-        "content is generated dynamically (somewhat analogous to files in /proc).\n");
+        "content is generated dynamically (somewhat analogous to files in /proc).\n"
+        "The GET/PATCH port API includes the following:\n"
+        "  /fz/status\n"
+        "  /fz/db/mode\n"
+        "  /fz/db/mode=<run|log|sim>\n"
+        "  /fz/graph/namedlists/<list-name>?add=<node-id>\n"
+        "  /fz/graph/namedlists/<list-name>?remove=<node-id>\n"
+        "  /fz/graph/namedlists/<list-name>?delete=\n"
+        "  /fz/graph/namedlists/_set?persistent=\n"
+        "Note that the 'persistent' switch is only available through port requests and\n"
+        "through the configuration file. There is no command line option.\n");
 }
 
 /**
@@ -73,6 +80,7 @@ fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga
 bool fzs_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     // *** You could also implement try-catch here to gracefully report problems with configuration files.
     CONFIG_TEST_AND_SET_PAR(port_number, "port_number", parlabel, std::stoi(parvalue));
+    CONFIG_TEST_AND_SET_PAR(persistent_NNL, "persistent_NNL", parlabel, (parvalue != "false"));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
@@ -147,7 +155,28 @@ void fzserverpq::handle_request_with_data_share(int new_socket, const std::strin
     graphmemman.forget_manager(segment_name); // remove shared memory references that likely become stale when client is done
 }
 
-bool handle_named_list_direct_request(std::string namedlistreqstr) {
+bool handle_named_list_parameters(std::string NNLpar_requeststr, std::string & response_html) {
+    if (NNLpar_requeststr.substr(0,11) == "persistent=") {
+        if (NNLpar_requeststr.substr(11) == "true") {
+            fzs.graph_ptr->set_Lists_persistence(true);
+            response_html = "<html>\n<body>\n"
+                            "<p>Named Node List parameter set.</p>\n"
+                            "<p>persistent_NNL = <b>true</b></p>\n"
+                            "</body>\n</html>\n";
+            return true;
+        } else if (NNLpar_requeststr.substr(11) == "false") {
+            fzs.graph_ptr->set_Lists_persistence(false);
+            response_html = "<html>\n<body>\n"
+                            "<p>Named Node List parameter set.</p>\n"
+                            "<p>persistent_NNL = <b>false</b></p>\n"
+                            "</body>\n</html>\n";
+            return true;
+        }
+    }
+    return false;
+}
+
+bool handle_named_list_direct_request(std::string namedlistreqstr, std::string & response_html) {
     size_t name_endpos = namedlistreqstr.find('?');
     if ((name_endpos == std::string::npos) || (name_endpos == 0)) {
         return false;
@@ -155,6 +184,10 @@ bool handle_named_list_direct_request(std::string namedlistreqstr) {
 
     std::string list_name(namedlistreqstr.substr(0,name_endpos));
     ++name_endpos;
+
+    if (list_name == "_set") {
+        return handle_named_list_parameters(namedlistreqstr.substr(name_endpos), response_html);
+    }
 
     if (namedlistreqstr.substr(name_endpos,4) == "add=") {
         try {
@@ -168,11 +201,15 @@ bool handle_named_list_direct_request(std::string namedlistreqstr) {
                     return standard_error("Unable to add Node "+nkey.str()+" to Named Node List "+list_name, __func__);
                 }
                 // synchronize with stored List
-                #ifdef PERSISTENT_NAMED_NODE_LISTS
-                if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), list_name, *fzs.graph_ptr)) {
-                    return standard_error("Synchronizing Named Node List update to database failed", __func__);
+                if (fzs.graph_ptr->persistent_Lists()) {
+                    if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), list_name, *fzs.graph_ptr)) {
+                        return standard_error("Synchronizing Named Node List update to database failed", __func__);
+                    }
                 }
-                #endif
+                response_html = "<html>\n<body>\n"
+                                "<p>Named Node List modified.</p>\n"
+                                "<p><b>Added</b> "+nkey.str()+" to List "+list_name+".</p>\n"
+                                "</body>\n</html>\n";
                 return true;
             }
         } catch (ID_exception idexception) {
@@ -186,11 +223,15 @@ bool handle_named_list_direct_request(std::string namedlistreqstr) {
             if (!fzs.graph_ptr->remove_from_List(list_name, nkey)) {
                 return standard_error("Unable to remove Node "+nkey.str()+" from Named Node List "+list_name, __func__);
             }
-            #ifdef PERSISTENT_NAMED_NODE_LISTS
-            if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), list_name, *fzs.graph_ptr)) {
-                return standard_error("Synchronizing Named Node List update to database failed", __func__);
+            if (fzs.graph_ptr->persistent_Lists()) {
+                if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), list_name, *fzs.graph_ptr)) {
+                    return standard_error("Synchronizing Named Node List update to database failed", __func__);
+                }
             }
-            #endif
+            response_html = "<html>\n<body>\n"
+                            "<p>Named Node List modified.</p>\n"
+                            "<p><b>Removed</b> " + nkey.str() + " from List " + list_name + ".</p>\n"
+                            "</body>\n</html>\n";
             return true;
         } catch (ID_exception idexception) {
             return standard_error("Named Node List remove request has invalid Node ID ["+namedlistreqstr.substr(name_endpos+4,16)+"], "+idexception.what(), __func__);
@@ -201,11 +242,15 @@ bool handle_named_list_direct_request(std::string namedlistreqstr) {
         if (!fzs.graph_ptr->delete_List(list_name)) {
             return standard_error("Unable to delete Named Node List "+list_name, __func__);
         }
-        #ifdef PERSISTENT_NAMED_NODE_LISTS
-        if (!Delete_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), list_name)) {
-            return standard_error("Synchronizing Named Node List deletion in database failed", __func__);
+        if (fzs.graph_ptr->persistent_Lists()) {
+            if (!Delete_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), list_name)) {
+                return standard_error("Synchronizing Named Node List deletion in database failed", __func__);
+            }
         }
-        #endif
+        response_html = "<html>\n<body>\n"
+                        "<p>Named Node List modified.</p>\n"
+                        "<p><b>Deleted</b> List " + list_name + ".</p>\n"
+                        "</body>\n</html>\n";
         return true;
     }
 
@@ -277,11 +322,11 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
 
             if (requestvec[1].substr(10,11) == "namedlists/") {
 
-                if (handle_named_list_direct_request(requestvec[1].substr(21))) {
-                    VERYVERBOSEOUT("Named Node List modification request handled. Responding.\n");
-                    std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
-                    std::string status_html("<html>\n<body>\nNamed Node List modified.\n</body>\n</html>\n");
-                    response_str += std::to_string(status_html.size()) + "\n\n" + status_html;
+                std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
+                std::string response_html;
+                if (handle_named_list_direct_request(requestvec[1].substr(21), response_html)) {
+                    VERYVERBOSEOUT("Named Node List modification / parameter request handled. Responding.\n");
+                    response_str += std::to_string(response_html.size()) + "\n\n" + response_html;
                     send(new_socket, response_str.c_str(), response_str.size()+1, 0);
                     return;
                 }

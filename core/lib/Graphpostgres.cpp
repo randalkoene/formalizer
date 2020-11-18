@@ -15,8 +15,6 @@
 #include "Graphmodify.hpp"
 #include "Graphpostgres.hpp"
 
-#define PERSISTENT_NAMED_NODE_LISTS
-
 namespace fz {
 
 /**
@@ -362,19 +360,19 @@ bool handle_Graph_modifications_pq(const Graph & graph, std::string dbname, std:
     PQfinish(conn);
 
     // Here we deal with the Named Node List modification synchronizations
-    #ifdef PERSISTENT_NAMED_NODE_LISTS
-    for (const auto & nnl_update : nnlupdates) {
-        if (nnl_update.modified) {
-            if (!Update_Named_Node_List_pq(dbname, schemaname, nnl_update.list_name.c_str(), *(const_cast<Graph *>(&graph)))) {
-                return standard_error("Synchronizing Named Node List update to database failed", __func__);
-            }
-        } else {
-            if (!Delete_Named_Node_List_pq(dbname, schemaname, nnl_update.list_name.c_str())) {
-                return standard_error("Synchronizing Named Node List deletion in database failed", __func__);
+    if (graph.persistent_Lists()) {
+        for (const auto & nnl_update : nnlupdates) {
+            if (nnl_update.modified) {
+                if (!Update_Named_Node_List_pq(dbname, schemaname, nnl_update.list_name.c_str(), *(const_cast<Graph *>(&graph)))) {
+                    return standard_error("Synchronizing Named Node List update to database failed", __func__);
+                }
+            } else {
+                if (!Delete_Named_Node_List_pq(dbname, schemaname, nnl_update.list_name.c_str())) {
+                    return standard_error("Synchronizing Named Node List deletion in database failed", __func__);
+                }
             }
         }
     }
-    #endif
 
     return true;
 }

@@ -620,6 +620,8 @@ protected:
     Topic_Tags topics;
     Named_Node_List_Map namedlists;
 
+    bool persistent_NNL = true; ///< Default is to synchronize Named Node Lists between in-memory and database state.
+
     bool warn_loops = true;
 
     void set_all_semaphores(int sval);
@@ -677,7 +679,8 @@ public:
     bool remove_from_List(const std::string _name, const Node_ID_key & nkey);
     bool delete_List(const std::string _name);
     void reset_Lists() { namedlists.clear(); }
-
+    bool persistent_Lists() const { return persistent_NNL; }
+    void set_Lists_persistence(bool _persistent) { persistent_NNL = _persistent; }
 
     /// crossref tables: topics x nodes
 
