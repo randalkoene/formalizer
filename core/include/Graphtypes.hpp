@@ -218,6 +218,9 @@ struct Named_List_String {
     Named_List_String(std::string _s) { safecpy(_s, s, Named_List_String_LEN); }
     Named_List_String & operator= (std::string _s) { safecpy(_s, s, Named_List_String_LEN); return *this; }
     const char * c_str() const { return s; }
+    bool operator< (const Named_List_String& rhs) const {
+        return std::tie(s) < std::tie(rhs.s);
+    }
 };
 
 typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Keyword_String;
@@ -265,7 +268,8 @@ typedef bi::allocator<Node_ID_key, segment_manager_t> Node_ID_key_allocator;
  * Nodes see:
  * https://trello.com/c/zcUpEAXi/189-fzserverpq-named-lists#comment-5fac08dc178a257eb6f953ac
  */
-typedef bi::vector<const Node_ID_key, Node_ID_key_allocator> Node_List;
+typedef bi::vector<Node_ID_key, Node_ID_key_allocator> Node_List;
+//typedef bi::vector<const Node_ID_key, Node_ID_key_allocator> Node_List;
 
 /**
  * Node ID that caches its ID stamp for frequent use.
@@ -585,7 +589,8 @@ struct Named_Node_List {
     Node_List list;
     int features;
     Named_Node_List(): list(graphmemman.get_allocator()), features(0) {} // name("", graphmemman.get_allocator()),
-    Named_Node_List(const Node_ID_key & nkey): list(graphmemman.get_allocator()), features(0) { list.emplace_back(nkey); }
+    Named_Node_List(Node_ID_key & nkey): list(graphmemman.get_allocator()), features(0) { list.emplace_back(nkey); }
+    //Named_Node_List(const Node_ID_key & nkey): list(graphmemman.get_allocator()), features(0) { list.emplace_back(nkey); }
 };
 typedef Named_Node_List * Named_Node_List_ptr; // use this pointer only within the context of one program (not to be stored in shared memory)
 typedef std::pair<const Named_List_String, Named_Node_List> Named_Node_List_Map_value_type;
@@ -620,7 +625,7 @@ protected:
     void set_all_semaphores(int sval);
 
 public:
-    Graph(): nodes(graphmemman.get_allocator()), edges(graphmemman.get_allocator()) {}
+    Graph(): nodes(graphmemman.get_allocator()), edges(graphmemman.get_allocator()), namedlists(graphmemman.get_allocator()) {}
 
     /// tables references
     const Topic_Tags & get_topics() const { return topics; }

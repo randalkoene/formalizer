@@ -57,22 +57,23 @@ bool load_templates(fzgraphhtml_templates & templates) {
 }
 
 struct line_render_parameters {
-    Graph &graph;                    ///< Reference to the Graph in which the Node resides.
+    Graph * graph_ptr;               ///< Pointer to the Graph in which the Node resides.
     const std::string srclist;       ///< The Named Node List being rendered (or "" when that is not the case).
     render_environment env;          ///< Rendering environment in use.
     fzgraphhtml_templates templates; ///< Loaded rendering templates in use.
     std::string rendered_page;       ///< String to which the rendered line is appended.
 
     line_render_parameters(const std::string _srclist, const char * problem__func__) : srclist(_srclist) {
-        Graph * graph_ptr = graphmemman.find_Graph_in_shared_memory();
+        graph_ptr = graphmemman.find_Graph_in_shared_memory();
         if (!graph_ptr) {
             standard_exit_error(exit_general_error, "Memory resident Graph not found.", problem__func__);
         }
-        graph = *graph_ptr;
         if (!load_templates(templates)) {
             standard_exit_error(exit_file_error, "Missing template file.", problem__func__);
         }
     }
+
+    Graph & graph() { return *graph_ptr; }
 
     void prep(unsigned int num_render) {
         if (fzgh.config.embeddable) {
@@ -95,7 +96,7 @@ struct line_render_parameters {
     void render_Node(const Node & node, time_t tdate) {
         template_varvalues varvals;
         varvals.emplace("node_id",node.get_id_str());
-        Topic * topic_ptr = graph.main_Topic_of_Node(node);
+        Topic * topic_ptr = graph_ptr->main_Topic_of_Node(node);
         if (topic_ptr) {
             varvals.emplace("topic",topic_ptr->get_tag());
         } else {
@@ -143,7 +144,7 @@ bool render_incomplete_nodes() {
 
     line_render_parameters lrp("",__func__);
 
-    targetdate_sorted_Nodes incomplete_nodes = Nodes_incomplete_by_targetdate(lrp.graph);
+    targetdate_sorted_Nodes incomplete_nodes = Nodes_incomplete_by_targetdate(lrp.graph());
     unsigned int num_render = (fzgh.config.num_to_show > incomplete_nodes.size()) ? incomplete_nodes.size() : fzgh.config.num_to_show;
 
     lrp.prep(num_render);
@@ -162,7 +163,7 @@ bool render_incomplete_nodes() {
 }
 
 bool render_named_node_list_names(line_render_parameters & lrp) {
-    std::vector<std::string> list_names_vec = lrp.graph.get_List_names();
+    std::vector<std::string> list_names_vec = lrp.graph().get_List_names();
 
     unsigned int num_render = (fzgh.config.num_to_show > list_names_vec.size()) ? list_names_vec.size() : fzgh.config.num_to_show;
 
@@ -185,7 +186,7 @@ bool render_named_node_list() {
         return render_named_node_list_names(lrp);
     }
 
-    Named_Node_List_ptr namedlist_ptr = lrp.graph.get_List(fzgh.list_name);
+    Named_Node_List_ptr namedlist_ptr = lrp.graph().get_List(fzgh.list_name);
     if (!namedlist_ptr) {
         standard_exit_error(exit_general_error, "Named Node List "+fzgh.list_name+" not found.", __func__);
     }
@@ -196,7 +197,7 @@ bool render_named_node_list() {
 
     for (const auto & nkey : namedlist_ptr->list) {
 
-        Node * node_ptr = lrp.graph.Node_by_id(nkey);
+        Node * node_ptr = lrp.graph().Node_by_id(nkey);
         if (node_ptr) {
             lrp.render_Node(*node_ptr, node_ptr->effective_targetdate());
         } else {

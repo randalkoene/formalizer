@@ -254,6 +254,10 @@ struct NNLmod_update {
     bool modified; ///< modified or deleted
 
     NNLmod_update(const std::string _name, bool _modified) : list_name(_name), modified(_modified) {}
+    NNLmod_update(const Named_List_String & _name, bool _modified) : list_name(_name), modified(_modified) {}
+    bool operator< (const NNLmod_update& rhs) const {
+        return std::tie(list_name, modified) < std::tie(rhs.list_name, rhs.modified);
+    }
 };
 typedef std::set<NNLmod_update> NNLmod_update_set;
 //typedef std::map<Named_List_String, bool> NNLmod_update_set;

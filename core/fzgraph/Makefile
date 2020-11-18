@@ -143,10 +143,13 @@ $(OBJ)/addedge.o: addedge.cpp addedge.hpp fzgraph.hpp
 $(OBJ)/addnode.o: addnode.cpp addnode.hpp fzgraph.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c addnode.cpp -o $(OBJ)/addnode.o
 
-$(OBJ)/fzgraph.o: fzgraph.cpp fzgraph.hpp version.hpp
+$(OBJ)/namednodelist.o: namednodelist.cpp namednodelist.hpp fzgraph.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c namednodelist.cpp -o $(OBJ)/namednodelist.o
+
+$(OBJ)/fzgraph.o: fzgraph.cpp fzgraph.hpp addnode.hpp addedge.hpp namednodelist.hpp version.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c fzgraph.cpp -o $(OBJ)/fzgraph.o
 
-fzgraph: $(OBJ)/fzgraph.o $(OBJ)/addnode.o $(OBJ)/addedge.o $(CORE_OBJS)
+fzgraph: $(OBJ)/fzgraph.o $(OBJ)/addnode.o $(OBJ)/addedge.o namednodelist.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o fzgraph $(LIB_PATH)
 
 clean:

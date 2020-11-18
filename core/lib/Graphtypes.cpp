@@ -654,7 +654,8 @@ Named_Node_List_ptr Graph::add_to_List(const std::string _name, const Node & nod
     Named_List_String namekey(_name.c_str());
     auto it = namedlists.find(namekey);
     if (it == namedlists.end()) { // new named List
-        auto [n_it, listadded] = namedlists.emplace(_name.c_str(), node.get_id().key());
+        Node_ID_key nkey(node.get_id().key());
+        auto [n_it, listadded] = namedlists.emplace(_name.c_str(), nkey);
         if (!listadded) {
             return nullptr;
         } else {

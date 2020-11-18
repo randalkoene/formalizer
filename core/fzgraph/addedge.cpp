@@ -25,6 +25,7 @@
 #include "utf8.hpp"
 */
 #include "Graphmodify.hpp"
+#include "tcpclient.hpp"
 
 // local
 #include "fzgraph.hpp"

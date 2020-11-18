@@ -216,6 +216,7 @@ bool fzge_configurable::set_parameter(const std::string & parlabel, const std::s
     CONFIG_TEST_AND_SET_PAR(ed.urgency, "urgency", parlabel, std::stof(parvalue));
     CONFIG_TEST_AND_SET_PAR(ed.priority, "priority", parlabel, std::stof(parvalue));
     CONFIG_TEST_AND_SET_PAR(supdep_after_use, "supdep_after_use", parlabel, interpret_config_supdep_after_use(parvalue));
+    CONFIG_TEST_AND_SET_PAR(listname, "listname", parlabel, parvalue);
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
