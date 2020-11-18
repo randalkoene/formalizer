@@ -62,6 +62,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <algorithm>
 
 // Boost
 #include <boost/interprocess/allocators/allocator.hpp>
@@ -219,7 +220,12 @@ struct Named_List_String {
     Named_List_String & operator= (std::string _s) { safecpy(_s, s, Named_List_String_LEN); return *this; }
     const char * c_str() const { return s; }
     bool operator< (const Named_List_String& rhs) const {
-        return std::tie(s) < std::tie(rhs.s);
+        return std::lexicographical_compare(s,s+Named_List_String_LEN,rhs.s,rhs.s+Named_List_String_LEN);
+    }
+    bool operator== (const Named_List_String& rhs) const {
+        std::string s1(c_str());
+        std::string s2(rhs.c_str());
+        return s1 == s2;
     }
 };
 

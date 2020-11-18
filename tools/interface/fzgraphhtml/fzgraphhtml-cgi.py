@@ -109,12 +109,13 @@ if id:
 
 else:
     if srclist:
-        thecmd = "./fzgraphhtml -q -L '"+srclist+"' -o STDOUT -E STDOUT"
+        thecmd = "./fzgraphhtml -q -e -L '"+srclist+"' -o STDOUT -E STDOUT"
         print("Content-type:text/html\n\n")
         if srclist == '?':
             print(listpagehead_alllists)
         else:
             print(listpagehead_nomodif.format(list_name=srclist))
+        print(f'<!-- thecmd = {thecmd} -->')
         # Include a remove-from-srclist button if srclist was not empty
         try:
             p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)

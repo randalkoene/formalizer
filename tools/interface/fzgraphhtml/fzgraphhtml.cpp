@@ -38,7 +38,7 @@ fzgraphhtml fzgh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:IN:o:eT:C";
+    add_option_args += "n:IL:N:o:eT:C";
     add_usage_top += " [-n <node-ID>] [-I] [-L <name|?>] [-N <num>] [-o <output-path>] [-e] [-T <named|node|Node>=<path>] [-C]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("When no [N <num>] is provided then the configured value is used.\n");
