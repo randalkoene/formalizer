@@ -12,6 +12,7 @@ COREPATH=$(FORMALIZERPATH)/core
 TOOLSPATH=$(FORMALIZERPATH)/tools
 MEDIAPATH=$(FORMALIZERPATH)/media
 FORMALIZERPATH_THIS=$(FORMALIZERPATH)
+FZCONFIGPATH=$(HOME)/.formalizer
 
 #TEMPLATEDIR = -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\" 
 
@@ -86,7 +87,11 @@ EXECUTABLES += $(TOOLSPATH)/system/requestmanual/requestmanual.py
 # EXECUTABLES += $(TOOLSPATH)/system/schedule/favorvariable/favorvariable
 # EXECUTABLES += $(TOOLSPATH)/system/syswizard/syswizard
 
-# symbolic links to executables for CGI scripts to call upon
+# configuration files needed by CGI scripts
+CONFIGEXPOSE =
+CONFIGEXPOSE += $(FZCONFIGPATH)/server_address
+
+# symbolic links to executables for CGI scripts and configuration files to call upon
 SYMBIN = 
 SYMBIN += $(COREPATH)/fzgraph/fzgraph
 SYMBIN += $(COREPATH)/fzlog/fzlog
@@ -95,6 +100,7 @@ SYMBIN += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml
 SYMBIN += $(TOOLSPATH)/interface/fzloghtml/fzloghtml
 SYMBIN += $(TOOLSPATH)/interface/fzserver-info/fzserver-info
 SYMBIN += $(COREPATH)/fzguide.system/fzguide.system
+SYMBIN += $(CONFIGEXPOSE)
 
 # CGI scripts that need to be copied to $(CGIDIR)
 CGIEXE =

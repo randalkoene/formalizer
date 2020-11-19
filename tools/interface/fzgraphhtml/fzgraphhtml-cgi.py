@@ -20,7 +20,6 @@ from pathlib import Path
 home = str(Path.home())
 
 # *** THESE SHOULD BE SET BY SETUP CONFIGURATION
-dotformalizer_path = home+".formalizer"
 # *** Perhaps read the following from ~/.formalizer/webdata_path
 webdata_path = "/var/www/webdata/formalizer"
 
@@ -36,7 +35,7 @@ form = cgi.FieldStorage()
 id = form.getvalue('id')
 srclist = form.getvalue('srclist')
 
-modify_template = '''<tr><td>[{{{{ list_name }}}}]</td><td><a href="http://{fzserverpq}/fz/graph/namedlists/{{{{ list_name }}}}?add={node_id}">[add]</a></td></tr>
+modify_template = '''<tr><td>[<a href="/cgi-bin/fzgraphhtml-cgi.py?srclist={{{{ list_name }}}}">{{{{ list_name }}}}</a>]</td><td><a href="http://{fzserverpq}/fz/graph/namedlists/{{{{ list_name }}}}?add={node_id}">[add]</a></td></tr>
 '''
 
 listpagehead = '''<html>
@@ -85,7 +84,9 @@ listpagetail = '''</tbody></table>
 '''
 
 # *** OBTAIN THIS SOMEHOW!
-with open(dotformalizer_path+'/server_address','r') as f:
+#with open(dotformalizer_path+'/server_address','r') as f:
+#    fzserverpq_addrport = f.read()
+with open('./server_address','r') as f:
     fzserverpq_addrport = f.read()
 #fzserverpq_addrport = 'aether.local:8090'
 custom_template_file = webdata_path+'/modify_NNL_template.html'

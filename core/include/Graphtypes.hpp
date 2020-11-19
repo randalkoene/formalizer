@@ -233,6 +233,7 @@ typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Keyword_S
 typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Topic_String;
 typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Node_utf8_text;
 //typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Named_List_String;
+typedef bi::basic_string<char, std::char_traits<char>, char_allocator> Server_Addr_String;
 
 typedef bi::allocator<Topic_Keyword, segment_manager_t> Topic_Keyword_allocator;
 typedef bi::vector<Topic_Keyword, Topic_Keyword_allocator> Topic_KeyRel_Vector;
@@ -629,14 +630,14 @@ protected:
     bool persistent_NNL = true; ///< Default is to synchronize Named Node Lists between in-memory and database state.
 
     uint16_t port_number = 8090; ///< Default Graph server port number (the server must update this cache).
-    std::string server_IP_str;   ///< Shared memory cache of active server IP address.
+    Server_Addr_String server_IP_str;   ///< Shared memory cache of active server IP address.
 
     bool warn_loops = true;
 
     void set_all_semaphores(int sval);
 
 public:
-    Graph(): nodes(graphmemman.get_allocator()), edges(graphmemman.get_allocator()), namedlists(graphmemman.get_allocator()) {}
+    Graph(): nodes(graphmemman.get_allocator()), edges(graphmemman.get_allocator()), namedlists(graphmemman.get_allocator()), server_IP_str(graphmemman.get_allocator()) {}
 
     /// tables references
     const Topic_Tags & get_topics() const { return topics; }
@@ -706,8 +707,8 @@ public:
      */
     Topic * main_Topic_of_Node(const Node & node) const { return main_topic(topics,node); }
 
-    std::string get_server_IPaddr() { return server_IP_str; }
-    void set_server_IPaddr(std::string _ipaddrstr) { server_IP_str = _ipaddrstr; }
+    std::string get_server_IPaddr() { return server_IP_str.c_str(); }
+    void set_server_IPaddr(std::string _ipaddrstr) { server_IP_str = _ipaddrstr.c_str(); }
     uint16_t get_server_port() { return port_number; }
     void set_server_port(uint16_t _portnumber) { port_number = _portnumber; }
     std::string get_server_port_str() { return std::to_string(port_number); }
