@@ -83,6 +83,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a3a7186df6a00979c8b287aa60e956970"><td class="memItemLeft" align="right" valign="top"><a id="a3a7186df6a00979c8b287aa60e956970"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ReferenceTime</b> (std::time_t _emtime)</td></tr>
 <tr class="separator:a3a7186df6a00979c8b287aa60e956970"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63096783a1a5dc53061de4722151e734"><td class="memItemLeft" align="right" valign="top"><a id="a63096783a1a5dc53061de4722151e734"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>ReferenceTime</b> (std::string &amp;add_option_args_here, std::string &amp;add_usage_top_here)</td></tr>
+<tr class="separator:a63096783a1a5dc53061de4722151e734"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac28f584193582243a4d3202b469463a0"><td class="memItemLeft" align="right" valign="top">std::time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1ReferenceTime.html#ac28f584193582243a4d3202b469463a0">Time</a> ()</td></tr>
 <tr class="memdesc:ac28f584193582243a4d3202b469463a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Report the current time according to the <a class="el" href="classfz_1_1ReferenceTime.html">ReferenceTime</a> frame being used.  <a href="#ac28f584193582243a4d3202b469463a0">More...</a><br /></td></tr>
 <tr class="separator:ac28f584193582243a4d3202b469463a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -92,6 +95,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>switch_to_actual_time
 <tr class="memitem:a42d92dc5320d5d866853bb97225f85e7"><td class="memItemLeft" align="right" valign="top"><a id="a42d92dc5320d5d866853bb97225f85e7"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>change_reference_time</b> (std::time_t _emtime)</td></tr>
 <tr class="separator:a42d92dc5320d5d866853bb97225f85e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a882ee64ac229396e2addd40644f0df0d"><td class="memItemLeft" align="right" valign="top"><a id="a882ee64ac229396e2addd40644f0df0d"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>usage_hook</b> ()</td></tr>
+<tr class="separator:a882ee64ac229396e2addd40644f0df0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6497ef54c3a59a03643d6d98b8fec5f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1ReferenceTime.html#af6497ef54c3a59a03643d6d98b8fec5f">options_hook</a> (char c, std::string cargs)</td></tr>
+<tr class="memdesc:af6497ef54c3a59a03643d6d98b8fec5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add this to local <a class="el" href="classfz_1_1ReferenceTime.html#af6497ef54c3a59a03643d6d98b8fec5f" title="Add this to local options_hook() calls if an emulated time should be settable. ">options_hook()</a> calls if an emulated time should be settable.  <a href="#af6497ef54c3a59a03643d6d98b8fec5f">More...</a><br /></td></tr>
+<tr class="separator:af6497ef54c3a59a03643d6d98b8fec5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
@@ -100,6 +109,37 @@ std::time_t&#160;</td><td class="memItemRight" valign="bottom"><b>emulated_time<
 <tr class="separator:ae80967476739cea5ad6142b867c352df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="af6497ef54c3a59a03643d6d98b8fec5f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af6497ef54c3a59a03643d6d98b8fec5f">&#9670;&nbsp;</a></span>options_hook()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::ReferenceTime::options_hook </td>
+          <td>(</td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>c</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>cargs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Add this to local <a class="el" href="classfz_1_1ReferenceTime.html#af6497ef54c3a59a03643d6d98b8fec5f" title="Add this to local options_hook() calls if an emulated time should be settable. ">options_hook()</a> calls if an emulated time should be settable. </p>
+<p>If so, then make sure to test for <code>RTt_invalid_time_stamp</code> in case an invalid time stamp was given. </p>
+
+</div>
+</div>
 <a id="ac28f584193582243a4d3202b469463a0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac28f584193582243a4d3202b469463a0">&#9670;&nbsp;</a></span>Time()</h2>
 

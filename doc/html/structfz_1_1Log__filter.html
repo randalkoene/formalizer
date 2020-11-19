@@ -66,6 +66,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="structfz_1_1Log__filter-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -87,6 +88,12 @@ Collaboration diagram for fz::Log_filter:</div>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:ae2fd0c4feb53ba44b5f65575b8d20fd3"><td class="memItemLeft" align="right" valign="top"><a id="ae2fd0c4feb53ba44b5f65575b8d20fd3"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>info_str</b> () const</td></tr>
+<tr class="separator:ae2fd0c4feb53ba44b5f65575b8d20fd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a9759b3d78bf33cfcd417337b5fc24bef"><td class="memItemLeft" align="right" valign="top"><a id="a9759b3d78bf33cfcd417337b5fc24bef"></a>
@@ -101,12 +108,21 @@ time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__filter.html#a0619675ebf8743ffb00618142731f9fa">nkey</a></td></tr>
 <tr class="memdesc:a0619675ebf8743ffb00618142731f9fa"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> ID must match, nullkey means don't add this constraint. <br /></td></tr>
 <tr class="separator:a0619675ebf8743ffb00618142731f9fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5bc65ffc61575750998f6f0ae526c13f"><td class="memItemLeft" align="right" valign="top"><a id="a5bc65ffc61575750998f6f0ae526c13f"></a>
+unsigned long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__filter.html#a5bc65ffc61575750998f6f0ae526c13f">limit</a></td></tr>
+<tr class="memdesc:a5bc65ffc61575750998f6f0ae526c13f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Limit to specific number of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks (can be used with t_from or t_to, or neither), 0 means unlimited. <br /></td></tr>
+<tr class="separator:a5bc65ffc61575750998f6f0ae526c13f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0f547de2de6ec8ed69d526bc85c2cf0"><td class="memItemLeft" align="right" valign="top"><a id="ab0f547de2de6ec8ed69d526bc85c2cf0"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__filter.html#ab0f547de2de6ec8ed69d526bc85c2cf0">back_to_front</a></td></tr>
+<tr class="memdesc:ab0f547de2de6ec8ed69d526bc85c2cf0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reverse the order of selection if not constrained by t_from or t_to. <br /></td></tr>
+<tr class="separator:ab0f547de2de6ec8ed69d526bc85c2cf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Filter structure used to set up selective <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> reading. </p>
 <p>The <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> data that meets the filter specificaions is loaded and added to the existing <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> object. </p>
-</div><hr/>The documentation for this struct was generated from the following file:<ul>
+</div><hr/>The documentation for this struct was generated from the following files:<ul>
 <li>core/include/<a class="el" href="Logtypes_8hpp_source.html">Logtypes.hpp</a></li>
+<li>core/lib/Logtypes.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

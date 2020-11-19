@@ -1,13 +1,15 @@
 <map id="tools/interface" name="tools/interface">
-<area shape="rect" id="node2" href="dir_f28de06e3c17ae8a48810d3df75d7ec4.html" title="fzgraphhtml" alt="" coords="461,63,552,111"/>
-<area shape="rect" id="node7" href="dir_4270bfced15e0e73154b13468c7c9ad9.html" title="core" alt="" coords="268,159,340,207"/>
-<area shape="rect" id="edge3-headlabel" href="dir_000012_000000.html" title="4" alt="" coords="356,170,364,184"/>
-<area shape="rect" id="node3" href="dir_ccea6f3ae6f448843037098cd0942985.html" title="fzlink" alt="" coords="365,63,437,111"/>
-<area shape="rect" id="node4" href="dir_8774acb4df864ae9fcccf0e561e7d009.html" title="fzloghtml" alt="" coords="267,63,341,111"/>
-<area shape="rect" id="edge1-headlabel" href="dir_000013_000000.html" title="6" alt="" coords="308,133,316,147"/>
-<area shape="rect" id="node5" href="dir_a724a33c9f3c8062afde624dbd3a5737.html" title="logentry&#45;form" alt="" coords="144,63,243,111"/>
-<area shape="rect" id="node6" href="dir_87fd42980dbf5df3daddea646ea0554e.html" title="nodeboard" alt="" coords="37,63,120,111"/>
-<area shape="rect" id="edge2-headlabel" href="dir_000014_000000.html" title="4" alt="" coords="248,157,256,172"/>
-<area shape="rect" id="clust2" href="dir_8d1a54d6ef60a409e3edec46b88a21f1.html" alt="" coords="27,52,659,121"/>
-<area shape="rect" id="clust1" href="dir_4eeb864c4eec08c7d6b9d3b0352cfdde.html" title="tools" alt="" coords="16,16,669,132"/>
+<area shape="rect" id="node2" href="dir_f28de06e3c17ae8a48810d3df75d7ec4.html" title="fzgraphhtml" alt="" coords="581,63,672,111"/>
+<area shape="rect" id="node8" href="dir_4270bfced15e0e73154b13468c7c9ad9.html" title="core" alt="" coords="333,159,405,207"/>
+<area shape="rect" id="edge4-headlabel" href="dir_000014_000000.html" title="6" alt="" coords="421,176,429,191"/>
+<area shape="rect" id="node3" href="dir_ccea6f3ae6f448843037098cd0942985.html" title="fzlink" alt="" coords="485,63,557,111"/>
+<area shape="rect" id="node4" href="dir_8774acb4df864ae9fcccf0e561e7d009.html" title="fzloghtml" alt="" coords="387,63,461,111"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000015_000000.html" title="6" alt="" coords="396,139,404,154"/>
+<area shape="rect" id="node5" href="dir_b0095f6b01b08f0f7ba56a3c28d0bb6e.html" title="fzserver&#45;info" alt="" coords="267,63,362,111"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000016_000000.html" title="6" alt="" coords="350,131,358,146"/>
+<area shape="rect" id="node6" href="dir_a724a33c9f3c8062afde624dbd3a5737.html" title="logentry&#45;form" alt="" coords="144,63,243,111"/>
+<area shape="rect" id="node7" href="dir_87fd42980dbf5df3daddea646ea0554e.html" title="nodeboard" alt="" coords="37,63,120,111"/>
+<area shape="rect" id="edge3-headlabel" href="dir_000017_000000.html" title="4" alt="" coords="312,163,320,178"/>
+<area shape="rect" id="clust2" href="dir_8d1a54d6ef60a409e3edec46b88a21f1.html" alt="" coords="27,52,779,121"/>
+<area shape="rect" id="clust1" href="dir_4eeb864c4eec08c7d6b9d3b0352cfdde.html" title="tools" alt="" coords="16,16,789,132"/>
 </map>

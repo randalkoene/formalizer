@@ -87,16 +87,18 @@ Include dependency graph for Logpostgres.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="Logpostgres_8hpp__incl.png" border="0" usemap="#core_2include_2Logpostgres_8hpp" alt=""/></div>
 <map name="core_2include_2Logpostgres_8hpp" id="core_2include_2Logpostgres_8hpp">
-<area shape="rect" id="node2" href="coreversion_8hpp_source.html" title="coreversion.hpp" alt="" coords="588,528,703,555"/>
-<area shape="rect" id="node4" href="Logtypes_8hpp.html" title="This header file declares Log types for use with the Formalizer. " alt="" coords="494,80,594,107"/>
-<area shape="rect" id="node25" href="fzpostgres_8hpp_source.html" title="fzpostgres.hpp" alt="" coords="1123,229,1231,256"/>
-<area shape="rect" id="node8" href="error_8hpp.html" title="This header file declares error handling classes and functions for use with core Formalizer C++ code..." alt="" coords="927,304,1001,331"/>
-<area shape="rect" id="node18" href="TimeStamp_8hpp.html" title="This header file declares Formalizer TimeStamp format and operations. " alt="" coords="436,304,551,331"/>
-<area shape="rect" id="node21" href="Graphtypes_8hpp_source.html" title="Graphtypes.hpp" alt="" coords="581,229,696,256"/>
-<area shape="rect" id="node24" href="LogtypesID_8hpp_source.html" title="LogtypesID.hpp" alt="" coords="392,155,507,181"/>
-<area shape="rect" id="node12" href="config_8hpp_source.html" title="config.hpp" alt="" coords="1059,379,1141,405"/>
-<area shape="rect" id="node13" href="standard_8hpp.html" title="This header file declares standard structures and functions that should be used with any standardized..." alt="" coords="1318,453,1415,480"/>
-<area shape="rect" id="node20" href="ReferenceTime_8hpp_source.html" title="ReferenceTime.hpp" alt="" coords="195,379,331,405"/>
+<area shape="rect" id="node2" href="coreversion_8hpp_source.html" title="coreversion.hpp" alt="" coords="1253,617,1368,644"/>
+<area shape="rect" id="node4" href="Logtypes_8hpp.html" title="This header file declares Log types for use with the Formalizer. " alt="" coords="411,80,511,107"/>
+<area shape="rect" id="node34" href="fzpostgres_8hpp_source.html" title="fzpostgres.hpp" alt="" coords="2421,311,2529,338"/>
+<area shape="rect" id="node8" href="error_8hpp.html" title="This header file declares error handling classes and functions for use with core Formalizer C++ code..." alt="" coords="2194,393,2267,420"/>
+<area shape="rect" id="node18" href="TimeStamp_8hpp.html" title="This header file declares Formalizer TimeStamp format and operations. " alt="" coords="455,393,569,420"/>
+<area shape="rect" id="node21" href="Graphtypes_8hpp_source.html" title="Graphtypes.hpp" alt="" coords="1253,229,1368,256"/>
+<area shape="rect" id="node33" href="LogtypesID_8hpp_source.html" title="LogtypesID.hpp" alt="" coords="309,155,424,181"/>
+<area shape="rect" id="node12" href="config_8hpp_source.html" title="config.hpp" alt="" coords="2219,468,2301,495"/>
+<area shape="rect" id="node13" href="standard_8hpp.html" title="This header file declares standard structures and functions that should be used with any standardized..." alt="" coords="2241,543,2338,569"/>
+<area shape="rect" id="node20" href="ReferenceTime_8hpp_source.html" title="ReferenceTime.hpp" alt="" coords="397,468,533,495"/>
+<area shape="rect" id="node31" href="general_8hpp_source.html" title="general.hpp" alt="" coords="1514,393,1603,420"/>
+<area shape="rect" id="node32" href="Graphbase_8hpp.html" title="This header file declares Shared Memory Graph, Node and Edge types for use with the Formalizer..." alt="" coords="601,311,711,338"/>
 </map>
 </div>
 </div>
@@ -165,18 +167,33 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>fz::add_Breakpoint_pq
 <tr class="memitem:a10e7a0e71b09cf5afc4e574c7a671e46"><td class="memItemLeft" align="right" valign="top"><a id="a10e7a0e71b09cf5afc4e574c7a671e46"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>fz::add_Logchunk_pq</b> (const active_pq &amp;apq, const Log_chunk &amp;chunk)</td></tr>
 <tr class="separator:a10e7a0e71b09cf5afc4e574c7a671e46"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4df6964ef0bf050076248edb5be67f44"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a4df6964ef0bf050076248edb5be67f44">fz::entry_minor_id_pq</a> (unsigned int minor_id)</td></tr>
+<tr class="memdesc:a4df6964ef0bf050076248edb5be67f44"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function converts the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entry minor ID to a three digit zero-padded integer for storage in Postgres.  <a href="namespacefz.html#a4df6964ef0bf050076248edb5be67f44">More...</a><br /></td></tr>
+<tr class="separator:a4df6964ef0bf050076248edb5be67f44"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4af4eade92e254bd44d8b19adf94101c"><td class="memItemLeft" align="right" valign="top"><a id="a4af4eade92e254bd44d8b19adf94101c"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>fz::add_Logentry_pq</b> (const active_pq &amp;apq, const Log_entry &amp;entry)</td></tr>
 <tr class="separator:a4af4eade92e254bd44d8b19adf94101c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac534af76c643c9568951e81e51066108"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ac534af76c643c9568951e81e51066108">fz::store_Log_pq</a> (const Log &amp;log, Postgres_access &amp;pa, void(*progressfunc)(unsigned long, unsigned long))</td></tr>
 <tr class="memdesc:ac534af76c643c9568951e81e51066108"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store all the Chunks and Entries of the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> in the PostgreSQL database.  <a href="namespacefz.html#ac534af76c643c9568951e81e51066108">More...</a><br /></td></tr>
 <tr class="separator:ac534af76c643c9568951e81e51066108"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe44bca9b25db84f4d7fca4326ce26b8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#abe44bca9b25db84f4d7fca4326ce26b8">fz::append_Log_entry_pq</a> (const Log_entry &amp;entry, Postgres_access &amp;pa)</td></tr>
+<tr class="memdesc:abe44bca9b25db84f4d7fca4326ce26b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append Entry to existing table in schema of PostgreSQL database.  <a href="namespacefz.html#abe44bca9b25db84f4d7fca4326ce26b8">More...</a><br /></td></tr>
+<tr class="separator:abe44bca9b25db84f4d7fca4326ce26b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23878d23a56d64f8838ea960784ff451"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a23878d23a56d64f8838ea960784ff451">fz::close_Log_chunk_pq</a> (const Log_chunk &amp;chunk, Postgres_access &amp;pa)</td></tr>
+<tr class="memdesc:a23878d23a56d64f8838ea960784ff451"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close the Chunk specified, which must already exist within a table in schema of PostgreSQL database.  <a href="namespacefz.html#a23878d23a56d64f8838ea960784ff451">More...</a><br /></td></tr>
+<tr class="separator:a23878d23a56d64f8838ea960784ff451"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39614b069f7453689a159d7df30189fc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a39614b069f7453689a159d7df30189fc">fz::append_Log_chunk_pq</a> (const Log_chunk &amp;chunk, Postgres_access &amp;pa)</td></tr>
+<tr class="memdesc:a39614b069f7453689a159d7df30189fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append Chunk to existing table in schema of PostgreSQL database.  <a href="namespacefz.html#a39614b069f7453689a159d7df30189fc">More...</a><br /></td></tr>
+<tr class="separator:a39614b069f7453689a159d7df30189fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5688f3a5a5bb5066690ccff97430eaaa"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a5688f3a5a5bb5066690ccff97430eaaa">fz::load_Log_pq</a> (Log &amp;log, Postgres_access &amp;pa)</td></tr>
 <tr class="memdesc:a5688f3a5a5bb5066690ccff97430eaaa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load the full <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> with all <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks, <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries and Breakpoints from the PostgresSQL database.  <a href="namespacefz.html#a5688f3a5a5bb5066690ccff97430eaaa">More...</a><br /></td></tr>
 <tr class="separator:a5688f3a5a5bb5066690ccff97430eaaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a87cb582cc69257b4d2a364f7da5f47c0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a87cb582cc69257b4d2a364f7da5f47c0">fz::load_partial_Log_pq</a> (Log &amp;log, Postgres_access &amp;pa, const Log_filter &amp;filter)</td></tr>
 <tr class="memdesc:a87cb582cc69257b4d2a364f7da5f47c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries that satisfy a specific filter.  <a href="namespacefz.html#a87cb582cc69257b4d2a364f7da5f47c0">More...</a><br /></td></tr>
 <tr class="separator:a87cb582cc69257b4d2a364f7da5f47c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0fc58c8f8b64e771f86e4e90d1b63da1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a0fc58c8f8b64e771f86e4e90d1b63da1">fz::load_last_chunk_and_entry_pq</a> (Log &amp;log, Postgres_access &amp;pa)</td></tr>
+<tr class="memdesc:a0fc58c8f8b64e771f86e4e90d1b63da1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load the last <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk and last <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entry in the table.  <a href="namespacefz.html#a0fc58c8f8b64e771f86e4e90d1b63da1">More...</a><br /></td></tr>
+<tr class="separator:a0fc58c8f8b64e771f86e4e90d1b63da1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a669984ccbebfe6dbd9a4d962aded0012"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a669984ccbebfe6dbd9a4d962aded0012">fz::refresh_Node_history_cache_pq</a> (Postgres_access &amp;pa)</td></tr>
 <tr class="memdesc:a669984ccbebfe6dbd9a4d962aded0012"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refresh the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> history cache table.  <a href="namespacefz.html#a669984ccbebfe6dbd9a4d962aded0012">More...</a><br /></td></tr>
 <tr class="separator:a669984ccbebfe6dbd9a4d962aded0012"><td class="memSeparator" colspan="2">&#160;</td></tr>

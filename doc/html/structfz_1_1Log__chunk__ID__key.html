@@ -126,7 +126,7 @@ Public Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Standardized Formalizer <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk ID key. </p>
-<p>The principal constructors (all but the default constructor) each call a validity test for the key format and can throw an <a class="el" href="classfz_1_1ID__exception.html" title="Declared here for reference before further detailing. ">ID_exception</a>.</p>
+<p>The principal constructors (all but the default constructor) each call a validity test for the key format and can throw an <a class="el" href="classfz_1_1ID__exception.html" title="Exception thrown when a Node ID is of invalid form. ">ID_exception</a>.</p>
 <p>In various containers, the ordering of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk ID keys is determined by the provided operator&lt;(). It calls its equivalent in <a class="el" href="structfz_1_1Log__TimeStamp.html" title="Timestamp IDs in the format required for Log IDs. ">Log_TimeStamp</a>, where std::tie() enables lexicographical comparison, from the largest temporal component to the smallest.</p>
 <p>The default constructor is provided for various special use cases such as initialization of containers. The <code>isnullkey()</code> function can test for this special state. </p>
 </div><hr/>The documentation for this struct was generated from the following files:<ul>

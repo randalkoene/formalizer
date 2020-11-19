@@ -1,15 +1,6 @@
 var searchData=
 [
-  ['param_5fvalue',['param_value',['../namespacefz.html#aac0f6707de5ea5600bdc7326ec3b0830',1,'fz']]],
-  ['parse',['parse',['../classfz_1_1configbase.html#a65d489760ed4dddb05aa0d768eefd7a7',1,'fz::configbase']]],
-  ['pop',['pop',['../classfz_1_1Errors.html#ab22d290508d043fa1f5c5c225f3d03c0',1,'fz::Errors']]],
-  ['postgres_5faccess',['Postgres_access',['../structfz_1_1Postgres__access.html#a1ece179a60c6b4e0b6fcc653fd213866',1,'fz::Postgres_access']]],
-  ['pq_5fguide_5fsystem_5flayout',['pq_guide_system_layout',['../fzguide_8system_8cpp.html#a73db6a61de369d7d03e5a4f57758c567',1,'fzguide.system.cpp']]],
-  ['pq_5flblayout',['pq_LBlayout',['../namespacefz.html#ac5d2b0e332e8c8cb2da50ef8a3fd395f',1,'fz']]],
-  ['pretty_5fprint',['pretty_print',['../classfz_1_1Errors.html#aa766e6f97807f5ce6584ecec8dad72e8',1,'fz::Errors']]],
-  ['prev_5fin_5fchain',['prev_in_chain',['../structfz_1_1Log__chain__target.html#a5589691a710ddf5d51c3b51c16b72a8c',1,'fz::Log_chain_target']]],
-  ['print',['print',['../structfz_1_1Stack__Tracer.html#ad0c317cd17f845dc68e48af5f7f2c414',1,'fz::Stack_Tracer']]],
-  ['priority_5fpqstr',['priority_pqstr',['../classfz_1_1Edge__pq.html#a48c4f827825694f11a5a140063af2770',1,'fz::Edge_pq']]],
-  ['prune_5fduplicate_5fchunks',['prune_duplicate_chunks',['../classfz_1_1Log.html#aca44b6d200efa57834fe9358f2d1c001',1,'fz::Log']]],
-  ['push',['push',['../classfz_1_1Errors.html#a90d891ec4025e9a74f9aac517beb0254',1,'fz::Errors']]]
+  ['oldest_5fchunk_5ft',['oldest_chunk_t',['../classfz_1_1Log.html#ab723cd177104b779811f8eec827b7a60',1,'fz::Log']]],
+  ['options_5fhook',['options_hook',['../classfzgraphedit.html#a10625c54b7e00245049b95a35580f77a',1,'fzgraphedit::options_hook()'],['../structfzguide__system.html#a3e41892227b2e06477bfe243cc34083a',1,'fzguide_system::options_hook()'],['../structfzlog.html#adf5d86cf955e8e8943fc2872f5b7e899',1,'fzlog::options_hook()'],['../structfzquerypq.html#ae48304e854b014f202374b4d3edfc164',1,'fzquerypq::options_hook()'],['../structfzserverpq.html#a14bf26d55b01ad03d11ba3cc59eb22bc',1,'fzserverpq::options_hook()'],['../classfz_1_1ReferenceTime.html#af6497ef54c3a59a03643d6d98b8fec5f',1,'fz::ReferenceTime::options_hook()'],['../classfz_1_1formalizer__standard__program.html#a6c8c67bdb62186673b6015f122850364',1,'fz::formalizer_standard_program::options_hook()'],['../classdil2graph.html#a8050bb12f3ade54e416a2cb1b1bd7b0c',1,'dil2graph::options_hook()'],['../structgraph2dil.html#ae90e5cc58d0b8b799d86926bd2b6dc91',1,'graph2dil::options_hook()'],['../structboilerplate.html#adea9cebce22e7363769da5f3573756ff',1,'boilerplate::options_hook()'],['../structfzgraphhtml.html#a50a33efd0c379faa6f18e7fa3ece44bb',1,'fzgraphhtml::options_hook()'],['../structfzloghtml.html#a1baddcc67e09eada598ad2325bd797b5',1,'fzloghtml::options_hook()'],['../structfzserver__info.html#a3d468ba7512123b7866334eec17ec0c6',1,'fzserver_info::options_hook()'],['../structnodeboard.html#a9082331a1ff663d5e33c4062b2cda2ef',1,'nodeboard::options_hook()']]],
+  ['output',['output',['../classfz_1_1Errors.html#ac21660b9b891aacbc2895c77eef70b2c',1,'fz::Errors']]]
 ];

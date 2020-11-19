@@ -1,11 +1,12 @@
 <map id="core/include/Logtypes.hpp" name="core/include/Logtypes.hpp">
-<area shape="rect" id="node2" href="$Graphaccess_8hpp_source.html" title="core/include/Graphaccess.hpp" alt="" coords="261,87,459,114"/>
-<area shape="rect" id="node6" href="$fzloghtml_8hpp_source.html" title="tools/interface/fzloghtml\l/fzloghtml.hpp" alt="" coords="451,169,613,211"/>
-<area shape="rect" id="node7" href="$Logpostgres_8hpp.html" title="This header file declares Log Postgres types for use with the Formalizer. " alt="" coords="533,87,725,114"/>
-<area shape="rect" id="node8" href="$logtest_8hpp_source.html" title="tools/conversion/dil2graph\l/logtest.hpp" alt="" coords="749,80,923,121"/>
-<area shape="rect" id="node9" href="$tl2log_8hpp_source.html" title="tools/conversion/dil2graph\l/tl2log.hpp" alt="" coords="947,80,1120,121"/>
-<area shape="rect" id="node10" href="$log2tl_8hpp_source.html" title="tools/conversion/graph2dil\l/log2tl.hpp" alt="" coords="1144,80,1317,121"/>
-<area shape="rect" id="node3" href="$fzquerypq_8hpp_source.html" title="core/fzquerypq/fzquerypq.hpp" alt="" coords="5,177,200,203"/>
-<area shape="rect" id="node4" href="$fzserverpq_8hpp_source.html" title="core/fzserverpq/fzserverpq.hpp" alt="" coords="224,177,427,203"/>
-<area shape="rect" id="node5" href="$dil2graph_8hpp_source.html" title="tools/conversion/dil2graph\l/dil2graph.hpp" alt="" coords="749,169,923,211"/>
+<area shape="rect" id="node2" href="$Graphaccess_8hpp_source.html" title="core/include/Graphaccess.hpp" alt="" coords="386,87,585,114"/>
+<area shape="rect" id="node7" href="$fzloghtml_8hpp_source.html" title="tools/interface/fzloghtml\l/fzloghtml.hpp" alt="" coords="611,169,773,211"/>
+<area shape="rect" id="node8" href="$Logpostgres_8hpp.html" title="This header file declares Log Postgres types for use with the Formalizer. " alt="" coords="659,87,851,114"/>
+<area shape="rect" id="node9" href="$logtest_8hpp_source.html" title="tools/conversion/dil2graph\l/logtest.hpp" alt="" coords="875,80,1048,121"/>
+<area shape="rect" id="node10" href="$tl2log_8hpp_source.html" title="tools/conversion/dil2graph\l/tl2log.hpp" alt="" coords="1072,80,1245,121"/>
+<area shape="rect" id="node11" href="$log2tl_8hpp_source.html" title="tools/conversion/graph2dil\l/log2tl.hpp" alt="" coords="1269,80,1443,121"/>
+<area shape="rect" id="node3" href="$fzlog_8hpp_source.html" title="core/fzlog/fzlog.hpp" alt="" coords="5,177,141,203"/>
+<area shape="rect" id="node4" href="$fzquerypq_8hpp_source.html" title="core/fzquerypq/fzquerypq.hpp" alt="" coords="165,177,360,203"/>
+<area shape="rect" id="node5" href="$fzserverpq_8hpp_source.html" title="core/fzserverpq/fzserverpq.hpp" alt="" coords="384,177,587,203"/>
+<area shape="rect" id="node6" href="$dil2graph_8hpp_source.html" title="tools/conversion/dil2graph\l/dil2graph.hpp" alt="" coords="875,169,1048,211"/>
 </map>

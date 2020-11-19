@@ -1,7 +1,11 @@
 <map id="fz::configbase" name="fz::configbase">
-<area shape="rect" id="node2" href="$classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="179,80,289,107"/>
-<area shape="rect" id="node6" href="$classfz_1_1err__configbase.html" title="fz::err_configbase" alt="" coords="313,80,440,107"/>
-<area shape="rect" id="node3" href="$classfz_1_1fzpq__configurable.html" title="fz::fzpq_configurable" alt="" coords="5,155,148,181"/>
-<area shape="rect" id="node4" href="$classfzgh__configurable.html" title="fzgh_configurable" alt="" coords="172,155,296,181"/>
-<area shape="rect" id="node5" href="$classfzlh__configurable.html" title="fzlh_configurable" alt="" coords="321,155,441,181"/>
+<area shape="rect" id="node2" href="$classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="165,157,276,184"/>
+<area shape="rect" id="node10" href="$classfz_1_1err__configbase.html" title="fz::err_configbase" alt="" coords="157,208,284,235"/>
+<area shape="rect" id="node3" href="$classfz_1_1fzpq__configurable.html" title="fz::fzpq_configurable" alt="" coords="332,5,475,32"/>
+<area shape="rect" id="node4" href="$classfzge__configurable.html" title="fzge_configurable" alt="" coords="341,56,465,83"/>
+<area shape="rect" id="node5" href="$classfzgh__configurable.html" title="fzgh_configurable" alt="" coords="341,107,465,133"/>
+<area shape="rect" id="node6" href="$classfzl__configurable.html" title="fzl_configurable" alt="" coords="347,157,460,184"/>
+<area shape="rect" id="node7" href="$classfzlh__configurable.html" title="fzlh_configurable" alt="" coords="343,208,463,235"/>
+<area shape="rect" id="node8" href="$classfzs__configurable.html" title="fzs_configurable" alt="" coords="345,259,462,285"/>
+<area shape="rect" id="node9" href="$classfzsi__configurable.html" title="fzsi_configurable" alt="" coords="343,309,463,336"/>
 </map>

@@ -1,13 +1,30 @@
 <map id="fzloghtml" name="fzloghtml">
-<area shape="rect" id="node2" href="$classfz_1_1formalizer__standard__program.html" title="This class provides a framework for standardized Formalizer programs. " alt="" coords="5,348,160,389"/>
-<area shape="rect" id="node3" href="$structfz_1_1Log__filter.html" title="Filter structure used to set up selective Log reading. " alt="" coords="185,355,279,382"/>
-<area shape="rect" id="node4" href="$structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. " alt="" coords="157,259,278,285"/>
-<area shape="rect" id="node5" href="$structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. " alt="" coords="150,157,279,184"/>
-<area shape="rect" id="node6" href="$classfzlh__configurable.html" title="fzlh_configurable" alt="" coords="257,208,377,235"/>
-<area shape="rect" id="node7" href="$classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="278,81,389,108"/>
-<area shape="rect" id="node12" href="$classfz_1_1fzpq__configurable.html" title="fz::fzpq_configurable" alt="" coords="355,157,498,184"/>
-<area shape="rect" id="node8" href="$classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="208,5,312,32"/>
-<area shape="rect" id="node9" href="$classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="337,5,479,32"/>
-<area shape="rect" id="node10" href="$structfz_1_1Graph__access.html" title="A standardized way to access the Graph database. " alt="" coords="359,355,484,382"/>
-<area shape="rect" id="node11" href="$structfz_1_1Postgres__access.html" title="A standardized way to access the Formalizer database. " alt="" coords="355,259,498,285"/>
+<area shape="rect" id="node2" href="$classfz_1_1formalizer__standard__program.html" title="This class provides a framework for standardized Formalizer programs. " alt="" coords="2427,5,2581,47"/>
+<area shape="rect" id="node3" href="$structfz_1_1entry__data.html" title="A useful data structure for keeping related data together. " alt="" coords="2453,239,2555,266"/>
+<area shape="rect" id="node4" href="$classfz_1_1Graph.html" title="fz::Graph" alt="" coords="468,158,544,185"/>
+<area shape="rect" id="node17" href="$classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. " alt="" coords="763,218,835,245"/>
+<area shape="rect" id="node5" href="$classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID. " alt="" coords="219,62,328,89"/>
+<area shape="rect" id="node6" href="$classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk. " alt="" coords="983,449,1087,475"/>
+<area shape="rect" id="node9" href="$structfz_1_1Log__target.html" title="fz::Log_target\&lt; Log\l_chunk_ID_key, Log_chunk \&gt;" alt="" coords="1253,500,1449,541"/>
+<area shape="rect" id="node14" href="$classfz_1_1Log__entry.html" title="fz::Log_entry" alt="" coords="2182,365,2281,391"/>
+<area shape="rect" id="node7" href="$classfz_1_1Log__by__Node__chainable.html" title="Base class for Log components that are chainable as belonging to a Node. " alt="" coords="1809,398,1992,425"/>
+<area shape="rect" id="node8" href="$structfz_1_1Log__chain__target.html" title="This data structure is used to follow a chain by&#45;Node through the Log that can lead to Log chunks or ..." alt="" coords="1556,511,1696,538"/>
+<area shape="rect" id="node10" href="$structfz_1_1Log__chunk__ID__key.html" title="Standardized Formalizer Log chunk ID key. " alt="" coords="429,546,583,573"/>
+<area shape="rect" id="node21" href="$classfz_1_1Log__chunk__ID.html" title="fz::Log_chunk_ID" alt="" coords="736,486,861,513"/>
+<area shape="rect" id="node11" href="$structfz_1_1Log__TimeStamp.html" title="Timestamp IDs in the format required for Log IDs. " alt="" coords="205,577,341,603"/>
+<area shape="rect" id="node13" href="$structfz_1_1Log__entry__ID__key.html" title="Standardized Formalizer Log entry ID key. " alt="" coords="725,626,872,653"/>
+<area shape="rect" id="node12" href="$structfz_1_1Log__target.html" title="fz::Log_target\&lt; Log\l_entry_ID_key, Log_entry \&gt;" alt="" coords="2412,528,2596,569"/>
+<area shape="rect" id="node16" href="$classfz_1_1Log__entry__ID.html" title="fz::Log_entry_ID" alt="" coords="1111,627,1229,654"/>
+<area shape="rect" id="node15" href="$classfz_1_1Log__data.html" title="Log data base class providing shared parameters and functions. " alt="" coords="751,354,846,381"/>
+<area shape="rect" id="node18" href="$classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use. " alt="" coords="459,347,553,374"/>
+<area shape="rect" id="node19" href="$structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. " alt="" coords="213,297,334,323"/>
+<area shape="rect" id="node22" href="$structfz_1_1Log__filter.html" title="Filter structure used to set up selective Log reading. " alt="" coords="607,86,701,113"/>
+<area shape="rect" id="node20" href="$structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. " alt="" coords="5,297,135,323"/>
+<area shape="rect" id="node23" href="$classfzlh__configurable.html" title="fzlh_configurable" alt="" coords="2016,738,2136,765"/>
+<area shape="rect" id="node24" href="$classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="1571,778,1681,805"/>
+<area shape="rect" id="node29" href="$classfz_1_1fzpq__configurable.html" title="fz::fzpq_configurable" alt="" coords="1829,789,1972,815"/>
+<area shape="rect" id="node25" href="$classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="1299,798,1403,825"/>
+<area shape="rect" id="node26" href="$classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="1280,747,1423,774"/>
+<area shape="rect" id="node27" href="$structfz_1_1Graph__access.html" title="A standardized way to access the Graph database. " alt="" coords="2441,789,2567,815"/>
+<area shape="rect" id="node28" href="$structfz_1_1Postgres__access.html" title="A standardized way to access the Formalizer database. " alt="" coords="2160,789,2303,815"/>
 </map>

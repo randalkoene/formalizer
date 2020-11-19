@@ -78,7 +78,7 @@ $(function() {
 <p>Standardized Formalizer <a class="el" href="classfz_1_1Edge.html">Edge</a> ID key.  
  <a href="structfz_1_1Edge__ID__key.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="Graphtypes_8hpp_source.html">Graphtypes.hpp</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="Graphbase_8hpp_source.html">Graphbase.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Collaboration diagram for fz::Edge_ID_key:</div>
 <div class="dyncontent">
@@ -91,9 +91,12 @@ Collaboration diagram for fz::Edge_ID_key:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a262234cdc62b99b482b8baba68c12a28"><td class="memItemLeft" align="right" valign="top"><a id="a262234cdc62b99b482b8baba68c12a28"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Edge__ID__key.html#a262234cdc62b99b482b8baba68c12a28">Edge_ID_key</a> (const <a class="el" href="structfz_1_1Edge__ID__key.html">Edge_ID_key</a> &amp;_edgeidkey)</td></tr>
+<tr class="memdesc:a262234cdc62b99b482b8baba68c12a28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Try to use this one only for container element initialization and such. <br /></td></tr>
+<tr class="separator:a262234cdc62b99b482b8baba68c12a28"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aabaae9589e884b937fff1f92520fa280"><td class="memItemLeft" align="right" valign="top"><a id="aabaae9589e884b937fff1f92520fa280"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Edge__ID__key.html#aabaae9589e884b937fff1f92520fa280">Edge_ID_key</a> (<a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> _depkey, <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> _supkey)</td></tr>
-<tr class="memdesc:aabaae9589e884b937fff1f92520fa280"><td class="mdescLeft">&#160;</td><td class="mdescRight">Try to use this one only for container element initialization and such. <br /></td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Edge_ID_key</b> (<a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> _depkey, <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> _supkey)</td></tr>
 <tr class="separator:aabaae9589e884b937fff1f92520fa280"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8ee7d3fc75f70b9cd2ea4039761370ef"><td class="memItemLeft" align="right" valign="top"><a id="a8ee7d3fc75f70b9cd2ea4039761370ef"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Edge_ID_key</b> (std::string _idS)</td></tr>
@@ -126,7 +129,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>identical_Edge_ID_key
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Standardized Formalizer <a class="el" href="classfz_1_1Edge.html">Edge</a> ID key. </p>
-<p>The principal constructors (all but the default constructor) each call a validity test for the key format of each key (dep and sup), and can throw an <a class="el" href="classfz_1_1ID__exception.html" title="Declared here for reference before further detailing. ">ID_exception</a>.</p>
+<p>The principal constructors (all but the default constructor) each call a validity test for the key format of each key (dep and sup), and can throw an <a class="el" href="classfz_1_1ID__exception.html" title="Exception thrown when a Node ID is of invalid form. ">ID_exception</a>.</p>
 <p>In various containers, the ordering of <a class="el" href="classfz_1_1Edge.html">Edge</a> ID keys is determined by the provided operator&lt;(). It uses std::tie() to sequentially call its equivalent in <a class="el" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. ">ID_TimeStamp</a> for sup and then for dep, where std::tie() is used again to enable lexicographical comparison, from the largest temporal component to the smallest.</p>
 <p>The default constructor is provided for various special use cases such as initialization of containers. The <code><a class="el" href="structfz_1_1Edge__ID__key.html#ab66bfeba70180fac92a555cf2468e7fc" title="standardization functions and operators ">isnullkey()</a></code> function can test for this special state. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
@@ -159,8 +162,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>identical_Edge_ID_key
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following files:<ul>
-<li>core/include/<a class="el" href="Graphtypes_8hpp_source.html">Graphtypes.hpp</a></li>
-<li>core/lib/Graphtypes.cpp</li>
+<li>core/include/<a class="el" href="Graphbase_8hpp_source.html">Graphbase.hpp</a></li>
+<li>core/lib/Graphbase.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

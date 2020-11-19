@@ -1,11 +1,14 @@
 <map id="fz::formalizer_standard_program" name="fz::formalizer_standard_program">
 <area shape="rect" id="node2" href="$structboilerplate.html" title="boilerplate" alt="" coords="225,5,306,32"/>
 <area shape="rect" id="node3" href="$classdil2graph.html" title="dil2graph" alt="" coords="228,56,303,83"/>
-<area shape="rect" id="node4" href="$structfzgraphhtml.html" title="fzgraphhtml" alt="" coords="220,107,311,133"/>
-<area shape="rect" id="node5" href="$structfzguide__system.html" title="fzguide_system" alt="" coords="208,157,323,184"/>
-<area shape="rect" id="node6" href="$structfzloghtml.html" title="fzloghtml" alt="" coords="228,208,303,235"/>
-<area shape="rect" id="node7" href="$structfzquerypq.html" title="fzquerypq" alt="" coords="226,259,305,285"/>
-<area shape="rect" id="node8" href="$structfzserverpq.html" title="fzserverpq" alt="" coords="224,309,307,336"/>
-<area shape="rect" id="node9" href="$structgraph2dil.html" title="graph2dil" alt="" coords="228,360,303,387"/>
-<area shape="rect" id="node10" href="$structnodeboard.html" title="nodeboard" alt="" coords="224,411,307,437"/>
+<area shape="rect" id="node4" href="$classfzgraphedit.html" title="fzgraphedit" alt="" coords="222,107,309,133"/>
+<area shape="rect" id="node5" href="$structfzgraphhtml.html" title="fzgraphhtml" alt="" coords="220,157,311,184"/>
+<area shape="rect" id="node6" href="$structfzguide__system.html" title="fzguide_system" alt="" coords="208,208,323,235"/>
+<area shape="rect" id="node7" href="$structfzlog.html" title="fzlog" alt="" coords="240,259,291,285"/>
+<area shape="rect" id="node8" href="$structfzloghtml.html" title="fzloghtml" alt="" coords="228,309,303,336"/>
+<area shape="rect" id="node9" href="$structfzquerypq.html" title="fzquerypq" alt="" coords="226,360,305,387"/>
+<area shape="rect" id="node10" href="$structfzserver__info.html" title="fzserver_info" alt="" coords="217,411,314,437"/>
+<area shape="rect" id="node11" href="$structfzserverpq.html" title="fzserverpq" alt="" coords="224,461,307,488"/>
+<area shape="rect" id="node12" href="$structgraph2dil.html" title="graph2dil" alt="" coords="228,512,303,539"/>
+<area shape="rect" id="node13" href="$structnodeboard.html" title="nodeboard" alt="" coords="224,563,307,589"/>
 </map>

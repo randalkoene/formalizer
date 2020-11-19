@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['topic_5frelevance',['Topic_Relevance',['../namespacefz.html#a4ef696382cc8a859adcdb76740012048',1,'fz']]]
+  ['segment_5fmemory_5ft',['segment_memory_t',['../namespacefz.html#aabee04df43b16403996baaf6bd9d2a53',1,'fz']]],
+  ['stacktrace',['StackTrace',['../namespacefz.html#a34ec4a9353f556467845f99dfd43a9aa',1,'fz']]]
 ];

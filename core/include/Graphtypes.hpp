@@ -628,6 +628,9 @@ protected:
 
     bool persistent_NNL = true; ///< Default is to synchronize Named Node Lists between in-memory and database state.
 
+    uint16_t port_number = 8090; ///< Default Graph server port number (the server must update this cache).
+    std::string server_IP_str;   ///< Shared memory cache of active server IP address.
+
     bool warn_loops = true;
 
     void set_all_semaphores(int sval);
@@ -702,6 +705,13 @@ public:
      * @return a pointer to the Topic object (or nullptr if not found).
      */
     Topic * main_Topic_of_Node(const Node & node) const { return main_topic(topics,node); }
+
+    std::string get_server_IPaddr() { return server_IP_str; }
+    void set_server_IPaddr(std::string _ipaddrstr) { server_IP_str = _ipaddrstr; }
+    uint16_t get_server_port() { return port_number; }
+    void set_server_port(uint16_t _portnumber) { port_number = _portnumber; }
+    std::string get_server_port_str() { return std::to_string(port_number); }
+    std::string get_server_full_address() { return get_server_IPaddr() + ':' + get_server_port_str(); }
 
     /// friend (utility) functions
     friend bool identical_Graphs(Graph & graph1, Graph & graph2, std::string & trace);

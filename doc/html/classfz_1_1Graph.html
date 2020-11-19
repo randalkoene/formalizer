@@ -96,6 +96,36 @@ Public Types</h2></td></tr>
 <br />
 &#160;&#160;<b>g_adddupedge</b>, 
 <b>g_removenulledge</b>, 
+<b>g_removeunknownedge</b>, 
+<b>g_noerrors</b>, 
+<br />
+&#160;&#160;<b>g_addnullnode</b>, 
+<b>g_adddupnode</b>, 
+<b>g_addnulledge</b>, 
+<b>g_adddupedge</b>, 
+<br />
+&#160;&#160;<b>g_removenulledge</b>, 
+<b>g_removeunknownedge</b>
+<br />
+ }</td></tr>
+<tr class="separator:a99d6ee2e2cc887b639cd814e2a362f23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99d6ee2e2cc887b639cd814e2a362f23"><td class="memItemLeft" align="right" valign="top"><a id="a99d6ee2e2cc887b639cd814e2a362f23"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>errcodes</b> { <br />
+&#160;&#160;<b>g_noerrors</b>, 
+<b>g_addnullnode</b>, 
+<b>g_adddupnode</b>, 
+<b>g_addnulledge</b>, 
+<br />
+&#160;&#160;<b>g_adddupedge</b>, 
+<b>g_removenulledge</b>, 
+<b>g_removeunknownedge</b>, 
+<b>g_noerrors</b>, 
+<br />
+&#160;&#160;<b>g_addnullnode</b>, 
+<b>g_adddupnode</b>, 
+<b>g_addnulledge</b>, 
+<b>g_adddupedge</b>, 
+<br />
+&#160;&#160;<b>g_removenulledge</b>, 
 <b>g_removeunknownedge</b>
 <br />
  }</td></tr>
@@ -103,6 +133,123 @@ Public Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:ab437522fb000d5d982f789d287465292"><td class="memItemLeft" align="right" valign="top"><a id="ab437522fb000d5d982f789d287465292"></a>
+const <a class="el" href="classfz_1_1Topic__Tags.html">Topic_Tags</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#ab437522fb000d5d982f789d287465292">get_topics</a> () const</td></tr>
+<tr class="memdesc:ab437522fb000d5d982f789d287465292"><td class="mdescLeft">&#160;</td><td class="mdescRight">tables references <br /></td></tr>
+<tr class="separator:ab437522fb000d5d982f789d287465292"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a4373343784595ac1e277f1f0cc68c6"><td class="memItemLeft" align="right" valign="top"><a id="a9a4373343784595ac1e277f1f0cc68c6"></a>
+const Node_Map &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_nodes</b> () const</td></tr>
+<tr class="separator:a9a4373343784595ac1e277f1f0cc68c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d62ec8055c75d1871c22056846d3250"><td class="memItemLeft" align="right" valign="top"><a id="a7d62ec8055c75d1871c22056846d3250"></a>
+Node_Map::size_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a7d62ec8055c75d1871c22056846d3250">num_Nodes</a> () const</td></tr>
+<tr class="memdesc:a7d62ec8055c75d1871c22056846d3250"><td class="mdescLeft">&#160;</td><td class="mdescRight">tables sizes <br /></td></tr>
+<tr class="separator:a7d62ec8055c75d1871c22056846d3250"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71f1b141d378d2acd31854bd0499120c"><td class="memItemLeft" align="right" valign="top"><a id="a71f1b141d378d2acd31854bd0499120c"></a>
+Edge_Map::size_type&#160;</td><td class="memItemRight" valign="bottom"><b>num_Edges</b> () const</td></tr>
+<tr class="separator:a71f1b141d378d2acd31854bd0499120c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d4ab099ce392268d41ee40e8a318f33"><td class="memItemLeft" align="right" valign="top"><a id="a8d4ab099ce392268d41ee40e8a318f33"></a>
+Topic_Tags_Vector::size_type&#160;</td><td class="memItemRight" valign="bottom"><b>num_Topics</b> () const</td></tr>
+<tr class="separator:a8d4ab099ce392268d41ee40e8a318f33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86b00272cee9c59ad014f4a1d6dceba1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a86b00272cee9c59ad014f4a1d6dceba1">add_Node</a> (<a class="el" href="classfz_1_1Node.html">Node</a> &amp;node)</td></tr>
+<tr class="memdesc:a86b00272cee9c59ad014f4a1d6dceba1"><td class="mdescLeft">&#160;</td><td class="mdescRight">nodes table: extend  <a href="#a86b00272cee9c59ad014f4a1d6dceba1">More...</a><br /></td></tr>
+<tr class="separator:a86b00272cee9c59ad014f4a1d6dceba1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7c6fbfa8ec450a205ba20bcf79dcdfb"><td class="memItemLeft" align="right" valign="top"><a id="ae7c6fbfa8ec450a205ba20bcf79dcdfb"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>add_Node</b> (<a class="el" href="classfz_1_1Node.html">Node</a> *node)</td></tr>
+<tr class="separator:ae7c6fbfa8ec450a205ba20bcf79dcdfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7209a044315ee9e45056aadeb5be3ddc"><td class="memItemLeft" align="right" valign="top"><a id="a7209a044315ee9e45056aadeb5be3ddc"></a>
+<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>create_Node</b> (std::string id_str)</td></tr>
+<tr class="separator:a7209a044315ee9e45056aadeb5be3ddc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afeff724736bca9d1da7a8cedf45c08b6"><td class="memItemLeft" align="right" valign="top"><a id="afeff724736bca9d1da7a8cedf45c08b6"></a>
+<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>create_and_add_Node</b> (std::string id_str)</td></tr>
+<tr class="separator:afeff724736bca9d1da7a8cedf45c08b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a067be0e3a6f83267289cd753c13b6f10"><td class="memItemLeft" align="right" valign="top"><a id="a067be0e3a6f83267289cd753c13b6f10"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a067be0e3a6f83267289cd753c13b6f10">add_Edge</a> (<a class="el" href="classfz_1_1Edge.html">Edge</a> &amp;edge)</td></tr>
+<tr class="memdesc:a067be0e3a6f83267289cd753c13b6f10"><td class="mdescLeft">&#160;</td><td class="mdescRight">edges table: extend <br /></td></tr>
+<tr class="separator:a067be0e3a6f83267289cd753c13b6f10"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa02578bf7e3f256046f28fb2fc42966c"><td class="memItemLeft" align="right" valign="top"><a id="aa02578bf7e3f256046f28fb2fc42966c"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>add_Edge</b> (<a class="el" href="classfz_1_1Edge.html">Edge</a> *edge)</td></tr>
+<tr class="separator:aa02578bf7e3f256046f28fb2fc42966c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7bac243b8b6d456cc7d21a5cc9b5824a"><td class="memItemLeft" align="right" valign="top"><a id="a7bac243b8b6d456cc7d21a5cc9b5824a"></a>
+<a class="el" href="classfz_1_1Edge.html">Edge</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>create_Edge</b> (<a class="el" href="classfz_1_1Node.html">Node</a> &amp;_dep, <a class="el" href="classfz_1_1Node.html">Node</a> &amp;_sup)</td></tr>
+<tr class="separator:a7bac243b8b6d456cc7d21a5cc9b5824a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b531709b9a59365685b4dab8d92e459"><td class="memItemLeft" align="right" valign="top"><a id="a8b531709b9a59365685b4dab8d92e459"></a>
+<a class="el" href="classfz_1_1Edge.html">Edge</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>create_and_add_Edge</b> (std::string id_str)</td></tr>
+<tr class="separator:a8b531709b9a59365685b4dab8d92e459"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a4b3f81107f0e6e5aeea7354b729bc5"><td class="memItemLeft" align="right" valign="top"><a id="a4a4b3f81107f0e6e5aeea7354b729bc5"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a4a4b3f81107f0e6e5aeea7354b729bc5">remove_Edge</a> (<a class="el" href="classfz_1_1Edge.html">Edge</a> &amp;edge)</td></tr>
+<tr class="memdesc:a4a4b3f81107f0e6e5aeea7354b729bc5"><td class="mdescLeft">&#160;</td><td class="mdescRight">edges table: reduce <br /></td></tr>
+<tr class="separator:a4a4b3f81107f0e6e5aeea7354b729bc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2af978e71ef3416905731c878e7db1db"><td class="memItemLeft" align="right" valign="top"><a id="a2af978e71ef3416905731c878e7db1db"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>remove_Edge</b> (<a class="el" href="classfz_1_1Edge.html">Edge</a> *edge)</td></tr>
+<tr class="separator:a2af978e71ef3416905731c878e7db1db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79c390cca1748a288aed3ab00247ed6a"><td class="memItemLeft" align="right" valign="top"><a id="a79c390cca1748a288aed3ab00247ed6a"></a>
+auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a79c390cca1748a288aed3ab00247ed6a">begin_Nodes</a> () const</td></tr>
+<tr class="memdesc:a79c390cca1748a288aed3ab00247ed6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">nodes table: get node <br /></td></tr>
+<tr class="separator:a79c390cca1748a288aed3ab00247ed6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a9691c6f4eebcbb98661598d2630356"><td class="memItemLeft" align="right" valign="top"><a id="a5a9691c6f4eebcbb98661598d2630356"></a>
+auto&#160;</td><td class="memItemRight" valign="bottom"><b>end_Nodes</b> () const</td></tr>
+<tr class="separator:a5a9691c6f4eebcbb98661598d2630356"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a386138eacb233452cc00aaf3de31e033"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a386138eacb233452cc00aaf3de31e033">Node_by_id</a> (const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;id) const</td></tr>
+<tr class="memdesc:a386138eacb233452cc00aaf3de31e033"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> by its ID key.  <a href="#a386138eacb233452cc00aaf3de31e033">More...</a><br /></td></tr>
+<tr class="separator:a386138eacb233452cc00aaf3de31e033"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a498bc12182fb03eb8bf01923d3e953ab"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a498bc12182fb03eb8bf01923d3e953ab">Node_by_idstr</a> (std::string idstr) const</td></tr>
+<tr class="memdesc:a498bc12182fb03eb8bf01923d3e953ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> by its ID key from a string.  <a href="#a498bc12182fb03eb8bf01923d3e953ab">More...</a><br /></td></tr>
+<tr class="separator:a498bc12182fb03eb8bf01923d3e953ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8adda9a84171030a012cf47126879832"><td class="memItemLeft" align="right" valign="top"><a id="a8adda9a84171030a012cf47126879832"></a>
+Node_Index&#160;</td><td class="memItemRight" valign="bottom"><b>get_Indexed_Nodes</b> () const</td></tr>
+<tr class="separator:a8adda9a84171030a012cf47126879832"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac638c721a589d1827f415bc380f36965"><td class="memItemLeft" align="right" valign="top"><a id="ac638c721a589d1827f415bc380f36965"></a>
+auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#ac638c721a589d1827f415bc380f36965">begin_Edges</a> () const</td></tr>
+<tr class="memdesc:ac638c721a589d1827f415bc380f36965"><td class="mdescLeft">&#160;</td><td class="mdescRight">edges table: get edge <br /></td></tr>
+<tr class="separator:ac638c721a589d1827f415bc380f36965"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9bb7a6ca30e2870011011c5c738515e5"><td class="memItemLeft" align="right" valign="top"><a id="a9bb7a6ca30e2870011011c5c738515e5"></a>
+auto&#160;</td><td class="memItemRight" valign="bottom"><b>end_Edges</b> () const</td></tr>
+<tr class="separator:a9bb7a6ca30e2870011011c5c738515e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b71565b1a517549954fa8baf60d69da"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Edge.html">Edge</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a5b71565b1a517549954fa8baf60d69da">Edge_by_id</a> (const <a class="el" href="structfz_1_1Edge__ID__key.html">Edge_ID_key</a> &amp;id) const</td></tr>
+<tr class="memdesc:a5b71565b1a517549954fa8baf60d69da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find an <a class="el" href="classfz_1_1Edge.html">Edge</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> by its ID key.  <a href="#a5b71565b1a517549954fa8baf60d69da">More...</a><br /></td></tr>
+<tr class="separator:a5b71565b1a517549954fa8baf60d69da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a25cc71ae786452ce6be68f9c9c02034b"><td class="memItemLeft" align="right" valign="top"><a id="a25cc71ae786452ce6be68f9c9c02034b"></a>
+<a class="el" href="classfz_1_1Topic.html">Topic</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a25cc71ae786452ce6be68f9c9c02034b">find_Topic_by_id</a> (<a class="el" href="namespacefz.html#afddacf07ad964643983aa625bd00aba8">Topic_ID</a> _id)</td></tr>
+<tr class="memdesc:a25cc71ae786452ce6be68f9c9c02034b"><td class="mdescLeft">&#160;</td><td class="mdescRight">topics table: get topic <br /></td></tr>
+<tr class="separator:a25cc71ae786452ce6be68f9c9c02034b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afebf7e1090e0d59fd31c6ea202c44320"><td class="memItemLeft" align="right" valign="top"><a id="afebf7e1090e0d59fd31c6ea202c44320"></a>
+<a class="el" href="classfz_1_1Topic.html">Topic</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>find_Topic_by_tag</b> (std::string _tag)</td></tr>
+<tr class="separator:afebf7e1090e0d59fd31c6ea202c44320"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0005e7b26cb7697d964cbc495544f268"><td class="memItemLeft" align="right" valign="top"><a id="a0005e7b26cb7697d964cbc495544f268"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>find_Topic_Tag_by_id</b> (<a class="el" href="namespacefz.html#afddacf07ad964643983aa625bd00aba8">Topic_ID</a> _id)</td></tr>
+<tr class="separator:a0005e7b26cb7697d964cbc495544f268"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada44163db335ead20bcd8088b07c7db0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#ada44163db335ead20bcd8088b07c7db0">topics_exist</a> (const Topics_Set &amp;topicsset)</td></tr>
+<tr class="memdesc:ada44163db335ead20bcd8088b07c7db0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Confirm the existence of all <a class="el" href="classfz_1_1Topic.html">Topic</a> IDs in a set.  <a href="#ada44163db335ead20bcd8088b07c7db0">More...</a><br /></td></tr>
+<tr class="separator:ada44163db335ead20bcd8088b07c7db0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9d8af7f2ec7c8cd4f70aa408b1b2201"><td class="memItemLeft" align="right" valign="top"><a id="ab9d8af7f2ec7c8cd4f70aa408b1b2201"></a>
+std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#ab9d8af7f2ec7c8cd4f70aa408b1b2201">get_List_names</a> () const</td></tr>
+<tr class="memdesc:ab9d8af7f2ec7c8cd4f70aa408b1b2201"><td class="mdescLeft">&#160;</td><td class="mdescRight">namedlists <br /></td></tr>
+<tr class="separator:ab9d8af7f2ec7c8cd4f70aa408b1b2201"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7f463ade9dd62612d3dc410a3a99807"><td class="memItemLeft" align="right" valign="top"><a id="ae7f463ade9dd62612d3dc410a3a99807"></a>
+<a class="el" href="structfz_1_1Named__Node__List.html">Named_Node_List_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_List</b> (const std::string _name)</td></tr>
+<tr class="separator:ae7f463ade9dd62612d3dc410a3a99807"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a677432d4b8e80521db3cd3bcdae6f419"><td class="memItemLeft" align="right" valign="top"><a id="a677432d4b8e80521db3cd3bcdae6f419"></a>
+<a class="el" href="structfz_1_1Named__Node__List.html">Named_Node_List_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a677432d4b8e80521db3cd3bcdae6f419">add_to_List</a> (const std::string _name, const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node)</td></tr>
+<tr class="memdesc:a677432d4b8e80521db3cd3bcdae6f419"><td class="mdescLeft">&#160;</td><td class="mdescRight">If successful this returns a pointer to the Named List where the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> was appended. <br /></td></tr>
+<tr class="separator:a677432d4b8e80521db3cd3bcdae6f419"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b1a02cc39cc0e39d35fc9c36b47644f"><td class="memItemLeft" align="right" valign="top"><a id="a5b1a02cc39cc0e39d35fc9c36b47644f"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>remove_from_List</b> (const std::string _name, const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;nkey)</td></tr>
+<tr class="separator:a5b1a02cc39cc0e39d35fc9c36b47644f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f66bec18917dc494aed403df870889a"><td class="memItemLeft" align="right" valign="top"><a id="a8f66bec18917dc494aed403df870889a"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>delete_List</b> (const std::string _name)</td></tr>
+<tr class="separator:a8f66bec18917dc494aed403df870889a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54cb7053245a21609a622110d0e5998e"><td class="memItemLeft" align="right" valign="top"><a id="a54cb7053245a21609a622110d0e5998e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>reset_Lists</b> ()</td></tr>
+<tr class="separator:a54cb7053245a21609a622110d0e5998e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a909faa65e8f8c27d978ebad06072ab51"><td class="memItemLeft" align="right" valign="top"><a id="a909faa65e8f8c27d978ebad06072ab51"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>persistent_Lists</b> () const</td></tr>
+<tr class="separator:a909faa65e8f8c27d978ebad06072ab51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af14a97d7b788fa5ef65ef19afc737fc6"><td class="memItemLeft" align="right" valign="top"><a id="af14a97d7b788fa5ef65ef19afc737fc6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Lists_persistence</b> (bool _persistent)</td></tr>
+<tr class="separator:af14a97d7b788fa5ef65ef19afc737fc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f09eab13f92b1cafa3e2d8f82e8abf9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Topic.html">Topic</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a4f09eab13f92b1cafa3e2d8f82e8abf9">main_Topic_of_Node</a> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node) const</td></tr>
+<tr class="memdesc:a4f09eab13f92b1cafa3e2d8f82e8abf9"><td class="mdescLeft">&#160;</td><td class="mdescRight">crossref tables: topics x nodes  <a href="#a4f09eab13f92b1cafa3e2d8f82e8abf9">More...</a><br /></td></tr>
+<tr class="separator:a4f09eab13f92b1cafa3e2d8f82e8abf9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab437522fb000d5d982f789d287465292"><td class="memItemLeft" align="right" valign="top"><a id="ab437522fb000d5d982f789d287465292"></a>
 const <a class="el" href="classfz_1_1Topic__Tags.html">Topic_Tags</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#ab437522fb000d5d982f789d287465292">get_topics</a> () const</td></tr>
 <tr class="memdesc:ab437522fb000d5d982f789d287465292"><td class="mdescLeft">&#160;</td><td class="mdescRight">tables references <br /></td></tr>
@@ -145,12 +292,12 @@ auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a5a9691c6f4eebcbb98661598d2630356"><td class="memItemLeft" align="right" valign="top"><a id="a5a9691c6f4eebcbb98661598d2630356"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>end_Nodes</b> () const</td></tr>
 <tr class="separator:a5a9691c6f4eebcbb98661598d2630356"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a386138eacb233452cc00aaf3de31e033"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a386138eacb233452cc00aaf3de31e033">Node_by_id</a> (const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;id) const</td></tr>
-<tr class="memdesc:a386138eacb233452cc00aaf3de31e033"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> by its ID key.  <a href="#a386138eacb233452cc00aaf3de31e033">More...</a><br /></td></tr>
-<tr class="separator:a386138eacb233452cc00aaf3de31e033"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a498bc12182fb03eb8bf01923d3e953ab"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a498bc12182fb03eb8bf01923d3e953ab">Node_by_idstr</a> (std::string idstr) const</td></tr>
-<tr class="memdesc:a498bc12182fb03eb8bf01923d3e953ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> by its ID key from a string.  <a href="#a498bc12182fb03eb8bf01923d3e953ab">More...</a><br /></td></tr>
-<tr class="separator:a498bc12182fb03eb8bf01923d3e953ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5dd84c3df245b0869b85b1d7d21175af"><td class="memItemLeft" align="right" valign="top"><a id="a5dd84c3df245b0869b85b1d7d21175af"></a>
+<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Node_by_id</b> (const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;id) const</td></tr>
+<tr class="separator:a5dd84c3df245b0869b85b1d7d21175af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa0598482a7da3ee6cb0b1d1907086697"><td class="memItemLeft" align="right" valign="top"><a id="aa0598482a7da3ee6cb0b1d1907086697"></a>
+<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Node_by_idstr</b> (std::string idstr) const</td></tr>
+<tr class="separator:aa0598482a7da3ee6cb0b1d1907086697"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8adda9a84171030a012cf47126879832"><td class="memItemLeft" align="right" valign="top"><a id="a8adda9a84171030a012cf47126879832"></a>
 Node_Index&#160;</td><td class="memItemRight" valign="bottom"><b>get_Indexed_Nodes</b> () const</td></tr>
 <tr class="separator:a8adda9a84171030a012cf47126879832"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -161,11 +308,11 @@ auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a9bb7a6ca30e2870011011c5c738515e5"><td class="memItemLeft" align="right" valign="top"><a id="a9bb7a6ca30e2870011011c5c738515e5"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>end_Edges</b> () const</td></tr>
 <tr class="separator:a9bb7a6ca30e2870011011c5c738515e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b71565b1a517549954fa8baf60d69da"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Edge.html">Edge</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a5b71565b1a517549954fa8baf60d69da">Edge_by_id</a> (const <a class="el" href="structfz_1_1Edge__ID__key.html">Edge_ID_key</a> &amp;id) const</td></tr>
-<tr class="memdesc:a5b71565b1a517549954fa8baf60d69da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find an <a class="el" href="classfz_1_1Edge.html">Edge</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a> by its ID key.  <a href="#a5b71565b1a517549954fa8baf60d69da">More...</a><br /></td></tr>
-<tr class="separator:a5b71565b1a517549954fa8baf60d69da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada9764955292c11c6efd4799b86c333b"><td class="memItemLeft" align="right" valign="top"><a id="ada9764955292c11c6efd4799b86c333b"></a>
+<a class="el" href="classfz_1_1Edge.html">Edge</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Edge_by_id</b> (const <a class="el" href="structfz_1_1Edge__ID__key.html">Edge_ID_key</a> &amp;id) const</td></tr>
+<tr class="separator:ada9764955292c11c6efd4799b86c333b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a25cc71ae786452ce6be68f9c9c02034b"><td class="memItemLeft" align="right" valign="top"><a id="a25cc71ae786452ce6be68f9c9c02034b"></a>
-<a class="el" href="classfz_1_1Topic.html">Topic</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a25cc71ae786452ce6be68f9c9c02034b">find_Topic_by_id</a> (Topic_ID _id)</td></tr>
+<a class="el" href="classfz_1_1Topic.html">Topic</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a25cc71ae786452ce6be68f9c9c02034b">find_Topic_by_id</a> (<a class="el" href="namespacefz.html#afddacf07ad964643983aa625bd00aba8">Topic_ID</a> _id)</td></tr>
 <tr class="memdesc:a25cc71ae786452ce6be68f9c9c02034b"><td class="mdescLeft">&#160;</td><td class="mdescRight">topics table: get topic <br /></td></tr>
 <tr class="separator:a25cc71ae786452ce6be68f9c9c02034b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62e83e6d0c2eba2b3295143308fb6a73"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Topic.html">Topic</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a62e83e6d0c2eba2b3295143308fb6a73">main_Topic_of_Node</a> (<a class="el" href="classfz_1_1Node.html">Node</a> &amp;node)</td></tr>
@@ -186,6 +333,9 @@ Protected Member Functions</h2></td></tr>
 <tr class="memitem:af7d7d17a420e43e58655a1d0e85850e5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#af7d7d17a420e43e58655a1d0e85850e5">set_all_semaphores</a> (int sval)</td></tr>
 <tr class="memdesc:af7d7d17a420e43e58655a1d0e85850e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the semaphore variables of all Nodes in the <a class="el" href="classfz_1_1Graph.html">Graph</a> to a specified value.  <a href="#af7d7d17a420e43e58655a1d0e85850e5">More...</a><br /></td></tr>
 <tr class="separator:af7d7d17a420e43e58655a1d0e85850e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7d7d17a420e43e58655a1d0e85850e5"><td class="memItemLeft" align="right" valign="top"><a id="af7d7d17a420e43e58655a1d0e85850e5"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_all_semaphores</b> (int sval)</td></tr>
+<tr class="separator:af7d7d17a420e43e58655a1d0e85850e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
@@ -199,20 +349,51 @@ Edge_Map&#160;</td><td class="memItemRight" valign="bottom"><b>edges</b></td></t
 <tr class="memitem:a8f906abf77c88ded0022c0aad6aa81c1"><td class="memItemLeft" align="right" valign="top"><a id="a8f906abf77c88ded0022c0aad6aa81c1"></a>
 <a class="el" href="classfz_1_1Topic__Tags.html">Topic_Tags</a>&#160;</td><td class="memItemRight" valign="bottom"><b>topics</b></td></tr>
 <tr class="separator:a8f906abf77c88ded0022c0aad6aa81c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75522509ed502a38bf0212da8cf008b0"><td class="memItemLeft" align="right" valign="top"><a id="a75522509ed502a38bf0212da8cf008b0"></a>
+Named_Node_List_Map&#160;</td><td class="memItemRight" valign="bottom"><b>namedlists</b></td></tr>
+<tr class="separator:a75522509ed502a38bf0212da8cf008b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a164d9eca718fa33289deb2d94901f3e5"><td class="memItemLeft" align="right" valign="top"><a id="a164d9eca718fa33289deb2d94901f3e5"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a164d9eca718fa33289deb2d94901f3e5">persistent_NNL</a> = true</td></tr>
+<tr class="memdesc:a164d9eca718fa33289deb2d94901f3e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default is to synchronize Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> Lists between in-memory and database state. <br /></td></tr>
+<tr class="separator:a164d9eca718fa33289deb2d94901f3e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a91b00476749a60958226979437a01c94"><td class="memItemLeft" align="right" valign="top"><a id="a91b00476749a60958226979437a01c94"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>warn_loops</b> = true</td></tr>
 <tr class="separator:a91b00476749a60958226979437a01c94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:a6db9d28bd448a131448276ee03de1e6d"><td class="memItemLeft" align="right" valign="top"><a id="a6db9d28bd448a131448276ee03de1e6d"></a>
+<tr class="memitem:aed91756449328e2c454e53e9c5e53936"><td class="memItemLeft" align="right" valign="top"><a id="aed91756449328e2c454e53e9c5e53936"></a>
 class&#160;</td><td class="memItemRight" valign="bottom"><b>Node</b></td></tr>
-<tr class="separator:a6db9d28bd448a131448276ee03de1e6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:aed91756449328e2c454e53e9c5e53936"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9da38ffc402f1d73b4d3f1ff00e42e00"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a9da38ffc402f1d73b4d3f1ff00e42e00">identical_Graphs</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph1, <a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph2, std::string &amp;trace)</td></tr>
+<tr class="memdesc:a9da38ffc402f1d73b4d3f1ff00e42e00"><td class="mdescLeft">&#160;</td><td class="mdescRight">friend (utility) functions  <a href="#a9da38ffc402f1d73b4d3f1ff00e42e00">More...</a><br /></td></tr>
+<tr class="separator:a9da38ffc402f1d73b4d3f1ff00e42e00"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9da38ffc402f1d73b4d3f1ff00e42e00"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a9da38ffc402f1d73b4d3f1ff00e42e00">identical_Graphs</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph1, <a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph2, std::string &amp;trace)</td></tr>
 <tr class="memdesc:a9da38ffc402f1d73b4d3f1ff00e42e00"><td class="mdescLeft">&#160;</td><td class="mdescRight">friend (utility) functions  <a href="#a9da38ffc402f1d73b4d3f1ff00e42e00">More...</a><br /></td></tr>
 <tr class="separator:a9da38ffc402f1d73b4d3f1ff00e42e00"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a86b00272cee9c59ad014f4a1d6dceba1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a86b00272cee9c59ad014f4a1d6dceba1">&#9670;&nbsp;</a></span>add_Node()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::Graph::add_Node </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfz_1_1Node.html">Node</a> &amp;&#160;</td>
+          <td class="paramname"><em>node</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>nodes table: extend </p>
+<p>Note that this function will only allow insertion of a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> that was created in the same shared memory segment. </p>
+
+</div>
+</div>
 <a id="a5b71565b1a517549954fa8baf60d69da"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5b71565b1a517549954fa8baf60d69da">&#9670;&nbsp;</a></span>Edge_by_id()</h2>
 
@@ -249,7 +430,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Node</b></td></tr>
 </div>
 </div>
 <a id="a62e83e6d0c2eba2b3295143308fb6a73"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a62e83e6d0c2eba2b3295143308fb6a73">&#9670;&nbsp;</a></span>main_Topic_of_Node()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a62e83e6d0c2eba2b3295143308fb6a73">&#9670;&nbsp;</a></span>main_Topic_of_Node() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -273,16 +454,54 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Node</b></td></tr>
 </div><div class="memdoc">
 
 <p>crossref tables: topics x nodes </p>
-<p>Find a pointer to the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> of a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> as indicated by the maximum <code>Topic_Relevance</code> value.</p>
-<p>Note: To find the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> Index-ID instead use the function <code><a class="el" href="classfz_1_1Node.html#a17c317f67af9a52f29e6251c7d4e596b" title="helper functions ">Node::main_topic_id()</a></code>.</p>
+<p>Find a pointer to the main <a class="el" href="classfz_1_1Topic.html">Topic</a> of a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> as indicated by the maximum <code>Topic_Relevance</code> value.</p>
+<p>Note: To find the main <a class="el" href="classfz_1_1Topic.html">Topic</a> Index-ID instead use the function <code><a class="el" href="classfz_1_1Node.html#a17c317f67af9a52f29e6251c7d4e596b" title="helper functions ">Node::main_topic_id()</a></code>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname"><a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a></td><td>a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a> list. </td></tr>
-    <tr><td class="paramname">node</td><td>a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> for which the main <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> is requested. </td></tr>
+    <tr><td class="paramname">node</td><td>a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> for which the main <a class="el" href="classfz_1_1Topic.html">Topic</a> is requested. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>a pointer to the <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a> object (or nullptr if not found). </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>a pointer to the <a class="el" href="classfz_1_1Topic.html">Topic</a> object (or nullptr if not found). </dd></dl>
+
+</div>
+</div>
+<a id="a4f09eab13f92b1cafa3e2d8f82e8abf9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4f09eab13f92b1cafa3e2d8f82e8abf9">&#9670;&nbsp;</a></span>main_Topic_of_Node() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfz_1_1Topic.html">Topic</a>* fz::Graph::main_Topic_of_Node </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;&#160;</td>
+          <td class="paramname"><em>node</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>crossref tables: topics x nodes </p>
+<p>Find a pointer to the main <a class="el" href="classfz_1_1Topic.html">Topic</a> of a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> as indicated by the maximum <code>Topic_Relevance</code> value.</p>
+<p>Note: To find the main <a class="el" href="classfz_1_1Topic.html">Topic</a> Index-ID instead use the function <code><a class="el" href="classfz_1_1Node.html#a17c317f67af9a52f29e6251c7d4e596b" title="helper functions ">Node::main_topic_id()</a></code>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname"><a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a></td><td>a valid <a class="el" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index-ID. ">Topic_Tags</a> list. </td></tr>
+    <tr><td class="paramname">node</td><td>a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> for which the main <a class="el" href="classfz_1_1Topic.html">Topic</a> is requested. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a pointer to the <a class="el" href="classfz_1_1Topic.html">Topic</a> object (or nullptr if not found). </dd></dl>
 
 </div>
 </div>
@@ -385,9 +604,91 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Node</b></td></tr>
 
 </div>
 </div>
+<a id="ada44163db335ead20bcd8088b07c7db0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada44163db335ead20bcd8088b07c7db0">&#9670;&nbsp;</a></span>topics_exist()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::Graph::topics_exist </td>
+          <td>(</td>
+          <td class="paramtype">const Topics_Set &amp;&#160;</td>
+          <td class="paramname"><em>topicsset</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Confirm the existence of all <a class="el" href="classfz_1_1Topic.html">Topic</a> IDs in a set. </p>
+<p>See for example how fzserverpq uses this to validate all of the Topic-IDs provided for a new <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> to be added to the <a class="el" href="classfz_1_1Graph.html">Graph</a>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">topicsset</td><td>A set of Topic-IDs (and relevance values). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if they all exist. </dd></dl>
+
+</div>
+</div>
 <h2 class="groupheader">Friends And Related Function Documentation</h2>
 <a id="a9da38ffc402f1d73b4d3f1ff00e42e00"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9da38ffc402f1d73b4d3f1ff00e42e00">&#9670;&nbsp;</a></span>identical_Graphs</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a9da38ffc402f1d73b4d3f1ff00e42e00">&#9670;&nbsp;</a></span>identical_Graphs <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool identical_Graphs </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;&#160;</td>
+          <td class="paramname"><em>graph1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;&#160;</td>
+          <td class="paramname"><em>graph2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>trace</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>friend (utility) functions </p>
+<p>friend (utility) functions</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">graph1</td><td>the first <a class="el" href="classfz_1_1Graph.html">Graph</a>. </td></tr>
+    <tr><td class="paramname">graph2</td><td>the second <a class="el" href="classfz_1_1Graph.html">Graph</a>. </td></tr>
+    <tr><td class="paramname">trace</td><td>if a difference is found then this contains a trace. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the two Graphs are equivalent. </dd></dl>
+
+</div>
+</div>
+<a id="a9da38ffc402f1d73b4d3f1ff00e42e00"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9da38ffc402f1d73b4d3f1ff00e42e00">&#9670;&nbsp;</a></span>identical_Graphs <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -441,7 +742,9 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Node</b></td></tr>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>core/include/<a class="el" href="Graphtypes_8hpp_source.html">Graphtypes.hpp</a></li>
+<li>core/include/<a class="el" href="Graphunshared_8hpp_source.html">Graphunshared.hpp</a></li>
 <li>core/lib/Graphtypes.cpp</li>
+<li>core/lib/Graphunshared.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

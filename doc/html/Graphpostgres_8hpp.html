@@ -86,13 +86,15 @@ Include dependency graph for Graphpostgres.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="Graphpostgres_8hpp__incl.png" border="0" usemap="#core_2include_2Graphpostgres_8hpp" alt=""/></div>
 <map name="core_2include_2Graphpostgres_8hpp" id="core_2include_2Graphpostgres_8hpp">
-<area shape="rect" id="node2" href="coreversion_8hpp_source.html" title="coreversion.hpp" alt="" coords="573,379,688,405"/>
-<area shape="rect" id="node4" href="Graphtypes_8hpp_source.html" title="Graphtypes.hpp" alt="" coords="417,80,532,107"/>
-<area shape="rect" id="node10" href="error_8hpp.html" title="This header file declares error handling classes and functions for use with core Formalizer C++ code..." alt="" coords="142,155,215,181"/>
-<area shape="rect" id="node20" href="TimeStamp_8hpp.html" title="This header file declares Formalizer TimeStamp format and operations. " alt="" coords="572,155,687,181"/>
-<area shape="rect" id="node13" href="config_8hpp_source.html" title="config.hpp" alt="" coords="155,229,237,256"/>
-<area shape="rect" id="node14" href="standard_8hpp.html" title="This header file declares standard structures and functions that should be used with any standardized..." alt="" coords="197,304,294,331"/>
-<area shape="rect" id="node22" href="ReferenceTime_8hpp_source.html" title="ReferenceTime.hpp" alt="" coords="729,229,865,256"/>
+<area shape="rect" id="node2" href="coreversion_8hpp_source.html" title="coreversion.hpp" alt="" coords="1269,468,1384,495"/>
+<area shape="rect" id="node4" href="Graphtypes_8hpp_source.html" title="Graphtypes.hpp" alt="" coords="824,80,938,107"/>
+<area shape="rect" id="node17" href="error_8hpp.html" title="This header file declares error handling classes and functions for use with core Formalizer C++ code..." alt="" coords="1066,244,1139,271"/>
+<area shape="rect" id="node27" href="general_8hpp_source.html" title="general.hpp" alt="" coords="1220,244,1310,271"/>
+<area shape="rect" id="node28" href="TimeStamp_8hpp.html" title="This header file declares Formalizer TimeStamp format and operations. " alt="" coords="1650,244,1765,271"/>
+<area shape="rect" id="node31" href="Graphbase_8hpp.html" title="This header file declares Shared Memory Graph, Node and Edge types for use with the Formalizer..." alt="" coords="1559,162,1670,189"/>
+<area shape="rect" id="node20" href="config_8hpp_source.html" title="config.hpp" alt="" coords="1040,319,1122,345"/>
+<area shape="rect" id="node21" href="standard_8hpp.html" title="This header file declares standard structures and functions that should be used with any standardized..." alt="" coords="884,393,982,420"/>
+<area shape="rect" id="node30" href="ReferenceTime_8hpp_source.html" title="ReferenceTime.hpp" alt="" coords="1522,319,1658,345"/>
 </map>
 </div>
 </div>
@@ -101,7 +103,7 @@ Include dependency graph for Graphpostgres.hpp:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Topic__pq.html">fz::Topic_pq</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A data types conversion helper class that can deliver the Postgres Topics table equivalent INSERT value expression for all data content in a <a class="el" href="classfz_1_1Topic.html" title="Type for real-valued Topic relevance (of Node), presently assumed to be in the interval [0...">Topic</a>.  <a href="classfz_1_1Topic__pq.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A data types conversion helper class that can deliver the Postgres Topics table equivalent INSERT value expression for all data content in a <a class="el" href="classfz_1_1Topic.html">Topic</a>.  <a href="classfz_1_1Topic__pq.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Node__pq.html">fz::Node_pq</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A data types conversion helper class that can deliver the Postgres <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> table equivalent INSERT value expression for all data content in a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a>.  <a href="classfz_1_1Node__pq.html#details">More...</a><br /></td></tr>
@@ -169,6 +171,12 @@ Enumerations</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:a2fbebf38d141f22704b7eedd52437b28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a735a3a71054f2c2c507b5faadcdadef8"><td class="memItemLeft" align="right" valign="top"><a id="a735a3a71054f2c2c507b5faadcdadef8"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>pq_NNLfields</b> { <b>pqNNL_name</b>, 
+<b>pqNNL_features</b>, 
+<b>pqNNL_nodeids</b>, 
+<b>_pqNNL_NUM</b>
+ }</td></tr>
+<tr class="separator:a735a3a71054f2c2c507b5faadcdadef8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -205,6 +213,21 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>fz::add_Edge_pq</b> (
 <tr class="memitem:aef824584d56abd3b06028a3925a9541c"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#aef824584d56abd3b06028a3925a9541c">fz::load_Edge_parameter_interval</a> (std::string dbname, std::string schemaname, pq_Efields param, unsigned long from_row, unsigned long num_rows)</td></tr>
 <tr class="memdesc:aef824584d56abd3b06028a3925a9541c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load specific <a class="el" href="classfz_1_1Edge.html">Edge</a> parameter column interval from PostgreSQL database.  <a href="namespacefz.html#aef824584d56abd3b06028a3925a9541c">More...</a><br /></td></tr>
 <tr class="separator:aef824584d56abd3b06028a3925a9541c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf7a3b0c395e8e0af44790db1c52db00"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#abf7a3b0c395e8e0af44790db1c52db00">fz::handle_Graph_modifications_pq</a> (const Graph &amp;graph, std::string dbname, std::string schemaname, Graphmod_results &amp;modifications)</td></tr>
+<tr class="memdesc:abf7a3b0c395e8e0af44790db1c52db00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process the defined set of possible modifications of <a class="el" href="classfz_1_1Graph.html">Graph</a> data and carry out those modifications in the database.  <a href="namespacefz.html#abf7a3b0c395e8e0af44790db1c52db00">More...</a><br /></td></tr>
+<tr class="separator:abf7a3b0c395e8e0af44790db1c52db00"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ae4b124721a2a2a59d23b208ddc5e61"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a5ae4b124721a2a2a59d23b208ddc5e61">fz::Init_Named_Node_Lists_pq</a> (std::string dbname, std::string schemaname)</td></tr>
+<tr class="memdesc:a5ae4b124721a2a2a59d23b208ddc5e61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Postgres storage of Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> Lists:  <a href="namespacefz.html#a5ae4b124721a2a2a59d23b208ddc5e61">More...</a><br /></td></tr>
+<tr class="separator:a5ae4b124721a2a2a59d23b208ddc5e61"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d1083f529f49b38c70a3a77eec5cf08"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a9d1083f529f49b38c70a3a77eec5cf08">fz::Delete_Named_Node_List_pq</a> (std::string dbname, std::string schemaname, std::string listname)</td></tr>
+<tr class="memdesc:a9d1083f529f49b38c70a3a77eec5cf08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Delete a Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> List from the NamedNodeLists table.  <a href="namespacefz.html#a9d1083f529f49b38c70a3a77eec5cf08">More...</a><br /></td></tr>
+<tr class="separator:a9d1083f529f49b38c70a3a77eec5cf08"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a74e32f92d40e442ab21d111c026dc173"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a74e32f92d40e442ab21d111c026dc173">fz::Update_Named_Node_List_pq</a> (std::string dbname, std::string schemaname, std::string listname, Graph &amp;graph)</td></tr>
+<tr class="memdesc:a74e32f92d40e442ab21d111c026dc173"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update a Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> List in the NamedNodeLists table.  <a href="namespacefz.html#a74e32f92d40e442ab21d111c026dc173">More...</a><br /></td></tr>
+<tr class="separator:a74e32f92d40e442ab21d111c026dc173"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b1472e23f0f82663c96212be38c02ba"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a3b1472e23f0f82663c96212be38c02ba">fz::load_Named_Node_Lists_pq</a> (Graph &amp;graph, std::string dbname, std::string schemaname)</td></tr>
+<tr class="memdesc:a3b1472e23f0f82663c96212be38c02ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> Lists into memory-resident cache.  <a href="namespacefz.html#a3b1472e23f0f82663c96212be38c02ba">More...</a><br /></td></tr>
+<tr class="separator:a3b1472e23f0f82663c96212be38c02ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This header file declares Graph, Node aned Edge Postgres types for use with the Formalizer. </p>

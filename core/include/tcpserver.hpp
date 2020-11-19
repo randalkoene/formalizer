@@ -25,6 +25,8 @@ struct shared_memory_server {
     virtual void handle_special_purpose_request(int new_socket, const std::string & request_str) = 0;
 };
 
+bool find_server_address(std::string & ipaddr_str);
+
 /**
  * Set up an IPv4 TCP socket on specified port and listen for client connections from any address.
  * 

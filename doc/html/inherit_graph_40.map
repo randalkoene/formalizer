@@ -1,3 +1,13 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classfz_1_1ReferenceTime.html" title="fz::ReferenceTime" alt="" coords="5,5,136,32"/>
+<area shape="rect" id="node1" href="$classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="25,208,129,235"/>
+<area shape="rect" id="node2" href="$classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="204,157,315,184"/>
+<area shape="rect" id="node10" href="$classfz_1_1err__configbase.html" title="fz::err_configbase" alt="" coords="196,208,323,235"/>
+<area shape="rect" id="node3" href="$classfz_1_1fzpq__configurable.html" title="fz::fzpq_configurable" alt="" coords="371,5,513,32"/>
+<area shape="rect" id="node4" href="$classfzge__configurable.html" title="fzge_configurable" alt="" coords="380,56,504,83"/>
+<area shape="rect" id="node5" href="$classfzgh__configurable.html" title="fzgh_configurable" alt="" coords="380,107,504,133"/>
+<area shape="rect" id="node6" href="$classfzl__configurable.html" title="fzl_configurable" alt="" coords="385,157,499,184"/>
+<area shape="rect" id="node7" href="$classfzlh__configurable.html" title="fzlh_configurable" alt="" coords="382,208,502,235"/>
+<area shape="rect" id="node8" href="$classfzs__configurable.html" title="fzs_configurable" alt="" coords="383,259,501,285"/>
+<area shape="rect" id="node9" href="$classfzsi__configurable.html" title="fzsi_configurable" alt="" coords="382,309,502,336"/>
+<area shape="rect" id="node11" href="$classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="5,157,148,184"/>
 </map>

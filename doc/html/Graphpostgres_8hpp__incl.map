@@ -1,9 +1,11 @@
 <map id="core/include/Graphpostgres.hpp" name="core/include/Graphpostgres.hpp">
-<area shape="rect" id="node2" href="$coreversion_8hpp_source.html" title="coreversion.hpp" alt="" coords="573,379,688,405"/>
-<area shape="rect" id="node4" href="$Graphtypes_8hpp_source.html" title="Graphtypes.hpp" alt="" coords="417,80,532,107"/>
-<area shape="rect" id="node10" href="$error_8hpp.html" title="This header file declares error handling classes and functions for use with core Formalizer C++ code..." alt="" coords="142,155,215,181"/>
-<area shape="rect" id="node20" href="$TimeStamp_8hpp.html" title="This header file declares Formalizer TimeStamp format and operations. " alt="" coords="572,155,687,181"/>
-<area shape="rect" id="node13" href="$config_8hpp_source.html" title="config.hpp" alt="" coords="155,229,237,256"/>
-<area shape="rect" id="node14" href="$standard_8hpp.html" title="This header file declares standard structures and functions that should be used with any standardized..." alt="" coords="197,304,294,331"/>
-<area shape="rect" id="node22" href="$ReferenceTime_8hpp_source.html" title="ReferenceTime.hpp" alt="" coords="729,229,865,256"/>
+<area shape="rect" id="node2" href="$coreversion_8hpp_source.html" title="coreversion.hpp" alt="" coords="1269,468,1384,495"/>
+<area shape="rect" id="node4" href="$Graphtypes_8hpp_source.html" title="Graphtypes.hpp" alt="" coords="824,80,938,107"/>
+<area shape="rect" id="node17" href="$error_8hpp.html" title="This header file declares error handling classes and functions for use with core Formalizer C++ code..." alt="" coords="1066,244,1139,271"/>
+<area shape="rect" id="node27" href="$general_8hpp_source.html" title="general.hpp" alt="" coords="1220,244,1310,271"/>
+<area shape="rect" id="node28" href="$TimeStamp_8hpp.html" title="This header file declares Formalizer TimeStamp format and operations. " alt="" coords="1650,244,1765,271"/>
+<area shape="rect" id="node31" href="$Graphbase_8hpp.html" title="This header file declares Shared Memory Graph, Node and Edge types for use with the Formalizer..." alt="" coords="1559,162,1670,189"/>
+<area shape="rect" id="node20" href="$config_8hpp_source.html" title="config.hpp" alt="" coords="1040,319,1122,345"/>
+<area shape="rect" id="node21" href="$standard_8hpp.html" title="This header file declares standard structures and functions that should be used with any standardized..." alt="" coords="884,393,982,420"/>
+<area shape="rect" id="node30" href="$ReferenceTime_8hpp_source.html" title="ReferenceTime.hpp" alt="" coords="1522,319,1658,345"/>
 </map>

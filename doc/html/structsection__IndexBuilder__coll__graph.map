@@ -1,6 +1,6 @@
 <map id="section_IndexBuilder" name="section_IndexBuilder">
 <area shape="rect" id="node2" href="$structfz_1_1render__environment.html" title="Configuration for a template rendering environment. " alt="" coords="5,171,160,197"/>
 <area shape="rect" id="node3" href="$classfz_1_1Log.html" title="Log" alt="" coords="185,171,247,197"/>
-<area shape="rect" id="node4" href="$classfz_1_1Log__Breakpoints.html" title="Log Breakpoints (section starts)" alt="" coords="52,81,191,108"/>
-<area shape="rect" id="node6" href="$structfz_1_1Log__chunks__Deque.html" title="Log chunks (deque list)" alt="" coords="222,81,378,108"/>
+<area shape="rect" id="node4" href="$classfz_1_1Log__Breakpoints.html" title="Log Breakpoints (section starts)" alt="" coords="57,81,196,108"/>
+<area shape="rect" id="node6" href="$structfz_1_1Log__chunks__Map.html" title="Log chunks (map)" alt="" coords="229,81,371,108"/>
 </map>

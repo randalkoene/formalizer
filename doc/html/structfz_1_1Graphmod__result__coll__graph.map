@@ -1,0 +1,6 @@
+<map id="fz::Graphmod_result" name="fz::Graphmod_result">
+<area shape="rect" id="node2" href="$structfz_1_1Named__List__String.html" title="fz::Named_List_String" alt="" coords="5,199,157,225"/>
+<area shape="rect" id="node3" href="$structfz_1_1Edge__ID__key.html" title="Standardized Formalizer Edge ID key. " alt="" coords="291,199,411,225"/>
+<area shape="rect" id="node4" href="$structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. " alt="" coords="166,95,287,121"/>
+<area shape="rect" id="node5" href="$structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. " alt="" coords="162,5,291,32"/>
+</map>

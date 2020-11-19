@@ -81,15 +81,18 @@ $(function() {
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a99d2d4299fc2a0c9f61207c837c421f9"><td class="memItemLeft" align="right" valign="top"><a id="a99d2d4299fc2a0c9f61207c837c421f9"></a>
-Log_chunk_ID_key_set&#160;</td><td class="memItemRight" valign="bottom"><b>chunks</b></td></tr>
+Log_chunk_ID_key_set&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Node__history.html#a99d2d4299fc2a0c9f61207c837c421f9">chunks</a></td></tr>
+<tr class="memdesc:a99d2d4299fc2a0c9f61207c837c421f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Only chunks that explicitly belong to the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a>. <br /></td></tr>
 <tr class="separator:a99d2d4299fc2a0c9f61207c837c421f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7fa0dee921ce8925c02e1d0e6a6dd6e3"><td class="memItemLeft" align="right" valign="top"><a id="a7fa0dee921ce8925c02e1d0e6a6dd6e3"></a>
-Log_entry_ID_key_set&#160;</td><td class="memItemRight" valign="bottom"><b>entries</b></td></tr>
+Log_entry_ID_key_set&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Node__history.html#a7fa0dee921ce8925c02e1d0e6a6dd6e3">entries</a></td></tr>
+<tr class="memdesc:a7fa0dee921ce8925c02e1d0e6a6dd6e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Entries that belong to the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> both explicitly and implicitly (due to surrounding Chunk). <br /></td></tr>
 <tr class="separator:a7fa0dee921ce8925c02e1d0e6a6dd6e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p><a class="el" href="classfz_1_1Log.html" title="Log">Log</a> history by <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> expressed as a list of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks and a list of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> entries for each <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> for which there is a history. </p>
-<p>This is used, for example, to create and maintain a cache table that speeds of <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> history retrieval. (E.g., see its use in fzloghtml.) </p>
+<p>This is used, for example, to create and maintain a cache table that speeds of <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> history retrieval. (E.g., see its use in fzloghtml.)</p>
+<p>Note that because the set of chunks is Node-specific, when presenting <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks that contain all elements of a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a>'s history it is necessary to add chunks for entries that belong to the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> but are within a chunk that belongs to a different <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a>. </p>
 </div><hr/>The documentation for this struct was generated from the following file:<ul>
 <li>core/include/<a class="el" href="Logtypes_8hpp_source.html">Logtypes.hpp</a></li>
 </ul>

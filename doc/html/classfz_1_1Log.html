@@ -81,20 +81,12 @@ $(function() {
 
 <p><code>#include &lt;<a class="el" href="Logtypes_8hpp_source.html">Logtypes.hpp</a>&gt;</code></p>
 <div class="dynheader">
-Inheritance diagram for fz::Log:</div>
-<div class="dyncontent">
-<div class="center"><img src="classfz_1_1Log__inherit__graph.png" border="0" usemap="#fz_1_1Log_inherit__map" alt="Inheritance graph"/></div>
-<map name="fz_1_1Log_inherit__map" id="fz_1_1Log_inherit__map">
-<area shape="rect" id="node2" href="classfz_1_1Log__interval.html" title="This variant of Log is used by smart on&#45;demand Log caching modes. " alt="" coords="5,80,116,107"/>
-</map>
-<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
-<div class="dynheader">
 Collaboration diagram for fz::Log:</div>
 <div class="dyncontent">
 <div class="center"><img src="classfz_1_1Log__coll__graph.png" border="0" usemap="#fz_1_1Log_coll__map" alt="Collaboration graph"/></div>
 <map name="fz_1_1Log_coll__map" id="fz_1_1Log_coll__map">
 <area shape="rect" id="node2" href="classfz_1_1Log__Breakpoints.html" title="Log Breakpoints (section starts)" alt="" coords="28,81,167,108"/>
-<area shape="rect" id="node4" href="structfz_1_1Log__chunks__Deque.html" title="Log chunks (deque list)" alt="" coords="198,81,354,108"/>
+<area shape="rect" id="node4" href="structfz_1_1Log__chunks__Map.html" title="Log chunks (map)" alt="" coords="199,81,342,108"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -118,45 +110,42 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a031e4f5ab45a70e7c5d13d02e4ed986c"><td class="memItemLeft" align="right" valign="top">Log_entries_Map::size_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#a031e4f5ab45a70e7c5d13d02e4ed986c">num_Entries</a> () const</td></tr>
 <tr class="memdesc:a031e4f5ab45a70e7c5d13d02e4ed986c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Connect entries to chunks if that was not done during <a class="el" href="classfz_1_1Log__entry.html">Log_entry</a> construction. (2-pass method.)  <a href="#a031e4f5ab45a70e7c5d13d02e4ed986c">More...</a><br /></td></tr>
 <tr class="separator:a031e4f5ab45a70e7c5d13d02e4ed986c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9fb1e2c42a22490950ed938e805f2a73"><td class="memItemLeft" align="right" valign="top"><a id="a9fb1e2c42a22490950ed938e805f2a73"></a>
-Log_chunks_Deque::size_type&#160;</td><td class="memItemRight" valign="bottom"><b>num_Chunks</b> () const</td></tr>
-<tr class="separator:a9fb1e2c42a22490950ed938e805f2a73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a638187c4391ac6f0d20ac89f4c4d0403"><td class="memItemLeft" align="right" valign="top"><a id="a638187c4391ac6f0d20ac89f4c4d0403"></a>
+Log_chunks_Map::size_type&#160;</td><td class="memItemRight" valign="bottom"><b>num_Chunks</b> () const</td></tr>
+<tr class="separator:a638187c4391ac6f0d20ac89f4c4d0403"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab30d94fa32372d1b00e7a16c8ff9b1a6"><td class="memItemLeft" align="right" valign="top"><a id="ab30d94fa32372d1b00e7a16c8ff9b1a6"></a>
 Log_chunk_ID_key_deque::size_type&#160;</td><td class="memItemRight" valign="bottom"><b>num_Breakpoints</b> () const</td></tr>
 <tr class="separator:ab30d94fa32372d1b00e7a16c8ff9b1a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab9cfc072f19ed88bb28c75ea246f379"><td class="memItemLeft" align="right" valign="top"><a id="aab9cfc072f19ed88bb28c75ea246f379"></a>
-<a class="el" href="namespacefz.html#a005101cd3360f7440301c8c033b397f8">Log_entries_Map</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#aab9cfc072f19ed88bb28c75ea246f379">get_Entries</a> ()</td></tr>
+<a class="el" href="namespacefz.html#a36dc7a35876296c91d3ac9f8b762332e">Log_entries_Map</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#aab9cfc072f19ed88bb28c75ea246f379">get_Entries</a> ()</td></tr>
 <tr class="memdesc:aab9cfc072f19ed88bb28c75ea246f379"><td class="mdescLeft">&#160;</td><td class="mdescRight">tables: references <br /></td></tr>
 <tr class="separator:aab9cfc072f19ed88bb28c75ea246f379"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7d1f345a554e541e4bccbd6a7b8997d0"><td class="memItemLeft" align="right" valign="top"><a id="a7d1f345a554e541e4bccbd6a7b8997d0"></a>
-<a class="el" href="structfz_1_1Log__chunks__Deque.html">Log_chunks_Deque</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_Chunks</b> ()</td></tr>
-<tr class="separator:a7d1f345a554e541e4bccbd6a7b8997d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab04b451ee153036099d645c323e7944c"><td class="memItemLeft" align="right" valign="top"><a id="ab04b451ee153036099d645c323e7944c"></a>
+<a class="el" href="structfz_1_1Log__chunks__Map.html">Log_chunks_Map</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_Chunks</b> ()</td></tr>
+<tr class="separator:ab04b451ee153036099d645c323e7944c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f858728c0baa291563b1b0502df56fe"><td class="memItemLeft" align="right" valign="top"><a id="a4f858728c0baa291563b1b0502df56fe"></a>
 <a class="el" href="classfz_1_1Log__Breakpoints.html">Log_Breakpoints</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_Breakpoints</b> ()</td></tr>
 <tr class="separator:a4f858728c0baa291563b1b0502df56fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adaa84db4353ea130e2e681eae1524bbb"><td class="memItemLeft" align="right" valign="top"><a id="adaa84db4353ea130e2e681eae1524bbb"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#adaa84db4353ea130e2e681eae1524bbb">add_earlier_Chunk</a> (const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_tbegin, const <a class="el" href="classfz_1_1Node__ID.html">Node_ID</a> &amp;_nodeid, std::time_t _tclose)</td></tr>
-<tr class="memdesc:adaa84db4353ea130e2e681eae1524bbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">chunks table: extend <br /></td></tr>
-<tr class="separator:adaa84db4353ea130e2e681eae1524bbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a10a45df81e5da7687c2d79089e4ef891"><td class="memItemLeft" align="right" valign="top"><a id="a10a45df81e5da7687c2d79089e4ef891"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>add_later_Chunk</b> (const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_tbegin, const <a class="el" href="classfz_1_1Node__ID.html">Node_ID</a> &amp;_nodeid, std::time_t _tclose)</td></tr>
-<tr class="separator:a10a45df81e5da7687c2d79089e4ef891"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afba980cd73eed71a0209795b818c49ce"><td class="memItemLeft" align="right" valign="top"><a id="afba980cd73eed71a0209795b818c49ce"></a>
-<a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#afba980cd73eed71a0209795b818c49ce">get_chunk</a> (Log_chunk_ptr_deque::size_type idx) const</td></tr>
-<tr class="memdesc:afba980cd73eed71a0209795b818c49ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">chunks table: get chunk <br /></td></tr>
-<tr class="separator:afba980cd73eed71a0209795b818c49ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad8ba64ccb08510ee710e7ea84c1b7a9b"><td class="memItemLeft" align="right" valign="top"><a id="ad8ba64ccb08510ee710e7ea84c1b7a9b"></a>
-<a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_chunk</b> (const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> chunk_idkey) const</td></tr>
-<tr class="separator:ad8ba64ccb08510ee710e7ea84c1b7a9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7138e427c58fd0a01fc0814cfce3bb1f"><td class="memItemLeft" align="right" valign="top"><a id="a7138e427c58fd0a01fc0814cfce3bb1f"></a>
-<a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_chunk_id_key</b> (Log_chunk_ptr_deque::size_type idx) const</td></tr>
-<tr class="separator:a7138e427c58fd0a01fc0814cfce3bb1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aafb566ecc2d01e7da9ba9a5c67f5e421"><td class="memItemLeft" align="right" valign="top"><a id="aafb566ecc2d01e7da9ba9a5c67f5e421"></a>
-Log_chunk_ptr_deque::size_type&#160;</td><td class="memItemRight" valign="bottom"><b>find_chunk_by_key</b> (const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> chunk_idkey) const</td></tr>
-<tr class="separator:aafb566ecc2d01e7da9ba9a5c67f5e421"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a412a10b1f0ee8d66bd71c2f311de91e8"><td class="memItemLeft" align="right" valign="top"><a id="a412a10b1f0ee8d66bd71c2f311de91e8"></a>
-std::pair&lt; Log_chunk_ptr_deque::size_type, <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>find_chunk_index_and_pointer</b> (const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> chunk_id) const</td></tr>
-<tr class="separator:a412a10b1f0ee8d66bd71c2f311de91e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95706ac96316e08bff035df0f3c2bd02"><td class="memItemLeft" align="right" valign="top"><a id="a95706ac96316e08bff035df0f3c2bd02"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#a95706ac96316e08bff035df0f3c2bd02">add_Chunk</a> (const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_tbegin, const <a class="el" href="classfz_1_1Node__ID.html">Node_ID</a> &amp;_nodeid, std::time_t _tclose)</td></tr>
+<tr class="memdesc:a95706ac96316e08bff035df0f3c2bd02"><td class="mdescLeft">&#160;</td><td class="mdescRight">chunks table: extend <br /></td></tr>
+<tr class="separator:a95706ac96316e08bff035df0f3c2bd02"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a181ca13e9fd6cfdde266cac2d0999050"><td class="memItemLeft" align="right" valign="top"><a id="a181ca13e9fd6cfdde266cac2d0999050"></a>
+const <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#a181ca13e9fd6cfdde266cac2d0999050">get_chunk</a> (Log_chunk_ptr_map::const_iterator idx) const</td></tr>
+<tr class="memdesc:a181ca13e9fd6cfdde266cac2d0999050"><td class="mdescLeft">&#160;</td><td class="mdescRight">chunks table: get chunk <br /></td></tr>
+<tr class="separator:a181ca13e9fd6cfdde266cac2d0999050"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26183585f91a777c007fd948e618bc29"><td class="memItemLeft" align="right" valign="top"><a id="a26183585f91a777c007fd948e618bc29"></a>
+const <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_chunk</b> (const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> chunk_idkey) const</td></tr>
+<tr class="separator:a26183585f91a777c007fd948e618bc29"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62245d4eaacfd48db3822402f1b3259a"><td class="memItemLeft" align="right" valign="top"><a id="a62245d4eaacfd48db3822402f1b3259a"></a>
+<a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_chunk_id_key</b> (Log_chunk_ptr_map::const_iterator idx) const</td></tr>
+<tr class="separator:a62245d4eaacfd48db3822402f1b3259a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26af88e988808ecb37eab069e2314298"><td class="memItemLeft" align="right" valign="top"><a id="a26af88e988808ecb37eab069e2314298"></a>
+Log_chunk_ptr_map::const_iterator&#160;</td><td class="memItemRight" valign="bottom"><b>find_chunk_by_key</b> (const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> chunk_idkey) const</td></tr>
+<tr class="separator:a26af88e988808ecb37eab069e2314298"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a433d3ecdab0cc64a146d7d1442d802ae"><td class="memItemLeft" align="right" valign="top"><a id="a433d3ecdab0cc64a146d7d1442d802ae"></a>
+std::pair&lt; Log_chunk_ptr_map::const_iterator, const <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>find_chunk_index_and_pointer</b> (const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> chunk_id) const</td></tr>
+<tr class="separator:a433d3ecdab0cc64a146d7d1442d802ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0e3a077806fb7e1f5e1fef80f5618b84"><td class="memItemLeft" align="right" valign="top"><a id="a0e3a077806fb7e1f5e1fef80f5618b84"></a>
 <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#a0e3a077806fb7e1f5e1fef80f5618b84">get_Breakpoint_first_chunk_id_key</a> (Log_chunk_ID_key_deque::size_type idx)</td></tr>
 <tr class="memdesc:a0e3a077806fb7e1f5e1fef80f5618b84"><td class="mdescLeft">&#160;</td><td class="mdescRight">breakpoints table: get breakpoint <br /></td></tr>
@@ -167,10 +156,10 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_Breakpoint
 <tr class="memitem:ac254ac7142628b647e22f1155ab2818f"><td class="memItemLeft" align="right" valign="top"><a id="ac254ac7142628b647e22f1155ab2818f"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_Breakpoint_Ymd_str</b> (Log_chunk_ID_key_deque::size_type idx)</td></tr>
 <tr class="separator:ac254ac7142628b647e22f1155ab2818f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab0882d4a1381efc00e9b6756e08c4c82"><td class="memItemLeft" align="right" valign="top"><a id="ab0882d4a1381efc00e9b6756e08c4c82"></a>
-Log_chunk_ptr_deque::size_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#ab0882d4a1381efc00e9b6756e08c4c82">get_chunk_first_at_Breakpoint</a> (Log_chunk_ID_key_deque::size_type idx)</td></tr>
-<tr class="memdesc:ab0882d4a1381efc00e9b6756e08c4c82"><td class="mdescLeft">&#160;</td><td class="mdescRight">crossref tables: chunks x breakpoints <br /></td></tr>
-<tr class="separator:ab0882d4a1381efc00e9b6756e08c4c82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b4d7428a68e28fce70f0eca8f540835"><td class="memItemLeft" align="right" valign="top"><a id="a8b4d7428a68e28fce70f0eca8f540835"></a>
+Log_chunk_ptr_map::const_iterator&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#a8b4d7428a68e28fce70f0eca8f540835">get_chunk_first_at_Breakpoint</a> (Log_chunk_ID_key_deque::size_type idx)</td></tr>
+<tr class="memdesc:a8b4d7428a68e28fce70f0eca8f540835"><td class="mdescLeft">&#160;</td><td class="mdescRight">crossref tables: chunks x breakpoints <br /></td></tr>
+<tr class="separator:a8b4d7428a68e28fce70f0eca8f540835"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad6ba43707098024e35c306f441ce2f73"><td class="memItemLeft" align="right" valign="top"><a id="ad6ba43707098024e35c306f441ce2f73"></a>
 const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#ad6ba43707098024e35c306f441ce2f73">find_Breakpoint_tstamp_before_chunk</a> (const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> key)</td></tr>
 <tr class="memdesc:ad6ba43707098024e35c306f441ce2f73"><td class="mdescLeft">&#160;</td><td class="mdescRight">crossref tables: breakpoints x chunks <br /></td></tr>
@@ -202,12 +191,12 @@ Log_chunk_ID_key_deque::size_type&#160;</td><td class="memItemRight" valign="bot
 <tr class="memitem:a740b87f036296573f8e615a221cd0939"><td class="memItemLeft" align="right" valign="top">Log_chunk_ID_interval&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#a740b87f036296573f8e615a221cd0939">get_Chunks_ID_n_interval</a> (std::time_t t_from, unsigned long n)</td></tr>
 <tr class="memdesc:a740b87f036296573f8e615a221cd0939"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get an interval of n <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks with t_begin &gt;= t_from.  <a href="#a740b87f036296573f8e615a221cd0939">More...</a><br /></td></tr>
 <tr class="separator:a740b87f036296573f8e615a221cd0939"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff14b4042df0cbc66c33dd605d214941"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefz.html#ac54d7dcc5daf1d7c28a31a9ea2f2064a">Log_chunk_index_interval</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#aff14b4042df0cbc66c33dd605d214941">get_Chunks_index_t_interval</a> (std::time_t t_from, std::time_t t_before)</td></tr>
-<tr class="memdesc:aff14b4042df0cbc66c33dd605d214941"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the interval of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks with t_from &lt;= t_begin &lt; t_before.  <a href="#aff14b4042df0cbc66c33dd605d214941">More...</a><br /></td></tr>
-<tr class="separator:aff14b4042df0cbc66c33dd605d214941"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a753299dbf5c12efdf9e232a5e42a5428"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefz.html#ac54d7dcc5daf1d7c28a31a9ea2f2064a">Log_chunk_index_interval</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#a753299dbf5c12efdf9e232a5e42a5428">get_Chunks_index_n_interval</a> (std::time_t t_from, unsigned long n)</td></tr>
-<tr class="memdesc:a753299dbf5c12efdf9e232a5e42a5428"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get an interval of n <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks with t_begin &gt;= t_from.  <a href="#a753299dbf5c12efdf9e232a5e42a5428">More...</a><br /></td></tr>
-<tr class="separator:a753299dbf5c12efdf9e232a5e42a5428"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc67a829ef68c9874ebfa9c307c47abd"><td class="memItemLeft" align="right" valign="top">Log_chunk_const_iterator_interval&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#afc67a829ef68c9874ebfa9c307c47abd">get_Chunks_index_t_interval</a> (std::time_t t_from, std::time_t t_before)</td></tr>
+<tr class="memdesc:afc67a829ef68c9874ebfa9c307c47abd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the interval of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks with t_from &lt;= t_begin &lt; t_before.  <a href="#afc67a829ef68c9874ebfa9c307c47abd">More...</a><br /></td></tr>
+<tr class="separator:afc67a829ef68c9874ebfa9c307c47abd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8eef39eb4bda6a187c70fd6cbfea6786"><td class="memItemLeft" align="right" valign="top">Log_chunk_const_iterator_interval&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#a8eef39eb4bda6a187c70fd6cbfea6786">get_Chunks_index_n_interval</a> (std::time_t t_from, unsigned long n)</td></tr>
+<tr class="memdesc:a8eef39eb4bda6a187c70fd6cbfea6786"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get an interval of n <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks with t_begin &gt;= t_from.  <a href="#a8eef39eb4bda6a187c70fd6cbfea6786">More...</a><br /></td></tr>
+<tr class="separator:a8eef39eb4bda6a187c70fd6cbfea6786"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ec7c92bd3d4b9c8806bc6c5fb5041d8"><td class="memItemLeft" align="right" valign="top">std::deque&lt; <a class="el" href="structfz_1_1Log__chain__target.html">Log_chain_target</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#a1ec7c92bd3d4b9c8806bc6c5fb5041d8">get_Node_chain_fullparse</a> (const <a class="el" href="classfz_1_1Node__ID.html">Node_ID</a> node_id, bool onlyfirst=false)</td></tr>
 <tr class="memdesc:a1ec7c92bd3d4b9c8806bc6c5fb5041d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">chunks table: select subset by <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a>  <a href="#a1ec7c92bd3d4b9c8806bc6c5fb5041d8">More...</a><br /></td></tr>
 <tr class="separator:a1ec7c92bd3d4b9c8806bc6c5fb5041d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -233,6 +222,12 @@ std::time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
 <tr class="memitem:a30a3b1472b02370bd7687e3c209261b9"><td class="memItemLeft" align="right" valign="top"><a id="a30a3b1472b02370bd7687e3c209261b9"></a>
 std::time_t&#160;</td><td class="memItemRight" valign="bottom"><b>newest_chunk_t</b> ()</td></tr>
 <tr class="separator:a30a3b1472b02370bd7687e3c209261b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab4acb858a33c3ccb6e17da4e6b255a3e"><td class="memItemLeft" align="right" valign="top"><a id="ab4acb858a33c3ccb6e17da4e6b255a3e"></a>
+<a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_newest_Chunk</b> ()</td></tr>
+<tr class="separator:ab4acb858a33c3ccb6e17da4e6b255a3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab13f12beff033788739514e034967adb"><td class="memItemLeft" align="right" valign="top"><a id="ab13f12beff033788739514e034967adb"></a>
+<a class="el" href="classfz_1_1Log__entry.html">Log_entry</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_newest_Entry</b> ()</td></tr>
+<tr class="separator:ab13f12beff033788739514e034967adb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae92ea4f8975984e1ab4ff18c5debff14"><td class="memItemLeft" align="right" valign="top">Log_chunk_ID_key_set&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#ae92ea4f8975984e1ab4ff18c5debff14">chunk_key_list_from_entries</a> ()</td></tr>
 <tr class="memdesc:ae92ea4f8975984e1ab4ff18c5debff14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate a set of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk ID keys that corresponds to the ID keys of all entries in the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a>.  <a href="#ae92ea4f8975984e1ab4ff18c5debff14">More...</a><br /></td></tr>
 <tr class="separator:ae92ea4f8975984e1ab4ff18c5debff14"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -240,23 +235,23 @@ std::time_t&#160;</td><td class="memItemRight" valign="bottom"><b>newest_chunk_t
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
 <tr class="memitem:ac448c8de85ac26d5ec0e3e36b5267e67"><td class="memItemLeft" align="right" valign="top"><a id="ac448c8de85ac26d5ec0e3e36b5267e67"></a>
-<a class="el" href="namespacefz.html#a005101cd3360f7440301c8c033b397f8">Log_entries_Map</a>&#160;</td><td class="memItemRight" valign="bottom"><b>entries</b></td></tr>
+<a class="el" href="namespacefz.html#a36dc7a35876296c91d3ac9f8b762332e">Log_entries_Map</a>&#160;</td><td class="memItemRight" valign="bottom"><b>entries</b></td></tr>
 <tr class="separator:ac448c8de85ac26d5ec0e3e36b5267e67"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a17fd73404d37ad99114bb4c881ea0a21"><td class="memItemLeft" align="right" valign="top"><a id="a17fd73404d37ad99114bb4c881ea0a21"></a>
-<a class="el" href="structfz_1_1Log__chunks__Deque.html">Log_chunks_Deque</a>&#160;</td><td class="memItemRight" valign="bottom"><b>chunks</b></td></tr>
-<tr class="separator:a17fd73404d37ad99114bb4c881ea0a21"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad49ff6ab52074aace7cea07f25e29624"><td class="memItemLeft" align="right" valign="top"><a id="ad49ff6ab52074aace7cea07f25e29624"></a>
+<a class="el" href="structfz_1_1Log__chunks__Map.html">Log_chunks_Map</a>&#160;</td><td class="memItemRight" valign="bottom"><b>chunks</b></td></tr>
+<tr class="separator:ad49ff6ab52074aace7cea07f25e29624"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a68f24377ed6f241c8d83730053795784"><td class="memItemLeft" align="right" valign="top"><a id="a68f24377ed6f241c8d83730053795784"></a>
 <a class="el" href="classfz_1_1Log__Breakpoints.html">Log_Breakpoints</a>&#160;</td><td class="memItemRight" valign="bottom"><b>breakpoints</b></td></tr>
 <tr class="separator:a68f24377ed6f241c8d83730053795784"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:aaf4bdbb4c920f1fa4133c1252b486c54"><td class="memItemLeft" align="right" valign="top">std::vector&lt; Log_chunks_Deque::size_type &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#aaf4bdbb4c920f1fa4133c1252b486c54">Breakpoint_Indices</a> (<a class="el" href="classfz_1_1Log.html">Log</a> &amp;log)</td></tr>
-<tr class="memdesc:aaf4bdbb4c920f1fa4133c1252b486c54"><td class="mdescLeft">&#160;</td><td class="mdescRight">This converts the list of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> breakpoint <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk IDs into a list of indices into the list of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks (in Log::chunks).  <a href="#aaf4bdbb4c920f1fa4133c1252b486c54">More...</a><br /></td></tr>
-<tr class="separator:aaf4bdbb4c920f1fa4133c1252b486c54"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2146ddb58a16dfe67aab15c9512a1cf5"><td class="memItemLeft" align="right" valign="top">std::vector&lt; Log_chunks_Deque::size_type &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#a2146ddb58a16dfe67aab15c9512a1cf5">Chunks_per_Breakpoint</a> (<a class="el" href="classfz_1_1Log.html">Log</a> &amp;log)</td></tr>
-<tr class="memdesc:a2146ddb58a16dfe67aab15c9512a1cf5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the frequency distribution for the number of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks per <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> breakpoint.  <a href="#a2146ddb58a16dfe67aab15c9512a1cf5">More...</a><br /></td></tr>
-<tr class="separator:a2146ddb58a16dfe67aab15c9512a1cf5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a536d7fb0f2241d8e0053f4b4318b9bbb"><td class="memItemLeft" align="right" valign="top">std::vector&lt; Log_chunks_Map::iterator &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#a536d7fb0f2241d8e0053f4b4318b9bbb">Breakpoint_Indices</a> (<a class="el" href="classfz_1_1Log.html">Log</a> &amp;log)</td></tr>
+<tr class="memdesc:a536d7fb0f2241d8e0053f4b4318b9bbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">This converts the list of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> breakpoint <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunk IDs into a list of indices into the list of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks (in Log::chunks).  <a href="#a536d7fb0f2241d8e0053f4b4318b9bbb">More...</a><br /></td></tr>
+<tr class="separator:a536d7fb0f2241d8e0053f4b4318b9bbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a5d49ed9cde163bba6d34a6eaa5f154"><td class="memItemLeft" align="right" valign="top">std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#a5a5d49ed9cde163bba6d34a6eaa5f154">Chunks_per_Breakpoint</a> (<a class="el" href="classfz_1_1Log.html">Log</a> &amp;log)</td></tr>
+<tr class="memdesc:a5a5d49ed9cde163bba6d34a6eaa5f154"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the frequency distribution for the number of <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> chunks per <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> breakpoint.  <a href="#a5a5d49ed9cde163bba6d34a6eaa5f154">More...</a><br /></td></tr>
+<tr class="separator:a5a5d49ed9cde163bba6d34a6eaa5f154"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aff8571d0bb6aad25c78696fc8c3dcc1a"><td class="memItemLeft" align="right" valign="top">unsigned long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log.html#aff8571d0bb6aad25c78696fc8c3dcc1a">Log_span_in_seconds</a> (<a class="el" href="classfz_1_1Log.html">Log</a> &amp;log)</td></tr>
 <tr class="memdesc:aff8571d0bb6aad25c78696fc8c3dcc1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Report the span in seconds from when the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> was started (first cunk) to its most recent chunk.  <a href="#aff8571d0bb6aad25c78696fc8c3dcc1a">More...</a><br /></td></tr>
 <tr class="separator:aff8571d0bb6aad25c78696fc8c3dcc1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -393,14 +388,14 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="a753299dbf5c12efdf9e232a5e42a5428"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a753299dbf5c12efdf9e232a5e42a5428">&#9670;&nbsp;</a></span>get_Chunks_index_n_interval()</h2>
+<a id="a8eef39eb4bda6a187c70fd6cbfea6786"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8eef39eb4bda6a187c70fd6cbfea6786">&#9670;&nbsp;</a></span>get_Chunks_index_n_interval()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespacefz.html#ac54d7dcc5daf1d7c28a31a9ea2f2064a">Log_chunk_index_interval</a> fz::Log::get_Chunks_index_n_interval </td>
+          <td class="memname">Log_chunk_const_iterator_interval fz::Log::get_Chunks_index_n_interval </td>
           <td>(</td>
           <td class="paramtype">std::time_t&#160;</td>
           <td class="paramname"><em>t_from</em>, </td>
@@ -432,14 +427,14 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="aff14b4042df0cbc66c33dd605d214941"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aff14b4042df0cbc66c33dd605d214941">&#9670;&nbsp;</a></span>get_Chunks_index_t_interval()</h2>
+<a id="afc67a829ef68c9874ebfa9c307c47abd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afc67a829ef68c9874ebfa9c307c47abd">&#9670;&nbsp;</a></span>get_Chunks_index_t_interval()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespacefz.html#ac54d7dcc5daf1d7c28a31a9ea2f2064a">Log_chunk_index_interval</a> fz::Log::get_Chunks_index_t_interval </td>
+          <td class="memname">Log_chunk_const_iterator_interval fz::Log::get_Chunks_index_t_interval </td>
           <td>(</td>
           <td class="paramtype">std::time_t&#160;</td>
           <td class="paramname"><em>t_from</em>, </td>
@@ -818,7 +813,8 @@ Friends</h2></td></tr>
 
 <p>Call this after loading entries into the <a class="el" href="classfz_1_1Log.html" title="Log">Log</a> with valid <a class="el" href="classfz_1_1Graph.html">Graph</a>. </p>
 <p>Prune duplicate chunks.</p>
-<p>Note that this does not take care of entries that may be connected to a pruned chunk. In other words, this is better done before <a class="el" href="classfz_1_1Log.html#a6901a00db8db29ba3f1bc31ce4664c20" title="Remove any duplicate Log chunks. ">add_entries_to_chunks()</a>. </p>
+<p>Note that this does not take care of entries that may be connected to a pruned chunk. In other words, this is better done before <a class="el" href="classfz_1_1Log.html#a6901a00db8db29ba3f1bc31ce4664c20" title="Remove any duplicate Log chunks. ">add_entries_to_chunks()</a>.</p>
+<p>NOTE: Now that chunks is a map this function is probably superfluous. </p>
 
 </div>
 </div>
@@ -886,8 +882,8 @@ Friends</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Friends And Related Function Documentation</h2>
-<a id="aaf4bdbb4c920f1fa4133c1252b486c54"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aaf4bdbb4c920f1fa4133c1252b486c54">&#9670;&nbsp;</a></span>Breakpoint_Indices</h2>
+<a id="a536d7fb0f2241d8e0053f4b4318b9bbb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a536d7fb0f2241d8e0053f4b4318b9bbb">&#9670;&nbsp;</a></span>Breakpoint_Indices</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -896,7 +892,7 @@ Friends</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::vector&lt;Log_chunks_Deque::size_type&gt; Breakpoint_Indices </td>
+          <td class="memname">std::vector&lt;Log_chunks_Map::iterator&gt; Breakpoint_Indices </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classfz_1_1Log.html">Log</a> &amp;&#160;</td>
           <td class="paramname"><em>log</em></td><td>)</td>
@@ -923,8 +919,8 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="a2146ddb58a16dfe67aab15c9512a1cf5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2146ddb58a16dfe67aab15c9512a1cf5">&#9670;&nbsp;</a></span>Chunks_per_Breakpoint</h2>
+<a id="a5a5d49ed9cde163bba6d34a6eaa5f154"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a5d49ed9cde163bba6d34a6eaa5f154">&#9670;&nbsp;</a></span>Chunks_per_Breakpoint</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -933,7 +929,7 @@ Friends</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::vector&lt;Log_chunks_Deque::size_type&gt; Chunks_per_Breakpoint </td>
+          <td class="memname">std::vector&lt;size_t&gt; Chunks_per_Breakpoint </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classfz_1_1Log.html">Log</a> &amp;&#160;</td>
           <td class="paramname"><em>log</em></td><td>)</td>

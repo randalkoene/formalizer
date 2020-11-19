@@ -22,6 +22,7 @@
 #include "error.hpp"
 #include "standard.hpp"
 #include "general.hpp"
+#include "stringio.hpp"
 #include "proclock.hpp"
 #include "Graphtypes.hpp"
 #include "Graphinfo.hpp"
@@ -309,6 +310,30 @@ void show_db_mode(int new_socket) {
     send(new_socket, response_str.c_str(), response_str.size()+1, 0);
 }
 
+void show_db_log(int new_socket) {
+    ERRTRACE;
+
+    VERYVERBOSEOUT("Showing database log.\n");
+    std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
+    std::string log_html("<html>\n<head>\n<link rel=\"stylesheet\" href=\"http://aether.local/fz.css\">\n<title>fz: Database Call Log</title>\n</head>\n<body>\n<h3>fz: Database Call Log</h3>\n");
+    log_html += "<p>When fzserverpq exits, the DB call log will be flushed to: "+SimPQ.simPQfile+"</p>\n\n";
+    log_html += "<p>Current status of the DB call log:</p>\n<hr>\n<pre>\n" + SimPQ.GetLog() + "</pre>\n<hr>\n</body>\n</html>\n";
+    response_str += std::to_string(log_html.size()) + "\r\n\r\n" + log_html;
+    send(new_socket, response_str.c_str(), response_str.size()+1, 0);
+}
+
+void show_ErrQ(int new_socket) {
+    ERRTRACE;
+
+    VERYVERBOSEOUT("Showing ErrQ.\n");
+    std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
+    std::string errq_html("<html>\n<head>\n<link rel=\"stylesheet\" href=\"http://aether.local/fz.css\">\n<title>fz: ErrQ</title>\n</head>\n<body>\n<h3>fz: ErrQ</h3>\n");
+    errq_html += "<p>When fzserverpq exits, ErrQ will be flushed to: "+ErrQ.get_errfilepath()+"</p>\n\n";
+    errq_html += "<p>Current status of ErrQ:</p>\n<hr>\n<pre>\n" + ErrQ.pretty_print() + "</pre>\n<hr>\n</body>\n</html>\n";
+    response_str += std::to_string(errq_html.size()) + "\r\n\r\n" + errq_html;
+    send(new_socket, response_str.c_str(), response_str.size()+1, 0);
+}
+
 void fzserverpq::handle_special_purpose_request(int new_socket, const std::string & request_str) {
     ERRTRACE;
 
@@ -332,6 +357,11 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
             std::string status_html("<html>\n<body>\nServer status: LISTENING\n</body>\n</html>\n");
             response_str += std::to_string(status_html.size()) + "\r\n\r\n" + status_html;
             send(new_socket, response_str.c_str(), response_str.size()+1, 0);
+            return;
+        }
+
+        if (requestvec[1].substr(4) == "ErrQ") {
+            show_ErrQ(new_socket);
             return;
         }
 
@@ -360,6 +390,9 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
                     return;
                 }
 
+            } else if (requestvec[1].substr(7,3) == "log") {
+                show_db_log(new_socket);
+                return;
             }
 
         } 
@@ -616,12 +649,28 @@ void load_Graph_and_stay_resident() {
     // Load the graph and make the pointer available for handlers to use.
     fzs.graph_ptr = fzs.ga.request_Graph_copy(true, fzs.config.persistent_NNL);
     if (!fzs.graph_ptr) {
-        standard_error("unable to load Graph", __func__);
+        standard_error("Unable to load Graph", __func__);
         RETURN_AFTER_UNLOCKING;
     }
 
     VERYVERBOSEOUT(graphmemman.info_str());
     VERYVERBOSEOUT(Graph_Info_str(*fzs.graph_ptr));
+
+    std::string ipaddrstr;
+    if (!find_server_address(ipaddrstr)) {
+        standard_error("Unable to determine server IP address", __func__);
+        RETURN_AFTER_UNLOCKING;   
+    }
+
+    fzs.graph_ptr->set_server_IPaddr(ipaddrstr);
+    fzs.graph_ptr->set_server_port(fzs.config.port_number);
+    VERYVERBOSEOUT("The server will be available on:\n  localhost:"+fzs.graph_ptr->get_server_port_str()+"\n  "+fzs.graph_ptr->get_server_full_address()+'\n');
+    std::string serveraddresspath(FORMALIZER_ROOT "/server_address");
+    ipaddrstr = fzs.graph_ptr->get_server_full_address();
+    if (!string_to_file(serveraddresspath, ipaddrstr)) {
+        standard_error("Unable to store server IP address in ", __func__);
+        RETURN_AFTER_UNLOCKING;
+    }
 
     server_socket_listen(fzs.config.port_number, fzs);
 

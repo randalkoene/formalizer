@@ -78,7 +78,7 @@ $(function() {
 <p>Standardized Formalizer <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> ID key.  
  <a href="structfz_1_1Node__ID__key.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="Graphtypes_8hpp_source.html">Graphtypes.hpp</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="Graphbase_8hpp_source.html">Graphbase.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Collaboration diagram for fz::Node_ID_key:</div>
 <div class="dyncontent">
@@ -90,13 +90,19 @@ Collaboration diagram for fz::Node_ID_key:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a83a36c938a7e4651d2a62701e0ad1fa9"><td class="memItemLeft" align="right" valign="top"><a id="a83a36c938a7e4651d2a62701e0ad1fa9"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Node__ID__key.html#a83a36c938a7e4651d2a62701e0ad1fa9">Node_ID_key</a> (const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;_nodeidkey)</td></tr>
+<tr class="memdesc:a83a36c938a7e4651d2a62701e0ad1fa9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Try to use this one only for container element initialization and such. <br /></td></tr>
+<tr class="separator:a83a36c938a7e4651d2a62701e0ad1fa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a20ca31a9dc6e7560ce50f7fb219f8427"><td class="memItemLeft" align="right" valign="top"><a id="a20ca31a9dc6e7560ce50f7fb219f8427"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Node__ID__key.html#a20ca31a9dc6e7560ce50f7fb219f8427">Node_ID_key</a> (const <a class="el" href="structfz_1_1ID__TimeStamp.html">ID_TimeStamp</a> &amp;_idT)</td></tr>
-<tr class="memdesc:a20ca31a9dc6e7560ce50f7fb219f8427"><td class="mdescLeft">&#160;</td><td class="mdescRight">Try to use this one only for container element initialization and such. <br /></td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Node_ID_key</b> (const <a class="el" href="structfz_1_1ID__TimeStamp.html">ID_TimeStamp</a> &amp;_idT)</td></tr>
 <tr class="separator:a20ca31a9dc6e7560ce50f7fb219f8427"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1a8d99ccf5606c0a34d50112e46b95d0"><td class="memItemLeft" align="right" valign="top"><a id="a1a8d99ccf5606c0a34d50112e46b95d0"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Node_ID_key</b> (std::string _idS)</td></tr>
 <tr class="separator:a1a8d99ccf5606c0a34d50112e46b95d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac277955b7284c34c8225846d3c8eaaa8"><td class="memItemLeft" align="right" valign="top"><a id="ac277955b7284c34c8225846d3c8eaaa8"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Node_ID_key</b> (time_t t, uint8_t minor_id)</td></tr>
+<tr class="separator:ac277955b7284c34c8225846d3c8eaaa8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeeb568d5252e5de35fb211f22b89834a"><td class="memItemLeft" align="right" valign="top"><a id="aeeb568d5252e5de35fb211f22b89834a"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Node__ID__key.html#aeeb568d5252e5de35fb211f22b89834a">isnullkey</a> () const</td></tr>
 <tr class="memdesc:aeeb568d5252e5de35fb211f22b89834a"><td class="mdescLeft">&#160;</td><td class="mdescRight">standardization functions and operators <br /></td></tr>
@@ -125,7 +131,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>identical_Node_ID_key
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Standardized Formalizer <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> ID key. </p>
-<p>The principal constructors (all but the default constructor) each call a validity test for the key format and can throw an <a class="el" href="classfz_1_1ID__exception.html" title="Declared here for reference before further detailing. ">ID_exception</a>.</p>
+<p>The principal constructors (all but the default constructor) each call a validity test for the key format and can throw an <a class="el" href="classfz_1_1ID__exception.html" title="Exception thrown when a Node ID is of invalid form. ">ID_exception</a>.</p>
 <p>In various containers, the ordering of <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. ">Node</a> ID keys is determined by the provided operator&lt;(). It calls its equivalent in <a class="el" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. ">ID_TimeStamp</a>, where std::tie() enables lexicographical comparison, from the largest temporal component to the smallest.</p>
 <p>The default constructor is provided for various special use cases such as initialization of containers. The <code><a class="el" href="structfz_1_1Node__ID__key.html#aeeb568d5252e5de35fb211f22b89834a" title="standardization functions and operators ">isnullkey()</a></code> function can test for this special state. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
@@ -158,8 +164,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>identical_Node_ID_key
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following files:<ul>
-<li>core/include/<a class="el" href="Graphtypes_8hpp_source.html">Graphtypes.hpp</a></li>
-<li>core/lib/Graphtypes.cpp</li>
+<li>core/include/<a class="el" href="Graphbase_8hpp_source.html">Graphbase.hpp</a></li>
+<li>core/lib/Graphbase.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
