@@ -142,6 +142,11 @@ def create_tables(cmdargs):
     print('***This is just a test to see if the PQ table layouts were imported correctly:')
     print(Graphpostgres.pq_topiclayout) # That worked!
     print('\n***Implement actual table creation here!\n')
+    # *** This will need to call a program that can use the Graphpostgres and Logpostgres libraries.
+    # *** So far, this is always done by dil2graph, but when setting up a brand new environment
+    # *** for someone, those tables will need to be created correctly in empty condition.
+    # *** A good candidate program where these options can be added is fzquerypq, since that
+    # *** already provides some table making through fzquerypq -R histories and fzquerypq -R namedlists.
 
 
 def grant_fzuser_access(cmdargs,beverbose):

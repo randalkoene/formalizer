@@ -644,7 +644,7 @@ int alt_main() {
     key_pause();
 
     ERRHERE(".loadGraph");
-    Graph * graph = d2g.ga.request_Graph_copy();
+    Graph * graph = d2g.ga.request_Graph_copy(true, false);
     if (!graph) {
         ADDERROR(__func__,"unable to load Graph");
         standard.exit(exit_database_error);

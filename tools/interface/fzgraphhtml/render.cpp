@@ -49,8 +49,13 @@ bool load_templates(fzgraphhtml_templates & templates) {
     templates.clear();
 
     for (int i = 0; i < NUM_temp; ++i) {
-        if (!file_to_string(template_dir + "/" + template_ids[i], templates[static_cast<template_id_enum>(i)]))
-            ERRRETURNFALSE(__func__, "unable to load " + template_ids[i]);
+        if (template_ids[i].front() == '/') { // we need this in case a custom template was specified
+            if (!file_to_string(template_ids[i], templates[static_cast<template_id_enum>(i)]))
+                ERRRETURNFALSE(__func__, "unable to load " + template_ids[i]);
+        } else {
+            if (!file_to_string(template_dir + "/" + template_ids[i], templates[static_cast<template_id_enum>(i)]))
+                ERRRETURNFALSE(__func__, "unable to load " + template_ids[i]);
+        }
     }
 
     return true;
@@ -121,6 +126,7 @@ struct line_render_parameters {
     void render_List(const std::string & list_name) {
         template_varvalues varvals;
         varvals.emplace("list_name",list_name);
+        varvals.emplace("fzserverpq","aether.local:8090"); // *** get this elsewhere!
         rendered_page += env.render(templates[named_node_list_in_list_html_temp], varvals);
     }
 

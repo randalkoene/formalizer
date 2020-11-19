@@ -41,12 +41,15 @@ if [ "$proceed" = "y" ]; then
         echo "Refreshing fzuser access and permissions..."
         fzsetup.py -1 fzuser
 
-        echo "We can do the recommended fzquerypq -R histories now, if you wish? (Y/n) "
+        echo "We can do the recommended fzquerypq -R histories and fzquerypq -R namedlists now, if you wish? (Y/n) "
         read refreshhistories
         if [ "$refreshhistories" != "n" ]; then
 
             echo "Refreshing Node histories cache..."
             fzquerypq -R histories
+
+            echo "Refreshing Named Node Lists cache..."
+            fzquerypq -R namedlists
 
             echo ""
             echo "Refreshing fzuser access and permissions for the cache..."

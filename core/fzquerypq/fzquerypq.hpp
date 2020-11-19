@@ -20,9 +20,10 @@
 using namespace fz;
 
 enum flow_options {
-    flow_unknown = 0, /// no recognized request
-    flow_node = 1,    /// serve requested Node data
-    flow_refresh_histories = 2, /// refresh Node histories cache table
+    flow_unknown = 0,            /// no recognized request
+    flow_node = 1,               /// serve requested Node data
+    flow_refresh_histories = 2,  /// refresh Node histories cache table
+    flow_refresh_namedlists = 3, /// refresh Named Node Lists cache table
     flow_NUMoptions
 };
 

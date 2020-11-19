@@ -31,11 +31,13 @@ form = cgi.FieldStorage()
 id = form.getvalue('id')
 srclist = form.getvalue('srclist')
 
-modify_template = '''<tr><td>{{ list_name }}</td></tr><td><a href="http://{fzserverpq}/fz/graph/namedlists/{{ list_name }}?add={node_id}">[add]</a></td>
+modify_template = '''<tr><td>{{{{ list_name }}}}</td><td><a href="http://{fzserverpq}/fz/graph/namedlists/{{{{ list_name }}}}?add={node_id}">[add]</a></td></tr>
 '''
 
 listpagehead = '''<html>
 <head>
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/bluetable.css">
 <title>fz:modify Named Node List</title>
 </head>
 <body>
@@ -50,20 +52,26 @@ listpagehead = '''<html>
 
 listpagehead_nomodif = '''<html>
 <head>
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/bluetable.css">
 <title>Named Node List: {list_name}</title>
 </head>
 <body>
 <h3>Named Node List: {list_name}</h3>
 
+<table class="blueTable"><tbody>
 '''
 
 listpagehead_alllists = '''<html>
 <head>
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/bluetable.css">
 <title>Named Node Lists</title>
 </head>
 <body>
 <h3>Named Node Lists</h3>
 
+<table class="blueTable"><tbody>
 '''
 
 listpagetail = '''</tbody></table>
@@ -73,13 +81,14 @@ listpagetail = '''</tbody></table>
 
 # *** OBTAIN THIS SOMEHOW!
 fzserverpq_addrport = 'aether.local:8090'
+custom_template_file = '/var/www/webdata/formalizer/modify_NNL_template.html'
 
 if id:
     # Make the command for fzgraphhtml with custom template file instead of named_node_list_in_list_template.html
     modify_template_content = modify_template.format(node_id=id, fzserverpq=fzserverpq_addrport)
-    with open('/tmp/modify_NNL_template.html','w') as f:
+    with open(custom_template_file,'w') as f:
         f.write(modify_template_content)
-    thecmd = "./fzgraphhtml -q -L '?' -o STDOUT -E STDOUT -T 'named=/tmp/modify_NNL_template.html'"
+    thecmd = "./fzgraphhtml -q -e -L '?' -o STDOUT -E STDOUT -T 'named="+custom_template_file+"'"
     # Make page head, including form input for new Named Node List to add to
     print("Content-type:text/html\n\n")
     print(listpagehead.format(node_id=id))
@@ -87,7 +96,7 @@ if id:
     if srclist:
         print(f'\n<p>Or, <a href="http://{fzserverpq_addrport}/fz/graph/namedlists/{srclist}?remove={id}">[remove from {srclist}]</a></p>\n')
     # Call fzgraphhtml (try-except)
-    print('Or, add to one of the Named Node Lists below:\n\n<table><tbody>')
+    print('Or, add to one of the Named Node Lists below:\n\n<table class="blueTable"><tbody>')
     try:
         p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
         (child_stdin,child_stdout) = (p.stdin, p.stdout)

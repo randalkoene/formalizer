@@ -678,6 +678,10 @@ bool read_Edges_pq(PGconn* conn, std::string schemaname, Graph & graph) {
 /**
  * Load all the Nodes, Edges and Topics of the Graph from the PostgreSQL database.
  * 
+ * Note: If the `graph` is initialized with `persistent_NNL == true` then
+ *       this will also call `load_Named_Node_Lists_pq()`. See for example how
+ *       this is used in `Graphaccess::request_Graph_copy()`.
+ * 
  * @param graph a Graph for the Nodes and Edges, etc, typically empty.
  * @param dbname database name.
  * @param schemaname Formalizer schema name (usually Graph_access::pq_schemaname) 
@@ -702,8 +706,15 @@ bool load_Graph_pq(Graph& graph, std::string dbname, std::string schemaname) {
     ERRHERE(".edges");
     if (!read_Edges_pq(conn,schemaname, graph)) LOAD_GRAPH_PQ_RETURN(false);
 
-    LOAD_GRAPH_PQ_RETURN(true);
+    PQfinish(conn);
 
+    if (graph.persistent_Lists()) {
+        if (!load_Named_Node_Lists_pq(graph, dbname, schemaname)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /**

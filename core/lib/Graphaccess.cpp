@@ -15,15 +15,20 @@
 
 namespace fz {
 
-//#ifdef TEMPORARY_DIRECT_GRAPH_LOAD_IN_USE
-
 /**
- * A temporary stand-in while access to Graph data through fzserverpq is not yet
- * available.
+ * Graph access for server programs.
  * 
- * Replace this function as soon as possible!
+ * This helpful function initializes proper access parameters, sets up a shared
+ * memory segment, and loads the Graph from the database.
+ * 
+ * Note: When `persistent_cache == true` then the call to `load_Graph_pq()` will
+ *       also result in loading of the Named Node Lists cache.
+ * 
+ * @param remove_on_exit The shared memory is deleted when the calling program exits.
+ * @param persistent_cache Initial value for Graph::persistent_NNL and determines if the cache is also loaded.
+ * @return Pointer to a valid Graph data structure in shared memory.
  */
-Graph * Graph_access::request_Graph_copy(bool remove_on_exit) {
+Graph * Graph_access::request_Graph_copy(bool remove_on_exit, bool persistent_cache) {
 //std::unique_ptr<Graph> Graph_access::request_Graph_copy() {
     if (!is_server) {
         VERBOSEOUT("\n*** This program is still using a temporary direct-load of Graph data.");
@@ -37,6 +42,8 @@ Graph * Graph_access::request_Graph_copy(bool remove_on_exit) {
     Graph * graphptr = graphmemman.allocate_Graph_in_shared_memory();
     if (!graphptr)
         return nullptr;
+
+    graphptr->set_Lists_persistence(persistent_cache);
 
     //std::unique_ptr<Graph> graphptr = std::make_unique<Graph>();
 
@@ -99,10 +106,10 @@ void Graph_access::rapid_access_init(Graph &graph, Log &log) {
     log.setup_Chunk_node_caches(graph);
 }
 
-std::pair<Graph*, std::unique_ptr<Log>> Graph_access::request_Graph_and_Log_copies_and_init() {
+std::pair<Graph*, std::unique_ptr<Log>> Graph_access::request_Graph_and_Log_copies_and_init(bool remove_on_exit, bool persistent_cache) {
 //std::pair<std::unique_ptr<Graph>, std::unique_ptr<Log>> Graph_access::request_Graph_and_Log_copies_and_init() {
     //std::unique_ptr<Graph> graphptr = request_Graph_copy();
-    Graph * graphptr = request_Graph_copy();
+    Graph * graphptr = request_Graph_copy(remove_on_exit, persistent_cache);
     std::unique_ptr<Log> logptr = request_Log_copy();
 
     if ((graphptr != nullptr) && (logptr != nullptr)) {

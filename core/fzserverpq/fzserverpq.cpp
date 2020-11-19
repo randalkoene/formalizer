@@ -66,6 +66,7 @@ fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga
         "  /fz/graph/namedlists/<list-name>?remove=<node-id>\n"
         "  /fz/graph/namedlists/<list-name>?delete=\n"
         "  /fz/graph/namedlists/_set?persistent=\n"
+        "  /fz/graph/namedlists/_reload\n"
         "Note that the 'persistent' switch is only available through port requests and\n"
         "through the configuration file. There is no command line option.\n");
 }
@@ -176,6 +177,17 @@ bool handle_named_list_parameters(std::string NNLpar_requeststr, std::string & r
     return false;
 }
 
+bool handle_named_lists_reload(std::string & response_html) {
+    if (!load_Named_Node_Lists_pq(*fzs.graph_ptr, fzs.ga.dbname(), fzs.ga.pq_schemaname())) {
+        return false;
+    }
+    response_html = "<html>\n<body>\n"
+                    "<p>Named Node List parameter set.</p>\n"
+                    "<p>persistent_NNL = <b>false</b></p>\n"
+                    "</body>\n</html>\n";
+    return true;
+}
+
 bool handle_named_list_direct_request(std::string namedlistreqstr, std::string & response_html) {
     size_t name_endpos = namedlistreqstr.find('?');
     if ((name_endpos == std::string::npos) || (name_endpos == 0)) {
@@ -187,6 +199,12 @@ bool handle_named_list_direct_request(std::string namedlistreqstr, std::string &
 
     if (list_name == "_set") {
         return handle_named_list_parameters(namedlistreqstr.substr(name_endpos), response_html);
+    }
+
+    if (fzs.graph_ptr->persistent_Lists()) {
+        if (list_name == "_reload") {
+            return handle_named_lists_reload(response_html);
+        }
     }
 
     if (namedlistreqstr.substr(name_endpos,4) == "add=") {
@@ -260,7 +278,11 @@ bool handle_named_list_direct_request(std::string namedlistreqstr, std::string &
 void show_db_mode(int new_socket) {
     VERYVERBOSEOUT("Database mode: "+SimPQ.PQChanges_Mode_str()+'\n');
     std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
-    std::string mode_html("<html>\n<body>\nDatabase mode: "+SimPQ.PQChanges_Mode_str()+"\n</body>\n</html>\n");
+    std::string mode_html("<html>\n<body>\n<p>Database mode: "+SimPQ.PQChanges_Mode_str()+"</p>\n");
+    if (SimPQ.LoggingPQChanges()) {
+        mode_html += "<p>Logging to: "+SimPQ.simPQfile+"</p>\n";
+    }
+    mode_html += "</body>\n</html>\n";
     response_str += std::to_string(mode_html.size()) + "\n\n" + mode_html;
     send(new_socket, response_str.c_str(), response_str.size()+1, 0);
 }
@@ -550,26 +572,22 @@ void load_Graph_and_stay_resident() {
     int lockfile_ret = check_and_make_lockfile(fzs.lockfilepath, "");
     if (lockfile_ret != 0) {
         if (lockfile_ret == 1) {
-            ADDERROR(__func__, "Another instance of this server may be running. The lock file already exists at "+std::string(fzs.lockfilepath));
-            VERBOSEERR("The lock file already exists at "+std::string(fzs.lockfilepath)+".\nAnother instance of this server may be running.\n");
-            standard.exit(exit_general_error);
+            standard_exit_error(exit_general_error, "The lock file already exists at "+std::string(fzs.lockfilepath)+".\nAnother instance of this server may be running.", __func__);
         }
-        ADDERROR(__func__, "Unable to make lockfile at "+std::string(fzs.lockfilepath));
-        VERBOSEERR("Unable to make lockfile at "+std::string(fzs.lockfilepath)+".\n");
-        standard.exit(exit_general_error);
+        standard_exit_error(exit_general_error, "Unable to make lockfile at "+std::string(fzs.lockfilepath), __func__);
     }      
 
     #define RETURN_AFTER_UNLOCKING { \
         if (remove_lockfile(fzs.lockfilepath) != 0) { \
-            ADDERROR(__func__, "Unable to remove lockfile before exiting"); \
+            standard_error("Unable to remove lockfile before exiting", __func__); \
         } \
         return; \
     }
 
     // Load the graph and make the pointer available for handlers to use.
-    fzs.graph_ptr = fzs.ga.request_Graph_copy();
+    fzs.graph_ptr = fzs.ga.request_Graph_copy(true, fzs.config.persistent_NNL);
     if (!fzs.graph_ptr) {
-        ADDERROR(__func__,"unable to load Graph");
+        standard_error("unable to load Graph", __func__);
         RETURN_AFTER_UNLOCKING;
     }
 

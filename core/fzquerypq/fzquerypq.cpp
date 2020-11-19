@@ -39,13 +39,15 @@ fzquerypq::fzquerypq() : formalizer_standard_program(true), output_format(output
 
 void fzquerypq::usage_hook() {
     ga.usage_hook();
-    FZOUT("    -n request data for Node <Node-ID>\n");
-    FZOUT("    -F specify output format\n");
-    FZOUT("       available formats:\n");
-    FZOUT("       txt = basic ASCII text template\n")
-    FZOUT("       html = HTML template\n");
-    FZOUT("    -R refresh:\n");
-    FZOUT("       histories = Node histories cache table\n");
+    FZOUT("    -n request data for Node <Node-ID>\n"
+          "    -F specify output format\n"
+          "       available formats:\n"
+          "       txt = basic ASCII text template\n"
+          "       html = HTML template\n"
+          "    -R refresh:\n"
+          "         histories = Node histories cache table\n"
+          "         namedlists = Named Node Lists cache table\n"
+    );
 }
 
 bool fzquerypq::set_output_format(const std::string & cargs) {
@@ -57,9 +59,7 @@ bool fzquerypq::set_output_format(const std::string & cargs) {
         output_format = output_txt;
         return true;
     }
-    ADDERROR(__func__,"unknown output format: "+cargs);
-    FZERR("unknown output format: "+cargs);
-    exit(exit_command_line_error);
+    standard_exit_error(exit_command_line_error, "unknown output format: "+cargs, __func__);
     return false; // never gets here
 }
 
@@ -85,9 +85,11 @@ bool fzquerypq::options_hook(char c, std::string cargs) {
             flowcontrol = flow_refresh_histories;
             return true;
         }
-        ADDERROR(__func__, "Unknown option -R "+cargs);
-        VERBOSEERR("Unknown option -R "+cargs+'\n');
-        return false;
+        if (cargs=="namedlists") {
+            flowcontrol = flow_refresh_namedlists;
+            return true;
+        }
+        return standard_error("Unknown option -R "+cargs, __func__);
     }
 
     }
@@ -123,6 +125,11 @@ int main(int argc, char *argv[]) {
 
     case flow_refresh_histories: {
         refresh_Node_histories_cache_table();
+        break;
+    }
+
+    case flow_refresh_namedlists: {
+        refresh_Named_Node_Lists_cache_table();
         break;
     }
 

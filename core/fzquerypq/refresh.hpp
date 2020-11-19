@@ -14,4 +14,6 @@
 
 void refresh_Node_histories_cache_table();
 
+void refresh_Named_Node_Lists_cache_table();
+
 #endif // __REFRESH_HPP
