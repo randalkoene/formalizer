@@ -113,7 +113,7 @@ struct line_render_parameters {
         std::string htmltext(node.get_text().c_str());
         varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
         //varvals.emplace("excerpt",remove_html(htmltext).substr(0,fzgh.config.excerpt_length));
-        varvals.emplace("fzserverpq","aether.local:8090"); // *** get this elsewhere!
+        varvals.emplace("fzserverpq",graph_ptr->get_server_full_address());
         varvals.emplace("srclist",srclist);
 
         if (fzgh.test_cards) {
@@ -126,7 +126,7 @@ struct line_render_parameters {
     void render_List(const std::string & list_name) {
         template_varvalues varvals;
         varvals.emplace("list_name",list_name);
-        varvals.emplace("fzserverpq","aether.local:8090"); // *** get this elsewhere!
+        varvals.emplace("fzserverpq",graph_ptr->get_server_full_address());
         rendered_page += env.render(templates[named_node_list_in_list_html_temp], varvals);
     }
 

@@ -19,6 +19,11 @@ from subprocess import Popen, PIPE
 from pathlib import Path
 home = str(Path.home())
 
+# *** THESE SHOULD BE SET BY SETUP CONFIGURATION
+dotformalizer_path = home+".formalizer"
+# *** Perhaps read the following from ~/.formalizer/webdata_path
+webdata_path = "/var/www/webdata/formalizer"
+
 # cgitb.enable()
 # cgitb.disable()
 # cgitb.enable(display=0, logdir="/tmp/test_python_cgiformget.log")
@@ -80,8 +85,10 @@ listpagetail = '''</tbody></table>
 '''
 
 # *** OBTAIN THIS SOMEHOW!
-fzserverpq_addrport = 'aether.local:8090'
-custom_template_file = '/var/www/webdata/formalizer/modify_NNL_template.html'
+with open(dotformalizer_path+'/server_address','r') as f:
+    fzserverpq_addrport = f.read()
+#fzserverpq_addrport = 'aether.local:8090'
+custom_template_file = webdata_path+'/modify_NNL_template.html'
 
 if id:
     # Make the command for fzgraphhtml with custom template file instead of named_node_list_in_list_template.html

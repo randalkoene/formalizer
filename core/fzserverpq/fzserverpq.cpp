@@ -315,7 +315,7 @@ void show_db_log(int new_socket) {
 
     VERYVERBOSEOUT("Showing database log.\n");
     std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
-    std::string log_html("<html>\n<head>\n<link rel=\"stylesheet\" href=\"http://aether.local/fz.css\">\n<title>fz: Database Call Log</title>\n</head>\n<body>\n<h3>fz: Database Call Log</h3>\n");
+    std::string log_html("<html>\n<head>\n<link rel=\"stylesheet\" href=\"http://"+fzs.graph_ptr->get_server_IPaddr()+"/fz.css\">\n<title>fz: Database Call Log</title>\n</head>\n<body>\n<h3>fz: Database Call Log</h3>\n");
     log_html += "<p>When fzserverpq exits, the DB call log will be flushed to: "+SimPQ.simPQfile+"</p>\n\n";
     log_html += "<p>Current status of the DB call log:</p>\n<hr>\n<pre>\n" + SimPQ.GetLog() + "</pre>\n<hr>\n</body>\n</html>\n";
     response_str += std::to_string(log_html.size()) + "\r\n\r\n" + log_html;
@@ -327,7 +327,7 @@ void show_ErrQ(int new_socket) {
 
     VERYVERBOSEOUT("Showing ErrQ.\n");
     std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
-    std::string errq_html("<html>\n<head>\n<link rel=\"stylesheet\" href=\"http://aether.local/fz.css\">\n<title>fz: ErrQ</title>\n</head>\n<body>\n<h3>fz: ErrQ</h3>\n");
+    std::string errq_html("<html>\n<head>\n<link rel=\"stylesheet\" href=\"http://"+fzs.graph_ptr->get_server_IPaddr()+"/fz.css\">\n<title>fz: ErrQ</title>\n</head>\n<body>\n<h3>fz: ErrQ</h3>\n");
     errq_html += "<p>When fzserverpq exits, ErrQ will be flushed to: "+ErrQ.get_errfilepath()+"</p>\n\n";
     errq_html += "<p>Current status of ErrQ:</p>\n<hr>\n<pre>\n" + ErrQ.pretty_print() + "</pre>\n<hr>\n</body>\n</html>\n";
     response_str += std::to_string(errq_html.size()) + "\r\n\r\n" + errq_html;
