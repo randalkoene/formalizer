@@ -1113,6 +1113,7 @@ bool Init_Named_Node_Lists_pq(std::string dbname, std::string schemaname) {
     #define INIT_NNL_PQ_RETURN(r) { PQfinish(conn); return r; }
 
     // Drop previous NamedNodeLists table if it exists
+    VERBOSEOUT("Dropping existing NamedNodeLists table if it exists.\n");
     std::string tablename(schemaname+".NamedNodeLists");
     const std::string clearstr("DROP TABLE IF EXISTS "+tablename+" CASCADE");
     if (!simple_call_pq(conn, clearstr)) {
@@ -1121,6 +1122,7 @@ bool Init_Named_Node_Lists_pq(std::string dbname, std::string schemaname) {
     }
 
     // Create fresh NamedNodeLists table
+    VERBOSEOUT("Creating fresh NamedNodeLists table.\n");
     std::string pq_maketable("CREATE TABLE "+tablename+" ("+pq_NNLlayout+')');
     if (!simple_call_pq(conn,pq_maketable)) {
         ADDERROR(__func__, "Unable to create NamedNodeLists cache table");
