@@ -13,7 +13,7 @@ Note: This is the Formalizer 2.x successor to the `makenote` tool.
 
 For comparison, the steps carried out in the `makenote` tool:
 
-1. Output is `tee`d to `/tmp/makenote.log`. **[LE]**
+1. Output is `tee`d to `/tmp/makenote.log`. (**[LE]**)
 2. Call `dil2al -m"$1"`.
 
 The parameter `$1` allows text from a file to be included.
@@ -58,6 +58,6 @@ In `add_TL_chunk_or_entry()`:
 The process can involve:
 
 - Attaching the new Task Log entry to a different, specified DIL entry (picked from a list, via browser, or entered). **[LE]**
-- Starting a new Task Log, with a choice of DIL entry (picked from a list, via browser, or entered). **[LE]**
+- Starting a new Task Log chunk, with a choice of DIL entry (picked from a list, via browser, or entered). (**[LE]**)
 
 The five places marked with **[LE]** indicate steps that also apply to `logentry`.
