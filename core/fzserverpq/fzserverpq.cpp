@@ -141,6 +141,8 @@ void fzserverpq::init_top(int argc, char *argv[]) {
 }
 
 void fzserverpq::handle_request_with_data_share(int new_socket, const std::string & segment_name) {
+    ERRTRACE;
+
     VERYVERBOSEOUT("Received Graph request with data share "+segment_name+".\n");
     if (handle_request_stack(segment_name)) {
         // send back results
@@ -157,8 +159,11 @@ void fzserverpq::handle_request_with_data_share(int new_socket, const std::strin
 }
 
 bool handle_named_list_parameters(std::string NNLpar_requeststr, std::string & response_html) {
+    ERRTRACE;
+
     if (NNLpar_requeststr.substr(0,11) == "persistent=") {
         if (NNLpar_requeststr.substr(11) == "true") {
+            VERYVERBOSEOUT("Setting persistent Named Node Lists cache.\n");
             fzs.graph_ptr->set_Lists_persistence(true);
             response_html = "<html>\n<body>\n"
                             "<p>Named Node List parameter set.</p>\n"
@@ -166,6 +171,7 @@ bool handle_named_list_parameters(std::string NNLpar_requeststr, std::string & r
                             "</body>\n</html>\n";
             return true;
         } else if (NNLpar_requeststr.substr(11) == "false") {
+            VERYVERBOSEOUT("Setting non-persistent Named Node Lists cache.\n");
             fzs.graph_ptr->set_Lists_persistence(false);
             response_html = "<html>\n<body>\n"
                             "<p>Named Node List parameter set.</p>\n"
@@ -178,6 +184,9 @@ bool handle_named_list_parameters(std::string NNLpar_requeststr, std::string & r
 }
 
 bool handle_named_lists_reload(std::string & response_html) {
+    ERRTRACE;
+
+    VERYVERBOSEOUT("Reloading Named Node Lists cache.\n");
     if (!load_Named_Node_Lists_pq(*fzs.graph_ptr, fzs.ga.dbname(), fzs.ga.pq_schemaname())) {
         return false;
     }
@@ -189,6 +198,8 @@ bool handle_named_lists_reload(std::string & response_html) {
 }
 
 bool handle_named_list_direct_request(std::string namedlistreqstr, std::string & response_html) {
+    ERRTRACE;
+
     size_t name_endpos = namedlistreqstr.find('?');
     if ((name_endpos == std::string::npos) || (name_endpos == 0)) {
         return false;
@@ -238,12 +249,21 @@ bool handle_named_list_direct_request(std::string namedlistreqstr, std::string &
     if (namedlistreqstr.substr(name_endpos,7) == "remove=") {
         try {
             Node_ID_key nkey(namedlistreqstr.substr(name_endpos+7,16));
+            // Beware! Empty Lists are deleted by Graph::remove_from_List(), so you have to test for that!
+            // Note: This is the same precaution as why Graphpostgres:handle_Graph_modifications_pq() tests
+            //       if a List disappeared before deciding if an update or a delete is in order.
             if (!fzs.graph_ptr->remove_from_List(list_name, nkey)) {
                 return standard_error("Unable to remove Node "+nkey.str()+" from Named Node List "+list_name, __func__);
             }
             if (fzs.graph_ptr->persistent_Lists()) {
-                if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), list_name, *fzs.graph_ptr)) {
-                    return standard_error("Synchronizing Named Node List update to database failed", __func__);
+                if (fzs.graph_ptr->get_List(list_name)) {
+                    if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), list_name, *fzs.graph_ptr)) {
+                        return standard_error("Synchronizing Named Node List update to database failed", __func__);
+                    }
+                } else {
+                    if (!Delete_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), list_name)) {
+                        return standard_error("Synchronizing empty Named Node List deletion in database failed", __func__);
+                    }
                 }
             }
             response_html = "<html>\n<body>\n"
@@ -276,6 +296,8 @@ bool handle_named_list_direct_request(std::string namedlistreqstr, std::string &
 }
 
 void show_db_mode(int new_socket) {
+    ERRTRACE;
+
     VERYVERBOSEOUT("Database mode: "+SimPQ.PQChanges_Mode_str()+'\n');
     std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
     std::string mode_html("<html>\n<body>\n<p>Database mode: "+SimPQ.PQChanges_Mode_str()+"</p>\n");
@@ -283,16 +305,18 @@ void show_db_mode(int new_socket) {
         mode_html += "<p>Logging to: "+SimPQ.simPQfile+"</p>\n";
     }
     mode_html += "</body>\n</html>\n";
-    response_str += std::to_string(mode_html.size()) + "\n\n" + mode_html;
+    response_str += std::to_string(mode_html.size()) + "\r\n\r\n" + mode_html;
     send(new_socket, response_str.c_str(), response_str.size()+1, 0);
 }
 
 void fzserverpq::handle_special_purpose_request(int new_socket, const std::string & request_str) {
+    ERRTRACE;
+
     VERYVERBOSEOUT("Received Special Purpose request "+request_str+".\n");
     auto requestvec = split(request_str,' ');
     if (requestvec.size()<2) {
         VERYVERBOSEOUT("Missing request. Responding with: 400 Bad Request.\n");
-        std::string response_str("400 Bad Request\n");
+        std::string response_str("HTTP/1.1 400 Bad Request\r\n\r\n");
         send(new_socket, response_str.c_str(), response_str.size()+1, 0);
         return;
     }
@@ -306,7 +330,7 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
             VERYVERBOSEOUT("Status request received. Responding.\n");
             std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
             std::string status_html("<html>\n<body>\nServer status: LISTENING\n</body>\n</html>\n");
-            response_str += std::to_string(status_html.size()) + "\n\n" + status_html;
+            response_str += std::to_string(status_html.size()) + "\r\n\r\n" + status_html;
             send(new_socket, response_str.c_str(), response_str.size()+1, 0);
             return;
         }
@@ -348,7 +372,7 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
                 std::string response_html;
                 if (handle_named_list_direct_request(requestvec[1].substr(21), response_html)) {
                     VERYVERBOSEOUT("Named Node List modification / parameter request handled. Responding.\n");
-                    response_str += std::to_string(response_html.size()) + "\n\n" + response_html;
+                    response_str += std::to_string(response_html.size()) + "\r\n\r\n" + response_html;
                     send(new_socket, response_str.c_str(), response_str.size()+1, 0);
                     return;
                 }
@@ -360,7 +384,7 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
 
     // no known request encountered and handled
     VERBOSEOUT("Request type is unrecognized. Responding with: 400 Bad Request.\n");
-    std::string response_str("400 Bad Request\n");
+    std::string response_str("HTTP/1.1 400 Bad Request\r\n\r\n");
     send(new_socket, response_str.c_str(), response_str.size()+1, 0);
 }
 
@@ -388,6 +412,8 @@ bool node_id_in_request_stack(Graph_modifications & graphmod, const Node_ID_key 
  * @return True if everything is valid, false if the stack should be rejected.
  */
 bool request_stack_valid(Graph_modifications & graphmod, std::string segname) {
+    ERRTRACE;
+
     if (!fzs.graph_ptr) {
         prepare_error_response(segname, exit_resident_graph_missing, "Memory resident Graph not available for request validation");
         return false;
@@ -479,6 +505,8 @@ bool request_stack_valid(Graph_modifications & graphmod, std::string segname) {
  * @return 
  */
 bool handle_request_stack(std::string segname) {
+    ERRTRACE;
+
     std::string graph_segname(graphmemman.get_active_name()); // preserve, so that we can work with an explicitly named Graph if we want to
     if (segname.empty())
         ERRRETURNFALSE(__func__, "Missing shared segment name for request stack");
@@ -567,6 +595,7 @@ bool handle_request_stack(std::string segname) {
 }
 
 void load_Graph_and_stay_resident() {
+    ERRTRACE;
 
     // create the lockfile to indicate the presence of this server
     int lockfile_ret = check_and_make_lockfile(fzs.lockfilepath, "");

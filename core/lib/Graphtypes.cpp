@@ -638,7 +638,7 @@ Named_Node_List_ptr Graph::get_List(const std::string _name) {
     if (_name.empty()) {
         return nullptr;
     }
-    Named_List_String namekey(_name.c_str());
+    Named_List_String namekey(_name);
     auto it = namedlists.find(namekey);
     if (it == namedlists.end()) {
         return nullptr;

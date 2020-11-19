@@ -696,6 +696,7 @@ bool load_Graph_pq(Graph& graph, std::string dbname, std::string schemaname) {
     // Define a clean return that closes the connection to the database and cleans up.
     #define LOAD_GRAPH_PQ_RETURN(r) { PQfinish(conn); return r; }
 
+    VERYVERBOSEOUT("Loading Graph (Nodes, Edges, Topics).\n");
     ERRHERE(".topics");
     Topic_Tags * Ttags = const_cast<Topic_Tags *>(&graph.get_topics()); // explicitly make this modifiable here
     if (!read_Topics_pq(conn,schemaname, *Ttags)) LOAD_GRAPH_PQ_RETURN(false);
@@ -709,6 +710,7 @@ bool load_Graph_pq(Graph& graph, std::string dbname, std::string schemaname) {
     PQfinish(conn);
 
     if (graph.persistent_Lists()) {
+        VERYVERBOSEOUT("Loading Named Node Lists cache.\n");
         if (!load_Named_Node_Lists_pq(graph, dbname, schemaname)) {
             return false;
         }
@@ -1173,10 +1175,12 @@ bool Update_Named_Node_List_pq(std::string dbname, std::string schemaname, std::
     ERRTRACE;
 
     if (listname.empty()) {
+        ADDERROR(__func__, "Unable to update Named Node List with empty List name");
         return false;
     }
     Named_Node_List_ptr nodelist_ptr = graph.get_List(listname);
     if (!nodelist_ptr) {
+        ADDERROR(__func__, "Named Node List '"+listname+"' not found in Graph");
         return false;
     }
 
@@ -1276,10 +1280,10 @@ bool load_Named_Node_Lists_pq(Graph& graph, std::string dbname, std::string sche
 
         for (int r = 0; r < rows; ++r) {
 
-            name_str += PQgetvalue(res, r, pq_NNL_field[0]);
-            feature_str += PQgetvalue(res, r, pq_NNL_field[1]);
-            nodeids_str += PQgetvalue(res, r, pq_NNL_field[2]);
-            //rtrim(name_str);
+            name_str = PQgetvalue(res, r, pq_NNL_field[0]);
+            feature_str = PQgetvalue(res, r, pq_NNL_field[1]);
+            nodeids_str = PQgetvalue(res, r, pq_NNL_field[2]);
+            rtrim(name_str); // the 80 character column was automatically space-padded by Postgres
             if (nodeids_str.front() == '{')
                 nodeids_str.erase(0,1);
             if (nodeids_str.back() == '}')

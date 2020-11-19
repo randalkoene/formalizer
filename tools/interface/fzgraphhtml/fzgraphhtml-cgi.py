@@ -31,7 +31,7 @@ form = cgi.FieldStorage()
 id = form.getvalue('id')
 srclist = form.getvalue('srclist')
 
-modify_template = '''<tr><td>{{{{ list_name }}}}</td><td><a href="http://{fzserverpq}/fz/graph/namedlists/{{{{ list_name }}}}?add={node_id}">[add]</a></td></tr>
+modify_template = '''<tr><td>[{{{{ list_name }}}}]</td><td><a href="http://{fzserverpq}/fz/graph/namedlists/{{{{ list_name }}}}?add={node_id}">[add]</a></td></tr>
 '''
 
 listpagehead = '''<html>

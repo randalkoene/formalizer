@@ -778,7 +778,7 @@ bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter,
 
         for (int r = 0; r < rows; ++r) {
 
-            nodeid_str += PQgetvalue(res, r, pq_history_field[0]);
+            nodeid_str += PQgetvalue(res, r, pq_history_field[0]); // *** revisited this on 2020-11-18 and unsure if += was meant to be here, is more than one row ever loaded?
             chunkids_str += PQgetvalue(res, r, pq_history_field[1]);
             entryids_str += PQgetvalue(res, r, pq_history_field[2]);
             //rtrim(entryids_str);

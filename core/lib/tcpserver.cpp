@@ -89,14 +89,16 @@ exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server
 
         // read string send by client
         memset(str, 0, str_SIZE); // just playing it safe
-        valread = read(new_socket, str, sizeof(str)); 
+        valread = read(new_socket, str, sizeof(str)); // *** right now, this read often hangs until some timeout
         if (valread==0) {
             ADDWARNING(__func__, "EOF encountered");
             VERYVERBOSEOUT("Read encountered EOF.\n");
+            close(new_socket); // *** possibly remove these... best read up about this some more
             continue;
         }
         if (valread<0) {
             standard_error("Socket read error", __func__);
+            close(new_socket);
             continue;
         }
 
@@ -104,6 +106,7 @@ exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server
 
         if ((request_str.substr(0,4) == "GET ") || (request_str.substr(0,6) == "PATCH ")) { // a special purpose request from a browser interface
             server.handle_special_purpose_request(new_socket, request_str);
+            close(new_socket);
             continue;
         }
 
@@ -112,6 +115,7 @@ exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server
             std::string response_str("STOPPING");
             send(new_socket, response_str.c_str(), response_str.size()+1, 0);
             //sleep(1); // this might actually be necessary for the client to receive the whole response
+            close(new_socket);
             break;
         }
 
@@ -120,12 +124,14 @@ exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server
             std::string response_str("LISTENING");
             send(new_socket, response_str.c_str(), response_str.size()+1, 0);
             //sleep(1); // this might actually be necessary for the client to receive the whole response
+            close(new_socket);
             continue;           
         }
 
         // If it was not (one of) the specific requests handled above then it specifies the
         // segment name for a request stack in shared memory.
         server.handle_request_with_data_share(new_socket, request_str);
+        close(new_socket);
 
     }
 
