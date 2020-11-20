@@ -1,0 +1,22 @@
+{
+    "process_status"    : "{{ proc_status }}",
+    "ping_status"       : "{{ ping_status }}",
+    "listen_location"   : "{{ server_address }}",
+    "lockfile_status"   : "{{ lock_status }}",
+    "lockfile_location" : "{{ lockfile }}",
+    "selected_shared_segment"  : "{{ active_name }}",
+    "number_named_objects"     : "{{ num_named }}",
+    "number_unique_objects"    : "{{ num_unique }}",
+    "size"                     : "{{ size }}",
+    "free_memory"              : "{{ free }}",
+    "memory_used"              : "{{ used }}",
+    "number_Topics" : "{{ num_topics }}",
+    "number_Nodes"  : "{{ num_nodes }}",
+    "number_Edges"  : "{{ num_edges }}",
+    "Nodes_completed"  : "{{ nodes_comp }}",
+    "Nodes_open"       : "{{ nodes_open }}",
+    "Nodes_other"      : "{{ nodes_other }}",
+    "Seconds_used_all_completed" : "{{ sec_comp }}",
+    "Seconds_required_all_open"  : "{{ sec_open}}",
+    "named_shm_blocks" : {{ shm_blocks }}
+}

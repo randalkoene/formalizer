@@ -15,8 +15,15 @@
 // core
 #include "templater.hpp"
 
+// local
+#include "fzserver-info.hpp"
+
 using namespace fz;
 
+bool output_response(std::string & rendered_str);
+
 bool render_graph_server_status(const template_varvalues & statusinfo);
+
+std::string render_shared_memory_blocks(const POSIX_shm_data_vec & shmblocksvec);
 
 #endif // __RENDER_HPP

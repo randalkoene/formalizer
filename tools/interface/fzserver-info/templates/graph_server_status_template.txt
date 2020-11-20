@@ -1,6 +1,8 @@
 Server process:
 
     process status    = {{ proc_status }}
+    ping status       = {{ ping_status }}
+    listen location   = {{ server_address }}
     lockfile status   = {{ lock_status }}
     lockfile location = {{ lockfile }}
 
@@ -26,3 +28,7 @@ Nodes statistics:
     Nodes other      = {{ nodes_other }}
     Seconds used for all completed = {{ sec_comp }}
     Seconds required for all open  = {{ sec_open}}
+
+POSIX named shared memory blocks (block name, size in bytes):
+
+{{ shm_blocks }}

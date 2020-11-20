@@ -1,6 +1,6 @@
 <html>
 <head>
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="/fz.css">
 <title>Formalizer: Graph server status</title>
 <style>
 th {
@@ -25,6 +25,10 @@ th {
         <td>ping status</td>
         <td>{{ ping_status }}</td>
     </tr>
+    <tr>
+        <td>listen location</td>
+        <td>{{ server_address }}</td>
+    </tr>    
     <tr>
         <td>lockfile status</td>
         <td>{{ lock_status }}</td>
@@ -102,6 +106,16 @@ th {
         <td>{{ sec_open}}</td>
     </tr>
 
+</tbody>
+</table>
+
+<p>POSIX named shared memory blocks:</p>
+<table>
+<tbody>
+    <tr>
+        <th>Block name</th><th>Block size (bytes)</th>
+    </tr>
+    {{ shm_blocks }}
 </tbody>
 </table>
 

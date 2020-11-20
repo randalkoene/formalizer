@@ -16,13 +16,12 @@
 
 // std
 #include <iostream>
+#include <filesystem>
 
 // core
 #include "error.hpp"
-#include "standard.hpp"
 #include "proclock.hpp"
 #include "jsonlite.hpp"
-#include "Graphtypes.hpp"
 #include "Graphinfo.hpp"
 #include "tcpclient.hpp"
 
@@ -41,8 +40,8 @@ fzserver_info fzsi;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzserver_info::fzserver_info() : formalizer_standard_program(false), config(*this), output_format(output_txt) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "Go:F:";
-    add_usage_top += " [-G] [-o <info-output-path>] [-F txt|html]";
+    add_option_args += "GPMo:F:";
+    add_usage_top += " [-G] [-P] [-M] [-o <info-output-path>] [-F txt|html|json|csv|raw]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("The <info-output-path> STDOUT sends to standard out and is the default.\n");
 }
@@ -53,15 +52,21 @@ fzserver_info::fzserver_info() : formalizer_standard_program(false), config(*thi
  */
 void fzserver_info::usage_hook() {
     //ga.usage_hook();
-    FZOUT("    -G Get Graph server status.\n");
-    FZOUT("    -o Send info output to <info-output-path>.\n");
-    FZOUT("    -F specify output format\n");
-    FZOUT("       available formats:\n");
-    FZOUT("       txt = basic ASCII text template\n")
-    FZOUT("       html = HTML template\n");
+    FZOUT("    -G Get Graph server status.\n"
+          "    -P Ping the server.\n"
+          "    -M POSIX named shared memory blocks.\n"
+          "    -o Send info output to <info-output-path>.\n"
+          "    -F specify output format for Graph server status\n"
+          "       available formats:\n"
+          "       txt = basic ASCII text template\n"
+          "       html = HTML template\n"
+          "       json = JSON template\n"
+          "       csv = Comma separated values\n"
+          "       raw = raw data rows\n");
 }
 
 bool fzserver_info::set_output_format(const std::string & cargs) {
+    ERRTRACE;
     if (cargs == "html") {
         output_format = output_html;
         return true;
@@ -70,10 +75,19 @@ bool fzserver_info::set_output_format(const std::string & cargs) {
         output_format = output_txt;
         return true;
     }
-    ADDERROR(__func__,"unknown output format: "+cargs);
-    FZERR("unknown output format: "+cargs);
-    exit(exit_command_line_error);
-    return false; // never gets here
+    if (cargs == "json") {
+        output_format = output_json;
+        return true;
+    }
+    if (cargs == "csv") {
+        output_format = output_csv;
+        return true;
+    }
+    if (cargs == "raw") {
+        output_format = output_raw;
+        return true;
+    }
+    return standard_exit_error(exit_command_line_error, "Unknown output format: "+cargs, __func__);
 }
 
 /**
@@ -97,6 +111,16 @@ bool fzserver_info::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'P': {
+        flowcontrol = flow_ping_server;
+        return true;
+    }
+
+    case 'M': {
+        flowcontrol = flow_shared_memory;
+        return true;
+    }
+
     case 'o': {
         config.info_out_path = cargs;
         return true;
@@ -116,7 +140,7 @@ bool fzserver_info::options_hook(char c, std::string cargs) {
 /// Configure configurable parameters.
 bool fzsi_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     CONFIG_TEST_AND_SET_PAR(info_out_path, "info_out_path", parlabel, parvalue);
-    CONFIG_TEST_AND_SET_PAR(port_number, "port_number", parlabel, std::stoi(parvalue));
+    CONFIG_TEST_AND_SET_PAR(port_number, "port_number", parlabel, std::stoi(parvalue)); // can be overridden in graph_server_status()
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
@@ -137,9 +161,20 @@ void fzserver_info::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen once in main(), for the derived class
 }
 
+Graph & fzserver_info::graph() {
+    ERRTRACE;
+    if (!graphmemman.get_Graph(graph_ptr)) {
+        standard_exit_error(exit_resident_graph_missing, "Memory resident Graph not found.", __func__);
+    }
+    return *graph_ptr;
+}
+
 bool ping_server() {
     VERYVERBOSEOUT("Sending PING request to Graph server.\n");
     std::string response_str;
+    // *** Could replace the hard-coded localhost with fzsi.graph().get_server_IPaddr_str() if
+    //     this tool should be usable on a different machine, corresponding with a remote
+    //     Formalizer server.
     if (!client_socket_shmem_request("PING", "127.0.0.1", fzsi.config.port_number, response_str)) {
         return standard_error("Communication error.", __func__);
     }
@@ -200,35 +235,77 @@ void server_process_info(Graph_info_label_value_pairs & serverinfo) {
     if (ping_server()) {
         serverinfo["ping_status"] = "LISTENING";
     } else {
-        serverinfo["ping_status"] = "OFF-LINE";
+        serverinfo["ping_status"] = "OFFLINE";
     }
+    serverinfo["server_address"] = fzsi.graph().get_server_full_address();
 }
 
 int graph_server_status() {
-    Graph * graph_ptr = graphmemman.find_Graph_in_shared_memory();
-    if (!graph_ptr) {
-        ADDERROR(__func__, "Memory resident Graph not found");
-        FZERR("Memory resident Graph not found.\n");
-        standard.exit(exit_general_error);
-    }
+    ERRTRACE;
 
     Graph_info_label_value_pairs meminfo;
     Graph_info_label_value_pairs graphinfo;
     Graph_info_label_value_pairs nodesinfo;
     Graph_info_label_value_pairs serverinfo;
 
+    Graph_Info(fzsi.graph(), graphinfo); // this one first - fzsi.graph() sets the active shared memory
+    if (!fzsi.graph().get_server_IPaddr().empty()) { // address and port info cached by server overrides config
+        fzsi.config.port_number = fzsi.graph().get_server_port();
+    }
     graphmemman.info(meminfo);
-    Graph_Info(*graph_ptr, graphinfo);
-    Nodes_statistics_pairs(Nodes_statistics(*graph_ptr), nodesinfo);
+    Nodes_statistics_pairs(Nodes_statistics(fzsi.graph()), nodesinfo);
     server_process_info(serverinfo);
 
     meminfo.merge(graphinfo);
     meminfo.merge(nodesinfo);
     meminfo.merge(serverinfo);
+    meminfo["shm_blocks"] = render_shared_memory_blocks(named_POSIX_shared_memory_blocks());
 
-    render_graph_server_status(meminfo);
+    if (!render_graph_server_status(meminfo)) {
+        return standard_exit_error(exit_file_error, "Unable to deliver rendered Graph server status.", __func__);
+    }
 
     return standard.completed_ok();
+}
+
+int ping_server_response() {
+    ERRTRACE;
+
+    std::string rendered_str;
+    if (ping_server()) {
+        rendered_str = "LISTENING";
+    } else {
+        rendered_str = "OFFLINE";
+    }
+
+    if (!output_response(rendered_str)) {
+        return standard_exit_error(exit_file_error, "Unable to deliver server ping status.", __func__);
+    }
+
+    return standard.completed_ok();
+}
+
+POSIX_shm_data_vec named_POSIX_shared_memory_blocks() {
+    POSIX_shm_data_vec shmblocksvec;
+    std::string shmpath = "/dev/shm";
+    for (const auto & entry : std::filesystem::directory_iterator(shmpath)) {
+        shmblocksvec.emplace_back(entry.path().filename().string(), entry.file_size());
+    }
+    return shmblocksvec;
+}
+
+int shared_memory_blocks() {
+    ERRTRACE;
+
+    auto shmblocksvec = named_POSIX_shared_memory_blocks();
+
+    std::string rendered_str = render_shared_memory_blocks(shmblocksvec);
+
+    if (!output_response(rendered_str)) {
+        return standard_exit_error(exit_file_error, "Unable to deliver POSIX named shared memory blocks info.", __func__);
+    }
+
+    return standard.completed_ok(); 
 }
 
 int main(int argc, char *argv[]) {
@@ -240,6 +317,14 @@ int main(int argc, char *argv[]) {
 
     case flow_graph_server: {
         return graph_server_status();
+    }
+
+    case flow_ping_server: {
+        return ping_server_response();
+    }
+
+    case flow_shared_memory: {
+        return shared_memory_blocks();
     }
 
     default: {

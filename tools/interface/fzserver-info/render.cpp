@@ -29,14 +29,20 @@ using namespace fz;
 
 
 enum template_id_enum {
-    graph_server_status_txt_temp,
-    graph_server_status_html_temp,
+    graph_server_status_txt_temp = 0,
+    graph_server_status_html_temp = 1,
+    graph_server_status_json_temp = 2,
+    graph_server_status_csv_temp = 3,
+    graph_server_status_raw_temp = 4,
     NUM_temp
 };
 
 const std::vector<std::string> template_ids = {
     "graph_server_status_template.txt",
-    "graph_server_status_template.html"
+    "graph_server_status_template.html",
+    "graph_server_status_template.json",
+    "graph_server_status_template.csv",
+    "graph_server_status_template.raw"
 };
 
 typedef std::map<template_id_enum,std::string> fzserver_info_templates;
@@ -52,18 +58,7 @@ bool load_templates(fzserver_info_templates & templates) {
     return true;
 }
 
-bool render_graph_server_status(const template_varvalues & statusinfo) {
-    render_environment env;
-    fzserver_info_templates templates;
-    load_templates(templates);
-
-    std::string rendered_str;
-    if (fzsi.output_format == output_html) {
-        rendered_str = env.render(templates[graph_server_status_html_temp], statusinfo);
-    } else { // output_txt is the default
-        rendered_str = env.render(templates[graph_server_status_txt_temp], statusinfo);
-    }
-
+bool output_response(std::string & rendered_str) {
     if (fzsi.config.info_out_path == "STDOUT") {
         FZOUT(rendered_str);
     } else {
@@ -73,6 +68,60 @@ bool render_graph_server_status(const template_varvalues & statusinfo) {
             VERBOSEOUT("Graph server status info sent to file at "+fzsi.config.info_out_path+'\n');
         }
     }
-
     return true;
+}
+
+bool render_graph_server_status(const template_varvalues & statusinfo) {
+    render_environment env;
+    fzserver_info_templates templates;
+    load_templates(templates);
+
+    std::string rendered_str;
+    rendered_str = env.render(templates[(template_id_enum) fzsi.output_format], statusinfo);
+
+    return output_response(rendered_str);
+}
+
+std::string render_shared_memory_blocks(const POSIX_shm_data_vec & shmblocksvec) {
+    std::string rendered_str;
+    for (const auto & shmblock : shmblocksvec) {
+        switch (fzsi.output_format) {
+
+            case output_txt: {
+                rendered_str += shmblock.name + " : " + std::to_string(shmblock.size) + '\n';
+                break;
+            }
+
+            case output_html: {
+                rendered_str += "<tr><td>"+shmblock.name + "</td><td>" + std::to_string(shmblock.size) + "</td></tr>\n";
+                break;
+            }
+
+            case output_json: {
+                rendered_str += '"'+shmblock.name + "\" : \"" + std::to_string(shmblock.size) + "\",\n";
+                break;
+            }
+
+            case output_csv: {
+                rendered_str += shmblock.name + ',' + std::to_string(shmblock.size) + '\n';
+                break;
+            }
+
+            case output_raw: {
+                rendered_str += shmblock.name + ' ' + std::to_string(shmblock.size) + '\n';
+                break;
+            }
+
+            default: {
+                VERYVERBOSEOUT("Unrecognized output format.\n");
+            }
+        }
+    }
+    if ((!rendered_str.empty()) && (fzsi.output_format == output_json)) {
+        rendered_str.insert(0,"{\n");
+        rendered_str[rendered_str.size()-2] = '\n';
+        rendered_str.back() = '}';
+        rendered_str += '\n';
+    }
+    return rendered_str;
 }

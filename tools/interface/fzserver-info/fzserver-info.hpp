@@ -14,6 +14,7 @@
 // core
 #include "config.hpp"
 #include "standard.hpp"
+#include "Graphtypes.hpp"
 // #include "Graphaccess.hpp"
 
 /**
@@ -27,16 +28,28 @@
 using namespace fz;
 
 enum flow_options {
-    flow_unknown = 0,      /// no recognized request
-    flow_graph_server = 1, /// request: graph server status
+    flow_unknown = 0,       /// no recognized request
+    flow_graph_server = 1,  /// request: graph server status
+    flow_ping_server = 2,   /// request: ping the server
+    flow_shared_memory = 3, /// request: POSIX named shared memory blocks
     flow_NUMoptions
 };
 
 enum output_format_specifier {
-    output_txt,
-    output_html,
+    output_txt = 0,
+    output_html = 1,
+    output_json = 2,
+    output_csv = 3,
+    output_raw = 4,
     output_NUMENUMS
 };
+
+struct POSIX_shm_data {
+    std::string name;
+    std::uintmax_t size;
+    POSIX_shm_data(const std::string _name, std::uintmax_t _size) : name(_name), size(_size) {}
+};
+typedef std::vector<POSIX_shm_data> POSIX_shm_data_vec;
 
 class fzsi_configurable : public configurable {
 public:
@@ -59,6 +72,8 @@ struct fzserver_info: public formalizer_standard_program {
 
     static constexpr const char * lockfilepath = FORMALIZER_ROOT "/.fzserverpq.lock";
 
+    Graph * graph_ptr = nullptr;
+
     fzserver_info();
 
     virtual void usage_hook();
@@ -69,8 +84,12 @@ struct fzserver_info: public formalizer_standard_program {
 
     void init_top(int argc, char *argv[]);
 
+    Graph & graph();
+
 };
 
 extern fzserver_info fzsi;
+
+POSIX_shm_data_vec named_POSIX_shared_memory_blocks();
 
 #endif // __FZSERVER_INFO_HPP

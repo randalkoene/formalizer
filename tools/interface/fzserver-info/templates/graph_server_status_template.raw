@@ -1,0 +1,20 @@
+{{ proc_status }}
+{{ ping_status }}
+{{ server_address }}
+{{ lock_status }}
+{{ lockfile }}
+{{ active_name }}
+{{ num_named }}
+{{ num_unique }}
+{{ size }}
+{{ free }}
+{{ used }}
+{{ num_topics }}
+{{ num_nodes }}
+{{ num_edges }}
+{{ nodes_comp }}
+{{ nodes_open }}
+{{ nodes_other }}
+{{ sec_comp }}
+{{ sec_open}}
+{{ shm_blocks }}
