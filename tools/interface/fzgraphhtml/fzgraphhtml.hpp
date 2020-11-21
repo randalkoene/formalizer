@@ -26,6 +26,14 @@ enum flow_options {
     flow_NUMoptions
 };
 
+enum output_format {
+    output_html = 0,
+    output_txt = 1,
+    output_node = 2,
+    output_desc = 3,
+    output_NUM
+};
+
 class fzgh_configurable: public configurable {
 public:
     fzgh_configurable(formalizer_standard_program & fsp): configurable("fzgraphhtml", fsp) {}
@@ -35,6 +43,7 @@ public:
     unsigned int excerpt_length = 80; ///< number of characters to include in excerpts
     std::string rendered_out_path = "STDOUT";
     bool embeddable = false;
+    output_format outputformat = output_html;
 };
 
 

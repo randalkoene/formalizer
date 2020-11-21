@@ -34,13 +34,12 @@
 using namespace fz;
 
 std::vector<std::string> template_ids = {
-    "node_pars_in_list_template.html",
-    "node_pars_in_list_head_template.html",
-    "node_pars_in_list_tail_template.html",
-    "named_node_list_in_list_template.html",
-    "Node_template.txt",
-    "Node_template.html",
-    "node_pars_in_list_card_template.html"
+    "node_pars_in_list_template",
+    "node_pars_in_list_head_template",
+    "node_pars_in_list_tail_template",
+    "named_node_list_in_list_template",
+    "Node_template",
+    "node_pars_in_list_card_template"
 };
 
 typedef std::map<template_id_enum,std::string> fzgraphhtml_templates;
@@ -53,8 +52,35 @@ bool load_templates(fzgraphhtml_templates & templates) {
             if (!file_to_string(template_ids[i], templates[static_cast<template_id_enum>(i)]))
                 ERRRETURNFALSE(__func__, "unable to load " + template_ids[i]);
         } else {
-            if (!file_to_string(template_dir + "/" + template_ids[i], templates[static_cast<template_id_enum>(i)]))
-                ERRRETURNFALSE(__func__, "unable to load " + template_ids[i]);
+            std::string format_subdir, format_ext;
+            switch (fzgh.config.outputformat) {
+
+                case output_txt: {
+                    format_subdir = "/txt/";
+                    format_ext = ".txt";
+                    break;
+                }
+
+                case output_node: {
+                    format_subdir = "/node/";
+                    format_ext = ".node";
+                    break;
+                }
+
+                case output_desc: {
+                    format_subdir = "/desc/";
+                    format_ext = ".desc";
+                    break;
+                }
+
+                default: { // html
+                    format_subdir = "/html/";
+                    format_ext = ".html";
+                }
+            }
+            std::string template_path(template_dir + format_subdir + template_ids[i] + format_ext);
+            if (!file_to_string(template_path, templates[static_cast<template_id_enum>(i)]))
+                ERRRETURNFALSE(__func__, "unable to load " + template_path);
         }
     }
 
@@ -82,12 +108,12 @@ struct line_render_parameters {
 
     void prep(unsigned int num_render) {
         if (fzgh.config.embeddable) {
-            rendered_page.reserve(num_render * (2 * templates[node_pars_in_list_html_temp].size()));
+            rendered_page.reserve(num_render * (2 * templates[node_pars_in_list_temp].size()));
         } else {
-            rendered_page.reserve(num_render * (2 * templates[node_pars_in_list_html_temp].size()) +
-                            templates[node_pars_in_list_head_html_temp].size() +
-                            templates[node_pars_in_list_tail_html_temp].size());
-            rendered_page += templates[node_pars_in_list_head_html_temp];
+            rendered_page.reserve(num_render * (2 * templates[node_pars_in_list_temp].size()) +
+                            templates[node_pars_in_list_head_temp].size() +
+                            templates[node_pars_in_list_tail_temp].size());
+            rendered_page += templates[node_pars_in_list_head_temp];
         }
     }
 
@@ -119,7 +145,7 @@ struct line_render_parameters {
         if (fzgh.test_cards) {
             rendered_page += env.render(templates[node_pars_in_list_card_temp], varvals);
         } else {
-            rendered_page += env.render(templates[node_pars_in_list_html_temp], varvals);
+            rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
         }
     }
 
@@ -127,12 +153,12 @@ struct line_render_parameters {
         template_varvalues varvals;
         varvals.emplace("list_name",list_name);
         varvals.emplace("fzserverpq",graph_ptr->get_server_full_address());
-        rendered_page += env.render(templates[named_node_list_in_list_html_temp], varvals);
+        rendered_page += env.render(templates[named_node_list_in_list_temp], varvals);
     }
 
     bool present() {
         if (!fzgh.config.embeddable) {
-            rendered_page += templates[node_pars_in_list_tail_html_temp];
+            rendered_page += templates[node_pars_in_list_tail_temp];
         }
 
         if (fzgh.config.rendered_out_path == "STDOUT") {
@@ -278,14 +304,11 @@ std::string render_Node_dependencies(Graph & graph, Node & node) {
  * the output rendering format may be specified by an enum
  * as in the code in fzquerypq:servenodedata.cpp.
  * 
- * The rendering format is specified in `fzq.output_format`.
- * 
  * @param graph A valid Graph.
  * @param node A valid Node object.
- * @param render_format Specifies the rendering output format.
  * @return A string with rendered Node data according to the chosen format.
  */
-std::string render_Node_data(Graph & graph, Node & node, unsigned int render_format) {
+std::string render_Node_data(Graph & graph, Node & node) {
     render_environment env;
     fzgraphhtml_templates templates;
 
@@ -322,15 +345,5 @@ std::string render_Node_data(Graph & graph, Node & node, unsigned int render_for
     nodevars.emplace("superiors", render_Node_superiors(graph, node));
     nodevars.emplace("dependencies", render_Node_dependencies(graph, node));
 
-    switch (render_format) {
-
-    case 1:
-        return env.render(templates[node_html_temp], nodevars);
-
-    default:
-        return env.render(templates[node_txt_temp], nodevars);
-
-    }
-
-    return ""; // never gets here
+    return env.render(templates[node_temp], nodevars);
 }

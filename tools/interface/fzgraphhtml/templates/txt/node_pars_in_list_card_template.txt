@@ -1,0 +1,10 @@
+Target Date & Time: {{ targetdate }}
+TD properties: {{ tdprop }}
+Time required: {{ req_hrs }}
+
+Description:
+{{ excerpt }}
+
+Topics: {{ topic }}
+
+ID: {{ node_id }}

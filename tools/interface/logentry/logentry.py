@@ -20,8 +20,10 @@ fzsetupconfigdir = fzuserbase+'/config/fzsetup.py'
 fzsetupconfig = fzsetupconfigdir+'/config.json'
 # *** can add logentryconfigdir and logentryconfig here
 
+results = {}
+
 # We need this everywhere to run various shell commands.
-def try_subprocess_check_output(thecmdstring):
+def try_subprocess_check_output(thecmdstring, resstore):
     try:
         res = subprocess.check_output(thecmdstring, shell=True)
     except subprocess.CalledProcessError as cpe:
@@ -31,6 +33,8 @@ def try_subprocess_check_output(thecmdstring):
         return cpe.returncode
 
     else:
+        if resstore:
+            results[resstore] = res
         if config['verbose']:
             print(res)
         return 0
@@ -104,7 +108,7 @@ def make_content_file():
 
 
 def edit_content_file():
-    retcode = try_subprocess_check_output(f"{config['editor']} {config['contenttmpfile']}")
+    retcode = try_subprocess_check_output(f"{config['editor']} {config['contenttmpfile']}", '')
     if (retcode != 0):
         print(f'Attempt to edit content file failed.')
         exit(retcode)
@@ -115,19 +119,61 @@ def edit_content_file():
     return entrycontent
 
 
+def get_from_Named_Node_Lists(list_name, output_format, resstore):
+    retcode = try_subprocess_check_output(f"fzgraphhtml -L '{list_name}' -F {output_format} -x 60 -N 5 -e -q",resstore)
+    if (retcode != 0):
+        print(f'Attempt to get Named Node List data failed.')
+        exit(retcode)
+
+
+def get_from_Incomplete(output_format, resstore):
+    retcode = try_subprocess_check_output(f"fzgraphhtml -I -F {output_format} -x 60 -N 5 -e -q",resstore)
+    if (retcode != 0):
+        print(f'Attempt to get Incomplete Nodes data failed.')
+        exit(retcode)
+
+
+def browse_for_Node():
+    retcode = try_subprocess_check_output(f"w3m http://localhost/index.html",'')
+    if (retcode != 0):
+        print(f'Attempt to browse for Node failed.')
+        exit(retcode)
+    retcode = try_subprocess_check_output(f"fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected')
+    if (retcode != 0):
+        print(f'Attempt to get selected Node failed.')
+        exit(retcode)
+    return results['selected']
+
+
 def entry_belongs_to_same_or_other_Node():
-    # *** get short-list from Named Node Lists
-    # *** show options, including default, short-list and browse
-    # *** get and act on choice
-    print('NOT YET IMPLEMENTED!')
-    node = ''
+    get_from_Named_Node_Lists('recent','desc','recentdesc')
+    get_from_Named_Node_Lists('recent','node','recentnode')
+    get_from_Incomplete('desc','nextupdesc')
+    get_from_Incomplete('node','nextupnode')
+    shortlist_nodes = results['nextupnode'] + results['recentnode']
+    shortlist_desc = results['nextupdesc'] + results['recentdesc']
+    print('Short-list of Nodes for this Log Entry:')
+    print(shortlist_desc)
+    choice = input('[D]efault same Node as chunk, or [0-9] from shortlist, or [?] browse? ')
+    if (choice == '?'):
+        node = browse_for_Node()
+    else:
+        if ((choice >= '0') & (choice <= '9')):
+                node = shortlist_nodes.splitlines()[int(choice)]
+        else:
+            node = '' # default
     return node
 
 
 def send_to_fzlog(node, entrycontent):
-    # *** if default then send to fzlog without Node specification
-    # *** otherwise, send to fzlog with Node specification
-    print('NOT YET IMPLEMENTED!')
+    thecmd=f"fzlog -e -f {config['contenttmpfile']}"
+    if node:
+        thecmd += f" -n {node}"
+    retcode = try_subprocess_check_output(thecmd, '')
+    if (retcode != 0):
+        print(f'Attempt to add Log entry via fzlog failed.')
+        exit(retcode)
+    
 
 
 def transition_dil2al_polldaemon_request(node, entrycontent):
@@ -153,6 +199,8 @@ if __name__ == '__main__':
         exit(1)
 
     node = entry_belongs_to_same_or_other_Node()
+
+    exit(0) # remove this
 
     send_to_fzlog(node, entrycontent)
 

@@ -16,12 +16,11 @@
 using namespace fz;
 
 enum template_id_enum {
-    node_pars_in_list_html_temp,
-    node_pars_in_list_head_html_temp,
-    node_pars_in_list_tail_html_temp,
-    named_node_list_in_list_html_temp,
-    node_txt_temp,
-    node_html_temp,
+    node_pars_in_list_temp,
+    node_pars_in_list_head_temp,
+    node_pars_in_list_tail_temp,
+    named_node_list_in_list_temp,
+    node_temp,
     node_pars_in_list_card_temp,
     NUM_temp
 };
@@ -42,13 +41,10 @@ bool render_named_node_list();
  * the output rendering format may be specified by an enum
  * as in the code in fzquerypq:servenodedata.cpp.
  * 
- * The rendering format is specified in `fzq.output_format`.
- * 
  * @param graph A valid Graph.
  * @param node A valid Node object.
- * @param render_format Specifies the rendering output format.
  * @return A string with rendered Node data according to the chosen format.
  */
-std::string render_Node_data(Graph & graph, Node & node, unsigned int render_format = 1);
+std::string render_Node_data(Graph & graph, Node & node);
 
 #endif // __RENDER_HPP

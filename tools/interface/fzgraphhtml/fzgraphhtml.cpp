@@ -38,8 +38,8 @@ fzgraphhtml fzgh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:IL:N:o:eT:C";
-    add_usage_top += " [-n <node-ID>] [-I] [-L <name|?>] [-N <num>] [-o <output-path>] [-e] [-T <named|node|Node>=<path>] [-C]";
+    add_option_args += "n:IL:N:x:o:eT:F:C";
+    add_usage_top += " [-n <node-ID>] [-I] [-L <name|?>] [-N <num>] [-x <len>] [-o <output-path>] [-e] [-T <named|node|Node>=<path>] [-F html|txt|node|desc] [-C]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("When no [N <num>] is provided then the configured value is used.\n");
 }
@@ -50,14 +50,16 @@ fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) {
  */
 void fzgraphhtml::usage_hook() {
     //ga.usage_hook();
-    FZOUT("    -n Show data for Node with <node-ID>\n");
-    FZOUT("    -I Show data for incomplete Nodes\n");
-    FZOUT("    -L Show data for Nodes in Named Node List, or show Names if '?'\n");
-    FZOUT("    -N Show data for [num] elements (all=no limit)\n");
-    FZOUT("    -o Rendered output to <output-path> (\"STDOUT\" is default)\n");
-    FZOUT("    -e Embeddable, no head and tail templates\n");
-    FZOUT("    -T Use custom template instead of named, node or single Node\n");
-    FZOUT("    -C (TEST) card output format\n");
+    FZOUT("    -n Show data for Node with <node-ID>\n"
+          "    -I Show data for incomplete Nodes\n"
+          "    -L Show data for Nodes in Named Node List, or show Names if '?'\n"
+          "    -N Show data for <num> elements (all=no limit)\n"
+          "    -x Excerpt length <len>\n"
+          "    -o Rendered output to <output-path> (\"STDOUT\" is default)\n"
+          "    -e Embeddable, no head and tail templates\n"
+          "    -T Use custom template instead of named, node or single Node\n"
+          "    -F output format: html (default), txt, node, desc\n"
+          "    -C (TEST) card output format\n");
 }
 
 unsigned int parvalue_to_num_to_show(const std::string & parvalue) {
@@ -86,18 +88,34 @@ bool custom_template(const std::string & cargs) {
         return false;
     }
     if (replace_template == "named") {
-        template_ids[named_node_list_in_list_html_temp] = cargs.substr(equalpos);
+        template_ids[named_node_list_in_list_temp] = cargs.substr(equalpos);
         return true;
     }
     if (replace_template == "node") {
-        template_ids[node_pars_in_list_html_temp] = cargs.substr(equalpos);
+        template_ids[node_pars_in_list_temp] = cargs.substr(equalpos);
         return true;
     }
     if (replace_template == "Node") {
-        template_ids[node_html_temp] = cargs.substr(equalpos);
+        template_ids[node_temp] = cargs.substr(equalpos);
         return true;
     }
     return false;
+}
+
+output_format parse_output_format(const std::string & parvalue) {
+    if (parvalue == "txt") {
+        VERYVERBOSEOUT("TEXT output\n");
+        return output_txt;
+    } if (parvalue == "node") {
+        VERYVERBOSEOUT("NODE output\n");
+        return output_node;
+    } if (parvalue == "desc") {
+        VERYVERBOSEOUT("DESCRIPTION output\n");
+        return output_desc;
+    } else {
+        VERYVERBOSEOUT("HTML output\n");
+        return output_html;
+    }
 }
 
 /**
@@ -138,6 +156,11 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'x': {
+        config.excerpt_length = atoi(cargs.c_str());
+        return true;
+    }
+
     case 'o': {
         config.rendered_out_path = cargs;
         return true;
@@ -150,6 +173,11 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
 
     case 'T': {
         return custom_template(cargs);
+    }
+
+    case 'F': {
+        config.outputformat = parse_output_format(cargs);
+        return true;
     }
 
     case 'C': {
@@ -176,6 +204,7 @@ bool fzgh_configurable::set_parameter(const std::string & parlabel, const std::s
     CONFIG_TEST_AND_SET_PAR(excerpt_length, "excerpt_length", parlabel, atoi(parvalue.c_str()));
     CONFIG_TEST_AND_SET_PAR(rendered_out_path, "rendered_out_path", parlabel, parvalue);
     CONFIG_TEST_AND_SET_PAR(embeddable, "embeddable", parlabel, parvalue_to_bool(parvalue));
+    CONFIG_TEST_AND_SET_PAR(outputformat, "outputformat", parlabel, parse_output_format(parvalue));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
