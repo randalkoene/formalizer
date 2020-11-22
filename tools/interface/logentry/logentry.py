@@ -103,7 +103,7 @@ def parse_options():
 
 def make_content_file():
     emptystr = ''
-    with open(config['contenttmpfile','w']) as f:
+    with open(config['contenttmpfile'],'w') as f:
         f.write(emptystr)
 
 
@@ -146,6 +146,10 @@ def browse_for_Node():
 
 
 def entry_belongs_to_same_or_other_Node():
+    # *** This can be greatly simplified now to just calling the _shortlist
+    #     command through the port and then getting 'shortlist' 'desc' and 'node'.
+    # *** To simplify even further, you can add an option to fzgraphhtml to call the
+    #     _shortlist update.
     get_from_Named_Node_Lists('recent','desc','recentdesc')
     get_from_Named_Node_Lists('recent','node','recentnode')
     get_from_Incomplete('desc','nextupdesc')
@@ -153,7 +157,7 @@ def entry_belongs_to_same_or_other_Node():
     shortlist_nodes = results['nextupnode'] + results['recentnode']
     shortlist_desc = results['nextupdesc'] + results['recentdesc']
     print('Short-list of Nodes for this Log Entry:')
-    print(shortlist_desc)
+    print(shortlist_desc.decode())
     choice = input('[D]efault same Node as chunk, or [0-9] from shortlist, or [?] browse? ')
     if (choice == '?'):
         node = browse_for_Node()

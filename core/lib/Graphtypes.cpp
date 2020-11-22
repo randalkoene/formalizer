@@ -662,9 +662,62 @@ Named_Node_List_ptr Graph::add_to_List(const std::string _name, const Node & nod
             return &(n_it->second);
         }
     } else {
-        it->second.list.emplace_back(node.get_id().key());
+        it->second.list.emplace_back(node.get_id().key()); // == add_to_List(it->second, node);
         return &(it->second);
     }
+}
+
+size_t Graph::copy_List_to_List(const std::string from_name, const std::string to_name, size_t from_max, size_t to_max) {
+    Named_Node_List_ptr from_ptr = get_List(from_name);
+    if (!from_ptr) {
+        return 0;
+    }
+    if (to_name.empty()) {
+        return 0;
+    }
+
+    if (from_max == 0) { // make from_max the actual max we might copy
+        from_max = from_ptr->list.size();
+    }
+    Named_Node_List_ptr nnl_ptr = get_List(to_name);
+    if (to_max > 0) { // this may add a constraint
+        if (nnl_ptr) { // list exists
+            if (nnl_ptr->list.size()>=to_max) { // unable to add any
+                return 0;
+            }
+            to_max -= nnl_ptr->list.size();
+        }
+        if (to_max < from_max) { // copy only as many as may be added
+            from_max = to_max; 
+        }
+    }
+
+    auto source_it = from_ptr->list.begin();
+    size_t copied = 0;
+    if (!nnl_ptr) { // brand new list
+        // initialize the new list and get a pointer to it, adding with that will be faster than many name lookups
+        Node * node = Node_by_id(*source_it);
+        if (!node) {
+            return 0; // oddly, that Node ID was not found
+        }
+        nnl_ptr = add_to_List(to_name, *node);
+        if (!nnl_ptr) {
+            return 0; // something went wrong
+        }
+        ++source_it;
+        --from_max;
+        ++copied;
+    }
+    for ( ; from_max >= 0; --from_max) {
+        Node * node = Node_by_id(*source_it);
+        if (!node) {
+            return copied; // oddly, that Node ID was not found
+        }
+        add_to_List(*nnl_ptr, *node);
+        ++source_it;
+        ++copied;
+    }
+    return copied;
 }
 
 bool Graph::remove_from_List(const std::string _name, const Node_ID_key & nkey) {

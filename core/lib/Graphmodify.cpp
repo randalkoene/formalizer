@@ -328,4 +328,76 @@ Named_Node_List_Element * Graph_modifications::request_Named_Node_List_Element(G
     return listelement_ptr;
 }
 
+/**
+ * Copy a number of Node IDs from a list of incomplete Nodes sorted by
+ * effective target date to a Named Node List.
+ * 
+ * @param graph A valid Graph data structure.
+ * @param to_name The name of the target Named Node List.
+ * @param from_max Copy at most this many Node IDs (0 means no limit).
+ * @param to_max Copy until the Named Node List contains this many Node IDs or more (0 means no limit).
+ * @return The number of Node IDs copied.
+ */
+size_t copy_Incomplete_to_List(Graph & graph, const std::string to_name, size_t from_max, size_t to_max) {
+    targetdate_sorted_Nodes source_nodes = Nodes_incomplete_by_targetdate(graph);
+    if (source_nodes.empty()) {
+        return 0;
+    }
+    if (to_name.empty()) {
+        return 0;
+    }
+
+    if (from_max == 0) { // make from_max the actual max we might copy
+        from_max = source_nodes.size();
+    }
+    Named_Node_List_ptr nnl_ptr = graph.get_List(to_name);
+    if (to_max > 0) { // this may add a constraint
+        if (nnl_ptr) { // list exists
+            if (nnl_ptr->list.size()>=to_max) { // unable to add any
+                return 0;
+            }
+            to_max -= nnl_ptr->list.size();
+        }
+        if (to_max < from_max) { // copy only as many as may be added
+            from_max = to_max; 
+        }
+    }
+
+    auto source_it = source_nodes.begin();
+    size_t copied = 0;
+    if (!nnl_ptr) { // brand new list
+        // initialize the new list and get a pointer to it, adding with that will be faster than many name lookups
+        nnl_ptr = graph.add_to_List(to_name, *(source_it->second));
+        if (!nnl_ptr) {
+            return 0; // something went wrong
+        }
+        ++source_it;
+        --from_max;
+        ++copied;
+    }
+    for ( ; from_max >= 0; --from_max) {
+        graph.add_to_List(*nnl_ptr, *(source_it->second));
+        ++source_it;
+        ++copied;
+    }
+    return copied;
+}
+
+/**
+ * Updates the 'shortlist" Named Node List.
+ * 
+ * The 'shortlist' Named Node List is frequently used by Formalizer tools
+ * that request a Node selection. To simplify that, this function exists
+ * at the server level.
+ * 
+ * @param graph A valid Graph data structure.
+ * @return The number of Nodes copied into the updated 'shortlist' Named Node List.
+ */
+size_t update_shortlist_List(Graph & graph) {
+    graph.delete_List("shortlist");
+    size_t copied = graph.copy_List_to_List("recent", "shortlist", 5);
+    copied += copy_Incomplete_to_List(graph, "shortlist", 0, 10);
+    return copied;
+}
+
 } // namespace fz

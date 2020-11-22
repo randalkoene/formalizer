@@ -76,6 +76,7 @@ EXECUTABLES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml
 EXECUTABLES += $(TOOLSPATH)/interface/fzserver-info/fzserver-info
 # EXECUTABLES += $(TOOLSPATH)/interface/fzvizgraph/fzvizgraph
 # EXECUTABLES += $(TOOLSPATH)/interface/fzvizmilestones/fzvizmilestones
+EXECUTABLES += $(TOOLSPATH)/interface/logentry/logentry.py
 EXECUTABLES += $(TOOLSPATH)/interface/nodeboard/nodeboard
 EXECUTABLES += $(TOOLSPATH)/system/earlywiz/earlywiz.py
 # EXECUTABLES += $(TOOLSPATH)/system/fzcatchup/fzcatchup
@@ -162,6 +163,8 @@ executables: $(EXECUTABLES)
 	sudo cp -f $(CGIEXE) $(CGIDIR)/
 	cp -f $(WEBINTERFACES) $(WEBINTERFACESDIR)/
 	sudo cp -f $(TOPLEVEL) $(WEBBASEDIR)/
+	./pycmdlinks.sh $(EXEDIR)
+
 
 # call `make doxygen` to refresh code documentation
 doxygen: FORCE

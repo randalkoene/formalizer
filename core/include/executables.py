@@ -34,6 +34,7 @@ executables = (
     'fzgraphhtml',
     'fzloghtml',
     'fzserver-info',
+    'logentry.py',
     'nodeboard',
     'earlywiz.py',
     'requestmanual.py'

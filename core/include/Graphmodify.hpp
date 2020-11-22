@@ -190,6 +190,30 @@ bool Graph_modify_list_remove(Graph & graph, const std::string & graph_segname, 
 /// Deleta a Named Node List.
 bool Graph_modify_list_delete(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
 
+/**
+ * Copy a number of Node IDs from a list of incomplete Nodes sorted by
+ * effective target date to a Named Node List.
+ * 
+ * @param graph A valid Graph data structure.
+ * @param to_name The name of the target Named Node List.
+ * @param from_max Copy at most this many Node IDs (0 means no limit).
+ * @param to_max Copy until the Named Node List contains this many Node IDs or more (0 means no limit).
+ * @return The number of Node IDs copied.
+ */
+size_t copy_Incomplete_to_List(Graph & graph, const std::string to_name, size_t from_max = 0, size_t to_max = 0);
+
+/**
+ * Updates the 'shortlist" Named Node List.
+ * 
+ * The 'shortlist' Named Node List is frequently used by Formalizer tools
+ * that request a Node selection. To simplify that, this function exists
+ * at the server level.
+ * 
+ * @param graph A valid Graph data structure.
+ * @return The number of Nodes copied into the updated 'shortlist' Named Node List.
+ */
+size_t update_shortlist_List(Graph & graph);
+
 } // namespace fz
 
 #endif // __GRAPHMODIFY_HPP

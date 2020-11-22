@@ -66,10 +66,14 @@ fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga
         "  /fz/graph/namedlists/<list-name>?add=<node-id>\n"
         "  /fz/graph/namedlists/<list-name>?remove=<node-id>\n"
         "  /fz/graph/namedlists/<list-name>?delete=\n"
+        "  /fz/graph/namedlists/<list-name>?copy=<from_name>[&from_max=N][&to_max=M]\n"
+        "  /fz/graph/namedlists/_shortlist\n"
         "  /fz/graph/namedlists/_set?persistent=\n"
         "  /fz/graph/namedlists/_reload\n"
-        "Note that the 'persistent' switch is only available through port requests and\n"
-        "through the configuration file. There is no command line option.\n");
+        "Note A: The 'persistent' switch is only available through port requests and\n"
+        "through the configuration file. There is no command line option.\n"
+        "Note B: The <from_name> '_incomplete' copies Nodes from the effective\n"
+        "targetdate sorted list of incomplete Nodes.\n");
 }
 
 /**
@@ -198,6 +202,64 @@ bool handle_named_lists_reload(std::string & response_html) {
     return true;
 }
 
+bool handle_update_shortlist(std::string & response_html) {
+    ERRTRACE;
+
+    VERYVERBOSEOUT("Updating the 'shortlist' Named Node List\n");
+    size_t copied = update_shortlist_List(*fzs.graph_ptr);
+    if (fzs.graph_ptr->persistent_Lists()) {
+        if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), "shortlist", *fzs.graph_ptr)) {
+            return standard_error("Synchronizing 'shortlist' Named Node List update to database failed", __func__);
+        }
+    }
+    response_html = "<html>\n<body>\n"
+                    "<p>Named Node List 'shortlist' updated with "+std::to_string(copied)+" Nodes.</p>\n"
+                    "</body>\n</html>\n";
+
+    return true;
+}
+
+/**
+ * Convert portion of a HTTP GET string into a vector of
+ * token-value pairs.
+ * 
+ * @param httpgetstr A (portion) of an HTTP GET string.
+ * @return A vector of token-value pairs.
+ */
+GET_token_value_vec GET_token_values(const std::string httpgetstr) {
+    auto tokenvalue_strvec = split(httpgetstr,'&');
+    GET_token_value_vec gtvvec;
+    for (const auto & tvstr : tokenvalue_strvec) {
+        auto equalpos = tvstr.find('=');
+        if ((equalpos != std::string::npos) && (equalpos != 0)) {
+            gtvvec.emplace_back(tvstr.substr(0,equalpos), tvstr.substr(equalpos+1));
+        }
+    }
+    return gtvvec;
+}
+
+struct NNL_copy_data {
+    std::string from_name;
+    size_t from_max = 0;
+    size_t to_max = 0;
+};
+
+bool get_copy_data(const std::string copydatastr, NNL_copy_data & copydata) {
+    auto token_value_vec = GET_token_values(copydatastr);
+    for (const auto & GETel : token_value_vec) {
+        if (GETel.token == "copy") {
+            copydata.from_name = GETel.value;
+        } else if (GETel.token == "from_max") {
+            copydata.from_max = std::atoi(GETel.value.c_str());
+        } else if (GETel.token == "to_max") {
+            copydata.to_max = std::atoi(GETel.value.c_str());
+        } else {
+            return standard_error("Unexpected token: "+GETel.token, __func__);
+        }
+    }
+    return true;
+}
+
 bool handle_named_list_direct_request(std::string namedlistreqstr, std::string & response_html) {
     ERRTRACE;
 
@@ -217,6 +279,10 @@ bool handle_named_list_direct_request(std::string namedlistreqstr, std::string &
         if (list_name == "_reload") {
             return handle_named_lists_reload(response_html);
         }
+    }
+
+    if (list_name == "_shortlist") {
+        return handle_update_shortlist(response_html);
     }
 
     if (namedlistreqstr.substr(name_endpos,4) == "add=") {
@@ -245,6 +311,29 @@ bool handle_named_list_direct_request(std::string namedlistreqstr, std::string &
         } catch (ID_exception idexception) {
             return standard_error("Named Node List add request has invalid Node ID ["+namedlistreqstr.substr(name_endpos+4,16)+"], "+idexception.what(), __func__);
         }
+    }
+
+    if (namedlistreqstr.substr(name_endpos,5) == "copy=") {
+        NNL_copy_data copydata;
+        if (!get_copy_data(namedlistreqstr.substr(name_endpos), copydata)) {
+            return standard_error("Unable to carry out 'copy' to Named Node List", __func__);
+        }
+        size_t copied = 0;
+        if (copydata.from_name == "_incomplete") {
+            copied = copy_Incomplete_to_List(*fzs.graph_ptr, list_name, copydata.from_max, copydata.to_max);
+        } else {
+            copied = fzs.graph_ptr->copy_List_to_List(copydata.from_name, list_name, copydata.from_max, copydata.to_max);
+        }
+        if ((copied>0) && (fzs.graph_ptr->persistent_Lists())) {
+            if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), list_name, *fzs.graph_ptr)) {
+                return standard_error("Synchronizing Named Node List copy to database failed", __func__);
+            }
+        }
+        response_html = "<html>\n<body>\n"
+                        "<p>Named Node List modified.</p>\n"
+                        "<p><b>Copied</b> "+std::to_string(copied)+"Nodes from "+copydata.from_name+" to List "+list_name+".</p>\n"
+                        "</body>\n</html>\n";
+        return true;
     }
 
     if (namedlistreqstr.substr(name_endpos,7) == "remove=") {

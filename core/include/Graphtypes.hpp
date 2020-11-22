@@ -686,11 +686,13 @@ public:
     std::vector<std::string> get_List_names() const;
     Named_Node_List_ptr get_List(const std::string _name);
     Named_Node_List_ptr add_to_List(const std::string _name, const Node & node);
+    void add_to_List(Named_Node_List & nnl, const Node & node) { nnl.list.emplace_back(node.get_id().key()); }
     bool remove_from_List(const std::string _name, const Node_ID_key & nkey);
     bool delete_List(const std::string _name);
     void reset_Lists() { namedlists.clear(); }
     bool persistent_Lists() const { return persistent_NNL; }
     void set_Lists_persistence(bool _persistent) { persistent_NNL = _persistent; }
+    size_t copy_List_to_List(const std::string from_name, const std::string to_name, size_t from_max = 0, size_t to_max = 0);
 
     /// crossref tables: topics x nodes
 
