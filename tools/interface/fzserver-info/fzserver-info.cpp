@@ -24,6 +24,7 @@
 #include "jsonlite.hpp"
 #include "Graphinfo.hpp"
 #include "tcpclient.hpp"
+#include "apiclient.hpp"
 
 // local
 #include "version.hpp"
@@ -169,27 +170,6 @@ Graph & fzserver_info::graph() {
     return *graph_ptr;
 }
 
-bool ping_server() {
-    VERYVERBOSEOUT("Sending PING request to Graph server.\n");
-    std::string response_str;
-    // *** Could replace the hard-coded localhost with fzsi.graph().get_server_IPaddr_str() if
-    //     this tool should be usable on a different machine, corresponding with a remote
-    //     Formalizer server.
-    if (!client_socket_shmem_request("PING", "127.0.0.1", fzsi.config.port_number, response_str)) {
-        return standard_error("Communication error.", __func__);
-    }
-
-    if (response_str != "LISTENING") {
-        return standard_error("Unknown response: "+response_str, __func__);
-        VERBOSEOUT("Server stopping.\n");
-        standard.completed_ok();
-    }
-
-    VERYVERBOSEOUT("Server response: LISTENING\n");
-    return true;
-}
-
-
 void server_process_info(Graph_info_label_value_pairs & serverinfo) {
     std::string lockfile_status_str;
     std::string process_status_str;
@@ -232,7 +212,7 @@ void server_process_info(Graph_info_label_value_pairs & serverinfo) {
     serverinfo["lockfile"] = fzsi.lockfilepath;
     serverinfo["lock_status"] = lockfile_status_str;
     serverinfo["proc_status"] = process_status_str;
-    if (ping_server()) {
+    if (ping_server(fzsi.graph().get_server_IPaddr(), fzsi.config.port_number)) {
         serverinfo["ping_status"] = "LISTENING";
     } else {
         serverinfo["ping_status"] = "OFFLINE";
@@ -272,7 +252,7 @@ int ping_server_response() {
     ERRTRACE;
 
     std::string rendered_str;
-    if (ping_server()) {
+    if (ping_server(fzsi.graph().get_server_IPaddr(), fzsi.config.port_number)) {
         rendered_str = "LISTENING";
     } else {
         rendered_str = "OFFLINE";

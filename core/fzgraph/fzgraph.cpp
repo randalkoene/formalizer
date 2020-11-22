@@ -28,6 +28,7 @@
 #include "Graphmodify.hpp"
 #include "utf8.hpp"
 #include "tcpclient.hpp"
+#include "apiclient.hpp"
 
 // local
 #include "version.hpp"
@@ -48,8 +49,8 @@ fzgraphedit fzge;
  */
 fzgraphedit::fzgraphedit() : formalizer_standard_program(false), graph_ptr(nullptr), config(*this),
                              supdep_from_cmdline(false), nnl_supdep_used(false) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "M:L:T:f:H:a:S:D:t:g:p:r:e:s:Y:G:I:U:P:l:d:z";
-    add_usage_top += " [-M node|edges] [-L add|remove|delete] [-T <text>] [-f <content-file>] [-H <hours>] [-a <val>] [-S <sups>] [-D <deps>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>] [-l <name>] [-d <ask|keep|delete>] [-z]";
+    add_option_args += "M:L:T:f:H:a:S:D:t:g:p:r:e:s:Y:G:I:U:P:l:d:uz";
+    add_usage_top += " [-M node|edges] [-L add|remove|delete] [-T <text>] [-f <content-file>] [-H <hours>] [-a <val>] [-S <sups>] [-D <deps>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>] [-l <name>] [-d <ask|keep|delete>] [-u] [-z]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "When making a Node, by convention we expect at least one superior, although\n"
@@ -102,6 +103,7 @@ void fzgraphedit::usage_hook() {
     FZOUT("    -P edge priority (default: "+to_precision_string(config.ed.priority)+")\n");
     FZOUT("    -l the <name> of a Named Node List\n");
     FZOUT("    -d after using superiors & dependencies Lists, delete (default), keep, ask\n");
+    FZOUT("    -u update 'shortlist' Named Node List\n");
     FZOUT("    -z stop the Graph server\n");
 }
 
@@ -406,6 +408,14 @@ int main(int argc, char *argv[]) {
     ERRTRACE;
 
     fzge.init_top(argc, argv);
+
+    if (fzge.update_shortlist) {
+        Graph * graph_ptr = fzge.get_Graph();
+        if (!graph_ptr) {
+            return standard_exit_error(exit_resident_graph_missing, "Memory resident Graph not found.", __func__);
+        }
+        NNLreq_update_shortlist(graph_ptr->get_server_IPaddr(), graph_ptr->get_server_port());
+    }
 
     switch (fzge.flowcontrol) {
 

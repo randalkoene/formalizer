@@ -14,6 +14,7 @@
 // core
 #include "config.hpp"
 #include "standard.hpp"
+#include "Graphtypes.hpp"
 // #include "Graphaccess.hpp"
 
 using namespace fz;
@@ -59,6 +60,10 @@ struct fzgraphhtml: public formalizer_standard_program {
 
     bool test_cards = false;
 
+    bool update_shortlist = false;
+
+    Graph * graph_ptr = nullptr;
+
     // Graph_access ga; // to include Graph or Log access support
 
     fzgraphhtml();
@@ -68,6 +73,8 @@ struct fzgraphhtml: public formalizer_standard_program {
     virtual bool options_hook(char c, std::string cargs);
 
     void init_top(int argc, char *argv[]);
+
+    Graph & graph();
 
 };
 

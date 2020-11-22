@@ -99,6 +99,8 @@ public:
     bool supdep_from_cmdline;
     bool nnl_supdep_used;
 
+    bool update_shortlist = false;
+
     // Graph_access ga; // to include Graph or Log access support
 
     fzgraphedit();

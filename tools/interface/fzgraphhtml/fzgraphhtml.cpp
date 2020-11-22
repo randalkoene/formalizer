@@ -22,6 +22,7 @@
 #include "stringio.hpp"
 #include "Graphtypes.hpp"
 #include "Graphinfo.hpp"
+#include "apiclient.hpp"
 
 // local
 #include "version.hpp"
@@ -38,8 +39,8 @@ fzgraphhtml fzgh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:IL:N:x:o:eT:F:C";
-    add_usage_top += " [-n <node-ID>] [-I] [-L <name|?>] [-N <num>] [-x <len>] [-o <output-path>] [-e] [-T <named|node|Node>=<path>] [-F html|txt|node|desc] [-C]";
+    add_option_args += "n:IL:N:x:o:eT:F:uC";
+    add_usage_top += " [-n <node-ID>] [-I] [-L <name|?>] [-N <num>] [-x <len>] [-o <output-path>] [-e] [-T <named|node|Node>=<path>] [-F html|txt|node|desc] [-u] [-C]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("When no [N <num>] is provided then the configured value is used.\n");
 }
@@ -58,7 +59,8 @@ void fzgraphhtml::usage_hook() {
           "    -o Rendered output to <output-path> (\"STDOUT\" is default)\n"
           "    -e Embeddable, no head and tail templates\n"
           "    -T Use custom template instead of named, node or single Node\n"
-          "    -F output format: html (default), txt, node, desc\n"
+          "    -F Output format: html (default), txt, node, desc\n"
+          "    -u Update 'shortlist' Named Node List\n"
           "    -C (TEST) card output format\n");
 }
 
@@ -180,6 +182,11 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'u': {
+        update_shortlist = true;
+        return true;
+    }
+
     case 'C': {
         test_cards = true;
         return true;
@@ -225,6 +232,15 @@ void fzgraphhtml::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen once in main(), for the derived class
 }
 
+Graph & fzgraphhtml::graph() {
+    ERRTRACE;
+    if (!graphmemman.get_Graph(graph_ptr)) {
+        standard_exit_error(exit_resident_graph_missing, "Memory resident Graph not found.", __func__);
+    }
+    return *graph_ptr;
+}
+
+
 void test_other_graph_info(Graph & graph) {
 
     //VERYVERBOSEOUT(List_Topics(graph, "\n"));
@@ -238,7 +254,7 @@ void test_other_graph_info(Graph & graph) {
 void get_node_info() {
     ERRTRACE;
 
-    auto [node_ptr, graph_ptr] = find_Node_by_idstr(fzgh.node_idstr, nullptr);
+    auto [node_ptr, graph_ptr] = find_Node_by_idstr(fzgh.node_idstr, fzgh.graph_ptr);
 
     if (graph_ptr) {
 
@@ -273,6 +289,10 @@ int main(int argc, char *argv[]) {
     ERRTRACE;
 
     fzgh.init_top(argc, argv);
+
+    if (fzgh.update_shortlist) {
+        NNLreq_update_shortlist(fzgh.graph().get_server_IPaddr(), fzgh.graph().get_server_port());
+    }
 
     switch (fzgh.flowcontrol) {
 

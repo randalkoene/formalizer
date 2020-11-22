@@ -146,6 +146,9 @@ $(OBJ)/tcpclient.o: tcpclient.cpp $(INC)/tcpclient.hpp $(INC)/error.hpp $(INC)/s
 $(OBJ)/tcpserver.o: tcpserver.cpp $(INC)/tcpserver.hpp $(INC)/error.hpp $(INC)/standard.hpp
 	$(CCPP) $(CPPFLAGS) -c tcpserver.cpp -o $(OBJ)/tcpserver.o
 
+$(OBJ)/apiclient.o: apiclient.cpp $(INC)/apiclient.hpp $(INC)/error.hpp $(INC)/tcpclient.hpp
+	$(CCPP) $(CPPFLAGS) -c apiclient.cpp -o $(OBJ)/apiclient.o
+
 $(OBJ)/html.o: html.cpp $(INC)/html.hpp
 	$(CCPP) $(CPPFLAGS) -c html.cpp -o $(OBJ)/html.o
 
