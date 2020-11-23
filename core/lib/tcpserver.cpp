@@ -13,10 +13,39 @@
 
 // core
 #include "standard.hpp"
+#include "general.hpp"
 #include "tcpserver.hpp"
 
 namespace fz {
 
+/**
+ * Convert portion of a HTTP GET string into a vector of
+ * token-value pairs.
+ * 
+ * @param httpgetstr A (portion) of an HTTP GET string.
+ * @return A vector of token-value pairs.
+ */
+GET_token_value_vec GET_token_values(const std::string httpgetstr) {
+    auto tokenvalue_strvec = split(httpgetstr,'&');
+    GET_token_value_vec gtvvec;
+    for (const auto & tvstr : tokenvalue_strvec) {
+        auto equalpos = tvstr.find('=');
+        if ((equalpos != std::string::npos) && (equalpos != 0)) {
+            gtvvec.emplace_back(tvstr.substr(0,equalpos), tvstr.substr(equalpos+1));
+        }
+    }
+    return gtvvec;
+}
+
+/**
+ * Discover this server's IP address from the perspective of a connecting
+ * TCP client.
+ * 
+ * This method should work irrespective of the network device being used.
+ * 
+ * @param[out] ipaddr_str Reference to string variable that receives the IP address.
+ * @return True if successful.
+ */
 bool find_server_address(std::string & ipaddr_str) {
     ERRTRACE;
 

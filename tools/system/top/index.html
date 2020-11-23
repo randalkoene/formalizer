@@ -2,214 +2,214 @@
 <HTML>
 
 <HEAD>
-    <link rel="icon" href="/favicon-32x32.png">
-    <link rel="stylesheet" href="/fz.css">
-    <style>
-        #clock {
-            position: fixed;
-            top: 0px;
-            right: 0px;
-            margin: 20px auto;
-            padding: 0;
-            background: #999;
-            text-align: center;
-            line-height: 40px;
-            color: #000;
-            font-size: 34px;
-            font-family: calibri;
-        }
-        #duplicate {
-            position: fixed;
-            top: 70px;
-            right: 0px;
-        }
-        #classical {
-            position: fixed;
-            bottom: 0px;
-            right: 0px;
-        }
-        #EBM {
-            position: fixed;
-            bottom: 50px;
-            right: 0px;
-        }
-        #industrial {
-            position: fixed;
-            bottom: 100px;
-            right: 0px;
-        }
-        #meditative {
-            position: fixed;
-            bottom: 150px;
-            right: 0px;
-        }
-    </style>
-    <TITLE>Formalizer Environment v2.0a - Top</TITLE>
-    </HEAD>
-    <BODY onload="javascript:clockStart()">
-    <H1>Formalizer Environment v2.0a - Top</H1>
-    
-    <!-- <p id="clock"></p> -->
-    <button id="clock" class="button button2">_____</button>
-    <button id="duplicate" class="button button2" onclick="window.open('/index.html','_blank');">duplicate</button>
-
-    <button class="button button1" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py','_blank');">Next Nodes</button>
-    <button class="button button2" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END','_blank');">Recent Log</button>
-    <button class="button button1" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?srclist=?','_blank');">Named Node Lists</button>
-    <button class="button button2" onclick="window.open('https://calendar.google.com/calendar/','_blank');">Calendar</button>
-    <button class="button button1" onclick="window.open('/cgi-bin/fzguide.system-cgi.py?submit=Read','_blank');">Morning Protocol</button>
-    <button class="button button2" onclick="window.open('/cgi-bin/fzguide.system-cgi.py?submit=Read&chapter=ACT&spec_chapter=on','_blank');">Action Protocol</button>
-    <br>
-    <button class="button button2" onclick="window.open('https://docs.google.com/spreadsheets/d/1LeVD95TeBv_3QNby-Robe_BXS20g3WJEO3udy9mIb8I/edit#gid=0','_blank');">Metrics</button>
-    <button class="button button1" onclick="window.open('https://docs.google.com/spreadsheets/d/1p1lLpNOy6OeBQC_MNpzRqsLCPFEpnaF-ZfEAZ1KlRFc/edit#gid=1467656114','_blank');">DAF &amp; Comm</button>
-    <button class="button button2" onclick="window.open('https://docs.google.com/spreadsheets/d/1oDD4moypes9qII1olFaLWhydOPCWFa7f_u6hWXTZVP4/edit#gid=1180724961','_blank');">Reward &amp; Positive</button>
-    <button class="button button1" onclick="window.open('https://docs.google.com/spreadsheets/d/1mNAYcHlFjXHzSFHHli-_cOfeEjxwcRizJlwbWYPIZA8/edit#gid=0','_blank');">LVL4 Day Plan</button>
-    <button class="button button2" onclick="window.open('https://docs.google.com/document/d/1lBYknyQHhlhlqYZ3gku7OFTuM5FpFXV62jE2ETOnjv4/edit#heading=h.6algess7d8zh','_blank');">Notes on Change</button>
-    <br>
-    <button class="button button1" onclick="window.open('/cgi-bin/fzserver-info-cgi.py','_blank');">Server Status</button>
-    <button class="button button2" onclick="location.href='http://aether.local:8090/fz/status';">Port Status</button>
-    <button class="button button1" onclick="location.href='http://aether.local:8090/fz/ErrQ';">ErrQ Status</button>
-    <button class="button button2" onclick="location.href='http://aether.local:8090/fz/db/mode';">DB mode</button>
-    <button class="button button1" onclick="location.href='http://aether.local:8090/fz/db/mode?set=run';">DB run</button>
-    <button class="button button2" onclick="location.href='http://aether.local:8090/fz/db/mode?set=log';">DB log</button>
-    <button class="button button1" onclick="location.href='http://aether.local:8090/fz/db/mode?set=sim';">DB sim</button>
-    <button class="button button2" onclick="location.href='http://aether.local:8090/fz/db/log';">DB Log Status</button>
-    <button class="button button1" onclick="location.href='http://aether.local:8090/fz/graph/namedlists/_set?persistent=true';">set NNL persistent</button>
-    <button class="button button2" onclick="location.href='http://aether.local:8090/fz/graph/namedlists/_set?persistent=false';">set NNL non-persistent</button>
-    <button class="button button1" onclick="location.href='http://aether.local:8090/fz/graph/namedlists/_reload';">reload NNL</button>
-    <br>
-    System Boards: <button class="button button1" onclick="window.open('https://trello.com/b/mnu1VKIn','_blank');">Challenges</button>
-    <button class="button button2" onclick="window.open('https://trello.com/b/t2RmUmlN','_blank');">Milestones</button>
-    <button class="button button1" onclick="window.open('https://trello.com/b/cOCvAYh4','_blank');">Roadmap</button>
-    <button class="button button2" onclick="window.open('https://trello.com/b/e3sHVgMT','_blank');">Metrics</button>
-    <button class="button button1" onclick="window.open('https://trello.com/b/tlgXjZBm','_blank');">Experiments</button>
-    <button class="button button2" onclick="window.open('https://trello.com/b/ptGdOpzW','_blank');">Concierge</button>
-    <button class="button button1" onclick="window.open('https://trello.com/b/6ZfhOnuN','_blank');">Meditation, Mindstate & Flow</button>
-    <br>
-    Current Tracks: <button class="button button2" onclick="window.open('https://trello.com/b/De2oTs4O','_blank');">OUT-OF-LIGHTHOUSE</button>
-    <button class="button button1" onclick="window.open('https://trello.com/b/kdNO6dFD','_blank');">SFBAY-REGULAR-JOB</button>
-    <button class="button button2" onclick="window.open('https://trello.com/b/PEfStDEN','_blank');">FORMALIZER-NEWAL-METHOD</button>
-    <button class="button button1" onclick="window.open('https://trello.com/b/uMW6fb4e','_blank');">Formalizer Tools</button>
-    <button class="button button2" onclick="window.open('https://trello.com/b/ABTA2xEA','_blank');">CARBONCOPIES</button>
-    <br>
-    Track Collections:
-    <button class="button button1" onclick="window.open('https://trello.com/b/n8YN7jwd','_blank');">Financials, Income &amp; Capital</button>
-    <button class="button button2" onclick="window.open('https://trello.com/b/gPUx2CON','_blank');">Solving Debt</button>
-    <button class="button button1" onclick="window.open('https://trello.com/b/uNGTL6aO','_blank');">Health</button>
-    <button class="button button2" onclick="window.open('https://trello.com/b/U81T3ycQ','_blank');">Writing Projects</button>
-    <br>
-    Information: <button class="button button2" onclick="window.open('https://trello.com/b/BIRsdsnE','_blank');">C++ / C</button>
-    <button class="button button1" onclick="window.open('https://trello.com/b/Jjli7nWA','_blank');">Software Engineering</button>
-    <button class="button button2" onclick="window.open('https://trello.com/b/yPGMhTGw','_blank');">Science</button>
-    <button class="button button1" onclick="window.open('https://trello.com/b/aE1VCkGj','_blank');">NMA Data Science</button>
-    <button class="button button2" onclick="window.open('/formalizer/ready-docs.html','_blank');">Ready Docs</button>
-    <br>
-    Action: <button class="button button1" onclick="window.open('/formalizer/add_node.html','_blank');">Add Node</button>
-    <button class="button button2" onclick="window.alert('Not yet implemented.');">Add Log Entry</button>
-    <button class="button button1" onclick="light_or_dark();">Light / Dark</button>
-
-    <button id="classical" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPxdxF1BhIPpl6s08kllCLs5','_blank');">classical</button>
-    <button id="EBM" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPzyg3_daMmuG79hZ56uHeCy','_blank');">EBM</button>
-    <button id="industrial" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPwXtRPtB6dyUFg3CC0Fbreo','_blank');">industrial</button>
-    <button id="meditative" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPypoHjDibsdYpTg606q8V1F','_blank');">meditative</button>
-
-    <hr>
-
-    <UL>
-        <P>
-            <LI><a href="/formalizer/fzloghtml-form.html">Formalizer: fzloghtml FORM interface</a></LI>
-        </P>
-        <P>
-            <LI><a href="/formalizer/fzguide.system-form.html">Formalizer: fzguide.system FORM interface</a></LI>
-        </P>
-        <P>
-            <LI><a href="/formalizer/sysmet-add-form.html">Formalizer: sysmet-add FORM interface</a></LI>
-        </P>
-        <P>
-            <LI><a href="https://trello.com/b/tlgXjZBm">System Experiments: Guide to Improved Action (list in board)</a></LI>
-        </P>
-    </UL>
-
-    <hr>
-
-    <H3>Error, Warning and optional Call Logs</H3>
-
-    Links to inspedct common default ErrQ and WarnQ logging output files used by Formalizer core and tools components.
-
-    <UL>
-        <LI><a href="/formalizer/formalizer.core.server.error.ErrQ.log">Server Errors log</a></LI>
-        <P></P>      
-        <LI><a href="/formalizer/formalizer.core.error.ErrQ.log">Errors log</a></LI>
-        <P></P>
-        <LI><a href="/formalizer/formalizer.core.error.WarnQ.log">Warnings log</a></LI>
-        <P></P>
-        <LI><a href="/formalizer/formalizer.core.fzpostgres.SimPQ.log">Postgres Commands log</a></LI>
-    </UL>
-
-    <hr>
-
-    <h3>Documentation &amp; Development</h3>
-
-    <ul>
-        <li><a href="/formalizer/doxygen-html/index.html">Doxygen Index</a></li>
-    </ul>
-
-    <ul>
-        <li><a href="formalizer/development-tests-INDEX.html">Development Tests Index</a></li>
-    </ul>
-
-    <hr>
-
-    <h3>Formalizer 1.x - dil2al</h3>
-
-    <p>Irregularly updated copy of Formalizer 1.x data files: <a href="formalizer/lists.html">Task Log</a></p>
-    
-    <P>For use with <code>dil2al-polldaemon.sh</code>: <a href="formalizer/logentry-form_fullpage.template.html">Log Entry Form</a></P>
-    
-    <hr>
-    
-    <p>Ubuntu-Apache2 Default Page: <a href="ubuntu-apache2-index.html">ubuntu-apache2-index.html</a></p>
-    
-    <hr>
-
-
-    <!-- clock script adapted from https://codepen.io/kase/pen/LxNzWj -->
-    <script type="text/javascript">
-    function updateClock() {
-        var currentTime = new Date();
-        // Operating System Clock Hours for 24h clock
-        var currentHours = currentTime.getHours();
-        // Operating System Clock Minutes
-        var currentMinutes = currentTime.getMinutes();
-        // Operating System Clock Seconds
-        //var currentSeconds = currentTime.getSeconds();
-        // Adding 0 if Minutes & Seconds is More or Less than 10
-        currentMinutes = (currentMinutes < 10 ? "0" : "") + currentMinutes;
-        //currentSeconds = (currentSeconds < 10 ? "0" : "") + currentSeconds;
-        // display first 24h clock and after line break 12h version
-        var currentTimeString = currentHours + ":" + currentMinutes; // + ":" + currentSeconds;
-        // print clock js in div #clock.
-        document.getElementById("clock").innerHTML = currentTimeString;
-        //var t = setTimeout(function(){ updateClock() }, 1000); /* setting timer */ // this actually blows up the stack!
+<link rel="icon" href="/favicon-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<style>
+    #clock {
+        position: fixed;
+        top: 0px;
+        right: 0px;
+        margin: 20px auto;
+        padding: 0;
+        background: #999;
+        text-align: center;
+        line-height: 40px;
+        color: #000;
+        font-size: 34px;
+        font-family: calibri;
     }
-    // let's skip using jQuery $(document).ready(function () { setInterval(updateClock, 1000); } );
-    //updateClock(); // initiate the process
-    function clockStart() {
-        updateClock();
-        var idval = setInterval(updateClock, 60000); // update each minute, since we're not showing seconds here
+    #duplicate {
+        position: fixed;
+        top: 70px;
+        right: 0px;
     }
-    var lightdark = 0;
-    function light_or_dark() {
-        if (lightdark > 0) {
-            //document.body.style.background = "#ffffff";
-            document.body.removeAttribute('data-theme');
-        } else {
-            //document.body.style.background = "#7f7f7f";
-            document.body.setAttribute('data-theme', 'dark');
-        }
-        lightdark = 1 - lightdark;
+    #classical {
+        position: fixed;
+        bottom: 0px;
+        right: 0px;
     }
-    </script>
-    </BODY>
-    
-    </HTML>
+    #EBM {
+        position: fixed;
+        bottom: 50px;
+        right: 0px;
+    }
+    #industrial {
+        position: fixed;
+        bottom: 100px;
+        right: 0px;
+    }
+    #meditative {
+        position: fixed;
+        bottom: 150px;
+        right: 0px;
+    }
+</style>
+<TITLE>Formalizer Environment v2.0a - Top</TITLE>
+</HEAD>
+<BODY onload="javascript:clockStart()">
+<H1>Formalizer Environment v2.0a - Top</H1>
+
+<!-- <p id="clock"></p> -->
+<button id="clock" class="button button2">_____</button>
+<button id="duplicate" class="button button2" onclick="window.open('/index.html','_blank');">duplicate</button>
+
+<button class="button button1" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py','_blank');">Next Nodes</button>
+<button class="button button2" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END','_blank');">Recent Log</button>
+<button class="button button1" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?srclist=?','_blank');">Named Node Lists</button>
+<button class="button button2" onclick="window.open('https://calendar.google.com/calendar/','_blank');">Calendar</button>
+<button class="button button1" onclick="window.open('/cgi-bin/fzguide.system-cgi.py?submit=Read','_blank');">Morning Protocol</button>
+<button class="button button2" onclick="window.open('/cgi-bin/fzguide.system-cgi.py?submit=Read&chapter=ACT&spec_chapter=on','_blank');">Action Protocol</button>
+<br>
+<button class="button button2" onclick="window.open('https://docs.google.com/spreadsheets/d/1LeVD95TeBv_3QNby-Robe_BXS20g3WJEO3udy9mIb8I/edit#gid=0','_blank');">Metrics</button>
+<button class="button button1" onclick="window.open('https://docs.google.com/spreadsheets/d/1p1lLpNOy6OeBQC_MNpzRqsLCPFEpnaF-ZfEAZ1KlRFc/edit#gid=1467656114','_blank');">DAF &amp; Comm</button>
+<button class="button button2" onclick="window.open('https://docs.google.com/spreadsheets/d/1oDD4moypes9qII1olFaLWhydOPCWFa7f_u6hWXTZVP4/edit#gid=1180724961','_blank');">Reward &amp; Positive</button>
+<button class="button button1" onclick="window.open('https://docs.google.com/spreadsheets/d/1mNAYcHlFjXHzSFHHli-_cOfeEjxwcRizJlwbWYPIZA8/edit#gid=0','_blank');">LVL4 Day Plan</button>
+<button class="button button2" onclick="window.open('https://docs.google.com/document/d/1lBYknyQHhlhlqYZ3gku7OFTuM5FpFXV62jE2ETOnjv4/edit#heading=h.6algess7d8zh','_blank');">Notes on Change</button>
+<br>
+<button class="button button1" onclick="window.open('/cgi-bin/fzserver-info-cgi.py','_blank');">Server Status</button>
+<button class="button button2" onclick="location.href='http://aether.local:8090/fz/status';">Port Status</button>
+<button class="button button1" onclick="location.href='http://aether.local:8090/fz/ErrQ';">ErrQ Status</button>
+<button class="button button2" onclick="location.href='http://aether.local:8090/fz/db/mode';">DB mode</button>
+<button class="button button1" onclick="location.href='http://aether.local:8090/fz/db/mode?set=run';">DB run</button>
+<button class="button button2" onclick="location.href='http://aether.local:8090/fz/db/mode?set=log';">DB log</button>
+<button class="button button1" onclick="location.href='http://aether.local:8090/fz/db/mode?set=sim';">DB sim</button>
+<button class="button button2" onclick="location.href='http://aether.local:8090/fz/db/log';">DB Log Status</button>
+<button class="button button1" onclick="location.href='http://aether.local:8090/fz/graph/namedlists/_set?persistent=true';">set NNL persistent</button>
+<button class="button button2" onclick="location.href='http://aether.local:8090/fz/graph/namedlists/_set?persistent=false';">set NNL non-persistent</button>
+<button class="button button1" onclick="location.href='http://aether.local:8090/fz/graph/namedlists/_reload';">reload NNL</button>
+<br>
+System Boards: <button class="button button1" onclick="window.open('https://trello.com/b/mnu1VKIn','_blank');">Challenges</button>
+<button class="button button2" onclick="window.open('https://trello.com/b/t2RmUmlN','_blank');">Milestones</button>
+<button class="button button1" onclick="window.open('https://trello.com/b/cOCvAYh4','_blank');">Roadmap</button>
+<button class="button button2" onclick="window.open('https://trello.com/b/e3sHVgMT','_blank');">Metrics</button>
+<button class="button button1" onclick="window.open('https://trello.com/b/tlgXjZBm','_blank');">Experiments</button>
+<button class="button button2" onclick="window.open('https://trello.com/b/ptGdOpzW','_blank');">Concierge</button>
+<button class="button button1" onclick="window.open('https://trello.com/b/6ZfhOnuN','_blank');">Meditation, Mindstate & Flow</button>
+<br>
+Current Tracks: <button class="button button2" onclick="window.open('https://trello.com/b/De2oTs4O','_blank');">OUT-OF-LIGHTHOUSE</button>
+<button class="button button1" onclick="window.open('https://trello.com/b/kdNO6dFD','_blank');">SFBAY-REGULAR-JOB</button>
+<button class="button button2" onclick="window.open('https://trello.com/b/PEfStDEN','_blank');">FORMALIZER-NEWAL-METHOD</button>
+<button class="button button1" onclick="window.open('https://trello.com/b/uMW6fb4e','_blank');">Formalizer Tools</button>
+<button class="button button2" onclick="window.open('https://trello.com/b/ABTA2xEA','_blank');">CARBONCOPIES</button>
+<br>
+Track Collections:
+<button class="button button1" onclick="window.open('https://trello.com/b/n8YN7jwd','_blank');">Financials, Income &amp; Capital</button>
+<button class="button button2" onclick="window.open('https://trello.com/b/gPUx2CON','_blank');">Solving Debt</button>
+<button class="button button1" onclick="window.open('https://trello.com/b/uNGTL6aO','_blank');">Health</button>
+<button class="button button2" onclick="window.open('https://trello.com/b/U81T3ycQ','_blank');">Writing Projects</button>
+<br>
+Information: <button class="button button2" onclick="window.open('https://trello.com/b/BIRsdsnE','_blank');">C++ / C</button>
+<button class="button button1" onclick="window.open('https://trello.com/b/Jjli7nWA','_blank');">Software Engineering</button>
+<button class="button button2" onclick="window.open('https://trello.com/b/yPGMhTGw','_blank');">Science</button>
+<button class="button button1" onclick="window.open('https://trello.com/b/aE1VCkGj','_blank');">NMA Data Science</button>
+<button class="button button2" onclick="window.open('/formalizer/ready-docs.html','_blank');">Ready Docs</button>
+<br>
+Action: <button class="button button1" onclick="window.open('/formalizer/add_node.html','_blank');">Add Node</button>
+<button class="button button2" onclick="window.alert('Not yet implemented.');">Add Log Entry</button>
+<button class="button button1" onclick="light_or_dark();">Light / Dark</button>
+
+<button id="classical" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPxdxF1BhIPpl6s08kllCLs5','_blank');">classical</button>
+<button id="EBM" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPzyg3_daMmuG79hZ56uHeCy','_blank');">EBM</button>
+<button id="industrial" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPwXtRPtB6dyUFg3CC0Fbreo','_blank');">industrial</button>
+<button id="meditative" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPypoHjDibsdYpTg606q8V1F','_blank');">meditative</button>
+
+<hr>
+
+<UL>
+    <P>
+        <LI><a href="/formalizer/fzloghtml-form.html">Formalizer: fzloghtml FORM interface</a></LI>
+    </P>
+    <P>
+        <LI><a href="/formalizer/fzguide.system-form.html">Formalizer: fzguide.system FORM interface</a></LI>
+    </P>
+    <P>
+        <LI><a href="/formalizer/sysmet-add-form.html">Formalizer: sysmet-add FORM interface</a></LI>
+    </P>
+    <P>
+        <LI><a href="https://trello.com/b/tlgXjZBm">System Experiments: Guide to Improved Action (list in board)</a></LI>
+    </P>
+</UL>
+
+<hr>
+
+<H3>Error, Warning and optional Call Logs</H3>
+
+Links to inspedct common default ErrQ and WarnQ logging output files used by Formalizer core and tools components.
+
+<UL>
+    <LI><a href="/formalizer/formalizer.core.server.error.ErrQ.log">Server Errors log</a></LI>
+    <P></P>      
+    <LI><a href="/formalizer/formalizer.core.error.ErrQ.log">Errors log</a></LI>
+    <P></P>
+    <LI><a href="/formalizer/formalizer.core.error.WarnQ.log">Warnings log</a></LI>
+    <P></P>
+    <LI><a href="/formalizer/formalizer.core.fzpostgres.SimPQ.log">Postgres Commands log</a></LI>
+</UL>
+
+<hr>
+
+<h3>Documentation &amp; Development</h3>
+
+<ul>
+    <li><a href="/formalizer/doxygen-html/index.html">Doxygen Index</a></li>
+</ul>
+
+<ul>
+    <li><a href="formalizer/development-tests-INDEX.html">Development Tests Index</a></li>
+</ul>
+
+<hr>
+
+<h3>Formalizer 1.x - dil2al</h3>
+
+<p>Irregularly updated copy of Formalizer 1.x data files: <a href="formalizer/lists.html">Task Log</a></p>
+
+<P>For use with <code>dil2al-polldaemon.sh</code>: <a href="formalizer/logentry-form_fullpage.template.html">Log Entry Form</a></P>
+
+<hr>
+
+<p>Ubuntu-Apache2 Default Page: <a href="ubuntu-apache2-index.html">ubuntu-apache2-index.html</a></p>
+
+<hr>
+
+
+<!-- clock script adapted from https://codepen.io/kase/pen/LxNzWj -->
+<script type="text/javascript">
+function updateClock() {
+    var currentTime = new Date();
+    // Operating System Clock Hours for 24h clock
+    var currentHours = currentTime.getHours();
+    // Operating System Clock Minutes
+    var currentMinutes = currentTime.getMinutes();
+    // Operating System Clock Seconds
+    //var currentSeconds = currentTime.getSeconds();
+    // Adding 0 if Minutes & Seconds is More or Less than 10
+    currentMinutes = (currentMinutes < 10 ? "0" : "") + currentMinutes;
+    //currentSeconds = (currentSeconds < 10 ? "0" : "") + currentSeconds;
+    // display first 24h clock and after line break 12h version
+    var currentTimeString = currentHours + ":" + currentMinutes; // + ":" + currentSeconds;
+    // print clock js in div #clock.
+    document.getElementById("clock").innerHTML = currentTimeString;
+    //var t = setTimeout(function(){ updateClock() }, 1000); /* setting timer */ // this actually blows up the stack!
+}
+// let's skip using jQuery $(document).ready(function () { setInterval(updateClock, 1000); } );
+//updateClock(); // initiate the process
+function clockStart() {
+    updateClock();
+    var idval = setInterval(updateClock, 60000); // update each minute, since we're not showing seconds here
+}
+var lightdark = 0;
+function light_or_dark() {
+    if (lightdark > 0) {
+        //document.body.style.background = "#ffffff";
+        document.body.removeAttribute('data-theme');
+    } else {
+        //document.body.style.background = "#7f7f7f";
+        document.body.setAttribute('data-theme', 'dark');
+    }
+    lightdark = 1 - lightdark;
+}
+</script>
+</BODY>
+
+</HTML>

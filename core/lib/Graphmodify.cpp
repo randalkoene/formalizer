@@ -375,11 +375,12 @@ size_t copy_Incomplete_to_List(Graph & graph, const std::string to_name, size_t 
         --from_max;
         ++copied;
     }
-    for ( ; from_max >= 0; --from_max) {
+    for ( ; from_max > 0; --from_max) {
         graph.add_to_List(*nnl_ptr, *(source_it->second));
         ++source_it;
         ++copied;
     }
+
     return copied;
 }
 

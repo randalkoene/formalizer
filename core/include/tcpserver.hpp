@@ -25,6 +25,31 @@ struct shared_memory_server {
     virtual void handle_special_purpose_request(int new_socket, const std::string & request_str) = 0;
 };
 
+struct GET_token_value {
+    std::string token;
+    std::string value;
+    GET_token_value(const std::string _token, const std::string _value) : token(_token), value(_value) {}
+};
+typedef std::vector<GET_token_value> GET_token_value_vec;
+
+/**
+ * Convert portion of a HTTP GET string into a vector of
+ * token-value pairs.
+ * 
+ * @param httpgetstr A (portion) of an HTTP GET string.
+ * @return A vector of token-value pairs.
+ */
+GET_token_value_vec GET_token_values(const std::string httpgetstr);
+
+/**
+ * Discover this server's IP address from the perspective of a connecting
+ * TCP client.
+ * 
+ * This method should work irrespective of the network device being used.
+ * 
+ * @param[out] ipaddr_str Reference to string variable that receives the IP address.
+ * @return True if successful.
+ */
 bool find_server_address(std::string & ipaddr_str);
 
 /**

@@ -12,6 +12,10 @@ import sys
 import json
 import argparse
 import subprocess
+import re
+#import curses
+import pty
+
 
 # Standardized expectations.
 userhome = os.getenv('HOME')
@@ -38,6 +42,39 @@ def try_subprocess_check_output(thecmdstring, resstore):
         if config['verbose']:
             print(res)
         return 0
+
+
+#def init_screen():
+#    curses.start_color() # load colors
+#    curses.use_default_colors()
+#    curses.noecho()      # do not echo text
+#    curses.cbreak()      # do not wait for "enter"
+#    curses.mousemask(curses.ALL_MOUSE_EVENTS)
+#
+#    # Hide cursor, if terminal AND curse supports it
+#    if hasattr(curses, 'curs_set'):
+#        try:
+#            curses.curs_set(0)
+#        except:
+#            pass
+
+
+# def run_curses_tty(thecmdstring):
+#     stdscr = curses.initscr()
+#     init_screen()
+#     stdscr.keypad(1)
+#     # Prepare screen for interactive command
+#     curses.savetty()
+#     curses.nocbreak()
+#     curses.echo()
+#     curses.endwin()
+
+#     # Run command
+#     pty.spawn(thecmdstring)
+
+#     # Restore screen
+#     init_screen()
+#     curses.resetty()
 
 
 # Handle the case where even fzsetup.py does not have a configuration file yet.
@@ -125,6 +162,15 @@ def get_from_Named_Node_Lists(list_name, output_format, resstore):
         print(f'Attempt to get Named Node List data failed.')
         exit(retcode)
 
+def get_updated_shortlist():
+    retcode = try_subprocess_check_output(f"fzgraphhtml -u -L 'shortlist' -F node -e -q", 'shortlistnode')
+    if (retcode != 0):
+        print(f'Attempt to get "shortlist" Named Node List node data failed.')
+        exit(retcode)
+    retcode = try_subprocess_check_output(f"fzgraphhtml -L 'shortlist' -F desc -x 60 -e -q", 'shortlistdesc')
+    if (retcode != 0):
+        print(f'Attempt to get "shortlist" Named Node List description data failed.')
+        exit(retcode)
 
 def get_from_Incomplete(output_format, resstore):
     retcode = try_subprocess_check_output(f"fzgraphhtml -I -F {output_format} -x 60 -N 5 -e -q",resstore)
@@ -134,30 +180,41 @@ def get_from_Incomplete(output_format, resstore):
 
 
 def browse_for_Node():
-    retcode = try_subprocess_check_output(f"w3m http://localhost/index.html",'')
+    print('Use the browser to select a node.')
+    #retcode = try_subprocess_check_output(f"urxvt -e w3m http://localhost/index.html",'')
+    #if (retcode != 0):
+    #    print(f'Attempt to browse for Node failed.')
+    #    exit(retcode)
+    #run_curses_tty(['w3m','http://localhost/index.html'])
+    retcode = try_subprocess_check_output(f"fzgraph -L delete -l 'selected' -q",'') # *** we can get rid of this when features are enabled
     if (retcode != 0):
-        print(f'Attempt to browse for Node failed.')
-        exit(retcode)
+        print(f'Attempt to clear "selected" Named Node List failed.')
+        exit(retcode)    
+    retcode = pty.spawn(['w3m','http://localhost/select.html'])
     retcode = try_subprocess_check_output(f"fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected')
     if (retcode != 0):
         print(f'Attempt to get selected Node failed.')
         exit(retcode)
-    return results['selected']
+    print(f'Selected: {results["selected"]}')
+    if results['selected']:
+        return results['selected'][0:16]
+    else:
+        return ''
 
 
 def entry_belongs_to_same_or_other_Node():
-    # *** This can be greatly simplified now to just calling the _shortlist
-    #     command through the port and then getting 'shortlist' 'desc' and 'node'.
-    # *** To simplify even further, you can add an option to fzgraphhtml to call the
-    #     _shortlist update.
-    get_from_Named_Node_Lists('recent','desc','recentdesc')
-    get_from_Named_Node_Lists('recent','node','recentnode')
-    get_from_Incomplete('desc','nextupdesc')
-    get_from_Incomplete('node','nextupnode')
-    shortlist_nodes = results['nextupnode'] + results['recentnode']
-    shortlist_desc = results['nextupdesc'] + results['recentdesc']
+    get_updated_shortlist()
+    shortlist_nodes = results['shortlistnode']
+    shortlist_desc = results['shortlistdesc']
     print('Short-list of Nodes for this Log Entry:')
-    print(shortlist_desc.decode())
+    #filtered = filter(lambda x: not re.match(r'^\s*$', x), shortlist_desc.decode().splitlines())
+    #print(str(filtered))
+    #shortlist_prettyprint = os.linesep.join([s for s in shortlist_desc.decode().splitlines() if s.strip()])
+    #print(shortlist_prettyprint)
+    shortlist_vec = [s for s in shortlist_desc.decode().splitlines() if s.strip()]
+    for (number, line) in enumerate(shortlist_vec):
+        print(f' {number}: {line}')
+
     choice = input('[D]efault same Node as chunk, or [0-9] from shortlist, or [?] browse? ')
     if (choice == '?'):
         node = browse_for_Node()
@@ -166,10 +223,15 @@ def entry_belongs_to_same_or_other_Node():
                 node = shortlist_nodes.splitlines()[int(choice)]
         else:
             node = '' # default
+    if node:
+        node = node.decode()
+        print(f'Log entry belongs to Node {node}.')
+    else:
+        print(f'Log entry belongs to the same Node as the Log chunk.')
     return node
 
 
-def send_to_fzlog(node, entrycontent):
+def send_to_fzlog(node):
     thecmd=f"fzlog -e -f {config['contenttmpfile']}"
     if node:
         thecmd += f" -n {node}"
@@ -177,7 +239,7 @@ def send_to_fzlog(node, entrycontent):
     if (retcode != 0):
         print(f'Attempt to add Log entry via fzlog failed.')
         exit(retcode)
-    
+    print('Entry added to Log.')
 
 
 def transition_dil2al_polldaemon_request(node, entrycontent):
@@ -204,9 +266,9 @@ if __name__ == '__main__':
 
     node = entry_belongs_to_same_or_other_Node()
 
-    exit(0) # remove this
+    send_to_fzlog(node)
 
-    send_to_fzlog(node, entrycontent)
+    exit(0) # remove this
 
     transition_dil2al_polldaemon_request(node, entrycontent)
 

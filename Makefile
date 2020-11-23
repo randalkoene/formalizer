@@ -122,6 +122,7 @@ WEBINTERFACES += $(TOOLSPATH)/system/metrics/sysmet-add/sysmet-add-form.html
 
 TOPLEVEL =
 TOPLEVEL += $(TOOLSPATH)/system/top/index.html
+TOPLEVEL += $(TOOLSPATH)/system/top/select.html
 TOPLEVEL += $(TOOLSPATH)/interface/resources/fz.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/fz-cards.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/w3.css
