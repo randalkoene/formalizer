@@ -185,11 +185,7 @@ def browse_for_Node():
     #if (retcode != 0):
     #    print(f'Attempt to browse for Node failed.')
     #    exit(retcode)
-    #run_curses_tty(['w3m','http://localhost/index.html'])
-    retcode = try_subprocess_check_output(f"fzgraph -L delete -l 'selected' -q",'') # *** we can get rid of this when features are enabled
-    if (retcode != 0):
-        print(f'Attempt to clear "selected" Named Node List failed.')
-        exit(retcode)    
+    #run_curses_tty(['w3m','http://localhost/index.html']) 
     retcode = pty.spawn(['w3m','http://localhost/select.html'])
     retcode = try_subprocess_check_output(f"fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected')
     if (retcode != 0):

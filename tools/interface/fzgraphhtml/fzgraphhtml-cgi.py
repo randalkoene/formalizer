@@ -76,6 +76,7 @@ listpagehead_alllists = '''<html>
 <h3>Named Node Lists</h3>
 
 <table class="blueTable"><tbody>
+<tr><th>Name</th><th>Size</th><th>Max. Size</th><th>Features</th><th>Actions</th></tr>
 '''
 
 listpagetail = '''</tbody></table>

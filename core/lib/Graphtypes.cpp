@@ -635,7 +635,7 @@ void Edge::copy_content(Edge & from_edge) {
  * @return True if the Node ID key was added, false if not (e.g. due to unique or maxsize settings).
  */
 bool Named_Node_List::add(const Node_ID_key & nkey) {
-    while ((maxsize>0) && (list.size()>=maxsize)) {
+    while ((maxsize > 0) && (((long) list.size()) >= maxsize)) {
         if (!fifo()) {
             return false; // full, and we can't push anything out
         } else {
@@ -743,7 +743,7 @@ Named_Node_List_ptr Graph::add_to_List(const std::string _name, const Node & nod
     auto it = namedlists.find(namekey);
     if (it == namedlists.end()) { // new named List
         //Node_ID_key nkey(node.get_id().key());
-        auto [n_it, listadded] = namedlists.emplace(_name.c_str(), node.get_id().key(), _features, _maxsize);
+        auto [n_it, listadded] = namedlists.emplace(_name.c_str(), Named_Node_List{ node.get_id().key(), _features, _maxsize });
         if (!listadded) {
             return nullptr;
         } else {

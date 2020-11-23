@@ -153,6 +153,27 @@ struct line_render_parameters {
         template_varvalues varvals;
         varvals.emplace("list_name",list_name);
         varvals.emplace("fzserverpq",graph_ptr->get_server_full_address());
+        Named_Node_List_ptr nnl_ptr = graph_ptr->get_List(list_name);
+        if (nnl_ptr) {
+            varvals.emplace("size",std::to_string(nnl_ptr->size()));
+            if (!nnl_ptr->get_maxsize()) {
+                varvals.emplace("maxsize", "unlimited");
+            } else {
+                varvals.emplace("maxsize", std::to_string(nnl_ptr->get_maxsize()));
+            }
+            std::string feature_str;
+            if (nnl_ptr->prepend())
+                feature_str += "prepend,";
+            if (nnl_ptr->unique())
+                feature_str += "unique,";
+            if (nnl_ptr->fifo())
+                feature_str += "fifo,";
+            if (!feature_str.empty()) {
+                feature_str.back() = ')';
+                feature_str.insert(0,"(");
+            }
+            varvals.emplace("features", feature_str);
+        }
         rendered_page += env.render(templates[named_node_list_in_list_temp], varvals);
     }
 

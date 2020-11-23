@@ -1193,8 +1193,8 @@ bool Update_Named_Node_List_pq(std::string dbname, std::string schemaname, std::
 
     // Convert Named Node List data and insert or update row in table
     std::string tablename(schemaname+".NamedNodeLists");
-    std::string featurestr(std::to_string(nodelist_ptr->features));
-    std::string maxsizestr(std::to_string(nodelist_ptr->maxsize));
+    std::string featurestr(std::to_string(nodelist_ptr->get_features()));
+    std::string maxsizestr(std::to_string(nodelist_ptr->get_maxsize()));
     std::string nodeidsstr("ARRAY [");
     if (nodelist_ptr->list.size()>0) {
         for (const auto & nkey : nodelist_ptr->list) {
@@ -1294,7 +1294,6 @@ bool load_Named_Node_Lists_pq(Graph& graph, std::string dbname, std::string sche
             if (nodeids_str.back() == '}')
                 nodeids_str.pop_back();
             auto nkey_str_vec = split(nodeids_str,',');
-            Named_Node_List_ptr namedlist_ptr = nullptr;
             int16_t features = std::atoi(feature_str.c_str());
             int32_t maxsize = std::atoi(maxsize_str.c_str());
             for (const auto & nkey_str : nkey_str_vec) {
@@ -1305,7 +1304,7 @@ bool load_Named_Node_Lists_pq(Graph& graph, std::string dbname, std::string sche
                     VERBOSEERR(errstr+'\n');
                     LOAD_NNL_PQ_RETURN(false);
                 }
-                namedlist_ptr = graph.add_to_List(name_str, *node_ptr, features, maxsize);
+                graph.add_to_List(name_str, *node_ptr, features, maxsize);
             }
         }
 

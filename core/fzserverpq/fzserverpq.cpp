@@ -65,17 +65,23 @@ fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga
         "  /fz/status\n"
         "  /fz/db/mode\n"
         "  /fz/db/mode=<run|log|sim>\n"
-        "  /fz/graph/namedlists/<list-name>?add=<node-id>\n"
+        "  /fz/graph/namedlists/<list-name>?add=<node-id>[&FEATURES/MAXSIZE]\n"
         "  /fz/graph/namedlists/<list-name>?remove=<node-id>\n"
         "  /fz/graph/namedlists/<list-name>?delete=\n"
         "  /fz/graph/namedlists/<list-name>?copy=<from_name>[&from_max=N][&to_max=M]\n"
+        "  /fz/graph/namedlists/_select?id=<node-id>\n"
         "  /fz/graph/namedlists/_shortlist\n"
         "  /fz/graph/namedlists/_set?persistent=\n"
         "  /fz/graph/namedlists/_reload\n"
         "Note A: The 'persistent' switch is only available through port requests and\n"
         "through the configuration file. There is no command line option.\n"
         "Note B: The <from_name> '_incomplete' copies Nodes from the effective\n"
-        "targetdate sorted list of incomplete Nodes.\n");
+        "targetdate sorted list of incomplete Nodes.\n"
+        "Note C: Both <list-name>?add and <list-name>?copy can receive optional\n"
+        "arguments to specify FEATURES and MAXSIZE if the <list-name> is new. The\n"
+        "available specifiers are:\n"
+        "  [&maxsize=N], [&unique=true|false], [&fifo=true|false],"
+        "  [&prepend=true|false]\n");
 }
 
 /**

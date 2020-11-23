@@ -277,7 +277,7 @@ typedef bi::allocator<Node_ID_key, segment_manager_t> Node_ID_key_allocator;
  * https://trello.com/c/zcUpEAXi/189-fzserverpq-named-lists#comment-5fac08dc178a257eb6f953ac
  */
 typedef bi::deque<Node_ID_key, Node_ID_key_allocator> Node_List;
-typedef bi::set<Node_ID_key, Node_ID_key_allocator> Node_Set;
+typedef bi::set<Node_ID_key, std::less<Node_ID_key>, Node_ID_key_allocator> Node_Set;
 //typedef bi::vector<const Node_ID_key, Node_ID_key_allocator> Node_List;
 
 /**
@@ -614,6 +614,7 @@ public:
     bool remove(const Node_ID_key & nkey);
     int16_t get_features() { return features; }
     int32_t get_maxsize() { return maxsize; }
+    size_t size() { return list.size(); }
 };
 typedef Named_Node_List * Named_Node_List_ptr; // use this pointer only within the context of one program (not to be stored in shared memory)
 typedef std::pair<const Named_List_String, Named_Node_List> Named_Node_List_Map_value_type;
