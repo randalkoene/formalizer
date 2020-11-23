@@ -88,6 +88,7 @@ std::string pq_topiclayout(
 std::string pq_NNLlayout(
     "name char(81) PRIMARY KEY," // e.g. superiors
     "features smallint,"
+    "maxsize integer," // 4 byte integer, 0 means no size limit
     "nodeids char(16)[]"
 );
 
@@ -1193,6 +1194,7 @@ bool Update_Named_Node_List_pq(std::string dbname, std::string schemaname, std::
     // Convert Named Node List data and insert or update row in table
     std::string tablename(schemaname+".NamedNodeLists");
     std::string featurestr(std::to_string(nodelist_ptr->features));
+    std::string maxsizestr(std::to_string(nodelist_ptr->maxsize));
     std::string nodeidsstr("ARRAY [");
     if (nodelist_ptr->list.size()>0) {
         for (const auto & nkey : nodelist_ptr->list) {
@@ -1202,10 +1204,10 @@ bool Update_Named_Node_List_pq(std::string dbname, std::string schemaname, std::
     } else {
         nodeidsstr += ']';
     }
-    std::string nnl_values_str('\''+listname+"',"+featurestr+','+nodeidsstr);
-    const std::string updatestr("INSERT INTO " + tablename + " (name, features, nodeids) VALUES (" +
+    std::string nnl_values_str('\''+listname+"',"+featurestr+','+maxsizestr+','+nodeidsstr);
+    const std::string updatestr("INSERT INTO " + tablename + " (name, features, maxsize, nodeids) VALUES (" +
                                 nnl_values_str + ") ON CONFLICT (name) DO UPDATE SET features = " + featurestr +
-                                ", nodeids = " + nodeidsstr);
+                                ", maxsize = " + maxsizestr + ", nodeids = " + nodeidsstr);
     if (!simple_call_pq(conn, updatestr)) {
         ADDERROR(__func__, "Unable to update Named Node List "+listname);
         UPDATE_NNL_PQ_RETURN(false);
@@ -1216,6 +1218,7 @@ bool Update_Named_Node_List_pq(std::string dbname, std::string schemaname, std::
 
 const std::string pq_NNL_fieldnames[_pqNNL_NUM] = {"name",
                                                   "features",
+                                                  "maxsize",
                                                   "nodeids"};
 unsigned int pq_NNL_field[_pqNNL_NUM];
 
@@ -1260,6 +1263,7 @@ bool load_Named_Node_Lists_pq(Graph& graph, std::string dbname, std::string sche
 
     std::string name_str;
     std::string feature_str;
+    std::string maxsize_str;
     std::string nodeids_str;
 
     graph.reset_Lists();
@@ -1280,9 +1284,10 @@ bool load_Named_Node_Lists_pq(Graph& graph, std::string dbname, std::string sche
 
         for (int r = 0; r < rows; ++r) {
 
-            name_str = PQgetvalue(res, r, pq_NNL_field[0]);
-            feature_str = PQgetvalue(res, r, pq_NNL_field[1]);
-            nodeids_str = PQgetvalue(res, r, pq_NNL_field[2]);
+            name_str = PQgetvalue(res, r, pq_NNL_field[pqNNL_name]);
+            feature_str = PQgetvalue(res, r, pq_NNL_field[pqNNL_features]);
+            maxsize_str = PQgetvalue(res, r, pq_NNL_field[pqNNL_maxsize]);
+            nodeids_str = PQgetvalue(res, r, pq_NNL_field[pqNNL_nodeids]);
             rtrim(name_str); // the 80 character column was automatically space-padded by Postgres
             if (nodeids_str.front() == '{')
                 nodeids_str.erase(0,1);
@@ -1290,6 +1295,8 @@ bool load_Named_Node_Lists_pq(Graph& graph, std::string dbname, std::string sche
                 nodeids_str.pop_back();
             auto nkey_str_vec = split(nodeids_str,',');
             Named_Node_List_ptr namedlist_ptr = nullptr;
+            int16_t features = std::atoi(feature_str.c_str());
+            int32_t maxsize = std::atoi(maxsize_str.c_str());
             for (const auto & nkey_str : nkey_str_vec) {
                 Node_ptr node_ptr = graph.Node_by_idstr(nkey_str); //*** do we have to remove '' from front and back?
                 if (!node_ptr) {
@@ -1298,9 +1305,8 @@ bool load_Named_Node_Lists_pq(Graph& graph, std::string dbname, std::string sche
                     VERBOSEERR(errstr+'\n');
                     LOAD_NNL_PQ_RETURN(false);
                 }
-                namedlist_ptr = graph.add_to_List(name_str, *node_ptr);
+                namedlist_ptr = graph.add_to_List(name_str, *node_ptr, features, maxsize);
             }
-            namedlist_ptr->features = std::atoi(feature_str.c_str());
         }
 
         PQclear(res);

@@ -336,9 +336,11 @@ Named_Node_List_Element * Graph_modifications::request_Named_Node_List_Element(G
  * @param to_name The name of the target Named Node List.
  * @param from_max Copy at most this many Node IDs (0 means no limit).
  * @param to_max Copy until the Named Node List contains this many Node IDs or more (0 means no limit).
+ * @param _features Optional features to set if the target Named Node List is new.
+ * @param _maxsize Optional maximum size to set if the target Named Node List is new.
  * @return The number of Node IDs copied.
  */
-size_t copy_Incomplete_to_List(Graph & graph, const std::string to_name, size_t from_max, size_t to_max) {
+size_t copy_Incomplete_to_List(Graph & graph, const std::string to_name, size_t from_max, size_t to_max, int16_t _features, int32_t _maxsize) {
     targetdate_sorted_Nodes source_nodes = Nodes_incomplete_by_targetdate(graph);
     if (source_nodes.empty()) {
         return 0;
@@ -367,7 +369,7 @@ size_t copy_Incomplete_to_List(Graph & graph, const std::string to_name, size_t 
     size_t copied = 0;
     if (!nnl_ptr) { // brand new list
         // initialize the new list and get a pointer to it, adding with that will be faster than many name lookups
-        nnl_ptr = graph.add_to_List(to_name, *(source_it->second));
+        nnl_ptr = graph.add_to_List(to_name, *(source_it->second), _features, _maxsize);
         if (!nnl_ptr) {
             return 0; // something went wrong
         }
@@ -375,10 +377,14 @@ size_t copy_Incomplete_to_List(Graph & graph, const std::string to_name, size_t 
         --from_max;
         ++copied;
     }
-    for ( ; from_max > 0; --from_max) {
-        graph.add_to_List(*nnl_ptr, *(source_it->second));
-        ++source_it;
-        ++copied;
+    for ( ; source_it != source_nodes.end(); ++source_it) {
+        if (graph.add_to_List(*nnl_ptr, *(source_it->second))) {
+            ++copied;
+            --from_max;
+            if (from_max==0) {
+                return copied;
+            }
+        }
     }
 
     return copied;

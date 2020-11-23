@@ -626,6 +626,82 @@ void Edge::copy_content(Edge & from_edge) {
     set_priority(from_edge.get_priority());
 }
 
+/**
+ * Add a Node ID key to a Named Node List.
+ * 
+ * This function takes into account the `features` and `maxsize` specifications.
+ * 
+ * @param nkey A valid Node ID key.
+ * @return True if the Node ID key was added, false if not (e.g. due to unique or maxsize settings).
+ */
+bool Named_Node_List::add(const Node_ID_key & nkey) {
+    while ((maxsize>0) && (list.size()>=maxsize)) {
+        if (!fifo()) {
+            return false; // full, and we can't push anything out
+        } else {
+            if (prepend()) { // pop the back
+                if (unique()) { // remove the Node ID key that will be popped
+                    set.erase(list.back());
+                }
+                list.pop_back();
+            } else { // pop the front
+                if (unique()) { // remove the Node ID key that will be popped
+                    set.erase(list.front());
+                }
+                list.pop_front();
+            }
+        }
+    }
+
+    bool placed = true;
+    if (unique()) {
+        std::tie (std::ignore, placed) = set.emplace(nkey);
+    }
+    if (placed) {
+        if (prepend()) {
+            list.emplace_front(nkey);
+        } else {
+            list.emplace_back(nkey);
+        }
+    }
+    return placed;
+}
+
+/**
+ * Remove a Node ID key to a Named Node List.
+ * 
+ * This function takes into account the `features` specifications. If the
+ * List can contain duplicates then the oldest is removed.
+ * 
+ * @param nkey A valid Node ID key.
+ * @return True if the Node ID key was removed, false if it was not found.
+ */
+bool Named_Node_List::remove(const Node_ID_key & nkey) {
+    if (unique()) {
+        if (set.erase(nkey)<1) {
+            return false; // nkey was not in the set
+        }
+    }
+
+    if (prepend()) { // oldest is furthest toward the back
+        for (auto n_it = list.rbegin(); n_it != list.rend(); ++n_it) {
+            if (*n_it == nkey) {
+                list.erase((n_it+1).base()); // see https://www.geeksforgeeks.org/how-to-erase-an-element-from-a-vector-using-erase-and-reverse_iterator/ and https://en.cppreference.com/w/cpp/iterator/reverse_iterator
+                return true;
+            }
+        }
+    } else { // oldest is furtherst toward the front
+        for (auto n_it = list.begin(); n_it != list.end(); ++n_it) {
+            if (*n_it == nkey) {
+                list.erase(n_it);
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 std::vector<std::string> Graph::get_List_names() const {
     std::vector<std::string> names_vec;
     for (const auto & [nls, nnl] : namedlists) {
@@ -646,23 +722,35 @@ Named_Node_List_ptr Graph::get_List(const std::string _name) {
     return &(it->second);
 }
 
-/// If successful this returns a pointer to the Named List where the Node was appended.
-Named_Node_List_ptr Graph::add_to_List(const std::string _name, const Node & node) {
+/**
+ * Add the Node ID key of a Node to a Named Node List.
+ * 
+ * If the Named Node List does not exist then it is created. Only when a Named Node List
+ * if first created can features and maxsize be set. Otherwise, the `_features` and
+ * `_maxsize` arguments are ignored.
+ * 
+ * @param _name The name of the Named Node List.
+ * @param node An existing Node object.
+ * @param _features Optional features flags (default 0).
+ * @param _maxsize Optional maximum List size (0 means no limit).
+ * @return If successful this returns a pointer to the Named List where the Node was appended.
+ */
+Named_Node_List_ptr Graph::add_to_List(const std::string _name, const Node & node, int16_t _features, int32_t _maxsize) {
     if (_name.empty()) {
         return nullptr;
     }
     Named_List_String namekey(_name.c_str());
     auto it = namedlists.find(namekey);
     if (it == namedlists.end()) { // new named List
-        Node_ID_key nkey(node.get_id().key());
-        auto [n_it, listadded] = namedlists.emplace(_name.c_str(), nkey);
+        //Node_ID_key nkey(node.get_id().key());
+        auto [n_it, listadded] = namedlists.emplace(_name.c_str(), node.get_id().key(), _features, _maxsize);
         if (!listadded) {
             return nullptr;
         } else {
             return &(n_it->second);
         }
     } else {
-        it->second.list.emplace_back(node.get_id().key()); // == add_to_List(it->second, node);
+        it->second.add(node.get_id().key()); // == add_to_List(it->second, node);
         return &(it->second);
     }
 }
@@ -700,7 +788,7 @@ size_t Graph::copy_List_to_List(const std::string from_name, const std::string t
         if (!node) {
             return 0; // oddly, that Node ID was not found
         }
-        nnl_ptr = add_to_List(to_name, *node);
+        nnl_ptr = add_to_List(to_name, *node, from_ptr->get_features(), from_ptr->get_maxsize());
         if (!nnl_ptr) {
             return 0; // something went wrong
         }
@@ -708,14 +796,18 @@ size_t Graph::copy_List_to_List(const std::string from_name, const std::string t
         --from_max;
         ++copied;
     }
-    for ( ; from_max >= 0; --from_max) {
+    for ( ; source_it != from_ptr->list.end(); ++source_it) {
         Node * node = Node_by_id(*source_it);
         if (!node) {
             return copied; // oddly, that Node ID was not found
         }
-        add_to_List(*nnl_ptr, *node);
-        ++source_it;
-        ++copied;
+        if (add_to_List(*nnl_ptr, *node)) {
+            ++copied;
+            --from_max;
+            if (from_max == 0) {
+                return copied;
+            }
+        }
     }
     return copied;
 }
@@ -729,17 +821,13 @@ bool Graph::remove_from_List(const std::string _name, const Node_ID_key & nkey) 
     if (it == namedlists.end()) {
         return false;
     }
-    Node_List & nodelist = it->second.list;
-    for (auto n_it = nodelist.begin(); n_it != nodelist.end(); ++n_it) {
-        if (*n_it == nkey) {
-            nodelist.erase(n_it);
-            if (nodelist.empty()) {
-                return (namedlists.erase(namekey)>0);
-            }
-            return true;
-        }
+    if (!it->second.remove(nkey)) {
+        return false;
     }
-    return false;
+    if (it->second.list.empty()) { // delete empty Named Node List
+        return (namedlists.erase(namekey)>0);
+    }
+    return true;
 }
 
 bool Graph::delete_List(const std::string _name) {
@@ -749,7 +837,6 @@ bool Graph::delete_List(const std::string _name) {
     Named_List_String namekey(_name.c_str());
     return (namedlists.erase(namekey)>0);
 }
-
 
 /**
  * Note that this function will only allow insertion of a Node that was created in

@@ -70,6 +70,7 @@
 #include <boost/interprocess/containers/string.hpp>
 #include <boost/interprocess/containers/set.hpp>
 #include <boost/interprocess/containers/vector.hpp>
+#include <boost/interprocess/containers/deque.hpp>
 #include <boost/interprocess/managed_shared_memory.hpp>
 
 namespace bi = boost::interprocess;
@@ -275,7 +276,8 @@ typedef bi::allocator<Node_ID_key, segment_manager_t> Node_ID_key_allocator;
  * Nodes see:
  * https://trello.com/c/zcUpEAXi/189-fzserverpq-named-lists#comment-5fac08dc178a257eb6f953ac
  */
-typedef bi::vector<Node_ID_key, Node_ID_key_allocator> Node_List;
+typedef bi::deque<Node_ID_key, Node_ID_key_allocator> Node_List;
+typedef bi::set<Node_ID_key, Node_ID_key_allocator> Node_Set;
 //typedef bi::vector<const Node_ID_key, Node_ID_key_allocator> Node_List;
 
 /**
@@ -592,12 +594,26 @@ public:
  * For detailed information see https://trello.com/c/zcUpEAXi.
  */
 struct Named_Node_List {
+    constexpr static std::int_fast16_t prepend_mask{ 0b0000'0000'0000'0001 }; // prepend instead of append
+	constexpr static std::int_fast16_t unique_mask{ 0b0000'0000'0000'0010 };  // no duplicates (a set)
+	constexpr static std::int_fast16_t fifo_mask{ 0b0000'0000'0000'0100 };    // FIFO replacement if maxsize is reached 
     //Named_List_String name; // *** the name is the map key
-    Node_List list;
-    int features;
-    Named_Node_List(): list(graphmemman.get_allocator()), features(0) {} // name("", graphmemman.get_allocator()),
-    Named_Node_List(Node_ID_key & nkey): list(graphmemman.get_allocator()), features(0) { list.emplace_back(nkey); }
+    Node_List list; // a deque that keeps elements in order received
+    Node_Set set; // an additional key set that is only used if unique
+protected:
+    int16_t features;
+    int32_t maxsize; ///< 0 means no limit and is the default
+public:
+    Named_Node_List(): list(graphmemman.get_allocator()), set(graphmemman.get_allocator()), features(0), maxsize(0) {} // name("", graphmemman.get_allocator()),
+    Named_Node_List(const Node_ID_key & nkey, int16_t _features = 0, int32_t _maxsize = 0): list(graphmemman.get_allocator()), set(graphmemman.get_allocator()), features(_features), maxsize(_maxsize) { add(nkey); }
     //Named_Node_List(const Node_ID_key & nkey): list(graphmemman.get_allocator()), features(0) { list.emplace_back(nkey); }
+    bool prepend() { return (features & prepend_mask) != 0; }
+    bool unique() { return (features & unique_mask) != 0; }
+    bool fifo() { return (features & fifo_mask) != 0; }
+    bool add(const Node_ID_key & nkey);
+    bool remove(const Node_ID_key & nkey);
+    int16_t get_features() { return features; }
+    int32_t get_maxsize() { return maxsize; }
 };
 typedef Named_Node_List * Named_Node_List_ptr; // use this pointer only within the context of one program (not to be stored in shared memory)
 typedef std::pair<const Named_List_String, Named_Node_List> Named_Node_List_Map_value_type;
@@ -685,8 +701,8 @@ public:
     /// namedlists
     std::vector<std::string> get_List_names() const;
     Named_Node_List_ptr get_List(const std::string _name);
-    Named_Node_List_ptr add_to_List(const std::string _name, const Node & node);
-    void add_to_List(Named_Node_List & nnl, const Node & node) { nnl.list.emplace_back(node.get_id().key()); }
+    Named_Node_List_ptr add_to_List(const std::string _name, const Node & node, int16_t _features = 0, int32_t _maxsize = 0);
+    bool add_to_List(Named_Node_List & nnl, const Node & node) { return nnl.add(node.get_id().key()); }
     bool remove_from_List(const std::string _name, const Node_ID_key & nkey);
     bool delete_List(const std::string _name);
     void reset_Lists() { namedlists.clear(); }

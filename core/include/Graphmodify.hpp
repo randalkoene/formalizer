@@ -198,9 +198,11 @@ bool Graph_modify_list_delete(Graph & graph, const std::string & graph_segname, 
  * @param to_name The name of the target Named Node List.
  * @param from_max Copy at most this many Node IDs (0 means no limit).
  * @param to_max Copy until the Named Node List contains this many Node IDs or more (0 means no limit).
+ * @param _features Optional features to set if the target Named Node List is new.
+ * @param _maxsize Optional maximum size to set if the target Named Node List is new.
  * @return The number of Node IDs copied.
  */
-size_t copy_Incomplete_to_List(Graph & graph, const std::string to_name, size_t from_max = 0, size_t to_max = 0);
+size_t copy_Incomplete_to_List(Graph & graph, const std::string to_name, size_t from_max = 0, size_t to_max = 0, int16_t _features = 0, int32_t _maxsize = 0);
 
 /**
  * Updates the 'shortlist" Named Node List.
