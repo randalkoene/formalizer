@@ -709,7 +709,8 @@ public:
     void reset_Lists() { namedlists.clear(); }
     bool persistent_Lists() const { return persistent_NNL; }
     void set_Lists_persistence(bool _persistent) { persistent_NNL = _persistent; }
-    size_t copy_List_to_List(const std::string from_name, const std::string to_name, size_t from_max = 0, size_t to_max = 0);
+    /// See detailed function description in the `Graphtypes.cpp` file.
+    size_t copy_List_to_List(const std::string from_name, const std::string to_name, size_t from_max = 0, size_t to_max = 0, int16_t _features = -1, int32_t _maxsize = -1);
 
     /// crossref tables: topics x nodes
 

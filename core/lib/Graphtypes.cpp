@@ -755,7 +755,30 @@ Named_Node_List_ptr Graph::add_to_List(const std::string _name, const Node & nod
     }
 }
 
-size_t Graph::copy_List_to_List(const std::string from_name, const std::string to_name, size_t from_max, size_t to_max) {
+/**
+ * Copy Node ID keys from one Named Node List to another.
+ * 
+ * If the target List already exists then adding Nodes from the source List is
+ * subject to established `features` and `maxsize` limit.
+ * 
+ * If the target List is new, then there are 2 possible situations:
+ *   1. If the `_features` argument < 0 then copy features and maxsize from
+ *      the source List (become a type of List just like the source List).
+ *   2. Otherwise, apply the function arguments `_features` and `_maxsize`
+ *      to the new target List.
+ * 
+ * Note: A similar copy function is also available from a target date sorted list
+ *       of incomplete Nodes to a List, in the `Graphmodify` library.
+ * 
+ * @param from_name Name of the source Named Node List.
+ * @param to_name Name of the target Named Node List.
+ * @param from_max If > 0 then copy at most this many from the source List.
+ * @param to_max If > 0 then copy at most until the target List has this size.
+ * @param _features Optional features specification for new target List (by default copy from source).
+ * @param _maxsize Optional maximum size limitation fro new target List (be default copy from source).
+ * @return The number of Node ID keys copied.
+ */
+size_t Graph::copy_List_to_List(const std::string from_name, const std::string to_name, size_t from_max, size_t to_max, int16_t _features, int32_t _maxsize) {
     Named_Node_List_ptr from_ptr = get_List(from_name);
     if (!from_ptr) {
         return 0;
@@ -788,7 +811,11 @@ size_t Graph::copy_List_to_List(const std::string from_name, const std::string t
         if (!node) {
             return 0; // oddly, that Node ID was not found
         }
-        nnl_ptr = add_to_List(to_name, *node, from_ptr->get_features(), from_ptr->get_maxsize());
+        if (_features>=0) {
+            nnl_ptr = add_to_List(to_name, *node, _features, _maxsize);
+        } else {
+            nnl_ptr = add_to_List(to_name, *node, from_ptr->get_features(), from_ptr->get_maxsize());
+        }
         if (!nnl_ptr) {
             return 0; // something went wrong
         }

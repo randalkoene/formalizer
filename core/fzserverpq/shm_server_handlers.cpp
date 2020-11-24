@@ -217,6 +217,12 @@ bool handle_request_stack(std::string segname) {
                 break;
             }
 
+            // *** We could add shared memory handlers for:
+            //       NNL add requests WITH features and maxsize
+            //       NNL copy requests from List to List or from sorted incomplete Nodes list to List
+            //     At present, this is provided via the direct port-API only, and tools such as
+            //     fzgraph provide a means of delivering 'GET url' style request for that purpose.
+
             default: {
                 // This should never happen, especially after being detected in request_stack_valid(). 
             }

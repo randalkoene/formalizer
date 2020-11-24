@@ -37,7 +37,8 @@ enum flow_options {
     flow_stop_server = 3, /// request: stop the Graph server
     flow_add_to_list = 4, /// request: add Node(s) to Named Node List
     flow_remove_from_list = 5, /// request: remove Node(s) from Named Node List
-    flow_delete_list = 6, // request: delete Named Node List
+    flow_delete_list = 6, /// request: delete Named Node List
+    flow_port_api = 7,    /// request: send API string to server port
     flow_NUMoptions
 };
 
@@ -101,6 +102,8 @@ public:
 
     bool update_shortlist = false;
 
+    std::string api_string;
+
     // Graph_access ga; // to include Graph or Log access support
 
     fzgraphedit();
@@ -111,7 +114,7 @@ public:
 
     void init_top(int argc, char *argv[]);
 
-    Graph * get_Graph() { return graphmemman.get_Graph(graph_ptr); } ///< Get a pointer to the resident-memory Graph.
+    Graph * get_Graph() { return graphmemman.get_Graph(graph_ptr); } ///< Get a pointer to the resident-memory Graph (or from cache in graph_ptr).
 
 };
 

@@ -49,20 +49,30 @@ fzgraphedit fzge;
  */
 fzgraphedit::fzgraphedit() : formalizer_standard_program(false), graph_ptr(nullptr), config(*this),
                              supdep_from_cmdline(false), nnl_supdep_used(false) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "M:L:T:f:H:a:S:D:t:g:p:r:e:s:Y:G:I:U:P:l:d:uz";
-    add_usage_top += " [-M node|edges] [-L add|remove|delete] [-T <text>] [-f <content-file>] [-H <hours>] [-a <val>] [-S <sups>] [-D <deps>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>] [-l <name>] [-d <ask|keep|delete>] [-u] [-z]";
+    add_option_args += "M:L:C:T:f:H:a:S:D:t:g:p:r:e:s:Y:G:I:U:P:l:d:uz";
+    add_usage_top += " [-M node|edges] [-L add|remove|delete] [-C <api-string>] [-T <text>] [-f <content-file>] [-H <hours>] [-a <val>] [-S <sups>] [-D <deps>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>] [-l <name>] [-d <ask|keep|delete>] [-u] [-z]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
+        "\n"
         "When making a Node, by convention we expect at least one superior, although\n"
         "it is not enforced. The preference order for sources that can provide\n"
         "superiors and dependencies is: command line, Named Node Lists ('superiors',\n"
         "'depdendencies'), configuration file."
+        "\n"
         "When making one or more Edges, the list of superior and dependency nodes\n"
         "are paired up and must be of equal length.\n"
+        "\n"
         "Lists of superiors or dependencies, as well as topics, expect comma\n"
         "delimiters.\n"
+        "\n"
         "When modifying a Named Node List (-L), the list name is provided with the -l\n"
-        "option and one or more Node IDs can be provided with the -S and -D options.\n");
+        "option and one or more Node IDs can be provided with the -S and -D options.\n"
+        "\n"
+        "The -C option provides a way to utilize the direct TCP port API, particularly\n"
+        "for requests that are only supported through that API. For example:\n"
+        "-C /fz/graph/namedlists/shortlist?copy=recent&to_max=10&maxsize=10&unique=true\n"
+        "-C /fz/graph/namedlists/_reload\n"
+        "For more information about the API see fzserverpq.\n");
 }
 
 std::string NodeIDs_to_string(const Node_ID_key_Vector & nodeidvec) {
@@ -84,6 +94,7 @@ void fzgraphedit::usage_hook() {
     //ga.usage_hook();
     FZOUT("    -M make 'node' or 'edges'\n");
     FZOUT("    -L modify Named Node List: 'add' to, 'remove' from, or 'delete'\n");
+    FZOUT("    -C send any <api-string> to the server port\n");
     FZOUT("    -T description <text> from the command line\n");
     FZOUT("    -f description text from <content-file> (\"STDIN\" for stdin until eof, CTRL+D)\n");
     FZOUT("    -H hours required (default: "+to_precision_string(config.nd.hours)+")\n");
@@ -267,6 +278,12 @@ bool fzgraphedit::options_hook(char c, std::string cargs) {
         return false;
     }
 
+    case 'C': {
+        flowcontrol = flow_port_api;
+        api_string = cargs;
+        return true;
+    }
+
     case 'T': {
         config.nd.utf8_text = utf8_safe(cargs);
         return true;
@@ -404,17 +421,29 @@ int stop_server() {
     return standard_exit_error(exit_general_error, "Unknown response: "+response_str, __func__);
 }
 
+int port_API_request() {
+    VERBOSEOUT("Sending API request to Server port.\n");
+    std::string response_str;
+    if (!http_GET(fzge.get_Graph()->get_server_IPaddr(), fzge.get_Graph()->get_server_port(), fzge.api_string, response_str)) {
+        return standard_exit_error(exit_communication_error, "API request to Server port failed: "+fzge.api_string, __func__);
+    }
+
+    VERYVERBOSEOUT("Server response:\n\n"+response_str);
+
+    return standard.completed_ok();
+}
+
 int main(int argc, char *argv[]) {
     ERRTRACE;
 
     fzge.init_top(argc, argv);
 
+    if (!fzge.get_Graph()) { // this initializes fzge.graph_ptr (which is subsequently returned by get_Graph())
+        return standard_exit_error(exit_resident_graph_missing, "Memory resident Graph not found.", __func__);
+    }
+
     if (fzge.update_shortlist) {
-        Graph * graph_ptr = fzge.get_Graph();
-        if (!graph_ptr) {
-            return standard_exit_error(exit_resident_graph_missing, "Memory resident Graph not found.", __func__);
-        }
-        NNLreq_update_shortlist(graph_ptr->get_server_IPaddr(), graph_ptr->get_server_port());
+        NNLreq_update_shortlist(fzge.get_Graph()->get_server_IPaddr(), fzge.get_Graph()->get_server_port());
     }
 
     switch (fzge.flowcontrol) {
@@ -441,6 +470,10 @@ int main(int argc, char *argv[]) {
 
     case flow_delete_list: {
         return delete_list();
+    }
+
+    case flow_port_api: {
+        return port_API_request();
     }
 
     default: {
