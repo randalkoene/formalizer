@@ -4,7 +4,7 @@ This command line tool facilitates making of Log entries and Log chunks.
 Interactive prompts, a text editor, and a browser are used to collect the
 necessary information, and `fzlog` is called to create the Log entry or chunk.
 
-For the web interface to fzlog, set `logentry-form`.
+For the web interface to fzlog, see `logentry-form`.
 
 Note: This is the Formalizer 2.x successor to the `makenote` tool.
 

@@ -39,11 +39,13 @@ import coreversion
 
 compile_dirs = {
     "lib" : "/core/lib",
+    "fzedit" : "/core/fzedit",
     "fzgraph" : "/core/fzgraph",
     "fzguide.system" : "/core/fzguide.system",
     "fzlog" : "/core/fzlog",
     "fzquerypq" : "/core/fzquerypq",
     "fzserverpq" : "/core/fzserverpq",
+    "fzupdate" : "/core/fzupdate",
     "dil2graph" : "/tools/conversion/dil2graph",
     "graph2dil" : "/tools/conversion/graph2dil",
     "boilerplate" : "/tools/dev/boilerplate",

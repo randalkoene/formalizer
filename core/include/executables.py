@@ -20,6 +20,7 @@ Note: The `executables` variable is a tuple instead of a list, which is much
 """ 
 executables = (
     'fzbackup.py',
+    'fzedit',
     'fzgraph',
     'fzguide.system',
     'fzinfo.py',
@@ -28,6 +29,7 @@ executables = (
     'fzserverpq',
     'fzsetup.py',
     'fztask.py',
+    'fzupdate',
     'dil2graph',
     'graph2dil',
     'boilerplate',
@@ -40,6 +42,7 @@ executables = (
     'logentry.py',
     'nodeboard',
     'panes',
+    'addnode.py',
     'earlywiz.py',
     'requestmanual.py'
     )

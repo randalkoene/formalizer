@@ -49,7 +49,7 @@ COMPILABLES = $(LIBCOMPDIRS) $(CORECOMPDIRS) $(TOOLSCOMPDIRS)
 # +----- begin: Select Formalizer executables -----+
 EXECUTABLES =
 EXECUTABLES += $(COREPATH)/fzgraph/fzgraph
-# EXECUTABLES += $(COREPATH)/fzedit/fzedit
+EXECUTABLES += $(COREPATH)/fzedit/fzedit
 EXECUTABLES += $(COREPATH)/fzbackup/fzbackup.py
 EXECUTABLES += $(COREPATH)/fzinfo/fzinfo.py
 EXECUTABLES += $(COREPATH)/fzguide.system/fzguide.system
@@ -62,8 +62,9 @@ EXECUTABLES += $(COREPATH)/fzserverpq/fzserverpq
 EXECUTABLES += $(COREPATH)/fzsetup/fzsetup.py
 # EXECUTABLES += $(COREPATH)/fzshift/fzshift
 EXECUTABLES += $(COREPATH)/fztask/fztask.py
-# EXECUTABLES += $(COREPATH)/fzupdate/fzupdate
+EXECUTABLES += $(COREPATH)/fzupdate/fzupdate
 
+EXECUTABLES += $(TOOLSPATH)/addnode/addnode.py
 EXECUTABLES += $(TOOLSPATH)/compat/dil2al-polldaemon.sh
 EXECUTABLES += $(TOOLSPATH)/compat/v1xv2x-refresh.sh
 EXECUTABLES += $(TOOLSPATH)/conversion/dil2graph/dil2graph
@@ -100,10 +101,12 @@ CONFIGEXPOSE += $(FZCONFIGPATH)/server_address
 
 # symbolic links to executables for CGI scripts and configuration files to call upon
 SYMBIN = 
+SYMBIN += $(COREPATH)/fzedit/fdedit
 SYMBIN += $(COREPATH)/fzgraph/fzgraph
 SYMBIN += $(COREPATH)/fzlog/fzlog
 SYMBIN += $(COREPATH)/fzquerypq/fzquerypq
 SYMBIN += $(COREPATH)/fztask/fztask.py
+SYMBIN += $(COREPATH)/fzupdate/fzupdate
 SYMBIN += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml
 SYMBIN += $(TOOLSPATH)/interface/fzloghtml/fzloghtml
 SYMBIN += $(TOOLSPATH)/interface/fzserver-info/fzserver-info
