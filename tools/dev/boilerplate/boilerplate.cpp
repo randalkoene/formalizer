@@ -40,7 +40,7 @@ using namespace fz;
 
 boilerplate bp;
 
-boilerplate::boilerplate(): formalizer_standard_program(true) {
+boilerplate::boilerplate(): formalizer_standard_program(false), config(*this) {
     add_option_args += "T:";
     add_usage_top += " [-T <target>]";
 }
@@ -85,6 +85,12 @@ void boilerplate::init_top(int argc, char *argv[]) {
     }
 }
 
+/// Configure configurable parameters.
+bool bp_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
+    //CONFIG_TEST_AND_SET_PAR(rendered_out_path, "rendered_out_path", parlabel, parvalue);
+    //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
+    CONFIG_PAR_NOT_FOUND(parlabel);
+}
 
 // +----- begin: functions shared across targets -----+
 
@@ -194,7 +200,6 @@ int main(int argc, char *argv[]) {
 
     case flow_python: {
         return make_python_boilerplate();
-        break;
     }
 
     default: {
@@ -205,4 +210,3 @@ int main(int argc, char *argv[]) {
 
     return standard.completed_ok();
 }
-

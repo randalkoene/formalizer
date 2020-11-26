@@ -280,10 +280,14 @@ void formalizer_standard_program::init(int argc, char *argv[], std::string versi
     commandline(argc,argv);
     VERBOSEOUT(id()+"\n\n");
 
-    if (uses_config) { // *** Remove this warning once a configuration method is in use!
+    if (uses_config) { // *** Remove this warning once a program uses a configuration method: set `formalizer_standard_program(false)` in constructor, as it then switches to the better method (configbase or configurable).
         VERBOSEOUT("** CONFIG NOTE: This standardized Formalizer component still needs a\n");
         VERBOSEOUT("**              standardized method of configuration. See Trello card\n");
         VERBOSEOUT("**              at https://trello.com/c/4B7x2kif.\n\n");
+        VERBOSEOUT("**              For example, derive a class based on configurable or\n");
+        VERBOSEOUT("**              based on configbase (e.g. see error.hpp).\n");
+        VERBOSEOUT("**              Then set formalizer_standard_program(false) to disable\n");
+        VERBOSEOUT("**              this warning.\n")
     }
 
     ERRHERE(".initreport");

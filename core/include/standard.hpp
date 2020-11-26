@@ -19,6 +19,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <cstdlib>
+#include <string>
 #include <ostream>
 #include <memory>
 #include <deque>

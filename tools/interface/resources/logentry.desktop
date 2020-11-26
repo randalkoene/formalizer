@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=logentry
+Comment=Make a Formalizer Log Entry
+Exec=urxvt -bg orange -rv -fade 30 -e logentry
+StartupWMClass=fzlog
+Terminal=false
+Type=Application
+Icon=/home/randalk/.formalizer/config/logentry/logentry.png
+StartupNotify=true

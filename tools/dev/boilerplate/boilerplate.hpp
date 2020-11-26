@@ -23,9 +23,19 @@ enum flow_options {
     flow_NUMoptions
 };
 
+class bp_configurable : public configurable {
+public:
+    bp_configurable(formalizer_standard_program &fsp) : configurable("boilerplate", fsp) {}
+    bool set_parameter(const std::string &parlabel, const std::string &parvalue);
+
+    //std::string something = "default";        ///< Some default.
+};
+
 struct boilerplate: public formalizer_standard_program {
 
-    flow_options flowcontrol;
+    bp_configurable config;
+
+    flow_options flowcontrol = flow_unknown;
 
     boilerplate();
 

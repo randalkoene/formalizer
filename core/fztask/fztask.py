@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 #
-# {{ this }}.py
+# fztask.py
 #
-# Randal A. Koene, {{ thedate }}
+# Randal A. Koene, 20201125
 #
-# {{ brief_title }}. See Readme.md for more information.
+# Task control. See Readme.md for more information.
 
 # std
 import os
@@ -21,8 +21,8 @@ userhome = os.getenv('HOME')
 fzuserbase = userhome + '/.formalizer'
 fzsetupconfigdir = fzuserbase+'/config/fzsetup.py'
 fzsetupconfig = fzsetupconfigdir+'/config.json'
-#{{ this }}configdir = fzuserbase+'/config/{{ this }}.py'
-#{{ this }}config = {{ this }}configdir+'/config.json'
+#fztaskconfigdir = fzuserbase+'/config/fztask.py'
+#fztaskconfig = fztaskconfigdir+'/config.json'
 
 results = {}
 
@@ -65,27 +65,28 @@ sys.path.append(fzcoreincludedir)
 import Graphpostgres
 import coreversion
 
-version = "{{ version }}"
+version = "0.1.0-0.1"
 
 # local defaults
 #config['something'] = 'some/kind/of/default'
 
-# replace local defaults with values from ~/.formalizer/config/{{ this }}.py/config.json
+# replace local defaults with values from ~/.formalizer/config/fztask.py/config.json
 #try:
-#    with open({{ this }}config) as f:
+#    with open(fztaskconfig) as f:
 #        config += json.load(f)
 #
 #except FileNotFoundError:
-#    print('Configuration files for {{ this }} missing. Continuing with defaults.\n')
+#    print('Configuration files for fztask missing. Continuing with defaults.\n')
 
 
 def parse_options():
-    theepilog = ('See the Readme.md in the {{ this }}.py source directory for more information.\n')
+    theepilog = ('See the Readme.md in the fztask.py source directory for more information.\n')
 
     parser = argparse.ArgumentParser(description='{{ brief_title }}.',epilog=theepilog)
     parser.add_argument('-d', '--database', dest='dbname', help='specify database name (default: formalizer)')
     parser.add_argument('-s', '--schema', dest='schemaname', help='specify schema name (default: $USER)')
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='turn on verbose mode')
+    parser.add_argument('-T', '--emulate', dest='T_emulate', help='emulate time')
 
     args = parser.parse_args()
 
@@ -100,6 +101,11 @@ def parse_options():
     print(f'  Formalizer Postgres database name   : {args.dbname}')
     print(f'  Formalizer user or group schema name: {args.schemaname}\n')
 
+    if args.T_emulate:
+        print(f'\nEmulated Time: {args.T_emulate}\n')
+    else:
+        print('\nUsing actual time.\n')
+
     #choice = input('Is this correct? (y/N) \n')
     #if (choice != 'y'):
     #    print('Ok. You can try again with different command arguments.\n')
@@ -108,44 +114,47 @@ def parse_options():
     return args
 
 
-def some_function():
-    pass
-
-
-def a_function_that_calls_subprocess(some_arg, resstore):
-    retcode = try_subprocess_check_output(f"someprogram -A '{some_arg}'", resstore)
+def make_log_entry():
+    retcode = try_subprocess_check_output("logentry", 'logentry_res')
     if (retcode != 0):
-        print(f'Attempt to do something failed.')
-        exit(retcode)
+        print(f'Attempt to make Log entry failed.')
+        sys.exit(retcode)
 
 
-def a_function_that_spawns_a_call_in_pseudo_TTY(some_arg):
-    retcode = pty.spawn(['someprogram','-A', some_arg])
-    return retcode
+#def a_function_that_calls_subprocess(some_arg, resstore):
+#    retcode = try_subprocess_check_output(f"someprogram -A '{some_arg}'", resstore)
+#    if (retcode != 0):
+#        print(f'Attempt to do something failed.')
+#        exit(retcode)
+#
+#
+#def a_function_that_spawns_a_call_in_pseudo_TTY(some_arg):
+#    retcode = pty.spawn(['someprogram','-A', some_arg])
+#    return retcode
 
 
-def a_function_that_requests_input():
-    shortlist_desc = results['shortlistdesc']
-    shortlist_vec = [s for s in shortlist_desc.decode().splitlines() if s.strip()]
-    for (number, line) in enumerate(shortlist_vec):
-        print(f' {number}: {line}')
+def new_or_close_chunk():
+    choice = input('[S]tart a Log chunk for the next task, or merely [c]lose the chunk? ')
+    if (choice != 'c'):
+        choice = 'S'
+        print('Starting the next task chunk...')
+    else:
+        print('Closing Log chunk without immediately starting another...')
 
-    choice = input('[D]efault same Node as chunk, or [0-9] from shortlist, or [?] browse? ')
-    if (choice == 'd'):
-        node = '' # default
-
-    return node
+    return choice
 
 
 if __name__ == '__main__':
 
     core_version = coreversion.coreversion()
-    {{ this }}_long_id = "{{ module_id }}" + f" v{version} (core v{core_version})"
+    fztask_long_id = "Control:Task" + f" v{version} (core v{core_version})"
 
-    print({{ this }}_long_id+"\n")
+    print(fztask_long_id+"\n")
 
     args = parse_options()
 
-    some_function()
+    make_log_entry()
+
+    chunkchoice = new_or_close_chunk()
 
 sys.exit(0)

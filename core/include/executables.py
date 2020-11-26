@@ -27,6 +27,7 @@ executables = (
     'fzquerypq',
     'fzserverpq',
     'fzsetup.py',
+    'fztask.py',
     'dil2graph',
     'graph2dil',
     'boilerplate',

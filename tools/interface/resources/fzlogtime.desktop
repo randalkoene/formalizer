@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=fzlogtime
+Comment=Formalizer Log Time Picker
+Exec=/home/randalk/.formalizer/bin/fzlogtime-term.sh
+StartupWMClass=fzlogtime
+Terminal=false
+Type=Application
+Icon=/home/randalk/.formalizer/config/fzlogtime/fzlogtime.png
+StartupNotify=true

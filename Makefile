@@ -60,7 +60,7 @@ EXECUTABLES += $(COREPATH)/fzserverpq/fzserverpq
 # EXECUTABLES += $(COREPATH)/fzserverpq/fzserverpq-metrics
 EXECUTABLES += $(COREPATH)/fzsetup/fzsetup.py
 # EXECUTABLES += $(COREPATH)/fzshift/fzshift
-# EXECUTABLES += $(COREPATH)/fztask/fztask
+EXECUTABLES += $(COREPATH)/fztask/fztask.py
 # EXECUTABLES += $(COREPATH)/fzupdate/fzupdate
 
 EXECUTABLES += $(TOOLSPATH)/compat/dil2al-polldaemon.sh
@@ -99,6 +99,7 @@ SYMBIN =
 SYMBIN += $(COREPATH)/fzgraph/fzgraph
 SYMBIN += $(COREPATH)/fzlog/fzlog
 SYMBIN += $(COREPATH)/fzquerypq/fzquerypq
+SYMBIN += $(COREPATH)/fztask/fztask.py
 SYMBIN += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml
 SYMBIN += $(TOOLSPATH)/interface/fzloghtml/fzloghtml
 SYMBIN += $(TOOLSPATH)/interface/fzserver-info/fzserver-info
@@ -108,6 +109,7 @@ SYMBIN += $(CONFIGEXPOSE)
 # CGI scripts that need to be copied to $(CGIDIR)
 CGIEXE =
 CGIEXE += $(COREPATH)/fzgraph/fzgraph-cgi.py
+CGIEXE += $(COREPATH)/fztask/fztask-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/logentry-form/logentry-form.py
 CGIEXE += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-cgi.py
