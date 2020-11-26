@@ -22,6 +22,9 @@ namespace fz {
  * Convert portion of a HTTP GET string into a vector of
  * token-value pairs.
  * 
+ * Note: For a more complete token-value extraction that includes decoding of
+ *       %-codes, see the functions in the `cgihandler` library.
+ * 
  * @param httpgetstr A (portion) of an HTTP GET string.
  * @return A vector of token-value pairs.
  */

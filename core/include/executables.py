@@ -33,6 +33,8 @@ executables = (
     'fzbuild.py',
     'fzgraphhtml',
     'fzloghtml',
+    'fzlogtime',
+    'fzlogtime-term.sh',
     'fzserver-info',
     'logentry.py',
     'nodeboard',

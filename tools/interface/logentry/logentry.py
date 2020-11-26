@@ -103,7 +103,9 @@ version = "0.1.0-0.1"
 
 # local defaults
 config['contenttmpfile'] = '/tmp/logentry.html'
+config['customtemplate'] = '/tmp/customtemplate'
 config['editor'] = 'emacs'
+config['transition'] = 'true'
 
 # *** here you could replace local defaults with values from ~/.formalizer/config/logentry/config.json
 
@@ -238,10 +240,37 @@ def send_to_fzlog(node):
     print('Entry added to Log.')
 
 
-def transition_dil2al_polldaemon_request(node, entrycontent):
-    # *** if this is being used during the transition then do this
-    # *** put makenote request with logentry data and possible Node ID where dil2al-polldaemon.sh will find it
-    print('NOT YET IMPLEMENTED!')
+def transition_dil2al_polldaemon_request(node):
+    thecmd=f"dil2al -m{config['contenttmpfile']} -p 'noaskALDILref' -p 'noalwaysopenineditor'"
+    if node:
+        customtemplate = '{{ topics }}'
+        with open(config['customtemplate'],'w') as f:
+            f.write(customtemplate)
+        topicgettingcmd = f"fzgraphhtml -q -T 'Node={config['customtemplate']}' -n {node}"
+        retcode = try_subprocess_check_output(topicgettingcmd, 'topic')
+        if (retcode != 0):
+            print('Attempt to get Node topic failed.')
+            exit(retcode)
+        topic = results['topic'].split()[0]
+        topic = topic.decode()
+        dilpreset = f'{topic}.html#{node}:!'
+        print(f'Specifying the DIL ID preset: {dilpreset}')
+        with open(userhome+'/.dil2al-DILidpreset','w') as f:
+            f.write(dilpreset)
+        retcode = try_subprocess_check_output(thecmd, 'dil2al')
+        if (retcode != 0):
+            print('Call to dil2al -m failed.')
+            exit(retcode)
+
+    else:
+        if os.path.exists(userhome+'/.dil2al-DILidpreset'):
+            os.remove(userhome+'/.dil2al-DILidpreset')
+        retcode = try_subprocess_check_output(thecmd, 'dil2al')
+        if (retcode != 0):
+            print('Call to dil2al -m failed.')
+            exit(retcode)
+
+    print('Log entry synchronized to Formalizer 1.x files.')
 
 
 if __name__ == '__main__':
@@ -264,8 +293,7 @@ if __name__ == '__main__':
 
     send_to_fzlog(node)
 
-    exit(0) # remove this
-
-    transition_dil2al_polldaemon_request(node, entrycontent)
+    if config['transition'] == 'true':
+        transition_dil2al_polldaemon_request(node)
 
 exit(0)

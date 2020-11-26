@@ -73,6 +73,8 @@ EXECUTABLES += $(TOOLSPATH)/dev/fzbuild/fzbuild.py
 # EXECUTABLES += $(TOOLSPATH)/glue/exact2calendar/exact2calendar
 EXECUTABLES += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml
 EXECUTABLES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml
+EXECUTABLES += $(TOOLSPATH)/interface/fzlogtime/fzlogtime
+EXECUTABLES += $(TOOLSPATH)/interface/fzlogtime/fzlogtime-term.sh
 EXECUTABLES += $(TOOLSPATH)/interface/fzserver-info/fzserver-info
 # EXECUTABLES += $(TOOLSPATH)/interface/fzvizgraph/fzvizgraph
 # EXECUTABLES += $(TOOLSPATH)/interface/fzvizmilestones/fzvizmilestones
@@ -110,6 +112,8 @@ CGIEXE += $(TOOLSPATH)/interface/logentry-form/logentry-form.py
 CGIEXE += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzlink/fzlink.py
+CGIEXE += $(TOOLSPATH)/interface/fzlogtime/fzlogtime
+CGIEXE += $(TOOLSPATH)/interface/fzlogtime/fzlogtime.cgi
 CGIEXE += $(TOOLSPATH)/interface/fzserver-info/fzserver-info-cgi.py
 CGIEXE += $(COREPATH)/fzguide.system/fzguide.system-cgi.py
 

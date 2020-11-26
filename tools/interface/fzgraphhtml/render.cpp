@@ -282,15 +282,19 @@ std::string render_Node_superiors(Graph & graph, Node & node) {
     std::string sups_str;
     for (const auto & edge_ptr : node.sup_Edges()) {
         if (edge_ptr) {
-            sups_str += "<li><a href=\"/cgi-bin/fzlink.py?id="+edge_ptr->get_sup_str()+"\">" + edge_ptr->get_sup_str() + "</a>: ";
-            Node * sup_ptr = edge_ptr->get_sup();
-            if (!sup_ptr) {
-                ADDERROR(__func__, "Node "+node.get_id_str()+" has missing superior at Edge "+edge_ptr->get_id_str());
+            if (fzgh.config.outputformat == output_node) {
+                sups_str += edge_ptr->get_sup_str() + ' ';
             } else {
-                std::string htmltext(sup_ptr->get_text().c_str());
-                sups_str += remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length);
+                sups_str += "<li><a href=\"/cgi-bin/fzlink.py?id="+edge_ptr->get_sup_str()+"\">" + edge_ptr->get_sup_str() + "</a>: ";
+                Node * sup_ptr = edge_ptr->get_sup();
+                if (!sup_ptr) {
+                    ADDERROR(__func__, "Node "+node.get_id_str()+" has missing superior at Edge "+edge_ptr->get_id_str());
+                } else {
+                    std::string htmltext(sup_ptr->get_text().c_str());
+                    sups_str += remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length);
+                }
+                sups_str += "</li>\n";
             }
-            sups_str += "</li>\n";
         }
     }
     return sups_str;
@@ -300,15 +304,19 @@ std::string render_Node_dependencies(Graph & graph, Node & node) {
     std::string deps_str;
     for (const auto & edge_ptr : node.dep_Edges()) {
         if (edge_ptr) {
-            deps_str += "<li><a href=\"/cgi-bin/fzlink.py?id="+edge_ptr->get_dep_str()+"\">" + edge_ptr->get_dep_str() + "</a>: ";
-            Node * dep_ptr = edge_ptr->get_dep();
-            if (!dep_ptr) {
-                ADDERROR(__func__, "Node "+node.get_id_str()+" has missing dependency at Edge "+edge_ptr->get_id_str());
+            if (fzgh.config.outputformat == output_node) {
+                deps_str += edge_ptr->get_dep_str() + ' ';
             } else {
-                std::string htmltext(dep_ptr->get_text().c_str());
-                deps_str += remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length);
+                deps_str += "<li><a href=\"/cgi-bin/fzlink.py?id="+edge_ptr->get_dep_str()+"\">" + edge_ptr->get_dep_str() + "</a>: ";
+                Node * dep_ptr = edge_ptr->get_dep();
+                if (!dep_ptr) {
+                    ADDERROR(__func__, "Node "+node.get_id_str()+" has missing dependency at Edge "+edge_ptr->get_id_str());
+                } else {
+                    std::string htmltext(dep_ptr->get_text().c_str());
+                    deps_str += remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length);
+                }
+                deps_str += "</li>\n";
             }
-            deps_str += "</li>\n";
         }
     }
     return deps_str;

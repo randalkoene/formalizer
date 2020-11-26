@@ -49,6 +49,7 @@ compile_dirs = {
     "boilerplate" : "/tools/dev/boilerplate",
     "fzgraphhtml" : "/tools/interface/fzgraphhtml",
     "fzloghtml" : "/tools/interface/fzloghtml",
+    "fzlogtime" : "/tools/interface/fzlogtime",
     "fzserver-info" : "/tools/interface/fzserver-info",
     "nodeboard" : "/tools/interface/nodeboard"
 }
@@ -63,6 +64,7 @@ flow_control = {
     'build_dil2graph' : False,
     'build_graph2dil' : False,
     'build_fzloghtml' : False,
+    'build_fzlogtime' : False,
     'build_fzgraphhtml' : False,
 }
 
@@ -205,6 +207,29 @@ def build_fzloghtml():
 
 
 """
+Cleans and compiles all components needed for `fzlogtime`. That includes:
+- `core` libraries
+- `fzlogtime`
+"""
+def build_fzlogtime():
+    print('Building fzlogtime from scratch (fzlogtime, core).\n')
+    print('  Cleaning and compiling core library. This can take 2-3 minutes.')
+    retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/core/lib && make clean && make')
+    if (retcode != 0):
+        print('Unable to clean and make core libraries.')
+        exit(retcode)   
+    else:
+        print('  Cleaning and compiling fzlogtime. This can take a minute.')
+        retcode = try_subprocess_check_output('cd '+config['sourceroot']+'/tools/interface/fzlogtime && make clean && make')
+        if (retcode != 0):
+            print('Unable to clean and make fzlogtime.')
+            exit(retcode)
+        else:
+            print('Build done.')
+            exit(0)
+
+
+"""
 Cleans and compiles all components needed for `fzgraphhtml`. That includes:
 - `core` libraries
 - `fzgraphhtml`
@@ -291,6 +316,7 @@ if __name__ == '__main__':
     parser.add_argument('-D', '--dil2graph', dest='dil2graph', action='store_true', help='Build dil2graph from scratch')
     parser.add_argument('-g', '--graph2dil', dest='graph2dil', action='store_true', help='Build graph2dil from scratch')
     parser.add_argument('-H', '--fzloghtml', dest='fzloghtml', action='store_true', help='Build fzloghtml from scratch')
+    parser.add_argument('-T', '--fzlogtime', dest='fzlogtime', action='store_true', help='Build fzlogtime from scratch')
     parser.add_argument('-G', '--fzgraphhtml', dest='fzgraphhtml', action='store_true', help='Build fzgraphhtml from scratch')
 
 
@@ -314,6 +340,8 @@ if __name__ == '__main__':
         flow_control['build_graph2dil'] = True
     if args.fzloghtml:
         flow_control['build_fzloghtml'] = True
+    if args.fzlogtime:
+        flow_control['build_fzlogtime'] = True
     if args.fzgraphhtml:
         flow_control['build_fzgraphhtml'] = True
 
@@ -333,6 +361,8 @@ if __name__ == '__main__':
         build_fzloghtml()
     if flow_control['build_fzgraphhtml']:
         build_fzgraphhtml()
+    if flow_control['build_fzlogtime']:
+        build_fzlogtime()
     if flow_control['clean_all']:
         clean_all()
     if flow_control['compile_all']:
