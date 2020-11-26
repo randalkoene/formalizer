@@ -144,6 +144,82 @@ def new_or_close_chunk():
     return choice
 
 
+def close_chunk():
+    retcode = try_subprocess_check_output("fzlog -C", 'fzlog_res')
+    if (retcode != 0):
+        print(f'Attempt to close Log chunk failed.')
+        sys.exit(retcode)
+
+
+def get_updated_shortlist():
+    retcode = try_subprocess_check_output(f"fzgraphhtml -u -L 'shortlist' -F node -e -q", 'shortlistnode')
+    if (retcode != 0):
+        print(f'Attempt to get "shortlist" Named Node List node data failed.')
+        exit(retcode)
+    retcode = try_subprocess_check_output(f"fzgraphhtml -L 'shortlist' -F desc -x 60 -e -q", 'shortlistdesc')
+    if (retcode != 0):
+        print(f'Attempt to get "shortlist" Named Node List description data failed.')
+        exit(retcode)
+
+
+def browse_for_Node():
+    print('Use the browser to select a node.')
+    retcode = pty.spawn(['w3m','http://localhost/select.html'])
+    retcode = try_subprocess_check_output(f"fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected')
+    if (retcode != 0):
+        print(f'Attempt to get selected Node failed.')
+        exit(retcode)
+    print(f'Selected: {results["selected"]}')
+    if results['selected']:
+        return results['selected'][0:16]
+    else:
+        return ''
+
+
+def select_Node_for_Log_chunk():
+    get_updated_shortlist()
+    shortlist_nodes = results['shortlistnode']
+    shortlist_desc = results['shortlistdesc']
+    print('Short-list of Nodes for the New Log Chunk:')
+    shortlist_vec = [s for s in shortlist_desc.decode().splitlines() if s.strip()]
+    for (number, line) in enumerate(shortlist_vec):
+        print(f' {number}: {line}')
+
+    choice = input('[0-9] from shortlist, or [?] to browse: ')
+    if (choice == '?'):
+        node = browse_for_Node()
+    else:
+        if ((choice >= '0') & (choice <= '9')):
+                node = shortlist_nodes.splitlines()[int(choice)]
+        else:
+            node = '' # default
+    if node:
+        node = node.decode()
+        print(f'Log chunk will belong to Node {node}.')
+    else:
+        print(f'We cannot make a new Log chunk without a Node.')
+    return node
+
+
+def next_chunk():
+    # Closing the previous chunk is automatically done as part of this in fzlog.
+    node = select_Node_for_Log_chunk()
+    if not node:
+        print('Attempt to select Node for new Log chunk failed.')
+        sys.exit(1)
+
+    retcode = try_subprocess_check_output(f"fzlog -c {node}", 'fzlog_res')
+    if (retcode != 0):
+        print(f'Attempt to close Log chunk failed.')
+        sys.exit(retcode)
+
+    print(f'Opened new Log chunk for Node {node}.')
+
+
+def set_chunk_timer_and_alert():
+    print('SETTING TIMER AND ALERT NOT YET IMPLEMENTED!')
+
+
 if __name__ == '__main__':
 
     core_version = coreversion.coreversion()
@@ -156,5 +232,11 @@ if __name__ == '__main__':
     make_log_entry()
 
     chunkchoice = new_or_close_chunk()
+
+    if (chunkchoice =='c'):
+        close_chunk()
+    else:
+        next_chunk()
+        set_chunk_timer_and_alert()
 
 sys.exit(0)
