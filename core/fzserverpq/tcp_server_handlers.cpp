@@ -506,7 +506,7 @@ void show_db_log(int new_socket) {
     send(new_socket, response_str.c_str(), response_str.size()+1, 0);
 }
 
-void show_ErrQ(int new_socket) {
+bool show_ErrQ(int new_socket) {
     ERRTRACE;
 
     VERYVERBOSEOUT("Showing ErrQ.\n");
@@ -515,7 +515,7 @@ void show_ErrQ(int new_socket) {
     errq_html += "<p>When fzserverpq exits, ErrQ will be flushed to: "+ErrQ.get_errfilepath()+"</p>\n\n";
     errq_html += "<p>Current status of ErrQ:</p>\n<hr>\n<pre>\n" + ErrQ.pretty_print() + "</pre>\n<hr>\n</body>\n</html>\n";
     response_str += std::to_string(errq_html.size()) + "\r\n\r\n" + errq_html;
-    send(new_socket, response_str.c_str(), response_str.size()+1, 0);
+    return (send(new_socket, response_str.c_str(), response_str.size()+1, 0) >= 0);
 }
 
 /**
@@ -583,6 +583,29 @@ bool handle_fz_vfs_graph_request(int new_socket, const std::string & fzrequestur
     return false;
 }
 
+const Command_Token_Map general_noargs_commands = {
+    {"status", fznoargcmd_status},
+    {"ErrQ", fznoargcmd_errq},
+    {"_stop", fznoargcmd_stop}
+};
+
+bool handle_status(int new_socket) {
+    VERYVERBOSEOUT("Status request received. Responding.\n");
+    std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
+    std::string status_html("<html>\n<body>\nServer status: LISTENING\n</body>\n</html>\n");
+    response_str += std::to_string(status_html.size()) + "\r\n\r\n" + status_html;
+    return (send(new_socket, response_str.c_str(), response_str.size()+1, 0) >= 0);
+}
+
+bool handle_stop(int new_socket) {
+    fzs.listen = false;
+    VERYVERBOSEOUT("STOP request received. Exiting server listen loop.\n");
+    std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
+    std::string status_html("<html>\n<body>\nServer status: STOPPING\n</body>\n</html>\n");
+    response_str += std::to_string(status_html.size()) + "\r\n\r\n" + status_html;
+    return (send(new_socket, response_str.c_str(), response_str.size()+1, 0) >= 0);
+}
+
 /**
  * Handle a request in the Formalizer /fz/ virtual filesystem.
  * 
@@ -591,18 +614,27 @@ bool handle_fz_vfs_graph_request(int new_socket, const std::string & fzrequestur
  * @return True if the request was handled successfully.
  */
 bool handle_fz_vfs_request(int new_socket, const std::string & fzrequesturl) {
-    if (fzrequesturl.substr(4) == "status") {
-        VERYVERBOSEOUT("Status request received. Responding.\n");
-        std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
-        std::string status_html("<html>\n<body>\nServer status: LISTENING\n</body>\n</html>\n");
-        response_str += std::to_string(status_html.size()) + "\r\n\r\n" + status_html;
-        send(new_socket, response_str.c_str(), response_str.size()+1, 0);
-        return true;
-    }
 
-    if (fzrequesturl.substr(4) == "ErrQ") {
-        show_ErrQ(new_socket);
-        return true;
+    fz_general_noarg_cmd fznoargs_cmd = static_cast<fz_general_noarg_cmd>(find_in_command_map(fzrequesturl.substr(4), general_noargs_commands));
+    if (fznoargs_cmd != fznoargcmd_unknown) {
+        switch (fznoargs_cmd) {
+
+            case fznoargcmd_status: {
+                return handle_status(new_socket);
+            }
+
+            case fznoargcmd_errq: {
+                return show_ErrQ(new_socket);
+            }
+
+            case fznoargcmd_stop: {
+                return handle_stop(new_socket);
+            }
+
+            default: {
+                // nothing to do here
+            }
+        }
     }
 
     if (fzrequesturl.substr(4,3) == "db/") {

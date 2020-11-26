@@ -43,4 +43,12 @@ enum NNL_list_cmd {
     NNLlistcmd_NUM
 };
 
+enum fz_general_noarg_cmd {
+    fznoargcmd_unknown = 0,
+    fznoargcmd_status = 1,
+    fznoargcmd_errq = 2,
+    fznoargcmd_stop = 3,
+    fznoargcmd_NUM
+};
+
 #endif // __TCP_SERVER_HANDLERS_HPP

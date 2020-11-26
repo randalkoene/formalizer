@@ -20,7 +20,8 @@
 namespace fz {
 
 struct shared_memory_server {
-    shared_memory_server() {}
+    bool listen;
+    shared_memory_server() : listen(true) {}
     virtual void handle_request_with_data_share(int new_socket, const std::string & segment_name) = 0;
     virtual void handle_special_purpose_request(int new_socket, const std::string & request_str) = 0;
 };

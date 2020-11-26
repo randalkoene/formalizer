@@ -143,7 +143,7 @@ exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server
         return exit_communication_error;
     }
 
-    while (true) {
+    while (server.listen) {
         VERYVERBOSEOUT("\nBound and listening to all incoming addresses.\n\n");
         
         // This is receiving the address that is connecting. https://man7.org/linux/man-pages/man2/accept.2.html
@@ -182,6 +182,7 @@ exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server
         }
 
         if (request_str == "STOP") {
+            server.listen = false;
             VERYVERBOSEOUT("STOP request received. Exiting server listen loop.\n");
             std::string response_str("STOPPING");
             send(new_socket, response_str.c_str(), response_str.size()+1, 0);
