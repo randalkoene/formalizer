@@ -49,7 +49,7 @@ bool err_configbase::set_parameter(const std::string &parlabel, const std::strin
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
 
-Errors::Errors(std::string efp): errfilepath(efp), numflushed(0), caching(true), ping(false) {
+Errors::Errors(std::string efp): errfilepath(efp), numflushed(0), caching(true), ping(false), trace_or_time(true) {
     timecode = ActualTime();
 }
 
@@ -78,13 +78,21 @@ void Errors::push(std::string f, std::string e) {
 
 #ifdef NO_ERR_TRACE
 
-    // push the hint on with the function and error message
-    errq.push_back(Error_Instance(errhint, f, e));
+    if (trace_or_time) {
+        // push the hint on with the function and error message
+        errq.push_back(Error_Instance(errhint, f, e));
+    } else {
+        errq.push_back(TimeStampYmdHM(ActualTime()), f, e);
+    }
 
 #else
 
-    // push the stack trace on with the function and error message
-    errq.emplace_back(Error_Instance(errtracer.print(),f,e));
+    if (trace_or_time) {
+        // push the stack trace on with the function and error message
+        errq.emplace_back(Error_Instance(errtracer.print(),f,e));
+    } else {
+        errq.emplace_back(Error_Instance(TimeStampYmdHM(ActualTime()), f, e));
+    }
 
 #endif
 

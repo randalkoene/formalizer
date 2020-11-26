@@ -484,6 +484,7 @@ void show_db_mode(int new_socket) {
     ERRTRACE;
 
     VERYVERBOSEOUT("Database mode: "+SimPQ.PQChanges_Mode_str()+'\n');
+    fzs.log("TCP", "DB mode request successful");
     std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
     std::string mode_html("<html>\n<body>\n<p>Database mode: "+SimPQ.PQChanges_Mode_str()+"</p>\n");
     if (SimPQ.LoggingPQChanges()) {
@@ -498,6 +499,7 @@ void show_db_log(int new_socket) {
     ERRTRACE;
 
     VERYVERBOSEOUT("Showing database log.\n");
+    fzs.log("TCP", "DB log request sucessful");
     std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
     std::string log_html("<html>\n<head>\n<link rel=\"stylesheet\" href=\"http://"+fzs.graph_ptr->get_server_IPaddr()+"/fz.css\">\n<title>fz: Database Call Log</title>\n</head>\n<body>\n<h3>fz: Database Call Log</h3>\n");
     log_html += "<p>When fzserverpq exits, the DB call log will be flushed to: "+SimPQ.simPQfile+"</p>\n\n";
@@ -510,6 +512,7 @@ bool show_ErrQ(int new_socket) {
     ERRTRACE;
 
     VERYVERBOSEOUT("Showing ErrQ.\n");
+    fzs.log("TCP", "ErrQ request sucessful");
     std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
     std::string errq_html("<html>\n<head>\n<link rel=\"stylesheet\" href=\"http://"+fzs.graph_ptr->get_server_IPaddr()+"/fz.css\">\n<title>fz: ErrQ</title>\n</head>\n<body>\n<h3>fz: ErrQ</h3>\n");
     errq_html += "<p>When fzserverpq exits, ErrQ will be flushed to: "+ErrQ.get_errfilepath()+"</p>\n\n";
@@ -573,6 +576,7 @@ bool handle_fz_vfs_graph_request(int new_socket, const std::string & fzrequestur
         std::string response_html;
         if (handle_named_list_direct_request(fzrequesturl.substr(21), response_html)) {
             VERYVERBOSEOUT("Named Node List modification / parameter request handled. Responding.\n");
+            fzs.log("TCP", "NNL request successful");
             response_str += std::to_string(response_html.size()) + "\r\n\r\n" + response_html;
             send(new_socket, response_str.c_str(), response_str.size()+1, 0);
             return true;
@@ -591,6 +595,7 @@ const Command_Token_Map general_noargs_commands = {
 
 bool handle_status(int new_socket) {
     VERYVERBOSEOUT("Status request received. Responding.\n");
+    fzs.log("TCP", "Status reported");
     std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
     std::string status_html("<html>\n<body>\nServer status: LISTENING\n</body>\n</html>\n");
     response_str += std::to_string(status_html.size()) + "\r\n\r\n" + status_html;
@@ -600,6 +605,7 @@ bool handle_status(int new_socket) {
 bool handle_stop(int new_socket) {
     fzs.listen = false;
     VERYVERBOSEOUT("STOP request received. Exiting server listen loop.\n");
+    fzs.log("TCP", "Stopping");
     std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
     std::string status_html("<html>\n<body>\nServer status: STOPPING\n</body>\n</html>\n");
     response_str += std::to_string(status_html.size()) + "\r\n\r\n" + status_html;
@@ -652,9 +658,11 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
     ERRTRACE;
 
     VERYVERBOSEOUT("Received Special Purpose request "+request_str+".\n");
+    log("TCP","Received: "+request_str);
     auto requestvec = split(request_str,' ');
     if (requestvec.size()<2) {
         VERYVERBOSEOUT("Missing request. Responding with: 400 Bad Request.\n");
+        log("TCP","Insufficient data");
         std::string response_str("HTTP/1.1 400 Bad Request\r\n\r\n");
         send(new_socket, response_str.c_str(), response_str.size()+1, 0);
         return;
@@ -669,6 +677,7 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
             return;
         } else {
             VERBOSEOUT("Formalizer Virtual Filesystem /fz/ request failed.\nResponding with: 404 Not Found.\n");
+            log("TCP", "/fz/ request error");
             std::string response_str("HTTP/1.1 404 Not Found\r\n\r\n");
             send(new_socket, response_str.c_str(), response_str.size()+1, 0);   
             return;         
@@ -678,6 +687,7 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
 
     // no known request encountered and handled
     VERBOSEOUT("Request type is unrecognized. Responding with: 400 Bad Request.\n");
+    log("TCP", "Unrecognized request");
     std::string response_str("HTTP/1.1 400 Bad Request\r\n\r\n");
     send(new_socket, response_str.c_str(), response_str.size()+1, 0);
 }

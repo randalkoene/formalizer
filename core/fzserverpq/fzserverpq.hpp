@@ -44,6 +44,9 @@ public:
 
 struct fzserverpq: public formalizer_standard_program, public shared_memory_server {
 
+    static constexpr const char * lockfilepath = FORMALIZER_ROOT "/.fzserverpq.lock";
+    static constexpr const char * reqqfilepath = "/tmp/formalizer.core.fzserverpq.ReqQ.log";
+
     fzs_configurable config;
 
     Graph_access ga;
@@ -52,7 +55,8 @@ struct fzserverpq: public formalizer_standard_program, public shared_memory_serv
 
     Graph * graph_ptr;
 
-    static constexpr const char * lockfilepath = FORMALIZER_ROOT "/.fzserverpq.lock";
+    // *** A v0.1 simplistic server request log (see https://trello.com/c/dnKYchIu for the better way).
+    Errors ReqQ;
 
     fzserverpq();
 
@@ -65,6 +69,8 @@ struct fzserverpq: public formalizer_standard_program, public shared_memory_serv
     virtual void handle_request_with_data_share(int new_socket, const std::string & segment_name); // see shm_server_handlers.cpp
 
     virtual void handle_special_purpose_request(int new_socket, const std::string & request_str); // see tcp_server_handlers.cpp
+
+    void log(std::string request, std::string update) { ReqQ.push(request, update); }
 
 };
 

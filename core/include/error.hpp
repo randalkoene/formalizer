@@ -212,6 +212,7 @@ protected:
     int numflushed;
     bool caching;
     bool ping;
+    bool trace_or_time;
     time_t timecode;
 
     std::string print_first_timecode();
@@ -237,6 +238,8 @@ public:
     void enable_pinging() { ping=true; }
     void disable_pinging() { ping=false; }
     bool pinging() { return ping; }
+    void enable_tracing() { trace_or_time = true; }
+    void enable_timestamping() { trace_or_time = false; }
     void output(std::ofstream::openmode mode);
 };
 

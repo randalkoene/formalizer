@@ -44,7 +44,7 @@ fzserverpq fzs;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga(*this, add_option_args, add_usage_top, true),
-                           flowcontrol(flow_unknown), graph_ptr(nullptr) {
+                           flowcontrol(flow_unknown), graph_ptr(nullptr), ReqQ(reqqfilepath) {
     add_option_args += "Gp:";
     add_usage_top += " [-G] [-p <port-number>]";
     usage_tail.push_back(
@@ -63,6 +63,8 @@ fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga
         "content is generated dynamically (somewhat analogous to files in /proc).\n"
         "The GET/PATCH port API includes the following:\n"
         "  /fz/status\n"
+        "  /fz/ErrQ\n"
+        "  /fz/_stop\n"
         "  /fz/db/mode\n"
         "  /fz/db/mode=<run|log|sim>\n"
         "  /fz/graph/namedlists/<list-name>?add=<node-id>[&FEATURES/MAXSIZE]\n"
@@ -151,6 +153,8 @@ void fzserverpq::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen before standard initialization
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
     // *** add any initialization here that has to happen once in main(), for the derived class
+    ReqQ.disable_caching();
+    ReqQ.enable_timestamping();
 }
 
 void load_Graph_and_stay_resident() {

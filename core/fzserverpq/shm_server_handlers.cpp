@@ -243,14 +243,17 @@ void fzserverpq::handle_request_with_data_share(int new_socket, const std::strin
     ERRTRACE;
 
     VERYVERBOSEOUT("Received Graph request with data share "+segment_name+".\n");
+    log("SHM", "Graph request received");
     if (handle_request_stack(segment_name)) {
         // send back results
         VERYVERBOSEOUT("Sending response with successful results data.\n");
+        log("SHM", "Graph request successful");
         std::string response_str("RESULTS");
         send(new_socket, response_str.c_str(), response_str.size()+1, 0);
     } else {
         // send back error
         VERYVERBOSEOUT("Sending error response. An 'error' data structure may or may not exist.\n");
+        log("SHM","Graph request error");
         std::string response_str("ERROR");
         send(new_socket, response_str.c_str(), response_str.size()+1, 0);
     }
