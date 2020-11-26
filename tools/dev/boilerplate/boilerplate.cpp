@@ -29,6 +29,7 @@
 // local
 #include "boilerplate.hpp"
 #include "cpp_boilerplate.hpp"
+#include "python_boilerplate.hpp"
 
 /// Typically provide this through -D in Makefile.
 #ifndef FORMALIZER_ROOT
@@ -185,9 +186,6 @@ void careful_file_create(std::string filename, std::string & filecontent) {
 int main(int argc, char *argv[]) {
     bp.init_top(argc, argv);
 
-    FZOUT("\nThis is the stub of the stub generator.\n\n");
-    key_pause();
-
     switch (bp.flowcontrol) {
 
     case flow_cpp: {
@@ -195,7 +193,7 @@ int main(int argc, char *argv[]) {
     }
 
     case flow_python: {
-
+        return make_python_boilerplate();
         break;
     }
 

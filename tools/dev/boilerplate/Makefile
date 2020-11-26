@@ -148,10 +148,13 @@ init: FORCE
 $(OBJ)/cpp_boilerplate.o: cpp_boilerplate.cpp boilerplate.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(FORMALIZERROOT) $(TEMPLATEDIR) -c cpp_boilerplate.cpp -o $(OBJ)/cpp_boilerplate.o
 
+$(OBJ)/python_boilerplate.o: python_boilerplate.cpp boilerplate.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(FORMALIZERROOT) $(TEMPLATEDIR) -c python_boilerplate.cpp -o $(OBJ)/python_boilerplate.o
+
 $(OBJ)/boilerplate.o: boilerplate.cpp boilerplate.hpp version.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(FORMALIZERROOT) $(TEMPLATEDIR) -c boilerplate.cpp -o $(OBJ)/boilerplate.o
 
-boilerplate: $(OBJ)/boilerplate.o $(OBJ)/cpp_boilerplate.o $(CORE_OBJS)
+boilerplate: $(OBJ)/boilerplate.o $(OBJ)/cpp_boilerplate.o $(OBJ)/python_boilerplate.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $(FORMALIZERROOT) $(TEMPLATEDIR) $^ -o boilerplate $(LIB_PATH)
 
 clean:

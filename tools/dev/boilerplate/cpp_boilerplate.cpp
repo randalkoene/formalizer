@@ -31,24 +31,17 @@
 #include "standard.hpp"
 #include "general.hpp"
 #include "templater.hpp"
+#include "TimeStamp.hpp"
 
 // local
 #include "boilerplate.hpp"
 #include "cpp_boilerplate.hpp"
 
-/// The Makefile attempts to provide this at compile time based on the source
-/// file directory.
-#ifdef DEFAULT_TEMPLATE_DIR
-    std::string template_dir(DEFAULT_TEMPLATE_DIR "/templates");
-#else
-    std::string template_dir("./templates");
-#endif
-
 
 using namespace fz;
 
 
-enum template_id_enum {
+enum cpp_template_id_enum {
     cpp_bp_cpp_temp,
     cpp_bp_libcpp_temp,
     cpp_bp_hpp_temp,
@@ -65,31 +58,38 @@ enum template_id_enum {
     NUM_temp
 };
 
-const std::vector<std::string> template_ids = {
-    "cpp_bp_cpp_template.cpp",
-    "cpp_bp_libcpp_template.cpp",
-    "cpp_bp_hpp_template.hpp",
-    "cpp_bp_libhpp_template.hpp",
-    "cpp_bp_Makefile_template",
-    "cpp_bp_README_template",
-    "cpp_bp_version_template.hpp",
-    "cpp_bp_render_template.cpp",
-    "cpp_bp_render_template.hpp",
-    "cpp_bp_hpp_configurable_template.hpp",
-    "cpp_bp_cpp_configurable_template.cpp",
-    "cpp_bp_hpp_configbase_template.hpp",
-    "cpp_bp_cpp_configbase_template.cpp"
-};
-
-typedef std::map<template_id_enum,std::string> cpp_bp_templates;
+typedef std::map<cpp_template_id_enum,std::string> cpp_bp_templates;
 
 bool load_templates(cpp_bp_templates & templates) {
+    static const std::vector<std::string> template_ids = {
+        "cpp_bp_cpp_template.cpp",
+        "cpp_bp_libcpp_template.cpp",
+        "cpp_bp_hpp_template.hpp",
+        "cpp_bp_libhpp_template.hpp",
+        "cpp_bp_Makefile_template",
+        "cpp_bp_README_template",
+        "cpp_bp_version_template.hpp",
+        "cpp_bp_render_template.cpp",
+        "cpp_bp_render_template.hpp",
+        "cpp_bp_hpp_configurable_template.hpp",
+        "cpp_bp_cpp_configurable_template.cpp",
+        "cpp_bp_hpp_configbase_template.hpp",
+        "cpp_bp_cpp_configbase_template.cpp"
+    };
+
     templates.clear();
+
+/// The Makefile attempts to provide this at compile time based on the source file directory.
+#ifdef DEFAULT_TEMPLATE_DIR
+    std::string template_dir(DEFAULT_TEMPLATE_DIR "/templates");
+#else
+    std::string template_dir("./templates");
+#endif
 
     VERBOSEOUT("Using template directory: "+template_dir+'\n');
 
     for (int i = 0; i < NUM_temp; ++i) {
-        if (!file_to_string(template_dir + "/" + template_ids[i], templates[static_cast<template_id_enum>(i)]))
+        if (!file_to_string(template_dir + "/" + template_ids[i], templates[static_cast<cpp_template_id_enum>(i)]))
             ERRRETURNFALSE(__func__, "unable to load " + template_ids[i]);
     }
 
@@ -106,6 +106,8 @@ int make_cpp_boilerplate() {
     std::string thisname = ask_string_input("Component name (e.g. boilerplate): ", false);
     std::string CAPSthis = thisname;
     std::transform(CAPSthis.begin(), CAPSthis.end(),CAPSthis.begin(), ::toupper);
+
+    std::string datestr = DateStampYmd(ActualTime());
 
     bool iscore = ask_boolean_choice(
         "A Formalizer component belongs in `core` if:\n\n"
@@ -149,6 +151,7 @@ int make_cpp_boilerplate() {
     template_varvalues cppvars;
     std::string rendered_cpp;
     cppvars.emplace("this",thisname);
+    cppvars.emplace("thedate",datestr);
     if (includetemplater) {
         cppvars.emplace("render_hpp","#include \"render.hpp\"");
     } else {
@@ -187,6 +190,7 @@ int make_cpp_boilerplate() {
     template_varvalues hppvars;
     std::string rendered_hpp;
     hppvars.emplace("this",thisname);
+    hppvars.emplace("thedate",datestr);
     hppvars.emplace("CAPSthis",CAPSthis);
     if (uses_config) {
         hppvars.emplace("config_include", "#include \"config.hpp\"");
@@ -250,6 +254,7 @@ int make_cpp_boilerplate() {
         ERRHERE(".README");
         template_varvalues READMEvars;
         READMEvars.emplace("this",thisname);
+        READMEvars.emplace("thedate",datestr);
         rendered_README = env.render(templates[cpp_bp_README_temp], READMEvars);
 
         ERRHERE(".version");

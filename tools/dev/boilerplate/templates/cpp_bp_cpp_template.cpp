@@ -1,4 +1,4 @@
-// Copyright 2020 Randal A. Koene
+// Copyright {{ thedate }} Randal A. Koene
 // License TBD
 
 /**
