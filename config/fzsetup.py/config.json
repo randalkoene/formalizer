@@ -1,0 +1,9 @@
+{
+    "cgiuser": "www-data",
+    "configroot": "/home/randalk/.formalizer/config/",
+    "doxyroot": "/home/randalk/src/formalizer/doc/html",
+    "sourceroot": "/home/randalk/src/formalizer",
+    "verbose": false,
+    "wwwdoxyroot": "/var/www/html/formalizer/doxygen-html",
+    "wwwhostroot": "/var/www/html"
+}

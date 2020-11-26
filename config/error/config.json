@@ -1,0 +1,6 @@
+{
+    "errlogpath" : "/var/www/html/formalizer/formalizer.core.error.ErrQ.log",
+    "warnlogpath" : "/var/www/html/formalizer/formalizer.core.error.WarnQ.log",
+    "errcaching" : false,
+    "warncaching" : false
+}

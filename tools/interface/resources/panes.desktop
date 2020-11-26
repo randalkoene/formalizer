@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=Panes
+Comment=Open Panes to Graph, Log and Tasks
+Exec=/home/randalk/.formalizer/bin/panes-term.sh
+StartupWMClass=formalizer
+Terminal=false
+Type=Application
+Icon=/home/randalk/.formalizer/config/panes/panes.png
+StartupNotify=true

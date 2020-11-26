@@ -1,0 +1,6 @@
+{
+    "dbname" : "formalizer",
+    "pq_schemaname" : "randalk",
+    "simulate_PQ" : false,
+    "simPQfile" : "/var/www/html/formalizer/formalizer.core.fzpostgres.SimPQ.log"
+}

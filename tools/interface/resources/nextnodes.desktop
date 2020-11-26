@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=NextNodes
+Comment=Show Next Nodes in Graph
+Exec=/home/randalk/.formalizer/bin/fzgraphhtml-term.sh
+StartupWMClass=fzgraph
+Terminal=false
+Type=Application
+Icon=/home/randalk/.formalizer/config/fzgraphhtml/nextnodes.png
+StartupNotify=true

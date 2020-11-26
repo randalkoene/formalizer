@@ -39,6 +39,7 @@ executables = (
     'fzserver-info',
     'logentry.py',
     'nodeboard',
+    'panes',
     'earlywiz.py',
     'requestmanual.py'
     )

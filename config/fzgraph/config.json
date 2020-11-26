@@ -1,0 +1,19 @@
+{
+    "__content_file__" : "",
+    "hours"        : "0.33",
+    "valuation"    : "3.0",
+    "superiors"    : "20200820215834.1",
+    "dependencies" : "",
+    "topics"     : "reminder",
+    "targetdate" : "TODAY",
+    "tdproperty" : "variable",
+    "tdpattern"  : "nonperiodic",
+    "tdevery"    : "0",
+    "tdspan"     : "1",
+    "dependency"   : "0.0",
+    "significance" : "0.0",
+    "importance"   : "0.0",
+    "urgency"      : "0.0",
+    "priority"     : "0.0",
+    "listname"   : "superiors"
+}
