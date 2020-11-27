@@ -116,6 +116,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/Graphbase.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphinfo.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphmodify.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphtoken.o
 # CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
