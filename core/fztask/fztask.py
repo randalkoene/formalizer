@@ -238,5 +238,10 @@ if __name__ == '__main__':
     else:
         next_chunk()
         set_chunk_timer_and_alert()
+    # ** close_chunk() and next_chunk() could both return the new completion ratio of the
+    # ** Node that owns the previous chunk (or at least a true/false whether completion >= 1.0)
+    # ** and that could be used to check with the caller whether the Node really should
+    # ** be considered completed. If not, then there is an opportunity to change the
+    # ** time required or to set a guess for the actual completion ratio.
 
 sys.exit(0)

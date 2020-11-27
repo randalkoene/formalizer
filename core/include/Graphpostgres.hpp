@@ -47,6 +47,7 @@
 #define __GRAPHPOSTGRES_HPP (__COREVERSION_HPP)
 
 #include "Graphtypes.hpp"
+#include "Graphmodify.hpp"
 
 /**
  * On Ubuntu, to install the libpq libraries, including the libpq-fe.h header file,
@@ -83,6 +84,8 @@ bool add_Edge_pq(PGconn *conn, std::string schemaname, const Edge *edge);
 bool store_Graph_pq(const Graph& graph, std::string dbname, std::string schemaname, void (*progressfunc)(unsigned long, unsigned long) = NULL);
 
 bool load_Graph_pq(Graph& graph, std::string dbname, std::string schemaname);
+
+bool Update_Node_pq(std::string dbname, std::string schemaname, const Node & node, const Edit_flags & _editflags);
 
 std::vector<std::string> load_Node_parameter_interval(std::string dbname, std::string schemaname, pq_Nfields param, unsigned long from_row, unsigned long num_rows);
 

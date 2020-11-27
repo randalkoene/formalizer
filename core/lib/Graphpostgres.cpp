@@ -1075,6 +1075,71 @@ std::string Edge_pq::All_Edge_Data_pqstr() {
            priority_pqstr() + ')';
 }
 
+bool Update_Node_pq(std::string dbname, std::string schemaname, const Node & node, const Edit_flags & _editflags) {
+    ERRTRACE;
+
+    PGconn* conn = connection_setup_pq(dbname);
+    if (!conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define UPDATE_NODE_PQ_RETURN(r) { PQfinish(conn); return r; }
+
+    // Convert Node data and update row in table
+    std::string tablename(schemaname+".nodes");
+
+    // *** beware: I think the situation with repeats needs to be figured out HERE, and when LOADING,
+    // *** and when STORING, and the ADDING a Node in fzgraph. Is it treated separately, so that I
+    // *** need to add it explicitly everywhere, or is it derived from tdpattern?
+
+    Node_pq npq(&node);
+    // Prepare SET expressions
+    std::string set_expressions;
+    if (_editflags.Edit_topics()) {
+        set_expressions += pq_node_fieldnames[pqn_topics] + " = " + npq.topics_pqstr() + ',';
+    }
+    if (_editflags.Edit_topicrels()) {
+        set_expressions += pq_node_fieldnames[pqn_topicrelevance] + " = " + npq.topicrelevance_pqstr() + ',';
+    }
+    if (_editflags.Edit_valuation()) {
+        set_expressions += pq_node_fieldnames[pqn_valuation] + " = " + npq.valuation_pqstr() + ',';
+    }
+    if (_editflags.Edit_completion()) {
+        set_expressions += pq_node_fieldnames[pqn_completion] + " = " + npq.completion_pqstr() + ',';
+    }
+    if (_editflags.Edit_required()) {
+        set_expressions += pq_node_fieldnames[pqn_required] + " = " + npq.required_pqstr() + ',';
+    }
+    if (_editflags.Edit_text()) {
+        set_expressions += pq_node_fieldnames[pqn_text] + " = " + npq.text_pqstr() + ',';
+    }
+    if (_editflags.Edit_targetdate()) {
+        set_expressions += pq_node_fieldnames[pqn_targetdate] + " = " + npq.targetdate_pqstr() + ',';
+    }
+    if (_editflags.Edit_tdproperty()) {
+        set_expressions += pq_node_fieldnames[pqn_tdproperty] + " = " + npq.tdproperty_pqstr() + ',';
+    }
+    if (_editflags.Edit_tdpattern()) {
+        set_expressions += pq_node_fieldnames[pqn_tdperiodic] + " = " + npq.tdperiodic_pqstr() + ',';
+    }
+    if (_editflags.Edit_tdevery()) {
+        set_expressions += pq_node_fieldnames[pqn_tdevery] + " = " + npq.tdevery_pqstr() + ',';
+    }
+    if (_editflags.Edit_tdspan()) {
+        set_expressions += pq_node_fieldnames[pqn_tdspan] + " = " + npq.tdspan_pqstr() + ',';
+    }
+    if (!set_expressions.empty()) {
+        set_expressions.pop_back();
+    }
+
+    std::string nstr("UPDATE " + schemaname + ".Nodes SET " + set_expressions + " WHERE id = "+npq.id_pqstr();
+    if (!simple_call_pq(conn, nstr)) {
+        ADDERROR(__func__, "Unable to update Node "+node.get_id_str());
+        UPDATE_NODE_PQ_RETURN(false);
+    }
+
+    UPDATE_NODE_PQ_RETURN(true);
+}
+
 /**
  * Postgres storage of Named Node Lists:
  * 

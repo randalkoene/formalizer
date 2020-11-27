@@ -105,56 +105,67 @@ bool fzedit::options_hook(char c, std::string cargs) {
 
     case 'T': {
         nd.utf8_text = utf8_safe(cargs);
+        editflags.set_Edit_text();
         return true;
     }
 
     case 'f': {
         config.content_file = cargs;
+        editflags.set_Edit_text();
         return true;
     }
 
     case 'H': {
         nd.hours = std::stof(cargs);
+        editflags.set_Edit_required();
         return true;
     }
 
     case 'a': {
         nd.valuation = std::stof(cargs);
+        editflags.set_Edit_valuation();
         return true;
     }
 
     case 't': {
         nd.targetdate = interpret_config_targetdate(cargs);
+        editflags.set_Edit_targetdate();
         return true;
     }
 
     case 'g': {
         nd.topics = parse_config_topics(cargs);
+        editflags.set_Edit_topics();
         return true;
     }
 
     case 'p': {
         nd.tdproperty = interpret_config_tdproperty(cargs);
+        editflags.set_Edit_tdproperty();
         return true;
     }
 
     case 'r': {
         nd.tdpattern = interpret_config_tdpattern(cargs);
+        editflags.set_Edit_tdpattern();
         return true;
     }
 
     case 'e': {
         nd.tdevery = std::stoi(cargs);
+        editflags.set_Edit_tdevery();
         return true;
     }
 
     case 's': {
         nd.tdspan = std::stoi(cargs);
+        editflags.set_Edit_tdspan();
         return true;
     }
 
     case 'Y': {
         ed.dependency = std::stof(cargs);
+        
         return true;
     }
 

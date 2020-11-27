@@ -486,6 +486,9 @@ public:
     td_pattern get_tdpattern() const { return tdpattern; }
     int get_tdevery() const { return tdevery; }
     int get_tdspan() const { return tdspan; }
+    time_t seconds_applied() { return completion*required; }
+    long minutes_applied() { return seconds_applied()/60; }
+    float hours_applied() { return ((float)minutes_applied)/60.0; }
 
     /// change parameters: topics
     bool add_topic(Topic_Tags &topictags, Topic_ID topicid, float topicrelevance);

@@ -47,7 +47,7 @@ struct fzedit: public formalizer_standard_program {
     Edge_data ed;
 
     bool edit_text = false; // we need this, because fetching text comes before estimating shared memory segment size
-    Edit_flags editflags = 0;
+    Edit_flags editflags;
     std::string idstr;
 
 protected:

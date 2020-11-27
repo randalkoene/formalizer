@@ -387,6 +387,79 @@ unsigned int find_token_values_command(const GET_token_value_vec & token_value_v
     return 0; // no command found
 }
 
+/**
+ * Updates a Node's completion ratio (and potentially updates required if
+ * completion exceeds 1.0) in response to having logged a number of minutes
+ * dedicated to the Node.
+ * 
+ * Notes:
+ * 1. `add_minutes` is necessarily >= 0, which is different than directly
+ * modifying parameters in ways that can increase or reduce. It only makes sense
+ * to log positive time.
+ * 2. This function assumes that `fzs.graph_ptr` points to a valid
+ * Graph, meaning that this function is called sometime after `load_Graph_and_stay_resident()`.
+ * 3. Automatic correction of `required` when `completion > 1.0` is a point
+ * where Formalizer 2.x behavior differs from that of Formalizer 1.x behavior.
+ * 
+ * *** Future improvement notes:
+ * A. This is one of the functions in `fzserverpq` that deals directly with database
+ * update calls, which would need to be modified to use a different database layer.
+ * (It may be sensible to collect all of those functions in a separate source file
+ * for a clear and logical separation that simplifies the addition of other
+ * possible database layers.)
+ * B. While automatically correcting `required` when `completion > 1.0` is
+ * useful, it is not the full measure of improvements planned as, which are:
+ * - [Something better than completion ratio + time required](https://trello.com/c/Rnm84Hld).
+ * - [Additional completion conditions](https://trello.com/c/oa3zFBdd).
+ * - [Tags that teach time required](https://trello.com/c/JqxApvhO).
+ * 
+ * @param node_idstr A string specifying the ID of a Node in the Graph.
+ * @param add_minutes The number of minutes that were logged.
+ * @return True if successfully updated. False if the Node could not be identified
+ *         or if another error occurred.
+ */
+bool node_add_logged_time(const std::string & node_idstr, unsigned int add_minutes) {
+    Node * node_ptr = fzs.graph_ptr->Node_by_idstr(node_idstr);
+    if (!node_ptr) {
+        return standard_error("Node "+node_idstr+" not found in Graph.", __func__);
+    }
+
+    Edit_flags editflags;
+    auto seconds_applied = node_ptr->seconds_applied();
+    seconds_applied += add_minutes;
+    auto required = node_ptr->get_required();
+    if (seconds_applied > required) {
+        node_ptr->set_required(seconds_applied);
+        editflags.set_Edit_required();
+        node_ptr->set_completion(1.0);
+    } else {
+        node_ptr->set_completion(((float)seconds_applied)/((float)required));
+    }
+    editflags.set_Edit_completion();
+
+    if (!Update_Node_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), *node_ptr, editflags) {
+        return standard_error("Synchronizing Node update to database failed", __func__);
+    }
+    return true;
+}
+
+bool handle_node_direct_request(std::string nodereqstr, std::string & response_html) {
+    ERRTRACE;
+
+    VERYVERBOSEOUT("Handling Node request.\n");
+
+    if ((nodereqstr.substr(0,8) == "logtime?") && (nodereqstr.size()>25)) {
+        if (nodereqstr[24] == '=') {
+            unsigned int add_minutes = std::atoi(nodereqstr.substr(25).c_str());
+            if (add_minutes>0) {
+                return node_add_logged_time(nodereqstr.substr(8,16), add_minutes);
+            }
+        }
+    }
+
+    return standard_error("No known request token found: "+nodereqstr, __func__);
+}
+
 // *** Note: This could be improved by putting the standardized handler functions into a const
 //     map with the command as a key and the function to be called. This would replace all of
 //     the switch statements.
@@ -569,15 +642,29 @@ bool handle_fz_vfs_database_request(int new_socket, const std::string & fzreques
  * @return True if the request was handled successfully.
  */
 bool handle_fz_vfs_graph_request(int new_socket, const std::string & fzrequesturl) {
-    VERYVERBOSEOUT("Handling Graph request.\n");
+    constexpr const char * response_ok_start = "HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ";
+    VERYVERBOSEOUT("Handling Graph request.\n");;
+
+    if (fzrequesturl.substr(10,6) == "nodes/") {
+
+        std::string response_html;
+        if (handle_node_direct_request(fzrequesturl.substr(16), response_html)) {
+            VERYVERBOSEOUT("Node modification / parameter request handled. Responding.\n");
+            fzs.log("TCP", "Node request successful");
+            std::string response_str = response_ok_start + std::to_string(response_html.size()) + "\r\n\r\n" + response_html;
+            send(new_socket, response_str.c_str(), response_str.size()+1, 0);
+            return true;  
+        }
+
+    }
+
     if (fzrequesturl.substr(10,11) == "namedlists/") {
 
-        std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
         std::string response_html;
         if (handle_named_list_direct_request(fzrequesturl.substr(21), response_html)) {
             VERYVERBOSEOUT("Named Node List modification / parameter request handled. Responding.\n");
             fzs.log("TCP", "NNL request successful");
-            response_str += std::to_string(response_html.size()) + "\r\n\r\n" + response_html;
+            std::string response_str = response_ok_start + std::to_string(response_html.size()) + "\r\n\r\n" + response_html;
             send(new_socket, response_str.c_str(), response_str.size()+1, 0);
             return true;
         }
