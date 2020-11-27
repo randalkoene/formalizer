@@ -18,6 +18,7 @@
 #include "config.hpp"
 #include "standard.hpp"
 #include "Graphbase.hpp"
+#include "Graphmodify.hpp"
 // #include "Graphaccess.hpp"
 
 using namespace fz;
@@ -50,28 +51,6 @@ enum NNL_after_use {
 };
 
 typedef std::vector<Node_ID_key> Node_ID_key_Vector;
-
-/// Data structure used when building an Add-Node request, initialized to compile-time default values.
-struct Node_data {
-    std::string utf8_text;
-    Graphdecimal hours = 0.0;
-    Graphdecimal valuation = 0.0;
-    std::vector<std::string> topics;
-    time_t targetdate = RTt_unspecified;
-    td_property tdproperty = variable;
-    td_pattern tdpattern = patt_nonperiodic;
-    Graphsigned tdevery = 0;
-    Graphsigned tdspan = 1;
-};
-
-/// Data structure used when building an Add-Edge request, initialized to compile-time default values.
-struct Edge_data {
-    Graphdecimal dependency = 0.0;
-    Graphdecimal significance = 0.0;
-    Graphdecimal importance = 0.0;
-    Graphdecimal urgency = 0.0;
-    Graphdecimal priority = 0.0;
-};
 
 class fzge_configurable : public configurable {
 public:

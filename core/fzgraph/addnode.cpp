@@ -44,31 +44,13 @@ Node * add_Node_request(Graph_modifications & gm, Node_data & nd) {
 
     VERBOSEOUT("\nMaking Node "+node_ptr->get_id_str()+'\n');
 
-    // Set up Node parameters
-    node_ptr->set_text(nd.utf8_text);
-    node_ptr->set_required((unsigned int) (nd.hours*3600.0));
-    node_ptr->set_valuation(nd.valuation);
-    node_ptr->set_targetdate(nd.targetdate);
-    node_ptr->set_tdproperty(nd.tdproperty);
-    node_ptr->set_tdpattern(nd.tdpattern);
-    node_ptr->set_tdevery(nd.tdevery);
-    node_ptr->set_tdspan(nd.tdspan);
-    node_ptr->set_repeats((nd.tdpattern != patt_nonperiodic) && (nd.tdproperty != variable) && (nd.tdproperty != unspecified));
-
-    // main topic
     Graph * graph_ptr = fzge.get_Graph();
     if (!graph_ptr)
         standard_exit_error(exit_resident_graph_missing, "Unable to access the memory-resident Graph", __func__);
 
-    for (const auto & tag_str : nd.topics) {
-        VERYVERBOSEOUT("\n  adding Topic tag: "+tag_str+'\n');
-        Topic * topic_ptr = graph_ptr->find_Topic_by_tag(tag_str);
-        if (!topic_ptr) {
-            standard_exit_error(exit_general_error, "Unknown Topic: "+tag_str, __func__);
-        }
-        Topic_Tags & topictags = *(const_cast<Topic_Tags *>(&graph_ptr->get_topics())); // We need the list of Topics from the memory-resident Graph.
-        node_ptr->add_topic(topictags, topic_ptr->get_id(), 1.0);
-    }
+    // Set up Node parameters and main topic
+    fzge.config.nd.copy(*graph_ptr, *node_ptr);
+
     Topic_ID mainid = node_ptr->main_topic_id();
     VERYVERBOSEOUT("  main Topic of new Node is: "+std::to_string(mainid)+" ("+graph_ptr->find_Topic_Tag_by_id(mainid)+")\n");
 

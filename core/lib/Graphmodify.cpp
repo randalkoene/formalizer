@@ -13,6 +13,47 @@
 
 namespace fz {
 
+/** 
+ * Copies a complete set of Node data from a buffer on heap to shared memory Node object.
+ * 
+ * @param graph Valid Graph object.
+ * @param node Valid Node object (this may be in a different shared memory buffer, not part of graph).
+ */
+void Node_data::copy(Graph & graph, Node & node) {
+    node.set_text(utf8_text);
+    node.set_required((unsigned int) (hours*3600.0));
+    node.set_valuation(valuation);
+    node.set_targetdate(targetdate);
+    node.set_tdproperty(tdproperty);
+    node.set_tdpattern(tdpattern);
+    node.set_tdevery(tdevery);
+    node.set_tdspan(tdspan);
+    node.set_repeats((tdpattern != patt_nonperiodic) && (tdproperty != variable) && (tdproperty != unspecified));
+
+    for (const auto & tag_str : topics) {
+        VERYVERBOSEOUT("\n  adding Topic tag: "+tag_str+'\n');
+        Topic * topic_ptr = graph.find_Topic_by_tag(tag_str);
+        if (!topic_ptr) {
+            standard_exit_error(exit_general_error, "Unknown Topic: "+tag_str, __func__);
+        }
+        Topic_Tags & topictags = *(const_cast<Topic_Tags *>(&graph.get_topics())); // We need the list of Topics from the memory-resident Graph.
+        node.add_topic(topictags, topic_ptr->get_id(), 1.0);
+    }
+}
+
+/** 
+ * Copies a complete set of Edge data from a buffer on heap to shared memory Edge object.
+ * 
+ * @param edge Valid Edge object (in a shared memory buffer).
+ */
+void Edge_data::copy(Edge & edge) {
+    edge.set_dependency(dependency);
+    edge.set_significance(significance);
+    edge.set_importance(importance);
+    edge.set_urgency(urgency);
+    edge.set_priority(priority);
+}
+
 Graphmod_error::Graphmod_error(exit_status_code ecode, std::string msg) : exit_code(ecode) {
     safecpy(msg, message, 256);
 }
@@ -291,6 +332,33 @@ Node * Graph_modifications::request_add_Node() {
     return node_ptr;
 }
 
+Node * Graph_modifications::request_edit_Node(std::string nkeystr) {
+    // The Node must already exist in the memory-resident graph provided through graph_ptr.
+    if (!graph_ptr) {
+        return nullptr;
+    }
+    if (!(graph_ptr->Node_by_idstr(nkeystr))) {
+        ADDERROR(__func__, "Node with ID "+nkeystr+" not found in Graph.");
+        return nullptr;
+    }
+
+    // Create Node object with existing Node ID in the shared memory segment being used to share a modifications request stack.
+    segment_memory_t * smem = graphmemman.get_segmem();
+    if (!smem) {
+        ADDERROR(__func__, "Shared segment pointer was null pointer");
+        return nullptr;
+    }
+
+    Node * node_ptr = smem->construct<Node>(bi::anonymous_instance)(nkeystr); // this normal pointer is emplaced into an offset_ptr
+    if (!node_ptr) {
+        ADDERROR(__func__, "Unable to construct Node in shared memory");
+        return nullptr;
+    }
+
+    data.emplace_back(graphmod_edit_node, node_ptr);
+    return node_ptr;
+}
+
 /// Note that testing if depkey and supkey exists happens in the server (see https://trello.com/c/FQximby2/174-fzgraphedit-adding-new-nodes-to-the-graph-with-initial-edges#comment-5f8faf243d74b8364fac7739).
 Edge * Graph_modifications::request_add_Edge(const Node_ID_key & depkey, const Node_ID_key & supkey) {
     // Create new Edge object in the shared memory segment being used to share a modifications request stack.
@@ -307,6 +375,33 @@ Edge * Graph_modifications::request_add_Edge(const Node_ID_key & depkey, const N
     }
     
     data.emplace_back(graphmod_add_edge, edge_ptr);
+    return edge_ptr;
+}
+
+Edge * Graph_modifications::request_edit_Edge(std::string ekeystr) {
+    // The Edge must already exist in the memory-resident graph provided through graph_ptr.
+    if (!graph_ptr) {
+        return nullptr;
+    }
+    if (!(graph_ptr->Edge_by_idstr(ekeystr))) {
+        ADDERROR(__func__, "Edge with ID "+ekeystr+" not found in Graph.");
+        return nullptr;
+    }
+
+    // Create Edge object with existing Edge ID in the shared memory segment being used to share a modifications request stack.
+    segment_memory_t * smem = graphmemman.get_segmem();
+    if (!smem) {
+        ADDERROR(__func__, "Shared segment pointer was null pointer");
+        return nullptr;
+    }
+
+    Edge * edge_ptr = smem->construct<Edge>(bi::anonymous_instance)(ekeystr); // this normal pointer is emplaced into an offset_ptr
+    if (!edge_ptr) {
+        ADDERROR(__func__, "Unable to construct Edge in shared memory");
+        return nullptr;
+    }
+    
+    data.emplace_back(graphmod_edit_edge, edge_ptr);
     return edge_ptr;
 }
 

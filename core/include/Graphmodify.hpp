@@ -23,12 +23,52 @@
 
 namespace fz {
 
+/// On-heap data structure used when building an Add/Edit-Node request, initialized to compile-time default values.
+struct Node_data {
+    std::string utf8_text;
+    Graphdecimal hours = 0.0;
+    Graphdecimal valuation = 0.0;
+    std::vector<std::string> topics;
+    time_t targetdate = RTt_unspecified;
+    td_property tdproperty = variable;
+    td_pattern tdpattern = patt_nonperiodic;
+    Graphsigned tdevery = 0;
+    Graphsigned tdspan = 1;
+
+    /** 
+     * Copies a complete set of Node data from a buffer on heap to shared memory Node object.
+     * 
+     * @param graph Valid Graph object.
+     * @param node Valid Node object (this may be in a different shared memory buffer, not part of graph).
+     */
+    void copy(Graph & graph, Node & node);
+};
+
+/// On-heap data structure used when building an Add/Edit-Edge request, initialized to compile-time default values.
+struct Edge_data {
+    Graphdecimal dependency = 0.0;
+    Graphdecimal significance = 0.0;
+    Graphdecimal importance = 0.0;
+    Graphdecimal urgency = 0.0;
+    Graphdecimal priority = 0.0;
+
+    /** 
+     * Copies a complete set of Edge data from a buffer on heap to shared memory Edge object.
+     * 
+     * @param edge Valid Edge object (in a shared memory buffer).
+     */
+    void copy(Edge & edge);
+};
+
+
 enum Graph_modification_request {
     graphmod_add_node,
     graphmod_add_edge,
     namedlist_add,
     namedlist_remove,
     namedlist_delete,
+    graphmod_edit_node,
+    graphmod_edit_edge,
     NUM_graphmod_requests
 };
 
@@ -89,21 +129,59 @@ struct Graphmod_results {
     std::string info_str();
 };
 
+typedef std::uint32_t Edit_flags;
 /**
  * This is the data structure used for elements of the request stack for
  * Graph modification. Each part of the modification requested is represented
  * by one of these elements, including the data that is pointed to by one or
  * more of the shared memory pointers.
+ * 
+ * For more information about Edit_flags and Edit protocols, see:
+ * https://trello.com/c/ooCyccJ0/95-fzedit-node-and-edge-editor#comment-5fc059eee4536d8a147db56f
  */
 struct Graphmod_data {
+    enum editmask : Edit_flags {
+        topics     = 0b0000'0000'0000'0001,
+        valuation  = 0b0000'0000'0000'0010,
+        completion = 0b0000'0000'0000'0100,
+        required   = 0b0000'0000'0000'1000,
+        text       = 0b0000'0000'0001'0000,
+        targetdate = 0b0000'0000'0010'0000,
+        tdproperty = 0b0000'0000'0100'0000,
+        tdpattern  = 0b0000'0001'0000'0000,
+        tdevery    = 0b0000'0010'0000'0000,
+        tdspan     = 0b0000'0100'0000'0000,
+    };
     Graph_modification_request request;
     Graph_Node_ptr node_ptr;
     Graph_Edge_ptr edge_ptr;
     Named_Node_List_Element_ptr nodelist_ptr;
+    Edit_flags editflags;
 
     Graphmod_data(Graph_modification_request _request, Node * _node_ptr) : request(_request), node_ptr(_node_ptr), edge_ptr(nullptr), nodelist_ptr(nullptr) {}
     Graphmod_data(Graph_modification_request _request, Edge * _edge_ptr) : request(_request), node_ptr(nullptr), edge_ptr(_edge_ptr), nodelist_ptr(nullptr) {}
     Graphmod_data(Graph_modification_request _request, Named_Node_List_Element * _nodelist_ptr) : request(_request), node_ptr(nullptr), edge_ptr(nullptr), nodelist_ptr(_nodelist_ptr) {}
+    void set_Edit_flags(Edit_flags _editflags) { editflags = _editflags; }
+    void set_Edit_topics() { editflags |= Graphmod_data::topics; }
+    void set_Edit_valuation() { editflags |= Graphmod_data::valuation; }
+    void set_Edit_completion() { editflags |= Graphmod_data::completion; }
+    void set_Edit_required() { editflags |= Graphmod_data::required; }
+    void set_Edit_text() { editflags |= Graphmod_data::text; }
+    void set_Edit_targetdate() { editflags |= Graphmod_data::targetdate; }
+    void set_Edit_tdproperty() { editflags |= Graphmod_data::tdproperty; }
+    void set_Edit_tdpattern() { editflags |= Graphmod_data::tdpattern; }
+    void set_Edit_tdevery() { editflags |= Graphmod_data::tdevery; }
+    void set_Edit_tdspan() { editflags |= Graphmod_data::tdspan; }
+    bool Edit_topics() { return editflags & Graphmod_data::topics; }
+    bool Edit_valuation() { return editflags & Graphmod_data::valuation; }
+    bool Edit_completion() { return editflags & Graphmod_data::completion; }
+    bool Edit_required() { return editflags & Graphmod_data::required; }
+    bool Edit_text() { return editflags & Graphmod_data::text; }
+    bool Edit_targetdate() { return editflags & Graphmod_data::targetdate; }
+    bool Edit_tdproperty() { return editflags & Graphmod_data::tdproperty; }
+    bool Edit_tdpattern() { return editflags & Graphmod_data::tdpattern; }
+    bool Edit_tdevery() { return editflags & Graphmod_data::tdevery; }
+    bool Edit_tdspan() { return editflags & Graphmod_data::tdspan; }
 };
 
 typedef bi::allocator<Graphmod_data, segment_manager_t> Graphmod_data_allocator;
@@ -139,8 +217,12 @@ public:
     std::string generate_unique_Node_ID_str();
     /// Build an ADD_NODE request. Returns a pointer to the Node data being created (in shared memory).
     Node * request_add_Node();
+    /// Build an EDIT NODE request. Returns a pointer to the Node data being created (in shared memory).
+    Node * Graph_modifications::request_edit_Node(std::string nkeystr); // alt: (const Node_ID_key & nkey);
     /// Build an ADD EDGE request. Returns a pointer to the Edge data being created (in shared memory).
     Edge * request_add_Edge(const Node_ID_key & depkey, const Node_ID_key & supkey);
+    /// Build an EDIT EDGE request. Returns a pointer to the Edge data being created (in shared memory).
+    Edge * Graph_modifications::request_edit_Edge(std::string ekeystr); // alt: (const Edge_ID_key & ekey);
     /// Build a Named Node List request. Returns a pointer to Named_Node_List_Element data (in shared memory).
     Named_Node_List_Element * request_Named_Node_List_Element(Graph_modification_request request, const std::string _name, const Node_ID_key & nkey);
 

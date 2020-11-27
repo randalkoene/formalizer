@@ -556,8 +556,9 @@ public:
     Edge(Node &_dep, Node &_sup): id(_dep,_sup), dep(&_dep), sup(&_sup) {}
     Edge(Graph & graph, std::string id_str);
 
-    // This one was created for Graph_modifications to use in building a modifications request stack.
+    // These were designed for Graph_modifications to use in building a modifications request stack.
     Edge(const Node_ID_key & _dep, const Node_ID_key & _sup): id(Edge_ID_key(_dep, _sup)) {}
+    Edge(const Edge_ID_key & ekey): id(ekey) {}
 
 public:
     // safely inspect data
@@ -692,6 +693,7 @@ public:
     auto begin_Edges() const { return edges.begin(); }
     auto end_Edges() const { return edges.end(); }
     Edge * Edge_by_id(const Edge_ID_key & id) const; // inlined below
+    Edge * Edge_by_idstr(std::string idstr) const; // inlined below
 
     /// topics table: get topic
     Topic * find_Topic_by_id(Topic_ID _id) { return topics.find_by_id(_id); }
@@ -797,6 +799,24 @@ inline Edge * Graph::Edge_by_id(const Edge_ID_key & id) const {
     auto it = edges.find(id);
     if (it==edges.end()) return nullptr;
     return it->second.get();
+}
+
+/**
+ * Find an Edge in the Graph by its ID key from a string.
+ * 
+ * @param idstr a string specifying an Edge ID key.
+ * @return pointer to Edge (or nullptr if not found).
+ */
+inline Edge * Graph::Edge_by_idstr(std::string idstr) const {
+    try {
+        const Edge_ID_key edgeidkey(idstr);
+        return Edge_by_id(edgeidkey);
+
+    } catch (ID_exception idexception) {
+        ADDERROR(__func__, "invalid Edge ID (" + idstr + ")\n" + idexception.what());
+        return nullptr;
+    }
+    // never gets here
 }
 
 // +----- end  : inline member functions -----+

@@ -185,6 +185,9 @@ $(OBJ)/Graphinfo.o: Graphinfo.cpp $(INC)/Graphinfo.hpp $(INC)/Graphtypes.hpp $(I
 $(OBJ)/Graphmodify.o: Graphmodify.cpp $(INC)/Graphmodify.hpp $(INC)/Graphtypes.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c Graphmodify.cpp -o $(OBJ)/Graphmodify.o
 
+$(OBJ)/Graphtoken.o: Graphtoken.cpp $(INC)/Graphtoken.hpp $(INC)/Graphbase.hpp $(INC)/standard.hpp $(INC)/error.hpp
+	$(CCPP) $(CPPFLAGS) -c Graphtoken.cpp -o $(OBJ)/Graphtoken.o
+
 $(OBJ)/Graphunshared.o: Graphunshared.cpp $(INC)/Graphunshared.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c Graphunshared.cpp -o $(OBJ)/Graphunshared.o
 

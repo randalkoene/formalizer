@@ -79,7 +79,7 @@ bool valid_Node_ID(const ID_TimeStamp &idT, std::string &formerror) {
  */
 bool valid_Node_ID(std::string id_str, std::string &formerror, ID_TimeStamp *id_timestamp) {
 
-    if (id_str.length() < 16)
+    if (id_str.length() < NODE_ID_STR_NUMCHARS)
         VALID_NODE_ID_FAIL("string size: "+id_str);
     if (id_str[14] != '.')
         VALID_NODE_ID_FAIL("format: "+id_str);

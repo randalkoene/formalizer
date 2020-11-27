@@ -44,11 +44,7 @@ Edge * add_Edge_request(Graph_modifications & gm, const Node_ID_key & depkey, co
     VERBOSEOUT("\nMaking Edge "+edge_ptr->get_id_str()+'\n');
 
     // Set up Edge parameters
-    edge_ptr->set_dependency(ed.dependency);
-    edge_ptr->set_significance(ed.significance);
-    edge_ptr->set_importance(ed.importance);
-    edge_ptr->set_urgency(ed.urgency);
-    edge_ptr->set_priority(ed.priority);
+    fzge.config.ed.copy(*edge_ptr);
 
     // *** let's find out how much space is consumed in shared memory when a Node is created, improve our estimate!
 
