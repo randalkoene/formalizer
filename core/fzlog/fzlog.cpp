@@ -22,6 +22,8 @@
 #include "Logtypes.hpp"
 #include "Logpostgres.hpp"
 #include "utf8.hpp"
+#include "tcpclient.hpp"
+#include "apiclient.hpp"
 
 // local
 #include "version.hpp"
@@ -194,6 +196,7 @@ bool make_entry(entry_data & edata) {
     Log_entry * new_entry;
     if (edata.node_ptr) {
         new_entry = new Log_entry(log_stamp, edata.utf8_text, edata.node_ptr->get_id().key(), edata.c_newest);
+        //*** This should probably be able to cause an update of the Node history chain and the histories cache!
     } else {
         new_entry = new Log_entry(log_stamp, edata.utf8_text, edata.c_newest);
     }
@@ -204,6 +207,33 @@ bool make_entry(entry_data & edata) {
     VERBOSEOUT("Log entry "+new_entry->get_id_str()+" appended.\n");
 
     return true;
+}
+
+bool port_API_request(const std::string api_url) {
+    VERYVERBOSEOUT("Sending Logged time update request to Server API port.\n");
+    std::string response_str;
+    Graph_ptr graph_ptr = nullptr;
+    if (!graphmemman.get_Graph(graph_ptr)) {
+        return false;
+    }
+    if (!http_GET(graph_ptr->get_server_IPaddr(), graph_ptr->get_server_port(), api_url, response_str)) {
+        return standard_exit_error(exit_communication_error, "API request to Server port failed: "+api_url, __func__);
+    }
+
+    VERYVERBOSEOUT("Server response:\n\n"+response_str);
+
+    return true;
+}
+
+bool update_Node_completion(const std::string & node_idstr, time_t add_seconds) {
+    if (add_seconds <= 0) {
+        return true; // nothing to add
+    }
+
+    std::string api_url("/fz/graph/nodes/logtime?"+node_idstr+'=');
+    api_url += std::to_string(add_seconds / 60);
+    
+    return port_API_request(api_url);
 }
 
 /**
@@ -224,6 +254,15 @@ bool close_chunk(time_t closing_time) {
     if (!close_Log_chunk_pq(*fzl.edata.c_newest, fzl.ga)) {
         standard_exit_error(exit_database_error, "Unable to close Log chunk "+fzl.edata.c_newest->get_tbegin_str(), __func__);
     }
+
+    if (!fzl.edata.c_newest) {
+        standard_exit_error(exit_missing_data, "Unable to obtain Node of closed Log chunk, because Log chunk pointer is null pointer.", __func__);
+    }
+    std::string node_idstr(fzl.edata.c_newest->get_NodeID().str());
+    if (!update_Node_completion(node_idstr, closing_time - fzl.edata.newest_chunk_t)) {
+        standard_exit_error(exit_communication_error, "Server request to update completion ratio of Node "+node_idstr+" failed.", __func__);
+    }
+
     VERBOSEOUT("Log chunk "+fzl.edata.c_newest->get_tbegin_str()+" closed.\n");   
 
     return true;
@@ -265,6 +304,8 @@ bool open_chunk() {
         standard_exit_error(exit_database_error, "Unable to append Log chunk", __func__);
     }
     VERBOSEOUT("Log chunk "+new_chunk.get_tbegin_str()+" appended.\n");
+
+    //*** This should probably be able to cause an update of the Node history chain and the histories cache!
 
     return true;
 }
