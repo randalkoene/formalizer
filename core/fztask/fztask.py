@@ -222,6 +222,47 @@ def set_chunk_timer_and_alert():
     print('SETTING TIMER AND ALERT NOT YET IMPLEMENTED!')
 
 
+def get_main_topic(node):
+    # *** This can be made easier if there is a simple way to get just a a specific
+    #     parameter of a node, for example through the direct TCP-port API.
+    #     E.g. could call fzgraph -C or curl with the corresponding URL.
+    customtemplate = '{{ topics }}'
+    with open(config['customtemplate'],'w') as f:
+        f.write(customtemplate)
+    topicgettingcmd = f"fzgraphhtml -q -T 'Node={config['customtemplate']}' -n {node}"
+    retcode = try_subprocess_check_output(topicgettingcmd, 'topic')
+    if (retcode != 0):
+        print('Attempt to get Node topic failed.')
+        exit(retcode)
+    topic = results['topic'].split()[0]
+    topic = topic.decode()
+    return topic
+
+
+def set_DIL_entry_preset(node):
+    topic = get_main_topic(node)
+    dilpreset = f'{topic}.html#{node}:!'
+    print(f'Specifying the DIL ID preset: {dilpreset}')
+    with open(userhome+'/.dil2al-DILidpreset','w') as f:
+        f.write(dilpreset)
+
+
+def get_completion_required(node):
+    # *** This can be made easier if there is a simple way to get just a a specific
+    #     parameter of a node, for example through the direct TCP-port API.
+    #     E.g. could call fzgraph -C or curl with the corresponding URL.
+    customtemplate = '{{ completion }} {{ required }}'
+    with open(config['customtemplate'],'w') as f:
+        f.write(customtemplate)
+    topicgettingcmd = f"fzgraphhtml -q -T 'Node={config['customtemplate']}' -n {node}"
+    retcode = try_subprocess_check_output(topicgettingcmd, 'compreq')
+    if (retcode != 0):
+        print('Attempt to get Node completion and required failed.')
+        exit(retcode)
+    results['completion'] = (results['compreq'].split()[0]).decode()
+    results['required'] = (results['compreq'].split()[1]).decode()
+
+
 def transition_dil2al_request(node):
     # - set 'flagcmd' in dil2al/controller.cc:chunk_controller() such that no alert is called
     # - provide a command string to automatically answer confirmation() 'N' about making a note
@@ -232,9 +273,24 @@ def transition_dil2al_request(node):
     #   set completion ratios directly instead of automatically
     # - set 'isdaemon' false to prevent waiting in loop in schedule_controller()
     # - possibly also prevent an at-command from being created
-    # *** If this is all too difficult, I can just call `dil2al -S` and let me figure it out manually.
-    #     And check `dil2al -u`.
-    thecmd = ""
+    # *** If this is all too difficult, I can just call `dil2al -C` and let me figure it out manually.
+    #     And note that `dil2al -u` sets alautoupdate to no, yes or ask. Note that `dil2al -C` does
+    #     not appear to set a timer or at-command (in fact, it seems that the `at` program is not
+    #     even installed on aether).
+    set_DIL_entry_preset(node)
+    thecmd = "dil2al -C -u no -p 'noaskALDILref'"
+    retcode = try_subprocess_check_output(thecmd, 'dil2al_chunk')
+    if (retcode != 0):
+        print('Call to dil2al -C failed.')
+        exit(retcode)
+    get_completion_required(node)
+    completion = results['completion']
+    required = results['required']
+    thecmd = f"w3m '/cgi-bin/dil2al?dil2al=MEi&DILID=20070113232521.1&required={required}&completion={completion}'"
+    retcode = try_subprocess_check_output(thecmd, 'dil2al_compreq')
+    if (retcode != 0):
+        print('GET call to dil2al failed.')
+        exit(retcode)
 
 
 if __name__ == '__main__':

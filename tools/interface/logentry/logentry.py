@@ -240,23 +240,34 @@ def send_to_fzlog(node):
     print('Entry added to Log.')
 
 
+def get_main_topic(node):
+    # *** This can be made easier if there is a simple way to get just a a specific
+    #     parameter of a node, for example through the direct TCP-port API.
+    customtemplate = '{{ topics }}'
+    with open(config['customtemplate'],'w') as f:
+        f.write(customtemplate)
+    topicgettingcmd = f"fzgraphhtml -q -T 'Node={config['customtemplate']}' -n {node}"
+    retcode = try_subprocess_check_output(topicgettingcmd, 'topic')
+    if (retcode != 0):
+        print('Attempt to get Node topic failed.')
+        exit(retcode)
+    topic = results['topic'].split()[0]
+    topic = topic.decode()
+    return topic
+
+
+def set_DIL_entry_preset(node):
+    topic = get_main_topic(node)
+    dilpreset = f'{topic}.html#{node}:!'
+    print(f'Specifying the DIL ID preset: {dilpreset}')
+    with open(userhome+'/.dil2al-DILidpreset','w') as f:
+        f.write(dilpreset)
+
+
 def transition_dil2al_polldaemon_request(node):
     thecmd=f"dil2al -m{config['contenttmpfile']} -p 'noaskALDILref' -p 'noalwaysopenineditor'"
     if node:
-        customtemplate = '{{ topics }}'
-        with open(config['customtemplate'],'w') as f:
-            f.write(customtemplate)
-        topicgettingcmd = f"fzgraphhtml -q -T 'Node={config['customtemplate']}' -n {node}"
-        retcode = try_subprocess_check_output(topicgettingcmd, 'topic')
-        if (retcode != 0):
-            print('Attempt to get Node topic failed.')
-            exit(retcode)
-        topic = results['topic'].split()[0]
-        topic = topic.decode()
-        dilpreset = f'{topic}.html#{node}:!'
-        print(f'Specifying the DIL ID preset: {dilpreset}')
-        with open(userhome+'/.dil2al-DILidpreset','w') as f:
-            f.write(dilpreset)
+        set_DIL_entry_preset(node)
         retcode = try_subprocess_check_output(thecmd, 'dil2al')
         if (retcode != 0):
             print('Call to dil2al -m failed.')
