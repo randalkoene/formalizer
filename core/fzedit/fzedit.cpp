@@ -39,8 +39,8 @@ fzedit fze;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzedit::fzedit() : formalizer_standard_program(false), config(*this), flowcontrol(flow_unknown) { //ga(*this, add_option_args, add_usage_top)
-    //add_option_args += "x:";
-    //add_usage_top += " [-x <something>]";
+    add_option_args += "M:L:C:T:f:H:a:S:D:t:g:p:r:e:s:Y:G:I:U:P:l:d:uz";
+    add_usage_top += " [-M <node-id>|<edge-id>] [-T <text>] [-f <content-file>] [-H <hours>] [-a <val>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("If a <content-file> is 'DEFAULT' then the path specified in the configuration\n"
                          "file is used. A configured path does not automatically mean that Node text\n"
@@ -234,7 +234,7 @@ int edit_node() {
         return standard_exit_error(exit_general_error, "Unable to edit Node "+fze.idstr, __func__);
     }
 
-    fze.graphmod().data.back().set_Edit_flags(fze.editflags);
+    fze.graphmod().data.back().set_Edit_flags(fze.editflags.get_Edit_flags());
     Graph_ptr graph_ptr = fze.graphmod().get_reference_Graph();
     fze.nd.copy(*graph_ptr, *node_ptr);
 
@@ -254,7 +254,7 @@ int edit_edge() {
         return standard_exit_error(exit_general_error, "Unable to edit Edge "+fze.idstr, __func__);
     }
 
-    fze.graphmod().data.back().set_Edit_flags(fze.editflags);
+    fze.graphmod().data.back().set_Edit_flags(fze.editflags.get_Edit_flags());
     Graph_ptr graph_ptr = fze.graphmod().get_reference_Graph();
     fze.ed.copy(*edge_ptr);
 

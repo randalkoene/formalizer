@@ -140,7 +140,7 @@ fzupdate: $(OBJ)/fzupdate.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o fzupdate $(LIB_PATH)
 
 clean:
-	cp -f fzupdate fzupdate.bak
+	cp -f fzupdate fzupdate.bak 2>/dev/null || :
 	rm -f $(OBJ)/*.o fzupdate
 
 #doc++:

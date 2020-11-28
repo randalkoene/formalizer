@@ -437,7 +437,7 @@ bool node_add_logged_time(const std::string & node_idstr, unsigned int add_minut
     }
     editflags.set_Edit_completion();
 
-    if (!Update_Node_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), *node_ptr, editflags) {
+    if (!Update_Node_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), *node_ptr, editflags)) {
         return standard_error("Synchronizing Node update to database failed", __func__);
     }
     return true;

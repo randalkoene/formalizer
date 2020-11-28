@@ -232,11 +232,11 @@ public:
     /// Build an ADD_NODE request. Returns a pointer to the Node data being created (in shared memory).
     Node * request_add_Node();
     /// Build an EDIT NODE request. Returns a pointer to the Node data being created (in shared memory).
-    Node * Graph_modifications::request_edit_Node(std::string nkeystr); // alt: (const Node_ID_key & nkey);
+    Node * request_edit_Node(std::string nkeystr); // alt: (const Node_ID_key & nkey);
     /// Build an ADD EDGE request. Returns a pointer to the Edge data being created (in shared memory).
     Edge * request_add_Edge(const Node_ID_key & depkey, const Node_ID_key & supkey);
     /// Build an EDIT EDGE request. Returns a pointer to the Edge data being created (in shared memory).
-    Edge * Graph_modifications::request_edit_Edge(std::string ekeystr); // alt: (const Edge_ID_key & ekey);
+    Edge * request_edit_Edge(std::string ekeystr); // alt: (const Edge_ID_key & ekey);
     /// Build a Named Node List request. Returns a pointer to Named_Node_List_Element data (in shared memory).
     Named_Node_List_Element * request_Named_Node_List_Element(Graph_modification_request request, const std::string _name, const Node_ID_key & nkey);
 

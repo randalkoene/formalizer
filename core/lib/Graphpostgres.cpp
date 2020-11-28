@@ -1131,7 +1131,7 @@ bool Update_Node_pq(std::string dbname, std::string schemaname, const Node & nod
         set_expressions.pop_back();
     }
 
-    std::string nstr("UPDATE " + schemaname + ".Nodes SET " + set_expressions + " WHERE id = "+npq.id_pqstr();
+    std::string nstr("UPDATE " + schemaname + ".Nodes SET " + set_expressions + " WHERE id = "+npq.id_pqstr());
     if (!simple_call_pq(conn, nstr)) {
         ADDERROR(__func__, "Unable to update Node "+node.get_id_str());
         UPDATE_NODE_PQ_RETURN(false);

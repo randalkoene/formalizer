@@ -69,6 +69,7 @@ version = "0.1.0-0.1"
 
 # local defaults
 #config['something'] = 'some/kind/of/default'
+config['transition'] = 'true'
 
 # replace local defaults with values from ~/.formalizer/config/fztask.py/config.json
 #try:
@@ -214,10 +215,26 @@ def next_chunk():
         sys.exit(retcode)
 
     print(f'Opened new Log chunk for Node {node}.')
+    return node
 
 
 def set_chunk_timer_and_alert():
     print('SETTING TIMER AND ALERT NOT YET IMPLEMENTED!')
+
+
+def transition_dil2al_request(node):
+    # - set 'flagcmd' in dil2al/controller.cc:chunk_controller() such that no alert is called
+    # - provide a command string to automatically answer confirmation() 'N' about making a note
+    # - provide 'S' or 't' to start a new chunk or simply close the chunk, for auto_interactive()
+    # - case 'S': decide_add_TL_chunk(): perhaps set timechunkoverstrategy=TCS_NEW and timechunkunderstrategy,
+    #   then like DIL_entry selection in logentry
+    # - case 't': stop_TL_chunk(): could modify alautoupdate if I want to prevent AL update and
+    #   set completion ratios directly instead of automatically
+    # - set 'isdaemon' false to prevent waiting in loop in schedule_controller()
+    # - possibly also prevent an at-command from being created
+    # *** If this is all too difficult, I can just call `dil2al -S` and let me figure it out manually.
+    #     And check `dil2al -u`.
+    thecmd = ""
 
 
 if __name__ == '__main__':
@@ -233,15 +250,19 @@ if __name__ == '__main__':
 
     chunkchoice = new_or_close_chunk()
 
+    node = ''
     if (chunkchoice =='c'):
         close_chunk()
     else:
-        next_chunk()
+        node = next_chunk()
         set_chunk_timer_and_alert()
     # ** close_chunk() and next_chunk() could both return the new completion ratio of the
     # ** Node that owns the previous chunk (or at least a true/false whether completion >= 1.0)
     # ** and that could be used to check with the caller whether the Node really should
     # ** be considered completed. If not, then there is an opportunity to change the
     # ** time required or to set a guess for the actual completion ratio.
+
+    if config['transition'] == 'true':
+        transition_dil2al_request(node)
 
 sys.exit(0)

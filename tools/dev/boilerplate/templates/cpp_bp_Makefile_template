@@ -140,7 +140,7 @@ $(OBJ)/{{ this }}.o: {{ this }}.cpp {{ this }}.hpp version.hpp
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  {{ templater_macro }}$^ -o {{ this }} $(LIB_PATH)
 
 clean:
-	cp -f {{ this }} {{ this }}.bak
+	cp -f {{ this }} {{ this }}.bak 2>/dev/null || :
 	rm -f $(OBJ)/*.o {{ this }}
 
 #doc++:

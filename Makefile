@@ -64,7 +64,7 @@ EXECUTABLES += $(COREPATH)/fzsetup/fzsetup.py
 EXECUTABLES += $(COREPATH)/fztask/fztask.py
 EXECUTABLES += $(COREPATH)/fzupdate/fzupdate
 
-EXECUTABLES += $(TOOLSPATH)/addnode/addnode.py
+# EXECUTABLES += $(TOOLSPATH)/addnode/addnode.py
 EXECUTABLES += $(TOOLSPATH)/compat/dil2al-polldaemon.sh
 EXECUTABLES += $(TOOLSPATH)/compat/v1xv2x-refresh.sh
 EXECUTABLES += $(TOOLSPATH)/conversion/dil2graph/dil2graph

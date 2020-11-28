@@ -114,6 +114,8 @@ CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
 # CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphbase.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphmodify.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphinfo.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphtoken.o
 # CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
@@ -121,6 +123,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/Graphtoken.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Logpostgres.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Guidepostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/utf8.o
+CORE_OBJS += $(CORELIBPATH)/obj/tcpclient.o
 # CORE_OBJS += $(CORELIBPATH)/obj/dilaccess.o
 # +----- end  : Select Formalizer core library objects -----+
 
@@ -142,7 +145,7 @@ fzedit: $(OBJ)/fzedit.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o fzedit $(LIB_PATH)
 
 clean:
-	cp -f fzedit fzedit.bak
+	cp -f fzedit fzedit.bak 2>/dev/null || :
 	rm -f $(OBJ)/*.o fzedit
 
 #doc++:
