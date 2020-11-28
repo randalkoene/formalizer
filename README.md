@@ -31,9 +31,15 @@ System documentation.
 
 ## Installation
 
-1. Clone this git repository
+1. Clone this git repository.
 2. Change to the `core/lib` directory and run `make`.
 3. Change to directories in `tools` and run `make` in each.
+
+Alternatively:
+
+1. Clone this git repository.
+2. Change to the `tools/dev/fzbuild` directory.
+3. Run `fzbuild -C && fzbuild -M`.
 
 ## Usage
 
