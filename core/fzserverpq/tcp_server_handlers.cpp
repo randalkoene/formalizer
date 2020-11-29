@@ -126,6 +126,47 @@ bool handle_selected_list(const GET_token_value_vec & token_value_vec, std::stri
     return true;
 }
 
+/// For convenience, this recognizes a shorthand for pushing a Node to the 'recent" Named Node List with features fifo, unique, maxsize=5.
+bool handle_recent_list(const GET_token_value_vec & token_value_vec, std::string & response_html) {
+    ERRTRACE;
+
+    Node_ID_key nkey;
+    for (const auto & GETel : token_value_vec) {
+        if (GETel.token == "id") {
+            try {
+                nkey = Node_ID_key(GETel.value);
+            } catch (ID_exception idexception) {
+                return standard_error("Push to 'recent' request has invalid Node ID ["+GETel.value+"], "+idexception.what(), __func__);
+            }
+
+        } else {
+            return standard_error("Unexpected token: "+GETel.token, __func__);
+        }
+    }
+
+    // confirm that the Node ID to add to the Named Node List exists in the Graph
+    Node * node_ptr = fzs.graph_ptr->Node_by_id(nkey);
+    if (!node_ptr) {
+        return standard_error("Node ID ("+nkey.str()+") not found in Graph for push to 'recent' request", __func__);
+    }
+
+    if (!fzs.graph_ptr->add_to_List("recent", *node_ptr, Named_Node_List::fifo_mask | Named_Node_List::unique_mask, 5)) {
+        return standard_error("Unable to add Node "+nkey.str()+" to 'recent'.", __func__);
+    }
+    // synchronize with stored List
+    if (fzs.graph_ptr->persistent_Lists()) {
+        if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), "recent", *fzs.graph_ptr)) {
+            return standard_error("Synchronizing 'recent' update to database failed", __func__);
+        }
+    }
+    response_html = "<html>\n<body>\n"
+                    "<p>Named Node List modified.</p>\n"
+                    "<p><b>Pushed</b> "+nkey.str()+" to fifo List 'recent'.</p>\n"
+                    "</body>\n</html>\n";
+
+    return true;
+}
+
 struct NNL_copy_data {
     std::string from_name;
     size_t from_max = 0;
@@ -359,7 +400,8 @@ const Command_Token_Map NNL_noargs_commands = {
 
 const Command_Token_Map NNL_underscore_commands = {
     {"_set", NNLuscrcmd_set},
-    {"_select", NNLuscrcmd_select}
+    {"_select", NNLuscrcmd_select},
+    {"_recent", NNLuscrcmd_recent}
 };
 
 const Command_Token_Map NNL_list_commands = {
@@ -515,6 +557,10 @@ bool handle_named_list_direct_request(std::string namedlistreqstr, std::string &
 
             case NNLuscrcmd_select: {
                 return handle_selected_list(token_value_vec, response_html);
+            }
+
+            case NNLuscrcmd_recent: {
+                return handle_recent_list(token_value_vec, response_html);
             }
 
             default: {

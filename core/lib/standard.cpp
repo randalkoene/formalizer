@@ -154,6 +154,12 @@ bool standard_error(std::string error_message, const char * problem__func__) {
     return false;
 }
 
+/// A function that combines ADDWARNING and VERYVERBOSEOUT without exit, and without return value.
+void standard_warning(std::string warn_message, const char * warning__func__) {
+    ADDWARNING(warning__func__, warn_message);
+    VERYVERBOSEOUT(warn_message+'\n');
+}
+
 void the_standard_object::print_version() {
     FZOUT(runnablename+" "+server_long_id+'\n');
 }

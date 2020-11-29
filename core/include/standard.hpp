@@ -235,6 +235,8 @@ int standard_exit(bool success, std::string veryverbose_message, int exit_code, 
 
 /// A function that combines ADDERROR and VERBOSEERR without exit. Always returns false.
 bool standard_error(std::string error_message, const char * problem__func__);
+/// A function that combines ADDWARNING and VERYVERBOSEOUT without exit, and without return value.
+void standard_warning(std::string warn_message, const char * warning__func__);
 
 } // namespace fz
 

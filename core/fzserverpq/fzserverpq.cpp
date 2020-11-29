@@ -79,6 +79,7 @@ fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga
         "  /fz/graph/namedlists/<list-name>?delete=\n"
         "  /fz/graph/namedlists/<list-name>?copy=<from_name>[&from_max=N][&to_max=M]\n"
         "  /fz/graph/namedlists/_select?id=<node-id>\n"
+        "  /fz/graph/namedlists/_recent?id=<node-id>\n"
         "  /fz/graph/namedlists/_shortlist\n"
         "  /fz/graph/namedlists/_set?persistent=\n"
         "  /fz/graph/namedlists/_reload\n"

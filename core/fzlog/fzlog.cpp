@@ -269,6 +269,26 @@ bool close_chunk(time_t closing_time) {
 }
 
 /**
+ * This pushes the new Node into the fifo 'recent' Named Node List.
+ * 
+ * The 'recent' List also has the 'unique' feature and 'maxsize=5'.
+ * 
+ * For more, see https://trello.com/c/I2f2kvmc/73-transition-mvp#comment-5fc2681c317bf8510c97f651.
+ * 
+ * This could be done either via shared-memory modifications API or through
+ * the direct TCP-port API. In this version, we choose the port API,
+ * because tehre is very little data transmit.
+ * (*** But that could be checked by profiling each approach and comparing.)
+ * 
+ * @param node The Node for which a Log chunk was just opened.
+ * @return True if the Node operation was successful.
+ */
+bool add_to_recent_Nodes_FIFO(const Node & node) {
+    std::string api_url("/fz/graph/namedlists/_recent?id="+node.get_id_str());
+    return port_API_request(api_url);
+}
+
+/**
  * Note that the new Log chunk ID has to be unique. Therefore, if the
  * previous Log chunk spans less than a minute then the only options
  * are to either a) refuse to create the new Log chunk, or b) advance
@@ -304,6 +324,10 @@ bool open_chunk() {
         standard_exit_error(exit_database_error, "Unable to append Log chunk", __func__);
     }
     VERBOSEOUT("Log chunk "+new_chunk.get_tbegin_str()+" appended.\n");
+
+    if (!add_to_recent_Nodes_FIFO(*newchunk_node_ptr)) {
+        standard_warning("Unable to push new Log chunk Node to fifo 'recent' Named Node List.", __func__);
+    }
 
     //*** This should probably be able to cause an update of the Node history chain and the histories cache!
 

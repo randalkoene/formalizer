@@ -31,6 +31,7 @@ enum NNL_underscore_cmd {
     NNLuscrcmd_unknown = 0,
     NNLuscrcmd_set = 1,
     NNLuscrcmd_select = 2,
+    NNLuscrcmd_recent = 3,
     NNLuscrcmd_NUM  
 };
 
