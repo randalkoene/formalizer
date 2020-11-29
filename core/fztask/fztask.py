@@ -202,6 +202,13 @@ def select_Node_for_Log_chunk():
     return node
 
 
+def update_schedule():
+    print('UPDATING SCHEDULE NOT YET IMPLEMENTED!')
+    print('Presently, the shortlist is simply using the target date sorted list of')
+    print('incomplete Nodes. There may well be a more desirable arrangement of Nodes')
+    print('to suggest.')
+
+
 def next_chunk():
     # Closing the previous chunk is automatically done as part of this in fzlog.
     node = select_Node_for_Log_chunk()
@@ -216,10 +223,6 @@ def next_chunk():
 
     print(f'Opened new Log chunk for Node {node}.')
     return node
-
-
-def set_chunk_timer_and_alert():
-    print('SETTING TIMER AND ALERT NOT YET IMPLEMENTED!')
 
 
 def get_main_topic(node):
@@ -293,6 +296,12 @@ def transition_dil2al_request(node):
         exit(retcode)
 
 
+def set_chunk_timer_and_alert():
+    print('SETTING TIMER AND ALERT NOT YET IMPLEMENTED!')
+    print('Right now, you will have to manually remember to switch to the next')
+    print('chunk after a reasonable amount of time.')
+
+
 if __name__ == '__main__':
 
     core_version = coreversion.coreversion()
@@ -306,10 +315,18 @@ if __name__ == '__main__':
 
     chunkchoice = new_or_close_chunk()
 
+    # Note that in this process, where a schedule updated in accordance with time
+    # added to the most recent Node's completion ratio affects the potential choice
+    # of Node for the next Log chunk, we cannot make use of the built-in chunk
+    # closing that is available through `fzlog -c <node-id>`. Instead, we must
+    # close the chunk first, then update the schedule, and use the resulting
+    # information for an informed choice.
+    close_chunk()
+
+    update_schedule()
+
     node = ''
-    if (chunkchoice =='c'):
-        close_chunk()
-    else:
+    if (chunkchoice !='c'):
         node = next_chunk()
         set_chunk_timer_and_alert()
     # ** close_chunk() and next_chunk() could both return the new completion ratio of the
@@ -320,5 +337,16 @@ if __name__ == '__main__':
 
     if config['transition'] == 'true':
         transition_dil2al_request(node)
+
+    print('BECAUSE THERE IS NO TIMER-ALERT YET, PAUSING HERE AS A REMINDER.')
+    print('Some choices:')
+    print('- Put a sleep timer here, an alert-call at the start of __main__, and')
+    print('  embed content of __main__ in a while-loop. In this case, this program,')
+    print('  fztask, operates as a memory-resident, daemonized task server.')
+    print('- Set a cron-job (at-job).')
+    print('- Launch or use a a separate daemonized task-timer.')
+    print('- Do none of that and simply exit here.')
+    print('These options can be made a configuration option.\n')
+    pausekey = input('Enter any string to exit...')
 
 sys.exit(0)
