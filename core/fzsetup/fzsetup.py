@@ -16,7 +16,8 @@ import subprocess
 # Standardized expectations.
 userhome = os.getenv('HOME')
 fzuserbase = userhome + '/.formalizer'
-fzsetupconfigdir = fzuserbase+'/config/fzsetup.py'
+fzconfigdir = fzuserbase + '/config'
+fzsetupconfigdir = fzconfigdir+'/fzsetup.py'
 fzsetupconfig = fzsetupconfigdir+'/config.json'
 initsourceroot = userhome + '/src/formalizer'
 
@@ -37,32 +38,38 @@ def try_subprocess_check_output(thecmdstring):
 
 
 # Handle the case where even fzsetup.py does not have a configuration file yet.
-try:
-    if os.path.islink(fzsetupconfigdir):
-        with open(fzsetupconfig) as f:
-            config = json.load(f)
-    else:
-        os.makedirs(fzuserbase, exist_ok=True)
-        if (os.path.isdir(initsourceroot)):
-            os.symlink(initsourceroot+'/config', fzuserbase+'/config')
-            with open(initsourceroot+'/config/fzsetup.py/config.json') as f:
-                config = json.load(f)
-        else:
+has_fzuserbase = os.path.isdir(fzuserbase)
+has_configlink = os.path.islink(fzconfigdir)
+has_configdir = os.path.isdir(fzsetupconfigdir)
+has_configfile = os.path.isfile(fzsetupconfig)
+has_initsourceroot = os.path.isdir(initsourceroot)
+
+if not has_fzuserbase:
+    os.makedirs(fzuserbase, exist_ok=True)
+
+if not has_configfile:
+    if not has_configlink:
+        while not has_initsourceroot:
             print('The ~/.formalizer/config/fzsetup.py directory is missing,')
             print(f'and the default source root of {initsourceroot} does not')
-            print('seem to work.')
+            print('seem to work.\n')
             print('Please specify a source code root for the Formalizer')
             print('installation, so that we can set up the expected configuration')
-            print('directories and links.')
+            print('directories and links.\n')
             initsourceroot = input('Source root: ')
             if (initsourceroot[0] != '/'):
                 initsourceroot = userhome + '/' + initsourceroot
-            if (not os.path.isdir(initsourceroot)):
-                print('Unfortunately, the directory '+initsourceroot+' does not appear to exist either.')
-                sys.exit(1)
-            os.symlink(initsourceroot+'/config', fzuserbase+'/config')            
-            with open(initsourceroot+'/config/fzsetup.py/config.json') as f:
-                config = json.load(f)
+            has_initsourceroot = os.path.isdir(initsourceroot)
+            if (not has_initsourceroot):
+                print('Unfortunately, the directory '+initsourceroot+' does not appear to exist either.\nLet\'t try again...')
+        os.symlink(initsourceroot+'/config', fzuserbase+'/config')
+        if not os.path.isdir(fzsetupconfigdir):
+            print(f'Unfortunately, the configuration path {fzsetupconfigdir} is still missing or inaccessible.')
+            sys.exit(1)
+
+try:
+    with open(fzsetupconfig) as f:
+        config = json.load(f)
 
 except FileNotFoundError:
     print('Creating configuration file for fzsetup.py.\n')
@@ -83,6 +90,7 @@ except FileNotFoundError:
         json.dump(config, cfgfile, indent = 4, sort_keys=True)
 
 else:
+    print('Configuration loaded. Checking that it contains data...')
     assert len(config) > 0
 
 # Enable us to import standardized Formalizer Python components.
