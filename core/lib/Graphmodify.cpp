@@ -231,6 +231,216 @@ Edge_ptr Graph_modify_add_edge(Graph & graph, const std::string & graph_segname,
     return edge_ptr;
 }
 
+// Add to a date-time in accordance with a repeating pattern.
+time_t Add_to_Date(time_t t, td_pattern pattern, int every) {
+    if (every < 1) {
+        every = 1;
+    }
+
+    switch (pattern) {
+        case patt_daily: {
+            return time_add_day(t, every);
+        }
+
+        case patt_workdays: {
+            for ( ; every>0; --every) {
+                if (time_day_of_week(t)<5) {
+                    t = time_add_day(t);
+                } else {
+                    t = time_add_day(t, 3);
+                }
+            }
+            return t;
+        }
+
+        case patt_weekly: {
+            return time_add_day(t, 7*every);
+        }
+
+        case patt_biweekly: {
+            return time_add_day(t, 14*every);
+        }
+
+        case patt_monthly: {
+            return time_add_month(t, every);
+        }
+
+        case patt_endofmonthoffset: {
+            for ( ; every>0; --every) {
+                t = time_add_month_EOMoffset(t);
+            }
+            return t;
+        }
+
+        case patt_yearly: {
+            return time_add_month(t, 12*every);
+        }
+
+        default: {
+            ADDERROR(__func__, "Unknown repeating pattern ("+std::to_string((int)pattern)+')');
+        }
+    }
+
+    return t;
+}
+
+/**
+ * Modify the targetdate of a repeating Node by carrying out one or more iterations
+ * of advances in accordance with its `tdpattern` periodicity.
+ * 
+ * Notes:
+ * 1. For repeating Nodes with limited `tdspan` at least one instance will remain.
+ *    Refusing to complete and advance past the final instance of such a Node is
+ *    a safety precaution, so that incomplete Nodes are not mysteriously eliminated from
+ *    the schedule merely by updating the schedule.
+ * 2. When a repeating Node with limited `tdspan` is modified to `tdspan < 2` then
+ *    the `tdspan` is set to 0 and the Node no longer `repeats`, but the `tdpattern`
+ *    is left unchanged. It can be used as a cached reminder of a previous repetition
+ *    pattern setting (e.g. in case you with add more iterations).
+ * 3. If a `tdspan==1` is found then it is set to 0 and `repeats` is turned off, just to
+ *    to ensure a valid Node setting, in case the unexpected setting was a result of
+ *    manual modification.
+ * 
+ * @param node Reference to a valid Node object.
+ * @param N_advance Number of iterations to advance.
+ * @param editflags Specifies the parameters that were modified. Use this to update the database.
+ * @param t_ref Optional reference time (if negative then Actual time is used).
+ * @return True when advanvement modifications were made, false if an invalid circumstance was encountered.
+ */
+bool Node_advance_repeating(Node & node, int N_advance, Edit_flags & editflags, time_t t_ref) {
+    ERRTRACE;
+
+    if (N_advance==0)
+        return true;
+
+    if ((node.get_tdspan()==1) || (node.get_tdspan()<0)) { // correct invalid spans
+        node.set_repeats(false);
+        node.set_tdspan(0);
+        editflags.set_Edit_repeats();
+        editflags.set_Edit_tdspan();
+    }
+
+    if (!node.get_repeats())
+        return false;
+
+    time_t t_TD = node.effective_targetdate();
+    if (t_TD <= RTt_unspecified) {
+        editflags.set_Edit_error();
+        ADDERROR(__func__, "Unspecified or invalid target date of repeating Node "+node.get_id_str()+" does not permit advancement.");
+        return false;
+    
+    }
+
+    if (t_ref < 0) {
+        t_ref = ActualTime();
+    }
+
+    auto span = node.get_tdspan();
+    bool unlimited = span == 0;
+    while ((N_advance>0) && ((span>1) || unlimited)) {
+        t_TD = Add_to_Date(t_TD, node.get_tdpattern(), node.get_tdevery());
+        if (!unlimited)
+            --span;
+        --N_advance;
+    }
+    if (!unlimited) {
+        if (span<2) {
+            span = 0;
+            node.set_repeats(false);
+            editflags.set_Edit_repeats();
+        }
+        node.set_tdspan(span);
+        editflags.set_Edit_tdspan();
+
+    }
+    node.set_targetdate(t_TD);
+    editflags.set_Edit_targetdate();
+
+    return true;
+}
+
+/**
+ * Depending on the tdpattern type of a Node, potentially modify its targetdate
+ * in accordance with that repetition pattern and reset its completion ratio.
+ * 
+ * This does essentially the same as `Node_advance_repeating()` one iteration.
+ * 
+ * @param node Reference to a valid Node object.
+ * @param editflags Specifies the parameters that were modified. Use this to update the database.
+ * @param T_ref Optional reference time (if negative then Actual time is used).
+ * @return True if the repeating Node was modified for the completed iteration, false if an invalid circumstance was encountered.
+ */
+bool Node_completed_repeating(Node & node, Edit_flags & editflags, time_t t_ref = RTt_unspecified) {
+    ERRTRACE;
+
+    node.set_completion(0.0);
+    editflags.set_Edit_completion();
+
+    if (!Node_advance_repeating(node, 1, editflags, t_ref)) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Updates a Node's completion ratio (and potentially updates required if
+ * completion exceeds 1.0) in response to having logged a number of minutes
+ * dedicated to the Node. For repeating Nodes, updates the targetdate if
+ * specific conditions are met.
+ * 
+ * Notes:
+ * 1. `add_minutes` is necessarily >= 0, which is different than directly
+ * modifying parameters in ways that can increase or reduce. It only makes sense
+ * to log positive time.
+ * 2. Automatic correction of `required` when `completion > 1.0` is a point
+ * where Formalizer 2.x behavior differs from that of Formalizer 1.x behavior.
+ * 3. If an invalid circumstance is encountered then the special flag
+ * Edit_flags::error is set. The calling function should still check for other
+ * flags and synchronize modifications to the database, as some modifications can
+ * take place before an error is encountered.
+ * 
+ * *** Future improvement notes:
+ * A. While automatically correcting `required` when `completion > 1.0` is
+ * useful, it is not the full measure of improvements planned, which are:
+ * - [Something better than completion ratio + time required](https://trello.com/c/Rnm84Hld).
+ * - [Additional completion conditions](https://trello.com/c/oa3zFBdd).
+ * - [Tags that teach time required](https://trello.com/c/JqxApvhO).
+ * B. Consider moving the `editflags` into the Node objects as a cache variable. Then,
+ * have the `set_` functions automatically modify the `editflags`. And add function to
+ * `clear_all_editflags()` that only certain programs can call (e.g. when loading
+ * the Graph into shared memory). This way, all normal paths that lead to Node changes
+ * also cause flag setting. Optionally, you could then move some of these more
+ * sophisticated modification functions into the Node objects as well, as long as they
+ * still set flags.
+ * 
+ * See, for example, how this is used in fzserverpq/tcp_server_handlers.cpp:node_add_logged_time().
+ * 
+ * @param node Reference to a valid Node object.
+ * @param add_minutes The number of minutes that were logged.
+ * @param T_ref An optional reference time (if negative then Actual time is used).
+ * @return Edit_flags indicating the parameters of the Node that were modified. Use this to update the database.
+ */
+Edit_flags Node_apply_minutes(Node & node, unsigned int add_minutes, time_t T_ref) {
+    Edit_flags editflags;
+    auto seconds_applied = node.seconds_applied();
+    seconds_applied += 60*add_minutes;
+    auto required = node.get_required();
+    if (seconds_applied > required) {
+        if (node.get_repeats()) {
+            Node_completed_repeating(node, editflags, T_ref);
+        } else {
+            node.set_required(seconds_applied);
+            editflags.set_Edit_required();
+            node.set_completion(1.0);
+        }
+    } else {
+        node.set_completion(((float)seconds_applied)/((float)required));
+    }
+    editflags.set_Edit_completion();
+    return editflags;
+}
+
 /// Add a Node to a Named Node List.
 Named_Node_List_ptr Graph_modify_list_add(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata) {
     if (!gmoddata.nodelist_ptr) {
@@ -497,7 +707,7 @@ size_t copy_Incomplete_to_List(Graph & graph, const std::string to_name, size_t 
  */
 size_t update_shortlist_List(Graph & graph) {
     graph.delete_List("shortlist");
-    size_t copied = graph.copy_List_to_List("recent", "shortlist", 5);
+    size_t copied = graph.copy_List_to_List("recent", "shortlist", 5, 10, Named_Node_List::unique_mask, 10); // I have to specify maxsize=10 here or else it will copy maxsize=5 from recent
     copied += copy_Incomplete_to_List(graph, "shortlist", 0, 10);
     return copied;
 }

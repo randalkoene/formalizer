@@ -1087,9 +1087,12 @@ bool Update_Node_pq(std::string dbname, std::string schemaname, const Node & nod
     // Convert Node data and update row in table
     std::string tablename(schemaname+".nodes");
 
-    // *** beware: I think the situation with repeats needs to be figured out HERE, and when LOADING,
+    // *** Beware: I think the situation with repeats needs to be figured out HERE, and when LOADING,
     // *** and when STORING, and the ADDING a Node in fzgraph. Is it treated separately, so that I
     // *** need to add it explicitly everywhere, or is it derived from tdpattern?
+    // *** Update 2020-12-03: After implementing Graphmodify.cpp:Node_advance_repeating() my impression
+    // *** is that it needs to be treated separately, because advancing can lead to turning off
+    // *** repeating (isperiodic) while retaining the tdpattern as a cached reminder.
 
     Node_pq npq(&node);
     // Prepare SET expressions
@@ -1117,6 +1120,9 @@ bool Update_Node_pq(std::string dbname, std::string schemaname, const Node & nod
     }
     if (_editflags.Edit_tdproperty()) {
         set_expressions += pq_node_fieldnames[pqn_tdproperty] + " = " + npq.tdproperty_pqstr() + ',';
+    }
+    if (_editflags.Edit_repeats()) {
+        set_expressions += pq_node_fieldnames[pqn_isperiodic] + " = " + npq.isperiodic_pqstr() + ',';
     }
     if (_editflags.Edit_tdpattern()) {
         set_expressions += pq_node_fieldnames[pqn_tdperiodic] + " = " + npq.tdperiodic_pqstr() + ',';

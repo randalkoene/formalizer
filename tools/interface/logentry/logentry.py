@@ -15,6 +15,7 @@ import subprocess
 import re
 #import curses
 import pty
+import time
 
 
 # Standardized expectations.
@@ -28,19 +29,26 @@ results = {}
 
 # We need this everywhere to run various shell commands.
 def try_subprocess_check_output(thecmdstring, resstore):
+    if config['verbose']:
+        print(f'Calling subprocess: `{thecmdstring}`', flush=True)
     try:
         res = subprocess.check_output(thecmdstring, shell=True)
     except subprocess.CalledProcessError as cpe:
         if config['verbose']:
-            print('Error output: ',cpe.output)
+            print('Subprocess call caused exception.')
+        if config['verbose']:
+            print('Error output: ',cpe.output.decode())
             print('Error code  : ',cpe.returncode)
+            if (cpe.returncode>0):
+                print('Formalizer error: ', error.exit_status_code[cpe.returncode])
         return cpe.returncode
 
     else:
         if resstore:
             results[resstore] = res
         if config['verbose']:
-            print(res)
+            print('Result of subprocess call:', flush=True)
+            print(res.decode(), flush=True)
         return 0
 
 
@@ -98,17 +106,23 @@ sys.path.append(fzcoreincludedir)
 # core components
 import Graphpostgres
 import coreversion
+import error
 
 version = "0.1.0-0.1"
 
 # local defaults
 config['contenttmpfile'] = '/tmp/logentry.html'
 config['customtemplate'] = '/tmp/customtemplate'
-config['editor'] = 'emacs'
-config['transition'] = 'true'
+# config['editor'] = 'emacs' # reading this from config/fzsetup.py/config.json now
+# config['transition'] = 'true' # reading this from config/fzsetup.py/config.json now
 
-# *** here you could replace local defaults with values from ~/.formalizer/config/logentry/config.json
-
+# replace local defaults with values from ~/.formalizer/config/logentry/config.json
+#try:
+#    with open(logentryconfig) as f:
+#        config += json.load(f)
+#
+#except FileNotFoundError:
+#    print('Configuration files for logentry missing. Continuing with defaults.\n')
 
 
 def parse_options():
@@ -118,6 +132,7 @@ def parse_options():
     parser.add_argument('-d', '--database', dest='dbname', help='specify database name (default: formalizer)')
     parser.add_argument('-s', '--schema', dest='schemaname', help='specify schema name (default: $USER)')
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='turn on verbose mode')
+    parser.add_argument('-w', '--waitexit', dest='waitexit', help='wait a number of seconds before exiting')
 
     args = parser.parse_args()
 
@@ -127,6 +142,7 @@ def parse_options():
         args.schemaname = os.getenv('USER')
     if args.verbose:
         config['verbose'] = True
+        print('Verbose mode.', flush=True)
 
     print('Working with the following targets:\n')
     print(f'  Formalizer Postgres database name   : {args.dbname}')
@@ -139,6 +155,22 @@ def parse_options():
 
     return args
 
+def logentry_ansi():
+    print(u'\u001b[38;5;$208m', end='')
+
+
+def Node_selection_ansi():
+    print(u'\u001b[38;5;$33m', end='')
+
+
+def exit_error(retcode, errormessge):
+    if (retcode != 0):
+        alert_ansi()
+        print('\n'+errormessage+'\n')
+        fztask_ansi()
+        exitenter = input('Press ENTER to exit...')
+        sys.exit(retcode)
+
 
 def make_content_file():
     emptystr = ''
@@ -148,10 +180,9 @@ def make_content_file():
 
 def edit_content_file():
     retcode = try_subprocess_check_output(f"{config['editor']} {config['contenttmpfile']}", '')
-    if (retcode != 0):
-        print(f'Attempt to edit content file failed.')
-        exit(retcode)
+    exit_error(retcode, 'Attempt to edit content file failed.')
     
+    print('Reading edited content file...')
     with open(config['contenttmpfile'],'r') as f:
         entrycontent = f.read()
     
@@ -160,39 +191,35 @@ def edit_content_file():
 
 def get_from_Named_Node_Lists(list_name, output_format, resstore):
     retcode = try_subprocess_check_output(f"fzgraphhtml -L '{list_name}' -F {output_format} -x 60 -N 5 -e -q",resstore)
-    if (retcode != 0):
-        print(f'Attempt to get Named Node List data failed.')
-        exit(retcode)
+    exit_error(retcode, 'Attempt to get Named Node List data failed.')
+
 
 def get_updated_shortlist():
+    print('Getting updated shortlist...')
     retcode = try_subprocess_check_output(f"fzgraphhtml -u -L 'shortlist' -F node -e -q", 'shortlistnode')
-    if (retcode != 0):
-        print(f'Attempt to get "shortlist" Named Node List node data failed.')
-        exit(retcode)
+    exit_error(retcode, 'Attempt to get "shortlist" Named Node List node data failed.')
     retcode = try_subprocess_check_output(f"fzgraphhtml -L 'shortlist' -F desc -x 60 -e -q", 'shortlistdesc')
-    if (retcode != 0):
-        print(f'Attempt to get "shortlist" Named Node List description data failed.')
-        exit(retcode)
+    exit_error(retcode, 'Attempt to get "shortlist" Named Node List description data failed.')
+
 
 def get_from_Incomplete(output_format, resstore):
     retcode = try_subprocess_check_output(f"fzgraphhtml -I -F {output_format} -x 60 -N 5 -e -q",resstore)
-    if (retcode != 0):
-        print(f'Attempt to get Incomplete Nodes data failed.')
-        exit(retcode)
+    exit_error(retcode, 'Attempt to get Incomplete Nodes data failed.')
 
 
 def browse_for_Node():
     print('Use the browser to select a node.')
-    #retcode = try_subprocess_check_output(f"urxvt -e w3m http://localhost/index.html",'')
+    #retcode = try_subprocess_check_output(f"urxvt -e {config['localbrowser']} http://localhost/index.html",'')
     #if (retcode != 0):
     #    print(f'Attempt to browse for Node failed.')
     #    exit(retcode)
-    #run_curses_tty(['w3m','http://localhost/index.html']) 
-    retcode = pty.spawn(['w3m','http://localhost/select.html'])
+    #run_curses_tty([config['localbrowser'],'http://localhost/index.html']) 
+    #retcode = pty.spawn([config['localbrowser'],'http://localhost/select.html'])
+    thecmd = config['localbrowser'] + ' http://localhost/select.html'
+    retcode = try_subprocess_check_output(thecmd, 'browsed')
+    exit_error(retcode, 'Attempt to browse for Node selection failed.')
     retcode = try_subprocess_check_output(f"fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected')
-    if (retcode != 0):
-        print(f'Attempt to get selected Node failed.')
-        exit(retcode)
+    exit_error(retcode, 'Attempt to get selected Node failed.')
     print(f'Selected: {results["selected"]}')
     if results['selected']:
         return results['selected'][0:16]
@@ -204,7 +231,8 @@ def entry_belongs_to_same_or_other_Node():
     get_updated_shortlist()
     shortlist_nodes = results['shortlistnode']
     shortlist_desc = results['shortlistdesc']
-    print('Short-list of Nodes for this Log Entry:')
+    Node_selection_ansi()
+    print('\nShort-list of Nodes for this Log Entry:')
     #filtered = filter(lambda x: not re.match(r'^\s*$', x), shortlist_desc.decode().splitlines())
     #print(str(filtered))
     #shortlist_prettyprint = os.linesep.join([s for s in shortlist_desc.decode().splitlines() if s.strip()])
@@ -213,7 +241,7 @@ def entry_belongs_to_same_or_other_Node():
     for (number, line) in enumerate(shortlist_vec):
         print(f' {number}: {line}')
 
-    choice = input('[D]efault same Node as chunk, or [0-9] from shortlist, or [?] browse? ')
+    choice = input('\nUse:\n- [d]efault, same Node as chunk, or\n- [0-9] from shortlist, or\n- [?] browse? ')
     if (choice == '?'):
         node = browse_for_Node()
     else:
@@ -226,6 +254,7 @@ def entry_belongs_to_same_or_other_Node():
         print(f'Log entry belongs to Node {node}.')
     else:
         print(f'Log entry belongs to the same Node as the Log chunk.')
+    logentry_ansi()
     return node
 
 
@@ -234,9 +263,7 @@ def send_to_fzlog(node):
     if node:
         thecmd += f" -n {node}"
     retcode = try_subprocess_check_output(thecmd, '')
-    if (retcode != 0):
-        print(f'Attempt to add Log entry via fzlog failed.')
-        exit(retcode)
+    exit_error(retcode, 'Attempt to add Log entry via fzlog failed.')
     print('Entry added to Log.')
 
 
@@ -248,9 +275,7 @@ def get_main_topic(node):
         f.write(customtemplate)
     topicgettingcmd = f"fzgraphhtml -q -T 'Node={config['customtemplate']}' -n {node}"
     retcode = try_subprocess_check_output(topicgettingcmd, 'topic')
-    if (retcode != 0):
-        print('Attempt to get Node topic failed.')
-        exit(retcode)
+    exit_error(retcode, 'Attempt to get Node topic failed.')
     topic = results['topic'].split()[0]
     topic = topic.decode()
     return topic
@@ -269,17 +294,13 @@ def transition_dil2al_polldaemon_request(node):
     if node:
         set_DIL_entry_preset(node)
         retcode = try_subprocess_check_output(thecmd, 'dil2al')
-        if (retcode != 0):
-            print('Call to dil2al -m failed.')
-            exit(retcode)
+        exit_error(retcode, 'Call to dil2al -m failed.')
 
     else:
         if os.path.exists(userhome+'/.dil2al-DILidpreset'):
             os.remove(userhome+'/.dil2al-DILidpreset')
         retcode = try_subprocess_check_output(thecmd, 'dil2al')
-        if (retcode != 0):
-            print('Call to dil2al -m failed.')
-            exit(retcode)
+        exit_error(retcode, 'Call to dil2al -m failed.')
 
     print('Log entry synchronized to Formalizer 1.x files.')
 
@@ -289,6 +310,8 @@ if __name__ == '__main__':
     core_version = coreversion.coreversion()
     logentry_long_id = f"Formalizer:Interface:CommandLine:LogEntry v{version} (core v{core_version})"
 
+    logentry_ansi()
+
     print(logentry_long_id+"\n")
 
     args = parse_options()
@@ -297,8 +320,7 @@ if __name__ == '__main__':
 
     entrycontent = edit_content_file()
     if len(entrycontent)<1:
-        print('Empty Log entry.')
-        exit(1)
+        exit_error(1, 'Empty Log entry.')
 
     node = entry_belongs_to_same_or_other_Node()
 
@@ -307,4 +329,12 @@ if __name__ == '__main__':
     if config['transition'] == 'true':
         transition_dil2al_polldaemon_request(node)
 
-exit(0)
+    if args.waitexit:
+        print('Done.', end='', flush=True)
+        for i in range(int(args.waitexit)):
+            time.sleep(1)
+            print('.', end='', flush=True)
+        print('')
+
+
+sys.exit(0)

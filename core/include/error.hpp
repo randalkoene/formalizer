@@ -99,24 +99,26 @@ namespace fz {
 
 /**
  * Standardized exit codes for the Formalizer environment.
+ * 
+ * Note: If you modify this, please also modify error.py.
  */
 enum exit_status_code {
-    exit_ok,
-    exit_general_error,
-    exit_database_error,
-    exit_unknown_option,
-    exit_cancel,
-    exit_conversion_error,
-    exit_DIL_error,
-    exit_unable_to_stack_clean_exit,
-    exit_command_line_error,
-    exit_file_error,
-    exit_missing_parameter,
-    exit_missing_data,
-    exit_bad_config_value,
-    exit_resident_graph_missing,
-    exit_bad_request_data,
-    exit_communication_error,
+    exit_ok = 0,
+    exit_general_error = 1,
+    exit_database_error = 2,
+    exit_unknown_option = 3,
+    exit_cancel = 4,
+    exit_conversion_error = 5,
+    exit_DIL_error = 6,
+    exit_unable_to_stack_clean_exit = 7,
+    exit_command_line_error = 8,
+    exit_file_error = 9,
+    exit_missing_parameter = 10,
+    exit_missing_data = 11,
+    exit_bad_config_value = 12,
+    exit_resident_graph_missing = 13,
+    exit_bad_request_data = 14,
+    exit_communication_error = 15,
     exit_NUMENUMS ///< this one simplifies corresponding array definition, e.g. char[exit_NUMENUMS]
     };
 

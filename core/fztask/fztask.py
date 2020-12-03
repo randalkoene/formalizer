@@ -28,19 +28,26 @@ results = {}
 
 # We need this everywhere to run various shell commands.
 def try_subprocess_check_output(thecmdstring, resstore):
+    if config['verbose']:
+        print(f'Calling subprocess: `{thecmdstring}`', flush=True)
     try:
         res = subprocess.check_output(thecmdstring, shell=True)
     except subprocess.CalledProcessError as cpe:
         if config['verbose']:
-            print('Error output: ',cpe.output)
+            print('Subprocess call caused exception.')
+        if config['verbose']:
+            print('Error output: ',cpe.output.decode())
             print('Error code  : ',cpe.returncode)
+            if (cpe.returncode>0):
+                print('Formalizer error: ', error.exit_status_code[cpe.returncode])
         return cpe.returncode
 
     else:
         if resstore:
             results[resstore] = res
         if config['verbose']:
-            print(res)
+            print('Result of subprocess call:', flush=True)
+            print(res.decode(), flush=True)
         return 0
 
 # Handle the case where even fzsetup.py does not have a configuration file yet.
@@ -64,12 +71,13 @@ sys.path.append(fzcoreincludedir)
 # core components
 import Graphpostgres
 import coreversion
+import error
 
 version = "0.1.0-0.1"
 
 # local defaults
-#config['something'] = 'some/kind/of/default'
-config['transition'] = 'true'
+# config['transition'] = 'true' # reading this from config/fzsetup.py/config.json now
+config['customtemplate'] = '/tmp/customtemplate'
 
 # replace local defaults with values from ~/.formalizer/config/fztask.py/config.json
 #try:
@@ -97,6 +105,7 @@ def parse_options():
         args.schemaname = os.getenv('USER')
     if args.verbose:
         config['verbose'] = True
+        print('Verbose mode.', flush=True)
 
     print('Working with the following targets:\n')
     print(f'  Formalizer Postgres database name   : {args.dbname}')
@@ -115,11 +124,40 @@ def parse_options():
     return args
 
 
-def make_log_entry():
-    retcode = try_subprocess_check_output("logentry", 'logentry_res')
+def fztask_ansi():
+    print(u'\u001b[32m', end='')
+
+
+def Node_selection_ansi():
+    print(u'\u001b[38;5;$33m', end='')
+
+
+def alert_ansi():
+    print(u'\u001b[31m', end='')
+
+
+def exit_error(retcode, errormessge):
     if (retcode != 0):
-        print(f'Attempt to make Log entry failed.')
+        alert_ansi()
+        print('\n'+errormessage+'\n')
+        fztask_ansi()
+        exitenter = input('Press ENTER to exit...')
         sys.exit(retcode)
+
+
+def make_log_entry():
+    print('Launching logentry...')
+    #thecmd = 'logentry'
+    #if config['verbose']:
+    #    thecmd += ' -v'
+    #retcode = try_subprocess_check_output(thecmd, 'logentry_res')
+    thecmd = ['logentry']
+    if config['verbose']:
+        thecmd = ['logentry','-v']
+    retcode = pty.spawn(thecmd)
+    print('Back from logentry.')
+    if not os.WIFEXITED(retcode):
+        exit_error(os.WEXITSTATUS(retcode), 'Attempt to make Log entry failed.')
 
 
 #def a_function_that_calls_subprocess(some_arg, resstore):
@@ -135,7 +173,8 @@ def make_log_entry():
 
 
 def new_or_close_chunk():
-    choice = input('[S]tart a Log chunk for the next task, or merely [c]lose the chunk? ')
+    print(u'\u001b[32m', end='')
+    choice = input('\n[S]tart a Log chunk for the next task, or merely [c]lose the chunk? ')
     if (choice != 'c'):
         choice = 'S'
         print('Starting the next task chunk...')
@@ -147,29 +186,24 @@ def new_or_close_chunk():
 
 def close_chunk():
     retcode = try_subprocess_check_output("fzlog -C", 'fzlog_res')
-    if (retcode != 0):
-        print(f'Attempt to close Log chunk failed.')
-        sys.exit(retcode)
+    exit_error(retcode,'Attempt to close Log chunk failed.')
 
 
 def get_updated_shortlist():
     retcode = try_subprocess_check_output(f"fzgraphhtml -u -L 'shortlist' -F node -e -q", 'shortlistnode')
-    if (retcode != 0):
-        print(f'Attempt to get "shortlist" Named Node List node data failed.')
-        exit(retcode)
+    exit_error(retcode, 'Attempt to get "shortlist" Named Node List node data failed.')
     retcode = try_subprocess_check_output(f"fzgraphhtml -L 'shortlist' -F desc -x 60 -e -q", 'shortlistdesc')
-    if (retcode != 0):
-        print(f'Attempt to get "shortlist" Named Node List description data failed.')
-        exit(retcode)
+    exit_error(retcode, 'Attempt to get "shortlist" Named Node List description data failed.')
 
 
 def browse_for_Node():
     print('Use the browser to select a node.')
-    retcode = pty.spawn(['w3m','http://localhost/select.html'])
+    #retcode = pty.spawn([config['localbrowser'],'http://localhost/select.html'])
+    thecmd = config['localbrowser'] + ' http://localhost/select.html'
+    retcode = try_subprocess_check_output(thecmd, 'browsed')
+    exit_error(retcode, 'Attempt to browse for Node selection failed.')
     retcode = try_subprocess_check_output(f"fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected')
-    if (retcode != 0):
-        print(f'Attempt to get selected Node failed.')
-        exit(retcode)
+    exit_error(retcode, 'Attempt to get selected Node failed.')
     print(f'Selected: {results["selected"]}')
     if results['selected']:
         return results['selected'][0:16]
@@ -181,12 +215,13 @@ def select_Node_for_Log_chunk():
     get_updated_shortlist()
     shortlist_nodes = results['shortlistnode']
     shortlist_desc = results['shortlistdesc']
-    print('Short-list of Nodes for the New Log Chunk:')
+    Node_selection_ansi()
+    print('\nShort-list of Nodes for the New Log Chunk:')
     shortlist_vec = [s for s in shortlist_desc.decode().splitlines() if s.strip()]
     for (number, line) in enumerate(shortlist_vec):
         print(f' {number}: {line}')
 
-    choice = input('[0-9] from shortlist, or [?] to browse: ')
+    choice = input('Use:\n- [0-9] from shortlist, or\n- [?] to browse: ')
     if (choice == '?'):
         node = browse_for_Node()
     else:
@@ -199,27 +234,27 @@ def select_Node_for_Log_chunk():
         print(f'Log chunk will belong to Node {node}.')
     else:
         print(f'We cannot make a new Log chunk without a Node.')
+    fztask_ansi()
     return node
 
 
 def update_schedule():
-    print('UPDATING SCHEDULE NOT YET IMPLEMENTED!')
+    alert_ansi()
+    print('\nUPDATING SCHEDULE NOT YET IMPLEMENTED!')
     print('Presently, the shortlist is simply using the target date sorted list of')
     print('incomplete Nodes. There may well be a more desirable arrangement of Nodes')
-    print('to suggest.')
+    print('to suggest.\n')
+    fztask_ansi()
 
 
 def next_chunk():
     # Closing the previous chunk is automatically done as part of this in fzlog.
     node = select_Node_for_Log_chunk()
     if not node:
-        print('Attempt to select Node for new Log chunk failed.')
-        sys.exit(1)
+        exit_error(1, 'Attempt to select Node for new Log chunk failed.')
 
     retcode = try_subprocess_check_output(f"fzlog -c {node}", 'fzlog_res')
-    if (retcode != 0):
-        print(f'Attempt to close Log chunk failed.')
-        sys.exit(retcode)
+    exit_error(retcode, 'Attempt to close Log chunk failed.')
 
     print(f'Opened new Log chunk for Node {node}.')
     return node
@@ -234,9 +269,7 @@ def get_main_topic(node):
         f.write(customtemplate)
     topicgettingcmd = f"fzgraphhtml -q -T 'Node={config['customtemplate']}' -n {node}"
     retcode = try_subprocess_check_output(topicgettingcmd, 'topic')
-    if (retcode != 0):
-        print('Attempt to get Node topic failed.')
-        exit(retcode)
+    exit_error(retcode, 'Attempt to get Node topic failed.')
     topic = results['topic'].split()[0]
     topic = topic.decode()
     return topic
@@ -259,9 +292,7 @@ def get_completion_required(node):
         f.write(customtemplate)
     topicgettingcmd = f"fzgraphhtml -q -T 'Node={config['customtemplate']}' -n {node}"
     retcode = try_subprocess_check_output(topicgettingcmd, 'compreq')
-    if (retcode != 0):
-        print('Attempt to get Node completion and required failed.')
-        exit(retcode)
+    exit_error(retcode, 'Attempt to get Node completion and required failed.')
     results['completion'] = (results['compreq'].split()[0]).decode()
     results['required'] = (results['compreq'].split()[1]).decode()
 
@@ -283,29 +314,29 @@ def transition_dil2al_request(node):
     set_DIL_entry_preset(node)
     thecmd = "dil2al -C -u no -p 'noaskALDILref'"
     retcode = try_subprocess_check_output(thecmd, 'dil2al_chunk')
-    if (retcode != 0):
-        print('Call to dil2al -C failed.')
-        exit(retcode)
+    exit_error(retcode, 'Call to dil2al -C failed.')
     get_completion_required(node)
     completion = results['completion']
     required = results['required']
     thecmd = f"w3m '/cgi-bin/dil2al?dil2al=MEi&DILID=20070113232521.1&required={required}&completion={completion}'"
     retcode = try_subprocess_check_output(thecmd, 'dil2al_compreq')
-    if (retcode != 0):
-        print('GET call to dil2al failed.')
-        exit(retcode)
+    exit_error(retcode, 'GET call to dil2al failed.')
 
 
 def set_chunk_timer_and_alert():
-    print('SETTING TIMER AND ALERT NOT YET IMPLEMENTED!')
+    alert_ansi()
+    print('\nSETTING TIMER AND ALERT NOT YET IMPLEMENTED!')
     print('Right now, you will have to manually remember to switch to the next')
     print('chunk after a reasonable amount of time.')
+    fztask_ansi()
 
 
 if __name__ == '__main__':
 
     core_version = coreversion.coreversion()
     fztask_long_id = "Control:Task" + f" v{version} (core v{core_version})"
+
+    fztask_ansi()
 
     print(fztask_long_id+"\n")
 
@@ -338,7 +369,10 @@ if __name__ == '__main__':
     if config['transition'] == 'true':
         transition_dil2al_request(node)
 
-    print('BECAUSE THERE IS NO TIMER-ALERT YET, PAUSING HERE AS A REMINDER.')
+    print('\nfztask done.')
+
+    alert_ansi()
+    print('\nBECAUSE THERE IS NO TIMER-ALERT YET, PAUSING HERE AS A REMINDER.\n')
     print('Some choices:')
     print('- Put a sleep timer here, an alert-call at the start of __main__, and')
     print('  embed content of __main__ in a while-loop. In this case, this program,')
@@ -347,6 +381,7 @@ if __name__ == '__main__':
     print('- Launch or use a a separate daemonized task-timer.')
     print('- Do none of that and simply exit here.')
     print('These options can be made a configuration option.\n')
-    pausekey = input('Enter any string to exit...')
+    fztask_ansi()
+    pausekey = input('\nEnter any string to exit...')
 
 sys.exit(0)

@@ -44,6 +44,7 @@ public:
 
     std::time_t Time();
 
+    bool is_emulated() { return emulated_time > 0; }
     void switch_to_actual_time() { emulated_time = RTt_unspecified; }
     void change_reference_time(std::time_t _emtime) { emulated_time = _emtime; }
 

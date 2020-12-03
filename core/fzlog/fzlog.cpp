@@ -232,6 +232,10 @@ bool update_Node_completion(const std::string & node_idstr, time_t add_seconds) 
 
     std::string api_url("/fz/graph/nodes/logtime?"+node_idstr+'=');
     api_url += std::to_string(add_seconds / 60);
+
+    if (fzl.reftime.is_emulated()) {
+        api_url += "&T=" + TimeStampYmdHM(fzl.reftime.Time());
+    }
     
     return port_API_request(api_url);
 }

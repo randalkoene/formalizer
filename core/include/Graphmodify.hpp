@@ -141,10 +141,12 @@ public:
         text       = 0b0000'0000'0001'0000,
         targetdate = 0b0000'0000'0010'0000,
         tdproperty = 0b0000'0000'0100'0000,
+        repeats    = 0b0000'0000'1000'0000,
         tdpattern  = 0b0000'0001'0000'0000,
         tdevery    = 0b0000'0010'0000'0000,
         tdspan     = 0b0000'0100'0000'0000,
-        topicrels  = 0b0000'1000'0000'0000
+        topicrels  = 0b0000'1000'0000'0000,
+        error      = 0b0100'0000'0000'0000'0000'0000'0000'0000 // see how this is used in Node_advance_repeating()
     };
 protected:
     Edit_flags_type editflags;
@@ -160,9 +162,11 @@ public:
     void set_Edit_text() { editflags |= Edit_flags::text; }
     void set_Edit_targetdate() { editflags |= Edit_flags::targetdate; }
     void set_Edit_tdproperty() { editflags |= Edit_flags::tdproperty; }
+    void set_Edit_repeats() { editflags |= Edit_flags::repeats; }
     void set_Edit_tdpattern() { editflags |= Edit_flags::tdpattern; }
     void set_Edit_tdevery() { editflags |= Edit_flags::tdevery; }
     void set_Edit_tdspan() { editflags |= Edit_flags::tdspan; }
+    void set_Edit_error() { editflags |= Edit_flags::error; }
     bool Edit_topics() const { return editflags & Edit_flags::topics; }
     bool Edit_topicrels() const { return editflags & Edit_flags::topicrels; }
     bool Edit_valuation() const { return editflags & Edit_flags::valuation; }
@@ -171,9 +175,11 @@ public:
     bool Edit_text() const { return editflags & Edit_flags::text; }
     bool Edit_targetdate() const { return editflags & Edit_flags::targetdate; }
     bool Edit_tdproperty() const { return editflags & Edit_flags::tdproperty; }
+    bool Edit_repeats() const { return editflags & Edit_flags::repeats; }
     bool Edit_tdpattern() const { return editflags & Edit_flags::tdpattern; }
     bool Edit_tdevery() const { return editflags & Edit_flags::tdevery; }
     bool Edit_tdspan() const { return editflags & Edit_flags::tdspan; }
+    bool Edit_error() const { return editflags & Edit_flags::error; }
 };
 
 //typedef std::uint32_t Edit_flags;
@@ -285,6 +291,63 @@ bool Graph_modify_list_remove(Graph & graph, const std::string & graph_segname, 
 
 /// Deleta a Named Node List.
 bool Graph_modify_list_delete(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
+
+/// Add to a date-time in accordance with a repeating pattern.
+time_t Add_to_Date(time_t t, td_pattern pattern, int every);
+
+/**
+ * Modify the targetdate of a repeating Node by carrying out one or more iterations
+ * of advances in accordance with its `tdpattern` periodicity.
+ * 
+ * Notes:
+ * 1. For repeating Nodes with limited `tdspan` at least one instance will remain.
+ *    Refusing to complete and advance past the final instance of such a Node is
+ *    a safety precaution, so that incomplete Nodes are not mysteriously eliminated from
+ *    the schedule merely by updating the schedule.
+ * 2. When a repeating Node with limited `tdspan` is modified to `tdspan < 2` then
+ *    the `tdspan` is set to 0 and the Node no longer `repeats`, but the `tdpattern`
+ *    is left unchanged. It can be used as a cached reminder of a previous repetition
+ *    pattern setting (e.g. in case you with add more iterations).
+ * 3. If a `tdspan==1` is found then it is set to 0 and `repeats` is turned off, just to
+ *    to ensure a valid Node setting, in case the unexpected setting was a result of
+ *    manual modification.
+ * 
+ * @param node Reference to a valid Node object.
+ * @param N_advance Number of iterations to advance.
+ * @param editflags Specifies the parameters that were modified. Use this to update the database.
+ * @param t_ref Optional reference time (if negative then Actual time is used).
+ * @return True when advanvement modifications were made, false if an invalid circumstance was encountered.
+ */
+bool Node_advance_repeating(Node & node, int N_advance, Edit_flags & editflags, time_t t_ref = RTt_unspecified);
+
+/**
+ * Updates a Node's completion ratio (and potentially updates required if
+ * completion exceeds 1.0) in response to having logged a number of minutes
+ * dedicated to the Node. For repeating Nodes, updates the targetdate if
+ * specific conditions are met.
+ * 
+ * Notes:
+ * 1. `add_minutes` is necessarily >= 0, which is different than directly
+ * modifying parameters in ways that can increase or reduce. It only makes sense
+ * to log positive time.
+ * 2. Automatic correction of `required` when `completion > 1.0` is a point
+ * where Formalizer 2.x behavior differs from that of Formalizer 1.x behavior.
+ * 
+ * *** Future improvement notes:
+ * While automatically correcting `required` when `completion > 1.0` is
+ * useful, it is not the full measure of improvements planned, which are:
+ * - [Something better than completion ratio + time required](https://trello.com/c/Rnm84Hld).
+ * - [Additional completion conditions](https://trello.com/c/oa3zFBdd).
+ * - [Tags that teach time required](https://trello.com/c/JqxApvhO).
+ * 
+ * See, for example, how this is used in fzserverpq/tcp_server_handlers.cpp:node_add_logged_time().
+ * 
+ * @param node Reference to a valid Node object.
+ * @param add_minutes The number of minutes that were logged.
+ * @param T_ref An optional reference time (if negative then Actual time is used).
+ * @return Edit_flags indicating the parameters of the Node that were modified. Use this to update the database.
+ */
+Edit_flags Node_apply_minutes(Node & node, unsigned int add_minutes, time_t T_ref = RTt_unspecified);
 
 /**
  * Copy a number of Node IDs from a list of incomplete Nodes sorted by

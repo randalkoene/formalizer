@@ -131,6 +131,72 @@ std::string TimeStamp(const char * dateformat, time_t t) {
     return dstr;
 }
 
+time_t time_add_day(time_t t, int days) {
+  // This is relatively safe, because days are added by using localtime() and mktime()
+  // instead of just adding days*SECONDSPERDAY. That should keep the time correct, even
+  // through daylight savings time.
+  //
+  // NOTE: Nevertheless, when adding many days at once, this can break. In dil2al, the
+  // same function has been shown to break for some iterations of virtual periodic task
+  // target dates generated in alcomp.cc:generate_AL_prepare_periodic_tasks(),
+  // which subsequently caused an alert in AL_Day::Add_Target_Date().
+  
+  struct tm *tm;
+  tm = localtime(&t);
+  tm->tm_mday += days;
+  tm->tm_isdst = -1; // this tells mktime to determine if DST is in effect
+  return mktime(tm);
+}
+
+time_t time_add_month(time_t t, int months) {
+  struct tm *tm;
+  tm = localtime(&t);
+  int years = months/12;
+  months -= (years*12);
+  tm->tm_year += years;
+  tm->tm_mon += months;
+  if (tm->tm_mon>11) {
+    tm->tm_year++;
+    tm->tm_mon -= 12;
+  }
+  tm->tm_isdst = -1;
+  return mktime(tm);
+}
+
+int time_day_of_week(time_t t) {
+  struct tm *tm;
+  tm = localtime(&t);
+  return tm->tm_wday;
+}
+
+int time_month_length(time_t t) {
+  struct tm *tm;
+  tm = localtime(&t);
+  tm->tm_mday = 32;
+  tm->tm_isdst = -1;
+  time_t t2 = mktime(tm);
+  tm = localtime(&t2);
+  int m2day = tm->tm_mday;
+  m2day--; // the number of days shorter than 31 that this month is
+  return 31 - m2day;
+}
+
+time_t time_add_month_EOMoffset(time_t t) {
+  int m1len = time_month_length(t);
+  int m2len = time_month_length(time_add_month(t));
+  struct tm *tm;
+  tm = localtime(&t);
+  int offset = m1len - tm->tm_mday;
+  tm->tm_mday = m2len - offset;
+  tm->tm_mon++;
+  if (tm->tm_mon>11) {
+    tm->tm_year++;
+    tm->tm_mon=0;
+  }
+  tm->tm_isdst = -1;
+  return mktime(tm);
+}
+
 /**
  * Construct a year_month_day_t date from a UNIX epoch time.
  * 

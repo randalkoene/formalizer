@@ -19,6 +19,7 @@ FZCONFIGPATH=$(HOME)/.formalizer
 
 EXEDIR=$(HOME)/.formalizer/bin
 CGIDIR=/usr/lib/cgi-bin
+W3MCGIDIR=/usr/lib/w3m/cgi-bin
 WEBBASEDIR=/var/www/html
 WEBINTERFACESDIR=$(WEBBASEDIR)/formalizer
 
@@ -126,6 +127,12 @@ CGIEXE += $(TOOLSPATH)/interface/fzlogtime/fzlogtime.cgi
 CGIEXE += $(TOOLSPATH)/interface/fzserver-info/fzserver-info-cgi.py
 CGIEXE += $(COREPATH)/fzguide.system/fzguide.system-cgi.py
 
+# CGI scripts for machine-local use with w3m, which an launch programs as the user
+LOCALCGI =
+LOCALCGI += $(COREPATH)/fztask/fztask-cgi.py
+LOCALCGI += $(TOOLSPATH)/interface/fzlogtime/fzlogtime
+LOCALCGI += $(TOOLSPATH)/interface/fzlogtime/fzlogtime.cgi
+
 WEBINTERFACES = 
 WEBINTERFACES += $(COREPATH)/fzgraph/add_node.html
 # WEBINTERFACES += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-form.html
@@ -176,6 +183,7 @@ executables: $(EXECUTABLES)
 	ln -f -s $(EXECUTABLES) $(EXEDIR)/
 	sudo ln -f -s $(SYMBIN) $(CGIDIR)/
 	sudo cp -f $(CGIEXE) $(CGIDIR)/
+	sudo ln -f -s $(LOCALCGI) $(W3MCGIDIR)/
 	cp -f $(WEBINTERFACES) $(WEBINTERFACESDIR)/
 	sudo cp -f $(TOPLEVEL) $(WEBBASEDIR)/
 	./pycmdlinks.sh $(EXEDIR)

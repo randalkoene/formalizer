@@ -29,7 +29,8 @@ cmdoptions = ""
 # Get data from fields
 T_emulated = form.getvalue('T')
 if T_emulated:
-    cmdoptions += f" -T {T_emulated}"
+    if T_emulated != 'actual':
+        cmdoptions += f" -T {T_emulated}"
 
 #thecmd = "./fztask"+cmdoptions
 #nohup env -u QUERY_STRING urxvt -rv -title "dil2al daemon" -geometry +$xhloc+$xvloc -fade 30 -e dil2al -T$emulatedtime -S &

@@ -444,7 +444,7 @@ protected:
     Graphflag repeats;       /// must be false if tdproperty is unspecified or variable
     td_pattern tdpattern;    /// can be used to remember an optional periodicity even if isperiodic=false
     Graphsigned tdevery;     /// multiplier for pattern interval
-    Graphsigned tdspan;      /// count of number of repetitions
+    Graphsigned tdspan;      /// count of number of repetitions (0 means unlimited)
 
     Graph_Graph_ptr graph;   /// this is set when the Node is added to a Graph
     Edges_Set supedges; /// this set maintained for rapid Edge access to superior Nodes

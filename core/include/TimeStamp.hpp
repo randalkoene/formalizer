@@ -90,6 +90,12 @@ inline std::string BackupStampYmd() { return DateStampYmd(ActualTime())+".bak"; 
 /// Generate a Formalizer standardized file backup precise extension (YYYYmmddHHMM.bak).
 inline std::string BackupStampYmdHM() { return TimeStampYmdHM(ActualTime())+".bak"; }
 
+time_t time_add_day(time_t t, int days = 1);
+time_t time_add_month(time_t t, int months = 1);
+int time_day_of_week(time_t t);
+int time_month_length(time_t t);
+time_t time_add_month_EOMoffset(time_t t);
+
 typedef std::tuple<unsigned int, unsigned int, unsigned int> ymd_tuple;
 struct year_month_day_t: public ymd_tuple {
 /*

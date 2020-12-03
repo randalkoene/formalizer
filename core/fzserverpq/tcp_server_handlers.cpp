@@ -432,7 +432,8 @@ unsigned int find_token_values_command(const GET_token_value_vec & token_value_v
 /**
  * Updates a Node's completion ratio (and potentially updates required if
  * completion exceeds 1.0) in response to having logged a number of minutes
- * dedicated to the Node.
+ * dedicated to the Node. For repeating Nodes, updates the targetdate if
+ * specific conditions are met.
  * 
  * Notes:
  * 1. `add_minutes` is necessarily >= 0, which is different than directly
@@ -440,48 +441,55 @@ unsigned int find_token_values_command(const GET_token_value_vec & token_value_v
  * to log positive time.
  * 2. This function assumes that `fzs.graph_ptr` points to a valid
  * Graph, meaning that this function is called sometime after `load_Graph_and_stay_resident()`.
- * 3. Automatic correction of `required` when `completion > 1.0` is a point
- * where Formalizer 2.x behavior differs from that of Formalizer 1.x behavior.
  * 
  * *** Future improvement notes:
- * A. This is one of the functions in `fzserverpq` that deals directly with database
+ * This is one of the functions in `fzserverpq` that deals directly with database
  * update calls, which would need to be modified to use a different database layer.
  * (It may be sensible to collect all of those functions in a separate source file
  * for a clear and logical separation that simplifies the addition of other
  * possible database layers.)
- * B. While automatically correcting `required` when `completion > 1.0` is
- * useful, it is not the full measure of improvements planned as, which are:
- * - [Something better than completion ratio + time required](https://trello.com/c/Rnm84Hld).
- * - [Additional completion conditions](https://trello.com/c/oa3zFBdd).
- * - [Tags that teach time required](https://trello.com/c/JqxApvhO).
  * 
- * @param node_idstr A string specifying the ID of a Node in the Graph.
- * @param add_minutes The number of minutes that were logged.
+ * @param node_addstr A string specifying the ID of a Node in the Graph and possibly an emulated time.
  * @return True if successfully updated. False if the Node could not be identified
  *         or if another error occurred.
  */
-bool node_add_logged_time(const std::string & node_idstr, unsigned int add_minutes) {
-    Node * node_ptr = fzs.graph_ptr->Node_by_idstr(node_idstr);
+//bool node_add_logged_time(const std::string & node_idstr, unsigned int add_minutes) {
+bool node_add_logged_time(const std::string & node_addstr) {
+    time_t T_ref = RTt_unspecified;
+    unsigned int add_minutes = 0;
+    Node * node_ptr = nullptr;
+
+    auto token_value_vec = GET_token_values(node_addstr);
+    for (const auto & GETel : token_value_vec) {
+        if (GETel.token == "T") {
+            time_t t = time_stamp_time(GETel.value);
+            if (t<0) {
+                return standard_error("Unable to use emulated time string "+GETel.value, __func__);
+            }
+            T_ref = t;
+        } else if (GETel.token.size()==NODE_ID_STR_NUMCHARS) {
+            node_ptr = fzs.graph_ptr->Node_by_idstr(GETel.token);
+            if (!node_ptr) {
+                return standard_error("Node "+GETel.token+" not found in Graph.", __func__);
+            }
+            add_minutes = std::atoi(GETel.value.c_str());
+        }
+    }
+
     if (!node_ptr) {
-        return standard_error("Node "+node_idstr+" not found in Graph.", __func__);
+        return standard_error("Missing Node ID token", __func__);
     }
-
-    Edit_flags editflags;
-    auto seconds_applied = node_ptr->seconds_applied();
-    seconds_applied += add_minutes;
-    auto required = node_ptr->get_required();
-    if (seconds_applied > required) {
-        node_ptr->set_required(seconds_applied);
-        editflags.set_Edit_required();
-        node_ptr->set_completion(1.0);
-    } else {
-        node_ptr->set_completion(((float)seconds_applied)/((float)required));
-    }
-    editflags.set_Edit_completion();
-
+        
+    Edit_flags editflags = Node_apply_minutes(*node_ptr, add_minutes, T_ref);
+    
     if (!Update_Node_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), *node_ptr, editflags)) {
         return standard_error("Synchronizing Node update to database failed", __func__);
     }
+
+    if (editflags.Edit_error()) { // check this AFTER synchronizing (see note in Graphmodify.hpp:Edit_flags)
+        return standard_error("An invalid circumstance was encountered while attempting to add minutes to Node "+node_ptr->get_id_str()+", but some parameters (e.g. completion) may have been modified.", __func__);
+    }
+
     return true;
 }
 
@@ -491,12 +499,7 @@ bool handle_node_direct_request(std::string nodereqstr, std::string & response_h
     VERYVERBOSEOUT("Handling Node request.\n");
 
     if ((nodereqstr.substr(0,8) == "logtime?") && (nodereqstr.size()>25)) {
-        if (nodereqstr[24] == '=') {
-            unsigned int add_minutes = std::atoi(nodereqstr.substr(25).c_str());
-            if (add_minutes>0) {
-                return node_add_logged_time(nodereqstr.substr(8,16), add_minutes);
-            }
-        }
+        return node_add_logged_time(nodereqstr.substr(8));
     }
 
     return standard_error("No known request token found: "+nodereqstr, __func__);
