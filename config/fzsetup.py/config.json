@@ -8,5 +8,5 @@
     "wwwhostroot": "/var/www/html",
     "editor": "emacs",
     "localbrowser": "urxvt -title localbrowser -geometry 160x30 -fade 30 -e w3m",
-    "transition": false
+    "transition": true
 }

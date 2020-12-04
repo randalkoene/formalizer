@@ -287,7 +287,7 @@ def get_completion_required(node):
     # *** This can be made easier if there is a simple way to get just a a specific
     #     parameter of a node, for example through the direct TCP-port API.
     #     E.g. could call fzgraph -C or curl with the corresponding URL.
-    customtemplate = '{{ completion }} {{ required }}'
+    customtemplate = '{{ comp }} {{ req_hrs }}'
     with open(config['customtemplate'],'w') as f:
         f.write(customtemplate)
     topicgettingcmd = f"fzgraphhtml -q -T 'Node={config['customtemplate']}' -n {node}"
@@ -297,6 +297,15 @@ def get_completion_required(node):
     results['required'] = (results['compreq'].split()[1]).decode()
 
 
+def get_most_recent_task():
+    thecmd = 'fzloghtml -R -o STDOUT -N -F raw -q'
+    retcode = try_subprocess_check_output(thecmd, 'recentlog')
+    exit_error(retcode, 'Attempt to get most recent Log chunk data failed.')
+    recent_node = (results['recentlog'].split()[2]).decode()
+    return recent_node
+
+
+#def transition_dil2al_request(recent_node, node):
 def transition_dil2al_request(node):
     # - set 'flagcmd' in dil2al/controller.cc:chunk_controller() such that no alert is called
     # - provide a command string to automatically answer confirmation() 'N' about making a note
@@ -311,16 +320,25 @@ def transition_dil2al_request(node):
     #     And note that `dil2al -u` sets alautoupdate to no, yes or ask. Note that `dil2al -C` does
     #     not appear to set a timer or at-command (in fact, it seems that the `at` program is not
     #     even installed on aether).
+    print('For transition synchronization back to Formalizer 1.x:')
     set_DIL_entry_preset(node)
-    thecmd = "dil2al -C -u no -p 'noaskALDILref'"
+    print(f'  preset DIL entry selection to {node}')
+    # thecmd = "urxvt -e dil2al -C -u no -p 'noaskALDILref' -p 'noshowflag'"
+    # print(f'  calling `{thecmd}` for:\n  alautoupdate=no, no timer setting, and use the (preset) default as the DIL entry')
+    thecmd = "urxvt -e dil2al -C -u yes -p 'noaskALDILref' -p 'noshowflag'"
+    print(f'  calling `{thecmd}` for:\n  alautoupdate=yes, no timer setting, and use the (preset) default as the DIL entry')
     retcode = try_subprocess_check_output(thecmd, 'dil2al_chunk')
     exit_error(retcode, 'Call to dil2al -C failed.')
-    get_completion_required(node)
-    completion = results['completion']
-    required = results['required']
-    thecmd = f"w3m '/cgi-bin/dil2al?dil2al=MEi&DILID=20070113232521.1&required={required}&completion={completion}'"
-    retcode = try_subprocess_check_output(thecmd, 'dil2al_compreq')
-    exit_error(retcode, 'GET call to dil2al failed.')
+
+    # *** I can'd do the steps below and need to let dil2al do its thing instead, because of the
+    #     complex nature of targetdate updates through links to Superiors.
+    # get_completion_required(node)
+    # completion = results['completion']
+    # required = results['required']
+    # print(f'  synchronizing {recent_node} completion={completion} and required={required}')
+    # thecmd = f"urxvt -e w3m '/cgi-bin/dil2al?dil2al=MEi&DILID={recent_node}&required={required}&completion={completion}'"
+    # retcode = try_subprocess_check_output(thecmd, 'dil2al_compreq')
+    # exit_error(retcode, 'GET call to dil2al failed.')
 
 
 def set_chunk_timer_and_alert():
@@ -341,6 +359,11 @@ if __name__ == '__main__':
     print(fztask_long_id+"\n")
 
     args = parse_options()
+
+    # *** I have to let dil2al do its update things instead, due to the complex nature of
+    #     target date updates through Superiors.
+    #if config['transition']:
+    #    recent_node = get_most_recent_task()
 
     make_log_entry()
 
@@ -366,8 +389,9 @@ if __name__ == '__main__':
     # ** be considered completed. If not, then there is an opportunity to change the
     # ** time required or to set a guess for the actual completion ratio.
 
-    if config['transition'] == 'true':
+    if config['transition']:
         transition_dil2al_request(node)
+        #transition_dil2al_request(recent_node, node)
 
     print('\nfztask done.')
 

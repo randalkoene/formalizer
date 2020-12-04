@@ -326,7 +326,7 @@ if __name__ == '__main__':
 
     send_to_fzlog(node)
 
-    if config['transition'] == 'true':
+    if config['transition']:
         transition_dil2al_polldaemon_request(node)
 
     if args.waitexit:

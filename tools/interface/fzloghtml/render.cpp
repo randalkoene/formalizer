@@ -174,6 +174,9 @@ bool render_Log_most_recent() {
 
     template_varvalues varvals;
     varvals.emplace("chunk_id",TimeStampYmdHM(fzlh.edata.newest_chunk_t));
+    if (fzlh.edata.c_newest) {
+        varvals.emplace("node_id",fzlh.edata.c_newest->get_NodeID().str());
+    }
     if (fzlh.edata.is_open) {
         varvals.emplace("chunk_status","OPEN");
     } else {
