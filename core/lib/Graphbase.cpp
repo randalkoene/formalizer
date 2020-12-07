@@ -150,6 +150,59 @@ std::string Node_ID_TimeStamp_from_epochtime(time_t t, uint8_t minor_id, bool th
     return nodeid_str;
 }
 
+// Add to a date-time in accordance with a repeating pattern.
+time_t Add_to_Date(time_t t, td_pattern pattern, int every) {
+    if (every < 1) {
+        every = 1;
+    }
+
+    switch (pattern) {
+        case patt_daily: {
+            return time_add_day(t, every);
+        }
+
+        case patt_workdays: {
+            for ( ; every>0; --every) {
+                if (time_day_of_week(t)<5) {
+                    t = time_add_day(t);
+                } else {
+                    t = time_add_day(t, 3);
+                }
+            }
+            return t;
+        }
+
+        case patt_weekly: {
+            return time_add_day(t, 7*every);
+        }
+
+        case patt_biweekly: {
+            return time_add_day(t, 14*every);
+        }
+
+        case patt_monthly: {
+            return time_add_month(t, every);
+        }
+
+        case patt_endofmonthoffset: {
+            for ( ; every>0; --every) {
+                t = time_add_month_EOMoffset(t);
+            }
+            return t;
+        }
+
+        case patt_yearly: {
+            return time_add_month(t, 12*every);
+        }
+
+        default: {
+            ADDERROR(__func__, "Unknown repeating pattern ("+std::to_string((int)pattern)+')');
+        }
+    }
+
+    return t;
+}
+
 /**
  * Convert standardized Formalizer Node ID time stamp into local time
  * data object.

@@ -231,59 +231,6 @@ Edge_ptr Graph_modify_add_edge(Graph & graph, const std::string & graph_segname,
     return edge_ptr;
 }
 
-// Add to a date-time in accordance with a repeating pattern.
-time_t Add_to_Date(time_t t, td_pattern pattern, int every) {
-    if (every < 1) {
-        every = 1;
-    }
-
-    switch (pattern) {
-        case patt_daily: {
-            return time_add_day(t, every);
-        }
-
-        case patt_workdays: {
-            for ( ; every>0; --every) {
-                if (time_day_of_week(t)<5) {
-                    t = time_add_day(t);
-                } else {
-                    t = time_add_day(t, 3);
-                }
-            }
-            return t;
-        }
-
-        case patt_weekly: {
-            return time_add_day(t, 7*every);
-        }
-
-        case patt_biweekly: {
-            return time_add_day(t, 14*every);
-        }
-
-        case patt_monthly: {
-            return time_add_month(t, every);
-        }
-
-        case patt_endofmonthoffset: {
-            for ( ; every>0; --every) {
-                t = time_add_month_EOMoffset(t);
-            }
-            return t;
-        }
-
-        case patt_yearly: {
-            return time_add_month(t, 12*every);
-        }
-
-        default: {
-            ADDERROR(__func__, "Unknown repeating pattern ("+std::to_string((int)pattern)+')');
-        }
-    }
-
-    return t;
-}
-
 /**
  * Modify the targetdate of a repeating Node by carrying out one or more iterations
  * of advances in accordance with its `tdpattern` periodicity.

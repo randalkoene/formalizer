@@ -546,6 +546,46 @@ void Node::copy_content(Node & from_node) {
 }
 
 /**
+ * Returns a vector of target dates, including those determined by the Node's
+ * repeat pattern and span, up to a specified maximum time.
+ * 
+ * @param t_max The maximum time to include in the vector.
+ * @param N_max Maximum size of list to return (zero means no size limit).
+ * @param t An optional start time, defaults to a Node's effective target date. See how this is used in Graphinfo.cpp:Nodes_with_repeats_by_targetdate().
+ * @return A vector of UNIX epoch times.
+ */
+std::vector<time_t> Node::repeat_targetdates(time_t t_max, size_t N_max, time_t t) {
+    std::vector<time_t> tdwithrepeats;
+    if (t == RTt_unspecified) {
+        t = effective_targetdate();
+    } else if (t > t_max) {
+        return tdwithrepeats;
+    }
+
+    if (!get_repeats()) {
+        tdwithrepeats.emplace_back(t);
+        return tdwithrepeats;
+    }
+
+    int span = get_tdspan();
+    bool unlimited = false;
+    if ((span==1) || (span<0)) {
+        ADDWARNING(__func__, "Node "+get_id_str()+" has invalid tdspan, treating as non-repeating.");
+        span = 1; // yes, we use this value locally
+    } else {
+        unlimited = span == 0;
+    }
+
+    auto pattern = get_tdpattern();
+    auto every = get_tdevery();
+    do {
+        tdwithrepeats.emplace_back(t);
+        --span;
+    } while (((t = Add_to_Date(t, pattern, every)) <= t_max) && ((span > 0) || unlimited) && ((N_max == 0) || (tdwithrepeats.size()<N_max)));
+    return tdwithrepeats;
+}
+
+/**
  * Report the main Topic Index-ID of the Node, as indicated by the maximum
  * `Topic_Relevance` value.
  * 

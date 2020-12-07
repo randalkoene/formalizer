@@ -17,6 +17,7 @@
 
 // std
 #include <ctime>
+#include <limits>
 
 namespace fz {
 
@@ -31,7 +32,8 @@ inline std::time_t ActualTime() { return std::time(NULL); }
 enum ReferenceTime_t : std::time_t {
     RTt_invalid_time_stamp = -34403, // a numerical rendering of 'ERROR'
     RTt_unspecified = -1,
-    RTt_unix_epoch_start = 0
+    RTt_unix_epoch_start = 0,
+    RTt_maxtime = std::numeric_limits<time_t>::max()
 };
 
 class ReferenceTime {

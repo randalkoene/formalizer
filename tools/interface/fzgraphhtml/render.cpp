@@ -93,6 +93,7 @@ struct line_render_parameters {
     render_environment env;          ///< Rendering environment in use.
     fzgraphhtml_templates templates; ///< Loaded rendering templates in use.
     std::string rendered_page;       ///< String to which the rendered line is appended.
+    std::string datestamp;
 
     line_render_parameters(const std::string _srclist, const char * problem__func__) : srclist(_srclist) {
         graph_ptr = graphmemman.find_Graph_in_shared_memory();
@@ -117,6 +118,19 @@ struct line_render_parameters {
         }
     }
 
+    void insert_day_start(time_t t) {
+        template_varvalues varvals;
+        varvals.emplace("node_id","");
+        varvals.emplace("topic","");
+        varvals.emplace("targetdate","<b>"+datestamp+"</b>");
+        varvals.emplace("req_hrs","");
+        varvals.emplace("tdprop","");
+        varvals.emplace("excerpt","<b>"+WeekDay(t)+"</b>");
+        varvals.emplace("fzserverpq","");
+        varvals.emplace("srclist","");
+        rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
+    }
+
     /**
      * Call this to render parameters of a Node on a single line of a list of Nodes.
      * For example, this selection of data is shown when Nodes are listed in a schedule.
@@ -133,7 +147,12 @@ struct line_render_parameters {
         } else {
             varvals.emplace("topic","MISSING TOPIC!");
         }
-        varvals.emplace("targetdate",TimeStampYmdHM(tdate));
+        std::string tdstamp(TimeStampYmdHM(tdate));
+        if (tdstamp.substr(0,8) != datestamp) {
+            datestamp = tdstamp.substr(0,8);
+            insert_day_start(tdate);
+        }
+        varvals.emplace("targetdate",tdstamp);
         varvals.emplace("req_hrs",to_precision_string(((double) node.get_required())/3600.0));
         varvals.emplace("tdprop",td_property_str[node.get_tdproperty()]);
         std::string htmltext(node.get_text().c_str());
@@ -197,12 +216,35 @@ bool render_incomplete_nodes() {
 
     line_render_parameters lrp("",__func__);
 
-    targetdate_sorted_Nodes incomplete_nodes = Nodes_incomplete_by_targetdate(lrp.graph());
+    targetdate_sorted_Nodes incomplete_nodes = Nodes_incomplete_by_targetdate(lrp.graph()); // *** could grab a cache here
     unsigned int num_render = (fzgh.config.num_to_show > incomplete_nodes.size()) ? incomplete_nodes.size() : fzgh.config.num_to_show;
 
     lrp.prep(num_render);
 
     for (const auto & [tdate, node_ptr] : incomplete_nodes) {
+
+        if (node_ptr) {
+            lrp.render_Node(*node_ptr, tdate);
+        }
+
+        if (--num_render == 0)
+            break;
+    }
+
+    return lrp.present();
+}
+
+bool render_incomplete_nodes_with_repeats() {
+
+    line_render_parameters lrp("",__func__);
+
+    targetdate_sorted_Nodes incomplete_nodes = Nodes_incomplete_by_targetdate(lrp.graph()); // *** could grab a cache here
+    targetdate_sorted_Nodes incnodes_with_repeats = Nodes_with_repeats_by_targetdate(incomplete_nodes, fzgh.config.t_max, fzgh.config.num_to_show);
+    unsigned int num_render = (fzgh.config.num_to_show > incnodes_with_repeats.size()) ? incnodes_with_repeats.size() : fzgh.config.num_to_show;
+
+    lrp.prep(num_render);
+
+    for (const auto & [tdate, node_ptr] : incnodes_with_repeats) {
 
         if (node_ptr) {
             lrp.render_Node(*node_ptr, tdate);

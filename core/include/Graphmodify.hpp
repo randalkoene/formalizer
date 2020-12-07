@@ -292,9 +292,6 @@ bool Graph_modify_list_remove(Graph & graph, const std::string & graph_segname, 
 /// Deleta a Named Node List.
 bool Graph_modify_list_delete(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
 
-/// Add to a date-time in accordance with a repeating pattern.
-time_t Add_to_Date(time_t t, td_pattern pattern, int every);
-
 /**
  * Modify the targetdate of a repeating Node by carrying out one or more iterations
  * of advances in accordance with its `tdpattern` periodicity.

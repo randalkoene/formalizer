@@ -117,9 +117,9 @@ typedef float Graphdecimal;
 typedef int Graphsigned;
 typedef bool Graphflag;
 
-typedef std::vector<Node *> Node_Index;
-typedef std::multimap<time_t, Node *> targetdate_sorted_Nodes; ///< Sorting is done by the time_t key comparison function.
-typedef std::map<const Node_ID_key, Node *> key_sorted_Nodes;
+typedef std::vector<Node_ptr> Node_Index;
+typedef std::multimap<time_t, Node_ptr> targetdate_sorted_Nodes; ///< Sorting is done by the time_t key comparison function.
+typedef std::map<const Node_ID_key, Node_ptr> key_sorted_Nodes;
 
 typedef std::map<std::string, std::string> Graph_info_label_value_pairs;
 
@@ -335,6 +335,9 @@ std::string Node_ID_TimeStamp_to_string(const ID_TimeStamp idT);
  * @return A string with a valid Node ID TimeStamp, including minor-ID if given (or empty if invalid).
  */
 std::string Node_ID_TimeStamp_from_epochtime(time_t t, uint8_t minor_id = 0, bool throw_if_invalid = false);
+
+/// Add to a date-time in accordance with a repeating pattern.
+time_t Add_to_Date(time_t t, td_pattern pattern, int every);
 
 // +----- end  : standardization functions -----+
 

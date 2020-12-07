@@ -112,6 +112,8 @@ unsigned long Edges_with_data(Graph & graph) {
  * Selects all Nodes that are incomplete and lists them by (inherited)
  * target date.
  * 
+ * For example, see how this is used in `fzgraphhtml`.
+ * 
  * @param graph A valid Graph data structure.
  * @return A map of pointers to nodes by effective targetdate.
  */
@@ -124,6 +126,49 @@ targetdate_sorted_Nodes Nodes_incomplete_by_targetdate(Graph & graph) {
         }
     }
     return nodes; // automatic copy elision std::move(nodes);
+}
+
+/**
+ * Add virtual Nodes to produce a list where repeating Nodes appear at their
+ * pattern-specified repeat target dates.
+ * 
+ * Note that `t_max < 0 ` is interpreted as `t_max = RTt_maxtime`.
+ * 
+ * If you want a list with repeats of only incomplete Nodes then `sortednodes` can
+ * be prepared with `Nodes_incomplete_by_targetdate()`. Otherwise, use an alternative
+ * preparation.
+ * 
+ * @param sortednodes A list of target date sorted Node pointers.
+ * @param t_max Limit to which to generate the resulting list of Node pointers.
+ * @param N_max Maximum size of list to return (zero means no size limit).
+ * @return A target date sorted list of Node pointers with repeats.
+ */
+targetdate_sorted_Nodes Nodes_with_repeats_by_targetdate(const targetdate_sorted_Nodes & sortednodes, time_t t_max, size_t N_max) {
+    targetdate_sorted_Nodes withrepeats;
+    if (t_max < 0) {
+        t_max = RTt_maxtime;
+    }
+    for (const auto & [t, node_ptr] : sortednodes) {
+        if (t > t_max) {
+            break;
+        }
+        // Note that you cannot immediately apply N_max here, because the first repeated Nodes
+        // might fill up all the space even though others will have earlier target dates.
+        if (node_ptr->get_repeats()) {
+            auto tdwithrepeats = node_ptr->repeat_targetdates(t_max, N_max, t);
+            for (const auto & t_repeat : tdwithrepeats) {
+                withrepeats.emplace(t_repeat, node_ptr);
+            }
+        } else {
+            withrepeats.emplace(t, node_ptr);
+        }
+    }
+    if (N_max > 0) {
+        if (withrepeats.size() > N_max) {
+            withrepeats.erase(std::next(withrepeats.begin(), N_max), withrepeats.end());
+        }
+    }
+    return withrepeats;
 }
 
 /**

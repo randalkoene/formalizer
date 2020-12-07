@@ -167,7 +167,8 @@ else:
 
         #if cmdoptions:
 
-        thecmd = "./fzgraphhtml -q -I -o STDOUT -E STDOUT"
+        thecmd = "./fzgraphhtml -q -I -r -o STDOUT -E STDOUT"
+        #thecmd = "./fzgraphhtml -q -I -o STDOUT -E STDOUT"
         #print('Using this command: ',thecmd)
         #print('<br>\n')
 

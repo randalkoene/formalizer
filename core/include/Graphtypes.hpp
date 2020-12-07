@@ -523,6 +523,17 @@ public:
     /// helper functions
 
     /**
+     * Returns a vector of target dates, including those determined by the Node's
+     * repeat pattern and span, up to a specified maximum time.
+     * 
+     * @param t_max The maximum time to include in the vector.
+     * @param N_max Maximum size of list to return (zero means no size limit).
+     * @param t An optional start time, defaults to a Node's effective target date. See how this is used in Graphinfo.cpp:Nodes_with_repeats_by_targetdate().
+     * @return A vector of UNIX epoch times.
+     */
+    std::vector<time_t> repeat_targetdates(time_t t_max, size_t N_max = 0, time_t t = RTt_unspecified);
+
+    /**
      * Report the main Topic Index-ID of the Node, as indicated by the maximum
      * `Topic_Relevance` value.
      * 

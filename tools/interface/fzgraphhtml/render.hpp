@@ -29,6 +29,8 @@ extern std::vector<std::string> template_ids;
 
 bool render_incomplete_nodes();
 
+bool render_incomplete_nodes_with_repeats();
+
 bool render_named_node_list();
 
 /**

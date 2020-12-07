@@ -52,6 +52,23 @@ unsigned long Edges_with_data(Graph & graph);
 targetdate_sorted_Nodes Nodes_incomplete_by_targetdate(Graph & graph);
 
 /**
+ * Add virtual Nodes to produce a list where repeating Nodes appear at their
+ * pattern-specified repeat target dates.
+ * 
+ * Note that `t_max < 0 ` is interpreted as `t_max = RTt_maxtime`.
+ * 
+ * If you want a list with repeats of only incomplete Nodes then `sortednodes` can
+ * be prepared with `Nodes_incomplete_by_targetdate()`. Otherwise, use an alternative
+ * preparation.
+ * 
+ * @param sortednodes A list of target date sorted Node pointers.
+ * @param t_max Limit to which to generate the resulting list of Node pointers.
+ * @param N_max Maximum size of list to return (zero means no size limit).
+ * @return A target date sorted list of Node pointers with repeats.
+ */
+targetdate_sorted_Nodes Nodes_with_repeats_by_targetdate(const targetdate_sorted_Nodes & sortednodes, time_t t_max, size_t N_max);
+
+/**
  * Selects all Nodes that have Node IDs (i.e. creation times) within
  * a specified time interval.
  * 

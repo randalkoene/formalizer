@@ -14,6 +14,7 @@ import argparse
 import subprocess
 import re
 import pty
+import time
 
 
 # Standardized expectations.
@@ -184,8 +185,11 @@ def new_or_close_chunk():
     return choice
 
 
-def close_chunk():
-    retcode = try_subprocess_check_output("fzlog -C", 'fzlog_res')
+def close_chunk(args):
+    thecmd = 'fzlog -C'
+    if args.T_emulate:
+        thecmd += ' -t ' + args.T_emulate
+    retcode = try_subprocess_check_output(thecmd, 'fzlog_res')
     exit_error(retcode,'Attempt to close Log chunk failed.')
 
 
@@ -238,7 +242,7 @@ def select_Node_for_Log_chunk():
     return node
 
 
-def update_schedule():
+def update_schedule(args):
     alert_ansi()
     print('\nUPDATING SCHEDULE NOT YET IMPLEMENTED!')
     print('Presently, the shortlist is simply using the target date sorted list of')
@@ -247,14 +251,17 @@ def update_schedule():
     fztask_ansi()
 
 
-def next_chunk():
+def next_chunk(args):
     # Closing the previous chunk is automatically done as part of this in fzlog.
     node = select_Node_for_Log_chunk()
     if not node:
         exit_error(1, 'Attempt to select Node for new Log chunk failed.')
 
-    retcode = try_subprocess_check_output(f"fzlog -c {node}", 'fzlog_res')
-    exit_error(retcode, 'Attempt to close Log chunk failed.')
+    thecmd = 'fzlog -c ' + node
+    if args.T_emulate:
+        thecmd += ' -t ' + args.T_emulate
+    retcode = try_subprocess_check_output(thecmd, 'fzlog_res')
+    exit_error(retcode, 'Attempt to open new Log chunk failed.')
 
     print(f'Opened new Log chunk for Node {node}.')
     return node
@@ -342,24 +349,18 @@ def transition_dil2al_request(node):
 
 
 def set_chunk_timer_and_alert():
+    # It looks like I can just run the same formalizer-alert.sh that dil2al was using.
+    print('Setting chunk duration: 20 mins. Chunk starts now.')
+    time.sleep(1200)
     alert_ansi()
-    print('\nSETTING TIMER AND ALERT NOT YET IMPLEMENTED!')
-    print('Right now, you will have to manually remember to switch to the next')
-    print('chunk after a reasonable amount of time.')
+    print('Chunk time passed. Calling formalizer-alert.sh.')
+    thecmd = 'formalizer-alert.sh'
+    retcode = try_subprocess_check_output(thecmd, 'alert')
+    exit_error(retcode, 'Call to formalizer-alert.sh failed.')
     fztask_ansi()
 
 
-if __name__ == '__main__':
-
-    core_version = coreversion.coreversion()
-    fztask_long_id = "Control:Task" + f" v{version} (core v{core_version})"
-
-    fztask_ansi()
-
-    print(fztask_long_id+"\n")
-
-    args = parse_options()
-
+def task_control(args):
     # *** I have to let dil2al do its update things instead, due to the complex nature of
     #     target date updates through Superiors.
     #if config['transition']:
@@ -375,37 +376,51 @@ if __name__ == '__main__':
     # closing that is available through `fzlog -c <node-id>`. Instead, we must
     # close the chunk first, then update the schedule, and use the resulting
     # information for an informed choice.
-    close_chunk()
+    close_chunk(args)
 
-    update_schedule()
+    update_schedule(args)
 
     node = ''
     if (chunkchoice !='c'):
-        node = next_chunk()
+        node = next_chunk(args)
+        # ** close_chunk() and next_chunk() could both return the new completion ratio of the
+        # ** Node that owns the previous chunk (or at least a true/false whether completion >= 1.0)
+        # ** and that could be used to check with the caller whether the Node really should
+        # ** be considered completed. If not, then there is an opportunity to change the
+        # ** time required or to set a guess for the actual completion ratio.
+        if config['transition']:
+            transition_dil2al_request(node)
+            #transition_dil2al_request(recent_node, node)
         set_chunk_timer_and_alert()
-    # ** close_chunk() and next_chunk() could both return the new completion ratio of the
-    # ** Node that owns the previous chunk (or at least a true/false whether completion >= 1.0)
-    # ** and that could be used to check with the caller whether the Node really should
-    # ** be considered completed. If not, then there is an opportunity to change the
-    # ** time required or to set a guess for the actual completion ratio.
 
-    if config['transition']:
-        transition_dil2al_request(node)
-        #transition_dil2al_request(recent_node, node)
+    return chunkchoice
+
+
+if __name__ == '__main__':
+
+    core_version = coreversion.coreversion()
+    fztask_long_id = "Control:Task" + f" v{version} (core v{core_version})"
+
+    fztask_ansi()
+
+    print(fztask_long_id+"\n")
+
+    print('Note:')
+    print('- fztask.py presently uses a while-loop to act like a daemonized task server.')
+    print('- One alternative is to set a cron-job.')
+    print('- Another alternative is to launch or use a separate deamonized task-timer.')
+    print('- Or simply exit after one run-through of the fztask steps.')
+    print('These options can be made a configuration option.\n')
+
+    args = parse_options()
+
+    chunkchoice = 'S'
+
+    while (chunkchoice != 'c'):
+        chunkchoice = task_control(args)
 
     print('\nfztask done.')
 
-    alert_ansi()
-    print('\nBECAUSE THERE IS NO TIMER-ALERT YET, PAUSING HERE AS A REMINDER.\n')
-    print('Some choices:')
-    print('- Put a sleep timer here, an alert-call at the start of __main__, and')
-    print('  embed content of __main__ in a while-loop. In this case, this program,')
-    print('  fztask, operates as a memory-resident, daemonized task server.')
-    print('- Set a cron-job (at-job).')
-    print('- Launch or use a a separate daemonized task-timer.')
-    print('- Do none of that and simply exit here.')
-    print('These options can be made a configuration option.\n')
-    fztask_ansi()
     pausekey = input('\nEnter any string to exit...')
 
 sys.exit(0)

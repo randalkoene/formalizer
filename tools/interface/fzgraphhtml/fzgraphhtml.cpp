@@ -39,8 +39,8 @@ fzgraphhtml fzgh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:IL:N:x:o:eT:F:uC";
-    add_usage_top += " [-n <node-ID>] [-I] [-L <name|?>] [-N <num>] [-x <len>] [-o <output-path>] [-e] [-T <named|node|Node>=<path>] [-F html|txt|node|desc] [-u] [-C]";
+    add_option_args += "n:IrL:N:M:D:x:o:eT:F:uC";
+    add_usage_top += " [-n <node-ID>] [-I] [-r] [-L <name|?>] [-N <num>] [-M <max-YYYYmmddHHMM>] [-D <num-days>] [-x <len>] [-o <output-path>] [-e] [-T <named|node|Node>=<path>] [-F html|txt|node|desc] [-u] [-C]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("When no [N <num>] is provided then the configured value is used.\n");
 }
@@ -53,8 +53,11 @@ void fzgraphhtml::usage_hook() {
     //ga.usage_hook();
     FZOUT("    -n Show data for Node with <node-ID>\n"
           "    -I Show data for incomplete Nodes\n"
+          "    -r Show with repeats of repeating Nodes\n"
           "    -L Show data for Nodes in Named Node List, or show Names if '?'\n"
           "    -N Show data for <num> elements (all=no limit)\n"
+          "    -M Show data up to and including <max-YYYYmmddHHMM>\n"
+          "    -D Show data for <num-days> days\n"
           "    -x Excerpt length <len>\n"
           "    -o Rendered output to <output-path> (\"STDOUT\" is default)\n"
           "    -e Embeddable, no head and tail templates\n"
@@ -147,6 +150,13 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'r': {
+        if (flowcontrol == flow_incomplete) {
+            flowcontrol = flow_incomplete_with_repeats;
+        }
+        return true;
+    }
+
     case 'L': {
         flowcontrol = flow_named_list;
         list_name = cargs;
@@ -155,6 +165,20 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
 
     case 'N': {
         config.num_to_show = parvalue_to_num_to_show(cargs);
+        return true;
+    }
+
+    case 'M': {
+        config.t_max = time_stamp_time(cargs);
+        return true;
+    }
+
+    case 'D': {
+        int numdays = std::atoi(cargs.c_str());
+        if (numdays<=0) {
+            standard_exit_error(exit_command_line_error, "Invalid number of days.", __func__);
+        }
+        config.t_max = ActualTime() + numdays*24*60*60;
         return true;
     }
 
@@ -205,6 +229,14 @@ bool parvalue_to_bool(const std::string & parvalue) {
     }
 }
 
+time_t set_t_max_days(const std::string & parvalue) {
+    int numdays = std::atoi(parvalue.c_str());
+    if (numdays <= 0) {
+        standard_exit_error(exit_bad_config_value, "Invalid number of days in configuration file.", __func__);
+    }
+    return ActualTime() + numdays*24*60*60;
+}
+
 /// Configure configurable parameters.
 bool fzgh_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     CONFIG_TEST_AND_SET_PAR(num_to_show, "num_to_show", parlabel, parvalue_to_num_to_show(parvalue));
@@ -212,6 +244,8 @@ bool fzgh_configurable::set_parameter(const std::string & parlabel, const std::s
     CONFIG_TEST_AND_SET_PAR(rendered_out_path, "rendered_out_path", parlabel, parvalue);
     CONFIG_TEST_AND_SET_PAR(embeddable, "embeddable", parlabel, parvalue_to_bool(parvalue));
     CONFIG_TEST_AND_SET_PAR(outputformat, "outputformat", parlabel, parse_output_format(parvalue));
+    CONFIG_TEST_AND_SET_PAR(t_max, "t_max", parlabel, time_stamp_time(parvalue));
+    CONFIG_TEST_AND_SET_PAR(t_max, "num_days", parlabel, set_t_max_days(parvalue));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
@@ -230,6 +264,9 @@ void fzgraphhtml::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen before standard initialization
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
     // *** add any initialization here that has to happen once in main(), for the derived class
+    if (config.t_max < 0) {
+        config.t_max = ActualTime() + (100*24*60*60); // the default is 100 days
+    }
 }
 
 Graph & fzgraphhtml::graph() {
@@ -303,6 +340,11 @@ int main(int argc, char *argv[]) {
 
     case flow_incomplete: {
         render_incomplete_nodes();
+        break;
+    }
+
+    case flow_incomplete_with_repeats: {
+        render_incomplete_nodes_with_repeats();
         break;
     }
 

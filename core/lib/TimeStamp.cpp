@@ -131,6 +131,21 @@ std::string TimeStamp(const char * dateformat, time_t t) {
     return dstr;
 }
 
+const std::string weekday_str[7] = {
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday"
+};
+
+std::string WeekDay(time_t t) {
+    tm * tm_ptr = localtime(&t);
+    return weekday_str[tm_ptr->tm_wday];
+}
+
 time_t time_add_day(time_t t, int days) {
   // This is relatively safe, because days are added by using localtime() and mktime()
   // instead of just adding days*SECONDSPERDAY. That should keep the time correct, even
