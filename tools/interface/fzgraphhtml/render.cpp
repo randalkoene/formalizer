@@ -119,16 +119,18 @@ struct line_render_parameters {
     }
 
     void insert_day_start(time_t t) {
-        template_varvalues varvals;
-        varvals.emplace("node_id","");
-        varvals.emplace("topic","");
-        varvals.emplace("targetdate","<b>"+datestamp+"</b>");
-        varvals.emplace("req_hrs","");
-        varvals.emplace("tdprop","");
-        varvals.emplace("excerpt","<b>"+WeekDay(t)+"</b>");
-        varvals.emplace("fzserverpq","");
-        varvals.emplace("srclist","");
-        rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
+        if ((fzgh.config.outputformat == output_txt) || (fzgh.config.outputformat == output_html)) {
+            template_varvalues varvals;
+            varvals.emplace("node_id","");
+            varvals.emplace("topic","");
+            varvals.emplace("targetdate","<b>"+datestamp+"</b>");
+            varvals.emplace("req_hrs","");
+            varvals.emplace("tdprop","");
+            varvals.emplace("excerpt","<b>"+WeekDay(t)+"</b>");
+            varvals.emplace("fzserverpq","");
+            varvals.emplace("srclist","");
+            rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
+        }
     }
 
     /**

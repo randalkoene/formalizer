@@ -31,6 +31,9 @@ results = {}
 def try_subprocess_check_output(thecmdstring, resstore):
     if config['verbose']:
         print(f'Calling subprocess: `{thecmdstring}`', flush=True)
+    if config['logcmdcalls']:
+        with open(config['cmdlog'],'a') as f:
+            f.write(thecmdstring+'\n')
     try:
         res = subprocess.check_output(thecmdstring, shell=True)
     except subprocess.CalledProcessError as cpe:
@@ -113,6 +116,8 @@ version = "0.1.0-0.1"
 # local defaults
 config['contenttmpfile'] = '/tmp/logentry.html'
 config['customtemplate'] = '/tmp/customtemplate'
+config['cmdlog'] = '/tmp/logentry-cmdcalls.log'
+config['logcmdcalls'] = True
 # config['editor'] = 'emacs' # reading this from config/fzsetup.py/config.json now
 # config['transition'] = 'true' # reading this from config/fzsetup.py/config.json now
 
@@ -163,11 +168,15 @@ def Node_selection_ansi():
     print(u'\u001b[38;5;$33m', end='')
 
 
-def exit_error(retcode, errormessge):
+def alert_ansi():
+    print(u'\u001b[31m', end='')
+
+
+def exit_error(retcode, errormessage):
     if (retcode != 0):
         alert_ansi()
         print('\n'+errormessage+'\n')
-        fztask_ansi()
+        logentry_ansi()
         exitenter = input('Press ENTER to exit...')
         sys.exit(retcode)
 
@@ -287,21 +296,23 @@ def set_DIL_entry_preset(node):
     print(f'Specifying the DIL ID preset: {dilpreset}')
     with open(userhome+'/.dil2al-DILidpreset','w') as f:
         f.write(dilpreset)
+    if config['logcmdcalls']:
+        with open(config['cmdlog'],'a') as f:
+            f.write(dilpreset+'\n')
 
 
 def transition_dil2al_polldaemon_request(node):
-    thecmd=f"dil2al -m{config['contenttmpfile']} -p 'noaskALDILref' -p 'noalwaysopenineditor'"
     if node:
         set_DIL_entry_preset(node)
-        retcode = try_subprocess_check_output(thecmd, 'dil2al')
-        exit_error(retcode, 'Call to dil2al -m failed.')
-
     else:
         if os.path.exists(userhome+'/.dil2al-DILidpreset'):
             os.remove(userhome+'/.dil2al-DILidpreset')
-        retcode = try_subprocess_check_output(thecmd, 'dil2al')
-        exit_error(retcode, 'Call to dil2al -m failed.')
-
+    thecmd=f"dil2al -m{config['contenttmpfile']} -p 'noaskALDILref' -p 'noalwaysopenineditor'"
+    retcode = try_subprocess_check_output(thecmd, 'dil2al')
+    exit_error(retcode, 'Call to dil2al -m failed.')
+    #retcode = pty.spawn(['dil2al',f"-m{config['contenttmpfile']}","-p'noaskALDILref'","-p'noalwaysopenineditor'"])
+    #if not os.WIFEXITED(retcode):
+    #    exit_error(os.WEXITSTATUS(retcode), 'Call to dil2al -m failed.')
     print('Log entry synchronized to Formalizer 1.x files.')
 
 

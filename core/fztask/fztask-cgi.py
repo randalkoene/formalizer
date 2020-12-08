@@ -36,6 +36,11 @@ if T_emulated:
 #nohup env -u QUERY_STRING urxvt -rv -title "dil2al daemon" -geometry +$xhloc+$xvloc -fade 30 -e dil2al -T$emulatedtime -S &
 thecmd = "nohup urxvt -rv -title 'fztask' -e fztask"+cmdoptions+" &"
 
+# Let's delete QUERY_STRING from the environment now so that dil2al does not accidentally think it was
+# called from a form if dil2al is called for synchronization back to Formalizer 1.x.
+del os.environ['QUERY_STRING']
+
+
 print("Content-type:text/html\n\n")
 
 print("<html>")

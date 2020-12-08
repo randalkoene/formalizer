@@ -31,6 +31,9 @@ results = {}
 def try_subprocess_check_output(thecmdstring, resstore):
     if config['verbose']:
         print(f'Calling subprocess: `{thecmdstring}`', flush=True)
+    if config['logcmdcalls']:
+        with open(config['cmdlog'],'a') as f:
+            f.write(thecmdstring+'\n')
     try:
         res = subprocess.check_output(thecmdstring, shell=True)
     except subprocess.CalledProcessError as cpe:
@@ -79,6 +82,9 @@ version = "0.1.0-0.1"
 # local defaults
 # config['transition'] = 'true' # reading this from config/fzsetup.py/config.json now
 config['customtemplate'] = '/tmp/customtemplate'
+config['addpause'] = False
+config['cmdlog'] = '/tmp/fztask-cmdcalls.log'
+config['logcmdcalls'] = True
 
 # replace local defaults with values from ~/.formalizer/config/fztask.py/config.json
 #try:
@@ -137,12 +143,20 @@ def alert_ansi():
     print(u'\u001b[31m', end='')
 
 
-def exit_error(retcode, errormessge):
+def pause_key(action_str, pausehere = True):
+    if pausehere:
+        pausekey = input(f'\nEnter any string to {action_str}...')
+    else:
+        pausekey = '_'
+    return pausekey
+
+
+def exit_error(retcode, errormessage):
     if (retcode != 0):
         alert_ansi()
         print('\n'+errormessage+'\n')
         fztask_ansi()
-        exitenter = input('Press ENTER to exit...')
+        exitenter = pause_key('exit')
         sys.exit(retcode)
 
 
@@ -253,10 +267,12 @@ def update_schedule(args):
 
 def next_chunk(args):
     # Closing the previous chunk is automatically done as part of this in fzlog.
+    pause_key('select next Node',config['addpause'])
     node = select_Node_for_Log_chunk()
     if not node:
         exit_error(1, 'Attempt to select Node for new Log chunk failed.')
 
+    pause_key('open new chunk',config['addpause'])
     thecmd = 'fzlog -c ' + node
     if args.T_emulate:
         thecmd += ' -t ' + args.T_emulate
@@ -313,7 +329,7 @@ def get_most_recent_task():
 
 
 #def transition_dil2al_request(recent_node, node):
-def transition_dil2al_request(node):
+def transition_dil2al_request(node, args):
     # - set 'flagcmd' in dil2al/controller.cc:chunk_controller() such that no alert is called
     # - provide a command string to automatically answer confirmation() 'N' about making a note
     # - provide 'S' or 't' to start a new chunk or simply close the chunk, for auto_interactive()
@@ -333,6 +349,8 @@ def transition_dil2al_request(node):
     # thecmd = "urxvt -e dil2al -C -u no -p 'noaskALDILref' -p 'noshowflag'"
     # print(f'  calling `{thecmd}` for:\n  alautoupdate=no, no timer setting, and use the (preset) default as the DIL entry')
     thecmd = "urxvt -e dil2al -C -u yes -p 'noaskALDILref' -p 'noshowflag'"
+    if args.T_emulate:
+        thecmd += ' -T ' + args.T_emulate
     print(f'  calling `{thecmd}` for:\n  alautoupdate=yes, no timer setting, and use the (preset) default as the DIL entry')
     retcode = try_subprocess_check_output(thecmd, 'dil2al_chunk')
     exit_error(retcode, 'Call to dil2al -C failed.')
@@ -370,6 +388,8 @@ def task_control(args):
 
     chunkchoice = new_or_close_chunk()
 
+    pause_key('close current chunk',config['addpause'])
+
     # Note that in this process, where a schedule updated in accordance with time
     # added to the most recent Node's completion ratio affects the potential choice
     # of Node for the next Log chunk, we cannot make use of the built-in chunk
@@ -378,10 +398,13 @@ def task_control(args):
     # information for an informed choice.
     close_chunk(args)
 
+    pause_key('update schedule',config['addpause'])
+
     update_schedule(args)
 
     node = ''
     if (chunkchoice !='c'):
+        pause_key('start next chunk',config['addpause'])
         node = next_chunk(args)
         # ** close_chunk() and next_chunk() could both return the new completion ratio of the
         # ** Node that owns the previous chunk (or at least a true/false whether completion >= 1.0)
@@ -389,8 +412,10 @@ def task_control(args):
         # ** be considered completed. If not, then there is an opportunity to change the
         # ** time required or to set a guess for the actual completion ratio.
         if config['transition']:
-            transition_dil2al_request(node)
+            pause_key('synchronize back to Formalizer 1.x',config['addpause'])
+            transition_dil2al_request(node, args)
             #transition_dil2al_request(recent_node, node)
+        pause_key('start the chunk timer',config['addpause'])
         set_chunk_timer_and_alert()
 
     return chunkchoice
@@ -421,6 +446,6 @@ if __name__ == '__main__':
 
     print('\nfztask done.')
 
-    pausekey = input('\nEnter any string to exit...')
+    pausekey = pause_key('exit')
 
 sys.exit(0)
