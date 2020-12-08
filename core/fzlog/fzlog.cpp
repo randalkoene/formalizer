@@ -230,6 +230,7 @@ bool update_Node_completion(const std::string & node_idstr, time_t add_seconds) 
         return true; // nothing to add
     }
 
+    // *** could change the api_url to the even shorter version with "/fz/graph/logtime?"
     std::string api_url("/fz/graph/nodes/logtime?"+node_idstr+'=');
     api_url += std::to_string(add_seconds / 60);
 

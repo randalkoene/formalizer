@@ -84,7 +84,7 @@ version = "0.1.0-0.1"
 config['customtemplate'] = '/tmp/customtemplate'
 config['addpause'] = False
 config['cmdlog'] = '/tmp/fztask-cmdcalls.log'
-config['logcmdcalls'] = True
+config['logcmdcalls'] = False
 
 # replace local defaults with values from ~/.formalizer/config/fztask.py/config.json
 #try:

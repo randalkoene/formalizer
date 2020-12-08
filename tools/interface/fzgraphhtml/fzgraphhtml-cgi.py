@@ -3,6 +3,14 @@
 # Randal A. Koene, 20201013
 #
 # This CGI handler provides a near-verbatim equivalent access to fzgraphhtml via web form.
+#
+# Expects POST or GET data of the following forms:
+#   id=<node-id>[&srclist=<list-name>] to generate a List of Named Node Lists with links to add the specified Node.
+#   srclist=<list-name>  to generate a page that shows the content of a Named Node List.
+#   srclist=? to generate a page that shows all Named Node Lists.
+#   edit=<node-id> to generate the form page with which to edit Node data.
+#   otherwise, generate a page that shows the Next Nodes Schedule.
+#
 
 # Import modules for CGI handling 
 try:
@@ -34,6 +42,7 @@ form = cgi.FieldStorage()
 #startfrom = form.getvalue('startfrom')
 id = form.getvalue('id')
 srclist = form.getvalue('srclist')
+edit = form.getvalue('edit')
 
 modify_template = '''<tr><td>[<a href="/cgi-bin/fzgraphhtml-cgi.py?srclist={{{{ list_name }}}}">{{{{ list_name }}}}</a>]</td><td><a href="http://{fzserverpq}/fz/graph/namedlists/{{{{ list_name }}}}?add={node_id}">[add]</a></td></tr>
 '''
@@ -84,6 +93,26 @@ listpagetail = '''</tbody></table>
 </html>
 '''
 
+editpagehead = '''Content-type:text/html
+
+<head>
+<link rel="stylesheet" href="/fz.css">
+<title>Formalizer: Edit Node</title>
+</head>
+<body>
+<style type="text/css">
+.chktop {
+    background-color: #B0C4F5;
+}
+</style>
+'''
+
+editpagetail = '''</tbody></table>
+<hr>
+</body>
+</html>
+'''
+
 # *** OBTAIN THIS SOMEHOW!
 #with open(dotformalizer_path+'/server_address','r') as f:
 #    fzserverpq_addrport = f.read()
@@ -92,7 +121,27 @@ with open('./server_address','r') as f:
 #fzserverpq_addrport = 'aether.local:8090'
 custom_template_file = webdata_path+'/modify_NNL_template.html'
 
-if id:
+
+def try_command_call(thecmd):
+    try:
+        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
+        (child_stdin,child_stdout) = (p.stdin, p.stdout)
+        child_stdin.close()
+        result = child_stdout.read()
+        child_stdout.close()
+        print(result)
+        #print(result.replace('\n', '<BR>'))
+
+    except Exception as ex:                
+        print(ex)
+        f = StringIO()
+        print_exc(file=f)
+        a = f.getvalue().splitlines()
+        for line in a:
+            print(line)
+
+
+def generate_embeddable_list_of_NNLs_to_add_Node_to():
     # Make the command for fzgraphhtml with custom template file instead of named_node_list_in_list_template.html
     modify_template_content = modify_template.format(node_id=id, fzserverpq=fzserverpq_addrport)
     with open(custom_template_file,'w') as f:
@@ -104,96 +153,61 @@ if id:
     # Include a remove-from-srclist button if srclist was not empty
     if srclist:
         print(f'\n<p>Or, <a href="http://{fzserverpq_addrport}/fz/graph/namedlists/{srclist}?remove={id}">[remove from {srclist}]</a></p>\n')
-    # Call fzgraphhtml (try-except)
+
     print('Or, add to one of the Named Node Lists below:\n\n<table class="blueTable"><tbody>')
-    try:
-        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
-        (child_stdin,child_stdout) = (p.stdin, p.stdout)
-        child_stdin.close()
-        result = child_stdout.read()
-        child_stdout.close()
-        print(result)
+    try_command_call(thecmd)
 
-    except Exception as ex:                
-        print(ex)
-        f = StringIO()
-        print_exc(file=f)
-        a = f.getvalue().splitlines()
-        for line in a:
-            print(line)
-
-    # Make page tail
     print(listpagetail)
 
-else:
-    if srclist:
-        thecmd = "./fzgraphhtml -q -e -L '"+srclist+"' -o STDOUT -E STDOUT"
-        print("Content-type:text/html\n\n")
-        if srclist == '?':
-            print(listpagehead_alllists)
-        else:
-            print(listpagehead_nomodif.format(list_name=srclist))
-        print(f'<!-- thecmd = {thecmd} -->')
-        # Include a remove-from-srclist button if srclist was not empty
-        try:
-            p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
-            (child_stdin,child_stdout) = (p.stdin, p.stdout)
-            child_stdin.close()
-            result = child_stdout.read()
-            child_stdout.close()
-            print(result)
 
-        except Exception as ex:                
-            print(ex)
-            f = StringIO()
-            print_exc(file=f)
-            a = f.getvalue().splitlines()
-            for line in a:
-                print(line)
-
-        # Make page tail
-        print(listpagetail)
-
+def generate_NNL_page():
+    thecmd = "./fzgraphhtml -q -e -L '"+srclist+"' -o STDOUT -E STDOUT"
+    print("Content-type:text/html\n\n")
+    if srclist == '?':
+        print(listpagehead_alllists)
     else:
-        print("Content-type:text/html\n\n")
+        print(listpagehead_nomodif.format(list_name=srclist))
+    print(f'<!-- thecmd = {thecmd} -->')
 
-        #thisscript = os.path.realpath(__file__)
-        #print(f'(For dev reference, this script is at {thisscript}.)')
+    try_command_call(thecmd)
 
-        #cmdoptions = ""
+    print(listpagetail)
 
-        #if startfrom:
-        #    cmdoptions += ' -1 '+startfrom
 
-        #if cmdoptions:
+def generate_Node_edit_form_page():
+    thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -n "+edit
+    print(editpagehead)
+    try_command_call(thecmd)
+    print(editpagetail)
 
-        thecmd = "./fzgraphhtml -q -I -r -o STDOUT -E STDOUT"
-        #thecmd = "./fzgraphhtml -q -I -o STDOUT -E STDOUT"
-        #print('Using this command: ',thecmd)
-        #print('<br>\n')
 
-        try:
-            p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
-            (child_stdin,child_stdout) = (p.stdin, p.stdout)
-            child_stdin.close()
-            result = child_stdout.read()
-            child_stdout.close()
-            print(result)
-            #print(result.replace('\n', '<BR>'))
+def generate_Next_Nodes_Schedule_page():
+    print("Content-type:text/html\n\n")
 
-        except Exception as ex:                
-            print(ex)
-            f = StringIO()
-            print_exc(file=f)
-            a = f.getvalue().splitlines()
-            for line in a:
-                print(line)
+    #thisscript = os.path.realpath(__file__)
+    #print(f'(For dev reference, this script is at {thisscript}.)')
 
-#if "name" not in form or "addr" not in form:
-#    print("<H1>Error</H1>")
-#    print("Please fill in the name and addr fields.")
-#    return
+    thecmd = "./fzgraphhtml -q -I -r -o STDOUT -E STDOUT"
+    #thecmd = "./fzgraphhtml -q -I -o STDOUT -E STDOUT"
+    #print('Using this command: ',thecmd)
+    #print('<br>\n')
 
-#print("</table>")
-#print("</body>")
-#print("</html>")
+    try_command_call(thecmd)
+
+
+if __name__ == '__main__':
+    if id:
+        generate_embeddable_list_of_NNLs_to_add_Node_to()
+    
+    else:
+        if srclist:
+            generate_NNL_page()
+
+        else:
+            if edit:
+                generate_Node_edit_form_page()
+
+            else:
+                generate_Next_Nodes_Schedule_page()
+
+    sys.exit(0)

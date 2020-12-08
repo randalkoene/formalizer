@@ -499,6 +499,7 @@ bool handle_node_direct_request(std::string nodereqstr, std::string & response_h
     VERYVERBOSEOUT("Handling Node request.\n");
 
     if ((nodereqstr.substr(0,8) == "logtime?") && (nodereqstr.size()>25)) {
+        // *** should response_html be modified here, do we want feedback?
         return node_add_logged_time(nodereqstr.substr(8));
     }
 
@@ -692,7 +693,21 @@ bool handle_fz_vfs_database_request(int new_socket, const std::string & fzreques
  */
 bool handle_fz_vfs_graph_request(int new_socket, const std::string & fzrequesturl) {
     constexpr const char * response_ok_start = "HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ";
-    VERYVERBOSEOUT("Handling Graph request.\n");;
+    VERYVERBOSEOUT("Handling Graph request.\n");
+
+    if ((fzrequesturl.substr(10,8) == "logtime?") && (fzrequesturl.size()>35)) {
+
+        std::string response_html;
+        if (node_add_logged_time(fzrequesturl.substr(18))) {
+            VERYVERBOSEOUT("Logtime request handled. Responding.\n");
+            fzs.log("TCP", "Logtime request successful");
+            // *** should response_html be modified here, do we want feedback?
+            std::string response_str = response_ok_start + std::to_string(response_html.size()) + "\r\n\r\n" + response_html;
+            send(new_socket, response_str.c_str(), response_str.size()+1, 0);
+            return true;          
+        }
+
+    }
 
     if (fzrequesturl.substr(10,6) == "nodes/") {
 

@@ -73,6 +73,7 @@ fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga
         "  /fz/_stop\n"
         "  /fz/db/mode\n"
         "  /fz/db/mode=<run|log|sim>\n"
+        "  /fz/graph/logtime?<node-id>=<mins>[&T=<emulated-time>]\n"
         "  /fz/graph/nodes/logtime?<node-id>=<mins>[&T=<emulated-time>]\n"
         "  /fz/graph/namedlists/<list-name>?add=<node-id>[&FEATURES/MAXSIZE]\n"
         "  /fz/graph/namedlists/<list-name>?remove=<node-id>\n"

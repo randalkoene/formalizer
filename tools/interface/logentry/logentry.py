@@ -117,7 +117,7 @@ version = "0.1.0-0.1"
 config['contenttmpfile'] = '/tmp/logentry.html'
 config['customtemplate'] = '/tmp/customtemplate'
 config['cmdlog'] = '/tmp/logentry-cmdcalls.log'
-config['logcmdcalls'] = True
+config['logcmdcalls'] = False
 # config['editor'] = 'emacs' # reading this from config/fzsetup.py/config.json now
 # config['transition'] = 'true' # reading this from config/fzsetup.py/config.json now
 
