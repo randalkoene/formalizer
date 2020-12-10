@@ -350,6 +350,9 @@ public:
     /// change parameters
     void set_supid(Topic_ID _supid) { supid = _supid; }
 
+    /// helper functions
+    std::string keyrel_str() const;
+
     /// friend (utility) functions
     friend bool identical_Topics(const Topic & topic1, const Topic & topic2, std::string & trace);
 };
@@ -373,6 +376,7 @@ public:
 
     /// tables references
     const Topic_Tags_Vector &get_topictags() const { return topictags; }
+    const TopicbyTag_Map &get_topicbytag() const { return topicbytag; }
 
     /// tables sizes
     Topic_Tags_Vector::size_type num_Topics() const { return topictags.size(); }

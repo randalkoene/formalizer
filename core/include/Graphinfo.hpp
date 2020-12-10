@@ -81,6 +81,15 @@ targetdate_sorted_Nodes Nodes_with_repeats_by_targetdate(const targetdate_sorted
  */
 key_sorted_Nodes Nodes_created_in_time_interval(Graph & graph, time_t earliest, time_t before);
 
+/**
+ * Selects all Nodes that include a specific Topic ID and lists them by (inherited)
+ * target date.
+ * 
+ * @param graph A valid Graph data structure.
+ * @return A map of pointers to nodes by effective targetdate.
+ */
+targetdate_sorted_Nodes Nodes_with_topic_by_targetdate(Graph & graph, Topic_ID id);
+
 } // namespace fz
 
 #endif // __GRAPHINFO_HPP

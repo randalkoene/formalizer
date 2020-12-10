@@ -77,7 +77,7 @@ bool handle_named_list_parameters(const GET_token_value_vec & token_value_vec, s
             response_html += "<p>persistent_NNL = <b>"+GETel.value+"</b></p>\n";
 
         } else {
-            return standard_error("Unexpected token: "+GETel.token, __func__);
+            return standard_error("Unexpected token: '"+GETel.token+'\'', __func__);
         }
     }
     response_html += "</body>\n</html>\n";
@@ -99,7 +99,7 @@ bool handle_selected_list(const GET_token_value_vec & token_value_vec, std::stri
             }
 
         } else {
-            return standard_error("Unexpected token: "+GETel.token, __func__);
+            return standard_error("Unexpected token: '"+GETel.token+'\'', __func__);
         }
     }
 
@@ -140,7 +140,7 @@ bool handle_recent_list(const GET_token_value_vec & token_value_vec, std::string
             }
 
         } else {
-            return standard_error("Unexpected token: "+GETel.token, __func__);
+            return standard_error("Unexpected token: '"+GETel.token+'\'', __func__);
         }
     }
 
@@ -175,6 +175,80 @@ struct NNL_copy_data {
     int32_t maxsize = -1;
 };
 
+typedef bool copy_data_func_t(const std::string&, NNL_copy_data&);
+typedef std::map<std::string, copy_data_func_t*> copy_data_map_t;
+
+bool copy_data_from_name(const std::string &value, NNL_copy_data & copydata) {
+    copydata.from_name = value;
+    return true;
+}
+
+bool copy_data_from_max(const std::string &value, NNL_copy_data & copydata) {
+    copydata.from_max = std::atoi(value.c_str());
+    return true;
+}
+
+bool copy_data_to_max(const std::string &value, NNL_copy_data & copydata) {
+    copydata.to_max = std::atoi(value.c_str());
+    return true;
+}
+
+bool copy_data_maxsize(const std::string &value, NNL_copy_data & copydata) {
+    copydata.maxsize = std::atoi(value.c_str());
+    return true;
+}
+
+bool copy_data_unique(const std::string &value, NNL_copy_data & copydata) {
+    if (value == "true") {
+        copydata.features |= Named_Node_List::unique_mask;
+    }
+    return true;
+}
+
+bool copy_data_fifo(const std::string &value, NNL_copy_data & copydata) {
+    if (value == "true") {
+        copydata.features |= Named_Node_List::fifo_mask;
+    }
+    return true;
+}
+
+bool copy_data_prepend(const std::string &value, NNL_copy_data & copydata) {
+    if (value == "true") {
+        copydata.features |= Named_Node_List::prepend_mask;
+    }
+    return true;
+}
+
+const copy_data_map_t NNL_list_copy_features = {
+    {"copy", copy_data_from_name},
+    {"from_max", copy_data_from_max},
+    {"to_max", copy_data_to_max},
+    {"maxsize", copy_data_maxsize},
+    {"unique", copy_data_unique},
+    {"fifo", copy_data_fifo},
+    {"prepend", copy_data_prepend}
+};
+
+bool get_copy_data(const GET_token_value_vec & token_value_vec, NNL_copy_data & copydata) {
+    copydata.features = 0; // need this for mask ORs
+    copydata.maxsize = 0;
+    for (const auto & GETel : token_value_vec) {
+        auto it = NNL_list_copy_features.find(GETel.token);
+        if (it == NNL_list_copy_features.end()) {
+            return standard_error("Unexpected token: '" + GETel.token + '\'', __func__);
+        }
+        if (!(it->second(GETel.value, copydata))) {
+            return false;
+        }
+    }
+    if ((copydata.maxsize<=0) || (copydata.features == 0)) {
+        copydata.features = -1;
+        copydata.maxsize = -1;
+    }
+    return true;
+}
+
+/*
 bool get_copy_data(const GET_token_value_vec & token_value_vec, NNL_copy_data & copydata) {
     bool features_specified = false;
     int16_t features = 0; // need this for mask ORs
@@ -186,26 +260,26 @@ bool get_copy_data(const GET_token_value_vec & token_value_vec, NNL_copy_data & 
             copydata.from_max = std::atoi(GETel.value.c_str());
         } else if (GETel.token == "to_max") {
             copydata.to_max = std::atoi(GETel.value.c_str());
-        } if (GETel.token == "maxsize") {
+        } else if (GETel.token == "maxsize") {
             maxsize = std::atoi(GETel.value.c_str());
             features_specified = true;
-        } if (GETel.token == "unique") {
+        } else if (GETel.token == "unique") {
             if (GETel.value == "true") {
                 features = copydata.features | Named_Node_List::unique_mask;
                 features_specified = true;
             }
-        } if (GETel.token == "fifo") {
+        } else if (GETel.token == "fifo") {
             if (GETel.value == "true") {
                 features = copydata.features | Named_Node_List::fifo_mask;
                 features_specified = true;
             }
-        } if (GETel.token == "prepend") {
+        } else if (GETel.token == "prepend") {
             if (GETel.value == "true") {
                 features = copydata.features | Named_Node_List::prepend_mask;
                 features_specified = true;
             }
         } else {
-            return standard_error("Unexpected token: "+GETel.token, __func__);
+            return standard_error("Unexpected token: '"+GETel.token+'\'', __func__);
         }
     }
     if (features_specified) {
@@ -214,6 +288,7 @@ bool get_copy_data(const GET_token_value_vec & token_value_vec, NNL_copy_data & 
     }
     return true;
 }
+*/
 
 bool handle_copy_to_list(const std::string & list_name, const GET_token_value_vec & token_value_vec, std::string & response_html) {
     ERRTRACE;
@@ -250,37 +325,102 @@ bool handle_copy_to_list(const std::string & list_name, const GET_token_value_ve
     return true;
 }
 
-
 struct NNL_add_data {
     Node_ID_key nkey;
     int16_t features = 0;
     int32_t maxsize = 0;
 };
 
+typedef bool add_data_func_t(const std::string&, NNL_add_data&);
+typedef std::map<std::string, add_data_func_t*> add_data_map_t;
+
+bool add_data_nkey(const std::string &value, NNL_add_data & adddata) {
+    try {
+        adddata.nkey = Node_ID_key(value);
+    } catch (ID_exception idexception) {
+        return standard_error("Add Named Node List request has invalid Node ID [" + value + "], " + idexception.what(), __func__);
+    }
+    return true;
+}
+
+bool add_data_maxsize(const std::string &value, NNL_add_data & adddata) {
+    adddata.maxsize = std::atoi(value.c_str());
+    return true;
+}
+
+bool add_data_unique(const std::string &value, NNL_add_data & adddata) {
+    if (value == "true") {
+        adddata.features = adddata.features | Named_Node_List::unique_mask;
+    }
+    return true;
+}
+
+bool add_data_fifo(const std::string &value, NNL_add_data & adddata) {
+    if (value == "true") {
+        adddata.features = adddata.features | Named_Node_List::fifo_mask;
+    }
+    return true;
+}
+
+bool add_data_prepend(const std::string &value, NNL_add_data & adddata) {
+    if (value == "true") {
+        adddata.features = adddata.features | Named_Node_List::prepend_mask;
+    }
+    return true;
+}
+
+const add_data_map_t NNL_list_add_features = {
+    {"add", add_data_nkey},
+    {"maxsize", add_data_maxsize},
+    {"unique", add_data_unique},
+    {"fifo", add_data_fifo},
+    {"prepend", add_data_prepend}
+};
+
+/*
+const Command_Token_Map NNL_list_add_features = {
+    {"add", NNLlistcmdfeature_add},
+    {"maxsize", NNLlistcmdfeature_maxsize},
+    {"unique", NNLlistcmdfeature_unique},
+    {"fifo", NNLlistcmdfeature_fifo},
+    {"prepend", NNLlistcmdfeature_prepend}
+};
+        switch (it->second) {
+
+            case NNLlistcmdfeature_add: {
+                break;
+            }
+
+            case NNLlistcmdfeature_maxsize: {
+                break;
+            }
+
+            case NNLlistcmdfeature_unique: {
+                break;
+            }
+
+            case NNLlistcmdfeature_fifo: {
+                break;
+            }
+
+            case NNLlistcmdfeature_prepend: {
+                break;
+            }
+
+            default: {
+                // never gets here
+            }
+        }
+*/
+
 bool get_add_data(const GET_token_value_vec & token_value_vec, NNL_add_data & adddata) {
-    for (const auto & GETel : token_value_vec) {
-        if (GETel.token == "add") {
-            try {
-                adddata.nkey = Node_ID_key(GETel.value);
-            } catch (ID_exception idexception) {
-                return standard_error("Add Named Node List request has invalid Node ID ["+GETel.value+"], "+idexception.what(), __func__);
-            }
-        } if (GETel.token == "maxsize") {
-            adddata.maxsize = std::atoi(GETel.value.c_str());
-        } if (GETel.token == "unique") {
-            if (GETel.value == "true") {
-                adddata.features = adddata.features | Named_Node_List::unique_mask;
-            }
-        } if (GETel.token == "fifo") {
-            if (GETel.value == "true") {
-                adddata.features = adddata.features | Named_Node_List::fifo_mask;
-            }
-        } if (GETel.token == "prepend") {
-            if (GETel.value == "true") {
-                adddata.features = adddata.features | Named_Node_List::prepend_mask;
-            }
-        } else {
-            return standard_error("Unexpected token: "+GETel.token, __func__);
+    for (const auto &GETel : token_value_vec) {
+        auto it = NNL_list_add_features.find(GETel.token);
+        if (it == NNL_list_add_features.end()) {
+            return standard_error("Unexpected token: '" + GETel.token + '\'', __func__);
+        }
+        if (!(it->second(GETel.value, adddata))) {
+            return false;
         }
     }
     return true;
@@ -335,7 +475,7 @@ bool handle_remove_from_list(const std::string & list_name, const GET_token_valu
                 return standard_error("Remove Named Node List request has invalid Node ID ["+GETel.value+"], "+idexception.what(), __func__);
             }
         } else {
-            return standard_error("Unexpected token: "+GETel.token, __func__);
+            return standard_error("Unexpected token: '"+GETel.token+'\'', __func__);
         }
     }
 

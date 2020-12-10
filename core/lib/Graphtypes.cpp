@@ -239,6 +239,21 @@ std::string graph_mem_managers::info_str() { //bi::managed_shared_memory & segme
 }
 
 /**
+ * Generate a string that shows Topic keywords and relevance values.
+ * 
+ * @return A string that concatenates the keywords with relevance values in brackets.
+ */
+std::string Topic::keyrel_str() const {
+    std::string res;
+    for (const auto & kr : keyrel) {
+        res += kr.keyword.c_str() + (" (" + to_precision_string(kr.relevance, 1) + "), ");
+    }
+    res.pop_back();
+    res.pop_back();
+    return res;
+}
+
+/**
  * Returns the id (index) of a topic tag and adds it to the list of topic
  * tags if it was not already there.
  * 
@@ -1077,7 +1092,7 @@ bool Graph::topics_exist(const Topics_Set & topicsset) {
  */
 Topic * main_topic(const Topic_Tags & topictags, const Node & node) {
     Topic * maintopic = nullptr;
-    Topic_Relevance max_rel = 0.0;
+    Topic_Relevance max_rel = -99999.0;
     for (const auto& [t_id, t_rel] : node.topics) {
         if (t_rel>max_rel)
             maintopic = topictags.find_by_id(t_id);

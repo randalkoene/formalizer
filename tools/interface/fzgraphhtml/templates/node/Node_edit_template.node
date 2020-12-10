@@ -1,0 +1,12 @@
+{{ node-id }}
+{{ comp }}
+{{ req_mins}}
+{{ val }}
+{{ eff_td }}
+{{ td_prop }}
+{{ td_patt }}
+{{ td_every }}
+{{ td_span }}
+{{ topics }}
+{{ superiors }}
+{{ dependencies }}

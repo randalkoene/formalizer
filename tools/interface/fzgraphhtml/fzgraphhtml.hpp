@@ -20,11 +20,14 @@
 using namespace fz;
 
 enum flow_options {
-    flow_unknown = 0,    ///< no recognized request
-    flow_node = 1,       ///< request: show data for Node
-    flow_incomplete = 2, ///< request: show incomplete Nodes by effective targetdate
+    flow_unknown = 0,                 ///< no recognized request
+    flow_node = 1,                    ///< request: show data for Node
+    flow_incomplete = 2,              ///< request: show incomplete Nodes by effective targetdate
     flow_incomplete_with_repeats = 3, ///< request: show incomplete Nodes by effective targetdate with repeats
-    flow_named_list = 4, ///< request: show Nodes in Named Node List
+    flow_named_list = 4,              ///< request: show Nodes in Named Node List
+    flow_topics = 5,                  ///< request: show Topics
+    flow_topic_nodes = 6,             ///< request: show Nodes with Topic
+    flow_node_edit = 7,               ///< request: editing form for Node
     flow_NUMoptions
 };
 
@@ -63,6 +66,8 @@ struct fzgraphhtml: public formalizer_standard_program {
     bool test_cards = false;
 
     bool update_shortlist = false;
+
+    Topic_ID topic_id = 0;
 
     Graph * graph_ptr = nullptr;
 

@@ -39,8 +39,8 @@ fzgraphhtml fzgh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:IrL:N:M:D:x:o:eT:F:uC";
-    add_usage_top += " [-n <node-ID>] [-I] [-r] [-L <name|?>] [-N <num>] [-M <max-YYYYmmddHHMM>] [-D <num-days>] [-x <len>] [-o <output-path>] [-e] [-T <named|node|Node>=<path>] [-F html|txt|node|desc] [-u] [-C]";
+    add_option_args += "n:m:Irt:L:N:M:D:x:o:eT:F:uC";
+    add_usage_top += " [-n <node-ID>|-m <node-ID>|-I|-t <topic-ID|topic-tag|?>|-L <name|?>] [-r] [-N <num>] [-M <max-YYYYmmddHHMM>] [-D <num-days>] [-x <len>] [-o <output-path>] [-e] [-T <named|node|Node>=<path>] [-F html|txt|node|desc] [-u] [-C]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("When no [N <num>] is provided then the configured value is used.\n");
 }
@@ -52,9 +52,11 @@ fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) {
 void fzgraphhtml::usage_hook() {
     //ga.usage_hook();
     FZOUT("    -n Show data for Node with <node-ID>\n"
+          "    -m Editing form for Node with <node-ID>\n"
           "    -I Show data for incomplete Nodes\n"
           "    -r Show with repeats of repeating Nodes\n"
           "    -L Show data for Nodes in Named Node List, or show Names if '?'\n"
+          "    -t Show data for Nodes with Topic, or show Topics if '?'\n"
           "    -N Show data for <num> elements (all=no limit)\n"
           "    -M Show data up to and including <max-YYYYmmddHHMM>\n"
           "    -D Show data for <num-days> days\n"
@@ -145,6 +147,12 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'm': {
+        flowcontrol = flow_node_edit;
+        node_idstr = cargs;
+        return true;
+    }
+
     case 'I': {
         flowcontrol = flow_incomplete;
         return true;
@@ -154,6 +162,12 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
         if (flowcontrol == flow_incomplete) {
             flowcontrol = flow_incomplete_with_repeats;
         }
+        return true;
+    }
+
+    case 't': {
+        flowcontrol = flow_topics;
+        list_name = cargs;
         return true;
     }
 
@@ -321,6 +335,45 @@ void get_node_info() {
 
 }
 
+void get_topic_info() {
+    ERRTRACE;
+
+    if (fzgh.list_name == "?") {
+        fzgh.flowcontrol = flow_topics;
+    } else {
+        fzgh.flowcontrol = flow_topic_nodes;
+        if ((fzgh.list_name[0] >= '0') && (fzgh.list_name[0] <= '9')) {
+            fzgh.topic_id = std::atoi(fzgh.list_name.c_str());
+            if (!fzgh.graph().find_Topic_by_id(fzgh.topic_id)) {
+                standard_exit_error(exit_bad_request_data, "Invalid Topic ID: "+std::to_string(fzgh.topic_id), __func__);
+            }
+        } else {
+            Topic * topic_ptr = fzgh.graph().find_Topic_by_tag(fzgh.list_name);
+            if (!topic_ptr) {
+                standard_exit_error(exit_bad_request_data, "Invalid Topic tag: "+fzgh.list_name, __func__);
+            }
+            fzgh.topic_id = topic_ptr->get_id();
+        }
+    }
+
+    switch (fzgh.flowcontrol) {
+
+    case flow_topics: {
+        render_topics();
+        break;
+    }
+
+    case flow_topic_nodes: {
+        render_topic_nodes();
+        break;
+    }
+
+    default: {
+        fzgh.print_usage();
+    }
+
+    }
+}
 
 int main(int argc, char *argv[]) {
     ERRTRACE;
@@ -338,6 +391,11 @@ int main(int argc, char *argv[]) {
         break;
     }
 
+    case flow_node_edit: {
+        render_node_edit();
+        break;
+    }
+
     case flow_incomplete: {
         render_incomplete_nodes();
         break;
@@ -350,6 +408,11 @@ int main(int argc, char *argv[]) {
 
     case flow_named_list: {
         render_named_node_list();
+        break;
+    }
+
+    case flow_topics: {
+        get_topic_info();
         break;
     }
 

@@ -22,6 +22,8 @@ enum template_id_enum {
     named_node_list_in_list_temp,
     node_temp,
     node_pars_in_list_card_temp,
+    topic_pars_in_list_temp,
+    node_edit_temp,
     NUM_temp
 };
 
@@ -32,6 +34,10 @@ bool render_incomplete_nodes();
 bool render_incomplete_nodes_with_repeats();
 
 bool render_named_node_list();
+
+bool render_topics();
+
+bool render_topic_nodes();
 
 /**
  * Individual Node data rendering.
@@ -48,5 +54,7 @@ bool render_named_node_list();
  * @return A string with rendered Node data according to the chosen format.
  */
 std::string render_Node_data(Graph & graph, Node & node);
+
+bool render_node_edit();
 
 #endif // __RENDER_HPP

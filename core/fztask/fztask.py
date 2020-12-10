@@ -443,6 +443,7 @@ if __name__ == '__main__':
 
     while (chunkchoice != 'c'):
         chunkchoice = task_control(args)
+        args.T_emulate = None # needs to apply only when fztask is first called
 
     print('\nfztask done.')
 

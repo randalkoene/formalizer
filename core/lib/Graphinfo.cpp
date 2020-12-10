@@ -198,6 +198,22 @@ key_sorted_Nodes Nodes_created_in_time_interval(Graph & graph, time_t earliest, 
     return nodes;
 }
 
-
+/**
+ * Selects all Nodes that include a specific Topic ID and lists them by (inherited)
+ * target date.
+ * 
+ * @param graph A valid Graph data structure.
+ * @return A map of pointers to nodes by effective targetdate.
+ */
+targetdate_sorted_Nodes Nodes_with_topic_by_targetdate(Graph & graph, Topic_ID id) {
+    targetdate_sorted_Nodes nodes;
+    for (const auto & [nkey, node_ptr] : graph.get_nodes()) {
+        auto node_topics = node_ptr->get_topics();
+        if (node_topics.find(id) != node_topics.end()) {
+            nodes.emplace(node_ptr->effective_targetdate(), node_ptr.get());
+        }
+    }
+    return nodes; // automatic copy elision std::move(nodes);
+}
 
 } // namespace fz

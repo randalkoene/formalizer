@@ -39,7 +39,9 @@ std::vector<std::string> template_ids = {
     "node_pars_in_list_tail_template",
     "named_node_list_in_list_template",
     "Node_template",
-    "node_pars_in_list_card_template"
+    "node_pars_in_list_card_template",
+    "topic_pars_in_list_template",
+    "Node_edit_template"
 };
 
 typedef std::map<template_id_enum,std::string> fzgraphhtml_templates;
@@ -139,8 +141,9 @@ struct line_render_parameters {
      * 
      * @param node Reference to the Node to render.
      * @param tdate Target date to show (e.g. effective target date or locally specified target date).
+     * @param showdate Insert date and day of week if true.
      */
-    void render_Node(const Node & node, time_t tdate) {
+    void render_Node(const Node & node, time_t tdate, bool showdate = true) {
         template_varvalues varvals;
         varvals.emplace("node_id",node.get_id_str());
         Topic * topic_ptr = graph_ptr->main_Topic_of_Node(node);
@@ -150,7 +153,7 @@ struct line_render_parameters {
             varvals.emplace("topic","MISSING TOPIC!");
         }
         std::string tdstamp(TimeStampYmdHM(tdate));
-        if (tdstamp.substr(0,8) != datestamp) {
+        if (showdate && (tdstamp.substr(0,8) != datestamp)) {
             datestamp = tdstamp.substr(0,8);
             insert_day_start(tdate);
         }
@@ -168,6 +171,22 @@ struct line_render_parameters {
         } else {
             rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
         }
+    }
+
+    /**
+     * Call this to render parameters of a Topic on a single line of a list of Topics.
+     * 
+     * @param topic Reference to the Topic to render.
+     */
+    void render_Topic(const Topic & topic) {
+        template_varvalues varvals;
+        varvals.emplace("topic_id",std::to_string(topic.get_id()));
+        varvals.emplace("sup_id",std::to_string(topic.get_supid()));
+        varvals.emplace("tag",topic.get_tag().c_str());
+        varvals.emplace("title",topic.get_title().c_str());
+        varvals.emplace("keyrel",topic.keyrel_str());
+
+        rendered_page += env.render(templates[topic_pars_in_list_temp], varvals);
     }
 
     void render_List(const std::string & list_name) {
@@ -296,7 +315,7 @@ bool render_named_node_list() {
 
         Node * node_ptr = lrp.graph().Node_by_id(nkey);
         if (node_ptr) {
-            lrp.render_Node(*node_ptr, node_ptr->effective_targetdate());
+            lrp.render_Node(*node_ptr, node_ptr->effective_targetdate(), false);
         } else {
             standard_error("Node "+nkey.str()+" not found in Graph, skipping", __func__);
         }
@@ -308,7 +327,57 @@ bool render_named_node_list() {
     return lrp.present();
 }
 
-std::string render_Node_topics(Graph & graph, Node & node) {
+bool render_topics() {
+
+    line_render_parameters lrp("",__func__);
+
+    auto topics = lrp.graph().get_topics();
+
+    //unsigned int num_render = (fzgh.config.num_to_show > topics.num_Topics()) ? topics.num_Topics() : fzgh.config.num_to_show;
+    unsigned int num_render = topics.num_Topics();
+
+    lrp.prep(num_render);
+
+    for (const auto & [t_str, t_ptr] : topics.get_topicbytag()) {
+
+        Topic * topic_ptr = t_ptr.get();
+        if (topic_ptr) {
+            lrp.render_Topic(*topic_ptr);
+        } else {
+            standard_error(("Topic "+t_str+" not found in Graph, skipping").c_str(), __func__);
+        }
+
+        if (--num_render == 0)
+            break;
+    }
+
+    return lrp.present();
+}
+
+bool render_topic_nodes() {
+
+    line_render_parameters lrp("",__func__);
+
+    targetdate_sorted_Nodes topic_nodes = Nodes_with_topic_by_targetdate(lrp.graph(), fzgh.topic_id); // *** could grab a cache here
+    //unsigned int num_render = (fzgh.config.num_to_show > topic_nodes.size()) ? topic_nodes.size() : fzgh.config.num_to_show;
+    unsigned int num_render = topic_nodes.size();
+
+    lrp.prep(num_render);
+
+    for (const auto & [tdate, node_ptr] : topic_nodes) {
+
+        if (node_ptr) {
+            lrp.render_Node(*node_ptr, tdate, false);
+        }
+
+        if (--num_render == 0)
+            break;
+    }
+
+    return lrp.present();
+}
+
+std::string render_Node_topics(Graph & graph, Node & node, bool remove_button = false) {
     auto topictagsvec = Topic_tags_of_Node(graph, node);
     std::string topics_str;
     int i = 0;
@@ -316,13 +385,17 @@ std::string render_Node_topics(Graph & graph, Node & node) {
         if (i>0) {
             topics_str += ", ";
         }
-        topics_str += tagstr + " (" + to_precision_string(tagrel,1) + ')';
+        if (remove_button) {
+            topics_str += tagstr + " [<a href=\"/fz/graph/nodes/" + node.get_id_str() + "/topics/remove?" + tagstr + "=\">remove</a>] (" + to_precision_string(tagrel,1) + ')';
+        } else {
+            topics_str += tagstr + " (" + to_precision_string(tagrel,1) + ')';
+        }
         ++i;
     }
     return topics_str;
 }
 
-std::string render_Node_superiors(Graph & graph, Node & node) {
+std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button = false) {
     std::string sups_str;
     for (const auto & edge_ptr : node.sup_Edges()) {
         if (edge_ptr) {
@@ -337,6 +410,9 @@ std::string render_Node_superiors(Graph & graph, Node & node) {
                     std::string htmltext(sup_ptr->get_text().c_str());
                     sups_str += remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length);
                 }
+                if (remove_button) {
+                    sups_str += "[<a href=\"/fz/graph/nodes/" + node.get_id_str() + "/superiors/remove?" + edge_ptr->get_sup_str() + "=\">remove</a>]";
+                }
                 sups_str += "</li>\n";
             }
         }
@@ -344,7 +420,7 @@ std::string render_Node_superiors(Graph & graph, Node & node) {
     return sups_str;
 }
 
-std::string render_Node_dependencies(Graph & graph, Node & node) {
+std::string render_Node_dependencies(Graph & graph, Node & node, bool remove_button = false) {
     std::string deps_str;
     for (const auto & edge_ptr : node.dep_Edges()) {
         if (edge_ptr) {
@@ -358,6 +434,9 @@ std::string render_Node_dependencies(Graph & graph, Node & node) {
                 } else {
                     std::string htmltext(dep_ptr->get_text().c_str());
                     deps_str += remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length);
+                }
+                if (remove_button) {
+                    deps_str += "[<a href=\"/fz/graph/nodes/" + node.get_id_str() + "/superiors/remove?" + edge_ptr->get_sup_str() + "=\">remove</a>]";
                 }
                 deps_str += "</li>\n";
             }
@@ -419,4 +498,101 @@ std::string render_Node_data(Graph & graph, Node & node) {
     nodevars.emplace("dependencies", render_Node_dependencies(graph, node));
 
     return env.render(templates[node_temp], nodevars);
+}
+
+const std::string prop_token[_tdprop_num] = {
+    "prop_unspecified",
+    "prop_inherit",
+    "prop_variable",
+    "prop_fixed",
+    "prop_exact"
+};
+
+const std::string patt_token[_patt_num] = {
+    "patt_daily",
+    "patt_workdays",
+    "patt_weekly",
+    "patt_biweekly",
+    "patt_monthly",
+    "patt_endofmonthoffset",
+    "patt_yearly",
+    "OLD_patt_span",
+    "patt_nonperiodic"
+};
+
+bool render_node_edit() {
+    ERRTRACE;
+
+    auto [node_ptr, graph_ptr] = find_Node_by_idstr(fzgh.node_idstr, fzgh.graph_ptr);
+    if (!graph_ptr) {
+        standard_exit_error(exit_resident_graph_missing, "Unable to access memory-resident Graph.", __func__);
+    }
+    if (!node_ptr) {
+        standard_exit_error(exit_bad_request_data, "Invalid Node ID: "+fzgh.node_idstr, __func__);
+    }
+    Graph & graph = *graph_ptr;
+    Node & node = *node_ptr;
+    
+    // this is where you do the same as in render_Node_data(), with a few extra bits
+    render_environment env;
+    fzgraphhtml_templates templates;
+
+    load_templates(templates);
+
+    template_varvalues nodevars;
+    long required_mins = node.get_required() / 60;
+    double required_hrs = (double) required_mins / 60.0;
+    td_property tdprop = node.get_tdproperty();
+    td_pattern tdpatt = node.get_tdpattern();
+
+    nodevars.emplace("node-id", node.get_id_str());
+    nodevars.emplace("node-text", node.get_text());
+    nodevars.emplace("comp", to_precision_string(node.get_completion()));
+    nodevars.emplace("req_hrs", to_precision_string(required_hrs));
+    nodevars.emplace("req_mins", std::to_string(required_mins));
+    nodevars.emplace("val", to_precision_string(node.get_valuation()));
+
+    time_t t_eff = node.effective_targetdate();
+    nodevars.emplace("eff_td", TimeStampYmdHM(t_eff));
+    nodevars.emplace("eff_td_date",TimeStamp("%Y-%m-%d", t_eff));
+    nodevars.emplace("eff_td_time",TimeStamp("%H:%M", t_eff));
+
+    std::string prop_value[_tdprop_num] = {"", "", "", "", ""};
+    if (tdprop<_tdprop_num) {
+        prop_value[tdprop] = "checked";
+    } else {
+        ADDERROR(__func__, "Node "+node.get_id_str()+" has unrecognized TD property "+std::to_string((int) tdprop));
+    }
+    for (int i = 0; i < _tdprop_num; ++i) {
+        nodevars.emplace(prop_token[i],prop_value[i]);
+    }
+
+    std::string patt_value[_patt_num] = {"", "", "", "", "", "", "", "", ""};
+    if (tdpatt<_patt_num) {
+        patt_value[tdpatt] = "checked";
+    } else {
+        ADDERROR(__func__, "Node "+node.get_id_str()+" has unrecognized TD pattern "+std::to_string((int) tdpatt));
+    }
+    for (int i = 0; i < _patt_num; ++i) {
+        if (i != OLD_patt_span) {
+            nodevars.emplace(patt_token[i],patt_value[i]);
+        }
+    }
+
+    nodevars.emplace("td_every", std::to_string(node.get_tdevery()));
+    nodevars.emplace("td_span", std::to_string(node.get_tdspan()));
+    nodevars.emplace("topics", render_Node_topics(graph, node, true));
+    nodevars.emplace("superiors", render_Node_superiors(graph, node, true));
+    nodevars.emplace("dependencies", render_Node_dependencies(graph, node, true));
+
+    std::string rendered_node_data = env.render(templates[node_edit_temp], nodevars);
+
+    if (fzgh.config.rendered_out_path == "STDOUT") {
+        FZOUT(rendered_node_data);
+    } else {
+        if (!string_to_file(fzgh.config.rendered_out_path, rendered_node_data))
+            standard_exit_error(exit_file_error, "Unable to write rendered page to file.", __func__);
+    }
+
+    return true;
 }

@@ -43,6 +43,8 @@ form = cgi.FieldStorage()
 id = form.getvalue('id')
 srclist = form.getvalue('srclist')
 edit = form.getvalue('edit')
+topicslist = form.getvalue('topics')
+topic = form.getvalue('topic')
 
 modify_template = '''<tr><td>[<a href="/cgi-bin/fzgraphhtml-cgi.py?srclist={{{{ list_name }}}}">{{{{ list_name }}}}</a>]</td><td><a href="http://{fzserverpq}/fz/graph/namedlists/{{{{ list_name }}}}?add={node_id}">[add]</a></td></tr>
 '''
@@ -105,9 +107,33 @@ editpagehead = '''Content-type:text/html
     background-color: #B0C4F5;
 }
 </style>
+<br>
+<table><tbody>
 '''
 
 editpagetail = '''</tbody></table>
+<hr>
+</body>
+</html>
+'''
+
+topicspagehead = '''Content-type:text/html
+
+<head>
+<link rel="stylesheet" href="/fz.css">
+<title>Formalizer: Topics</title>
+</head>
+<body>
+<style type="text/css">
+.chktop {
+    background-color: #B0C4F5;
+}
+</style>
+<br>
+<table><tbody>
+'''
+
+topicspagetail = '''</tbody></table>
 <hr>
 </body>
 </html>
@@ -175,10 +201,24 @@ def generate_NNL_page():
 
 
 def generate_Node_edit_form_page():
-    thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -n "+edit
+    thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -m "+edit
     print(editpagehead)
     try_command_call(thecmd)
     print(editpagetail)
+
+
+def generate_topics_page():
+    thecmd = "./fzgraphhtml -q -t '?' -E STDOUT -o STDOUT"
+    print("Content-type:text/html\n\n")
+    #print(topicspagehead)
+    try_command_call(thecmd)
+    #print(topicspagetail)
+
+
+def generate_topic_nodes_page():
+    thecmd = "./fzgraphhtml -q -t '"+topic+"' -E STDOUT -o STDOUT"
+    print("Content-type:text/html\n\n")
+    try_command_call(thecmd)
 
 
 def generate_Next_Nodes_Schedule_page():
@@ -198,16 +238,23 @@ def generate_Next_Nodes_Schedule_page():
 if __name__ == '__main__':
     if id:
         generate_embeddable_list_of_NNLs_to_add_Node_to()
+        sys.exit(0)
     
-    else:
-        if srclist:
-            generate_NNL_page()
+    if srclist:
+        generate_NNL_page()
+        sys.exit(0)
 
-        else:
-            if edit:
-                generate_Node_edit_form_page()
+    if edit:
+        generate_Node_edit_form_page()
+        sys.exit(0)
 
-            else:
-                generate_Next_Nodes_Schedule_page()
+    if topicslist:
+        generate_topics_page()
+        sys.exit(0)
+    
+    if topic:
+        generate_topic_nodes_page()
+        sys.exit(0)
 
+    generate_Next_Nodes_Schedule_page()
     sys.exit(0)

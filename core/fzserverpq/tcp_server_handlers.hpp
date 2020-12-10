@@ -44,6 +44,16 @@ enum NNL_list_cmd {
     NNLlistcmd_NUM
 };
 
+enum NNL_list_cmd_feature {
+    NNLlistcmdfeature_unknown = 0,
+    NNLlistcmdfeature_add = 1,
+    NNLlistcmdfeature_maxsize = 2,
+    NNLlistcmdfeature_unique = 3,
+    NNLlistcmdfeature_fifo = 4,
+    NNLlistcmdfeature_prepend = 5,
+    NNLlistcmdfeature_NUM
+};
+
 enum fz_general_noarg_cmd {
     fznoargcmd_unknown = 0,
     fznoargcmd_status = 1,
