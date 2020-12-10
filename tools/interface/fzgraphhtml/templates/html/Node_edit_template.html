@@ -1,8 +1,11 @@
 <tr>
-<td><h3>Node ID: <b><a href="/cgi-bin/fzlink.py?id={{ node-id }}">{{ node-id }}</a></b></h3></td>
+<td><form action="/cgi-bin/fzedit-cgi.py" method="post">
+<h3>Node ID: <b><a href="/cgi-bin/fzlink.py?id={{ node-id }}">{{ node-id }}</a></b></h3>
+<input type="submit" value="modify"><input type="hidden" name="id" value="{{ node-id }}">
+</td>
 </tr>
 <tr>
-<td><form action="/cgi-bin/fzedit-cgi.py" method="post">
+<td>
 <hr>
 <textarea cols="80" rows="24" name="text">
 {{ node-text }}

@@ -180,6 +180,7 @@ public:
     bool Edit_tdevery() const { return editflags & Edit_flags::tdevery; }
     bool Edit_tdspan() const { return editflags & Edit_flags::tdspan; }
     bool Edit_error() const { return editflags & Edit_flags::error; }
+    bool None() const { return editflags == 0; }
 };
 
 //typedef std::uint32_t Edit_flags;
@@ -282,6 +283,16 @@ Node_ptr Graph_modify_add_node(Graph & graph, const std::string & graph_segname,
 
 /// Create an Edge in the Graph's shared segment and add it to the Graph.
 Edge_ptr Graph_modify_add_edge(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
+
+/**
+ * Update repeating Nodes past a specific timee.
+ * 
+ * @param sortednodes[in] A list of target date sorted incomplete Node pointers. These could be all or just repeated.
+ * @param t_pass[in] The time past which to update repeating Nodes.
+ * @param editflags[out] Reference to Edit_flags object that returns modifications that apply to one or more Nodes.
+ * @return A target date sorted list of Node pointers that were updated. Use this to synchronize to the database.
+ */
+targetdate_sorted_Nodes Update_repeating_Nodes(const targetdate_sorted_Nodes & sortednodes, time_t t_pass, Edit_flags & editflags);
 
 /// Add a Node to a Named Node List.
 Named_Node_List_ptr Graph_modify_list_add(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);

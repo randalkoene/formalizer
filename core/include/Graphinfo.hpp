@@ -69,6 +69,17 @@ targetdate_sorted_Nodes Nodes_incomplete_by_targetdate(Graph & graph);
 targetdate_sorted_Nodes Nodes_with_repeats_by_targetdate(const targetdate_sorted_Nodes & sortednodes, time_t t_max, size_t N_max);
 
 /**
+ * Selects all Nodes that are incomplete and repeating and lists them by (inherited)
+ * target date.
+ * 
+ * For example, see how this is used in `fzupdate` together with `Graphmodify:Update_repeating_Nodes()`.
+ * 
+ * @param graph A valid Graph data structure.
+ * @return A map of pointers to nodes by effective targetdate.
+ */
+targetdate_sorted_Nodes Nodes_incomplete_and_repeating_by_targetdate(Graph & graph);
+
+/**
  * Selects all Nodes that have Node IDs (i.e. creation times) within
  * a specified time interval.
  * 

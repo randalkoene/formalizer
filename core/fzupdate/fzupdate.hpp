@@ -19,11 +19,11 @@
 using namespace fz;
 
 enum flow_options {
-    flow_unknown = 0, /// no recognized request
-    //flow_something = 1,     /// request: make boilerplate for C++ program
+    flow_unknown = 0,          /// no recognized request
+    flow_update_repeating = 1, /// request: update repeating Nodes
+    flow_update_variable = 2,  /// request: update variable target date Nodes
     flow_NUMoptions
 };
-
 
 class fzu_configurable: public configurable {
 public:
@@ -40,7 +40,11 @@ struct fzupdate: public formalizer_standard_program {
 
     flow_options flowcontrol;
 
+    Graph * graph_ptr = nullptr;
+
     // Graph_access ga; // to include Graph or Log access support
+
+    ReferenceTime reftime;
 
     fzupdate();
 
@@ -49,6 +53,8 @@ struct fzupdate: public formalizer_standard_program {
     virtual bool options_hook(char c, std::string cargs);
 
     void init_top(int argc, char *argv[]);
+
+    Graph & graph();
 
 };
 

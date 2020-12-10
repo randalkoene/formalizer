@@ -388,6 +388,34 @@ Edit_flags Node_apply_minutes(Node & node, unsigned int add_minutes, time_t T_re
     return editflags;
 }
 
+/**
+ * Update repeating Nodes past a specific timee.
+ * 
+ * @param sortednodes[in] A list of target date sorted incomplete Node pointers. These could be all or just repeated.
+ * @param t_pass[in] The time past which to update repeating Nodes.
+ * @param editflags[out] Reference to Edit_flags object that returns modifications that apply to one or more Nodes.
+ * @return A target date sorted list of Node pointers that were updated. Use this to synchronize to the database.
+ */
+targetdate_sorted_Nodes Update_repeating_Nodes(const targetdate_sorted_Nodes & sortednodes, time_t t_pass, Edit_flags & editflags) {
+    targetdate_sorted_Nodes updatedrepeating;
+    for (const auto & [t, node_ptr] : sortednodes) {
+        if (t > t_pass) {
+            break;
+        }
+        bool updated = false;
+        while (node_ptr->get_repeats() && (node_ptr->get_targetdate()<=t_pass) && (node_ptr->get_tdpattern() != patt_yearly)) {
+            if (!Node_completed_repeating(*node_ptr, editflags)) {
+                break;
+            }
+            updated = true;
+        }
+        if (updated) {
+            updatedrepeating.emplace(node_ptr->get_targetdate(), node_ptr);
+        }
+    }
+    return updatedrepeating;
+}
+
 /// Add a Node to a Named Node List.
 Named_Node_List_ptr Graph_modify_list_add(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata) {
     if (!gmoddata.nodelist_ptr) {

@@ -116,8 +116,10 @@ SYMBIN += $(CONFIGEXPOSE)
 
 # CGI scripts that need to be copied to $(CGIDIR)
 CGIEXE =
+CGIEXE += $(COREPATH)/fzedit/fzedit-cgi.py
 CGIEXE += $(COREPATH)/fzgraph/fzgraph-cgi.py
 CGIEXE += $(COREPATH)/fztask/fztask-cgi.py
+CGIEXE += $(COREPATH)/fzupdate/fzupdate-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/logentry-form/logentry-form.py
 CGIEXE += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-cgi.py
@@ -129,7 +131,9 @@ CGIEXE += $(COREPATH)/fzguide.system/fzguide.system-cgi.py
 
 # CGI scripts for machine-local use with w3m, which an launch programs as the user
 LOCALCGI =
+LOCALCGI += $(COREPATH)/fzedit/fzedit-cgi.py
 LOCALCGI += $(COREPATH)/fztask/fztask-cgi.py
+LOCALCGI += $(COREPATH)/fzupdate/fzupdate-cgi.py
 LOCALCGI += $(TOOLSPATH)/interface/fzlogtime/fzlogtime
 LOCALCGI += $(TOOLSPATH)/interface/fzlogtime/fzlogtime.cgi
 
