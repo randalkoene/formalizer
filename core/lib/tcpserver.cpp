@@ -10,6 +10,8 @@
 #include <unistd.h> 
 #include <arpa/inet.h>
 #include <cstring>
+#include <map>
+#include <filesystem>
 
 // core
 #include "standard.hpp"
@@ -38,6 +40,84 @@ GET_token_value_vec GET_token_values(const std::string httpgetstr) {
         }
     }
     return gtvvec;
+}
+
+const std::map<std::string, std::string> ext_mimetype = {
+    {".html","text/html"},
+    {".css","text/css"},
+    {".csv","text/csv"},
+    {".gif","image/gif"},
+    {".ico","image/vnd.microsoft.icon"},
+    {".jpg","image/jpeg"},
+    {".jpeg","image/jpeg"},
+    {".png","image/png"},
+    {".svg","image/svg+xml"},
+    {".txt","text/plain"},
+    {".sh","application/x-sh"},
+    {".json","application/json"},
+    {".ics","text/calendar"},
+    {"_other_","application/octet-stream"}
+};
+
+/**
+ * Returns a MIME type string reference that corresponds with the extension of a
+ * file path.
+ * 
+ * Note: This function does not 'sniff' the file content to determine if the extension
+ * correctly points out the MIME type.
+ * 
+ * @param file_path The path to a file.
+ * @return The MIME type string reference.
+ */
+const std::string & mimetype_by_extension(const std::string & file_path) {
+    std::filesystem::path path(file_path);
+    auto it = ext_mimetype.find(path.extension().string());
+    //FZOUT("EXTENSION: ["+path.extension().string()+"]\n");
+    if (it == ext_mimetype.end()) {
+        it = ext_mimetype.find("_other_");
+    }
+    //FZOUT("MIME Type: "+it->second+'\n');
+    return it->second;
+}
+
+/// Retrieve or build the header string.
+const std::string & http_header_data::str() {
+    if (header_str.empty()) {
+        header_str = "HTTP/1.1 "+http_response_code_map.at(http_ok);
+        if (!server.empty()) {
+            header_str += "\nServer: "+server;
+        }
+        if (!content_type.empty()) {
+            header_str += "\nContent-Type: "+content_type;
+        }
+        if (content_length>0) {
+            header_str += "\nContent-Length: "+std::to_string(content_length);
+        }
+        header_str += "\r\n\r\n";
+    }
+    return header_str;
+}
+
+/// Send text response through socket.
+ssize_t server_response_text::respond(int socket) {
+    if (code != http_ok) {
+        VERYVERBOSEOUT(error_msg+"\nResponding with: "+code_str()+".\n");
+        ssize_t header_sent = send(socket, str().c_str(), len(), 0);
+        return header_sent;
+    } else {
+        ssize_t text_sent = 0;
+        return text_sent;
+    }
+}
+
+/// Send binary response through socket.
+ssize_t server_response_binary::respond(int socket) {
+    ssize_t header_sent = send(socket, str().c_str(), len(), 0);
+    if (header_sent>0) {
+        ssize_t data_sent = send(socket, data, datalen, 0);
+        return data_sent;
+    }
+    return header_sent;
 }
 
 /**

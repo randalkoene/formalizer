@@ -46,6 +46,83 @@ typedef std::vector<GET_token_value> GET_token_value_vec;
 GET_token_value_vec GET_token_values(const std::string httpgetstr);
 
 /**
+ * Returns a MIME type string reference that corresponds with the extension of a
+ * file path.
+ * 
+ * Note: This function does not 'sniff' the file content to determine if the extension
+ * correctly points out the MIME type.
+ * 
+ * @param file_path The path to a file.
+ * @return The MIME type string reference.
+ */
+const std::string & mimetype_by_extension(const std::string & file_path);
+
+enum http_response_code {
+    http_ok = 200,
+    http_bad_request = 400,
+    http_not_found = 404,
+};
+
+const std::map<http_response_code, std::string> http_response_code_map = {
+    {http_ok, "200 OK"},
+    {http_bad_request, "400 Bad Request"},
+    {http_not_found, "404 Not Found"}
+};
+
+/**
+ * A structure to collect HTTP header data and generate HTTP header strings.
+ * 
+ * Optionally, set `header_str` directly. Otherwise, use constructors and set
+ * structure data, then call `ok_str()` and `ok_len()` to send
+ * HTTP header info.
+ */
+struct http_header_data {
+    std::string server;
+    std::string content_type;
+    size_t content_length;
+
+    http_response_code code = http_ok;
+    std::string header_str; // generated from the component data or set directly
+    std::string error_msg;
+
+    http_header_data() : content_type("text/html") {}
+    http_header_data(std::string file_path) : content_type(mimetype_by_extension(file_path)) {}
+    http_header_data(std::string file_path, size_t len) : content_type(mimetype_by_extension(file_path)), content_length(len) {}
+    http_header_data(http_response_code _code, std::string resp_str) : code(_code), header_str("HTTP/1.1 "+http_response_code_map.at(_code)+"\r\n\r\n"), error_msg(resp_str) {}
+
+    const std::string & str();
+    size_t len() { return str().size(); }
+    const std::string & code_str() { return http_response_code_map.at(code); }
+};
+
+/**
+ * A helpful class for server responses with text data.
+ * 
+ * See fzserverpq:tcp_server_handlers:direct_tcpport_api_file_serving() as an
+ * example where this is used.
+ */
+class server_response_text: public http_header_data {
+public:
+    server_response_text(http_response_code _code, std::string resp_str) : http_header_data(_code, resp_str) {}
+    ssize_t respond(int socket);
+};
+
+/**
+ * A helpful class for server responses with binary data.
+ * 
+ * See fzserverpq:tcp_server_handlers:direct_tcpport_api_file_serving() as an
+ * example where this is used.
+ */
+class server_response_binary: public http_header_data {
+protected:
+    const void * data;
+    size_t datalen;
+public:
+    server_response_binary(std::string file_path, const void * _data, size_t _datalen) : http_header_data(file_path, _datalen), data(_data), datalen(_datalen) {}
+    ssize_t respond(int socket);
+};
+
+/**
  * Discover this server's IP address from the perspective of a connecting
  * TCP client.
  * 

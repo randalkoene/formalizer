@@ -57,8 +57,12 @@ enum NNL_list_cmd_feature {
 enum fz_general_noarg_cmd {
     fznoargcmd_unknown = 0,
     fznoargcmd_status = 1,
-    fznoargcmd_errq = 2,
-    fznoargcmd_stop = 3,
+    fznoargcmd_reqq = 2,
+    fznoargcmd_errq = 3,
+    fznoargcmd_stop = 4,
+    fznoargcmd_verbosity_normal = 5,
+    fznoargcmd_verbosity_quiet = 6,
+    fznoargcmd_verbosity_very = 7,
     fznoargcmd_NUM
 };
 

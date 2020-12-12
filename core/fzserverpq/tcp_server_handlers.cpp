@@ -11,6 +11,7 @@
 //#include <iostream>
 //#include <sys/types.h>
 #include <sys/socket.h>
+#include <filesystem>
 
 // core
 #include "error.hpp"
@@ -20,6 +21,8 @@
 #include "Graphtypes.hpp"
 #include "Graphinfo.hpp"
 #include "Graphpostgres.hpp"
+//#include "stringio.hpp"
+#include "binaryio.hpp"
 
 // local
 #include "tcp_server_handlers.hpp"
@@ -34,7 +37,7 @@ bool handle_named_lists_reload(std::string & response_html) {
     if (!load_Named_Node_Lists_pq(*fzs.graph_ptr, fzs.ga.dbname(), fzs.ga.pq_schemaname())) {
         return false;
     }
-    response_html = "<html>\n<body>\n"
+    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
                     "<p>Reloaded Named Node Lists cache from database.</p>\n"
                     "</body>\n</html>\n";
     return true;
@@ -50,7 +53,7 @@ bool handle_update_shortlist(std::string & response_html) {
             return standard_error("Synchronizing 'shortlist' Named Node List update to database failed", __func__);
         }
     }
-    response_html = "<html>\n<body>\n"
+    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
                     "<p>Named Node List 'shortlist' updated with "+std::to_string(copied)+" Nodes.</p>\n"
                     "</body>\n</html>\n";
 
@@ -60,7 +63,7 @@ bool handle_update_shortlist(std::string & response_html) {
 bool handle_named_list_parameters(const GET_token_value_vec & token_value_vec, std::string & response_html) {
     ERRTRACE;
 
-    response_html = "<html>\n<body>\n"
+    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
                     "<p>Named Node List parameter set.</p>\n";
     for (const auto &GETel : token_value_vec) {
         if (GETel.token == "persistent") {
@@ -118,7 +121,7 @@ bool handle_selected_list(const GET_token_value_vec & token_value_vec, std::stri
             return standard_error("Synchronizing 'selected' update to database failed", __func__);
         }
     }
-    response_html = "<html>\n<body>\n"
+    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
                     "<p>Named Node List modified.</p>\n"
                     "<p><b>Added</b> "+nkey.str()+" to List 'selected'.</p>\n"
                     "</body>\n</html>\n";
@@ -159,7 +162,7 @@ bool handle_recent_list(const GET_token_value_vec & token_value_vec, std::string
             return standard_error("Synchronizing 'recent' update to database failed", __func__);
         }
     }
-    response_html = "<html>\n<body>\n"
+    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
                     "<p>Named Node List modified.</p>\n"
                     "<p><b>Pushed</b> "+nkey.str()+" to fifo List 'recent'.</p>\n"
                     "</body>\n</html>\n";
@@ -317,7 +320,7 @@ bool handle_copy_to_list(const std::string & list_name, const GET_token_value_ve
         }
     }
 
-    response_html = "<html>\n<body>\n"
+    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
                     "<p>Named Node List modified.</p>\n"
                     "<p><b>Copied</b> "+std::to_string(copied)+"Nodes from "+copydata.from_name+" to List "+list_name+".</p>\n"
                     "</body>\n</html>\n";
@@ -453,7 +456,7 @@ bool handle_add_to_list(const std::string & list_name, const GET_token_value_vec
         }
     }
 
-    response_html = "<html>\n<body>\n"
+    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
                     "<p>Named Node List modified.</p>\n"
                     "<p><b>Added</b> "+adddata.nkey.str()+" to List "+list_name+".</p>\n"
                     "</body>\n</html>\n";
@@ -483,7 +486,7 @@ bool handle_remove_from_list(const std::string & list_name, const GET_token_valu
         return standard_error("Unable to remove Node "+nkey.str()+" from Named Node List "+list_name, __func__);
     }
 
-    response_html = "<html>\n<body>\n"
+    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
                     "<p>Named Node List modified.</p>\n";
 
     if (fzs.graph_ptr->persistent_Lists()) {
@@ -523,7 +526,7 @@ bool handle_delete_list(const std::string & list_name, const GET_token_value_vec
         }
     }
 
-    response_html = "<html>\n<body>\n"
+    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
                     "<p>Named Node List modified.</p>\n"
                     "<p><b>Deleted</b> List " + list_name + ".</p>\n"
                     "</body>\n</html>\n";
@@ -749,7 +752,7 @@ void show_db_mode(int new_socket) {
     VERYVERBOSEOUT("Database mode: "+SimPQ.PQChanges_Mode_str()+'\n');
     fzs.log("TCP", "DB mode request successful");
     std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
-    std::string mode_html("<html>\n<body>\n<p>Database mode: "+SimPQ.PQChanges_Mode_str()+"</p>\n");
+    std::string mode_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n<p>Database mode: "+SimPQ.PQChanges_Mode_str()+"</p>\n");
     if (SimPQ.LoggingPQChanges()) {
         mode_html += "<p>Logging to: "+SimPQ.simPQfile+"</p>\n";
     }
@@ -769,6 +772,19 @@ void show_db_log(int new_socket) {
     log_html += "<p>Current status of the DB call log:</p>\n<hr>\n<pre>\n" + SimPQ.GetLog() + "</pre>\n<hr>\n</body>\n</html>\n";
     response_str += std::to_string(log_html.size()) + "\r\n\r\n" + log_html;
     send(new_socket, response_str.c_str(), response_str.size()+1, 0);
+}
+
+bool show_ReqQ(int new_socket) {
+    ERRTRACE;
+
+    VERYVERBOSEOUT("Showing ReqQ.\n");
+    fzs.log("TCP", "ReqQ request sucessful");
+    std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
+    std::string reqq_html("<html>\n<head>\n<link rel=\"stylesheet\" href=\"http://"+fzs.graph_ptr->get_server_IPaddr()+"/fz.css\">\n<title>fz: ReqQ</title>\n</head>\n<body>\n<h3>fz: ReqQ</h3>\n");
+    reqq_html += "<p>When fzserverpq exits, ReqQ will be flushed to: "+fzs.ReqQ.get_errfilepath()+"</p>\n\n";
+    reqq_html += "<p>Current status of ReqQ:</p>\n<hr>\n<pre>\n" + fzs.ReqQ.pretty_print() + "</pre>\n<hr>\n</body>\n</html>\n";
+    response_str += std::to_string(reqq_html.size()) + "\r\n\r\n" + reqq_html;
+    return (send(new_socket, response_str.c_str(), response_str.size()+1, 0) >= 0);
 }
 
 bool show_ErrQ(int new_socket) {
@@ -880,15 +896,19 @@ bool handle_fz_vfs_graph_request(int new_socket, const std::string & fzrequestur
 
 const Command_Token_Map general_noargs_commands = {
     {"status", fznoargcmd_status},
+    {"ReqQ", fznoargcmd_reqq},
     {"ErrQ", fznoargcmd_errq},
-    {"_stop", fznoargcmd_stop}
+    {"_stop", fznoargcmd_stop},
+    {"verbosity?set=normal",fznoargcmd_verbosity_normal},
+    {"verbosity?set=quiet",fznoargcmd_verbosity_quiet},
+    {"verbosity?set=very",fznoargcmd_verbosity_very}
 };
 
 bool handle_status(int new_socket) {
     VERYVERBOSEOUT("Status request received. Responding.\n");
     fzs.log("TCP", "Status reported");
     std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
-    std::string status_html("<html>\n<body>\nServer status: LISTENING\n</body>\n</html>\n");
+    std::string status_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nServer status: LISTENING\n</body>\n</html>\n");
     response_str += std::to_string(status_html.size()) + "\r\n\r\n" + status_html;
     return (send(new_socket, response_str.c_str(), response_str.size()+1, 0) >= 0);
 }
@@ -898,7 +918,18 @@ bool handle_stop(int new_socket) {
     VERYVERBOSEOUT("STOP request received. Exiting server listen loop.\n");
     fzs.log("TCP", "Stopping");
     std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
-    std::string status_html("<html>\n<body>\nServer status: STOPPING\n</body>\n</html>\n");
+    std::string status_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nServer status: STOPPING\n</body>\n</html>\n");
+    response_str += std::to_string(status_html.size()) + "\r\n\r\n" + status_html;
+    return (send(new_socket, response_str.c_str(), response_str.size()+1, 0) >= 0);
+}
+
+bool handle_set_verbosity(int new_socket, std::string verbosity_str, bool veryverbose, bool quiet) {
+    standard.veryverbose = veryverbose;
+    standard.quiet = quiet;
+    VERYVERBOSEOUT("Setting verbosity: "+verbosity_str+'\n');
+    fzs.log("TCP", "Set verbosity: "+verbosity_str);
+    std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
+    std::string status_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nSetting verbosity: "+verbosity_str+"\n</body>\n</html>\n");
     response_str += std::to_string(status_html.size()) + "\r\n\r\n" + status_html;
     return (send(new_socket, response_str.c_str(), response_str.size()+1, 0) >= 0);
 }
@@ -920,12 +951,28 @@ bool handle_fz_vfs_request(int new_socket, const std::string & fzrequesturl) {
                 return handle_status(new_socket);
             }
 
+            case fznoargcmd_reqq: {
+                return show_ReqQ(new_socket);
+            }
+
             case fznoargcmd_errq: {
                 return show_ErrQ(new_socket);
             }
 
             case fznoargcmd_stop: {
                 return handle_stop(new_socket);
+            }
+
+            case fznoargcmd_verbosity_normal: {
+                return handle_set_verbosity(new_socket, "normal", false, false);
+            }
+
+            case fznoargcmd_verbosity_quiet: {
+                return handle_set_verbosity(new_socket, "quiet", false, true);
+            }
+
+            case fznoargcmd_verbosity_very: {
+                return handle_set_verbosity(new_socket, "very verbose", true, false);
             }
 
             default: {
@@ -943,6 +990,24 @@ bool handle_fz_vfs_request(int new_socket, const std::string & fzrequesturl) {
     }
 
     return false;
+}
+
+void direct_tcpport_api_file_serving(int new_socket, const std::string & url) {
+    std::string file_path(fzs.config.www_file_root+url);
+
+    //uninitialized_buffer buf;
+    std::vector<char> buf;
+    if (file_to_buffer(file_path, buf)) {
+
+        server_response_binary srvbin(file_path, buf.data(), buf.size());
+        if (srvbin.respond(new_socket)>0) {
+            return;
+        }
+
+    }
+
+    server_response_text srvtxt(http_not_found, "Requested file ("+url+") not found.");
+    fzs.log("TCP", srvtxt.error_msg);
 }
 
 void fzserverpq::handle_special_purpose_request(int new_socket, const std::string & request_str) {
@@ -976,9 +1041,13 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
 
     }
 
+    if (requestvec[1][0] == '/') { // translate to direct TCP-port API file serving root
+        direct_tcpport_api_file_serving(new_socket, requestvec[1]);
+        return;
+    }
+
     // no known request encountered and handled
-    VERBOSEOUT("Request type is unrecognized. Responding with: 400 Bad Request.\n");
-    log("TCP", "Unrecognized request");
-    std::string response_str("HTTP/1.1 400 Bad Request\r\n\r\n");
-    send(new_socket, response_str.c_str(), response_str.size()+1, 0);
+    server_response_text srvtxt(http_bad_request, "Request unrecognized: "+request_str);
+    srvtxt.respond(new_socket);
+    log("TCP",srvtxt.error_msg);
 }

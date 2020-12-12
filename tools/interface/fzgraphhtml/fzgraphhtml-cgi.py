@@ -45,6 +45,7 @@ srclist = form.getvalue('srclist')
 edit = form.getvalue('edit')
 topicslist = form.getvalue('topics')
 topic = form.getvalue('topic')
+tonode = form.getvalue('to-node')
 
 modify_template = '''<tr><td>[<a href="/cgi-bin/fzgraphhtml-cgi.py?srclist={{{{ list_name }}}}">{{{{ list_name }}}}</a>]</td><td><a href="http://{fzserverpq}/fz/graph/namedlists/{{{{ list_name }}}}?add={node_id}">[add]</a></td></tr>
 '''
@@ -209,6 +210,8 @@ def generate_Node_edit_form_page():
 
 def generate_topics_page():
     thecmd = "./fzgraphhtml -q -t '?' -E STDOUT -o STDOUT"
+    if tonode:
+        thecmd += " -i " + tonode
     print("Content-type:text/html\n\n")
     #print(topicspagehead)
     try_command_call(thecmd)

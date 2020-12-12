@@ -38,12 +38,12 @@ TD Pattern:
 <input type="radio" name="patt" value="eofmonth" {{ patt_endofmonthoffset }}> end-of-month offset |
 <input type="radio" name="patt" value="yearly" {{ patt_yearly }}> yearly<br>
 Every: <input type="number" name="every" min="1" step="1" value="{{ td_every }}"> Span: <input type="number" name="span" min="0" step="1" value="{{ td_span }}"><br>
-Topics: {{ topics }} [<a href="/cgi-bin/fzgraphhtml-cgi.py?topics=?">add</a>]
+Topics: {{ topics }} [<a href="/cgi-bin/fzgraphhtml-cgi.py?topics=?&to-node={{ node-id }}">add</a>]
 </td>
 </tr>
 <tr>
 <td>
-Superiors: [<a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=?">add</a>]
+Superiors: [<a href="http://{{ fzserverpq }}/fz/graph/nodes/{{ node-id }}/superiors?addlist=superiors">add</a>] <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=superiors">superiors</a>
 <ol>
 {{ superiors }}
 </ol>
@@ -51,7 +51,7 @@ Superiors: [<a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=?">add</a>]
 </tr>
 <tr>
 <td>
-Dependencies: [<a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=?">add</a>]
+Dependencies: [<a href="http://{{ fzserverpq }}/fz/graph/nodes/{{ node-id }}/dependencies?addlist=dependencies">add</a>] <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=dependencies">dependencies</a>
 <ol>
 {{ dependencies }}
 </ol>

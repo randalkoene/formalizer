@@ -134,6 +134,9 @@ $(OBJ)/general.o: general.cpp $(INC)/general.hpp
 $(OBJ)/stringio.o: stringio.cpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c stringio.cpp -o $(OBJ)/stringio.o
 
+$(OBJ)/binaryio.o: binaryio.cpp $(INC)/error.hpp
+	$(CCPP) $(CPPFLAGS) -c binaryio.cpp -o $(OBJ)/binaryio.o
+
 $(OBJ)/proclock.o: proclock.cpp $(INC)/error.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c proclock.cpp -o $(OBJ)/proclock.o
 

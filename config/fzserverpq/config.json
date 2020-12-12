@@ -1,4 +1,6 @@
 {
     "port_number" : "8090",
-    "persistent_NNL" : "true"
+    "persistent_NNL" : "true",
+    "www_file_root" : "/var/www/html",
+    "request_log" : "/var/www/html/formalizer/formalizer.core.server.requests.log"
 }

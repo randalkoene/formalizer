@@ -111,14 +111,17 @@ CORE_OBJS += $(CORELIBPATH)/obj/templater.o
 CORE_OBJS += $(CORELIBPATH)/obj/fzpostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Graphaccess.o
-# CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
-# CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
+CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphbase.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphinfo.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphmodify.o
 # CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Logpostgres.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Guidepostgres.o
-# CORE_OBJS += $(CORELIBPATH)/obj/utf8.o
+CORE_OBJS += $(CORELIBPATH)/obj/utf8.o
 # CORE_OBJS += $(CORELIBPATH)/obj/dilaccess.o
 # +----- end  : Select Formalizer core library objects -----+
 

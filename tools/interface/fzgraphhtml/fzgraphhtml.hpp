@@ -69,6 +69,8 @@ struct fzgraphhtml: public formalizer_standard_program {
 
     Topic_ID topic_id = 0;
 
+    bool add_to_node = false;
+
     Graph * graph_ptr = nullptr;
 
     // Graph_access ga; // to include Graph or Log access support

@@ -56,6 +56,10 @@
 
 namespace fz {
 
+// A macro still works better here, because I can just splice it between char string constants.
+//constexpr char * standard_HTML_HEAD_links = "\n<link rel=\"icon\" href=\"/favicon-32x32.png\">\n<link rel=\"stylesheet\" href=\"/fz.css\">\n";
+#define STANDARD_HTML_HEAD_LINKS "\n<link rel=\"icon\" href=\"/favicon-32x32.png\">\n<link rel=\"stylesheet\" href=\"/fz.css\">\n"
+
 // Forward declaration
 class main_init_register;
 

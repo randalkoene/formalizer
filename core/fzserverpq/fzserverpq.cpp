@@ -44,9 +44,9 @@ fzserverpq fzs;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga(*this, add_option_args, add_usage_top, true),
-                           flowcontrol(flow_unknown), graph_ptr(nullptr), ReqQ(reqqfilepath) {
-    add_option_args += "Gp:";
-    add_usage_top += " [-G] [-p <port-number>]";
+                           flowcontrol(flow_unknown), graph_ptr(nullptr), ReqQ(config.reqqfilepath) {
+    add_option_args += "Gp:L:";
+    add_usage_top += " [-G] [-p <port-number>] [-L <request-log>]";
     usage_tail.push_back(
         "The limited number of command line options are generally used only to start\n"
         "the server. The server interacts with clients through the combination of a\n"
@@ -70,9 +70,11 @@ fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga
         "\n"
         "  /fz/status\n"
         "  /fz/ErrQ\n"
+        "  /fz/ReqQ\n"
         "  /fz/_stop\n"
+        "  /fz/verbosity?set=<normal|quiet|very>\n"
         "  /fz/db/mode\n"
-        "  /fz/db/mode=<run|log|sim>\n"
+        "  /fz/db/mode?set=<run|log|sim>\n"
         "  /fz/graph/logtime?<node-id>=<mins>[&T=<emulated-time>]\n"
         "  /fz/graph/nodes/logtime?<node-id>=<mins>[&T=<emulated-time>]\n"
         "  /fz/graph/namedlists/<list-name>?add=<node-id>[&FEATURES/MAXSIZE]\n"
@@ -93,7 +95,11 @@ fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga
         "        arguments to specify FEATURES and MAXSIZE if the <list-name> is new.\n"
         "        The available specifiers are:\n"
         "          [&maxsize=N], [&unique=true|false], [&fifo=true|false],"
-        "          [&prepend=true|false]\n");
+        "          [&prepend=true|false]\n"
+        "Note D: Using the direct TCP-port API, absolute URLs are translated so that\n"
+        "        the root '/' is at the actual filesystem location specified by the\n"
+        "        configuration variable 'www_file_root'. It presently evaluates to\n"
+        "        "+fzs.config.www_file_root+".\n");
 }
 
 /**
@@ -107,6 +113,8 @@ bool fzs_configurable::set_parameter(const std::string & parlabel, const std::st
     // *** You could also implement try-catch here to gracefully report problems with configuration files.
     CONFIG_TEST_AND_SET_PAR(port_number, "port_number", parlabel, std::stoi(parvalue));
     CONFIG_TEST_AND_SET_PAR(persistent_NNL, "persistent_NNL", parlabel, (parvalue != "false"));
+    CONFIG_TEST_AND_SET_PAR(www_file_root, "www_file_root", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(request_log, "request_log", parlabel, parvalue);
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
@@ -117,8 +125,10 @@ bool fzs_configurable::set_parameter(const std::string & parlabel, const std::st
  */
 void fzserverpq::usage_hook() {
     ga.usage_hook();
-    FZOUT("    -G Load Graph and stay resident in memory\n");
-    FZOUT("    -p Specify <port-number> on which the sever will listen\n");
+    FZOUT("    -G Load Graph and stay resident in memory\n"
+          "    -p Specify <port-number> on which the sever will listen\n"
+          "    -L Log requests received in <request-log> (or STDOUT), currently set\n"
+          "       to: "+ReqQ.get_errfilepath()+'\n');
 }
 
 /**
@@ -165,6 +175,7 @@ void fzserverpq::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen once in main(), for the derived class
     ReqQ.disable_caching();
     ReqQ.enable_timestamping();
+    ReqQ.set_errfilepath(config.request_log);
 }
 
 void load_Graph_and_stay_resident() {

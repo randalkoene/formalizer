@@ -107,6 +107,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/config.o
 CORE_OBJS += $(CORELIBPATH)/obj/general.o
 CORE_OBJS += $(CORELIBPATH)/obj/proclock.o
 CORE_OBJS += $(CORELIBPATH)/obj/stringio.o
+CORE_OBJS += $(CORELIBPATH)/obj/binaryio.o
 CORE_OBJS += $(CORELIBPATH)/obj/jsonlite.o
 # CORE_OBJS += $(CORELIBPATH)/obj/templater.o
 # CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o

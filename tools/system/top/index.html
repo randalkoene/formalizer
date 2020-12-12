@@ -72,7 +72,11 @@
 <br>
 <button class="button button1" onclick="window.open('/cgi-bin/fzserver-info-cgi.py','_blank');">Server Status</button>
 <button class="button button2" onclick="location.href='http://aether.local:8090/fz/status';">Port Status</button>
-<button class="button button1" onclick="location.href='http://aether.local:8090/fz/ErrQ';">ErrQ Status</button>
+<button class="button button1" onclick="location.href='http://aether.local:8090/fz/ReqQ';">ReqQ Status</button>
+<button class="button button2" onclick="location.href='http://aether.local:8090/fz/ErrQ';">ErrQ Status</button>
+<button class="button button1" onclick="location.href='http://aether.local:8090/fz/verbosity?set=normal';">Verbose</button>
+<button class="button button2" onclick="location.href='http://aether.local:8090/fz/verbosity?set=very';">Very Verbose</button>
+<button class="button button1" onclick="location.href='http://aether.local:8090/fz/verbosity?set=quiet';">Quiet</button>
 <button class="button button2" onclick="location.href='http://aether.local:8090/fz/db/mode';">DB mode</button>
 <button class="button button1" onclick="location.href='http://aether.local:8090/fz/db/mode?set=run';">DB run</button>
 <button class="button button2" onclick="location.href='http://aether.local:8090/fz/db/mode?set=log';">DB log</button>
@@ -143,6 +147,8 @@ Action: <button class="button button1" onclick="window.open('/formalizer/add_nod
 Links to inspedct common default ErrQ and WarnQ logging output files used by Formalizer core and tools components.
 
 <UL>
+    <LI><a href="/formalizer/formalizer.core.server.requests.log">Server Requests log</a></LI>
+    <P></P>
     <LI><a href="/formalizer/formalizer.core.server.error.ErrQ.log">Server Errors log</a></LI>
     <P></P>      
     <LI><a href="/formalizer/formalizer.core.error.ErrQ.log">Errors log</a></LI>

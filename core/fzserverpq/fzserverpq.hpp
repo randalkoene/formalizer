@@ -38,14 +38,17 @@ public:
     fzs_configurable(formalizer_standard_program &fsp) : configurable("fzserverpq", fsp) {}
     bool set_parameter(const std::string &parlabel, const std::string &parvalue);
 
+    static constexpr const char * reqqfilepath = "/tmp/formalizer.core.fzserverpq.ReqQ.log";
+
     uint16_t port_number = 8090;   ///< Default port number to listen on.
     bool persistent_NNL = true;    ///< Default Named Node Lists are synchronized in-memory and database.
+    std::string www_file_root = "/var/www/html"; ///< Root as presented for direct TCP-port API file serving.
+    std::string request_log = reqqfilepath;
 };
 
 struct fzserverpq: public formalizer_standard_program, public shared_memory_server {
 
     static constexpr const char * lockfilepath = FORMALIZER_ROOT "/.fzserverpq.lock";
-    static constexpr const char * reqqfilepath = "/tmp/formalizer.core.fzserverpq.ReqQ.log";
 
     fzs_configurable config;
 

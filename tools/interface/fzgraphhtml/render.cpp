@@ -185,6 +185,11 @@ struct line_render_parameters {
         varvals.emplace("tag",topic.get_tag().c_str());
         varvals.emplace("title",topic.get_title().c_str());
         varvals.emplace("keyrel",topic.keyrel_str());
+        if (fzgh.add_to_node) {
+            varvals.emplace("add_to_node","<td>[<a href=\"http://"+fzgh.graph().get_server_full_address()+"/fz/graph/nodes/"+fzgh.node_idstr+"/topics/add?"+topic.get_tag().c_str()+"=1.0\">add to "+fzgh.node_idstr+"</a>]</td>");
+        } else {
+            varvals.emplace("add_to_node","");
+        }
 
         rendered_page += env.render(templates[topic_pars_in_list_temp], varvals);
     }
@@ -581,6 +586,7 @@ bool render_node_edit() {
 
     nodevars.emplace("td_every", std::to_string(node.get_tdevery()));
     nodevars.emplace("td_span", std::to_string(node.get_tdspan()));
+    nodevars.emplace("fzserverpq", graph.get_server_full_address());
     nodevars.emplace("topics", render_Node_topics(graph, node, true));
     nodevars.emplace("superiors", render_Node_superiors(graph, node, true));
     nodevars.emplace("dependencies", render_Node_dependencies(graph, node, true));
