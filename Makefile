@@ -102,7 +102,7 @@ CONFIGEXPOSE += $(FZCONFIGPATH)/server_address
 
 # symbolic links to executables for CGI scripts and configuration files to call upon
 SYMBIN = 
-SYMBIN += $(COREPATH)/fzedit/fdedit
+SYMBIN += $(COREPATH)/fzedit/fzedit
 SYMBIN += $(COREPATH)/fzgraph/fzgraph
 SYMBIN += $(COREPATH)/fzlog/fzlog
 SYMBIN += $(COREPATH)/fzquerypq/fzquerypq
@@ -131,6 +131,7 @@ CGIEXE += $(COREPATH)/fzguide.system/fzguide.system-cgi.py
 
 # CGI scripts for machine-local use with w3m, which an launch programs as the user
 LOCALCGI =
+LOCALCGI += $(COREPATH)/fzedit/fzedit
 LOCALCGI += $(COREPATH)/fzedit/fzedit-cgi.py
 LOCALCGI += $(COREPATH)/fztask/fztask-cgi.py
 LOCALCGI += $(COREPATH)/fzupdate/fzupdate-cgi.py

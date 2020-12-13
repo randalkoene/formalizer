@@ -454,6 +454,8 @@ protected:
     Edges_Set supedges; /// this set maintained for rapid Edge access to superior Nodes
     Edges_Set depedges; /// this set maintained for rapid Edge access to dependency Nodes
  
+    Edit_flags editflags;   /// flags used to indicate Node data that has been modified (or should be modified, https://trello.com/c/eUjjF1yZ)
+
     #define SEM_TRAVERSED 1
     mutable int semaphore; /// used to detect graph traversal etc.
 
@@ -494,6 +496,9 @@ public:
     long minutes_applied() { return seconds_applied()/60; }
     float hours_applied() { return ((float)minutes_applied())/60.0; }
 
+    const Edit_flags & get_editflags() { return editflags; }
+    void clear_editflags() { editflags.clear(); }
+
     /// change parameters: topics
     bool add_topic(Topic_Tags &topictags, Topic_ID topicid, float topicrelevance);
     bool add_topic(Topic_Tags &topictags, std::string tag, std::string title, float topicrelevance);
@@ -520,6 +525,7 @@ public:
     void set_tdspan(int count) { tdspan = count; }
 
     void copy_content(Node & from_node);
+    void edit_content(Node & from_node, const Edit_flags & edit_flags);
 
     /// Graph relative operations
     time_t effective_targetdate();

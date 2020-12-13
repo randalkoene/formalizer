@@ -85,6 +85,8 @@ bool store_Graph_pq(const Graph& graph, std::string dbname, std::string schemana
 
 bool load_Graph_pq(Graph& graph, std::string dbname, std::string schemaname);
 
+bool update_Node_pq(PGconn* conn, const std::string & schemaname, const Node & node, const Edit_flags & _editflags);
+
 bool Update_Node_pq(std::string dbname, std::string schemaname, const Node & node, const Edit_flags & _editflags);
 
 std::vector<std::string> load_Node_parameter_interval(std::string dbname, std::string schemaname, pq_Nfields param, unsigned long from_row, unsigned long num_rows);

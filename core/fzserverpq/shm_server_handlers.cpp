@@ -122,6 +122,32 @@ bool request_stack_valid(Graph_modifications & graphmod, std::string segname) {
                 break;
             }
 
+            case graphmod_edit_node: {
+                // confirm that the Node ID exists.
+                if (!gmoddata.node_ptr) {
+                    prepare_error_response(segname, exit_missing_data, "Missing Node data in edit node request");
+                    return false;
+                }
+                if (!fzs.graph_ptr->Node_by_id(gmoddata.node_ptr->get_id().key())) {
+                    prepare_error_response(segname, exit_bad_request_data, "Node ID ("+gmoddata.node_ptr->get_id_str()+") for edit node request not found");
+                    return false;
+                }
+
+                // confirm that the supplied topic tags are all known
+                if (!fzs.graph_ptr->topics_exist(gmoddata.node_ptr->get_topics())) {
+                    prepare_error_response(segname, exit_bad_request_data, "Unknown Topic ID(s) in edit node request");
+                    return false;
+                }
+                // *** does anything else need to be validated?
+                break;
+            }
+
+            case graphmod_edit_edge: {
+                prepare_error_response(segname, exit_bad_request_data, "Edge editing is not yet implemented");
+                return false;
+                break;
+            }
+
             default: {
                 prepare_error_response(segname, exit_unknown_option, "Unrecognized Graph modification request ("+std::to_string(gmoddata.request)+')');
                 return false;
@@ -141,7 +167,7 @@ bool request_stack_valid(Graph_modifications & graphmod, std::string segname) {
  * to each request.
  * 
  * @param segname The shared memory segment name provided for the request stack.
- * @return 
+ * @return True if successful.
  */
 bool handle_request_stack(std::string segname) {
     ERRTRACE;
@@ -153,10 +179,10 @@ bool handle_request_stack(std::string segname) {
     Graph_modifications * graphmod_ptr = find_Graph_modifications_in_shared_memory(segname);
     if (!graphmod_ptr)
         ERRRETURNFALSE(__func__, "Unable to find and access shared segment "+segname);
-    
+
     if (!request_stack_valid(*graphmod_ptr, segname))
         ERRRETURNFALSE(__func__, "Request stack contains invalid request data");
-    
+
     Graphmod_results * results_ptr = initialized_results_response(segname);
     if (!results_ptr)
         ERRRETURNFALSE(__func__, "Unable to initialize results object");
@@ -214,6 +240,28 @@ bool handle_request_stack(std::string segname) {
                     ERRRETURNFALSE(__func__, "Graph modify delete Named Node List failed.");
 
                 results_ptr->results.emplace_back(namedlist_delete, gmoddata.nodelist_ptr->name.c_str(), gmoddata.nodelist_ptr->nkey);
+                break;
+            }
+
+            case graphmod_edit_node: {
+                Node_ptr node_ptr = Graph_modify_edit_node(*fzs.graph_ptr, graph_segname, gmoddata);
+                if (!node_ptr)
+                    ERRRETURNFALSE(__func__, "Graph modify edit node failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
+                
+                results_ptr->results.emplace_back(graphmod_edit_node, node_ptr->get_id().key());
+                #ifdef USE_CHANGE_HISTORY
+                // this is an example of a place where a change history record can be created and where the
+                // state of the change can be set to `applied-in-memory`. See https://trello.com/c/FxSP8If8.
+                #endif
+                break;
+            }
+
+            case graphmod_edit_edge: {
+                Edge_ptr edge_ptr = Graph_modify_edit_edge(*fzs.graph_ptr, graph_segname, gmoddata);
+                if (!edge_ptr)
+                    ERRRETURNFALSE(__func__, "Graph modify edit edge failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
+                
+                results_ptr->results.emplace_back(graphmod_edit_edge, edge_ptr->get_id().key());
                 break;
             }
 

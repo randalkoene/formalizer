@@ -2,7 +2,7 @@
 // License TBD
 
 // std
-//#include <>
+#include <cmath>
 
 // core
 #include "error.hpp"
@@ -21,7 +21,8 @@ namespace fz {
  */
 void Node_data::copy(Graph & graph, Node & node) {
     node.set_text(utf8_text);
-    node.set_required((unsigned int) (hours*3600.0));
+    node.set_completion(completion);
+    node.set_required((unsigned int) round(hours*3600.0));
     node.set_valuation(valuation);
     node.set_targetdate(targetdate);
     node.set_tdproperty(tdproperty);
@@ -73,6 +74,26 @@ std::string Graphmod_results::info_str() {
             }
             case graphmod_add_edge: {
                 infostr += "\n\tadded Edge with ID "+modres.edge_key.str();
+                break;
+            }
+            case namedlist_add: {
+                infostr += "\n\tadded Node with ID "+(modres.node_key.str()+" to NNL ")+modres.resstr.c_str();
+                break;
+            }
+            case namedlist_remove: {
+                infostr += "\n\tremoved Node with ID "+(modres.node_key.str()+" from NNL ")+modres.resstr.c_str();
+                break;
+            }
+            case namedlist_delete: {
+                infostr += "\n\tdelete Named Node List ";
+                infostr += modres.resstr.c_str();
+            }
+            case graphmod_edit_node: {
+                infostr += "\n\tedited Node with ID "+modres.node_key.str();
+                break;
+            }
+            case graphmod_edit_edge: {
+                infostr += "\n\tedited Edge with ID "+modres.edge_key.str();
                 break;
             }
             default: {
@@ -229,6 +250,34 @@ Edge_ptr Graph_modify_add_edge(Graph & graph, const std::string & graph_segname,
     
     edge_ptr->copy_content(requested_edge);
     return edge_ptr;
+}
+
+/// Edit a Node in the Graph.
+Node_ptr Graph_modify_edit_node(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata) {
+    if (!gmoddata.node_ptr) {
+        return nullptr;
+    }
+
+    if (!graphmemman.set_active(graph_segname)) { // activate in case topics or other container elements are added
+        ADDERROR(__func__, "Unable to activate segment "+graph_segname+" for Node edits with possible allocations");
+        return nullptr;
+    }
+
+    Node & modifications_node = *gmoddata.node_ptr;
+    Node_ptr node_ptr = graph.Node_by_id(modifications_node.get_id().key());
+    if (!node_ptr) {
+        return nullptr;
+    }
+   
+    // *** In the following, Edit_flags could instead be in Node and therefore also in modifications_node.
+    node_ptr->edit_content(modifications_node,gmoddata);
+    return node_ptr;
+}
+
+/// Edit and Edge in the Graph.
+Edge_ptr Graph_modify_edit_edge(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata) {
+    // *** Not yet implemented.
+    return nullptr;
 }
 
 /**

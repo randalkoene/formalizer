@@ -26,6 +26,7 @@ namespace fz {
 /// On-heap data structure used when building an Add/Edit-Node request, initialized to compile-time default values.
 struct Node_data {
     std::string utf8_text;
+    Graphdecimal completion = 0.0;
     Graphdecimal hours = 0.0;
     Graphdecimal valuation = 0.0;
     std::vector<std::string> topics;
@@ -129,60 +130,6 @@ struct Graphmod_results {
     std::string info_str();
 };
 
-typedef std::uint32_t Edit_flags_type;
-
-class Edit_flags {
-public:
-    enum editmask : Edit_flags_type {
-        topics     = 0b0000'0000'0000'0001,
-        valuation  = 0b0000'0000'0000'0010,
-        completion = 0b0000'0000'0000'0100,
-        required   = 0b0000'0000'0000'1000,
-        text       = 0b0000'0000'0001'0000,
-        targetdate = 0b0000'0000'0010'0000,
-        tdproperty = 0b0000'0000'0100'0000,
-        repeats    = 0b0000'0000'1000'0000,
-        tdpattern  = 0b0000'0001'0000'0000,
-        tdevery    = 0b0000'0010'0000'0000,
-        tdspan     = 0b0000'0100'0000'0000,
-        topicrels  = 0b0000'1000'0000'0000,
-        error      = 0b0100'0000'0000'0000'0000'0000'0000'0000 // see how this is used in Node_advance_repeating()
-    };
-protected:
-    Edit_flags_type editflags;
-public:
-    Edit_flags() : editflags(0) {}
-    Edit_flags_type get_Edit_flags() { return editflags; }
-    void set_Edit_flags(Edit_flags_type _editflags) { editflags = _editflags; }
-    void set_Edit_topics() { editflags |= Edit_flags::topics; }
-    void set_Edit_topicrels() { editflags |= Edit_flags::topicrels; }
-    void set_Edit_valuation() { editflags |= Edit_flags::valuation; }
-    void set_Edit_completion() { editflags |= Edit_flags::completion; }
-    void set_Edit_required() { editflags |= Edit_flags::required; }
-    void set_Edit_text() { editflags |= Edit_flags::text; }
-    void set_Edit_targetdate() { editflags |= Edit_flags::targetdate; }
-    void set_Edit_tdproperty() { editflags |= Edit_flags::tdproperty; }
-    void set_Edit_repeats() { editflags |= Edit_flags::repeats; }
-    void set_Edit_tdpattern() { editflags |= Edit_flags::tdpattern; }
-    void set_Edit_tdevery() { editflags |= Edit_flags::tdevery; }
-    void set_Edit_tdspan() { editflags |= Edit_flags::tdspan; }
-    void set_Edit_error() { editflags |= Edit_flags::error; }
-    bool Edit_topics() const { return editflags & Edit_flags::topics; }
-    bool Edit_topicrels() const { return editflags & Edit_flags::topicrels; }
-    bool Edit_valuation() const { return editflags & Edit_flags::valuation; }
-    bool Edit_completion() const { return editflags & Edit_flags::completion; }
-    bool Edit_required() const { return editflags & Edit_flags::required; }
-    bool Edit_text() const { return editflags & Edit_flags::text; }
-    bool Edit_targetdate() const { return editflags & Edit_flags::targetdate; }
-    bool Edit_tdproperty() const { return editflags & Edit_flags::tdproperty; }
-    bool Edit_repeats() const { return editflags & Edit_flags::repeats; }
-    bool Edit_tdpattern() const { return editflags & Edit_flags::tdpattern; }
-    bool Edit_tdevery() const { return editflags & Edit_flags::tdevery; }
-    bool Edit_tdspan() const { return editflags & Edit_flags::tdspan; }
-    bool Edit_error() const { return editflags & Edit_flags::error; }
-    bool None() const { return editflags == 0; }
-};
-
 //typedef std::uint32_t Edit_flags;
 /**
  * This is the data structure used for elements of the request stack for
@@ -283,6 +230,12 @@ Node_ptr Graph_modify_add_node(Graph & graph, const std::string & graph_segname,
 
 /// Create an Edge in the Graph's shared segment and add it to the Graph.
 Edge_ptr Graph_modify_add_edge(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
+
+/// Edit a Node in the Graph.
+Node_ptr Graph_modify_edit_node(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
+
+/// Edit and Edge in the Graph.
+Edge_ptr Graph_modify_edit_edge(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
 
 /**
  * Update repeating Nodes past a specific timee.

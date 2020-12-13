@@ -561,6 +561,51 @@ void Node::copy_content(Node & from_node) {
 }
 
 /**
+ * Edit Node data in accordance with reference data in the `from_node`, and
+ * edit only the data indicated by the `edit_flags`.
+ */
+void Node::edit_content(Node & from_node, const Edit_flags & edit_flags) {
+    if (edit_flags.Edit_valuation()) {
+        set_valuation(from_node.get_valuation());
+    }
+    if (edit_flags.Edit_completion()) {
+        set_completion(from_node.get_completion());
+    }
+    if (edit_flags.Edit_required()) {
+        set_required(from_node.get_required());
+    }
+    if (edit_flags.Edit_text()) {
+        set_text(from_node.get_text().c_str());
+    }
+    if (edit_flags.Edit_targetdate()) {
+        set_targetdate(from_node.get_targetdate());
+    }
+    if (edit_flags.Edit_tdproperty()) {
+        set_tdproperty(from_node.get_tdproperty());
+    }
+    if (edit_flags.Edit_repeats()) {
+        set_repeats(from_node.get_repeats());
+    }
+    if (edit_flags.Edit_tdpattern()) {
+        set_tdpattern(from_node.get_tdpattern());
+    }
+    if (edit_flags.Edit_tdevery()) {
+        set_tdevery(from_node.get_tdevery());
+    }
+    if (edit_flags.Edit_tdspan()) {
+        set_tdspan(from_node.get_tdspan());
+    }
+    if (edit_flags.Edit_topics()) {
+        topics.clear();
+        for (const auto & [topic_id, topic_rel] : from_node.get_topics()) {
+            add_topic(topic_id, topic_rel);
+        }
+    }
+    // Set the Edit_flags of the modified Node
+    editflags.set_Edit_flags(edit_flags.get_Edit_flags());
+}
+
+/**
  * Returns a vector of target dates, including those determined by the Node's
  * repeat pattern and span, up to a specified maximum time.
  * 

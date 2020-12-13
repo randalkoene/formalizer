@@ -39,7 +39,7 @@ bool request_stack_valid(Graph_modifications & graphmod, std::string segname);
  * to each request.
  * 
  * @param segname The shared memory segment name provided for the request stack.
- * @return 
+ * @return True if succcessful.
  */
 bool handle_request_stack(std::string segname);
 

@@ -30,6 +30,19 @@
 
 using namespace fz;
 
+bool handle_request_response(int socket, const std::string & text, std::string msg) {
+    server_response_text srvtxt(text);
+    fzs.log("TCP", msg);
+    VERYVERBOSEOUT(msg+'\n');
+    return (srvtxt.respond(socket) >= 0);
+}
+
+void handle_request_error(int socket, http_response_code code, std::string error_msg) {
+    server_response_text srvtxt(code, error_msg);
+    srvtxt.respond(socket); // a VERYVERBOSEOUT is in the respond() function
+    fzs.log("TCP",srvtxt.error_msg);
+}
+
 bool handle_named_lists_reload(std::string & response_html) {
     ERRTRACE;
 
@@ -636,16 +649,85 @@ bool node_add_logged_time(const std::string & node_addstr) {
     return true;
 }
 
+/**
+ * Redirects to Node presentation through fzgraphhtml in a format specified by the extension.
+ * For example:
+ *   /fz/graph/nodes/20200901061505.1.html leads to fzgraphhtml -n 20200901061505.1 -F html
+ *   /fz/graph/nodes/20200901061505.1.desc leads to fzgraphhtml -n 20200901061505.1 -F desc
+ */
+bool handle_node_direct_show(Node & node, const std::string & extension, std::string & response_html) {
+    // *** Not yet implemented
+    return false;
+}
+
+/**
+ * Somewhat similar to the shared-memory interface to editing multiple parameters of a Node.
+ * This includes changing the values of multiple parameters and setting the Node's `Edit_flags`,
+ * then calling `Update_Node_pq()`, but it does not include using a `Graph_modifications` stack
+ * or responding with results in shared-memory. Edits can set or add.
+ * For example:
+ *   /fz/graph/nodes/20200901061505.1?completion=1.0&repeats=no
+ *   /fz/graph/nodes/20200901061505.1?required=+45m
+ */
+bool handle_node_direct_edit_multiple_pars(Node & node, const std::string & extension, std::string & response_html) {
+    // *** Not yet implemented
+    return false;
+}
+
+/**
+ * Address a specified parameter, then carry out a command, such as `set` or `add`, or show the parameter
+ * in the format indicated by the extension. Where parameters have units, multiple units and unit conversion
+ * may be available as well.
+ * Also, `add` or `remove` Topics when `topics/` is the next part of the URL.
+ * For example:
+ *   /fz/graph/nodes/20200901061505.1/completion?set=1.0
+ *   /fz/graph/nodes/20200901061505.1/required?add=45m
+ *   /fz/graph/nodes/20200901061505.1/required?add=-45m
+ *   /fz/graph/nodes/20200901061505.1/required?add=0.75h
+ *   /fz/graph/nodes/20200901061505.1/required?set=2h
+ *   /fz/graph/nodes/20200901061505.1/valuation.txt
+ *   /fz/graph/nodes/20200901061505.1/topics/add?organization=1.0&oop-change=1.0
+ *   /fz/graph/nodes/20200901061505.1/topics/remove?literature=[1.0]
+ */
+bool handle_node_direct_parameter(Node & node, const std::string & extension, std::string & response_html) {
+    // *** Not yet implemented
+    // identify the parameter
+    // identify the command
+    // identify the value
+    // set the new parameter value (alternatively, build a modification neuron and use a method similar to the SHM method)
+    // set edit flags
+    // update in database
+    // edit response_html
+    return false;
+}
+
 bool handle_node_direct_request(std::string nodereqstr, std::string & response_html) {
     ERRTRACE;
 
     VERYVERBOSEOUT("Handling Node request.\n");
 
     if ((nodereqstr.substr(0,8) == "logtime?") && (nodereqstr.size()>25)) {
-        // *** should response_html be modified here, do we want feedback?
+        response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n<p>Node Logged time updated.</p>\n</body>\n</html>\n";
         return node_add_logged_time(nodereqstr.substr(8));
     }
 
+    if (nodereqstr.size()>NODE_ID_STR_NUMCHARS) {
+        Node_ptr node_ptr = fzs.graph_ptr->Node_by_idstr(nodereqstr.substr(0,NODE_ID_STR_NUMCHARS));
+        if (node_ptr) {
+            switch (nodereqstr[NODE_ID_STR_NUMCHARS]) {
+                case '.': {
+                    return handle_node_direct_show(*node_ptr, nodereqstr.substr(NODE_ID_STR_NUMCHARS), response_html);
+                }
+                case '?': {
+                    return handle_node_direct_edit_multiple_pars(*node_ptr, nodereqstr.substr(NODE_ID_STR_NUMCHARS), response_html);
+                }
+                case '/': {
+                    return handle_node_direct_parameter(*node_ptr, nodereqstr.substr(NODE_ID_STR_NUMCHARS), response_html);
+                }
+            }
+        }
+    }
+http://192.168.42.14:8090/fz/graph/nodes/20201115084141.1/topics/add?accounting=1.0
     return standard_error("No known request token found: "+nodereqstr, __func__);
 }
 
@@ -748,56 +830,36 @@ bool handle_named_list_direct_request(std::string namedlistreqstr, std::string &
 
 void show_db_mode(int new_socket) {
     ERRTRACE;
-
-    VERYVERBOSEOUT("Database mode: "+SimPQ.PQChanges_Mode_str()+'\n');
-    fzs.log("TCP", "DB mode request successful");
-    std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
     std::string mode_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n<p>Database mode: "+SimPQ.PQChanges_Mode_str()+"</p>\n");
     if (SimPQ.LoggingPQChanges()) {
         mode_html += "<p>Logging to: "+SimPQ.simPQfile+"</p>\n";
     }
     mode_html += "</body>\n</html>\n";
-    response_str += std::to_string(mode_html.size()) + "\r\n\r\n" + mode_html;
-    send(new_socket, response_str.c_str(), response_str.size()+1, 0);
+    handle_request_response(new_socket, mode_html, "Database mode: "+SimPQ.PQChanges_Mode_str());
 }
 
 void show_db_log(int new_socket) {
     ERRTRACE;
-
-    VERYVERBOSEOUT("Showing database log.\n");
-    fzs.log("TCP", "DB log request sucessful");
-    std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
     std::string log_html("<html>\n<head>\n<link rel=\"stylesheet\" href=\"http://"+fzs.graph_ptr->get_server_IPaddr()+"/fz.css\">\n<title>fz: Database Call Log</title>\n</head>\n<body>\n<h3>fz: Database Call Log</h3>\n");
     log_html += "<p>When fzserverpq exits, the DB call log will be flushed to: "+SimPQ.simPQfile+"</p>\n\n";
     log_html += "<p>Current status of the DB call log:</p>\n<hr>\n<pre>\n" + SimPQ.GetLog() + "</pre>\n<hr>\n</body>\n</html>\n";
-    response_str += std::to_string(log_html.size()) + "\r\n\r\n" + log_html;
-    send(new_socket, response_str.c_str(), response_str.size()+1, 0);
+    handle_request_response(new_socket, log_html, "DB log request sucessful");
 }
 
 bool show_ReqQ(int new_socket) {
     ERRTRACE;
-
-    VERYVERBOSEOUT("Showing ReqQ.\n");
-    fzs.log("TCP", "ReqQ request sucessful");
-    std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
     std::string reqq_html("<html>\n<head>\n<link rel=\"stylesheet\" href=\"http://"+fzs.graph_ptr->get_server_IPaddr()+"/fz.css\">\n<title>fz: ReqQ</title>\n</head>\n<body>\n<h3>fz: ReqQ</h3>\n");
     reqq_html += "<p>When fzserverpq exits, ReqQ will be flushed to: "+fzs.ReqQ.get_errfilepath()+"</p>\n\n";
     reqq_html += "<p>Current status of ReqQ:</p>\n<hr>\n<pre>\n" + fzs.ReqQ.pretty_print() + "</pre>\n<hr>\n</body>\n</html>\n";
-    response_str += std::to_string(reqq_html.size()) + "\r\n\r\n" + reqq_html;
-    return (send(new_socket, response_str.c_str(), response_str.size()+1, 0) >= 0);
+    return handle_request_response(new_socket, reqq_html, "ReqQ request sucessful");
 }
 
 bool show_ErrQ(int new_socket) {
     ERRTRACE;
-
-    VERYVERBOSEOUT("Showing ErrQ.\n");
-    fzs.log("TCP", "ErrQ request sucessful");
-    std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
     std::string errq_html("<html>\n<head>\n<link rel=\"stylesheet\" href=\"http://"+fzs.graph_ptr->get_server_IPaddr()+"/fz.css\">\n<title>fz: ErrQ</title>\n</head>\n<body>\n<h3>fz: ErrQ</h3>\n");
     errq_html += "<p>When fzserverpq exits, ErrQ will be flushed to: "+ErrQ.get_errfilepath()+"</p>\n\n";
     errq_html += "<p>Current status of ErrQ:</p>\n<hr>\n<pre>\n" + ErrQ.pretty_print() + "</pre>\n<hr>\n</body>\n</html>\n";
-    response_str += std::to_string(errq_html.size()) + "\r\n\r\n" + errq_html;
-    return (send(new_socket, response_str.c_str(), response_str.size()+1, 0) >= 0);
+    return handle_request_response(new_socket, errq_html, "ErrQ request sucessful");
 }
 
 /**
@@ -848,47 +910,30 @@ bool handle_fz_vfs_database_request(int new_socket, const std::string & fzreques
  * @return True if the request was handled successfully.
  */
 bool handle_fz_vfs_graph_request(int new_socket, const std::string & fzrequesturl) {
-    constexpr const char * response_ok_start = "HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ";
     VERYVERBOSEOUT("Handling Graph request.\n");
 
     if ((fzrequesturl.substr(10,8) == "logtime?") && (fzrequesturl.size()>35)) {
 
         std::string response_html;
         if (node_add_logged_time(fzrequesturl.substr(18))) {
-            VERYVERBOSEOUT("Logtime request handled. Responding.\n");
-            fzs.log("TCP", "Logtime request successful");
-            // *** should response_html be modified here, do we want feedback?
-            std::string response_str = response_ok_start + std::to_string(response_html.size()) + "\r\n\r\n" + response_html;
-            send(new_socket, response_str.c_str(), response_str.size()+1, 0);
-            return true;          
+            response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nLogged time added to Node.\n</body>\n</html>\n";
+            return handle_request_response(new_socket, response_html, "Logtime request successful");
         }
 
     }
 
     if (fzrequesturl.substr(10,6) == "nodes/") {
-
         std::string response_html;
         if (handle_node_direct_request(fzrequesturl.substr(16), response_html)) {
-            VERYVERBOSEOUT("Node modification / parameter request handled. Responding.\n");
-            fzs.log("TCP", "Node request successful");
-            std::string response_str = response_ok_start + std::to_string(response_html.size()) + "\r\n\r\n" + response_html;
-            send(new_socket, response_str.c_str(), response_str.size()+1, 0);
-            return true;  
+            return handle_request_response(new_socket, response_html, "Node request successful");
         }
-
     }
 
     if (fzrequesturl.substr(10,11) == "namedlists/") {
-
         std::string response_html;
         if (handle_named_list_direct_request(fzrequesturl.substr(21), response_html)) {
-            VERYVERBOSEOUT("Named Node List modification / parameter request handled. Responding.\n");
-            fzs.log("TCP", "NNL request successful");
-            std::string response_str = response_ok_start + std::to_string(response_html.size()) + "\r\n\r\n" + response_html;
-            send(new_socket, response_str.c_str(), response_str.size()+1, 0);
-            return true;
+            return handle_request_response(new_socket, response_html, "NNL request successful");
         }
-
     }
 
     return false;
@@ -905,33 +950,22 @@ const Command_Token_Map general_noargs_commands = {
 };
 
 bool handle_status(int new_socket) {
-    VERYVERBOSEOUT("Status request received. Responding.\n");
-    fzs.log("TCP", "Status reported");
-    std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
     std::string status_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nServer status: LISTENING\n</body>\n</html>\n");
-    response_str += std::to_string(status_html.size()) + "\r\n\r\n" + status_html;
-    return (send(new_socket, response_str.c_str(), response_str.size()+1, 0) >= 0);
+    return handle_request_response(new_socket, status_html, "Status reported");
 }
 
 bool handle_stop(int new_socket) {
     fzs.listen = false;
-    VERYVERBOSEOUT("STOP request received. Exiting server listen loop.\n");
-    fzs.log("TCP", "Stopping");
-    std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
     std::string status_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nServer status: STOPPING\n</body>\n</html>\n");
-    response_str += std::to_string(status_html.size()) + "\r\n\r\n" + status_html;
-    return (send(new_socket, response_str.c_str(), response_str.size()+1, 0) >= 0);
+    return handle_request_response(new_socket, status_html, "Stopping");
 }
 
 bool handle_set_verbosity(int new_socket, std::string verbosity_str, bool veryverbose, bool quiet) {
     standard.veryverbose = veryverbose;
     standard.quiet = quiet;
-    VERYVERBOSEOUT("Setting verbosity: "+verbosity_str+'\n');
-    fzs.log("TCP", "Set verbosity: "+verbosity_str);
-    std::string response_str("HTTP/1.1 200 OK\nServer: aether\nContent-Type: text/html;charset=UTF-8\nContent-Length: ");
-    std::string status_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nSetting verbosity: "+verbosity_str+"\n</body>\n</html>\n");
-    response_str += std::to_string(status_html.size()) + "\r\n\r\n" + status_html;
-    return (send(new_socket, response_str.c_str(), response_str.size()+1, 0) >= 0);
+    std::string success_msg("Setting verbosity: "+verbosity_str);
+    std::string status_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"+success_msg+"\n</body>\n</html>\n");
+    return handle_request_response(new_socket, status_html, success_msg);
 }
 
 /**
@@ -1006,8 +1040,7 @@ void direct_tcpport_api_file_serving(int new_socket, const std::string & url) {
 
     }
 
-    server_response_text srvtxt(http_not_found, "Requested file ("+url+") not found.");
-    fzs.log("TCP", srvtxt.error_msg);
+    handle_request_error(new_socket, http_not_found, "Requested file ("+url+") not found.");
 }
 
 void fzserverpq::handle_special_purpose_request(int new_socket, const std::string & request_str) {
@@ -1017,10 +1050,7 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
     log("TCP","Received: "+request_str);
     auto requestvec = split(request_str,' ');
     if (requestvec.size()<2) {
-        VERYVERBOSEOUT("Missing request. Responding with: 400 Bad Request.\n");
-        log("TCP","Insufficient data");
-        std::string response_str("HTTP/1.1 400 Bad Request\r\n\r\n");
-        send(new_socket, response_str.c_str(), response_str.size()+1, 0);
+        handle_request_error(new_socket, http_bad_request, "Missing request.");
         return;
     }
 
@@ -1032,10 +1062,7 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
         if (handle_fz_vfs_request(new_socket, requestvec[1])) {
             return;
         } else {
-            VERBOSEOUT("Formalizer Virtual Filesystem /fz/ request failed.\nResponding with: 404 Not Found.\n");
-            log("TCP", "/fz/ request error");
-            std::string response_str("HTTP/1.1 404 Not Found\r\n\r\n");
-            send(new_socket, response_str.c_str(), response_str.size()+1, 0);   
+            handle_request_error(new_socket, http_not_found, "Formalizer Virtual Filesystem /fz/ request failed.");
             return;         
         }
 
@@ -1047,7 +1074,5 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
     }
 
     // no known request encountered and handled
-    server_response_text srvtxt(http_bad_request, "Request unrecognized: "+request_str);
-    srvtxt.respond(new_socket);
-    log("TCP",srvtxt.error_msg);
+    handle_request_error(new_socket, http_bad_request, "Request unrecognized: "+request_str);
 }

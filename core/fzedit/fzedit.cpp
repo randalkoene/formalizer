@@ -39,8 +39,8 @@ fzedit fze;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzedit::fzedit() : formalizer_standard_program(false), config(*this), flowcontrol(flow_unknown) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "M:L:C:T:f:H:a:S:D:t:g:p:r:e:s:Y:G:I:U:P:l:d:uz";
-    add_usage_top += " [-M <node-id>|<edge-id>] [-T <text>] [-f <content-file>] [-H <hours>] [-a <val>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>]";
+    add_option_args += "M:L:C:T:f:c:H:a:S:D:t:g:p:r:e:s:Y:G:I:U:P:l:d:uz";
+    add_usage_top += " [-M <node-id>|<edge-id>] [-T <text>] [-f <content-file>] [-c <ratio>] [-H <hours>] [-a <val>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("If a <content-file> is 'DEFAULT' then the path specified in the configuration\n"
                          "file is used. A configured path does not automatically mean that Node text\n"
@@ -57,6 +57,7 @@ void fzedit::usage_hook() {
     FZOUT("    -M modify Node or Edge with <id> (discerned by length of ID)\n"
           "    -T description <text> from the command line\n"
           "    -f description text from <content-file> (\"STDIN\" for stdin until eof, CTRL+D)\n"
+          "    -c completion\n"
           "    -H hours required\n"
           "    -a valuation\n"
           "    -t target date time stamp\n"
@@ -112,6 +113,12 @@ bool fzedit::options_hook(char c, std::string cargs) {
     case 'f': {
         config.content_file = cargs;
         editflags.set_Edit_text();
+        return true;
+    }
+
+    case 'c': {
+        nd.completion = std::stof(cargs);
+        editflags.set_Edit_completion();
         return true;
     }
 
@@ -223,11 +230,95 @@ void fzedit::prepare_Graphmod_shared_memory(unsigned long _segsize) {
     segname = unique_name_Graphmod(); // a unique name to share with `fzserverpq`
 }
 
+std::string verbose_edit_node_info() {
+    std::string venstr("Modifying Node "+fze.idstr+", editing the following parameters:");
+    if (fze.editflags.Edit_valuation()) {
+        venstr += "\n\tvaluation = " + to_precision_string(fze.nd.valuation);
+    }
+    if (fze.editflags.Edit_completion()) {
+        venstr += "\n\tcompletion = " + to_precision_string(fze.nd.completion);
+    }
+    if (fze.editflags.Edit_required()) {
+        venstr += "\n\trequired (hrs) = " + to_precision_string(fze.nd.hours);
+    }
+    if (fze.editflags.Edit_text()) {
+        venstr += "\n\ttext = " + fze.nd.utf8_text;
+    }
+    if (fze.editflags.Edit_targetdate()) {
+        venstr += "\n\ttargetdate = " + TimeStampYmdHM(fze.nd.targetdate);
+    }
+    if (fze.editflags.Edit_tdproperty()) {
+        venstr += "\n\ttdproperty = " + td_property_str[fze.nd.tdproperty];
+    }
+    /* if (fze.editflags.Edit_repeats()) {
+        venstr += "\n\trepeats = ";
+    } */
+    if (fze.editflags.Edit_tdpattern()) {
+        venstr += "\n\ttdpattern = " + td_pattern_str[fze.nd.tdpattern] + " (also edits repeats)";
+    }
+    if (fze.editflags.Edit_tdevery()) {
+        venstr += "\n\ttdevery = " + std::to_string(fze.nd.tdevery);
+    }
+    if (fze.editflags.Edit_tdspan()) {
+        venstr += "\n\ttdspan = " + std::to_string(fze.nd.tdspan);
+    }
+    if (fze.editflags.Edit_topics()) {
+        venstr += "\n\ttopics =";
+        for (const auto & topic_tag : fze.nd.topics) {
+            venstr += ' ' + topic_tag;
+        }
+    }
+    venstr += '\n';
+    return venstr;
+}
+
+/// Minimize the number of edits requested to those that actually change values.
+void reduce_edits(Graph & graph) {
+    Node_ptr node_ptr = graph.Node_by_idstr(fze.idstr);
+    Edit_flags editflags;
+    if (fze.editflags.Edit_valuation() && (fze.nd.valuation != node_ptr->get_valuation())) {
+        editflags.set_Edit_valuation();
+    }
+    if (fze.editflags.Edit_completion() && (fze.nd.completion != node_ptr->get_completion())) {
+        editflags.set_Edit_completion();
+    }
+    if (fze.editflags.Edit_required() && ((3600.0*(float)fze.nd.hours) != node_ptr->get_required())) {
+        editflags.set_Edit_required();
+    }
+    if (fze.editflags.Edit_text() && (fze.nd.utf8_text != node_ptr->get_text().c_str())) {
+        editflags.set_Edit_text();
+    }
+    if (fze.editflags.Edit_targetdate() && (fze.nd.targetdate != node_ptr->get_targetdate())) {
+        editflags.set_Edit_targetdate();
+    }
+    if (fze.editflags.Edit_tdproperty() && (fze.nd.tdproperty != node_ptr->get_tdproperty())) {
+        editflags.set_Edit_tdproperty();
+    }
+    if (fze.editflags.Edit_tdpattern() && (fze.nd.tdpattern != node_ptr->get_tdpattern())) {
+        editflags.set_Edit_tdpattern();
+    }
+    if (fze.editflags.Edit_tdevery() && (fze.nd.tdevery != node_ptr->get_tdevery())) {
+        editflags.set_Edit_tdevery();
+    }
+    if (fze.editflags.Edit_tdspan() && (fze.nd.tdspan != node_ptr->get_tdspan())) {
+        editflags.set_Edit_tdspan();
+    }
+    if (fze.editflags.Edit_topics()) {
+       editflags.set_Edit_topics();
+    }
+    fze.editflags.set_Edit_flags(editflags.get_Edit_flags());
+}
+
 int edit_node() {
     ERRTRACE;
-    auto [exit_code, errstr] = get_content(fze.nd.utf8_text, fze.config.content_file, "Node description");
-    if (exit_code != exit_ok)
-        standard_exit_error(exit_code, errstr, __func__);
+    if (fze.editflags.Edit_text()) {
+        auto [exit_code, errstr] = get_content(fze.nd.utf8_text, fze.config.content_file, "Node description");
+        if (exit_code != exit_ok)
+            standard_exit_error(exit_code, errstr, __func__);
+    }
+    if (fze.editflags.Edit_tdpattern()) {
+        fze.editflags.set_Edit_repeats(); // the repeats value is set automatically in Graphmodify:Node_data::copy()
+    }
 
     // Determine probable memory space needed.
     // *** MORE HERE TO BETTER ESTIMATE THAT, this is a wild guess
@@ -240,6 +331,10 @@ int edit_node() {
 
     fze.graphmod().data.back().set_Edit_flags(fze.editflags.get_Edit_flags());
     Graph_ptr graph_ptr = fze.graphmod().get_reference_Graph();
+
+    reduce_edits(*graph_ptr);
+    VERYVERBOSEOUT(verbose_edit_node_info());
+
     fze.nd.copy(*graph_ptr, *node_ptr);
 
     auto ret = server_request_with_shared_data(fze.get_segname(), graph_ptr->get_server_port());

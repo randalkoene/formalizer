@@ -105,7 +105,9 @@ ssize_t server_response_text::respond(int socket) {
         ssize_t header_sent = send(socket, str().c_str(), len(), 0);
         return header_sent;
     } else {
-        ssize_t text_sent = 0;
+        // str() was already called in the constructor to build the header
+        // and combined with the response text. (But note https://trello.com/c/1IIp1vxj.)
+        ssize_t text_sent = send(socket, header_str.data(), header_str.size(), 0);
         return text_sent;
     }
 }

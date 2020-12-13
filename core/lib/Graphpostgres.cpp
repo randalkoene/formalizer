@@ -272,6 +272,9 @@ typedef std::set<NNLmod_update> NNLmod_update_set;
  * Note: For development information about the proposed set of possible
  *       modifications, see https://trello.com/c/FxSP8If8.
  * 
+ * For more information about the complete path involved in modifications,
+ * see https://trello.com/c/eUjjF1yZ.
+ * 
  * @param graph A valid Graph structure that contains modified data.
  * @param dbname The Postgres database name.
  * @param schemaname The Postgres schema name for Formalizer data.
@@ -346,6 +349,30 @@ bool handle_Graph_modifications_pq(const Graph & graph, std::string dbname, std:
             case namedlist_delete: {
                 nnlupdates.emplace(change_data.resstr, false);
                 break;
+            }
+
+            case graphmod_edit_node: {
+                Node * n = graph.Node_by_id(change_data.node_key);
+                if (n) {
+                    if (!update_Node_pq(conn, schemaname, *n, n->get_editflags())) {
+                        MODIFY_GRAPH_PQ_RETURN(false);
+                    } else { // you can clear the Node's Edit_flags now
+                        n->clear_editflags();
+                    }
+                } else {
+                    ADDERROR(__func__, "Node with modifications to update in database "+change_data.node_key.str()+" not found in Graph");
+                    MODIFY_GRAPH_PQ_RETURN(false);
+                }
+                #ifdef USE_CHANGE_HISTORY
+                // this is an example of a place where the state of a change history record would be
+                // updated to `applied-in-storage`. See https://trello.com/c/FxSP8If8.
+                #endif
+                break;
+            }
+
+            case graphmod_edit_edge: {
+                // *** Not yet implemented! Letting this drop through to the default warning.
+                //break;
             }
 
             default: {
@@ -1075,14 +1102,10 @@ std::string Edge_pq::All_Edge_Data_pqstr() {
            priority_pqstr() + ')';
 }
 
-bool Update_Node_pq(std::string dbname, std::string schemaname, const Node & node, const Edit_flags & _editflags) {
+// *** Now that Node contains an `editflags` property, we may be able to remove the separate parameter here.
+//     The Node's `editflags` should be cleared if this function returns successfully.
+bool update_Node_pq(PGconn* conn, const std::string & schemaname, const Node & node, const Edit_flags & _editflags) {
     ERRTRACE;
-
-    PGconn* conn = connection_setup_pq(dbname);
-    if (!conn) return false;
-
-    // Define a clean return that closes the connection to the database and cleans up.
-    #define UPDATE_NODE_PQ_RETURN(r) { PQfinish(conn); return r; }
 
     // Convert Node data and update row in table
     std::string tablename(schemaname+".nodes");
@@ -1139,11 +1162,23 @@ bool Update_Node_pq(std::string dbname, std::string schemaname, const Node & nod
 
     std::string nstr("UPDATE " + schemaname + ".Nodes SET " + set_expressions + " WHERE id = "+npq.id_pqstr());
     if (!simple_call_pq(conn, nstr)) {
-        ADDERROR(__func__, "Unable to update Node "+node.get_id_str());
-        UPDATE_NODE_PQ_RETURN(false);
+        ERRRETURNFALSE(__func__, "Unable to update Node "+node.get_id_str());
     }
 
-    UPDATE_NODE_PQ_RETURN(true);
+    return true;
+}
+
+/// Direct interface to the Node update function that sets up the database connection first.
+bool Update_Node_pq(std::string dbname, std::string schemaname, const Node & node, const Edit_flags & _editflags) {
+    ERRTRACE;
+
+    PGconn* conn = connection_setup_pq(dbname);
+    if (!conn) return false;
+
+    bool res = update_Node_pq(conn, schemaname, node, _editflags);
+
+    PQfinish(conn);
+    return res;
 }
 
 /**

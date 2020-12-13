@@ -86,11 +86,12 @@ struct http_header_data {
     std::string error_msg;
 
     http_header_data() : content_type("text/html") {}
+    http_header_data(size_t len) : content_type("text/html"), content_length(len) {}
     http_header_data(std::string file_path) : content_type(mimetype_by_extension(file_path)) {}
     http_header_data(std::string file_path, size_t len) : content_type(mimetype_by_extension(file_path)), content_length(len) {}
     http_header_data(http_response_code _code, std::string resp_str) : code(_code), header_str("HTTP/1.1 "+http_response_code_map.at(_code)+"\r\n\r\n"), error_msg(resp_str) {}
 
-    const std::string & str();
+    const std::string & str(); // this builds the header string
     size_t len() { return str().size(); }
     const std::string & code_str() { return http_response_code_map.at(code); }
 };
@@ -103,6 +104,7 @@ struct http_header_data {
  */
 class server_response_text: public http_header_data {
 public:
+    server_response_text(const std::string & resp_str) : http_header_data(resp_str.size()) { str(); header_str += resp_str; }
     server_response_text(http_response_code _code, std::string resp_str) : http_header_data(_code, resp_str) {}
     ssize_t respond(int socket);
 };
