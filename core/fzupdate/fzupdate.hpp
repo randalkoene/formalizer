@@ -14,6 +14,8 @@
 // core
 #include "config.hpp"
 #include "standard.hpp"
+#include "ReferenceTime.hpp"
+#include "Graphtypes.hpp"
 // #include "Graphaccess.hpp"
 
 using namespace fz;
@@ -30,7 +32,16 @@ public:
     fzu_configurable(formalizer_standard_program & fsp): configurable("fzupdate", fsp) {}
     bool set_parameter(const std::string & parlabel, const std::string & parvalue);
 
-    //std::string example_par;   ///< example of configurable parameter
+    unsigned int chunk_minutes = 20;
+    time_t chunk_seconds = 20*60;
+    unsigned int map_multiplier = 2;
+    unsigned long map_days = 14;
+    bool warn_repeating_too_tight = true;
+    bool endofday_priorities = true;
+    time_t dolater_endofday = 73800;
+    time_t doearlier_endofday = 68400;
+    unsigned int eps_group_offset_mins = 2;
+    bool update_to_earlier_allowed = true;
 };
 
 
@@ -46,6 +57,8 @@ struct fzupdate: public formalizer_standard_program {
 
     ReferenceTime reftime;
 
+    time_t t_limit = 0; ///< Time to update to (inclusively), 0 means unspecified (use config.map_days).
+
     fzupdate();
 
     virtual void usage_hook();
@@ -59,5 +72,12 @@ struct fzupdate: public formalizer_standard_program {
 };
 
 extern fzupdate fzu;
+
+//typedef time_t chunks_t;
+typedef size_t chunks_t;
+
+inline chunks_t seconds_to_chunks(time_t seconds) {
+    return (seconds % fzu.config.chunk_seconds) ? (seconds/fzu.config.chunk_seconds) + 1 : seconds/fzu.config.chunk_seconds;
+}
 
 #endif // __FZUPDATE_HPP

@@ -462,8 +462,8 @@ protected:
     int get_semaphore() { return semaphore; }
     void set_semaphore(int sval) { semaphore = sval; }
     bool set_all_semaphores(int sval);
-    time_t nested_inherit_targetdate(); // only called by the same or by inherit_targetdate()
-    time_t inherit_targetdate();        // may be called by effective_targetdate()
+    time_t nested_inherit_targetdate(Node_ptr & origin); // only called by the same or by inherit_targetdate()
+    time_t inherit_targetdate(Node_ptr * origin = nullptr);        // may be called by effective_targetdate()
 
 public:
     // Protected constructor to ensure Nodes are created in the correct type of memory.
@@ -492,9 +492,10 @@ public:
     td_pattern get_tdpattern() const { return tdpattern; }
     int get_tdevery() const { return tdevery; }
     int get_tdspan() const { return tdspan; }
-    time_t seconds_applied() { return completion*required; }
+    time_t seconds_applied() { return completion*(float)required; }
     long minutes_applied() { return seconds_applied()/60; }
     float hours_applied() { return ((float)minutes_applied())/60.0; }
+    time_t seconds_to_complete(); // inlined below
 
     const Edit_flags & get_editflags() { return editflags; }
     void clear_editflags() { editflags.clear(); }
@@ -528,7 +529,7 @@ public:
     void edit_content(Node & from_node, const Edit_flags & edit_flags);
 
     /// Graph relative operations
-    time_t effective_targetdate();
+    time_t effective_targetdate(Node_ptr * origin = nullptr);
 
     /// helper functions
 
@@ -781,6 +782,13 @@ Tag_Label_Real_Value_Vector Topic_tags_of_Node(Graph & graph, Node & node);
 inline Topic * Topic_Tags::find_by_id(Topic_ID _id) const {
     if (_id>=topictags.size()) return nullptr;
     return topictags.at(_id).get();
+}
+
+inline time_t Node::seconds_to_complete() {
+    if ((completion<0.0) || (completion>=1.0)) { // special code or (seemingly) complete
+        return 0;
+    }
+    return required - seconds_applied();
 }
 
 /**

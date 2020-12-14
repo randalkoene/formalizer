@@ -397,11 +397,12 @@ bool Node::set_all_semaphores(int sval) {
  * tdproperty does not indicate that. For more information, see the comments
  * of the effective_targetdate() function.
  * 
+ * @param origin A pointer buffer to report the Node from which the targetdate is inherited.
  * @return the local targetdate parameter value if specified, or MAXTIME_T if
  * a loop conditin was encountered, or the earliest target date returned by
  * recursion to superior Nodes, or MAXTIME_T if there were none.
  */
-time_t Node::nested_inherit_targetdate() {
+time_t Node::nested_inherit_targetdate(Node_ptr & origin) {
     if (get_semaphore()==SEM_TRAVERSED) {
         if (graph) { // send an optional loop warning
             if (graph->warn_loops) ADDWARNING(__func__,"loop detected at Node DIL#"+get_id().str());
@@ -426,8 +427,12 @@ time_t Node::nested_inherit_targetdate() {
     time_t earliest = (MAXTIME_T);
     for (auto it = supedges.begin(); it != supedges.end(); ++it) {
         Node & supnode = *((*it)->sup);
-        time_t sup_targetdate = supnode.nested_inherit_targetdate();
-        if (sup_targetdate<earliest) earliest = sup_targetdate;
+        Node_ptr nested_origin = nullptr;
+        time_t sup_targetdate = supnode.nested_inherit_targetdate(nested_origin);
+        if (sup_targetdate<earliest) {
+            earliest = sup_targetdate;
+            origin = nested_origin;
+        }
     }
     return earliest;
 }
@@ -441,13 +446,15 @@ time_t Node::nested_inherit_targetdate() {
  * 
  * This function return the special value -2 if the Node is not connected to a Graph.
  * 
+ * @param origin Optional storage for pointer to the origin Node that provides the effective
+ *               target date. See for example how this is used in `fzupdate`.
  * @return the earliest date and time in time_t format that could be retrieved
  * from the tree of superior Nodes, or MAXTIME_T if none could be found.
  */
-time_t Node::inherit_targetdate() {
+time_t Node::inherit_targetdate(Node_ptr * origin) {
     // ***It is technically possible to cache the result found here to speed up
     // ***future calls to this function. To do that safely, calls to set_targetdate()
-    // ***would need to invalidate the cache for all dependency Nods of the Node
+    // ***would need to invalidate the cache for all dependency Nodes of the Node
     // ***where the targetdate was changed. It is not clear if the time savings
     // ***is worth the added complexity.
 
@@ -456,8 +463,14 @@ time_t Node::inherit_targetdate() {
     time_t earliest = (MAXTIME_T);
     for (auto it = supedges.begin(); it != supedges.end(); ++it) {
         Node & supnode = *((*it)->sup);
-        time_t sup_targetdate = supnode.nested_inherit_targetdate();
-        if (sup_targetdate<earliest) earliest = sup_targetdate;
+        Node_ptr nested_origin = nullptr;
+        time_t sup_targetdate = supnode.nested_inherit_targetdate(nested_origin);
+        if (sup_targetdate<earliest) {
+            earliest = sup_targetdate;
+            if (origin) {
+                *origin = nested_origin;
+            }
+        }
     }
     return earliest;
 }
@@ -494,22 +507,30 @@ time_t Node::inherit_targetdate() {
  * function that obtains a target date, propagated as needed from Superiors, while also
  * taking note of and protecting against possible loops in the graph structure.
  * 
+ * @param origin Optional storage for pointer to the origin Node that provides the effective
+ *               target date. See for example how this is used in `fzupdate`. If no specified
+ *               target date is found via inheritance then origin (if provided) is set to
+ *               this Node by default (effectively local).
  * @return the date and time in time_t seconds format, or -1 if there is no target date
  * to take into account when scheduling this Node.
  */
-time_t Node::effective_targetdate() {
+time_t Node::effective_targetdate(Node_ptr * origin) {
+    if (origin) {
+        *origin = this; // the default
+    }
     if ((tdproperty == td_property::unspecified) || (tdproperty == td_property::inherit))
-        return inherit_targetdate();
+        return inherit_targetdate(origin);
 
-    if (targetdate >= 0)
+    if (targetdate >= 0) {
         return targetdate;
+    }
 
     if (tdproperty == td_property::fixed)
         tdproperty = td_property::inherit;
     else
         tdproperty = td_property::unspecified;
 
-    return inherit_targetdate();
+    return inherit_targetdate(origin);
 }
 
 /**
