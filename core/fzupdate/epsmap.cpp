@@ -273,7 +273,7 @@ void EPS_map::place_fixed() {
  */
 time_t EPS_map::reserve(Node_ptr n_ptr, int chunks_req) {
     int slots = chunks_req * slots_per_chunk;
-    int td_day = 0;
+    unsigned long td_day = 0;
     time_t epstd = starttime;
     while ((slots > 0) && (td_day < num_days)) {
         epstd = days[td_day].reserve(n_ptr, slots);
@@ -295,7 +295,9 @@ time_t EPS_map::reserve(Node_ptr n_ptr, int chunks_req) {
             priorityendofday -= 1800; // insure space for minute offsets to avoid auto-merging
 
         // compare that with the proposed target date time of day
-        td_day--; // back to the last day accessed
+        if (td_day > 0) {
+            td_day--; // back to the last day accessed
+        }
         time_t timeofday = epstd - days[td_day].t_daystart;
         if (timeofday < priorityendofday) { // set to priorityendofday on this day
             epstd = days[td_day].t_daystart + priorityendofday;

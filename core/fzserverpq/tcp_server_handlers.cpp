@@ -727,7 +727,7 @@ bool handle_node_direct_request(std::string nodereqstr, std::string & response_h
             }
         }
     }
-http://192.168.42.14:8090/fz/graph/nodes/20201115084141.1/topics/add?accounting=1.0
+
     return standard_error("No known request token found: "+nodereqstr, __func__);
 }
 

@@ -236,6 +236,7 @@ unsigned long updvar_total_chunks_required_nonperiodic(const targetdate_sorted_N
         }
         ++i;
     }
+    return total;
 }
 
 /**
