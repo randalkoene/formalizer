@@ -274,8 +274,26 @@ bool handle_request_stack(std::string segname) {
                 if (!Graph_modify_batch_node_targetdates(*fzs.graph_ptr, graph_segname, gmoddata)) {
                     ERRRETURNFALSE(__func__, "Batch modify Nodes targetdates failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
                 }
-                results_ptr->results.emplace_back(batchmod_targetdates, "updated", gmoddata.batchmodtd_ptr->tdnkeys[0].nkey);
+                if (fzs.graph_ptr->persistent_Lists()) {
+                    if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), "updated", *fzs.graph_ptr)) {
+                        ADDWARNING(__func__, "Synchronizing 'updated' Named Node List to database failed");
+                    }
+                }                
+                results_ptr->results.emplace_back(batchmod_targetdates, "updated");
                 break;
+            }
+
+            case batchmod_tpassrepeating: {
+                if (!Graph_modify_batch_node_tpassrepeating(*fzs.graph_ptr, graph_segname, gmoddata)) {
+                    ERRRETURNFALSE(__func__, "Batch modify Nodes past t_pass failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
+                }
+                if (fzs.graph_ptr->persistent_Lists()) {
+                    if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), "updated", *fzs.graph_ptr)) {
+                        ADDWARNING(__func__, "Synchronizing 'updated' Named Node List to database failed");
+                    }
+                }
+                results_ptr->results.emplace_back(batchmod_tpassrepeating, "updated");
+                break;                
             }
 
             // *** We could add shared memory handlers for:

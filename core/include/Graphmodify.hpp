@@ -71,6 +71,7 @@ enum Graph_modification_request {
     graphmod_edit_node,
     graphmod_edit_edge,
     batchmod_targetdates,
+    batchmod_tpassrepeating,
     NUM_graphmod_requests
 };
 
@@ -114,6 +115,7 @@ struct Graphmod_result {
     Graphmod_result(Graph_modification_request _request, const Node_ID_key & _nkey) : request_handled(_request), node_key(_nkey) {}
     Graphmod_result(Graph_modification_request _request, const Edge_ID_key & _ekey) : request_handled(_request), edge_key(_ekey) {}
     Graphmod_result(Graph_modification_request _request, const std::string _name, const Node_ID_key & _nkey) : request_handled(_request), node_key(_nkey), resstr(_name) {}
+    Graphmod_result(Graph_modification_request _request, const std::string _name) : request_handled(_request), resstr(_name) {}
 };
 
 typedef bi::allocator<Graphmod_result, segment_manager_t> Graphmod_result_allocator;
@@ -149,6 +151,7 @@ typedef bi::offset_ptr<TD_Node_shm> TD_Node_shm_offsetptr;
 struct Batchmod_targetdates {
     TD_Node_shm_offsetptr tdnkeys;
     size_t tdnkeys_num = 0;
+    /// Used by fzupdate.cpp:update_variable().
     Batchmod_targetdates(const targetdate_sorted_Nodes & nodelist, segment_memory_t & graphmod_shm) {
         tdnkeys = graphmod_shm.construct<TD_Node_shm>(bi::anonymous_instance)[nodelist.size()](); // *** Watch out! Not testing for failure here.
         tdnkeys_num = nodelist.size();
@@ -158,9 +161,26 @@ struct Batchmod_targetdates {
             ++i;
         }
     }
+    /* /// Used by fzupdate.cpp:update_repeating().
+    Batchmod_targetdates(time_t t_pass, const targetdate_sorted_Nodes & nodelist, segment_memory_t & graphmod_shm) {
+        tdnkeys = graphmod_shm.construct<TD_Node_shm>(bi::anonymous_instance)[nodelist.size()](); // *** Watch out! Not testing for failure here.
+        tdnkeys_num = nodelist.size();
+        size_t i = 0;
+        for (const auto & [t, node_ptr] : nodelist) {
+            tdnkeys[i].set(t_pass, node_ptr->get_id().key()); // they all have to pass the same time
+            ++i;
+        }
+    } */
 };
 typedef bi::offset_ptr<Batchmod_targetdates> Batchmod_targetdates_offsetptr;
 typedef Batchmod_targetdates * Batchmod_targetdates_ptr;
+
+struct Batchmod_tpass {
+    time_t t_pass;
+    Batchmod_tpass(time_t _tpass) : t_pass(_tpass) {}
+};
+typedef bi::offset_ptr<Batchmod_tpass> Batchmod_tpass_offsetptr;
+typedef Batchmod_tpass * Batchmod_tpass_ptr;
 
 //typedef std::uint32_t Edit_flags;
 /**
@@ -178,11 +198,14 @@ struct Graphmod_data: public Edit_flags {
     Graph_Edge_ptr edge_ptr = nullptr;
     Named_Node_List_Element_ptr nodelist_ptr = nullptr;
     Batchmod_targetdates_offsetptr batchmodtd_ptr = nullptr;
+    Batchmod_tpass_offsetptr batchmodtpass_ptr = nullptr;
+    time_t t_pass = RTt_unspecified;
 
     Graphmod_data(Graph_modification_request _request, Node * _node_ptr) : request(_request), node_ptr(_node_ptr) {}
     Graphmod_data(Graph_modification_request _request, Edge * _edge_ptr) : request(_request), edge_ptr(_edge_ptr) {}
     Graphmod_data(Graph_modification_request _request, Named_Node_List_Element * _nodelist_ptr) : request(_request), nodelist_ptr(_nodelist_ptr) {}
     Graphmod_data(Batchmod_targetdates * _batchmodtd_ptr) : request(batchmod_targetdates), batchmodtd_ptr(_batchmodtd_ptr) {}
+    Graphmod_data(Batchmod_tpass * _batchmodtpass_ptr) : request(batchmod_tpassrepeating), batchmodtpass_ptr(_batchmodtpass_ptr) {}
 
 };
 
@@ -229,6 +252,8 @@ public:
     Named_Node_List_Element * request_Named_Node_List_Element(Graph_modification_request request, const std::string _name, const Node_ID_key & nkey);
     /// Build a BATCH modification request for a list of Nodes and targetdates. Retruns a pointer to Batchmod_targetdates created (in shared memory).
     Batchmod_targetdates * request_Batch_Node_Targetdates(const targetdate_sorted_Nodes & nodelist);
+    /// Build a BATCH modification request for a list of Nodes and t_pass. Retruns a pointer to Batchmod_targetdates created (in shared memory).
+    Batchmod_tpass * request_Batch_Node_Tpass(time_t t_pass); //, const targetdate_sorted_Nodes & nodelist);
 
 };
 
@@ -274,14 +299,17 @@ Node_ptr Graph_modify_edit_node(Graph & graph, const std::string & graph_segname
 Edge_ptr Graph_modify_edit_edge(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
 
 /**
- * Update repeating Nodes past a specific timee.
+ * Update repeating Nodes past a specific time.
+ * 
+ * The `Edit_flags` of each updated Node are set in accordance with the modifications that take place on that
+ * Node. This is used by the `Graphpostgres` process. Remember to clear the `Edit_flags` after sychronizing to
+ * the database.
  * 
  * @param sortednodes[in] A list of target date sorted incomplete Node pointers. These could be all or just repeated.
  * @param t_pass[in] The time past which to update repeating Nodes.
- * @param editflags[out] Reference to Edit_flags object that returns modifications that apply to one or more Nodes.
  * @return A target date sorted list of Node pointers that were updated. Use this to synchronize to the database.
  */
-targetdate_sorted_Nodes Update_repeating_Nodes(const targetdate_sorted_Nodes & sortednodes, time_t t_pass, Edit_flags & editflags);
+targetdate_sorted_Nodes Update_repeating_Nodes(const targetdate_sorted_Nodes & sortednodes, time_t t_pass);
 
 /// Add a Node to a Named Node List.
 Named_Node_List_ptr Graph_modify_list_add(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
@@ -294,6 +322,9 @@ bool Graph_modify_list_delete(Graph & graph, const std::string & graph_segname, 
 
 /// Modify the targetdates of a batch of Nodes.
 bool Graph_modify_batch_node_targetdates(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
+
+/// Modify the targetdates of a batch of Nodes.
+bool Graph_modify_batch_node_tpassrepeating(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
 
 /**
  * Modify the targetdate of a repeating Node by carrying out one or more iterations
@@ -374,6 +405,18 @@ size_t copy_Incomplete_to_List(Graph & graph, const std::string to_name, size_t 
  * @return The number of Nodes copied into the updated 'shortlist' Named Node List.
  */
 size_t update_shortlist_List(Graph & graph);
+
+/**
+ * Copy Nodes from a batch to a Named Node List. This does not include synchronization to database.
+ * See, for example, how this is used when processing a `batchmod_targetdates` request in `fzserverpq`.
+ */
+bool batch_to_NNL(Graph & graph, const Batchmod_targetdates & batchnodes, std::string list_name);
+
+/**
+ * Copy Nodes from a sorted list to a Named Node List. This does not include synchronization to database.
+ * See, for example, how this is used when processing a `batchmod_tpassrepeating` request in `fzserverpq`.
+ */
+bool sorted_to_NNL(Graph & graph, const targetdate_sorted_Nodes & sortednodes, std::string list_name);
 
 } // namespace fz
 

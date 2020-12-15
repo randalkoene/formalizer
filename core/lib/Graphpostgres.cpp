@@ -280,7 +280,7 @@ typedef std::set<NNLmod_update> NNLmod_update_set;
  * @param schemaname The Postgres schema name for Formalizer data.
  * @param Graphmod_results A data structure detailing modifications to apply.
  */
-bool handle_Graph_modifications_pq(const Graph & graph, std::string dbname, std::string schemaname, Graphmod_results & modifications) {
+bool handle_Graph_modifications_pq(Graph & graph, std::string dbname, std::string schemaname, Graphmod_results & modifications) {
     ERRTRACE;
     if (modifications.results.empty()) {
         ERRRETURNFALSE(__func__, "There are no in-memory Graph changes to send to storage.");
@@ -383,6 +383,17 @@ bool handle_Graph_modifications_pq(const Graph & graph, std::string dbname, std:
                 // this is an example of a place where the state of a change history record would be
                 // updated to `applied-in-storage`. See https://trello.com/c/FxSP8If8.
                 #endif
+                break;
+            }
+
+            case batchmod_tpassrepeating: {
+                if (!update_batch_nodes_pq(conn, schemaname, graph, change_data.resstr.c_str())) {
+                    MODIFY_GRAPH_PQ_RETURN(false);
+                }                
+                #ifdef USE_CHANGE_HISTORY
+                // this is an example of a place where the state of a change history record would be
+                // updated to `applied-in-storage`. See https://trello.com/c/FxSP8If8.
+                #endif                
                 break;
             }
 
@@ -1193,7 +1204,7 @@ bool Update_Node_pq(std::string dbname, std::string schemaname, const Node & nod
 }
 
 /// Update targetdates of multiple Nodes.
-bool update_batch_node_targetdates_pq(PGconn* conn, std::string schemaname, const Graph & graph, const std::string NNL_name) {
+bool update_batch_node_targetdates_pq(PGconn* conn, std::string schemaname, Graph & graph, const std::string NNL_name) {
     ERRTRACE;
 
     Named_Node_List_ptr nodelist_ptr = graph.get_List(NNL_name);
@@ -1210,6 +1221,30 @@ bool update_batch_node_targetdates_pq(PGconn* conn, std::string schemaname, cons
         }
         if (!update_Node_pq(conn, schemaname, *node_ptr, editflags)) {
             ERRRETURNFALSE(__func__, "Database update of targetdate of Node "+nkey.str()+" failed");
+        }
+    }
+
+    return true;
+}
+
+/// Update a batch of Nodes in accordance with their individual Edit_flags.
+bool update_batch_nodes_pq(PGconn* conn, std::string schemaname, Graph & graph, const std::string NNL_name) {
+    ERRTRACE;
+
+    Named_Node_List_ptr nodelist_ptr = graph.get_List(NNL_name);
+    if (!nodelist_ptr) {
+        ERRRETURNFALSE(__func__, "Named Node List "+NNL_name+" of Nodes with individually set Edit_flags not found");
+    }
+
+    for (const auto & nkey : nodelist_ptr->list) {
+        Node_ptr node_ptr = graph.Node_by_id(nkey);
+        if (!node_ptr) {
+            ERRRETURNFALSE(__func__, "Node "+nkey.str()+" from NNL "+NNL_name+" not found in Graph");
+        }
+        if (!update_Node_pq(conn, schemaname, *node_ptr, node_ptr->get_editflags())) {
+            ERRRETURNFALSE(__func__, "Database update of Node "+nkey.str()+" failed");
+        } else { // you can clear the Node's Edit_flags now
+            node_ptr->clear_editflags();
         }
     }
 

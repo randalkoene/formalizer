@@ -89,11 +89,17 @@ bool update_Node_pq(PGconn* conn, const std::string & schemaname, const Node & n
 
 bool Update_Node_pq(std::string dbname, std::string schemaname, const Node & node, const Edit_flags & _editflags);
 
+/// Update targetdates of multiple Nodes.
+bool update_batch_node_targetdates_pq(PGconn* conn, std::string schemaname, Graph & graph, const std::string NNL_name);
+
+/// Update a batch of Nodes in accordance with their individual Edit_flags.
+bool update_batch_nodes_pq(PGconn* conn, std::string schemaname, Graph & graph, const std::string NNL_name);
+
 std::vector<std::string> load_Node_parameter_interval(std::string dbname, std::string schemaname, pq_Nfields param, unsigned long from_row, unsigned long num_rows);
 
 std::vector<std::string> load_Edge_parameter_interval(std::string dbname, std::string schemaname, pq_Efields param, unsigned long from_row, unsigned long num_rows);
 
-bool handle_Graph_modifications_pq(const Graph & graph, std::string dbname, std::string schemaname, Graphmod_results & modifications);
+bool handle_Graph_modifications_pq(Graph & graph, std::string dbname, std::string schemaname, Graphmod_results & modifications);
 
 bool Init_Named_Node_Lists_pq(std::string dbname, std::string schemaname);
 

@@ -135,11 +135,13 @@ init: FORCE
 	@echo 'Includes: $(CPPFLAGS)'
 	@echo '-------------------------------------------------------------------'
 
+$(OBJ)/epsmap.o: epsmap.cpp epsmap.hpp fzupdate.hpp version.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c epsmap.cpp -o $(OBJ)/epsmap.o
 
 $(OBJ)/fzupdate.o: fzupdate.cpp fzupdate.hpp version.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c fzupdate.cpp -o $(OBJ)/fzupdate.o
 
-fzupdate: $(OBJ)/fzupdate.o $(CORE_OBJS)
+fzupdate: $(OBJ)/fzupdate.o $(OBJ)/epsmap.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o fzupdate $(LIB_PATH)
 
 clean:

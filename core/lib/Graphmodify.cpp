@@ -361,6 +361,8 @@ bool Node_advance_repeating(Node & node, int N_advance, Edit_flags & editflags, 
  * 
  * This does essentially the same as `Node_advance_repeating()` one iteration.
  * 
+ * This is a server function, e.g. called within `fzserverpq`.
+ * 
  * @param node Reference to a valid Node object.
  * @param editflags Specifies the parameters that were modified. Use this to update the database.
  * @param T_ref Optional reference time (if negative then Actual time is used).
@@ -440,17 +442,21 @@ Edit_flags Node_apply_minutes(Node & node, unsigned int add_minutes, time_t T_re
 /**
  * Update repeating Nodes past a specific timee.
  * 
+ * This is a server function, e.g. called within `fzserverpq`.
+ * For the rationale, see the explanation at https://trello.com/c/eUjjF1yZ/222-how-graph-components-are-edited#comment-5fd8fed424188014cb31a937.
+ * 
  * @param sortednodes[in] A list of target date sorted incomplete Node pointers. These could be all or just repeated.
  * @param t_pass[in] The time past which to update repeating Nodes.
  * @param editflags[out] Reference to Edit_flags object that returns modifications that apply to one or more Nodes.
  * @return A target date sorted list of Node pointers that were updated. Use this to synchronize to the database.
  */
-targetdate_sorted_Nodes Update_repeating_Nodes(const targetdate_sorted_Nodes & sortednodes, time_t t_pass, Edit_flags & editflags) {
+targetdate_sorted_Nodes Update_repeating_Nodes(const targetdate_sorted_Nodes & sortednodes, time_t t_pass) {
     targetdate_sorted_Nodes updatedrepeating;
     for (const auto & [t, node_ptr] : sortednodes) {
         if (t > t_pass) {
             break;
         }
+        Edit_flags editflags;
         bool updated = false;
         while (node_ptr->get_repeats() && (node_ptr->get_targetdate()<=t_pass) && (node_ptr->get_tdpattern() != patt_yearly)) {
             if (!Node_completed_repeating(*node_ptr, editflags)) {
@@ -459,6 +465,7 @@ targetdate_sorted_Nodes Update_repeating_Nodes(const targetdate_sorted_Nodes & s
             updated = true;
         }
         if (updated) {
+            const_cast<Edit_flags *>(&(node_ptr->get_editflags()))->set_Edit_flags(editflags.get_Edit_flags());
             updatedrepeating.emplace(node_ptr->get_targetdate(), node_ptr);
         }
     }
@@ -515,6 +522,40 @@ bool Graph_modify_list_delete(Graph & graph, const std::string & graph_segname, 
     return graph.delete_List(requested_element.name.c_str());
 }
 
+bool batch_to_NNL(Graph & graph, const Batchmod_targetdates & batchnodes, std::string list_name) {
+    VERYVERBOSEOUT("Updating the '"+list_name+"' Named Node List\n");
+
+    graph.delete_List(list_name);
+
+    if (batchnodes.tdnkeys_num<1) {
+        return true;
+    }
+
+    //size_t copied = 0;
+    Node_ptr node_ptr = graph.Node_by_id(batchnodes.tdnkeys[0].nkey);
+    if (!node_ptr) {
+        ERRRETURNFALSE(__func__, "Node "+batchnodes.tdnkeys[0].nkey.str()+" not found in Graph");
+    }
+    Named_Node_List * nnl_ptr = graph.add_to_List(list_name, *node_ptr);
+    if (!nnl_ptr) {
+        ERRRETURNFALSE(__func__, "Unable to create the "+list_name+" Named Node List for updated Nodes to synchronize to database");
+    }
+
+    //++copied;
+    for (size_t i = 1; i < batchnodes.tdnkeys_num; ++i) {
+        node_ptr = graph.Node_by_id(batchnodes.tdnkeys[i].nkey);
+        if (!node_ptr) {
+            ERRRETURNFALSE(__func__, "Node "+batchnodes.tdnkeys[i].nkey.str()+" not found in Graph");
+        }
+        if (graph.add_to_List(*nnl_ptr, *node_ptr)) {
+            //++copied;
+        }
+    }
+    //return copied;
+
+    return true;
+}
+
 /// Modify the targetdates of a batch of Nodes.
 bool Graph_modify_batch_node_targetdates(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata) {
     if (!gmoddata.batchmodtd_ptr) {
@@ -535,7 +576,54 @@ bool Graph_modify_batch_node_targetdates(Graph & graph, const std::string & grap
         node_ptr->set_targetdate(batchmodtd.tdnkeys[i].td);
     }
 
+    return batch_to_NNL(graph, batchmodtd, "updated");
+}
+
+bool sorted_to_NNL(Graph & graph, const targetdate_sorted_Nodes & sortednodes, std::string list_name) {
+    VERYVERBOSEOUT("Updating the '"+list_name+"' Named Node List\n");
+
+    graph.delete_List(list_name);
+
+    if (sortednodes.empty()) {
+        return true;
+    }
+
+    auto source_it = sortednodes.begin();
+    //size_t copied = 0;
+    Named_Node_List * nnl_ptr = graph.add_to_List(list_name, *(source_it->second));
+    if (!nnl_ptr) {
+        ERRRETURNFALSE(__func__, "Unable to create the "+list_name+" Named Node List for updated Nodes to synchronize to database");
+    }
+
+    ++source_it;
+    //++copied;
+    for ( ; source_it != sortednodes.end(); ++source_it) {
+        if (graph.add_to_List(*nnl_ptr, *(source_it->second))) {
+            //++copied;
+        }
+    }
+    //return copied;
+
     return true;
+}
+
+/// Modify the targetdates of a batch of repeating Nodes past t_pass time. Updated notes are put into an 'updated' Named Node List.
+bool Graph_modify_batch_node_tpassrepeating(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata) {
+    if (!gmoddata.batchmodtpass_ptr) {
+        return false;
+    }
+
+    if (!graphmemman.set_active(graph_segname)) {
+        ERRRETURNFALSE(__func__, "Unable to activate segment "+graph_segname+" for batch modification of Nodes past t_pass");
+    }
+
+    Batchmod_tpass & batchmodtpass = *gmoddata.batchmodtpass_ptr;
+    time_t t_pass = batchmodtpass.t_pass;
+    targetdate_sorted_Nodes incomplete_repeating = Nodes_incomplete_and_repeating_by_targetdate(graph);
+
+    targetdate_sorted_Nodes updated_repeating = Update_repeating_Nodes(incomplete_repeating, t_pass);
+
+    return sorted_to_NNL(graph, updated_repeating, "updated");
 }
 
 Graph_modifications::Graph_modifications() : data(graphmemman.get_allocator()) {
@@ -696,6 +784,25 @@ Batchmod_targetdates * Graph_modifications::request_Batch_Node_Targetdates(const
     
     data.emplace_back(batchmodtd_ptr);
     return batchmodtd_ptr;
+}
+
+Batchmod_tpass * Graph_modifications::request_Batch_Node_Tpass(time_t t_pass) { //, const targetdate_sorted_Nodes & nodelist) {
+    // Create new Batchmod_targetdates object in the shared memory segment being used to share a modification request stack.
+    segment_memory_t * smem = graphmemman.get_segmem();
+    if (!smem) {
+        ADDERROR(__func__, "Shared segment pointer was null pointer");
+        return nullptr;
+    }
+
+    Batchmod_tpass * batchmodtpass_ptr = smem->construct<Batchmod_tpass>(bi::anonymous_instance)(t_pass); // this normal pointer is emplaced into an offset_ptr
+    //Batchmod_targetdates * batchmodtd_ptr = smem->construct<Batchmod_targetdates>(bi::anonymous_instance)(t_pass, nodelist, *smem); // this normal pointer is emplaced into an offset_ptr
+    if (!batchmodtpass_ptr) {
+        ADDERROR(__func__, "Unable to construct Batch Node t_pass structure in shared memory");
+        return nullptr;
+    }
+    
+    data.emplace_back(batchmodtpass_ptr);
+    return batchmodtpass_ptr;
 }
 
 /**
