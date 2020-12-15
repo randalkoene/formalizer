@@ -148,6 +148,11 @@ bool request_stack_valid(Graph_modifications & graphmod, std::string segname) {
                 break;
             }
 
+            case batchmod_targetdates: {
+                // *** We could add a test here to see that all of the Node keys in the array are valid.
+                break;
+            }
+
             default: {
                 prepare_error_response(segname, exit_unknown_option, "Unrecognized Graph modification request ("+std::to_string(gmoddata.request)+')');
                 return false;
@@ -262,6 +267,14 @@ bool handle_request_stack(std::string segname) {
                     ERRRETURNFALSE(__func__, "Graph modify edit edge failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
                 
                 results_ptr->results.emplace_back(graphmod_edit_edge, edge_ptr->get_id().key());
+                break;
+            }
+
+            case batchmod_targetdates: {
+                if (!Graph_modify_batch_node_targetdates(*fzs.graph_ptr, graph_segname, gmoddata)) {
+                    ERRRETURNFALSE(__func__, "Batch modify Nodes targetdates failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
+                }
+                results_ptr->results.emplace_back(batchmod_targetdates, "updated", gmoddata.batchmodtd_ptr->tdnkeys[0].nkey);
                 break;
             }
 

@@ -70,6 +70,7 @@ enum Graph_modification_request {
     namedlist_delete,
     graphmod_edit_node,
     graphmod_edit_edge,
+    batchmod_targetdates,
     NUM_graphmod_requests
 };
 
@@ -99,6 +100,10 @@ struct Graphmod_error {
  * information returned is a vector of these elements, each of which delivers
  * useful information about Graph modifications made, such as the new ID of
  * a Node or Edge that was created.
+ * 
+ * Note: Upon successful update, a `batchmod_targetdates` request also returns
+ *       this structure, with a reference in `resstr` to a Named Node List
+ *       containing all of the Nodes for which targetdates were updated.
  */
 struct Graphmod_result {
     Graph_modification_request request_handled;
@@ -130,6 +135,33 @@ struct Graphmod_results {
     std::string info_str();
 };
 
+struct TD_Node_shm {
+    time_t td;
+    Node_ID_key nkey;
+    void set(time_t t, const Node_ID_key & k) {
+        td = t;
+        nkey = k;
+    }
+};
+typedef bi::offset_ptr<TD_Node_shm> TD_Node_shm_offsetptr;
+
+// Use this to build a constant size array of TD_Node_shm elements in shared memory.
+struct Batchmod_targetdates {
+    TD_Node_shm_offsetptr tdnkeys;
+    size_t tdnkeys_num = 0;
+    Batchmod_targetdates(const targetdate_sorted_Nodes & nodelist, segment_memory_t & graphmod_shm) {
+        tdnkeys = graphmod_shm.construct<TD_Node_shm>(bi::anonymous_instance)[nodelist.size()](); // *** Watch out! Not testing for failure here.
+        tdnkeys_num = nodelist.size();
+        size_t i = 0;
+        for (const auto & [t, node_ptr] : nodelist) {
+            tdnkeys[i].set(t, node_ptr->get_id().key());
+            ++i;
+        }
+    }
+};
+typedef bi::offset_ptr<Batchmod_targetdates> Batchmod_targetdates_offsetptr;
+typedef Batchmod_targetdates * Batchmod_targetdates_ptr;
+
 //typedef std::uint32_t Edit_flags;
 /**
  * This is the data structure used for elements of the request stack for
@@ -142,13 +174,15 @@ struct Graphmod_results {
  */
 struct Graphmod_data: public Edit_flags {
     Graph_modification_request request;
-    Graph_Node_ptr node_ptr;
-    Graph_Edge_ptr edge_ptr;
-    Named_Node_List_Element_ptr nodelist_ptr;
+    Graph_Node_ptr node_ptr = nullptr;
+    Graph_Edge_ptr edge_ptr = nullptr;
+    Named_Node_List_Element_ptr nodelist_ptr = nullptr;
+    Batchmod_targetdates_offsetptr batchmodtd_ptr = nullptr;
 
-    Graphmod_data(Graph_modification_request _request, Node * _node_ptr) : request(_request), node_ptr(_node_ptr), edge_ptr(nullptr), nodelist_ptr(nullptr) {}
-    Graphmod_data(Graph_modification_request _request, Edge * _edge_ptr) : request(_request), node_ptr(nullptr), edge_ptr(_edge_ptr), nodelist_ptr(nullptr) {}
-    Graphmod_data(Graph_modification_request _request, Named_Node_List_Element * _nodelist_ptr) : request(_request), node_ptr(nullptr), edge_ptr(nullptr), nodelist_ptr(_nodelist_ptr) {}
+    Graphmod_data(Graph_modification_request _request, Node * _node_ptr) : request(_request), node_ptr(_node_ptr) {}
+    Graphmod_data(Graph_modification_request _request, Edge * _edge_ptr) : request(_request), edge_ptr(_edge_ptr) {}
+    Graphmod_data(Graph_modification_request _request, Named_Node_List_Element * _nodelist_ptr) : request(_request), nodelist_ptr(_nodelist_ptr) {}
+    Graphmod_data(Batchmod_targetdates * _batchmodtd_ptr) : request(batchmod_targetdates), batchmodtd_ptr(_batchmodtd_ptr) {}
 
 };
 
@@ -193,6 +227,8 @@ public:
     Edge * request_edit_Edge(std::string ekeystr); // alt: (const Edge_ID_key & ekey);
     /// Build a Named Node List request. Returns a pointer to Named_Node_List_Element data (in shared memory).
     Named_Node_List_Element * request_Named_Node_List_Element(Graph_modification_request request, const std::string _name, const Node_ID_key & nkey);
+    /// Build a BATCH modification request for a list of Nodes and targetdates. Retruns a pointer to Batchmod_targetdates created (in shared memory).
+    Batchmod_targetdates * request_Batch_Node_Targetdates(const targetdate_sorted_Nodes & nodelist);
 
 };
 
@@ -255,6 +291,9 @@ bool Graph_modify_list_remove(Graph & graph, const std::string & graph_segname, 
 
 /// Deleta a Named Node List.
 bool Graph_modify_list_delete(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
+
+/// Modify the targetdates of a batch of Nodes.
+bool Graph_modify_batch_node_targetdates(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
 
 /**
  * Modify the targetdate of a repeating Node by carrying out one or more iterations

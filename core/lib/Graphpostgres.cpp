@@ -375,6 +375,17 @@ bool handle_Graph_modifications_pq(const Graph & graph, std::string dbname, std:
                 //break;
             }
 
+            case batchmod_targetdates: {
+                if (!update_batch_node_targetdates_pq(conn, schemaname, graph, change_data.resstr.c_str())) {
+                    MODIFY_GRAPH_PQ_RETURN(false);
+                }
+                #ifdef USE_CHANGE_HISTORY
+                // this is an example of a place where the state of a change history record would be
+                // updated to `applied-in-storage`. See https://trello.com/c/FxSP8If8.
+                #endif
+                break;
+            }
+
             default: {
                 // This should never happen.
                 ADDERROR(__func__, "Unrecognized modification request ("+std::to_string((int) change_data.request_handled)+')');
@@ -1179,6 +1190,30 @@ bool Update_Node_pq(std::string dbname, std::string schemaname, const Node & nod
 
     PQfinish(conn);
     return res;
+}
+
+/// Update targetdates of multiple Nodes.
+bool update_batch_node_targetdates_pq(PGconn* conn, std::string schemaname, const Graph & graph, const std::string NNL_name) {
+    ERRTRACE;
+
+    Named_Node_List_ptr nodelist_ptr = graph.get_List(NNL_name);
+    if (!nodelist_ptr) {
+        ERRRETURNFALSE(__func__, "Named Node List "+NNL_name+" of Nodes with updated targetdates not found");
+    }
+
+    Edit_flags editflags;
+    editflags.set_Edit_targetdate();
+    for (const auto & nkey : nodelist_ptr->list) {
+        Node_ptr node_ptr = graph.Node_by_id(nkey);
+        if (!node_ptr) {
+            ERRRETURNFALSE(__func__, "Node "+nkey.str()+" from NNL "+NNL_name+" not found in Graph");
+        }
+        if (!update_Node_pq(conn, schemaname, *node_ptr, editflags)) {
+            ERRRETURNFALSE(__func__, "Database update of targetdate of Node "+nkey.str()+" failed");
+        }
+    }
+
+    return true;
 }
 
 /**

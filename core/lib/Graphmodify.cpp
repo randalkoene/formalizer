@@ -515,6 +515,29 @@ bool Graph_modify_list_delete(Graph & graph, const std::string & graph_segname, 
     return graph.delete_List(requested_element.name.c_str());
 }
 
+/// Modify the targetdates of a batch of Nodes.
+bool Graph_modify_batch_node_targetdates(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata) {
+    if (!gmoddata.batchmodtd_ptr) {
+        return false;
+    }
+
+    if (!graphmemman.set_active(graph_segname)) {
+        ADDERROR(__func__, "Unable to activate segment "+graph_segname+" for batch modification of Nodes targetdates");
+        return false;
+    }
+
+    Batchmod_targetdates & batchmodtd = *gmoddata.batchmodtd_ptr;
+    for (size_t i = 0; i < batchmodtd.tdnkeys_num; ++i) {
+        Node_ptr node_ptr = graph.Node_by_id(batchmodtd.tdnkeys[i].nkey);
+        if (!node_ptr) {
+            ERRRETURNFALSE(__func__, "Node "+batchmodtd.tdnkeys[i].nkey.str()+" not found in Graph");
+        }
+        node_ptr->set_targetdate(batchmodtd.tdnkeys[i].td);
+    }
+
+    return true;
+}
+
 Graph_modifications::Graph_modifications() : data(graphmemman.get_allocator()) {
     graph_ptr = nullptr;
     if (!graphmemman.get_Graph(graph_ptr)) {
@@ -655,6 +678,24 @@ Named_Node_List_Element * Graph_modifications::request_Named_Node_List_Element(G
     
     data.emplace_back(request, listelement_ptr);
     return listelement_ptr;
+}
+
+Batchmod_targetdates * Graph_modifications::request_Batch_Node_Targetdates(const targetdate_sorted_Nodes & nodelist) {
+    // Create new Batchmod_targetdates object in the shared memory segment being used to share a modification request stack.
+    segment_memory_t * smem = graphmemman.get_segmem();
+    if (!smem) {
+        ADDERROR(__func__, "Shared segment pointer was null pointer");
+        return nullptr;
+    }
+
+    Batchmod_targetdates * batchmodtd_ptr = smem->construct<Batchmod_targetdates>(bi::anonymous_instance)(nodelist, *smem); // this normal pointer is emplaced into an offset_ptr
+    if (!batchmodtd_ptr) {
+        ADDERROR(__func__, "Unable to construct Batch Node targetdates structure in shared memory");
+        return nullptr;
+    }
+    
+    data.emplace_back(batchmodtd_ptr);
+    return batchmodtd_ptr;
 }
 
 /**

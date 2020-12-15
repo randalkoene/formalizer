@@ -20,6 +20,7 @@
 #include "ReferenceTime.hpp"
 #include "Graphinfo.hpp"
 #include "Graphmodify.hpp"
+#include "tcpclient.hpp"
 
 // local
 #include "version.hpp"
@@ -157,6 +158,23 @@ Graph & fzupdate::graph() {
     return *graph_ptr;
 }
 
+Graph_modifications & fzupdate::graphmod() {
+    if (!graphmod_ptr) {
+        if (segname.empty()) {
+            standard_exit_error(exit_general_error, "Unable to allocate shared segment before generating segment name and size. The prepare_Graphmod_shared_memory() function has to be called first.", __func__);
+        }
+        graphmod_ptr = allocate_Graph_modifications_in_shared_memory(segname, segsize);
+        if (!graphmod_ptr)
+            standard_exit_error(exit_general_error, "Unable to create shared segment for modifications requests (name="+segname+", size="+std::to_string(segsize)+')', __func__);
+    }
+    return *graphmod_ptr;
+}
+
+void fzupdate::prepare_Graphmod_shared_memory(unsigned long _segsize) {
+    segsize = _segsize;
+    segname = unique_name_Graphmod(); // a unique name to share with `fzserverpq`
+}
+
 int update_repeating(time_t t_pass) {
     targetdate_sorted_Nodes incomplete_repeating = Nodes_incomplete_and_repeating_by_targetdate(fzu.graph());
     Edit_flags editflags;
@@ -224,20 +242,20 @@ struct EPS_flags {
     void clear() { epsflags = 0; }
     void set_EPS_flags(eps_flags_type _epsflags) { epsflags = _epsflags; }
     bool None() const { return epsflags == 0; }
-    void set_overlap() { eps_flags |= eps_mask::overlap; }
-    void set_insufficient() { eps_flags |= eps_mask::insufficient; }
-    void set_treatgroupable() { eps_flags |= eps_mask::treatgroupable; }
-    void set_exact() { eps_flags |= eps_mask::exact; }
-    void set_fixed() { eps_flags |= eps_mask::fixed; }
-    void set_epsgroupmember() { eps_flags |= eps_mask::epsgroupmember; }
-    void set_periodiclessthanyear() { eps_flags |= eps_mask::periodiclessthanyear; }
-    bool EPS_overlap() const { return eps_flags & eps_mask::overlap; }
-    bool EPS_insufficient() const { return eps_flags & eps_mask::insufficient; }
-    bool EPS_treatgroupable() const { return eps_flags & eps_mask::treatgroupable; }
-    bool EPS_exact() const { return eps_flags & eps_mask::exact; }
-    bool EPS_fixed() const { return eps_flags & eps_mask::fixed; }
-    bool EPS_epsgroupmember() const { return eps_flags & eps_mask::epsgroupmember; }
-    bool EPS_periodiclessthanyear() const { return eps_flags & eps_mask::periodiclessthanyear; }
+    void set_overlap() { epsflags |= eps_mask::overlap; }
+    void set_insufficient() { epsflags |= eps_mask::insufficient; }
+    void set_treatgroupable() { epsflags |= eps_mask::treatgroupable; }
+    void set_exact() { epsflags |= eps_mask::exact; }
+    void set_fixed() { epsflags |= eps_mask::fixed; }
+    void set_epsgroupmember() { epsflags |= eps_mask::epsgroupmember; }
+    void set_periodiclessthanyear() { epsflags |= eps_mask::periodiclessthanyear; }
+    bool EPS_overlap() const { return epsflags & eps_mask::overlap; }
+    bool EPS_insufficient() const { return epsflags & eps_mask::insufficient; }
+    bool EPS_treatgroupable() const { return epsflags & eps_mask::treatgroupable; }
+    bool EPS_exact() const { return epsflags & eps_mask::exact; }
+    bool EPS_fixed() const { return epsflags & eps_mask::fixed; }
+    bool EPS_epsgroupmember() const { return epsflags & eps_mask::epsgroupmember; }
+    bool EPS_periodiclessthanyear() const { return epsflags & eps_mask::periodiclessthanyear; }
 };
 
 constexpr time_t seconds_per_day = 24*60*60;
@@ -249,7 +267,7 @@ struct EPS_map_day {
     EPS_map_day(time_t t_start) : t_daystart(t_start) {}
     void init(time_t t_day) {
         t_daystart = t_day;
-        fivemin_slot = { nullptr }; // *** do we need this again?
+        //fivemin_slot = { nullptr }; // *** do we need this again?
     }
     /**
      * Reserver 5 min slots immediately preceding exact target date.
@@ -262,7 +280,7 @@ struct EPS_map_day {
         if (td < 0) {
             td = seconds_per_day;
         } else {
-            td -= daytd; // seconds into the day
+            td -= t_daystart; // seconds into the day
             if ((td < 0) || (td > seconds_per_day))
                 return false;
         }
@@ -289,7 +307,7 @@ struct EPS_map_day {
     int reserve_fixed(Node_ptr n_ptr, int & slots, time_t td) {
         int before_i = 288;
         if (td >= 0) {
-            td -= daytd; // seconds into the day
+            td -= t_daystart; // seconds into the day
             if ((td < 0) || (td > seconds_per_day))
                 return 1;
             before_i = td / five_minutes_in_seconds;
@@ -298,7 +316,7 @@ struct EPS_map_day {
             if (!fivemin_slot[i]) {
                 fivemin_slot[i] = n_ptr;
                 slots--;
-            } else if (fiveminchunk[i] == n_ptr)
+            } else if (fivemin_slot[i] == n_ptr)
                 return 2;
         }
         return 0;
@@ -341,11 +359,11 @@ struct EPS_map {
         firstdaystart = day_start_time(t);
         days.assign(days_in_map, firstdaystart);
         time_t daystart = firstdaystart;
-        for (const auto & day : days) {
+        for (auto & day : days) {
             day.init(daystart);
             daystart = time_add_day(daystart,1);
         }
-        time_t seconds_passed = t - firstdaysstart;
+        time_t seconds_passed = t - firstdaystart;
         int slots_passed = (seconds_passed % five_minutes_in_seconds) ? (seconds_passed/five_minutes_in_seconds) + 1 : seconds_passed/five_minutes_in_seconds;
         if (slots_passed > 288) {
             standard_exit_error(exit_general_error, "More than 288 five minute slots passed in day. If the clock was moved back from daylight savings time today and this function was used with a time greater than 23:00, then more than 288 five minute chunks of the day can indeed have been used. There is no special case for this, since it is a problem that can only occur for a maximum of 60 minutes per year. If this is the reason for the problem then please wait until 00:00 to try again.", __func__);
@@ -473,7 +491,6 @@ struct EPS_map {
                     if (reserve_fixed(node_ptr, chunks_req[i], t)) {
                         epsflags_vec[i].set_insufficient();
                     }
-                    epsmarks[i] |= INSUFFICIENTFLAG;
                 } else {
                     epsflags_vec[i].set_treatgroupable();
                 }
@@ -526,18 +543,22 @@ struct EPS_map {
 
             // check if a previous group already has the target date, if so offset slightly to preserve grouping and group order
             if (epstd <= previous_group_td)
-                epstd = previous_group_td + eps_group_offset_mins; // one or a few minutes offset
+                epstd = previous_group_td + fzu.config.eps_group_offset_mins; // one or a few minutes offset
         }
         return epstd;
     }
-    void group_and_place_movable(const targetdate_sorted_Nodes & nodelist, const std::vector<chunks_t> & chunks_req, std::vector<EPS_flags> & epsflags_vec, std::vector<time_t> & t_eps) {
+    void group_and_place_movable(targetdate_sorted_Nodes & nodelist, const std::vector<chunks_t> & chunks_req, std::vector<EPS_flags> & epsflags_vec, std::vector<time_t> & t_eps) {
         struct nodelist_itidx {
             ssize_t index;
             targetdate_sorted_Nodes::iterator it;
-            nodelist_ididx(ssize_t _i, targetdate_sorted_Nodes::iterator _it) : index(_i), it(_it) {}
+            nodelist_itidx(ssize_t _i, targetdate_sorted_Nodes::iterator _it) : index(_i), it(_it) {}
+            void set(ssize_t _i, targetdate_sorted_Nodes::iterator _it) {
+                index = _i;
+                it = _it;
+            }
         };
-        nodelist_itidx group_first(-1, nodelist.end());
-        nodelist_ididx group_last(-1, nodelist.end());
+        nodelist_itidx group_first((ssize_t)-1, nodelist.end());
+        nodelist_itidx group_last((ssize_t)-1, nodelist.end());
         time_t group_td = RTt_unspecified;
         ssize_t i = 0;
         for (auto it = nodelist.begin(); it != nodelist.end(); ++it) {
@@ -550,7 +571,7 @@ struct EPS_map {
             }
             if ((chunks_req[i] > 0) && ((node_ptr->get_tdproperty() == variable) || (node_ptr->get_tdproperty() == unspecified) || epsflags_vec[i].EPS_treatgroupable())) {
                 if (t != group_td) { // process EPS group and start new one
-                    if (group_first >= 0) {
+                    if (group_first.index >= 0) {
                         time_t epsgroup_td = group_td;
                         auto j_it = group_first.it;
                         for (auto j = group_first.index; j <= group_last.index; j++) {
@@ -571,11 +592,11 @@ struct EPS_map {
                         }
                     }
 
-                    group_first = i; // *** maybe this needs to be an iterator or a pair of index and iterator
+                    group_first.set(i, it);
                     group_td = t;
                 }
 
-                group_last = i; // mark in case there are non-group entries between firsts in this group and the next
+                group_last.set(i, it); // mark in case there are non-group entries between firsts in this group and the next
                 epsflags_vec[i].set_epsgroupmember();
             }
 
@@ -599,7 +620,7 @@ struct EPS_map {
                 // FXD if !epsflags_vec[i].EPS_epsgroupmember() (in the dil2al version)
                 // the group_td is now the new target date if unspecified or variable
                 if ((node_ptr->get_tdproperty() == variable) || (node_ptr->get_tdproperty() == unspecified)) {
-                    if (fze.config.update_to_earlier_allowed || (t_eps[i] > group_td)) { 
+                    if (fzu.config.update_to_earlier_allowed || (t_eps[i] > group_td)) { 
                         // THIS is a Node for which the target date should be updated to t_eps[i]
                         update_nodes.emplace(t_eps[i], node_ptr);
                     }
@@ -612,10 +633,15 @@ struct EPS_map {
     }
 };
 
+/**
+ * Note: Much of this is a re-implementation of the Formalizer 1.x process carried out by dil2al when the
+ *       function alcomp.cc:generate_AL_CRT() is called.
+ */
 int update_variable(time_t t_pass) {
     constexpr time_t seconds_per_week = 7*24*60*60;
     targetdate_sorted_Nodes incomplete_repeating = Nodes_incomplete_and_repeating_by_targetdate(fzu.graph());
     Edit_flags editflags;
+    editflags.set_Edit_targetdate();
 
     updvar_set_t_limit(t_pass);
 
@@ -624,11 +650,11 @@ int update_variable(time_t t_pass) {
 
     std::vector<chunks_t> chunks_req = updvar_chunks_required(incomplete_repeating);
     unsigned long chunks_req_total = updvar_total_chunks_required_nonperiodic(incomplete_repeating, chunks_req);
-    unsigned long chunks_per_week = seconds_per_week / ((unsigned long)fzu.chunk_minutes * 60);
-    unsigned long weeks_for_nonperiodic = t_req_total / chunks_per_week;
-    unsigned long days_in_map = weeks_for_nonperiodic * 7 * fzu.map_multiplier;
-    if (fzu.map_days > days_in_map) {
-        days_in_map = fzu.map_days;
+    unsigned long chunks_per_week = seconds_per_week / ((unsigned long)fzu.config.chunk_minutes * 60);
+    unsigned long weeks_for_nonperiodic = chunks_req_total / chunks_per_week;
+    unsigned long days_in_map = weeks_for_nonperiodic * 7 * fzu.config.map_multiplier;
+    if (fzu.config.map_days > days_in_map) {
+        days_in_map = fzu.config.map_days;
     }
 
     EPS_map updvar_map(t_pass, days_in_map); // *** putting all the call parameters below into the updvar_map structure can clean things up a bit
@@ -638,17 +664,20 @@ int update_variable(time_t t_pass) {
 
     targetdate_sorted_Nodes eps_update_nodes = updvar_map.get_eps_update_nodes(incomplete_repeating, chunks_req, epsflags_vec, t_eps);
 
-    // *** Now build the Graph modification stack expected using eps_upate_nodes with editflags set to targetdate
-    // *** BEWARE: Correct this to match the protocol decision about who gets to do what as per https://trello.com/c/mXHq1fLh.
+    // Determine probable memory space needed.
+    // *** MORE HERE TO BETTER ESTIMATE THAT, this is a wild guess
+    fzu.prepare_Graphmod_shared_memory(sizeof(TD_Node_shm)*eps_update_nodes.size() + 10240);
 
-    // *** You can probably copy the method used in dil2al, because placing all of the immovables in a fine-grained
-    //     map and then putting the variable target date Nodes where they have to be was already a good strategy.
-    //     The dil2al function alcomp.cc:generate_AL_CRT() applies a method, including options such as EPS grouping
-    //     and determines which modified target dates to propose for variable target date tasks.
-    FZOUT("NOT YET IMPLEMENTED!\n");
+    Batchmod_targetdates_ptr batchmodtd_ptr = fzu.graphmod().request_Batch_Node_Targetdates(eps_update_nodes);
+    if (!batchmodtd_ptr) {
+        return standard_exit_error(exit_general_error, "Unable to update batch of Node target dates", __func__);
+    }
 
-    if (!editflags.None()) { // *** probably need a different test here
-        // *** here, call the Graphpostgres function that can update multiple Nodes
+    fzu.graphmod().data.back().set_Edit_flags(editflags.get_Edit_flags());
+
+    auto ret = server_request_with_shared_data(fzu.get_segname(), fzu.graph().get_server_port());
+    if (ret != exit_ok) {
+        standard_exit_error(ret, "Graph server returned error.", __func__);
     }
 
     return standard_exit_success("Update variable target date Nodes done.");

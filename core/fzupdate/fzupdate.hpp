@@ -46,6 +46,12 @@ public:
 
 
 struct fzupdate: public formalizer_standard_program {
+protected:
+    std::string segname;
+    unsigned long segsize = 0;
+    Graph_modifications * graphmod_ptr = nullptr;
+
+public:
 
     fzu_configurable config;
 
@@ -68,6 +74,12 @@ struct fzupdate: public formalizer_standard_program {
     void init_top(int argc, char *argv[]);
 
     Graph & graph();
+
+    void prepare_Graphmod_shared_memory(unsigned long _segsize);
+    
+    Graph_modifications & graphmod();
+
+    std::string get_segname() { return segname; }
 
 };
 
