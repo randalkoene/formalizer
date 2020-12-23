@@ -1212,17 +1212,22 @@ bool update_batch_node_targetdates_pq(PGconn* conn, std::string schemaname, Grap
         ERRRETURNFALSE(__func__, "Named Node List "+NNL_name+" of Nodes with updated targetdates not found");
     }
 
+    VERYVERBOSEOUT("Synchronizing "+std::to_string(nodelist_ptr->size())+" modified Nodes to database.\n");
     Edit_flags editflags;
     editflags.set_Edit_targetdate();
     for (const auto & nkey : nodelist_ptr->list) {
+        VERYVERBOSEOUT("Getting "+nkey.str()+'\n');
         Node_ptr node_ptr = graph.Node_by_id(nkey);
         if (!node_ptr) {
             ERRRETURNFALSE(__func__, "Node "+nkey.str()+" from NNL "+NNL_name+" not found in Graph");
         }
+        VERYVERBOSEOUT("Updating "+nkey.str()+'\n');
         if (!update_Node_pq(conn, schemaname, *node_ptr, editflags)) {
             ERRRETURNFALSE(__func__, "Database update of targetdate of Node "+nkey.str()+" failed");
         }
+        VERYVERBOSEOUT("Updated that one.\n");
     }
+    VERYVERBOSEOUT("Database update successful.\n");
 
     return true;
 }

@@ -149,7 +149,28 @@ bool request_stack_valid(Graph_modifications & graphmod, std::string segname) {
             }
 
             case batchmod_targetdates: {
-                // *** We could add a test here to see that all of the Node keys in the array are valid.
+                if (!gmoddata.batchmodtd_ptr) {
+                    prepare_error_response(segname, exit_missing_data, "Missing Batch of Nodes and target dates in batch update request");
+                    return false;
+                }
+                if (gmoddata.batchmodtd_ptr->tdnkeys_num < 1) {
+                    prepare_error_response(segname, exit_missing_data, "No Nodes or target dates in batch update request");
+                    return false;
+                }
+                if (gmoddata.batchmodtd_ptr->tdnkeys_num > fzs.graph_ptr->num_Nodes()) {
+                    prepare_error_response(segname, exit_missing_data, "Too many Nodes in batch update request: "+std::to_string(gmoddata.batchmodtd_ptr->tdnkeys_num));
+                    return false;
+                }
+                if (!fzs.graph_ptr->Node_by_id(gmoddata.batchmodtd_ptr.get()->tdnkeys[0].nkey)) {
+                    prepare_error_response(segname, exit_bad_request_data, "Node ID ("+gmoddata.batchmodtd_ptr.get()->tdnkeys[0].nkey.str()+") for batch update request not found");
+                    return false;
+                }
+                // *** does anything else need to be validated?
+                break;
+            }
+
+            case batchmod_tpassrepeating: {
+                // all good, update targets are determined in the server request call.
                 break;
             }
 
@@ -275,11 +296,11 @@ bool handle_request_stack(std::string segname) {
                     ERRRETURNFALSE(__func__, "Batch modify Nodes targetdates failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
                 }
                 if (fzs.graph_ptr->persistent_Lists()) {
-                    if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), "updated", *fzs.graph_ptr)) {
+                    if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), "batch_updated", *fzs.graph_ptr)) {
                         ADDWARNING(__func__, "Synchronizing 'updated' Named Node List to database failed");
                     }
                 }                
-                results_ptr->results.emplace_back(batchmod_targetdates, "updated");
+                results_ptr->results.emplace_back(batchmod_targetdates, "batch_updated");
                 break;
             }
 
@@ -288,11 +309,11 @@ bool handle_request_stack(std::string segname) {
                     ERRRETURNFALSE(__func__, "Batch modify Nodes past t_pass failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
                 }
                 if (fzs.graph_ptr->persistent_Lists()) {
-                    if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), "updated", *fzs.graph_ptr)) {
+                    if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), "repeating_updated", *fzs.graph_ptr)) {
                         ADDWARNING(__func__, "Synchronizing 'updated' Named Node List to database failed");
                     }
                 }
-                results_ptr->results.emplace_back(batchmod_tpassrepeating, "updated");
+                results_ptr->results.emplace_back(batchmod_tpassrepeating, "repeating_updated");
                 break;                
             }
 

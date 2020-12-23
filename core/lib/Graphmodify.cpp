@@ -96,6 +96,14 @@ std::string Graphmod_results::info_str() {
                 infostr += "\n\tedited Edge with ID "+modres.edge_key.str();
                 break;
             }
+            case batchmod_targetdates: {
+                infostr += "\n\tupdated target dates of movable Nodes in Named Node List "+std::string(modres.resstr.c_str());
+                break;
+            }
+            case batchmod_tpassrepeating: {
+                infostr += "\n\tupdated target dates of repeating Nodes in Named Node List "+std::string(modres.resstr.c_str());
+                break;
+            }
             default: {
                 // this should never happen
                 infostr += "\n\tunrecognized modification request!";
@@ -567,16 +575,19 @@ bool Graph_modify_batch_node_targetdates(Graph & graph, const std::string & grap
         return false;
     }
 
-    Batchmod_targetdates & batchmodtd = *gmoddata.batchmodtd_ptr;
-    for (size_t i = 0; i < batchmodtd.tdnkeys_num; ++i) {
-        Node_ptr node_ptr = graph.Node_by_id(batchmodtd.tdnkeys[i].nkey);
+    //Batchmod_targetdates & batchmodtd = *(gmoddata.batchmodtd_ptr.get());
+    //VERYVERBOSEOUT("Batch with "+std::to_string(batchmodtd.tdnkeys_num)+" Nodes and target dates received.\n");
+    VERYVERBOSEOUT("Batch with "+std::to_string(gmoddata.batchmodtd_ptr->tdnkeys_num)+" Nodes and target dates received.\n");
+    for (size_t i = 0; i < gmoddata.batchmodtd_ptr->tdnkeys_num; ++i) {
+        Node_ptr node_ptr = graph.Node_by_id(gmoddata.batchmodtd_ptr->tdnkeys[i].nkey);
         if (!node_ptr) {
-            ERRRETURNFALSE(__func__, "Node "+batchmodtd.tdnkeys[i].nkey.str()+" not found in Graph");
+            ERRRETURNFALSE(__func__, "Node "+gmoddata.batchmodtd_ptr->tdnkeys[i].nkey.str()+" not found in Graph");
         }
-        node_ptr->set_targetdate(batchmodtd.tdnkeys[i].td);
+        node_ptr->set_targetdate(gmoddata.batchmodtd_ptr->tdnkeys[i].td);
     }
+    VERYVERBOSEOUT("Batch target dates updated.\n");
 
-    return batch_to_NNL(graph, batchmodtd, "updated");
+    return batch_to_NNL(graph, *(gmoddata.batchmodtd_ptr.get()), "batch_updated");
 }
 
 bool sorted_to_NNL(Graph & graph, const targetdate_sorted_Nodes & sortednodes, std::string list_name) {
@@ -617,20 +628,22 @@ bool Graph_modify_batch_node_tpassrepeating(Graph & graph, const std::string & g
         ERRRETURNFALSE(__func__, "Unable to activate segment "+graph_segname+" for batch modification of Nodes past t_pass");
     }
 
-    Batchmod_tpass & batchmodtpass = *gmoddata.batchmodtpass_ptr;
+    Batchmod_tpass & batchmodtpass = *(gmoddata.batchmodtpass_ptr.get());
     time_t t_pass = batchmodtpass.t_pass;
     targetdate_sorted_Nodes incomplete_repeating = Nodes_incomplete_and_repeating_by_targetdate(graph);
 
     targetdate_sorted_Nodes updated_repeating = Update_repeating_Nodes(incomplete_repeating, t_pass);
 
-    return sorted_to_NNL(graph, updated_repeating, "updated");
+    return sorted_to_NNL(graph, updated_repeating, "repeating_updated");
 }
 
 Graph_modifications::Graph_modifications() : data(graphmemman.get_allocator()) {
+    segment_name = graphmemman.get_active_name();
     graph_ptr = nullptr;
     if (!graphmemman.get_Graph(graph_ptr)) {
         throw(Shared_Memory_exception("none containing a Graph are active"));
     }
+    graphmemman.set_active(segment_name);
 }
 
 std::string Graph_modifications::generate_unique_Node_ID_str() {
@@ -657,6 +670,7 @@ std::string Graph_modifications::generate_unique_Node_ID_str() {
 
 Node * Graph_modifications::request_add_Node() {
     // Create new Node object in the shared memory segment being used to share a modifications request stack.
+    graphmemman.set_active(segment_name);
     segment_memory_t * smem = graphmemman.get_segmem();
     if (!smem) {
         ADDERROR(__func__, "Shared segment pointer was null pointer");
@@ -688,6 +702,7 @@ Node * Graph_modifications::request_edit_Node(std::string nkeystr) {
     }
 
     // Create Node object with existing Node ID in the shared memory segment being used to share a modifications request stack.
+    graphmemman.set_active(segment_name);
     segment_memory_t * smem = graphmemman.get_segmem();
     if (!smem) {
         ADDERROR(__func__, "Shared segment pointer was null pointer");
@@ -707,6 +722,7 @@ Node * Graph_modifications::request_edit_Node(std::string nkeystr) {
 /// Note that testing if depkey and supkey exists happens in the server (see https://trello.com/c/FQximby2/174-fzgraphedit-adding-new-nodes-to-the-graph-with-initial-edges#comment-5f8faf243d74b8364fac7739).
 Edge * Graph_modifications::request_add_Edge(const Node_ID_key & depkey, const Node_ID_key & supkey) {
     // Create new Edge object in the shared memory segment being used to share a modifications request stack.
+    graphmemman.set_active(segment_name);
     segment_memory_t * smem = graphmemman.get_segmem();
     if (!smem) {
         ADDERROR(__func__, "Shared segment pointer was null pointer");
@@ -734,6 +750,7 @@ Edge * Graph_modifications::request_edit_Edge(std::string ekeystr) {
     }
 
     // Create Edge object with existing Edge ID in the shared memory segment being used to share a modifications request stack.
+    graphmemman.set_active(segment_name);
     segment_memory_t * smem = graphmemman.get_segmem();
     if (!smem) {
         ADDERROR(__func__, "Shared segment pointer was null pointer");
@@ -752,6 +769,7 @@ Edge * Graph_modifications::request_edit_Edge(std::string ekeystr) {
 
 Named_Node_List_Element * Graph_modifications::request_Named_Node_List_Element(Graph_modification_request request, const std::string _name, const Node_ID_key & nkey) {
     // Create new Named_Node_List_Element object in the shared memory segment being used to share a modifications request stack.
+    graphmemman.set_active(segment_name);
     segment_memory_t * smem = graphmemman.get_segmem();
     if (!smem) {
         ADDERROR(__func__, "Shared segment pointer was null pointer");
@@ -770,6 +788,7 @@ Named_Node_List_Element * Graph_modifications::request_Named_Node_List_Element(G
 
 Batchmod_targetdates * Graph_modifications::request_Batch_Node_Targetdates(const targetdate_sorted_Nodes & nodelist) {
     // Create new Batchmod_targetdates object in the shared memory segment being used to share a modification request stack.
+    graphmemman.set_active(segment_name);
     segment_memory_t * smem = graphmemman.get_segmem();
     if (!smem) {
         ADDERROR(__func__, "Shared segment pointer was null pointer");
@@ -788,6 +807,7 @@ Batchmod_targetdates * Graph_modifications::request_Batch_Node_Targetdates(const
 
 Batchmod_tpass * Graph_modifications::request_Batch_Node_Tpass(time_t t_pass) { //, const targetdate_sorted_Nodes & nodelist) {
     // Create new Batchmod_targetdates object in the shared memory segment being used to share a modification request stack.
+    graphmemman.set_active(segment_name);
     segment_memory_t * smem = graphmemman.get_segmem();
     if (!smem) {
         ADDERROR(__func__, "Shared segment pointer was null pointer");

@@ -127,7 +127,13 @@ std::string TimeStamp(const char * dateformat, time_t t) {
     if (t<0) return "";
 
     char dstr[80];
-    strftime(dstr,80,dateformat,localtime(&t));
+    tm * tm_ptr = localtime(&t);
+    if (!tm_ptr) {
+        return "";
+    }
+    if (strftime(dstr,80,dateformat,tm_ptr) == 0) {
+        return "";
+    }
     return dstr;
 }
 

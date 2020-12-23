@@ -27,16 +27,14 @@ using namespace fz;
 
 #define UNAVAILABLE_SLOT (Node_ptr)1
 
-constexpr unsigned int minutes_per_slot = 5;
 constexpr time_t seconds_per_day = 24*60*60;
-constexpr time_t seconds_per_week = 7*24*60*60;
-constexpr time_t five_minutes_in_seconds = minutes_per_slot*60;
-constexpr unsigned int slots_per_day = 24*60/minutes_per_slot;
+constexpr time_t five_minutes_in_seconds = 5*60;
+constexpr unsigned int slots_per_day = 24*60/5;
 constexpr unsigned int slots_per_line = 96;
 constexpr unsigned int lines_per_day = slots_per_day / slots_per_line;
 constexpr time_t seconds_per_line = 96*five_minutes_in_seconds;
 constexpr time_t hours_per_line = 24 / lines_per_day;
-constexpr unsigned int chars_per_hour = 2*60/minutes_per_slot;
+constexpr unsigned int chars_per_hour = 2*60/5;
 
 constexpr unsigned int max_twochar_num = 26*26;
 
@@ -100,21 +98,66 @@ struct EPS_flags {
     bool EPS_periodiclessthanyear() const { return epsflags & eps_mask::periodiclessthanyear; }
 };
 
+#ifndef USE_MAP_FOR_MAPPING
+
+struct EPS_map_day {
+    //Node_ptr fivemin_slot[slots_per_day]; // = { nullptr };
+    std::vector<Node_ptr> fivemin_slot;
+    time_t t_daystart;
+    EPS_map_day(time_t t_start) : t_daystart(t_start) {
+        for (unsigned int i=0; i<slots_per_day; ++i) {
+            fivemin_slot.emplace_back(nullptr);
+            //fivemin_slot[i] = nullptr;
+        }
+    }
+    void init(time_t t_day) {
+        t_daystart = t_day;
+        //fivemin_slot = { nullptr }; // *** do we need this again?
+    }
+
+    std::vector<std::string> html(const Node_twochar_encoder & codebook) const;
+
+    /**
+     * Reserver 5 min slots immediately preceding exact target date.
+     * @param n_ptr Pointer to Node for which to allocate slots.
+     * @param slots Slots needed, returning any that did not fit into the day.
+     * @param td Node target date (td<0 means used time from end of day).
+     * @return True if any map slots were already occupied.
+     */
+    bool reserve_exact(Node_ptr n_ptr, int &slots, time_t td);
+    /**
+     * Reserve 5 min slots preceding the target date.
+     * @param n_ptr Pointer to Node for which to allocate slots.
+     * @param slots Slots needed, returning any that did not fit into the day.
+     * @param td Node target date (td<0 means used time from end of day).
+     * @return 0 if all goes well (even if slots remain to be reserved), 1 if there
+     *         is a td value problem, 1 if reserved space from earlier iteration of
+     *         the same Node was encountered (repeating Nodes scheduled too tightly).
+     */
+    int reserve_fixed(Node_ptr n_ptr, int & slots, time_t td);
+    /**
+     * Reserves 5 min slots advancing from the earliest available slot onward.
+     * @param n_ptr Pointer to Node for which to allocate slots.
+     * @param slots_req Slots needed, returning any that did not fit into the day.
+     * @return Target date immediately following the last slot allocated or immediately
+     *         following the end of the day.
+     */
+    time_t reserve(Node_ptr n_ptr, int & slots_req);
+};
+
+#else // USE_MAP_FOR_MAPPING
+
 struct eps_data {
     chunks_t chunks_req = 0;
     EPS_flags epsflags;
     time_t t_eps = RTt_maxtime;
 };
-
 typedef std::vector<eps_data> eps_data_vec_t; // *** alternatively, could index by Node_ID_key and get rid of node_vector_index.
-
 struct eps_data_vec: public eps_data_vec_t {
     eps_data_vec(const targetdate_sorted_Nodes & _incomplete_repeating);
     void updvar_chunks_required(const targetdate_sorted_Nodes & nodelist);
     size_t updvar_total_chunks_required_nonperiodic(const targetdate_sorted_Nodes & nodelist);
 };
-
-typedef std::map<time_t, Node_ptr> eps_slots_map_t;
 
 struct EPS_map {
     unsigned long num_days;
@@ -127,15 +170,18 @@ struct EPS_map {
 
     targetdate_sorted_Nodes & nodelist;
     eps_data_vec_t & epsdata;
+    //std::vector<chunks_t> & chunks_req;
+    //std::vector<EPS_flags> & epsflags_vec;
+    //std::vector<time_t> & t_eps;
 
     std::map<Node_ID_key, size_t> node_vector_index;
 
-    eps_slots_map_t slots;
-    eps_slots_map_t::iterator next_slot;
+    std::map<time_t, Node_ptr> slots;
 
     std::string day_separator;
 
     EPS_map(time_t _t, unsigned long days_in_map, targetdate_sorted_Nodes & _incomplete_repeating, eps_data_vec_t & _epsdata);
+        //std::vector<chunks_t> & _chunks_req, std::vector<EPS_flags> & _epsflags_vec, std::vector<time_t> & _t_eps);
 
     void prepare_day_separator();
     void add_map_code(time_t t, const char * code_cstr, std::vector<std::string> & maphtmlvec) const;
@@ -201,5 +247,82 @@ struct EPS_map {
     targetdate_sorted_Nodes get_eps_update_nodes();
 
 };
+
+#endif // USE_MAP_FOR_MAPPING
+
+#ifndef USE_MAP_FOR_MAPPING
+
+struct EPS_map {
+    unsigned long num_days;
+    time_t starttime;
+    time_t firstdaystart;
+    std::vector<EPS_map_day> days;
+    int slots_per_chunk;
+    time_t previous_group_td = -1;
+
+    targetdate_sorted_Nodes & nodelist;
+    std::vector<chunks_t> & chunks_req;
+    std::vector<EPS_flags> & epsflags_vec;
+    std::vector<time_t> & t_eps;
+
+    EPS_map(time_t t, unsigned long days_in_map, targetdate_sorted_Nodes & _incomplete_repeating,
+    std::vector<chunks_t> & _chunks_req, std::vector<EPS_flags> & _epsflags_vec, std::vector<time_t> & _t_eps);
+
+    std::vector<std::string> html(const Node_twochar_encoder & codebook) const;
+    std::string show();
+
+    /**
+     * Reserve `chunks_req` in five minute granularity, immediately preceding
+     * the exact target date.
+     * @param n_ptr Pointer to Node for which to allocate time.
+     * @param chunks_req Number of chunks required.
+     * @param td Node target date.
+     * @return True if any of the slots are already occupied (exact target date
+     *         Nodes with overlapping intervals).
+     */
+    bool reserve_exact(Node_ptr n_ptr, int chunks_req, time_t td);
+
+    void place_exact();
+
+    /// Find the day that contains the target date.
+    int find_dayTD(time_t td);
+
+    /**
+     * Reserve `chunks_req` in five minute granularity, immediately preceding
+     * the fixed target date. Reserves nearest available slots from the target
+     * date on down.
+     * @param n_ptr Pointer to Node for which to allocate time.
+     * @param chunks_req Number of chunks required.
+     * @param td Node target date.
+     * @return True if there are insufficient slots available.
+     */
+    bool reserve_fixed(Node_ptr n_ptr, int chunks_req, time_t td);
+
+    /**
+     * Note: In dil2al, this included collecting info about how a target date was obtained, and that info could be
+     * fairly diverse. Now, in the Formalizer 2.x, target dates are set at the Node, so you only have two
+     * cases: Either the targetdate was specified at the Node, or it was inherited (propagated). It is now
+     * solidly the td_property that determines what is done, and the 'inherit' property forces inheritance
+     * (much as 'unspecified+fixed' used to). For more about this, see the documentation of target date
+     * properties in https://docs.google.com/document/d/1rYPFgzFgjkF1xGx3uABiXiaDR5sfmOzqYQRqSntcyyY/edit#heading=h.td3aptmw2f5.
+     */
+    void place_fixed();
+
+    /**
+     * Reserve `chunks_req` in five minute granularity from the earliest
+     * available slot onward.
+     * @param n_ptr Pointer to Node for which to allocate time.
+     * @param chunks_req Number of chunks required.
+     * @return Corresponding suggested target date taking into account TD preferences,
+     *         or -1 if there are insufficient slots available.
+     */
+    time_t reserve(Node_ptr n_ptr, int chunks_req);
+
+    void group_and_place_movable();
+
+    targetdate_sorted_Nodes get_eps_update_nodes();
+};
+
+#endif // USE_MAP_FOR_MAPPING
 
 #endif // __EPSMAP_HPP

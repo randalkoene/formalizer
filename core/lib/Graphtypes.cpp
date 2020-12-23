@@ -130,11 +130,21 @@ segment_memory_t * graph_mem_managers::allocate_and_activate_shared_memory(std::
     bi::permissions per;
     per.set_unrestricted(); // *** we might want to tighten this later, for now this is needed for web based access
     segment_memory_t * segment = new segment_memory_t(bi::create_only, segment_name.c_str(), segmentsize, 0, per);
+    if (!segment) {
+        ERRRETURNNULL(__func__, "Unable to create shared memory segment ("+segment_name+") with size "+std::to_string(segmentsize)+" bytes.");
+    }
 
     void_allocator * alloc_inst = new void_allocator(segment->get_segment_manager());
+    if (!alloc_inst) {
+        ERRRETURNNULL(__func__, "Unable to create allocator for shared memory segment ("+segment_name+").");
+    }
 
-    add_manager(segment_name, *segment, *alloc_inst);
-    set_active(segment_name);
+    if (!add_manager(segment_name, *segment, *alloc_inst)) {
+        ERRRETURNNULL(__func__, "Unable to add segment manager for shared memory segment ("+segment_name+").");
+    }
+    if (!set_active(segment_name)) {
+        ERRRETURNNULL(__func__, "Unable to activate shared memory segment ("+segment_name+").");
+    }
 
     return segment;
 }

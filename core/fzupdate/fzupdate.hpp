@@ -34,7 +34,7 @@ public:
 
     unsigned int chunk_minutes = 20;
     time_t chunk_seconds = 20*60;
-    unsigned int map_multiplier = 2;
+    unsigned int map_multiplier = 3;
     unsigned long map_days = 14;
     bool warn_repeating_too_tight = true;
     bool endofday_priorities = true;
@@ -42,6 +42,8 @@ public:
     time_t doearlier_endofday = 68400;
     unsigned int eps_group_offset_mins = 2;
     bool update_to_earlier_allowed = true;
+    unsigned long fetch_days_beyond_t_limit = 30;
+    bool showmaps = true;
 };
 
 

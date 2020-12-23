@@ -11,6 +11,9 @@
 
 #define FORMALIZER_MODULE_ID "Formalizer:Graph:Update"
 
+//#define USE_COMPILEDPING
+//#define DEBUG_SKIP
+
 // std
 #include <iostream>
 
@@ -80,12 +83,12 @@ bool fzupdate::options_hook(char c, std::string cargs) {
 
     case 'r': {
         flowcontrol = flow_update_repeating;
-        break;
+        return true;
     }
 
     case 'u': {
         flowcontrol = flow_update_variable;
-        break;
+        return true;
     }
 
     case 'T': {
@@ -94,7 +97,7 @@ bool fzupdate::options_hook(char c, std::string cargs) {
         } else {
             t_limit = time_stamp_time(cargs);
         }
-        break;
+        return true;
     }
 
     }
@@ -130,6 +133,8 @@ bool fzu_configurable::set_parameter(const std::string & parlabel, const std::st
     CONFIG_TEST_AND_SET_PAR(doearlier_endofday,"doearlier_endofday", parlabel, time_stamp_time(parvalue));
     CONFIG_TEST_AND_SET_PAR(eps_group_offset_mins,"eps_group_offset_mins", parlabel, get_positive_integer(parvalue, "eps_group_offset_mins"));
     CONFIG_TEST_AND_SET_PAR(update_to_earlier_allowed,"update_to_earlier_allowed", parlabel, (parvalue != "false"));
+    CONFIG_TEST_AND_SET_PAR(fetch_days_beyond_t_limit, "fetch_days_beyond_t_limit", parlabel, get_positive_integer(parvalue, "fetch_days_beyond_t_limit"));
+    CONFIG_TEST_AND_SET_PAR(showmaps,"showmaps", parlabel, (parvalue != "false"));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
@@ -162,6 +167,7 @@ Graph_modifications & fzupdate::graphmod() {
         if (segname.empty()) {
             standard_exit_error(exit_general_error, "Unable to allocate shared segment before generating segment name and size. The prepare_Graphmod_shared_memory() function has to be called first.", __func__);
         }
+        VERYVERBOSEOUT("\nAllocating shared memory block "+segname+" with "+std::to_string(segsize)+" bytes.\n");
         graphmod_ptr = allocate_Graph_modifications_in_shared_memory(segname, segsize);
         if (!graphmod_ptr)
             standard_exit_error(exit_general_error, "Unable to create shared segment for modifications requests (name="+segname+", size="+std::to_string(segsize)+')', __func__);
@@ -209,34 +215,53 @@ void updvar_set_t_limit(time_t t_pass) {
     fzu.t_limit = time_add_day(t_pass,fzu.config.map_days);
 }
 
-std::vector<chunks_t> updvar_chunks_required(const targetdate_sorted_Nodes & nodelist) {
-    std::vector<chunks_t> chunks_req(nodelist.size(), 0);
-    chunks_t suspicious_req = (36*60)/fzu.config.chunk_minutes;
-    size_t i = 0;
-    for (const auto & [t, node_ptr] : nodelist) {
-        chunks_req[i] = seconds_to_chunks(node_ptr->seconds_to_complete());
-        if (chunks_req[i]>suspicious_req) {
-            ADDWARNING(__func__, "Suspiciously large number of chunks ("+std::to_string(chunks_req[i])+") needed to complete Node "+node_ptr->get_id_str());
-        }
-        ++i;
+struct update_constraints {
+    time_t t_fetchlimit = RTt_maxtime;
+    unsigned long chunks_per_week = seconds_per_week / (20*60);
+    size_t num_nodes_with_repeating = 0;
+    unsigned long chunks_req_total = 0;
+    unsigned long weeks_for_nonperiodic = 0;
+    unsigned long days_in_map = 0;
+    update_constraints() {
+        t_fetchlimit = fzu.t_limit + (fzu.config.fetch_days_beyond_t_limit*seconds_per_day);
+        chunks_per_week = seconds_per_week / ((unsigned long)fzu.config.chunk_minutes * 60);
     }
-    return chunks_req;
-}
+    void set(size_t num_nodes, unsigned long _chunks_req_total) {
+        num_nodes_with_repeating = num_nodes;
+        chunks_req_total = _chunks_req_total;
+        weeks_for_nonperiodic = chunks_req_total / chunks_per_week;
+        if (weeks_for_nonperiodic == 0) {
+            weeks_for_nonperiodic = 1;
+        }
+        days_in_map = weeks_for_nonperiodic * 7 * fzu.config.map_multiplier;
+        if (fzu.config.map_days > days_in_map) {
+            days_in_map = fzu.config.map_days;
+        }
+    }
+    std::string str() {
+        std::string s("Limits: t_limit ("+TimeStampYmdHM(fzu.t_limit)+") + fetch_days_beyond_t_limit ("+std::to_string(fzu.config.fetch_days_beyond_t_limit)+") = t_fetchlimit = "+TimeStampYmdHM(t_fetchlimit));
+        s += "\nNumber of Nodes fetched to map (including repeats)     : "+std::to_string(num_nodes_with_repeating);
+        s += "\nChunks required for non-repeating Nodes (up to t_limit): "+std::to_string(chunks_req_total);
+        s += "\nNumber of chunks in a week: "+std::to_string(chunks_per_week);
+        s += "\nNumber of days in map     : "+std::to_string(days_in_map)+'\n';
+        return s;
+    }
+};
 
-unsigned long updvar_total_chunks_required_nonperiodic(const targetdate_sorted_Nodes & nodelist, const std::vector<chunks_t> & chunks_req) {
-    // *** Note: The chunks_req[i] test may be unnecessary, because we're working with a list of incomplete Nodes.
-    unsigned long total = 0;
-    size_t i = 0;
-    for (const auto & [t, node_ptr] : nodelist) {
-        if (node_ptr->effective_targetdate()>fzu.t_limit) {
-            break;
-        }
-        if ((chunks_req[i]>0) && (!node_ptr->get_repeats())) {
-            total += chunks_req[i];
-        }
-        ++i;
-    }
-    return total;
+std::string show_shm_request(Batchmod_targetdates_ptr batchmodreq_ptr) {
+    std::string s("Shared memory segment                                              : "+fzu.get_segname());
+    s += "\nPointer to shared memory location in fzupdate memory mapping       : "+std::to_string((uint64_t)graphmemman.get_segmem());
+    s += "\nPointer to Graph_modifications object                              : "+std::to_string((uint64_t)(&fzu.graphmod()));
+    s += "\nPointer to Data at tail of request stack                           : "+std::to_string((uint64_t)(&(fzu.graphmod().data.back())));
+    s += "\nPointer retrieved from data.back().batchmodtd_ptr                  : "+std::to_string((uint64_t)(fzu.graphmod().data.back().batchmodtd_ptr.get()));
+    s += "\nEquivalent offset from data.back().batchmodtd_ptr variable location: "+std::to_string((uint64_t)(fzu.graphmod().data.back().batchmodtd_ptr.get_offset()));
+    s += "\nPointer reported directly in local batchmodreq_ptr variable        : "+std::to_string((uint64_t)batchmodreq_ptr);
+    s += "\ntdnkeys_num reported by object in shared memory                    : "+std::to_string(fzu.graphmod().data.back().batchmodtd_ptr.get()->tdnkeys_num);
+    s += "\ntdnkeys offset pointer get()                                       : "+std::to_string((uint64_t)(fzu.graphmod().data.back().batchmodtd_ptr.get()->tdnkeys.get()));
+    s += "\ntdnkeys[0] location via offset pointer                             : "+std::to_string((uint64_t)(&(fzu.graphmod().data.back().batchmodtd_ptr.get()->tdnkeys[0])));
+    s += "\nNode ID key content at tdnkeys[0]                                  : "+fzu.graphmod().data.back().batchmodtd_ptr.get()->tdnkeys[0].nkey.str();
+    s += '\n';
+    return s;
 }
 
 /**
@@ -244,26 +269,19 @@ unsigned long updvar_total_chunks_required_nonperiodic(const targetdate_sorted_N
  *       function alcomp.cc:generate_AL_CRT() is called.
  */
 int update_variable(time_t t_pass) {
-    constexpr time_t seconds_per_week = 7*24*60*60;
-    targetdate_sorted_Nodes incomplete_repeating = Nodes_incomplete_and_repeating_by_targetdate(fzu.graph());
+    updvar_set_t_limit(t_pass);
+    update_constraints constraints;
+
+    targetdate_sorted_Nodes incomplete_repeating = Nodes_incomplete_with_repeating_by_targetdate(fzu.graph(), constraints.t_fetchlimit, 0);
     Edit_flags editflags;
     editflags.set_Edit_targetdate();
 
-    updvar_set_t_limit(t_pass);
+    eps_data_vec epsdata(incomplete_repeating);
 
-    std::vector<time_t> t_eps(incomplete_repeating.size(), RTt_maxtime);
-    std::vector<EPS_flags> epsflags_vec;
+    constraints.set(incomplete_repeating.size(), epsdata.updvar_total_chunks_required_nonperiodic(incomplete_repeating));  
+    VERBOSEOUT(constraints.str());
 
-    std::vector<chunks_t> chunks_req = updvar_chunks_required(incomplete_repeating);
-    unsigned long chunks_req_total = updvar_total_chunks_required_nonperiodic(incomplete_repeating, chunks_req);
-    unsigned long chunks_per_week = seconds_per_week / ((unsigned long)fzu.config.chunk_minutes * 60);
-    unsigned long weeks_for_nonperiodic = chunks_req_total / chunks_per_week;
-    unsigned long days_in_map = weeks_for_nonperiodic * 7 * fzu.config.map_multiplier;
-    if (fzu.config.map_days > days_in_map) {
-        days_in_map = fzu.config.map_days;
-    }
-
-    EPS_map updvar_map(t_pass, days_in_map, incomplete_repeating, chunks_req, epsflags_vec, t_eps);
+    EPS_map updvar_map(t_pass, constraints.days_in_map, incomplete_repeating, epsdata);
     updvar_map.place_exact();
     updvar_map.place_fixed();
     updvar_map.group_and_place_movable();
@@ -272,14 +290,20 @@ int update_variable(time_t t_pass) {
 
     // Determine probable memory space needed.
     // *** MORE HERE TO BETTER ESTIMATE THAT, this is a wild guess
-    fzu.prepare_Graphmod_shared_memory(sizeof(TD_Node_shm)*eps_update_nodes.size() + 10240);
+    fzu.prepare_Graphmod_shared_memory(sizeof(TD_Node_shm)*eps_update_nodes.size()*4 + 102400);
 
     Batchmod_targetdates_ptr batchmodtd_ptr = fzu.graphmod().request_Batch_Node_Targetdates(eps_update_nodes);
     if (!batchmodtd_ptr) {
         return standard_exit_error(exit_general_error, "Unable to update batch of Node target dates", __func__);
     }
+    VERBOSEOUT("Prepared server request with a batch of "+std::to_string(batchmodtd_ptr->tdnkeys_num)+" Node and target date elements\n");
 
+    if (fzu.graphmod().data.empty()) {
+        return standard_exit_error(exit_missing_data, "Missing server request data", __func__);
+    }
     fzu.graphmod().data.back().set_Edit_flags(editflags.get_Edit_flags());
+
+    VERYVERBOSEOUT(show_shm_request(batchmodtd_ptr));
 
     auto ret = server_request_with_shared_data(fzu.get_segname(), fzu.graph().get_server_port());
     if (ret != exit_ok) {
@@ -293,9 +317,6 @@ int main(int argc, char *argv[]) {
     ERRTRACE;
 
     fzu.init_top(argc, argv);
-
-    FZOUT("\nThis is a stub.\n\n");
-    key_pause();
 
     switch (fzu.flowcontrol) {
 

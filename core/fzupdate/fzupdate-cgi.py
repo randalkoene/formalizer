@@ -28,6 +28,7 @@ form = cgi.FieldStorage()
 repeating = form.getvalue('repeating')
 variable = form.getvalue('variable')
 T_emulate = form.getvalue('T_emulate')
+verbose = form.getvalue('verbose')
 
 
 pagehead = '''Content-type:text/html
@@ -42,6 +43,15 @@ pagehead = '''Content-type:text/html
 .chktop {
     background-color: #B0C4F5;
 }
+.map {
+    font-family: "Lucida Sans Typewriter";
+    font-size: 16px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    line-height: 17.6px;
+    background-color: #e6e6fa;
+}
 </style>
 '''
 
@@ -52,6 +62,8 @@ pagetail = '''<hr>
 
 
 def try_command_call(thecmd):
+    print(f'<!-- thecmd = {thecmd} -->')
+    print('<div class="map"><pre>')
     try:
         p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
         (child_stdin,child_stdout) = (p.stdin, p.stdout)
@@ -69,6 +81,8 @@ def try_command_call(thecmd):
         for line in a:
             print(line)
 
+    print('</pre></div>')
+
 
 if __name__ == '__main__':
 
@@ -80,13 +94,21 @@ if __name__ == '__main__':
     print("<!-- [Formalizer: fzupdate handler]\n<p></p> -->")
     #print("<table>")
 
+    add_to_cmd = ''
+    if T_emulate:
+        add_to_cmd = ' -t '+T_emulate
+    if verbose:
+        add_to_cmd += ' -V'
+
     if repeating:
-        thecmd = "./fzupdate -q -E STDOUT -r"
+        thecmd = "./fzupdate -q -E STDOUT -r"+add_to_cmd
         try_command_call(thecmd)
+        print('<p><b>Repeating Nodes updated. To see which Nodes were modified, see the <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=repeating_updated">repeating_updated</a> Named Node List.</b></p>')
 
     if variable:
-        thecmd = "./fzupdate -q -E STDOUT -u"
+        thecmd = "./fzupdate -q -E STDOUT -u"+add_to_cmd
         try_command_call(thecmd)
+        print('<p><b>Variable or unspecified target date Nodes updated. To see which Nodes were modified, see the <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=batch_updated">batch_updated</a> Named Node List.</b></p>')
 
     print(pagetail)
 

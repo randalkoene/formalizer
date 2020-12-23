@@ -136,7 +136,7 @@ targetdate_sorted_Nodes Nodes_incomplete_by_targetdate(Graph & graph) {
  * 
  * If you want a list with repeats of only incomplete Nodes then `sortednodes` can
  * be prepared with `Nodes_incomplete_by_targetdate()`. Otherwise, use an alternative
- * preparation.
+ * preparation. See `Nodes_incomplete_with_repeating_by_targetdate()` below.
  * 
  * @param sortednodes A list of target date sorted Node pointers.
  * @param t_max Limit to which to generate the resulting list of Node pointers.
@@ -172,8 +172,24 @@ targetdate_sorted_Nodes Nodes_with_repeats_by_targetdate(const targetdate_sorted
 }
 
 /**
+ * Returns targetdate sorted Nodes that are incomplete, augmented with repeated instances.
+ * 
+ * This is an application in sequence of the two functions above.
+ * 
+ * @param graph A valid Graph object.
+ * @param t_max Limit to which to generate the resulting list of Node pointers.
+ * @param N_max Maximum size of list to return (zero means no size limit).
+ * @return A target date sorted list of Node pointers with repeats.
+ */
+targetdate_sorted_Nodes Nodes_incomplete_with_repeating_by_targetdate(Graph & graph, time_t t_max, size_t N_max) {
+    targetdate_sorted_Nodes incomplete = Nodes_incomplete_by_targetdate(graph);
+    return Nodes_with_repeats_by_targetdate(incomplete, t_max, N_max);
+}
+
+/**
  * Selects all Nodes that are incomplete and repeating and lists them by (inherited)
- * target date.
+ * target date. Note that this is NOT the same thing as incomplete with repeating. This is
+ * an and operation where both things must be true.
  * 
  * For example, see how this is used in `fzupdate` together with `Graphmodify:Update_repeating_Nodes()`.
  * 

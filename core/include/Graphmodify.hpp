@@ -147,30 +147,36 @@ struct TD_Node_shm {
 };
 typedef bi::offset_ptr<TD_Node_shm> TD_Node_shm_offsetptr;
 
+
+// *** Trying this, even though I haven't actually concluded that the array was the cause of the segfault!
+//typedef bi::allocator<TD_Node_shm, segment_manager_t> TD_Node_shm_allocator;
+//typedef bi::vector<TD_Node_shm, TD_Node_shm_allocator> TD_Node_shm_Vector;
+
 // Use this to build a constant size array of TD_Node_shm elements in shared memory.
 struct Batchmod_targetdates {
     TD_Node_shm_offsetptr tdnkeys;
+    //TD_Node_shm_Vector tdnkeys;
     size_t tdnkeys_num = 0;
     /// Used by fzupdate.cpp:update_variable().
     Batchmod_targetdates(const targetdate_sorted_Nodes & nodelist, segment_memory_t & graphmod_shm) {
+    //Batchmod_targetdates(const targetdate_sorted_Nodes & nodelist) : tdnkeys(graphmemman.get_allocator()) {
         tdnkeys = graphmod_shm.construct<TD_Node_shm>(bi::anonymous_instance)[nodelist.size()](); // *** Watch out! Not testing for failure here.
         tdnkeys_num = nodelist.size();
-        size_t i = 0;
-        for (const auto & [t, node_ptr] : nodelist) {
-            tdnkeys[i].set(t, node_ptr->get_id().key());
-            ++i;
+        VERYVERBOSEOUT("Created shared memory array for "+std::to_string(tdnkeys_num)+" elements.\n");
+        if (tdnkeys.get()) {
+            size_t i = 0;
+            for (const auto & [t, node_ptr] : nodelist) {
+                if (!node_ptr) {
+                    standard_exit_error(exit_bad_request_data, "Received null-node", __func__);
+                }
+                tdnkeys[i].set(t, node_ptr->get_id().key());
+                ++i;
+            }
+        } else {
+            VERYVERBOSEOUT("No usable shared memory array constructed.\n");
+            ADDERROR(__func__, "No usable shared memory array constructed.\n");
         }
     }
-    /* /// Used by fzupdate.cpp:update_repeating().
-    Batchmod_targetdates(time_t t_pass, const targetdate_sorted_Nodes & nodelist, segment_memory_t & graphmod_shm) {
-        tdnkeys = graphmod_shm.construct<TD_Node_shm>(bi::anonymous_instance)[nodelist.size()](); // *** Watch out! Not testing for failure here.
-        tdnkeys_num = nodelist.size();
-        size_t i = 0;
-        for (const auto & [t, node_ptr] : nodelist) {
-            tdnkeys[i].set(t_pass, node_ptr->get_id().key()); // they all have to pass the same time
-            ++i;
-        }
-    } */
 };
 typedef bi::offset_ptr<Batchmod_targetdates> Batchmod_targetdates_offsetptr;
 typedef Batchmod_targetdates * Batchmod_targetdates_ptr;
@@ -230,6 +236,7 @@ typedef bi::vector<Graphmod_data, Graphmod_data_allocator> Graphmod_data_Vector;
 class Graph_modifications {
 protected:
     Graph_ptr graph_ptr; ///< See details about this variable in the description above.
+    std::string segment_name; ///< This is also used only by the requesting program.
 public:
 
     Graphmod_data_Vector data;
