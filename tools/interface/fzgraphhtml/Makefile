@@ -138,11 +138,11 @@ init: FORCE
 	@echo 'Includes: $(CPPFLAGS)'
 	@echo '-------------------------------------------------------------------'
 
-$(OBJ)/render.o: render.cpp render.hpp
+$(OBJ)/render.o: render.cpp render.hpp fzgraphhtml.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(FORMALIZERROOT) $(TEMPLATEDIR) -c render.cpp -o $(OBJ)/render.o
 
 
-$(OBJ)/fzgraphhtml.o: fzgraphhtml.cpp fzgraphhtml.hpp version.hpp
+$(OBJ)/fzgraphhtml.o: fzgraphhtml.cpp fzgraphhtml.hpp render.hpp version.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(TEMPLATEDIR) -c fzgraphhtml.cpp -o $(OBJ)/fzgraphhtml.o
 
 fzgraphhtml: $(OBJ)/fzgraphhtml.o $(OBJ)/render.o $(CORE_OBJS)

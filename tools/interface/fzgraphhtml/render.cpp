@@ -135,6 +135,20 @@ struct line_render_parameters {
         }
     }
 
+    std::string render_tdproperty(td_property tdprop) {
+        std::string tdpropstr;
+        tdpropstr.reserve(20);
+        bool boldit = (tdprop==fixed) || (tdprop==exact);
+        if (boldit) {
+            tdpropstr += "<b>";
+        }
+        tdpropstr += td_property_str[tdprop];
+        if (boldit) {
+            tdpropstr += "</b>";
+        }
+        return tdpropstr;
+    }
+
     /**
      * Call this to render parameters of a Node on a single line of a list of Nodes.
      * For example, this selection of data is shown when Nodes are listed in a schedule.
@@ -158,8 +172,13 @@ struct line_render_parameters {
             insert_day_start(tdate);
         }
         varvals.emplace("targetdate",tdstamp);
-        varvals.emplace("req_hrs",to_precision_string(((double) node.get_required())/3600.0));
-        varvals.emplace("tdprop",td_property_str[node.get_tdproperty()]);
+        if (fzgh.config.show_still_required) {
+            varvals.emplace("req_hrs",to_precision_string(node.hours_to_complete()));
+        } else {
+            varvals.emplace("req_hrs",to_precision_string(node.get_required_hours()));
+        }
+
+        varvals.emplace("tdprop",render_tdproperty(node.get_tdproperty()));
         std::string htmltext(node.get_text().c_str());
         varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
         //varvals.emplace("excerpt",remove_html(htmltext).substr(0,fzgh.config.excerpt_length));
@@ -478,6 +497,7 @@ std::string render_Node_data(Graph & graph, Node & node) {
     td_pattern tdpatt = node.get_tdpattern();
 
     nodevars.emplace("node-id", node.get_id_str());
+    nodevars.emplace("fzserverpq",graph.get_server_full_address());
     nodevars.emplace("node-text", node.get_text());
     nodevars.emplace("comp", to_precision_string(node.get_completion()));
     nodevars.emplace("req_hrs", to_precision_string(required_hrs));

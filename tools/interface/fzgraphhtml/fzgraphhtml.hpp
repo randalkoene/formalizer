@@ -50,6 +50,7 @@ public:
     std::string rendered_out_path = "STDOUT";
     bool embeddable = false;
     output_format outputformat = output_html;
+    bool show_still_required = true;
 };
 
 

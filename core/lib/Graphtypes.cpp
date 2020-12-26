@@ -68,6 +68,7 @@ bool graph_mem_managers::forget_manager(std::string segname) {
     if (active_name == segname) {
         active = nullptr;
         active_name = "";
+        active_it = managers.end();
     }
     return true;
 }
@@ -77,11 +78,27 @@ bool graph_mem_managers::set_active(std::string segname) {
     if (it == managers.end()) {
         active = nullptr; // to prevent accidentally continuing with references to the wrong segment
         active_name = "";
+        active_it = it;
         return false;
     }
 
     active = &(it->second);
     active_name = segname;
+    active_it = it;
+    return true;
+}
+
+bool graph_mem_managers::set_active_it(std::map<std::string, shared_memory_manager>::iterator _active_it) {
+    if (_active_it == managers.end()) {
+        active = nullptr;
+        active_name = "";
+        active_it = _active_it;
+        return false;
+    }
+
+    active = &(_active_it->second);
+    active_name = _active_it->first;
+    active_it = _active_it;
     return true;
 }
 

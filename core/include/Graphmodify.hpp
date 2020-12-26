@@ -131,9 +131,18 @@ typedef bi::vector<Graphmod_result, Graphmod_result_allocator> Graphmod_result_V
  * @param segname The name of the shared segment that will deliver the results.
  */
 struct Graphmod_results {
+protected:
+    std::string segment_name; ///< This is only used while creating the results structure.
+public:
     Graphmod_result_Vector results;
 
-    Graphmod_results(std::string segname) : results(graphmemman.get_allocator(segname)) {}
+    Graphmod_results(std::string segname) : segment_name(segname), results(graphmemman.get_allocator(segname)) {}
+
+    bool add(Graph_modification_request _request, const Node_ID_key & _nkey);
+    bool add(Graph_modification_request _request, const Edge_ID_key & _ekey);
+    bool add(Graph_modification_request _request, const std::string _name, const Node_ID_key & _nkey);
+    bool add(Graph_modification_request _request, const std::string _name);
+
     std::string info_str();
 };
 

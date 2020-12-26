@@ -87,7 +87,6 @@ def try_subprocess_check_output(thecmdstring, resstore):
 #     init_screen()
 #     curses.resetty()
 
-
 # Handle the case where even fzsetup.py does not have a configuration file yet.
 try:
     with open(fzsetupconfig) as f:
@@ -100,16 +99,19 @@ except FileNotFoundError:
 else:
     assert len(config) > 0
 
+
 # Enable us to import standardized Formalizer Python components.
 fzcorelibdir = config['sourceroot'] + '/core/lib'
 fzcoreincludedir = config['sourceroot'] + '/core/include'
 sys.path.append(fzcorelibdir)
 sys.path.append(fzcoreincludedir)
 
+
 # core components
 import Graphpostgres
 import coreversion
 import error
+
 
 version = "0.1.0-0.1"
 
@@ -316,6 +318,28 @@ def transition_dil2al_polldaemon_request(node):
     print('Log entry synchronized to Formalizer 1.x files.')
 
 
+# Call this function when logentry.py is imported into another script.
+def make_log_entry():
+    make_content_file()
+
+    entrycontent = ""
+    while len(entrycontent)<1:
+        entrycontent = edit_content_file()
+        if len(entrycontent)<1:
+            choice = input('Empty Log entry. Skip making a Log entry? (y/N): ')
+            if (choice == 'y'):
+                print('Log entry skipped.')
+                return
+
+    node = entry_belongs_to_same_or_other_Node()
+
+    send_to_fzlog(node)
+
+    if config['transition']:
+        transition_dil2al_polldaemon_request(node)
+
+
+
 if __name__ == '__main__':
 
     core_version = coreversion.coreversion()
@@ -327,18 +351,7 @@ if __name__ == '__main__':
 
     args = parse_options()
 
-    make_content_file()
-
-    entrycontent = edit_content_file()
-    if len(entrycontent)<1:
-        exit_error(1, 'Empty Log entry.')
-
-    node = entry_belongs_to_same_or_other_Node()
-
-    send_to_fzlog(node)
-
-    if config['transition']:
-        transition_dil2al_polldaemon_request(node)
+    make_log_entry()
 
     if args.waitexit:
         print('Done.', end='', flush=True)
@@ -348,4 +361,4 @@ if __name__ == '__main__':
         print('')
 
 
-sys.exit(0)
+    sys.exit(0)

@@ -59,6 +59,54 @@ Graphmod_error::Graphmod_error(exit_status_code ecode, std::string msg) : exit_c
     safecpy(msg, message, 256);
 }
 
+bool Graphmod_results::add(Graph_modification_request _request, const Node_ID_key & _nkey) {
+    graphmemman.cache();
+    if (!graphmemman.set_active(segment_name)) {
+        ADDERROR(__func__, "Unable to activate segment "+segment_name+" for results data");
+        graphmemman.uncache();
+        return false;
+    }
+    results.emplace_back(_request, _nkey);
+    graphmemman.uncache();
+    return true;
+}
+
+bool Graphmod_results::add(Graph_modification_request _request, const Edge_ID_key & _ekey) {
+    graphmemman.cache();
+    if (!graphmemman.set_active(segment_name)) {
+        ADDERROR(__func__, "Unable to activate segment "+segment_name+" for results data");
+        graphmemman.uncache();
+        return false;
+    }
+    results.emplace_back(_request, _ekey);
+    graphmemman.uncache();
+    return true;
+}
+
+bool Graphmod_results::add(Graph_modification_request _request, const std::string _name, const Node_ID_key & _nkey) {
+    graphmemman.cache();
+    if (!graphmemman.set_active(segment_name)) {
+        ADDERROR(__func__, "Unable to activate segment "+segment_name+" for results data");
+        graphmemman.uncache();
+        return false;
+    }
+    results.emplace_back(_request, _name, _nkey);
+    graphmemman.uncache();
+    return true;
+}
+
+bool Graphmod_results::add(Graph_modification_request _request, const std::string _name) {
+    graphmemman.cache();
+    if (!graphmemman.set_active(segment_name)) {
+        ADDERROR(__func__, "Unable to activate segment "+segment_name+" for results data");
+        graphmemman.uncache();
+        return false;
+    }
+    results.emplace_back(_request, _name);
+    graphmemman.uncache();
+    return true;
+}
+
 std::string Graphmod_results::info_str() {
     std::string infostr("Graph modifications:");
     if (results.empty()) {

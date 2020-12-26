@@ -71,6 +71,9 @@ fzcorelibdir = config['sourceroot'] + '/core/lib'
 fzcoreincludedir = config['sourceroot'] + '/core/include'
 sys.path.append(fzcorelibdir)
 sys.path.append(fzcoreincludedir)
+# Enable import of logentry
+logentrydir = config['sourceroot'] + '/tools/interface/logentry'
+sys.path.append(logentrydir)
 
 # core components
 import Graphpostgres
@@ -160,7 +163,7 @@ def exit_error(retcode, errormessage):
         sys.exit(retcode)
 
 
-def make_log_entry():
+def old_make_log_entry():
     print('Launching logentry...')
     #thecmd = 'logentry'
     #if config['verbose']:
@@ -173,6 +176,13 @@ def make_log_entry():
     print('Back from logentry.')
     if not os.WIFEXITED(retcode):
         exit_error(os.WEXITSTATUS(retcode), 'Attempt to make Log entry failed.')
+
+
+def make_log_entry():
+    import logentry as le
+    le.config['verbose'] = config['verbose']
+    le.logentry_ansi()
+    le.make_log_entry()
 
 
 #def a_function_that_calls_subprocess(some_arg, resstore):

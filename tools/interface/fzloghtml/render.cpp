@@ -139,6 +139,7 @@ bool render_Log_interval() {
             std::string nodestr = chunkptr->get_NodeID().str();
             varvals.emplace("node_id",nodestr);
             varvals.emplace("node_link","/cgi-bin/fzlink.py?id="+nodestr);
+            //varvals.emplace("fzserverpq",graph.get_server_full_address()); *** so far, this is independent of whether the Graph is memory-resident
             varvals.emplace("t_chunkopen",chunkptr->get_tbegin_str());
             time_t t_chunkclose = chunkptr->get_close_time();
             time_t t_chunkopen = chunkptr->get_open_time();

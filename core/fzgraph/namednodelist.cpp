@@ -43,19 +43,25 @@ int add_to_list() {
 
     // Determine probable memory space needed.
     // *** MORE HERE TO BETTER ESTIMATE THAT
-    unsigned long segsize = 1024+256*(fzge.config.superiors.size()+fzge.config.dependencies.size()); // *** wild guess, should be affected by number of Node IDs in -S and -D
+    size_t total_to_add = fzge.config.superiors.size() + fzge.config.dependencies.size();
+    VERYVERBOSEOUT("\nNumber of Nodes to add to List:"
+                   "\n\tfrom 'superiors(-S)'   : "+std::to_string(fzge.config.superiors.size())+
+                   "\n\tfrom 'dependencies(-D)': "+std::to_string(fzge.config.dependencies.size())+
+                   "\n\ttotal: "+std::to_string(total_to_add)+"\n\n");
+    unsigned long segsize = 1024+(sizeof(Named_Node_List_Element)+sizeof(Graphmod_result))*2*total_to_add;
     // Determine a unique segment name to share with `fzserverpq`
     std::string segname(unique_name_Graphmod());
     Graph_modifications * graphmod_ptr = allocate_Graph_modifications_in_shared_memory(segname, segsize);
     if (!graphmod_ptr)
         standard_exit_error(exit_general_error, "Unable to create shared segment for modifications requests (name="+segname+", size="+std::to_string(segsize)+')', __func__);
 
+    VERYVERBOSEOUT(graphmemman.info_str());
     for (const auto & supkey : fzge.config.superiors) {
         Named_Node_List_Element * listelement_ptr = graphmod_ptr->request_Named_Node_List_Element(namedlist_add, fzge.config.listname, supkey);
         if (!listelement_ptr)
             standard_exit_error(exit_general_error, "Unable to create new Named Node List Element in shared segment ("+graphmemman.get_active_name()+')', __func__);
 
-        VERBOSEOUT("\nAdding Node "+supkey.str()+" to Named Node List "+fzge.config.listname+'\n');
+        VERBOSEOUT("\nAdding Node "+supkey.str()+" to Named Node List "+fzge.config.listname);
     }
 
     for (const auto & depkey : fzge.config.dependencies) {
@@ -63,9 +69,11 @@ int add_to_list() {
         if (!listelement_ptr)
             standard_exit_error(exit_general_error, "Unable to create new Named Node List Element in shared segment ("+graphmemman.get_active_name()+')', __func__);
 
-        VERBOSEOUT("\nAdding Node "+depkey.str()+" to Named Node List "+fzge.config.listname+'\n');
+        VERBOSEOUT("\nAdding Node "+depkey.str()+" to Named Node List "+fzge.config.listname);
     }
+    VERBOSEOUT("\n\n");
 
+    VERYVERBOSEOUT(graphmemman.info_str());
     auto ret = server_request_with_shared_data(segname, fzge.config.port_number);
     standard.exit(ret);
 }

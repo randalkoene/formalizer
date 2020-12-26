@@ -55,25 +55,40 @@ fzgraphedit::fzgraphedit() : formalizer_standard_program(false), graph_ptr(nullp
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "\n"
-        "When making a Node, by convention we expect at least one superior, although\n"
-        "it is not enforced. The preference order for sources that can provide\n"
-        "superiors and dependencies is: command line, Named Node Lists ('superiors',\n"
-        "'depdendencies'), configuration file."
+        "Please note that the 'superiors', 'dependencies' and 'topics' arguments\n"
+        "each expect a list of comma delimited identifiers. Leading and trailing\n"
+        "spaces around each element are automatically trimmed.\n"
         "\n"
-        "When making one or more Edges, the list of superior and dependency nodes\n"
-        "are paired up and must be of equal length.\n"
+        "Case notes:\n"
         "\n"
-        "Lists of superiors or dependencies, as well as topics, expect comma\n"
-        "delimiters.\n"
+        "A. Making a Node (-M node):\n"
+        "   - By convention we expect at least one superior, although that is not\n"
+        "     enforced.\n"
+        "   - Source preference order to provide superiors and dependencies is:\n"
+        "     1. command line, 2. Named Node Lists ('superiors','depdendencies'),\n"
+        "     3. configuration file.\n"
         "\n"
-        "When modifying a Named Node List (-L), the list name is provided with the -l\n"
-        "option and one or more Node IDs can be provided with the -S and -D options.\n"
+        "B. Making one or more Edges (-M edges):\n"
+        "   - The list of superior and dependency nodes are paired up and must be\n"
+        "     of equal length.\n"
         "\n"
-        "The -C option provides a way to utilize the direct TCP port API, particularly\n"
-        "for requests that are only supported through that API. For example:\n"
-        "-C /fz/graph/namedlists/shortlist?copy=recent&to_max=10&maxsize=10&unique=true\n"
-        "-C /fz/graph/namedlists/_reload\n"
-        "For more information about the API see fzserverpq.\n");
+        "C. Modifying a Named Node List (-L):\n"
+        "   - The list name is provided with the -l option.\n"
+        "   - One or more Node IDs can be provided with the -S and -D options.\n"
+        "     (It does not matter which one or both. The lists are concatenated.)\n"
+        "\n"
+        "D. The -C option provides a way to utilize the Graph server's direct TCP\n"
+        "   port API from the command line. This is particularly useful for\n"
+        "   server requests that are only supported through that API.\n"
+        "\n"
+        "   Example a:\n"
+        "   -C /fz/graph/namedlists/shortlist?copy=recent&to_max=10&maxsize=10&unique=true\n"
+        "\n"
+        "   Example b:\n"
+        "   -C /fz/graph/namedlists/_reload\n"
+        "\n"
+        "   For more information about the API see fzserverpq.\n"
+        );
 }
 
 std::string NodeIDs_to_string(const Node_ID_key_Vector & nodeidvec) {
@@ -120,6 +135,8 @@ void fzgraphedit::usage_hook() {
 }
 
 Node_ID_key_Vector parse_config_NodeIDs(const std::string & parvalue) {
+    ERRTRACE;
+
     Node_ID_key_Vector nodekeys;
     std::vector<std::string> nodeid_strings;
     if (parvalue.empty())
@@ -128,7 +145,11 @@ Node_ID_key_Vector parse_config_NodeIDs(const std::string & parvalue) {
     nodeid_strings = split(parvalue, ',');
     for (auto & nodeid_str : nodeid_strings) {
         trim(nodeid_str);
-        nodekeys.emplace_back(nodeid_str); // *** note that this isn't catching exceptions
+        try {
+            nodekeys.emplace_back(nodeid_str);
+        } catch (ID_exception idexception) {
+            standard_exit_error(exit_bad_request_data, "invalid Node ID (" + nodeid_str + ")\n" + idexception.what(), __func__);
+        }
     }
 
     return nodekeys;
@@ -155,6 +176,8 @@ NNL_after_use interpret_config_supdep_after_use(const std::string & parvalue) {
  * hard to notice bugs in configuration files.
  */
 bool fzge_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
+    ERRTRACE;
+
     // *** You could also implement try-catch here to gracefully report problems with configuration files.
     CONFIG_TEST_AND_SET_PAR(port_number, "port_number", parlabel, std::stoi(parvalue));
     CONFIG_TEST_AND_SET_PAR(content_file, "content_file", parlabel, parvalue);
@@ -190,6 +213,8 @@ bool fzge_configurable::set_parameter(const std::string & parlabel, const std::s
  * @param cargs is the optional parameter value provided for the option.
  */
 bool fzgraphedit::options_hook(char c, std::string cargs) {
+    ERRTRACE;
+
     //if (ga.options_hook(c,cargs))
     //        return true;
 

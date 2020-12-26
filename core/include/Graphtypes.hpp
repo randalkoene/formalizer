@@ -138,11 +138,13 @@ struct shared_memory_manager {
 class graph_mem_managers {
 protected:
     std::map<std::string, shared_memory_manager> managers;
+    std::map<std::string, shared_memory_manager>::iterator active_it;
     shared_memory_manager * active;
     std::string active_name;
     //bool remove_on_exit;
+    std::map<std::string, shared_memory_manager>::iterator cache_it; // used when temporarily switching
 public:
-    graph_mem_managers(): active(nullptr) {} //, remove_on_exit(true) {}
+    graph_mem_managers(): active_it(managers.end()), active(nullptr) {} //, remove_on_exit(true) {}
     ~graph_mem_managers();
     bool add_manager(std::string segname, segment_memory_t & segmem, void_allocator & allocinst);
     /**
@@ -166,9 +168,13 @@ public:
      */
     bool forget_manager(std::string segname);
     bool set_active(std::string segname);
+    bool set_active_it(std::map<std::string, shared_memory_manager>::iterator _active_it);
     void set_remove_on_exit(bool _removeonexit) { if (active) active->remove_on_exit = _removeonexit; }
     shared_memory_manager * get_active() const { return active; }
+    auto get_active_it() const { return active_it; }
     const std::string & get_active_name() const { return active_name; }
+    void cache() { cache_it = get_active_it(); }
+    void uncache() { set_active_it(cache_it); }
     segment_memory_t * get_segmem() const;
     const segment_manager_t & get_segman() const;
     const void_allocator & get_allocator() const; ///< Get allocator for the active segment.
@@ -484,6 +490,8 @@ public:
     float get_valuation() const { return valuation; }
     float get_completion() const { return completion; }
     time_t get_required() const { return required; }
+    long get_required_minutes() const { return required/60; }
+    float get_required_hours() const { return ((float)required)/3600.0; }
     const Node_utf8_text & get_text() const { return text; }
     time_t get_targetdate() const { return targetdate; }
     std::string get_targetdate_str() const { return TimeStampYmdHM(targetdate); }
@@ -492,10 +500,12 @@ public:
     td_pattern get_tdpattern() const { return tdpattern; }
     int get_tdevery() const { return tdevery; }
     int get_tdspan() const { return tdspan; }
-    time_t seconds_applied() { return completion*(float)required; }
-    long minutes_applied() { return seconds_applied()/60; }
-    float hours_applied() { return ((float)minutes_applied())/60.0; }
-    time_t seconds_to_complete(); // inlined below
+    time_t seconds_applied() const { return completion*(float)required; }
+    long minutes_applied() const { return seconds_applied()/60; }
+    float hours_applied() const { return ((float)minutes_applied())/60.0; }
+    time_t seconds_to_complete() const; // inlined below
+    long minutes_to_complete() const { return seconds_to_complete()/60; }
+    float hours_to_complete() const { return ((float)seconds_to_complete())/3600.0; }
 
     const Edit_flags & get_editflags() { return editflags; }
     void clear_editflags() { editflags.clear(); }
@@ -784,7 +794,7 @@ inline Topic * Topic_Tags::find_by_id(Topic_ID _id) const {
     return topictags.at(_id).get();
 }
 
-inline time_t Node::seconds_to_complete() {
+inline time_t Node::seconds_to_complete() const {
     if ((completion<0.0) || (completion>=1.0)) { // special code or (seemingly) complete
         return 0;
     }

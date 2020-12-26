@@ -223,7 +223,7 @@ bool handle_request_stack(std::string segname) {
                 if (!node_ptr)
                     ERRRETURNFALSE(__func__, "Graph modify add node failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
                 
-                results_ptr->results.emplace_back(graphmod_add_node, node_ptr->get_id().key());
+                results_ptr->add(graphmod_add_node, node_ptr->get_id().key());
                 #ifdef USE_CHANGE_HISTORY
                 // this is an example of a place where a change history record can be created and where the
                 // state of the change can be set to `applied-in-memory`. See https://trello.com/c/FxSP8If8.
@@ -236,7 +236,7 @@ bool handle_request_stack(std::string segname) {
                 if (!edge_ptr)
                     ERRRETURNFALSE(__func__, "Graph modify add edge failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
                 
-                results_ptr->results.emplace_back(graphmod_add_edge, edge_ptr->get_id().key());
+                results_ptr->add(graphmod_add_edge, edge_ptr->get_id().key());
                 break;
             }
 
@@ -245,7 +245,7 @@ bool handle_request_stack(std::string segname) {
                 if (!nodelist_ptr)
                     ERRRETURNFALSE(__func__, "Graph modify add to Named Node List failed.");
 
-                results_ptr->results.emplace_back(namedlist_add, gmoddata.nodelist_ptr->name.c_str(), gmoddata.nodelist_ptr->nkey);
+                results_ptr->add(namedlist_add, gmoddata.nodelist_ptr->name.c_str(), gmoddata.nodelist_ptr->nkey);
                 // synchronization with database is done outside the for-loop to minimize the number of updates
                 break;
             }
@@ -255,7 +255,7 @@ bool handle_request_stack(std::string segname) {
                 if (!res)
                     ERRRETURNFALSE(__func__, "Graph modify remove from Named Node List failed.");
 
-                results_ptr->results.emplace_back(namedlist_remove, gmoddata.nodelist_ptr->name.c_str(), gmoddata.nodelist_ptr->nkey);
+                results_ptr->add(namedlist_remove, gmoddata.nodelist_ptr->name.c_str(), gmoddata.nodelist_ptr->nkey);
                 // synchronization with database is done outside the for-loop to minimize the number of updates
                 break;
             }
@@ -265,7 +265,7 @@ bool handle_request_stack(std::string segname) {
                 if (!res)
                     ERRRETURNFALSE(__func__, "Graph modify delete Named Node List failed.");
 
-                results_ptr->results.emplace_back(namedlist_delete, gmoddata.nodelist_ptr->name.c_str(), gmoddata.nodelist_ptr->nkey);
+                results_ptr->add(namedlist_delete, gmoddata.nodelist_ptr->name.c_str(), gmoddata.nodelist_ptr->nkey);
                 break;
             }
 
@@ -274,7 +274,7 @@ bool handle_request_stack(std::string segname) {
                 if (!node_ptr)
                     ERRRETURNFALSE(__func__, "Graph modify edit node failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
                 
-                results_ptr->results.emplace_back(graphmod_edit_node, node_ptr->get_id().key());
+                results_ptr->add(graphmod_edit_node, node_ptr->get_id().key());
                 #ifdef USE_CHANGE_HISTORY
                 // this is an example of a place where a change history record can be created and where the
                 // state of the change can be set to `applied-in-memory`. See https://trello.com/c/FxSP8If8.
