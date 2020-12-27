@@ -41,17 +41,6 @@ using namespace fz;
 
 graph2dil g2d;
 
-enum template_id_enum {
-    DILFile_temp,
-    DILFile_entry_temp,
-    DILFile_entry_tail_temp,
-    DILFile_entry_head_temp,
-    DILbyID_temp,
-    DILbyID_entry_temp,
-    DILbyID_superior_temp,
-    NUM_temp
-};
-
 const std::vector<std::string> template_ids = {
     "DIL_File_template.html",
     "DIL_File_entry_template.html",
@@ -62,15 +51,37 @@ const std::vector<std::string> template_ids = {
     "DILbyID_superior_template.html"
 };
 
-graph2dil::graph2dil(): formalizer_standard_program(true), ga(*this,add_option_args,add_usage_top), flowcontrol(flow_all) { //(flow_unknown) {
-    add_option_args += "DL";
-    add_usage_top += " [-D] [-L]";
+/**
+ * Configure configurable parameters.
+ * 
+ * Note that this can throw exceptions, such as std::invalid_argument when a
+ * conversion was not poossible. That is a good precaution against otherwise
+ * hard to notice bugs in configuration files.
+ */
+bool g2d_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
+    ERRTRACE;
+
+    // *** You could also implement try-catch here to gracefully report problems with configuration files.
+    CONFIG_TEST_AND_SET_PAR(DILTLdirectory, "DILTLdirectory", parlabel, parvalue);
+    //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
+    CONFIG_PAR_NOT_FOUND(parlabel);
+}
+
+/**
+ * Note: Added `true` in the `ga()` initialization to have this treated as a server in the call to
+ * load a complete copy of the Log. That supresses a warning message. It should not affect use of
+ * the memory-resident Graph.
+ */
+graph2dil::graph2dil(): formalizer_standard_program(true), config(*this), ga(*this,add_option_args,add_usage_top, true), flowcontrol(flow_all) { //(flow_unknown) {
+    add_option_args += "DLo:";
+    add_usage_top += " [-D] [-L] [-o <output-dir>]";
 }
 
 void graph2dil::usage_hook() {
     ga.usage_hook();
     FZOUT("    -D convert Graph to DIL Files\n"
           "    -L convert Log to Task Log files\n"
+          "    -o build converted file structure at <output-dir> path\n"
           "\n"
           "Default behavior is to convert both Graph to DIL files and Log to Task Log files.\n");
 }
@@ -88,6 +99,11 @@ bool graph2dil::options_hook(char c, std::string cargs) {
 
     case 'L': {
         flowcontrol = flow_log2TL;
+        return true;
+    }
+
+    case 'o': {
+        config.DILTLdirectory = cargs;
         return true;
     }
 
@@ -123,15 +139,17 @@ void graph2dil::init_top(int argc, char *argv[]) {
     //*************** for (int i = 0; i < argc; ++i) cmdargs[i] = argv[i]; // do this before getopt mucks it up
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 
-    if (DILTLdirectory.empty())
-        DILTLdirectory = "/tmp/graph2dil-"+TimeStampYmdHM(ActualTime());
+    if (config.DILTLdirectory.empty())
+        config.DILTLdirectory = "/tmp/graph2dil-"+TimeStampYmdHM(ActualTime());
+    
+    DILTLindex = config.DILTLdirectory + "/../graph2dil-lists.html";
 
     // For each of the possible program flow control choices that would not already
     // have exited, we need both the Graph and the full Log, so we may as well load them here.
     ERRHERE(".load");
     std::tie(graph,log) = ga.access_shared_Graph_and_request_Log_copy_with_init();
 
-    VERBOSEOUT("\nFormalizer Graph and Log data structures fully loaded:\n\n"+Graph_summary(*graph)+Log_summary(*log)+"\n\n");  
+    VERBOSEOUT("\nFormalizer Graph and Log data structures fully loaded:\n"+Graph_summary(*graph)+Log_summary(*log)+"\n\n");  
 }
 
 /**
@@ -139,17 +157,17 @@ void graph2dil::init_top(int argc, char *argv[]) {
  */
 bool flow_convert_Log2TL() {
     ERRTRACE;
-    VERBOSEOUT("\n\nFormalized 1.x HTML Task Log (TL) files will be generated in directory:\n\t"+g2d.DILTLdirectory+"\n\n");
+    VERBOSEOUT("\n\nFormalized 1.x HTML Task Log (TL) files will be generated in directory:\n\t"+g2d.config.DILTLdirectory+"\n\n");
     key_pause();
     
-    if (!std::filesystem::create_directories(g2d.DILTLdirectory)) {
-        FZERR("\nUnable to create the output directory "+g2d.DILTLdirectory+".\n");
+    if (!std::filesystem::create_directories(g2d.config.DILTLdirectory)) {
+        FZERR("\nUnable to create the output directory "+g2d.config.DILTLdirectory+".\n");
         exit(exit_general_error);
     }
 
     ERRHERE(".goLog2TL");
     Log2TL_conv_params params;
-    params.TLdirectory = g2d.DILTLdirectory;
+    params.TLdirectory = g2d.config.DILTLdirectory;
     params.IndexPath = g2d.DILTLindex;
     params.o = &std::cout;
     //params.from_idx = from_section;
@@ -381,18 +399,17 @@ std::string render_DILbyID_entry(Node & node) {
     return g2d.env.render(g2d.templates[DILbyID_entry_temp], varvals);
 }
 
-
 /**
  * Program flow: Handle request to convert Graph to DIL Files and Detailed Items by ID file.
  */
 bool flow_convert_Graph2DIL() {
     ERRTRACE;
-    VERBOSEOUT("Formalized 1.x HTML Detailed Item Lists (DIL) files will be generated in directory:\n\t"+g2d.DILTLdirectory+"\n\n");
+    VERBOSEOUT("Formalized 1.x HTML Detailed Item Lists (DIL) files will be generated in directory:\n\t"+g2d.config.DILTLdirectory+"\n\n");
     key_pause();
 
     ERRHERE(".prep");
-    if (!std::filesystem::create_directories(g2d.DILTLdirectory)) {
-        FZERR("\nUnable to create the output directory "+g2d.DILTLdirectory+".\n");
+    if (!std::filesystem::create_directories(g2d.config.DILTLdirectory)) {
+        FZERR("\nUnable to create the output directory "+g2d.config.DILTLdirectory+".\n");
         exit(exit_general_error);
     }
 
@@ -427,7 +444,7 @@ bool flow_convert_Graph2DIL() {
         varvals.emplace("DIL_entries",DILFile_str);
         std::string rendered_DILFile_str = g2d.env.render(g2d.templates[DILFile_temp], varvals);
 
-        std::string DILFile_path = (g2d.DILTLdirectory+'/')+topicptr->get_tag().c_str()+".html";
+        std::string DILFile_path = (g2d.config.DILTLdirectory+'/')+topicptr->get_tag().c_str()+".html";
         if (!string_to_file(DILFile_path,rendered_DILFile_str))
             ERRRETURNFALSE(__func__,"unable to write rendered DIL File contents to file "+DILFile_path);
 
@@ -445,11 +462,11 @@ bool flow_convert_Graph2DIL() {
     varvals.emplace("entries",DILbyID_str);
     std::string rendered_DILbyID_str = g2d.env.render(g2d.templates[DILbyID_temp], varvals);
 
-    std::string DILbyID_path = g2d.DILTLdirectory+"/detailed-items-by-ID.html";
+    std::string DILbyID_path = g2d.config.DILTLdirectory+"/detailed-items-by-ID.html";
         if (!string_to_file(DILbyID_path,rendered_DILbyID_str))
             ERRRETURNFALSE(__func__,"unable to write rendered DIL File contents to file "+DILbyID_path);
 
-    FZOUT("\nConverted Graph written to DIL Files in directory:\n  "+g2d.DILTLdirectory+"\n\n");
+    FZOUT("\nConverted Graph written to DIL Files in directory:\n  "+g2d.config.DILTLdirectory+"\n\n");
 
     return true;
 }

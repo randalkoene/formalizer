@@ -20,6 +20,8 @@
 #include <vector>
 
 // core
+#include "config.hpp"
+#include "standard.hpp"
 #include "Graphtypes.hpp"
 
 
@@ -43,12 +45,32 @@ enum flow_options {
 //typedef std::map<Topic*, std::unique_ptr<Node_Index>> Node_Index_by_Topic; //*** by Index-ID is faster
 typedef std::vector<std::unique_ptr<Node_Index>> Node_Index_by_Topic;
 
+enum template_id_enum {
+    DILFile_temp,
+    DILFile_entry_temp,
+    DILFile_entry_tail_temp,
+    DILFile_entry_head_temp,
+    DILbyID_temp,
+    DILbyID_entry_temp,
+    DILbyID_superior_temp,
+    NUM_temp
+};
+
 typedef std::map<template_id_enum,std::string> graph2dil_templates;
+
+class g2d_configurable : public configurable {
+public:
+    g2d_configurable(formalizer_standard_program &fsp) : configurable("graph2dil", fsp) {}
+    bool set_parameter(const std::string &parlabel, const std::string &parvalue);
+
+    std::string DILTLdirectory =  GRAPH2DIL_OUTPUT_DIR; /// location for converted output files
+};
 
 struct graph2dil: public formalizer_standard_program {
 
-    std::string DILTLdirectory = GRAPH2DIL_OUTPUT_DIR; /// location for converted output files
-    std::string DILTLindex = GRAPH2DIL_OUTPUT_DIR "/../graph2dil-lists.html";
+    g2d_configurable config;
+
+    std::string DILTLindex; // initialized in init_top() after config and args have been processed
     std::vector<std::string> cmdargs; /// copy of command line arguments
 
     Graph_access ga;

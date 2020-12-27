@@ -11,7 +11,7 @@ STANDARD_STREAMS += -DFORMALIZER_BASE_ERR_OSTREAM_PTR=\&std::cerr
 # +----- end  : Output preconfigurations -----+
 
 # +----- begin: Output preconfigurations -----+
-OUTPUTPRECONFIGS = -DGRAPH2DIL_OUTPUT_DIR=\"/var/www/html/graph2dil\"
+OUTPUTPRECONFIGS = -DGRAPH2DIL_OUTPUT_DIR=\"/var/www/html/formalizer/graph2dil\"
 # +----- end  : Output preconfigurations -----+
 
 # +----- begin: Compilers and machine specific tuning -----+
@@ -156,10 +156,10 @@ init: FORCE
 	@echo '-------------------------------------------------------------------'
 
 $(OBJ)/log2tl.o: log2tl.cpp log2tl.hpp version.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) $(TEMPLATEDIR) $(STANDARD_STREAMS) -c log2tl.cpp -o $(OBJ)/log2tl.o
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(TEMPLATEDIR) $(STANDARD_STREAMS) $(OUTPUTPRECONFIGS) -c log2tl.cpp -o $(OBJ)/log2tl.o
 
 $(OBJ)/graph2dil.o: graph2dil.cpp graph2dil.hpp version.hpp
-	$(CCPP) $(CPPFLAGS) $(COLORS) $(TEMPLATEDIR) $(STANDARD_STREAMS) -c graph2dil.cpp -o $(OBJ)/graph2dil.o
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(TEMPLATEDIR) $(STANDARD_STREAMS) $(OUTPUTPRECONFIGS) -c graph2dil.cpp -o $(OBJ)/graph2dil.o
 
 graph2dil: $(OBJ)/graph2dil.o $(OBJ)/log2tl.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $(OUTPUTPRECONFIGS) $^ -o graph2dil $(LIB_PATH)
