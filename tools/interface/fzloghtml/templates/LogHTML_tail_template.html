@@ -3,4 +3,26 @@
 <hr>
 <a name="END">&nbsp;</a>
 </table>
+
+<hr>
+
+<form action="/cgi-bin/fzloghtml-cgi.py" method="post">
+<input type="text" name="startfrom"> start at this YYYYmmddHHMM time stamp (default: 24 hours before end of interval)<br />
+<input type="text" name="endbefore"> end before this YYYYmmddHHMM time stamp (default: 1 second after most recent Log entry)<br />
+<input type="text" name="daysinterval"> interval size in days<br />
+<input type="text" name="weeksinterval"> interval size in weeks<br />
+<input type="text" name="hoursinterval"> interval size in hours<br />
+<input type="text" name="numchunks"> number of Log chunks (interval takes precedence)<br />
+<input type="checkbox" name="frommostrecent"> from most recent (interval takes precedence)<br />
+<input type="text" name="node"> belongs to node, node history<br />
+or<br />
+<input type="checkbox" name="mostrecentdata"> show most recent Log data summary<br />
+
+<input type="submit" value="Submit" />
+
+<hr>
+
+<p>[<a href="/index.html">fz: Top</a>]</p>
+
+</form>
 </html>

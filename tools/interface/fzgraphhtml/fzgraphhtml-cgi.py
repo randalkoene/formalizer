@@ -31,6 +31,8 @@ home = str(Path.home())
 # *** Perhaps read the following from ~/.formalizer/webdata_path
 webdata_path = "/var/www/webdata/formalizer"
 
+logfile = webdata_path+'/fzgraphhtml-cgi.log'
+
 # cgitb.enable()
 # cgitb.disable()
 # cgitb.enable(display=0, logdir="/tmp/test_python_cgiformget.log")
@@ -46,6 +48,12 @@ edit = form.getvalue('edit')
 topicslist = form.getvalue('topics')
 topic = form.getvalue('topic')
 tonode = form.getvalue('to-node')
+
+# extra arguments for generating Next Nodes Schedule
+num_elements = form.getvalue('num_elements')
+num_unlimited = form.getvalue('all')
+max_td = form.getvalue('max_td')
+num_days = form.getvalue('num_days')
 
 modify_template = '''<tr><td>[<a href="/cgi-bin/fzgraphhtml-cgi.py?srclist={{{{ list_name }}}}">{{{{ list_name }}}}</a>]</td><td><a href="http://{fzserverpq}/fz/graph/namedlists/{{{{ list_name }}}}?add={node_id}">[add]</a></td></tr>
 '''
@@ -168,6 +176,11 @@ def try_command_call(thecmd):
             print(line)
 
 
+def log(msg):
+    with open(logfile,'w') as f:
+        f.write(msg)
+
+
 def generate_embeddable_list_of_NNLs_to_add_Node_to():
     # Make the command for fzgraphhtml with custom template file instead of named_node_list_in_list_template.html
     modify_template_content = modify_template.format(node_id=id, fzserverpq=fzserverpq_addrport)
@@ -225,15 +238,30 @@ def generate_topic_nodes_page():
 
 
 def generate_Next_Nodes_Schedule_page():
+    global max_td
+    global num_unlimited
+    global num_days
+    
     print("Content-type:text/html\n\n")
-
-    #thisscript = os.path.realpath(__file__)
-    #print(f'(For dev reference, this script is at {thisscript}.)')
 
     thecmd = "./fzgraphhtml -q -I -r -o STDOUT -E STDOUT"
     #thecmd = "./fzgraphhtml -q -I -o STDOUT -E STDOUT"
-    #print('Using this command: ',thecmd)
-    #print('<br>\n')
+
+    if max_td:
+        if len(max_td)==8:
+            max_td += '2359'
+        thecmd += ' -M '+max_td
+
+    if (num_unlimited == 'on'):
+        thecmd += ' -N all '
+    else:
+        if num_elements:
+            thecmd += ' -N '+num_elements
+
+    if num_days:
+        thecmd += ' -D '+num_days
+
+    log(thecmd)
 
     try_command_call(thecmd)
 

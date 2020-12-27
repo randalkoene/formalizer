@@ -1,11 +1,10 @@
 #!/usr/bin/python3
 #
-# logentry-form.py
+# dil2al-TL-form-cgi.py
 #
-# Randal A. Koene, 20201226
+# Randal A. Koene
 #
-# Generate Log entry forms for stand-alone or embedded use. This can generate the
-# initial form, as well as its updates as Node is selected, etc.
+# Used to process a submitted form to make a Task Log entry through a web form.
 
 try:
     import cgitb; cgitb.enable()

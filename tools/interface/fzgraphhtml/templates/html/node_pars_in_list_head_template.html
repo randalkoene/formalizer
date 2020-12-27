@@ -13,5 +13,7 @@
 
 <p><form action="/cgi-bin/fzupdate-cgi.py" method="GET"><input type="submit" value="Update Repeating"><input type="hidden" name="repeating" value="update"> Emulate time: <input type="number" name="T_emulate"> (YYYYmmddHHMM format) verbose <input type="checkbox" name="verbose"></form> <form action="/cgi-bin/fzupdate-cgi.py" method="GET"><input type="submit" value="Update Variable"><input type="hidden" name="variable" value="update"> Emulate time: <input type="number" name="T_emulate"> (YYYYmmddHHMM format) verbose <input type="checkbox" name="verbose"></form></p>
 
+<p><form action="/cgi-bin/fzgraphhtml-cgi.py" method="GET"><input type="submit" value="Show"> Number of Nodes: <input type="number" name="num_elements" value="{{ num_to_show }}"> or <input type="checkbox" name="all" {{ all_checked }}> unlimited - through - Number of Days (from today): <input type="number" name="num_days" value="{{ num_days }}"> or Date-Time (YYYYmmdd[HHMM]): <input type="number" name="max_td" value="{{ t_max }}"></form></p>
+
 <table class="blueTable">
 <tbody>

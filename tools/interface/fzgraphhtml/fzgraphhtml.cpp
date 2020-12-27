@@ -195,11 +195,11 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
     }
 
     case 'D': {
-        int numdays = std::atoi(cargs.c_str());
-        if (numdays<=0) {
+        num_days = std::atoi(cargs.c_str());
+        if (num_days<=0) {
             standard_exit_error(exit_command_line_error, "Invalid number of days.", __func__);
         }
-        config.t_max = ActualTime() + numdays*24*60*60;
+        config.t_max = ActualTime() + num_days*24*60*60;
         return true;
     }
 
@@ -287,7 +287,7 @@ void fzgraphhtml::init_top(int argc, char *argv[]) {
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
     // *** add any initialization here that has to happen once in main(), for the derived class
     if (config.t_max < 0) {
-        config.t_max = ActualTime() + (100*24*60*60); // the default is 100 days
+        config.t_max = ActualTime() + (100*seconds_per_day); // the default is 100 days
     }
 }
 

@@ -37,22 +37,9 @@
     std::string template_dir("./templates");
 #endif
 
-// This can be specified in the Makefile. If it is not then the macro
-// is set to the empty string, which leads to initialization with time
-// stamp in /tmp/graph2dil-<time-stamp>.
-#ifndef GRAPH2DIL_OUTPUT_DIR
-    #define GRAPH2DIL_OUTPUT_DIR ""
-#endif // GRAPH2DIL_OUTPUT_DIR
-
 using namespace fz;
 
-enum flow_options {
-    //flow_unknown = 0,   /// no recognized request
-    flow_all = 0,       /// default: convert Graph to DIL files and Log to TL files
-    flow_log2TL = 1,    /// request: convert Log to TL files
-    flow_graph2DIL = 2, /// request: convert Graph to DIL files
-    flow_NUMoptions
-};
+graph2dil g2d;
 
 enum template_id_enum {
     DILFile_temp,
@@ -75,90 +62,84 @@ const std::vector<std::string> template_ids = {
     "DILbyID_superior_template.html"
 };
 
-typedef std::map<template_id_enum,std::string> graph2dil_templates;
+graph2dil::graph2dil(): formalizer_standard_program(true), ga(*this,add_option_args,add_usage_top), flowcontrol(flow_all) { //(flow_unknown) {
+    add_option_args += "DL";
+    add_usage_top += " [-D] [-L]";
+}
 
-struct graph2dil: public formalizer_standard_program {
+void graph2dil::usage_hook() {
+    ga.usage_hook();
+    FZOUT("    -D convert Graph to DIL Files\n"
+          "    -L convert Log to Task Log files\n"
+          "\n"
+          "Default behavior is to convert both Graph to DIL files and Log to Task Log files.\n");
+}
 
-    std::string DILTLdirectory = GRAPH2DIL_OUTPUT_DIR; /// location for converted output files
-    std::string DILTLindex = GRAPH2DIL_OUTPUT_DIR "/../graph2dil-lists.html";
-    std::vector<std::string> cmdargs; /// copy of command line arguments
+bool graph2dil::options_hook(char c, std::string cargs) {
+    if (ga.options_hook(c,cargs))
+        return true;
 
-    Graph_access ga;
+    switch (c) {
 
-    flow_options flowcontrol;
-
-    render_environment env;
-    graph2dil_templates templates;
-
-    Graph * graph;
-    std::unique_ptr<Log> log;
-
-    graph2dil(): formalizer_standard_program(true), ga(*this,add_option_args,add_usage_top), flowcontrol(flow_all) { //(flow_unknown) {
-        add_option_args += "DL";
-        add_usage_top += " [-D] [-L]";
+    case 'D': {
+        flowcontrol = flow_graph2DIL;
+        return true;
     }
 
-    virtual void usage_hook() {
-        ga.usage_hook();
-        FZOUT("    -D convert Graph to DIL Files\n");
-        FZOUT("    -L convert Log to Task Log files\n");
-        FZOUT("\n");
-        FZOUT("Default behavior is to convert both Graph to DIL files and Log to Task Log files.\n");
+    case 'L': {
+        flowcontrol = flow_log2TL;
+        return true;
     }
 
-    virtual bool options_hook(char c, std::string cargs) {
-        if (ga.options_hook(c,cargs))
-            return true;
-
-        switch (c) {
-
-        case 'D':
-            flowcontrol = flow_graph2DIL;
-
-        case 'L':
-            flowcontrol = flow_log2TL;
-            return true;
-
-        }
-
-       return false;
     }
 
-    /**
-     * Initialize configuration parameters.
-     * Call this at the top of main().
-     * 
-     * @param argc command line parameters count forwarded from main().
-     * @param argv command line parameters array forwarded from main().
-     */
-    void init_top(int argc, char *argv[]) {
-        //*************** for (int i = 0; i < argc; ++i) cmdargs[i] = argv[i]; // do this before getopt mucks it up
-        init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
+    return false;
+}
 
-        if (DILTLdirectory.empty())
-            DILTLdirectory = "/tmp/graph2dil-"+TimeStampYmdHM(ActualTime());
+std::string Graph_summary(Graph & graph) {
+    std::string summary;
+    summary += "\n\tNumber of Nodes        = "+std::to_string(graph.num_Nodes());
+    summary += "\n\tNumber of Edges        = "+std::to_string(graph.num_Edges());
+    summary += "\n\tNumber of Topics       = "+std::to_string(graph.num_Topics());
+    return summary;
+}
 
-        // For each of the possible program flow control choices that would not already
-        // have exited, we need both the Graph and the full Log, so we may as well load them here.
-        ERRHERE(".load");
-        std::tie(graph,log) = ga.access_shared_Graph_and_request_Log_copy_with_init();
+std::string Log_summary(Log & log) {
+    std::string summary;
+    summary += "\n\tNumber of Entries      = "+std::to_string(log.num_Entries());
+    summary += "\n\tNumber of Chunks       = "+std::to_string(log.num_Chunks());
+    summary += "\n\tNumber of Breakpoints  = "+std::to_string(log.num_Breakpoints());
+    return summary;
+}
 
-        VERBOSEOUT("\nFormalizer Graph and Log data structures fully loaded:\n\n");
-        VERBOSEOUT("  Number of Nodes        = "+std::to_string(graph->num_Nodes())+'\n');
-        VERBOSEOUT("  Number of Edges        = "+std::to_string(graph->num_Edges())+'\n');
-        VERBOSEOUT("  Number of Topics       = "+std::to_string(graph->num_Topics())+'\n');
-        VERBOSEOUT("  Number of Entries      = "+std::to_string(log->num_Entries())+'\n');
-        VERBOSEOUT("  Number of Chunks       = "+std::to_string(log->num_Chunks())+'\n');
-        VERBOSEOUT("  Number of Breakpoints  = "+std::to_string(log->num_Breakpoints())+"\n\n");
-    }
+/**
+ * Initialize configuration parameters.
+ * Call this at the top of main().
+ * 
+ * @param argc command line parameters count forwarded from main().
+ * @param argv command line parameters array forwarded from main().
+ */
+void graph2dil::init_top(int argc, char *argv[]) {
+    //*************** for (int i = 0; i < argc; ++i) cmdargs[i] = argv[i]; // do this before getopt mucks it up
+    init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 
-} g2d;
+    if (DILTLdirectory.empty())
+        DILTLdirectory = "/tmp/graph2dil-"+TimeStampYmdHM(ActualTime());
+
+    // For each of the possible program flow control choices that would not already
+    // have exited, we need both the Graph and the full Log, so we may as well load them here.
+    ERRHERE(".load");
+    std::tie(graph,log) = ga.access_shared_Graph_and_request_Log_copy_with_init();
+
+    VERBOSEOUT("\nFormalizer Graph and Log data structures fully loaded:\n\n"+Graph_summary(*graph)+Log_summary(*log)+"\n\n");  
+}
 
 /**
  * Program flow: Handle request to convert Log to Task Log Files.
  */
 bool flow_convert_Log2TL() {
     ERRTRACE;
+    VERBOSEOUT("\n\nFormalized 1.x HTML Task Log (TL) files will be generated in directory:\n\t"+g2d.DILTLdirectory+"\n\n");
     key_pause();
     
     if (!std::filesystem::create_directories(g2d.DILTLdirectory)) {
@@ -406,6 +387,7 @@ std::string render_DILbyID_entry(Node & node) {
  */
 bool flow_convert_Graph2DIL() {
     ERRTRACE;
+    VERBOSEOUT("Formalized 1.x HTML Detailed Item Lists (DIL) files will be generated in directory:\n\t"+g2d.DILTLdirectory+"\n\n");
     key_pause();
 
     ERRHERE(".prep");
@@ -419,6 +401,8 @@ bool flow_convert_Graph2DIL() {
         ERRRETURNFALSE(__func__,"unable to load templates for Graph to DIL Files rendering");
 
     ERRHERE(".DILFiles");
+    VERBOSEOUT("Building Topic Index with Nodes allocated to their main topic.\n\n");
+    VERYVERBOSEOUT("\tReserving 500 KBytes per DIL file, approximate total 45 MBytes.\n\n");
     Node_Index_by_Topic nit = make_Node_Index_by_Topic(*g2d.graph);
     for (Topic_ID topicid = 0; topicid < nit.size(); ++topicid) {
         // Reserve space in the receiving string. At 500 Kilobytes, plan.html has long been
@@ -450,6 +434,8 @@ bool flow_convert_Graph2DIL() {
     }
 
     ERRHERE(".DILbyID");
+    VERBOSEOUT("Building DIL-by-ID file.\n\n");
+    VERYVERBOSEOUT("\tReserving 3 MBytes.\n\n");
     std::string DILbyID_str;
     DILbyID_str.reserve(3*1024*1024); // The DIL-by-ID file is a bit over 2.5 Megabytes in size (at time of writing).
     for (auto node_it = g2d.graph->begin_Nodes(); node_it != g2d.graph->end_Nodes(); ++node_it) {

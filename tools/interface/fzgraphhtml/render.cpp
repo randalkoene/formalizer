@@ -109,6 +109,32 @@ struct line_render_parameters {
 
     Graph & graph() { return *graph_ptr; }
 
+    std::string rendered_head() {
+        template_varvalues varvals;
+        if (fzgh.config.num_to_show==std::numeric_limits<unsigned int>::max()) {
+            varvals.emplace("num_to_show","");
+            varvals.emplace("all_checked","checked");
+        } else {
+            varvals.emplace("num_to_show",std::to_string(fzgh.config.num_to_show));
+            varvals.emplace("all_checked","");
+        }
+        if (fzgh.num_days > 0) {
+            varvals.emplace("num_days",std::to_string(fzgh.num_days));
+            varvals.emplace("t_max","");
+        } else {
+            varvals.emplace("num_days","");
+            varvals.emplace("t_max",TimeStampYmdHM(fzgh.config.t_max));            
+        }
+        return env.render(templates[node_pars_in_list_head_temp], varvals);
+    }
+
+    std::string rendered_tail() {
+        template_varvalues varvals;
+        time_t t_max_next = fzgh.t_last_rendered + 30*seconds_per_day;
+        varvals.emplace("thirty_days_more",TimeStampYmdHM(t_max_next));
+        return env.render(templates[node_pars_in_list_tail_temp], varvals);    
+    }
+
     void prep(unsigned int num_render) {
         if (fzgh.config.embeddable) {
             rendered_page.reserve(num_render * (2 * templates[node_pars_in_list_temp].size()));
@@ -116,7 +142,7 @@ struct line_render_parameters {
             rendered_page.reserve(num_render * (2 * templates[node_pars_in_list_temp].size()) +
                             templates[node_pars_in_list_head_temp].size() +
                             templates[node_pars_in_list_tail_temp].size());
-            rendered_page += templates[node_pars_in_list_head_temp];
+            rendered_page += rendered_head(); //templates[node_pars_in_list_head_temp];
         }
     }
 
@@ -243,7 +269,7 @@ struct line_render_parameters {
 
     bool present() {
         if (!fzgh.config.embeddable) {
-            rendered_page += templates[node_pars_in_list_tail_temp];
+            rendered_page += rendered_tail(); //templates[node_pars_in_list_tail_temp];
         }
 
         if (fzgh.config.rendered_out_path == "STDOUT") {
@@ -297,6 +323,8 @@ bool render_incomplete_nodes_with_repeats() {
 
         if (--num_render == 0)
             break;
+
+        fzgh.t_last_rendered = tdate;
     }
 
     return lrp.present();

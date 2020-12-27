@@ -632,8 +632,9 @@ bool interactive_Log2TL_conversion(Graph & graph, Log & log, const Log2TL_conv_p
     if (params.from_idx>from_idx)
         from_idx = params.from_idx;
     if (to_idx < from_idx) {
-        ERRRETURNFALSE(__func__,"empty setion interval from "+std::to_string(from_idx)+" to "+std::to_string(to_idx));
+        ERRRETURNFALSE(__func__,"empty section interval from "+std::to_string(from_idx)+" to "+std::to_string(to_idx));
     }
+    VERYVERBOSEOUT("\nTask Log will have "+std::to_string(log.num_Breakpoints())+" sections.\n");
 
     std::error_code ec; // we need to check for error codes to distinguish from existing directory
     if (!std::filesystem::create_directories(params.TLdirectory, ec)) {

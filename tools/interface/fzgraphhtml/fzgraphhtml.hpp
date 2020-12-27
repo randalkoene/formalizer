@@ -19,6 +19,8 @@
 
 using namespace fz;
 
+constexpr time_t seconds_per_day = 24*60*60;
+
 enum flow_options {
     flow_unknown = 0,                 ///< no recognized request
     flow_node = 1,                    ///< request: show data for Node
@@ -71,6 +73,10 @@ struct fzgraphhtml: public formalizer_standard_program {
     Topic_ID topic_id = 0;
 
     bool add_to_node = false;
+
+    int num_days = 0; // used only as a cache to render in accordance with arguments received
+
+    time_t t_last_rendered = 0;
 
     Graph * graph_ptr = nullptr;
 
