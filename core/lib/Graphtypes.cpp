@@ -707,7 +707,7 @@ Topic_ID Node::main_topic_id() {
     }
 
     Topic_ID main_id = 0;
-    Topic_Relevance max_rel = 0.0;
+    Topic_Relevance max_rel = -123456789.0;
     for (const auto& [t_id, t_rel] : topics) {
         if (t_rel>max_rel)
             main_id = t_id;

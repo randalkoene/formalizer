@@ -86,8 +86,7 @@ struct Log_TimeStamp {
     uint8_t month;
     int16_t year;
 
-    /// Initializes as LOG_NULL_IDSTAMP.
-    Log_TimeStamp(): minor_id(0), minute(0), hour(0), day(0), month(0), year(0) {}
+    Log_TimeStamp(): minor_id(0), minute(0), hour(0), day(0), month(0), year(0) {} ///< Default initializes as LOG_NULL_IDSTAMP.
     Log_TimeStamp(std::time_t t, bool testvalid = false, uint8_t _minorid = 0);
 
     /// standardization functions and operators
@@ -123,7 +122,7 @@ struct Log_TimeStamp {
 struct Log_entry_ID_key {
     Log_TimeStamp idT;
 
-    Log_entry_ID_key(): idT() {} /// Try to use this one only for container element initialization and such.
+    Log_entry_ID_key(): idT() {} ///< Default initializes as null-key. Try to use this sparingly, e.g. for container element initialization and such.
 
     Log_entry_ID_key(const Log_TimeStamp& _idT);
     Log_entry_ID_key(std::time_t t, uint8_t _minorid = 1): idT(t,true,_minorid) {}
@@ -132,6 +131,7 @@ struct Log_entry_ID_key {
 
     bool isnullkey() const { return idT.month == 0; }
 
+    std::time_t get_epoch_time() const { return idT.get_epoch_time(); }
     std::string str() const { return (isnullkey() ? LOG_NULLKEY_STR : Log_entry_ID_TimeStamp_to_string(idT)); }
 
     bool operator< (const Log_entry_ID_key& rhs) const { return (idT < rhs.idT); }
@@ -158,7 +158,7 @@ struct Log_entry_ID_key {
 struct Log_chunk_ID_key {
     Log_TimeStamp idT;
 
-    Log_chunk_ID_key(): idT() {} /// Try to use this one only for container element initialization and such.
+    Log_chunk_ID_key(): idT() {} ///< Default initializes as null-key. Try to use this sparingly, e.g. for container element initialization and such.
 
     Log_chunk_ID_key(const Log_TimeStamp& _idT);
     Log_chunk_ID_key(const Log_entry_ID_key& _idE): idT(_idE.idT.get_epoch_time(),false,0) {} // no need to test valid if Log_entry_ID_key was valid
@@ -189,7 +189,7 @@ struct Log_target {
     Log_ID_key key;
     Log_component *ptr;
 
-    Log_target() : ptr(nullptr) {}
+    Log_target() : key(), ptr(nullptr) {} ///< Default initializes as null-key. Try to use this sparingly, e.g. for null-returns and such. (E.g. see Log_chain_target Node_histories::oldest().)
     Log_target(const Log_ID_key &k, const Log_component *p = nullptr) : key(k), ptr(const_cast<Log_component *>(p)) {}
     Log_target(const Log_TimeStamp &t_stamp, const Log_component *p = nullptr) : key(t_stamp), ptr(const_cast<Log_component *>(p)) {}
 };
@@ -219,7 +219,7 @@ struct Log_chain_target {
         Log_entry_target entry;
     };
 
-    Log_chain_target(): ischunk(true) {}
+    Log_chain_target(): ischunk(true), chunk() {} ///< Default initializes as null-target. Try to use this sparingly, e.g. for null-returns and such. (E.g. see Log_chain_target Node_histories::oldest().)
     // Letting the compiler create the implicit copy constructor, which is probably fine.
    
     Log_chain_target(const Log_chunk_ID_key & chunkkey, const Log_chunk * cptr = nullptr): ischunk(true), chunk(chunkkey,cptr) {}

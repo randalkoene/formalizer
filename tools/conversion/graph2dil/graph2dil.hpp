@@ -64,6 +64,7 @@ public:
     bool set_parameter(const std::string &parlabel, const std::string &parvalue);
 
     std::string DILTLdirectory =  GRAPH2DIL_OUTPUT_DIR; /// location for converted output files
+    bool use_cached_histories = false; ///< If True, use cached Node histories table from database, otherwise generate Node_histories.
 };
 
 struct graph2dil: public formalizer_standard_program {
@@ -82,6 +83,7 @@ struct graph2dil: public formalizer_standard_program {
 
     Graph * graph;
     std::unique_ptr<Log> log;
+    Node_histories histories;
 
     graph2dil();
 

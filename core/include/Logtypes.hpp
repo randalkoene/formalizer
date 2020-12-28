@@ -518,17 +518,58 @@ struct Log_filter {
 struct Node_history {
     Log_chunk_ID_key_set chunks;  ///< Only chunks that explicitly belong to the Node.
     Log_entry_ID_key_set entries; ///< Entries that belong to the Node both explicitly and implicitly (due to surrounding Chunk).
+    void add_surrounding_chunks();
+    //void remove_implicit_entries(Log * log);
 };
 
 typedef std::unique_ptr<Node_history> history_ptr;
 
+/**
+ * These Node histories are generated (and cached) in a manner where
+ * the set of chunks lists only those chunks directly owned by a Node,
+ * and where the set of entries lsits only those entries directly
+ * owned by a Node.
+ * 
+ * The `add_surrounding_chunks()` function can be used to augment the
+ * lists of chunks with those chunks that contain entries owned by
+ * a Node where the chunk is not owned by that Node.
+ * 
+ * Note that `oldest()` and `newest()` are only reliable if you DO NOT
+ * expand the chunks set via `add_surrounding_chunks()`, because no
+ * additional test is performed in those functions to confirm that a
+ * chunk actually belongs to a Node.
+ * 
+ * The `remove_implicit_entries()` function can be used to remove entries
+ * that do not explicitly point to a Node. This is useful when looking
+ * for all explicit mentions of a Node. See, for example, how this is
+ * used in `graph2dil`.
+ * 
+ * Alternatively, the `explicit_only` flag can be used to generate a new
+ * Node_histories map without including any implicit entries. This is not
+ * usually the version that is cached and used for Node history printing,
+ * but it is used in some cases, for example, in `graph2dil`.
+ * 
+ * Also note that `oldest()` and `newest()` return Log_chain_target objects
+ * where only the ID is valid - the rapid access pointer will not have
+ * been set! Use `isnulltarget_byID()` (not by pointer), etc, or find
+ * and set the pointer by searching the Log.
+ * 
+ * See, for example, how this is used in `Logpostgres.cpp:load_Node_history_pq()`.
+ */
 class Node_histories: public std::map<Node_ID_key, history_ptr> {
 public:
     Node_histories() {}
-    Node_histories(Log & log) { init(log); }
-    void init(Log & log);
+    Node_histories(Log & log, bool explicit_only = false) { init(log, explicit_only); }
+    void init(Log & log, bool explicit_only = false);
+    void add_surrounding_chunks();
+    //void remove_implicit_entries(Log & log);
+    Node_history * history(const Node_ID_key & nkey);
+    Node_history * history(const Node & node) { return history(node.get_id().key()); }
+    Log_chain_target oldest(const Node_ID_key & nkey);
+    Log_chain_target oldest(const Node & node) { return oldest(node.get_id().key()); }
+    Log_chain_target newest(const Node_ID_key & nkey);
+    Log_chain_target newest(const Node & node) { return newest(node.get_id().key()); }
 };
-
 
 // +----- begin: inline functions -----+
 

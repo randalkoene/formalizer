@@ -34,10 +34,14 @@ for f in $htmlfiles; do
     f_file=${f##*/}
     original=$firstdir/$f_file
     echo ""
-    echo "Comparing $f with $original"
+    echo "Comparing $f with $original (without trailing zeros)"
     echo "------------------------------------------------------------"
 
-    diff -i -E -Z -b -B -a -d $original $f
+    cat $f | sed 's/\([^0-9][^0-9].[0-9][.]\)[0-9][0-9]*\([^0-9]\)/\1\2/g' > /tmp/generated.html
+    cat $original | sed 's/\([^0-9][^0-9].[0-9][.]\)[0-9][0-9]*\([^0-9]\)/\1\2/g' > /tmp/original.html
+
+    #diff -i -E -Z -b -B -a -d $original $f
+    diff -i -E -Z -b -B -a -d /tmp/original.html /tmp/generated.html
 
     echo ""
     echo "@@@@@"

@@ -901,6 +901,11 @@ bool load_Node_history_cache_table_pq(Postgres_access & pa, Node_histories & nod
  * Consequently, IF the presentation of a Node history should include only
  * complete chunks then chunks and extra entries need to be added to the history.
  * 
+ * The entries to load are derived by SUBSTRING from chunk IDs. That takes care of
+ * loading all entries in the chunks within a Node's history. Separately, and in
+ * advance, entries that are not within Node-owned chunks need to be identified and
+ * the corresponding chunks added to the set-to-load.
+ * 
  * @param apq Access object with database name and schema name.
  * @param log Log object where Chunks and Entries are added.
  * @param filter A Log_filter structure where at least the nkey is specified.
@@ -911,13 +916,13 @@ bool load_Node_history_cache_table_pq(Postgres_access & pa, Node_histories & nod
 bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter, std::string & chunkwherestr, std::string & entrywherestr) {
     ERRTRACE;
 
-    // *** We need to make the complete set of chunks here, probably by converting the
-    //     strings back to actual Node_histories sets for the Node. Then we can
-    //     quickly and easily run through all of the entries, adding corresponding
-    //     Log chunk ID key's to the chunk set (without duplication).
-    //     Then we can use the list of chunks to make the WHERE id IN string for
-    //     chunk loading. And we can use the same string and SUBSTRING(id) to
-    //     load all of the entries that belong in those chunks.
+    // 1. We need to make the complete set of chunks here, probably by converting the
+    //    strings back to actual Node_history set for the Node.
+    // 2. Then we can quickly and easily run through all of the entries, adding
+    //    corresponding Log chunk ID key's to the chunk set (without duplication).
+    // 3. Then we can use the list of chunks to make the WHERE id IN string for
+    //    chunk loading. And we can use the same string and SUBSTRING(id) to
+    //    load all of the entries that belong in those chunks.
 
     Node_history nodehist;
     if (!load_Node_history_cache_entry_pq(apq, filter.nkey, nodehist)) {
@@ -925,77 +930,6 @@ bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter,
     }
 
     // set up the WHERE IN part first, then possibly add WHERE >= and WHERE <= parts
-
-    /*
-    std::string loadstr("SELECT * FROM "+apq.pq_schemaname+".histories WHERE nid = '"+filter.nkey.str()+"'");
-    if (!query_call_pq(apq.conn, loadstr, false)) {
-        std::string errstr("Unable to load Node history references from cache table. Perhaps run `fzquerypq -R histories`.");
-        ADDERROR(__func__, errstr);
-        VERBOSEERR(errstr+'\n');
-        return false; // *** you might need to explicitly allow for nodes without histories
-    }
-
-    std::string nodeid_str;
-    std::string chunkids_str;
-    std::string entryids_str;
-
-    PGresult *res;
-
-    while ((res = PQgetResult(apq.conn))) { // It's good to use a loop for single row mode cases.
-
-        const int rows = PQntuples(res);
-        if (PQnfields(res)<3) ERRRETURNFALSE(__func__,"not enough fields in histories cache table");
-
-        if (!get_History_pq_field_numbers(res)) return false;
-
-        for (int r = 0; r < rows; ++r) {
-
-            nodeid_str += PQgetvalue(res, r, pq_history_field[0]); // *** revisited this on 2020-11-18 and unsure if += was meant to be here, is more than one row ever loaded?
-            chunkids_str += PQgetvalue(res, r, pq_history_field[1]);
-            entryids_str += PQgetvalue(res, r, pq_history_field[2]);
-            //rtrim(entryids_str);
-            //rtrim(chunkids_str);
-
-        }
-
-        PQclear(res);
-    }
-
-    bool haschunks = chunkids_str.size() >= 12;
-    bool hasentries = entryids_str.size() >= 14; // can be false if a Node only has an empty chunk
-    if (haschunks) {
-        if (chunkids_str.front() == '{')
-            chunkids_str.erase(0,1);
-        if (chunkids_str.back() == '}')
-            chunkids_str.pop_back();
-        auto chunkidsvec = split(chunkids_str,',');
-        // Add all of these chunks owned by the Node to the set of chunks.
-        for (auto & chunkid_str : chunkidsvec) {
-            try {
-                nodehist.chunks.emplace(chunkid_str);
-            } catch (ID_exception idexception) {
-                ERRRETURNFALSE(__func__,"Invalid Chunk ID ["+chunkid_str+"], "+idexception.what());
-            }
-        }
-    }
-
-    if (hasentries) {
-        if (entryids_str.front() == '{')
-            entryids_str.erase(0,1);
-        if (entryids_str.back() == '}')
-            entryids_str.pop_back();
-        auto entryidsvec = split(entryids_str,',');
-        // Make sure the chunks surrounding these entries are also included.
-        for (auto & entryid_str : entryidsvec) {
-            try {
-                nodehist.chunks.emplace(entryid_str.substr(0,12)); // the set type discards duplicates
-            } catch (ID_exception idexception) {
-                ERRRETURNFALSE(__func__,"Invalid Entry ID ["+entryid_str+"], "+idexception.what());
-            }
-        }
-        haschunks = true; // even if only due to additions from entries
-    }
-    */
 
     // Temporal constraints are imposed by comparators in the WHERE string, but
     // a number of chunks limit needs to be established on the collected set
@@ -1011,6 +945,8 @@ bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter,
         }
         nodehist.chunks.erase(nodehist.chunks.begin(),keepfrom_it);
     }
+
+    nodehist.add_surrounding_chunks();
 
     if (!nodehist.chunks.empty()) { //if (haschunks) {
         // Now the full WHERE string for the chunks (and the entries).

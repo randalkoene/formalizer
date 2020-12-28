@@ -197,7 +197,7 @@ $(OBJ)/Graphunshared.o: Graphunshared.cpp $(INC)/Graphunshared.hpp $(INC)/genera
 $(OBJ)/LogtypesID.o: LogtypesID.cpp $(INC)/LogtypesID.hpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c LogtypesID.cpp -o $(OBJ)/LogtypesID.o
 
-$(OBJ)/Logtypes.o: Logtypes.cpp $(INC)/Logtypes.hpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
+$(OBJ)/Logtypes.o: Logtypes.cpp $(INC)/Logtypes.hpp $(INC)/Graphtypes.hpp $(INC)/LogtypesID.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c Logtypes.cpp -o $(OBJ)/Logtypes.o
 
 $(OBJ)/fzpostgres.o: fzpostgres.cpp $(INC)/fzpostgres.hpp $(INC)/error.hpp \

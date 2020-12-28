@@ -24,6 +24,7 @@
 #include "Logtypes.hpp"
 #include "Graphaccess.hpp"
 #include "templater.hpp"
+#include "Logpostgres.hpp"
 
 // local
 #include "log2tl.hpp"
@@ -63,6 +64,7 @@ bool g2d_configurable::set_parameter(const std::string & parlabel, const std::st
 
     // *** You could also implement try-catch here to gracefully report problems with configuration files.
     CONFIG_TEST_AND_SET_PAR(DILTLdirectory, "DILTLdirectory", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(use_cached_histories, "use_cached_histories", parlabel, (parvalue == "true"));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
@@ -73,8 +75,8 @@ bool g2d_configurable::set_parameter(const std::string & parlabel, const std::st
  * the memory-resident Graph.
  */
 graph2dil::graph2dil(): formalizer_standard_program(false), config(*this), ga(*this,add_option_args,add_usage_top, true), flowcontrol(flow_all) { //(flow_unknown) {
-    add_option_args += "DLo:";
-    add_usage_top += " [-D] [-L] [-o <output-dir>]";
+    add_option_args += "DLo:H";
+    add_usage_top += " [-D] [-L] [-o <output-dir>] ([-H])";
     usage_tail.push_back("\n"
                          "Default behavior is to convert both Graph to DIL files and Log to Task Log files.\n");
 }
@@ -83,7 +85,8 @@ void graph2dil::usage_hook() {
     ga.usage_hook();
     FZOUT("    -D convert Graph to DIL Files\n"
           "    -L convert Log to Task Log files\n"
-          "    -o build converted file structure at <output-dir> path\n");
+          "    -o build converted file structure at <output-dir> path\n"
+          "    (-H use Node histories cached in database instead of regenerating)\n");
 }
 
 bool graph2dil::options_hook(char c, std::string cargs) {
@@ -104,6 +107,11 @@ bool graph2dil::options_hook(char c, std::string cargs) {
 
     case 'o': {
         config.DILTLdirectory = cargs;
+        return true;
+    }
+
+    case 'H': {
+        config.use_cached_histories = true;
         return true;
     }
 
@@ -151,7 +159,22 @@ void graph2dil::init_top(int argc, char *argv[]) {
     VERBOSEOUT("\n\nAccessing memory-resident Graph and loading complete Log into memory...\n");
     std::tie(graph,log) = ga.access_shared_Graph_and_request_Log_copy_with_init();
 
-    VERBOSEOUT("\nUsing memory-resident Graph, Log data structure fully loaded:\n"+Graph_summary(*graph)+Log_summary(*log)+"\n\n");  
+    VERBOSEOUT("\nUsing memory-resident Graph, Log data structure fully loaded:\n"+Graph_summary(*graph)+Log_summary(*log)+"\n\n");
+
+    /*** Presently ignoring the load-from-database option, because generating with explicit_only is probably faster
+     *** than loading and then looking for all entries in the Log to remove implicit ones. If the database cache
+     *** also remembers if an entry belonged to a Node implicitly or explicitly then that might be faster.
+    if (config.use_cached_histories) {
+        VERYVERBOSEOUT("Loading Node histories from cache in database...\n\n");
+        if (!load_Node_history_cache_table_pq(ga, histories)) {
+            VERBOSEOUT("Unable to load Node histories from database, trying to regenerate from Log instead...\n\n");
+            histories.init(*(log.get()));
+        }
+    } else {
+    */
+        VERYVERBOSEOUT("Regenerating Node histories from Log...\n\n");
+        histories.init(*(log.get()), true);
+    //}
 }
 
 /**
@@ -225,6 +248,9 @@ Node_Index_by_Topic make_Node_Index_by_Topic(Graph & graph) {
             standard_exit_error(exit_missing_data, "Graph Node map contains a Node nullptr (should never happen)", __func__);
         }
         Topic_ID maintopic = nptr->main_topic_id();
+/*if (nptr->get_id_str() == "20201014220834.1") {
+    VERYVERBOSEOUT("'Update dil2graph' Node looks like it has maintopic="+std::to_string(maintopic)+'\n');
+}*/
 
         if (maintopic > graph.num_Topics()) {
             ADDERROR(__func__,"Node ["+nptr->get_id_str()+"] has a main topic index-ID ("+std::to_string(maintopic)+") outside the scope of known Topics ("+std::to_string(graph.num_Topics())+')');
@@ -284,14 +310,16 @@ std::string render_Node_newest_logged(const Log_chain_target & head) {
 std::string render_Node2DILentry(Node & node) {
     template_varvalues varvals;
     varvals.emplace("DIL_ID",node.get_id_str());
-    const Log_chain_target * nodeloghead = g2d.log->newest_Node_chain_element(node.get_id());
-    const Log_chain_target * nodelogtail = g2d.log->oldest_Node_chain_element(node.get_id());
-    if (!nodelogtail) {
+    Log_chain_target nodeloghead = g2d.histories.newest(node);
+    Log_chain_target nodelogtail = g2d.histories.oldest(node);
+    //const Log_chain_target * nodeloghead = g2d.log->newest_Node_chain_element(node.get_id());
+    //const Log_chain_target * nodelogtail = g2d.log->oldest_Node_chain_element(node.get_id());
+    if (nodelogtail.isnulltarget_byID()) {
         varvals.emplace("tail",""); //"tail"); // the Node has no Log entries yet
         varvals.emplace("head",""); //"head");
     } else {
-        varvals.emplace("tail",render_Node_oldest_logged(*nodelogtail));
-        varvals.emplace("head",render_Node_newest_logged(*nodeloghead));
+        varvals.emplace("tail",render_Node_oldest_logged(nodelogtail));
+        varvals.emplace("head",render_Node_newest_logged(nodeloghead));
     }
     varvals.emplace("required",to_precision_string(((float)node.get_required())/3600.0,2));
     varvals.emplace("completion",to_precision_string(node.get_completion(),1));

@@ -1085,8 +1085,26 @@ Log_chunk_ID_key_set Log::chunk_key_list_from_entries() {
     return chunkkeyset;
 }
 
-/// Parse all chunks and entries, and assign them to their Node ID keys.
-void Node_histories::init(Log & log) {
+void Node_history::add_surrounding_chunks() {
+    for (const auto & entry_key : entries) {
+        Log_chunk_ID_key chunk_key(entry_key);
+        chunks.emplace(chunk_key); // try to add it
+    }
+}
+
+/*void Node_history::remove_implicit_entries(Log & log) {
+    for (auto it = entries.begin(); it != entries.end(); ++it)
+}*/
+
+/**
+ * Parse all chunks and entries, and assign them to their Node ID keys.
+ * Note that under very specific circumstances, this can produce a history
+ * for an individual Node that has only chunks or only entries. This
+ * happens if no chunk was ever started for the Node, but it had entries
+ * logged while in the chunk of another Node, or if chunks had been
+ * opened, but all the entries logged therein belonged to other Nodes.
+ */
+void Node_histories::init(Log & log, bool explicit_only) {
     for (const auto & [chunk_key, chunk] : log.get_Chunks()) {
         Node_ID_key nkey(chunk->get_NodeID().key());
         if (nkey.isnullkey())
@@ -1104,7 +1122,11 @@ void Node_histories::init(Log & log) {
     for (const auto & [entrykey, entryptr] : log.get_Entries()) {
         Node_ID_key nkey(entryptr->get_nodeidkey());
         if (nkey.isnullkey()) { // belongs to the same Node as the surrounding chunk
-            nkey = entryptr->get_Chunk()->get_NodeID().key(); // *** Mildly risky, there should really be no nullptr here.
+            if (explicit_only) {
+                continue;
+            } else {
+                nkey = entryptr->get_Chunk()->get_NodeID().key(); // *** Mildly risky, there should really be no nullptr here.
+            }
         }
         if (nkey.isnullkey())
             continue; // This would actually be an error...
@@ -1117,6 +1139,77 @@ void Node_histories::init(Log & log) {
         } else {
             it->second->entries.emplace(entrykey);
         }
+    }
+}
+
+void Node_histories::add_surrounding_chunks() {
+    for (auto & [nkey, h_ptr] : (*this)) {
+        if (h_ptr) {
+            h_ptr->add_surrounding_chunks();
+        }
+    }
+}
+
+Node_history * Node_histories::history(const Node_ID_key & nkey) {
+    auto it = find(nkey);
+    if (it == end()) {
+        return nullptr;
+    }
+
+    return it->second.get();
+}
+
+Log_chain_target Node_histories::oldest(const Node_ID_key & nkey) {
+    Node_history * history_ptr = history(nkey);
+    if (!history_ptr) {
+        return Log_chain_target(); // a null chain target
+    }
+
+    time_t t_oldest_chunk = RTt_maxtime;
+    time_t t_oldest_entry = RTt_maxtime;
+    if (!history_ptr->chunks.empty()) {
+        t_oldest_chunk = history_ptr->chunks.begin()->get_epoch_time();
+    }
+    if (!history_ptr->entries.empty()) {
+        t_oldest_entry = history_ptr->entries.begin()->get_epoch_time();
+    }
+
+    if (t_oldest_chunk <= t_oldest_entry) {
+        if (t_oldest_chunk == RTt_maxtime) {
+            return Log_chain_target();
+        }
+        return Log_chain_target(*(history_ptr->chunks.begin()));
+    } else {
+        return Log_chain_target(*(history_ptr->entries.begin()));
+    }
+}
+
+Log_chain_target Node_histories::newest(const Node_ID_key & nkey) {
+    Node_history * history_ptr = history(nkey);
+    if (!history_ptr) {
+        return Log_chain_target(); // a null chain target
+    }
+
+    time_t t_newest_chunk = RTt_unspecified;
+    time_t t_newest_entry = RTt_unspecified;
+    const Log_chunk_ID_key * chunkkey_ptr = nullptr;
+    const Log_entry_ID_key * entrykey_ptr = nullptr;
+    if (!history_ptr->chunks.empty()) {
+        chunkkey_ptr = &(*std::prev(history_ptr->chunks.end()));
+        t_newest_chunk = chunkkey_ptr->get_epoch_time();
+    }
+    if (!history_ptr->entries.empty()) {
+        entrykey_ptr = &(*std::prev(history_ptr->entries.end()));
+        t_newest_entry = entrykey_ptr->get_epoch_time();
+    }
+
+    if (t_newest_chunk > t_newest_entry) {
+        return Log_chain_target(*chunkkey_ptr);
+    } else {
+        if (t_newest_entry == RTt_unspecified) {
+            return Log_chain_target();
+        }
+        return Log_chain_target(*entrykey_ptr);
     }
 }
 

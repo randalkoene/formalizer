@@ -71,6 +71,7 @@ EXECUTABLES += $(TOOLSPATH)/compat/frequent-init.sh
 EXECUTABLES += $(TOOLSPATH)/compat/v1xv2x-refresh.sh
 EXECUTABLES += $(TOOLSPATH)/conversion/dil2graph/dil2graph
 EXECUTABLES += $(TOOLSPATH)/conversion/graph2dil/graph2dil
+EXECUTABLES += $(TOOLSPATH)/conversion/graph2dil/graph2dil-diff.sh
 EXECUTABLES += $(TOOLSPATH)/dev/boilerplate/boilerplate
 EXECUTABLES += $(TOOLSPATH)/dev/fzbuild/fzbuild.py
 # EXECUTABLES += $(TOOLSPATH)/glue/calendarsync/calendarsync
