@@ -164,6 +164,15 @@ bool refresh_Node_history_cache_pq(Postgres_access & pa);
 bool load_Node_history_cache_entry_pq(active_pq & apq, const Node_ID_key & nkey, Node_history & nodehist);
 
 /**
+ * Load a Node_histories object from a complete cache table in the database.
+ * 
+ * @param[in] pa Access object with valid database and schema identifiers.
+ * @param[out] nodehistories A Node_histories object.
+ * @return True if cache table loading was successful.
+ */
+bool load_Node_history_cache_table_pq(Postgres_access & pa, Node_histories & nodehistories);
+
+/**
  * A data types conversion helper class that can deliver the Postgres Breakpoints table
  * equivalent INSERT value expression for all data content in a Breakpoints.
  * 

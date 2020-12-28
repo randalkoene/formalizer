@@ -734,49 +734,12 @@ void convert_array_output_to_input_pq(std::string & entryids_str) {
     delete[] buf;
 }
 
-/**
- * Load the cached Log history of a specific Node.
- * 
- * @param[in] apq Access object with database name and schema name.
- * @param[in] nkey A Node ID key.
- * @param[out] nodehist A Node_history object that receives the resulting data.
- */
-bool load_Node_history_cache_entry_pq(active_pq & apq, const Node_ID_key & nkey, Node_history & nodehist) {
-    ERRTRACE;
-
-    std::string loadstr("SELECT * FROM "+apq.pq_schemaname+".histories WHERE nid = '"+nkey.str()+"'");
-    if (!query_call_pq(apq.conn, loadstr, false)) {
-        std::string errstr("Unable to load Node history references from cache table. Perhaps run `fzquerypq -R histories`.");
-        ADDERROR(__func__, errstr);
-        VERBOSEERR(errstr+'\n');
-        return false; // *** you might need to explicitly allow for nodes without histories
-    }
-
-    std::string nodeid_str;
-    std::string chunkids_str;
-    std::string entryids_str;
-
-    PGresult *res;
-
-    while ((res = PQgetResult(apq.conn))) { // It's good to use a loop for single row mode cases.
-
-        const int rows = PQntuples(res);
-        if (PQnfields(res)<3) ERRRETURNFALSE(__func__,"not enough fields in histories cache table");
-
-        if (!get_History_pq_field_numbers(res)) return false;
-
-        for (int r = 0; r < rows; ++r) {
-
-            nodeid_str += PQgetvalue(res, r, pq_history_field[0]); // *** revisited this on 2020-11-18 and unsure if += was meant to be here, is more than one row ever loaded?
-            chunkids_str += PQgetvalue(res, r, pq_history_field[1]);
-            entryids_str += PQgetvalue(res, r, pq_history_field[2]);
-            //rtrim(entryids_str);
-            //rtrim(chunkids_str);
-
-        }
-
-        PQclear(res);
-    }
+bool parse_PQValues_to_Node_history(PGresult *res, int r, Node_history & nodehist, std::string & nodeid_str) {
+    nodeid_str = PQgetvalue(res, r, pq_history_field[0]);
+    std::string chunkids_str = PQgetvalue(res, r, pq_history_field[1]);
+    std::string entryids_str = PQgetvalue(res, r, pq_history_field[2]);
+    //rtrim(entryids_str);
+    //rtrim(chunkids_str);
 
     bool haschunks = chunkids_str.size() >= 12;
     bool hasentries = entryids_str.size() >= 14; // can be false if a Node only has an empty chunk
@@ -817,13 +780,56 @@ bool load_Node_history_cache_entry_pq(active_pq & apq, const Node_ID_key & nkey,
 }
 
 /**
+ * Load the cached Log history of a specific Node.
+ * 
+ * @param[in] apq Access object with database name and schema name.
+ * @param[in] nkey A Node ID key.
+ * @param[out] nodehist A Node_history object that receives the resulting data.
+ */
+bool load_Node_history_cache_entry_pq(active_pq & apq, const Node_ID_key & nkey, Node_history & nodehist) {
+    ERRTRACE;
+
+    std::string loadstr("SELECT * FROM "+apq.pq_schemaname+".histories WHERE nid = '"+nkey.str()+"'");
+    if (!query_call_pq(apq.conn, loadstr, false)) {
+        std::string errstr("Unable to load Node history references from cache table. Perhaps run `fzquerypq -R histories`.");
+        ADDERROR(__func__, errstr);
+        VERBOSEERR(errstr+'\n');
+        return false; // *** you might need to explicitly allow for nodes without histories
+    }
+
+    std::string nodeid_str;
+
+    PGresult *res;
+
+    while ((res = PQgetResult(apq.conn))) { // It's good to use a loop for single row mode cases.
+
+        const int rows = PQntuples(res);
+        if (PQnfields(res)<3) ERRRETURNFALSE(__func__,"not enough fields in histories cache table");
+
+        if (!get_History_pq_field_numbers(res)) return false;
+
+        for (int r = 0; r < rows; ++r) {
+
+            if (!parse_PQValues_to_Node_history(res, r, nodehist, nodeid_str)) {
+                return false;
+            }
+
+        }
+
+        PQclear(res);
+    }
+
+    return true;
+}
+
+/**
  * Load a Node_histories object from a complete cache table in the database.
  * 
  * @param[in] pa Access object with valid database and schema identifiers.
- * @param[out] nodehist A Node_histories object.
+ * @param[out] nodehistories A Node_histories object.
  * @return True if cache table loading was successful.
  */
-bool load_Node_history_cache_table_pq(const Node_histories & nodehist, Postgres_access & pa) {
+bool load_Node_history_cache_table_pq(Postgres_access & pa, Node_histories & nodehistories) {
     ERRTRACE;
     active_pq apq;
     apq.conn = connection_setup_pq(pa.dbname());
@@ -835,8 +841,50 @@ bool load_Node_history_cache_table_pq(const Node_histories & nodehist, Postgres_
 
     ERRHERE(".load");
 
-    //*** ideally, reuse code from above
+    std::string loadstr("SELECT * FROM "+apq.pq_schemaname+".histories");
+    if (!query_call_pq(apq.conn, loadstr, false)) {
+        std::string errstr("Unable to load Node history references from cache table. Perhaps run `fzquerypq -R histories`.");
+        ADDERROR(__func__, errstr);
+        VERBOSEERR(errstr+'\n');
+        LOAD_NHCT_PQ_RETURN(false); // *** you might need to explicitly allow for nodes without histories
+    }
 
+    PGresult *res;
+
+    while ((res = PQgetResult(apq.conn))) { // It's good to use a loop for single row mode cases.
+
+        const int rows = PQntuples(res);
+        if (PQnfields(res)<3) {
+            ADDERROR(__func__,"not enough fields in histories cache table");
+            LOAD_NHCT_PQ_RETURN(false);
+        }
+
+        if (!get_History_pq_field_numbers(res)) return false;
+
+        for (int r = 0; r < rows; ++r) {
+
+            std::string nodeid_str;
+            history_ptr nodehist_ptr = std::make_unique<Node_history>();
+            if (!nodehist_ptr) {
+                ADDERROR(__func__, "Unable to create Node_history object");
+                LOAD_NHCT_PQ_RETURN(false);
+            }
+            if (!parse_PQValues_to_Node_history(res, r, *(nodehist_ptr.get()), nodeid_str)) {
+                ADDERROR(__func__, "Parsing query response for Node_history failed");
+                LOAD_NHCT_PQ_RETURN(false);
+            }
+            try {
+                Node_ID_key nkey(nodeid_str);
+                nodehistories.emplace(nkey, std::move(nodehist_ptr));
+            } catch (ID_exception idexception) {
+                ADDERROR(__func__,"Invalid Node ID ["+nodeid_str+"], "+idexception.what());
+                LOAD_NHCT_PQ_RETURN(false);
+            }
+
+        }
+
+        PQclear(res);
+    }
 
     LOAD_NHCT_PQ_RETURN(true);
 }
