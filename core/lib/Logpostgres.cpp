@@ -735,6 +735,113 @@ void convert_array_output_to_input_pq(std::string & entryids_str) {
 }
 
 /**
+ * Load the cached Log history of a specific Node.
+ * 
+ * @param[in] apq Access object with database name and schema name.
+ * @param[in] nkey A Node ID key.
+ * @param[out] nodehist A Node_history object that receives the resulting data.
+ */
+bool load_Node_history_cache_entry_pq(active_pq & apq, const Node_ID_key & nkey, Node_history & nodehist) {
+    ERRTRACE;
+
+    std::string loadstr("SELECT * FROM "+apq.pq_schemaname+".histories WHERE nid = '"+nkey.str()+"'");
+    if (!query_call_pq(apq.conn, loadstr, false)) {
+        std::string errstr("Unable to load Node history references from cache table. Perhaps run `fzquerypq -R histories`.");
+        ADDERROR(__func__, errstr);
+        VERBOSEERR(errstr+'\n');
+        return false; // *** you might need to explicitly allow for nodes without histories
+    }
+
+    std::string nodeid_str;
+    std::string chunkids_str;
+    std::string entryids_str;
+
+    PGresult *res;
+
+    while ((res = PQgetResult(apq.conn))) { // It's good to use a loop for single row mode cases.
+
+        const int rows = PQntuples(res);
+        if (PQnfields(res)<3) ERRRETURNFALSE(__func__,"not enough fields in histories cache table");
+
+        if (!get_History_pq_field_numbers(res)) return false;
+
+        for (int r = 0; r < rows; ++r) {
+
+            nodeid_str += PQgetvalue(res, r, pq_history_field[0]); // *** revisited this on 2020-11-18 and unsure if += was meant to be here, is more than one row ever loaded?
+            chunkids_str += PQgetvalue(res, r, pq_history_field[1]);
+            entryids_str += PQgetvalue(res, r, pq_history_field[2]);
+            //rtrim(entryids_str);
+            //rtrim(chunkids_str);
+
+        }
+
+        PQclear(res);
+    }
+
+    bool haschunks = chunkids_str.size() >= 12;
+    bool hasentries = entryids_str.size() >= 14; // can be false if a Node only has an empty chunk
+    if (haschunks) {
+        if (chunkids_str.front() == '{')
+            chunkids_str.erase(0,1);
+        if (chunkids_str.back() == '}')
+            chunkids_str.pop_back();
+        auto chunkidsvec = split(chunkids_str,',');
+        // Add all of these chunks owned by the Node to the set of chunks.
+        for (auto & chunkid_str : chunkidsvec) {
+            try {
+                nodehist.chunks.emplace(chunkid_str);
+            } catch (ID_exception idexception) {
+                ERRRETURNFALSE(__func__,"Invalid Chunk ID ["+chunkid_str+"], "+idexception.what());
+            }
+        }
+    }
+
+    if (hasentries) {
+        if (entryids_str.front() == '{')
+            entryids_str.erase(0,1);
+        if (entryids_str.back() == '}')
+            entryids_str.pop_back();
+        auto entryidsvec = split(entryids_str,',');
+        // Make sure the chunks surrounding these entries are also included.
+        for (auto & entryid_str : entryidsvec) {
+            try {
+                nodehist.chunks.emplace(entryid_str.substr(0,12)); // the set type discards duplicates
+            } catch (ID_exception idexception) {
+                ERRRETURNFALSE(__func__,"Invalid Entry ID ["+entryid_str+"], "+idexception.what());
+            }
+        }
+        haschunks = true; // even if only due to additions from entries
+    }
+
+    return true;
+}
+
+/**
+ * Load a Node_histories object from a complete cache table in the database.
+ * 
+ * @param[in] pa Access object with valid database and schema identifiers.
+ * @param[out] nodehist A Node_histories object.
+ * @return True if cache table loading was successful.
+ */
+bool load_Node_history_cache_table_pq(const Node_histories & nodehist, Postgres_access & pa) {
+    ERRTRACE;
+    active_pq apq;
+    apq.conn = connection_setup_pq(pa.dbname());
+    if (!apq.conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define LOAD_NHCT_PQ_RETURN(r) { PQfinish(apq.conn); return r; }
+    apq.pq_schemaname = pa.pq_schemaname();
+
+    ERRHERE(".load");
+
+    //*** ideally, reuse code from above
+
+
+    LOAD_NHCT_PQ_RETURN(true);
+}
+
+/**
  * Get lists of Log chunks and Log entries from the Node history cache table and
  * load all of the chunks and entries listed there into a Log object.
  * 
@@ -755,6 +862,23 @@ void convert_array_output_to_input_pq(std::string & entryids_str) {
  */
 bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter, std::string & chunkwherestr, std::string & entrywherestr) {
     ERRTRACE;
+
+    // *** We need to make the complete set of chunks here, probably by converting the
+    //     strings back to actual Node_histories sets for the Node. Then we can
+    //     quickly and easily run through all of the entries, adding corresponding
+    //     Log chunk ID key's to the chunk set (without duplication).
+    //     Then we can use the list of chunks to make the WHERE id IN string for
+    //     chunk loading. And we can use the same string and SUBSTRING(id) to
+    //     load all of the entries that belong in those chunks.
+
+    Node_history nodehist;
+    if (!load_Node_history_cache_entry_pq(apq, filter.nkey, nodehist)) {
+        return false;
+    }
+
+    // set up the WHERE IN part first, then possibly add WHERE >= and WHERE <= parts
+
+    /*
     std::string loadstr("SELECT * FROM "+apq.pq_schemaname+".histories WHERE nid = '"+filter.nkey.str()+"'");
     if (!query_call_pq(apq.conn, loadstr, false)) {
         std::string errstr("Unable to load Node history references from cache table. Perhaps run `fzquerypq -R histories`.");
@@ -789,16 +913,6 @@ bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter,
         PQclear(res);
     }
 
-    // *** We need to make the complete set of chunks here, probably by converting the
-    //     strings back to actual Node_histories sets for the Node. Then we can
-    //     quickly and easily run through all of the entries, adding corresponding
-    //     Log chunk ID key's to the chunk set (without duplication).
-    //     Then we can use the list of chunks to make the WHERE id IN string for
-    //     chunk loading. And we can use the same string and SUBSTRING(id) to
-    //     load all of the entries that belong in those chunks.
-
-    Node_history nodehist;
-    // set up the WHERE IN part first, then possibly add WHERE >= and WHERE <= parts
     bool haschunks = chunkids_str.size() >= 12;
     bool hasentries = entryids_str.size() >= 14; // can be false if a Node only has an empty chunk
     if (haschunks) {
@@ -816,14 +930,7 @@ bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter,
             }
         }
     }
-    /*
-        chunkwherestr = " WHERE id IN (";
-        chunkwherestr.reserve(30+chunkidsvec.size()*24);
-        for (const auto & chunkidstr : chunkidsvec) {
-            chunkwherestr += TimeStamp_to_TimeStamp_pq(chunkidstr) + ',';
-        }
-        chunkwherestr.back() = ')';
-    }*/
+
     if (hasentries) {
         if (entryids_str.front() == '{')
             entryids_str.erase(0,1);
@@ -840,12 +947,7 @@ bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter,
         }
         haschunks = true; // even if only due to additions from entries
     }
-    /*
-        //replace_double_quotes(entryids_str); // *** doesn't seem to be a thing anymore (see https://trello.com/c/dZ5NBr5r)
-        convert_array_output_to_input_pq(entryids_str); // replaced due to https://trello.com/c/dZ5NBr5r
-
-        entrywherestr = " WHERE id IN (" + entryids_str + ")";
-    }*/
+    */
 
     // Temporal constraints are imposed by comparators in the WHERE string, but
     // a number of chunks limit needs to be established on the collected set
@@ -862,7 +964,7 @@ bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter,
         nodehist.chunks.erase(nodehist.chunks.begin(),keepfrom_it);
     }
 
-    if (haschunks) {
+    if (!nodehist.chunks.empty()) { //if (haschunks) {
         // Now the full WHERE string for the chunks (and the entries).
         chunkwherestr = " WHERE id IN (";
         entrywherestr = " WHERE SUBSTRING(id,1,12) IN (";

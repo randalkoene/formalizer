@@ -427,8 +427,12 @@ std::deque<Log_chain_target> Log::get_Node_chain_fullparse(const Node_ID node_id
  * This function requires that the `entries` list has been set up
  * for all Log chunks.
  * 
+ * If `onlylast == true` then the deque returned will contain only one
+ * element, namely the last (latest, newest) element in the chain that
+ * belongs to `node_id`. A full search is not conducted in this case.
+ * 
  * @param node_id of the Node for which to collect its Log chain (history).
- * @param onlylast flag if true return only the last target.
+ * @param onlylast flag if true return only the last target (do not find the whole list).
  * @return a deque sorted list of chain targets found.
  */
 std::deque<Log_chain_target> Log::get_Node_chain_fullparse_reverse(const Node_ID node_id, bool onlylast) {
@@ -526,6 +530,32 @@ std::deque<Log_chain_target> Log::get_Node_chain_reverse(const Node_ID node_id) 
     return res;
 }
 
+/**
+ * These functions make no assumptions about the reliability of the cached head and
+ * tail chain pointers of a Node. They begin by walking backwards in time from the
+ * newest Log chunk's entries to the oldesst Log chunk, collecting chain elements
+ * (entries and chunks) that belong to the Node along the way.
+ * 
+ * Chain elements found are emplaced at the front of the deque, meaning that the
+ * oldest element will be at the front of the deque when done, and the newest
+ * element will be at the back.
+ * 
+ * The `newest_Node_chain_element()` function then returns the `back()` of the
+ * deque, i.e. the newest entry or chunk that belongs to the Node.
+ * 
+ * The `oldest_Node_chain_element()` function also appears to take the `back()`, i.e.
+ * the newest element, after walking the whole chain - and then does a walk
+ * backwards using `prev_in_chain()`, until that returns `nullptr`. This is done,
+ * because calling `get_Node_chain_fullparse_reverse` with `onlylast == true` means
+ * that only the neweest element is returned in the deque. Even so, this will only
+ * work if the Log chains have been set up in advance. This happens, for example,
+ * through `Graphaccess:Graph_access::rapid_access_init()`. See, for example, how
+ * this is used via `Graph_access::access_shared_Graph_and_request_Log_copy_with_init()`
+ * in `graph2dil`.
+ * 
+ * Either of these functions should return a nullptr only if there are no Log
+ * chunks or entries associated with node_id.
+ */
 const Log_chain_target * Log::newest_Node_chain_element(const Node_ID node_id) {
     // *** if not cached or if the cache is invalid (out of date)
     std::deque<Log_chain_target> res = get_Node_chain_fullparse_reverse(node_id,true);
@@ -536,6 +566,11 @@ const Log_chain_target * Log::newest_Node_chain_element(const Node_ID node_id) {
     return &(res.back());
 }
 
+/**
+ * Notice that the set of tests in the while-loop are necessary here. You cannot
+ * simply test if prev_in_chain() is nullptr. See the explanation above
+ * LogtypesID.cpp:next_in_chain() and the referenced debugging example.
+ */
 const Log_chain_target * Log::oldest_Node_chain_element(const Node_ID node_id) {
     // *** if not cached or if the cache is invalid (out of date)
     std::deque<Log_chain_target> res = get_Node_chain_fullparse_reverse(node_id,true);
@@ -544,8 +579,13 @@ const Log_chain_target * Log::oldest_Node_chain_element(const Node_ID node_id) {
         return nullptr;
 
     const Log_chain_target * prev = &(res.back());
-    while (prev->prev_in_chain())
-        prev = prev->prev_in_chain();
+    const Log_chain_target * prev_prev;
+    while ((prev_prev = prev->prev_in_chain()) != nullptr) {
+        if (prev_prev->isnulltarget_byptr()) { // if (prev->prev_in_chain()->isnulltarget_byptr()) {
+            break;
+        }
+        prev = prev_prev; // prev->prev_in_chain();
+    }
 
     return prev;
 }

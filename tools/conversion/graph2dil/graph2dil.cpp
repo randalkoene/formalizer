@@ -72,18 +72,18 @@ bool g2d_configurable::set_parameter(const std::string & parlabel, const std::st
  * load a complete copy of the Log. That supresses a warning message. It should not affect use of
  * the memory-resident Graph.
  */
-graph2dil::graph2dil(): formalizer_standard_program(true), config(*this), ga(*this,add_option_args,add_usage_top, true), flowcontrol(flow_all) { //(flow_unknown) {
+graph2dil::graph2dil(): formalizer_standard_program(false), config(*this), ga(*this,add_option_args,add_usage_top, true), flowcontrol(flow_all) { //(flow_unknown) {
     add_option_args += "DLo:";
     add_usage_top += " [-D] [-L] [-o <output-dir>]";
+    usage_tail.push_back("\n"
+                         "Default behavior is to convert both Graph to DIL files and Log to Task Log files.\n");
 }
 
 void graph2dil::usage_hook() {
     ga.usage_hook();
     FZOUT("    -D convert Graph to DIL Files\n"
           "    -L convert Log to Task Log files\n"
-          "    -o build converted file structure at <output-dir> path\n"
-          "\n"
-          "Default behavior is to convert both Graph to DIL files and Log to Task Log files.\n");
+          "    -o build converted file structure at <output-dir> path\n");
 }
 
 bool graph2dil::options_hook(char c, std::string cargs) {
@@ -139,17 +139,19 @@ void graph2dil::init_top(int argc, char *argv[]) {
     //*************** for (int i = 0; i < argc; ++i) cmdargs[i] = argv[i]; // do this before getopt mucks it up
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 
-    if (config.DILTLdirectory.empty())
+    if (config.DILTLdirectory.empty()) {
         config.DILTLdirectory = "/tmp/graph2dil-"+TimeStampYmdHM(ActualTime());
-    
-    DILTLindex = config.DILTLdirectory + "/../graph2dil-lists.html";
+    }
+    config.DILTLdirectory += "/lists";
+    DILTLindex = config.DILTLdirectory + "/lists.html";
 
     // For each of the possible program flow control choices that would not already
     // have exited, we need both the Graph and the full Log, so we may as well load them here.
     ERRHERE(".load");
+    VERBOSEOUT("\n\nAccessing memory-resident Graph and loading complete Log into memory...\n");
     std::tie(graph,log) = ga.access_shared_Graph_and_request_Log_copy_with_init();
 
-    VERBOSEOUT("\nFormalizer Graph and Log data structures fully loaded:\n"+Graph_summary(*graph)+Log_summary(*log)+"\n\n");  
+    VERBOSEOUT("\nUsing memory-resident Graph, Log data structure fully loaded:\n"+Graph_summary(*graph)+Log_summary(*log)+"\n\n");  
 }
 
 /**
@@ -160,9 +162,19 @@ bool flow_convert_Log2TL() {
     VERBOSEOUT("\n\nFormalized 1.x HTML Task Log (TL) files will be generated in directory:\n\t"+g2d.config.DILTLdirectory+"\n\n");
     key_pause();
     
-    if (!std::filesystem::create_directories(g2d.config.DILTLdirectory)) {
-        FZERR("\nUnable to create the output directory "+g2d.config.DILTLdirectory+".\n");
-        exit(exit_general_error);
+    if (g2d.flowcontrol == flow_log2TL) {
+        if (std::filesystem::exists(g2d.config.DILTLdirectory)) {
+            if (default_choice("The target directory already exists. Overwrite existing files? (y/N) ",'y')) {
+                standard_exit_error(exit_file_error, "Please provide a usable path for generated files.", __func__);
+            }
+        }
+    }
+
+    std::error_code ec;
+    if (!std::filesystem::create_directories(g2d.config.DILTLdirectory, ec)) {
+        if (ec) {
+            standard_exit_error(exit_file_error, "\nUnable to create the output directory "+g2d.config.DILTLdirectory+".\n", __func__);
+        }
     }
 
     ERRHERE(".goLog2TL");
@@ -202,20 +214,31 @@ bool load_graph2dil_templates(graph2dil_templates & templates) {
 Node_Index_by_Topic make_Node_Index_by_Topic(Graph & graph) {
     // Pre-seed the vector with pointers to null-size Node_Index objects.
     Node_Index_by_Topic nit(graph.num_Topics());
-    for (std::size_t i = 0; i<graph.num_Topics(); ++i)
+    for (std::size_t i = 0; i < graph.num_Topics(); ++i) {
         nit[i] = std::make_unique<Node_Index>();
+    }
     
     // Loop through all Nodes and assign each to its major Topic.
     for (auto node_it = graph.begin_Nodes(); node_it != graph.end_Nodes(); ++node_it) {
-        Node * nptr = node_it->second.get(); // *** Slightly risky: Not testing to see if node_it->second is nullptr. Nodes are assumed.
+        Node * nptr = node_it->second.get();
+        if (!nptr) {
+            standard_exit_error(exit_missing_data, "Graph Node map contains a Node nullptr (should never happen)", __func__);
+        }
         Topic_ID maintopic = nptr->main_topic_id();
 
-        if (maintopic>graph.num_Topics()) {
+        if (maintopic > graph.num_Topics()) {
             ADDERROR(__func__,"Node ["+nptr->get_id_str()+"] has a main topic index-ID ("+std::to_string(maintopic)+") outside the scope of known Topics ("+std::to_string(graph.num_Topics())+')');
             exit(exit_general_error);
         }
 
-        nit[maintopic]->push_back(nptr);
+        if (maintopic >= nit.size()) {
+            standard_exit_error(exit_missing_data, "Main topic index ("+std::to_string(maintopic)+") of Node "+nptr->get_id_str()+" exceeds number of Topics registered.", __func__);
+        }
+        Node_Index * ni_ptr = nit[maintopic].get();
+        if (!ni_ptr) {
+            standard_exit_error(exit_missing_data, "Main topic index ("+std::to_string(maintopic)+") has null Node_Index.", __func__);
+        }
+        ni_ptr->push_back(nptr);
     }
     return nit;
 }
@@ -240,21 +263,37 @@ std::string render_Node_newest_logged(const Log_chain_target & head) {
  * Render Node data into a DIL_entry HTML template for inclusion in
  * a DIL File.
  * 
+ * This is using a rather slow process right now. The search for `nodeloghead`
+ * has to walk back from the most recent Log entry or chunk to the first appearance
+ * of the node (if there is any, otherwise all the way to the beginning). Then it
+ * does the same thing again for the `nodelogtail`, plus from there follow the
+ * `node_prev` chain that was set up in `Graph_access::rapid_access_init()`.
+ * 
+ * It would probably be much faster to collect Node histories once (or even load
+ * them from the database if their cache is up to date), and then just grab the
+ * heads and tails from there.
+ * 
+ * At a bare minimum, you don't need to do the search twice. Just start from
+ * Log_chain_target.
+ * 
+ * Since we're going to do this for all Nodes anyway, the histories appraoch is
+ * clearly more efficient.
+ * 
  * @param node A Node reference.
  */
 std::string render_Node2DILentry(Node & node) {
     template_varvalues varvals;
     varvals.emplace("DIL_ID",node.get_id_str());
-    const Log_chain_target * nodelogtail = g2d.log->oldest_Node_chain_element(node.get_id());
     const Log_chain_target * nodeloghead = g2d.log->newest_Node_chain_element(node.get_id());
+    const Log_chain_target * nodelogtail = g2d.log->oldest_Node_chain_element(node.get_id());
     if (!nodelogtail) {
-        varvals.emplace("tail","tail"); // the Node has no Log entries yet
-        varvals.emplace("head","head");
+        varvals.emplace("tail",""); //"tail"); // the Node has no Log entries yet
+        varvals.emplace("head",""); //"head");
     } else {
         varvals.emplace("tail",render_Node_oldest_logged(*nodelogtail));
         varvals.emplace("head",render_Node_newest_logged(*nodeloghead));
     }
-    varvals.emplace("required",to_precision_string(node.get_required(),2));
+    varvals.emplace("required",to_precision_string(((float)node.get_required())/3600.0,2));
     varvals.emplace("completion",to_precision_string(node.get_completion(),1));
     varvals.emplace("valuation",to_precision_string(node.get_valuation(),1));
     varvals.emplace("description",node.get_text());
@@ -271,7 +310,7 @@ std::string render_Node2DILentry(Node & node) {
 std::string Topic_Keywords_to_KeyRel_List(const Topic_KeyRel_Vector & keyrelvec) {
     std::string res;
     for (unsigned int i = 0; i < keyrelvec.size(); ++i) {
-        if (i>0) {
+        if (i > 0) {
             res += ", ";
         }
         res += keyrelvec[i].keyword + " (";
@@ -321,15 +360,15 @@ std::string render_TargetDate(Node & node) {
 
     const char periodic_char_code[_patt_num] = { 'd', 'D', 'w', 'b', 'm', 'M', 'y', 's', '\0' };
     if (node.get_repeats()) {
-        if (node.get_tdpattern()<patt_nonperiodic) {
+        if (node.get_tdpattern() < patt_nonperiodic) {
             res += periodic_char_code[node.get_tdpattern()];
         }
 
-        if (node.get_tdevery()>1) {
+        if (node.get_tdevery() > 1) {
             res += 'e' + std::to_string(node.get_tdevery()) + '_';
         }
 
-        if (node.get_tdspan()>0) {
+        if (node.get_tdspan() > 0) {
             res += 's' + std::to_string(node.get_tdspan()) + '_';
         }
     }
@@ -351,7 +390,7 @@ std::string render_TargetDate(Node & node) {
  * those values, showing those marked ?.? as 0.0.
  */
 std::string render_Edge_Parameter(float parval) {
-    if (parval<=0.0) return "?.?";
+    if (parval <= 0.0) return "?.?";
 
     return to_precision_string(parval,1);
 }
@@ -391,9 +430,14 @@ std::string render_DILbyID_entry(Node & node) {
     const Edges_Set & supedges = node.sup_Edges();
     std::string combined_superiors;
     for (auto sup_it = supedges.begin(); sup_it != supedges.end(); ++sup_it) {
-        if (sup_it != supedges.begin())
+        if (sup_it != supedges.begin()) {
             combined_superiors += ", ";
-        combined_superiors += render_Superior(*(*sup_it),node);
+        }
+        const Edge_ptr e_ptr = (*sup_it).get();
+        if (!e_ptr) {
+            standard_exit_error(exit_missing_data, "Missing superior Edge pointer at Node "+node.get_id_str()+".\n", __func__);
+        }
+        combined_superiors += render_Superior(*e_ptr,node);
     }
     varvals.emplace("superiors",combined_superiors);
     return g2d.env.render(g2d.templates[DILbyID_entry_temp], varvals);
@@ -407,10 +451,18 @@ bool flow_convert_Graph2DIL() {
     VERBOSEOUT("Formalized 1.x HTML Detailed Item Lists (DIL) files will be generated in directory:\n\t"+g2d.config.DILTLdirectory+"\n\n");
     key_pause();
 
+    if (std::filesystem::exists(g2d.config.DILTLdirectory)) {
+        if (default_choice("The target directory already exists. Overwrite existing files? (y/N) ",'y')) {
+            standard_exit_error(exit_file_error, "Please provide a usable path for generated files.", __func__);
+        }
+    }
+
     ERRHERE(".prep");
-    if (!std::filesystem::create_directories(g2d.config.DILTLdirectory)) {
-        FZERR("\nUnable to create the output directory "+g2d.config.DILTLdirectory+".\n");
-        exit(exit_general_error);
+    std::error_code ec;
+    if (!std::filesystem::create_directories(g2d.config.DILTLdirectory, ec)) {
+        if (ec) {
+            standard_exit_error(exit_file_error, "\nUnable to create the output directory "+g2d.config.DILTLdirectory+".\n", __func__);
+        }
     }
 
     ERRHERE(".goGraph2DIL");
@@ -422,25 +474,36 @@ bool flow_convert_Graph2DIL() {
     VERYVERBOSEOUT("\tReserving 500 KBytes per DIL file, approximate total 45 MBytes.\n\n");
     Node_Index_by_Topic nit = make_Node_Index_by_Topic(*g2d.graph);
     for (Topic_ID topicid = 0; topicid < nit.size(); ++topicid) {
-        // Reserve space in the receiving string. At 500 Kilobytes, plan.html has long been
-        // by far the largest DIL File. There are (at time of writing) 89 DIL Files for a
-        // total of 45 Megabytes pre-allocated space.
+        Topic * topicptr = g2d.graph->find_Topic_by_id(topicid);
+        if (!topicptr) {
+            standard_exit_error(exit_missing_data, "Missing Topic with ID ("+std::to_string(topicid)+')', __func__);
+        }
+        VERYVERBOSEOUT("Generating content for "+std::string(topicptr->get_tag().c_str())+".html\n");
+
+        // Reserve space in the receiving string. At 500 Kilobytes, plan.html has long been by far the largest
+        // DIL File. There are (at time of writing) 89 DIL Files for a total of 45 Megabytes pre-allocated space.
         std::string DILFile_str;
         DILFile_str.reserve(512*1024);
 
         // Render the data of each Node into DIL_entry HTML format.
         Node_Index & nodeindex = *(nit[topicid].get());
         for (const auto & nodeptr : nodeindex) {
-            DILFile_str.append(render_Node2DILentry(*nodeptr)); // *** slightly risky: assuming nodeptr!=nullptr
+            if (!nodeptr) {
+                standard_exit_error(exit_missing_data, "Missing Node in Topic list of Nodes", __func__);
+            }
+            DILFile_str.append(render_Node2DILentry(*nodeptr));
         }
 
         // Render the combiend DIL_entry set into DIL File HTML format.
-        Topic * topicptr = g2d.graph->find_Topic_by_id(topicid); // *** slightly risky: assuming topicptr!=nullptr
         template_varvalues varvals;
         varvals.emplace("topictitle",topicptr->get_title());
         varvals.emplace("keyrel_pairs",Topic_Keywords_to_KeyRel_List(topicptr->get_keyrel()));
         varvals.emplace("topicfile",topicptr->get_tag());
-        varvals.emplace("firstYmd",nodeindex.front()->get_id_str().substr(0,8)); // *** slightly risky: assuming front()!=nullptr
+        if (nodeindex.empty()) {
+            varvals.emplace("firstYmd","");
+        } else {
+            varvals.emplace("firstYmd",nodeindex.front()->get_id_str().substr(0,8));
+        }
         varvals.emplace("DIL_entries",DILFile_str);
         std::string rendered_DILFile_str = g2d.env.render(g2d.templates[DILFile_temp], varvals);
 
@@ -456,7 +519,11 @@ bool flow_convert_Graph2DIL() {
     std::string DILbyID_str;
     DILbyID_str.reserve(3*1024*1024); // The DIL-by-ID file is a bit over 2.5 Megabytes in size (at time of writing).
     for (auto node_it = g2d.graph->begin_Nodes(); node_it != g2d.graph->end_Nodes(); ++node_it) {
-        DILbyID_str.append(render_DILbyID_entry(*(node_it->second)));
+        Node_ptr n_ptr = (node_it->second).get();
+        if (!n_ptr) {
+            standard_exit_error(exit_missing_data, "Graph contains Node nullptr (should never happen).", __func__);
+        }
+        DILbyID_str.append(render_DILbyID_entry(*n_ptr));
     }
     template_varvalues varvals;
     varvals.emplace("entries",DILbyID_str);

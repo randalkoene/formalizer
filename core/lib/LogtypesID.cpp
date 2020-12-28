@@ -330,6 +330,13 @@ bool Log_chain_target::same_target(Log_entry & entryref) {
  * 
  * This function requires that rapid-access pointers have been set up.
  * 
+ * Beware (!!!): This returns nullptr when THIS Log_chain_target object
+ * isnulltarget_byptr(), not if the one pointed to is! So, compared
+ * with other head or tail null tests often performed in chains, this
+ * may take you one step further than you intended if you are not careful!
+ * See, for example, the debugging that resulted in:
+ * https://trello.com/c/XkOUB8Kz/91-log-temporary-notes-use-to-catch-up-log#comment-5fe945baa4a73019728d0fe3.
+ * 
  * @return pointer to the next target in the chain, or nullptr if this
  *         is a null-target (e.g. end of chain).
  */

@@ -100,6 +100,22 @@ std::unique_ptr<Log> Graph_access::request_Log_excerpt(const Log_filter & filter
     return logptr;
 }
 
+/**
+ * This is often called right after the Log has been loaded, and when the
+ * memory-resident Graph is present. See, for example, how this is
+ * called in `Graph_access::access_shared_Graph_and_request_Log_copy_with_init()`.
+ * 
+ * This does the following:
+ * 1. Set up all of the Node-specific chains in the Log by setting the `node_prev`
+ *    and `node_next` parameters in Log chunks and Log entries. This step, calling
+ *    `Log::setup_Chain_nodeprevnext()` works independent of the Graph.
+ * 2. Set up all Log_entry::node caches to point to their Nodes (requires Graph).
+ * 3. Set up all Log_chunk::node caches to point to their Nodes (requires Graph).
+ * 
+ * Note that the Nodes themselves to not have cache variables with which to
+ * reference Log chains (histories). A `Logtypes:Node_history` could be used
+ * for this instead.
+ */
 void Graph_access::rapid_access_init(Graph &graph, Log &log) {
     log.setup_Chain_nodeprevnext();
     log.setup_Entry_node_caches(graph);

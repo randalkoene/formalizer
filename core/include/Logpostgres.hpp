@@ -137,12 +137,31 @@ bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & fil
 bool load_last_chunk_and_entry_pq(Log & log, Postgres_access & pa);
 
 /**
+ * Store a Node_history object to a cache table in the database to
+ * speed up generation of a Node-specific Log history.
+ * 
+ * @param nodehist A Node_history object.
+ * @param pa Access object with valid database and schema identifiers.
+ * @return True if cache table storage was successful.
+ */
+bool store_Node_history_pq(const Node_histories & nodehist, Postgres_access & pa);
+
+/**
  * Refresh the Node history cache table.
  * 
  * @param pa Access object with valid database and schema identifiers.
  * @return True if the refresh was successful.
  */
 bool refresh_Node_history_cache_pq(Postgres_access & pa);
+
+/**
+ * Load the cached Log history of a specific Node.
+ * 
+ * @param[in] apq Access object with database name and schema name.
+ * @param[in] nkey A Node ID key.
+ * @param[out] nodehist A Node_history object that receives the resulting data.
+ */
+bool load_Node_history_cache_entry_pq(active_pq & apq, const Node_ID_key & nkey, Node_history & nodehist);
 
 /**
  * A data types conversion helper class that can deliver the Postgres Breakpoints table
