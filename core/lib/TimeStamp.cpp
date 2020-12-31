@@ -1,12 +1,73 @@
 // Copyright 2020 Randal A. Koene
 // License TBD
 
+// std
+#include <cerrno>
 #include <tuple>
 
+// core
 #include "error.hpp"
 #include "TimeStamp.hpp"
 
 namespace fz {
+
+const std::string weekday_str[day_of_week::_num_dow] = {
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday"
+};
+
+// defining a special 4-digit-year safe maximum local time 9999-12-31 23:59:59
+constexpr const std::tm safe_max_localtime = {
+    .tm_sec = 59,
+    .tm_min = 59,
+    .tm_hour = 23,
+    .tm_mday = 31,
+    .tm_mon = 11,
+    .tm_year = 9999 - 1900,
+    .tm_wday = dow_Friday,
+    .tm_isdst = -1
+};
+
+// defining a special safe undefined local time 1900-01-01 00:00:00
+constexpr const std::tm safe_undefined_localtime = {
+    .tm_sec = 0,
+    .tm_min = 0,
+    .tm_hour = 0,
+    .tm_mday = 1,
+    .tm_mon = 0,
+    .tm_year = 0,
+    .tm_wday = dow_Monday,
+    .tm_isdst = -1    
+};
+
+/**
+ * A Formalizer standardized version of the localtime() function that always
+ * returns a usable value, but which may log errors or warnings as needed.
+ * 
+ * @param t_ptr Pointer to a (time_t) variable containing the UNIX epoch time to convert.
+ * @return Pointer to a local calendar time structure.
+ */
+const std::tm * safe_localtime(const std::time_t * t_ptr) {
+
+    if (!t_ptr) {
+        return &safe_undefined_localtime;
+    }
+    if (*t_ptr < 0) {
+        return &safe_undefined_localtime;
+    }
+
+    std::tm * localtime_ptr = localtime(t_ptr);
+    if (errno != EOVERFLOW) {
+        return localtime_ptr;
+    }
+
+    return &safe_max_localtime;
+}
 
 /**
  * Convert a Formalizer time stamp string into local Unix time.
@@ -127,7 +188,7 @@ std::string TimeStamp(const char * dateformat, time_t t) {
     if (t<0) return "";
 
     char dstr[80];
-    tm * tm_ptr = localtime(&t);
+    const tm * tm_ptr = safe_localtime(&t);
     if (!tm_ptr) {
         return "";
     }
@@ -137,85 +198,104 @@ std::string TimeStamp(const char * dateformat, time_t t) {
     return dstr;
 }
 
-const std::string weekday_str[7] = {
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday"
-};
-
 std::string WeekDay(time_t t) {
-    tm * tm_ptr = localtime(&t);
+    if (t < 0) return "";
+
+    const tm * tm_ptr = safe_localtime(&t);
     return weekday_str[tm_ptr->tm_wday];
 }
 
 time_t time_add_day(time_t t, int days) {
-  // This is relatively safe, because days are added by using localtime() and mktime()
-  // instead of just adding days*SECONDSPERDAY. That should keep the time correct, even
-  // through daylight savings time.
-  //
-  // NOTE: Nevertheless, when adding many days at once, this can break. In dil2al, the
-  // same function has been shown to break for some iterations of virtual periodic task
-  // target dates generated in alcomp.cc:generate_AL_prepare_periodic_tasks(),
-  // which subsequently caused an alert in AL_Day::Add_Target_Date().
-  
-  struct tm *tm;
-  tm = localtime(&t);
-  tm->tm_mday += days;
-  tm->tm_isdst = -1; // this tells mktime to determine if DST is in effect
-  return mktime(tm);
+    // This is relatively safe, because days are added by using localtime() and mktime()
+    // instead of just adding days*SECONDSPERDAY. That should keep the time correct, even
+    // through daylight savings time.
+    //
+    // NOTE: Nevertheless, when adding many days at once, this can break. In dil2al, the
+    // same function has been shown to break for some iterations of virtual periodic task
+    // target dates generated in alcomp.cc:generate_AL_prepare_periodic_tasks(),
+    // which subsequently caused an alert in AL_Day::Add_Target_Date().
+
+    if (t < 0) {
+        return RTt_unspecified;
+    }
+    if (t == RTt_maxtime) {
+        return RTt_maxtime;
+    }
+
+    struct tm tm(*safe_localtime(&t)); // copy
+    tm.tm_mday += days;
+    tm.tm_isdst = -1; // this tells mktime to determine if DST is in effect
+    return mktime(&tm);
 }
 
 time_t time_add_month(time_t t, int months) {
-  struct tm *tm;
-  tm = localtime(&t);
-  int years = months/12;
-  months -= (years*12);
-  tm->tm_year += years;
-  tm->tm_mon += months;
-  if (tm->tm_mon>11) {
-    tm->tm_year++;
-    tm->tm_mon -= 12;
-  }
-  tm->tm_isdst = -1;
-  return mktime(tm);
+
+    if (t < 0) {
+        return RTt_unspecified;
+    }
+    if (t == RTt_maxtime) {
+        return RTt_maxtime;
+    }
+
+    struct tm tm(*safe_localtime(&t)); // copy
+    int years = months/12;
+    months -= (years*12);
+    tm.tm_year += years;
+    tm.tm_mon += months;
+    if (tm.tm_mon>11) {
+    tm.tm_year++;
+    tm.tm_mon -= 12;
+    }
+    tm.tm_isdst = -1;
+    return mktime(&tm);
 }
 
-int time_day_of_week(time_t t) {
-  struct tm *tm;
-  tm = localtime(&t);
-  return tm->tm_wday;
+day_of_week time_day_of_week(time_t t) {
+    if (t < 0) {
+        return dow_Sunday;
+    }
+
+    const std::tm * tm_ptr;
+    tm_ptr = safe_localtime(&t);
+    return (day_of_week)tm_ptr->tm_wday;
 }
 
 int time_month_length(time_t t) {
-  struct tm *tm;
-  tm = localtime(&t);
-  tm->tm_mday = 32;
-  tm->tm_isdst = -1;
-  time_t t2 = mktime(tm);
-  tm = localtime(&t2);
-  int m2day = tm->tm_mday;
-  m2day--; // the number of days shorter than 31 that this month is
-  return 31 - m2day;
+    if (t < 0) {
+        return 0;
+    }
+
+    struct tm tm(*safe_localtime(&t)); // copy
+    tm.tm_mday = 32;
+    tm.tm_isdst = -1;
+    time_t t2 = mktime(&tm);
+    tm = (*safe_localtime(&t2)); // copy
+    int m2day = tm.tm_mday;
+    m2day--; // the number of days shorter than 31 that this month is
+    return 31 - m2day;
 }
 
 time_t time_add_month_EOMoffset(time_t t) {
-  int m1len = time_month_length(t);
-  int m2len = time_month_length(time_add_month(t));
-  struct tm *tm;
-  tm = localtime(&t);
-  int offset = m1len - tm->tm_mday;
-  tm->tm_mday = m2len - offset;
-  tm->tm_mon++;
-  if (tm->tm_mon>11) {
-    tm->tm_year++;
-    tm->tm_mon=0;
-  }
-  tm->tm_isdst = -1;
-  return mktime(tm);
+
+    if (t < 0) {
+        return RTt_unspecified;
+    }
+    if (t == RTt_maxtime) {
+        return RTt_maxtime;
+    }
+
+    int m1len = time_month_length(t);
+    int m2len = time_month_length(time_add_month(t));
+    struct tm tm(*safe_localtime(&t)); // copy
+    int offset = m1len - tm.tm_mday;
+    tm.tm_mday = m2len - offset;
+    tm.tm_mon++;
+    if (tm.tm_mon > 11) {
+        tm.tm_year++;
+        tm.tm_mon = 0;
+    }
+    tm.tm_isdst = -1;
+    return mktime(&tm);
 }
 
 /**
@@ -224,7 +304,7 @@ time_t time_add_month_EOMoffset(time_t t) {
  * @param t is UNIX epoch time.
  */
 year_month_day_t::year_month_day_t(std::time_t t) {
-    std::tm tm(*std::localtime(&t));
+    struct std::tm tm(*safe_localtime(&t));
     (*this) = {static_cast<unsigned>(tm.tm_year)+1900, static_cast<unsigned>(tm.tm_mon)+1, static_cast<unsigned>(tm.tm_mday)};
 }
 

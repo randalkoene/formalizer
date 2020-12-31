@@ -220,13 +220,13 @@ std::string convert_DIL_Topics_file_to_tag(DIL_Topical_List &diltopic) {
  * format.
  * 
  * @param e valid DIL_entry.
- * @return the logical local target date specificiation or -1 if unspecified.
+ * @return the logical local target date specificiation or RTt_unspecified (-1) if unspecified.
  */
 time_t get_Node_Target_Date(DIL_entry &e) {
-    time_t tdate = -1;
-    time_t tdate_candidate = -1;
+    time_t tdate = RTt_unspecified;
+    time_t tdate_candidate = RTt_unspecified;
     for (int i = 0; (tdate_candidate = e.Local_Target_Date(i)) > -2; i++) {
-        if (tdate_candidate > -1) {
+        if (tdate_candidate > RTt_unspecified) {
             if (tdate < 0)
                 tdate = tdate_candidate;
             else if (tdate_candidate < tdate)
@@ -374,6 +374,16 @@ Node *convert_DIL_entry_to_Node(DIL_entry &e, Graph &graph, ConversionMetrics &c
             node->set_tdpattern(get_Node_tdpattern(e));
             node->set_tdevery(e.tdevery());
             node->set_tdspan(e.tdspan());
+#ifdef DOUBLE_CHECK_INHERIT
+            // double checking unexpected (non-protocol) circumstances, variable/fixed/exact with negative targetdate
+            if (node->get_targetdate() < 0) { // no local specification
+                if (node->td_fixed()) {
+                    node->set_tdproperty(td_property::inherit);
+                } else {
+                    node->set_tdproperty(td_property::unspecified);
+                }
+            }
+#endif
         }
         return node;
 

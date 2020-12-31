@@ -1,6 +1,12 @@
 // Copyright 2020 Randal A. Koene
 // License TBD
 
+/**
+ * NOTE: This library component has been taken out of active maintenance to save on
+ *       unnecessary compilation time, since it is not presently being used by any
+ *       core or tools programs.
+ */
+
 // std
 #include <iomanip>
 

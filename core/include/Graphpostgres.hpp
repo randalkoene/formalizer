@@ -57,6 +57,10 @@
  */
 #include <libpq-fe.h>
 
+/// definte the following to confirm that any combination of fixed + unspecified target date becomes inherit
+#define DOUBLE_CHECK_INHERIT
+
+
 namespace fz {
 
 // forward declarations

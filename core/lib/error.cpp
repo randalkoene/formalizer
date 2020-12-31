@@ -212,6 +212,19 @@ void Clean_Exit(int ecode) {
     exit(ecode);
 }
 
+/// A function that combines ADDERROR and VERBOSEERR without exit. Always returns false
+bool standard_error(std::string error_message, const char * problem__func__) {
+    ADDERROR(problem__func__, error_message);
+    VERBOSEERR(error_message+'\n');
+    return false;
+}
+
+/// A function that combines ADDWARNING and VERYVERBOSEOUT without exit, and without return value.
+void standard_warning(std::string warn_message, const char * warning__func__) {
+    ADDWARNING(warning__func__, warn_message);
+    VERYVERBOSEOUT(warn_message+'\n');
+}
+
 // +----- begin: EXPERIMENTAL -----+
 #ifdef INCLUDE_EXPERIMENTAL
 

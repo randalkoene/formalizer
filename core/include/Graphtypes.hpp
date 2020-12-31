@@ -486,20 +486,12 @@ public:
     // safely inspect data
     const Node_ID &get_id() const { return id; }
     std::string get_id_str() const { return id.str(); }
-    const Topics_Set &get_topics() const { return topics; }
+
     float get_valuation() const { return valuation; }
     float get_completion() const { return completion; }
     time_t get_required() const { return required; }
     long get_required_minutes() const { return required/60; }
     float get_required_hours() const { return ((float)required)/3600.0; }
-    const Node_utf8_text & get_text() const { return text; }
-    time_t get_targetdate() const { return targetdate; }
-    std::string get_targetdate_str() const { return TimeStampYmdHM(targetdate); }
-    td_property get_tdproperty() const { return tdproperty; }
-    bool get_repeats() const { return repeats; }
-    td_pattern get_tdpattern() const { return tdpattern; }
-    int get_tdevery() const { return tdevery; }
-    int get_tdspan() const { return tdspan; }
     time_t seconds_applied() const { return completion*(float)required; }
     long minutes_applied() const { return seconds_applied()/60; }
     float hours_applied() const { return ((float)minutes_applied())/60.0; }
@@ -507,6 +499,32 @@ public:
     long minutes_to_complete() const { return seconds_to_complete()/60; }
     float hours_to_complete() const { return ((float)seconds_to_complete())/3600.0; }
 
+    const Node_utf8_text & get_text() const { return text; }
+
+    time_t get_targetdate() const { return targetdate; }
+    std::string get_targetdate_str() const { return TimeStampYmdHM(targetdate); }
+    td_property get_tdproperty() const { return tdproperty; }
+    bool td_unspecified() const { return tdproperty == td_property::unspecified; }
+    bool td_inherit() const { return tdproperty == td_property::inherit; }
+    bool td_variable() const { return tdproperty == td_property::variable; }
+    bool td_fixed() const { return tdproperty == td_property::fixed; }
+    bool td_exact() const { return tdproperty == td_property::exact; }
+
+    bool get_repeats() const { return repeats; }
+    td_pattern get_tdpattern() const { return tdpattern; }
+    bool daily() const { return tdpattern == td_pattern::patt_daily; }
+    bool workdays() const { return tdpattern == td_pattern::patt_workdays; }
+    bool weekly() const { return tdpattern == td_pattern::patt_weekly; }
+    bool biweekly() const { return tdpattern == td_pattern::patt_biweekly; }
+    bool monthly() const { return tdpattern == td_pattern::patt_monthly; }
+    bool endofmonthoffset() const { return tdpattern == td_pattern::patt_endofmonthoffset; }
+    bool yearly() const { return tdpattern == td_pattern::patt_yearly; }
+    int get_tdevery() const { return tdevery; }
+    int get_tdspan() const { return tdspan; }
+
+    const Topics_Set &get_topics() const { return topics; }
+
+    /// edit flags specify which Node parameters have been modified from stored values
     const Edit_flags & get_editflags() { return editflags; }
     void clear_editflags() { editflags.clear(); }
 

@@ -30,6 +30,9 @@
 #include "tl2log.hpp"
 #endif // INCLUDE_DIL2AL
 
+/// definte the following to confirm that any combination of fixed + unspecified target date becomes inherit
+#define DOUBLE_CHECK_INHERIT
+
 using namespace fz;
 
 struct ConversionMetrics {

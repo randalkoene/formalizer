@@ -20,6 +20,28 @@
 
 namespace fz {
 
+enum day_of_week: unsigned int {
+    dow_Sunday = 0,
+    dow_Monday = 1,
+    dow_Tuesday = 2,
+    dow_Wednesday = 3,
+    dow_Thursday = 4,
+    dow_Friday = 5,
+    dow_Saturday = 6,
+    _num_dow
+};
+
+extern const std::string weekday_str[day_of_week::_num_dow];
+
+/**
+ * A Formalizer standardized version of the localtime() function that always
+ * returns a usable value, but which may log errors or warnings as needed.
+ * 
+ * @param t_ptr Pointer to a (time_t) variable containing the UNIX epoch time to convert.
+ * @return Pointer to a local calendar time structure.
+ */
+const std::tm * safe_localtime(const std::time_t * t_ptr);
+
 /**
  * Convert a Formalizer time stamp string into local Unix time.
  * 
@@ -96,7 +118,7 @@ std::string WeekDay(time_t t);
 
 time_t time_add_day(time_t t, int days = 1);
 time_t time_add_month(time_t t, int months = 1);
-int time_day_of_week(time_t t);
+day_of_week time_day_of_week(time_t t);
 int time_month_length(time_t t);
 time_t time_add_month_EOMoffset(time_t t);
 

@@ -15,6 +15,7 @@
 #include "Graphmodify.hpp"
 #include "Graphpostgres.hpp"
 
+
 namespace fz {
 
 /**
@@ -666,6 +667,16 @@ bool read_Nodes_pq(PGconn* conn, std::string schemaname, Graph & graph) {
                 node->set_tdpattern(tdpattern_from_pq(PQgetvalue(res, r, pq_node_field[pqn_tdperiodic])));
                 node->set_tdevery(atoi(PQgetvalue(res, r, pq_node_field[pqn_tdevery])));
                 node->set_tdspan(atoi(PQgetvalue(res, r, pq_node_field[pqn_tdspan])));
+#ifdef DOUBLE_CHECK_INHERIT
+                // double checking unexpected (non-protocol) circumstances, variable/fixed/exact with negative targetdate
+                if (node->get_targetdate() < 0) { // no local specification
+                    if (node->td_fixed()) {
+                        node->set_tdproperty(td_property::inherit);
+                    } else {
+                        node->set_tdproperty(td_property::unspecified);
+                    }
+                }
+#endif
 
             } catch (ID_exception idexception) {
                 ERRRETURNFALSE(__func__,"Invalid Node ID ["+id+"], "+idexception.what());

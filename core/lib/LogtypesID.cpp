@@ -192,12 +192,20 @@ std::string Log_TimeStamp_to_Ymd_string(const Log_TimeStamp idT) {
  * @param _minorid to set (default: 0).
  */
 Log_TimeStamp::Log_TimeStamp(std::time_t t, bool testvalid, uint8_t _minorid) {
-    std::tm * tm = std::localtime(&t);
-    year = tm->tm_year + 1900;
-    month = tm->tm_mon + 1;
-    day = tm->tm_mday;
-    hour = tm->tm_hour;
-    minute = tm->tm_min;
+    if (t == RTt_maxtime) {
+        year = 9999;
+        month = 12;
+        day = 31;
+        hour = 23;
+        minute = 59;
+    } else {
+        struct std::tm tm(*safe_localtime(&t)); // copy
+        year = tm.tm_year + 1900;
+        month = tm.tm_mon + 1;
+        day = tm.tm_mday;
+        hour = tm.tm_hour;
+        minute = tm.tm_min;
+    }
     minor_id = _minorid;
     if (testvalid) {
         std::string formerror;

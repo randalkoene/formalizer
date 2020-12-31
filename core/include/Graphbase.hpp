@@ -70,27 +70,9 @@
 
 // core
 #include "error.hpp"
+#include "ReferenceTime.hpp"
 #include "TimeStamp.hpp"
 
-#ifndef MAXTIME_T
-
-#ifdef _TYPEBITS
-#define HITIME_T ((time_t)(((unsigned long)1) << (_TYPEBITS(time_t) - 1)))
-#else
-#define HITIME_T ((time_t)(((unsigned long)1) << (BITS(time_t) - 1)))
-#endif // _TYPEBITS
-
-/*
-   The following is a precaution for the localtime() function on 64 bit platforms,
-   because localtime() often cannot produce time stamps with years greater than 9999.
-*/
-#ifdef __x86_64__
-#define MAXTIME_T 253202544000
-#else
-#define MAXTIME_T ((time_t)(~HITIME_T))
-#endif // __x86_64__
-
-#endif // MAXTIME_T
 
 namespace fz {
 

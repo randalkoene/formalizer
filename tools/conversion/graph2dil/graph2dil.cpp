@@ -347,6 +347,8 @@ std::string Topic_Keywords_to_KeyRel_List(const Topic_KeyRel_Vector & keyrelvec)
     return res;
 }
 
+#define PROBLEMNODE "20000208085743.1"
+
 /**
  * In v2.x of the data structure, the target date data is unified
  * in the Node. The composition of the v1.x HTML format targetdate
@@ -359,13 +361,17 @@ std::string Topic_Keywords_to_KeyRel_List(const Topic_KeyRel_Vector & keyrelvec)
  * - Then, a ? means unspecified targetdate.
  * - Or, a 12 (or 8) digit YmdHM targetdate time stamp.
  */
-std::string render_TargetDate(Node & node) {
+std::string render_TargetDate(const Node & node) {
+bool checkthis = (node.get_id_str() == PROBLEMNODE);
+if (checkthis) VERYVERBOSEOUT("INSPECTING NODE "+node.get_id_str()+'\n');
+if (checkthis) VERYVERBOSEOUT("VALUE OF TDPROPERTY = "+std::to_string(node.get_tdproperty())+"\n");
     std::string res;
     bool hasYmdHM;
     switch (node.get_tdproperty()) {
     case fixed: {
         res += 'F';
         hasYmdHM = true;
+if (checkthis) VERYVERBOSEOUT("WRONG ONE!\n");
         break;
     }
     case exact: {
@@ -376,6 +382,7 @@ std::string render_TargetDate(Node & node) {
     case inherit: { // should have no YmdHM digits, used to be shown by F? (see get_Node_tdproperty() comments in dil2graph.cpp)
         res += 'F';
         hasYmdHM = false;
+if (checkthis) VERYVERBOSEOUT("RIGHT ONE!\n");
         break;
     }
     case variable: { // does have YmdHM digits
@@ -402,9 +409,15 @@ std::string render_TargetDate(Node & node) {
     }
 
     if (hasYmdHM) {
-        res += node.get_targetdate_str();
+        std::string td_str(node.get_targetdate_str());
+        if (td_str.empty()) { // being super strict on purpose
+            standard_exit_error(exit_conversion_error, "Fixed target date at "+node.get_id_str()+" specified no target date (should probably be inherited instead).\n", __func__);
+        }
+        res += td_str;
+if (checkthis) VERYVERBOSEOUT("TYRING THE WRONG THING! res = "+res+"\n");
     } else {
         res += '?';
+if (checkthis) VERYVERBOSEOUT("TYRING THE RIGHT THING! res = "+res+"\n");
     }
 
     return res;
@@ -466,6 +479,8 @@ std::string render_DILbyID_entry(Node & node) {
             standard_exit_error(exit_missing_data, "Missing superior Edge pointer at Node "+node.get_id_str()+".\n", __func__);
         }
         combined_superiors += render_Superior(*e_ptr,node);
+        bool checkthis = (node.get_id_str() == PROBLEMNODE);
+        if (checkthis) VERYVERBOSEOUT("THE SUPERIORS: "+combined_superiors+"\n");
     }
     varvals.emplace("superiors",combined_superiors);
     return g2d.env.render(g2d.templates[DILbyID_entry_temp], varvals);

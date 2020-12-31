@@ -2,6 +2,12 @@
 // License TBD
 
 /**
+ * NOTE: This library component has been taken out of active maintenance to save on
+ *       unnecessary compilation time, since it is not presently being used by any
+ *       core or tools programs.
+ */
+
+/**
  * This header file declares Graph, Node and Edge types for use with the Formalizer.
  * These define the authoritative version of the data structure for use in C++ code.
  * 

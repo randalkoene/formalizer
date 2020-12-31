@@ -30,10 +30,11 @@ namespace fz {
 inline std::time_t ActualTime() { return std::time(NULL); }
 
 enum ReferenceTime_t : std::time_t {
-    RTt_invalid_time_stamp = -34403, // a numerical rendering of 'ERROR'
-    RTt_unspecified = -1,
+    RTt_invalid_time_stamp = -34403, ///< a numerical rendering of 'ERROR'
+    RTt_unspecified = -1,            ///< when scheduling this is interpreted as 'no specified target date to take into account'
+    RTt_unconnected = -2,            ///< special code used by Node::inherit_targetdate()
     RTt_unix_epoch_start = 0,
-    RTt_maxtime = std::numeric_limits<time_t>::max()
+    RTt_maxtime = std::numeric_limits<time_t>::max() ///< this is sometimes also used as a code (e.g. see Node::inherit_targetdate())
 };
 
 class ReferenceTime {

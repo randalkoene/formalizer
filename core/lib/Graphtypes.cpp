@@ -424,59 +424,72 @@ bool Node::set_all_semaphores(int sval) {
  * tdproperty does not indicate that. For more information, see the comments
  * of the effective_targetdate() function.
  * 
+ * This returns RTt_maxtime if:
+ * a) A loop condition was encountered.
+ * b) There were no Superiors.
+ * 
  * @param origin A pointer buffer to report the Node from which the targetdate is inherited.
- * @return the local targetdate parameter value if specified, or MAXTIME_T if
- * a loop conditin was encountered, or the earliest target date returned by
- * recursion to superior Nodes, or MAXTIME_T if there were none.
+ * @return The local targetdate parameter value if specified, or the earliest targetdate
+ *         found by recursively searching Superiors, or RT_maxtime in one of the conditions
+ *         described above.
  */
 time_t Node::nested_inherit_targetdate(Node_ptr & origin) {
     if (get_semaphore()==SEM_TRAVERSED) {
         if (graph) { // send an optional loop warning
             if (graph->warn_loops) ADDWARNING(__func__,"loop detected at Node DIL#"+get_id().str());
         }
-        return (MAXTIME_T);
+        return RTt_maxtime;
     }
 
     set_semaphore(SEM_TRAVERSED);
 
-    if ((tdproperty != td_property::unspecified) && (tdproperty != td_property::inherit)) {
-        if (targetdate >= 0)
-            return targetdate; // send back the local parameter value
-
-        // apply a fix
-        if (tdproperty == td_property::fixed)
-            tdproperty = td_property::inherit;
-        else
-            tdproperty = td_property::unspecified;       
-    }
-
-    // continue the recursive search
-    time_t earliest = (MAXTIME_T);
-    for (auto it = supedges.begin(); it != supedges.end(); ++it) {
-        Node & supnode = *((*it)->sup);
-        Node_ptr nested_origin = nullptr;
-        time_t sup_targetdate = supnode.nested_inherit_targetdate(nested_origin);
-        if (sup_targetdate<earliest) {
-            earliest = sup_targetdate;
-            origin = nested_origin;
+    if ((tdproperty == td_property::unspecified) || (tdproperty == td_property::inherit)) {
+        // continue the recursive search
+        time_t earliest = RTt_maxtime;
+        for (auto it = supedges.begin(); it != supedges.end(); ++it) {
+            Node & supnode = *((*it)->sup);
+            Node_ptr nested_origin = nullptr;
+            time_t sup_targetdate = supnode.nested_inherit_targetdate(nested_origin);
+            if (sup_targetdate<earliest) {
+                earliest = sup_targetdate;
+                origin = nested_origin;
+            }
         }
+        return earliest;
     }
-    return earliest;
+
+    if (targetdate >= 0) {
+        return targetdate; // send back a protocol-valid local parameter value
+    }
+     
+    // beyond this point are unexpected (non-protocol) circumstances, variable/fixed/exact with negative targetdate
+
+    if ((tdproperty >= _tdprop_num) || (tdproperty < 0)) {
+        standard_error("Unknown TD property ("+std::to_string((int)tdproperty)+") in Node "+get_id_str()+'.', __func__);
+        standard_error("Erroneous (non-protocol) target date ("+std::to_string((long)targetdate)+") + TD property (unrecognized) in Node "+get_id_str()+". Attempting to treat as unspecified.", __func__);
+    } else {
+        standard_error("Erroneous (non-protocol) target date ("+std::to_string((long)targetdate)+") + TD property ("+td_property_str[tdproperty]+") in Node "+get_id_str()+". Attempting to treat as unspecified.", __func__);
+    }
+
+    return targetdate; // complain loudly, warning of possible unintended consequences -- But don't secretly change here (see Log of 20201230).
 }
 
 /**
- * This function attempt to determine an inherited target date from superior Nodes. It
+ * This function attempts to determine an inherited target date from superior Nodes. It
  * does not use the local targetdate parameter of the Node.
  * 
  * Use this function with care. It is normally used by the safe function
  * effective_targetdate() to resolve unspecified targe dates.
  * 
- * This function return the special value -2 if the Node is not connected to a Graph.
+ * This function may return special values:
+ *   RTt_unspecified (-1), if all traversable Superiors designated not to take a target date into account for scheduling.
+ *   RTt_unconnected (-2), if the Node is not connected in a Graph and nothing could be inherited from Superiors.
+ *   RTt_maxtime (maximum postiive time_t value), if searching connections resulted in recursion (flagged by semaphores).
  * 
  * @param origin Optional storage for pointer to the origin Node that provides the effective
  *               target date. See for example how this is used in `fzupdate`.
  * @return the earliest date and time in time_t format that could be retrieved
- * from the tree of superior Nodes, or MAXTIME_T if none could be found.
+ * from the tree of superior Nodes, or a special code, as described above.
  */
 time_t Node::inherit_targetdate(Node_ptr * origin) {
     // ***It is technically possible to cache the result found here to speed up
@@ -485,9 +498,9 @@ time_t Node::inherit_targetdate(Node_ptr * origin) {
     // ***where the targetdate was changed. It is not clear if the time savings
     // ***is worth the added complexity.
 
-    if (!set_all_semaphores(0)) return -2;
+    if (!set_all_semaphores(0)) return RTt_unconnected;
     set_semaphore(SEM_TRAVERSED); // not using targetdate of this Node
-    time_t earliest = (MAXTIME_T);
+    time_t earliest = RTt_maxtime;
     for (auto it = supedges.begin(); it != supedges.end(); ++it) {
         Node & supnode = *((*it)->sup);
         Node_ptr nested_origin = nullptr;
@@ -534,12 +547,17 @@ time_t Node::inherit_targetdate(Node_ptr * origin) {
  * function that obtains a target date, propagated as needed from Superiors, while also
  * taking note of and protecting against possible loops in the graph structure.
  * 
+ * This function may return special values:
+ *   RTt_unspecified (-1), if all traversable Superiors designated not to take a target date into account for scheduling.
+ *   RTt_unconnected (-2), if the Node is not connected in a Graph and nothing could be inherited from Superiors.
+ *   RTt_maxtime (maximum postiive time_t value), if searching connections resulted in recursion (flagged by semaphores).
+ * 
  * @param origin Optional storage for pointer to the origin Node that provides the effective
  *               target date. See for example how this is used in `fzupdate`. If no specified
  *               target date is found via inheritance then origin (if provided) is set to
  *               this Node by default (effectively local).
- * @return the date and time in time_t seconds format, or -1 if there is no target date
- * to take into account when scheduling this Node.
+ * @return The date and time in time_t seconds (epoch) format, or as special value, as
+ *         described above.
  */
 time_t Node::effective_targetdate(Node_ptr * origin) {
     if (origin) {
@@ -552,12 +570,18 @@ time_t Node::effective_targetdate(Node_ptr * origin) {
         return targetdate;
     }
 
-    if (tdproperty == td_property::fixed)
-        tdproperty = td_property::inherit;
-    else
-        tdproperty = td_property::unspecified;
+    // beyond this point are unexpected (non-protocol) circumstances, variable/fixed/exact with negative targetdate
 
-    return inherit_targetdate(origin);
+    if ((tdproperty >= _tdprop_num) || (tdproperty < 0)) {
+        standard_error("Unknown TD property ("+std::to_string((int)tdproperty)+") in Node "+get_id_str()+'.', __func__);
+        standard_error("Erroneous (non-protocol) target date ("+std::to_string((long)targetdate)+") + TD property (unrecognized) in Node "+get_id_str()+". Attempting to treat as unspecified.", __func__);
+    } else {
+        standard_error("Erroneous (non-protocol) target date ("+std::to_string((long)targetdate)+") + TD property ("+td_property_str[tdproperty]+") in Node "+get_id_str()+". Attempting to treat as unspecified.", __func__);
+    }
+
+    return targetdate; // complain loudly, warning of possible unintended consequences
+
+    //return inherit_targetdate(origin); -- But don't secretly change here (see Log of 20201230).
 }
 
 /**
