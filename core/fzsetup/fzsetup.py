@@ -109,6 +109,7 @@ flow_control = {
     'create_database' : False,
     'create_schema' : False,
     'create_tables' : False,
+    'give_permissions': False,
     'make_fzuser_role' : False,
     'make_binaries' : False,
     'create_configtree' : False,
@@ -187,6 +188,12 @@ def grant_fzuser_access(cmdargs,beverbose):
     if (retcode != 0):
         print(f'Unable to give access permissions to {cgiuser}.')
         return retcode
+    print(f'Database user {cgiuser} has been granted modification access permissions on schema {cmdargs.schemaname}.')
+    retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'ALTER ROLE \"{cgiuser}\" WITH LOGIN;'")
+    if (retcode != 0):
+        print(f'Unable to alter {cgiuser} tole to include login permissions.')
+        return retcode
+    print(f'Database role {cgiuser} has been altered to include database login permissions.')
     if beverbose:
         print(f'The {cgiuser} has access permissions in schema {cmdargs.schemaname} in database {cmdargs.dbname}.')
     return 0
@@ -456,7 +463,7 @@ def parse_options():
     parser.add_argument('-1', '--One', metavar='setupaction', help='specify a step to do: database, schema, tables, fzuser, binaries, config, web')
     parser.add_argument('-d', '--database', dest='dbname', help='specify database name (default: formalizer)')
     parser.add_argument('-s', '--schema', dest='schemaname', help='specify schema name (default: $USER)')
-    parser.add_argument('-p', '--permissions', dest='permissions', action='store_true', help=f'give access permissions to {config["cgiuser"]}')
+    parser.add_argument('-p', '--permissions', dest='permissions', action='store_true', help=f'give database login and schema access permissions to {config["cgiuser"]}')
     #parser.add_argument('-m', '--makebins', dest='makebins', action='store_true', help='make Formalizer binaries available')
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='turn on verbose mode')
     parser.add_argument('-R', '--reset', dest='reset', help='reset: all, graph, log, metrics, guide')
@@ -474,6 +481,8 @@ def parse_options():
         list_assumptions()
     if args.doall:
         set_All_flowcontrol()
+    if args.permissions:
+        flow_control['give_permissions']=True
     if args.One:
         if (args.One == "database"):
             flow_control['create_database']=True
@@ -540,6 +549,8 @@ if __name__ == '__main__':
         create_schema(args)
     if flow_control['create_tables']:
         create_tables(args)
+    if flow_control['give_permissions']:
+        grant_fzuser_access(args,True)
     if flow_control['make_fzuser_role']:
         make_fzuser_role(args,True)
     if flow_control['make_binaries']:

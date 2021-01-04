@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import subprocess
 
-# or could use subprocess.call()
 a = subprocess.check_output(["date"]) # this is your command
 
 #print os_date
