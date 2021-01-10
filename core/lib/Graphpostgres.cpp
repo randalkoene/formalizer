@@ -670,10 +670,26 @@ bool read_Nodes_pq(PGconn* conn, std::string schemaname, Graph & graph) {
 #ifdef DOUBLE_CHECK_INHERIT
                 // double checking unexpected (non-protocol) circumstances, variable/fixed/exact with negative targetdate
                 if (node->get_targetdate() < 0) { // no local specification
-                    if (node->td_fixed()) {
-                        node->set_tdproperty(td_property::inherit);
-                    } else {
-                        node->set_tdproperty(td_property::unspecified);
+                    switch (node->get_tdproperty()) {
+                        case td_property::fixed: {
+                            node->set_tdproperty(td_property::inherit);
+                            standard_warning("Interpreting Node "+node->get_id_str()+" stored 'fixed+unspecified' as 'tdproperty=inherit'.", __func__);
+                            break;
+                        }
+                        case td_property::exact: { // Warning: This one should never happen!
+                            node->set_tdproperty(td_property::unspecified);
+                            standard_error("Interpreting Node "+node->get_id_str()+" stored 'exact+unspecified' as 'tdproperty=unspecified'.", __func__);
+                            break;
+                        }
+                        case td_property::variable: {
+                            node->set_tdproperty(td_property::unspecified);
+                            standard_warning("Interpreting Node "+node->get_id_str()+" stored 'fixed+unspecified' as 'tdproperty=unspecified'.", __func__);
+                            break;
+                        }
+                        default: { // tdproperty is inherit or unspecified
+                            // keep as loaded
+                        }
+
                     }
                 }
 #endif

@@ -19,6 +19,7 @@ if [ $# -ne 2 ]; then
     echo "content produced by dil2al contains additional HTML files"
     echo "such as templates."
     echo ""
+    echo "A resulting diff file is created in /tmp/graph2dil.diff."
     echo ""
     exit
 
@@ -27,10 +28,8 @@ else
     seconddir="$2"
 fi
 
-htmlfiles=`ls $seconddir/*.html`
-
-for f in $htmlfiles; do
-
+function compare_generated_with_original() {
+    f="$1"
     f_file=${f##*/}
     original=$firstdir/$f_file
     echo ""
@@ -47,5 +46,28 @@ for f in $htmlfiles; do
     echo "@@@@@"
     echo "@@@@@"
     echo "@@@@@"
+}
+
+# main()
+
+echo "Comparing $firstdir with $seconddir '.html' files."
+echo ""
+
+htmlfiles=`ls $seconddir/*.html`
+
+rm -f /tmp/graph2dil.diff
+touch /tmp/graph2dil.diff
+
+printf "Comparing: "
+
+for f in $htmlfiles; do
+
+    printf "${f##*/}... "
+
+    compare_generated_with_original "$f" >> /tmp/graph2dil.diff
 
 done
+
+echo ""
+echo "The diff file is in /tmp/graph2dil.diff."
+echo ""

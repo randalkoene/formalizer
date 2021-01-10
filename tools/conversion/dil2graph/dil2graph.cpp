@@ -289,14 +289,17 @@ td_property get_Node_tdproperty(DIL_entry &e) {
     e.Target_Date_Info(isfromlocal, haslocal, numpropagating);
 
     if (e.tdfixed()) {
-        if (haslocal)
+        if (haslocal) {
             return td_property::fixed;
-        else
+        } else {
+            VERYVERBOSEOUT("Setting explicit 'inherit' tdproperty for Node "+std::string(e.str().chars())+'\n');
             return td_property::inherit;
+        }
     }
 
-    if (haslocal)
+    if (haslocal) {
         return td_property::variable;
+    }
 
     return td_property::unspecified;
 }

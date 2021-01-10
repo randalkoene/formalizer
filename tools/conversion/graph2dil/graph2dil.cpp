@@ -362,16 +362,12 @@ std::string Topic_Keywords_to_KeyRel_List(const Topic_KeyRel_Vector & keyrelvec)
  * - Or, a 12 (or 8) digit YmdHM targetdate time stamp.
  */
 std::string render_TargetDate(const Node & node) {
-bool checkthis = (node.get_id_str() == PROBLEMNODE);
-if (checkthis) VERYVERBOSEOUT("INSPECTING NODE "+node.get_id_str()+'\n');
-if (checkthis) VERYVERBOSEOUT("VALUE OF TDPROPERTY = "+std::to_string(node.get_tdproperty())+"\n");
     std::string res;
     bool hasYmdHM;
     switch (node.get_tdproperty()) {
     case fixed: {
         res += 'F';
         hasYmdHM = true;
-if (checkthis) VERYVERBOSEOUT("WRONG ONE!\n");
         break;
     }
     case exact: {
@@ -382,7 +378,6 @@ if (checkthis) VERYVERBOSEOUT("WRONG ONE!\n");
     case inherit: { // should have no YmdHM digits, used to be shown by F? (see get_Node_tdproperty() comments in dil2graph.cpp)
         res += 'F';
         hasYmdHM = false;
-if (checkthis) VERYVERBOSEOUT("RIGHT ONE!\n");
         break;
     }
     case variable: { // does have YmdHM digits
@@ -414,10 +409,8 @@ if (checkthis) VERYVERBOSEOUT("RIGHT ONE!\n");
             standard_exit_error(exit_conversion_error, "Fixed target date at "+node.get_id_str()+" specified no target date (should probably be inherited instead).\n", __func__);
         }
         res += td_str;
-if (checkthis) VERYVERBOSEOUT("TYRING THE WRONG THING! res = "+res+"\n");
     } else {
         res += '?';
-if (checkthis) VERYVERBOSEOUT("TYRING THE RIGHT THING! res = "+res+"\n");
     }
 
     return res;

@@ -16,6 +16,33 @@
 # daily Formalizer activity is still being carried out with dil2al.
 #
 
+if [ "$1" = "-h" ]; then
+    echo "Usage: v1xv2x-refresh.sh [-V|-q]"
+    echo ""
+    echo "This script removes existing Graph Log tables, and other Formalizer 2.x"
+    echo "data from the database, then generates replacement data from files"
+    echo "containing Formalizer 1.x data. This process uses the dil2graph"
+    echo "conversion tool. Additionally, necessary post-conversion setup steps"
+    echo "are carried out with the fzsetup tool."
+    echo ""
+    echo "Options:"
+    echo ""
+    echo "  -V be as verbose as possible."
+    echo "  -q be as quiet as possible."
+    echo ""
+    exit
+fi
+
+v_or_q=""
+
+if [ $# -gt 0 ]; then
+    if [ "$1" = "-V" ]; then
+        v_or_q="-V"
+    else
+        v_or_q="-q"
+    fi
+fi
+
 echo "This script removes existing Graph and Log tables from the"
 echo "database and then regenreates them using dil2graph."
 echo ""
@@ -35,27 +62,33 @@ if [ "$proceed" = "y" ]; then
     read proceed
     if [ "$proceed" = "y" ]; then
         echo "Regenerating Graph and Log tables..."
-        dil2graph
+        dil2graph $v_or_q
 
         echo ""
         echo "Refreshing fzuser access and permissions..."
         fzsetup.py -1 fzuser
 
-        echo "We can do the recommended fzquerypq -R histories and fzquerypq -R namedlists now, if you wish? (Y/n) "
+        echo "We can do the recommended fzquerypq -R histories and fzquerypq -R namedlists now if you wish? (Y/n) "
         read refreshhistories
         if [ "$refreshhistories" != "n" ]; then
 
             echo "Refreshing Node histories cache..."
-            fzquerypq -R histories
+            fzquerypq -R histories $v_or_q
 
             echo "Refreshing Named Node Lists cache..."
-            fzquerypq -R namedlists
+            fzquerypq -R namedlists $v_or_q
 
             echo ""
             echo "Refreshing fzuser access and permissions for the cache..."
             fzsetup.py -1 fzuser
 
 
+        fi
+
+        echo "We can initialize the 'frequent' Named Node List now if you wish? (Y/n) "
+        read initfrequent
+        if [ "$initfrequent" != "n" ]; then
+            frequent-init.sh
         fi
 
         echo ""
