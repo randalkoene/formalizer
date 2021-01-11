@@ -19,6 +19,10 @@ if [ $# -ne 2 ]; then
     echo "content produced by dil2al contains additional HTML files"
     echo "such as templates."
     echo ""
+    echo "For example:"
+    echo ""
+    echo "  graph2dil-diff.sh ~/doc/html/lists /var/www/html/formalizer/graph2dil/lists"
+    echo ""
     echo "A resulting diff file is created in /tmp/graph2dil.diff."
     echo ""
     exit
@@ -33,14 +37,16 @@ function compare_generated_with_original() {
     f_file=${f##*/}
     original=$firstdir/$f_file
     echo ""
-    echo "Comparing $f with $original (without trailing zeros)"
-    echo "------------------------------------------------------------"
+    echo "Comparing $f with $original (without trailing zeros or leadin whitespace)"
+    echo "------------------------------------------------------------------------"
 
-    cat $f | sed 's/\([^0-9][^0-9].[0-9][.]\)[0-9][0-9]*\([^0-9]\)/\1\2/g' > /tmp/generated.html
-    cat $original | sed 's/\([^0-9][^0-9].[0-9][.]\)[0-9][0-9]*\([^0-9]\)/\1\2/g' > /tmp/original.html
+    cat $f | sed 's/,1.0,/,1,/g' | sed -r '/^\s*$/d' | sed 's/^[ \t]*//' | sed 's/\([^0-9][^0-9].[0-9][.]\)[0-9][0-9]*\([^0-9]\)/\1\2/g' > /tmp/generated.html
+    cat $original | sed 's/[<]TD[>][&]nbsp[;]/<TD>/' | sed 's/([?][.][?])/(1)/g' | sed -r '/^\s*$/d' | sed 's/^[ \t]*//' | sed 's/\([^0-9][^0-9].[0-9][.]\)[0-9][0-9]*\([^0-9]\)/\1\2/g' > /tmp/original.html
 
     #diff -i -E -Z -b -B -a -d $original $f
-    diff -i -E -Z -b -B -a -d /tmp/original.html /tmp/generated.html
+    # could add -w to ignore all white space if necessary, although that is a bit drastic
+    #diff -i -E -Z -b -B -a -d /tmp/original.html /tmp/generated.html
+    sdiff -w 400 -s -i -E -Z -b -B -a -d /tmp/original.html /tmp/generated.html
 
     echo ""
     echo "@@@@@"

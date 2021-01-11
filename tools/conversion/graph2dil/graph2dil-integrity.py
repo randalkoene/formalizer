@@ -42,12 +42,14 @@ def try_subprocess_check_output(thecmdstring):
 
 def pty_process(thecmd):
     # Making this a drop-in replacement for try_subprocess by converting command string
+    # and by returning an equivalent return status.
     splitcmd = thecmd.split()
     retcode = pty.spawn(splitcmd)
     #print('Back from logentry.')
     if not os.WIFEXITED(retcode):
-        print(f'Spawned pty for {thecmd} returned error.')
+        print(f'Spawned pty for {thecmd} terminated abnormally')
         sys.exit(os.WEXITSTATUS(retcode))
+    return os.WEXITSTATUS(retcode)
 
 
 def get_graph2dil_config():
@@ -83,7 +85,7 @@ if __name__ == '__main__':
         print('Missing memory-resident Graph. Please start \'fzserverpq\' to retry.')
         sys.exit(retcode)
 
-    run_graph2dil = input('Run graph2dil? (Y/n) ')
+    run_graph2dil = input('Run graph2dil (no skips this step)? (Y/n) ')
     if (run_graph2dil != 'n'):
         thecmd = 'graph2dil -D'
         if args.verbose:
@@ -94,19 +96,19 @@ if __name__ == '__main__':
             print('graph2dil failed.')
             sys.exit(retcode)
     
-    run_diff = input('Ready to run graph2dil-diff.sh? (Y/n) ')
+    run_diff = input('Ready to run graph2dil-diff.sh (no exits)? (Y/n) ')
     if (run_diff == 'n'):
         print('Stopping.')
         sys.exit(0)
     
-    thecmd = f'graph2dil-diff.sh {DILfilesdir} {config["DILTLdirectory"]}'
+    thecmd = f'graph2dil-diff.sh {DILfilesdir} {config["DILTLdirectory"]}/lists'
     #retcode = try_subprocess_check_output(thecmd)
     retcode = pty_process(thecmd)
     if (retcode != 0):
         print('graph2dil-diff.sh failed.')
         sys.exit(retcode)
 
-    run_inspector = input('Ready to inspect diff file? (Y/n) ')
+    run_inspector = input('Ready to inspect diff file (no exits)? (Y/n) ')
     if (run_inspector == 'n'):
         print('Stopping.')
         sys.exit(0)

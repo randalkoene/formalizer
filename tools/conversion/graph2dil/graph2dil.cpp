@@ -347,8 +347,6 @@ std::string Topic_Keywords_to_KeyRel_List(const Topic_KeyRel_Vector & keyrelvec)
     return res;
 }
 
-#define PROBLEMNODE "20000208085743.1"
-
 /**
  * In v2.x of the data structure, the target date data is unified
  * in the Node. The composition of the v1.x HTML format targetdate
@@ -472,8 +470,6 @@ std::string render_DILbyID_entry(Node & node) {
             standard_exit_error(exit_missing_data, "Missing superior Edge pointer at Node "+node.get_id_str()+".\n", __func__);
         }
         combined_superiors += render_Superior(*e_ptr,node);
-        bool checkthis = (node.get_id_str() == PROBLEMNODE);
-        if (checkthis) VERYVERBOSEOUT("THE SUPERIORS: "+combined_superiors+"\n");
     }
     varvals.emplace("superiors",combined_superiors);
     return g2d.env.render(g2d.templates[DILbyID_entry_temp], varvals);

@@ -257,7 +257,13 @@ int convert_DIL_Topics_to_topics(Topic_Tags &topics, Node &node, DIL_entry &entr
         std::string tag(convert_DIL_Topics_file_to_tag(*e));
         if (!tag.empty()) {
             // get a topic tag index for the tag string
-            unsigned int topicid = topics.find_or_add_Topic(tag, e->dil.title.chars());
+            unsigned int topicid = 0;
+            if (tag == "career-2020") {
+                // this special case exists exclusively to deal with a topic title mismatch built into dil2al or its data
+                topicid = topics.find_or_add_Topic(tag, "Career Restart 2019 &amp; 2020");
+            } else {
+                topicid = topics.find_or_add_Topic(tag, e->dil.title.chars());
+            }
             // store the index and relevance value in the Node's topics map
             if (node.add_topic(topics, topicid, e->relevance))
                 topicsconverted++;
@@ -339,6 +345,29 @@ td_pattern get_Node_tdpattern(DIL_entry &e) {
 }
 
 /**
+ * This function can be used to identify special codes in DIL entry text if those
+ * codes should not be included (and later discovered) in Node text.
+ * 
+ * This is also where the '<!-- dil2al: DIL end -->' code bug is dealt with.
+ * There was an unnoticed bug in dil2al where that code at the end of a DIL file
+ * table was included in the entry text of the last DIL entry in the DIL file.
+ */
+void process_DIL_entry_text_to_Node_data(const char * entrytext, Node & node) {
+    std::string nodetext(entrytext);
+
+    // code test 1: DIL File end code
+    auto pos_endcode = nodetext.find("<!-- dil2al: DIL end -->");
+    if (pos_endcode != std::string::npos) {
+        nodetext.erase(pos_endcode); 
+        // let's not include that in the Node text
+    }
+
+    // *** Potentially, add additional code tests here.
+
+    node.set_text(nodetext); /// This automatically replaces any UTF8 invalid codes.
+}
+
+/**
  * Convert all data in a DIL_entry formatted node to a Node object.
  * 
  * Note that there are some differences between the DIL Entry data format and
@@ -369,8 +398,9 @@ Node *convert_DIL_entry_to_Node(DIL_entry &e, Graph &graph, ConversionMetrics &c
             node->set_valuation(e.Valuation());
             node->set_completion(e.Completion_State());
             node->set_required(e.Time_Required());
-            if (e.Entry_Text())
-                node->set_text(e.Entry_Text()->chars()); /// This automatically replaces any UTF8 invalid codes.
+            if (e.Entry_Text()) {
+                process_DIL_entry_text_to_Node_data(e.Entry_Text()->chars(), *node);
+            }
             node->set_targetdate(get_Node_Target_Date(e));
             node->set_tdproperty(get_Node_tdproperty(e));
             node->set_repeats(e.tdperiod() != pt_nonperiodic);
