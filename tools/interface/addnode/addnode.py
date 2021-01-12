@@ -168,6 +168,13 @@ def TimeStamp(t):
     return t.strftime("%Y%m%d%H%M%S")
 
 
+def is_int(n):
+    try:
+        int(n)
+    except ValueError:
+        return False
+    return True
+
 def is_float(n):
     try:
         float(n)
@@ -243,9 +250,177 @@ def collect_milestone():
     milestone = ''
     while not milestone:
         milestone = input("Milestone identifier (n = not STEPEARNING): ")
+
     if (milestone == 'n'):
         milestone = ''
     return milestone
+
+
+def collect_step_category():
+    #print(milestone_info)
+    stepcategory = ''
+    while not stepcategory:
+        stepcategory = input("Step category: ")
+    return stepcategory
+
+
+tdproperty_info = """
+TARGETDATE PROPERTY
+
+  u = unspecified
+  v = variable
+  i = inherit
+  f = fixed
+  e = exact
+"""
+
+tdproperty_label = {
+    'u' : 'unspecified',
+    'v' : 'variable',
+    'i' : 'inherit',
+    'f' : 'fixed',
+    'e' : 'exact'
+}
+
+
+def collect_tdproperty():
+    tdproperty_char = '_'
+    while (not (tdproperty_char in ['u', 'v', 'i', 'f', 'e'])):
+        print(tdproperty_info)
+        tdproperty_char = input('Target date property: ')
+    return tdproperty_label[tdproperty_char]
+
+def is_TimeStamp(s):
+    if not is_int(s):
+        return False
+    if (len(s) != 12):
+        return False
+    try:
+        datetime.strptime(s, '%Y%m%d%H%M')
+    except ValueError:
+        return False
+    return True
+
+targetdate_info = """
+TARGETDATE
+"""
+
+def collect_targetdate():
+    print(targetdate_info)
+    targetdate = ''
+    while not targetdate:
+        targetdate = input("Target date and time (YYYYmmddHHMM / TODAY): ")
+        if (not ((targetdate=='TODAY') or is_TimeStamp(targetdate))):
+            print('Target date needs to be a proper date and time stamp (e.g. 202101120813).')
+            targetdate = ''
+    return targetdate
+
+
+def add_milestone_step_to_description(descriptionfile, milestone, stepcategory):
+    try:
+        with open(descriptionfile, 'a') as f:
+            f.write(f'\n<p>\n@STEPEARNING:{milestone}:{stepcategory}@\n</p>\n')
+    except FileNotFoundError:
+        print(f'The description file {descriptionfile} appears to be missing.\n')
+        exit(1)
+
+
+tdpattern_info = """
+TARGETDATE REPEAT PATTERN
+
+  n = no repeats
+  d = daily
+  D = workdays
+  w = weekly
+  b = biweekly (fortnighly)
+  m = monthly
+  E = monthly specified as end-of-month offset
+  y = yearly
+"""
+
+tdpattern_label = {
+    'n' : 'nonperiodic',
+    'd' : 'daily',
+    'D' : 'workdays',
+    'w' : 'weekly',
+    'b' : 'biweekly',
+    'm' : 'monthly',
+    'E' : 'endofmonthoffset',
+    'y' : 'yearly'
+}
+
+
+def collect_repeat_pattern():
+    tdpattern_char = '_'
+    while (not (tdpattern_char in ['n', 'd', 'D', 'w', 'b', 'm', 'E', 'y'])):
+        print(tdpattern_info)
+        tdpattern_char = input('Target date repeat pattern: ')
+    return tdpattern_label[tdpattern_char]
+
+
+def collect_every(pattern):
+    #print(every_info)
+    every = -1
+    while (int(every) <= 0):
+        every = input(f"Repeat {pattern} every N instances: ")
+        if (not is_int(every)):
+            print('The multiplier must be a positive integer number.')
+            every = -1
+    return every
+
+
+def collect_span(pattern):
+    #print(every_info)
+    span = -1
+    while (int(span) < 0):
+        span = input(f"Repeat {pattern} M times (0 == inf, always): ")
+        if (not is_int(span)):
+            print('The span must be an integer number.')
+            span = -1
+    return span
+
+
+def get_topics():
+    thecmd="fzgraphhtml -t '?' -F desc -q -e"
+    retcode = try_subprocess_check_output(thecmd, 'topics')
+    exit_error(retcode, 'Attempt to get topics failed.')  
+
+
+topics_info = """
+TOPICS
+"""
+
+def collect_topics():
+    get_topics()
+    topics_info += results['topics']
+    topics = ''
+    while not topics:
+        print(topics_info)
+        topics = input('Topics (comma separated): ')
+    print('Beware: Test to see if the topics exist has not yet been implemented!')
+    return topics
+
+
+superiors_and_dependencies_info = """
+SUPERIORS AND DEPENDENCIES
+
+  Superiors and Dependencies are included from the 'superiors' and
+  'dependencies' Named Node Lists.
+
+  If you have not aleady made such Lists then you can do so now.
+
+"""
+
+
+def browse_for_Nodes(targetmsg):
+    thecmd = config['localbrowser'] + ' http://localhost/select.html'
+    retcode = try_subprocess_check_output(thecmd, 'browsed')
+    exit_error(retcode, f'Attempt to browse for {targetmsg} failed.')
+
+
+def collect_superiors_and_dependencies():
+    print(superiors_and_dependencies_info)
+    browse_for_Nodes('superiors and dependencies')
 
 
 def collect_node_data():
@@ -255,9 +430,25 @@ def collect_node_data():
     treq = collect_time_required()
     val = collect_valuation()
     milestone = collect_milestone()
+    if milestone:
+        stepcategory = collect_step_category()
+        add_milestone_step_to_description(descriptionfile, milestone, stepcategory)
+    else:
+        stepcategory = ''
+    tdproperty = collect_tdproperty()
+    if (tdproperty in ['variable', 'fixed', 'exact']):
+        targetdate = collect_targetdate()
+    else:
+        targetdate = '-1'
+    if (tdproperty in ['fixed', 'exact']):
+        repeat_pattern = collect_repeat_pattern()
+    if (repeat_pattern != "nonperiodic"):
+        every = collect_every(repeat_pattern)
+        span = collect_span(repeat_pattern)
+    topics = collect_topics()
+    collect_superiors_and_dependencies()
 
-
-    fzgraphcmd = f'fzgraph -f {descriptionfile} -H {treq} -a {val}'
+    fzgraphcmd = f"fzgraph -f '{descriptionfile}' -H '{treq}' -a '{val}' -p '{tdproperty}' -t '{targetdate}' -r '{repeat_pattern' -e '{every}' -s '{span}' -g '{topics}'"
     if config['verbose']:
         fzgraphcmd += ' -V'
     return fzgraphcmd
