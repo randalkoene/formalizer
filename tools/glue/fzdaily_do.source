@@ -1,0 +1,4 @@
+# This file is sourced by fzdaily.sh. Please add daily activities below with full paths.
+# The setup stub for this file should be copied to: ~/.formalizer/fzdaily_do.source
+
+/home/randalk/.formalizer/bin/fzbackup
