@@ -232,7 +232,7 @@ results in Formalizer core and tools executables being available through
 symbolic links from ~/.formalizer/bin.
 """
 def make_binaries_available():
-    print('Calling `make` in Foramlizer source root to create ~/.formalizer/bin')
+    print('Calling `make` in Formalizer source root to create ~/.formalizer/bin')
     retcode = try_subprocess_check_output('cd ~/src/formalizer && make')
     if (retcode != 0):
         print('Unable to call Formalizer root `make`')
@@ -240,6 +240,7 @@ def make_binaries_available():
     else:
         print('Formalizer executables made available at ~/.formalizer/bin')
         print('Please update your PATH to include ~/.formalizer/bin!')
+        print('\nPlease also consider updating your crontab to include fzdaily.sh.\nSee `fzdaily.sh -h` for more information.')
 
 """
 Creates a directory tree for configuration files. This does not delete any

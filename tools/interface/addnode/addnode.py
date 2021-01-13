@@ -392,6 +392,7 @@ TOPICS
 
 def collect_topics():
     get_topics()
+    global topics_info
     topics_info += results['topics']
     topics = ''
     while not topics:
@@ -448,7 +449,7 @@ def collect_node_data():
     topics = collect_topics()
     collect_superiors_and_dependencies()
 
-    fzgraphcmd = f"fzgraph -f '{descriptionfile}' -H '{treq}' -a '{val}' -p '{tdproperty}' -t '{targetdate}' -r '{repeat_pattern' -e '{every}' -s '{span}' -g '{topics}'"
+    fzgraphcmd = f"fzgraph -f '{descriptionfile}' -H '{treq}' -a '{val}' -p '{tdproperty}' -t '{targetdate}' -r '{repeat_pattern}' -e '{every}' -s '{span}' -g '{topics}'"
     if config['verbose']:
         fzgraphcmd += ' -V'
     return fzgraphcmd
