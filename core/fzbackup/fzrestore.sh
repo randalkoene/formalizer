@@ -9,7 +9,7 @@ if [ $# -lt 1 -o "$1" = "-h" ]; then
 	echo "Usage: fzrestore.sh <dbbackup-path>"
 	echo ""
 	echo "Requires path to an archived database as argument."
-	echo "See, for example, in ~/.archive/postgres/."
+	echo "See, for example, in ~/.formalizer/archive/postgres/."
 	echo ""
 	exit
 fi

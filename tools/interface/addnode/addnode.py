@@ -96,7 +96,7 @@ def parse_options():
     theepilog = ('See the Readme.md in the addnode.py source directory for more information.\n')
 
     parser = argparse.ArgumentParser(description='Add a Node on the command line interactively.',epilog=theepilog)
-    parser.add_argument('-S', '--simulate', dest='simualte', action="store_true", help='simulated call to fzgraph (no Node is created)')
+    parser.add_argument('-S', '--simulate', dest='simulate', action="store_true", help='simulated call to fzgraph (no Node is created)')
     parser.add_argument('-d', '--database', dest='dbname', help='specify database name (default: formalizer)')
     parser.add_argument('-s', '--schema', dest='schemaname', help='specify schema name (default: $USER)')
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='turn on verbose mode')
@@ -123,7 +123,8 @@ def parse_options():
 
 
 def addnode_ansi():
-    print(u'\u001b[38;5;$33m', end='')
+    print(u'\u001b[34mBlue', end='')
+    #print(u'\u001b[38;5;$33m', end='')
 
 
 def alert_ansi():
@@ -393,7 +394,7 @@ TOPICS
 def collect_topics():
     get_topics()
     global topics_info
-    topics_info += results['topics']
+    topics_info += results['topics'].decode()
     topics = ''
     while not topics:
         print(topics_info)
@@ -441,15 +442,18 @@ def collect_node_data():
         targetdate = collect_targetdate()
     else:
         targetdate = '-1'
+    addto_fzgraphcmd = ''
+    repeat_pattern = "nonperiodic"
     if (tdproperty in ['fixed', 'exact']):
         repeat_pattern = collect_repeat_pattern()
-    if (repeat_pattern != "nonperiodic"):
-        every = collect_every(repeat_pattern)
-        span = collect_span(repeat_pattern)
+        if (repeat_pattern != "nonperiodic"):
+            every = collect_every(repeat_pattern)
+            span = collect_span(repeat_pattern)
+            addto_fzgraphcmd = f" -r '{repeat_pattern}' -e '{every}' -s '{span}'"
     topics = collect_topics()
     collect_superiors_and_dependencies()
 
-    fzgraphcmd = f"fzgraph -f '{descriptionfile}' -H '{treq}' -a '{val}' -p '{tdproperty}' -t '{targetdate}' -r '{repeat_pattern}' -e '{every}' -s '{span}' -g '{topics}'"
+    fzgraphcmd = f"fzgraph -M node -f '{descriptionfile}' -H '{treq}' -a '{val}' -p '{tdproperty}' -t '{targetdate}' -g '{topics}'"+addto_fzgraphcmd
     if config['verbose']:
         fzgraphcmd += ' -V'
     return fzgraphcmd
@@ -459,12 +463,25 @@ def simulate_make_node(fzgraphcmd: str):
     print('Simulated call to fzgraph:')
     print('  '+fzgraphcmd)
     print('')
+    return '999912312359'
 
 
 def make_node(fzgraphcmd: str):
+    print('EXTRA CHECK - here is the command:')
+    print(f'fzgraphcmd = {fzgraphcmd}')
+    keywait = input('Press ENTER to continue...')
     retcode = try_subprocess_check_output(fzgraphcmd, 'fzgraph_res')
-    if (retcode != 0):
-        exit_error(retcode, 'Call to fzgraph failed.')
+    exit_error(retcode, 'Call to fzgraph failed.')
+    fzgraph_res = results['fzgraph_res'].decode()
+    print('HERE IS WHAT fzgraph REPORTED BACK:')
+    print(fzgraph_res)
+    keywait = input('Press ENTER to continue...')
+    newnodepos = fzgraph_res.find('New Node: ')
+    if (newnodepos > -1):
+        node_id = results['fzgraph_res'][newnodepos+10:newnodepos+26]
+    else:
+        exit_error(1, "Node Node ID not found.")
+    return node_id
 
 
 if __name__ == '__main__':
@@ -476,18 +493,13 @@ if __name__ == '__main__':
 
     args = parse_options()
 
-    print('This tool is under construction.')
-    args.simulate=True
-    print('During this time, the tool is in simulated dry-run mode, where it will print the')
-    print('fzgraph command that would be created following interactive data collaction.')
-
     fzgraphcmd = collect_node_data()
 
     if args.simulate:
-        simulate_make_node(fzgraphcmd)
+        node_id = simulate_make_node(fzgraphcmd)
     else:
-        make_node(fzgraphcmd)
+        node_id = make_node(fzgraphcmd)
 
-    print('Completed addnode.')
+    print(f'Completed addnode. Created Node {node_id}.')
 
-sys.exit(0)
+    sys.exit(0)

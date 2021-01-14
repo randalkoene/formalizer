@@ -96,6 +96,7 @@ void sup_dep_source() {
             fzge.config.dependencies.emplace_back(nkey);
         }
     }
+    fzge.nnl_supdep_used = true; // this flag is needed for sup_dep_postop()
     VERYVERBOSEOUT("Using superiors and/or dependencies from Named Node Lists.\n");
 }
 
@@ -161,6 +162,9 @@ int make_node() {
 
     auto ret = server_request_with_shared_data(segname, fzge.config.port_number);
     sup_dep_postop(ret);
+    if (ret == exit_ok) {
+        VERBOSEOUT("New Node: "+node_ptr->get_id_str()+'\n');
+    }
     standard.exit(ret);
 
     //return standard.completed_ok(); // *** could put standard_exit(ret==1, ...) here instead
