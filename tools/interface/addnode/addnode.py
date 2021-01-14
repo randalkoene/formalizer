@@ -122,9 +122,13 @@ def parse_options():
     return args
 
 
-def addnode_ansi():
-    print(u'\u001b[34mBlue', end='')
+def blue_ansi():
+    print(u'\u001b[34m', end='')
     #print(u'\u001b[38;5;$33m', end='')
+
+
+def lightgray_ansi():
+    print(u'\u001b[37m', end='')
 
 
 def alert_ansi():
@@ -135,34 +139,34 @@ def exit_error(retcode, errormessage):
     if (retcode != 0):
         alert_ansi()
         print('\n'+errormessage+'\n')
-        addnode_ansi()
+        lightgray_ansi()
         exitenter = input('Press ENTER to exit...')
         sys.exit(retcode)
 
 
-def a_function_that_calls_subprocess(some_arg, resstore):
-    retcode = try_subprocess_check_output(f"someprogram -A '{some_arg}'", resstore)
-    if (retcode != 0):
-        print(f'Attempt to do something failed.')
-        exit(retcode)
-
-
-def a_function_that_spawns_a_call_in_pseudo_TTY(some_arg):
-    retcode = pty.spawn(['someprogram','-A', some_arg])
-    return retcode
-
-
-def a_function_that_requests_input():
-    shortlist_desc = results['shortlistdesc']
-    shortlist_vec = [s for s in shortlist_desc.decode().splitlines() if s.strip()]
-    for (number, line) in enumerate(shortlist_vec):
-        print(f' {number}: {line}')
-
-    choice = input('[D]efault same Node as chunk, or [0-9] from shortlist, or [?] browse? ')
-    if (choice == 'd'):
-        node = '' # default
-
-    return node
+#def a_function_that_calls_subprocess(some_arg, resstore):
+#    retcode = try_subprocess_check_output(f"someprogram -A '{some_arg}'", resstore)
+#    if (retcode != 0):
+#        print(f'Attempt to do something failed.')
+#        exit(retcode)
+#
+#
+#def a_function_that_spawns_a_call_in_pseudo_TTY(some_arg):
+#    retcode = pty.spawn(['someprogram','-A', some_arg])
+#    return retcode
+#
+#
+#def a_function_that_requests_input():
+#    shortlist_desc = results['shortlistdesc']
+#    shortlist_vec = [s for s in shortlist_desc.decode().splitlines() if s.strip()]
+#    for (number, line) in enumerate(shortlist_vec):
+#        print(f' {number}: {line}')
+#
+#    choice = input('[D]efault same Node as chunk, or [0-9] from shortlist, or [?] browse? ')
+#    if (choice == 'd'):
+#        node = '' # default
+#
+#    return node
 
 
 def TimeStamp(t):
@@ -215,9 +219,13 @@ def collect_time_required():
     print(treq_info)
     treq = -1.0
     while (float(treq) < 0):
+        blue_ansi()
         treq = input("Estimated 'time required' (in hours): ")
+        lightgray_ansi()
         if (not is_float(treq)):
+            alert_ansi()
             print('Time required must be a decimal number of hours in [0, inf), e.g. 1.0.')
+            lightgray_ansi()
             treq = -1.0
     return treq
 
@@ -230,9 +238,13 @@ def collect_valuation():
     print(val_info)
     val = -1.0
     while (float(val) < 0):
+        blue_ansi()
         val = input("Estimated 'valuation' (0.0<x<1.0,x=1.0,x>1.0): ")
+        lightgray_ansi()
         if (not is_float(val)):
+            alert_ansi()
             print('Valuation must be a decimal number in (-inf, inf), e.g. 3.0.')
+            lightgray_ansi()
             val = -1.0
     return val
 
@@ -250,7 +262,9 @@ def collect_milestone():
     print(milestone_info)
     milestone = ''
     while not milestone:
+        blue_ansi()
         milestone = input("Milestone identifier (n = not STEPEARNING): ")
+        lightgray_ansi()
 
     if (milestone == 'n'):
         milestone = ''
@@ -261,7 +275,9 @@ def collect_step_category():
     #print(milestone_info)
     stepcategory = ''
     while not stepcategory:
+        blue_ansi()
         stepcategory = input("Step category: ")
+        lightgray_ansi()
     return stepcategory
 
 
@@ -288,7 +304,9 @@ def collect_tdproperty():
     tdproperty_char = '_'
     while (not (tdproperty_char in ['u', 'v', 'i', 'f', 'e'])):
         print(tdproperty_info)
+        blue_ansi()
         tdproperty_char = input('Target date property: ')
+        lightgray_ansi()
     return tdproperty_label[tdproperty_char]
 
 def is_TimeStamp(s):
@@ -310,9 +328,13 @@ def collect_targetdate():
     print(targetdate_info)
     targetdate = ''
     while not targetdate:
+        blue_ansi()
         targetdate = input("Target date and time (YYYYmmddHHMM / TODAY): ")
+        lightgray_ansi()
         if (not ((targetdate=='TODAY') or is_TimeStamp(targetdate))):
+            alert_ansi()
             print('Target date needs to be a proper date and time stamp (e.g. 202101120813).')
+            lightgray_ansi()
             targetdate = ''
     return targetdate
 
@@ -322,7 +344,9 @@ def add_milestone_step_to_description(descriptionfile, milestone, stepcategory):
         with open(descriptionfile, 'a') as f:
             f.write(f'\n<p>\n@STEPEARNING:{milestone}:{stepcategory}@\n</p>\n')
     except FileNotFoundError:
+        alert_ansi()
         print(f'The description file {descriptionfile} appears to be missing.\n')
+        lightgray_ansi()
         exit(1)
 
 
@@ -355,7 +379,9 @@ def collect_repeat_pattern():
     tdpattern_char = '_'
     while (not (tdpattern_char in ['n', 'd', 'D', 'w', 'b', 'm', 'E', 'y'])):
         print(tdpattern_info)
+        blue_ansi()
         tdpattern_char = input('Target date repeat pattern: ')
+        lightgray_ansi()
     return tdpattern_label[tdpattern_char]
 
 
@@ -363,9 +389,13 @@ def collect_every(pattern):
     #print(every_info)
     every = -1
     while (int(every) <= 0):
+        blue_ansi()
         every = input(f"Repeat {pattern} every N instances: ")
+        lightgray_ansi()
         if (not is_int(every)):
+            alert_ansi()
             print('The multiplier must be a positive integer number.')
+            lightgray_ansi()
             every = -1
     return every
 
@@ -374,9 +404,13 @@ def collect_span(pattern):
     #print(every_info)
     span = -1
     while (int(span) < 0):
+        blue_ansi()
         span = input(f"Repeat {pattern} M times (0 == inf, always): ")
+        lightgray_ansi()
         if (not is_int(span)):
+            alert_ansi()
             print('The span must be an integer number.')
+            lightgray_ansi()
             span = -1
     return span
 
@@ -398,8 +432,10 @@ def collect_topics():
     topics = ''
     while not topics:
         print(topics_info)
+        blue_ansi()
         topics = input('Topics (comma separated): ')
-    print('Beware: Test to see if the topics exist has not yet been implemented!')
+        lightgray_ansi()
+    print('\nBeware: Test to see if the topics exist has not yet been implemented!\n')
     return topics
 
 
@@ -467,20 +503,27 @@ def simulate_make_node(fzgraphcmd: str):
 
 
 def make_node(fzgraphcmd: str):
-    print('EXTRA CHECK - here is the command:')
     print(f'fzgraphcmd = {fzgraphcmd}')
-    keywait = input('Press ENTER to continue...')
+    if config['verbose']:
+        blue_ansi()
+        keywait = input('Press ENTER to continue...')
+        lightgray_ansi()
     retcode = try_subprocess_check_output(fzgraphcmd, 'fzgraph_res')
     exit_error(retcode, 'Call to fzgraph failed.')
     fzgraph_res = results['fzgraph_res'].decode()
-    print('HERE IS WHAT fzgraph REPORTED BACK:')
-    print(fzgraph_res)
-    keywait = input('Press ENTER to continue...')
+    if config['verbose']:
+        print('fzgraph report:')
+        print(fzgraph_res)
+        blue_ansi()
+        keywait = input('Press ENTER to continue...')
+        lightgray_ansi()
     newnodepos = fzgraph_res.find('New Node: ')
     if (newnodepos > -1):
         node_id = results['fzgraph_res'][newnodepos+10:newnodepos+26]
     else:
         exit_error(1, "Node Node ID not found.")
+    if not config['verbose']:
+        print('New Node: '+node_id)
     return node_id
 
 

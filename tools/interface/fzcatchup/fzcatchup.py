@@ -126,11 +126,11 @@ def parse_options():
 
 
 def lightgreen_ansi():
-    print(u'\u001b[92mLight green', end='')
+    print(u'\u001b[92m', end='')
 
 
 def lightgray_ansi():
-    print(u'\u001b[37mLight gray', end='')
+    print(u'\u001b[37m', end='')
 
 
 def alert_ansi():
@@ -146,29 +146,29 @@ def exit_error(retcode, errormessage):
         sys.exit(retcode)
 
 
-def a_function_that_calls_subprocess(some_arg, resstore):
-    retcode = try_subprocess_check_output(f"someprogram -A '{some_arg}'", resstore)
-    if (retcode != 0):
-        print(f'Attempt to do something failed.')
-        exit(retcode)
-
-
-def a_function_that_spawns_a_call_in_pseudo_TTY(some_arg):
-    retcode = pty.spawn(['someprogram','-A', some_arg])
-    return retcode
-
-
-def a_function_that_requests_input():
-    shortlist_desc = results['shortlistdesc']
-    shortlist_vec = [s for s in shortlist_desc.decode().splitlines() if s.strip()]
-    for (number, line) in enumerate(shortlist_vec):
-        print(f' {number}: {line}')
-
-    choice = input('[D]efault same Node as chunk, or [0-9] from shortlist, or [?] browse? ')
-    if (choice == 'd'):
-        node = '' # default
-
-    return node
+#def a_function_that_calls_subprocess(some_arg, resstore):
+#    retcode = try_subprocess_check_output(f"someprogram -A '{some_arg}'", resstore)
+#    if (retcode != 0):
+#        print(f'Attempt to do something failed.')
+#        exit(retcode)
+#
+#
+#def a_function_that_spawns_a_call_in_pseudo_TTY(some_arg):
+#    retcode = pty.spawn(['someprogram','-A', some_arg])
+#    return retcode
+#
+#
+#def a_function_that_requests_input():
+#    shortlist_desc = results['shortlistdesc']
+#    shortlist_vec = [s for s in shortlist_desc.decode().splitlines() if s.strip()]
+#    for (number, line) in enumerate(shortlist_vec):
+#        print(f' {number}: {line}')
+#
+#    choice = input('[D]efault same Node as chunk, or [0-9] from shortlist, or [?] browse? ')
+#    if (choice == 'd'):
+#        node = '' # default
+#
+#    return node
 
 
 def TimeStamp(t):
@@ -256,18 +256,26 @@ def get_chunk_end_stamp():
     Tstamp = ''
     while not Tstamp:
         print(f'\nOpening time stamp of most recent Log chunk is {Tprev}.')
+        lightgreen_ansi()
         Tstamp = input("End date-and-time stamp of most recent Log chunk, which corresponds\nto the start time of this new chunk and entry (YYYYmmddHHMM): ")
+        lightgray_ansi()
         if (not is_TimeStamp(Tstamp)):
+            alert_ansi()
             print('It must be a proper date and time stamp (e.g. 202101120813).')
+            lightgray_ansi()
             Tstamp = ''
         else:
             Tdiff_minslike = int(Tstamp) - int(Tprev)
             if (Tdiff_minslike <= 0):
+                alert_ansi()
                 print(f'The chunk closing date-time must be later than {Tprev}.')
+                lightgray_ansi()
                 Tstamp = ''
             else:
                 if (Tdiff_minslike > 15000):
+                    lightgreen_ansi()
                     diffok = input(f'\nThe previous chunk size from {Tprev} to {Tstamp} seems pretty big.\nAre you sure? (y/N) ')
+                    lightgray_ansi()
                     if (diffok != 'y'):
                         print("Ok, let's try again.")
                         Tstamp = ''
@@ -315,12 +323,16 @@ def new_log_chunk_and_entry(entryfile: str, T_chunkend: str, node_id: str, args)
 def catchup(args):
     print('\nPlease copy or write the Log entry text for the next catch-up\nentry into the editor window, save and exit...\n')
     entryfile = collect_entry_text()
+    lightgreen_ansi()
     newchunk = input('\nWill this belong to a new Log chunk? (Y/n) ')
+    lightgray_ansi()
     if (newchunk == 'n'):
         add_log_entry_same_chunk(entryfile, args)
     else:
         T_chunkend = get_chunk_end_stamp()
+        lightgreen_ansi()
         existingnode = input('\nWill the Log chunk belong to a Node that already exists? (Y/n) ')
+        lightgray_ansi()
         if (existingnode == 'n'):
             node_id = get_new_Node(args)
         else:
@@ -335,7 +347,7 @@ def iterate_catchup(args):
         catchup(args)
         lightgreen_ansi()
         catchupmore = input('\nMore to catch up? (Y/n) ')
-        lightgreen_ansi()
+        lightgray_ansi()
         if (catchupmore == 'n'):
             break
 
