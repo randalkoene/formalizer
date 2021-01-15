@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=addnode
+Comment=Make a Formalizer Node
+Exec=urxvt -bg orange -rv -fade 30 -e addnode
+StartupWMClass=fzgraph
+Terminal=false
+Type=Application
+Icon=/home/randalk/.formalizer/config/addnode/addnode.png
+StartupNotify=true

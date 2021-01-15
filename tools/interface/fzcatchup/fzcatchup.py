@@ -290,7 +290,7 @@ def get_new_Node(args):
         node_id = addnode.simulate_make_node(fzgraphcmd)
     else:
         node_id = addnode.make_node(fzgraphcmd)
-    return node_id.decode()
+    return node_id
 
 
 def get_existing_Node():

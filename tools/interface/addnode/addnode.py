@@ -123,7 +123,7 @@ def parse_options():
 
 
 def blue_ansi():
-    print(u'\u001b[34m', end='')
+    print(u'\u001b[34;1m', end='')
     #print(u'\u001b[38;5;$33m', end='')
 
 
@@ -519,7 +519,7 @@ def make_node(fzgraphcmd: str):
         lightgray_ansi()
     newnodepos = fzgraph_res.find('New Node: ')
     if (newnodepos > -1):
-        node_id = results['fzgraph_res'][newnodepos+10:newnodepos+26]
+        node_id = fzgraph_res[newnodepos+10:newnodepos+26]
     else:
         exit_error(1, "Node Node ID not found.")
     if not config['verbose']:

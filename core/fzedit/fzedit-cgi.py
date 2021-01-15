@@ -91,9 +91,9 @@ with open(textfile,'w') as f:
     f.write(text)
 
 if (verbosity == "verbose"):
-    thecmd = f"./fzedit -V -E STDOUT -M {id} -f {textfile} -H {req_hrs} -a {val} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}"
+    thecmd = f"./fzedit -V -E STDOUT -M {id} -f {textfile} -c {comp} -H {req_hrs} -a {val} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}"
 else:
-    thecmd = f"./fzedit -q -E STDOUT -M {id} -f {textfile} -H {req_hrs} -a {val} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}"
+    thecmd = f"./fzedit -q -E STDOUT -M {id} -f {textfile} -c {comp} -H {req_hrs} -a {val} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}"
 
 print(f'<!-- Call command: {thecmd} -->')
 

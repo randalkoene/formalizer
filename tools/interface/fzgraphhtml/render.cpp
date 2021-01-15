@@ -538,6 +538,11 @@ std::string render_Node_data(Graph & graph, Node & node) {
         nodevars.emplace("td_prop", "(unrecognized)");
         ADDERROR(__func__, "Node "+node.get_id_str()+" has unrecognized TD property "+std::to_string((int) tdprop));
     }
+    if (node.get_repeats()) {
+        nodevars.emplace("repeats", "Yes");
+    } else {
+        nodevars.emplace("repeats", "No");
+    }
     if (tdpatt<_patt_num) {
         nodevars.emplace("td_patt", td_pattern_str[tdpatt]);
     } else {

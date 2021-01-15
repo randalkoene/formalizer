@@ -4,6 +4,7 @@
 {{ val }}
 {{ eff_td }}
 {{ td_prop }}
+{{ repeats }}
 {{ td_patt }}
 {{ td_every }}
 {{ td_span }}
