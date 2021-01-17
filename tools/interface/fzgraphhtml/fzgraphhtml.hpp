@@ -15,6 +15,7 @@
 #include "config.hpp"
 #include "standard.hpp"
 #include "Graphtypes.hpp"
+#include "html.hpp"
 // #include "Graphaccess.hpp"
 
 using namespace fz;
@@ -53,6 +54,7 @@ public:
     bool embeddable = false;
     output_format outputformat = output_html;
     bool show_still_required = true;
+    text_interpretation interpret_text = text_interpretation::raw;
 };
 
 

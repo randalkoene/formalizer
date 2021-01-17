@@ -17,6 +17,7 @@
 #include "Graphaccess.hpp"
 #include "Logtypes.hpp"
 #include "Logaccess.hpp"
+#include "html.hpp"
 
 using namespace fz;
 
@@ -49,6 +50,7 @@ public:
     bool set_parameter(const std::string & parlabel, const std::string & parvalue);
 
     std::string dest;   ///< where to send rendered output (default: "STDOUT")
+    text_interpretation interpret_text = text_interpretation::raw;
 };
 
 struct fzloghtml: public formalizer_standard_program {

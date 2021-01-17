@@ -15,7 +15,7 @@
 <tr>
 <td>
 <hr>
-Completion: <input type="number" name="comp" min="0.0" max="1.0" step="0.01" value="{{ comp }}"><br>
+Completion: <input type="number" name="comp" min="-4.0" max="1.0" step="0.01" value="{{ comp }}"><br>
 Required:  <input type="number" name="req_hrs" min="0.0" max="1000.0" step="0.00001" value={{ req_hrs }}> hrs, or <input type="number" name="req_mins" min="0" max="10000" step="1" value={{ req_mins }}> mins<br><input type="hidden" name="orig_mins" value="{{ req_mins }}">
 Valuation: <input type="number" name="val" min="0.0" max="10.0" step="0.1" value="{{ val }}"><br>
 Targetdate: <input type="number" name="targetdate" min="0", max="999912312359" step="1" value="{{ eff_td }}"> (YYYYmmddHHMM format), or <input type="datetime-local" id="alt_targetdate" name="alt_targetdate" min="1990-01-01T00:00:00" value="{{ eff_td_date }}T{{ eff_td_time }}"> (local format)<br><input type="hidden" name="orig_td" value="{{ eff_td }}">

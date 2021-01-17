@@ -71,5 +71,7 @@
         "charconv": "cpp",
         "strstream": "cpp"
     },
-    "C_Cpp.errorSquiggles": "Enabled"
+    "C_Cpp.errorSquiggles": "Enabled",
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true
 }

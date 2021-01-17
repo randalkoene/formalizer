@@ -123,7 +123,7 @@ def parse_options():
 
 
 def blue_ansi():
-    print(u'\u001b[34;1m', end='')
+    print(u'\u001b[38;5;33m', end='')
     #print(u'\u001b[38;5;$33m', end='')
 
 

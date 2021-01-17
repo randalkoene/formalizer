@@ -268,6 +268,7 @@ bool fzgh_configurable::set_parameter(const std::string & parlabel, const std::s
     CONFIG_TEST_AND_SET_PAR(t_max, "t_max", parlabel, time_stamp_time(parvalue));
     CONFIG_TEST_AND_SET_PAR(t_max, "num_days", parlabel, set_t_max_days(parvalue));
     CONFIG_TEST_AND_SET_PAR(show_still_required, "show_still_required", parlabel, parvalue_to_bool(parvalue));
+    CONFIG_TEST_AND_SET_PAR(interpret_text, "interpret_text", parlabel, config_parse_text_interpretation(parvalue));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }

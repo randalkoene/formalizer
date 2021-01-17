@@ -75,7 +75,7 @@ bool load_templates(fzloghtml_templates & templates) {
 std::string render_Log_entry(Log_entry & entry) {
     template_varvalues varvals;
     varvals.emplace("minor_id",std::to_string(entry.get_minor_id()));
-    varvals.emplace("entry_text",make_embeddable_html(entry.get_entrytext()));
+    varvals.emplace("entry_text",make_embeddable_html(entry.get_entrytext(),fzlh.config.interpret_text));
     if (entry.same_node_as_chunk()) {
         varvals.emplace("node_id","");
     } else {

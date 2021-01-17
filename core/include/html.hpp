@@ -17,6 +17,23 @@
 
 namespace fz {
 
+enum text_interpretation: unsigned long {
+    raw              = 0,
+    detect_links     = 0b0000'0000'0000'0001,
+    emptyline_is_par = 0b0000'0000'0000'0010,
+    full_markdown    = 0b0000'0000'0000'0100,
+    NUM_interpretations
+};
+
+/**
+ * A useful function to convert a set of comma separated flag identifiers into
+ * a `text_interpretation` flags bitmap.
+ * 
+ * @param csflags String with comma separated flag identifiers.
+ * @return A bitmap with text_interpretation flags.
+ */
+text_interpretation config_parse_text_interpretation(std::string csflags);
+
 /**
  * Remove all HTML tags to create raw text.
  * 
@@ -45,15 +62,17 @@ std::string remove_html_tags(const std::string & htmlstr);
  * Efficiently and reliably filter snippets of HTML text such that they become
  * optimally embeddable within other HTML.
  * 
- * With the `detect_links` option, this filter also detects interesting
- * information that would be improved if presented as a link and adds such a
- * link.
+ * The `interpretation` parameter is a collection of flags defined in
+ * the `text_interpretation` enum (see above). This can be used to request
+ * additional transformations of the raw text. For example, you can detect
+ * URL links that were not surrounded by HREF code using the `detect_links`
+ * flag.
  * 
  * @param htmlstr A string in HTML format.
  * @param detect_links If true then convert recognized data into links.
  * @return A string of embeddable HTML.
  */
-std::string make_embeddable_html(const std::string & htmlstr, bool detect_links = true);
+std::string make_embeddable_html(const std::string & htmlstr, text_interpretation interpretation = text_interpretation::raw);
 
 } // namespace fz
 

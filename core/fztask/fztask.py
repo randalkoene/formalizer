@@ -139,7 +139,7 @@ def fztask_ansi():
 
 
 def Node_selection_ansi():
-    print(u'\u001b[38;5;$33m', end='')
+    print(u'\u001b[38;5;33m', end='')
 
 
 def alert_ansi():
@@ -245,9 +245,12 @@ def select_Node_for_Log_chunk():
     shortlist_desc = results['shortlistdesc']
     Node_selection_ansi()
     print('\nShort-list of Nodes for the New Log Chunk:')
-    shortlist_vec = [s for s in shortlist_desc.decode().splitlines() if s.strip()]
+    #shortlist_vec = [s for s in shortlist_desc.decode().splitlines() if s.strip()]
+    shortlist_vec = [s for s in shortlist_desc.decode().split("@@@") if s.strip()]
+    pattern = re.compile('[\W_]+')
     for (number, line) in enumerate(shortlist_vec):
-        print(f' {number}: {line}')
+        printableline = pattern.sub(' ',line)
+        print(f' {number}: {printableline}')
 
     choice = input('Use:\n- [0-9] from shortlist, or\n- [?] to browse: ')
     if (choice == '?'):

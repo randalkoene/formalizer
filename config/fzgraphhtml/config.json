@@ -1,5 +1,6 @@
 {
     "num_to_show" : "256",
     "excerpt_length" : "120",
-    "rendered_out_path" : "STDOUT"
+    "rendered_out_path" : "STDOUT",
+    "interpret_text" : "detect_links"
 }

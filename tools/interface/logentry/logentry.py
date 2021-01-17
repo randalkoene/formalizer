@@ -248,9 +248,12 @@ def entry_belongs_to_same_or_other_Node():
     #print(str(filtered))
     #shortlist_prettyprint = os.linesep.join([s for s in shortlist_desc.decode().splitlines() if s.strip()])
     #print(shortlist_prettyprint)
-    shortlist_vec = [s for s in shortlist_desc.decode().splitlines() if s.strip()]
+    #shortlist_vec = [s for s in shortlist_desc.decode().splitlines() if s.strip()]
+    shortlist_vec = [s for s in shortlist_desc.decode().split("@@@") if s.strip()]
+    pattern = re.compile('[\W_]+')
     for (number, line) in enumerate(shortlist_vec):
-        print(f' {number}: {line}')
+        printableline = pattern.sub(' ',line)
+        print(f' {number}: {printableline}')
 
     choice = input('\nUse:\n- [d]efault, same Node as chunk, or\n- [0-9] from shortlist, or\n- [?] browse? ')
     if (choice == '?'):

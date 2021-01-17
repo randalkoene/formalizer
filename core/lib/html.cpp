@@ -10,8 +10,38 @@
 
 // core
 #include "html.hpp"
+#include "general.hpp"
 
 namespace fz {
+
+const std::map<std::string, text_interpretation> text_interpretation_flags_map = {
+    {"raw", text_interpretation::raw},
+    {"detect_links", text_interpretation::detect_links},
+    {"emptyline_is_par", text_interpretation::emptyline_is_par},
+    {"full_markdown", text_interpretation::full_markdown}
+};
+
+/**
+ * A useful function to convert a set of comma separated flag identifiers into
+ * a `text_interpretation` flags bitmap.
+ * 
+ * @param csflags String with comma separated flag identifiers.
+ * @return A bitmap with text_interpretation flags.
+ */
+text_interpretation config_parse_text_interpretation(std::string csflags) {
+    unsigned long bitflags = text_interpretation::raw;
+    auto flagtokens = split(csflags,',');
+    for (auto & token : flagtokens) {
+        if (!token.empty()) {
+            trim(token);
+            auto it = text_interpretation_flags_map.find(token);
+            if (it != text_interpretation_flags_map.end()) {
+                bitflags |= it->second;
+            }
+        }
+    }
+    return (text_interpretation) bitflags;
+}
 
 /**
  * This is only a partial list. See https://www.rapidtables.com/web/html/html-codes.html
@@ -195,25 +225,25 @@ std::string convert_special_data_html(const std::string & htmlstr, size_t frompo
  * @param detect_links If true then convert recognized data into links.
  * @return A string of embeddable HTML.
  */
-std::string make_embeddable_html(const std::string & htmlstr, bool detect_links) {
+std::string make_embeddable_html(const std::string & htmlstr, text_interpretation interpretation) {
     std::string txtstr;
     txtstr.reserve(htmlstr.size()+512);
     size_t pos = 0;
     while (true) {
         size_t next_ltpos = htmlstr.find('<',pos);
         if (next_ltpos == std::string::npos) {
-            if (!detect_links) {
-                txtstr += htmlstr.substr(pos);
-            } else {
+            if (interpretation & text_interpretation::detect_links) {
                 txtstr += convert_special_data_html(htmlstr, pos, next_ltpos);
+            } else {
+                txtstr += htmlstr.substr(pos);
             }
             return txtstr;
         }
 
-        if (!detect_links) {
-            txtstr += htmlstr.substr(pos,next_ltpos-pos);
-        } else {
+        if (interpretation & text_interpretation::detect_links) {
             txtstr += convert_special_data_html(htmlstr, pos, next_ltpos);
+        } else {
+            txtstr += htmlstr.substr(pos,next_ltpos-pos);
         }
         size_t next_gtpos = htmlstr.find('>',next_ltpos);
         if (next_gtpos == std::string::npos) { // tag doesn't close by end of string

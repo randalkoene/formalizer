@@ -1,3 +1,4 @@
 {
-    "outputfile" : "/var/www/html/formalizer/formalizer.tools.interfaces.fzloghtml.Output.html"
+    "outputfile" : "/var/www/html/formalizer/formalizer.tools.interfaces.fzloghtml.Output.html",
+    "interpret_text" : "detect_links"
 }

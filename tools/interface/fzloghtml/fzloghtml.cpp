@@ -186,6 +186,7 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
 /// Configure configurable parameters.
 bool fzlh_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     CONFIG_TEST_AND_SET_PAR(dest, "outputfile", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(interpret_text, "interpret_text", parlabel, config_parse_text_interpretation(parvalue));
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
 
