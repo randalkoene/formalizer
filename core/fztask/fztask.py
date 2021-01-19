@@ -17,6 +17,8 @@ import pty
 import time
 
 
+# ----- begin: Common variables and functions (probably put into a library module) -----
+
 # Standardized expectations.
 userhome = os.getenv('HOME')
 fzuserbase = userhome + '/.formalizer'
@@ -54,6 +56,44 @@ def try_subprocess_check_output(thecmdstring, resstore):
             print(res.decode(), flush=True)
         return 0
 
+
+ANSI_wt = '\u001b[38;5;15m'
+ANSI_gn = '\u001b[38;5;47m'
+ANSI_rd = '\u001b[38;5;202m'
+ANSI_alert = '\u001b[31m'
+ANSI_nrm = '\u001b[32m'
+
+
+def pause_key(action_str, pausehere = True):
+    if pausehere:
+        pausekey = input(f'\nEnter any string to {action_str}...')
+    else:
+        pausekey = '_'
+    return pausekey
+
+
+def exit_error(retcode, errormessage):
+    if (retcode != 0):
+        print(f'\n{ANSI_alert}'+errormessage+f'{ANSI_nrm}\n')
+        exitenter = pause_key('exit')
+        sys.exit(retcode)
+
+
+def browse_for_Node():
+    print('Use the browser to select a node.')
+    #retcode = pty.spawn([config['localbrowser'],'http://localhost/select.html'])
+    thecmd = config['localbrowser'] + ' http://localhost/select.html'
+    retcode = try_subprocess_check_output(thecmd, 'browsed')
+    exit_error(retcode, 'Attempt to browse for Node selection failed.')
+    retcode = try_subprocess_check_output(f"fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected')
+    exit_error(retcode, 'Attempt to get selected Node failed.')
+    print(f'Selected: {results["selected"]}')
+    if results['selected']:
+        return results['selected'][0:16]
+    else:
+        return ''
+
+
 # Handle the case where even fzsetup.py does not have a configuration file yet.
 try:
     with open(fzsetupconfig) as f:
@@ -71,6 +111,11 @@ fzcorelibdir = config['sourceroot'] + '/core/lib'
 fzcoreincludedir = config['sourceroot'] + '/core/include'
 sys.path.append(fzcorelibdir)
 sys.path.append(fzcoreincludedir)
+
+# ----- end: Common variables and functions (probably put into a library module) -----
+
+# ----- begin: Local variables and functions -----
+
 # Enable import of logentry
 logentrydir = config['sourceroot'] + '/tools/interface/logentry'
 sys.path.append(logentrydir)
@@ -88,6 +133,10 @@ config['customtemplate'] = '/tmp/customtemplate'
 config['addpause'] = False
 config['cmdlog'] = '/tmp/fztask-cmdcalls.log'
 config['logcmdcalls'] = False
+
+if config['transition']:
+    from fztask_transition import transition_dil2al_request
+
 
 # replace local defaults with values from ~/.formalizer/config/fztask.py/config.json
 #try:
@@ -135,7 +184,7 @@ def parse_options():
 
 
 def fztask_ansi():
-    print(u'\u001b[32m', end='')
+    print(f'{ANSI_nrm}', end='')
 
 
 def Node_selection_ansi():
@@ -143,39 +192,7 @@ def Node_selection_ansi():
 
 
 def alert_ansi():
-    print(u'\u001b[31m', end='')
-
-
-def pause_key(action_str, pausehere = True):
-    if pausehere:
-        pausekey = input(f'\nEnter any string to {action_str}...')
-    else:
-        pausekey = '_'
-    return pausekey
-
-
-def exit_error(retcode, errormessage):
-    if (retcode != 0):
-        alert_ansi()
-        print('\n'+errormessage+'\n')
-        fztask_ansi()
-        exitenter = pause_key('exit')
-        sys.exit(retcode)
-
-
-def old_make_log_entry():
-    print('Launching logentry...')
-    #thecmd = 'logentry'
-    #if config['verbose']:
-    #    thecmd += ' -v'
-    #retcode = try_subprocess_check_output(thecmd, 'logentry_res')
-    thecmd = ['logentry']
-    if config['verbose']:
-        thecmd = ['logentry','-v']
-    retcode = pty.spawn(thecmd)
-    print('Back from logentry.')
-    if not os.WIFEXITED(retcode):
-        exit_error(os.WEXITSTATUS(retcode), 'Attempt to make Log entry failed.')
+    print(f'{ANSI_alert}', end='')
 
 
 def make_log_entry():
@@ -185,26 +202,15 @@ def make_log_entry():
     le.make_log_entry()
 
 
-#def a_function_that_calls_subprocess(some_arg, resstore):
-#    retcode = try_subprocess_check_output(f"someprogram -A '{some_arg}'", resstore)
-#    if (retcode != 0):
-#        print(f'Attempt to do something failed.')
-#        exit(retcode)
-#
-#
-#def a_function_that_spawns_a_call_in_pseudo_TTY(some_arg):
-#    retcode = pty.spawn(['someprogram','-A', some_arg])
-#    return retcode
-
-
 def new_or_close_chunk():
-    print(u'\u001b[32m', end='')
-    choice = input('\n[S]tart a Log chunk for the next task, or merely [c]lose the chunk? ')
+    ANSI_sel = '\u001b[38;5;99m'
+    print(ANSI_sel)
+    choice = input(f'\n[{ANSI_gn}S{ANSI_sel}]tart a Log chunk for the next task, or merely [{ANSI_rd}c{ANSI_sel}]lose the chunk? ')
     if (choice != 'c'):
         choice = 'S'
-        print('Starting the next task chunk...')
+        print(f'{ANSI_gn}Starting{ANSI_sel} the next task chunk...')
     else:
-        print('Closing Log chunk without immediately starting another...')
+        print(f'{ANSI_rd}Closing{ANSI_sel} Log chunk without immediately starting another...')
 
     return choice
 
@@ -224,27 +230,13 @@ def get_updated_shortlist():
     exit_error(retcode, 'Attempt to get "shortlist" Named Node List description data failed.')
 
 
-def browse_for_Node():
-    print('Use the browser to select a node.')
-    #retcode = pty.spawn([config['localbrowser'],'http://localhost/select.html'])
-    thecmd = config['localbrowser'] + ' http://localhost/select.html'
-    retcode = try_subprocess_check_output(thecmd, 'browsed')
-    exit_error(retcode, 'Attempt to browse for Node selection failed.')
-    retcode = try_subprocess_check_output(f"fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected')
-    exit_error(retcode, 'Attempt to get selected Node failed.')
-    print(f'Selected: {results["selected"]}')
-    if results['selected']:
-        return results['selected'][0:16]
-    else:
-        return ''
-
-
 def select_Node_for_Log_chunk():
+    ANSI_sel = '\u001b[38;5;33m'
     get_updated_shortlist()
     shortlist_nodes = results['shortlistnode']
     shortlist_desc = results['shortlistdesc']
     Node_selection_ansi()
-    print('\nShort-list of Nodes for the New Log Chunk:')
+    print(f'\nShort-list of Nodes for the {ANSI_wt}New Log Chunk{ANSI_sel}:')
     #shortlist_vec = [s for s in shortlist_desc.decode().splitlines() if s.strip()]
     shortlist_vec = [s for s in shortlist_desc.decode().split("@@@") if s.strip()]
     pattern = re.compile('[\W_]+')
@@ -252,7 +244,7 @@ def select_Node_for_Log_chunk():
         printableline = pattern.sub(' ',line)
         print(f' {number}: {printableline}')
 
-    choice = input('Use:\n- [0-9] from shortlist, or\n- [?] to browse: ')
+    choice = input(f'Use:\n- [{ANSI_gn}0-9{ANSI_sel}] from shortlist, or\n- [{ANSI_gn}?{ANSI_sel}] to browse: ')
     if (choice == '?'):
         node = browse_for_Node()
     else:
@@ -270,12 +262,26 @@ def select_Node_for_Log_chunk():
 
 
 def update_schedule(args):
-    alert_ansi()
-    print('\nUPDATING SCHEDULE NOT YET IMPLEMENTED!')
-    print('Presently, the shortlist is simply using the target date sorted list of')
-    print('incomplete Nodes. There may well be a more desirable arrangement of Nodes')
-    print('to suggest.\n')
-    fztask_ansi()
+    ANSI_upd = '\u001b[38;5;148m'
+    print(ANSI_upd)
+    ANSI_Yes_no = f'{ANSI_gn}Y{ANSI_upd}/{ANSI_rd}n{ANSI_upd}'
+    print('SCHEDULE UPDATES')
+    addtocmd = ''
+    if args.T_emulate:
+        addtocmd += ' -t '+args.T_emulate
+    if config['verbose']:
+        addtocmd += ' -V'
+    varupdate = input(f'  Update {ANSI_wt}variable{ANSI_upd} target date Nodes? ({ANSI_Yes_no}) ')
+    if (varupdate != 'n'):
+        thecmd = 'fzupdate -q -E STDOUT -u'+addtocmd
+        retcode = try_subprocess_check_output(thecmd, 'varupdate')
+        exit_error(retcode, 'Attempt to update variable target date Nodes failed.')
+    skippassedrepeats = input(f'  Skip {ANSI_wt}passed repeating{ANSI_upd} Nodes? ({ANSI_Yes_no}) ')
+    if (skippassedrepeats != 'n'):
+        thecmd = 'fzupdate -q -E STDOUT -r'+addtocmd
+        retcode = try_subprocess_check_output(thecmd, 'passedrepeatsskip')
+        exit_error(retcode, 'Attempt to skip passed repeating Nodes failed.')
+    print('')
 
 
 def next_chunk(args):
@@ -311,14 +317,6 @@ def get_main_topic(node):
     return topic
 
 
-def set_DIL_entry_preset(node):
-    topic = get_main_topic(node)
-    dilpreset = f'{topic}.html#{node}:!'
-    print(f'Specifying the DIL ID preset: {dilpreset}')
-    with open(userhome+'/.dil2al-DILidpreset','w') as f:
-        f.write(dilpreset)
-
-
 def get_completion_required(node):
     # *** This can be made easier if there is a simple way to get just a a specific
     #     parameter of a node, for example through the direct TCP-port API.
@@ -339,44 +337,6 @@ def get_most_recent_task():
     exit_error(retcode, 'Attempt to get most recent Log chunk data failed.')
     recent_node = (results['recentlog'].split()[2]).decode()
     return recent_node
-
-
-#def transition_dil2al_request(recent_node, node):
-def transition_dil2al_request(node, args):
-    # - set 'flagcmd' in dil2al/controller.cc:chunk_controller() such that no alert is called
-    # - provide a command string to automatically answer confirmation() 'N' about making a note
-    # - provide 'S' or 't' to start a new chunk or simply close the chunk, for auto_interactive()
-    # - case 'S': decide_add_TL_chunk(): perhaps set timechunkoverstrategy=TCS_NEW and timechunkunderstrategy,
-    #   then like DIL_entry selection in logentry
-    # - case 't': stop_TL_chunk(): could modify alautoupdate if I want to prevent AL update and
-    #   set completion ratios directly instead of automatically
-    # - set 'isdaemon' false to prevent waiting in loop in schedule_controller()
-    # - possibly also prevent an at-command from being created
-    # *** If this is all too difficult, I can just call `dil2al -C` and let me figure it out manually.
-    #     And note that `dil2al -u` sets alautoupdate to no, yes or ask. Note that `dil2al -C` does
-    #     not appear to set a timer or at-command (in fact, it seems that the `at` program is not
-    #     even installed on aether).
-    print('For transition synchronization back to Formalizer 1.x:')
-    set_DIL_entry_preset(node)
-    print(f'  preset DIL entry selection to {node}')
-    # thecmd = "urxvt -e dil2al -C -u no -p 'noaskALDILref' -p 'noshowflag'"
-    # print(f'  calling `{thecmd}` for:\n  alautoupdate=no, no timer setting, and use the (preset) default as the DIL entry')
-    thecmd = "urxvt -e dil2al -C -u yes -p 'noaskALDILref' -p 'noshowflag'"
-    if args.T_emulate:
-        thecmd += ' -T ' + args.T_emulate
-    print(f'  calling `{thecmd}` for:\n  alautoupdate=yes, no timer setting, and use the (preset) default as the DIL entry')
-    retcode = try_subprocess_check_output(thecmd, 'dil2al_chunk')
-    exit_error(retcode, 'Call to dil2al -C failed.')
-
-    # *** I can'd do the steps below and need to let dil2al do its thing instead, because of the
-    #     complex nature of targetdate updates through links to Superiors.
-    # get_completion_required(node)
-    # completion = results['completion']
-    # required = results['required']
-    # print(f'  synchronizing {recent_node} completion={completion} and required={required}')
-    # thecmd = f"urxvt -e w3m '/cgi-bin/dil2al?dil2al=MEi&DILID={recent_node}&required={required}&completion={completion}'"
-    # retcode = try_subprocess_check_output(thecmd, 'dil2al_compreq')
-    # exit_error(retcode, 'GET call to dil2al failed.')
 
 
 def set_chunk_timer_and_alert():
@@ -432,6 +392,8 @@ def task_control(args):
         set_chunk_timer_and_alert()
 
     return chunkchoice
+
+# ----- end: Local variables and functions -----
 
 
 if __name__ == '__main__':

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=RecentLog
+Comment=Show Recent Log Chunks and Entries
+Exec=/home/randalk/.formalizer/bin/fzloghtml-term.sh
+StartupWMClass=fzlog
+Terminal=false
+Type=Application
+Icon=/home/randalk/.formalizer/config/fzloghtml/recentlog.png
+StartupNotify=true

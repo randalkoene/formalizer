@@ -107,6 +107,7 @@ EXECUTABLES += $(TOOLSPATH)/system/requestmanual/requestmanual.py
 # EXECUTABLES += $(TOOLSPATH)/system/schedule/checkrequired/checkrequired
 # EXECUTABLES += $(TOOLSPATH)/system/schedule/favorvariable/favorvariable
 # EXECUTABLES += $(TOOLSPATH)/system/syswizard/syswizard
+EXECUTABLES += $(TOOLSPATH)/system/top/index-term.sh
 
 # configuration files needed by CGI scripts
 CONFIGEXPOSE =
