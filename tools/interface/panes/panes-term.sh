@@ -5,7 +5,7 @@
 # Randal A. Koene, 2021-01-18
 
 FORMALIZERDOTDIR=$HOME/.formalizer
-FORMAILZERBASEDIR=$HOME/src/formalizer
+FORMALIZERBASEDIR=$HOME/src/formalizer
 
 if [ "$1" = "-h" ]; then
 	echo "Usage: panes-term.sh"
