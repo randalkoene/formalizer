@@ -149,10 +149,10 @@ struct line_render_parameters {
     void insert_day_start(time_t t) {
         if ((fzgh.config.outputformat == output_txt) || (fzgh.config.outputformat == output_html)) {
             template_varvalues varvals;
-            varvals.emplace("node_id","");
-            varvals.emplace("topic","");
+            varvals.emplace("node_id","<b>ID</b>");
+            varvals.emplace("topic","<b>main topic</b>");
             varvals.emplace("targetdate","<b>"+datestamp+"</b>");
-            varvals.emplace("req_hrs","");
+            varvals.emplace("req_hrs","<b>hrs</b>");
             varvals.emplace("tdprop","");
             varvals.emplace("excerpt","<b>"+WeekDay(t)+"</b>");
             varvals.emplace("fzserverpq","");
@@ -161,15 +161,19 @@ struct line_render_parameters {
         }
     }
 
-    std::string render_tdproperty(td_property tdprop) {
+    std::string render_tdproperty(const Node & node) {
         std::string tdpropstr;
         tdpropstr.reserve(20);
+        td_property tdprop = node.get_tdproperty();
         bool boldit = (tdprop==fixed) || (tdprop==exact);
         if (boldit) {
             tdpropstr += "<b>";
         }
         tdpropstr += td_property_str[tdprop];
         if (boldit) {
+            if (node.get_repeats()) {
+                tdpropstr += '*';
+            }
             tdpropstr += "</b>";
         }
         return tdpropstr;
@@ -204,7 +208,7 @@ struct line_render_parameters {
             varvals.emplace("req_hrs",to_precision_string(node.get_required_hours()));
         }
 
-        varvals.emplace("tdprop",render_tdproperty(node.get_tdproperty()));
+        varvals.emplace("tdprop",render_tdproperty(node));
         std::string htmltext(node.get_text().c_str());
         varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
         //varvals.emplace("excerpt",remove_html(htmltext).substr(0,fzgh.config.excerpt_length));

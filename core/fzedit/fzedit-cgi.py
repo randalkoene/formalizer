@@ -28,8 +28,11 @@ form = cgi.FieldStorage()
 id = form.getvalue('id')
 text = form.getvalue('text')
 comp = form.getvalue('comp')
+set_complete = form.getvalue('set_complete')
 req_hrs = form.getvalue('req_hrs')
 req_mins = form.getvalue('req_mins')
+add_hrs = form.getvalue('add_hrs')
+add_mins = form.getvalue('add_mins')
 val = form.getvalue('val')
 targetdate = form.getvalue('targetdate')
 alt_targetdate = form.getvalue('alt_targetdate')
@@ -43,6 +46,25 @@ verbosity = form.getvalue('verbosity')
 orig_mins = form.getvalue('orig_mins')
 orig_td = form.getvalue('orig_td')
 
+if (set_complete=='on'):
+    req_mins = int(float(orig_mins)*comp)
+    comp = 1.0
+
+# add_hrs and add_mins are combined
+if (add_hrs != 0):
+    add_mins += int(add_hrs*60.0)
+if (add_mins != 0):
+    if (comp >= 0.0):
+        completed_mins = int(float(orig_mins)*comp)
+    req_mins = orig_mins + add_mins
+    if (req_mins<0):
+        req_mins = 0
+    if (comp >= 0.0):
+        if (completed_mins >= req_mins):
+            comp = 1.0
+        else:
+            comp = float(completed_mins)/float(req_mins)
+    
 if (orig_mins != req_mins):
     # if the value changed then we assume that req_mins is being used to set required
     req_hrs_float = float(req_mins)/60.0
