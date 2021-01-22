@@ -17,6 +17,23 @@ from io import StringIO
 from traceback import print_exc
 from subprocess import Popen, PIPE
 
+testingoutputstart='''Content-type:text/html
+
+<html>
+'''
+
+testingoutputend='''Testing
+</html>
+'''
+
+def cgi_testing_start():
+    print(testingoutputstart)
+
+def cgi_testing_end():
+    print(testingoutputend)
+    sys.exit(0)
+
+
 # cgitb.enable()
 # cgitb.disable()
 # cgitb.enable(display=0, logdir="/tmp/test_python_cgiformget.log")
@@ -27,23 +44,23 @@ form = cgi.FieldStorage()
 # Get data from fields
 id = form.getvalue('id')
 text = form.getvalue('text')
-comp = form.getvalue('comp')
+comp = float(form.getvalue('comp'))
 set_complete = form.getvalue('set_complete')
-req_hrs = form.getvalue('req_hrs')
-req_mins = form.getvalue('req_mins')
-add_hrs = form.getvalue('add_hrs')
-add_mins = form.getvalue('add_mins')
-val = form.getvalue('val')
+req_hrs = float(form.getvalue('req_hrs'))
+req_mins = int(form.getvalue('req_mins'))
+add_hrs = float(form.getvalue('add_hrs'))
+add_mins = int(form.getvalue('add_mins'))
+val = float(form.getvalue('val'))
 targetdate = form.getvalue('targetdate')
 alt_targetdate = form.getvalue('alt_targetdate')
 prop = form.getvalue('prop')
 patt = form.getvalue('patt')
-every = form.getvalue('every')
-span = form.getvalue('span')
+every = int(form.getvalue('every'))
+span = int(form.getvalue('span'))
 
 verbosity = form.getvalue('verbosity')
 
-orig_mins = form.getvalue('orig_mins')
+orig_mins = int(form.getvalue('orig_mins'))
 orig_td = form.getvalue('orig_td')
 
 if (set_complete=='on'):
@@ -53,6 +70,7 @@ if (set_complete=='on'):
 # add_hrs and add_mins are combined
 if (add_hrs != 0):
     add_mins += int(add_hrs*60.0)
+
 if (add_mins != 0):
     if (comp >= 0.0):
         completed_mins = int(float(orig_mins)*comp)
@@ -67,8 +85,8 @@ if (add_mins != 0):
     
 if (orig_mins != req_mins):
     # if the value changed then we assume that req_mins is being used to set required
-    req_hrs_float = float(req_mins)/60.0
-    req_hrs = '{:.5f}'.format(req_hrs_float)
+    req_hrs = float(req_mins)/60.0
+    #req_hrs = '{:.5f}'.format(req_hrs_float)
 
 atd = alt_targetdate.split('T')
 atd_date = atd[0].split('-')
@@ -113,9 +131,9 @@ with open(textfile,'w') as f:
     f.write(text)
 
 if (verbosity == "verbose"):
-    thecmd = f"./fzedit -V -E STDOUT -M {id} -f {textfile} -c {comp} -H {req_hrs} -a {val} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}"
+    thecmd = f"./fzedit -V -E STDOUT -M {id} -f {textfile} -c {comp:.5f} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}"
 else:
-    thecmd = f"./fzedit -q -E STDOUT -M {id} -f {textfile} -c {comp} -H {req_hrs} -a {val} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}"
+    thecmd = f"./fzedit -q -E STDOUT -M {id} -f {textfile} -c {comp:.5f} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}"
 
 print(f'<!-- Call command: {thecmd} -->')
 
