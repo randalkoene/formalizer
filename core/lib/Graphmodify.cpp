@@ -638,42 +638,64 @@ bool Graph_modify_batch_node_targetdates(Graph & graph, const std::string & grap
     return batch_to_NNL(graph, *(gmoddata.batchmodtd_ptr.get()), "batch_updated");
 }
 
-bool sorted_to_NNL(Graph & graph, const targetdate_sorted_Nodes & sortednodes, std::string list_name) {
+/**
+ * Copy Nodes from a sorted list to a Named Node List. This does not include synchronization to database.
+ * See, for example, how this is used when processing a `batchmod_tpassrepeating` request in `fzserverpq`.
+ * 
+ * @param graph A memory-resident Graph.
+ * @param sortednodes The target date sorted list of Nodes.
+ * @param list_name A Named Node List. If it already exists then it is deleted (even if no new one is created).
+ * @return The number of Nodes copied from the sorted list to the NNL, or the error code -1.
+ */
+ssize_t sorted_to_NNL(Graph & graph, const targetdate_sorted_Nodes & sortednodes, std::string list_name) {
+    ERRTRACE;
     VERYVERBOSEOUT("Updating the '"+list_name+"' Named Node List\n");
 
     graph.delete_List(list_name);
 
     if (sortednodes.empty()) {
-        return true;
+        return 0;
     }
 
     auto source_it = sortednodes.begin();
-    //size_t copied = 0;
+    ssize_t copied = 0;
     Named_Node_List * nnl_ptr = graph.add_to_List(list_name, *(source_it->second));
     if (!nnl_ptr) {
         ERRRETURNFALSE(__func__, "Unable to create the "+list_name+" Named Node List for updated Nodes to synchronize to database");
     }
 
     ++source_it;
-    //++copied;
+    ++copied;
     for ( ; source_it != sortednodes.end(); ++source_it) {
         if (graph.add_to_List(*nnl_ptr, *(source_it->second))) {
-            //++copied;
+            ++copied;
         }
     }
-    //return copied;
-
-    return true;
+    return copied;
 }
 
-/// Modify the targetdates of a batch of repeating Nodes past t_pass time. Updated notes are put into an 'updated' Named Node List.
-bool Graph_modify_batch_node_tpassrepeating(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata) {
+/**
+ * Modify the targetdates of a batch of repeating Nodes past t_pass time.
+ * Updated notes are put into an 'repeating_updated' Named Node List.
+ * 
+ * Note that the 'repeating_updated' NNL is modified even if no Nodes were
+ * updated. If the number of updated Nodes is zero then the NNL is simply
+ * deleted.
+ * 
+ * @param graph A memory-resident Graph.
+ * @param graph_segname The shared memory segment name of the memory-resident Graph.
+ * @param gmoddata A Graph modifications data structure.
+ * @return The number of Nodes modified (and placed in 'repeating_updated'), or -1 for error.
+ */
+ssize_t Graph_modify_batch_node_tpassrepeating(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata) {
+    ERRTRACE;
     if (!gmoddata.batchmodtpass_ptr) {
-        return false;
+        return -1;
     }
 
     if (!graphmemman.set_active(graph_segname)) {
-        ERRRETURNFALSE(__func__, "Unable to activate segment "+graph_segname+" for batch modification of Nodes past t_pass");
+        ADDERROR(__func__, "Unable to activate segment "+graph_segname+" for batch modification of Nodes past t_pass");
+        return -1;
     }
 
     Batchmod_tpass & batchmodtpass = *(gmoddata.batchmodtpass_ptr.get());

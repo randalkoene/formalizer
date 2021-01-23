@@ -295,9 +295,10 @@ bool handle_request_stack(std::string segname) {
                 if (!Graph_modify_batch_node_targetdates(*fzs.graph_ptr, graph_segname, gmoddata)) {
                     ERRRETURNFALSE(__func__, "Batch modify Nodes targetdates failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
                 }
-                if (fzs.graph_ptr->persistent_Lists()) {
+                if (fzs.graph_ptr->persistent_Lists()) { // *** See how this will probably be changed: https://trello.com/c/s84fTACd
+                    // This step just modifies an NNL to contain a list of updated Nodes. See below for the actual call to update the Graph in database.
                     if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), "batch_updated", *fzs.graph_ptr)) {
-                        ADDWARNING(__func__, "Synchronizing 'updated' Named Node List to database failed");
+                        ADDWARNING(__func__, "Synchronizing 'batch_updated' Named Node List to database failed");
                     }
                 }                
                 results_ptr->results.emplace_back(batchmod_targetdates, "batch_updated");
@@ -305,15 +306,27 @@ bool handle_request_stack(std::string segname) {
             }
 
             case batchmod_tpassrepeating: {
-                if (!Graph_modify_batch_node_tpassrepeating(*fzs.graph_ptr, graph_segname, gmoddata)) {
+                ssize_t num_updated = Graph_modify_batch_node_tpassrepeating(*fzs.graph_ptr, graph_segname, gmoddata);
+                if (num_updated < 0) {
                     ERRRETURNFALSE(__func__, "Batch modify Nodes past t_pass failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
                 }
-                if (fzs.graph_ptr->persistent_Lists()) {
-                    if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), "repeating_updated", *fzs.graph_ptr)) {
-                        ADDWARNING(__func__, "Synchronizing 'updated' Named Node List to database failed");
+                if (num_updated > 0) {
+                    if (fzs.graph_ptr->persistent_Lists()) { // *** See how this will probably be changed: https://trello.com/c/s84fTACd
+                        // This step just modifies an NNL to contain a list of updated Nodes. See below for the actual call to update the Graph in database.
+                        if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), "repeating_updated", *fzs.graph_ptr)) {
+                            ADDWARNING(__func__, "Synchronizing 'repeating_updated' Named Node List to database failed");
+                        }
                     }
+                    results_ptr->results.emplace_back(batchmod_tpassrepeating, "repeating_updated");
+                } else {
+                    if (fzs.graph_ptr->persistent_Lists()) { // *** See how this will probably be changed: https://trello.com/c/s84fTACd
+                        // This step just deletes an NNL. See how this is detected below to skip updating the Graph in database.
+                        if (!Delete_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), "repeating_updated")) {
+                            ADDWARNING(__func__, "Deleting 'repeating_updated' Named Node List to database failed");
+                        }
+                    }
+                    results_ptr->results.emplace_back(batchmod_tpassrepeating, "no_repeating_Nodes_updated");
                 }
-                results_ptr->results.emplace_back(batchmod_tpassrepeating, "repeating_updated");
                 break;                
             }
 

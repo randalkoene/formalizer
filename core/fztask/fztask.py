@@ -83,9 +83,9 @@ def exit_error(retcode, errormessage, ask_exit = False):
         if ask_exit:
             exitorcontinue = input(f'\n[{ANSI_rd}E{ANSI_nrm}]xit or attempt to [{ANSI_gn}c{ANSI_nrm}]ontinue? ')
             if (exitorcontinue == 'c'):
-                printf('\nAttempting to continue...\n')
+                print('\nAttempting to continue...\n')
             else:
-                printf('\nExiting.\n')
+                print('\nExiting.\n')
                 sys.exit(retcode)
         else:
             exitenter = pause_key('exit')
@@ -173,7 +173,8 @@ except FileNotFoundError:
 
 # Some things to do depending on configuration settings
 if config['logcmderrors']:
-    cmderrorreviewstr = f'\nYou may review the error(s) in: {ANSI_yb}{config['cmderrlog']}{ANSI_nrm}'
+    cmderrlogstr = config['cmderrlog']
+    cmderrorreviewstr = f'\nYou may review the error(s) in: {ANSI_yb}{cmderrlogstr}{ANSI_nrm}'
 if config['transition']:
     from fztask_transition import transition_dil2al_request
 
@@ -358,10 +359,11 @@ def get_main_topic(node):
     customtemplate = '{{ topics }}'
     with open(config['customtemplate'],'w') as f:
         f.write(customtemplate)
-    topicgettingcmd = f"fzgraphhtml -q -T 'Node={config['customtemplate']}' -n {node}"
+    customtemplatefile = config['customtemplate']
+    topicgettingcmd = f"fzgraphhtml -q -T 'Node={customtemplatefile}' -n {node}"
     retcode = try_subprocess_check_output(topicgettingcmd, 'topic')
     exit_error(retcode, f'Attempt to get Node topic failed.{cmderrorreviewstr}', True)
-    if (retcode === 0):
+    if (retcode == 0):
         topic = results['topic'].split()[0]
         topic = topic.decode()
     else:
@@ -376,7 +378,8 @@ def get_completion_required(node):
     customtemplate = '{{ comp }} {{ req_hrs }}'
     with open(config['customtemplate'],'w') as f:
         f.write(customtemplate)
-    topicgettingcmd = f"fzgraphhtml -q -T 'Node={config['customtemplate']}' -n {node}"
+    customtemplatefile = config['customtemplate']
+    topicgettingcmd = f"fzgraphhtml -q -T 'Node={customtemplatefile}' -n {node}"
     retcode = try_subprocess_check_output(topicgettingcmd, 'compreq')
     exit_error(retcode, f'Attempt to get Node completion and required failed.{cmderrorreviewstr}', True)
     if (retcode == 0):

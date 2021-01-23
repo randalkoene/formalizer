@@ -4,7 +4,7 @@
 #
 # Randal A. Koene, 20201126
 #
-# {{ brief_title }}. See Readme.md for more information.
+# Add a Node to the Graph. See Readme.md for more information.
 
 # std
 import os
@@ -14,8 +14,15 @@ import argparse
 import subprocess
 import re
 import pty
+import time
 from datetime import datetime
 
+ANSI_wt = '\u001b[38;5;15m'
+ANSI_gn = '\u001b[38;5;47m'
+ANSI_rd = '\u001b[38;5;202m'
+ANSI_yb = '\u001b[33;1m'
+ANSI_alert = '\u001b[31m'
+ANSI_nrm = '\u001b[32m'
 
 # Standardized expectations.
 userhome = os.getenv('HOME')
@@ -320,6 +327,15 @@ def is_TimeStamp(s):
         return False
     return True
 
+def is_Future(s):
+    if (s == 'TODAY'):
+        return True
+    t_current_str = time.strftime("%Y%m%d%H%M", time.localtime())
+    if (int(s) > int(t_current_str)):
+        return True
+    else:
+        return False
+
 targetdate_info = """
 TARGETDATE
 """
@@ -336,6 +352,13 @@ def collect_targetdate():
             print('Target date needs to be a proper date and time stamp (e.g. 202101120813).')
             lightgray_ansi()
             targetdate = ''
+        if (not is_Future(targetdate)):
+            alert_ansi()
+            print('Target dates are typically in the future.')
+            lightgray_ansi()
+            continueanyway = input(f'Continue with {targetdate} anyway? ({ANSI_yb}y{ANSI_nrm}/{ANSI_gn}N{ANSI_nrm}) ')
+            if (continueanyway != 'y'):
+                targetdate = ''
     return targetdate
 
 

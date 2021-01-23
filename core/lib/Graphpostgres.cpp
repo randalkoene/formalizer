@@ -1263,6 +1263,11 @@ bool update_batch_node_targetdates_pq(PGconn* conn, std::string schemaname, Grap
 bool update_batch_nodes_pq(PGconn* conn, std::string schemaname, Graph & graph, const std::string NNL_name) {
     ERRTRACE;
 
+    // *** See how this will probably be changed: https://trello.com/c/s84fTACd
+    if (NNL_name == "no_repeating_Nodes_updated") {
+        return true;
+    }
+
     Named_Node_List_ptr nodelist_ptr = graph.get_List(NNL_name);
     if (!nodelist_ptr) {
         ERRRETURNFALSE(__func__, "Named Node List "+NNL_name+" of Nodes with individually set Edit_flags not found");

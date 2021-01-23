@@ -339,8 +339,20 @@ bool Graph_modify_list_delete(Graph & graph, const std::string & graph_segname, 
 /// Modify the targetdates of a batch of Nodes.
 bool Graph_modify_batch_node_targetdates(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
 
-/// Modify the targetdates of a batch of Nodes.
-bool Graph_modify_batch_node_tpassrepeating(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
+/**
+ * Modify the targetdates of a batch of repeating Nodes past t_pass time.
+ * Updated notes are put into an 'repeating_updated' Named Node List.
+ * 
+ * Note that the 'repeating_updated' NNL is modified even if no Nodes were
+ * updated. If the number of updated Nodes is zero then the NNL is simply
+ * deleted.
+ * 
+ * @param graph A memory-resident Graph.
+ * @param graph_segname The shared memory segment name of the memory-resident Graph.
+ * @param gmoddata A Graph modifications data structure.
+ * @return The number of Nodes modified (and placed in 'repeating_updated'), or -1 for error.
+ */
+ssize_t Graph_modify_batch_node_tpassrepeating(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata);
 
 /**
  * Modify the targetdate of a repeating Node by carrying out one or more iterations
@@ -431,8 +443,13 @@ bool batch_to_NNL(Graph & graph, const Batchmod_targetdates & batchnodes, std::s
 /**
  * Copy Nodes from a sorted list to a Named Node List. This does not include synchronization to database.
  * See, for example, how this is used when processing a `batchmod_tpassrepeating` request in `fzserverpq`.
+ * 
+ * @param graph A memory-resident Graph.
+ * @param sortednodes The target date sorted list of Nodes.
+ * @param list_name A Named Node List. If it already exists then it is deleted (even if no new one is created).
+ * @return The number of Nodes copied from the sorted list to the NNL, or the error code -1.
  */
-bool sorted_to_NNL(Graph & graph, const targetdate_sorted_Nodes & sortednodes, std::string list_name);
+ssize_t sorted_to_NNL(Graph & graph, const targetdate_sorted_Nodes & sortednodes, std::string list_name);
 
 } // namespace fz
 
