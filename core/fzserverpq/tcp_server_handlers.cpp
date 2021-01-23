@@ -1054,6 +1054,11 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
         return;
     }
 
+    if (requestvec[0] == "FZ") {
+        handle_serialized_data_request(new_socket, request_str);
+        return;
+    }
+
     // Note that we're not really bothering to distinguish GET and PATCH here.
     // Instead, we're just using CGI FORM GET-method URL encoding to identify modification requests.
 

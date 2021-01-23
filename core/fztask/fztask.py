@@ -97,18 +97,33 @@ def browse_for_Node():
     #retcode = pty.spawn([config['localbrowser'],'http://localhost/select.html'])
     thecmd = config['localbrowser'] + ' http://localhost/select.html'
     retcode = try_subprocess_check_output(thecmd, 'browsed')
-    exit_error(retcode, 'Attempt to browse for Node selection failed.', True)
+    exit_error(retcode, f'Attempt to browse for Node selection failed.{cmderrorreviewstr}', True)
     if (retcode == 0):
         retcode = try_subprocess_check_output(f"fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected')
-        exit_error(retcode, 'Attempt to get selected Node failed.', True)
+        exit_error(retcode, f'Attempt to get selected Node failed.{cmderrorreviewstr}', True)
         if (retcode == 0):
-            print(f'Selected: {results["selected"]}')
+            node = (results['selected'][0:16]).decode()
+            print(f'Selected: {node}')
             if results['selected']:
                 return results['selected'][0:16]
             else:
                 return ''
         else:
             return ''
+    else:
+        return ''
+
+
+def selected_Node_description(excerpt_len = 0):
+    thecmd = "fzgraphhtml -L 'selected' -F desc -N 1 -e -q"
+    if (excerpt_len > 0):
+        thecmd += f' -x {excerpt_len}'
+    retcode = try_subprocess_check_output(thecmd,'selected_desc')
+    exit_error(retcode, f'Attempt to get description of selected Node failed.{cmderrorreviewstr}', True)
+    if (retcode == 0):
+        res_selected_desc = results['selected_desc']
+        selected_desc_vec = res_selected_desc.decode().split("@@@")
+        return selected_desc_vec[0]
     else:
         return ''
 
@@ -300,7 +315,12 @@ def select_Node_for_Log_chunk():
 
     if node:
         node = node.decode()
-        print(f'Log chunk will belong to Node {node}.')
+        print(f'Log chunk will belong to Node {node}:')
+        if (choice != '?'):
+            chosen_desc = shortlist_vec[int(choice)]
+        else:
+            chosen_desc = selected_Node_description(60)
+        print(f'  {ANSI_wt}{chosen_desc}{ANSI_nrm}')
     else:
         print(f'We cannot make a new Log chunk without a Node.')
     fztask_ansi()

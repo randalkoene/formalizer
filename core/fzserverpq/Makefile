@@ -143,10 +143,13 @@ $(OBJ)/shm_server_handlers.o: shm_server_handlers.cpp shm_server_handlers.hpp ve
 $(OBJ)/tcp_server_handlers.o: tcp_server_handlers.cpp tcp_server_handlers.hpp version.hpp fzserverpq.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(FORMALIZERROOT) $(STANDARD_STREAMS) -c tcp_server_handlers.cpp -o $(OBJ)/tcp_server_handlers.o
 
-$(OBJ)/fzserverpq.o: fzserverpq.cpp fzserverpq.hpp version.hpp shm_server_handlers.hpp tcp_server_handlers.hpp
+$(OBJ)/tcp_serialized_data_handlers.o: tcp_serialized_data_handlers.cpp tcp_serialized_data_handlers.hpp version.hpp fzserverpq.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(FORMALIZERROOT) $(STANDARD_STREAMS) -c tcp_serialized_data_handlers.cpp -o $(OBJ)/tcp_serialized_data_handlers.o
+
+$(OBJ)/fzserverpq.o: fzserverpq.cpp fzserverpq.hpp version.hpp shm_server_handlers.hpp tcp_server_handlers.hpp tcp_serialized_data_handlers.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(FORMALIZERROOT) $(STANDARD_STREAMS) -c fzserverpq.cpp -o $(OBJ)/fzserverpq.o
 
-fzserverpq: $(OBJ)/fzserverpq.o $(OBJ)/tcp_server_handlers.o $(OBJ)/shm_server_handlers.o $(CORE_OBJS)
+fzserverpq: $(OBJ)/fzserverpq.o $(OBJ)/tcp_server_handlers.o $(OBJ)/shm_server_handlers.o $(OBJ)/tcp_serialized_data_handlers.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $^ -o fzserverpq $(LIB_PATH)
 
 clean:
