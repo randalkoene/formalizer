@@ -24,9 +24,6 @@ userhome = os.getenv('HOME')
 fzuserbase = userhome + '/.formalizer'
 fzsetupconfigdir = fzuserbase+'/config/fzsetup.py'
 fzsetupconfig = fzsetupconfigdir+'/config.json'
-#fztaskconfigdir = fzuserbase+'/config/fztask.py'
-#fztaskconfig = fztaskconfigdir+'/config.json'
-
 results = {}
 
 # We need this everywhere to run various shell commands.
@@ -38,10 +35,17 @@ def try_subprocess_check_output(thecmdstring, resstore):
             f.write(thecmdstring+'\n')
     try:
         res = subprocess.check_output(thecmdstring, shell=True)
+
     except subprocess.CalledProcessError as cpe:
+        if config['logcmderrors']:
+            with open(config['cmderrlog'],'a') as f:
+                f.write(f'Subprocess call ({thecmdstring}) caused exception.\n')
+                f.write(f'Error output: {cpe.output.decode()}\n')
+                f.write(f'Error code  : {cpe.returncode}\n')
+                if (cpe.returncode>0):
+                    f.write('Formalizer error: '+error.exit_status_code[cpe.returncode]+'\n')
         if config['verbose']:
             print('Subprocess call caused exception.')
-        if config['verbose']:
             print('Error output: ',cpe.output.decode())
             print('Error code  : ',cpe.returncode)
             if (cpe.returncode>0):
@@ -60,6 +64,7 @@ def try_subprocess_check_output(thecmdstring, resstore):
 ANSI_wt = '\u001b[38;5;15m'
 ANSI_gn = '\u001b[38;5;47m'
 ANSI_rd = '\u001b[38;5;202m'
+ANSI_yb = '\u001b[33;1m'
 ANSI_alert = '\u001b[31m'
 ANSI_nrm = '\u001b[32m'
 
@@ -72,11 +77,19 @@ def pause_key(action_str, pausehere = True):
     return pausekey
 
 
-def exit_error(retcode, errormessage):
+def exit_error(retcode, errormessage, ask_exit = False):
     if (retcode != 0):
         print(f'\n{ANSI_alert}'+errormessage+f'{ANSI_nrm}\n')
-        exitenter = pause_key('exit')
-        sys.exit(retcode)
+        if ask_exit:
+            exitorcontinue = input(f'\n[{ANSI_rd}E{ANSI_nrm}]xit or attempt to [{ANSI_gn}c{ANSI_nrm}]ontinue? ')
+            if (exitorcontinue == 'c'):
+                printf('\nAttempting to continue...\n')
+            else:
+                printf('\nExiting.\n')
+                sys.exit(retcode)
+        else:
+            exitenter = pause_key('exit')
+            sys.exit(retcode)
 
 
 def browse_for_Node():
@@ -84,12 +97,18 @@ def browse_for_Node():
     #retcode = pty.spawn([config['localbrowser'],'http://localhost/select.html'])
     thecmd = config['localbrowser'] + ' http://localhost/select.html'
     retcode = try_subprocess_check_output(thecmd, 'browsed')
-    exit_error(retcode, 'Attempt to browse for Node selection failed.')
-    retcode = try_subprocess_check_output(f"fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected')
-    exit_error(retcode, 'Attempt to get selected Node failed.')
-    print(f'Selected: {results["selected"]}')
-    if results['selected']:
-        return results['selected'][0:16]
+    exit_error(retcode, 'Attempt to browse for Node selection failed.', True)
+    if (retcode == 0):
+        retcode = try_subprocess_check_output(f"fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected')
+        exit_error(retcode, 'Attempt to get selected Node failed.', True)
+        if (retcode == 0):
+            print(f'Selected: {results["selected"]}')
+            if results['selected']:
+                return results['selected'][0:16]
+            else:
+                return ''
+        else:
+            return ''
     else:
         return ''
 
@@ -104,6 +123,7 @@ except FileNotFoundError:
     exit(1)
 
 else:
+    #config['transition'] = 'false' # reading this from config/fzsetup.py/config.json now
     assert len(config) > 0
 
 # Enable us to import standardized Formalizer Python components.
@@ -115,6 +135,9 @@ sys.path.append(fzcoreincludedir)
 # ----- end: Common variables and functions (probably put into a library module) -----
 
 # ----- begin: Local variables and functions -----
+
+fztaskconfigdir = fzuserbase+'/config/fztask.py'
+fztaskconfig = fztaskconfigdir+'/config.json'
 
 # Enable import of logentry
 logentrydir = config['sourceroot'] + '/tools/interface/logentry'
@@ -128,23 +151,31 @@ import error
 version = "0.1.0-0.1"
 
 # local defaults
-# config['transition'] = 'true' # reading this from config/fzsetup.py/config.json now
+cmderrorreviewstr = ''
+
 config['customtemplate'] = '/tmp/customtemplate'
 config['addpause'] = False
 config['cmdlog'] = '/tmp/fztask-cmdcalls.log'
 config['logcmdcalls'] = False
+config['cmderrlog'] = '/tmp/fztask-cmdcalls-errors.log'
+config['logcmderrors'] = False
 
+# Potentially replace defaults with values from fztask config file
+try:
+    with open(fztaskconfig) as f:
+        fztaskconfig = json.load(f)
+        if (len(fztaskconfig)>0):
+            config.update(fztaskconfig)
+
+except FileNotFoundError:
+    if config['verbose']:
+        print('No fztask-specific configuration file found. Using defaults.\n')
+
+# Some things to do depending on configuration settings
+if config['logcmderrors']:
+    cmderrorreviewstr = f'\nYou may review the error(s) in: {ANSI_yb}{config['cmderrlog']}{ANSI_nrm}'
 if config['transition']:
     from fztask_transition import transition_dil2al_request
-
-
-# replace local defaults with values from ~/.formalizer/config/fztask.py/config.json
-#try:
-#    with open(fztaskconfig) as f:
-#        config += json.load(f)
-#
-#except FileNotFoundError:
-#    print('Configuration files for fztask missing. Continuing with defaults.\n')
 
 
 def parse_options():
@@ -225,33 +256,47 @@ def close_chunk(args):
 
 def get_updated_shortlist():
     retcode = try_subprocess_check_output(f"fzgraphhtml -u -L 'shortlist' -F node -e -q", 'shortlistnode')
-    exit_error(retcode, 'Attempt to get "shortlist" Named Node List node data failed.')
+    exit_error(retcode, 'Attempt to get "shortlist" Named Node List node data failed.', True)
+    if (retcode != 0):
+        return False
     retcode = try_subprocess_check_output(f"fzgraphhtml -L 'shortlist' -F desc -x 60 -e -q", 'shortlistdesc')
-    exit_error(retcode, 'Attempt to get "shortlist" Named Node List description data failed.')
+    exit_error(retcode, 'Attempt to get "shortlist" Named Node List description data failed.', True)
+    if (retcode != 0):
+        return False
+    return True
 
 
 def select_Node_for_Log_chunk():
     ANSI_sel = '\u001b[38;5;33m'
-    get_updated_shortlist()
-    shortlist_nodes = results['shortlistnode']
-    shortlist_desc = results['shortlistdesc']
+    gotshortlist = get_updated_shortlist()
     Node_selection_ansi()
-    print(f'\nShort-list of Nodes for the {ANSI_wt}New Log Chunk{ANSI_sel}:')
-    #shortlist_vec = [s for s in shortlist_desc.decode().splitlines() if s.strip()]
-    shortlist_vec = [s for s in shortlist_desc.decode().split("@@@") if s.strip()]
-    pattern = re.compile('[\W_]+')
-    for (number, line) in enumerate(shortlist_vec):
-        printableline = pattern.sub(' ',line)
-        print(f' {number}: {printableline}')
+    if gotshortlist:
+        shortlist_nodes = results['shortlistnode']
+        shortlist_desc = results['shortlistdesc']
+        print(f'\nShort-list of Nodes for the {ANSI_wt}New Log Chunk{ANSI_sel}:')
+        #shortlist_vec = [s for s in shortlist_desc.decode().splitlines() if s.strip()]
+        shortlist_vec = [s for s in shortlist_desc.decode().split("@@@") if s.strip()]
+        pattern = re.compile('[\W_]+')
+        for (number, line) in enumerate(shortlist_vec):
+            printableline = pattern.sub(' ',line)
+            print(f' {number}: {printableline}')
+    else:
+        shortlist_nodes = ''
+        shortlist_desc = ''
+        shortlist_vec = [ ]
 
-    choice = input(f'Use:\n- [{ANSI_gn}0-9{ANSI_sel}] from shortlist, or\n- [{ANSI_gn}?{ANSI_sel}] to browse: ')
+    print('Use:')
+    if (len(shortlist_vec)>0):
+        print(f'- [{ANSI_gn}0-{len(shortlist_vec)-1}{ANSI_sel}] from shortlist, or')
+    choice = input(f'- [{ANSI_gn}?{ANSI_sel}] to browse: ')
+
+    node = '' # none selected
     if (choice == '?'):
         node = browse_for_Node()
     else:
-        if ((choice >= '0') & (choice <= '9')):
-                node = shortlist_nodes.splitlines()[int(choice)]
-        else:
-            node = '' # default
+        if ((int(choice) >= 0) & (int(choice) < len(shortlist_vec))):
+            node = shortlist_nodes.splitlines()[int(choice)]
+
     if node:
         node = node.decode()
         print(f'Log chunk will belong to Node {node}.')
@@ -275,12 +320,12 @@ def update_schedule(args):
     if (varupdate != 'n'):
         thecmd = 'fzupdate -q -E STDOUT -u'+addtocmd
         retcode = try_subprocess_check_output(thecmd, 'varupdate')
-        exit_error(retcode, 'Attempt to update variable target date Nodes failed.')
+        exit_error(retcode, f'Attempt to update variable target date Nodes failed.{cmderrorreviewstr}', True)
     skippassedrepeats = input(f'  Skip {ANSI_wt}passed repeating{ANSI_upd} Nodes? ({ANSI_Yes_no}) ')
     if (skippassedrepeats != 'n'):
         thecmd = 'fzupdate -q -E STDOUT -r'+addtocmd
         retcode = try_subprocess_check_output(thecmd, 'passedrepeatsskip')
-        exit_error(retcode, 'Attempt to skip passed repeating Nodes failed.')
+        exit_error(retcode, f'Attempt to skip passed repeating Nodes failed.{cmderrorreviewstr}', True)
     print('')
 
 
@@ -289,16 +334,20 @@ def next_chunk(args):
     pause_key('select next Node',config['addpause'])
     node = select_Node_for_Log_chunk()
     if not node:
-        exit_error(1, 'Attempt to select Node for new Log chunk failed.')
-
-    pause_key('open new chunk',config['addpause'])
-    thecmd = 'fzlog -c ' + node
-    if args.T_emulate:
-        thecmd += ' -t ' + args.T_emulate
-    retcode = try_subprocess_check_output(thecmd, 'fzlog_res')
-    exit_error(retcode, 'Attempt to open new Log chunk failed.')
-
-    print(f'Opened new Log chunk for Node {node}.')
+        exit_error(1, 'Attempt to select Node for new Log chunk failed.', True)
+    else:
+        pause_key('open new chunk',config['addpause'])
+        thecmd = 'fzlog -c ' + node
+        if args.T_emulate:
+            thecmd += ' -t ' + args.T_emulate
+        if config['verbose']:
+            thecmd += ' -V'
+        retcode = try_subprocess_check_output(thecmd, 'fzlog_res')
+        exit_error(retcode, f'Attempt to open new Log chunk failed.{cmderrorreviewstr}', True)
+        if (retcode == 0):
+            print(f'Opened new Log chunk for Node {node}.')
+        else:
+            node = ''
     return node
 
 
@@ -311,9 +360,12 @@ def get_main_topic(node):
         f.write(customtemplate)
     topicgettingcmd = f"fzgraphhtml -q -T 'Node={config['customtemplate']}' -n {node}"
     retcode = try_subprocess_check_output(topicgettingcmd, 'topic')
-    exit_error(retcode, 'Attempt to get Node topic failed.')
-    topic = results['topic'].split()[0]
-    topic = topic.decode()
+    exit_error(retcode, f'Attempt to get Node topic failed.{cmderrorreviewstr}', True)
+    if (retcode === 0):
+        topic = results['topic'].split()[0]
+        topic = topic.decode()
+    else:
+        topic = ''
     return topic
 
 
@@ -326,16 +378,23 @@ def get_completion_required(node):
         f.write(customtemplate)
     topicgettingcmd = f"fzgraphhtml -q -T 'Node={config['customtemplate']}' -n {node}"
     retcode = try_subprocess_check_output(topicgettingcmd, 'compreq')
-    exit_error(retcode, 'Attempt to get Node completion and required failed.')
-    results['completion'] = (results['compreq'].split()[0]).decode()
-    results['required'] = (results['compreq'].split()[1]).decode()
+    exit_error(retcode, f'Attempt to get Node completion and required failed.{cmderrorreviewstr}', True)
+    if (retcode == 0):
+        results['completion'] = (results['compreq'].split()[0]).decode()
+        results['required'] = (results['compreq'].split()[1]).decode()
+    else:
+        results['completion'] = ''
+        results['required'] = ''
 
 
 def get_most_recent_task():
     thecmd = 'fzloghtml -R -o STDOUT -N -F raw -q'
     retcode = try_subprocess_check_output(thecmd, 'recentlog')
-    exit_error(retcode, 'Attempt to get most recent Log chunk data failed.')
-    recent_node = (results['recentlog'].split()[2]).decode()
+    exit_error(retcode, f'Attempt to get most recent Log chunk data failed.{cmderrorreviewstr}', True)
+    if (retcode == 0):
+        recent_node = (results['recentlog'].split()[2]).decode()
+    else:
+        recent_node = ''
     return recent_node
 
 
@@ -347,7 +406,7 @@ def set_chunk_timer_and_alert():
     print('Chunk time passed. Calling formalizer-alert.sh.')
     thecmd = 'formalizer-alert.sh'
     retcode = try_subprocess_check_output(thecmd, 'alert')
-    exit_error(retcode, 'Call to formalizer-alert.sh failed.')
+    exit_error(retcode, f'Call to formalizer-alert.sh failed.{cmderrorreviewstr}', True)
     fztask_ansi()
 
 
@@ -379,17 +438,21 @@ def task_control(args):
     if (chunkchoice !='c'):
         pause_key('start next chunk',config['addpause'])
         node = next_chunk(args)
-        # ** close_chunk() and next_chunk() could both return the new completion ratio of the
-        # ** Node that owns the previous chunk (or at least a true/false whether completion >= 1.0)
-        # ** and that could be used to check with the caller whether the Node really should
-        # ** be considered completed. If not, then there is an opportunity to change the
-        # ** time required or to set a guess for the actual completion ratio.
-        if config['transition']:
-            pause_key('synchronize back to Formalizer 1.x',config['addpause'])
-            transition_dil2al_request(node, args)
-            #transition_dil2al_request(recent_node, node)
-        pause_key('start the chunk timer',config['addpause'])
-        set_chunk_timer_and_alert()
+        if node:
+            # ** close_chunk() and next_chunk() could both return the new completion ratio of the
+            # ** Node that owns the previous chunk (or at least a true/false whether completion >= 1.0)
+            # ** and that could be used to check with the caller whether the Node really should
+            # ** be considered completed. If not, then there is an opportunity to change the
+            # ** time required or to set a guess for the actual completion ratio.
+            if config['transition']:
+                pause_key('synchronize back to Formalizer 1.x',config['addpause'])
+                transition_dil2al_request(node, args)
+                #transition_dil2al_request(recent_node, node)
+            pause_key('start the chunk timer',config['addpause'])
+            set_chunk_timer_and_alert()
+        else:
+            print(f'{ANSI_alert}We have no next Node, so we behave as if "close chunk" was chosen.{ANSI_nrm}')
+            chunkchoice = 'c'
 
     return chunkchoice
 
