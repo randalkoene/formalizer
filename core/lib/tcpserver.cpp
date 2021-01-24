@@ -256,6 +256,9 @@ exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server
         }
 
         std::string request_str(str);
+        if (request_str.back()) {
+            request_str.pop_back(); // closing newline is optional
+        }
 
         if ((request_str.substr(0,4) == "GET ") || (request_str.substr(0,6) == "PATCH ") || (request_str.substr(0,3) == "FZ ")) { // a special purpose request from a browser interface
             server.handle_special_purpose_request(new_socket, request_str);

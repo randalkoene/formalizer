@@ -26,6 +26,7 @@
 
 // local
 #include "tcp_server_handlers.hpp"
+#include "tcp_serialized_data_handlers.hpp"
 #include "fzserverpq.hpp"
 
 using namespace fz;

@@ -20,6 +20,8 @@ namespace fz {
 /**
  * A minimal TCP client communication function used to make the server aware of a request
  * specified by data in shared memory.
+ * Although this function was created to communicate shmem requests, it can probably be
+ * used for any TCP client communication.
  * 
  * Note: This client-server messaging function is only meant to be used with short pre-defined
  *       message strings, while data is shared through shared memory. A different function

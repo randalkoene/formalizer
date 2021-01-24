@@ -23,6 +23,7 @@
 
 // local
 #include "fzquerypq.hpp"
+#include "serializedAPIrequest.hpp"
 #include "servenodedata.hpp"
 #include "refresh.hpp"
 
@@ -33,8 +34,8 @@ fzquerypq fzq;
 
 fzquerypq::fzquerypq() : formalizer_standard_program(true), output_format(output_txt), ga(*this, add_option_args, add_usage_top, true), flowcontrol(flow_unknown) {
     COMPILEDPING(std::cout, "PING-fzquerypq().1\n");
-    add_option_args += "n:F:R:";
-    add_usage_top += " [-n <Node-ID>] [-F txt|html] [-R histories]";
+    add_option_args += "n:F:R:Z:";
+    add_usage_top += " [-n <Node-ID>] [-F txt|html] [-R histories] [-Z <serialized-request>]";
 }
 
 void fzquerypq::usage_hook() {
@@ -47,6 +48,7 @@ void fzquerypq::usage_hook() {
           "    -R refresh:\n"
           "         histories = Node histories cache table\n"
           "         namedlists = Named Node Lists cache table\n"
+          "    -Z make serialized data request <serialized_request> (see fzserverpq -h)\n"
     );
 }
 
@@ -92,6 +94,12 @@ bool fzquerypq::options_hook(char c, std::string cargs) {
         return standard_error("Unknown option -R "+cargs, __func__);
     }
 
+    case 'Z': {
+        flowcontrol = flow_serialized_request;
+        request_str = cargs;
+        return true;
+    }
+
     }
 
     return false;
@@ -130,6 +138,11 @@ int main(int argc, char *argv[]) {
 
     case flow_refresh_namedlists: {
         refresh_Named_Node_Lists_cache_table();
+        break;
+    }
+
+    case flow_serialized_request: {
+        make_serialized_data_API_request();
         break;
     }
 

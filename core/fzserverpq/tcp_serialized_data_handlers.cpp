@@ -35,9 +35,9 @@ enum serialized_response_code: unsigned int {
 };
 
 const std::map<serialized_response_code, std::string> serialized_response_code_map = {
-    {serialized_ok, "FZ 200"},
-    {serialized_bad_request, "FZ 400"},
-    {serialized_missing_data, "FZ 404"}
+    {serialized_ok, "FZ 200 "},
+    {serialized_bad_request, "FZ 400 "},
+    {serialized_missing_data, "FZ 404 "}
 };
 
 struct FZ_request_args {
@@ -52,7 +52,7 @@ struct serialized_data {
     serialized_response_code code = serialized_bad_request;
     serialized_data(serialized_response_code _code): code(_code) {}
     serialized_data(serialized_response_code _code, const std::string & _data_str): code(_code) {
-        data_str = code_str()+_data_str;
+        data_str = code_str()+_data_str+'\n';
     }
     size_t len() {
             return data_str.size();
@@ -61,11 +61,12 @@ struct serialized_data {
         return data_str;
     }
     const std::string & code_str() {
+        static const std::string nullcodestr = "       ";
         auto it = serialized_response_code_map.find(code);
         if (it != serialized_response_code_map.end()) {
             return it->second;
         } else {
-            return "      ";
+            return nullcodestr;
         }
     }
     ssize_t respond(int socket) {
@@ -83,14 +84,14 @@ struct serialized_data {
     }
 };
 
-bool handle_request_response(int socket, const std::string & serstr, std::string msg) {
+bool handle_serialized_data_request_response(int socket, const std::string & serstr, std::string msg) {
     serialized_data serdata(serialized_ok, serstr);
     fzs.log("TCP", msg);
     VERYVERBOSEOUT(msg+'\n');
     return (serdata.respond(socket) >= 0);
 }
 
-void handle_request_error(int socket, std::string error_msg) {
+void handle_serialized_data_request_error(int socket, std::string error_msg) {
     serialized_data serdata(serialized_bad_request);
     serdata.respond(socket); // a VERYVERBOSEOUT is in the respond() function
     fzs.log("TCP", error_msg);
@@ -101,7 +102,7 @@ typedef std::map<std::string, serialized_func_t*> serialized_func_map_t;
 
 bool NNL_len(int socket, const std::string &argstr) {
     if (argstr.empty()) {
-        handle_request_error(socket, "Missing list name.");
+        handle_serialized_data_request_error(socket, "Missing list name.");
         return false;
     }
     VERYVERBOSEOUT("Fetching length of "+argstr+'\n');
@@ -110,7 +111,7 @@ bool NNL_len(int socket, const std::string &argstr) {
     if (list_ptr) {
         listsize = list_ptr->size();
     }
-    return handle_request_response(socket, std::to_string(listsize), "Serializing size of NNL.");
+    return handle_serialized_data_request_response(socket, std::to_string(listsize), "Serializing size of NNL.");
 }
 
 const serialized_func_map_t serialized_data_functions = {
@@ -146,7 +147,7 @@ void handle_serialized_data_request(int new_socket, const std::string & request_
     auto requests_vec = FZ_request_tokenize(request_str.substr(3));
 
     if (requests_vec.empty()) {
-        handle_request_error(new_socket, "Missing request.");
+        handle_serialized_data_request_error(new_socket, "Missing request.");
         return;
     }
 
@@ -156,4 +157,3 @@ void handle_serialized_data_request(int new_socket, const std::string & request_
         }
     }
 }
-

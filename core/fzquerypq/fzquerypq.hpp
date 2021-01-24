@@ -24,6 +24,7 @@ enum flow_options {
     flow_node = 1,               /// serve requested Node data
     flow_refresh_histories = 2,  /// refresh Node histories cache table
     flow_refresh_namedlists = 3, /// refresh Named Node Lists cache table
+    flow_serialized_request = 4, /// make serialized data API request
     flow_NUMoptions
 };
 
@@ -40,6 +41,8 @@ struct fzquerypq: public formalizer_standard_program {
     output_format_specifier output_format; /// the format used to deliver query results
 
     std::string node_idstr;
+
+    std::string request_str;
 
     Graph_access ga;
 
