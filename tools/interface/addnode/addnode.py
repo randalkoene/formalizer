@@ -14,6 +14,7 @@ import argparse
 import subprocess
 import re
 import pty
+import socket
 import time
 from datetime import datetime
 
@@ -78,6 +79,15 @@ fzcorelibdir = config['sourceroot'] + '/core/lib'
 fzcoreincludedir = config['sourceroot'] + '/core/include'
 sys.path.append(fzcorelibdir)
 sys.path.append(fzcoreincludedir)
+
+# Obtain IP address and port of locally running fzserverpq
+fzserveraddresspath = fzuserbase + '/server_address'
+try:
+    with open(fzserveraddresspath) as f:
+        serverIPport = f.read()
+except FileNotFoundError:
+    print('Local server IP address and port file not found. Using default.\n')
+    serverIPport = "127.0.0.1:8090"
 
 config['logcmdcalls'] = False
 
@@ -479,9 +489,32 @@ def browse_for_Nodes(targetmsg):
     exit_error(retcode, f'Attempt to browse for {targetmsg} failed.')
 
 
+def check_superiors_NNL_length():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    ipportvec = serverIPport.split(':')
+    s.connect((ipportvec[0],int(ipportvec[1])))
+    #s.send('FZ NNLlen(dependencies);NNLlen(superiors)'.encode())
+    s.send('FZ NNLlen(superiors)'.encode())
+    data = ''
+    data = s.recv(1024).decode()
+    d = data.split()
+    if ((d[0] == 'FZ') and (d[1] == '200')):
+        num = int(d[2])
+    else:
+        num = 0
+    return num
+
+
 def collect_superiors_and_dependencies():
     print(superiors_and_dependencies_info)
-    browse_for_Nodes('superiors and dependencies')
+    num_superiors = 0
+    while (num_superiors < 1):
+        browse_for_Nodes('superiors and dependencies')
+        num_superiors = check_superiors_NNL_length()
+        if (num_superiors < 1):
+            surenosuperiors = input(f'{ANSI_alert}We normally want all Nodes to be connected within the Graph.\nAre you sure you want zero superiors? (y/N){ANSI_nrm} ')
+            if (surenosuperiors):
+                return
 
 
 def collect_node_data():

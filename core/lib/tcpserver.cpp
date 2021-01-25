@@ -256,7 +256,7 @@ exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server
         }
 
         std::string request_str(str);
-        if (request_str.back()) {
+        if (request_str.back() == '\n') {
             request_str.pop_back(); // closing newline is optional
         }
 
