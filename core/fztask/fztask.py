@@ -24,101 +24,93 @@ userhome = os.getenv('HOME')
 fzuserbase = userhome + '/.formalizer'
 fzsetupconfigdir = fzuserbase+'/config/fzsetup.py'
 fzsetupconfig = fzsetupconfigdir+'/config.json'
-results = {}
+#results = {}
 
 # We need this everywhere to run various shell commands.
-def try_subprocess_check_output(thecmdstring, resstore):
-    if config['verbose']:
-        print(f'Calling subprocess: `{thecmdstring}`', flush=True)
-    if config['logcmdcalls']:
-        with open(config['cmdlog'],'a') as f:
-            f.write(thecmdstring+'\n')
-    try:
-        res = subprocess.check_output(thecmdstring, shell=True)
+#def try_subprocess_check_output(thecmdstring, resstore):
+#    if config['verbose']:
+#        print(f'Calling subprocess: `{thecmdstring}`', flush=True)
+#    if config['logcmdcalls']:
+#        with open(config['cmdlog'],'a') as f:
+#            f.write(thecmdstring+'\n')
+#    try:
+#        res = subprocess.check_output(thecmdstring, shell=True)
+#
+#    except subprocess.CalledProcessError as cpe:
+#        if config['logcmderrors']:
+#            with open(config['cmderrlog'],'a') as f:
+#                f.write(f'Subprocess call ({thecmdstring}) caused exception.\n')
+#                f.write(f'Error output: {cpe.output.decode()}\n')
+#                f.write(f'Error code  : {cpe.returncode}\n')
+#                if (cpe.returncode>0):
+#                    f.write('Formalizer error: '+error.exit_status_code[cpe.returncode]+'\n')
+#        if config['verbose']:
+#            print('Subprocess call caused exception.')
+#            print('Error output: ',cpe.output.decode())
+#            print('Error code  : ',cpe.returncode)
+#            if (cpe.returncode>0):
+#                print('Formalizer error: ', error.exit_status_code[cpe.returncode])
+#        return cpe.returncode
+#
+#    else:
+#        if resstore:
+#            results[resstore] = res
+#        if config['verbose']:
+#            print('Result of subprocess call:', flush=True)
+#            print(res.decode(), flush=True)
+#        return 0
 
-    except subprocess.CalledProcessError as cpe:
-        if config['logcmderrors']:
-            with open(config['cmderrlog'],'a') as f:
-                f.write(f'Subprocess call ({thecmdstring}) caused exception.\n')
-                f.write(f'Error output: {cpe.output.decode()}\n')
-                f.write(f'Error code  : {cpe.returncode}\n')
-                if (cpe.returncode>0):
-                    f.write('Formalizer error: '+error.exit_status_code[cpe.returncode]+'\n')
-        if config['verbose']:
-            print('Subprocess call caused exception.')
-            print('Error output: ',cpe.output.decode())
-            print('Error code  : ',cpe.returncode)
-            if (cpe.returncode>0):
-                print('Formalizer error: ', error.exit_status_code[cpe.returncode])
-        return cpe.returncode
-
-    else:
-        if resstore:
-            results[resstore] = res
-        if config['verbose']:
-            print('Result of subprocess call:', flush=True)
-            print(res.decode(), flush=True)
-        return 0
-
-
-ANSI_wt = '\u001b[38;5;15m'
-ANSI_gn = '\u001b[38;5;47m'
-ANSI_rd = '\u001b[38;5;202m'
-ANSI_yb = '\u001b[33;1m'
-ANSI_alert = '\u001b[31m'
-ANSI_nrm = '\u001b[32m'
-
-
-def pause_key(action_str, pausehere = True):
-    if pausehere:
-        pausekey = input(f'\nEnter any string to {action_str}...')
-    else:
-        pausekey = '_'
-    return pausekey
+#def pause_key(action_str, pausehere = True):
+#    if pausehere:
+#        pausekey = input(f'\nEnter any string to {action_str}...')
+#    else:
+#        pausekey = '_'
+#    return pausekey
 
 
-def exit_error(retcode, errormessage, ask_exit = False):
-    if (retcode != 0):
-        print(f'\n{ANSI_alert}'+errormessage+f'{ANSI_nrm}\n')
-        if ask_exit:
-            exitorcontinue = input(f'\n[{ANSI_rd}E{ANSI_nrm}]xit or attempt to [{ANSI_gn}c{ANSI_nrm}]ontinue? ')
-            if (exitorcontinue == 'c'):
-                print('\nAttempting to continue...\n')
-            else:
-                print('\nExiting.\n')
-                sys.exit(retcode)
-        else:
-            exitenter = pause_key('exit')
-            sys.exit(retcode)
+#def exit_error(retcode, errormessage, ask_exit = False):
+#    if (retcode != 0):
+#        print(f'\n{ANSI_alert}'+errormessage+f'{ANSI_nrm}\n')
+#        if ask_exit:
+#            exitorcontinue = input(f'\n[{ANSI_rd}E{ANSI_nrm}]xit or attempt to [{ANSI_gn}c{ANSI_nrm}]ontinue? ')
+#            if (exitorcontinue == 'c'):
+#                print('\nAttempting to continue...\n')
+#            else:
+#                print('\nExiting.\n')
+#                sys.exit(retcode)
+#        else:
+#            exitenter = pause_key('exit')
+#            sys.exit(retcode)
 
 
-def browse_for_Node():
-    print('Use the browser to select a node.')
-    #retcode = pty.spawn([config['localbrowser'],'http://localhost/select.html'])
-    thecmd = config['localbrowser'] + ' http://localhost/select.html'
-    retcode = try_subprocess_check_output(thecmd, 'browsed')
-    exit_error(retcode, f'Attempt to browse for Node selection failed.{cmderrorreviewstr}', True)
-    if (retcode == 0):
-        retcode = try_subprocess_check_output(f"fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected')
-        exit_error(retcode, f'Attempt to get selected Node failed.{cmderrorreviewstr}', True)
-        if (retcode == 0):
-            node = (results['selected'][0:16]).decode()
-            print(f'Selected: {node}')
-            if results['selected']:
-                return results['selected'][0:16]
-            else:
-                return ''
-        else:
-            return ''
-    else:
-        return ''
+#def browse_for_Node():
+#    print('Use the browser to select a node.')
+#    #retcode = pty.spawn([config['localbrowser'],'http://localhost/select.html'])
+#    thecmd = config['localbrowser'] + ' http://localhost/select.html'
+#    retcode = try_subprocess_check_output(thecmd, 'browsed')
+#    exit_error(retcode, f'Attempt to browse for Node selection failed.{cmderrorreviewstr}', True)
+#    if (retcode == 0):
+#        retcode = try_subprocess_check_output(f"fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected')
+#        exit_error(retcode, f'Attempt to get selected Node failed.{cmderrorreviewstr}', True)
+#        if (retcode == 0):
+#            node = (results['selected'][0:16]).decode()
+#            print(f'Selected: {node}')
+#            if results['selected']:
+#                return results['selected'][0:16]
+#            else:
+#                return ''
+#        else:
+#            return ''
+#    else:
+#        return ''
 
 
 def selected_Node_description(excerpt_len = 0):
     thecmd = "fzgraphhtml -L 'selected' -F desc -N 1 -e -q"
     if (excerpt_len > 0):
         thecmd += f' -x {excerpt_len}'
-    retcode = try_subprocess_check_output(thecmd,'selected_desc')
+    retcode = try_subprocess_check_output(thecmd,'selected_desc', config)
+    cmderrorreviewstr = config['cmderrorreviewstr']
     exit_error(retcode, f'Attempt to get description of selected Node failed.{cmderrorreviewstr}', True)
     if (retcode == 0):
         res_selected_desc = results['selected_desc']
@@ -161,19 +153,25 @@ sys.path.append(logentrydir)
 # core components
 import Graphpostgres
 import coreversion
-import error
+from error import *
+from ansicolorcodes import *
+from fzcmdcalls import *
+from Graphaccess import *
+
+config['cmderrorreviewstr'] = ''
+if config['logcmderrors']:
+    cmderrlogstr = config['cmderrlog']
+    config['cmderrorreviewstr'] = f'\nYou may review the error(s) in: {ANSI_yb}{cmderrlogstr}{ANSI_nrm}'
 
 version = "0.1.0-0.1"
 
 # local defaults
-cmderrorreviewstr = ''
-
 config['customtemplate'] = '/tmp/customtemplate'
 config['addpause'] = False
-config['cmdlog'] = '/tmp/fztask-cmdcalls.log'
-config['logcmdcalls'] = False
-config['cmderrlog'] = '/tmp/fztask-cmdcalls-errors.log'
-config['logcmderrors'] = False
+#config['cmdlog'] = '/tmp/fztask-cmdcalls.log' -- this is now in fzsetup.py/config.json
+#config['logcmdcalls'] = False -- this is now in fzsetup.py/config.json
+#config['cmderrlog'] = '/tmp/cmdcalls-errors.log' -- this is now in fzsetup.py/config.json
+#config['logcmderrors'] = False -- this is now in fzsetup.py/config.json
 
 # Potentially replace defaults with values from fztask config file
 try:
@@ -187,9 +185,6 @@ except FileNotFoundError:
         print('No fztask-specific configuration file found. Using defaults.\n')
 
 # Some things to do depending on configuration settings
-if config['logcmderrors']:
-    cmderrlogstr = config['cmderrlog']
-    cmderrorreviewstr = f'\nYou may review the error(s) in: {ANSI_yb}{cmderrlogstr}{ANSI_nrm}'
 if config['transition']:
     from fztask_transition import transition_dil2al_request
 
@@ -266,16 +261,16 @@ def close_chunk(args):
     thecmd = 'fzlog -C'
     if args.T_emulate:
         thecmd += ' -t ' + args.T_emulate
-    retcode = try_subprocess_check_output(thecmd, 'fzlog_res')
+    retcode = try_subprocess_check_output(thecmd, 'fzlog_res', config)
     exit_error(retcode,'Attempt to close Log chunk failed.')
 
 
 def get_updated_shortlist():
-    retcode = try_subprocess_check_output(f"fzgraphhtml -u -L 'shortlist' -F node -e -q", 'shortlistnode')
+    retcode = try_subprocess_check_output(f"fzgraphhtml -u -L 'shortlist' -F node -e -q", 'shortlistnode', config)
     exit_error(retcode, 'Attempt to get "shortlist" Named Node List node data failed.', True)
     if (retcode != 0):
         return False
-    retcode = try_subprocess_check_output(f"fzgraphhtml -L 'shortlist' -F desc -x 60 -e -q", 'shortlistdesc')
+    retcode = try_subprocess_check_output(f"fzgraphhtml -L 'shortlist' -F desc -x 60 -e -q", 'shortlistdesc', config)
     exit_error(retcode, 'Attempt to get "shortlist" Named Node List description data failed.', True)
     if (retcode != 0):
         return False
@@ -308,7 +303,7 @@ def select_Node_for_Log_chunk():
 
     node = '' # none selected
     if (choice == '?'):
-        node = browse_for_Node()
+        node = browse_for_Node(config)
     else:
         if ((int(choice) >= 0) & (int(choice) < len(shortlist_vec))):
             node = shortlist_nodes.splitlines()[int(choice)]
@@ -338,14 +333,15 @@ def update_schedule(args):
     if config['verbose']:
         addtocmd += ' -V'
     varupdate = input(f'  Update {ANSI_wt}variable{ANSI_upd} target date Nodes? ({ANSI_Yes_no}) ')
+    cmderrorreviewstr = config['cmderrorreviewstr']
     if (varupdate != 'n'):
         thecmd = 'fzupdate -q -E STDOUT -u'+addtocmd
-        retcode = try_subprocess_check_output(thecmd, 'varupdate')
+        retcode = try_subprocess_check_output(thecmd, 'varupdate', config)
         exit_error(retcode, f'Attempt to update variable target date Nodes failed.{cmderrorreviewstr}', True)
     skippassedrepeats = input(f'  Skip {ANSI_wt}passed repeating{ANSI_upd} Nodes? ({ANSI_Yes_no}) ')
     if (skippassedrepeats != 'n'):
         thecmd = 'fzupdate -q -E STDOUT -r'+addtocmd
-        retcode = try_subprocess_check_output(thecmd, 'passedrepeatsskip')
+        retcode = try_subprocess_check_output(thecmd, 'passedrepeatsskip', config)
         exit_error(retcode, f'Attempt to skip passed repeating Nodes failed.{cmderrorreviewstr}', True)
     print('')
 
@@ -363,7 +359,8 @@ def next_chunk(args):
             thecmd += ' -t ' + args.T_emulate
         if config['verbose']:
             thecmd += ' -V'
-        retcode = try_subprocess_check_output(thecmd, 'fzlog_res')
+        retcode = try_subprocess_check_output(thecmd, 'fzlog_res', config)
+        cmderrorreviewstr = config['cmderrorreviewstr']
         exit_error(retcode, f'Attempt to open new Log chunk failed.{cmderrorreviewstr}', True)
         if (retcode == 0):
             print(f'Opened new Log chunk for Node {node}.')
@@ -381,7 +378,8 @@ def get_main_topic(node):
         f.write(customtemplate)
     customtemplatefile = config['customtemplate']
     topicgettingcmd = f"fzgraphhtml -q -T 'Node={customtemplatefile}' -n {node}"
-    retcode = try_subprocess_check_output(topicgettingcmd, 'topic')
+    retcode = try_subprocess_check_output(topicgettingcmd, 'topic', config)
+    cmderrorreviewstr = config['cmderrorreviewstr']
     exit_error(retcode, f'Attempt to get Node topic failed.{cmderrorreviewstr}', True)
     if (retcode == 0):
         topic = results['topic'].split()[0]
@@ -400,7 +398,8 @@ def get_completion_required(node):
         f.write(customtemplate)
     customtemplatefile = config['customtemplate']
     topicgettingcmd = f"fzgraphhtml -q -T 'Node={customtemplatefile}' -n {node}"
-    retcode = try_subprocess_check_output(topicgettingcmd, 'compreq')
+    retcode = try_subprocess_check_output(topicgettingcmd, 'compreq', config)
+    cmderrorreviewstr = config['cmderrorreviewstr']
     exit_error(retcode, f'Attempt to get Node completion and required failed.{cmderrorreviewstr}', True)
     if (retcode == 0):
         results['completion'] = (results['compreq'].split()[0]).decode()
@@ -412,7 +411,8 @@ def get_completion_required(node):
 
 def get_most_recent_task():
     thecmd = 'fzloghtml -R -o STDOUT -N -F raw -q'
-    retcode = try_subprocess_check_output(thecmd, 'recentlog')
+    retcode = try_subprocess_check_output(thecmd, 'recentlog', config)
+    cmderrorreviewstr = config['cmderrorreviewstr']
     exit_error(retcode, f'Attempt to get most recent Log chunk data failed.{cmderrorreviewstr}', True)
     if (retcode == 0):
         recent_node = (results['recentlog'].split()[2]).decode()
@@ -428,7 +428,8 @@ def set_chunk_timer_and_alert():
     alert_ansi()
     print('Chunk time passed. Calling formalizer-alert.sh.')
     thecmd = 'formalizer-alert.sh'
-    retcode = try_subprocess_check_output(thecmd, 'alert')
+    retcode = try_subprocess_check_output(thecmd, 'alert', config)
+    cmderrorreviewstr = config['cmderrorreviewstr']
     exit_error(retcode, f'Call to formalizer-alert.sh failed.{cmderrorreviewstr}', True)
     fztask_ansi()
 

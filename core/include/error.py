@@ -7,6 +7,10 @@ This header file declares the Formalizer Core Error codes.
 Versioning is based on https://semver.org/. See coreversion.hpp for more.
 """
 
+import sys
+
+from ansicolorcodes import *
+
 exit_status_code = {
     0 : 'exit_ok',
     1 : 'exit_general_error',
@@ -25,3 +29,26 @@ exit_status_code = {
     14 : 'exit_bad_request_data',
     15 : 'exit_communication_error'
 }
+
+
+def pause_key(action_str, pausehere = True):
+    if pausehere:
+        pausekey = input(f'\nEnter any string to {action_str}...')
+    else:
+        pausekey = '_'
+    return pausekey
+
+
+def exit_error(retcode, errormessage, ask_exit = False):
+    if (retcode != 0):
+        print(f'\n{ANSI_alert}'+errormessage+f'{ANSI_nrm}\n')
+        if ask_exit:
+            exitorcontinue = input(f'\n[{ANSI_rd}E{ANSI_nrm}]xit or attempt to [{ANSI_gn}c{ANSI_nrm}]ontinue? ')
+            if (exitorcontinue == 'c'):
+                print('\nAttempting to continue...\n')
+            else:
+                print('\nExiting.\n')
+                sys.exit(retcode)
+        else:
+            exitenter = pause_key('exit')
+            sys.exit(retcode)

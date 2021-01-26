@@ -2,7 +2,5 @@
     "customtemplate": "/tmp/customtemplate",
     "addpause": false,
     "cmdlog": "/tmp/fztask-cmdcalls.log",
-    "logcmdcalls": false,
-    "cmderrlog": "/tmp/fztask-cmdcalls-errors.log",
-    "logcmderrors": true
+    "logcmdcalls": false
 }
