@@ -96,6 +96,7 @@ struct line_render_parameters {
     fzgraphhtml_templates templates; ///< Loaded rendering templates in use.
     std::string rendered_page;       ///< String to which the rendered line is appended.
     std::string datestamp;
+    size_t actual_num_render = 0;
 
     line_render_parameters(const std::string _srclist, const char * problem__func__) : srclist(_srclist) {
         graph_ptr = graphmemman.find_Graph_in_shared_memory();
@@ -118,6 +119,7 @@ struct line_render_parameters {
             varvals.emplace("num_to_show",std::to_string(fzgh.config.num_to_show));
             varvals.emplace("all_checked","");
         }
+        varvals.emplace("actual_num_shown", std::to_string(actual_num_render));
         if (fzgh.num_days > 0) {
             varvals.emplace("num_days",std::to_string(fzgh.num_days));
             varvals.emplace("t_max","");
@@ -136,6 +138,7 @@ struct line_render_parameters {
     }
 
     void prep(unsigned int num_render) {
+        actual_num_render = num_render;
         if (fzgh.config.embeddable) {
             rendered_page.reserve(num_render * (2 * templates[node_pars_in_list_temp].size()));
         } else {
@@ -608,6 +611,13 @@ bool render_node_edit() {
     td_pattern tdpatt = node.get_tdpattern();
 
     nodevars.emplace("node-id", node.get_id_str());
+
+    if (node.get_repeats()) {
+        nodevars.emplace("td_update_skip", " | <input type=\"submit\" value=\"td_update\"> <input type=\"submit\" value=\"td_skip\"> <input type=\"number\" name=\"num_skip\" min=\"1\" max=\"100\" step=\"1\" value=1>");
+    } else {
+        nodevars.emplace("td_update_skip", "");
+    }
+
     nodevars.emplace("node-text", node.get_text());
     nodevars.emplace("comp", to_precision_string(node.get_completion()));
     nodevars.emplace("req_hrs", to_precision_string(required_hrs));

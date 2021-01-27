@@ -2,25 +2,13 @@
 <td><form action="/cgi-bin/fzedit-cgi.py" method="post">
 <h3>Node ID: <b><a href="/cgi-bin/fzlink.py?id={{ node-id }}">{{ node-id }}</a></b></h3>
 <input type="submit" value="modify"><input type="hidden" name="id" value="{{ node-id }}">
-(verbose: <input type="checkbox" name="verbosity" value="verbose">)
+(verbose: <input type="checkbox" name="verbosity" value="verbose">) {{ td_update_skip }}
 </td>
 </tr>
 <tr>
 <td>
 <hr>
-<textarea cols="80" rows="24" name="text">
-{{ node-text }}</textarea>
-</td>
-</tr>
-<tr>
-<td>
-<hr>
-Completion: <input type="number" name="comp" min="-4.0" max="1.0" step="0.01" value="{{ comp }}"> Set completed: <input type="checkbox" name="set_complete"><br>
-Required:  <input type="number" name="req_hrs" min="0.0" max="1000.0" step="0.00001" value={{ req_hrs }}> hrs, or <input type="number" name="req_mins" min="0" max="10000" step="1" value={{ req_mins }}> mins
-| Add: <input type="number" name="add_hrs" min="-1000.0" max="1000.0" step="0.00001" value=0> hrs, or <input type="number" name="add_mins" min="-10000" max="10000" step="1" value=0> mins
-<br><input type="hidden" name="orig_mins" value="{{ req_mins }}">
-Valuation: <input type="number" name="val" min="0.0" max="10.0" step="0.1" value="{{ val }}"><br>
-Targetdate: <input type="number" name="targetdate" min="0", max="999912312359" step="1" value="{{ eff_td }}"> (YYYYmmddHHMM format), or <input type="datetime-local" id="alt_targetdate" name="alt_targetdate" min="1990-01-01T00:00:00" value="{{ eff_td_date }}T{{ eff_td_time }}"> (local format)<br><input type="hidden" name="orig_td" value="{{ eff_td }}">
+Targetdate: <input type="number" name="targetdate" min="0", max="999912312359" step="1" value="{{ eff_td }}"> (<code>YYYYmmddHHMM</code> format), or <input type="datetime-local" id="alt_targetdate" name="alt_targetdate" min="1990-01-01T00:00:00" value="{{ eff_td_date }}T{{ eff_td_time }}"> (local format)<br><input type="hidden" name="orig_td" value="{{ eff_td }}">
 <!-- <script>
 document.getElementById('alt_targetdate').value = new Date().toISOString().substring(0, 10);
 </script> -->
@@ -39,12 +27,27 @@ TD Pattern:
 <input type="radio" name="patt" value="monthly" {{ patt_monthly }}> monthly |
 <input type="radio" name="patt" value="eofmonth" {{ patt_endofmonthoffset }}> end-of-month offset |
 <input type="radio" name="patt" value="yearly" {{ patt_yearly }}> yearly<br>
-Every: <input type="number" name="every" min="1" step="1" value="{{ td_every }}"> Span: <input type="number" name="span" min="0" step="1" value="{{ td_span }}"><br>
+Every: <input type="number" name="every" min="1" step="1" value="{{ td_every }}"> Span: <input type="number" name="span" min="0" step="1" value="{{ td_span }}">
+<hr>
+Completion: <input type="number" name="comp" min="-4.0" max="1.0" step="0.01" value="{{ comp }}"> Set completed: <input type="checkbox" name="set_complete"><br>
+Required:  <input type="number" name="req_hrs" min="0.0" max="1000.0" step="0.00001" value={{ req_hrs }}> hrs, or <input type="number" name="req_mins" min="0" max="10000" step="1" value={{ req_mins }}> mins
+| Add: <input type="number" name="add_hrs" min="-1000.0" max="1000.0" step="0.00001" value=0> hrs, or <input type="number" name="add_mins" min="-10000" max="10000" step="1" value=0> mins
+<br><input type="hidden" name="orig_mins" value="{{ req_mins }}">
+Valuation: <input type="number" name="val" min="0.0" max="10.0" step="0.1" value="{{ val }}">
+<hr>
+<textarea cols="80" rows="24" name="text">
+{{ node-text }}</textarea>
+</td>
+</tr>
+<tr>
+<td>
+<hr>
 Topics: {{ topics }} [<a href="/cgi-bin/fzgraphhtml-cgi.py?topics=?&to-node={{ node-id }}">add</a>]
 </td>
 </tr>
 <tr>
 <td>
+<hr>
 Superiors: [<a href="http://{{ fzserverpq }}/fz/graph/nodes/{{ node-id }}/superiors?addlist=superiors">add</a>] <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=superiors">superiors</a>
 <ol>
 {{ superiors }}

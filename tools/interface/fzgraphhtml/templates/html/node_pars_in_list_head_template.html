@@ -9,14 +9,13 @@
 </style>
 <body>
 
-<h1>Formalizer: Incomplete Nodes by Effective Target Date</h1>
+<h2>Formalizer: Incomplete Nodes by Effective Target Date</h2>
 
 <p>
-<form action="/cgi-bin/fzupdate-cgi.py" method="GET"><input type="submit" value="Update Repeating"><input type="hidden" name="repeating" value="update"> Emulate time: <input type="number" name="T_emulate"> (YYYYmmddHHMM format) verbose <input type="checkbox" name="verbose"></form>
-<form action="/cgi-bin/fzupdate-cgi.py" method="GET"><input type="submit" value="Update Variable"><input type="hidden" name="variable" value="update"> Emulate time: <input type="number" name="T_emulate"> (YYYYmmddHHMM format) verbose <input type="checkbox" name="verbose"></form>
+<form action="/cgi-bin/fzupdate-cgi.py" method="GET"><input type="submit" value="Update Schedule"> <input type="radio" name="update" value="repeating"> repeating <input type="radio" name="update" value="variable"> variable <input type="radio" name="update" value="both" checked> both | verbose <input type="checkbox" name="verbose"> | Emulate time: <input type="number" name="T_emulate"></form>
+<form action="/cgi-bin/fzgraphhtml-cgi.py" method="GET"><input type="submit" value="Show"> <input type="number" name="num_elements" value="{{ num_to_show }}" style="width: 7em"> or <input type="checkbox" name="all" {{ all_checked }}> unlimited Nodes | within interval from today to <input type="number" name="max_td" value="{{ t_max }}" style="width: 12em"> or <input type="number" name="num_days" value="{{ num_days }}" style="width: 7em"> days</form>
+Showing <code>{{ actual_num_shown }}</code> Nodes. Enter date-time stamps in <code>YYYYmmdd[HHMM]</code> format (time optional).
 </p>
-
-<p><form action="/cgi-bin/fzgraphhtml-cgi.py" method="GET"><input type="submit" value="Show"> Number of Nodes: <input type="number" name="num_elements" value="{{ num_to_show }}"> or <input type="checkbox" name="all" {{ all_checked }}> unlimited - through - Number of Days (from today): <input type="number" name="num_days" value="{{ num_days }}"> or Date-Time (YYYYmmdd[HHMM]): <input type="number" name="max_td" value="{{ t_max }}"></form></p>
 
 <table class="blueTable">
 <tbody>
