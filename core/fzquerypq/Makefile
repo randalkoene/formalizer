@@ -134,13 +134,13 @@ $(OBJ)/refresh.o: refresh.cpp refresh.hpp fzquerypq.hpp $(COREINCLUDEPATH)/stand
 $(OBJ)/servenodedata.o: servenodedata.cpp servenodedata.hpp fzquerypq.hpp $(COREINCLUDEPATH)/standard.hpp
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $(TEMPLATEDIR) -c servenodedata.cpp -o $(OBJ)/servenodedata.o
 
-$(OBJ)/serialAPIrequest.o: serialAPIrequest.cpp serialAPIrequest.hpp fzquerypq.hpp $(COREINCLUDEPATH)/standard.hpp
-	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $(TEMPLATEDIR) -c serialAPIrequest.cpp -o $(OBJ)/serialAPIrequest.o
+$(OBJ)/serializedAPIrequest.o: serializedAPIrequest.cpp serializedAPIrequest.hpp fzquerypq.hpp $(COREINCLUDEPATH)/standard.hpp
+	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $(TEMPLATEDIR) -c serializedAPIrequest.cpp -o $(OBJ)/serializedAPIrequest.o
 
 $(OBJ)/fzquerypq.o: fzquerypq.cpp fzquerypq.hpp $(COREINCLUDEPATH)/standard.hpp $(COREINCLUDEPATH)/error.hpp
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $(TEMPLATEDIR) -c fzquerypq.cpp -o $(OBJ)/fzquerypq.o
 
-fzquerypq: $(OBJ)/fzquerypq.o $(OBJ)/serialAPIrequest.o $(OBJ)/servenodedata.o $(OBJ)/refresh.o $(CORE_OBJS)
+fzquerypq: $(OBJ)/fzquerypq.o $(OBJ)/serializedAPIrequest.o $(OBJ)/servenodedata.o $(OBJ)/refresh.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $^ -o fzquerypq $(LIB_PATH)
 
 clean:

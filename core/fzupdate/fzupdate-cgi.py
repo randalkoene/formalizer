@@ -101,15 +101,21 @@ if __name__ == '__main__':
     if verbose:
         add_to_cmd += ' -V'
 
+    thecmd = ''
     if ((update=='repeating') or (update=='both')):
+        print('<p>Updating repeating Nodes.</p>')
         thecmd = "./fzupdate -q -E STDOUT -r"+add_to_cmd
         try_command_call(thecmd)
-        print('<p><b>Repeating Nodes updated. To see which Nodes were modified, see the <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=repeating_updated">repeating_updated</a> Named Node List.</b></p>')
+        print('<p><b>To see which Nodes were modified, see the <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=repeating_updated">repeating_updated</a> Named Node List.</b></p>')
 
     if ((update=='variable') or (update=='both')):
+        print('<p>Updating variable and unspecified target date Nodes.</p>')
         thecmd = "./fzupdate -q -E STDOUT -u"+add_to_cmd
         try_command_call(thecmd)
-        print('<p><b>Variable or unspecified target date Nodes updated. To see which Nodes were modified, see the <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=batch_updated">batch_updated</a> Named Node List.</b></p>')
+        print('<p><b>To see which Nodes were modified, see the <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=batch_updated">batch_updated</a> Named Node List.</b></p>')
+
+    if (len(thecmd)==0):
+        print('<p><b>Unrecognized update request.</b></p>')
 
     print(pagetail)
 

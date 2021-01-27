@@ -194,14 +194,14 @@ std::string convert_special_data_word_html(const std::string & wstr, size_t from
     if ((bef-from>=14)) {
         if (wstr[from+12]=='.') {
             bool islogid = true;
-            for (int i = 0; i<12; i++) {
+            for (size_t i = 0; i<12; i++) {
                 if ((wstr[from+i]<'0') || (wstr[from+i]>'9')) {
                     islogid = false;
                     break;
                 }
             }
             if (islogid) {
-                for (int i = from+13; i<bef; i++) {
+                for (size_t i = from+13; i<bef; i++) {
                     if ((wstr[i]<'0') || (wstr[i]>'9')) {
                         islogid = false;
                         break;

@@ -35,97 +35,22 @@ node = form.getvalue('node')
 frommostrecent = form.getvalue('frommostrecent')
 mostrecentdata = form.getvalue('mostrecentdata')
 
-print("Content-type:text/html\n\n")
+#<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+log_interval_head = '''Content-type:text/html
 
-if mostrecentdata:
-    thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -R"
-    try:
-        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
-        (child_stdin,child_stdout) = (p.stdin, p.stdout)
-        child_stdin.close()
-        result = child_stdout.read()
-        child_stdout.close()
-        print(result)
-        #print(result.replace('\n', '<BR>'))
-
-    except Exception as ex:                
-        print(ex)
-        f = StringIO()
-        print_exc(file=f)
-        a = f.getvalue().splitlines()
-        for line in a:
-            print(line)
-
-    sys.exit(0)
-
-
-print("<html>")
-print("<head>")
-#print('<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">')
-print('<link rel="stylesheet" href="/fz.css">')
-print("<title>Formalizer: HTML FORM interface to fzloghtml</title>")
-print("</head>")
-print("<body>")
-print('<style type="text/css">')
-print('.chktop { ')
-print('    background-color: #B0C4F5;')
-print('}')
-#print("table tr.chktop { background: #B0C4F5; }")
-print("</style>")
-
-thisscript = os.path.realpath(__file__)
-print(f'<!-- (For dev reference, this script is at {thisscript}.) -->')
-
-print("<h1>Formalizer: HTML FORM interface to fzloghtml</h1>\n<p></p>")
-print("<table><tbody>")
-
-cmdoptions = ""
-
-if startfrom:
-    cmdoptions += ' -1 '+startfrom
-if endbefore:
-    cmdoptions += ' -2 '+endbefore
-if daysinterval:
-    cmdoptions += ' -D '+daysinterval
-if weeksinterval:
-    cmdoptions += ' -w '+weeksinterval
-if hoursinterval:
-    cmdoptions += ' -H '+hoursinterval
-if numchunks:
-    cmdoptions += ' -c '+numchunks
-if frommostrecent:
-    cmdoptions += ' -r '
-if node:
-    cmdoptions += ' -n '+node
-
-if cmdoptions:
-    thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -N "+cmdoptions
-    print(f'<!-- Using this command: {thecmd} -->')
-    print('<br>\n')
-    try:
-        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
-        (child_stdin,child_stdout) = (p.stdin, p.stdout)
-        child_stdin.close()
-        result = child_stdout.read()
-        child_stdout.close()
-        print(result)
-        #print(result.replace('\n', '<BR>'))
-
-    except Exception as ex:                
-        print(ex)
-        f = StringIO()
-        print_exc(file=f)
-        a = f.getvalue().splitlines()
-        for line in a:
-            print(line)
-
-#if "name" not in form or "addr" not in form:
-#    print("<H1>Error</H1>")
-#    print("Please fill in the name and addr fields.")
-#    return
-
-print("</tbody></table>")
-print('<a name="END">&nbsp;</a>')
+<html>
+<head>
+<link rel="stylesheet" href="/fz.css">
+<title>Formalizer: Log interval</title>
+</head>
+<body>
+<style type="text/css">
+.chktop { 
+    background-color: #B0C4F5;
+}
+table tr.chktop { background: #B0C4F5; }
+</style>
+'''
 
 cgi_custom_tail = '''
 <hr>
@@ -150,6 +75,87 @@ or<br />
 
 '''
 
-print(cgi_custom_tail)
-print("</body>")
-print("</html>")
+
+def render_most_recent():
+    print("Content-type:text/html\n\n")
+    thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -R"
+    try:
+        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
+        (child_stdin,child_stdout) = (p.stdin, p.stdout)
+        child_stdin.close()
+        result = child_stdout.read()
+        child_stdout.close()
+        print(result)
+        #print(result.replace('\n', '<BR>'))
+
+    except Exception as ex:                
+        print(ex)
+        f = StringIO()
+        print_exc(file=f)
+        a = f.getvalue().splitlines()
+        for line in a:
+            print(line)
+
+
+def render_log_interval():
+    print(log_interval_head)
+    thisscript = os.path.realpath(__file__)
+    print(f'<!-- (For dev reference, this script is at {thisscript}.) -->')
+    print('<h1>Formalizer: HTML FORM interface to fzloghtml</h1>\n<p></p>\n<table><tbody>')
+
+    cmdoptions = ""
+
+    if startfrom:
+        cmdoptions += ' -1 '+startfrom
+    if endbefore:
+        cmdoptions += ' -2 '+endbefore
+    if daysinterval:
+        cmdoptions += ' -D '+daysinterval
+    if weeksinterval:
+        cmdoptions += ' -w '+weeksinterval
+    if hoursinterval:
+        cmdoptions += ' -H '+hoursinterval
+    if numchunks:
+        cmdoptions += ' -c '+numchunks
+    if frommostrecent:
+        cmdoptions += ' -r '
+    if node:
+        cmdoptions += ' -n '+node
+
+    if cmdoptions:
+        thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -N "+cmdoptions
+        print(f'<!-- Using this command: {thecmd} -->')
+        print('<br>\n')
+        try:
+            p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
+            (child_stdin,child_stdout) = (p.stdin, p.stdout)
+            child_stdin.close()
+            result = child_stdout.read()
+            child_stdout.close()
+            print(result)
+            #print(result.replace('\n', '<BR>'))
+
+        except Exception as ex:                
+            print(ex)
+            f = StringIO()
+            print_exc(file=f)
+            a = f.getvalue().splitlines()
+            for line in a:
+                print(line)
+    else:
+        print('<tr><td><b>Missing request arguments.</b></td></tr>')
+
+    print('</tbody></table>')
+    print('<a name="END">&nbsp;</a>')
+    print(cgi_custom_tail)
+    print("</body>\n</html>")
+
+
+if __name__ == '__main__':
+
+    if mostrecentdata:
+        render_most_recent()
+    else:
+        render_log_interval()
+
+    sys.exit(0)
