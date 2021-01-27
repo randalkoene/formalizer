@@ -176,6 +176,45 @@ std::string convert_special_data_word_html(const std::string & wstr, size_t from
         return urlstr;
     }
 
+    // recognize Log chunk IDs
+    if ((bef-from==12)) {
+        bool islogid = true;
+        for (int i = 0; i<12; i++) {
+            if ((wstr[from+i]<'0') || (wstr[from+i]>'9')) {
+                islogid = false;
+                break;
+            }
+        }
+        if (islogid) {
+            std::string urlstr("<a href=\"/cgi-bin/fzlink.py?id="+wstr.substr(from, bef-from)+"\">"+wstr.substr(from, bef-from)+"</a>");
+            return urlstr;
+        }
+    }
+    // recognize Log entry IDs
+    if ((bef-from>=14)) {
+        if (wstr[from+12]=='.') {
+            bool islogid = true;
+            for (int i = 0; i<12; i++) {
+                if ((wstr[from+i]<'0') || (wstr[from+i]>'9')) {
+                    islogid = false;
+                    break;
+                }
+            }
+            if (islogid) {
+                for (int i = from+13; i<bef; i++) {
+                    if ((wstr[i]<'0') || (wstr[i]>'9')) {
+                        islogid = false;
+                        break;
+                    }
+                }
+                if (islogid) {
+                    std::string urlstr("<a href=\"/cgi-bin/fzlink.py?id="+wstr.substr(from, bef-from)+"\">"+wstr.substr(from, bef-from)+"</a>");
+                    return urlstr;
+                }
+            }
+        }
+    }
+
     // ***recognize other things?
 
     return wstr.substr(from, bef-from);
