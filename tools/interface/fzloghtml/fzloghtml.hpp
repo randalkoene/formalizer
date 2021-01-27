@@ -67,6 +67,8 @@ struct fzloghtml: public formalizer_standard_program {
     unsigned int interval;
     bool noframe;
 
+    std::string custom_template;
+
     entry_data edata;
     //std::unique_ptr<Log> log;
 

@@ -42,8 +42,8 @@ fzloghtml fzlh;
  */
 fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
                          iscale(interval_none), interval(0), noframe(false), recent_format(most_recent_html) {
-    add_option_args += "n:1:2:o:D:H:w:Nc:rRF:";
-    add_usage_top += " [-n <node-ID>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-F <raw|txt|html>]";
+    add_option_args += "n:1:2:o:D:H:w:Nc:rRF:T:";
+    add_usage_top += " [-n <node-ID>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
     usage_tail.push_back(
         "The <time-stamp1> and <time-stamp_2> arguments expect standardized\n"
@@ -55,7 +55,9 @@ fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flow
         "With a Node specification but no time stamps, the default is:\n"
         "  complete Node history\n"
         "Interval start or end specified by time-stamp or relative offset takes\n"
-        "precedence over number of chunks or reverse from most recent.\n");
+        "precedence over number of chunks or reverse from most recent.\n"
+        "An example of a custom template is:\n"
+        "  'STR:{{ t_chunkopen }} {{ t_diff_mins }} {{ node_id }}\\n'\n");
 }
 
 /**
@@ -64,19 +66,20 @@ fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flow
  */
 void fzloghtml::usage_hook() {
     ga.usage_hook();
-    FZOUT("    -n belongs to <node-ID>\n");
-    FZOUT("    -1 start from <time-stamp-1>\n");
-    FZOUT("    -2 end at <time-stamp-2>\n");
-    FZOUT("    -D interval size of <days>\n");
-    FZOUT("    -H interval size of <hours>\n");
-    FZOUT("    -w interval size of <weeks>\n");
-    FZOUT("    -c interval size of <num> Log chunks\n");
-    FZOUT("    -r interval from most recent\n");
-    FZOUT("    -R most recent Log data\n");
-    FZOUT("    -F format of most recent Log data:\n");
-    FZOUT("       raw, txt, html (default)\n");
-    FZOUT("    -o write HTML Log interval to <outputfile> (default=STDOUT)\n");
-    FZOUT("    -N no HTML page frame\n");
+    FZOUT("    -n belongs to <node-ID>\n"
+          "    -1 start from <time-stamp-1>\n"
+          "    -2 end at <time-stamp-2>\n"
+          "    -D interval size of <days>\n"
+          "    -H interval size of <hours>\n"
+          "    -w interval size of <weeks>\n"
+          "    -c interval size of <num> Log chunks\n"
+          "    -r interval from most recent\n"
+          "    -R most recent Log data\n"
+          "    -F format of most recent Log data:\n"
+          "       raw, txt, html (default)\n"
+          "    -T use custom template from file or string (if 'STR:')\n"
+          "    -o write HTML Log interval to <outputfile> (default=STDOUT)\n"
+          "    -N no HTML page frame\n");
 }
 
 /**
@@ -175,6 +178,11 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
                 fzlh.recent_format = most_recent_html;
             }
         }
+        return true;
+    }
+
+    case 'T': {
+        fzlh.custom_template = cargs;
         return true;
     }
 

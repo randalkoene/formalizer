@@ -72,6 +72,23 @@ bool load_templates(fzloghtml_templates & templates) {
     return true;
 }
 
+const std::map<std::string, std::string> template_code_replacements = {
+    {"\\n", "\n"}
+};
+
+void prepare_custom_template(std::string & customtemplate) {
+    customtemplate = fzlh.custom_template.substr(4);
+    for (const auto [codestr, repstr] : template_code_replacements) {
+        size_t codepos = 0;
+        while (true) {
+            codepos = customtemplate.find(codestr, codepos);
+            if (codepos == std::string::npos) break;
+            customtemplate.replace(codepos, codestr.size(), repstr);
+            codepos += repstr.size();
+        }
+    }
+}
+
 std::string render_Log_entry(Log_entry & entry) {
     template_varvalues varvals;
     varvals.emplace("minor_id",std::to_string(entry.get_minor_id()));
@@ -106,7 +123,18 @@ bool send_rendered_to_output(std::string & rendered_text) {
  */
 bool render_Log_interval() {
     ERRTRACE;
-    load_templates(templates);
+    std::string customtemplate;
+    if (fzlh.custom_template.empty() || (!fzlh.noframe)) {
+        load_templates(templates);
+    }
+
+    if (!fzlh.custom_template.empty()) {
+        if (fzlh.custom_template.substr(0,4) == "STR:") {
+            prepare_custom_template(customtemplate);
+        } else {
+            standard_exit_error(exit_command_line_error, "Custom template from file has not yet been implemented.",__func__);
+        }
+    }
 
     if (fzlh.filter.nkey.isnullkey()) {
         VERYVERBOSEOUT("Finding Log chunks from "+TimeStampYmdHM(fzlh.filter.t_from)+" to "+TimeStampYmdHM(fzlh.filter.t_to)+'\n');
@@ -146,9 +174,11 @@ bool render_Log_interval() {
             if (t_chunkclose < chunkptr->get_open_time()) {
                 varvals.emplace("t_chunkclose","OPEN");
                 varvals.emplace("t_diff","");
+                varvals.emplace("t_diff_mins",""); // typically, only either t_diff or t_diff_mins appears in a template
             } else {
                 varvals.emplace("t_chunkclose",TimeStampYmdHM(t_chunkclose));
                 time_t t_diff = (t_chunkclose - t_chunkopen)/60; // mins
+                varvals.emplace("t_diff_mins", std::to_string(t_diff)); // particularly useful for cutom templates
                 if (t_diff >= 120) {
                     varvals.emplace("t_diff", to_precision_string(((double) t_diff)/60.0, 2, ' ', 5)+" hrs");
                 } else {
@@ -156,7 +186,11 @@ bool render_Log_interval() {
                 }
             }
             varvals.emplace("entries",combined_entries);
-            rendered_logcontent += env.render(templates[LogHTML_chunk_temp],varvals);
+            if (customtemplate.empty()) {
+                rendered_logcontent += env.render(templates[LogHTML_chunk_temp], varvals);
+            } else {
+                rendered_logcontent += env.render(customtemplate, varvals);
+            }
         }
     }
 

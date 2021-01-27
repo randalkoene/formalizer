@@ -69,7 +69,12 @@
         "cfenv": "cpp",
         "typeindex": "cpp",
         "charconv": "cpp",
-        "strstream": "cpp"
+        "strstream": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "ranges": "cpp",
+        "span": "cpp",
+        "stop_token": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled",
     "python.linting.pylintEnabled": true,
