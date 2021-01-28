@@ -43,6 +43,8 @@ def cgi_testing_end():
 # Create instance of FieldStorage 
 form = cgi.FieldStorage() 
 
+id = form.getvalue('id')
+
 edit_result_page_head = '''Content-type:text/html
 
 <html>
@@ -58,12 +60,16 @@ edit_result_page_head = '''Content-type:text/html
 </style>
 '''
 
-edit_result_page_tail = f'''<b>Node modified. To review or edit more, follow this link: <a href="/cgi-bin/fzgraphhtml-cgi.py?edit={id}">{id}</a>.</b>
+edit_success_page_tail = f'''<b>Node modified. To review or edit more, follow this link: <a href="/cgi-bin/fzgraphhtml-cgi.py?edit={id}">{id}</a>.</b>
 <hr>
 </body>
 </html>
 '''
 
+edit_fail_page_tail = '''<hr>
+</body>
+</html>
+'''
 
 def convert_to_targetdate(alttargetdate: str):
     atd = alttargetdate.split('T')
@@ -84,6 +90,7 @@ def try_call_command(thecmd: str):
         print(result)
         print('<!-- end  : call output --></pre>')
         #print(result.replace('\n', '<BR>'))
+        return True
 
     except Exception as ex:                
         print(ex)
@@ -92,6 +99,7 @@ def try_call_command(thecmd: str):
         a = f.getvalue().splitlines()
         for line in a:
             print(line)
+        return False
 
 
 def modify_node():
@@ -156,9 +164,10 @@ def modify_node():
 
     print(f'<!-- Call command: {thecmd} -->')
 
-    try_call_command(thecmd)
-
-    print(edit_result_page_tail)
+    if try_call_command(thecmd):
+        print(edit_success_page_tail)
+    else:
+        print(edit_fail_page_tail)
 
 
 def update_node():
@@ -176,9 +185,10 @@ def update_node():
     
     print(f'Skipping instances of Node {id} past {tpass_YmdHM}.')
 
-    try_call_command(thecmd)
-
-    print(edit_result_page_tail)
+    if try_call_command(thecmd):
+        print(edit_success_page_tail)
+    else:
+        print(edit_fail_page_tail)
 
 
 def skip_node():
@@ -195,18 +205,16 @@ def skip_node():
     
     print(f'Skipping {num_skip} instances of Node {id}.')
 
-    try_call_command(thecmd)
-
-    print(edit_result_page_tail)
+    if try_call_command(thecmd):
+        print(edit_success_page_tail)
+    else:
+        print(edit_fail_page_tail)
 
 
 if __name__ == '__main__':
 
-    global id
-    global verbosity
     global verbosearg
     action = form.getvalue('action')
-    id = form.getvalue('id')
     verbosity = form.getvalue('verbosity')
     if (verbosity == "verbose"):
         verbosearg = '-V'
@@ -224,13 +232,6 @@ if __name__ == '__main__':
             else:
                 print(edit_result_page_head)
                 print(f'<p><b>Unrecognized Node edit action: {action}</b><p>')
-                print(edit_result_page_tail)
+                print(edit_fail_page_tail)
 
     sys.exit(0)
-
-# Get data from fields
-
-
-
-
-

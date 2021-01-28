@@ -678,9 +678,13 @@ bool handle_node_direct_show(Node & node, const std::string & extension, std::st
  *   /fz/graph/nodes/20200901061505.1?skip=toT&T=202101271631
  */
 bool handle_node_direct_edit_multiple_pars(Node & node, const std::string & extension, std::string & response_html) {
+    ERRTRACE;
+
     if (extension.size()<2) {
         return false;
     }
+
+    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n<p>Node edit multi-parameters: "+extension.substr(1)+"</p>\n</body>\n</html>\n";
     // skip '?' and separate in the token-value pairs
     auto token_value_vec = GET_token_values(extension.substr(1));
     // identify and set state variables (e.g. T=)
@@ -707,7 +711,7 @@ bool handle_node_direct_edit_multiple_pars(Node & node, const std::string & exte
                 return standard_error("Unable to skip instances of non-repeating Node "+node.get_id_str(), __func__);
             }
             if (GETel.value=="toT") {
-                Node_skip(node, T_ref, editflags);
+                Node_skip_tpass(node, T_ref, editflags);
             } else {
                 bool usable = !GETel.value.empty();
                 if (usable) {
@@ -717,7 +721,7 @@ bool handle_node_direct_edit_multiple_pars(Node & node, const std::string & exte
                     return standard_error("Invalid skip number "+GETel.value, __func__);
                 }
                 unsigned int num_skip = std::atoi(GETel.value.c_str());
-                Node_skip(node, num_skip, editflags);
+                Node_skip_num(node, num_skip, editflags);
             }
         }
     }    

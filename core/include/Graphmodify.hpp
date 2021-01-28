@@ -433,7 +433,7 @@ Edit_flags Node_apply_minutes(Node & node, unsigned int add_minutes, time_t T_re
  * @param num_skip The number of instances to skip.
  * @param editflags Reference to Edit_flags object that returns modifications carried out.
  */
-void Node_skip(Node & node, unsigned int num_skip, Edit_flags & editflags);
+void Node_skip_num(Node & node, unsigned int num_skip, Edit_flags & editflags);
 
 /**
  * Skip instances of a repeating Node past a specified time.
@@ -448,7 +448,7 @@ void Node_skip(Node & node, unsigned int num_skip, Edit_flags & editflags);
  * @param t_pass The threshold time past which to skip instances.
  * @param editflags Reference to Edit_flags object that returns modifications carried out.
  */
-void Node_skip(Node & node, time_t t_pass, Edit_flags & editflags);
+void Node_skip_tpass(Node & node, time_t t_pass, Edit_flags & editflags);
 
 /**
  * Copy a number of Node IDs from a list of incomplete Nodes sorted by
