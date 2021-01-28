@@ -616,7 +616,9 @@ bool node_add_logged_time(const std::string & node_addstr) {
     unsigned int add_minutes = 0;
     Node * node_ptr = nullptr;
 
+    // separate into token-value pairs
     auto token_value_vec = GET_token_values(node_addstr);
+    // identify and set state variables
     for (const auto & GETel : token_value_vec) {
         if (GETel.token == "T") {
             time_t t = time_stamp_time(GETel.value);
@@ -636,13 +638,16 @@ bool node_add_logged_time(const std::string & node_addstr) {
     if (!node_ptr) {
         return standard_error("Missing Node ID token", __func__);
     }
-        
+    
+    // carry out modification
     Edit_flags editflags = Node_apply_minutes(*node_ptr, add_minutes, T_ref);
     
+    // update database
     if (!Update_Node_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), *node_ptr, editflags)) {
         return standard_error("Synchronizing Node update to database failed", __func__);
     }
 
+    // post-modification validity test
     if (editflags.Edit_error()) { // check this AFTER synchronizing (see note in Graphmodify.hpp:Edit_flags)
         return standard_error("An invalid circumstance was encountered while attempting to add minutes to Node "+node_ptr->get_id_str()+", but some parameters (e.g. completion) may have been modified.", __func__);
     }
@@ -667,12 +672,66 @@ bool handle_node_direct_show(Node & node, const std::string & extension, std::st
  * then calling `Update_Node_pq()`, but it does not include using a `Graph_modifications` stack
  * or responding with results in shared-memory. Edits can set or add.
  * For example:
- *   /fz/graph/nodes/20200901061505.1?completion=1.0&repeats=no
- *   /fz/graph/nodes/20200901061505.1?required=+45m
+ *   /fz/graph/nodes/20200901061505.1?completion=1.0&repeats=no [NOT YET IMPLEMENTED]
+ *   /fz/graph/nodes/20200901061505.1?required=+45m [NOT YET IMPLEMENTED]
+ *   /fz/graph/nodes/20200901061505.1?skip=1
+ *   /fz/graph/nodes/20200901061505.1?skip=toT&T=202101271631
  */
 bool handle_node_direct_edit_multiple_pars(Node & node, const std::string & extension, std::string & response_html) {
-    // *** Not yet implemented
-    return false;
+    if (extension.size()<2) {
+        return false;
+    }
+    // skip '?' and separate in the token-value pairs
+    auto token_value_vec = GET_token_values(extension.substr(1));
+    // identify and set state variables (e.g. T=)
+    time_t T_ref = RTt_unspecified;
+    for (const auto & GETel : token_value_vec) {
+        if (GETel.token == "T") {
+            time_t t = time_stamp_time(GETel.value);
+            if (t<0) {
+                return standard_error("Unable to use emulated time string "+GETel.value, __func__);
+            }
+            T_ref = t;
+        }
+    }
+    if (T_ref==RTt_unspecified) {
+        T_ref = ActualTime();
+    }
+    // loop through action tokens and carry out modifications
+    Edit_flags editflags;
+    for (const auto & GETel : token_value_vec) {
+        // *** Note that if we have a lot of recognized tokens then we could opt to do this as in get_add_data() above,
+        //     or as in tcp_serialized_data_handlers.cpp.
+        if (GETel.token == "skip") {
+            if (!node.get_repeats()) {
+                return standard_error("Unable to skip instances of non-repeating Node "+node.get_id_str(), __func__);
+            }
+            if (GETel.value=="toT") {
+                Node_skip(node, T_ref, editflags);
+            } else {
+                bool usable = !GETel.value.empty();
+                if (usable) {
+                    usable =  ((GETel.value[0]>='0') && (GETel.value[0]<='9'));
+                }
+                if (!usable) {
+                    return standard_error("Invalid skip number "+GETel.value, __func__);
+                }
+                unsigned int num_skip = std::atoi(GETel.value.c_str());
+                Node_skip(node, num_skip, editflags);
+            }
+        }
+    }    
+    // update database
+    if (!Update_Node_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), node, editflags)) {
+        return standard_error("Synchronizing Node update to database failed", __func__);
+    }
+
+    // post-modification validity test
+    if (editflags.Edit_error()) { // check this AFTER synchronizing (see note in Graphmodify.hpp:Edit_flags)
+        return standard_error("An invalid circumstance was encountered while attempting to edit Node "+node.get_id_str()+", but some parameters may have been modified.", __func__);
+    }
+
+    return true;
 }
 
 /**

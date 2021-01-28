@@ -370,6 +370,18 @@ ssize_t Graph_modify_batch_node_tpassrepeating(Graph & graph, const std::string 
  * 3. If a `tdspan==1` is found then it is set to 0 and `repeats` is turned off, just to
  *    to ensure a valid Node setting, in case the unexpected setting was a result of
  *    manual modification.
+ * 4. At present, `t_ref` IS NOT USED FOR ANYTHING (!!!). Consequently, advancing a
+ *    repeating Node with this function does not pay attention to passing any particular
+ *    time. This is probably by `Update_repeating_Nodes()` uses a while-loop to make
+ *    single-step advances for each repeating Node. Perhaps this is the desired behavior,
+ *    as it allows a completed repeating Node to move on to its next instance, even if
+ *    that is beyond current (emulated) time. Otherwise, repeating Nodes completed
+ *    before the target date of their current instance might put themselves back on the
+ *    Schedule for the same day. Then again - does it need to be done this way? Or can
+ *    using `t_ref` in this function apply a test such that a repeating Node can move
+ *    on to an instance beyond t_ref, but will then stop advancing. If this were the
+ *    protocol, then setting `t_ref=RTt_maxtime` would be the default to deactive such
+ *    a constraint.
  * 
  * @param node Reference to a valid Node object.
  * @param N_advance Number of iterations to advance.
@@ -407,6 +419,36 @@ bool Node_advance_repeating(Node & node, int N_advance, Edit_flags & editflags, 
  * @return Edit_flags indicating the parameters of the Node that were modified. Use this to update the database.
  */
 Edit_flags Node_apply_minutes(Node & node, unsigned int add_minutes, time_t T_ref = RTt_unspecified);
+
+/**
+ * Skip N instances of a repeating Node.
+ * 
+ * Note A: This is using a while-loop, because of the issue in Note 4 of
+ *         Node_advance_repeating().
+ * Note B: This function does not take a `T_ref` parameter. It is specifically intended
+ *         to enable skipping an arbitrary number of instances without regard to a
+ *         time threshold.
+ * 
+ * @param node The repeating Node that should skip instances.
+ * @param num_skip The number of instances to skip.
+ * @param editflags Reference to Edit_flags object that returns modifications carried out.
+ */
+void Node_skip(Node & node, unsigned int num_skip, Edit_flags & editflags);
+
+/**
+ * Skip instances of a repeating Node past a specified time.
+ * 
+ * Note A: This is using a while-loop, because of the issue in Note 4 of
+ *         Node_advance_repeating().
+ * Note B: Unlike the Schedule updating `Update_repeating_Nodes()` function, this
+ *         single-Node instance skipping function purposely does not make an
+ *         exception for Nodes with an annual repeat pattern.
+ * 
+ * @param node The repeating Node that should skip instances.
+ * @param t_pass The threshold time past which to skip instances.
+ * @param editflags Reference to Edit_flags object that returns modifications carried out.
+ */
+void Node_skip(Node & node, time_t t_pass, Edit_flags & editflags);
 
 /**
  * Copy a number of Node IDs from a list of incomplete Nodes sorted by

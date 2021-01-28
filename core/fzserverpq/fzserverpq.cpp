@@ -75,6 +75,7 @@ The GET/PATCH port API includes the following:
   /fz/db/mode?set=<run|log|sim>
   /fz/graph/logtime?<node-id>=<mins>[&T=<emulated-time>]
   /fz/graph/nodes/logtime?<node-id>=<mins>[&T=<emulated-time>]
+  /fz/graph/nodes/<node-id>?skip=<<num>|toT>[&T=<emulated-time>]
   /fz/graph/namedlists/<list-name>?add=<node-id>[&FEATURES/MAXSIZE]
   /fz/graph/namedlists/<list-name>?remove=<node-id>
   /fz/graph/namedlists/<list-name>?delete=

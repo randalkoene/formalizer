@@ -1152,7 +1152,8 @@ std::string Edge_pq::All_Edge_Data_pqstr() {
 }
 
 // *** Now that Node contains an `editflags` property, we may be able to remove the separate parameter here.
-//     The Node's `editflags` should be cleared if this function returns successfully.
+//     The Node's `editflags` should be cleared if this function returns successfully. (The Update_Node_pq()
+//     function below does do this.)
 bool update_Node_pq(PGconn* conn, const std::string & schemaname, const Node & node, const Edit_flags & _editflags) {
     ERRTRACE;
 
@@ -1218,6 +1219,8 @@ bool update_Node_pq(PGconn* conn, const std::string & schemaname, const Node & n
 }
 
 /// Direct interface to the Node update function that sets up the database connection first.
+/// If you consistently clear Edit_flags of a Node after successfully synchronizing to the database
+/// then you can use remaining flags as indicators when running an integrity check on the Graph.
 bool Update_Node_pq(std::string dbname, std::string schemaname, const Node & node, const Edit_flags & _editflags) {
     ERRTRACE;
 
@@ -1225,6 +1228,9 @@ bool Update_Node_pq(std::string dbname, std::string schemaname, const Node & nod
     if (!conn) return false;
 
     bool res = update_Node_pq(conn, schemaname, node, _editflags);
+    if (res) {
+        const_cast<Node *>(&node)->clear_editflags();
+    }
 
     PQfinish(conn);
     return res;

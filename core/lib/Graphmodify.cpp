@@ -352,12 +352,24 @@ Edge_ptr Graph_modify_edit_edge(Graph & graph, const std::string & graph_segname
  * 3. If a `tdspan==1` is found then it is set to 0 and `repeats` is turned off, just to
  *    to ensure a valid Node setting, in case the unexpected setting was a result of
  *    manual modification.
+ * 4. At present, `t_ref` IS NOT USED FOR ANYTHING (!!!). Consequently, advancing a
+ *    repeating Node with this function does not pay attention to passing any particular
+ *    time. This is probably by `Update_repeating_Nodes()` uses a while-loop to make
+ *    single-step advances for each repeating Node. Perhaps this is the desired behavior,
+ *    as it allows a completed repeating Node to move on to its next instance, even if
+ *    that is beyond current (emulated) time. Otherwise, repeating Nodes completed
+ *    before the target date of their current instance might put themselves back on the
+ *    Schedule for the same day. Then again - does it need to be done this way? Or can
+ *    using `t_ref` in this function apply a test such that a repeating Node can move
+ *    on to an instance beyond t_ref, but will then stop advancing. If this were the
+ *    protocol, then setting `t_ref=RTt_maxtime` would be the default to deactive such
+ *    a constraint.
  * 
  * @param node Reference to a valid Node object.
  * @param N_advance Number of iterations to advance.
  * @param editflags Specifies the parameters that were modified. Use this to update the database.
  * @param t_ref Optional reference time (if negative then Actual time is used).
- * @return True when advanvement modifications were made, false if an invalid circumstance was encountered.
+ * @return True when advancement modifications were made, false if an invalid circumstance was encountered.
  */
 bool Node_advance_repeating(Node & node, int N_advance, Edit_flags & editflags, time_t t_ref) {
     ERRTRACE;
@@ -375,7 +387,7 @@ bool Node_advance_repeating(Node & node, int N_advance, Edit_flags & editflags, 
     if (!node.get_repeats())
         return false;
 
-    time_t t_TD = node.effective_targetdate();
+    time_t t_TD = node.effective_targetdate(); // *** is this necessary? can repeating Nodes inherit their targetdate? if so, should the t_pass tests in functions below check effective instead of get_targetdate()?
     if (t_TD <= RTt_unspecified) {
         editflags.set_Edit_error();
         ADDERROR(__func__, "Unspecified or invalid target date of repeating Node "+node.get_id_str()+" does not permit advancement.");
@@ -383,7 +395,7 @@ bool Node_advance_repeating(Node & node, int N_advance, Edit_flags & editflags, 
     
     }
 
-    if (t_ref < 0) {
+    if (t_ref < 0) { // *** oh-oh... this doesn't seem to be used here at all!
         t_ref = ActualTime();
     }
 
@@ -496,7 +508,56 @@ Edit_flags Node_apply_minutes(Node & node, unsigned int add_minutes, time_t T_re
 }
 
 /**
- * Update repeating Nodes past a specific timee.
+ * Skip N instances of a repeating Node.
+ * 
+ * Note: This function does not take a `T_ref` parameter. It is specifically intended
+ *       to enable skipping an arbitrary number of instances without regard to a
+ *       time threshold.
+ * 
+ * @param node The repeating Node that should skip instances.
+ * @param num_skip The number of instances to skip.
+ * @param editflags Reference to Edit_flags object that returns modifications carried out.
+ */
+void Node_skip(Node & node, unsigned int num_skip, Edit_flags & editflags) {
+    if (!node.get_repeats()) {
+        return;
+    }
+
+    if (Node_advance_repeating(node, num_skip, editflags, RTt_maxtime)) { // *** using RTt_maxtime here in case T_ref is put to use
+        // if an advance happened, then make sure completion is set to 0
+        node.set_completion(0.0);
+        editflags.set_Edit_completion();
+    }
+}
+
+/**
+ * Skip instances of a repeating Node past a specified time.
+ * 
+ * Note A: This is using a while-loop, because of the issue in Note 4 of
+ *         Node_advance_repeating().
+ * Note B: Unlike the Schedule updating `Update_repeating_Nodes()` function, this
+ *         single-Node instance skipping function purposely does not make an
+ *         exception for Nodes with an annual repeat pattern.
+ * 
+ * @param node The repeating Node that should skip instances.
+ * @param t_pass The threshold time past which to skip instances.
+ * @param editflags Reference to Edit_flags object that returns modifications carried out.
+ */
+void Node_skip(Node & node, time_t t_pass, Edit_flags & editflags) {
+    bool updated = false;
+    while (node.get_repeats() && (node.get_targetdate()<=t_pass)) {
+        if (!Node_completed_repeating(node, editflags)) {
+            break;
+        }
+        updated = true;
+    }
+    if (updated) { // *** notice the inconsistency that this is used here but not everywhere
+        const_cast<Edit_flags *>(&(node.get_editflags()))->set_Edit_flags(editflags.get_Edit_flags());
+    }
+}
+
+/**
+ * Update repeating Nodes past a specific time.
  * 
  * This is a server function, e.g. called within `fzserverpq`.
  * For the rationale, see the explanation at https://trello.com/c/eUjjF1yZ/222-how-graph-components-are-edited#comment-5fd8fed424188014cb31a937.

@@ -44,7 +44,13 @@ fzupdate::fzupdate() : formalizer_standard_program(false), config(*this),
     add_option_args += "ruT:";
     add_usage_top += " [-r] [-u] [-T <t_max|full>]";
     //usage_head.push_back("Description at the head of usage information.\n");
-    usage_tail.push_back("The -T limit overrides the 'map_days' configuration or default parameter.\n");
+    usage_tail.push_back(
+        "The -T limit overrides the 'map_days' configuration or default parameter.\n"
+        "\n"
+        "Please note that fzupdate is primarily about Schedule updating. To 'skip'\n"
+        "or 'update' instances of a single repeating Node, please see the TCP API\n"
+        "requests available in fzserverpq.\n"
+    );
 }
 
 /**
