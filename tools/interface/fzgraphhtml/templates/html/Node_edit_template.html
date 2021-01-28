@@ -1,7 +1,7 @@
 <tr>
 <td><form action="/cgi-bin/fzedit-cgi.py" method="post">
 <h3>Node ID: <b><a href="/cgi-bin/fzlink.py?id={{ node-id }}">{{ node-id }}</a></b></h3>
-<input type="submit" value="modify"><input type="hidden" name="id" value="{{ node-id }}">
+<input type="submit" name="action" value="modify"><input type="hidden" name="id" value="{{ node-id }}">
 (verbose: <input type="checkbox" name="verbosity" value="verbose">) {{ td_update_skip }}
 </td>
 </tr>

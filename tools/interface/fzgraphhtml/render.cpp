@@ -585,6 +585,9 @@ const std::string patt_token[_patt_num] = {
     "patt_nonperiodic"
 };
 
+static const char update_skip_template_A[] = R"USTEMP( | <input type="submit" name="action" value="update"> to <input type="datetime-local" id="tpass" name="tpass" min="1990-01-01T00:00:00" value=")USTEMP";
+static const char update_skip_template_B[] = R"USTEMP("> <input type="submit" name="action" value="skip"> <input type="number" name="num_skip" min="1" max="100" step="1" value=1>)USTEMP";
+
 bool render_node_edit() {
     ERRTRACE;
 
@@ -613,7 +616,7 @@ bool render_node_edit() {
     nodevars.emplace("node-id", node.get_id_str());
 
     if (node.get_repeats()) {
-        nodevars.emplace("td_update_skip", " | <input type=\"submit\" value=\"td_update\"> <input type=\"submit\" value=\"td_skip\"> <input type=\"number\" name=\"num_skip\" min=\"1\" max=\"100\" step=\"1\" value=1>");
+        nodevars.emplace("td_update_skip", update_skip_template_A+TimeStamp("%Y-%m-%dT%H:%M", ActualTime())+update_skip_template_B);
     } else {
         nodevars.emplace("td_update_skip", "");
     }
