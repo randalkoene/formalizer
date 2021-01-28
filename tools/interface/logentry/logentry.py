@@ -111,6 +111,7 @@ sys.path.append(fzcoreincludedir)
 import Graphpostgres
 import coreversion
 from error import *
+from standard import *
 from ansicolorcodes import *
 from fzcmdcalls import *
 from Graphaccess import *
@@ -379,12 +380,4 @@ if __name__ == '__main__':
 
     make_log_entry()
 
-    if args.waitexit:
-        print('Done.', end='', flush=True)
-        for i in range(int(args.waitexit)):
-            time.sleep(1)
-            print('.', end='', flush=True)
-        print('')
-
-
-    sys.exit(0)
+    wait_exit(wait_seconds = float(args.waitexit))

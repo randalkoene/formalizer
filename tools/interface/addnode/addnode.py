@@ -94,6 +94,7 @@ config['logcmdcalls'] = False
 # core components
 import Graphpostgres
 import coreversion
+from standard import *
 
 version = "0.1.0-0.1"
 
@@ -601,4 +602,4 @@ if __name__ == '__main__':
 
     print(f'Completed addnode. Created Node {node_id}.')
 
-    sys.exit(0)
+    wait_exit(wait_seconds = 1.5, verbose = False)
