@@ -351,7 +351,26 @@ targetdate_info = """
 TARGETDATE
 """
 
-def collect_targetdate():
+def check_variable_targetdate_unique(td_specified: str):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    ipportvec = serverIPport.split(':')
+    s.connect((ipportvec[0],int(ipportvec[1])))
+    s.send(f'FZ nodes_match(tdproperty=variable,targetdate={td_specified})'.encode())
+    data = ''
+    data = s.recv(1024).decode()
+    d = data.split()
+    is_unique = True
+    if ((len(d)>2) and (d[0] == 'FZ') and (d[1] == '200')):
+        matching_nodes = d[2]
+        if ((matching_nodes[0] >= '0') and (matching_nodes[0] <= '9')):
+            print(f'{ANSI_alert}There are other variable target date Nodss with the same target date{ANSI_nrm}:\n')
+            print(f'  {matching_nodes}\n')
+            is_unique = False
+    else:
+        exit_error(1, 'Unable to check target date.')
+    return is_unique
+
+def collect_targetdate(tdproperty: str):
     print(targetdate_info)
     targetdate = ''
     while not targetdate:
@@ -370,6 +389,11 @@ def collect_targetdate():
             continueanyway = input(f'Continue with {targetdate} anyway? ({ANSI_yb}y{ANSI_nrm}/{ANSI_gn}N{ANSI_nrm}) ')
             if (continueanyway != 'y'):
                 targetdate = ''
+        if (tdproperty=='variable'):
+            if not check_variable_targetdate_unique(targetdate):
+                continueanyway = input(f'Continue with {targetdate} anyway? ({ANSI_yb}y{ANSI_nrm}/{ANSI_gn}N{ANSI_nrm}) ')
+                if (continueanyway != 'y'):
+                    targetdate = ''
     return targetdate
 
 
@@ -532,7 +556,7 @@ def collect_node_data():
         stepcategory = ''
     tdproperty = collect_tdproperty()
     if (tdproperty in ['variable', 'fixed', 'exact']):
-        targetdate = collect_targetdate()
+        targetdate = collect_targetdate(tdproperty)
     else:
         targetdate = '-1'
     addto_fzgraphcmd = ''

@@ -28,10 +28,11 @@ namespace fz {
  *       %-codes, see the functions in the `cgihandler` library.
  * 
  * @param httpgetstr A (portion) of an HTTP GET string.
+ * @param argseparator Separator character (normally '&').
  * @return A vector of token-value pairs.
  */
-GET_token_value_vec GET_token_values(const std::string httpgetstr) {
-    auto tokenvalue_strvec = split(httpgetstr,'&');
+GET_token_value_vec GET_token_values(const std::string httpgetstr, const char argseparator) {
+    auto tokenvalue_strvec = split(httpgetstr, argseparator);
     GET_token_value_vec gtvvec;
     for (const auto & tvstr : tokenvalue_strvec) {
         auto equalpos = tvstr.find('=');

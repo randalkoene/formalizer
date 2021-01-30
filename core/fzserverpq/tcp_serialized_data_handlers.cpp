@@ -17,7 +17,7 @@
 //#include "general.hpp"
 //#include "stringio.hpp"
 #include "Graphtypes.hpp"
-//#include "Graphinfo.hpp"
+#include "Graphinfo.hpp"
 //#include "Graphpostgres.hpp"
 //#include "stringio.hpp"
 //#include "binaryio.hpp"
@@ -114,8 +114,76 @@ bool NNL_len(int socket, const std::string &argstr) {
     return handle_serialized_data_request_response(socket, std::to_string(listsize), "Serializing size of NNL.");
 }
 
+typedef bool match_condition_func_t(Node_Filter &, const std::string&);
+typedef std::map<std::string, match_condition_func_t*> match_condition_func_map_t;
+
+const std::map<std::string, td_property> td_property_map = {
+    {"unspecified", td_property::unspecified},
+    {"inherit", td_property::inherit},
+    {"variable", td_property::variable},
+    {"fixed", td_property::fixed},
+    {"exact", td_property::exact}
+};
+
+bool Match_Condition_tdproperty(Node_Filter & nodefilter, const std::string & tdpropertystr) {
+    auto it = td_property_map.find(tdpropertystr);
+    if (it == td_property_map.end()) {
+        return false;
+    }
+    nodefilter.lowerbound.tdproperty = it->second;
+    nodefilter.upperbound.tdproperty = it->second;
+    nodefilter.filtermask.set_Edit_tdproperty();
+    return true;
+}
+
+bool Match_Condition_targetdate(Node_Filter & nodefilter, const std::string & targetdatestr) {
+    time_t t = time_stamp_time(targetdatestr);
+    nodefilter.lowerbound.targetdate = t;
+    nodefilter.upperbound.targetdate = t;
+    nodefilter.filtermask.set_Edit_targetdate();
+    return true;
+}
+
+const match_condition_func_map_t match_condition_functions = {
+    {"tdproperty", Match_Condition_tdproperty},
+    {"targetdate", Match_Condition_targetdate}
+};
+
+bool Nodes_match(int socket, const std::string & argstr) {
+    if (argstr.empty()) {
+        handle_serialized_data_request_error(socket, "Missing match conditions.");
+        return false;
+    }
+    auto matchconditions_vec = GET_token_values(argstr, ',');
+
+    Node_Filter nodefilter;
+    for (const auto & matchcondition : matchconditions_vec) {
+        auto it = match_condition_functions.find(matchcondition.token);
+        if (it == match_condition_functions.end()) {
+            return standard_error("Unrecognized match condition: '" + matchcondition.token + '\'', __func__);
+        }
+        if (!it->second(nodefilter, matchcondition.value)) {
+            return standard_error("Unrecognized match value: '" + matchcondition.value + '\'', __func__);
+        }
+    }
+
+    VERYVERBOSEOUT("Matching Nodes to "+argstr+'\n');
+    targetdate_sorted_Nodes matching_nodes = Nodes_subset(*fzs.graph_ptr, nodefilter);
+
+    std::string matching_nodes_str;
+    for (const auto & [t, n_ptr]: matching_nodes) {
+        if (!matching_nodes_str.empty()) {
+            matching_nodes_str += ',';
+        }
+        matching_nodes_str += n_ptr->get_id_str();
+    }
+
+    return handle_serialized_data_request_response(socket, matching_nodes_str, "Serializing matching Nodes.");
+}
+
 const serialized_func_map_t serialized_data_functions = {
-    {"NNLlen", NNL_len}
+    {"NNLlen", NNL_len},
+    {"nodes_match", Nodes_match}
 };
 
 bool handle_request_args(int socket, const FZ_request_args & fra) {

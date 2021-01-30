@@ -41,9 +41,10 @@ typedef std::vector<GET_token_value> GET_token_value_vec;
  *       %-codes, see the functions in the `cgihandler` library.
  * 
  * @param httpgetstr A (portion) of an HTTP GET string.
+ * @param argseparator Separator character (normally '&').
  * @return A vector of token-value pairs.
  */
-GET_token_value_vec GET_token_values(const std::string httpgetstr);
+GET_token_value_vec GET_token_values(const std::string httpgetstr, const char argseparator = '&');
 
 /**
  * Returns a MIME type string reference that corresponds with the extension of a

@@ -109,7 +109,10 @@ not for formatted display.
 
 Recognized requests are:
 
-  NNLlen(list-name)   Returns the number of Nodes in NNL 'list-name' (or 0).
+  NNLlen(list-name)
+    Returns the number of Nodes in NNL 'list-name' (or 0).
+  nodes_match(tdproperty=variable,targetdate=202101292346)
+    Returns a comma-separated list of Nodes matching specified conditions.
 
 FZ serialized data requests can be batched via simple concatenation, e.g.:
 
@@ -123,7 +126,7 @@ utility can be used to make FZ requests. Some examples:
   |~$ nc 127.0.0.1 8090
   |FZ NNLlen(dependencies);NNLlen(superiors)
 
-  |~$ fzquery -Z 'NNLlen(dependencies);NNLlen(superiors)'
+  |~$ fzquerypq -Z 'NNLlen(dependencies);NNLlen(superiors)'
 
   |~$ python3
   |>> import socket
