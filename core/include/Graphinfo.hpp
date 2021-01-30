@@ -43,6 +43,25 @@ std::string Nodes_statistics_string(const Nodes_Stats & nstats);
 unsigned long Edges_with_data(Graph & graph);
 
 /**
+ * Filter class that helps construct filter specifications. This can be
+ * used to search for Node subsets, for example.
+ */
+struct Node_Filter {
+    Node_data lowerbound; // values must be >= to these thresholds (where it makes sense)
+    Node_data upperbound; // values must be <= to these thresholds (where it makes sense)
+    Edit_flags filtermask;
+};
+
+/**
+ * Finds all Nodes that match a specified Node_Filter.
+ * 
+ * @param graph A valid Graph data structure.
+ * @param nodefilter A specified Node_Filter.
+ * @return A map of pointers to nodes by effective targetdate that match the filter specifications.
+ */
+targetdate_sorted_Nodes Nodes_subset(Graph & graph, const Node_Filter & nodefilter);
+
+/**
  * Selects all Nodes that are incomplete and lists them by (inherited)
  * target date.
  * 

@@ -292,6 +292,12 @@ struct Edge_ID_key {
 
 typedef std::uint32_t Edit_flags_type;
 
+/**
+ * A bitmask of flags for the data components of a Node.
+ * 
+ * Note that this is not only used to specify modifications (see Graphmodify), but also
+ * to build filters (see Graphinfo).
+ */
 class Edit_flags {
 public:
     enum editmask : Edit_flags_type {
@@ -343,6 +349,54 @@ public:
     bool Edit_tdspan() const { return editflags & Edit_flags::tdspan; }
     bool Edit_error() const { return editflags & Edit_flags::error; }
     bool None() const { return editflags == 0; }
+};
+
+/**
+ * On-heap data structure used to specify values for data components of a Node.
+ * Note that this is not only used when building an Add/Edit-Node request, initialized
+ * to compile-time default values (see Graphmodify).
+ * It is also used when building a filter (see Graphinfo).
+ */
+struct Node_data {
+    std::string utf8_text;
+    Graphdecimal completion = 0.0;
+    Graphdecimal hours = 0.0;
+    Graphdecimal valuation = 0.0;
+    std::vector<std::string> topics;
+    time_t targetdate = RTt_unspecified;
+    td_property tdproperty = variable;
+    td_pattern tdpattern = patt_nonperiodic;
+    Graphsigned tdevery = 0;
+    Graphsigned tdspan = 1;
+
+    /** 
+     * Copies a complete set of Node data from a buffer on heap to shared memory Node object.
+     * 
+     * @param graph Valid Graph object.
+     * @param node Valid Node object (this may be in a different shared memory buffer, not part of graph).
+     */
+    void copy(Graph & graph, Node & node);
+};
+
+/**
+ * On-heap data structure used to specify values for data components of an Edge.
+ * Note that this is not only used when building an Add/Edit-Edge request, initialized
+ * to compile-time default values (see Graphmodify).
+ * It is also used when building a filter (see Graphinfo).
+ */
+struct Edge_data {
+    Graphdecimal dependency = 0.0;
+    Graphdecimal significance = 0.0;
+    Graphdecimal importance = 0.0;
+    Graphdecimal urgency = 0.0;
+    Graphdecimal priority = 0.0;
+
+    /** 
+     * Copies a complete set of Edge data from a buffer on heap to shared memory Edge object.
+     * 
+     * @param edge Valid Edge object (in a shared memory buffer).
+     */
+    void copy(Edge & edge);
 };
 
 // +----- begin: standardization functions -----+

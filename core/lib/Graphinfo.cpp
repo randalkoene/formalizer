@@ -109,6 +109,58 @@ unsigned long Edges_with_data(Graph & graph) {
 }
 
 /**
+ * Finds all Nodes that match a specified Node_Filter.
+ * 
+ * @param graph A valid Graph data structure.
+ * @param nodefilter A specified Node_Filter.
+ * @return A map of pointers to nodes by effective targetdate that match the filter specifications.
+ */
+targetdate_sorted_Nodes Nodes_subset(Graph & graph, const Node_Filter & nodefilter) {
+    targetdate_sorted_Nodes nodes;
+    if (nodefilter.filtermask.None()) {
+        return nodes;
+    }
+
+    for (const auto & [nkey, node_ptr] : graph.get_nodes()) {
+
+        if (nodefilter.filtermask.Edit_text()) {
+            if ((node_ptr->get_text().find(nodefilter.lowerbound.utf8_text.c_str()) == Node_utf8_text::npos)) {
+                continue;
+            }
+        }
+        if (nodefilter.filtermask.Edit_completion()) {
+            if ((node_ptr->get_completion() < nodefilter.lowerbound.completion) || (node_ptr->get_completion() > nodefilter.upperbound.completion)) {
+                continue;
+            }
+        }
+        if (nodefilter.filtermask.Edit_required()) {
+            if ((node_ptr->get_required_hours() < nodefilter.lowerbound.hours) || (node_ptr->get_required_hours() > nodefilter.upperbound.hours)) {
+                continue;
+            }
+        }
+        if (nodefilter.filtermask.Edit_targetdate()) {
+            if ((node_ptr->get_targetdate() < nodefilter.lowerbound.targetdate) || (node_ptr->get_targetdate() > nodefilter.upperbound.targetdate)) {
+                continue;
+            }
+        }
+        if (nodefilter.filtermask.Edit_tdproperty()) {
+            if ((node_ptr->get_tdproperty() != nodefilter.lowerbound.tdproperty) && (node_ptr->get_tdproperty() != nodefilter.upperbound.tdproperty)) {
+                continue;
+            }
+        }
+        if (nodefilter.filtermask.Edit_tdpattern()) {
+            if ((node_ptr->get_tdpattern() != nodefilter.lowerbound.tdpattern) && (node_ptr->get_tdpattern() != nodefilter.upperbound.tdpattern)) {
+                continue;
+            }
+        }
+        // matched all filter requirements
+        nodes.emplace(node_ptr->effective_targetdate(), node_ptr.get());
+
+    }
+    return nodes;
+}
+
+/**
  * Selects all Nodes that are incomplete and lists them by (inherited)
  * target date.
  * 

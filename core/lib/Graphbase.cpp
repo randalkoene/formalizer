@@ -8,6 +8,7 @@
 //#include "general.hpp"
 //#include "utf8.hpp"
 #include "Graphbase.hpp"
+#include "Graphtypes.hpp"
 
 // Boost libraries need the following.
 #pragma GCC diagnostic warning "-Wuninitialized"
@@ -253,6 +254,48 @@ Edge_ID_key::Edge_ID_key(std::string _idS) {
     }
     if (!valid_Node_ID(_idS.substr(0,arrowpos),formerror,&dep.idT)) throw(ID_exception(formerror));
     if (!valid_Node_ID(_idS.substr(arrowpos+1),formerror,&sup.idT)) throw(ID_exception(formerror));
+}
+
+/** 
+ * Copies a complete set of Node data from a buffer on heap to shared memory Node object.
+ * 
+ * @param graph Valid Graph object.
+ * @param node Valid Node object (this may be in a different shared memory buffer, not part of graph).
+ */
+void Node_data::copy(Graph & graph, Node & node) {
+    node.set_text(utf8_text);
+    node.set_completion(completion);
+    node.set_required((unsigned int) round(hours*3600.0));
+    node.set_valuation(valuation);
+    node.set_targetdate(targetdate);
+    node.set_tdproperty(tdproperty);
+    node.set_tdpattern(tdpattern);
+    node.set_tdevery(tdevery);
+    node.set_tdspan(tdspan);
+    node.set_repeats((tdpattern != patt_nonperiodic) && (tdproperty != variable) && (tdproperty != unspecified));
+
+    for (const auto & tag_str : topics) {
+        VERYVERBOSEOUT("\n  adding Topic tag: "+tag_str+'\n');
+        Topic * topic_ptr = graph.find_Topic_by_tag(tag_str);
+        if (!topic_ptr) {
+            standard_exit_error(exit_general_error, "Unknown Topic: "+tag_str, __func__);
+        }
+        Topic_Tags & topictags = *(const_cast<Topic_Tags *>(&graph.get_topics())); // We need the list of Topics from the memory-resident Graph.
+        node.add_topic(topictags, topic_ptr->get_id(), 1.0);
+    }
+}
+
+/** 
+ * Copies a complete set of Edge data from a buffer on heap to shared memory Edge object.
+ * 
+ * @param edge Valid Edge object (in a shared memory buffer).
+ */
+void Edge_data::copy(Edge & edge) {
+    edge.set_dependency(dependency);
+    edge.set_significance(significance);
+    edge.set_importance(importance);
+    edge.set_urgency(urgency);
+    edge.set_priority(priority);
 }
 
 // +----- begin: friend functions -----+

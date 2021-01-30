@@ -41,8 +41,8 @@ fzupdate fzu;
  */
 fzupdate::fzupdate() : formalizer_standard_program(false), config(*this),
                  reftime(add_option_args, add_usage_top) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "ruT:";
-    add_usage_top += " [-r] [-u] [-T <t_max|full>]";
+    add_option_args += "rubT:";
+    add_usage_top += " [-r|-u|-b] [-T <t_max|full>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "The -T limit overrides the 'map_days' configuration or default parameter.\n"
@@ -62,6 +62,7 @@ void fzupdate::usage_hook() {
     reftime.usage_hook();
     FZOUT("    -r update repeating Nodes\n"
           "    -u update variable target date Nodes\n"
+          "    -b break up EPS group of Nodes with the variable target date in -T\n"
           "    -T update up to and including <t_max> or 'full' update\n");
 }
 
@@ -97,6 +98,11 @@ bool fzupdate::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'b': {
+        flowcontrol = flow_break_eps_groups;
+        return true;
+    }
+
     case 'T': {
         if (cargs=="full") {
             t_limit = RTt_maxtime;
@@ -128,6 +134,27 @@ unsigned int get_positive_integer(const std::string & parvalue, std::string errm
     return (unsigned)v;
 }
 
+time_t get_time_of_day_seconds(const std::string & HM_or_seconds) {
+    if (HM_or_seconds.size() == 5) {
+        if (HM_or_seconds[2] == ':') {
+            long hour = std::atol(HM_or_seconds.substr(0,2).c_str());
+            long min = std::atol(HM_or_seconds.substr(3,2).c_str());
+            if ((hour < 0) || (min < 0) || (hour > 23) || (min > 59)) {
+                standard_exit_error(exit_bad_config_value, "Invalid time of day in configuration file", __func__);
+            }
+            if ((hour == 0) && (min == 0)) {
+                return 86400;
+            }
+            return (hour*3600) + (min*60);
+        }
+    }
+    time_t seconds = std::atol(HM_or_seconds.c_str());
+    if ((seconds<0) || (seconds>86400)) {
+        standard_exit_error(exit_bad_config_value, "Invalid time of day in configuration file", __func__);
+    }
+    return seconds;
+}
+
 /// Configure configurable parameters.
 bool fzu_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     CONFIG_TEST_AND_SET_PAR(chunk_minutes, "chunk_minutes", parlabel, get_chunk_minutes(parvalue));
@@ -135,8 +162,8 @@ bool fzu_configurable::set_parameter(const std::string & parlabel, const std::st
     CONFIG_TEST_AND_SET_PAR(map_days, "map_days", parlabel, get_positive_integer(parvalue, "map_days"));
     CONFIG_TEST_AND_SET_PAR(warn_repeating_too_tight,"warn_repeating_too_tight", parlabel, (parvalue != "false"));
     CONFIG_TEST_AND_SET_PAR(endofday_priorities,"endofday_priorities", parlabel, (parvalue != "false"));
-    CONFIG_TEST_AND_SET_PAR(dolater_endofday,"dolater_endofday", parlabel, time_stamp_time(parvalue));
-    CONFIG_TEST_AND_SET_PAR(doearlier_endofday,"doearlier_endofday", parlabel, time_stamp_time(parvalue));
+    CONFIG_TEST_AND_SET_PAR(dolater_endofday,"dolater_endofday", parlabel, get_time_of_day_seconds(parvalue));
+    CONFIG_TEST_AND_SET_PAR(doearlier_endofday,"doearlier_endofday", parlabel, get_time_of_day_seconds(parvalue));
     CONFIG_TEST_AND_SET_PAR(eps_group_offset_mins,"eps_group_offset_mins", parlabel, get_positive_integer(parvalue, "eps_group_offset_mins"));
     CONFIG_TEST_AND_SET_PAR(update_to_earlier_allowed,"update_to_earlier_allowed", parlabel, (parvalue != "false"));
     CONFIG_TEST_AND_SET_PAR(fetch_days_beyond_t_limit, "fetch_days_beyond_t_limit", parlabel, get_positive_integer(parvalue, "fetch_days_beyond_t_limit"));
@@ -271,6 +298,40 @@ std::string show_shm_request(Batchmod_targetdates_ptr batchmodreq_ptr) {
 }
 
 /**
+ * This can be used by several update functions that change the target dates of a specified set of
+ * Nodes.
+ * 
+ * @param update_nodes A map of new target dates and Node pointers.
+ * @param editflags A valid Edit_flags bitmask (typically, targetdate is set).
+ * @return True if the server request was successful.
+ */
+bool request_batch_targetdates_modifications(const targetdate_sorted_Nodes & update_nodes, const Edit_flags & editflags) {
+    // Determine probable memory space needed.
+    // *** MORE HERE TO BETTER ESTIMATE THAT, this is a wild guess
+    fzu.prepare_Graphmod_shared_memory(sizeof(TD_Node_shm)*update_nodes.size()*4 + 102400);
+
+    Batchmod_targetdates_ptr batchmodtd_ptr = fzu.graphmod().request_Batch_Node_Targetdates(update_nodes);
+    if (!batchmodtd_ptr) {
+        return standard_exit_error(exit_general_error, "Unable to update batch of Node target dates", __func__);
+    }
+    VERBOSEOUT("Prepared server request with a batch of "+std::to_string(batchmodtd_ptr->tdnkeys_num)+" Node and target date elements\n");
+
+    if (fzu.graphmod().data.empty()) {
+        return standard_exit_error(exit_missing_data, "Missing server request data", __func__);
+    }
+    fzu.graphmod().data.back().set_Edit_flags(editflags.get_Edit_flags());
+
+    VERYVERBOSEOUT(show_shm_request(batchmodtd_ptr));
+
+    auto ret = server_request_with_shared_data(fzu.get_segname(), fzu.graph().get_server_port());
+    if (ret != exit_ok) {
+        return standard_exit_error(ret, "Graph server returned error.", __func__);
+    }
+
+    return true;
+}
+
+/**
  * Note: Much of this is a re-implementation of the Formalizer 1.x process carried out by dil2al when the
  *       function alcomp.cc:generate_AL_CRT() is called.
  */
@@ -294,29 +355,55 @@ int update_variable(time_t t_pass) {
 
     targetdate_sorted_Nodes eps_update_nodes = updvar_map.get_eps_update_nodes();
 
-    // Determine probable memory space needed.
-    // *** MORE HERE TO BETTER ESTIMATE THAT, this is a wild guess
-    fzu.prepare_Graphmod_shared_memory(sizeof(TD_Node_shm)*eps_update_nodes.size()*4 + 102400);
-
-    Batchmod_targetdates_ptr batchmodtd_ptr = fzu.graphmod().request_Batch_Node_Targetdates(eps_update_nodes);
-    if (!batchmodtd_ptr) {
-        return standard_exit_error(exit_general_error, "Unable to update batch of Node target dates", __func__);
-    }
-    VERBOSEOUT("Prepared server request with a batch of "+std::to_string(batchmodtd_ptr->tdnkeys_num)+" Node and target date elements\n");
-
-    if (fzu.graphmod().data.empty()) {
-        return standard_exit_error(exit_missing_data, "Missing server request data", __func__);
-    }
-    fzu.graphmod().data.back().set_Edit_flags(editflags.get_Edit_flags());
-
-    VERYVERBOSEOUT(show_shm_request(batchmodtd_ptr));
-
-    auto ret = server_request_with_shared_data(fzu.get_segname(), fzu.graph().get_server_port());
-    if (ret != exit_ok) {
-        standard_exit_error(ret, "Graph server returned error.", __func__);
-    }
+    request_batch_targetdates_modifications(eps_update_nodes, editflags);
 
     return standard_exit_success("Update variable target date Nodes done.");
+}
+
+/**
+ * Break up a group of Nodes with the same variable target date.
+ * 
+ * @param t Target date for which to break up a Node group if one exists.
+ * @return Exit code.
+ */
+int break_eps_group(time_t t) {
+    if (t<0) {
+        return standard_exit_error(exit_command_line_error, "Unable to break up group with negative target date.", __func__);
+    }
+
+    // set up filter
+    Node_Filter nodefilter;
+    nodefilter.lowerbound.completion = 0.0;
+    nodefilter.upperbound.completion = 0.99999;
+    nodefilter.lowerbound.tdproperty = variable;
+    nodefilter.upperbound.tdproperty = variable;
+    nodefilter.lowerbound.targetdate = t;
+    nodefilter.upperbound.targetdate = t;
+    nodefilter.filtermask.set_Edit_completion();
+    nodefilter.filtermask.set_Edit_tdproperty();
+    nodefilter.filtermask.set_Edit_targetdate();
+
+    // find subset of Nodes
+    targetdate_sorted_Nodes epsgroup = Nodes_subset(fzu.graph(), nodefilter);
+
+    // break up group
+    targetdate_sorted_Nodes update_nodes;
+    if (epsgroup.size()>1) {
+        epsgroup.erase(epsgroup.begin()); // one gets to keep the target date
+        time_t t_new = t - 60; // offset down by a minute
+        for (auto & [t_old, n_ptr] : epsgroup) {
+            update_nodes.emplace(t_new, n_ptr);
+            t_new -= 120;
+            if (t_new < 0) {
+                t_new = 0;
+            }
+        }
+    }
+    Edit_flags editflags;
+    editflags.set_Edit_targetdate();
+    request_batch_targetdates_modifications(update_nodes, editflags);
+
+    return standard_exit_success("Breaking up group of Nodes with variable target date done.");
 }
 
 int main(int argc, char *argv[]) {
@@ -338,6 +425,10 @@ int main(int argc, char *argv[]) {
     //     write changes to database until all targetdates have been updated by both methods and the full
     //     list of Nodes with set Edit_flags is known.
     //     We also don't need to collect the incomplete_repeating list twice.
+
+    case flow_break_eps_groups: {
+        return break_eps_group(fzu.t_limit);
+    }
 
     default: {
         fzu.print_usage();
