@@ -359,16 +359,17 @@ def check_variable_targetdate_unique(td_specified: str):
     data = ''
     data = s.recv(1024).decode()
     d = data.split()
-    is_unique = True
-    if ((len(d)>2) and (d[0] == 'FZ') and (d[1] == '200')):
+    if ((len(d)<2) or (d[0] != 'FZ')):
+        exit_error(1, 'Unable to check target date, server did not respond to FZ request as expected.')
+    if (d[1] != '200'):
+        exit_error(1, 'Unable to check target date, server returned FZ error response.')
+    if (len(d)>2):
         matching_nodes = d[2]
         if ((matching_nodes[0] >= '0') and (matching_nodes[0] <= '9')):
-            print(f'{ANSI_alert}There are other variable target date Nodss with the same target date{ANSI_nrm}:\n')
+            print(f'{ANSI_alert}There are other variable target date Nodes with the same target date{ANSI_nrm}:\n')
             print(f'  {matching_nodes}\n')
-            is_unique = False
-    else:
-        exit_error(1, 'Unable to check target date.')
-    return is_unique
+            return False
+    return True
 
 def collect_targetdate(tdproperty: str):
     print(targetdate_info)
