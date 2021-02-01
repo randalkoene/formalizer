@@ -331,16 +331,79 @@ def select_Node_for_Log_chunk():
     return node
 
 
+def update_passed_fixed(args):
+    # clear passed_fixed NNL
+    if not clear_NNL('passed_fixed', config):
+        return 2
+    # filter for passed fixed target date (possibly with T_emulated) Nodes and put them into the passed_fixed NNL
+    completionfilter = 'lower_completion=0.0,upper_completion=0.999' # or could have it recognize completion=[0.0,0.999]
+    if args.T_emulate:
+        targetdatesfilter = 'upper_targetdate='+args.T_emulate
+    else:
+        targetdatesfilter = 'upper_targetdate=NOW' # or could have it recognize targetdate=[0,NOW]
+    tdpropertiesfilter = 'tdproperty=fixed,tdproperty=exact' # or could have it recognize tdproperty=[fixed,exact]
+    if not select_to_NNL(f'nodes_match({completionfilter},{targetdatesfilter},{tdpropertiesfilter},repeats=false)','passed_fixed'):
+        return 2
+    # count the number
+    num = NNLlen('passed_fixed')
+    # explain that there are passed fixed target date Nodes and ask to manually move those that should not become variable target date (open browser)
+    if num:
+        print(f'{ANSI_cy}Current time has passed the target dates of {ANSI_yb}{num}{ANSI_nrm}{ANSI_cy} incomplete{ANSI_nrm}')
+        print(f'{ANSI_cy}non-repeating fixed/exact Nodes. Please give future target dates{ANSI_nrm}')
+        print(f'{ANSI_cy}to those that should remain fixed/exact. The rest will be switched{ANSI_nrm}')
+        print(f'{ANSI_cy}to variable target date type. (Opening list in browser.){ANSI_nrm}')
+        thecmd = config['localbrowser'] + ' http://localhost/cgi-bin/fzgraphhtml-cgi.py?srclist=passed_fixed'
+        retcode = try_subprocess_check_output(thecmd, 'fixedmoved', config)
+        exit_error(retcode, f'Attempt to browse for Node selection failed.', True)
+        if (retcode != 0):
+            return 2
+    # clear passed fixed NNL again
+    if not clear_NNL('passed_fixed', config):
+        return 2
+    # filter again for passed fixed target date Nodes and put them into the passed_fixed NNL (or use another NNL)
+    if not select_to_NNL(f'nodes_match({completionfilter},{targetdatesfilter},{tdpropertiesfilter},repeats=false)','passed_fixed'):
+        return 2
+    # if there are some remaining then call fzupdate with a request to convert to variable target date all Nodes in the NNL
+    num = NNLlen('passed_fixed')
+    if num:
+        thecmd = "fzupdate -c 'passed_fixed'"
+        if config['verbose']:
+            thecmd += ' -V'
+        retcode = try_subprocess_check_output(thecmd, 'fixedconverted', config)
+        exit_error(retcode, f'Attempt to convert fixed to variable target date Nodes failed.', True)
+        if (retcode != 0):
+            return 1
+    print('INCOMPLETE IMPLEMENTATION! Graphaccess functions and several API filter options missing.')
+    return 0
+
+
 def update_schedule(args):
     ANSI_upd = '\u001b[38;5;148m'
     ANSI_Yes_no = f'{ANSI_gn}Y{ANSI_upd}/{ANSI_rd}n{ANSI_upd}'
+    ANSI_No_yes = f'{ANSI_rd}y{ANSI_upd}/{ANSI_gn}N{ANSI_upd}'
+
+    print(f'{ANSI_upd}SCHEDULE UPDATES{ANSI_nrm}')
     cmderrorreviewstr = config['cmderrorreviewstr']
     addtocmd = ''
     if args.T_emulate:
+        print(f'  {ANSI_lt}Operating in {ANSI_wt}Emulated Time (T_emulated = {args.T_emulate}).{ANSI_nrm}')
+        if config['recommend_noupdate_ifTemulated']:
+            print(f'{ANSI_alert}Current configuration recommends NOT to update while in emulated time{ANSI_nrm}.')
+            doitanyway = input(f'Update anyway? {ANSI_No_yes} ')
+            if (doitanyway != 'y'):
+                return
         addtocmd += ' -t '+args.T_emulate
+        print(f'    Chosen updates will be carried out with \' -t {args.T_emulate}\'.')
+    else:
+        print(f'  {ANSI_lt}Operating in {ANSI_wt}Real Time{ANSI_nrm}.')
     if config['verbose']:
         addtocmd += ' -V'
-    print(f'{ANSI_upd}SCHEDULE UPDATES')
+
+    # passed non-repeating fixed and exact target date Nodes
+    updatepassedfixed = input(f'  {ANSI_upd}Update/convert {ANSI_wt}passed non-repeating fixed/exact{ANSI_upd} Nodes? ({ANSI_Yes_no}) ')
+    if (updatepassedfixed != 'n'):
+        retcode = update_passed_fixed(args)
+        exit_error(retcode, f'Attempt to Update/convert passed non-repeating fixed/exact Nodes failed.', True)
 
     # repeating Nodes
     skippassedrepeats = input(f'  Skip {ANSI_wt}passed repeating{ANSI_upd} Nodes? ({ANSI_Yes_no}) ')
@@ -349,7 +412,7 @@ def update_schedule(args):
         retcode = try_subprocess_check_output(thecmd, 'passedrepeatsskip', config)
         exit_error(retcode, f'Attempt to skip passed repeating Nodes failed.{cmderrorreviewstr}', True)
 
-    # variable target dates
+    # variable target date Nodes
     varupdate = input(f'  Update {ANSI_wt}variable{ANSI_upd} target date Nodes? ({ANSI_Yes_no}) ')
     if (varupdate != 'n'):
         thecmd = 'fzupdate -q -E STDOUT -u'+addtocmd

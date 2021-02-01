@@ -3,5 +3,6 @@
     "addpause": false,
     "cmdlog": "/tmp/fztask-cmdcalls.log",
     "logcmdcalls": false,
-    "confirmchunknode": true
+    "confirmchunknode": true,
+    "recommend_noupdate_ifTemulated": true
 }

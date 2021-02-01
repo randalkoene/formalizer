@@ -68,7 +68,7 @@ fzgraphedit::fzgraphedit() : formalizer_standard_program(false), graph_ptr(nullp
         "     1. command line, 2. Named Node Lists ('superiors','depdendencies'),\n"
         "     3. configuration file.\n"
         "   - The special targetdate code 'TODAY' is recognized as the end of the\n"
-        "     current day."
+        "     current day.\n"
         "   - In the config.json file, a targetdate empty string explicitly denotes\n"
         "     RTt_unspecified. On the command line, simply leave out the '-t'\n"
         "     argument to accept default values, or explicitly enter '-t -1' to\n"

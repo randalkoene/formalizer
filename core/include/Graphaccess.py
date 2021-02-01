@@ -8,6 +8,7 @@ a Graph.
 Versioning is based on https://semver.org/. See coreversion.hpp for more.
 """
 
+import socket
 from error import *
 from fzcmdcalls import *
 
@@ -32,3 +33,22 @@ def browse_for_Node(config: dict):
             return ''
     else:
         return ''
+
+
+def clear_NNL(listname: str, config: dict):
+    thecmd = f"fzgraph -C '/fz/graph/namedlists/{listname}?delete='"
+    if config['verbose']:
+        thecmd += ' -V'
+    retcode = try_subprocess_check_output(thecmd, 'clearlist', config)
+    exit_error(retcode, f'Attempt to clear Named Node List {listname} failed.', True)
+    if (retcode != 0):
+        return False
+    return True
+
+
+def select_to_NNL(filter: str, listname: str):
+    return True
+
+
+def NNLlen(listname: str):
+    return 0
