@@ -158,6 +158,8 @@ from ansicolorcodes import *
 from fzcmdcalls import *
 from Graphaccess import *
 
+ANSI_sel = '\u001b[38;5;33m'
+
 config['cmderrorreviewstr'] = ''
 if config['logcmderrors']:
     cmderrlogstr = config['cmderrlog']
@@ -277,72 +279,83 @@ def get_updated_shortlist():
     return True
 
 
+class ShortList:
+    def __init__(self):
+        self.nodes = ''
+        self.desc = ''
+        self.vec = [ ]
+        self.gotshortlist = get_updated_shortlist()
+        if self.gotshortlist:
+            self.nodes = results['shortlistnode']
+            self.desc = results['shortlistdesc']
+            #self.vec = [s for s in self.desc.decode().splitlines() if s.strip()]
+            self.vec = [s for s in self.desc.decode().split("@@@") if s.strip()]
+            self.size = len(self.vec)
+    def show(self):
+        print(f'\n{ANSI_sel}Short-list of Nodes for the {ANSI_wt}New Log Chunk{ANSI_sel}:')
+        if self.gotshortlist:
+            pattern = re.compile('[\W_]+')
+            for (number, line) in enumerate(self.vec):
+                printableline = pattern.sub(' ',line)
+                print(f' {number}: {printableline}')
+
 def select_Node_for_Log_chunk():
-    ANSI_sel = '\u001b[38;5;33m'
-    gotshortlist = get_updated_shortlist()
-    Node_selection_ansi()
-    if gotshortlist:
-        shortlist_nodes = results['shortlistnode']
-        shortlist_desc = results['shortlistdesc']
-        print(f'\nShort-list of Nodes for the {ANSI_wt}New Log Chunk{ANSI_sel}:')
-        #shortlist_vec = [s for s in shortlist_desc.decode().splitlines() if s.strip()]
-        shortlist_vec = [s for s in shortlist_desc.decode().split("@@@") if s.strip()]
-        pattern = re.compile('[\W_]+')
-        for (number, line) in enumerate(shortlist_vec):
-            printableline = pattern.sub(' ',line)
-            print(f' {number}: {printableline}')
-    else:
-        shortlist_nodes = ''
-        shortlist_desc = ''
-        shortlist_vec = [ ]
-
-    print('Use:')
-    if (len(shortlist_vec)>0):
-        print(f'- [{ANSI_gn}0-{len(shortlist_vec)-1}{ANSI_sel}] from shortlist, or')
-    choice = input(f'- [{ANSI_gn}?{ANSI_sel}] to browse: ')
-
+    ANSI_Yes_no = f'{ANSI_gn}Y{ANSI_sel}/{ANSI_rd}n{ANSI_sel}'
     node = '' # none selected
-    if (choice == '?'):
-        node = browse_for_Node(config)
-    else:
-        if ((int(choice) >= 0) & (int(choice) < len(shortlist_vec))):
-            node = shortlist_nodes.splitlines()[int(choice)]
+    shortlist = ShortList()
 
-    if node:
-        node = node.decode()
-        print(f'Log chunk will belong to Node {node}:')
-        if (choice != '?'):
-            chosen_desc = shortlist_vec[int(choice)]
-        else:
+    while not node:
+        shortlist.show()
+        print(f'{ANSI_sel}Use:')
+        if (shortlist.size > 0):
+            print(f'- [{ANSI_gn}0-{shortlist.size - 1}{ANSI_sel}] from shortlist, or')
+        choice = input(f'- [{ANSI_gn}?{ANSI_sel}] to browse: ')
+        if (choice == '?'):
+            node = browse_for_Node(config)
             chosen_desc = selected_Node_description(60)
-        print(f'  {ANSI_wt}{chosen_desc}{ANSI_nrm}')
-    else:
-        print(f'We cannot make a new Log chunk without a Node.')
+        else:
+            if ((int(choice) >= 0) & (int(choice) < shortlist.size)):
+                node = shortlist.nodes.splitlines()[int(choice)]
+                chosen_desc = shortlist.vec[int(choice)]
+
+        if node:
+            node = node.decode()
+            print(f'Log chunk will belong to Node {node}:')
+            print(f'  {ANSI_wt}{chosen_desc}{ANSI_nrm}')
+            if config['confirmchunknode']:
+                iscorrectnext = input(f'Is that correct? ({ANSI_Yes_no}) ')
+                if (iscorrectnext == 'n'):
+                    node = ''
+
     fztask_ansi()
     return node
 
 
 def update_schedule(args):
     ANSI_upd = '\u001b[38;5;148m'
-    print(ANSI_upd)
     ANSI_Yes_no = f'{ANSI_gn}Y{ANSI_upd}/{ANSI_rd}n{ANSI_upd}'
-    print('SCHEDULE UPDATES')
+    cmderrorreviewstr = config['cmderrorreviewstr']
     addtocmd = ''
     if args.T_emulate:
         addtocmd += ' -t '+args.T_emulate
     if config['verbose']:
         addtocmd += ' -V'
-    varupdate = input(f'  Update {ANSI_wt}variable{ANSI_upd} target date Nodes? ({ANSI_Yes_no}) ')
-    cmderrorreviewstr = config['cmderrorreviewstr']
-    if (varupdate != 'n'):
-        thecmd = 'fzupdate -q -E STDOUT -u'+addtocmd
-        retcode = try_subprocess_check_output(thecmd, 'varupdate', config)
-        exit_error(retcode, f'Attempt to update variable target date Nodes failed.{cmderrorreviewstr}', True)
+    print(f'{ANSI_upd}SCHEDULE UPDATES')
+
+    # repeating Nodes
     skippassedrepeats = input(f'  Skip {ANSI_wt}passed repeating{ANSI_upd} Nodes? ({ANSI_Yes_no}) ')
     if (skippassedrepeats != 'n'):
         thecmd = 'fzupdate -q -E STDOUT -r'+addtocmd
         retcode = try_subprocess_check_output(thecmd, 'passedrepeatsskip', config)
         exit_error(retcode, f'Attempt to skip passed repeating Nodes failed.{cmderrorreviewstr}', True)
+
+    # variable target dates
+    varupdate = input(f'  Update {ANSI_wt}variable{ANSI_upd} target date Nodes? ({ANSI_Yes_no}) ')
+    if (varupdate != 'n'):
+        thecmd = 'fzupdate -q -E STDOUT -u'+addtocmd
+        retcode = try_subprocess_check_output(thecmd, 'varupdate', config)
+        exit_error(retcode, f'Attempt to update variable target date Nodes failed.{cmderrorreviewstr}', True)
+
     print('')
 
 

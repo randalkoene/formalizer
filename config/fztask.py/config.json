@@ -2,5 +2,6 @@
     "customtemplate": "/tmp/customtemplate",
     "addpause": false,
     "cmdlog": "/tmp/fztask-cmdcalls.log",
-    "logcmdcalls": false
+    "logcmdcalls": false,
+    "confirmchunknode": true
 }

@@ -366,8 +366,8 @@ struct Node_data {
     time_t targetdate = RTt_unspecified;
     td_property tdproperty = variable;
     td_pattern tdpattern = patt_nonperiodic;
-    Graphsigned tdevery = 0;
-    Graphsigned tdspan = 1;
+    Graphsigned tdevery = 1;
+    Graphsigned tdspan = 0;
 
     /** 
      * Copies a complete set of Node data from a buffer on heap to shared memory Node object.
