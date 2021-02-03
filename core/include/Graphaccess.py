@@ -11,6 +11,7 @@ Versioning is based on https://semver.org/. See coreversion.hpp for more.
 import socket
 from error import *
 from fzcmdcalls import *
+from tcpclient import serial_API_request
 
 def browse_for_Node(config: dict):
     print('Use the browser to select a node.')
@@ -46,9 +47,13 @@ def clear_NNL(listname: str, config: dict):
     return True
 
 
+# See, for example, how this is used in fztask.py.
 def select_to_NNL(filter: str, listname: str):
-    return True
+    num_str = serial_API_request(f'NNLadd_match({listname},{filter})')
+    return int(num_str)
 
 
 def NNLlen(listname: str):
-    return 0
+    nnl_len_str = serial_API_request(f'NNLlen({listname})')
+    return int(nnl_len_str)
+

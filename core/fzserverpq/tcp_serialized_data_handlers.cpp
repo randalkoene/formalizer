@@ -18,7 +18,7 @@
 //#include "stringio.hpp"
 #include "Graphtypes.hpp"
 #include "Graphinfo.hpp"
-//#include "Graphpostgres.hpp"
+#include "Graphpostgres.hpp"
 //#include "stringio.hpp"
 //#include "binaryio.hpp"
 
@@ -125,31 +125,258 @@ const std::map<std::string, td_property> td_property_map = {
     {"exact", td_property::exact}
 };
 
-bool Match_Condition_tdproperty(Node_Filter & nodefilter, const std::string & tdpropertystr) {
+// Split a '[min-max]' range into a vector of argument strings.
+std::vector<std::string> get_range(const std::string & argstr) {
+    std::vector<std::string> argrange = split(argstr,'-');
+    if (!argrange.empty()) {
+        if (!argrange[0].empty()) {
+            if (argrange[0].front() == '[') {
+                argrange[0].erase(0,1);
+            } 
+        }
+        if (!argrange[1].empty()) {
+            if (argrange[1].back() == ']') {
+                argrange[1].pop_back();
+            } 
+        }
+    }
+    return argrange;
+}
+
+/**
+ * Set a completion condition.
+ * 
+ * - If the argument is a single value then both lower and upper bounds
+ *   are set to that value.
+ * - If the argument is a `[c_min-c_max]` range then the lower bound is set to
+ *   `c_min` and the upper bound is set to `c_max`.
+ * 
+ * @param[out] nodefilter A Node Filter object reference that receives the completion
+ *                        filter data. The completion flag of the `filtermask` is set.
+ * @param[in] completionstr The argument string specifying a completion value or range.
+ * @return True if the argument string could be correctly interpreted.
+ */
+bool Match_Condition_completion(Node_Filter & nodefilter, const std::string & completionstr) {
+    if (completionstr.find('-') != std::string::npos) {
+        auto c_range = get_range(completionstr);
+        if (c_range.size() < 2) {
+            return false;
+        }
+        nodefilter.lowerbound.completion = std::atof(c_range[0].c_str());
+        nodefilter.upperbound.targetdate = std::atof(c_range[1].c_str());
+    } else {
+        float c = std::atof(completionstr.c_str());
+        nodefilter.lowerbound.completion = c;
+        nodefilter.upperbound.completion = c;
+    }
+    nodefilter.filtermask.set_Edit_completion();
+    return true;
+}
+
+// Similar to `completion` but sets only the lower bound.
+bool Match_Condition_lower_completion(Node_Filter & nodefilter, const std::string & lower_completionstr) {
+    nodefilter.lowerbound.completion = std::atof(lower_completionstr.c_str());
+    nodefilter.filtermask.set_Edit_completion();
+    return true;
+}
+
+// Similar to `completion` but sets only the upper bound.
+bool Match_Condition_upper_completion(Node_Filter & nodefilter, const std::string & upper_completionstr) {
+    nodefilter.upperbound.completion = std::atof(upper_completionstr.c_str());
+    nodefilter.filtermask.set_Edit_completion();
+    return true;
+}
+
+/**
+ * Converts an argument string to a td_property enumerated value.
+ * 
+ * @param tdpropertystr Valid Formalizer target date property type label.
+ * @return Value of corresponding `td_property` enum or -1 if unrecognized.
+ */
+int interpret_tdproperty(const std::string & tdpropertystr) {
     auto it = td_property_map.find(tdpropertystr);
     if (it == td_property_map.end()) {
-        return false;
+        return -1;
     }
-    nodefilter.lowerbound.tdproperty = it->second;
-    nodefilter.upperbound.tdproperty = it->second;
+    return it->second;
+}
+
+/**
+ * Set a td_property condition.
+ * 
+ * - If the argument is a single value then both lower and upper bounds
+ *   are set to that value.
+ * - If the argument is a `[tdprop_A-tdprop_B]` pair then the lower bound is set to
+ *   `tdprop_A` and the upper bound is set to `tdprop_B`.
+ * 
+ * @param[out] nodefilter A Node Filter object reference that receives the td_property
+ *                        filter data. The tdproperty flag of the `filtermask` is set.
+ * @param[in] tdpropertystr The argument string specifying a tdproperty value or pair.
+ * @return True if the argument string could be correctly interpreted.
+ */
+bool Match_Condition_tdproperty(Node_Filter & nodefilter, const std::string & tdpropertystr) {
+    if (tdpropertystr.find('-') != std::string::npos) {
+        auto tdprop_pair = get_range(tdpropertystr);
+        if (tdprop_pair.size() < 2) {
+            return false;
+        }
+        int tdprop_A = interpret_tdproperty(tdprop_pair[0]);
+        if (tdprop_A < 0) {
+            return false;
+        }
+        int tdprop_B = interpret_tdproperty(tdprop_pair[1]);
+        if (tdprop_B < 0) {
+            return false;
+        }
+        nodefilter.lowerbound.targetdate = (td_property) tdprop_A;
+        nodefilter.upperbound.targetdate = (td_property) tdprop_B;
+    } else {
+        int tdprop = interpret_tdproperty(tdpropertystr);
+        if (tdprop < 0) {
+            return false;
+        }
+        nodefilter.lowerbound.targetdate = (td_property) tdprop;
+        nodefilter.upperbound.targetdate = (td_property) tdprop;
+    }
     nodefilter.filtermask.set_Edit_tdproperty();
     return true;
 }
 
+// Similar to `tdproperty` but sets only tdproperty A.
+bool Match_Condition_tdproperty_A(Node_Filter & nodefilter, const std::string & lower_tdpropertystr) {
+    int tdprop = interpret_tdproperty(lower_tdpropertystr);
+    if (tdprop < 0) {
+        return false;
+    }
+    nodefilter.lowerbound.tdproperty = (td_property) tdprop;
+    nodefilter.filtermask.set_Edit_tdproperty();
+    return true;
+}
+
+// Similar to `tdproperty` but sets only tdproperty B.
+bool Match_Condition_tdproperty_B(Node_Filter & nodefilter, const std::string & upper_tdpropertystr) {
+    int tdprop = interpret_tdproperty(upper_tdpropertystr);
+    if (tdprop < 0) {
+        return false;
+    }
+    nodefilter.upperbound.tdproperty = (td_property) tdprop;
+    nodefilter.filtermask.set_Edit_tdproperty();
+    return true;
+}
+
+
+/**
+ * Convert Formalizer time stamp string to Unix epoch time, and
+ * recognize seveal special codes:
+ *   NOW = current actual time
+ *   MIN = smallest valid time (Unix epoch start)
+ *   MAX = largest valid time
+ * 
+ * @param targetdatestr Valid Formalizer time stamp or special code.
+ * @return Unix epoch time or `RTf_invalid_time_stamp`.
+ */
+time_t interpret_targetdate(const std::string & targetdatestr) {
+    if (targetdatestr == "NOW") {
+        return ActualTime();
+    }
+    if (targetdatestr == "MIN") {
+        return RTt_unix_epoch_start;
+    }
+    if (targetdatestr == "MAX") {
+        return RTt_maxtime;
+    }
+    return time_stamp_time(targetdatestr);
+}
+
+/**
+ * Set a target date filter condition.
+ * 
+ * - If the target date is a single time stamp then both lower and upper bounds
+ *   are set to that value.
+ * - If the argument is a `[t_min-t_max]` range then the lower bound is set to
+ *   `t_min` and the upper bound is set to `t_max`.
+ * 
+ * Special codes are also recognized. See `interpret_targetdate()`.
+ * 
+ * @param[out] nodefilter A Node Filter object reference that receives the target date
+ *                        filter data. The target date flag of the `filtermask` is set.
+ * @param[in] targetdatestr The argument string specifying a date-time or range of date-times.
+ * @return True if the argument string could be correctly interpreted.
+ */
 bool Match_Condition_targetdate(Node_Filter & nodefilter, const std::string & targetdatestr) {
-    time_t t = time_stamp_time(targetdatestr);
+    if (targetdatestr.find('-') != std::string::npos) {
+        auto td_range = get_range(targetdatestr);
+        if (td_range.size() < 2) {
+            return false;
+        }
+        nodefilter.lowerbound.targetdate = interpret_targetdate(td_range[0]);
+        nodefilter.upperbound.targetdate = interpret_targetdate(td_range[1]);
+        if ((nodefilter.lowerbound.targetdate == RTt_invalid_time_stamp) || (nodefilter.upperbound.targetdate == RTt_invalid_time_stamp)) {
+            return false;
+        }
+    } else {
+        time_t t = interpret_targetdate(targetdatestr);
+        if (t == RTt_invalid_time_stamp) {
+            return false;
+        }
+        nodefilter.lowerbound.targetdate = t;
+        nodefilter.upperbound.targetdate = t;
+    }
+    nodefilter.filtermask.set_Edit_targetdate();
+    return true;
+}
+
+// Similar to `targetdate` but sets only the lower bound.
+bool Match_Condition_lower_targetdate(Node_Filter & nodefilter, const std::string & lower_targetdatestr) {
+    time_t t = interpret_targetdate(lower_targetdatestr);
+    if (t == RTt_invalid_time_stamp) {
+        return false;
+    }
     nodefilter.lowerbound.targetdate = t;
+    nodefilter.filtermask.set_Edit_targetdate();
+    return true;
+}
+
+// Similar to `targetdate` but sets only the upper bound.
+bool Match_Condition_upper_targetdate(Node_Filter & nodefilter, const std::string & upper_targetdatestr) {
+    time_t t = interpret_targetdate(upper_targetdatestr);
+    if (t == RTt_invalid_time_stamp) {
+        return false;
+    }    
     nodefilter.upperbound.targetdate = t;
     nodefilter.filtermask.set_Edit_targetdate();
     return true;
 }
 
+bool Match_Condition_repeats(Node_Filter & nodefilter, const std::string & repeatsstr) {
+    bool repeats = false;
+    if (repeatsstr == "true") {
+        repeats = true;
+    } else {
+        if (repeatsstr != "false") {
+            return false;
+        }
+    } 
+    nodefilter.lowerbound.repeats = repeats;
+    nodefilter.upperbound.repeats = repeats;
+    nodefilter.filtermask.set_Edit_repeats();
+    return true;
+}
+
 const match_condition_func_map_t match_condition_functions = {
+    {"completion", Match_Condition_completion},
+    {"lower_completion", Match_Condition_lower_completion},
+    {"upper_completion", Match_Condition_upper_completion},
     {"tdproperty", Match_Condition_tdproperty},
-    {"targetdate", Match_Condition_targetdate}
+    {"tdproperty_A", Match_Condition_tdproperty_A},
+    {"tdproperty_B", Match_Condition_tdproperty_B},
+    {"targetdate", Match_Condition_targetdate},
+    {"lower_targetdate", Match_Condition_lower_targetdate},
+    {"upper_targetdate", Match_Condition_upper_targetdate},
+    {"repeats", Match_Condition_repeats}
 };
 
-bool Nodes_match(int socket, const std::string & argstr) {
+bool build_filter(int socket, Node_Filter & nodefilter, const std::string & argstr) {
     if (argstr.empty()) {
         handle_serialized_data_request_error(socket, "Missing match conditions.");
         return false;
@@ -160,30 +387,73 @@ bool Nodes_match(int socket, const std::string & argstr) {
     for (const auto & matchcondition : matchconditions_vec) {
         auto it = match_condition_functions.find(matchcondition.token);
         if (it == match_condition_functions.end()) {
-            return standard_error("Unrecognized match condition: '" + matchcondition.token + '\'', __func__);
+            handle_serialized_data_request_error(socket, "Unrecognized match condition: '" + matchcondition.token + '\'');
+            return false;
         }
         if (!it->second(nodefilter, matchcondition.value)) {
-            return standard_error("Unrecognized match value: '" + matchcondition.value + '\'', __func__);
+            handle_serialized_data_request_error(socket, "Unrecognized match value: '" + matchcondition.value + '\'');
+            return false;
         }
+    }
+
+    return true;
+}
+
+bool Nodes_match(int socket, const std::string & argstr) {
+    Node_Filter nodefilter;
+    if (!build_filter(socket, nodefilter, argstr)) {
+        return false;
     }
 
     VERYVERBOSEOUT("Matching Nodes to "+argstr+'\n');
     targetdate_sorted_Nodes matching_nodes = Nodes_subset(*fzs.graph_ptr, nodefilter);
 
     std::string matching_nodes_str;
-    for (const auto & [t, n_ptr]: matching_nodes) {
-        if (!matching_nodes_str.empty()) {
-            matching_nodes_str += ',';
-        }
-        matching_nodes_str += n_ptr->get_id_str();
-    }
+    tdsorted_Nodes_to_csv(matching_nodes, matching_nodes_str);
 
     return handle_serialized_data_request_response(socket, matching_nodes_str, "Serializing matching Nodes.");
 }
 
+bool NNL_add_match(int socket, const std::string & argstr) {
+    auto commapos = argstr.find(',');
+    if ((commapos == std::string::npos) || (commapos == 0)) {
+        handle_serialized_data_request_error(socket, "Missing list name or filter specification: '" + argstr + '\'');
+        return false;
+    }
+    std::string list_name(argstr.substr(0,commapos));
+
+    Node_Filter nodefilter;
+    if (!build_filter(socket, nodefilter, argstr.substr(commapos+1))) {
+        return false;
+    }
+
+    VERYVERBOSEOUT("Adding to list "+list_name+" Nodes that match "+argstr.substr(commapos+1)+'\n');
+    targetdate_sorted_Nodes matching_nodes = Nodes_subset(*fzs.graph_ptr, nodefilter);
+
+    if (!matching_nodes.empty()) {
+        for (const auto & [t, n_ptr] : matching_nodes) {
+            if (!fzs.graph_ptr->add_to_List(list_name, *n_ptr)) {
+                std::string errsmg = "Unable to add Node "+n_ptr->get_id_str()+" to Named Node List "+list_name;
+                handle_serialized_data_request_error(socket, errsmg);
+                return standard_error(errsmg, __func__);
+            }
+        }
+        // synchronize with stored List
+        if (fzs.graph_ptr->persistent_Lists()) {
+            if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), list_name, *fzs.graph_ptr)) {
+                handle_serialized_data_request_error(socket, "Synchronizing Named Node List update to database failed");
+                return standard_error("Synchronizing Named Node List update to database failed", __func__);
+            }
+        }        
+    }
+
+    return handle_serialized_data_request_response(socket, std::to_string(matching_nodes.size()), "Serializing number of matched Nodes added to NNL.");
+}
+
 const serialized_func_map_t serialized_data_functions = {
     {"NNLlen", NNL_len},
-    {"nodes_match", Nodes_match}
+    {"nodes_match", Nodes_match},
+    {"NNLadd_match", NNL_add_match}
 };
 
 bool handle_request_args(int socket, const FZ_request_args & fra) {

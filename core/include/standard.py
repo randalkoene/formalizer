@@ -11,6 +11,7 @@ Versioning is based on https://semver.org/. See coreversion.hpp for more.
 import sys
 import time
 
+
 def wait_exit(exitcode = 0, wait_seconds: float = 0.0, verbose = True):
     if verbose:
         print('Done.', end='', flush=True)

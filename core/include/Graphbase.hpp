@@ -364,6 +364,7 @@ struct Node_data {
     Graphdecimal valuation = 0.0;
     std::vector<std::string> topics;
     time_t targetdate = RTt_unspecified;
+    bool repeats = false; // currently only used when building a filter
     td_property tdproperty = variable;
     td_pattern tdpattern = patt_nonperiodic;
     Graphsigned tdevery = 1;
@@ -400,6 +401,15 @@ struct Edge_data {
 };
 
 // +----- begin: standardization functions -----+
+
+/**
+ * Convert a target date sorted multimap of Node pointers into a string of
+ * Node ID strings as comma separated values.
+ * 
+ * @param[in] sorted_nodes The multimap of Node pointers sorted by a target date key.
+ * @param[out] csv_str The string object reference for the resulting comma separated values.
+ */
+void tdsorted_Nodes_to_csv(const targetdate_sorted_Nodes & sorted_nodes, std::string & csv_str);
 
 bool valid_Node_ID(std::string id_str, std::string &formerror, ID_TimeStamp *id_timestamp = NULL);
 

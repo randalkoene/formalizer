@@ -113,6 +113,15 @@ Recognized requests are:
     Returns the number of Nodes in NNL 'list-name' (or 0).
   nodes_match(tdproperty=variable,targetdate=202101292346)
     Returns a comma-separated list of Nodes matching specified conditions.
+    Recognized filter arguments are: completion, lower_completion,
+    upper_completion, tdproperty, tdproperty_A, tdproperty_B,
+    targetdate, lower_targetdate, upper_targetdate, repeats.
+    The special target dates 'NOW', 'MIN' and 'MAX' are also recognized.
+    The singular (not lower_ or upper_) arguments can take one value that
+    is applied to both bounds, or can take a range, e.g. '[MIN,NOW]'.
+  NNLadd_match(a_list,tdproperty=[fixed-exact],repeats=false)
+    Adds to `a_list` the Nodes that match specified conditions and returns
+    the number that were added.
 
 FZ serialized data requests can be batched via simple concatenation, e.g.:
 

@@ -31,6 +31,22 @@ const std::string td_pattern_str[_patt_num] =  {"patt_daily",
                                                 "OLD_patt_span",
                                                 "patt_nonperiodic"};
 
+/**
+ * Convert a target date sorted multimap of Node pointers into a string of
+ * Node ID strings as comma separated values.
+ * 
+ * @param[in] sorted_nodes The multimap of Node pointers sorted by a target date key.
+ * @param[out] csv_str The string object reference for the resulting comma separated values.
+ */
+void tdsorted_Nodes_to_csv(const targetdate_sorted_Nodes & sorted_nodes, std::string & csv_str) {
+    for (const auto & [t, n_ptr]: sorted_nodes) {
+        if (!csv_str.empty()) {
+            csv_str += ',';
+        }
+        csv_str += n_ptr->get_id_str();
+    }
+}
+
 #define VALID_NODE_ID_FAIL(f) \
     {                         \
         formerror = f;        \
