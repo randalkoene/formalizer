@@ -15,8 +15,8 @@ import subprocess
 import re
 import pty
 import socket
-import time
-from datetime import datetime
+#import time
+#from datetime import datetime
 
 ANSI_wt = '\u001b[38;5;15m'
 ANSI_gn = '\u001b[38;5;47m'
@@ -95,6 +95,7 @@ config['logcmdcalls'] = False
 import Graphpostgres
 import coreversion
 from standard import *
+from TimeStamp import *
 
 version = "0.1.0-0.1"
 
@@ -327,25 +328,25 @@ def collect_tdproperty():
         lightgray_ansi()
     return tdproperty_label[tdproperty_char]
 
-def is_TimeStamp(s):
-    if not is_int(s):
-        return False
-    if (len(s) != 12):
-        return False
-    try:
-        datetime.strptime(s, '%Y%m%d%H%M')
-    except ValueError:
-        return False
-    return True
-
-def is_Future(s):
-    if (s == 'TODAY'):
-        return True
-    t_current_str = time.strftime("%Y%m%d%H%M", time.localtime())
-    if (int(s) > int(t_current_str)):
-        return True
-    else:
-        return False
+#def is_TimeStamp(s):
+#    if not is_int(s):
+#        return False
+#    if (len(s) != 12):
+#        return False
+#    try:
+#        datetime.strptime(s, '%Y%m%d%H%M')
+#    except ValueError:
+#        return False
+#    return True
+#
+#def is_Future(s):
+#    if (s == 'TODAY'):
+#        return True
+#    t_current_str = time.strftime("%Y%m%d%H%M", time.localtime())
+#    if (int(s) > int(t_current_str)):
+#        return True
+#    else:
+#        return False
 
 targetdate_info = """
 TARGETDATE

@@ -78,6 +78,7 @@ from error import *
 from ansicolorcodes import *
 from fzcmdcalls import *
 from Graphaccess import *
+from TimeStamp import *
 
 ANSI_sel = '\u001b[38;5;33m'
 
@@ -136,7 +137,13 @@ def parse_options():
     print(f'  Formalizer user or group schema name: {args.schemaname}\n')
 
     if args.T_emulate:
-        print(f'\nEmulated Time: {args.T_emulate}\n')
+        if (is_TimeStamp(args.T_emulate)):
+            if (is_Future(args.T_emulate)):
+                exit_error(1, f'Emulated time should normally not be in the furure: {args.T_emulate}.', True)
+            else:
+                print(f'\nEmulated Time: {args.T_emulate}\n')
+        else:
+            exit_error(1, f'Emulated time has invalid time stamp: {args.T_emulate}.')
     else:
         print('\nUsing actual time.\n')
 
