@@ -383,7 +383,6 @@ bool build_filter(int socket, Node_Filter & nodefilter, const std::string & args
     }
     auto matchconditions_vec = GET_token_values(argstr, ',');
 
-    Node_Filter nodefilter;
     for (const auto & matchcondition : matchconditions_vec) {
         auto it = match_condition_functions.find(matchcondition.token);
         if (it == match_condition_functions.end()) {
