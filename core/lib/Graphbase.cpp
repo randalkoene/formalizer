@@ -22,7 +22,7 @@ const std::string td_property_str[_tdprop_num] = {
     "fixed",
     "exact"
 };
-const std::map<const std::string, td_property> td_property_map = {
+const std::map<std::string, td_property> td_property_map = {
     {"unspecified", td_property::unspecified},
     {"inherit", td_property::inherit},
     {"variable", td_property::variable},
@@ -293,6 +293,21 @@ Edge_ID_key::Edge_ID_key(std::string _idS) {
     if (!valid_Node_ID(_idS.substr(0,arrowpos),formerror,&dep.idT)) throw(ID_exception(formerror));
     if (!valid_Node_ID(_idS.substr(arrowpos+1),formerror,&sup.idT)) throw(ID_exception(formerror));
 }
+
+const std::map<std::string, Edit_flags_type> flagbylabel = {
+    {"topics", Edit_flags::topics},
+    {"valuation", Edit_flags::valuation},
+    {"completion", Edit_flags::completion},
+    {"required", Edit_flags::required},
+    {"text", Edit_flags::text},
+    {"targetdate", Edit_flags::targetdate},
+    {"tdproperty", Edit_flags::tdproperty},
+    {"repeats", Edit_flags::repeats},
+    {"tdpattern", Edit_flags::tdpattern},
+    {"tdevery", Edit_flags::tdevery},
+    {"tdspan", Edit_flags::tdspan},
+    {"topicrels", Edit_flags::topicrels}
+};
 
 bool Edit_flags::set_Edit_flag_by_label(const std::string flaglabel) {
     auto it = flagbylabel.find(flaglabel);

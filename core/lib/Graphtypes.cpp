@@ -1090,6 +1090,7 @@ ssize_t Graph::edit_all_in_List(const std::string _name, const Edit_flags & edit
         }
         node_ptr->edit_content(nodedata, editflags);
     }
+    return nodelist_ptr->list.size();
 }
 
 /**

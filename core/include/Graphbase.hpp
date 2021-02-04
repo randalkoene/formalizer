@@ -294,11 +294,15 @@ struct Edge_ID_key {
 
 typedef std::uint32_t Edit_flags_type;
 
+extern const std::map<std::string, Edit_flags_type> flagbylabel;
+
 /**
  * A bitmask of flags for the data components of a Node.
  * 
- * Note that this is not only used to specify modifications (see Graphmodify), but also
- * to build filters (see Graphinfo).
+ * Note A: This is not only used to specify modifications (see Graphmodify), but
+ *         also to build filters (see Graphinfo).
+ * Note B: Graphmodify objects that are instantiated in shared memory inherit this,
+ *         so this class needs to remain free of container class variables.
  */
 class Edit_flags {
 public:
@@ -316,20 +320,6 @@ public:
         tdspan     = 0b0000'0100'0000'0000,
         topicrels  = 0b0000'1000'0000'0000,
         error      = 0b0100'0000'0000'0000'0000'0000'0000'0000 // see how this is used in Node_advance_repeating()
-    };
-    const std::map<std::string, editmask> flagbylabel = {
-        {"topics", Edit_flags::topics},
-        {"valuation", Edit_flags::valuation},
-        {"completion", Edit_flags::completion},
-        {"required", Edit_flags::required},
-        {"text", Edit_flags::text},
-        {"targetdate", Edit_flags::targetdate},
-        {"tdproperty", Edit_flags::tdproperty},
-        {"repeats", Edit_flags::repeats},
-        {"tdpattern", Edit_flags::tdpattern},
-        {"tdevery", Edit_flags::tdevery},
-        {"tdspan", Edit_flags::tdspan},
-        {"topicrels", Edit_flags::topicrels}
     };
 protected:
     Edit_flags_type editflags;
