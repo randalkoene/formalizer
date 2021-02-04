@@ -79,6 +79,7 @@ from ansicolorcodes import *
 from fzcmdcalls import *
 from Graphaccess import *
 from TimeStamp import *
+from tcpclient import get_server_address
 
 ANSI_sel = '\u001b[38;5;33m'
 
@@ -265,12 +266,13 @@ def update_passed_fixed(args):
         return 2
     # filter for passed fixed target date (possibly with T_emulated) Nodes and put them into the passed_fixed NNL
     completionfilter = 'completion=[0.0-0.999]'
+    hoursfilter = 'hours=[0.001-1000.0]'
     if args.T_emulate:
         targetdatesfilter = f'targetdate=[MIN-{args.T_emulate}]'
     else:
         targetdatesfilter = 'targetdate=[MIN-NOW]'
     tdpropertiesfilter = 'tdproperty=[fixed-exact]'
-    num = select_to_NNL(f'{completionfilter},{targetdatesfilter},{tdpropertiesfilter},repeats=false','passed_fixed')
+    num = select_to_NNL(f'{completionfilter},{hoursfilter},{targetdatesfilter},{tdpropertiesfilter},repeats=false','passed_fixed')
     if (num < 0):
         return 2
     # explain that there are passed fixed target date Nodes and ask to manually move those that should not become variable target date (open browser)
@@ -489,6 +491,8 @@ if __name__ == '__main__':
 
     core_version = coreversion.coreversion()
     fztask_long_id = "Control:Task" + f" v{version} (core v{core_version})"
+
+    get_server_address(fzuserbase)
 
     fztask_ansi()
 

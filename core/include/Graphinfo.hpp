@@ -43,6 +43,14 @@ std::string Nodes_statistics_string(const Nodes_Stats & nstats);
 unsigned long Edges_with_data(Graph & graph);
 
 /**
+ * Returns a vector of Topic tag label strings for a specified vector
+ * of known Topic IDs from a specified Graph.
+ * 
+ * Note: Also see the `Graphtypes:Topic_tags_of_Node()` function.
+ */
+std::vector<std::string> Topic_IDs_to_Tags(Graph & graph, std::vector<Topic_ID> IDs_vec);
+
+/**
  * Filter class that helps construct filter specifications. This can be
  * used to search for Node subsets, for example.
  */
@@ -50,6 +58,8 @@ struct Node_Filter {
     Node_data lowerbound; // values must be >= to these thresholds (where it makes sense)
     Node_data upperbound; // values must be <= to these thresholds (where it makes sense)
     Edit_flags filtermask;
+
+    std::string str();
 };
 
 /**

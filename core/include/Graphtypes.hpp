@@ -795,6 +795,12 @@ public:
 
 // +----- begin: standardization functions -----+
 
+/**
+ * Returns a vector of label string and relevance value pairs for a
+ * specified Node within a specified Graph.
+ * 
+ * Note: Also see the `Graphinfo:Topic_IDs_to_Tags()` function.
+ */
 Tag_Label_Real_Value_Vector Topic_tags_of_Node(Graph & graph, Node & node);
 
 // +----- end  : standardization functions -----+

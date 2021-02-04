@@ -11,6 +11,26 @@ Versioning is based on https://semver.org/. See coreversion.hpp for more.
 import time
 from datetime import datetime
 
+def TimeStamp(t):
+    return t.strftime("%Y%m%d%H%M%S")
+
+
+def is_int(n):
+    try:
+        int(n)
+    except ValueError:
+        return False
+    return True
+
+
+def is_float(n):
+    try:
+        float(n)
+    except ValueError:
+        return False
+    return True
+
+
 def is_TimeStamp(s):
     if not is_int(s):
         return False

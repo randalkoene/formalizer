@@ -188,23 +188,23 @@ def exit_error(retcode, errormessage):
 #    return node
 
 
-def TimeStamp(t):
-    return t.strftime("%Y%m%d%H%M%S")
+# def TimeStamp(t):
+#     return t.strftime("%Y%m%d%H%M%S")
 
 
-def is_int(n):
-    try:
-        int(n)
-    except ValueError:
-        return False
-    return True
+# def is_int(n):
+#     try:
+#         int(n)
+#     except ValueError:
+#         return False
+#     return True
 
-def is_float(n):
-    try:
-        float(n)
-    except ValueError:
-        return False
-    return True
+# def is_float(n):
+#     try:
+#         float(n)
+#     except ValueError:
+#         return False
+#     return True
 
 
 def collect_description():

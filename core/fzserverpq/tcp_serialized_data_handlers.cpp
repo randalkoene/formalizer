@@ -163,7 +163,7 @@ bool Match_Condition_completion(Node_Filter & nodefilter, const std::string & co
             return false;
         }
         nodefilter.lowerbound.completion = std::atof(c_range[0].c_str());
-        nodefilter.upperbound.targetdate = std::atof(c_range[1].c_str());
+        nodefilter.upperbound.completion = std::atof(c_range[1].c_str());
     } else {
         float c = std::atof(completionstr.c_str());
         nodefilter.lowerbound.completion = c;
@@ -184,6 +184,50 @@ bool Match_Condition_lower_completion(Node_Filter & nodefilter, const std::strin
 bool Match_Condition_upper_completion(Node_Filter & nodefilter, const std::string & upper_completionstr) {
     nodefilter.upperbound.completion = std::atof(upper_completionstr.c_str());
     nodefilter.filtermask.set_Edit_completion();
+    return true;
+}
+
+/**
+ * Set a hours required condition.
+ * 
+ * - If the argument is a single value then both lower and upper bounds
+ *   are set to that value.
+ * - If the argument is a `[h_min-h_max]` range then the lower bound is set to
+ *   `h_min` and the upper bound is set to `h_max`.
+ * 
+ * @param[out] nodefilter A Node Filter object reference that receives the hours
+ *                        filter data. The required hours flag of the `filtermask` is set.
+ * @param[in] hoursstr The argument string specifying a hours value or range.
+ * @return True if the argument string could be correctly interpreted.
+ */
+bool Match_Condition_hours(Node_Filter & nodefilter, const std::string & hoursstr) {
+    if (hoursstr.find('-') != std::string::npos) {
+        auto h_range = get_range(hoursstr);
+        if (h_range.size() < 2) {
+            return false;
+        }
+        nodefilter.lowerbound.hours = std::atof(h_range[0].c_str());
+        nodefilter.upperbound.hours = std::atof(h_range[1].c_str());
+    } else {
+        float h = std::atof(hoursstr.c_str());
+        nodefilter.lowerbound.hours = h;
+        nodefilter.upperbound.hours = h;
+    }
+    nodefilter.filtermask.set_Edit_required();
+    return true;
+}
+
+// Similar to `hours` but sets only the lower bound.
+bool Match_Condition_lower_hours(Node_Filter & nodefilter, const std::string & lower_hoursstr) {
+    nodefilter.lowerbound.hours = std::atof(lower_hoursstr.c_str());
+    nodefilter.filtermask.set_Edit_required();
+    return true;
+}
+
+// Similar to `hours` but sets only the upper bound.
+bool Match_Condition_upper_hours(Node_Filter & nodefilter, const std::string & upper_hoursstr) {
+    nodefilter.upperbound.hours = std::atof(upper_hoursstr.c_str());
+    nodefilter.filtermask.set_Edit_required();
     return true;
 }
 
@@ -228,15 +272,15 @@ bool Match_Condition_tdproperty(Node_Filter & nodefilter, const std::string & td
         if (tdprop_B < 0) {
             return false;
         }
-        nodefilter.lowerbound.targetdate = (td_property) tdprop_A;
-        nodefilter.upperbound.targetdate = (td_property) tdprop_B;
+        nodefilter.lowerbound.tdproperty = (td_property) tdprop_A;
+        nodefilter.upperbound.tdproperty = (td_property) tdprop_B;
     } else {
         int tdprop = interpret_tdproperty(tdpropertystr);
         if (tdprop < 0) {
             return false;
         }
-        nodefilter.lowerbound.targetdate = (td_property) tdprop;
-        nodefilter.upperbound.targetdate = (td_property) tdprop;
+        nodefilter.lowerbound.tdproperty = (td_property) tdprop;
+        nodefilter.upperbound.tdproperty = (td_property) tdprop;
     }
     nodefilter.filtermask.set_Edit_tdproperty();
     return true;
@@ -367,6 +411,9 @@ const match_condition_func_map_t match_condition_functions = {
     {"completion", Match_Condition_completion},
     {"lower_completion", Match_Condition_lower_completion},
     {"upper_completion", Match_Condition_upper_completion},
+    {"hours", Match_Condition_hours},
+    {"lower_hours", Match_Condition_lower_hours},
+    {"upper_hours", Match_Condition_upper_hours},
     {"tdproperty", Match_Condition_tdproperty},
     {"tdproperty_A", Match_Condition_tdproperty_A},
     {"tdproperty_B", Match_Condition_tdproperty_B},
@@ -405,6 +452,8 @@ bool Nodes_match(int socket, const std::string & argstr) {
     }
 
     VERYVERBOSEOUT("Matching Nodes to "+argstr+'\n');
+    VERYVERBOSEOUT(nodefilter.str());
+
     targetdate_sorted_Nodes matching_nodes = Nodes_subset(*fzs.graph_ptr, nodefilter);
 
     std::string matching_nodes_str;

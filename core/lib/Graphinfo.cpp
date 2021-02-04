@@ -109,6 +109,47 @@ unsigned long Edges_with_data(Graph & graph) {
 }
 
 /**
+ * Returns a vector of Topic tag label strings for a specified vector
+ * of known Topic IDs from a specified Graph.
+ * 
+ * Note: Also see the `Graphtypes:Topic_tags_of_Node()` function.
+ */
+std::vector<std::string> Topic_IDs_to_Tags(Graph & graph, std::vector<Topic_ID> IDs_vec) {
+    std::vector<std::string> res;
+    for (const auto & topic_id : IDs_vec) {
+        Topic * topic_ptr = graph.find_Topic_by_id(topic_id);
+        if (!topic_ptr) {
+            ADDERROR(__func__, "List of Topic IDs contains unknown Topic with ID "+std::to_string(topic_id));
+        } else {
+            res.emplace_back(topic_ptr->get_tag().c_str());
+        }
+    }
+    return res;
+}
+
+void append_filter_bit_status(std::string & s, bool bitflag, std::string label, std::string lower_str, std::string upper_str) {
+    static const char bitflagged[2][6] = {"no [", "Yes ["};
+    s += (label + ": ") + (bitflagged[(int) bitflag] + lower_str) + '-' + upper_str + "]\n";
+}
+
+std::string Node_Filter::str() {
+    static const char repeats_value[2][6] = {"false", "true"};
+    std::string s;
+    append_filter_bit_status(s, filtermask.Edit_text(), "text", lowerbound.utf8_text.substr(0,10), upperbound.utf8_text.substr(0,10));
+    append_filter_bit_status(s, filtermask.Edit_completion(), "completion", to_precision_string(lowerbound.completion,3), to_precision_string(upperbound.completion,3));
+    append_filter_bit_status(s, filtermask.Edit_required(), "hours", to_precision_string(lowerbound.hours,3), to_precision_string(upperbound.hours,3));
+    append_filter_bit_status(s, filtermask.Edit_valuation(), "valuation", to_precision_string(lowerbound.valuation,3), to_precision_string(upperbound.valuation,3));
+    append_filter_bit_status(s, filtermask.Edit_targetdate(), "targetdate", TimeStampYmdHM(lowerbound.targetdate), TimeStampYmdHM(upperbound.targetdate));
+    append_filter_bit_status(s, filtermask.Edit_tdproperty(), "tdproperty", td_property_str[lowerbound.tdproperty], td_property_str[upperbound.tdproperty]);
+    append_filter_bit_status(s, filtermask.Edit_repeats(), "repeats", repeats_value[(int) lowerbound.repeats], repeats_value[(int) upperbound.repeats]);
+    append_filter_bit_status(s, filtermask.Edit_tdpattern(), "tdpattern", td_pattern_str[lowerbound.tdpattern], td_pattern_str[upperbound.tdpattern]);
+    append_filter_bit_status(s, filtermask.Edit_tdevery(), "tdevery", std::to_string(lowerbound.tdevery), std::to_string(upperbound.tdevery));
+    append_filter_bit_status(s, filtermask.Edit_tdspan(), "tdspan", std::to_string(lowerbound.tdspan), std::to_string(upperbound.tdspan));
+    append_filter_bit_status(s, filtermask.Edit_topics(), "topics", join(lowerbound.topics,","), join(upperbound.topics,","));
+    return s;
+}
+
+/**
  * Finds all Nodes that match a specified Node_Filter.
  * 
  * @param graph A valid Graph data structure.
@@ -145,6 +186,11 @@ targetdate_sorted_Nodes Nodes_subset(Graph & graph, const Node_Filter & nodefilt
         }
         if (nodefilter.filtermask.Edit_tdproperty()) {
             if ((node_ptr->get_tdproperty() != nodefilter.lowerbound.tdproperty) && (node_ptr->get_tdproperty() != nodefilter.upperbound.tdproperty)) {
+                continue;
+            }
+        }
+        if (nodefilter.filtermask.Edit_repeats()) {
+            if ((node_ptr->get_repeats() != nodefilter.lowerbound.repeats) && (node_ptr->get_repeats() != nodefilter.upperbound.repeats)) {
                 continue;
             }
         }
