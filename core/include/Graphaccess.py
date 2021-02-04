@@ -57,3 +57,8 @@ def NNLlen(listname: str):
     nnl_len_str = serial_API_request(f'NNLlen({listname})')
     return int(nnl_len_str)
 
+
+def edit_nodes_in_NNL(listname: str, param_label: str, valstr: str):
+    num_str = serial_API_request(f'NNLedit_nodes({listname},{param_label},{valstr})')
+    return int(num_str)
+

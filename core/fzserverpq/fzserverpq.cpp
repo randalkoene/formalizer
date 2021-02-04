@@ -122,6 +122,9 @@ Recognized requests are:
   NNLadd_match(a_list,tdproperty=[fixed-exact],repeats=false)
     Adds to `a_list` the Nodes that match specified conditions and returns
     the number that were added.
+  NNLedit_nodes(passed_fixed,tdproperty,variable)
+    Edit the specified parameter (e.g. tdproperty) to the specified value
+    (e.g. variable) on all Nodes in the specified List (e.g. passed_fixed).
 
 FZ serialized data requests can be batched via simple concatenation, e.g.:
 

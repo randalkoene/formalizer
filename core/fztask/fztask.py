@@ -295,14 +295,11 @@ def update_passed_fixed(args):
     if (num < 0):
         return 2
     if num:
-        thecmd = "fzupdate -c 'passed_fixed'"
-        if config['verbose']:
-            thecmd += ' -V'
-        retcode = try_subprocess_check_output(thecmd, 'fixedconverted', config)
-        exit_error(retcode, f'Attempt to convert fixed to variable target date Nodes failed.', True)
-        if (retcode != 0):
-            return 1
-    print('INCOMPLETE IMPLEMENTATION! Several API filter options missing.')
+        num_fixed_converted = edit_nodes_in_NNL('passed_fixed','tdproperty','variable')
+        if (num_fixed_converted != num):
+            exit_error(retcode, f'Attempt to convert fixed to variable target date Nodes failed.', True)
+            if (retcode != 0):
+                return 1
     return 0
 
 
