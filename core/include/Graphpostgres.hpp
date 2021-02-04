@@ -99,6 +99,9 @@ bool update_batch_node_targetdates_pq(PGconn* conn, std::string schemaname, Grap
 /// Update a batch of Nodes in accordance with their individual Edit_flags.
 bool update_batch_nodes_pq(PGconn* conn, std::string schemaname, Graph & graph, const std::string NNL_name);
 
+/// Direct interface to the batch of Nodes update function that sets up the database connection first.
+bool Update_batch_nodes_pq(std::string dbname, std::string schemaname, Graph & graph, const std::string NNL_name);
+
 std::vector<std::string> load_Node_parameter_interval(std::string dbname, std::string schemaname, pq_Nfields param, unsigned long from_row, unsigned long num_rows);
 
 std::vector<std::string> load_Edge_parameter_interval(std::string dbname, std::string schemaname, pq_Efields param, unsigned long from_row, unsigned long num_rows);

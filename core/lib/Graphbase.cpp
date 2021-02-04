@@ -15,21 +15,43 @@
 
 namespace fz {
 
-const std::string td_property_str[_tdprop_num] = {"unspecified",
-                                                  "inherit",
-                                                  "variable",
-                                                  "fixed",
-                                                  "exact"};
+const std::string td_property_str[_tdprop_num] = {
+    "unspecified",
+    "inherit",
+    "variable",
+    "fixed",
+    "exact"
+};
+const std::map<const std::string, td_property> td_property_map = {
+    {"unspecified", td_property::unspecified},
+    {"inherit", td_property::inherit},
+    {"variable", td_property::variable},
+    {"fixed", td_property::fixed},
+    {"exact", td_property::exact}
+};
 
-const std::string td_pattern_str[_patt_num] =  {"patt_daily",
-                                                "patt_workdays",
-                                                "patt_weekly",
-                                                "patt_biweekly",
-                                                "patt_monthly",
-                                                "patt_endofmonthoffset",
-                                                "patt_yearly",
-                                                "OLD_patt_span",
-                                                "patt_nonperiodic"};
+const std::string td_pattern_str[_patt_num] =  {
+    "patt_daily",
+    "patt_workdays",
+    "patt_weekly",
+    "patt_biweekly",
+    "patt_monthly",
+    "patt_endofmonthoffset",
+    "patt_yearly",
+    "OLD_patt_span",
+    "patt_nonperiodic"
+};
+const std::map<std::string, td_pattern> td_pattern_map = {
+    {"daily", td_pattern::patt_daily},
+    {"workdays", td_pattern::patt_workdays},
+    {"weekly", td_pattern::patt_weekly},
+    {"biweekly", td_pattern::patt_biweekly},
+    {"monthly", td_pattern::patt_monthly},
+    {"endofmonthoffset", td_pattern::patt_endofmonthoffset},
+    {"yearly", td_pattern::patt_yearly},
+    {"OLD_span", td_pattern::OLD_patt_span},
+    {"nonperiodic", td_pattern::patt_nonperiodic},
+};
 
 /**
  * Convert a target date sorted multimap of Node pointers into a string of
@@ -272,6 +294,15 @@ Edge_ID_key::Edge_ID_key(std::string _idS) {
     if (!valid_Node_ID(_idS.substr(arrowpos+1),formerror,&sup.idT)) throw(ID_exception(formerror));
 }
 
+bool Edit_flags::set_Edit_flag_by_label(const std::string flaglabel) {
+    auto it = flagbylabel.find(flaglabel);
+    if (it == flagbylabel.end()) {
+        return false;
+    }
+    editflags |= it->second;
+    return true;
+}
+
 /** 
  * Copies a complete set of Node data from a buffer on heap to shared memory Node object.
  * 
@@ -299,6 +330,79 @@ void Node_data::copy(Graph & graph, Node & node) {
         Topic_Tags & topictags = *(const_cast<Topic_Tags *>(&graph.get_topics())); // We need the list of Topics from the memory-resident Graph.
         node.add_topic(topictags, topic_ptr->get_id(), 1.0);
     }
+}
+
+/**
+ * Set parameter value from string by Edit_flag.
+ * 
+ * @param param_id An enumerated Edit_flags::editmask parameter identifier.
+ * @param valstr A string containing the parameter value.
+ * @return True if successfully interpreted and set.
+ */
+bool Node_data::parse_value(Edit_flags_type param_id, const std::string valstr) {
+    switch (param_id) {
+        case Edit_flags::text: {
+            utf8_text = valstr;
+            return true;
+        }
+        case Edit_flags::completion: {
+            completion = std::atof(valstr.c_str());
+            if (completion < 0.0) {
+                return false;
+            }
+            return true;
+        }
+        case Edit_flags::required: { // in hours
+            hours = std::atof(valstr.c_str());
+            return true;
+        }
+        case Edit_flags::valuation: {
+            valuation = std::atof(valstr.c_str());
+            return true;
+        }
+        case Edit_flags::targetdate: {
+            targetdate = time_stamp_time(valstr); // *** should this be noerror=true?
+            return true;
+        }
+        case Edit_flags::repeats: {
+            repeats = (valstr == "true");
+            return true;
+        }
+        case Edit_flags::tdproperty: {
+            auto it = td_property_map.find(valstr);
+            if (it == td_property_map.end()) {
+                return false;
+            }
+            tdproperty = it->second;
+            return true;
+        }
+        case Edit_flags::tdpattern: {
+            auto it = td_pattern_map.find(valstr);
+            if (it == td_pattern_map.end()) {
+                return false;
+            }
+            tdpattern = it->second;
+            return true;
+        }
+        case Edit_flags::tdevery: {
+            tdevery = std::atoi(valstr.c_str());
+            if (tdevery < 0) {
+                return false;
+            }
+            return true;
+        }
+        case Edit_flags::tdspan: {
+            tdspan = std::atoi(valstr.c_str());
+            if (tdspan < 0) {
+                return false;
+            }
+            return true;
+        }
+        default: {
+            return false;
+        }
+    }
+    return true;
 }
 
 /** 

@@ -1294,6 +1294,20 @@ bool update_batch_nodes_pq(PGconn* conn, std::string schemaname, Graph & graph, 
     return true;
 }
 
+/// Direct interface to the batch of Nodes update function that sets up the database connection first.
+bool Update_batch_nodes_pq(std::string dbname, std::string schemaname, Graph & graph, const std::string NNL_name) {
+    ERRTRACE;
+
+    PGconn* conn = connection_setup_pq(dbname);
+    if (!conn) return false;
+
+    bool res = update_batch_nodes_pq(conn, schemaname, graph, NNL_name);
+    // clearing edit flags is already done within the preceding call
+
+    PQfinish(conn);
+    return res;
+}
+
 /**
  * Postgres storage of Named Node Lists:
  * 

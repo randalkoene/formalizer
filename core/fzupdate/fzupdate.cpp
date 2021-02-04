@@ -406,6 +406,40 @@ int break_eps_group(time_t t) {
     return standard_exit_success("Breaking up group of Nodes with variable target date done.");
 }
 
+/**
+ * Change tdproperty of Nodes in specified Named Node List to specified property.
+ * 
+ * For example, note how this function is used by `fztask.py` and `earlywiz.py`.
+ * 
+ * @param list_name The specified Named Node List.
+ * @param tdproperty The `td_property` enumerated type to set to.
+ * @return Exit code.
+ */
+/*int update_NNL_tdproperty(const std::string list_name, td_property tdproperty = td_property::variable) {
+    updvar_set_t_limit(t_pass);
+    update_constraints constraints;
+
+    targetdate_sorted_Nodes incomplete_repeating = Nodes_incomplete_with_repeating_by_targetdate(fzu.graph(), constraints.t_fetchlimit, 0);
+    Edit_flags editflags;
+    editflags.set_Edit_targetdate();
+
+    eps_data_vec epsdata(incomplete_repeating);
+
+    constraints.set(incomplete_repeating.size(), epsdata.updvar_total_chunks_required_nonperiodic(incomplete_repeating));  
+    VERBOSEOUT(constraints.str());
+
+    EPS_map updvar_map(t_pass, constraints.days_in_map, incomplete_repeating, epsdata);
+    updvar_map.place_exact();
+    updvar_map.place_fixed();
+    updvar_map.group_and_place_movable();
+
+    targetdate_sorted_Nodes eps_update_nodes = updvar_map.get_eps_update_nodes();
+
+    request_batch_targetdates_modifications(eps_update_nodes, editflags);
+
+    return standard_exit_success("Update variable target date Nodes done.");
+}*/
+
 int main(int argc, char *argv[]) {
     ERRTRACE;
 

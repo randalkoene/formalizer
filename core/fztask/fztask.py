@@ -272,7 +272,8 @@ def update_passed_fixed(args):
     else:
         targetdatesfilter = 'targetdate=[MIN-NOW]'
     tdpropertiesfilter = 'tdproperty=[fixed-exact]'
-    num = select_to_NNL(f'{completionfilter},{hoursfilter},{targetdatesfilter},{tdpropertiesfilter},repeats=false','passed_fixed')
+    filterstr = f'{completionfilter},{hoursfilter},{targetdatesfilter},{tdpropertiesfilter},repeats=false'
+    num = select_to_NNL(filterstr,'passed_fixed')
     if (num < 0):
         return 2
     # explain that there are passed fixed target date Nodes and ask to manually move those that should not become variable target date (open browser)
@@ -290,7 +291,7 @@ def update_passed_fixed(args):
     if not clear_NNL('passed_fixed', config):
         return 2
     # filter again for passed fixed target date Nodes and put them into the passed_fixed NNL (or use another NNL)
-    num = select_to_NNL(f'{completionfilter},{targetdatesfilter},{tdpropertiesfilter},repeats=false','passed_fixed')
+    num = select_to_NNL(filterstr,'passed_fixed')
     if (num < 0):
         return 2
     if num:

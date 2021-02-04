@@ -123,9 +123,11 @@ typedef std::vector<Tag_Label_Real_Value> Tag_Label_Real_Value_Vector;
  */
 enum td_property { unspecified, inherit, variable, fixed, exact, _tdprop_num };
 extern const std::string td_property_str[_tdprop_num];
+extern const std::map<std::string, td_property> td_property_map;
 
 enum td_pattern { patt_daily, patt_workdays, patt_weekly, patt_biweekly, patt_monthly, patt_endofmonthoffset, patt_yearly, OLD_patt_span, patt_nonperiodic, _patt_num };
 extern const std::string td_pattern_str[_patt_num];
+extern const std::map<std::string, td_pattern> td_pattern_map;
 
 static constexpr const char* const node_exception_stub = "attempted Node_ID construction with invalid ";
 
@@ -315,6 +317,20 @@ public:
         topicrels  = 0b0000'1000'0000'0000,
         error      = 0b0100'0000'0000'0000'0000'0000'0000'0000 // see how this is used in Node_advance_repeating()
     };
+    const std::map<std::string, editmask> flagbylabel = {
+        {"topics", Edit_flags::topics},
+        {"valuation", Edit_flags::valuation},
+        {"completion", Edit_flags::completion},
+        {"required", Edit_flags::required},
+        {"text", Edit_flags::text},
+        {"targetdate", Edit_flags::targetdate},
+        {"tdproperty", Edit_flags::tdproperty},
+        {"repeats", Edit_flags::repeats},
+        {"tdpattern", Edit_flags::tdpattern},
+        {"tdevery", Edit_flags::tdevery},
+        {"tdspan", Edit_flags::tdspan},
+        {"topicrels", Edit_flags::topicrels}
+    };
 protected:
     Edit_flags_type editflags;
 public:
@@ -322,6 +338,7 @@ public:
     Edit_flags_type get_Edit_flags() const { return editflags; }
     void clear() { editflags = 0; }
     void set_Edit_flags(Edit_flags_type _editflags) { editflags = _editflags; }
+    bool set_Edit_flag_by_label(const std::string flaglabel);
     void set_Edit_topics() { editflags |= Edit_flags::topics; }
     void set_Edit_topicrels() { editflags |= Edit_flags::topicrels; }
     void set_Edit_valuation() { editflags |= Edit_flags::valuation; }
@@ -377,6 +394,15 @@ struct Node_data {
      * @param node Valid Node object (this may be in a different shared memory buffer, not part of graph).
      */
     void copy(Graph & graph, Node & node);
+
+    /**
+     * Set parameter value from string by Edit_flag.
+     * 
+     * @param param_id An enumerated Edit_flags::editmask parameter identifier.
+     * @param valstr A string containing the parameter value.
+     * @return True if successfully interpreted and set.
+     */
+    bool parse_value(Edit_flags_type param_id, const std::string valstr);
 };
 
 /**

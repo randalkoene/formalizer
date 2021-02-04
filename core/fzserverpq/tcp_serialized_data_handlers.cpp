@@ -117,14 +117,6 @@ bool NNL_len(int socket, const std::string &argstr) {
 typedef bool match_condition_func_t(Node_Filter &, const std::string&);
 typedef std::map<std::string, match_condition_func_t*> match_condition_func_map_t;
 
-const std::map<std::string, td_property> td_property_map = {
-    {"unspecified", td_property::unspecified},
-    {"inherit", td_property::inherit},
-    {"variable", td_property::variable},
-    {"fixed", td_property::fixed},
-    {"exact", td_property::exact}
-};
-
 // Split a '[min-max]' range into a vector of argument strings.
 std::vector<std::string> get_range(const std::string & argstr) {
     std::vector<std::string> argrange = split(argstr,'-');
@@ -498,10 +490,59 @@ bool NNL_add_match(int socket, const std::string & argstr) {
     return handle_serialized_data_request_response(socket, std::to_string(matching_nodes.size()), "Serializing number of matched Nodes added to NNL.");
 }
 
+/**
+ * Edit one parameter of each Node in a specified Named Node List
+ * to the specified value.
+ * 
+ * E.g. NNLedit_nodes(passed_fixed,tdproperty,variable)
+ */
+bool NNL_edit_nodes(int socket, const std::string & argstr) {
+    ERRTRACE;
+
+    // extract list name, parameter to edit, and new value
+    auto argsvec = split(argstr,',');
+    if (argsvec.size() < 3) {
+        handle_serialized_data_request_error(socket, "Missing list name, parameter label, or parameter value: '" + argstr + '\'');
+        return false;
+    }
+    if (argsvec[0].empty()) {
+        handle_serialized_data_request_error(socket, "Empty list name");
+        return false;
+    }
+    
+    // build corresponding editing Node_data and Edit_flags objects.
+    Edit_flags editflags;
+    if (!editflags.set_Edit_flag_by_label(argsvec[1])) {
+        handle_serialized_data_request_error(socket, "Unrecognized Node parameter: '" + argsvec[1] + '\'');
+        return false;
+    }
+    Node_data ndata;
+    if (!ndata.parse_value(editflags.get_Edit_flags(), argsvec[2])) {
+        handle_serialized_data_request_error(socket, "Invalid paramter value: '" + argsvec[2] + '\'');
+        return false;
+    }
+
+    // call Graph function to edit multiple Nodes and set their Edit flags
+    ssize_t num_edited = fzs.graph_ptr->edit_all_in_List(argsvec[0], editflags, ndata);
+    if (num_edited < 0) {
+        handle_serialized_data_request_error(socket, "Unable to edit Nodes in NNL: '" + argsvec[0] + '\'');
+        return false;
+    }
+
+    // synchronize to database
+    if (!Update_batch_nodes_pq(fzs.ga.config.dbname, fzs.ga.config.pq_schemaname, *fzs.graph_ptr, argsvec[0])) {
+        ERRRETURNFALSE(__func__, "Unable to send in-memory Graph changes to storage.");
+    }
+
+    // respond to FZ request with number edited
+    return handle_serialized_data_request_response(socket, std::to_string(num_edited), "Serializing number of Nodes in NNL edited.");
+}
+
 const serialized_func_map_t serialized_data_functions = {
     {"NNLlen", NNL_len},
     {"nodes_match", Nodes_match},
-    {"NNLadd_match", NNL_add_match}
+    {"NNLadd_match", NNL_add_match},
+    {"NNLedit_nodes", NNL_edit_nodes}
 };
 
 bool handle_request_args(int socket, const FZ_request_args & fra) {

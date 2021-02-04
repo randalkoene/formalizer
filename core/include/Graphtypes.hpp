@@ -555,6 +555,7 @@ public:
 
     void copy_content(Node & from_node);
     void edit_content(Node & from_node, const Edit_flags & edit_flags);
+    void edit_content(const Node_data & nodedata, const Edit_flags & edit_flags);
 
     /// Graph relative operations
     time_t effective_targetdate(Node_ptr * origin = nullptr);
@@ -766,6 +767,7 @@ public:
     void set_Lists_persistence(bool _persistent) { persistent_NNL = _persistent; }
     /// See detailed function description in the `Graphtypes.cpp` file.
     size_t copy_List_to_List(const std::string from_name, const std::string to_name, size_t from_max = 0, size_t to_max = 0, int16_t _features = -1, int32_t _maxsize = -1);
+    ssize_t edit_all_in_List(const std::string _name, const Edit_flags & editflags, const Node_data & nodedata);
 
     /// crossref tables: topics x nodes
 

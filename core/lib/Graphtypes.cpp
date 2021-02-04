@@ -678,6 +678,46 @@ void Node::edit_content(Node & from_node, const Edit_flags & edit_flags) {
 }
 
 /**
+ * Edit Node data in accordance with reference data in the nodedata
+ * object and edit only the data indicated by the `edit_flags`.
+ */
+void Node::edit_content(const Node_data & nodedata, const Edit_flags & edit_flags) {
+    if (edit_flags.Edit_valuation()) {
+        set_valuation(nodedata.valuation);
+    }
+    if (edit_flags.Edit_completion()) {
+        set_completion(nodedata.completion);
+    }
+    if (edit_flags.Edit_required()) {
+        set_required(nodedata.hours*3600.0);
+    }
+    if (edit_flags.Edit_text()) {
+        set_text(nodedata.utf8_text);
+    }
+    if (edit_flags.Edit_targetdate()) {
+        set_targetdate(nodedata.targetdate);
+    }
+    if (edit_flags.Edit_tdproperty()) {
+        set_tdproperty(nodedata.tdproperty);
+    }
+    if (edit_flags.Edit_repeats()) {
+        set_repeats(nodedata.repeats);
+    }
+    if (edit_flags.Edit_tdpattern()) {
+        set_tdpattern(nodedata.tdpattern);
+    }
+    if (edit_flags.Edit_tdevery()) {
+        set_tdevery(nodedata.tdevery);
+    }
+    if (edit_flags.Edit_tdspan()) {
+        set_tdspan(nodedata.tdspan);
+    }
+    // *** editing Topics is not yet implemented
+    // Set the Edit_flags of the modified Node
+    editflags.set_Edit_flags(edit_flags.get_Edit_flags());
+}
+
+/**
  * Returns a vector of target dates, including those determined by the Node's
  * repeat pattern and span, up to a specified maximum time.
  * 
@@ -1035,6 +1075,21 @@ bool Graph::delete_List(const std::string _name) {
     }
     Named_List_String namekey(_name.c_str());
     return (namedlists.erase(namekey)>0);
+}
+
+// Edit all Nodes in a Named Node List and set their Edit Flags.
+ssize_t Graph::edit_all_in_List(const std::string _name, const Edit_flags & editflags, const Node_data & nodedata) {
+    Named_Node_List_ptr nodelist_ptr = get_List(_name);
+    if (!nodelist_ptr) {
+        return -1;
+    }
+    for (const auto & nkey : nodelist_ptr->list) {
+        Node_ptr node_ptr = Node_by_id(nkey);
+        if (!node_ptr) {
+            return -1;
+        }
+        node_ptr->edit_content(nodedata, editflags);
+    }
 }
 
 /**
