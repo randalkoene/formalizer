@@ -321,7 +321,7 @@ def update_passed_fixed(args):
         return 2
     # explain that there are passed fixed target date Nodes and ask to manually move those that should not become variable target date (open browser)
     if num:
-        print(f'{ANSI_cy}Current time has passed the target dates of {ANSI_yb}{num}{ANSI_nrm}{ANSI_cy} incomplete{ANSI_nrm}')
+        print(f'\n{ANSI_cy}Current time has passed the target dates of {ANSI_yb}{num}{ANSI_nrm}{ANSI_cy} incomplete{ANSI_nrm}')
         print(f'{ANSI_cy}non-repeating fixed/exact Nodes. Please give future target dates{ANSI_nrm}')
         print(f'{ANSI_cy}to those that should remain fixed/exact. The rest will be switched{ANSI_nrm}')
         print(f'{ANSI_cy}to variable target date type. (Opening list in browser.){ANSI_nrm}')
@@ -334,10 +334,14 @@ def update_passed_fixed(args):
     if not clear_NNL('passed_fixed', config):
         return 2
     # filter again for passed fixed target date Nodes and put them into the passed_fixed NNL (or use another NNL)
-    num = select_to_NNL(filterstr,'passed_fixed')
-    if (num < 0):
+    remaining_num = select_to_NNL(filterstr,'passed_fixed')
+    if (remaining_num < 0):
         return 2
-    if num:
+    diff_num = num - remaining_num
+    if (diff_num > 0):
+        print(f'\nThank you for manually updating the target dates of {ANSI_yb}{diff_num}{ANSI_nrm}{ANSI_cy} Nodes.')    
+    if remaining_num:
+        print(f'Switching {ANSI_yb}{remaining_num}{ANSI_nrm}{ANSI_cy} Nodes to {ANSI_wt}variable{ANSI_nrm}{ANSI_cy} target dates.\n')
         num_fixed_converted = edit_nodes_in_NNL('passed_fixed','tdproperty','variable')
         if (num_fixed_converted != num):
             exit_error(retcode, f'Attempt to convert fixed to variable target date Nodes failed.', True)
