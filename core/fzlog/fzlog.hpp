@@ -20,10 +20,11 @@
 using namespace fz;
 
 enum flow_options {
-    flow_unknown = 0,     /// no recognized request
-    flow_make_entry = 1,  /// request: make Log entry
-    flow_close_chunk = 2, /// request: close Log chunk
-    flow_open_chunk = 3,  /// request: open new Log chunk with associated Node
+    flow_unknown = 0,      /// no recognized request
+    flow_make_entry = 1,   /// request: make Log entry
+    flow_close_chunk = 2,  /// request: close Log chunk
+    flow_open_chunk = 3,   /// request: open new Log chunk with associated Node
+    flow_reopen_chunk = 4, /// request: undo close Log chunk
     flow_NUMoptions
 };
 

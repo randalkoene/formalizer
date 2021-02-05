@@ -29,5 +29,5 @@ ANSI_br = '\u001b[38;5;136m' # brown
 ANSI_lt = '\u001b[38;5;138m' # leather
 ANSI_or = '\u001b[38;5;208m' # orange
 ANSI_dg = '\u001b[38;5;241m' # dark gray
-ANSI_mg = '\u001b[38;5;244m' # medium gray
+ANSI_gg = '\u001b[38;5;244m' # medium gray
 ANSI_lg = '\u001b[38;5;249m' # light gray

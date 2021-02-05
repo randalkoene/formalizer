@@ -11,8 +11,17 @@ Versioning is based on https://semver.org/. See coreversion.hpp for more.
 import time
 from datetime import datetime
 
+
+def ActualTime():
+    return time.localtime()
+
+
 def TimeStamp(t):
     return t.strftime("%Y%m%d%H%M%S")
+
+
+def NowTimeStamp():
+    return time.strftime("%Y%m%d%H%M", time.localtime())
 
 
 def is_int(n):
@@ -45,7 +54,7 @@ def is_TimeStamp(s):
 def is_Future(s):
     if (s == 'TODAY'):
         return True
-    t_current_str = time.strftime("%Y%m%d%H%M", time.localtime())
+    t_current_str = NowTimeStamp()
     if (int(s) > int(t_current_str)):
         return True
     else:

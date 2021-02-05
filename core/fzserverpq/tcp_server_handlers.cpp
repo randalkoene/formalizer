@@ -738,6 +738,28 @@ bool handle_node_direct_edit_multiple_pars(Node & node, const std::string & exte
     return true;
 }
 
+typedef bool node_parameter_edit_func_t(Node &, const std::string&);
+typedef std::map<Edit_flags_type, node_parameter_edit_func_t*> node_parameter_edit_map_t;
+
+bool add_completion(Node & node, const std::string & valstr) {
+    float completion = node.get_completion() + std::atof(valstr.c_str());
+    if (completion <= 0.0) {
+        node.set_completion(0.0);
+    } else {
+        if (completion >= 1.0) {
+            node.set_completion(1.0);
+        } else {
+            node.set_completion(completion);
+        }
+    }
+    const_cast<Edit_flags *>(&(node.get_editflags()))->set_Edit_completion();
+    return true;
+}
+
+const node_parameter_edit_map_t node_parameter_edit_map = {
+    {Edit_flags::completion, add_completion}
+};
+
 /**
  * Address a specified parameter, then carry out a command, such as `set` or `add`, or show the parameter
  * in the format indicated by the extension. Where parameters have units, multiple units and unit conversion
@@ -754,15 +776,64 @@ bool handle_node_direct_edit_multiple_pars(Node & node, const std::string & exte
  *   /fz/graph/nodes/20200901061505.1/topics/remove?literature=[1.0]
  */
 bool handle_node_direct_parameter(Node & node, const std::string & extension, std::string & response_html) {
-    // *** Not yet implemented
+    ERRTRACE;
+
     // identify the parameter
+    auto seppos = extension.find_first_of("?./");
+    if (seppos == std::string::npos) {
+        return false;
+    }
     // identify the command
-    // identify the value
-    // set the new parameter value (alternatively, build a modification neuron and use a method similar to the SHM method)
-    // set edit flags
+    Edit_flags editflags;
+    if (!editflags.set_Edit_flag_by_label(extension.substr(0,seppos))) {
+        return standard_error("Unrecognized Node parameter: '" + extension.substr(0,seppos) + '\'', __func__);
+    }
+    // *** Eventually, you probably want to make this more like the serial data version,
+    // *** where Node_data knows how to parse string values and set itself, and then
+    // *** Edit_flags are used to either set a specific Node parameter or add to it.
+    switch (extension[seppos]) {
+        case '?': {
+            if (extension.substr(seppos+1,4) == "set=") {
+                return standard_error("Node parameter setting not yet supported", __func__);
+            } else {
+                if (extension.substr(seppos+1,4) == "add=") {
+                    auto it = node_parameter_edit_map.find(editflags.get_Edit_flags());
+                    if (it == node_parameter_edit_map.end()) {
+                        return standard_error("Unsupported Node parameter edit request: '" + extension.substr(0,seppos) + '\'', __func__);
+                    }
+                    if (!it->second(node, extension.substr(seppos+5))) {
+                        return false;
+                    }
+                } else {
+                    return standard_error("Unrecognized modification request: '" + extension.substr(seppos+1,3) + '\'', __func__);
+                }
+            }
+            break;
+        }
+        case '.': {
+            return standard_error("Node parameter value printing not yet supported", __func__);
+            break;
+        }
+        case '/': {
+            return standard_error("Node Topics editing not yet supported", __func__);
+            break;
+        }
+        default: {
+            // nothing to do here
+        }
+    }
     // update in database
+    if (!Update_Node_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), node, editflags)) {
+        return standard_error("Synchronizing Node update to database failed", __func__);
+    }
+
+    // post-modification validity test
+    if (editflags.Edit_error()) { // check this AFTER synchronizing (see note in Graphmodify.hpp:Edit_flags)
+        return standard_error("An invalid circumstance was encountered while attempting to edit a parameter of Node "+node.get_id_str(), __func__);
+    }
+
     // edit response_html
-    return false;
+    return true;
 }
 
 bool handle_node_direct_request(std::string nodereqstr, std::string & response_html) {

@@ -2,11 +2,12 @@
 // License TBD
 
 /**
- * {{ brief_description }}
+ * Formalizer core program to handle Log requests.
  * 
- * {{ long_description }}
+ * Provides the authoritative command line interface with which to
+ * open and close Log chunks, and to make Log entries.
  * 
- * For more about this, see {{ doc_reference }}.
+ * For more about this, see the README.md file.
  */
 
 #define FORMALIZER_MODULE_ID "Formalizer:Log:MakeEntry"
@@ -42,8 +43,8 @@ fzlog fzl;
  */
 fzlog::fzlog() : formalizer_standard_program(false), config(*this), ga(*this, add_option_args, add_usage_top),
                  reftime(add_option_args, add_usage_top) {
-    add_option_args += "en:T:Cc:f:";
-    add_usage_top += " [-e] [-n <node-ID>] [-T <text>] [-C] [-c <node-ID>] [-f <content-file>]";
+    add_option_args += "en:T:CRc:f:";
+    add_usage_top += " [-e] [-n <node-ID>] [-T <text>] [-C] [-R] [-c <node-ID>] [-f <content-file>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "If [-c] is called when a Log chunk is still open then the Log chunk\n"
@@ -62,6 +63,7 @@ void fzlog::usage_hook() {
     FZOUT("    -T entry <text> from the command line\n");
     FZOUT("    -f entry text from <content-file> (\"STDIN\" for stdin until eof, CTRL+D)\n");
     FZOUT("    -C close Log chunk (if open)\n");
+    FZOUT("    -R reopen Log chunk (if closed)\n");
     FZOUT("    -c open new Log chunk for Node <node-ID>\n");
 }
 
@@ -104,6 +106,11 @@ bool fzlog::options_hook(char c, std::string cargs) {
 
     case 'C': {
         flowcontrol = flow_close_chunk;
+        return true;
+    }
+
+    case 'R': {
+        flowcontrol = flow_reopen_chunk;
         return true;
     }
 
@@ -247,7 +254,7 @@ bool update_Node_completion(const std::string & node_idstr, time_t add_seconds) 
  */
 bool close_chunk(time_t closing_time) {
     ERRTRACE;
-    get_newest_Log_data(fzl.ga ,fzl.edata);
+    get_newest_Log_data(fzl.ga, fzl.edata);
     if (!fzl.edata.is_open)
         return true;
 
@@ -271,6 +278,56 @@ bool close_chunk(time_t closing_time) {
     VERBOSEOUT("Log chunk "+fzl.edata.c_newest->get_tbegin_str()+" closed.\n");   
 
     return true;
+}
+
+bool revert_Node_completion(const std::string & node_idstr, time_t revert_seconds) {
+    if (revert_seconds < 60) {
+        return true; // nothing to revert
+    }
+
+    std::string api_url("/fz/graph/nodes/"+node_idstr+"/completion?add=-");
+    api_url += std::to_string(revert_seconds / 60);
+
+    if (fzl.reftime.is_emulated()) {
+        api_url += "&T=" + TimeStampYmdHM(fzl.reftime.Time());
+    }
+    
+    return port_API_request(api_url);
+}
+
+/**
+ * Undo close_chunk().
+ * Has no effect if the most recent Log chunk is still open.
+ * 
+ * Note: If you have to do this manually for some reason, open the database with
+ *       `psql`. Then find the last row with:
+ *         select * from randalk.logchunks order by id desc limit 1;
+ *       Then update its tclose column with appropriately, e.g:
+ *         update randalk.logchunks set tclose = 'infinity' where id = '2021-02-03 19:25:00';
+ */
+bool reopen_chunk() {
+    ERRTRACE;
+    get_newest_Log_data(fzl.ga, fzl.edata);
+    if (fzl.edata.is_open)
+        return true;
+    
+    time_t closing_time = fzl.edata.c_newest->get_close_time();
+    fzl.edata.c_newest->set_close_time(FZ_TCHUNK_OPEN);
+    if (!close_Log_chunk_pq(*fzl.edata.c_newest, fzl.ga)) {
+        standard_exit_error(exit_database_error, "Unable to reopen Log chunk "+fzl.edata.c_newest->get_tbegin_str(), __func__);
+    }
+
+    if (!fzl.edata.c_newest) {
+        standard_exit_error(exit_missing_data, "Unable to obtain Node of reopened Log chunk, because Log chunk pointer is null pointer.", __func__);
+    }
+    std::string node_idstr(fzl.edata.c_newest->get_NodeID().str());
+    if (!revert_Node_completion(node_idstr, closing_time - fzl.edata.newest_chunk_t)) {
+        standard_exit_error(exit_communication_error, "Server request to revert completion ratio of Node "+node_idstr+" failed.", __func__);
+    }
+
+    VERBOSEOUT("Log chunk "+fzl.edata.c_newest->get_tbegin_str()+" reopened and Node completion reverted.\n");
+
+    return true;    
 }
 
 /**
@@ -353,6 +410,11 @@ int main(int argc, char *argv[]) {
 
     case flow_close_chunk: {
         close_chunk(fzl.reftime.Time());
+        break;
+    }
+
+    case flow_reopen_chunk: {
+        reopen_chunk();
         break;
     }
 

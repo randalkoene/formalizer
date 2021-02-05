@@ -14,6 +14,8 @@ This list differs from the one in the root Makefile in that:
       - Executables exclusively available as CGI handlers.
       - Executables exclusively provided for (temporary) active cross-
         compatible operation (from the formalizer/tools/compat sources).
+      - Executable scripts that are small wrappers used to launch the actual
+        program on the command line (e.g. fzgraphhtml-term.sh).
 
 Note: The `executables` variable is a tuple instead of a list, which is much
       like a macro.
@@ -32,6 +34,8 @@ executables = (
     'fzupdate',
     'dil2graph',
     'graph2dil',
+    'graph2dil-diff.sh',
+    'graph2dil-integrity.py',
     'boilerplate',
     'fzbuild.py',
     'fzgraphhtml',
@@ -41,9 +45,18 @@ executables = (
     'fzserver-info',
     'logentry.py',
     'nodeboard',
-    'panes',
+    'panes-term.sh',
     'addnode.py',
     'earlywiz.py',
-    'requestmanual.py'
+    'requestmanual.py',
+    'frequent-init.sh',
+    'fzcatchup.py',
+    'fzdaily.sh',
+    'fzlist_backups.sh',
+    'fzlog-mostrecent.sh',
+    'fzrestore.sh',
+    'fzserverpqd.sh',
+    'graph-resident.py',
+    'graph-topics.sh'
     )
     

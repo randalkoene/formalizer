@@ -209,6 +209,10 @@ bool append_Log_entry_pq(const Log_entry & entry, Postgres_access & pa) {
  * Close the Chunk specified, which must already exist within a table in
  * schema of PostgreSQL database.
  * 
+ * Note that this same function can be used to reopen a Log chunk by
+ * specifying a `t_close` time equal to `FZ_TCHUNK_OPEN`. See how this
+ * is done in `fzlog.cpp:reopen_chunk()`.
+ * 
  * @param chunk A valid Log chunk object with valid t_close time.
  * @param pa Access object with database name and Formalizer schema name.
  * @returns True if the Log chunk was successfully updated to closed status.

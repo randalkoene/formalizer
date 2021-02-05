@@ -3,6 +3,7 @@ Log Most Recent
   Chunk ID       : {{ chunk_id }}
   Chunk status   : {{ chunk_status }}
   Chunk Node ID  : {{ node_id }}
+  Chunk t_close  : {{ t_chunkclose }}
 
   Entry minor-ID : {{ entry_minor_id }}
   Entry ID       : {{ entry_id }}

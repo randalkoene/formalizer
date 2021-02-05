@@ -98,6 +98,8 @@ config['addpause'] = False
 #config['cmderrlog'] = '/tmp/cmdcalls-errors.log' -- this is now in fzsetup.py/config.json
 #config['logcmderrors'] = False -- this is now in fzsetup.py/config.json
 
+last_T_close = ''
+
 # Potentially replace defaults with values from fztask config file
 try:
     with open(fztaskconfig) as f:
@@ -137,23 +139,59 @@ def parse_options():
     print(f'  Formalizer Postgres database name   : {args.dbname}')
     print(f'  Formalizer user or group schema name: {args.schemaname}\n')
 
-    if args.T_emulate:
-        if (is_TimeStamp(args.T_emulate)):
-            if (is_Future(args.T_emulate)):
-                exit_error(1, f'Emulated time should normally not be in the furure: {args.T_emulate}.', True)
-            else:
-                print(f'\nEmulated Time: {args.T_emulate}\n')
-        else:
-            exit_error(1, f'Emulated time has invalid time stamp: {args.T_emulate}.')
-    else:
-        print('\nUsing actual time.\n')
-
     #choice = input('Is this correct? (y/N) \n')
     #if (choice != 'y'):
     #    print('Ok. You can try again with different command arguments.\n')
     #    exit(0)
 
     return args
+
+
+def get_most_recent_chunk():
+    thecmd = 'fzloghtml -R -o STDOUT -N -F raw -q'
+    retcode = try_subprocess_check_output(thecmd, 'recentlog', config)
+    cmderrorreviewstr = config['cmderrorreviewstr']
+    exit_error(retcode, f'Attempt to get most recent Log chunk data failed.{cmderrorreviewstr}', True)
+    if (retcode == 0):
+        results['recentlog'] = results['recentlog'].decode()
+        chunk_data = results['recentlog'].split()
+    else:
+        chunk_data = []
+    return chunk_data
+
+
+def check_emulated_time():
+    global last_T_close
+    if args.T_emulate:
+        if (is_TimeStamp(args.T_emulate)):
+            if (is_Future(args.T_emulate)):
+                exit_error(1, f'Emulated time should normally not be in the furure: {args.T_emulate}.', True)
+            else:
+                recent_chunk = get_most_recent_chunk()
+                if (int(args.T_emulate) <= int(recent_chunk[0])):
+                    exit_error(1, 'Emulated time should be later than most recent Log chunk open time.', True)
+                if (recent_chunk[1] == 'CLOSED'):
+                    print(f'Most recent Log chunk was alredy {ANSI_wt}closed{ANSI_nrm}.')
+                    last_T_close = recent_chunk[5]
+                    t_closed_diff = int(args.T_emulate) - int(recent_chunk[5])
+                    if (t_closed_diff < 0):
+                        exit_error(1, 'Emulated time should be equal or later most recent Log chunk close time.', True)
+                    if (t_closed_diff > 1):
+                        print(f'{ANSI_mg}Emulated time {ANSI_wt}{args.T_emulate}{ANSI_nrm}{ANSI_mg} > T_close {ANSI_wt}{recent_chunk[5]}{ANSI_nrm}{ANSI_mg} of most recent Log chunk.{ANSI_nrm}')
+                        leavegap = input(f'{ANSI_bb}Your choices are: [{ANSI_gn}A{ANSI_bb}]ttach to close-time, make the [{ANSI_rd}g{ANSI_bb}]ap, or [{ANSI_yb}e{ANSI_bb}]xit?{ANSI_nrm} ')
+                        if (leavegap == 'e'):
+                            print('Exiting.')
+                            sys.exit(0)
+                        if (leavegap != 'A'):
+                            print('Adjusting emulated time to closing time of most recent Log chunk.')
+                            args.T_emulate = recent_chunk[5]
+                        else:
+                            print('Continuing with time-gap in Log record.')
+                print(f'\nEmulated Time: {args.T_emulate}\n')
+        else:
+            exit_error(1, f'Emulated time has invalid time stamp: {args.T_emulate}.')
+    else:
+        print('\nUsing actual time.\n')
 
 
 def fztask_ansi():
@@ -189,11 +227,16 @@ def new_or_close_chunk():
 
 
 def close_chunk(args):
+    global last_T_close
     thecmd = 'fzlog -C'
     if args.T_emulate:
+        stamp_t_close = args.T_emulate
         thecmd += ' -t ' + args.T_emulate
+    else:
+        stamp_t_close = NowTimeStamp()
     retcode = try_subprocess_check_output(thecmd, 'fzlog_res', config)
     exit_error(retcode,'Attempt to close Log chunk failed.')
+    last_T_close = stamp_t_close
 
 
 def get_updated_shortlist():
@@ -264,7 +307,7 @@ def update_passed_fixed(args):
     # clear passed_fixed NNL
     if not clear_NNL('passed_fixed', config):
         return 2
-    # filter for passed fixed target date (possibly with T_emulated) Nodes and put them into the passed_fixed NNL
+    # filter for passed fixed target date (possibly with T_emulate) Nodes and put them into the passed_fixed NNL
     completionfilter = 'completion=[0.0-0.999]'
     hoursfilter = 'hours=[0.001-1000.0]'
     if args.T_emulate:
@@ -312,7 +355,7 @@ def update_schedule(args):
     cmderrorreviewstr = config['cmderrorreviewstr']
     addtocmd = ''
     if args.T_emulate:
-        print(f'  {ANSI_lt}Operating in {ANSI_wt}Emulated Time (T_emulated = {args.T_emulate}).{ANSI_nrm}')
+        print(f'  {ANSI_lt}Operating in {ANSI_wt}Emulated Time (T_emulate = {args.T_emulate}).{ANSI_nrm}')
         if config['recommend_noupdate_ifTemulated']:
             print(f'{ANSI_alert}Current configuration recommends NOT to update while in emulated time{ANSI_nrm}.')
             doitanyway = input(f'Update anyway? {ANSI_No_yes} ')
@@ -411,29 +454,46 @@ def get_completion_required(node):
         results['required'] = ''
 
 
-def get_most_recent_task():
-    thecmd = 'fzloghtml -R -o STDOUT -N -F raw -q'
-    retcode = try_subprocess_check_output(thecmd, 'recentlog', config)
-    cmderrorreviewstr = config['cmderrorreviewstr']
-    exit_error(retcode, f'Attempt to get most recent Log chunk data failed.{cmderrorreviewstr}', True)
-    if (retcode == 0):
-        recent_node = (results['recentlog'].split()[2]).decode()
-    else:
-        recent_node = ''
-    return recent_node
+def simple_emulated_time_check(T_candidate, args):
+    if not is_TimeStamp(T_candidate):
+        return False
+    if is_Future(T_candidate):
+        return False
+    if (int(T_candidate) <= int(last_T_close)):
+        return False
+    args.T_emulate = T_candidate
+    return True
 
 
-def set_chunk_timer_and_alert():
+def set_chunk_timer_and_alert(args):
     # It looks like I can just run the same formalizer-alert.sh that dil2al was using.
-    print('Setting chunk duration: 20 mins. Chunk starts now.')
-    time.sleep(1200)
-    alert_ansi()
-    print('Chunk time passed. Calling formalizer-alert.sh.')
-    thecmd = 'formalizer-alert.sh'
-    retcode = try_subprocess_check_output(thecmd, 'alert', config)
-    cmderrorreviewstr = config['cmderrorreviewstr']
-    exit_error(retcode, f'Call to formalizer-alert.sh failed.{cmderrorreviewstr}', True)
-    fztask_ansi()
+    proceed_choice = 'r'
+    while (proceed_choice == 'r'):
+        print('Setting chunk duration: 20 mins. Chunk starts now.')
+        try:
+            time.sleep(1200)
+            alert_ansi()
+            print('Chunk time passed. Calling formalizer-alert.sh.')
+            thecmd = 'formalizer-alert.sh'
+            retcode = try_subprocess_check_output(thecmd, 'alert', config)
+            cmderrorreviewstr = config['cmderrorreviewstr']
+            exit_error(retcode, f'Call to formalizer-alert.sh failed.{cmderrorreviewstr}', True)
+            fztask_ansi()
+        except KeyboardInterrupt:
+            print(f'{ANSI_alert}Chunk timer interrupted{ANSI_nrm}. Options:')
+            print(f'  [{ANSI_gn}N{ANSI_nrm}]ew chunk at actual current time.')
+            print(f'  Never mind, [{ANSI_mg}r{ANSI_nrm}]esume the present chunk.')
+            print(f'  New chunk at a specified [{ANSI_yb}e{ANSI_nrm}]mulated time.')
+            print(f'  E[{ANSI_rd}x{ANSI_nrm}]it.')
+            proceed_choice = input('Your choice? ')
+            if (proceed_choice == 'x'):
+                print('Exiting.')
+                sys.exit(0)
+            if (proceed_choice == 'e'):
+                valid_T_emulate = False
+                while not valid_T_emulate:
+                    T_candidate = input('New emulated time (YYYYmmddHHMM): ')
+                    valid_T_emulate = simple_emulated_time_check(T_candidate, args)
 
 
 def task_control(args):
@@ -470,12 +530,16 @@ def task_control(args):
             # ** and that could be used to check with the caller whether the Node really should
             # ** be considered completed. If not, then there is an opportunity to change the
             # ** time required or to set a guess for the actual completion ratio.
+
             if config['transition']:
                 pause_key('synchronize back to Formalizer 1.x',config['addpause'])
                 transition_dil2al_request(node, args)
                 #transition_dil2al_request(recent_node, node)
+
+            # remove any T_emulate as we proceed through the next time interval
+            args.T_emulate = None 
             pause_key('start the chunk timer',config['addpause'])
-            set_chunk_timer_and_alert()
+            set_chunk_timer_and_alert(args)
         else:
             print(f'{ANSI_alert}We have no next Node, so we behave as if "close chunk" was chosen.{ANSI_nrm}')
             chunkchoice = 'c'
@@ -484,6 +548,12 @@ def task_control(args):
 
 # ----- end: Local variables and functions -----
 
+# print('Note:')
+# print('- fztask.py presently uses a while-loop to act like a daemonized task server.')
+# print('- One alternative is to set a cron-job.')
+# print('- Another alternative is to launch or use a separate deamonized task-timer.')
+# print('- Or simply exit after one run-through of the fztask steps.')
+# print('These options can be made a configuration option.\n')
 
 if __name__ == '__main__':
 
@@ -496,20 +566,14 @@ if __name__ == '__main__':
 
     print(fztask_long_id+"\n")
 
-    print('Note:')
-    print('- fztask.py presently uses a while-loop to act like a daemonized task server.')
-    print('- One alternative is to set a cron-job.')
-    print('- Another alternative is to launch or use a separate deamonized task-timer.')
-    print('- Or simply exit after one run-through of the fztask steps.')
-    print('These options can be made a configuration option.\n')
-
     args = parse_options()
+
+    check_emulated_time()
 
     chunkchoice = 'S'
 
     while (chunkchoice != 'c'):
         chunkchoice = task_control(args)
-        args.T_emulate = None # needs to apply only when fztask is first called
 
     print('\nfztask done.')
 

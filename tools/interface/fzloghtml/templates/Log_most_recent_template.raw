@@ -1,1 +1,1 @@
-{{ chunk_id }} {{ chunk_status }} {{ node_id }} {{ entry_minor_id }} {{ entry_id }}
+{{ chunk_id }} {{ chunk_status }} {{ node_id }} {{ entry_minor_id }} {{ entry_id }} {{ t_chunkclose }}

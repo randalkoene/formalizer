@@ -6,7 +6,7 @@
  * 
  */
 
-//#define USE_COMPILEDPING
+#define USE_COMPILEDPING
 #ifdef USE_COMPILEDPING
     #include <iostream>
 #endif
@@ -153,7 +153,7 @@ bool render_Log_interval() {
 
     for (const auto & [chunk_key, chunkptr] : fzlh.edata.log_ptr->get_Chunks()) {
 
-        COMPILEDPING(std::cout,"PING: commencing chunk idx#"+std::to_string(chunk_idx)+'\n');
+        //COMPILEDPING(std::cout,"PING: commencing chunk idx#"+std::to_string(chunk_idx)+'\n');
 
         if (chunkptr) {
             std::string combined_entries;
@@ -214,11 +214,23 @@ bool render_Log_most_recent() {
     }
     if (fzlh.edata.is_open) {
         varvals.emplace("chunk_status","OPEN");
+        varvals.emplace("t_chunkclose",std::to_string(FZ_TCHUNK_OPEN));
     } else {
         varvals.emplace("chunk_status","CLOSED");
+        if (fzlh.edata.c_newest) {
+            time_t t_chunkclose = fzlh.edata.c_newest->get_close_time();
+            varvals.emplace("t_chunkclose",TimeStampYmdHM(t_chunkclose));
+        } else {
+            varvals.emplace("t_chunkclose",std::to_string(RTt_invalid_time_stamp)); // should not happen!
+        }
     }
     varvals.emplace("entry_minor_id",std::to_string(fzlh.edata.newest_minor_id));
-    varvals.emplace("entry_id",fzlh.edata.e_newest->get_id_str());
+    if (fzlh.edata.e_newest) {
+        varvals.emplace("entry_id",fzlh.edata.e_newest->get_id_str());
+    } else {
+        varvals.emplace("entry_id", LOG_NULLKEY_STR);
+    }
+    
     std::string * render_template = nullptr;
     switch (fzlh.recent_format) {
         case most_recent_raw: {
