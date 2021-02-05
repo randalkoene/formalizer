@@ -286,11 +286,13 @@ bool revert_Node_completion(const std::string & node_idstr, time_t revert_second
     }
 
     std::string api_url("/fz/graph/nodes/"+node_idstr+"/completion?add=-");
-    api_url += std::to_string(revert_seconds / 60);
+    api_url += std::to_string(revert_seconds / 60) + 'm';
 
+    /*
     if (fzl.reftime.is_emulated()) {
         api_url += "&T=" + TimeStampYmdHM(fzl.reftime.Time());
     }
+    */
     
     return port_API_request(api_url);
 }

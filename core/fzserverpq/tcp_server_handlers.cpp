@@ -738,11 +738,36 @@ bool handle_node_direct_edit_multiple_pars(Node & node, const std::string & exte
     return true;
 }
 
-typedef bool node_parameter_edit_func_t(Node &, const std::string&);
+typedef bool node_parameter_edit_func_t(Node &, std::string);
 typedef std::map<Edit_flags_type, node_parameter_edit_func_t*> node_parameter_edit_map_t;
 
-bool add_completion(Node & node, const std::string & valstr) {
-    float completion = node.get_completion() + std::atof(valstr.c_str());
+bool set_completion(Node & node, std::string valstr) {
+    if (valstr.empty()) {
+        return standard_error("Missing parameter value", __func__);
+    }
+    float completion = std::atof(valstr.c_str()); // here, we allow everything (including special negative value codes)
+    node.set_completion(completion);
+    const_cast<Edit_flags *>(&(node.get_editflags()))->set_Edit_completion();
+    return true;
+}
+
+bool add_completion(Node & node, std::string valstr) {
+    if (valstr.empty()) {
+        return standard_error("Missing parameter value", __func__);
+    }
+    float completion = node.get_completion();
+    if (valstr.back() == 'm') { // deduce ratio by comparing minutes
+        valstr.pop_back();
+        long add_minutes = std::atol(valstr.c_str());
+        long current_minutes = node.get_required_minutes();
+        if (current_minutes <= 0) {
+            return standard_error("Can not deduce ratio to add by comparing minutes with current value <= 0", __func__);
+        }
+        float add_ratio = ((float)add_minutes) / ((float)current_minutes);
+        completion += add_ratio;
+    } else {
+        completion += std::atof(valstr.c_str());
+    }
     if (completion <= 0.0) {
         node.set_completion(0.0);
     } else {
@@ -756,8 +781,66 @@ bool add_completion(Node & node, const std::string & valstr) {
     return true;
 }
 
-const node_parameter_edit_map_t node_parameter_edit_map = {
-    {Edit_flags::completion, add_completion}
+bool set_required(Node & node, std::string valstr) {
+    if (valstr.empty()) {
+        return standard_error("Missing parameter value", __func__);
+    }
+    bool in_minutes = (valstr.back() == 'm');
+    if (!in_minutes) {
+        if (valstr.back() != 'h') {
+            return standard_error("Unrecognized units of time in parameter value: '" + valstr + '\'', __func__);
+        }
+    }
+    valstr.pop_back();
+    time_t required;
+    if (in_minutes) {
+        long required_minutes = std::atol(valstr.c_str());
+        required = 60*required_minutes;
+    } else {
+        float required_hours = std::atof(valstr.c_str());
+        required = (3600.0*required_hours);
+    }
+    node.set_required(required); // we permit explicit setting of any value, including negative value codes
+    const_cast<Edit_flags *>(&(node.get_editflags()))->set_Edit_required();
+    return true;
+}
+
+bool add_required(Node & node, std::string valstr) {
+    if (valstr.empty()) {
+        return standard_error("Missing parameter value", __func__);
+    }
+    bool in_minutes = (valstr.back() == 'm');
+    if (!in_minutes) {
+        if (valstr.back() != 'h') {
+            return standard_error("Unrecognized units of time in parameter value: '" + valstr + '\'', __func__);
+        }
+    }
+    valstr.pop_back();
+    time_t required;
+    if (in_minutes) {
+        long required_minutes = std::atol(valstr.c_str()) + node.get_required_minutes();
+        required = 60*required_minutes;
+    } else {
+        float required_hours = std::atof(valstr.c_str()) + node.get_required_hours();
+        required = (3600.0*required_hours);
+    }
+    if (required <= 0) {
+        node.set_required(0);
+    } else {
+        node.set_required(required);
+    }
+    const_cast<Edit_flags *>(&(node.get_editflags()))->set_Edit_required();
+    return true;
+}
+
+const node_parameter_edit_map_t node_parameter_edit_add_map = {
+    {Edit_flags::completion, add_completion},
+    {Edit_flags::required, add_required}
+};
+
+const node_parameter_edit_map_t node_parameter_edit_set_map = {
+    {Edit_flags::completion, set_completion},
+    {Edit_flags::required, set_required}
 };
 
 /**
@@ -775,9 +858,11 @@ const node_parameter_edit_map_t node_parameter_edit_map = {
  *   /fz/graph/nodes/20200901061505.1/topics/add?organization=1.0&oop-change=1.0
  *   /fz/graph/nodes/20200901061505.1/topics/remove?literature=[1.0]
  */
-bool handle_node_direct_parameter(Node & node, const std::string & extension, std::string & response_html) {
+bool handle_node_direct_parameter(Node & node, std::string extension, std::string & response_html) {
     ERRTRACE;
 
+    // skip '/'
+    extension.erase(0,1);
     // identify the parameter
     auto seppos = extension.find_first_of("?./");
     if (seppos == std::string::npos) {
@@ -786,7 +871,7 @@ bool handle_node_direct_parameter(Node & node, const std::string & extension, st
     // identify the command
     Edit_flags editflags;
     if (!editflags.set_Edit_flag_by_label(extension.substr(0,seppos))) {
-        return standard_error("Unrecognized Node parameter: '" + extension.substr(0,seppos) + '\'', __func__);
+        return standard_error("Unrecognized Node parameter: '" + extension + '\'', __func__); // extension.substr(0,seppos) + '\'', __func__);
     }
     // *** Eventually, you probably want to make this more like the serial data version,
     // *** where Node_data knows how to parse string values and set itself, and then
@@ -794,12 +879,18 @@ bool handle_node_direct_parameter(Node & node, const std::string & extension, st
     switch (extension[seppos]) {
         case '?': {
             if (extension.substr(seppos+1,4) == "set=") {
-                return standard_error("Node parameter setting not yet supported", __func__);
+                auto it = node_parameter_edit_set_map.find(editflags.get_Edit_flags());
+                if (it == node_parameter_edit_set_map.end()) {
+                    return standard_error("Unsupported Node parameter set request: '" + extension.substr(0,seppos) + '\'', __func__);
+                }
+                if (!it->second(node, extension.substr(seppos+5))) {
+                    return false;
+                }
             } else {
                 if (extension.substr(seppos+1,4) == "add=") {
-                    auto it = node_parameter_edit_map.find(editflags.get_Edit_flags());
-                    if (it == node_parameter_edit_map.end()) {
-                        return standard_error("Unsupported Node parameter edit request: '" + extension.substr(0,seppos) + '\'', __func__);
+                    auto it = node_parameter_edit_add_map.find(editflags.get_Edit_flags());
+                    if (it == node_parameter_edit_add_map.end()) {
+                        return standard_error("Unsupported Node parameter add request: '" + extension.substr(0,seppos) + '\'', __func__);
                     }
                     if (!it->second(node, extension.substr(seppos+5))) {
                         return false;
@@ -833,6 +924,7 @@ bool handle_node_direct_parameter(Node & node, const std::string & extension, st
     }
 
     // edit response_html
+    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n<p>Node parameter modified.</p>\n</body>\n</html>\n";
     return true;
 }
 
