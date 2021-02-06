@@ -82,6 +82,7 @@ from TimeStamp import *
 from tcpclient import get_server_address
 
 ANSI_sel = '\u001b[38;5;33m'
+ANSI_upd = '\u001b[38;5;148m'
 
 config['cmderrorreviewstr'] = ''
 if config['logcmderrors']:
@@ -272,7 +273,6 @@ class ShortList:
                 print(f' {number}: {printableline}')
 
 def select_Node_for_Log_chunk():
-    ANSI_Yes_no = f'{ANSI_gn}Y{ANSI_sel}/{ANSI_rd}n{ANSI_sel}'
     node = '' # none selected
     shortlist = ShortList()
 
@@ -295,7 +295,7 @@ def select_Node_for_Log_chunk():
             print(f'Log chunk will belong to Node {node}:')
             print(f'  {ANSI_wt}{chosen_desc}{ANSI_nrm}')
             if config['confirmchunknode']:
-                iscorrectnext = input(f'Is that correct? ({ANSI_Yes_no}) ')
+                iscorrectnext = input(f'Is that correct? ({Yes_no(ANSI_sel)}) ')
                 if (iscorrectnext == 'n'):
                     node = ''
 
@@ -303,11 +303,7 @@ def select_Node_for_Log_chunk():
     return node
 
 
-def update_passed_fixed(args):
-    # clear passed_fixed NNL
-    if not clear_NNL('passed_fixed', config):
-        return 2
-    # filter for passed fixed target date (possibly with T_emulate) Nodes and put them into the passed_fixed NNL
+def make_filter_passed_fixed(args):
     completionfilter = 'completion=[0.0-0.999]'
     hoursfilter = 'hours=[0.001-1000.0]'
     if args.T_emulate:
@@ -315,21 +311,38 @@ def update_passed_fixed(args):
     else:
         targetdatesfilter = 'targetdate=[MIN-NOW]'
     tdpropertiesfilter = 'tdproperty=[fixed-exact]'
-    filterstr = f'{completionfilter},{hoursfilter},{targetdatesfilter},{tdpropertiesfilter},repeats=false'
+    return f'{completionfilter},{hoursfilter},{targetdatesfilter},{tdpropertiesfilter},repeats=false'
+
+
+def manual_update_passed_fixed():
+    print(f'\n{ANSI_cy}  Opening browser to list of incomplete non-repeating fixed/exact Nodes.{ANSI_nrm}')
+    print(f'{ANSI_cy}  Please specify {ANSI_wt}future{ANSI_cy} target dates{ANSI_nrm} for any that should remain fixed/exact.')
+    print(f'{ANSI_cy}  The others will be switched to variable target date type.{ANSI_nrm}')
+    thecmd = config['localbrowser'] + ' http://localhost/cgi-bin/fzgraphhtml-cgi.py?srclist=passed_fixed'
+    retcode = try_subprocess_check_output(thecmd, 'fixedmoved', config)
+    exit_error(retcode, f'Attempt to browse passed fixed Nodes failed.', True)
+    return retcode
+
+
+def update_passed_fixed(args):
+    # clear passed_fixed NNL
+    if not clear_NNL('passed_fixed', config):
+        return 2
+    # filter for passed fixed target date (possibly with T_emulate) Nodes and put them into the passed_fixed NNL
+    filterstr = make_filter_passed_fixed(args)
     num = select_to_NNL(filterstr,'passed_fixed')
     if (num < 0):
         return 2
+    if not num:
+        return 0
+    
     # explain that there are passed fixed target date Nodes and ask to manually move those that should not become variable target date (open browser)
-    if num:
-        print(f'\n{ANSI_cy}Current time has passed the target dates of {ANSI_yb}{num}{ANSI_nrm}{ANSI_cy} incomplete{ANSI_nrm}')
-        print(f'{ANSI_cy}non-repeating fixed/exact Nodes. Please give future target dates{ANSI_nrm}')
-        print(f'{ANSI_cy}to those that should remain fixed/exact. The rest will be switched{ANSI_nrm}')
-        print(f'{ANSI_cy}to variable target date type. (Opening list in browser.){ANSI_nrm}')
-        thecmd = config['localbrowser'] + ' http://localhost/cgi-bin/fzgraphhtml-cgi.py?srclist=passed_fixed'
-        retcode = try_subprocess_check_output(thecmd, 'fixedmoved', config)
-        exit_error(retcode, f'Attempt to browse for Node selection failed.', True)
-        if (retcode != 0):
-            return 2
+    updatepassedfixed = input(f'  {ANSI_upd}Update/convert {ANSI_yb}{num}{ANSI_nrm} {ANSI_wt}passed non-repeating fixed/exact{ANSI_upd} Nodes? ({Yes_no(ANSI_upd)}) ')
+    if (updatepassedfixed == 'n'):
+        return 0
+    retcode = manual_update_passed_fixed()
+    if (retcode != 0):
+        return 2
     # clear passed fixed NNL again
     if not clear_NNL('passed_fixed', config):
         return 2
@@ -350,19 +363,56 @@ def update_passed_fixed(args):
     return 0
 
 
-def update_schedule(args):
-    ANSI_upd = '\u001b[38;5;148m'
-    ANSI_Yes_no = f'{ANSI_gn}Y{ANSI_upd}/{ANSI_rd}n{ANSI_upd}'
-    ANSI_No_yes = f'{ANSI_rd}y{ANSI_upd}/{ANSI_gn}N{ANSI_upd}'
+def make_filter_skip_repeats(args):
+    completionfilter = 'completion=[0.0-0.999]'
+    hoursfilter = 'hours=[0.001-1000.0]'
+    if args.T_emulate:
+        targetdatesfilter = f'targetdate=[MIN-{args.T_emulate}]'
+    else:
+        targetdatesfilter = 'targetdate=[MIN-NOW]'
+    return f'{completionfilter},{hoursfilter},{targetdatesfilter},repeats=true'
 
+
+def inspect_passed_repeating():
+    thecmd = config['localbrowser'] + ' http://localhost/cgi-bin/fzgraphhtml-cgi.py?srclist=skip_repeats'
+    retcode = try_subprocess_check_output(thecmd, 'skiprepeatsinspected', config)
+    exit_error(retcode, f'Attempt to browse passed repeating Nodes failed.', True)
+    return retcode    
+
+
+def skip_passed_repeats(args, addtocmd):
+    while True:
+        # clear skip_repeats NNL
+        if not clear_NNL('skip_repeats', config):
+            return 2
+        # filter for passed target date (possibly with T_emulate) repeating Nodes and put them into the skip_repeats NNLs
+        filterstr = make_filter_skip_repeats(args)
+        num = select_to_NNL(filterstr, 'skip_repeats')
+        if (num<0):
+            return 2
+        if not num:
+            return 0
+        
+        # explain that there are passed fixed repeating Nodes and offer to skip, not, or inspect first
+        ANSI_Yes_no_inspect = f'{ANSI_gn}Y{ANSI_upd}es/{ANSI_rd}n{ANSI_upd}no/[{ANSI_yb}i{ANSI_upd}]nspect'
+        skippassedrepeats = input(f'  Skip {ANSI_yb}{num}{ANSI_nrm}{ANSI_cy} {ANSI_wt}passed repeating{ANSI_upd} Nodes? ({ANSI_Yes_no_inspect}) ')
+        if (skippassedrepeats == 'n'):
+            return 0
+        if (skippassedrepeats != 'i'):
+            thecmd = 'fzupdate -q -E STDOUT -r'+addtocmd
+            return try_subprocess_check_output(thecmd, 'passedrepeatsskip', config)
+        retcode = inspect_passed_repeating()
+
+
+def update_schedule(args):
     print(f'{ANSI_upd}SCHEDULE UPDATES{ANSI_nrm}')
     cmderrorreviewstr = config['cmderrorreviewstr']
     addtocmd = ''
     if args.T_emulate:
-        print(f'  {ANSI_lt}Operating in {ANSI_wt}Emulated Time (T_emulate = {args.T_emulate}).{ANSI_nrm}')
+        print(f'\n  {ANSI_lt}Operating in {ANSI_wt}Emulated Time (T_emulate = {args.T_emulate}).{ANSI_nrm}')
         if config['recommend_noupdate_ifTemulated']:
             print(f'{ANSI_alert}Current configuration recommends NOT to update while in emulated time{ANSI_nrm}.')
-            doitanyway = input(f'Update anyway? {ANSI_No_yes} ')
+            doitanyway = input(f'Update anyway? {No_yes(ANSI_upd)} ')
             if (doitanyway != 'y'):
                 return
         addtocmd += ' -t '+args.T_emulate
@@ -373,20 +423,15 @@ def update_schedule(args):
         addtocmd += ' -V'
 
     # passed non-repeating fixed and exact target date Nodes
-    updatepassedfixed = input(f'  {ANSI_upd}Update/convert {ANSI_wt}passed non-repeating fixed/exact{ANSI_upd} Nodes? ({ANSI_Yes_no}) ')
-    if (updatepassedfixed != 'n'):
-        retcode = update_passed_fixed(args)
-        exit_error(retcode, f'Attempt to Update/convert passed non-repeating fixed/exact Nodes failed.', True)
+    retcode = update_passed_fixed(args)
+    exit_error(retcode, f'Attempt to Update/convert passed non-repeating fixed/exact Nodes failed.', True)
 
     # repeating Nodes
-    skippassedrepeats = input(f'  Skip {ANSI_wt}passed repeating{ANSI_upd} Nodes? ({ANSI_Yes_no}) ')
-    if (skippassedrepeats != 'n'):
-        thecmd = 'fzupdate -q -E STDOUT -r'+addtocmd
-        retcode = try_subprocess_check_output(thecmd, 'passedrepeatsskip', config)
-        exit_error(retcode, f'Attempt to skip passed repeating Nodes failed.{cmderrorreviewstr}', True)
+    retcode = skip_passed_repeats(args, addtocmd)
+    exit_error(retcode, f'Attempt to skip passed repeating Nodes failed.{cmderrorreviewstr}', True)
 
-    # variable target date Nodes
-    varupdate = input(f'  Update {ANSI_wt}variable{ANSI_upd} target date Nodes? ({ANSI_Yes_no}) ')
+    # variable target date Nodes (can be worth doing even if none have been passed)
+    varupdate = input(f'  Update {ANSI_wt}variable{ANSI_upd} target date Nodes? ({Yes_no(ANSI_upd)}) ')
     if (varupdate != 'n'):
         thecmd = 'fzupdate -q -E STDOUT -u'+addtocmd
         retcode = try_subprocess_check_output(thecmd, 'varupdate', config)
@@ -469,6 +514,35 @@ def simple_emulated_time_check(T_candidate, args):
     return True
 
 
+def chunk_interval_alert():
+    print(f'{ANSI_or}Chunk time passed. Calling formalizer-alert.sh.{ANSI_nrm}')
+    thecmd = 'formalizer-alert.sh'
+    retcode = try_subprocess_check_output(thecmd, 'alert', config)
+    cmderrorreviewstr = config['cmderrorreviewstr']
+    exit_error(retcode, f'Call to formalizer-alert.sh failed.{cmderrorreviewstr}', True)
+    fztask_ansi()
+    if (retcode != 0):
+        return 'r'
+    return 'N'
+
+
+def chunk_interval_interrupted(args):
+    print(f'\n{ANSI_alert}Chunk timer interrupted{ANSI_nrm}. Options:\n')
+    print(f'  - [{ANSI_gn}N{ANSI_nrm}]ew chunk at actual current time.')
+    print(f'  - Never mind, [{ANSI_mg}r{ANSI_nrm}]esume the present chunk.')
+    print(f'  - New chunk at a specified [{ANSI_yb}e{ANSI_nrm}]mulated time.')
+    print(f'  - E[{ANSI_rd}x{ANSI_nrm}]it.')
+    proceed_choice = input('\nYour choice? ')
+    if (proceed_choice == 'x'):
+        print('Exiting.')
+        sys.exit(0)
+    if (proceed_choice == 'e'):
+        valid_T_emulate = False
+        while not valid_T_emulate:
+            T_candidate = input('\nNew emulated time (YYYYmmddHHMM): ')
+            valid_T_emulate = simple_emulated_time_check(T_candidate, args)
+
+
 def set_chunk_timer_and_alert(args):
     # It looks like I can just run the same formalizer-alert.sh that dil2al was using.
     proceed_choice = 'r'
@@ -476,36 +550,13 @@ def set_chunk_timer_and_alert(args):
         print('Setting chunk duration: 20 mins. Chunk starts now.')
         try:
             time.sleep(1200)
-            alert_ansi()
-            print('Chunk time passed. Calling formalizer-alert.sh.')
-            thecmd = 'formalizer-alert.sh'
-            retcode = try_subprocess_check_output(thecmd, 'alert', config)
-            cmderrorreviewstr = config['cmderrorreviewstr']
-            exit_error(retcode, f'Call to formalizer-alert.sh failed.{cmderrorreviewstr}', True)
-            fztask_ansi()
+            proceed_choice = chunk_interval_alert()
+
         except KeyboardInterrupt:
-            print(f'{ANSI_alert}Chunk timer interrupted{ANSI_nrm}. Options:')
-            print(f'  [{ANSI_gn}N{ANSI_nrm}]ew chunk at actual current time.')
-            print(f'  Never mind, [{ANSI_mg}r{ANSI_nrm}]esume the present chunk.')
-            print(f'  New chunk at a specified [{ANSI_yb}e{ANSI_nrm}]mulated time.')
-            print(f'  E[{ANSI_rd}x{ANSI_nrm}]it.')
-            proceed_choice = input('Your choice? ')
-            if (proceed_choice == 'x'):
-                print('Exiting.')
-                sys.exit(0)
-            if (proceed_choice == 'e'):
-                valid_T_emulate = False
-                while not valid_T_emulate:
-                    T_candidate = input('New emulated time (YYYYmmddHHMM): ')
-                    valid_T_emulate = simple_emulated_time_check(T_candidate, args)
+            proceed_choice = chunk_interval_interrupted(args)
 
 
 def task_control(args):
-    # *** I have to let dil2al do its update things instead, due to the complex nature of
-    #     target date updates through Superiors.
-    #if config['transition']:
-    #    recent_node = get_most_recent_task()
-
     make_log_entry()
 
     chunkchoice = new_or_close_chunk()
@@ -538,7 +589,6 @@ def task_control(args):
             if config['transition']:
                 pause_key('synchronize back to Formalizer 1.x',config['addpause'])
                 transition_dil2al_request(node, args)
-                #transition_dil2al_request(recent_node, node)
 
             # remove any T_emulate as we proceed through the next time interval
             args.T_emulate = None 
@@ -552,12 +602,12 @@ def task_control(args):
 
 # ----- end: Local variables and functions -----
 
-# print('Note:')
-# print('- fztask.py presently uses a while-loop to act like a daemonized task server.')
-# print('- One alternative is to set a cron-job.')
-# print('- Another alternative is to launch or use a separate deamonized task-timer.')
-# print('- Or simply exit after one run-through of the fztask steps.')
-# print('These options can be made a configuration option.\n')
+# *** Note:
+# *** - fztask.py presently uses a while-loop to act like a daemonized task server.
+# *** - One alternative is to set a cron-job.
+# *** - Another alternative is to launch or use a separate deamonized task-timer.
+# *** - Or simply exit after one run-through of the fztask steps.
+# *** These options can be made a configuration option.
 
 if __name__ == '__main__':
 
