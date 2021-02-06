@@ -26,21 +26,6 @@ fzsetupconfigdir = fzuserbase+'/config/fzsetup.py'
 fzsetupconfig = fzsetupconfigdir+'/config.json'
 
 
-def selected_Node_description(excerpt_len = 0):
-    thecmd = "fzgraphhtml -L 'selected' -F desc -N 1 -e -q"
-    if (excerpt_len > 0):
-        thecmd += f' -x {excerpt_len}'
-    retcode = try_subprocess_check_output(thecmd,'selected_desc', config)
-    cmderrorreviewstr = config['cmderrorreviewstr']
-    exit_error(retcode, f'Attempt to get description of selected Node failed.{cmderrorreviewstr}', True)
-    if (retcode == 0):
-        res_selected_desc = results['selected_desc']
-        selected_desc_vec = res_selected_desc.decode().split("@@@")
-        return selected_desc_vec[0]
-    else:
-        return ''
-
-
 # Handle the case where even fzsetup.py does not have a configuration file yet.
 try:
     with open(fzsetupconfig) as f:
@@ -78,6 +63,7 @@ from error import *
 from ansicolorcodes import *
 from fzcmdcalls import *
 from Graphaccess import *
+from Logaccess import *
 from TimeStamp import *
 from tcpclient import get_server_address
 
@@ -240,41 +226,9 @@ def close_chunk(args):
     last_T_close = stamp_t_close
 
 
-def get_updated_shortlist():
-    retcode = try_subprocess_check_output(f"fzgraphhtml -u -L 'shortlist' -F node -e -q", 'shortlistnode', config)
-    exit_error(retcode, 'Attempt to get "shortlist" Named Node List node data failed.', True)
-    if (retcode != 0):
-        return False
-    retcode = try_subprocess_check_output(f"fzgraphhtml -L 'shortlist' -F desc -x 60 -e -q", 'shortlistdesc', config)
-    exit_error(retcode, 'Attempt to get "shortlist" Named Node List description data failed.', True)
-    if (retcode != 0):
-        return False
-    return True
-
-
-class ShortList:
-    def __init__(self):
-        self.nodes = ''
-        self.desc = ''
-        self.vec = [ ]
-        self.gotshortlist = get_updated_shortlist()
-        if self.gotshortlist:
-            self.nodes = results['shortlistnode']
-            self.desc = results['shortlistdesc']
-            #self.vec = [s for s in self.desc.decode().splitlines() if s.strip()]
-            self.vec = [s for s in self.desc.decode().split("@@@") if s.strip()]
-            self.size = len(self.vec)
-    def show(self):
-        print(f'\n{ANSI_sel}Short-list of Nodes for the {ANSI_wt}New Log Chunk{ANSI_sel}:')
-        if self.gotshortlist:
-            pattern = re.compile('[\W_]+')
-            for (number, line) in enumerate(self.vec):
-                printableline = pattern.sub(' ',line)
-                print(f' {number}: {printableline}')
-
 def select_Node_for_Log_chunk():
     node = '' # none selected
-    shortlist = ShortList()
+    shortlist = ShortList(f'\n{ANSI_sel}Short-list of Nodes for the {ANSI_wt}New Log Chunk{ANSI_sel}:', config)
 
     while not node:
         shortlist.show()
@@ -284,7 +238,7 @@ def select_Node_for_Log_chunk():
         choice = input(f'- [{ANSI_gn}?{ANSI_sel}] to browse: ')
         if (choice == '?'):
             node = browse_for_Node(config)
-            chosen_desc = selected_Node_description(60)
+            chosen_desc = selected_Node_description(config, 60)
         else:
             if ((int(choice) >= 0) & (int(choice) < shortlist.size)):
                 node = shortlist.nodes.splitlines()[int(choice)]
@@ -315,9 +269,9 @@ def make_filter_passed_fixed(args):
 
 
 def manual_update_passed_fixed():
-    print(f'\n{ANSI_cy}  Opening browser to list of incomplete non-repeating fixed/exact Nodes.{ANSI_nrm}')
+    print(f'\n{ANSI_upd}  Opening browser to list of incomplete non-repeating fixed/exact Nodes.{ANSI_nrm}')
     print(f'{ANSI_cy}  Please specify {ANSI_wt}future{ANSI_cy} target dates{ANSI_nrm} for any that should remain fixed/exact.')
-    print(f'{ANSI_cy}  The others will be switched to variable target date type.{ANSI_nrm}')
+    print(f'{ANSI_upd}  The others will be switched to variable target date type.{ANSI_nrm}')
     thecmd = config['localbrowser'] + ' http://localhost/cgi-bin/fzgraphhtml-cgi.py?srclist=passed_fixed'
     retcode = try_subprocess_check_output(thecmd, 'fixedmoved', config)
     exit_error(retcode, f'Attempt to browse passed fixed Nodes failed.', True)
@@ -334,6 +288,7 @@ def update_passed_fixed(args):
     if (num < 0):
         return 2
     if not num:
+        print(f'  {ANSI_lt}No passed non-repeating fixed/exact Nodes.{ANSI_upd}')
         return 0
     
     # explain that there are passed fixed target date Nodes and ask to manually move those that should not become variable target date (open browser)
@@ -352,9 +307,9 @@ def update_passed_fixed(args):
         return 2
     diff_num = num - remaining_num
     if (diff_num > 0):
-        print(f'\nThank you for manually updating the target dates of {ANSI_yb}{diff_num}{ANSI_nrm}{ANSI_cy} Nodes.')    
+        print(f'\n  Thank you for manually updating the target dates of {ANSI_yb}{diff_num}{ANSI_nrm}{ANSI_cy} Nodes.')    
     if remaining_num:
-        print(f'Switching {ANSI_yb}{remaining_num}{ANSI_nrm}{ANSI_cy} Nodes to {ANSI_wt}variable{ANSI_nrm}{ANSI_cy} target dates.\n')
+        print(f'  Switching {ANSI_yb}{remaining_num}{ANSI_nrm}{ANSI_cy} Nodes to {ANSI_wt}variable{ANSI_nrm}{ANSI_cy} target dates.\n')
         num_fixed_converted = edit_nodes_in_NNL('passed_fixed','tdproperty','variable')
         if (num_fixed_converted != num):
             exit_error(retcode, f'Attempt to convert fixed to variable target date Nodes failed.', True)
@@ -391,6 +346,7 @@ def skip_passed_repeats(args, addtocmd):
         if (num<0):
             return 2
         if not num:
+            print(f'  {ANSI_lt}No passed repeating Nodes.{ANSI_upd}')
             return 0
         
         # explain that there are passed fixed repeating Nodes and offer to skip, not, or inspect first
@@ -405,14 +361,14 @@ def skip_passed_repeats(args, addtocmd):
 
 
 def update_schedule(args):
-    print(f'{ANSI_upd}SCHEDULE UPDATES{ANSI_nrm}')
+    print(f'\n{ANSI_upd}SCHEDULE UPDATES{ANSI_nrm}')
     cmderrorreviewstr = config['cmderrorreviewstr']
     addtocmd = ''
     if args.T_emulate:
-        print(f'\n  {ANSI_lt}Operating in {ANSI_wt}Emulated Time (T_emulate = {args.T_emulate}).{ANSI_nrm}')
+        print(f'  {ANSI_lt}Operating in {ANSI_wt}Emulated Time (T_emulate = {args.T_emulate}).{ANSI_nrm}')
         if config['recommend_noupdate_ifTemulated']:
-            print(f'{ANSI_alert}Current configuration recommends NOT to update while in emulated time{ANSI_nrm}.')
-            doitanyway = input(f'Update anyway? {No_yes(ANSI_upd)} ')
+            print(f'  {ANSI_alert}Current configuration recommends NOT to update while in emulated time{ANSI_nrm}.')
+            doitanyway = input(f'  Update anyway? {No_yes(ANSI_upd)} ')
             if (doitanyway != 'y'):
                 return
         addtocmd += ' -t '+args.T_emulate

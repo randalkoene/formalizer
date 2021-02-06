@@ -13,6 +13,22 @@ from error import *
 from fzcmdcalls import *
 from tcpclient import serial_API_request
 
+
+def selected_Node_description(config: dict, excerpt_len = 0):
+    thecmd = "fzgraphhtml -L 'selected' -F desc -N 1 -e -q"
+    if (excerpt_len > 0):
+        thecmd += f' -x {excerpt_len}'
+    retcode = try_subprocess_check_output(thecmd,'selected_desc', config)
+    cmderrorreviewstr = config['cmderrorreviewstr']
+    exit_error(retcode, f'Attempt to get description of selected Node failed.{cmderrorreviewstr}', True)
+    if (retcode == 0):
+        res_selected_desc = results['selected_desc']
+        selected_desc_vec = res_selected_desc.decode().split("@@@")
+        return selected_desc_vec[0]
+    else:
+        return ''
+
+
 def browse_for_Node(config: dict):
     print('Use the browser to select a node.')
     #retcode = pty.spawn([config['localbrowser'],'http://localhost/select.html'])

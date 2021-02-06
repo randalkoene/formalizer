@@ -41,3 +41,4 @@ customtemplate = r'STR:{{ t_chunkopen }} {{ t_diff_mins }} {{ node_id }}\\n'
 thecmd = f"fzloghtml -r -D 5 -N -T 'STR:{customtemplate}'"
 retcode = try_subprocess_check_output(thecmd, 'logres', config)
 
+# *** Consider combining this experiment with the work on tools/system/metrics/sysmet-extract.

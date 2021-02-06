@@ -25,68 +25,6 @@ fzsetupconfigdir = fzuserbase+'/config/fzsetup.py'
 fzsetupconfig = fzsetupconfigdir+'/config.json'
 # *** can add logentryconfigdir and logentryconfig here
 
-#results = {}
-
-# We need this everywhere to run various shell commands.
-#def try_subprocess_check_output(thecmdstring, resstore):
-#    if config['verbose']:
-#        print(f'Calling subprocess: `{thecmdstring}`', flush=True)
-#    if config['logentry_logcmdcalls']:
-#        with open(config['logentry_cmdlog'],'a') as f:
-#            f.write(thecmdstring+'\n')
-#    try:
-#        res = subprocess.check_output(thecmdstring, shell=True)
-#    except subprocess.CalledProcessError as cpe:
-#        if config['verbose']:
-#            print('Subprocess call caused exception.')
-#        if config['verbose']:
-#            print('Error output: ',cpe.output.decode())
-#            print('Error code  : ',cpe.returncode)
-#            if (cpe.returncode>0):
-#                print('Formalizer error: ', error.exit_status_code[cpe.returncode])
-#        return cpe.returncode
-#
-#    else:
-#        if resstore:
-#            results[resstore] = res
-#        if config['verbose']:
-#            print('Result of subprocess call:', flush=True)
-#            print(res.decode(), flush=True)
-#        return 0
-
-
-#def init_screen():
-#    curses.start_color() # load colors
-#    curses.use_default_colors()
-#    curses.noecho()      # do not echo text
-#    curses.cbreak()      # do not wait for "enter"
-#    curses.mousemask(curses.ALL_MOUSE_EVENTS)
-#
-#    # Hide cursor, if terminal AND curse supports it
-#    if hasattr(curses, 'curs_set'):
-#        try:
-#            curses.curs_set(0)
-#        except:
-#            pass
-
-
-# def run_curses_tty(thecmdstring):
-#     stdscr = curses.initscr()
-#     init_screen()
-#     stdscr.keypad(1)
-#     # Prepare screen for interactive command
-#     curses.savetty()
-#     curses.nocbreak()
-#     curses.echo()
-#     curses.endwin()
-
-#     # Run command
-#     pty.spawn(thecmdstring)
-
-#     # Restore screen
-#     init_screen()
-#     curses.resetty()
-
 # Handle the case where even fzsetup.py does not have a configuration file yet.
 try:
     with open(fzsetupconfig) as f:
@@ -115,6 +53,9 @@ from standard import *
 from ansicolorcodes import *
 from fzcmdcalls import *
 from Graphaccess import *
+from Logaccess import *
+
+ANSI_sel = '\u001b[38;5;33m'
 
 if not 'cmderrorreviewstr' in config:
     config['cmderrorreviewstr'] = ''
@@ -185,20 +126,11 @@ def logentry_ansi():
 
 
 def Node_selection_ansi():
-    print(f'{ANSI_lb}', end='')
+    print(f'{ANSI_sel}', end='')
 
 
 def alert_ansi():
     print(f'{ANSI_alert}', end='')
-
-
-#def exit_error(retcode, errormessage):
-#    if (retcode != 0):
-#        alert_ansi()
-#        print('\n'+errormessage+'\n')
-#        logentry_ansi()
-#        exitenter = input('Press ENTER to exit...')
-#        sys.exit(retcode)
 
 
 def make_content_file():
@@ -218,42 +150,15 @@ def edit_content_file():
     return entrycontent
 
 
-def get_from_Named_Node_Lists(list_name, output_format, resstore):
-    retcode = try_subprocess_check_output(f"fzgraphhtml -L '{list_name}' -F {output_format} -x 60 -N 5 -e -q",resstore, config)
-    exit_error(retcode, 'Attempt to get Named Node List data failed.')
+#def get_from_Named_Node_Lists(list_name, output_format, resstore):
+#    retcode = try_subprocess_check_output(f"fzgraphhtml -L '{list_name}' -F {output_format} -x 60 -N 5 -e -q",resstore, config)
+#    exit_error(retcode, 'Attempt to get Named Node List data failed.')
 
 
-def get_updated_shortlist():
-    print('Getting updated shortlist...')
-    retcode = try_subprocess_check_output(f"fzgraphhtml -u -L 'shortlist' -F node -e -q", 'shortlistnode', config)
-    exit_error(retcode, 'Attempt to get "shortlist" Named Node List node data failed.')
-    retcode = try_subprocess_check_output(f"fzgraphhtml -L 'shortlist' -F desc -x 60 -e -q", 'shortlistdesc', config)
-    exit_error(retcode, 'Attempt to get "shortlist" Named Node List description data failed.')
+#def get_from_Incomplete(output_format, resstore):
+#    retcode = try_subprocess_check_output(f"fzgraphhtml -I -F {output_format} -x 60 -N 5 -e -q",resstore, config)
+#    exit_error(retcode, 'Attempt to get Incomplete Nodes data failed.')
 
-
-def get_from_Incomplete(output_format, resstore):
-    retcode = try_subprocess_check_output(f"fzgraphhtml -I -F {output_format} -x 60 -N 5 -e -q",resstore, config)
-    exit_error(retcode, 'Attempt to get Incomplete Nodes data failed.')
-
-
-#def browse_for_Node():
-#    print('Use the browser to select a node.')
-#    #retcode = try_subprocess_check_output(f"urxvt -e {config['localbrowser']} http://localhost/index.html",'')
-#    #if (retcode != 0):
-#    #    print(f'Attempt to browse for Node failed.')
-#    #    exit(retcode)
-#    #run_curses_tty([config['localbrowser'],'http://localhost/index.html']) 
-#    #retcode = pty.spawn([config['localbrowser'],'http://localhost/select.html'])
-#    thecmd = config['localbrowser'] + ' http://localhost/select.html'
-#    retcode = try_subprocess_check_output(thecmd, 'browsed')
-#    exit_error(retcode, 'Attempt to browse for Node selection failed.')
-#    retcode = try_subprocess_check_output(f"fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected')
-#    exit_error(retcode, 'Attempt to get selected Node failed.')
-#    print(f'Selected: {results["selected"]}')
-#    if results['selected']:
-#        return results['selected'][0:16]
-#    else:
-#        return ''
 
 #filtered = filter(lambda x: not re.match(r'^\s*$', x), shortlist_desc.decode().splitlines())
 #print(str(filtered))
@@ -262,32 +167,31 @@ def get_from_Incomplete(output_format, resstore):
 #shortlist_vec = [s for s in shortlist_desc.decode().splitlines() if s.strip()]
 
 def entry_belongs_to_same_or_other_Node():
-    get_updated_shortlist()
-    shortlist_nodes = results['shortlistnode']
-    shortlist_desc = results['shortlistdesc']
-    Node_selection_ansi()
+    shortlist = ShortList(f'\n{ANSI_sel}Short-list of Nodes for this Log Entry:', config)
     node = '?'
-    while (node == '?'):
-        print('\nShort-list of Nodes for this Log Entry:')
-        shortlist_vec = [s for s in shortlist_desc.decode().split("@@@") if s.strip()]
-        pattern = re.compile('[\W_]+')
-        for (number, line) in enumerate(shortlist_vec):
-            printableline = pattern.sub(' ',line)
-            print(f' {number}: {printableline}')
 
-        choice = input(f'\nUse:\n- [{ANSI_wb}d{ANSI_lb}]efault, same Node as chunk, or\n- [{ANSI_gn}0-9{ANSI_lb}] from shortlist, or\n- [{ANSI_gn}?{ANSI_lb}] browse? ')
+    while (node == '?'):
+        shortlist.show()
+        print(f'{ANSI_sel}Use:\n- [{ANSI_wb}d{ANSI_sel}]efault, same Node as chunk, or')
+        if (shortlist.size > 0):
+            print(f'- [{ANSI_gn}0-{shortlist.size - 1}{ANSI_sel}] from shortlist, or')
+        choice = input(f'- [{ANSI_gn}?{ANSI_sel}] to browse: ')
         if (choice == '?'):
             node = browse_for_Node(config)
+            chosen_desc = selected_Node_description(config, 60)
         else:
-            if ((choice >= '0') & (choice <= '9')):
-                    node = shortlist_nodes.splitlines()[int(choice)]
+            if ((int(choice) >= 0) & (int(choice) < shortlist.size)):
+                node = shortlist.nodes.splitlines()[int(choice)]
+                chosen_desc = shortlist.vec[int(choice)]
             else:
                 node = '' # default
+
         if node:
             node = node.decode()
-            print(f'Log entry belongs to Node {node}.')
+            print(f'Log entry belongs to Node {node}:')
+            print(f'  {ANSI_wt}{chosen_desc}{ANSI_nrm}')
             if config['confirm_not_chunknode']:
-                confirmothernode = input(f'Confirmed? ({ANSI_rd}y{ANSI_lb}/{ANSI_gn}N{ANSI_lb}) ')
+                confirmothernode = input(f'Confirmed? ({No_yes(ANSI_sel)}) ')
                 if (confirmothernode != 'y'):
                     node = '?'
         else:
