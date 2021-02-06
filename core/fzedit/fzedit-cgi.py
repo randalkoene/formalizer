@@ -79,6 +79,13 @@ def convert_to_targetdate(alttargetdate: str):
     return atd_YmdHM
 
 
+def convert_date_and_time_to_targetdate(alt2_targetdate: str, alt2_targettime: str):
+    atd_date = alt2_targetdate.split('-')
+    atd_time = alt2_targettime.split(':')
+    atd_YmdHM = f'{atd_date[0]}{atd_date[1]}{atd_date[2]}{atd_time[0]}{atd_time[1]}'
+    return atd_YmdHM
+
+
 def try_call_command(thecmd: str):
     try:
         p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
@@ -113,6 +120,8 @@ def modify_node():
     val = float(form.getvalue('val'))
     targetdate = form.getvalue('targetdate')
     alt_targetdate = form.getvalue('alt_targetdate')
+    alt2_targetdate = form.getvalue('alt2_targetdate')
+    alt2_targettime = form.getvalue('alt2_targettime')
     prop = form.getvalue('prop')
     patt = form.getvalue('patt')
     every = int(form.getvalue('every'))
@@ -147,6 +156,10 @@ def modify_node():
         #req_hrs = '{:.5f}'.format(req_hrs_float)
 
     atd_YmdHM = convert_to_targetdate(alt_targetdate)
+    if (atd_YmdHM != orig_td):
+        # if the value changed then we assume that atd_YmdHM is being used to set targetdate
+        targetdate = atd_YmdHM
+    atd_YmdHM = convert_date_and_time_to_targetdate(alt2_targetdate,alt2_targettime)
     if (atd_YmdHM != orig_td):
         # if the value changed then we assume that atd_YmdHM is being used to set targetdate
         targetdate = atd_YmdHM
