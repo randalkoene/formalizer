@@ -52,8 +52,8 @@ LOCALLIB = $(BOOSTINTERPROCESSLIB_REQS)
 # +----- begin: Essential include and library paths for this program -----+
 INCLUDES := -I$(CPATH) -I$(COREINCLUDEPATH)
 INCLUDES += -I$(POSTGRESINC)
-INCLUDES += -I$(LOCALINC)
-LIB_PATH = $(POSTGRESLIB) $(LOCALLIB)
+INCLUDES += -I$(LOCALINC) -I/usr/include/python3.8
+LIB_PATH = $(POSTGRESLIB) $(LOCALLIB) -lpython3.8
 # +----- begin: Essential include and library paths for this program -----+
 
 # +----- begin: In case not included from CPATH -----+
@@ -121,7 +121,7 @@ CORE_OBJS =
 
 .PHONY: FORCE
 
-all: init test_shared_memory test_shared_memory_client
+all: init test_shared_memory test_shared_memory_client test_cpppython
 
 init: FORCE
 	@echo '-------------------------------------------------------------------'
@@ -136,11 +136,17 @@ $(OBJ)/test_shared_memory.o: test_shared_memory.cpp
 $(OBJ)/test_shared_memory_client.o: test_shared_memory_client.cpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c test_shared_memory_client.cpp -o $(OBJ)/test_shared_memory_client.o
 
+$(OBJ)/test_cpppython.o: test_cpppython.cpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c test_cpppython.cpp -o $(OBJ)/test_cpppython.o
+
 test_shared_memory: $(OBJ)/test_shared_memory.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o test_shared_memory $(LIB_PATH)
 
 test_shared_memory_client: $(OBJ)/test_shared_memory_client.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o test_shared_memory_client $(LIB_PATH)
+
+test_cpppython: $(OBJ)/test_cpppython.o $(CORE_OBJS)
+	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o test_cpppython $(LIB_PATH)
 
 clean:
 	rm -f $(OBJ)/*.o
