@@ -207,8 +207,21 @@ def entry_belongs_to_same_or_other_Node():
     return node
 
 
+def check_same_as_chunk(node):
+    if not config['autoremove_sameentrynode']:
+        return node
+    if not get_most_recent(config):
+        return node
+    chunknode = results['mostrecent'].split()[2]
+    chunknode = chunknode.decode()
+    if (node == chunknode):
+        return ''
+    return node
+
+
 def send_to_fzlog(node):
     thecmd=f"fzlog -e -f {config['logentrytmpfile']}"
+    node = check_same_as_chunk(node)
     if node:
         thecmd += f" -n {node}"
     retcode = try_subprocess_check_output(thecmd, '', config)

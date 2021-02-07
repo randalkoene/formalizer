@@ -3,5 +3,6 @@
     "logentrytmpfile": "/tmp/logentry.html",
     "logentry_cmdlog": "/tmp/fztask-cmdcalls.log",
     "logentry_logcmdcalls": false,
-    "confirm_not_chunknode": true
+    "confirm_not_chunknode": true,
+    "autoremove_sameentrynode" : true
 }

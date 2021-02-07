@@ -13,6 +13,14 @@ from error import *
 from fzcmdcalls import *
 
 
+def get_most_recent(config: dict):
+    retcode = try_subprocess_check_output(f"fzloghtml -R -o STDOUT -N -F raw -q", 'mostrecent', config)
+    exit_error(retcode, 'Attempt to get most recent Log Chunk parameters failed.', True)
+    if (retcode != 0):
+        return False
+    return True
+
+
 def get_updated_shortlist(config: dict):
     retcode = try_subprocess_check_output(f"fzgraphhtml -u -L 'shortlist' -F node -e -q", 'shortlistnode', config)
     exit_error(retcode, 'Attempt to get "shortlist" Named Node List node data failed.', True)
