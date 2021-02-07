@@ -56,9 +56,9 @@ if [ "$1" = "-R" ]; then
 		${notifycmd} ${notifyarg} "Please install xdotool to refresh panes."
 		exit 1
 	fi
-	xdotool search --name 'fz: Next Nodes' key "R"
-	xdotool search --name 'fz: Recent Log' key "R"
-	xdotool search --name 'fz: Log Time' key "R"
+	xdotool search --name 'fz: Next Nodes' key "B" key "R"
+	xdotool search --name 'fz: Recent Log' key "B" key "B" key "R"
+	xdotool search --name 'fz: Log Time' key "B" key "R"
 	exit 0
 
 fi

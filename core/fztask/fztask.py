@@ -396,11 +396,9 @@ def update_schedule(args):
     print('')
 
 
-def refresh_Next_Nodes_and_Recent_Log():
-    nextnodes_refresh_cmd = "xwininfo -name 'fz: Next Nodes' | xdotool"
-    recentlog_refresh_cmd = ''
-    retcode = try_subprocess_check_output(nextnodes_refresh_cmd, 'refresh_nextnodes_res', config)
-    retcode = try_subprocess_check_output(recentlog_refresh_cmd, 'refresh_recentlog_res', config)
+def refresh_panes():
+    refresh_cmd = 'panes-term.sh -R'
+    retcode = try_subprocess_check_output(refresh_cmd, 'refresh_panes', config)
 
 
 def next_chunk(args):
@@ -485,9 +483,7 @@ def chunk_interval_alert():
     exit_error(retcode, f'Call to formalizer-alert.sh failed.{cmderrorreviewstr}', True)
     fztask_ansi()
     if (retcode != 0):
-        print('++DEBUG: r')
         return 'r'
-    print('++DEBUG: N')
     return 'N'
 
 
@@ -506,7 +502,6 @@ def chunk_interval_interrupted(args):
         while not valid_T_emulate:
             T_candidate = input('\nNew emulated time (YYYYmmddHHMM): ')
             valid_T_emulate = simple_emulated_time_check(T_candidate, args)
-    print(f'++DEBUG: {proceed_choice}')
     return proceed_choice
 
 
@@ -521,7 +516,6 @@ def set_chunk_timer_and_alert(args):
 
         except KeyboardInterrupt:
             proceed_choice = chunk_interval_interrupted(args)
-        print(f'++DEBUG: received = {proceed_choice}')
 
 
 def task_control(args):
@@ -529,44 +523,44 @@ def task_control(args):
 
     chunkchoice = new_or_close_chunk()
 
-    pause_key('close current chunk',config['addpause'])
-
     # Note that in this process, where a schedule updated in accordance with time
     # added to the most recent Node's completion ratio affects the potential choice
     # of Node for the next Log chunk, we cannot make use of the built-in chunk
     # closing that is available through `fzlog -c <node-id>`. Instead, we must
     # close the chunk first, then update the schedule, and use the resulting
     # information for an informed choice.
+    pause_key('close current chunk',config['addpause'])
     close_chunk(args)
 
     pause_key('update schedule',config['addpause'])
-
     update_schedule(args)
-    refresh_Next_Nodes_and_Recent_Log()
 
     node = ''
-    if (chunkchoice !='c'):
-        pause_key('start next chunk',config['addpause'])
-        node = next_chunk(args)
-        if node:
-            # ** close_chunk() and next_chunk() could both return the new completion ratio of the
-            # ** Node that owns the previous chunk (or at least a true/false whether completion >= 1.0)
-            # ** and that could be used to check with the caller whether the Node really should
-            # ** be considered completed. If not, then there is an opportunity to change the
-            # ** time required or to set a guess for the actual completion ratio.
+    if (chunkchoice == 'c'):
+        refresh_panes()
+        return chunkchoice
 
-            if config['transition']:
-                pause_key('synchronize back to Formalizer 1.x',config['addpause'])
-                transition_dil2al_request(node, args)
+    pause_key('start next chunk',config['addpause'])
+    node = next_chunk(args)
+    refresh_panes() # after opening the next chunk
+    if not node:
+        print(f'{ANSI_alert}We have no next Node, so we behave as if "close chunk" was chosen.{ANSI_nrm}')
+        return 'c'
 
-            # remove any T_emulate as we proceed through the next time interval
-            args.T_emulate = None 
-            pause_key('start the chunk timer',config['addpause'])
-            set_chunk_timer_and_alert(args)
-        else:
-            print(f'{ANSI_alert}We have no next Node, so we behave as if "close chunk" was chosen.{ANSI_nrm}')
-            chunkchoice = 'c'
+    # ** close_chunk() and next_chunk() could both return the new completion ratio of the
+    # ** Node that owns the previous chunk (or at least a true/false whether completion >= 1.0)
+    # ** and that could be used to check with the caller whether the Node really should
+    # ** be considered completed. If not, then there is an opportunity to change the
+    # ** time required or to set a guess for the actual completion ratio.
 
+    if config['transition']:
+        pause_key('synchronize back to Formalizer 1.x',config['addpause'])
+        transition_dil2al_request(node, args)
+
+    # remove any T_emulate as we proceed through the next time interval
+    args.T_emulate = None 
+    pause_key('start the chunk timer',config['addpause'])
+    set_chunk_timer_and_alert(args)
     return chunkchoice
 
 # ----- end: Local variables and functions -----
