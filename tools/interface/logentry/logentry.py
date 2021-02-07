@@ -74,6 +74,7 @@ version = "0.1.0-0.1"
 config['logentrytmpfile'] = '/tmp/logentry.html'
 config['customtemplate'] = '/tmp/customtemplate'
 config['confirm_not_chunknode'] = True
+#config['autoremove_sameentrynode'] = True
 # config['editor'] = 'emacs' # reading this from config/fzsetup.py/config.json now
 # config['transition'] = 'true' # reading this from config/fzsetup.py/config.json now
 
@@ -207,6 +208,7 @@ def entry_belongs_to_same_or_other_Node():
     return node
 
 
+# configurable test: autoremove_sameentrynode
 def check_same_as_chunk(node):
     if not config['autoremove_sameentrynode']:
         return node

@@ -102,6 +102,10 @@ except FileNotFoundError:
 if config['transition']:
     from fztask_transition import transition_dil2al_request
 
+# tools components
+import logentry as le
+le.config['verbose'] = config['verbose']
+
 
 def parse_options():
     theepilog = ('See the Readme.md in the fztask.py source directory for more information.\n')
@@ -194,8 +198,6 @@ def alert_ansi():
 
 
 def make_log_entry():
-    import logentry as le
-    le.config['verbose'] = config['verbose']
     le.logentry_ansi()
     le.make_log_entry()
 
