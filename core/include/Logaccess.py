@@ -8,6 +8,7 @@ a Log, which is sometimes combined with data from the Graph.
 Versioning is based on https://semver.org/. See coreversion.hpp for more.
 """
 
+import re
 from error import *
 from fzcmdcalls import *
 

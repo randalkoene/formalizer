@@ -396,6 +396,13 @@ def update_schedule(args):
     print('')
 
 
+def refresh_Next_Nodes_and_Recent_Log():
+    nextnodes_refresh_cmd = "xwininfo -name 'fz: Next Nodes' | xdotool"
+    recentlog_refresh_cmd = ''
+    retcode = try_subprocess_check_output(nextnodes_refresh_cmd, 'refresh_nextnodes_res', config)
+    retcode = try_subprocess_check_output(recentlog_refresh_cmd, 'refresh_recentlog_res', config)
+
+
 def next_chunk(args):
     # Closing the previous chunk is automatically done as part of this in fzlog.
     pause_key('select next Node',config['addpause'])
@@ -478,7 +485,9 @@ def chunk_interval_alert():
     exit_error(retcode, f'Call to formalizer-alert.sh failed.{cmderrorreviewstr}', True)
     fztask_ansi()
     if (retcode != 0):
+        print('++DEBUG: r')
         return 'r'
+    print('++DEBUG: N')
     return 'N'
 
 
@@ -497,6 +506,8 @@ def chunk_interval_interrupted(args):
         while not valid_T_emulate:
             T_candidate = input('\nNew emulated time (YYYYmmddHHMM): ')
             valid_T_emulate = simple_emulated_time_check(T_candidate, args)
+    print(f'++DEBUG: {proceed_choice}')
+    return proceed_choice
 
 
 def set_chunk_timer_and_alert(args):
@@ -510,6 +521,7 @@ def set_chunk_timer_and_alert(args):
 
         except KeyboardInterrupt:
             proceed_choice = chunk_interval_interrupted(args)
+        print(f'++DEBUG: received = {proceed_choice}')
 
 
 def task_control(args):
@@ -530,6 +542,7 @@ def task_control(args):
     pause_key('update schedule',config['addpause'])
 
     update_schedule(args)
+    refresh_Next_Nodes_and_Recent_Log()
 
     node = ''
     if (chunkchoice !='c'):

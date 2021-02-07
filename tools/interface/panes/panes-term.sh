@@ -7,8 +7,9 @@
 FORMALIZERDOTDIR=$HOME/.formalizer
 FORMALIZERBASEDIR=$HOME/src/formalizer
 
+
 if [ "$1" = "-h" ]; then
-	echo "Usage: panes-term.sh"
+	echo "Usage: panes-term.sh [-h|-R]"
 	echo ""
 	echo "Uses w3m to open 4 panes in X terminals displaying the most"
 	echo "commonly used interactive and informational web pages for"
@@ -16,6 +17,11 @@ if [ "$1" = "-h" ]; then
 	echo "Recent Log chunks and entries, a day's time Logged and"
 	echo "upcoming in 5 minute intervals, and an Index to System"
 	echo "and Formalizer pages."
+	echo ""
+	echo "Options:"
+	echo ""
+	echo "  -R  Refresh panes."
+	echo "  -h  Show this help page."
 	echo ""
 	echo "This script auto-detects desktop size and calls the"
 	echo "monitor.sh script to adjust font sizes accordingly."
@@ -41,6 +47,20 @@ if [ $? -ne 0 ]; then
 			notifyarg=''
 		fi
 	fi
+fi
+
+if [ "$1" = "-R" ]; then
+
+	which xdotool > /dev/null
+	if [ $? -ne 0 ]; then
+		${notifycmd} ${notifyarg} "Please install xdotool to refresh panes."
+		exit 1
+	fi
+	xdotool search --name 'fz: Next Nodes' key "R"
+	xdotool search --name 'fz: Recent Log' key "R"
+	xdotool search --name 'fz: Log Time' key "R"
+	exit 0
+
 fi
 
 which thisdesktop-geometry.sh > /dev/null

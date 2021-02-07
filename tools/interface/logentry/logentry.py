@@ -180,11 +180,18 @@ def entry_belongs_to_same_or_other_Node():
             node = browse_for_Node(config)
             chosen_desc = selected_Node_description(config, 60)
         else:
-            if ((int(choice) >= 0) & (int(choice) < shortlist.size)):
-                node = shortlist.nodes.splitlines()[int(choice)]
-                chosen_desc = shortlist.vec[int(choice)]
+            if (choice == 'd'):
+                print(f'Log entry belongs to the same Node as the Log chunk.')
+                logentry_ansi()
+                return '' # default
+            if ((choice >= '0') and (choice <= '9')):
+                if (int(choice) < shortlist.size):
+                    node = shortlist.nodes.splitlines()[int(choice)]
+                    chosen_desc = shortlist.vec[int(choice)]
+                else:
+                    node = ''
             else:
-                node = '' # default
+                node = ''
 
         if node:
             node = node.decode()
@@ -195,7 +202,7 @@ def entry_belongs_to_same_or_other_Node():
                 if (confirmothernode != 'y'):
                     node = '?'
         else:
-            print(f'Log entry belongs to the same Node as the Log chunk.')
+            node = '?'
     logentry_ansi()
     return node
 

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=fzserverpqd
+Comment=FZ Graph Server Daemon
+Exec=urxvt -bg cyan -rv -e fzserverpqd.sh
+StartupWMClass=fzserverpq
+Terminal=false
+Type=Application
+Icon=/home/randalk/.formalizer/config/fzserverpq/fzserverpq.png
+StartupNotify=true
