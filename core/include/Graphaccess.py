@@ -89,7 +89,7 @@ def get_node_data(node: str, param_labels: str, config: dict):
         return 'unknown', '20'
     else:
         # *** temporary version only works for 'tdproperty, required'
-        nodedata = results['nodedata'].split('\n')
+        nodedata = results['nodedata'].split(b'\n')
         required = nodedata[2].decode()
         tdproperty = nodedata[5].decode()
         return tdproperty, required
