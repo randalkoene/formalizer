@@ -74,7 +74,8 @@ version = "0.1.0-0.1"
 config['logentrytmpfile'] = '/tmp/logentry.html'
 config['customtemplate'] = '/tmp/customtemplate'
 config['confirm_not_chunknode'] = True
-#config['autoremove_sameentrynode'] = True
+config['autoremove_sameentrynode'] = True
+config['refresh_recentlog_pane'] = True
 # config['editor'] = 'emacs' # reading this from config/fzsetup.py/config.json now
 # config['transition'] = 'true' # reading this from config/fzsetup.py/config.json now
 
@@ -271,6 +272,12 @@ def transition_dil2al_polldaemon_request(node):
     print('Log entry synchronized to Formalizer 1.x files.')
 
 
+def refresh_recent_Log_pane():
+    if config['refresh_recentlog_pane']:
+        refresh_cmd = 'panes-term.sh -L'
+        retcode = try_subprocess_check_output(refresh_cmd, 'refresh_recentlog_pane', config)
+
+
 # Call this function when logentry.py is imported into another script.
 def make_log_entry():
     make_content_file()
@@ -287,6 +294,7 @@ def make_log_entry():
     node = entry_belongs_to_same_or_other_Node()
 
     send_to_fzlog(node)
+    refresh_recent_Log_pane()
 
     if config['transition']:
         transition_dil2al_polldaemon_request(node)

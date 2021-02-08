@@ -4,5 +4,6 @@
     "logentry_cmdlog": "/tmp/logentry-cmdcalls.log",
     "logentry_logcmdcalls": false,
     "confirm_not_chunknode": true,
-    "autoremove_sameentrynode" : true
+    "autoremove_sameentrynode" : true,
+    "refresh_recentlog_pane" : true
 }
