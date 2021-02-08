@@ -1,6 +1,27 @@
 # Import this to use the transition option in fztask, so that Formalizer 1.x
 # dil2al operations are requested.
 
+
+def get_main_topic(node):
+    # *** This can be made easier if there is a simple way to get just a a specific
+    #     parameter of a node, for example through the direct TCP-port API.
+    #     E.g. could call fzgraph -C or curl with the corresponding URL.
+    customtemplate = '{{ topics }}'
+    with open(config['customtemplate'],'w') as f:
+        f.write(customtemplate)
+    customtemplatefile = config['customtemplate']
+    topicgettingcmd = f"fzgraphhtml -q -T 'Node={customtemplatefile}' -n {node}"
+    retcode = try_subprocess_check_output(topicgettingcmd, 'topic', config)
+    cmderrorreviewstr = config['cmderrorreviewstr']
+    exit_error(retcode, f'Attempt to get Node topic failed.{cmderrorreviewstr}', True)
+    if (retcode == 0):
+        topic = results['topic'].split()[0]
+        topic = topic.decode()
+    else:
+        topic = ''
+    return topic
+
+
 def set_DIL_entry_preset(node):
     topic = get_main_topic(node)
     dilpreset = f'{topic}.html#{node}:!'

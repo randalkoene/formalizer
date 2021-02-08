@@ -80,6 +80,8 @@ version = "0.1.0-0.1"
 # local defaults
 config['customtemplate'] = '/tmp/customtemplate'
 config['addpause'] = False
+config['chunkminutes'] = 20
+config['exact_Node_intervals'] = True
 #config['cmdlog'] = '/tmp/fztask-cmdcalls.log' -- this is now in fzsetup.py/config.json
 #config['logcmdcalls'] = False -- this is now in fzsetup.py/config.json
 #config['cmderrlog'] = '/tmp/cmdcalls-errors.log' -- this is now in fzsetup.py/config.json
@@ -426,27 +428,9 @@ def next_chunk(args):
     return node
 
 
-def get_main_topic(node):
-    # *** This can be made easier if there is a simple way to get just a a specific
-    #     parameter of a node, for example through the direct TCP-port API.
-    #     E.g. could call fzgraph -C or curl with the corresponding URL.
-    customtemplate = '{{ topics }}'
-    with open(config['customtemplate'],'w') as f:
-        f.write(customtemplate)
-    customtemplatefile = config['customtemplate']
-    topicgettingcmd = f"fzgraphhtml -q -T 'Node={customtemplatefile}' -n {node}"
-    retcode = try_subprocess_check_output(topicgettingcmd, 'topic', config)
-    cmderrorreviewstr = config['cmderrorreviewstr']
-    exit_error(retcode, f'Attempt to get Node topic failed.{cmderrorreviewstr}', True)
-    if (retcode == 0):
-        topic = results['topic'].split()[0]
-        topic = topic.decode()
-    else:
-        topic = ''
-    return topic
-
-
 def get_completion_required(node):
+    # *** This function is presently not yet being used, but see the note further
+    #     below about testing completion >= 1.0.
     # *** This can be made easier if there is a simple way to get just a a specific
     #     parameter of a node, for example through the direct TCP-port API.
     #     E.g. could call fzgraph -C or curl with the corresponding URL.
@@ -507,17 +491,31 @@ def chunk_interval_interrupted(args):
     return proceed_choice
 
 
-def set_chunk_timer_and_alert(args):
+def set_interval_duration(node):
+    if not config['exact_Node_intervals']:
+        return 60*config['chunkminutes']
+    tdproperty, required = get_node_data(node, 'tdproperty, required', config)
+    print(f'--DEBUG: tdproperty={tdproperty}, required={required}')
+    tdproperty='debug'
+    if (tdproperty == 'exact'):
+        return int(required)
+    else:
+        return 60*config['chunkminutes']
+    
+
+def set_chunk_timer_and_alert(args, node):
     # It looks like I can just run the same formalizer-alert.sh that dil2al was using.
+    interval_seconds = set_interval_duration(node)
     proceed_choice = 'r'
     while (proceed_choice == 'r'):
-        print('Setting chunk duration: 20 mins. Chunk starts now.')
+        print(f'Setting chunk duration: {interval_seconds/60} mins. Chunk starts now.')
         try:
             time.sleep(1200)
             proceed_choice = chunk_interval_alert()
 
         except KeyboardInterrupt:
             proceed_choice = chunk_interval_interrupted(args)
+        interval_seconds = 60*config['chunkminutes'] # resume for only 20 minutes (this could be improved)
 
 
 def task_control(args):
@@ -562,7 +560,7 @@ def task_control(args):
     # remove any T_emulate as we proceed through the next time interval
     args.T_emulate = None 
     pause_key('start the chunk timer',config['addpause'])
-    set_chunk_timer_and_alert(args)
+    set_chunk_timer_and_alert(args, node)
     return chunkchoice
 
 # ----- end: Local variables and functions -----

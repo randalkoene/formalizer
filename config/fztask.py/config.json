@@ -4,5 +4,7 @@
     "cmdlog": "/tmp/fztask-cmdcalls.log",
     "logcmdcalls": false,
     "confirmchunknode": true,
-    "recommend_noupdate_ifTemulated": true
+    "recommend_noupdate_ifTemulated": true,
+    "chunkminutes": 20,
+    "exact_Node_intervals": true
 }
