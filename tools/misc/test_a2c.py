@@ -36,9 +36,15 @@ sys.path.append(fzcorelibdir)
 sys.path.append(fzcoreincludedir)
 
 from fzcmdcalls import *
+from Logaccess import *
 
-customtemplate = r'STR:{{ t_chunkopen }} {{ t_diff_mins }} {{ node_id }}\\n'
-thecmd = f"fzloghtml -r -D 5 -N -T 'STR:{customtemplate}'"
-retcode = try_subprocess_check_output(thecmd, 'logres', config)
+if not get_Log_days_data(10, config):
+    sys.exit(1)
+
+logdatavec = results['recentlogdata'].split(b'\n')
 
 # *** Consider combining this experiment with the work on tools/system/metrics/sysmet-extract.
+
+# *** But note also the comments on the Trello Board about the utility of having an efficient fzlogmap and
+#     fzloggroup tool and corresponding library functions.
+

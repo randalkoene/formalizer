@@ -54,3 +54,12 @@ class ShortList:
                 printableline = pattern.sub(' ',line).strip()
                 print(f' {number}: {printableline}')
 
+
+def get_Log_days_data(numdays: int, config: dict):
+    thecmd = f"fzloghtml -D {numdays} -r -T 'STR:{{{{ t_chunkopen }}}} {{{{ t_chunkclose }}}} {{{{ t_diff_mins }}}} {{{{ node_id }}}}\n' -o STDOUT -N -q"
+    retcode = try_subprocess_check_output(thecmd, 'recentlogdata', config)
+    exit_error(retcode, 'Attempt to get recent Log data failed.', True)
+    if (retcode != 0):
+        return False
+    return True
+

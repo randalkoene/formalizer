@@ -495,8 +495,8 @@ def set_interval_duration(node):
     if not config['exact_Node_intervals']:
         return 60*config['chunkminutes']
     tdproperty, required = get_node_data(node, 'tdproperty, required', config)
-    print(f'--DEBUG: tdproperty={tdproperty}, required={required}')
-    tdproperty='debug'
+    #print(f'--DEBUG: tdproperty={tdproperty}, required={required}')
+    #tdproperty='debug'
     if (tdproperty == 'exact'):
         return int(required)
     else:
