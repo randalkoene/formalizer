@@ -143,6 +143,36 @@ key_sorted_Nodes Nodes_created_in_time_interval(Graph & graph, time_t earliest, 
  */
 targetdate_sorted_Nodes Nodes_with_topic_by_targetdate(Graph & graph, Topic_ID id);
 
+/**
+ * Data structure that specifies Node grouping categories.
+ */
+struct Set_builder_data {
+    std::map<std::string, std::string> NNL_to_category;
+    std::map<std::string, std::string> LV_to_category;
+    std::map<std::string, std::string> Topic_to_category;
+    std::string default_category;
+
+    /**
+     * Assign a category to a Node.
+     * 
+     * This returns a reference to `cat_cache`, which is where the assigned category
+     * string is cached. The categorization rules are applied in the following
+     * priority order:
+     *   1. pre-existing non-empty cache value
+     *   2. category of a Named Node List in NNL_to_category in which node is found
+     *   3. category of a Label-Value in LV_to_category for a Label the node has
+     *   4. category of a Topic tag in Topic_to_category that is a Topic of the node with
+     *      higher relevance value than other Topics of the node found in Topic_to_category
+     *   5. the default_category, if not empty
+     * 
+     * @param graph Valid Graph in which to find Named Node Lists.
+     * @param node The Node for which to find the appropriate category.
+     * @param cat_cache Reference to a string cache in which to store a category.
+     * @return Reference to `cat_cache`.
+     */
+    std::string & node_category(Graph & graph, Node & node, std::string & cat_cache);
+};
+
 } // namespace fz
 
 #endif // __GRAPHINFO_HPP

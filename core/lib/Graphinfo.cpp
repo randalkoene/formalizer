@@ -351,4 +351,66 @@ targetdate_sorted_Nodes Nodes_with_topic_by_targetdate(Graph & graph, Topic_ID i
     return nodes; // automatic copy elision std::move(nodes);
 }
 
+/**
+ * Assign a category to a Node.
+ * 
+ * This returns a reference to `cat_cache`, which is where the assigned category
+ * string is cached. The categorization rules are applied in the following
+ * priority order:
+ *   1. pre-existing non-empty cache value
+ *   2. category of a Named Node List in NNL_to_category in which node is found
+ *   3. category of a Label-Value in LV_to_category for a Label the node has
+ *   4. category of a Topic tag in Topic_to_category that is a Topic of the node with
+ *      higher relevance value than other Topics of the node found in Topic_to_category
+ *   5. the default_category, if not empty
+ * 
+ * @param graph Valid Graph in which to find Named Node Lists.
+ * @param node The Node for which to find the appropriate category.
+ * @param cat_cache Reference to a string cache in which to store a category.
+ * @return Reference to `cat_cache`.
+ */
+std::string & Set_builder_data::node_category(Graph & graph, Node & node, std::string & cat_cache) {
+    if (!cat_cache.empty()) {
+        return cat_cache;
+    }
+
+    for (const auto & [list_name, category] : NNL_to_category) {
+        // *** to be implemented, look for node in list_name
+        Named_Node_List_ptr nnl_ptr = graph.get_List(list_name);
+        if (nnl_ptr) {
+            nnl_ptr->contains(node.get_id().key()) {
+                cat_cache = category;
+                return cat_cache;
+            }
+        }
+    }
+
+    for (const auto & [label, category] : LV_to_category) {
+        // *** to be implemented, look for label in node's Label-Value pairs
+    }
+    if (!cat_cache.empty()) {
+        return cat_cache;
+    }
+
+    float maxrel = -1.0;
+    for (const auto & [topictag, category] : Topic_to_category) {
+        // *** to be implemented, look for topictag in node's Topics, remember relevance, keep max
+        //float topicrel;
+        //if (node.in_topic(topictag, topicrel)) { // *** need to implement this Node method
+        //    if (topicrel > maxrel) {
+        //        maxrel = topicrel;
+        //        cat_cache = category;
+        //    }
+        //}
+    }
+    if (!cat_cache.empty()) {
+        return cat_cache;
+    }
+
+    if (!default_category.empty()) {
+        cat_cache = default_category;
+    }
+    return cat_cache;
+}
+
 } // namespace fz

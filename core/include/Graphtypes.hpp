@@ -670,6 +670,9 @@ public:
     int16_t get_features() { return features; }
     int32_t get_maxsize() { return maxsize; }
     size_t size() { return list.size(); }
+    bool contains(const Node_ID_key & nkey) {
+        return (std::find(list.begin(), list.end(), nkey) != list.end());
+    }
 };
 typedef Named_Node_List * Named_Node_List_ptr; // use this pointer only within the context of one program (not to be stored in shared memory)
 typedef std::pair<const Named_List_String, Named_Node_List> Named_Node_List_Map_value_type;

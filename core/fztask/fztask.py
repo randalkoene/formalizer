@@ -414,6 +414,22 @@ def refresh_panes():
     retcode = try_subprocess_check_output(refresh_cmd, 'refresh_panes', config)
 
 
+def open_chunk(node, args):
+    pause_key('open new chunk',config['addpause'])
+    thecmd = 'fzlog -c ' + node
+    if args.T_emulate:
+        thecmd += ' -t ' + args.T_emulate
+    else:
+        # this was added to prevent a gap due to time taken while selecting (see FIX THIS list item in https://trello.com/c/I2f2kvmc)
+        thecmd += ' -t ' + last_T_close
+    if config['verbose']:
+        thecmd += ' -V'
+    retcode = try_subprocess_check_output(thecmd, 'fzlog_res', config)
+    cmderrorreviewstr = config['cmderrorreviewstr']
+    exit_error(retcode, f'Attempt to open new Log chunk failed.{cmderrorreviewstr}', True)
+    return retcode
+
+
 def next_chunk(args):
     # Closing the previous chunk is automatically done as part of this in fzlog.
     pause_key('select next Node',config['addpause'])
@@ -421,15 +437,7 @@ def next_chunk(args):
     if not node:
         exit_error(1, 'Attempt to select Node for new Log chunk failed.', True)
     else:
-        pause_key('open new chunk',config['addpause'])
-        thecmd = 'fzlog -c ' + node
-        if args.T_emulate:
-            thecmd += ' -t ' + args.T_emulate
-        if config['verbose']:
-            thecmd += ' -V'
-        retcode = try_subprocess_check_output(thecmd, 'fzlog_res', config)
-        cmderrorreviewstr = config['cmderrorreviewstr']
-        exit_error(retcode, f'Attempt to open new Log chunk failed.{cmderrorreviewstr}', True)
+        retcode = open_chunk(node, args)
         if (retcode == 0):
             print(f'Opened new Log chunk for Node {node}.')
         else:
@@ -539,7 +547,7 @@ def task_control(args):
     # close the chunk first, then update the schedule, and use the resulting
     # information for an informed choice.
     pause_key('close current chunk',config['addpause'])
-    close_chunk(args)
+    close_chunk(args) # from here-on last_T_close contains the t_close of the preceding chunk
 
     pause_key('update schedule',config['addpause'])
     update_schedule(args)
@@ -567,7 +575,7 @@ def task_control(args):
         transition_dil2al_request(node, args)
 
     # remove any T_emulate as we proceed through the next time interval
-    args.T_emulate = None 
+    args.T_emulate = None
     last_node = node
     pause_key('start the chunk timer',config['addpause'])
     set_chunk_timer_and_alert(args, node)
