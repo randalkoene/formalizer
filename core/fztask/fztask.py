@@ -112,7 +112,7 @@ le.config['verbose'] = config['verbose']
 def parse_options():
     theepilog = ('See the Readme.md in the fztask.py source directory for more information.\n')
 
-    parser = argparse.ArgumentParser(description='{{ brief_title }}.',epilog=theepilog)
+    parser = argparse.ArgumentParser(description='Formalizer task control.',epilog=theepilog)
     parser.add_argument('-d', '--database', dest='dbname', help='specify database name (default: formalizer)')
     parser.add_argument('-s', '--schema', dest='schemaname', help='specify schema name (default: $USER)')
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='turn on verbose mode')
