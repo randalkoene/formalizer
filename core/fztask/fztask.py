@@ -87,6 +87,7 @@ config['exact_Node_intervals'] = True
 #config['cmderrlog'] = '/tmp/cmdcalls-errors.log' -- this is now in fzsetup.py/config.json
 #config['logcmderrors'] = False -- this is now in fzsetup.py/config.json
 
+last_node = ''
 last_T_close = ''
 
 # Potentially replace defaults with values from fztask config file
@@ -141,6 +142,7 @@ def parse_options():
 
 
 def get_most_recent_chunk():
+    global last_node
     thecmd = 'fzloghtml -R -o STDOUT -N -F raw -q'
     retcode = try_subprocess_check_output(thecmd, 'recentlog', config)
     cmderrorreviewstr = config['cmderrorreviewstr']
@@ -148,6 +150,7 @@ def get_most_recent_chunk():
     if (retcode == 0):
         results['recentlog'] = results['recentlog'].decode()
         chunk_data = results['recentlog'].split()
+        last_node = chunk_data[2]
     else:
         chunk_data = []
     return chunk_data
@@ -155,12 +158,13 @@ def get_most_recent_chunk():
 
 def check_emulated_time():
     global last_T_close
+    recent_chunk = get_most_recent_chunk()
     if args.T_emulate:
         if (is_TimeStamp(args.T_emulate)):
             if (is_Future(args.T_emulate)):
-                exit_error(1, f'Emulated time should normally not be in the furure: {args.T_emulate}.', True)
+                exit_error(1, f'Emulated time should normally not be in the future: {args.T_emulate}.', True)
             else:
-                recent_chunk = get_most_recent_chunk()
+                #recent_chunk = get_most_recent_chunk()
                 if (int(args.T_emulate) <= int(recent_chunk[0])):
                     exit_error(1, 'Emulated time should be later than most recent Log chunk open time.', True)
                 if (recent_chunk[1] == 'CLOSED'):
@@ -248,6 +252,11 @@ def select_Node_for_Log_chunk():
                 node = shortlist.nodes.splitlines()[int(choice)]
                 chosen_desc = shortlist.vec[int(choice)]
 
+        if (node == last_node):
+            print(f'{ANSI_or}The most recent Log chunk belongs to the same Node.{ANSI_sel}')
+            confirmsame = input(f'Is that intentional? ({No_yes(ANSI_sel)}) ')
+            if (confirmsame != 'y'):
+                node = ''
         if node:
             node = node.decode()
             print(f'Log chunk will belong to Node {node}:')
@@ -559,6 +568,7 @@ def task_control(args):
 
     # remove any T_emulate as we proceed through the next time interval
     args.T_emulate = None 
+    last_node = node
     pause_key('start the chunk timer',config['addpause'])
     set_chunk_timer_and_alert(args, node)
     return chunkchoice
