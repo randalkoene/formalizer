@@ -90,9 +90,9 @@ def get_node_data(node: str, param_labels: str, config: dict):
     else:
         # *** temporary version only works for 'tdproperty, required'
         nodedata = results['nodedata'].split(b'\n')
-        required = nodedata[2].decode()
+        required_mins = nodedata[2].decode()
         tdproperty = nodedata[5].decode()
-        return tdproperty, required
+        return tdproperty, required_mins
 
 
 def get_main_topic(node: str, config: dict):

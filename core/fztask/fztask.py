@@ -494,11 +494,11 @@ def chunk_interval_interrupted(args):
 def set_interval_duration(node):
     if not config['exact_Node_intervals']:
         return 60*config['chunkminutes']
-    tdproperty, required = get_node_data(node, 'tdproperty, required', config)
+    tdproperty, required_mins = get_node_data(node, 'tdproperty, required', config)
     #print(f'--DEBUG: tdproperty={tdproperty}, required={required}')
     #tdproperty='debug'
     if (tdproperty == 'exact'):
-        return int(required)
+        return 60*int(required_mins)
     else:
         return 60*config['chunkminutes']
     
@@ -508,9 +508,9 @@ def set_chunk_timer_and_alert(args, node):
     interval_seconds = set_interval_duration(node)
     proceed_choice = 'r'
     while (proceed_choice == 'r'):
-        print(f'Setting chunk duration: {interval_seconds/60} mins. Chunk starts now.')
+        print(f'Setting chunk duration: {int(interval_seconds/60)} mins. Chunk starts now.')
         try:
-            time.sleep(1200)
+            time.sleep(interval_seconds)
             proceed_choice = chunk_interval_alert()
 
         except KeyboardInterrupt:
