@@ -375,36 +375,53 @@ std::string & Set_builder_data::node_category(Graph & graph, Node & node, std::s
     }
 
     for (const auto & [list_name, category] : NNL_to_category) {
-        // *** to be implemented, look for node in list_name
         Named_Node_List_ptr nnl_ptr = graph.get_List(list_name);
         if (nnl_ptr) {
-            nnl_ptr->contains(node.get_id().key()) {
+            if (nnl_ptr->contains(node.get_id().key())) {
                 cat_cache = category;
                 return cat_cache;
             }
         }
     }
 
-    for (const auto & [label, category] : LV_to_category) {
+    // *** for (const auto & [label, category] : LV_to_category) {
         // *** to be implemented, look for label in node's Label-Value pairs
-    }
-    if (!cat_cache.empty()) {
-        return cat_cache;
-    }
+    // ***}
 
-    float maxrel = -1.0;
-    for (const auto & [topictag, category] : Topic_to_category) {
-        // *** to be implemented, look for topictag in node's Topics, remember relevance, keep max
-        //float topicrel;
-        //if (node.in_topic(topictag, topicrel)) { // *** need to implement this Node method
-        //    if (topicrel > maxrel) {
-        //        maxrel = topicrel;
-        //        cat_cache = category;
-        //    }
-        //}
-    }
-    if (!cat_cache.empty()) {
-        return cat_cache;
+    /*  3 ways to do this:
+          1. For each Node, for each topic-category pair, search all a Node's Topic-IDs to see if
+             they refer to a tag that corresponds and compare the relevance.
+          2. For each Node, build a tagstring-relevance pair map (usually just containing one
+             entry), and for each entry in that map, try to find the string in the topic-category map.
+          3. Convert topictag-category map to Topic_ID-category map, for each Node get its
+             Topic_ID-relevance map, for each element in that check if it is in the Tc map and compare relevance.
+        The 3rd is probably the overall most efficient.
+     */
+    if (!Topic_to_category.empty()) {
+        if (cache_topicid_to_category.empty()) {
+            std::vector<std::string> topiclabels;
+            for (const auto & [topicstr, category] : Topic_to_category) {
+                topiclabels.push_back(topicstr);
+            }
+            auto topicindexids = graph.get_topics().tags_to_indices(topiclabels);
+            for (size_t i = 0; i < topiclabels.size(); ++i) {
+                cache_topicid_to_category.emplace(topicindexids[i], Topic_to_category[topiclabels[i]]);
+            }
+        }
+        float maxrel = -1.0;
+        const Topics_Set & topicsset = node.get_topics();
+        for (const auto & [topic_id, topic_rel] : topicsset) {
+            auto it = cache_topicid_to_category.find(topic_id);
+            if (it != cache_topicid_to_category.end()) {
+                if (topic_rel > maxrel) {
+                    maxrel = topic_rel;
+                    cat_cache = it->second;
+                }
+            }
+        }
+        if (!cat_cache.empty()) {
+            return cat_cache;
+        }
     }
 
     if (!default_category.empty()) {

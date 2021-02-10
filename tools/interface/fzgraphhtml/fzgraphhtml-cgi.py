@@ -191,6 +191,7 @@ def generate_embeddable_list_of_NNLs_to_add_Node_to():
     print("Content-type:text/html\n\n")
     print(listpagehead.format(node_id=id))
     # Include a remove-from-srclist button if srclist was not empty
+    print(f'<p>Add to [<a href="http://{fzserverpq_addrport}/fz/graph/namedlists/superiors?add={id}">superiors</a>] list / add to [<a href="http://{fzserverpq_addrport}/fz/graph/namedlists/dependencies?add={id}">dependencies</a>] list.</p>\n')
     if srclist:
         print(f'\n<p>Or, <a href="http://{fzserverpq_addrport}/fz/graph/namedlists/{srclist}?remove={id}">[remove from {srclist}]</a></p>\n')
 

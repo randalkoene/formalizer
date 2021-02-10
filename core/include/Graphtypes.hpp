@@ -423,7 +423,11 @@ public:
      * @param _tag a topic tag label
      * @return pointer to Topic object in topictags vector, or NULL if not found.
      */
-    Topic * find_by_tag(std::string _tag);
+    Topic * find_by_tag(const std::string _tag) const;
+
+    std::map<std::string, Topic_ID> tag_by_index() const;
+
+    std::vector<Topic_ID> tags_to_indices(std::vector<std::string> tagsvector) const;
 
     /// friend (utility) functions
     friend bool identical_Topic_Tags(Topic_Tags & ttags1, Topic_Tags & ttags2, std::string & trace);
@@ -580,6 +584,25 @@ public:
      * @return Topic_ID of main Topic.
      */
     Topic_ID main_topic_id();
+
+    /**
+     * Reports if the Node is a member of a specific Topic and optionally returns
+     * the associted relevance value.
+     * 
+     * @param topictag A Topic tag string.
+     * @param topicrel Pointer to a variable that can receive the relevance value (if not nullptr).
+     * @param topictags Optional pointer to the Topic Tags set to use (uses internal graph reference if nullptr).
+     * @return True if the Node is a member of the Topic.
+     */
+    bool in_topic(const std::string topictag, float * topicrel = nullptr, Topic_Tags * topictags = nullptr);
+
+    /**
+     * Returns a Node's Topics and Topic relevance values as a map of Topic tags and floats.
+     * 
+     * @param topictags Optional pointer to the Topic Tags set to use (uses internal graph reference if nullptr).
+     * @return A map of strings to floats representing Topic tags and their respective relevance values.
+     */
+    std::map<std::string, float> Topic_TagRels(Topic_Tags * topictags = nullptr);
 
     const Edges_Set & sup_Edges() const { return supedges; }
     const Edges_Set & dep_Edges() const { return depedges; }
@@ -754,7 +777,7 @@ public:
 
     /// topics table: get topic
     Topic * find_Topic_by_id(Topic_ID _id) { return topics.find_by_id(_id); }
-    Topic * find_Topic_by_tag(std::string _tag) { return topics.find_by_tag(_tag); }
+    Topic * find_Topic_by_tag(const std::string _tag) { return topics.find_by_tag(_tag); }
     std::string find_Topic_Tag_by_id(Topic_ID _id);
     bool topics_exist(const Topics_Set & topicsset); // See how fzserverpq uses this.
 

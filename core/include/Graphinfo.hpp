@@ -152,6 +152,8 @@ struct Set_builder_data {
     std::map<std::string, std::string> Topic_to_category;
     std::string default_category;
 
+    std::map<Topic_ID, std::string> cache_topicid_to_category; // set from within node_category()
+
     /**
      * Assign a category to a Node.
      * 

@@ -6,5 +6,5 @@ Exec=urxvt -bg orange -rv -fade 30 -e logentry -w 3
 StartupWMClass=fzlog
 Terminal=false
 Type=Application
-Icon=/home/randalk/.formalizer/config/logentry/logentry.png
+Icon=/home/randalk/.formalizer/config/logentry.py/logentry.png
 StartupNotify=true

@@ -5,6 +5,7 @@
 
 // std
 #include <iomanip>
+#include <map>
 
 // Boost
 #include <boost/interprocess/exceptions.hpp>
@@ -350,7 +351,7 @@ uint16_t Topic_Tags::find_or_add_Topic(std::string tag, std::string title) {
  * @param _tag a topic tag label
  * @return pointer to Topic object in topictags vector, or NULL if not found.
  */
-Topic * Topic_Tags::find_by_tag(std::string _tag) {
+Topic * Topic_Tags::find_by_tag(const std::string _tag) const {
     if (_tag.empty()) return NULL;
     Topic_String tstr(graphmemman.get_allocator());
     tstr = _tag.c_str();
@@ -358,6 +359,29 @@ Topic * Topic_Tags::find_by_tag(std::string _tag) {
     if (it==topicbytag.end()) return NULL;
     //if (it->second->get_id()>1000) ADDWARNING(__func__,"this seems wrong at iterator for "+it->first+ " at "+std::to_string((long) it->second));
     return it->second.get();
+}
+
+std::map<std::string, Topic_ID> Topic_Tags::tag_by_index() const {
+    std::map<std::string, Topic_ID> tagbyindex;
+    for (const auto & t_ptr : topictags) {
+        if (t_ptr) {
+            tagbyindex.emplace(t_ptr->get_tag().c_str(), t_ptr->get_id());
+        }
+    }
+    return tagbyindex;
+}
+
+std::vector<Topic_ID> Topic_Tags::tags_to_indices(std::vector<std::string> tagsvector) const {
+    std::vector<Topic_ID> tagstoindices;
+    for (const auto & tagstr : tagsvector) {
+        Topic * t_ptr = find_by_tag(tagstr);
+        if (t_ptr) {
+            tagstoindices.push_back(t_ptr->get_id());
+        } else {
+            ADDWARNING(__func__,"could not find topic with tag="+tagstr);
+        }
+    }
+    return tagstoindices;
 }
 
 Node_ID::Node_ID(const ID_TimeStamp _idT): idkey(_idT), idS_cache("") { // , graphmemman.get_allocator()) {
@@ -777,6 +801,59 @@ Topic_ID Node::main_topic_id() {
             main_id = t_id;
     }
     return main_id;
+}
+
+/**
+ * Reports if the Node is a member of a specific Topic and optionally returns
+ * the associted relevance value.
+ * 
+ * @param topictag A Topic tag string.
+ * @param topicrel Pointer to a variable that can receive the relevance value (if not nullptr).
+ * @param topictags Optional pointer to the Topic Tags set to use (uses internal graph reference if nullptr).
+ * @return True if the Node is a member of the Topic.
+ */
+bool Node::in_topic(const std::string topictag, float * topicrel, Topic_Tags * topictags) {
+    if (!topictags) {
+        topictags = const_cast<Topic_Tags *>(&graph.get()->get_topics());
+        if (!topictags) {
+            return false;
+        }
+    }
+    for (const auto & [topic_id, topic_rel] : topics) {
+        Topic * t_ptr = topictags->find_by_id(topic_id);
+        if (t_ptr) {
+            if (topictag == t_ptr->get_tag().c_str()) {
+                if (topicrel) {
+                    (*topicrel) = topic_rel;
+                    return true;
+                }
+            }
+        }   
+    }
+    return false;
+}
+
+/**
+ * Returns a Node's Topics and Topic relevance values as a map of Topic tags and floats.
+ * 
+ * @param topictags Optional pointer to the Topic Tags set to use (uses internal graph reference if nullptr).
+ * @return A map of strings to floats representing Topic tags and their respective relevance values.
+ */
+std::map<std::string, float> Node::Topic_TagRels(Topic_Tags * topictags) {
+    std::map<std::string, float> topictagrels;
+    if (!topictags) {
+        topictags = const_cast<Topic_Tags *>(&graph.get()->get_topics());
+        if (!topictags) {
+            return topictagrels;
+        }
+    }
+    for (const auto & [topic_id, topic_rel] : topics) {
+        Topic * t_ptr = topictags->find_by_id(topic_id);
+        if (t_ptr) {
+            topictagrels.emplace(t_ptr->get_tag().c_str(), topic_rel);
+        }
+    }
+    return topictagrels;
 }
 
 Edge_ID::Edge_ID(Edge_ID_key _idkey): idkey(_idkey), idS_cache("") { //, graphmemman.get_allocator()) {
