@@ -18,12 +18,12 @@ import socket
 #import time
 #from datetime import datetime
 
-ANSI_wt = '\u001b[38;5;15m'
-ANSI_gn = '\u001b[38;5;47m'
-ANSI_rd = '\u001b[38;5;202m'
-ANSI_yb = '\u001b[33;1m'
-ANSI_alert = '\u001b[31m'
-ANSI_nrm = '\u001b[32m'
+#ANSI_wt = '\u001b[38;5;15m'
+#ANSI_gn = '\u001b[38;5;47m'
+#ANSI_rd = '\u001b[38;5;202m'
+#ANSI_yb = '\u001b[33;1m'
+#ANSI_alert = '\u001b[31m'
+#ANSI_nrm = '\u001b[32m'
 
 # Standardized expectations.
 userhome = os.getenv('HOME')
@@ -94,6 +94,7 @@ config['logcmdcalls'] = False
 # core components
 import Graphpostgres
 import coreversion
+from ansicolorcodes import *
 from standard import *
 from TimeStamp import *
 
@@ -384,18 +385,20 @@ def collect_targetdate(tdproperty: str):
             print('Target date needs to be a proper date and time stamp (e.g. 202101120813).')
             lightgray_ansi()
             targetdate = ''
-        if (not is_Future(targetdate)):
-            alert_ansi()
-            print('Target dates are typically in the future.')
-            lightgray_ansi()
-            continueanyway = input(f'Continue with {targetdate} anyway? ({ANSI_yb}y{ANSI_nrm}/{ANSI_gn}N{ANSI_nrm}) ')
-            if (continueanyway != 'y'):
-                targetdate = ''
-        if (tdproperty=='variable'):
-            if not check_variable_targetdate_unique(targetdate):
+        else:
+            if (not is_Future(targetdate)):
+                alert_ansi()
+                print('Target dates are typically in the future.')
+                lightgray_ansi()
                 continueanyway = input(f'Continue with {targetdate} anyway? ({ANSI_yb}y{ANSI_nrm}/{ANSI_gn}N{ANSI_nrm}) ')
                 if (continueanyway != 'y'):
                     targetdate = ''
+            if targetdate:
+                if (tdproperty=='variable'):
+                    if not check_variable_targetdate_unique(targetdate):
+                        continueanyway = input(f'Continue with {targetdate} anyway? ({ANSI_yb}y{ANSI_nrm}/{ANSI_gn}N{ANSI_nrm}) ')
+                        if (continueanyway != 'y'):
+                            targetdate = ''
     return targetdate
 
 
@@ -489,13 +492,20 @@ def collect_topics():
     get_topics()
     global topics_info
     topics_info += results['topics'].decode()
+    topics_vec = results['topics'].decode().split()
     topics = ''
     while not topics:
         print(topics_info)
         blue_ansi()
         topics = input('Topics (comma separated): ')
+        chosen_topics = topics.split()
+        for tpc in chosen_topics:
+            if (not tpc in topics_vec):
+                print(f'Unrecognized Topic tag: \'{tpc}\'')
+                confirmadd = input(f'Do you wish to add this as a new Topic? ({No_yes(ANSI_bb)})')
+                if (confirmadd != 'y'):
+                    topics = ''
         lightgray_ansi()
-    print('\nBeware: Test to see if the topics exist has not yet been implemented!\n')
     return topics
 
 
