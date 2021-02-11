@@ -1,0 +1,51 @@
+{
+    "SLEEP" : {
+        "NNLs" : "group_sleep"
+    },
+    "IPAB" : {
+        "NNLs" : "group_ipab",
+        "Topics" : "storage,carboncopies,cc-research,cc-operations,eventapp,kernel,goneuro,neurobotx,betterhuman,management,meetings,department-meeting,presentation,poster,entrepreneurship,capital,fund-raising,grant-writing"
+    },
+    "DAYINT" : {
+        "NNLs" : "group_dayint",
+        "Topics" : "raise-kids,ranchwork,consulting,venture-capital-consulting,halcyon-analysis,professorship-and-teaching,career,career-2020,positions,human-resources,opportunity,oop,oop-change,oop-muwbe,oop-wbeproj,oop-wbeorg,oop-perspot,oop-dnwbe,oop-strucemu,oop-nineur,oop-homefin,oop-finsafe,oop-dssponsor,oop-perssys-wbeorg-focus,oop-perssys-staff,oop-dndir,rtt,brand,oop-fundnet,communication,publication,journal,literature,structure,network-dynamics,neuronal-data-extraction,nre,experiments,netmorph,gesn,gesnlib-implementation,components,memory,stm,ltp,responses"
+    },
+    "BUILDSYSTEM" : {
+        "NNLs" : "group_buildsystem",
+        "Topics" : "dil2al,formalizer,system,roadmap,plan"
+    },
+    "SYSTEM" : {
+        "NNLs" : "group_system",
+        "Topics" : "computer-environment,bill-payments,accounting,networking,organization,self-improvement"
+    },
+    "HOBBIES" : {
+        "NNLs" : "group_hobbies",
+        "Topics" : "earth,earthview,mobile-living"
+    },
+    "MEALS" : {
+        "NNLs" : "group_meals"
+    },
+    "SOLO" : {
+        "NNLs" : "group_solo"
+    },
+    "SOCIAL" : {
+        "NNLs" : "group_social",
+        "Topics" : "social,leisure"
+    },
+    "CHORES" : {
+        "NNLs" : "group_chores",
+        "Topics" : "community,family,financial,taxes"
+    },
+    "TRAVEL" : {
+        "NNLs" : "group_travel",
+        "Topics" : "travel"
+    },
+    "WELLBEING" : {
+        "NNLs" : "group_wellbeing",
+        "Topics" : "health"
+    },
+    "other" : {
+        "Topics" : "profiles;contacts;work-groups"
+    },
+    "other" : "DEFAULT"
+}

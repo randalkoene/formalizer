@@ -1,0 +1,18 @@
+{
+    "ACTIONS" : {
+        "NNLs" : "group_actions",
+        "Topics" : "raise-kids,career,career-2020,communication,components,literature,memory,stm,ltp,responses,structure,network-dynamics,neuronal-data-extraction,nre,experiments,netmorph,gesn,gesnlib-implementation,publication,journal,presentation,poster,fund-raising,grant-writing,meetings,department-meeting,opportunity,networking,brand,profiles,management,halcyon-analysis,human-resources,self-improvement,system,venture-capital-consulting,professorship-and-teaching,entrepreneurship,storage,eventapp,neurobotx,carboncopies,cc-research,cc-operations,betterhuman,ranchwork,kernel,neuromem,goneuro,rtt"
+    },
+    "INFRASTRUCTURE" : {
+        "NNLs" : "group_infrastructure",
+        "Topics" : "accounting,computer-environment,contacts,organization,formalizer,dil2al,capital,financial,bill-payments,taxes,plan,roadmap,oop,oop-change,oop-dndir,oop-dnwbe,oop-dssponsor,oop-finsafe,oop-fundnet,oop-homefin,oop-muwbe,oop-nineur,oop-perspot,oop-perssys-staff,oop-perssys-wbeorg-focus,oop-strucemu,oop-wbeorg,oop-wbeproj,travel,work-groups,mobile-living"
+    },
+    "SLEEP" : {
+        "NNLs" : "group_sleep"
+    },
+    "other" : {
+        "NNLs" : "positions,health,community,social,leisure,earth,earthview,family",
+        "Topics" : "profiles;contacts;work-groups"
+    },
+    "other" : "DEFAULT"
+}

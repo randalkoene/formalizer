@@ -253,16 +253,16 @@ def select_Node_for_Log_chunk():
                 chosen_desc = shortlist.vec[int(choice)]
 
         if (node == last_node):
-            print(f'{ANSI_or}The most recent Log chunk belongs to the same Node.{ANSI_sel}')
-            confirmsame = input(f'Is that intentional? ({No_yes(ANSI_sel)}) ')
+            print(f'{ANSI_or}The most recent Log chunk belongs to the same Node.{ANSI_nrm}')
+            confirmsame = input(f'{ANSI_sel}Is that intentional? ({No_yes(ANSI_sel)}) ')
             if (confirmsame != 'y'):
                 node = ''
         if node:
             node = node.decode()
-            print(f'Log chunk will belong to Node {node}:')
+            print(f'{ANSI_sel}Log chunk will belong to Node {node}:')
             print(f'  {ANSI_wt}{chosen_desc}{ANSI_nrm}')
             if config['confirmchunknode']:
-                iscorrectnext = input(f'Is that correct? ({Yes_no(ANSI_sel)}) ')
+                iscorrectnext = input(f'{ANSI_sel}Is that correct? ({Yes_no(ANSI_sel)}) ')
                 if (iscorrectnext == 'n'):
                     node = ''
 
@@ -320,9 +320,9 @@ def update_passed_fixed(args):
         return 2
     diff_num = num - remaining_num
     if (diff_num > 0):
-        print(f'\n  Thank you for manually updating the target dates of {ANSI_yb}{diff_num}{ANSI_nrm}{ANSI_cy} Nodes.')    
+        print(f'\n  {ANSI_cy}Thank you for manually updating the target dates of {ANSI_yb}{diff_num}{ANSI_nrm}{ANSI_cy} Nodes.')    
     if remaining_num:
-        print(f'  Switching {ANSI_yb}{remaining_num}{ANSI_nrm}{ANSI_cy} Nodes to {ANSI_wt}variable{ANSI_nrm}{ANSI_cy} target dates.\n')
+        print(f'  {ANSI_cy}Switching {ANSI_yb}{remaining_num}{ANSI_nrm}{ANSI_cy} Nodes to {ANSI_wt}variable{ANSI_nrm}{ANSI_cy} target dates.\n')
         num_fixed_converted = edit_nodes_in_NNL('passed_fixed','tdproperty','variable')
         if (num_fixed_converted != num):
             exit_error(retcode, f'Attempt to convert fixed to variable target date Nodes failed.', True)
@@ -383,11 +383,11 @@ def update_schedule(args):
         print(f'  {ANSI_lt}Operating in {ANSI_wt}Emulated Time (T_emulate = {args.T_emulate}).{ANSI_nrm}')
         if config['recommend_noupdate_ifTemulated']:
             print(f'  {ANSI_alert}Current configuration recommends NOT to update while in emulated time{ANSI_nrm}.')
-            doitanyway = input(f'  Update anyway? {No_yes(ANSI_upd)} ')
+            doitanyway = input(f'  {ANSI_upd}Update anyway? ({No_yes(ANSI_upd)}) ')
             if (doitanyway != 'y'):
                 return
         addtocmd += ' -t '+args.T_emulate
-        print(f'    Chosen updates will be carried out with \' -t {args.T_emulate}\'.')
+        print(f'    {ANSI_upd}Chosen updates will be carried out with \' -t {args.T_emulate}\'.')
     else:
         print(f'  {ANSI_lt}Operating in {ANSI_wt}Real Time{ANSI_nrm}.')
     if config['verbose']:
@@ -402,7 +402,7 @@ def update_schedule(args):
     exit_error(retcode, f'Attempt to skip passed repeating Nodes failed.{cmderrorreviewstr}', True)
 
     # variable target date Nodes (can be worth doing even if none have been passed)
-    varupdate = input(f'  Update {ANSI_wt}variable{ANSI_upd} target date Nodes? ({Yes_no(ANSI_upd)}) ')
+    varupdate = input(f'  {ANSI_upd}Update {ANSI_wt}variable{ANSI_upd} target date Nodes? ({Yes_no(ANSI_upd)}) ')
     if (varupdate != 'n'):
         print(f'  {ANSI_lt}Updating variable target date Nodes.{ANSI_nrm}')
         thecmd = 'fzupdate -q -E STDOUT -u'+addtocmd
@@ -496,19 +496,19 @@ def chunk_interval_alert():
 
 
 def chunk_interval_interrupted(args):
-    print(f'\n{ANSI_alert}Chunk timer interrupted{ANSI_nrm}. Options:\n')
-    print(f'  - [{ANSI_gn}N{ANSI_nrm}]ew chunk at actual current time.')
-    print(f'  - Never mind, [{ANSI_mg}r{ANSI_nrm}]esume the present chunk.')
-    print(f'  - New chunk at a specified [{ANSI_yb}e{ANSI_nrm}]mulated time.')
-    print(f'  - E[{ANSI_rd}x{ANSI_nrm}]it.')
-    proceed_choice = input('\nYour choice? ')
+    print(f'\n{ANSI_alert}Chunk timer interrupted.{ANSI_nrm} {ANSI_pu}Options:\n')
+    print(f'  - {ANSI_pu}[{ANSI_gn}N{ANSI_nrm}{ANSI_pu}]ew chunk at actual current time.')
+    print(f'  - {ANSI_pu}Never mind, [{ANSI_mg}r{ANSI_nrm}{ANSI_pu}]esume the present chunk.')
+    print(f'  - {ANSI_pu}New chunk at a specified [{ANSI_yb}e{ANSI_nrm}{ANSI_pu}]mulated time.')
+    print(f'  - {ANSI_pu}E[{ANSI_rd}x{ANSI_nrm}{ANSI_pu}]it.{ANSI_nrm}')
+    proceed_choice = input(f'\n{ANSI_sel}Your choice? ')
     if (proceed_choice == 'x'):
-        print('Exiting.')
+        print(f'{ANSI_lt}Exiting.')
         sys.exit(0)
     if (proceed_choice == 'e'):
         valid_T_emulate = False
         while not valid_T_emulate:
-            T_candidate = input('\nNew emulated time (YYYYmmddHHMM): ')
+            T_candidate = input(f'\n{ANSI_sel}New emulated time (YYYYmmddHHMM):{ANSI_nrm} ')
             valid_T_emulate = simple_emulated_time_check(T_candidate, args)
     return proceed_choice
 
@@ -530,7 +530,7 @@ def set_chunk_timer_and_alert(args, node):
     interval_seconds = set_interval_duration(node)
     proceed_choice = 'r'
     while (proceed_choice == 'r'):
-        print(f'Setting chunk duration: {int(interval_seconds/60)} mins. Chunk starts now.')
+        print(f'{ANSI_lt}Setting chunk duration: {ANSI_yb}{int(interval_seconds/60)}{ANSI_nrm}{ANSI_lt} mins. Chunk starts now.')
         try:
             time.sleep(interval_seconds)
             proceed_choice = chunk_interval_alert()
@@ -615,7 +615,7 @@ if __name__ == '__main__':
     while (chunkchoice != 'c'):
         chunkchoice = task_control(args)
 
-    print('\nfztask done.')
+    print(f'\n{ANSI_nrm}fztask done.')
 
     pausekey = pause_key('exit')
 
