@@ -25,6 +25,7 @@ enum flow_options {
     flow_refresh_histories = 2,  /// refresh Node histories cache table
     flow_refresh_namedlists = 3, /// refresh Named Node Lists cache table
     flow_serialized_request = 4, /// make serialized data API request
+    flow_formalizer_time = 5,    /// show current time in Formalizer time-stamp format and UNIX epoch seconds
     flow_NUMoptions
 };
 

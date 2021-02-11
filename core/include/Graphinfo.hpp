@@ -173,6 +173,7 @@ struct Set_builder_data {
      * @return Reference to `cat_cache`.
      */
     std::string & node_category(Graph & graph, Node & node, std::string & cat_cache);
+
 };
 
 } // namespace fz

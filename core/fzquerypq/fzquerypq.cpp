@@ -14,6 +14,7 @@
 #include <filesystem>
 #include <iostream>
 #include <ostream>
+#include <chrono>
 
 // corelib
 //#include "Graphtypes.hpp"
@@ -34,8 +35,8 @@ fzquerypq fzq;
 
 fzquerypq::fzquerypq() : formalizer_standard_program(true), output_format(output_txt), ga(*this, add_option_args, add_usage_top, true), flowcontrol(flow_unknown) {
     COMPILEDPING(std::cout, "PING-fzquerypq().1\n");
-    add_option_args += "n:F:R:Z:";
-    add_usage_top += " [-n <Node-ID>] [-F txt|html] [-R histories] [-Z <serialized-request>]";
+    add_option_args += "n:F:R:Z:T";
+    add_usage_top += " [-n <Node-ID>] [-F txt|html] [-R histories] [-Z <serialized-request>] [-T]";
 }
 
 void fzquerypq::usage_hook() {
@@ -49,6 +50,7 @@ void fzquerypq::usage_hook() {
           "         histories = Node histories cache table\n"
           "         namedlists = Named Node Lists cache table\n"
           "    -Z make serialized data request <serialized_request> (see fzserverpq -h)\n"
+          "    -T show current time time-stamp in Formalizer format and UNIX epoch seconds\n"
     );
 }
 
@@ -100,6 +102,11 @@ bool fzquerypq::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'T': {
+        flowcontrol = flow_formalizer_time;
+        return true;
+    }
+
     }
 
     return false;
@@ -116,6 +123,18 @@ void fzquerypq::init_top(int argc, char *argv[]) {
     //*************** for (int i = 0; i < argc; ++i) cmdargs[i] = argv[i]; // do this before getopt mucks it up
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 }
+
+
+void show_formalizer_time() {
+    VERYVERBOSEOUT("FZ preferred time zone time-stamp, UNIX epoch seconds, and unique TAI time:\n");
+    time_t t = ActualTime(); // *** keep ActualTime() as is or derive from chrono::system_time()::now()?
+    //auto tp = std::chrono::system_clock::from_time_t(t);
+    //using tai_time = std::chrono::time_point<std::chrono::tai_clock, long long>;
+    //auto tz = std::chrono::tai_clock::tai_time();
+
+    FZOUT(TimeStampYmdHM(t)+' '+std::to_string(t)+'\n');
+}
+
 
 int main(int argc, char *argv[]) {
     ERRTRACE;
@@ -143,6 +162,11 @@ int main(int argc, char *argv[]) {
 
     case flow_serialized_request: {
         make_serialized_data_API_request();
+        break;
+    }
+
+    case flow_formalizer_time: {
+        show_formalizer_time();
         break;
     }
 

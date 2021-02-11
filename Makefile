@@ -90,6 +90,7 @@ EXECUTABLES += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-term.sh
 EXECUTABLES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml
 EXECUTABLES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-term.sh
 EXECUTABLES += $(TOOLSPATH)/interface/fzloghtml/fzlog-mostrecent.sh
+EXECUTABLES += $(TOOLSPATH)/interface/fzlogmap/fzlogmap
 EXECUTABLES += $(TOOLSPATH)/interface/fzlogtime/fzlogtime
 EXECUTABLES += $(TOOLSPATH)/interface/fzlogtime/fzlogtime-term.sh
 EXECUTABLES += $(TOOLSPATH)/interface/fzserver-info/fzserver-info
