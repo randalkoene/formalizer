@@ -659,15 +659,3 @@ int main(int argc, char *argv[]) {
 
     return standard.completed_ok();
 }
-
-/*
-    FZOUT("TESTING CONFIGURATION LOADING!\n");
-    FZOUT("Configuration parameters were set to:\n");
-    FZOUT("  dbname        : "+fzlh.ga.dbname()+'\n');
-    FZOUT("  pq_schemaname : "+fzlh.ga.pq_schemaname()+'\n');p
-    FZOUT("  testconfig    : "+fzlh.config.testconfig+'\n');
-    FZOUT("  errlogpath    : "+ErrQ.get_errfilepath()+'\n');
-    FZOUT("  warnlogpath    : "+WarnQ.get_errfilepath()+'\n');
-
-    return standard.completed_ok();
-*/
