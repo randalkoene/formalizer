@@ -366,10 +366,10 @@ def skip_passed_repeats(args, addtocmd):
         ANSI_Yes_no_inspect = f'{ANSI_gn}Y{ANSI_upd}es/{ANSI_rd}n{ANSI_upd}no/[{ANSI_yb}i{ANSI_upd}]nspect'
         skippassedrepeats = input(f'  Skip {ANSI_yb}{num}{ANSI_nrm}{ANSI_cy} {ANSI_wt}passed repeating{ANSI_upd} Nodes? ({ANSI_Yes_no_inspect}) ')
         if (skippassedrepeats == 'n'):
-            printf(f'  {ANSI_lt}Not skipping.{ANSI_upd}')
+            print(f'  {ANSI_lt}Not skipping.{ANSI_upd}')
             return 0
         if (skippassedrepeats != 'i'):
-            printf(f'  {ANSI_lt}Skipping {num} passed repeating Nodes.{ANSI_upd}')
+            print(f'  {ANSI_lt}Skipping {num} passed repeating Nodes.{ANSI_upd}')
             thecmd = 'fzupdate -q -E STDOUT -r'+addtocmd
             return try_subprocess_check_output(thecmd, 'passedrepeatsskip', config)
         retcode = inspect_passed_repeating()
@@ -404,7 +404,7 @@ def update_schedule(args):
     # variable target date Nodes (can be worth doing even if none have been passed)
     varupdate = input(f'  Update {ANSI_wt}variable{ANSI_upd} target date Nodes? ({Yes_no(ANSI_upd)}) ')
     if (varupdate != 'n'):
-        print(f'  {ANSI_lt}Updating variable target date Nodes.{ANSI_nrm}.')
+        print(f'  {ANSI_lt}Updating variable target date Nodes.{ANSI_nrm}')
         thecmd = 'fzupdate -q -E STDOUT -u'+addtocmd
         retcode = try_subprocess_check_output(thecmd, 'varupdate', config)
         exit_error(retcode, f'Attempt to update variable target date Nodes failed.{cmderrorreviewstr}', True)

@@ -86,6 +86,7 @@ jsonlite_lines json_get_param_value_lines(std::string & configcontentstr) {
     if (configcontentstr.back()=='}') { // no big deal if it's missing
         configcontentstr.pop_back();
     }
+    //rtrim(configcontentstr);
     // split at the commas
     return split(configcontentstr,',');
 }

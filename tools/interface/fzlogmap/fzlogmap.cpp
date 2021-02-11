@@ -26,6 +26,8 @@
 #include "standard.hpp"
 #include "general.hpp"
 #include "TimeStamp.hpp"
+#include "stringio.hpp"
+#include "jsonlite.hpp"
 
 // local
 #include "version.hpp"
@@ -45,8 +47,8 @@ fzlogmap fzlm;
  */
 fzlogmap::fzlogmap() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
                          iscale(interval_none), interval(0), noframe(false), recent_format(most_recent_html) {
-    add_option_args += "1:2:o:D:H:w:Nc:rRF:T:";
-    add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
+    add_option_args += "1:2:o:D:H:w:Nc:rRF:T:f:";
+    add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-F <raw|txt|html>] [-T <file|'STR:string'>] [-f <groupsfile>]";
     usage_head.push_back("Generate Mapping of requested Log records.\n");
     usage_tail.push_back(
         "The <time-stamp1> and <time-stamp_2> arguments expect standardized\n"
@@ -78,6 +80,7 @@ void fzlogmap::usage_hook() {
           "    -F format of most recent Log data:\n"
           "       raw, txt, html (default)\n"
           "    -T use custom template from file or string (if 'STR:')\n"
+          "    -f read category group specifications from <groupsfile>\n"
           "    -o write HTML Log interval to <outputfile> (default=STDOUT)\n"
           "    -N no HTML page frame\n");
 }
@@ -181,6 +184,11 @@ bool fzlogmap::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'f': {
+        fzlm.config.categoryfile = cargs;
+        return true;
+    }
+
     }
 
     return false;
@@ -190,6 +198,7 @@ bool fzlogmap::options_hook(char c, std::string cargs) {
 bool fzlm_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     CONFIG_TEST_AND_SET_PAR(dest, "outputfile", parlabel, parvalue);
     CONFIG_TEST_AND_SET_PAR(interpret_text, "interpret_text", parlabel, config_parse_text_interpretation(parvalue));
+    CONFIG_TEST_AND_SET_PAR(categoryfile, "categoryfile", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
 
@@ -448,6 +457,7 @@ struct Minute_Record_Map {
 };
 
 // *** probably move this to a library as well
+typedef std::set<std::string> category_set_t;
 typedef std::map<Node_ptr, std::string> node_category_caches_t;
 struct Node_Category_Cache_Map {
     node_category_caches_t nodecatcache;
@@ -462,6 +472,22 @@ struct Node_Category_Cache_Map {
 
     size_t num_nodes() {
         return nodecatcache.size();
+    }
+
+    void category_set(category_set_t & categories) {
+        VERYVERBOSEOUT("Categories: ")
+        for (const auto & [nptr, cat_cache] : nodecatcache) {
+            if (nptr) {
+                categories.emplace(cat_cache);
+                VERYVERBOSEOUT(cat_cache+',');
+            }
+        }
+        VERYVERBOSEOUT('\n');
+        VERYVERBOSEOUT("Unique: ");
+        for (const auto & catstr : categories) {
+            VERYVERBOSEOUT(catstr+',');
+        }
+        VERYVERBOSEOUT('\n');
     }
 
     void random_cache_chars() {
@@ -486,23 +512,6 @@ void build_Node_category_cache_map(Log & log, Node_Category_Cache_Map & nccmap) 
             }
         }
     }
-}
-
-typedef std::set<std::string> category_set_t;
-void identify_random_categories(Node_Category_Cache_Map nccmap, category_set_t & categories) {
-    VERYVERBOSEOUT("Categories: ")
-    for (const auto & [nptr, cat_cache] : nccmap.nodecatcache) {
-        if (nptr) {
-            categories.emplace(cat_cache);
-            VERYVERBOSEOUT(cat_cache);
-        }
-    }
-    VERYVERBOSEOUT('\n');
-    VERYVERBOSEOUT("Unique: ");
-    for (const auto & catstr : categories) {
-        VERYVERBOSEOUT(catstr);
-    }
-    VERYVERBOSEOUT('\n');
 }
 
 std::string map2str(const Minute_Record_Map & mrmap, Node_Category_Cache_Map & nccmap, Set_builder_data & groups) {
@@ -602,6 +611,97 @@ std::string totals2str(Minute_Totals_vec_t & mintotvec, category_set_t & categor
     return totstr;
 }
 
+std::size_t add_category_specifications(const std::string jsoncontent, size_t search_from, Set_builder_data & groups) {
+    // find JSON end bracket
+    size_t end_bracket_pos = jsoncontent.find('}', search_from);
+    if (end_bracket_pos == std::string::npos) {
+        return end_bracket_pos;
+    }
+    // from there, find opening bracket
+    size_t start_bracket_pos = jsoncontent.rfind('{', end_bracket_pos);
+    if ((start_bracket_pos == std::string::npos) || (start_bracket_pos < search_from)) {
+        return std::string::npos;
+    }
+    // find the category label
+    size_t end_quotes_pos = jsoncontent.rfind('"', start_bracket_pos);
+    if ((end_quotes_pos == std::string::npos) || (end_quotes_pos < search_from)) {
+        return std::string::npos;
+    }
+    size_t start_quotes_pos = jsoncontent.rfind('"', end_quotes_pos - 1);
+    if ((start_quotes_pos == std::string::npos) || (start_quotes_pos < search_from)) {
+        return std::string::npos;
+    }
+    std::string category = jsoncontent.substr(start_quotes_pos+1, end_quotes_pos - start_quotes_pos - 1);
+    if (category.empty()) {
+        return std::string::npos;
+    }
+    VERYVERBOSEOUT("Category: "+category+'\n');
+    // find the configlines in the interval
+    std::string group_jsoncontent = jsoncontent.substr(start_bracket_pos, end_bracket_pos - start_bracket_pos + 1);
+    VERYVERBOSEOUT("Section: "+group_jsoncontent+'\n');
+    auto configlines = json_get_param_value_lines(group_jsoncontent);
+    // get parameters and values in the lines
+    for (const auto& it : configlines) {
+        VERYVERBOSEOUT("Line: "+it+'\n');
+        auto [parlabel, parvalue] = json_param_value(it);
+        if ((!parlabel.empty()) && (!is_json_comment(parlabel))) {
+            // from those, for the labeled category, specify NNLs, Label-Values, Topics
+            if (parlabel == "NNLs") {
+                auto nnls = split(parvalue,';');
+                for (const auto & list_name : nnls) {
+                    groups.NNL_to_category[list_name] = category;
+                    VERYVERBOSEOUT("  NNL: "+list_name+'\n');
+                }
+            } else if (parlabel == "LVs") {
+                auto lvs = split(parvalue, ';');
+                for (const auto & label : lvs) {
+                    groups.LV_to_category[label] = category;
+                    VERYVERBOSEOUT("  LV: "+label+'\n');
+                }
+            } else if (parlabel == "Topics") {
+                auto topics = split(parvalue, ';');
+                for (const auto & topictag : topics) {
+                    groups.Topic_to_category[topictag] = category;
+                    VERYVERBOSEOUT("Topic: "+topictag+'\n');
+                }
+            } else {
+                VERBOSEERR("Unrecognized specifier: "+parlabel+'\n');
+            }
+        }
+    }
+    // return position past end bracket
+    return end_bracket_pos+1;
+}
+
+bool fzlogmap::set_groups(Set_builder_data & groups) {
+    if (config.categoryfile.empty()) {
+        return false;
+    }
+    std::string jsoncontent;
+    if (!file_to_string(config.categoryfile, jsoncontent)) {
+        ERRRETURNFALSE(__func__, "Unable to load configuration file "+config.categoryfile);
+    }
+
+    size_t search_from = 0;
+    while ((search_from = add_category_specifications(jsoncontent, search_from, groups)) != std::string::npos);
+    
+    // find possible default group
+    size_t default_pos = jsoncontent.find("\"DEFAULT\"");
+    if (default_pos != std::string::npos) {
+        size_t end_quotes = jsoncontent.rfind('"', default_pos - 1);
+        if (end_quotes != std::string::npos) {
+            size_t start_quotes = jsoncontent.rfind('"', end_quotes-1);
+            if (start_quotes != std::string::npos) {
+                std::string default_category = jsoncontent.substr(start_quotes+1, end_quotes - start_quotes - 1);
+                groups.default_category = default_category;
+                VERYVERBOSEOUT("Default category: "+groups.default_category+'\n');
+            }
+        }
+    }
+
+    return true;
+}
+
 bool make_map() {
     // Get Log interval according to filter.
     fzlm.set_filter();
@@ -619,15 +719,25 @@ bool make_map() {
     Node_Category_Cache_Map nccmap;
     build_Node_category_cache_map(logref, nccmap);
     VERYVERBOSEOUT("Found "+std::to_string(nccmap.num_nodes())+ " Nodes in Log interval.\n");
-    nccmap.random_cache_chars();
-    category_set_t categories;
-    identify_random_categories(nccmap, categories);
+
     Set_builder_data groups;
-    groups.default_category = "?";
-    VERYVERBOSEOUT("Mapping those Nodes to "+std::to_string(categories.size())+" unique category characters.\n");
+    category_set_t categories;
+    if (fzlm.config.categoryfile.empty()) {
+        nccmap.random_cache_chars();
+        groups.default_category = "?";
+    } else {
+        if (!fzlm.set_groups(groups)) {
+            return false;
+        }
+    }
+    //nccmap.category_set(categories);
+    //VERYVERBOSEOUT("Mapping Nodes to "+std::to_string(categories.size())+" categories.");
 
     // Cross-map Log interval to Category groups.
     FZOUT(map2str(mrmap, nccmap, groups));
+
+    nccmap.category_set(categories);
+    VERYVERBOSEOUT("Mapped Nodes to "+std::to_string(categories.size())+" categories.\n");
 
     auto totals = map2totals(mrmap, nccmap, groups, categories);
     FZOUT(totals2str(totals, categories));

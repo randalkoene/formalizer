@@ -52,6 +52,7 @@ public:
 
     std::string dest;   ///< where to send rendered output (default: "STDOUT")
     text_interpretation interpret_text = text_interpretation::raw;
+    std::string categoryfile; ///< a preconfigured file with category group definitions
 };
 
 struct fzlogmap: public formalizer_standard_program {
@@ -88,6 +89,8 @@ struct fzlogmap: public formalizer_standard_program {
     Graph & graph();
 
     void set_filter();
+
+    bool set_groups(Set_builder_data & groups);
 
     void get_Log_interval();
 
