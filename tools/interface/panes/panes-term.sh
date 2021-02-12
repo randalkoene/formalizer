@@ -9,7 +9,7 @@ FORMALIZERBASEDIR=$HOME/src/formalizer
 
 
 if [ "$1" = "-h" ]; then
-	echo "Usage: panes-term.sh [-h|-R|-L]"
+	echo "Usage: panes-term.sh [-h|-R|-L|-L]"
 	echo ""
 	echo "Uses w3m to open 4 panes in X terminals displaying the most"
 	echo "commonly used interactive and informational web pages for"
@@ -22,6 +22,7 @@ if [ "$1" = "-h" ]; then
 	echo ""
 	echo "  -R  Refresh panes."
 	echo "  -L  Refresh recent Log pane."
+	echo "  -N  Refresh Next Nodes pane."
 	echo "  -h  Show this help page."
 	echo ""
 	echo "This script auto-detects desktop size and calls the"
@@ -72,6 +73,18 @@ if [ "$1" = "-L" ]; then
 		exit 1
 	fi
 	xdotool search --name 'fz: Recent Log' key "B" key "B" key "R"
+	exit 0
+
+fi
+
+if [ "$1" = "-N" ]; then
+
+	which xdotool > /dev/null
+	if [ $? -ne 0 ]; then
+		${notifycmd} ${notifyarg} "Please install xdotool to refresh panes."
+		exit 1
+	fi
+	xdotool search --name 'fz: Next Nodes' key "B" key "R"
 	exit 0
 
 fi

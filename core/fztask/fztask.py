@@ -89,6 +89,7 @@ config['exact_Node_intervals'] = True
 
 last_node = ''
 last_T_close = ''
+cycle_updated = False
 
 # Potentially replace defaults with values from fztask config file
 try:
@@ -292,6 +293,7 @@ def manual_update_passed_fixed():
 
 
 def update_passed_fixed(args):
+    global cycle_updated
     # clear passed_fixed NNL
     if not clear_NNL('passed_fixed', config):
         return 2
@@ -320,8 +322,10 @@ def update_passed_fixed(args):
         return 2
     diff_num = num - remaining_num
     if (diff_num > 0):
-        print(f'\n  {ANSI_cy}Thank you for manually updating the target dates of {ANSI_yb}{diff_num}{ANSI_nrm}{ANSI_cy} Nodes.')    
+        print(f'\n  {ANSI_cy}Thank you for manually updating the target dates of {ANSI_yb}{diff_num}{ANSI_nrm}{ANSI_cy} Nodes.')
+        cycle_updated = True 
     if remaining_num:
+        cycle_updated = True
         print(f'  {ANSI_cy}Switching {ANSI_yb}{remaining_num}{ANSI_nrm}{ANSI_cy} Nodes to {ANSI_wt}variable{ANSI_nrm}{ANSI_cy} target dates.\n')
         num_fixed_converted = edit_nodes_in_NNL('passed_fixed','tdproperty','variable')
         if (num_fixed_converted != num):
@@ -349,6 +353,7 @@ def inspect_passed_repeating():
 
 
 def skip_passed_repeats(args, addtocmd):
+    global cycle_updated
     while True:
         # clear skip_repeats NNL
         if not clear_NNL('skip_repeats', config):
@@ -369,14 +374,22 @@ def skip_passed_repeats(args, addtocmd):
             print(f'  {ANSI_lt}Not skipping.{ANSI_upd}')
             return 0
         if (skippassedrepeats != 'i'):
+            cycle_updated = True
             print(f'  {ANSI_lt}Skipping {num} passed repeating Nodes.{ANSI_upd}')
             thecmd = 'fzupdate -q -E STDOUT -r'+addtocmd
             return try_subprocess_check_output(thecmd, 'passedrepeatsskip', config)
         retcode = inspect_passed_repeating()
 
 
+def refresh_Next_Nodes():
+    refresh_cmd = 'panes-term.sh -N'
+    retcode = try_subprocess_check_output(refresh_cmd, 'refresh_panes', config)
+
+
 def update_schedule(args):
+    global cycle_updated
     print(f'\n{ANSI_upd}SCHEDULE UPDATES{ANSI_nrm}')
+    cycle_updated = False
     cmderrorreviewstr = config['cmderrorreviewstr']
     addtocmd = ''
     if args.T_emulate:
@@ -408,9 +421,12 @@ def update_schedule(args):
         thecmd = 'fzupdate -q -E STDOUT -u'+addtocmd
         retcode = try_subprocess_check_output(thecmd, 'varupdate', config)
         exit_error(retcode, f'Attempt to update variable target date Nodes failed.{cmderrorreviewstr}', True)
+        cycle_updated = True
     else:
         print(f'  {ANSI_lt}Not updating.{ANSI_nrm}.')
 
+    if cycle_updated:
+        refresh_Next_Nodes()
     print('')
 
 
