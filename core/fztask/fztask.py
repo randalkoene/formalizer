@@ -363,7 +363,7 @@ def skip_passed_repeats(args, addtocmd):
             return 0
         
         # explain that there are passed fixed repeating Nodes and offer to skip, not, or inspect first
-        ANSI_Yes_no_inspect = f'{ANSI_gn}Y{ANSI_upd}es/{ANSI_rd}n{ANSI_upd}no/[{ANSI_yb}i{ANSI_upd}]nspect'
+        ANSI_Yes_no_inspect = f'{ANSI_gn}Y{ANSI_upd}es/{ANSI_rd}n{ANSI_upd}o/[{ANSI_yb}i{ANSI_upd}]nspect'
         skippassedrepeats = input(f'  Skip {ANSI_yb}{num}{ANSI_nrm}{ANSI_cy} {ANSI_wt}passed repeating{ANSI_upd} Nodes? ({ANSI_Yes_no_inspect}) ')
         if (skippassedrepeats == 'n'):
             print(f'  {ANSI_lt}Not skipping.{ANSI_upd}')

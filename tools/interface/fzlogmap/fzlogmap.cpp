@@ -514,7 +514,7 @@ void build_Node_category_cache_map(Log & log, Node_Category_Cache_Map & nccmap) 
     }
 }
 
-std::string map2str(const Minute_Record_Map & mrmap, Node_Category_Cache_Map & nccmap, Set_builder_data & groups) {
+std::string map2str(const Minute_Record_Map & mrmap, Node_Category_Cache_Map & nccmap, Set_builder_data & groups, bool singlechar = true) {
     std::string mapstr;
     Graph & graph = fzlm.graph();
     time_t t_daystart = day_start_time(mrmap.t_start);
@@ -537,7 +537,12 @@ std::string map2str(const Minute_Record_Map & mrmap, Node_Category_Cache_Map & n
         }
         Node_ptr nptr = mrmap.at(i);
         if (nptr) {
-            mapstr += groups.node_category(graph, *nptr, nccmap.cat_cache(*nptr));
+            if (singlechar) {
+                // *** beware, this is not testing if empty
+                mapstr += groups.node_category(graph, *nptr, nccmap.cat_cache(*nptr))[0];
+            } else {
+                mapstr += groups.node_category(graph, *nptr, nccmap.cat_cache(*nptr));
+            }
         } else {
             mapstr += '_';
         }
@@ -592,20 +597,36 @@ Minute_Totals_vec_t map2totals(const Minute_Record_Map & mrmap, Node_Category_Ca
     return mintotvec;
 }
 
-std::string totals2str(Minute_Totals_vec_t & mintotvec, category_set_t & categories) {
-
-    Minute_Totals grandtotals(categories);
+std::string totals2str(Minute_Totals_vec_t & mintotvec, category_set_t & categories, unsigned int colwidth = 7, bool hours = true) {
     std::string totstr;
+    for (const auto & catstr : categories) {
+        if (catstr.size() >= colwidth) {
+            totstr += catstr.substr(0,colwidth) + ' ';
+        } else {
+        std::string catfill(colwidth - catstr.size(),' ');
+        totstr += catfill + catstr + ' ';
+        }
+    }
+    totstr.back() = '\n';
+    Minute_Totals grandtotals(categories);
     for (const auto & mintot_ptr : mintotvec) {
         for (const auto & [categorystr, minutes] : mintot_ptr->mintotals) {
-            totstr += to_precision_string(minutes, 0, ' ', 4) + ' '; // totstr += std::to_string(minutes) + ' ';
+            if (hours) {
+                totstr += to_precision_string(minutes/60.0, 2, ' ', colwidth) + ' ';
+            } else {
+                totstr += to_precision_string(minutes, 0, ' ', colwidth) + ' '; // totstr += std::to_string(minutes) + ' ';
+            }
             grandtotals.mintotals[categorystr] += minutes;
         }
         totstr += '\n';
     }
     totstr += '\n';
     for (const auto & [categorystr, minutes] : grandtotals.mintotals) {
-        totstr += to_precision_string(minutes, 0, ' ', 4) + ' '; // totstr += std::to_string(minutes) + ' ';
+        if (hours) {
+            totstr += to_precision_string(minutes/60.0, 2, ' ', colwidth) + ' ';
+        } else {
+            totstr += to_precision_string(minutes, 0, ' ', colwidth) + ' ';
+        }
     }
     totstr += '\n';   
     return totstr;
@@ -740,7 +761,7 @@ bool make_map() {
     VERYVERBOSEOUT("Mapped Nodes to "+std::to_string(categories.size())+" categories.\n");
 
     auto totals = map2totals(mrmap, nccmap, groups, categories);
-    FZOUT(totals2str(totals, categories));
+    FZOUT('\n'+totals2str(totals, categories));
     return true;
 }
 

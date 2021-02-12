@@ -1,5 +1,5 @@
 {
-    "SLEEP" : {
+    "*SLEEP" : {
         "NNLs" : "group_sleep"
     },
     "IPAB" : {
@@ -25,10 +25,10 @@
     "MEALS" : {
         "NNLs" : "group_meals"
     },
-    "SOLO" : {
+    "%SOLO" : {
         "NNLs" : "group_solo"
     },
-    "SOCIAL" : {
+    "@SOCIAL" : {
         "NNLs" : "group_social",
         "Topics" : "social,leisure"
     },
