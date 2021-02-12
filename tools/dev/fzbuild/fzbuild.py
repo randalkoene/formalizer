@@ -51,6 +51,7 @@ compile_dirs = {
     "boilerplate" : "/tools/dev/boilerplate",
     "fzgraphhtml" : "/tools/interface/fzgraphhtml",
     "fzloghtml" : "/tools/interface/fzloghtml",
+    "fzlogmap" : "/tools/interface/fzlogmap",
     "fzlogtime" : "/tools/interface/fzlogtime",
     "fzserver-info" : "/tools/interface/fzserver-info",
     "nodeboard" : "/tools/interface/nodeboard"
@@ -73,6 +74,7 @@ flow_control = {
     'build_fzserverpq' : False,
     'build_fzupdate' : False,
     'build_fzloghtml' : False,
+    'build_fzlogmap' : False,
     'build_fzlogtime' : False,
     'build_fzgraphhtml' : False,
     'build_fzserver-info': False,
@@ -240,6 +242,7 @@ if __name__ == '__main__':
     parser.add_argument('-D', '--dil2graph', dest='dil2graph', action='store_true', help='Build dil2graph from scratch')
     parser.add_argument('-g', '--graph2dil', dest='graph2dil', action='store_true', help='Build graph2dil from scratch')
     parser.add_argument('-H', '--fzloghtml', dest='fzloghtml', action='store_true', help='Build fzloghtml from scratch')
+    parser.add_argument('-m', '--fzlogmap', dest='fzlogmap', action='store_true', help='Build fzlogmap from scratch')
     parser.add_argument('-T', '--fzlogtime', dest='fzlogtime', action='store_true', help='Build fzlogtime from scratch')
     parser.add_argument('-G', '--fzgraphhtml', dest='fzgraphhtml', action='store_true', help='Build fzgraphhtml from scratch')
     parser.add_argument('-E', '--fzedit', dest='fzedit', action='store_true', help='Build fzedit from scratch')
@@ -290,6 +293,8 @@ if __name__ == '__main__':
         flow_control['build_graph2dil'] = True
     if args.fzloghtml:
         flow_control['build_fzloghtml'] = True
+    if args.fzlogmap:
+        flow_control['build_fzlogmap'] = True
     if args.fzlogtime:
         flow_control['build_fzlogtime'] = True
     if args.fzgraphhtml:
@@ -313,6 +318,8 @@ if __name__ == '__main__':
         build_program('graph2dil', args)
     if flow_control['build_fzloghtml']:
         build_program('fzloghtml', args)
+    if flow_control['build_fzlogmap']:
+        build_program('fzlogmap', args)
     if flow_control['build_fzgraphhtml']:
         build_program('fzgraphhtml', args)
     if flow_control['build_fzlogtime']:
