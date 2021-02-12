@@ -40,6 +40,18 @@ group_other="\
 20120329124446.1\
 "
 
+numdo=1
+
+function rebuild_category_NNL() {
+    printf "[$numdo/4] Let's rebuild the $1 NNL (press ENTER)"
+    read n
+
+    fzgraph -L delete -l "$1"
+    fzgraph -L add -l "$1" -S "$2"
+    
+    numdo=$((numdo + 1))
+}
+
 echo "Formalizer:Graph:NamedNodeList:Categories:Init 0.1.0-0.1"
 echo ""
 echo "Calling fzgraph as follows:"
@@ -47,10 +59,12 @@ echo ""
 echo "  fzgraph -L add -l <NNL> -S <Node-IDs-list>"
 echo ""
 
-fzgraph -L add -l "group_actions" -S "$group_actions"
+rebuild_category_NNL "group_actions" "$group_actions"
 
-fzgraph -L add -l "group_infrastructure" -S "$group_infrastructure"
+rebuild_category_NNL "group_infrastructure" "$group_infrastructure"
 
-fzgraph -L add -l "group_sleep" -S "$group_sleep"
+rebuild_category_NNL "group_sleep" "$group_sleep"
 
-fzgraph -L add -l "group_other" -S "$group_other"
+rebuild_category_NNL "group_other" "$group_other"
+
+echo "Done."

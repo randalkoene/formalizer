@@ -102,7 +102,17 @@ group_wellbeing="\
 20200530070528.1\
 "
 
-#frequent="$sleep_and_nap,$meals,$self_care,$exercise,$family,$social,$chores,$systematic,$travel,$reward,$catch_up,$emergency"
+numdo=1
+
+function rebuild_category_NNL() {
+    printf "[$numdo/12] Let's rebuild the $1 NNL (press ENTER)"
+    read n
+
+    fzgraph -L delete -l "$1"
+    fzgraph -L add -l "$1" -S "$2"
+    
+    numdo=$((numdo + 1))
+}
 
 echo "Formalizer:Graph:NamedNodeList:Categories:Init 0.1.0-0.1"
 echo ""
@@ -111,26 +121,28 @@ echo ""
 echo "  fzgraph -L add -l <NNL> -S <Node-IDs-list>"
 echo ""
 
-fzgraph -L add -l "group_wellbeing" -S "$group_wellbeing"
+rebuild_category_NNL "group_wellbeing" "$group_wellbeing"
 
-fzgraph -L add -l "group_sleep" -S "$group_sleep"
+rebuild_category_NNL "group_sleep" "$group_sleep"
 
-fzgraph -L add -l "group_ipab" -S "$group_ipab"
+rebuild_category_NNL "group_ipab" "$group_ipab"
 
-fzgraph -L add -l "group_dayint" -S "$group_dayint"
+rebuild_category_NNL "group_dayint" "$group_dayint"
 
-fzgraph -L add -l "group_buildsystem" -S "$group_buildsystem"
+rebuild_category_NNL "group_buildsystem" "$group_buildsystem"
 
-fzgraph -L add -l "group_system" -S "$group_system"
+rebuild_category_NNL "group_system" "$group_system"
 
-fzgraph -L add -l "group_hobbies" -S "$group_hobbies"
+rebuild_category_NNL "group_hobbies" "$group_hobbies"
 
-fzgraph -L add -l "group_meals" -S "$group_meals"
+rebuild_category_NNL "group_meals" "$group_meals"
 
-fzgraph -L add -l "group_solo" -S "$group_solo"
+rebuild_category_NNL "group_solo" "$group_solo"
 
-fzgraph -L add -l "group_social" -S "$group_social"
+rebuild_category_NNL "group_social" "$group_social"
 
-fzgraph -L add -l "group_chores" -S "$group_chores"
+rebuild_category_NNL "group_chores" "$group_chores"
 
-fzgraph -L add -l "group_travel" -S "$group_travel"
+rebuild_category_NNL "group_travel" "$group_travel"
+
+echo "Done."

@@ -49,6 +49,8 @@ executables = (
     'addnode.py',
     'earlywiz.py',
     'requestmanual.py',
+    'categories_a2c-NNLs-init.sh',
+    'categories_hourly-NNLs-init.sh',
     'frequent-init.sh',
     'fzcatchup.py',
     'fzdaily.sh',
