@@ -6,4 +6,4 @@
 
 USETERM=urxvt
 
-$USETERM -title "SysMet Extract" -rv -geometry 248x76+0+0 -e sysmet-extract-show.sh &
+$USETERM -title "SysMet Extract" -rv -geometry 248x76+0+0 -e sysmet-extract-show.sh 2>&1 >/dev/null &
