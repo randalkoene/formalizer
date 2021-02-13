@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Name=SysMetExtract
+Comment=Show extracted System Metrics
+Exec=/home/randalk/.formalizer/bin/sysmet-extract-term.sh
+StartupWMClass=fzlogmap
+Terminal=false
+Type=Application
+Icon=/home/randalk/images/icons/self-eval-show.png
+StartupNotify=true
+
