@@ -70,6 +70,7 @@ struct fzlogmap: public formalizer_standard_program {
     interval_scale iscale;
     unsigned int interval;
     bool noframe;
+    bool calendar;
 
     std::string custom_template;
 

@@ -1,0 +1,18 @@
+{
+    "VOXA" : {
+        "Topics" : "voxa"
+    },
+    "CARBONCOPIES" : {
+        "Topics" : "carboncopies;cc-research;cc-operations;meetings;department-meeting;fund-raising;grant-writing"
+    },
+    "CONSULTING" : {
+        "Topics" : "consulting;neurobotx"
+    },
+    "FORMALIZER" : {
+        "Topics" : "dil2al;formalizer"
+    },
+    "SYSTEM" : {
+        "Topics" : "system;roadmap;plan;networking;organization;self-improvement"
+    },
+    "other" : "DEFAULT"
+}

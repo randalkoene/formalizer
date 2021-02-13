@@ -143,6 +143,9 @@ key_sorted_Nodes Nodes_created_in_time_interval(Graph & graph, time_t earliest, 
  */
 targetdate_sorted_Nodes Nodes_with_topic_by_targetdate(Graph & graph, Topic_ID id);
 
+typedef std::map<std::string, std::string> cat_translation_map;
+typedef cat_translation_map * cat_translation_map_ptr;
+
 /**
  * Data structure that specifies Node grouping categories.
  */
@@ -167,12 +170,17 @@ struct Set_builder_data {
      *      higher relevance value than other Topics of the node found in Topic_to_category
      *   5. the default_category, if not empty
      * 
+     * Note that adding a pointer to a cateotry `translation` map can be useful if the
+     * `cat_cache` should be used for printing or if a 1, 2, 4, or 8 byte (char) code
+     * is desired. It allos allows immediate effective merging of categories.
+     * 
      * @param graph Valid Graph in which to find Named Node Lists.
      * @param node The Node for which to find the appropriate category.
      * @param cat_cache Reference to a string cache in which to store a category.
+     * @param translation Optional pointer to immediate category translation map.
      * @return Reference to `cat_cache`.
      */
-    std::string & node_category(Graph & graph, Node & node, std::string & cat_cache);
+    std::string & node_category(Graph & graph, Node & node, std::string & cat_cache, cat_translation_map_ptr translation = nullptr);
 
 };
 

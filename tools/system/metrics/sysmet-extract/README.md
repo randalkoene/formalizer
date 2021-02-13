@@ -3,6 +3,9 @@
 Deduce System Metrics data from information in Log and Graph.
 
 `fzlogmap -D 10 -r -o STDOUT -q -f ~/src/formalizer/tools/system/metrics/sysmet-extract/categories_a2c.json`
+`fzlogmap -D 7 -r -o STDOUT -q -C -f ~/src/formalizer/tools/system/metrics/sysmet-extract/categories_a2c.json`
+`fzlogmap -D 7 -r -o STDOUT -q -f ~/src/formalizer/tools/system/metrics/sysmet-extract/categories_work.json`
+`fzlogmap -D 10 -r -o STDOUT -q -f ~/src/formalizer/tools/system/metrics/sysmet-extract/categories_hourly.json`
 
 ---
 

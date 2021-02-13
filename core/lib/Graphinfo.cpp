@@ -364,12 +364,17 @@ targetdate_sorted_Nodes Nodes_with_topic_by_targetdate(Graph & graph, Topic_ID i
  *      higher relevance value than other Topics of the node found in Topic_to_category
  *   5. the default_category, if not empty
  * 
+ * Note that adding a pointer to a cateotry `translation` map can be useful if the
+ * `cat_cache` should be used for printing or if a 1, 2, 4, or 8 byte (char) code
+ * is desired. It allos allows immediate effective merging of categories.
+ * 
  * @param graph Valid Graph in which to find Named Node Lists.
  * @param node The Node for which to find the appropriate category.
  * @param cat_cache Reference to a string cache in which to store a category.
+ * @param translation Optional pointer to immediate category translation map.
  * @return Reference to `cat_cache`.
  */
-std::string & Set_builder_data::node_category(Graph & graph, Node & node, std::string & cat_cache) {
+std::string & Set_builder_data::node_category(Graph & graph, Node & node, std::string & cat_cache, cat_translation_map_ptr translation) {
     if (!cat_cache.empty()) {
         return cat_cache;
     }
@@ -378,7 +383,11 @@ std::string & Set_builder_data::node_category(Graph & graph, Node & node, std::s
         Named_Node_List_ptr nnl_ptr = graph.get_List(list_name);
         if (nnl_ptr) {
             if (nnl_ptr->contains(node.get_id().key())) {
-                cat_cache = category;
+                if (translation) {
+                    cat_cache = (*translation)[category];
+                } else {
+                    cat_cache = category;
+                }
                 return cat_cache;
             }
         }
@@ -404,7 +413,11 @@ std::string & Set_builder_data::node_category(Graph & graph, Node & node, std::s
                 topiclabels.push_back(topicstr);
             }
             auto topicindexids = graph.get_topics().tags_to_indices(topiclabels);
+            //FZOUT("tidxsize="+std::to_string(topicindexids.size())+'\n');
+            //for (auto & tt : topicindexids) { FZOUT(std::to_string(tt)+','); }
+            //FZOUT('\n');
             for (size_t i = 0; i < topiclabels.size(); ++i) {
+                //FZOUT(std::to_string(topicindexids[i])+' '+topiclabels[i]+' '+Topic_to_category[topiclabels[i]]+'\n');
                 cache_topicid_to_category.emplace(topicindexids[i], Topic_to_category[topiclabels[i]]);
             }
         }
@@ -415,7 +428,12 @@ std::string & Set_builder_data::node_category(Graph & graph, Node & node, std::s
             if (it != cache_topicid_to_category.end()) {
                 if (topic_rel > maxrel) {
                     maxrel = topic_rel;
-                    cat_cache = it->second;
+                    //FZOUT(node.get_id_str()+' '+it->second+'\n');
+                    if (translation) {
+                        cat_cache = (*translation)[it->second];
+                    } else {
+                        cat_cache = it->second;
+                    }
                 }
             }
         }
@@ -425,7 +443,11 @@ std::string & Set_builder_data::node_category(Graph & graph, Node & node, std::s
     }
 
     if (!default_category.empty()) {
-        cat_cache = default_category;
+        if (translation) {
+            cat_cache = (*translation)[default_category];
+        } else {
+            cat_cache = default_category;
+        }
     }
     return cat_cache;
 }

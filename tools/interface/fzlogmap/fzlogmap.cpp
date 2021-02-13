@@ -46,9 +46,9 @@ fzlogmap fzlm;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzlogmap::fzlogmap() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
-                         iscale(interval_none), interval(0), noframe(false), recent_format(most_recent_html) {
-    add_option_args += "1:2:o:D:H:w:Nc:rRF:T:f:";
-    add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-F <raw|txt|html>] [-T <file|'STR:string'>] [-f <groupsfile>]";
+                         iscale(interval_none), interval(0), noframe(false), calendar(false), recent_format(most_recent_html) {
+    add_option_args += "1:2:o:D:H:w:Nc:rRF:T:f:C";
+    add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-F <raw|txt|html>] [-T <file|'STR:string'>] [-f <groupsfile>] [-C]";
     usage_head.push_back("Generate Mapping of requested Log records.\n");
     usage_tail.push_back(
         "The <time-stamp1> and <time-stamp_2> arguments expect standardized\n"
@@ -81,6 +81,7 @@ void fzlogmap::usage_hook() {
           "       raw, txt, html (default)\n"
           "    -T use custom template from file or string (if 'STR:')\n"
           "    -f read category group specifications from <groupsfile>\n"
+          "    -C present in calendar format\n"
           "    -o write HTML Log interval to <outputfile> (default=STDOUT)\n"
           "    -N no HTML page frame\n");
 }
@@ -186,6 +187,11 @@ bool fzlogmap::options_hook(char c, std::string cargs) {
 
     case 'f': {
         fzlm.config.categoryfile = cargs;
+        return true;
+    }
+
+    case 'C': {
+        fzlm.calendar = true;
         return true;
     }
 
@@ -552,6 +558,52 @@ std::string map2str(const Minute_Record_Map & mrmap, Node_Category_Cache_Map & n
     return mapstr;
 }
 
+constexpr ssize_t minsperrow = 30;
+constexpr ssize_t rowsperhour = 60/minsperrow;
+
+std::string map2cal(const Minute_Record_Map & mrmap, Node_Category_Cache_Map & nccmap, Set_builder_data & groups, bool singlechar = true, cat_translation_map_ptr translation = nullptr) {
+    std::string mapstr;
+    Graph & graph = fzlm.graph();
+    time_t t_daystart = day_start_time(mrmap.t_start);
+    size_t i_start = (t_daystart - mrmap.t_start)/60;
+    for (ssize_t dayrow = 0; dayrow < (rowsperhour*24); ++dayrow) {
+        for (ssize_t daycol = 0; daycol < 7; ++daycol) {
+            for (ssize_t row_minute = 0; row_minute < minsperrow; ++row_minute) {
+                ssize_t i = i_start + (minsperrow*dayrow) + (24*60*daycol) + row_minute;
+                if ((i >= 0) && (i < (ssize_t)mrmap.minutes())) {
+                    Node_ptr nptr = mrmap.at(i);
+                    if (nptr) {
+                        if (singlechar) {
+                            // *** beware, this is not testing if empty
+                            mapstr += groups.node_category(graph, *nptr, nccmap.cat_cache(*nptr), translation)[0];
+                        } else {
+                            mapstr += groups.node_category(graph, *nptr, nccmap.cat_cache(*nptr), translation);
+                        }
+                    } else {
+                        mapstr += '_';
+                    }
+                } else {
+                    mapstr += '.';
+                }
+                if (row_minute == (minsperrow-1)) {
+                    if (daycol == 6) {
+                        mapstr += '\n';
+                    } else {
+                        mapstr += "  ";
+                    }
+                }
+            }
+        }
+    }
+    return mapstr;
+}
+
+/*
+Another alternative:Provide 7 times 48 strings. Fill them with substrings the size of the number of minutes of each mapped Node.
+Add color in front and back. Put them together as a calendar. Might want to switch that into place of the mapping function,
+since there's no point having to reconstitute from pointers.
+*/
+
 // *** extremely inefficient, even for incrementing from a map!
 //     at the least, you should just build a map with category label and a totals structure,
 //     where the totals structure has a place for grant total and a vector for day totals
@@ -723,6 +775,27 @@ bool fzlogmap::set_groups(Set_builder_data & groups) {
     return true;
 }
 
+void setup_print_codes(cat_translation_map & printcodes) {
+    // ** You could get this from another file, or, you could integrate
+    //    parsing and setting this up as part of geting the JSON file content,
+    //    in which case printcodes could just become another parameter of the
+    //    same struct.
+    // ** Here, this is hardcoded just for demonstration purposes.
+    printcodes["*SLEEP"] = "z";
+    printcodes["IPAB"] = "\u001b[42mI\u001b[0m"; //"I";
+    printcodes["DAYINT"] = "\u001b[44mD\u001b[0m"; //"D";
+    printcodes["BUILDSYSTEM"] = "\u001b[43mB\u001b[0m";
+    printcodes["SYSTEM"] = "\u001b[43mS\u001b[0m";
+    printcodes["HOBBIES"] = "\u001b[41mH\u001b[0m";
+    printcodes["MEALS"] = "\u001b[45mM\u001b[0m";
+    printcodes["%SOLO"] = "\u001b[41ms\u001b[0m";
+    printcodes["@SOCIAL"] = "\u001b[41m@\u001b[0m";
+    printcodes["CHORES"] = "\u001b[40;1mC\u001b[0m";
+    printcodes["TRAVEL"] = "\u001b[45mT\u001b[0m";
+    printcodes["WELLBEING"] = "\u001b[45mW\u001b[0m";
+    printcodes["other"] = "\u001b[46mo\u001b[0m";
+}
+
 bool make_map() {
     // Get Log interval according to filter.
     fzlm.set_filter();
@@ -755,7 +828,13 @@ bool make_map() {
     //VERYVERBOSEOUT("Mapping Nodes to "+std::to_string(categories.size())+" categories.");
 
     // Cross-map Log interval to Category groups.
-    FZOUT(map2str(mrmap, nccmap, groups));
+    if (fzlm.calendar) {
+        cat_translation_map printcodes;
+        setup_print_codes(printcodes);
+        FZOUT(map2cal(mrmap, nccmap, groups, false, &printcodes));
+    } else {
+        FZOUT(map2str(mrmap, nccmap, groups));
+    }
 
     nccmap.category_set(categories);
     VERYVERBOSEOUT("Mapped Nodes to "+std::to_string(categories.size())+" categories.\n");

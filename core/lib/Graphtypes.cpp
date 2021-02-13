@@ -376,6 +376,7 @@ std::vector<Topic_ID> Topic_Tags::tags_to_indices(std::vector<std::string> tagsv
     for (const auto & tagstr : tagsvector) {
         Topic * t_ptr = find_by_tag(tagstr);
         if (t_ptr) {
+            //VERYVERBOSEOUT(tagstr+" --> "+std::to_string(t_ptr->get_id())+'\n');
             tagstoindices.push_back(t_ptr->get_id());
         } else {
             ADDWARNING(__func__,"could not find topic with tag="+tagstr);
