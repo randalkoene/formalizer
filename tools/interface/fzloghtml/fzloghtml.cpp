@@ -6,6 +6,9 @@
  * 
  * A specified (or default) interval of Log content is rendered as HTML.
  * 
+ * Note that this program can also work when the memory-resident Graph is
+ * not present. Output degrades gracefully.
+ * 
  * For more about this, see https://trello.com/c/usj9dcWi.
  */
 
@@ -195,6 +198,7 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
 bool fzlh_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     CONFIG_TEST_AND_SET_PAR(dest, "outputfile", parlabel, parvalue);
     CONFIG_TEST_AND_SET_PAR(interpret_text, "interpret_text", parlabel, config_parse_text_interpretation(parvalue));
+    CONFIG_TEST_AND_SET_PAR(node_excerpt_len, "node_excerpt_len", parlabel, std::atoi(parvalue.c_str()));
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
 
@@ -330,6 +334,17 @@ void fzloghtml::get_Log_interval() {
 
     // *** Should we call log.setup_Chain_nodeprevnext() ?
 
+}
+
+Graph_ptr fzloghtml::get_Graph_ptr() {
+    ERRTRACE;
+    if (!graph_attempted) {
+        if (!graphmemman.get_Graph(edata.graph_ptr)) {
+            standard_warning("Memory resident Graph not found. Continuing.", __func__);
+        }
+        graph_attempted = true;
+    }
+    return edata.graph_ptr;
 }
 
 bool read_and_render_Log_interval() {

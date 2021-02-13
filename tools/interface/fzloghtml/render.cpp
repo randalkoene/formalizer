@@ -6,7 +6,7 @@
  * 
  */
 
-#define USE_COMPILEDPING
+//#define USE_COMPILEDPING
 #ifdef USE_COMPILEDPING
     #include <iostream>
 #endif
@@ -118,6 +118,27 @@ bool send_rendered_to_output(std::string & rendered_text) {
 }
 
 /**
+ * At a minimum, show the Node ID. Depending on configuration and available
+ * memory-resident Graph, also show a short exerpt of Node description.
+ */
+std::string include_Node_info(const Node_ID & node_id) {
+    std::string nodestr = node_id.str();
+    if (fzlh.config.node_excerpt_len > 0) {
+        Graph_ptr graphptr = fzlh.get_Graph_ptr(); // only attempts to fetch it the first time
+        if (graphptr) {
+            Node_ptr nodeptr = graphptr->Node_by_id(node_id.key());
+            if (nodeptr) {
+                std::string htmltext(nodeptr->get_text().c_str());
+                nodestr += ' '+remove_html_tags(htmltext).substr(0,fzlh.config.node_excerpt_len);
+            } else {
+                nodestr += " (not found)";
+            }
+        }
+    }
+    return nodestr;
+}
+
+/**
  * Convert Log content that was retrieved with filtering to HTML using
  * rending templates and send to designated output destination.
  */
@@ -164,9 +185,9 @@ bool render_Log_interval() {
             }
 
             template_varvalues varvals;
-            std::string nodestr = chunkptr->get_NodeID().str();
-            varvals.emplace("node_id",nodestr);
-            varvals.emplace("node_link","/cgi-bin/fzlink.py?id="+nodestr);
+            Node_ID node_id = chunkptr->get_NodeID();
+            varvals.emplace("node_id",include_Node_info(node_id));
+            varvals.emplace("node_link","/cgi-bin/fzlink.py?id="+node_id.str());
             //varvals.emplace("fzserverpq",graph.get_server_full_address()); *** so far, this is independent of whether the Graph is memory-resident
             varvals.emplace("t_chunkopen",chunkptr->get_tbegin_str());
             time_t t_chunkclose = chunkptr->get_close_time();

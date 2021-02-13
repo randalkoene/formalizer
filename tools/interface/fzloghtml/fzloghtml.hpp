@@ -51,6 +51,7 @@ public:
 
     std::string dest;   ///< where to send rendered output (default: "STDOUT")
     text_interpretation interpret_text = text_interpretation::raw;
+    size_t node_excerpt_len = 0;
 };
 
 struct fzloghtml: public formalizer_standard_program {
@@ -71,6 +72,7 @@ struct fzloghtml: public formalizer_standard_program {
 
     entry_data edata;
     //std::unique_ptr<Log> log;
+    bool graph_attempted = false;
 
     most_recent_format recent_format;
 
@@ -85,6 +87,9 @@ struct fzloghtml: public formalizer_standard_program {
     void set_filter();
 
     void get_Log_interval();
+
+    /// Attempts to find memory-resident Graph but does not exit if it is not found.
+    Graph_ptr get_Graph_ptr();
 
 };
 

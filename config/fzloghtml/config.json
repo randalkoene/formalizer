@@ -1,4 +1,5 @@
 {
     "outputfile" : "/var/www/html/formalizer/formalizer.tools.interfaces.fzloghtml.Output.html",
-    "interpret_text" : "detect_links"
+    "interpret_text" : "detect_links",
+    "node_excerpt_len" : "40"
 }
