@@ -51,6 +51,7 @@ sys.path.append(fzcoreincludedir)
 
 fztaskconfigdir = fzuserbase+'/config/fztask.py'
 fztaskconfig = fztaskconfigdir+'/config.json'
+fztasklockfile = fzuserbase+'/.fztask.lock'
 
 # Enable import of logentry
 logentrydir = config['sourceroot'] + '/tools/interface/logentry'
@@ -66,6 +67,7 @@ from Graphaccess import *
 from Logaccess import *
 from TimeStamp import *
 from tcpclient import get_server_address
+from proclock import *
 
 ANSI_sel = '\u001b[38;5;33m'
 ANSI_upd = '\u001b[38;5;148m'
@@ -109,6 +111,30 @@ if config['transition']:
 # tools components
 import logentry as le
 le.config['verbose'] = config['verbose']
+
+
+def unlock_it(lockfile: str, config: dict):
+    if os.path.exists(lockfile):
+        os.remove(lockfile)
+    else:
+        if config['verbose']:
+            print(f'{ANSI_warn}Lock file {lockfile} to be removed did not exist.{ANSI_nrm}')
+
+
+def lock_it(lockfile: str):
+    if os.path.exists(lockfile):
+        print(f'{ANSI_alert}Lock file {lockfile} found!{ANSI_nrm}')
+        goaheadanyway = input(f'{ANSI_sel}Another instance of fztask may be running. Go ahead anyway? ({No_yes(ANSI_sel)}) ')
+        if (goaheadanyway != 'y'):
+            print('Exiting.')
+            sys.exit(1)
+        else:
+            os.remove(lockfile)
+    try:
+        with open(lockfile,'w') as f:
+            f.write(NowTimeStamp())
+    except IOError:
+        exit_error(1, f'Unable to write lock file {lockfile}.')
 
 
 def parse_options():
@@ -622,6 +648,8 @@ if __name__ == '__main__':
 
     print(fztask_long_id+"\n")
 
+    lock_it(fztasklockfile)
+
     args = parse_options()
 
     check_emulated_time()
@@ -632,6 +660,8 @@ if __name__ == '__main__':
         chunkchoice = task_control(args)
 
     print(f'\n{ANSI_nrm}fztask done.')
+
+    unlock_it(fztasklockfile, config)
 
     pausekey = pause_key('exit')
 
