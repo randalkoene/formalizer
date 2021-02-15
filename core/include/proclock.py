@@ -8,7 +8,6 @@ This header file declares functions for process detection and lock files.
 
 import os
 from ansicolorcodes import *
-from error import exit_error
 from TimeStamp import NowTimeStamp
 
 def unlock_it(lockfile: str, config: dict):
@@ -33,4 +32,6 @@ def lock_it(lockfile: str):
         with open(lockfile,'w') as f:
             f.write(NowTimeStamp())
     except IOError:
-        exit_error(1, f'Unable to write lock file {lockfile}.')
+        print(f'\n{ANSI_alert}Unable to write lock file {lockfile}.{ANSI_nrm}\n')
+        exitenter = input('\nEnter any string to exit...')
+        sys.exit(1)
