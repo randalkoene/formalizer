@@ -10,6 +10,7 @@ Versioning is based on https://semver.org/. See coreversion.hpp for more.
 import sys
 
 from ansicolorcodes import *
+from proclock import unlock_it
 
 exit_status_code = {
     0 : 'exit_ok',
@@ -39,7 +40,7 @@ def pause_key(action_str, pausehere = True):
     return pausekey
 
 
-def exit_error(retcode, errormessage, ask_exit = False):
+def exit_error(retcode, errormessage, ask_exit = False, unlockfile: str = ''):
     if (retcode != 0):
         print(f'\n{ANSI_alert}'+errormessage+f'{ANSI_nrm}\n')
         if ask_exit:
@@ -47,8 +48,14 @@ def exit_error(retcode, errormessage, ask_exit = False):
             if (exitorcontinue == 'c'):
                 print('\nAttempting to continue...\n')
             else:
+                if unlockfile:
+                    miniconfig = { 'verbose' : True }
+                    unlock_it(unlockfile, miniconfig)
                 print('\nExiting.\n')
                 sys.exit(retcode)
         else:
+            if unlockfile:
+                miniconfig = { 'verbose' : True }
+                unlock_it(unlockfile, miniconfig)
             exitenter = pause_key('exit')
             sys.exit(retcode)

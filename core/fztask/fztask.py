@@ -113,28 +113,14 @@ import logentry as le
 le.config['verbose'] = config['verbose']
 
 
-def unlock_it(lockfile: str, config: dict):
-    if os.path.exists(lockfile):
-        os.remove(lockfile)
+def exit_success(message: str, pausehere: bool = False):
+    unlock_it(fztasklockfile, config)
+    if pausehere:
+        pausekey = input(f'\nEnter to {message}...')
     else:
-        if config['verbose']:
-            print(f'{ANSI_warn}Lock file {lockfile} to be removed did not exist.{ANSI_nrm}')
-
-
-def lock_it(lockfile: str):
-    if os.path.exists(lockfile):
-        print(f'{ANSI_alert}Lock file {lockfile} found!{ANSI_nrm}')
-        goaheadanyway = input(f'{ANSI_sel}Another instance of fztask may be running. Go ahead anyway? ({No_yes(ANSI_sel)}) ')
-        if (goaheadanyway != 'y'):
-            print('Exiting.')
-            sys.exit(1)
-        else:
-            os.remove(lockfile)
-    try:
-        with open(lockfile,'w') as f:
-            f.write(NowTimeStamp())
-    except IOError:
-        exit_error(1, f'Unable to write lock file {lockfile}.')
+        if message:
+            print(message)
+    sys.exit(0)
 
 
 def parse_options():
@@ -162,8 +148,7 @@ def parse_options():
 
     #choice = input('Is this correct? (y/N) \n')
     #if (choice != 'y'):
-    #    print('Ok. You can try again with different command arguments.\n')
-    #    exit(0)
+    #    exit_success('Ok. You can try again with different command arguments.\n')
 
     return args
 
@@ -173,7 +158,7 @@ def get_most_recent_chunk():
     thecmd = 'fzloghtml -R -o STDOUT -N -F raw -q'
     retcode = try_subprocess_check_output(thecmd, 'recentlog', config)
     cmderrorreviewstr = config['cmderrorreviewstr']
-    exit_error(retcode, f'Attempt to get most recent Log chunk data failed.{cmderrorreviewstr}', True)
+    exit_error(retcode, f'Attempt to get most recent Log chunk data failed.{cmderrorreviewstr}', True, fztasklockfile)
     if (retcode == 0):
         results['recentlog'] = results['recentlog'].decode()
         chunk_data = results['recentlog'].split()
@@ -189,23 +174,22 @@ def check_emulated_time():
     if args.T_emulate:
         if (is_TimeStamp(args.T_emulate)):
             if (is_Future(args.T_emulate)):
-                exit_error(1, f'Emulated time should normally not be in the future: {args.T_emulate}.', True)
+                exit_error(1, f'Emulated time should normally not be in the future: {args.T_emulate}.', True, fztasklockfile)
             else:
                 #recent_chunk = get_most_recent_chunk()
                 if (int(args.T_emulate) <= int(recent_chunk[0])):
-                    exit_error(1, 'Emulated time should be later than most recent Log chunk open time.', True)
+                    exit_error(1, 'Emulated time should be later than most recent Log chunk open time.', True, fztasklockfile)
                 if (recent_chunk[1] == 'CLOSED'):
                     print(f'Most recent Log chunk was alredy {ANSI_wt}closed{ANSI_nrm}.')
                     last_T_close = recent_chunk[5]
                     t_closed_diff = int(args.T_emulate) - int(recent_chunk[5])
                     if (t_closed_diff < 0):
-                        exit_error(1, 'Emulated time should be equal or later most recent Log chunk close time.', True)
+                        exit_error(1, 'Emulated time should be equal or later most recent Log chunk close time.', True, fztasklockfile)
                     if (t_closed_diff > 1):
                         print(f'{ANSI_mg}Emulated time {ANSI_wt}{args.T_emulate}{ANSI_nrm}{ANSI_mg} > T_close {ANSI_wt}{recent_chunk[5]}{ANSI_nrm}{ANSI_mg} of most recent Log chunk.{ANSI_nrm}')
                         leavegap = input(f'{ANSI_bb}Your choices are: [{ANSI_gn}A{ANSI_bb}]ttach to close-time, make the [{ANSI_rd}g{ANSI_bb}]ap, or [{ANSI_yb}e{ANSI_bb}]xit?{ANSI_nrm} ')
                         if (leavegap == 'e'):
-                            print('Exiting.')
-                            sys.exit(0)
+                            exit_success('Exiting.')
                         if (leavegap != 'A'):
                             print('Adjusting emulated time to closing time of most recent Log chunk.')
                             args.T_emulate = recent_chunk[5]
@@ -213,7 +197,7 @@ def check_emulated_time():
                             print('Continuing with time-gap in Log record.')
                 print(f'\nEmulated Time: {args.T_emulate}\n')
         else:
-            exit_error(1, f'Emulated time has invalid time stamp: {args.T_emulate}.')
+            exit_error(1, f'Emulated time has invalid time stamp: {args.T_emulate}.', False, fztasklockfile)
     else:
         print('\nUsing actual time.\n')
 
@@ -257,7 +241,7 @@ def close_chunk(args):
     else:
         stamp_t_close = NowTimeStamp()
     retcode = try_subprocess_check_output(thecmd, 'fzlog_res', config)
-    exit_error(retcode,'Attempt to close Log chunk failed.')
+    exit_error(retcode,'Attempt to close Log chunk failed.', False, fztasklockfile)
     last_T_close = stamp_t_close
 
 
@@ -314,7 +298,7 @@ def manual_update_passed_fixed():
     print(f'{ANSI_upd}  The others will be switched to variable target date type.{ANSI_nrm}')
     thecmd = config['localbrowser'] + ' http://localhost/cgi-bin/fzgraphhtml-cgi.py?srclist=passed_fixed'
     retcode = try_subprocess_check_output(thecmd, 'fixedmoved', config)
-    exit_error(retcode, f'Attempt to browse passed fixed Nodes failed.', True)
+    exit_error(retcode, f'Attempt to browse passed fixed Nodes failed.', True, fztasklockfile)
     return retcode
 
 
@@ -355,7 +339,7 @@ def update_passed_fixed(args):
         print(f'  {ANSI_cy}Switching {ANSI_yb}{remaining_num}{ANSI_nrm}{ANSI_cy} Nodes to {ANSI_wt}variable{ANSI_nrm}{ANSI_cy} target dates.\n')
         num_fixed_converted = edit_nodes_in_NNL('passed_fixed','tdproperty','variable')
         if (num_fixed_converted != num):
-            exit_error(retcode, f'Attempt to convert fixed to variable target date Nodes failed.', True)
+            exit_error(retcode, f'Attempt to convert fixed to variable target date Nodes failed.', True, fztasklockfile)
             if (retcode != 0):
                 return 1
     return 0
@@ -374,7 +358,7 @@ def make_filter_skip_repeats(args):
 def inspect_passed_repeating():
     thecmd = config['localbrowser'] + ' http://localhost/cgi-bin/fzgraphhtml-cgi.py?srclist=skip_repeats'
     retcode = try_subprocess_check_output(thecmd, 'skiprepeatsinspected', config)
-    exit_error(retcode, f'Attempt to browse passed repeating Nodes failed.', True)
+    exit_error(retcode, f'Attempt to browse passed repeating Nodes failed.', True, fztasklockfile)
     return retcode    
 
 
@@ -434,11 +418,11 @@ def update_schedule(args):
 
     # passed non-repeating fixed and exact target date Nodes
     retcode = update_passed_fixed(args)
-    exit_error(retcode, f'Attempt to Update/convert passed non-repeating fixed/exact Nodes failed.', True)
+    exit_error(retcode, f'Attempt to Update/convert passed non-repeating fixed/exact Nodes failed.', True, fztasklockfile)
 
     # repeating Nodes
     retcode = skip_passed_repeats(args, addtocmd)
-    exit_error(retcode, f'Attempt to skip passed repeating Nodes failed.{cmderrorreviewstr}', True)
+    exit_error(retcode, f'Attempt to skip passed repeating Nodes failed.{cmderrorreviewstr}', True, fztasklockfile)
 
     # variable target date Nodes (can be worth doing even if none have been passed)
     varupdate = input(f'  {ANSI_upd}Update {ANSI_wt}variable{ANSI_upd} target date Nodes? ({Yes_no(ANSI_upd)}) ')
@@ -446,7 +430,7 @@ def update_schedule(args):
         print(f'  {ANSI_lt}Updating variable target date Nodes.{ANSI_nrm}')
         thecmd = 'fzupdate -q -E STDOUT -u'+addtocmd
         retcode = try_subprocess_check_output(thecmd, 'varupdate', config)
-        exit_error(retcode, f'Attempt to update variable target date Nodes failed.{cmderrorreviewstr}', True)
+        exit_error(retcode, f'Attempt to update variable target date Nodes failed.{cmderrorreviewstr}', True, fztasklockfile)
         cycle_updated = True
     else:
         print(f'  {ANSI_lt}Not updating.{ANSI_nrm}.')
@@ -473,7 +457,7 @@ def open_chunk(node, args):
         thecmd += ' -V'
     retcode = try_subprocess_check_output(thecmd, 'fzlog_res', config)
     cmderrorreviewstr = config['cmderrorreviewstr']
-    exit_error(retcode, f'Attempt to open new Log chunk failed.{cmderrorreviewstr}', True)
+    exit_error(retcode, f'Attempt to open new Log chunk failed.{cmderrorreviewstr}', True, fztasklockfile)
     return retcode
 
 
@@ -482,7 +466,7 @@ def next_chunk(args):
     pause_key('select next Node',config['addpause'])
     node = select_Node_for_Log_chunk()
     if not node:
-        exit_error(1, 'Attempt to select Node for new Log chunk failed.', True)
+        exit_error(1, 'Attempt to select Node for new Log chunk failed.', True, fztasklockfile)
     else:
         retcode = open_chunk(node, args)
         if (retcode == 0):
@@ -505,7 +489,7 @@ def get_completion_required(node):
     topicgettingcmd = f"fzgraphhtml -q -T 'Node={customtemplatefile}' -n {node}"
     retcode = try_subprocess_check_output(topicgettingcmd, 'compreq', config)
     cmderrorreviewstr = config['cmderrorreviewstr']
-    exit_error(retcode, f'Attempt to get Node completion and required failed.{cmderrorreviewstr}', True)
+    exit_error(retcode, f'Attempt to get Node completion and required failed.{cmderrorreviewstr}', True, fztasklockfile)
     if (retcode == 0):
         results['completion'] = (results['compreq'].split()[0]).decode()
         results['required'] = (results['compreq'].split()[1]).decode()
@@ -530,7 +514,7 @@ def chunk_interval_alert():
     thecmd = 'formalizer-alert.sh'
     retcode = try_subprocess_check_output(thecmd, 'alert', config)
     cmderrorreviewstr = config['cmderrorreviewstr']
-    exit_error(retcode, f'Call to formalizer-alert.sh failed.{cmderrorreviewstr}', True)
+    exit_error(retcode, f'Call to formalizer-alert.sh failed.{cmderrorreviewstr}', True, fztasklockfile)
     fztask_ansi()
     if (retcode != 0):
         return 'r'
@@ -545,8 +529,7 @@ def chunk_interval_interrupted(args):
     print(f'  - {ANSI_pu}E[{ANSI_rd}x{ANSI_nrm}{ANSI_pu}]it.{ANSI_nrm}')
     proceed_choice = input(f'\n{ANSI_sel}Your choice? ')
     if (proceed_choice == 'x'):
-        print(f'{ANSI_lt}Exiting.')
-        sys.exit(0)
+        exit_success(f'{ANSI_lt}Exiting.')
     if (proceed_choice == 'e'):
         valid_T_emulate = False
         while not valid_T_emulate:
@@ -661,8 +644,4 @@ if __name__ == '__main__':
 
     print(f'\n{ANSI_nrm}fztask done.')
 
-    unlock_it(fztasklockfile, config)
-
-    pausekey = pause_key('exit')
-
-    sys.exit(0)
+    exit_success('exit', True)
