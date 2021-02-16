@@ -27,7 +27,10 @@ def lock_it(lockfile: str):
             print('Exiting.')
             sys.exit(1)
         else:
-            os.remove(lockfile)
+            # check again, because while waiting for input you may have closed the other instance and removed the lock already
+            # unless there was no other instance and the lock was a remnant
+            if os.path.exists(lockfile):
+                os.remove(lockfile)
     try:
         with open(lockfile,'w') as f:
             f.write(NowTimeStamp())
