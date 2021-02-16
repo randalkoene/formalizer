@@ -250,6 +250,7 @@ def select_Node_for_Log_chunk():
     shortlist = ShortList(f'\n{ANSI_sel}Short-list of Nodes for the {ANSI_wt}New Log Chunk{ANSI_sel}:', config)
 
     while not node:
+        # pick from shortlist or via browser
         shortlist.show()
         print(f'{ANSI_sel}Use:')
         if (shortlist.size > 0):
@@ -257,25 +258,28 @@ def select_Node_for_Log_chunk():
         choice = input(f'- [{ANSI_gn}?{ANSI_sel}] to browse: ')
         if (choice == '?'):
             node = browse_for_Node(config)
-            chosen_desc = selected_Node_description(config, 60)
+            if node:
+                chosen_desc = selected_Node_description(config, 60)
         else:
             if ((int(choice) >= 0) & (int(choice) < shortlist.size)):
                 node = shortlist.nodes.splitlines()[int(choice)]
                 chosen_desc = shortlist.vec[int(choice)]
-
-        if (node == last_node):
-            print(f'{ANSI_or}The most recent Log chunk belongs to the same Node.{ANSI_nrm}')
-            confirmsame = input(f'{ANSI_sel}Is that intentional? ({No_yes(ANSI_sel)}) ')
-            if (confirmsame != 'y'):
-                node = ''
+   
         if node:
             node = node.decode()
             print(f'{ANSI_sel}Log chunk will belong to Node {node}:')
             print(f'  {ANSI_wt}{chosen_desc}{ANSI_nrm}')
-            if config['confirmchunknode']:
-                iscorrectnext = input(f'{ANSI_sel}Is that correct? ({Yes_no(ANSI_sel)}) ')
-                if (iscorrectnext == 'n'):
+            # if same as previous, confirm
+            if (node == last_node):
+                print(f'{ANSI_or}The most recent Log chunk belongs to the same Node.{ANSI_nrm}')
+                confirmsame = input(f'{ANSI_sel}Is that intentional? ({No_yes(ANSI_sel)}) ')
+                if (confirmsame != 'y'):
                     node = ''
+            else:
+                if config['confirmchunknode']:
+                    iscorrectnext = input(f'{ANSI_sel}Is that correct? ({Yes_no(ANSI_sel)}) ')
+                    if (iscorrectnext == 'n'):
+                        node = ''
 
     fztask_ansi()
     return node
