@@ -157,6 +157,7 @@ struct line_render_parameters {
             varvals.emplace("node_id","<b>ID</b>");
             varvals.emplace("topic","<b>main topic</b>");
             varvals.emplace("targetdate","<b>"+datestamp+"</b>");
+            varvals.emplace("alertstyle","");
             varvals.emplace("req_hrs","<b>hrs</b>");
             varvals.emplace("tdprop","");
             varvals.emplace("excerpt","<b>"+WeekDay(t)+"</b>");
@@ -209,18 +210,19 @@ struct line_render_parameters {
             datestamp = tdstamp.substr(0,8);
             insert_day_start(tdate);
         }
+        std::string alertstyle;
         if (fzgh.config.show_current_time) {
             if (tdate <= t_render) {
-                varvals.emplace("alertstyle"," style=\"color:red\"");
+                alertstyle = " style=\"color:red\"";
                 std::string tdstr = "<a href=\"/cgi-bin/fzlink.py?id="+nodestr+"\">"+tdstamp+"</a>";
                 varvals.emplace("targetdate",tdstr);
             } else {
-                varvals.emplace("alertstyle","");
                 varvals.emplace("targetdate",tdstamp);
             }
         } else {
             varvals.emplace("targetdate",tdstamp);
         }
+        varvals.emplace("alertstyle",alertstyle);
         if (fzgh.config.show_still_required) {
             if (node.get_repeats() && (const_cast<Node *>(&node)->effective_targetdate() != tdate)) {
                 varvals.emplace("req_hrs",to_precision_string(node.get_required_hours()));
