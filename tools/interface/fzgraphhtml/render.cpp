@@ -222,7 +222,11 @@ struct line_render_parameters {
             varvals.emplace("targetdate",tdstamp);
         }
         if (fzgh.config.show_still_required) {
-            varvals.emplace("req_hrs",to_precision_string(node.hours_to_complete()));
+            if (node.get_repeats() && (const_cast<Node *>(&node)->effective_targetdate() != tdate)) {
+                varvals.emplace("req_hrs",to_precision_string(node.get_required_hours()));
+            } else {
+                varvals.emplace("req_hrs",to_precision_string(node.hours_to_complete()));
+            }
         } else {
             varvals.emplace("req_hrs",to_precision_string(node.get_required_hours()));
         }
