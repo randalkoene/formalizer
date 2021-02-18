@@ -90,13 +90,14 @@ bool load_templates(fzgraphhtml_templates & templates) {
 }
 
 struct line_render_parameters {
-    Graph * graph_ptr;               ///< Pointer to the Graph in which the Node resides.
+    Graph *graph_ptr;                ///< Pointer to the Graph in which the Node resides.
     const std::string srclist;       ///< The Named Node List being rendered (or "" when that is not the case).
     render_environment env;          ///< Rendering environment in use.
     fzgraphhtml_templates templates; ///< Loaded rendering templates in use.
     std::string rendered_page;       ///< String to which the rendered line is appended.
     std::string datestamp;
     size_t actual_num_render = 0;
+    time_t t_render = 0; ///< The time when page rendering commenced.
 
     line_render_parameters(const std::string _srclist, const char * problem__func__) : srclist(_srclist) {
         graph_ptr = graphmemman.find_Graph_in_shared_memory();
@@ -106,6 +107,7 @@ struct line_render_parameters {
         if (!load_templates(templates)) {
             standard_exit_error(exit_file_error, "Missing template file.", problem__func__);
         }
+        t_render = ActualTime();
     }
 
     Graph & graph() { return *graph_ptr; }
@@ -186,13 +188,16 @@ struct line_render_parameters {
      * Call this to render parameters of a Node on a single line of a list of Nodes.
      * For example, this selection of data is shown when Nodes are listed in a schedule.
      * 
+     * Some aspects of rending are controlled by configuration parameters.
+     * 
      * @param node Reference to the Node to render.
      * @param tdate Target date to show (e.g. effective target date or locally specified target date).
      * @param showdate Insert date and day of week if true.
      */
     void render_Node(const Node & node, time_t tdate, bool showdate = true) {
         template_varvalues varvals;
-        varvals.emplace("node_id",node.get_id_str());
+        std::string nodestr(node.get_id_str());
+        varvals.emplace("node_id",nodestr);
         Topic * topic_ptr = graph_ptr->main_Topic_of_Node(node);
         if (topic_ptr) {
             varvals.emplace("topic",topic_ptr->get_tag());
@@ -204,7 +209,18 @@ struct line_render_parameters {
             datestamp = tdstamp.substr(0,8);
             insert_day_start(tdate);
         }
-        varvals.emplace("targetdate",tdstamp);
+        if (fzgh.config.show_current_time) {
+            if (tdate <= t_render) {
+                varvals.emplace("alertstyle"," style=\"color:red\"");
+                std::string tdstr = "<a href=\"/cgi-bin/fzlink.py?id="+nodestr+"\">"+tdstamp+"</a>";
+                varvals.emplace("targetdate",tdstr);
+            } else {
+                varvals.emplace("alertstyle","");
+                varvals.emplace("targetdate",tdstamp);
+            }
+        } else {
+            varvals.emplace("targetdate",tdstamp);
+        }
         if (fzgh.config.show_still_required) {
             varvals.emplace("req_hrs",to_precision_string(node.hours_to_complete()));
         } else {

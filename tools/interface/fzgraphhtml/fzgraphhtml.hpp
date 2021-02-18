@@ -55,6 +55,7 @@ public:
     output_format outputformat = output_html;
     bool show_still_required = true;
     text_interpretation interpret_text = text_interpretation::raw;
+    bool show_current_time = true;
 };
 
 
