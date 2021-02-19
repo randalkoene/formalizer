@@ -336,6 +336,41 @@ size_t total_minutes_incomplete_repeating(Graph & graph, time_t from_t, time_t b
 }
 
 /**
+ * Returns the total required time for all incomplete non-repeating Nodes within a time
+ * interval.
+ * 
+ * Note: Adding this to the total for repeating nodes (see function above) is a better
+ *       way to estimate total time required for all Scheduled Nodes, where non-
+ *       repeating Nodes must be completed in time available between repeating Nodes.
+ *       It can be used to provide a projection or estimate for the current time
+ *       limit up to which variable or unspecified target date Node Scheduling is
+ *       sensible. (Better = better than the estimate produced with `Node_Statistics`.)
+ * 
+ * @param graph A valid Graph object.
+ * @param from_t Earliest time from which to calculate accumulated required time.
+ * @param before_t Limit to which to calculate accumulated required time.
+ * @return Total required time calculated in minutes.
+ */
+size_t total_minutes_incomplete_nonrepeating(Graph & graph, time_t from_t, time_t before_t) {
+    size_t minutes = 0;
+    for (const auto & [nkey, node_ptr] : graph.get_nodes()) {
+        if (!node_ptr) {
+            continue;
+        }
+        float completion = node_ptr->get_completion();
+        if ((completion>=0.0) && (completion<1.0)) {
+            if (!node_ptr->get_repeats()) {
+                time_t td_effective = node_ptr->effective_targetdate();
+                if ((td_effective >= from_t) && (td_effective < before_t)) {
+                    minutes += node_ptr->minutes_to_complete();
+                }
+            }
+        }
+    }
+    return minutes;
+}
+
+/**
  * Selects all Nodes that are incomplete and repeating and lists them by (inherited)
  * target date. Note that this is NOT the same thing as incomplete with repeating. This is
  * an and operation where both things must be true.

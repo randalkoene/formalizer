@@ -41,8 +41,8 @@ fzupdate fzu;
  */
 fzupdate::fzupdate() : formalizer_standard_program(false), config(*this),
                  reftime(add_option_args, add_usage_top) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "rubRT:";
-    add_usage_top += " [-r|-u|-b|-R] [-T <t_max|full>]";
+    add_option_args += "rubRNT:";
+    add_usage_top += " [-r|-u|-b|-R|-N] [-T <t_max|full>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "The -T limit overrides the 'map_days' configuration or default parameter.\n"
@@ -70,6 +70,7 @@ void fzupdate::usage_hook() {
           "    -u update variable target date Nodes\n"
           "    -b break up EPS group of Nodes with the variable target date in -T\n"
           "    -R calculate time required for incomplete repeating Nodes to -T\n"
+          "    -N calculate the minutes required for incomplete non-repeating Nodes to -T\n"
           "    -T update up to and including <t_max> or 'full' update\n");
 }
 
@@ -112,6 +113,11 @@ bool fzupdate::options_hook(char c, std::string cargs) {
 
     case 'R': {
         flowcontrol = flow_required_repeated;
+        return true;
+    }
+
+    case 'N': {
+        flowcontrol = flow_required_nonrepeating;
         return true;
     }
 
@@ -435,6 +441,17 @@ int required_time_for_repeated_Nodes() {
     return standard_exit_success("Required time for repeating Nodes calculated.");
 }
 
+int required_time_for_nonrepeating_Nodes() {
+    time_t t_start = ActualTime();
+    if (fzu.t_limit < t_start) {
+        return standard_exit_error(exit_command_line_error, "Needs specified time limit later than current time.", __func__);
+    }
+    size_t minutes = total_minutes_incomplete_nonrepeating(fzu.graph(), t_start, fzu.t_limit);
+    VERBOSEOUT("Time minutes for non-repeating Nodes between "+TimeStampYmdHM(t_start)+" and "+TimeStampYmdHM(fzu.t_limit)+":\n");
+    FZOUT(std::to_string(minutes)+'\n');
+    return standard_exit_success("Required time for non-repeating Nodes calculated.");
+}
+
 /**
  * Change tdproperty of Nodes in specified Named Node List to specified property.
  * 
@@ -495,6 +512,10 @@ int main(int argc, char *argv[]) {
 
     case flow_required_repeated: {
         return required_time_for_repeated_Nodes();
+    }
+
+    case flow_required_nonrepeating: {
+        return required_time_for_nonrepeating_Nodes();
     }
 
     default: {

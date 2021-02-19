@@ -168,6 +168,24 @@ targetdate_sorted_Nodes Nodes_with_topic_by_targetdate(Graph & graph, Topic_ID i
  */
 size_t total_minutes_incomplete_repeating(Graph & graph, time_t from_t, time_t before_t, bool mapexact = true);
 
+/**
+ * Returns the total required time for all incomplete non-repeating Nodes within a time
+ * interval.
+ * 
+ * Note: Adding this to the total for repeating nodes (see function above) is a better
+ *       way to estimate total time required for all Scheduled Nodes, where non-
+ *       repeating Nodes must be completed in time available between repeating Nodes.
+ *       It can be used to provide a projection or estimate for the current time
+ *       limit up to which variable or unspecified target date Node Scheduling is
+ *       sensible. (Better = better than the estimate produced with `Node_Statistics`.)
+ * 
+ * @param graph A valid Graph object.
+ * @param from_t Earliest time from which to calculate accumulated required time.
+ * @param before_t Limit to which to calculate accumulated required time.
+ * @return Total required time calculated in minutes.
+ */
+size_t total_minutes_incomplete_nonrepeating(Graph & graph, time_t from_t, time_t before_t = RTt_maxtime);
+
 typedef std::map<std::string, std::string> cat_translation_map;
 typedef cat_translation_map * cat_translation_map_ptr;
 
