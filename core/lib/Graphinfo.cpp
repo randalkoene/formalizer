@@ -8,6 +8,7 @@
 // core
 #include "error.hpp"
 #include "Graphinfo.hpp"
+#include "GraphLogxmap.hpp"
 
 namespace fz {
 
@@ -282,6 +283,56 @@ targetdate_sorted_Nodes Nodes_with_repeats_by_targetdate(const targetdate_sorted
 targetdate_sorted_Nodes Nodes_incomplete_with_repeating_by_targetdate(Graph & graph, time_t t_max, size_t N_max) {
     targetdate_sorted_Nodes incomplete = Nodes_incomplete_by_targetdate(graph);
     return Nodes_with_repeats_by_targetdate(incomplete, t_max, N_max);
+}
+
+/**
+ * Returns the total required time for all incompelte repeating Nodes and their instances
+ * within a time interval.
+ * 
+ * Note: This same information can be obtained by creating a Nodes filter, obtaining the
+ *       resulting list of Nodes, and then computing the total. This function is provided
+ *       for convenience.
+ * 
+ * Note: There is an issue/question here about how to deal with overlapping exact target
+ *       date Nodes. Obviously, they will not actually consume time twice, but taking
+ *       that into account correctly requires mapping time. It doesn't need to be a map
+ *       with as much flexibility as needed for other mapping applications, but at least
+ *       a simple flag per smallest time-interval to allocate (e.g. 1 boolean per minute).
+ *       Note that mapping 1 year by minute with boolean would require a map of 525600
+ *       bytes. In this sense, fixed and exact target date Node required time totals
+ *       should ideally be calculated separately and then combined.
+ * 
+ * @param graph A valid Graph object.
+ * @param from_t Earliest time from which to calculate accumulated required time.
+ * @param before_t Limit to which to calculate accumulated required time.
+ * @param mapexact Flag to choose exact target dates mapping for more precise totals.
+ * @return Total required time calculated in minutes.
+ */
+size_t total_minutes_incomplete_repeating(Graph & graph, time_t from_t, time_t before_t, bool mapexact) {
+    size_t minutes = 0;
+    Byte_Map exactmap(from_t, before_t, 60, false, !mapexact); // a map of minutes
+    for (const auto & [nkey, node_ptr] : graph.get_nodes()) {
+        if (!node_ptr) {
+            continue;
+        }
+        float completion = node_ptr->get_completion();
+        time_t td_effective = node_ptr->effective_targetdate();
+        time_t required = node_ptr->get_required();
+        if ((completion>=0.0) && (completion<1.0) && (required>0) && node_ptr->get_repeats() && (td_effective >= from_t) && (td_effective < before_t)) {
+            if (mapexact && (node_ptr->td_exact())) {
+                auto td_withrepeats = node_ptr->repeat_targetdates(before_t - 1, 0, td_effective);
+                for (const auto & td : td_withrepeats) {
+                    exactmap.set(1, td - required, td);
+                }
+            } else {
+                minutes += node_ptr->minutes_to_complete();
+            }
+        }
+    }
+    if (mapexact) {
+        minutes += exactmap.sum();
+    }
+    return minutes;
 }
 
 /**

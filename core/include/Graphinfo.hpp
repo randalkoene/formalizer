@@ -143,6 +143,31 @@ key_sorted_Nodes Nodes_created_in_time_interval(Graph & graph, time_t earliest, 
  */
 targetdate_sorted_Nodes Nodes_with_topic_by_targetdate(Graph & graph, Topic_ID id);
 
+/**
+ * Returns the total required time for all incomplete repeating Nodes and their instances
+ * within a time interval.
+ * 
+ * Note: This same information can be obtained by creating a Nodes filter, obtaining the
+ *       resulting list of Nodes, and then computing the total. This function is provided
+ *       for convenience.
+ * 
+ * Note: There is an issue/question here about how to deal with overlapping exact target
+ *       date Nodes. Obviously, they will not actually consume time twice, but taking
+ *       that into account correctly requires mapping time. It doesn't need to be a map
+ *       with as much flexibility as needed for other mapping applications, but at least
+ *       a simple flag per smallest time-interval to allocate (e.g. 1 boolean per minute).
+ *       Note that mapping 1 year by minute with boolean would require a map of 525600
+ *       bytes. In this sense, fixed and exact target date Node required time totals
+ *       should ideally be calculated separately and then combined.
+ * 
+ * @param graph A valid Graph object.
+ * @param from_t Earliest time from which to calculate accumulated required time.
+ * @param before_t Limit to which to calculate accumulated required time.
+ * @param mapexact Flag to choose exact target dates mapping for more precise totals.
+ * @return Total required time calculated in minutes.
+ */
+size_t total_minutes_incomplete_repeating(Graph & graph, time_t from_t, time_t before_t, bool mapexact = true);
+
 typedef std::map<std::string, std::string> cat_translation_map;
 typedef cat_translation_map * cat_translation_map_ptr;
 

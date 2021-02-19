@@ -117,6 +117,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphbase.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphinfo.o
+CORE_OBJS += $(CORELIBPATH)/obj/GraphLogxmap.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphmodify.o
 # CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o

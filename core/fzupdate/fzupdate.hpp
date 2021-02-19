@@ -21,10 +21,11 @@
 using namespace fz;
 
 enum flow_options {
-    flow_unknown = 0,          /// no recognized request
-    flow_update_repeating = 1, /// request: update repeating Nodes
-    flow_update_variable = 2,  /// request: update variable target date Nodes
-    flow_break_eps_groups = 3, /// request: break up groups of Nodes with the same variable target date
+    flow_unknown = 0,           /// no recognized request
+    flow_update_repeating = 1,  /// request: update repeating Nodes
+    flow_update_variable = 2,   /// request: update variable target date Nodes
+    flow_break_eps_groups = 3,  /// request: break up groups of Nodes with the same variable target date
+    flow_required_repeated = 4, /// request: calculate data about time required for repeated Nodes
     flow_NUMoptions
 };
 

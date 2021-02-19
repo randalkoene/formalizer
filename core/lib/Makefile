@@ -200,6 +200,9 @@ $(OBJ)/LogtypesID.o: LogtypesID.cpp $(INC)/LogtypesID.hpp $(INC)/Graphtypes.hpp 
 $(OBJ)/Logtypes.o: Logtypes.cpp $(INC)/Logtypes.hpp $(INC)/Graphtypes.hpp $(INC)/LogtypesID.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c Logtypes.cpp -o $(OBJ)/Logtypes.o
 
+$(OBJ)/GraphLogxmap.o: GraphLogxmap.cpp $(INC)/GraphLogxmap.hpp $(INC)/Graphtypes.hpp
+	$(CCPP) $(CPPFLAGS) -c GraphLogxmap.cpp -o $(OBJ)/GraphLogxmap.o
+
 $(OBJ)/fzpostgres.o: fzpostgres.cpp $(INC)/fzpostgres.hpp $(INC)/error.hpp \
 						$(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c fzpostgres.cpp -o $(OBJ)/fzpostgres.o

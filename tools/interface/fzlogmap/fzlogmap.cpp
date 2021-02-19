@@ -366,7 +366,7 @@ time_t fzlogmap::Log_interval_t_end() {
 }
 
 /*
-  *** Build this here and move it to a library afterwards...
+  *** Build this here and move it to GraphLogxmap afterwards...
 
   This one will probably be even more basic and fundamental than fzupdate:epsmap.hpp:EPS_map.
 */
@@ -382,7 +382,7 @@ constexpr time_t seconds_per_week = minutes_per_week*60;
  * Consequently, minutes are used in full resolution Log (or Schedule) mapping.
  */
 typedef std::vector<Node_ptr> fz_minute_record_t;
-typedef std::map<time_t, Node_ptr> fz_epoch_to_minute_record_map_t; // *** not sure if we'll ever this type
+//typedef std::map<time_t, Node_ptr> fz_epoch_to_minute_record_map_t; // *** not sure if we'll ever this type
 
 /**
  * 

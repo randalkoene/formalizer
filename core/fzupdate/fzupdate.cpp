@@ -41,8 +41,8 @@ fzupdate fzu;
  */
 fzupdate::fzupdate() : formalizer_standard_program(false), config(*this),
                  reftime(add_option_args, add_usage_top) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "rubT:";
-    add_usage_top += " [-r|-u|-b] [-T <t_max|full>]";
+    add_option_args += "rubRT:";
+    add_usage_top += " [-r|-u|-b|-R] [-T <t_max|full>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "The -T limit overrides the 'map_days' configuration or default parameter.\n"
@@ -50,6 +50,12 @@ fzupdate::fzupdate() : formalizer_standard_program(false), config(*this),
         "Please note that fzupdate is primarily about Schedule updating. To 'skip'\n"
         "or 'update' instances of a single repeating Node, please see the TCP API\n"
         "requests available in fzserverpq.\n"
+        "\n"
+        "The required time data returned with -R provides 4 values:\n"
+        "  1. The total for the time from now to -T in minutes.\n"
+        "  2. Corresponding projected annual ratio of available time.\n"
+        "  3. Corresponding projected average weekly hours.\n"
+        "  4. Corresponding projected average daily hours.\n"
     );
 }
 
@@ -63,6 +69,7 @@ void fzupdate::usage_hook() {
     FZOUT("    -r update repeating Nodes\n"
           "    -u update variable target date Nodes\n"
           "    -b break up EPS group of Nodes with the variable target date in -T\n"
+          "    -R calculate time required for incomplete repeating Nodes to -T\n"
           "    -T update up to and including <t_max> or 'full' update\n");
 }
 
@@ -100,6 +107,11 @@ bool fzupdate::options_hook(char c, std::string cargs) {
 
     case 'b': {
         flowcontrol = flow_break_eps_groups;
+        return true;
+    }
+
+    case 'R': {
+        flowcontrol = flow_required_repeated;
         return true;
     }
 
@@ -406,6 +418,23 @@ int break_eps_group(time_t t) {
     return standard_exit_success("Breaking up group of Nodes with variable target date done.");
 }
 
+int required_time_for_repeated_Nodes() {
+    time_t t_start = ActualTime();
+    if (fzu.t_limit < t_start) {
+        return standard_exit_error(exit_command_line_error, "Needs specified time limit later than current time.", __func__);
+    }
+    size_t minutes = total_minutes_incomplete_repeating(fzu.graph(), t_start, fzu.t_limit, true);
+    float minutes_per_year = 60*24*365;
+    float interval_years = (float)(fzu.t_limit - t_start) / (60.0*minutes_per_year);
+    float year_ratio = (float)minutes / (interval_years*minutes_per_year);
+    float day_hours = 24.0 * year_ratio;
+    float week_hours = 7.0 * day_hours;
+    VERBOSEOUT("Time required for repeating Nodes between "+TimeStampYmdHM(t_start)+" and "+TimeStampYmdHM(fzu.t_limit)+":\n");
+    VERBOSEOUT("[total minutes] [annual ratio] [hours per week] [hours per day]\n");
+    FZOUT(std::to_string(minutes)+' '+to_precision_string(year_ratio, 2)+' '+to_precision_string(week_hours, 2)+' '+to_precision_string(day_hours, 2)+'\n');
+    return standard_exit_success("Required time for repeating Nodes calculated.");
+}
+
 /**
  * Change tdproperty of Nodes in specified Named Node List to specified property.
  * 
@@ -462,6 +491,10 @@ int main(int argc, char *argv[]) {
 
     case flow_break_eps_groups: {
         return break_eps_group(fzu.t_limit);
+    }
+
+    case flow_required_repeated: {
+        return required_time_for_repeated_Nodes();
     }
 
     default: {
