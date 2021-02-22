@@ -355,8 +355,24 @@ bool request_batch_targetdates_modifications(const targetdate_sorted_Nodes & upd
  */
 int update_variable(time_t t_pass) {
     updvar_set_t_limit(t_pass);
-    update_constraints constraints;
 
+    if (fzu.t_limit == RTt_maxtime) {
+        // Let's keep this case from exploding: Set the limit to time needed to complete non-repeating Nodes.
+        size_t annual_repeating_minutes = total_minutes_incomplete_repeating(fzu.graph(), t_pass, t_pass+(seconds_per_day*365), true);  
+        float minutes_per_year = 60*24*365;
+        float year_ratio = (float)annual_repeating_minutes / minutes_per_year;
+        if (year_ratio >= 1.0) {
+            return standard_exit_error(exit_general_error, "Unable to project time needed to complete Nodes.", __func__);
+        }
+        size_t available_minutes_per_year = (1.0-year_ratio)*minutes_per_year;
+        size_t minutes = total_minutes_incomplete_nonrepeating(fzu.graph(), t_pass, fzu.t_limit);
+        size_t num_years = (minutes / available_minutes_per_year) + 1;
+        VERYVERBOSEOUT("Updating "+std::to_string(num_years)+" years.\n");
+        minutes_per_year *= (60*num_years); // years int seconds
+        fzu.t_limit = t_pass + (size_t)minutes_per_year;
+    }
+
+    update_constraints constraints;
     targetdate_sorted_Nodes incomplete_repeating = Nodes_incomplete_with_repeating_by_targetdate(fzu.graph(), constraints.t_fetchlimit, 0);
     Edit_flags editflags;
     editflags.set_Edit_targetdate();

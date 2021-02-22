@@ -6,12 +6,27 @@
 # A simple script to restore a backed up database
 
 if [ $# -lt 1 -o "$1" = "-h" ]; then
-	echo "Usage: fzrestore.sh <dbbackup-path>"
+	echo "Usage: fzrestore.sh [-s <existing-schema>] <dbbackup-path>"
 	echo ""
 	echo "Requires path to an archived database as argument."
 	echo "See, for example, in ~/.formalizer/archive/postgres/."
 	echo ""
+	echo "Options:"
+	echo "  -s rename an existing schema if it exists before restoring"
+	echo "     Use this if you are restoring to an existing database, and"
+	echo "     if you want to test a different version of the Formalizer"
+	echo "     Graph and Log data. If you want to delete the old scheme"
+	echo "     then use 'psql' with the 'DROP SCHEMA name CASCADE;' command."
+	echo ""
 	exit
+fi
+
+if [ "$1" = "-s" ]; then
+	schema="$2"
+	timestamp=$(date +%Y%m%d%H%M)
+	psql -d formalizer -c "ALTER SCHEMA ${schema} RENAME TO ${schema}${timestamp};"
+	shift
+	shift
 fi
 
 dbbackuppath="$1"

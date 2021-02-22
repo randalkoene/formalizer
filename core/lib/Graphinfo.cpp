@@ -237,6 +237,11 @@ targetdate_sorted_Nodes Nodes_incomplete_by_targetdate(Graph & graph) {
  * be prepared with `Nodes_incomplete_by_targetdate()`. Otherwise, use an alternative
  * preparation. See `Nodes_incomplete_with_repeating_by_targetdate()` below.
  * 
+ * BEWARE: As implemented presently, the N_max limit is only applied by cropping
+ *         after collecting a potentially much larger set.
+ *         As implemented presently, the combination N_max==0 and t_max<0 leads to
+ *         an attempt to create a set with infinite repeated Nodes of unlimited span.
+ * 
  * @param sortednodes A list of target date sorted Node pointers.
  * @param t_max Limit to which to generate the resulting list of Node pointers.
  * @param N_max Maximum size of list to return (zero means no size limit).
