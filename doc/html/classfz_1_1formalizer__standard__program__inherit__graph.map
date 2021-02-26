@@ -1,14 +1,19 @@
 <map id="fz::formalizer_standard_program" name="fz::formalizer_standard_program">
-<area shape="rect" id="node2" href="$structboilerplate.html" title="boilerplate" alt="" coords="225,5,306,32"/>
-<area shape="rect" id="node3" href="$classdil2graph.html" title="dil2graph" alt="" coords="228,56,303,83"/>
-<area shape="rect" id="node4" href="$classfzgraphedit.html" title="fzgraphedit" alt="" coords="222,107,309,133"/>
-<area shape="rect" id="node5" href="$structfzgraphhtml.html" title="fzgraphhtml" alt="" coords="220,157,311,184"/>
-<area shape="rect" id="node6" href="$structfzguide__system.html" title="fzguide_system" alt="" coords="208,208,323,235"/>
-<area shape="rect" id="node7" href="$structfzlog.html" title="fzlog" alt="" coords="240,259,291,285"/>
-<area shape="rect" id="node8" href="$structfzloghtml.html" title="fzloghtml" alt="" coords="228,309,303,336"/>
-<area shape="rect" id="node9" href="$structfzquerypq.html" title="fzquerypq" alt="" coords="226,360,305,387"/>
-<area shape="rect" id="node10" href="$structfzserver__info.html" title="fzserver_info" alt="" coords="217,411,314,437"/>
-<area shape="rect" id="node11" href="$structfzserverpq.html" title="fzserverpq" alt="" coords="224,461,307,488"/>
-<area shape="rect" id="node12" href="$structgraph2dil.html" title="graph2dil" alt="" coords="228,512,303,539"/>
-<area shape="rect" id="node13" href="$structnodeboard.html" title="nodeboard" alt="" coords="224,563,307,589"/>
+<area shape="rect" id="node1" title="This class provides a framework for standardized Formalizer programs." alt="" coords="5,378,179,419"/>
+<area shape="rect" id="node2" href="$structboilerplate.html" title=" " alt="" coords="243,5,335,32"/>
+<area shape="rect" id="node3" href="$classdil2graph.html" title=" " alt="" coords="248,56,331,83"/>
+<area shape="rect" id="node4" href="$structfzedit.html" title=" " alt="" coords="260,107,319,133"/>
+<area shape="rect" id="node5" href="$classfzgraphedit.html" title=" " alt="" coords="241,157,337,184"/>
+<area shape="rect" id="node6" href="$structfzgraphhtml.html" title=" " alt="" coords="239,208,340,235"/>
+<area shape="rect" id="node7" href="$structfzguide__system.html" title=" " alt="" coords="227,259,352,285"/>
+<area shape="rect" id="node8" href="$structfzlog.html" title=" " alt="" coords="262,309,317,336"/>
+<area shape="rect" id="node9" href="$structfzloghtml.html" title=" " alt="" coords="247,360,331,387"/>
+<area shape="rect" id="node10" href="$structfzlogmap.html" title=" " alt="" coords="248,411,331,437"/>
+<area shape="rect" id="node11" href="$structfzlogtime.html" title=" " alt="" coords="247,461,331,488"/>
+<area shape="rect" id="node12" href="$structfzquerypq.html" title=" " alt="" coords="246,512,333,539"/>
+<area shape="rect" id="node13" href="$structfzserver__info.html" title=" " alt="" coords="236,563,343,589"/>
+<area shape="rect" id="node14" href="$structfzserverpq.html" title=" " alt="" coords="244,613,335,640"/>
+<area shape="rect" id="node15" href="$structfzupdate.html" title=" " alt="" coords="250,664,329,691"/>
+<area shape="rect" id="node16" href="$structgraph2dil.html" title=" " alt="" coords="248,715,331,741"/>
+<area shape="rect" id="node17" href="$structnodeboard.html" title=" " alt="" coords="244,765,335,792"/>
 </map>

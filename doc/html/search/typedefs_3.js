@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['segment_5fmemory_5ft',['segment_memory_t',['../namespacefz.html#aabee04df43b16403996baaf6bd9d2a53',1,'fz']]],
-  ['stacktrace',['StackTrace',['../namespacefz.html#a34ec4a9353f556467845f99dfd43a9aa',1,'fz']]]
+  ['node_5flist_1421',['Node_List',['../namespacefz.html#a35f2fb9dc6e9c0137dd3cc763316a097',1,'fz']]]
 ];

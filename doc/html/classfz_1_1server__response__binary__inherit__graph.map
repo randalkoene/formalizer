@@ -1,0 +1,4 @@
+<map id="fz::server_response_binary" name="fz::server_response_binary">
+<area shape="rect" id="node1" title="A helpful class for server responses with binary data." alt="" coords="9,80,158,121"/>
+<area shape="rect" id="node2" href="$structfz_1_1http__header__data.html" title="A structure to collect HTTP header data and generate HTTP header strings." alt="" coords="5,5,161,32"/>
+</map>

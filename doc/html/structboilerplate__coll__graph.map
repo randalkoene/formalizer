@@ -1,3 +1,8 @@
 <map id="boilerplate" name="boilerplate">
-<area shape="rect" id="node2" href="$classfz_1_1formalizer__standard__program.html" title="This class provides a framework for standardized Formalizer programs. " alt="" coords="5,5,160,47"/>
+<area shape="rect" id="node1" title=" " alt="" coords="67,261,159,288"/>
+<area shape="rect" id="node2" href="$classfz_1_1formalizer__standard__program.html" title="This class provides a framework for standardized Formalizer programs." alt="" coords="5,157,179,199"/>
+<area shape="rect" id="node3" href="$classbp__configurable.html" title=" " alt="" coords="203,165,328,191"/>
+<area shape="rect" id="node4" href="$classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="204,81,327,108"/>
+<area shape="rect" id="node5" href="$classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="129,5,241,32"/>
+<area shape="rect" id="node6" href="$classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="265,5,425,32"/>
 </map>

@@ -1,8 +1,5 @@
 var searchData=
 [
-  ['tag_5flabel_5freal_5fvalue',['Tag_Label_Real_Value',['../namespacefz.html#a3d31dd53be55a148b33ff3a70be11d63',1,'fz']]],
-  ['targetdate_5fsorted_5fnodes',['targetdate_sorted_Nodes',['../namespacefz.html#a6358e8605cc00a33036635462664ee17',1,'fz']]],
-  ['topic_5fid',['Topic_ID',['../namespacefz.html#afddacf07ad964643983aa625bd00aba8',1,'fz']]],
-  ['topic_5frelevance',['Topic_Relevance',['../namespacefz.html#a4ef696382cc8a859adcdb76740012048',1,'fz']]],
-  ['topic_5ftags_5fvector',['Topic_Tags_Vector',['../namespacefz.html#a8a5e25f603a2622249dfae077c93916f',1,'fz']]]
+  ['segment_5fmemory_5ft_1422',['segment_memory_t',['../namespacefz.html#aabee04df43b16403996baaf6bd9d2a53',1,'fz']]],
+  ['stacktrace_1423',['StackTrace',['../namespacefz.html#a34ec4a9353f556467845f99dfd43a9aa',1,'fz']]]
 ];

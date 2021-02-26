@@ -1,2 +1,4 @@
 <map id="fz::Stack_Tracer" name="fz::Stack_Tracer">
+<area shape="rect" id="node1" title="This structure is used to collaboratively maintain a stack trace for use in both logged errors and ex..." alt="" coords="5,80,129,107"/>
+<area shape="rect" id="node2" title=" " alt="" coords="21,5,113,32"/>
 </map>

@@ -98,6 +98,7 @@ struct line_render_parameters {
     std::string datestamp;
     size_t actual_num_render = 0;
     time_t t_render = 0; ///< The time when page rendering commenced.
+    float day_total_hrs = 0.0;
 
     line_render_parameters(const std::string _srclist, const char * problem__func__) : srclist(_srclist) {
         graph_ptr = graphmemman.find_Graph_in_shared_memory();
@@ -151,8 +152,26 @@ struct line_render_parameters {
         }
     }
 
+    void insert_previous_day_summary() {
+        template_varvalues varvals;
+        varvals.emplace("node_id","");
+        varvals.emplace("topic","");
+        varvals.emplace("targetdate","");
+        varvals.emplace("alertstyle","");
+        varvals.emplace("req_hrs",to_precision_string(day_total_hrs,2));
+        varvals.emplace("tdprop","");
+        varvals.emplace("excerpt","");
+        varvals.emplace("fzserverpq","");
+        varvals.emplace("srclist","");
+        rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
+        day_total_hrs = 0.0;
+    }
+
     void insert_day_start(time_t t) {
         if ((fzgh.config.outputformat == output_txt) || (fzgh.config.outputformat == output_html)) {
+            if ((fzgh.config.include_daysummary) && (day_total_hrs > 0.0)) {
+                insert_previous_day_summary();
+            }
             template_varvalues varvals;
             varvals.emplace("node_id","<b>ID</b>");
             varvals.emplace("topic","<b>main topic</b>");
@@ -223,15 +242,18 @@ struct line_render_parameters {
             varvals.emplace("targetdate",tdstamp);
         }
         varvals.emplace("alertstyle",alertstyle);
+        float hours_to_show;
         if (fzgh.config.show_still_required) {
             if (node.get_repeats() && (const_cast<Node *>(&node)->effective_targetdate() != tdate)) {
-                varvals.emplace("req_hrs",to_precision_string(node.get_required_hours()));
+                hours_to_show = node.get_required_hours();
             } else {
-                varvals.emplace("req_hrs",to_precision_string(node.hours_to_complete()));
+                hours_to_show = node.hours_to_complete();
             }
         } else {
-            varvals.emplace("req_hrs",to_precision_string(node.get_required_hours()));
+            hours_to_show = node.get_required_hours();
         }
+        varvals.emplace("req_hrs",to_precision_string(hours_to_show));
+        day_total_hrs += hours_to_show;
 
         varvals.emplace("tdprop",render_tdproperty(node));
         std::string htmltext(node.get_text().c_str());

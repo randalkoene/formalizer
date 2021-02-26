@@ -1,8 +1,7 @@
 var searchData=
 [
-  ['log_5fchunk_5fid_5fkey_5fdeque',['Log_chunk_ID_key_deque',['../namespacefz.html#a19097fed21f7b5e73117677bb009ba08',1,'fz']]],
-  ['log_5fchunk_5fiterator_5finterval',['Log_chunk_iterator_interval',['../namespacefz.html#abb8ab36bf8f75e12b1467c872fc565da',1,'fz']]],
-  ['log_5fchunk_5fptr_5fmap_5felement',['Log_chunk_ptr_map_element',['../namespacefz.html#a0301e608a021fcc343ca1943908380de',1,'fz']]],
-  ['log_5fentries_5fmap',['Log_entries_Map',['../namespacefz.html#a36dc7a35876296c91d3ac9f8b762332e',1,'fz']]],
-  ['log_5fentry_5fiterator_5finterval',['Log_entry_iterator_interval',['../namespacefz.html#a33950887af9a1dfe223b82b40edc2b1f',1,'fz']]]
+  ['graph_5fgraph_5fptr_1412',['Graph_Graph_ptr',['../namespacefz.html#a7b4361969858babf3a2b83f4f1ebcfa2',1,'fz']]],
+  ['graphdecimal_1413',['Graphdecimal',['../namespacefz.html#afa0b830dbdc40a428e14bf782876cb5c',1,'fz']]],
+  ['graphid8bit_1414',['GraphID8bit',['../namespacefz.html#a9a9241e65e0da6ebbd23c70495d11fa0',1,'fz']]],
+  ['graphidcache_1415',['GraphIDcache',['../namespacefz.html#a609e8de3728db723e67ea620749e6cac',1,'fz']]]
 ];

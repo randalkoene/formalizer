@@ -1,3 +1,4 @@
 <map id="fz::graph_mem_managers" name="fz::graph_mem_managers">
-<area shape="rect" id="node2" href="$structfz_1_1shared__memory__manager.html" title="Every shared memory segment (e.g. for a different copy of a Graph) can have its own instance of these..." alt="" coords="5,5,196,32"/>
+<area shape="rect" id="node1" title="Keep track of multiple shared memory segments, switch which one is considered active for allocator us..." alt="" coords="16,95,208,121"/>
+<area shape="rect" id="node2" href="$structfz_1_1shared__memory__manager.html" title="Every shared memory segment (e.g. for a different copy of a Graph) can have its own instance of these..." alt="" coords="5,5,219,32"/>
 </map>

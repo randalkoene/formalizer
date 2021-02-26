@@ -1,4 +1,5 @@
 <map id="fz::Log_chunk_ID" name="fz::Log_chunk_ID">
-<area shape="rect" id="node2" href="$structfz_1_1Log__chunk__ID__key.html" title="Standardized Formalizer Log chunk ID key. " alt="" coords="5,95,159,121"/>
-<area shape="rect" id="node3" href="$structfz_1_1Log__TimeStamp.html" title="Timestamp IDs in the format required for Log IDs. " alt="" coords="14,5,150,32"/>
+<area shape="rect" id="node1" title=" " alt="" coords="21,184,153,211"/>
+<area shape="rect" id="node2" href="$structfz_1_1Log__chunk__ID__key.html" title="Standardized Formalizer Log chunk ID key." alt="" coords="5,95,168,121"/>
+<area shape="rect" id="node3" href="$structfz_1_1Log__TimeStamp.html" title="Timestamp IDs in the format required for Log IDs." alt="" coords="13,5,160,32"/>
 </map>

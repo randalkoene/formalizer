@@ -1,10 +1,17 @@
 <map id="fz::main_init_register" name="fz::main_init_register">
-<area shape="rect" id="node2" href="$classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="196,157,307,184"/>
-<area shape="rect" id="node3" href="$classfz_1_1fzpq__configurable.html" title="fz::fzpq_configurable" alt="" coords="355,5,497,32"/>
-<area shape="rect" id="node4" href="$classfzge__configurable.html" title="fzge_configurable" alt="" coords="364,56,488,83"/>
-<area shape="rect" id="node5" href="$classfzgh__configurable.html" title="fzgh_configurable" alt="" coords="364,107,488,133"/>
-<area shape="rect" id="node6" href="$classfzl__configurable.html" title="fzl_configurable" alt="" coords="369,157,483,184"/>
-<area shape="rect" id="node7" href="$classfzlh__configurable.html" title="fzlh_configurable" alt="" coords="366,208,486,235"/>
-<area shape="rect" id="node8" href="$classfzs__configurable.html" title="fzs_configurable" alt="" coords="367,259,485,285"/>
-<area shape="rect" id="node9" href="$classfzsi__configurable.html" title="fzsi_configurable" alt="" coords="366,309,486,336"/>
+<area shape="rect" id="node1" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="5,309,165,336"/>
+<area shape="rect" id="node2" href="$classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="213,309,336,336"/>
+<area shape="rect" id="node3" href="$classbp__configurable.html" title=" " alt="" coords="400,5,525,32"/>
+<area shape="rect" id="node4" href="$classfz_1_1fzpq__configurable.html" title=" " alt="" coords="384,56,541,83"/>
+<area shape="rect" id="node5" href="$classfze__configurable.html" title=" " alt="" coords="398,107,527,133"/>
+<area shape="rect" id="node6" href="$classfzge__configurable.html" title=" " alt="" coords="394,157,531,184"/>
+<area shape="rect" id="node7" href="$classfzgh__configurable.html" title=" " alt="" coords="394,208,531,235"/>
+<area shape="rect" id="node8" href="$classfzl__configurable.html" title=" " alt="" coords="400,259,525,285"/>
+<area shape="rect" id="node9" href="$classfzlh__configurable.html" title=" " alt="" coords="396,309,529,336"/>
+<area shape="rect" id="node10" href="$classfzlm__configurable.html" title=" " alt="" coords="393,360,532,387"/>
+<area shape="rect" id="node11" href="$classfzlt__configurable.html" title=" " alt="" coords="397,411,528,437"/>
+<area shape="rect" id="node12" href="$classfzs__configurable.html" title=" " alt="" coords="399,461,527,488"/>
+<area shape="rect" id="node13" href="$classfzsi__configurable.html" title=" " alt="" coords="397,512,529,539"/>
+<area shape="rect" id="node14" href="$classfzu__configurable.html" title=" " alt="" coords="398,563,527,589"/>
+<area shape="rect" id="node15" href="$classg2d__configurable.html" title=" " alt="" coords="396,613,529,640"/>
 </map>

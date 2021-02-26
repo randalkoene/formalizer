@@ -1,7 +1,8 @@
 <map id="fzge_configurable" name="fzge_configurable">
-<area shape="rect" id="node2" href="$classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="75,81,186,108"/>
-<area shape="rect" id="node3" href="$classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="5,5,109,32"/>
-<area shape="rect" id="node4" href="$classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="134,5,277,32"/>
-<area shape="rect" id="node5" href="$structNode__data.html" title="Data structure used when building an Add&#45;Node request, initialized to compile&#45;time default values..." alt="" coords="211,81,296,108"/>
-<area shape="rect" id="node6" href="$structEdge__data.html" title="Data structure used when building an Add&#45;Edge request, initialized to compile&#45;time default values..." alt="" coords="321,81,405,108"/>
+<area shape="rect" id="node1" title=" " alt="" coords="214,171,351,197"/>
+<area shape="rect" id="node2" href="$classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="80,81,203,108"/>
+<area shape="rect" id="node3" href="$classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="5,5,117,32"/>
+<area shape="rect" id="node4" href="$classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="141,5,301,32"/>
+<area shape="rect" id="node5" href="$structfz_1_1Node__data.html" title="On&#45;heap data structure used to specify values for data components of a Node." alt="" coords="227,81,339,108"/>
+<area shape="rect" id="node6" href="$structfz_1_1Edge__data.html" title="On&#45;heap data structure used to specify values for data components of an Edge." alt="" coords="363,81,474,108"/>
 </map>

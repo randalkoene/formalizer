@@ -1,11 +1,13 @@
 <map id="fz::Edge_pq" name="fz::Edge_pq">
-<area shape="rect" id="node2" href="$classfz_1_1Edge.html" title="fz::Edge" alt="" coords="187,392,258,419"/>
-<area shape="rect" id="node3" href="$classfz_1_1Edge__ID.html" title="Edge ID that caches its ID stamp for frequent use. " alt="" coords="235,288,327,315"/>
-<area shape="rect" id="node4" href="$structfz_1_1Edge__ID__key.html" title="Standardized Formalizer Edge ID key. " alt="" coords="240,199,360,225"/>
-<area shape="rect" id="node5" href="$structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key. " alt="" coords="190,95,311,121"/>
-<area shape="rect" id="node8" href="$classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use. " alt="" coords="123,199,216,225"/>
-<area shape="rect" id="node6" href="$structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs. " alt="" coords="186,5,315,32"/>
-<area shape="rect" id="node7" href="$classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph. " alt="" coords="133,288,205,315"/>
-<area shape="rect" id="node9" href="$classfz_1_1Graph.html" title="fz::Graph" alt="" coords="22,199,98,225"/>
-<area shape="rect" id="node10" href="$classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID. " alt="" coords="5,95,115,121"/>
+<area shape="rect" id="node1" title="A data types conversion helper class that can deliver the Postgres Edge table equivalent INSERT value..." alt="" coords="197,481,295,508"/>
+<area shape="rect" id="node2" href="$classfz_1_1Edge.html" title=" " alt="" coords="209,392,283,419"/>
+<area shape="rect" id="node3" href="$classfz_1_1Edge__ID.html" title="Edge ID that caches its ID stamp for frequent use." alt="" coords="293,288,388,315"/>
+<area shape="rect" id="node4" href="$structfz_1_1Edge__ID__key.html" title="Standardized Formalizer Edge ID key." alt="" coords="362,199,487,225"/>
+<area shape="rect" id="node5" href="$structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key." alt="" coords="275,95,401,121"/>
+<area shape="rect" id="node8" href="$classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use." alt="" coords="240,199,337,225"/>
+<area shape="rect" id="node6" href="$structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs." alt="" coords="269,5,407,32"/>
+<area shape="rect" id="node7" href="$classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph." alt="" coords="153,288,229,315"/>
+<area shape="rect" id="node9" href="$classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="5,199,111,225"/>
+<area shape="rect" id="node10" href="$classfz_1_1Graph.html" title=" " alt="" coords="135,199,216,225"/>
+<area shape="rect" id="node11" href="$classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID." alt="" coords="120,95,231,121"/>
 </map>

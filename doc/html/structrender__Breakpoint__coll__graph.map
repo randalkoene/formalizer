@@ -1,6 +1,9 @@
 <map id="render_Breakpoint" name="render_Breakpoint">
-<area shape="rect" id="node2" href="$structfz_1_1render__environment.html" title="Configuration for a template rendering environment. " alt="" coords="5,171,160,197"/>
-<area shape="rect" id="node3" href="$classfz_1_1Log.html" title="Log" alt="" coords="185,171,247,197"/>
-<area shape="rect" id="node4" href="$classfz_1_1Log__Breakpoints.html" title="Log Breakpoints (section starts)" alt="" coords="57,81,196,108"/>
-<area shape="rect" id="node6" href="$structfz_1_1Log__chunks__Map.html" title="Log chunks (map)" alt="" coords="229,81,371,108"/>
+<area shape="rect" id="node1" title="Add a Breakpoint&#39;s data and that of its first Log chunk to a cumulative render string." alt="" coords="72,260,215,287"/>
+<area shape="rect" id="node2" href="$structfz_1_1render__environment.html" title="Configuration for a template rendering environment." alt="" coords="5,171,180,197"/>
+<area shape="rect" id="node3" href="$classfz_1_1Log.html" title=" " alt="" coords="204,171,269,197"/>
+<area shape="rect" id="node4" href="$classfz_1_1Log__Breakpoints.html" title=" " alt="" coords="65,81,216,108"/>
+<area shape="rect" id="node5" title=" " alt="" coords="41,5,230,32"/>
+<area shape="rect" id="node6" href="$structfz_1_1Log__chunks__Map.html" title=" " alt="" coords="249,81,403,108"/>
+<area shape="rect" id="node7" title=" " alt="" coords="254,5,406,32"/>
 </map>

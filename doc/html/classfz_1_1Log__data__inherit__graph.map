@@ -1,4 +1,5 @@
 <map id="fz::Log_data" name="fz::Log_data">
-<area shape="rect" id="node2" href="$classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk. " alt="" coords="5,80,109,107"/>
-<area shape="rect" id="node3" href="$classfz_1_1Log__entry.html" title="fz::Log_entry" alt="" coords="133,80,232,107"/>
+<area shape="rect" id="node1" title="Log data base class providing shared parameters and functions." alt="" coords="77,5,178,32"/>
+<area shape="rect" id="node2" href="$classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk." alt="" coords="5,80,116,107"/>
+<area shape="rect" id="node3" href="$classfz_1_1Log__entry.html" title=" " alt="" coords="141,80,247,107"/>
 </map>

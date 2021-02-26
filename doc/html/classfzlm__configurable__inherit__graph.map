@@ -1,0 +1,6 @@
+<map id="fzlm_configurable" name="fzlm_configurable">
+<area shape="rect" id="node1" title=" " alt="" coords="72,155,211,181"/>
+<area shape="rect" id="node2" href="$classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="80,80,203,107"/>
+<area shape="rect" id="node3" href="$classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="5,5,117,32"/>
+<area shape="rect" id="node4" href="$classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="141,5,301,32"/>
+</map>

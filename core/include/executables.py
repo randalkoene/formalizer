@@ -24,6 +24,7 @@ executables = (
     'fzbackup.py',
     'fzedit',
     'fzgraph',
+    'fzgraphsearch',
     'fzguide.system',
     'fzinfo.py',
     'fzlog',

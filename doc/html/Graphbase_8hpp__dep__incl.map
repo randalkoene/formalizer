@@ -1,24 +1,37 @@
 <map id="core/include/Graphbase.hpp" name="core/include/Graphbase.hpp">
-<area shape="rect" id="node2" href="$fzgraph_8hpp_source.html" title="core/fzgraph/fzgraph.hpp" alt="" coords="329,80,496,107"/>
-<area shape="rect" id="node4" href="$Graphtypes_8hpp_source.html" title="core/include/Graphtypes.hpp" alt="" coords="840,80,1028,107"/>
-<area shape="rect" id="node23" href="$Graphunshared_8hpp_source.html" title="core/include/Graphunshared.hpp" alt="" coords="1052,80,1261,107"/>
-<area shape="rect" id="node3" href="$addedge_8hpp_source.html" title="core/fzgraph/addedge.hpp" alt="" coords="5,162,177,189"/>
-<area shape="rect" id="node5" href="$Logtypes_8hpp.html" title="This header file declares Log types for use with the Formalizer. " alt="" coords="1328,244,1503,271"/>
-<area shape="rect" id="node16" href="$LogtypesID_8hpp_source.html" title="core/include/LogtypesID.hpp" alt="" coords="1256,162,1444,189"/>
-<area shape="rect" id="node17" href="$Graphinfo_8hpp.html" title="This header file declares basic information gathering functions for use with Graph data structures..." alt="" coords="1520,162,1697,189"/>
-<area shape="rect" id="node18" href="$Graphmodify_8hpp_source.html" title="core/include/Graphmodify.hpp" alt="" coords="202,162,397,189"/>
-<area shape="rect" id="node19" href="$Graphpostgres_8hpp.html" title="This header file declares Graph, Node aned Edge Postgres types for use with the Formalizer. " alt="" coords="421,162,628,189"/>
-<area shape="rect" id="node20" href="$graph2dil_8hpp.html" title="This header file is used for declarations specific to the graph2dil tool. " alt="" coords="653,155,826,196"/>
-<area shape="rect" id="node21" href="$nbrender_8hpp_source.html" title="tools/interface/nodeboard\l/nbrender.hpp" alt="" coords="850,155,1018,196"/>
-<area shape="rect" id="node22" href="$test__noncontainer__Graphshared_8hpp_source.html" title="tools/misc/test_noncontainer\l_Graphshared.hpp" alt="" coords="1042,155,1231,196"/>
-<area shape="rect" id="node6" href="$Graphaccess_8hpp_source.html" title="core/include/Graphaccess.hpp" alt="" coords="944,326,1143,353"/>
-<area shape="rect" id="node11" href="$fzloghtml_8hpp_source.html" title="tools/interface/fzloghtml\l/fzloghtml.hpp" alt="" coords="1169,408,1331,449"/>
-<area shape="rect" id="node12" href="$Logpostgres_8hpp.html" title="This header file declares Log Postgres types for use with the Formalizer. " alt="" coords="1217,326,1409,353"/>
-<area shape="rect" id="node13" href="$logtest_8hpp_source.html" title="tools/conversion/dil2graph\l/logtest.hpp" alt="" coords="1433,319,1606,360"/>
-<area shape="rect" id="node14" href="$tl2log_8hpp_source.html" title="tools/conversion/dil2graph\l/tl2log.hpp" alt="" coords="1630,319,1803,360"/>
-<area shape="rect" id="node15" href="$log2tl_8hpp_source.html" title="tools/conversion/graph2dil\l/log2tl.hpp" alt="" coords="1827,319,2001,360"/>
-<area shape="rect" id="node7" href="$fzlog_8hpp_source.html" title="core/fzlog/fzlog.hpp" alt="" coords="563,415,699,442"/>
-<area shape="rect" id="node8" href="$fzquerypq_8hpp_source.html" title="core/fzquerypq/fzquerypq.hpp" alt="" coords="723,415,918,442"/>
-<area shape="rect" id="node9" href="$fzserverpq_8hpp_source.html" title="core/fzserverpq/fzserverpq.hpp" alt="" coords="942,415,1145,442"/>
-<area shape="rect" id="node10" href="$dil2graph_8hpp_source.html" title="tools/conversion/dil2graph\l/dil2graph.hpp" alt="" coords="1433,408,1606,449"/>
+<area shape="rect" id="node1" title=" " alt="" coords="2778,5,2981,32"/>
+<area shape="rect" id="node2" href="$fzedit_8hpp_source.html" title=" " alt="" coords="1605,80,1765,107"/>
+<area shape="rect" id="node3" href="$fzgraph_8hpp_source.html" title=" " alt="" coords="3025,251,3209,278"/>
+<area shape="rect" id="node5" href="$Graphtypes_8hpp_source.html" title=" " alt="" coords="1789,80,1997,107"/>
+<area shape="rect" id="node34" href="$Graphtoken_8hpp_source.html" title=" " alt="" coords="2917,80,3125,107"/>
+<area shape="rect" id="node35" href="$Graphunshared_8hpp_source.html" title=" " alt="" coords="3149,80,3405,107"/>
+<area shape="rect" id="node4" href="$addedge_8hpp_source.html" title=" " alt="" coords="3021,341,3212,367"/>
+<area shape="rect" id="node6" href="$fzupdate_8hpp_source.html" title=" " alt="" coords="1214,162,1414,189"/>
+<area shape="rect" id="node7" href="$epsmap_8hpp_source.html" title=" " alt="" coords="1190,251,1385,278"/>
+<area shape="rect" id="node8" href="$epsmap-oldmethod_8hpp_source.html" title=" " alt="" coords="1606,244,1787,285"/>
+<area shape="rect" id="node9" href="$Logtypes_8hpp.html" title=" " alt="" coords="747,251,939,278"/>
+<area shape="rect" id="node22" href="$LogtypesID_8hpp_source.html" title=" " alt="" coords="881,162,1088,189"/>
+<area shape="rect" id="node23" href="$Graphinfo_8hpp.html" title=" " alt="" coords="1495,341,1693,367"/>
+<area shape="rect" id="node24" href="$Graphmodify_8hpp_source.html" title=" " alt="" coords="2627,162,2841,189"/>
+<area shape="rect" id="node27" href="$Graphpostgres_8hpp.html" title=" " alt="" coords="2401,251,2629,278"/>
+<area shape="rect" id="node28" href="$graph2dil_8hpp.html" title=" " alt="" coords="1438,155,1633,196"/>
+<area shape="rect" id="node29" href="$fzgraphhtml_8hpp_source.html" title=" " alt="" coords="1657,155,1856,196"/>
+<area shape="rect" id="node30" href="$fzserver-info_8hpp_source.html" title=" " alt="" coords="2378,155,2551,196"/>
+<area shape="rect" id="node32" href="$nbrender_8hpp_source.html" title=" " alt="" coords="1930,155,2119,196"/>
+<area shape="rect" id="node33" href="$test__noncontainer__Graphshared_8hpp_source.html" title=" " alt="" coords="2143,155,2354,196"/>
+<area shape="rect" id="node10" href="$Graphaccess_8hpp_source.html" title=" " alt="" coords="991,341,1207,367"/>
+<area shape="rect" id="node15" href="$fzloghtml_8hpp_source.html" title=" " alt="" coords="595,423,777,464"/>
+<area shape="rect" id="node16" href="$fzlogmap_8hpp_source.html" title=" " alt="" coords="1673,423,1854,464"/>
+<area shape="rect" id="node18" href="$Logpostgres_8hpp.html" title=" " alt="" coords="5,341,217,367"/>
+<area shape="rect" id="node19" href="$logtest_8hpp_source.html" title=" " alt="" coords="679,333,874,375"/>
+<area shape="rect" id="node20" href="$tl2log_8hpp_source.html" title=" " alt="" coords="461,333,655,375"/>
+<area shape="rect" id="node21" href="$log2tl_8hpp_source.html" title=" " alt="" coords="242,333,437,375"/>
+<area shape="rect" id="node11" href="$fzlog_8hpp_source.html" title=" " alt="" coords="1257,430,1408,457"/>
+<area shape="rect" id="node12" href="$fzquerypq_8hpp_source.html" title=" " alt="" coords="1433,430,1649,457"/>
+<area shape="rect" id="node13" href="$fzserverpq_8hpp_source.html" title=" " alt="" coords="802,430,1026,457"/>
+<area shape="rect" id="node14" href="$dil2graph_8hpp_source.html" title=" " alt="" coords="375,423,570,464"/>
+<area shape="rect" id="node17" href="$fzlogtime_8hpp_source.html" title=" " alt="" coords="1051,423,1233,464"/>
+<area shape="rect" id="node25" href="$shm__server__handlers_8hpp_source.html" title=" " alt="" coords="2839,244,3000,285"/>
+<area shape="rect" id="node26" href="$tcp__server__handlers_8hpp_source.html" title=" " alt="" coords="2653,244,2815,285"/>
+<area shape="rect" id="node31" href="$fzserver-info_2render_8hpp_source.html" title=" " alt="" coords="2203,244,2377,285"/>
 </map>

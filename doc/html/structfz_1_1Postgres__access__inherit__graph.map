@@ -1,3 +1,4 @@
 <map id="fz::Postgres_access" name="fz::Postgres_access">
-<area shape="rect" id="node2" href="$structfz_1_1Graph__access.html" title="A standardized way to access the Graph database. " alt="" coords="14,80,139,107"/>
+<area shape="rect" id="node1" title="A standardized way to access the Formalizer database." alt="" coords="5,5,155,32"/>
+<area shape="rect" id="node2" href="$structfz_1_1Graph__access.html" title="A standardized way to access the Graph database." alt="" coords="14,80,146,107"/>
 </map>

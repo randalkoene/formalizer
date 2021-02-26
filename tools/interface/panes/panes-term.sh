@@ -127,11 +127,19 @@ if [ "$x" = "1920" ]; then
 	ln -s -f $FORMALIZERBASEDIR/tools/interface/fzloghtml/fzloghtml-term-1920.sh fzloghtml-term.sh
 	ln -s -f $FORMALIZERBASEDIR/tools/system/top/index-term-1920.sh index-term.sh
 else
-	monitor.sh
-        ln -s -f $FORMALIZERBASEDIR/tools/interface/fzlogtime/fzlogtime-term.sh fzlogtime-term.sh
-        ln -s -f $FORMALIZERBASEDIR/tools/interface/fzgraphhtml/fzgraphhtml-term.sh fzgraphhtml-term.sh
-        ln -s -f $FORMALIZERBASEDIR/tools/interface/fzloghtml/fzloghtml-term.sh fzloghtml-term.sh
-        ln -s -f $FORMALIZERBASEDIR/tools/system/top/index-term.sh index-term.sh
+	if [ "$x" = "1366" ]; then
+		monitor.sh 1366
+		ln -s -f $FORMALIZERBASEDIR/tools/interface/fzlogtime/fzlogtime-term-1920.sh fzlogtime-term.sh
+		ln -s -f $FORMALIZERBASEDIR/tools/interface/fzgraphhtml/fzgraphhtml-term-1920.sh fzgraphhtml-term.sh
+		ln -s -f $FORMALIZERBASEDIR/tools/interface/fzloghtml/fzloghtml-term-1920.sh fzloghtml-term.sh
+		ln -s -f $FORMALIZERBASEDIR/tools/system/top/index-term-1920.sh index-term.sh
+	else
+		monitor.sh
+        	ln -s -f $FORMALIZERBASEDIR/tools/interface/fzlogtime/fzlogtime-term.sh fzlogtime-term.sh
+        	ln -s -f $FORMALIZERBASEDIR/tools/interface/fzgraphhtml/fzgraphhtml-term.sh fzgraphhtml-term.sh
+        	ln -s -f $FORMALIZERBASEDIR/tools/interface/fzloghtml/fzloghtml-term.sh fzloghtml-term.sh
+       		ln -s -f $FORMALIZERBASEDIR/tools/system/top/index-term.sh index-term.sh
+	fi
 fi
 
 cd $HOME

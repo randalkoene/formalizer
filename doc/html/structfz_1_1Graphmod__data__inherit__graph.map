@@ -1,0 +1,4 @@
+<map id="fz::Graphmod_data" name="fz::Graphmod_data">
+<area shape="rect" id="node1" title="This is the data structure used for elements of the request stack for Graph modification." alt="" coords="5,80,152,107"/>
+<area shape="rect" id="node2" href="$classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="26,5,131,32"/>
+</map>
