@@ -1,18 +1,18 @@
-// Copyright {{ thedate }} Randal A. Koene
+// Copyright 20210226 Randal A. Koene
 // License TBD
 
 /**
  * {{ header_description }}
  * 
- * Versioning is based on https://semver.org/ and the C++ header defines __{{ CAPSthis }}_HPP.
+ * Versioning is based on https://semver.org/ and the C++ header defines __FZDASHBOARD_HPP.
  */
 
-#ifndef __{{ CAPSthis }}_HPP
+#ifndef __FZDASHBOARD_HPP
 #include "version.hpp"
-#define __{{ CAPSthis }}_HPP (__VERSION_HPP)
+#define __FZDASHBOARD_HPP (__VERSION_HPP)
 
 // core
-{{ config_include }}
+#include "config.hpp"
 #include "standard.hpp"
 // #include "Graphaccess.hpp"
 
@@ -24,17 +24,25 @@ enum flow_options {
     flow_NUMoptions
 };
 
-{{ th_configurable_or_configbase }}
 
-struct {{ this }}: public formalizer_standard_program {
+class fzdsh_configurable: public configurable {
+public:
+    fzdsh_configurable(formalizer_standard_program & fsp): configurable("fzdashboard", fsp) {}
+    bool set_parameter(const std::string & parlabel, const std::string & parvalue);
 
-    {{ config_support }}
+    //std::string example_par;   ///< example of configurable parameter
+};
+
+
+struct fzdashboard: public formalizer_standard_program {
+
+    fzdsh_configurable config;
 
     flow_options flowcontrol;
 
     // Graph_access ga; // to include Graph or Log access support
 
-    {{ this }}();
+    fzdashboard();
 
     virtual void usage_hook();
 
@@ -49,6 +57,6 @@ struct {{ this }}: public formalizer_standard_program {
 
 };
 
-extern {{ this }} {{ th }};
+extern fzdashboard fzdsh;
 
-#endif // __{{ CAPSthis }}_HPP
+#endif // __FZDASHBOARD_HPP

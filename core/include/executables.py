@@ -39,6 +39,7 @@ executables = (
     'graph2dil-integrity.py',
     'boilerplate',
     'fzbuild.py',
+    'fzdashboard',
     'fzgraphhtml',
     'fzloghtml',
     'fzlogtime',

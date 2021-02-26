@@ -1,4 +1,4 @@
-// Copyright {{ thedate }} Randal A. Koene
+// Copyright 20210226 Randal A. Koene
 // License TBD
 
 /**
@@ -9,7 +9,7 @@
  * For more about this, see {{ doc_reference }}.
  */
 
-#define FORMALIZER_MODULE_ID "Formalizer:{{ module_id }}"
+#define FORMALIZER_MODULE_ID "Formalizer:Interface:Board:HTML"
 
 // std
 #include <iostream>
@@ -23,20 +23,20 @@
 
 // local
 #include "version.hpp"
-#include "{{ this }}.hpp"
-{{ render_hpp }}
+#include "fzdashboard.hpp"
+#include "render.hpp"
 
 
 using namespace fz;
 
 /// The local class derived from `formalizer_standard_program`.
-{{ this }} {{ th }};
+fzdashboard fzdsh;
 
 /**
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-{{ this }}::{{ this }}() {{ construct_inherited_config_access_etc }} { //ga(*this, add_option_args, add_usage_top)
+fzdashboard::fzdashboard() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
     //add_option_args += "x:";
     //add_usage_top += " [-x <something>]";
     //usage_head.push_back("Description at the head of usage information.\n");
@@ -47,7 +47,7 @@ using namespace fz;
  * Add FZOUT statements for each line of the usage info to print as
  * help for program specific command line options.
  */
-void {{ this }}::usage_hook() {
+void fzdashboard::usage_hook() {
     //ga.usage_hook();
     //FZOUT("    -x something explanation\n");
 }
@@ -62,7 +62,7 @@ void {{ this }}::usage_hook() {
  * @param c is the character that identifies a specific option.
  * @param cargs is the optional parameter value provided for the option.
  */
-bool {{ this }}::options_hook(char c, std::string cargs) {
+bool fzdashboard::options_hook(char c, std::string cargs) {
     //if (ga.options_hook(c,cargs))
     //        return true;
 
@@ -80,7 +80,14 @@ bool {{ this }}::options_hook(char c, std::string cargs) {
     return false;
 }
 
-{{ config_set_parameter_implementation }}
+
+/// Configure configurable parameters.
+bool fzdsh_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
+    //CONFIG_TEST_AND_SET_PAR(example_par, "examplepar", parlabel, parvalue);
+    //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
+    CONFIG_PAR_NOT_FOUND(parlabel);
+}
+
 
 /**
  * Initialize configuration parameters.
@@ -89,7 +96,7 @@ bool {{ this }}::options_hook(char c, std::string cargs) {
  * @param argc command line parameters count forwarded from main().
  * @param argv command line parameters array forwarded from main().
  */
-void {{ this }}::init_top(int argc, char *argv[]) {
+void fzdashboard::init_top(int argc, char *argv[]) {
     ERRTRACE;
 
     // *** add any initialization here that has to happen before standard initialization
@@ -110,12 +117,12 @@ Graph & fzgraphsearch::graph() {
 int main(int argc, char *argv[]) {
     ERRTRACE;
 
-    {{ th }}.init_top(argc, argv);
+    fzdsh.init_top(argc, argv);
 
     FZOUT("\nThis is a stub.\n\n");
     key_pause();
 
-    switch ({{ th }}.flowcontrol) {
+    switch (fzdsh.flowcontrol) {
 
     /*
     case flow_something: {
@@ -124,7 +131,7 @@ int main(int argc, char *argv[]) {
     */
 
     default: {
-        {{ th }}.print_usage();
+        fzdsh.print_usage();
     }
 
     }

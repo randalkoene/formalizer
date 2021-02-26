@@ -41,6 +41,7 @@ compile_dirs = {
     "lib" : "/core/lib",
     "fzedit" : "/core/fzedit",
     "fzgraph" : "/core/fzgraph",
+    "fzgraphsearch" : "/core/fzgraphsearch",
     "fzguide.system" : "/core/fzguide.system",
     "fzlog" : "/core/fzlog",
     "fzquerypq" : "/core/fzquerypq",
@@ -49,6 +50,7 @@ compile_dirs = {
     "dil2graph" : "/tools/conversion/dil2graph",
     "graph2dil" : "/tools/conversion/graph2dil",
     "boilerplate" : "/tools/dev/boilerplate",
+    "fzdashboard" : "/tools/interface/fzdashboard",
     "fzgraphhtml" : "/tools/interface/fzgraphhtml",
     "fzloghtml" : "/tools/interface/fzloghtml",
     "fzlogmap" : "/tools/interface/fzlogmap",
@@ -68,6 +70,7 @@ flow_control = {
     'build_graph2dil' : False,
     'build_fzedit' : False,
     'build_fzgraph' : False,
+    'build_fzgraphsearch' : False,
     'build_fzguide.system' : False,
     'build_fzlog' : False,
     'build_fzquerypq' : False,
@@ -76,6 +79,7 @@ flow_control = {
     'build_fzloghtml' : False,
     'build_fzlogmap' : False,
     'build_fzlogtime' : False,
+    'build_fzdashboard' : False,
     'build_fzgraphhtml' : False,
     'build_fzserver-info': False,
     'build_nodeboard' : False,
@@ -244,10 +248,12 @@ if __name__ == '__main__':
     parser.add_argument('-H', '--fzloghtml', dest='fzloghtml', action='store_true', help='Build fzloghtml from scratch')
     parser.add_argument('-m', '--fzlogmap', dest='fzlogmap', action='store_true', help='Build fzlogmap from scratch')
     parser.add_argument('-T', '--fzlogtime', dest='fzlogtime', action='store_true', help='Build fzlogtime from scratch')
+    parser.add_argument('-D', '--fzdashboard', dest='fzdashboard', action='store_true', help='Build fzdashboard from scratch')
     parser.add_argument('-G', '--fzgraphhtml', dest='fzgraphhtml', action='store_true', help='Build fzgraphhtml from scratch')
     parser.add_argument('-E', '--fzedit', dest='fzedit', action='store_true', help='Build fzedit from scratch')
     parser.add_argument('-p', '--fzgraph', dest='fzgraph', action='store_true', help='Build fzgraph from scratch')
-    parser.add_argument('-s', '--fzguide_system', dest='fzguide_system', action='store_true', help='Build fzguide.system from scratch')
+    parser.add_argument('--fzgraphsearch', dest='fzgraphsearch', action='store_true', help='Build fzgraph from scratch')
+    parser.add_argument('-s', '--fzguide_system', dest='fzguide_system', action='store_true', help='Build fzgraphsearch from scratch')
     parser.add_argument('-o', '--fzlog', dest='fzlog', action='store_true', help='Build fzlog from scratch')
     parser.add_argument('-q', '--fzquerypq', dest='fzquerypq', action='store_true', help='Build fzquerypq from scratch')
     parser.add_argument('-S', '--fzserverpq', dest='fzserverpq', action='store_true', help='Build fzserverpq from scratch')
@@ -261,6 +267,8 @@ if __name__ == '__main__':
         flow_control['build_fzedit'] = True
     if args.fzgraph:
         flow_control['build_fzgraph'] = True
+    if args.fzgraphsearcg:
+        flow_control['build_fzgraphsearch'] = True
     if args.fzguide_system:
         flow_control['build_fzguide.system'] = True
     if args.fzlog:
@@ -297,6 +305,8 @@ if __name__ == '__main__':
         flow_control['build_fzlogmap'] = True
     if args.fzlogtime:
         flow_control['build_fzlogtime'] = True
+    if args.fzdashboard:
+        flow_control['build_fzdashboard'] = True
     if args.fzgraphhtml:
         flow_control['build_fzgraphhtml'] = True
 
@@ -322,6 +332,8 @@ if __name__ == '__main__':
         build_program('fzlogmap', args)
     if flow_control['build_fzgraphhtml']:
         build_program('fzgraphhtml', args)
+    if flow_control['build_fzdashboard']:
+        build_program('fzdashboard', args)
     if flow_control['build_fzlogtime']:
         build_program('fzlogtime', args)
     if flow_control['build_fzedit']:
