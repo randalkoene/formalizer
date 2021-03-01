@@ -14,6 +14,8 @@
 #define __JSONLITE_HPP (__COREVERSION_HPP)
 
 // std
+#include <memory>
+#include <vector>
 #include <map>
 #include <fstream>
 
@@ -64,6 +66,54 @@ jsonlite_label_value_pairs json_get_label_value_pairs_from_string(std::string & 
  * @return A string containing the JSON content.
  */
 std::string json_label_value_pairs_to_string(const jsonlite_label_value_pairs & labelvaluepairs);
+
+enum JSON_element_type {
+    json_string = 0,
+    json_number = 1,
+    json_flag = 2,
+    json_block = 3,
+    NUM_json_element_types
+};
+
+// forward declaration
+struct JSON_block;
+
+struct JSON_element {
+    std::string label;
+    JSON_element_type type = JSON_element_type::json_string;
+    float number = 0.0;
+    std::string text;
+    bool flag = false;
+    std::unique_ptr<JSON_block> children;
+    JSON_element(std::string _label): label(_label) {}
+    bool is_flag() { return type == JSON_element_type::json_flag; }
+    bool is_number() { return type == JSON_element_type::json_number; }
+    bool is_string() { return type == JSON_element_type::json_string; }
+    bool is_block() { return type == JSON_element_type::json_block; }
+    std::string json_str(size_t indent = 0);
+};
+
+struct JSON_block {
+    std::vector<std::unique_ptr<JSON_element>> elements;
+    std::string json_str(size_t indent = 0);
+};
+
+class JSON_data {
+    size_t num_element = 0;
+    size_t num_blocks = 0;
+    bool get_number_value(const std::string & jsonstr, size_t & pos, JSON_element & element);
+    JSON_element * get_element(const std::string & jsonstr, size_t & pos, JSON_block & parent);
+    JSON_block * block_opening(const std::string & jsonstr, size_t & pos, JSON_element & parent);
+
+public:
+    JSON_element data;
+    JSON_data(): data("") {}
+    JSON_data(const std::string & jsonstr): data("") { parse_JSON(jsonstr, data); }
+    bool parse_JSON(const std::string & jsonstr, JSON_element & data);
+    size_t size() { return num_element; }
+    size_t blocks() { return num_blocks; }
+    std::string json_str();
+};
 
 } // namespace fz
 

@@ -37,8 +37,8 @@ fzdashboard fzdsh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzdashboard::fzdashboard() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    //add_option_args += "x:";
-    //add_usage_top += " [-x <something>]";
+    add_option_args += "D";
+    add_usage_top += " [-D]";
     //usage_head.push_back("Description at the head of usage information.\n");
     //usage_tail.push_back("Extra usage information.\n");
 }
@@ -49,7 +49,7 @@ fzdashboard::fzdashboard() : formalizer_standard_program(false), config(*this) {
  */
 void fzdashboard::usage_hook() {
     //ga.usage_hook();
-    //FZOUT("    -x something explanation\n");
+    FZOUT("    -D render dashboard\n");
 }
 
 /**
@@ -68,12 +68,10 @@ bool fzdashboard::options_hook(char c, std::string cargs) {
 
     switch (c) {
 
-    /*
-    case 'x': {
-
-        break;
+    case 'D': {
+        flowcontrol = flow_dashboard;
+        return true;
     }
-    */
 
     }
 
@@ -119,16 +117,11 @@ int main(int argc, char *argv[]) {
 
     fzdsh.init_top(argc, argv);
 
-    FZOUT("\nThis is a stub.\n\n");
-    key_pause();
-
     switch (fzdsh.flowcontrol) {
 
-    /*
-    case flow_something: {
-        return something();
+    case flow_dashboard: {
+        return render();
     }
-    */
 
     default: {
         fzdsh.print_usage();

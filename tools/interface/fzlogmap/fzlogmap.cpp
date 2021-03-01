@@ -651,7 +651,7 @@ Minute_Totals_vec_t map2totals(const Minute_Record_Map & mrmap, Node_Category_Ca
 
 std::string totals2str(Minute_Totals_vec_t & mintotvec, category_set_t & categories, unsigned int colwidth = 7, bool hours = true) {
     std::string totstr;
-    for (const auto & catstr : categories) {
+    for (const auto & catstr : categories) { // *** NEEDS TO BE MORE LEGIBLE!
         if (catstr.size() >= colwidth) {
             totstr += catstr.substr(0,colwidth) + ' ';
         } else {

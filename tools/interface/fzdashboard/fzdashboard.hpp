@@ -20,7 +20,7 @@ using namespace fz;
 
 enum flow_options {
     flow_unknown = 0, /// no recognized request
-    //flow_something = 1,     /// request: make boilerplate for C++ program
+    flow_dashboard = 1,     /// request: render dashboard
     flow_NUMoptions
 };
 
@@ -31,6 +31,7 @@ public:
     bool set_parameter(const std::string & parlabel, const std::string & parvalue);
 
     //std::string example_par;   ///< example of configurable parameter
+    std::string top_path;
 };
 
 
