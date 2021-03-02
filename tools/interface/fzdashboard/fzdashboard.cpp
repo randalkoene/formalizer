@@ -37,8 +37,8 @@ fzdashboard fzdsh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzdashboard::fzdashboard() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "D";
-    add_usage_top += " [-D]";
+    add_option_args += "Do:";
+    add_usage_top += " [-D] [-o <output-dir>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     //usage_tail.push_back("Extra usage information.\n");
 }
@@ -49,7 +49,8 @@ fzdashboard::fzdashboard() : formalizer_standard_program(false), config(*this) {
  */
 void fzdashboard::usage_hook() {
     //ga.usage_hook();
-    FZOUT("    -D render dashboard\n");
+    FZOUT("    -D render dashboard\n"
+          "    -o output directory or STDOUT (default in config or current dir)\n");
 }
 
 /**
@@ -73,6 +74,11 @@ bool fzdashboard::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'o': {
+        config.top_path = cargs;
+        return true;
+    }
+
     }
 
     return false;
@@ -81,7 +87,7 @@ bool fzdashboard::options_hook(char c, std::string cargs) {
 
 /// Configure configurable parameters.
 bool fzdsh_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
-    //CONFIG_TEST_AND_SET_PAR(example_par, "examplepar", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(top_path, "top_path", parlabel, parvalue);
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
@@ -120,7 +126,12 @@ int main(int argc, char *argv[]) {
     switch (fzdsh.flowcontrol) {
 
     case flow_dashboard: {
-        return render();
+        if (render(dynamic_html)) {
+            if (render(static_html)) {
+                return standard.completed_ok();;
+            }
+        }
+        return standard_exit_error(exit_general_error, "Rendering error.", __func__);
     }
 
     default: {

@@ -31,7 +31,7 @@ public:
     bool set_parameter(const std::string & parlabel, const std::string & parvalue);
 
     //std::string example_par;   ///< example of configurable parameter
-    std::string top_path;
+    std::string top_path = ".";
 };
 
 

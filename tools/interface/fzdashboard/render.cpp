@@ -40,32 +40,46 @@ enum template_id_enum {
     index_section_temp,
     index_button_here_temp,
     index_button_there_temp,
-    index_static_temp,
-    index_static_section_temp,
-    index_static_button_here_temp,
-    index_static_button_there_temp,
     NUM_temp
 };
 
-const std::vector<std::string> template_ids = {
-    "index_template.html",
-    "index_section_template.html",
-    "index_button_here_template.html",
-    "index_button_there_template.html",
-    "index_-static_template.html",
-    "index-static_section_template.html",
-    "index-static_button_here_template.html",
-    "index-static_button_there_template.html"
+// const std::vector<std::string> dynamics_template_ids = {
+//     "index_template.html",
+//     "index_section_template.html",
+//     "index_button_here_template.html",
+//     "index_button_there_template.html",
+// };
+
+// const std::vector<std::string> static_template_ids = {
+//     "index-static_template.html",
+//     "index-static_section_template.html",
+//     "index-static_button_here_template.html",
+//     "index-static_button_there_template.html"  
+// };
+
+const std::vector<std::string> template_ids[2] = {
+    {
+        "index_template.html",
+        "index_section_template.html",
+        "index_button_here_template.html",
+        "index_button_there_template.html",
+    },
+    {
+        "index-static_template.html",
+        "index-static_section_template.html",
+        "index-static_button_here_template.html",
+        "index-static_button_there_template.html"  
+    }
 };
 
 typedef std::map<template_id_enum,std::string> fzdashboard_templates;
 
-bool load_templates(fzdashboard_templates & templates) {
+bool load_templates(fzdashboard_templates & templates, dynamic_or_static html_output = dynamic_html) {
     templates.clear();
 
     for (int i = 0; i < NUM_temp; ++i) {
-        if (!file_to_string(template_dir + "/" + template_ids[i], templates[static_cast<template_id_enum>(i)]))
-            ERRRETURNFALSE(__func__, "unable to load " + template_ids[i]);
+        if (!file_to_string(template_dir + "/" + template_ids[html_output][i], templates[static_cast<template_id_enum>(i)]))
+            ERRRETURNFALSE(__func__, "unable to load " + template_ids[html_output][i]);
     }
 
     return true;
@@ -330,45 +344,102 @@ std::string jsonstr = R"JSON(
 }
 )JSON";
 
-bool render_static() {
-    render_environment env;
-    fzdashboard_templates templates;
-    load_templates(templates);
+// *** We don't need this if we make JSON blocks use maps to search by label.
+std::string value_by_label(JSON_element_data_vec & buffers, const std::string matchlabel) {
+    for (auto & buffer : buffers) {
+        if (buffer.label == matchlabel) {
+            return buffer.text;
+        }
+    }
+    return "";
+}
 
-    std::string button_sections;
+std::string render_buttons(render_environment & env, fzdashboard_templates & templates, JSON_block * block_ptr, dynamic_or_static html_output = dynamic_html) {
+    if (!block_ptr) {
+        return "";
+    }
+    std::string buttons_str;
+    JSON_element_data_vec button_info;
+    button_info.emplace_back("url");
+    button_info.emplace_back("window");
+    std::string button_num_char("1");
+    for (auto & button : block_ptr->elements) {
+        if (is_populated_JSON_block(button.get())) {
+            template_varvalues varvals;
+            varvals.emplace("label", button->label);
+            bool here = false;
+            if (button->children->find_many(button_info) == 2) {
+                here = (value_by_label(button_info, "window") != "_blank");
+                varvals.emplace("url", value_by_label(button_info, "url"));
+                if (html_output == dynamic_html) {
+                    varvals.emplace("num", button_num_char);
+                }
+                if (here) {
+                    buttons_str += env.render(templates[index_button_here_temp], varvals);
+                } else {
+                    buttons_str += env.render(templates[index_button_there_temp], varvals);
+                }
+                if (button_num_char == "1") {
+                    button_num_char = "2";
+                } else {
+                    button_num_char = "1";
+                }
+            }
+        }
+    }
+    return buttons_str;
+}
 
-    template_varvalues varvals;
-    varvals.emplace("", "");
-    varvals.emplace("button_sections",button_sections);
-
-    std::string rendered_str = env.render(templates[index_static_temp], varvals);
-    if (!string_to_file(fzdsh.config.top_path+"/index-static.html",rendered_str))
-            ERRRETURNFALSE(__func__,"unable to write rendered output to file");
+bool send_rendered_to_output(std::string & filename_without_dir, std::string & rendered_text) {
+    if ((fzdsh.config.top_path.empty()) || (fzdsh.config.top_path == "STDOUT")) { // to STDOUT
+        //VERBOSEOUT("Log interval:\n\n");
+        FZOUT(rendered_text);
+        return true;
+    }
     
+    std::string output_path = fzdsh.config.top_path + filename_without_dir;
+    VERBOSEOUT("Writing rendered output to "+output_path+".\n\n");
+    if (!string_to_file(output_path,rendered_text)) {
+        ERRRETURNFALSE(__func__,"unable to write to "+output_path);
+    }
     return true;
 }
 
-bool render() {
+bool render(dynamic_or_static html_output) {
     JSON_data data(jsonstr);
     VERYVERBOSEOUT("JSON data:\n"+data.json_str());
     FZOUT("Number of blocks  : "+std::to_string(data.blocks())+'\n');
     FZOUT("Number of elements: "+std::to_string(data.size())+'\n');
-    return true;
 
     render_environment env;
     fzdashboard_templates templates;
-    load_templates(templates);
+    load_templates(templates, html_output);
 
     std::string button_sections;
 
+    for (auto & section : data.content_elements()) {
+        if (is_populated_JSON_block(section.get())) {
+            template_varvalues varvals;
+            if (section->label == "NOTITLE") {
+                varvals.emplace("section_heading", "");
+            } else {
+                varvals.emplace("section_heading", section->label);
+            }
+            varvals.emplace("buttons", render_buttons(env, templates, section->children.get()));
+            button_sections += env.render(templates[index_section_temp], varvals);
+        }
+    }
 
     template_varvalues varvals;
-    varvals.emplace("", "");
-    varvals.emplace("button_sections",button_sections);
-
+    varvals.emplace("button-sections",button_sections);
     std::string rendered_str = env.render(templates[index_temp], varvals);
-    if (!string_to_file(fzdsh.config.top_path+"/index.html",rendered_str))
-            ERRRETURNFALSE(__func__,"unable to write rendered output to file");
+
+    std::string output_name;
+    if (html_output == dynamic_html) {
+        output_name += "/index.html";
+    } else {
+        output_name += "/index-static.html";
+    }
     
-    return true;
+    return send_rendered_to_output(output_name, rendered_str);
 }

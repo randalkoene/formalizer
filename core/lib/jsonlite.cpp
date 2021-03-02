@@ -328,4 +328,14 @@ std::string JSON_data::json_str() {
     return str;
 }
 
+bool is_populated_JSON_block(JSON_element * element_ptr) {
+    if (!element_ptr) {
+        return false;
+    }
+    if (!element_ptr->is_block()) {
+        return false;
+    }
+    return (element_ptr->children.get() != nullptr);
+}
+
 } // namespace fz

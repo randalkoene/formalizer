@@ -15,6 +15,11 @@
 
 using namespace fz;
 
-bool render();
+enum dynamic_or_static: unsigned int {
+    dynamic_html = 0,
+    static_html = 1
+};
+
+bool render(dynamic_or_static html_output = dynamic_html);
 
 #endif // __RENDER_HPP
