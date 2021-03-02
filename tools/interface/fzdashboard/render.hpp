@@ -20,6 +20,6 @@ enum dynamic_or_static: unsigned int {
     static_html = 1
 };
 
-bool render(dynamic_or_static html_output = dynamic_html);
+bool render(std::string & json_str, dynamic_or_static html_output = dynamic_html);
 
 #endif // __RENDER_HPP

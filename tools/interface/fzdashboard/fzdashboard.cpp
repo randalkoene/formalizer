@@ -17,6 +17,7 @@
 // core
 #include "error.hpp"
 #include "standard.hpp"
+#include "stringio.hpp"
 /* (uncomment to communicate with Graph server)
 #include "tcpclient.hpp"
 */
@@ -37,8 +38,8 @@ fzdashboard fzdsh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzdashboard::fzdashboard() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "Do:";
-    add_usage_top += " [-D] [-o <output-dir>]";
+    add_option_args += "Df:o:";
+    add_usage_top += " [-D] [-f <json-file>] [-o <output-dir>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     //usage_tail.push_back("Extra usage information.\n");
 }
@@ -50,6 +51,7 @@ fzdashboard::fzdashboard() : formalizer_standard_program(false), config(*this) {
 void fzdashboard::usage_hook() {
     //ga.usage_hook();
     FZOUT("    -D render dashboard\n"
+          "    -f JSON dashboard definition file path\n"
           "    -o output directory or STDOUT (default in config or current dir)\n");
 }
 
@@ -74,6 +76,11 @@ bool fzdashboard::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'f': {
+        config.json_path = cargs;
+        return true;
+    }
+
     case 'o': {
         config.top_path = cargs;
         return true;
@@ -84,10 +91,10 @@ bool fzdashboard::options_hook(char c, std::string cargs) {
     return false;
 }
 
-
 /// Configure configurable parameters.
 bool fzdsh_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     CONFIG_TEST_AND_SET_PAR(top_path, "top_path", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(json_path, "json_path", parlabel, parvalue);
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
@@ -118,6 +125,25 @@ Graph & fzgraphsearch::graph() {
 }
 */
 
+int generate_dashboard() {
+    if (fzdsh.config.json_path.empty()) {
+        return standard_exit_error(exit_command_line_error, "Missing JSON dashboard specification file.", __func__);
+    }
+
+    std::string json_str;
+    std::ifstream::iostate readstate;
+    if (!file_to_string(fzdsh.config.json_path, json_str, &readstate)) {
+        return standard_exit_error(exit_file_error, "Unable to read file at "+fzdsh.config.json_path, __func__);
+    }
+
+    if (render(json_str, dynamic_html)) {
+        if (render(json_str, static_html)) {
+            return standard.completed_ok();;
+        }
+    }
+    return standard_exit_error(exit_general_error, "Rendering error.", __func__);
+}
+
 int main(int argc, char *argv[]) {
     ERRTRACE;
 
@@ -126,12 +152,8 @@ int main(int argc, char *argv[]) {
     switch (fzdsh.flowcontrol) {
 
     case flow_dashboard: {
-        if (render(dynamic_html)) {
-            if (render(static_html)) {
-                return standard.completed_ok();;
-            }
-        }
-        return standard_exit_error(exit_general_error, "Rendering error.", __func__);
+        generate_dashboard();
+        break;
     }
 
     default: {

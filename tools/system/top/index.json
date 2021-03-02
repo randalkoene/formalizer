@@ -1,0 +1,242 @@
+{
+    "NOTITLE" : {
+        "Next Nodes" : {
+            "url" : "/cgi-bin/fzgraphhtml-cgi.py",
+            "window" : "_blank"
+        },
+        "Recent Log" : {
+            "url" : "/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END",
+            "window" : "_blank"
+        },
+        "Named Node Lists" : {
+            "url" : "/cgi-bin/fzgraphhtml-cgi.py?srclist=?",
+            "window" : "_blank"
+        },
+        "Topics" : {
+            "url" : "/cgi-bin/fzgraphhtml-cgi.py?topics=?",
+            "window" : "_blank"
+        },
+        "Calendar" : {
+            "url" : "https://calendar.google.com/calendar/",
+            "window" : "_blank"
+        },
+        "Morning Protocol" : {
+            "url" : "/cgi-bin/fzguide.system-cgi.py?submit=Read",
+            "window" : "_blank"
+        },
+        "Action Protocol" : {
+            "url" : "/cgi-bin/fzguide.system-cgi.py?submit=Read&chapter=ACT&spec_chapter=on",
+            "window" : "_blank"
+        },
+        "Integrity" : {
+            "url" : "/integrity.html",
+            "window" : "_blank"
+        }
+    },
+    "NOTITLE" : {
+        "Metrics" : {
+            "url" : "https://docs.google.com/spreadsheets/d/1LeVD95TeBv_3QNby-Robe_BXS20g3WJEO3udy9mIb8I/edit#gid=0",
+            "window" : "_blank"
+        },
+        "DAF &amp; Comm" : {
+            "url" : "https://docs.google.com/spreadsheets/d/1p1lLpNOy6OeBQC_MNpzRqsLCPFEpnaF-ZfEAZ1KlRFc/edit#gid=1467656114",
+            "window" : "_blank"
+        },
+        "Reward &amp; Positive" : {
+            "url" : "https://docs.google.com/spreadsheets/d/1oDD4moypes9qII1olFaLWhydOPCWFa7f_u6hWXTZVP4/edit#gid=1180724961",
+            "window" : "_blank"
+        },
+        "LVL4 Day Plan" : {
+            "url" : "https://docs.google.com/spreadsheets/d/1mNAYcHlFjXHzSFHHli-_cOfeEjxwcRizJlwbWYPIZA8/edit#gid=0",
+            "window" : "_blank"
+        },
+        "Notes on Change" : {
+            "url" : "https://docs.google.com/document/d/1lBYknyQHhlhlqYZ3gku7OFTuM5FpFXV62jE2ETOnjv4/edit#heading=h.6algess7d8zh",
+            "window" : "_blank"
+        },
+        "Accounting - Temp-New" : {
+            "url" : "https://docs.google.com/spreadsheets/d/1-be-haSP3cqnwinYokcg0x91e8f-_LBT9HQOy9QHhxs/edit#gid=0",
+            "window" : "_blank"
+        }
+    },
+    "NOTITLE" : {
+        "Server Status" : {
+            "url" : "/cgi-bin/fzserver-info-cgi.py",
+            "window" : "_blank"
+        },
+        "Port Status" : {
+            "url" : "http://aether.local:8090/fz/status",
+            "window" : ""
+        },
+        "ReqQ Status" : {
+            "url" : "http://aether.local:8090/fz/ReqQ",
+            "window" : ""
+        },
+        "ErrQ Status" : {
+            "url" : "http://aether.local:8090/fz/ErrQ",
+            "window" : ""
+        },
+        "Verbose" : {
+            "url" : "http://aether.local:8090/fz/verbosity?set=normal",
+            "window" : ""
+        },
+        "Very Verbose" : {
+            "url" : "http://aether.local:8090/fz/verbosity?set=very",
+            "window" : ""
+        },
+        "Quiet" : {
+            "url" : "http://aether.local:8090/fz/verbosity?set=quiet",
+            "window" : ""
+        },
+        "DB mode" : {
+            "url" : "http://aether.local:8090/fz/db/mode",
+            "window" : ""
+        },
+        "DB run" : {
+            "url" : "http://aether.local:8090/fz/db/mode?set=run",
+            "window" : ""
+        },
+        "DB log" : {
+            "url" : "http://aether.local:8090/fz/db/mode?set=log",
+            "window" : ""
+        },
+        "DB sim" : {
+            "url" : "http://aether.local:8090/fz/db/mode?set=sim",
+            "window" : ""
+        },
+        "DB Log Status" : {
+            "url" : "http://aether.local:8090/fz/db/log",
+            "window" : ""
+        },
+        "set NNL persistent" : {
+            "url" : "http://aether.local:8090/fz/graph/namedlists/_set?persistent=true",
+            "window" : ""
+        },
+        "set NNL non-persistent" : {
+            "url" : "http://aether.local:8090/fz/graph/namedlists/_set?persistent=false",
+            "window" : ""
+        },
+        "reload NNL" : {
+            "url" : "http://aether.local:8090/fz/graph/namedlists/_reload",
+            "window" : ""
+        },
+        "Stop Server" : {
+            "url" : "http://aether.local:8090/fz/_stop",
+            "window" : ""
+        }
+    },
+    "System Boards: " : {
+        "Challenges" : {
+            "url" : "https://trello.com/b/mnu1VKIn",
+            "window" : "_blank"
+        },
+        "Milestones" : {
+            "url" : "https://trello.com/b/t2RmUmlN",
+            "window" : "_blank"
+        },
+        "Roadmap" : {
+            "url" : "https://trello.com/b/cOCvAYh4",
+            "window" : "_blank"
+        },
+        "Metrics" : {
+            "url" : "https://trello.com/b/e3sHVgMT",
+            "window" : "_blank"
+        },
+        "Experiments" : {
+            "url" : "https://trello.com/b/tlgXjZBm",
+            "window" : "_blank"
+        },
+        "Concierge" : {
+            "url" : "https://trello.com/b/ptGdOpzW",
+            "window" : "_blank"
+        },
+        "Meditation, Mindstate & Flow" : {
+            "url" : "https://trello.com/b/6ZfhOnuN",
+            "window" : "_blank"
+        }
+    },
+    "Current Tracks: " : {
+        "VOXA" : {
+            "url" : "https://trello.com/b/nyrFIMyd",
+            "window" : "_blank"
+        },
+        "SFBAY-REGULAR-JOB" : {
+            "url" : "https://trello.com/b/kdNO6dFD",
+            "window" : "_blank"
+        },
+        "FORMALIZER-NEWAL-METHOD" : {
+            "url" : "https://trello.com/b/PEfStDEN",
+            "window" : "_blank"
+        },
+        "Formalizer Tools" : {
+            "url" : "https://trello.com/b/uMW6fb4e",
+            "window" : "_blank"
+        },
+        "CARBONCOPIES" : {
+            "url" : "https://trello.com/b/ABTA2xEA",
+            "window" : "_blank"
+        }
+    },
+    "Track Collections: " : {
+        "Financials, Income &amp; Capital" : {
+            "url" : "https://trello.com/b/n8YN7jwd",
+            "window" : "_blank"
+        },
+        "Solving Debt" : {
+            "url" : "https://trello.com/b/gPUx2CON",
+            "window" : "_blank"
+        },
+        "Health" : {
+            "url" : "https://trello.com/b/uNGTL6aO",
+            "window" : "_blank"
+        },
+        "Writing Projects" : {
+            "url" : "https://trello.com/b/U81T3ycQ",
+            "window" : "_blank"
+        }
+    },
+    "Information: " : {
+        "C++ / C" : {
+            "url" : "https://trello.com/b/BIRsdsnE",
+            "window" : "_blank"
+        },
+        "Software Engineering" : {
+            "url" : "https://trello.com/b/Jjli7nWA",
+            "window" : "_blank"
+        },
+        "Science" : {
+            "url" : "https://trello.com/b/yPGMhTGw",
+            "window" : "_blank"
+        },
+        "NMA Data Science" : {
+            "url" : "https://trello.com/b/aE1VCkGj",
+            "window" : "_blank"
+        },
+        "Ready Docs" : {
+            "url" : "/formalizer/ready-docs.html",
+            "window" : "_blank"
+        },
+        "Weather Service (94122)" : {
+            "url" : "https://forecast.weather.gov/MapClick.php?lat=37.76012500000007&lon=-122.47004999999996#.X85MfGhKhhE",
+            "window" : "_blank"
+        },
+        "Time and Date" : {
+            "url" : "https://www.timeanddate.com/sun/usa/san-francisco",
+            "window" : "_blank"
+        }
+    },
+    "Action: " : {
+        "Add Node" : {
+            "url" : "/formalizer/add_node.html",
+            "window" : "_blank"
+        },
+        "Add Log Entry" : {
+            "url" : "",
+            "window" : ""
+        },
+        "Search Graph" : {
+            "url" : "/formalizer/fzgraphsearch-form.html",
+            "window" : "_blank"
+        }
+    }
+}

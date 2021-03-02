@@ -19,7 +19,7 @@
 using namespace fz;
 
 enum flow_options {
-    flow_unknown = 0, /// no recognized request
+    flow_unknown = 0,       /// no recognized request
     flow_dashboard = 1,     /// request: render dashboard
     flow_NUMoptions
 };
@@ -30,8 +30,8 @@ public:
     fzdsh_configurable(formalizer_standard_program & fsp): configurable("fzdashboard", fsp) {}
     bool set_parameter(const std::string & parlabel, const std::string & parvalue);
 
-    //std::string example_par;   ///< example of configurable parameter
     std::string top_path = ".";
+    std::string json_path;
 };
 
 
