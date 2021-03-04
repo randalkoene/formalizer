@@ -141,6 +141,7 @@ CGIEXE =
 CGIEXE += $(COREPATH)/fzedit/fzedit-cgi.py
 CGIEXE += $(COREPATH)/fzgraph/fzgraph-cgi.py
 CGIEXE += $(COREPATH)/fzgraphsearch/fzgraphsearch-cgi.py
+CGIEXE += $(COREPATH)/fzquerypq/fzquerypq-cgi.py
 CGIEXE += $(COREPATH)/fztask/fztask-cgi.py
 CGIEXE += $(COREPATH)/fzupdate/fzupdate-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/logentry-form/logentry-form.py
@@ -152,11 +153,12 @@ CGIEXE += $(TOOLSPATH)/interface/fzlogtime/fzlogtime.cgi
 CGIEXE += $(TOOLSPATH)/interface/fzserver-info/fzserver-info-cgi.py
 CGIEXE += $(COREPATH)/fzguide.system/fzguide.system-cgi.py
 
-# CGI scripts for machine-local use with w3m, which an launch programs as the user
+# CGI scripts for machine-local use with w3m, which can launch programs as the user
 LOCALCGI =
 LOCALCGI += $(COREPATH)/fzedit/fzedit
 LOCALCGI += $(COREPATH)/fzedit/fzedit-cgi.py
 LOCALCGI += $(COREPATH)/fzgraphsearch/fzgraphsearch-cgi.py
+LOCALCGI += $(COREPATH)/fzquerypq/fzquerypq-cgi.py
 LOCALCGI += $(COREPATH)/fztask/fztask-cgi.py
 LOCALCGI += $(COREPATH)/fzupdate/fzupdate-cgi.py
 LOCALCGI += $(TOOLSPATH)/interface/fzlogtime/fzlogtime
@@ -171,8 +173,9 @@ WEBINTERFACES += $(TOOLSPATH)/system/metrics/sysmet-add/sysmet-add-form.html
 WEBINTERFACES += $(COREPATH)/fzgraphsearch/fzgraphsearch-form.html
 
 TOPLEVEL =
-TOPLEVEL += $(TOOLSPATH)/system/top/index.html
-TOPLEVEL += $(TOOLSPATH)/system/top/index-static.html
+# The following two are now done via fzdashboard
+#TOPLEVEL += $(TOOLSPATH)/system/top/index.html
+#TOPLEVEL += $(TOOLSPATH)/system/top/index-static.html
 TOPLEVEL += $(TOOLSPATH)/system/top/select.html
 TOPLEVEL += $(TOOLSPATH)/system/top/integrity.html
 TOPLEVEL += $(TOOLSPATH)/system/top/integrity-static.html

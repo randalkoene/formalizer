@@ -120,6 +120,10 @@
             "url" : "http://aether.local:8090/fz/graph/namedlists/_reload",
             "window" : ""
         },
+        "refresh Node histories" : {
+            "url" : "/cgi-bin/fzquerypq-cgi.py",
+            "window" : "_blank"
+        },
         "Stop Server" : {
             "url" : "http://aether.local:8090/fz/_stop",
             "window" : ""
