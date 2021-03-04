@@ -480,6 +480,12 @@ struct Node_Category_Cache_Map {
         return nodecatcache.size();
     }
 
+    /**
+     * Parse the cached Node categories and collect the full set of
+     * unique categories.
+     * 
+     * @param categories Set of strings to receive the unique set of categories found.
+     */
     void category_set(category_set_t & categories) {
         VERYVERBOSEOUT("Categories: ")
         for (const auto & [nptr, cat_cache] : nodecatcache) {
@@ -587,7 +593,11 @@ std::string map2cal(const Minute_Record_Map & mrmap, Node_Category_Cache_Map & n
                 }
                 if (row_minute == (minsperrow-1)) {
                     if (daycol == 6) {
-                        mapstr += '\n';
+                        if ((dayrow % rowsperhour) == 0) {
+                            mapstr += to_precision_string((dayrow / rowsperhour), 0, ' ', 3) + '\n';
+                        } else {
+                            mapstr += '\n';
+                        }
                     } else {
                         mapstr += "  ";
                     }
@@ -649,17 +659,52 @@ Minute_Totals_vec_t map2totals(const Minute_Record_Map & mrmap, Node_Category_Ca
     return mintotvec;
 }
 
-std::string totals2str(Minute_Totals_vec_t & mintotvec, category_set_t & categories, unsigned int colwidth = 7, bool hours = true) {
-    std::string totstr;
-    for (const auto & catstr : categories) { // *** NEEDS TO BE MORE LEGIBLE!
+std::string totalsheader(const cat_translation_map & decode, unsigned int colwidth = 7, bool hours = true) {
+    std::string headerstr;
+    for (const auto & [code, catstr] : decode) {
         if (catstr.size() >= colwidth) {
-            totstr += catstr.substr(0,colwidth) + ' ';
+            headerstr += catstr.substr(0,colwidth) + ' ';
         } else {
-        std::string catfill(colwidth - catstr.size(),' ');
-        totstr += catfill + catstr + ' ';
-        }
+            std::string catfill(colwidth - catstr.size(),' ');
+            headerstr += catfill + catstr + ' ';
+        }        
     }
-    totstr.back() = '\n';
+    headerstr.back() = '\n';
+    return headerstr;
+}
+
+std::string legend(const cat_translation_map & decode) {
+    std::string legendstr("\n");
+    for (const auto & [code, catstr] : decode) {
+        legendstr += code + " = " + catstr + ", ";
+    }
+    if (!legendstr.empty()) {
+        legendstr.pop_back();
+        legendstr.back() = '\n';
+    }
+    legendstr += '\n';
+    return legendstr;
+}
+
+/**
+ * ...
+ * 
+ * @param header Include categories header or not. (See how this is used to avoid printing map print codes.)
+ * ...
+ */
+std::string totals2str(Minute_Totals_vec_t & mintotvec, category_set_t & categories, bool header = true, unsigned int colwidth = 7, bool hours = true) {
+    std::string totstr;
+    if (header) {
+        for (const auto & catstr : categories) {
+            if (catstr.size() >= colwidth) {
+                totstr += catstr.substr(0,colwidth) + ' ';
+            } else {
+                std::string catfill(colwidth - catstr.size(),' ');
+                totstr += catfill + catstr + ' ';
+            }
+        }
+        totstr.back() = '\n';
+    }
     Minute_Totals grandtotals(categories);
     for (const auto & mintot_ptr : mintotvec) {
         for (const auto & [categorystr, minutes] : mintot_ptr->mintotals) {
@@ -796,6 +841,25 @@ void setup_print_codes(cat_translation_map & printcodes) {
     printcodes["other"] = "\u001b[46mo\u001b[0m";
 }
 
+/**
+ * Get the set of unique category codes and a decoding map.
+ * 
+ * Note: Where the decoding map produced here may be used, you could
+ *       instead use any other map from the unique set of codes to
+ *       transformed category labels.
+ * 
+ * @param encode A cat_translation_map that encodes from groups to another set of code strings.
+ * @param uniquecodes Receives the unique set of transformation codes used in a cat_translation_map.
+ * @param decode Receives a decoding map.
+ */
+void unique_encode_decode(const cat_translation_map & encode, category_set_t & uniquecodes, cat_translation_map & decode) {
+    for (const auto & [key, code] : encode) {
+        uniquecodes.emplace(code);
+        decode[code] = key;
+    }
+}
+
+
 bool make_map() {
     // Get Log interval according to filter.
     fzlm.set_filter();
@@ -815,7 +879,6 @@ bool make_map() {
     VERYVERBOSEOUT("Found "+std::to_string(nccmap.num_nodes())+ " Nodes in Log interval.\n");
 
     Set_builder_data groups;
-    category_set_t categories;
     if (fzlm.config.categoryfile.empty()) {
         nccmap.random_cache_chars();
         groups.default_category = "?";
@@ -829,18 +892,51 @@ bool make_map() {
 
     // Cross-map Log interval to Category groups.
     if (fzlm.calendar) {
+        // Add a translation map frpm groups to print codes. Note that there do not
+        // need to be as many print codes as groups. Some groups may have no print
+        // code, and multiple groups can be mapped to the same print code.
+        // See below how that affects computed totals!
         cat_translation_map printcodes;
         setup_print_codes(printcodes);
+
+        // Let's prepare the set of unique printcodes, as well as a decoding
+        // map. Note that you could use some other map for decode instead.
+        category_set_t uniquecodes;
+        cat_translation_map decode;
+        unique_encode_decode(printcodes, uniquecodes, decode);
+
+        FZOUT(legend(decode));
         FZOUT(map2cal(mrmap, nccmap, groups, false, &printcodes));
+        // Get the unique set of categories from the Node Category Cache Map.
+        // Note that this set can be smaller than the number of printcodes keys if
+        // not all were represented by Nodes in the time interval.
+        category_set_t categories;
+        nccmap.category_set(categories); // categories is a subset of uniquecodes
+        VERYVERBOSEOUT("Mapped Nodes to "+std::to_string(categories.size())+" categories.\n");
+
+        // If a calendar was made then the set of categories is full of printcodes. We need
+        // those to compute totals, but we should decode them to display category names.
+        // Let's collect totals for all unique print codes in case there are some that
+        // are not in the categories found.
+        auto totals = map2totals(mrmap, nccmap, groups, uniquecodes);
+
+        // Print the decoded print code categories here rather than the transformed
+        // print codes used in the map.
+        FZOUT('\n'+totalsheader(decode));
+        FZOUT(totals2str(totals, uniquecodes, false));
+
     } else {
         FZOUT(map2str(mrmap, nccmap, groups));
+        // Get the unique set of categories from the Node Category Cache Map.
+        // Note that this set can be smaller than the number of groups if
+        // not all were represented by Nodes in the time interval.
+        category_set_t categories;
+        nccmap.category_set(categories);
+        VERYVERBOSEOUT("Mapped Nodes to "+std::to_string(categories.size())+" categories.\n");
+        auto totals = map2totals(mrmap, nccmap, groups, categories);
+        FZOUT('\n'+totals2str(totals, categories));
     }
 
-    nccmap.category_set(categories);
-    VERYVERBOSEOUT("Mapped Nodes to "+std::to_string(categories.size())+" categories.\n");
-
-    auto totals = map2totals(mrmap, nccmap, groups, categories);
-    FZOUT('\n'+totals2str(totals, categories));
     return true;
 }
 
