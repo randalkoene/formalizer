@@ -52,6 +52,7 @@ sys.path.append(fzcoreincludedir)
 fztaskconfigdir = fzuserbase+'/config/fztask.py'
 fztaskconfig = fztaskconfigdir+'/config.json'
 fztasklockfile = fzuserbase+'/.fztask.lock'
+fzchunkmarks = fzuserbase+'/.fzchunkmarks'
 
 # Enable import of logentry
 logentrydir = config['sourceroot'] + '/tools/interface/logentry'
@@ -151,6 +152,14 @@ def parse_options():
     #    exit_success('Ok. You can try again with different command arguments.\n')
 
     return args
+
+
+def mark_chunk_timing(interval_seconds: int):
+    try:
+        with open(fzchunkmarks, 'w') as f:
+            f.write(f'{NowTimeStamp()} {interval_seconds}')
+    except:
+        print(f'{ANSI_alert}Unable to store chunk timing marks in {fzchunkmarks}.{ANSI_nrm}')
 
 
 def get_most_recent_chunk():
@@ -561,6 +570,7 @@ def set_chunk_timer_and_alert(args, node):
     while (proceed_choice == 'r'):
         print(f'{ANSI_lt}Setting chunk duration: {ANSI_yb}{int(interval_seconds/60)}{ANSI_nrm}{ANSI_lt} mins. Chunk starts now.')
         try:
+            mark_chunk_timing(interval_seconds)
             time.sleep(interval_seconds)
             proceed_choice = chunk_interval_alert()
 
