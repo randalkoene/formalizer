@@ -167,6 +167,7 @@ LOCALCGI += $(TOOLSPATH)/interface/fzlogtime/fzlogtime.cgi
 WEBINTERFACES = 
 WEBINTERFACES += $(COREPATH)/fzgraph/add_node.html
 # WEBINTERFACES += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-form.html
+WEBINTERFACES += $(TOOLSPATH)/interface/logentry-form/templates/logentry-form_fullpage.template.html
 WEBINTERFACES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-form.html
 WEBINTERFACES += $(COREPATH)/fzguide.system/fzguide.system-form.html
 WEBINTERFACES += $(TOOLSPATH)/system/metrics/sysmet-add/sysmet-add-form.html

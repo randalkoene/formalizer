@@ -577,6 +577,7 @@ std::string render_Node_data(Graph & graph, Node & node) {
 
     nodevars.emplace("node-id", node.get_id_str());
     nodevars.emplace("fzserverpq",graph.get_server_full_address());
+    nodevars.emplace("T_context",TimeStampYmdHM(node.t_created() - RTt_oneday));
     nodevars.emplace("node-text", make_embeddable_html(node.get_text().c_str(),fzgh.config.interpret_text)); //node.get_text());
     nodevars.emplace("comp", to_precision_string(node.get_completion()));
     nodevars.emplace("req_hrs", to_precision_string(required_hrs));

@@ -248,7 +248,7 @@ if __name__ == '__main__':
     parser.add_argument('-H', '--fzloghtml', dest='fzloghtml', action='store_true', help='Build fzloghtml from scratch')
     parser.add_argument('-m', '--fzlogmap', dest='fzlogmap', action='store_true', help='Build fzlogmap from scratch')
     parser.add_argument('-T', '--fzlogtime', dest='fzlogtime', action='store_true', help='Build fzlogtime from scratch')
-    parser.add_argument('-D', '--fzdashboard', dest='fzdashboard', action='store_true', help='Build fzdashboard from scratch')
+    parser.add_argument('--fzdashboard', dest='fzdashboard', action='store_true', help='Build fzdashboard from scratch')
     parser.add_argument('-G', '--fzgraphhtml', dest='fzgraphhtml', action='store_true', help='Build fzgraphhtml from scratch')
     parser.add_argument('-E', '--fzedit', dest='fzedit', action='store_true', help='Build fzedit from scratch')
     parser.add_argument('-p', '--fzgraph', dest='fzgraph', action='store_true', help='Build fzgraph from scratch')
@@ -267,7 +267,7 @@ if __name__ == '__main__':
         flow_control['build_fzedit'] = True
     if args.fzgraph:
         flow_control['build_fzgraph'] = True
-    if args.fzgraphsearcg:
+    if args.fzgraphsearch:
         flow_control['build_fzgraphsearch'] = True
     if args.fzguide_system:
         flow_control['build_fzguide.system'] = True

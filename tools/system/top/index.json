@@ -239,8 +239,8 @@
             "window" : "_blank"
         },
         "Add Log Entry" : {
-            "url" : "",
-            "window" : ""
+            "url" : "/formalizer/logentry-form_fullpage.template.html",
+            "window" : "_blank"
         },
         "Search Graph" : {
             "url" : "/formalizer/fzgraphsearch-form.html",

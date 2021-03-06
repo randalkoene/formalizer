@@ -490,6 +490,7 @@ public:
     // safely inspect data
     const Node_ID &get_id() const { return id; }
     std::string get_id_str() const { return id.str(); }
+    time_t t_created() const { return id.key().idT.get_epoch_time(); }
 
     float get_valuation() const { return valuation; }
     float get_completion() const { return completion; }

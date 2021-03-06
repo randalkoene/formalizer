@@ -2,21 +2,31 @@
 <html>
 
 <head>
-    <title>Log: Add Entry</title>
+<meta charset="utf-8" />
+<link rel="icon" href="/favicon-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<title>Log: Add Entry</title>
 </head>
 
 <body>
-    <h1>Log: Add Entry</h1>
+<h1>Log: Add Entry</h1>
 
-    <P></P>
-    <P>Please type your note into the text area. The note can contain HTML code.</P>
-    <P></P>
+<P></P>
+<P>Please type your note into the text area. The note can contain HTML code.</P>
+<P></P>
 
-    <form action="/cgi-bin/logentry-form.py" method="post">
-        <br>
-        <textarea rows="15" cols="100" name="entrytext"></textarea><br>
-        <input type="submit" value="submit" />
-    </form>
+<form action="/cgi-bin/logentry-form.py" method="post">
+<br>
+<textarea rows="15" cols="100" name="entrytext"></textarea><br>
+<input type="submit" value="submit" />
+</form>
+
+<hr>
+
+<p></p>
+<p>Please note: This is an early experimental version of a web interface to fzlog/logentry.
+Additional capabilities, such as selecting an alternative Node as the owner of a Log entrytext
+will be added incrementally.</p>
 </body>
 
 </html>
