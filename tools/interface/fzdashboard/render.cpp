@@ -34,6 +34,8 @@
 
 using namespace fz;
 
+render_environment env;
+template_varvalues inner_varvals;
 
 enum template_id_enum {
     index_temp,
@@ -89,7 +91,7 @@ struct button_section_data {
 std::string value_by_label(JSON_element_data_vec & buffers, const std::string matchlabel) {
     for (auto & buffer : buffers) {
         if (buffer.label == matchlabel) {
-            return buffer.text;
+            return env.render(buffer.text, inner_varvals);
         }
     }
     return "";
@@ -152,9 +154,11 @@ bool render(std::string & json_str, dynamic_or_static html_output) {
     VERBOSEOUT("Number of blocks  : "+std::to_string(data.blocks())+'\n');
     VERBOSEOUT("Number of elements: "+std::to_string(data.size())+'\n');
 
-    render_environment env;
     fzdashboard_templates templates;
     load_templates(templates, html_output);
+
+    // Prepare a few globally applicable template variable replacements
+    inner_varvals.emplace("fzserverpq",fzdsh.graph().get_server_full_address());
 
     std::string button_sections;
 

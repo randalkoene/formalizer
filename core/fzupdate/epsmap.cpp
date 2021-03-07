@@ -350,7 +350,7 @@ void EPS_map::place_exact() {
 
     VERYVERBOSEOUT("\nNodes with exact target dates mapped.\n");
     if (fzu.config.showmaps) {
-        VERBOSEOUT(show());
+        VERYVERBOSEOUT(show());
     }
 }
 
@@ -397,7 +397,7 @@ void EPS_map::place_fixed() {
 
     VERYVERBOSEOUT("\nNodes with fixed target dates mapped.\n");
     if (fzu.config.showmaps) {
-        VERBOSEOUT(show());
+        VERYVERBOSEOUT(show());
     }
 }
 
@@ -505,7 +505,7 @@ void EPS_map::group_and_place_movable() {
 
     VERYVERBOSEOUT("\nNodes with movable target dates grouped and mapped.\n");
     if (fzu.config.showmaps) {
-        VERBOSEOUT(show());
+        VERYVERBOSEOUT(show());
     }
 }
 
@@ -514,7 +514,7 @@ targetdate_sorted_Nodes EPS_map::get_eps_update_nodes() {
 
     time_t group_td = RTt_unspecified;
     size_t i = 0;
-    VERBOSEOUT("\nThe set of target date updates that will be requested (out of "+std::to_string(nodelist.size())+"):\n");
+    VERYVERBOSEOUT("\nThe set of target date updates that will be requested (out of "+std::to_string(nodelist.size())+"):\n");
     for (const auto & [t, node_ptr] : nodelist) {
         if (!node_ptr) {
             standard_exit_error(exit_general_error, "Unexpected node_ptr == nullptr", __func__);
@@ -534,7 +534,7 @@ targetdate_sorted_Nodes EPS_map::get_eps_update_nodes() {
             if ((node_ptr->get_tdproperty() == variable) || (node_ptr->get_tdproperty() == unspecified)) {
                 if (fzu.config.update_to_earlier_allowed || (epsdataref.t_eps > group_td)) {
                     // THIS is a Node for which the target date should be updated to t_eps[i]
-                    VERBOSEOUT('\t'+node_ptr->get_id_str()+": from "+TimeStampYmdHM(node_ptr->effective_targetdate())+
+                    VERYVERBOSEOUT('\t'+node_ptr->get_id_str()+": from "+TimeStampYmdHM(node_ptr->effective_targetdate())+
                                " to t_eps["+std::to_string(i)+"]="+TimeStampYmdHM(epsdataref.t_eps)+'\n');
                     update_nodes.emplace(epsdataref.t_eps, node_ptr);
                 }

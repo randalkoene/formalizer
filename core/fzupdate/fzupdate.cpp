@@ -41,8 +41,8 @@ fzupdate fzu;
  */
 fzupdate::fzupdate() : formalizer_standard_program(false), config(*this),
                  reftime(add_option_args, add_usage_top) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "rubRNT:";
-    add_usage_top += " [-r|-u|-b|-R|-N] [-T <t_max|full>]";
+    add_option_args += "rubRNT:D:";
+    add_usage_top += " [-r|-u|-b|-R|-N] [-T <t_max|full>] [-D <days>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "The -T limit overrides the 'map_days' configuration or default parameter.\n"
@@ -71,7 +71,8 @@ void fzupdate::usage_hook() {
           "    -b break up EPS group of Nodes with the variable target date in -T\n"
           "    -R calculate time required for incomplete repeating Nodes to -T\n"
           "    -N calculate the minutes required for incomplete non-repeating Nodes to -T\n"
-          "    -T update up to and including <t_max> or 'full' update\n");
+          "    -T update up to and including <t_max> or 'full' update\n"
+          "    -D number of days to map with -u (default in config, or 14)\n");
 }
 
 /**
@@ -127,6 +128,11 @@ bool fzupdate::options_hook(char c, std::string cargs) {
         } else {
             t_limit = time_stamp_time(cargs);
         }
+        return true;
+    }
+
+    case 'D': {
+        config.map_days = std::atoi(cargs.c_str());
         return true;
     }
 
@@ -228,7 +234,9 @@ Graph_modifications & fzupdate::graphmod() {
 
 void fzupdate::prepare_Graphmod_shared_memory(unsigned long _segsize) {
     segsize = _segsize;
+VERYVERBOSEOUT("What's up with actual time? = "+std::to_string(ActualTime())+'\n');
     segname = unique_name_Graphmod(); // a unique name to share with `fzserverpq`
+    VERYVERBOSEOUT("Unique shared memory block name generated: "+segname+"\n");
 }
 
 /// See implementation decisions in https://trello.com/c/eUjjF1yZ/222-how-graph-components-are-edited#comment-5fd8fed424188014cb31a937.
@@ -367,7 +375,7 @@ int update_variable(time_t t_pass) {
         size_t available_minutes_per_year = (1.0-year_ratio)*minutes_per_year;
         size_t minutes = total_minutes_incomplete_nonrepeating(fzu.graph(), t_pass, fzu.t_limit);
         size_t num_years = (minutes / available_minutes_per_year) + 1;
-        VERYVERBOSEOUT("Updating "+std::to_string(num_years)+" years.\n");
+        VERBOSEOUT("Updating "+std::to_string(num_years)+" years.\n");
         minutes_per_year *= (60*num_years); // years int seconds
         fzu.t_limit = t_pass + (size_t)minutes_per_year;
     }
@@ -389,7 +397,11 @@ int update_variable(time_t t_pass) {
 
     targetdate_sorted_Nodes eps_update_nodes = updvar_map.get_eps_update_nodes();
 
-    request_batch_targetdates_modifications(eps_update_nodes, editflags);
+    if (eps_update_nodes.empty()) {
+        VERBOSEOUT("No variable target dates within examined range to update.\n");
+    } else {
+        request_batch_targetdates_modifications(eps_update_nodes, editflags);
+    }
 
     return standard_exit_success("Update variable target date Nodes done.");
 }

@@ -14,6 +14,7 @@
 // core
 #include "config.hpp"
 #include "standard.hpp"
+#include "Graphtypes.hpp"
 // #include "Graphaccess.hpp"
 
 using namespace fz;
@@ -51,10 +52,8 @@ struct fzdashboard: public formalizer_standard_program {
 
     void init_top(int argc, char *argv[]);
 
-    /* (uncomment to include access to memory-resident Graph)
     Graph_ptr graph_ptr = nullptr;
     Graph & graph();
-    */
 
 };
 

@@ -65,59 +65,59 @@
             "window" : "_blank"
         },
         "Port Status" : {
-            "url" : "http://aether.local:8090/fz/status",
+            "url" : "http://{{ fzserverpq }}/fz/status",
             "window" : ""
         },
         "ReqQ Status" : {
-            "url" : "http://aether.local:8090/fz/ReqQ",
+            "url" : "http://{{ fzserverpq }}/fz/ReqQ",
             "window" : ""
         },
         "ErrQ Status" : {
-            "url" : "http://aether.local:8090/fz/ErrQ",
+            "url" : "http://{{ fzserverpq }}/fz/ErrQ",
             "window" : ""
         },
         "Verbose" : {
-            "url" : "http://aether.local:8090/fz/verbosity?set=normal",
+            "url" : "http://{{ fzserverpq }}/fz/verbosity?set=normal",
             "window" : ""
         },
         "Very Verbose" : {
-            "url" : "http://aether.local:8090/fz/verbosity?set=very",
+            "url" : "http://{{ fzserverpq }}/fz/verbosity?set=very",
             "window" : ""
         },
         "Quiet" : {
-            "url" : "http://aether.local:8090/fz/verbosity?set=quiet",
+            "url" : "http://{{ fzserverpq }}/fz/verbosity?set=quiet",
             "window" : ""
         },
         "DB mode" : {
-            "url" : "http://aether.local:8090/fz/db/mode",
+            "url" : "http://{{ fzserverpq }}/fz/db/mode",
             "window" : ""
         },
         "DB run" : {
-            "url" : "http://aether.local:8090/fz/db/mode?set=run",
+            "url" : "http://{{ fzserverpq }}/fz/db/mode?set=run",
             "window" : ""
         },
         "DB log" : {
-            "url" : "http://aether.local:8090/fz/db/mode?set=log",
+            "url" : "http://{{ fzserverpq }}/fz/db/mode?set=log",
             "window" : ""
         },
         "DB sim" : {
-            "url" : "http://aether.local:8090/fz/db/mode?set=sim",
+            "url" : "http://{{ fzserverpq }}/fz/db/mode?set=sim",
             "window" : ""
         },
         "DB Log Status" : {
-            "url" : "http://aether.local:8090/fz/db/log",
+            "url" : "http://{{ fzserverpq }}/fz/db/log",
             "window" : ""
         },
         "set NNL persistent" : {
-            "url" : "http://aether.local:8090/fz/graph/namedlists/_set?persistent=true",
+            "url" : "http://{{ fzserverpq }}/fz/graph/namedlists/_set?persistent=true",
             "window" : ""
         },
         "set NNL non-persistent" : {
-            "url" : "http://aether.local:8090/fz/graph/namedlists/_set?persistent=false",
+            "url" : "http://{{ fzserverpq }}/fz/graph/namedlists/_set?persistent=false",
             "window" : ""
         },
         "reload NNL" : {
-            "url" : "http://aether.local:8090/fz/graph/namedlists/_reload",
+            "url" : "http://{{ fzserverpq }}/fz/graph/namedlists/_reload",
             "window" : ""
         },
         "refresh Node histories" : {
@@ -125,7 +125,7 @@
             "window" : "_blank"
         },
         "Stop Server" : {
-            "url" : "http://aether.local:8090/fz/_stop",
+            "url" : "http://{{ fzserverpq }}/fz/_stop",
             "window" : ""
         }
     },

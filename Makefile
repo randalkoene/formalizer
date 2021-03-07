@@ -164,6 +164,7 @@ LOCALCGI += $(COREPATH)/fzupdate/fzupdate-cgi.py
 LOCALCGI += $(TOOLSPATH)/interface/fzlogtime/fzlogtime
 LOCALCGI += $(TOOLSPATH)/interface/fzlogtime/fzlogtime.cgi
 
+# Web interface files to copy to web servable Formalizer directory
 WEBINTERFACES = 
 WEBINTERFACES += $(COREPATH)/fzgraph/add_node.html
 # WEBINTERFACES += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-form.html
@@ -173,6 +174,11 @@ WEBINTERFACES += $(COREPATH)/fzguide.system/fzguide.system-form.html
 WEBINTERFACES += $(TOOLSPATH)/system/metrics/sysmet-add/sysmet-add-form.html
 WEBINTERFACES += $(COREPATH)/fzgraphsearch/fzgraphsearch-form.html
 
+# Data files to make available for reading to web interfaces via symbolic links
+SYMWEB =
+SYMWEB += $(FZCONFIGPATH)/.fzchunkmarks
+
+# Web interface files and web resources to copy to the root web servable directory
 TOPLEVEL =
 # The following two are now done via fzdashboard
 #TOPLEVEL += $(TOOLSPATH)/system/top/index.html
@@ -187,13 +193,23 @@ TOPLEVEL += $(TOOLSPATH)/interface/resources/bluetable.css
 TOPLEVEL += $(MEDIAPATH)/favicon-192x192.png
 TOPLEVEL += $(MEDIAPATH)/favicon-32x32.png
 TOPLEVEL += $(MEDIAPATH)/favicon-16x16.png
+
+# Test files to copy to web servable Formalizer directory
+TESTS = 
+TESTS += $(TOOLSPATH)/misc/development-tests-INDEX.html
+TESTS += $(TOOLSPATH)/misc/test_python_cgiformget.html
+TESTS += $(TOOLSPATH)/misc/test_python_cgianalysis.html
+TESTS += $(TOOLSPATH)/misc/test_visual_counters.html
+TESTS += $(TOOLSPATH)/misc/test_add_node.html
+TESTS += $(TOOLSPATH)/misc/test_task_chunk_countdown_bar.html
+TESTS += $(TOOLSPATH)/misc/test_webfileread.html
 # +----- end  : Select Formalizer executables -----+
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
 .PHONY: FORCE build $(COMPILABLES)
 
 # simply calling `make` refreshes executables and code documentation
-all: init executables doxygen
+all: init executables doxygen tests
 
 init: FORCE
 	@echo '-------------------------------------------------------------------'
@@ -221,9 +237,13 @@ executables: $(EXECUTABLES)
 	sudo cp -f $(CGIEXE) $(CGIDIR)/
 	sudo ln -f -s $(LOCALCGI) $(W3MCGIDIR)/
 	cp -f $(WEBINTERFACES) $(WEBINTERFACESDIR)/
+	sudo ln -f -s $(SYMWEB) $(WEBINTERFACESDIR)/
 	sudo cp -f $(TOPLEVEL) $(WEBBASEDIR)/
 	./pycmdlinks.sh $(EXEDIR)
 
+# call `make tests` to make test files available
+tests: $(TESTS)
+	sudo cp -f $(TESTS) $(WEBINTERFACESDIR)/
 
 # call `make doxygen` to refresh code documentation
 doxygen: FORCE

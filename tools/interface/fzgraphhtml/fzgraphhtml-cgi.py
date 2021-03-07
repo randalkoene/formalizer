@@ -48,6 +48,7 @@ edit = form.getvalue('edit')
 topicslist = form.getvalue('topics')
 topic = form.getvalue('topic')
 tonode = form.getvalue('to-node')
+norepeats = form.getvalue('norepeats')
 
 # extra arguments for generating Next Nodes Schedule
 num_elements = form.getvalue('num_elements')
@@ -267,6 +268,34 @@ def generate_Next_Nodes_Schedule_page():
     try_command_call(thecmd)
 
 
+def generate_Incomplete_Nodes_list():
+    global max_td
+    global num_unlimited
+    global num_days
+    
+    print("Content-type:text/html\n\n")
+
+    thecmd = "./fzgraphhtml -q -I -o STDOUT -E STDOUT"
+
+    if max_td:
+        if len(max_td)==8:
+            max_td += '2359'
+        thecmd += ' -M '+max_td
+
+    if (num_unlimited == 'on'):
+        thecmd += ' -N all '
+    else:
+        if num_elements:
+            thecmd += ' -N '+num_elements
+
+    if num_days:
+        thecmd += ' -D '+num_days
+
+    log(thecmd)
+
+    try_command_call(thecmd)
+
+
 if __name__ == '__main__':
     if id:
         generate_embeddable_list_of_NNLs_to_add_Node_to()
@@ -286,6 +315,10 @@ if __name__ == '__main__':
     
     if topic:
         generate_topic_nodes_page()
+        sys.exit(0)
+
+    if norepeats:
+        generate_Incomplete_Nodes_list()
         sys.exit(0)
 
     generate_Next_Nodes_Schedule_page()

@@ -140,7 +140,7 @@ init: FORCE
 $(OBJ)/epsmap.o: epsmap.cpp epsmap.hpp fzupdate.hpp version.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c epsmap.cpp -o $(OBJ)/epsmap.o
 
-$(OBJ)/fzupdate.o: fzupdate.cpp fzupdate.hpp version.hpp
+$(OBJ)/fzupdate.o: fzupdate.cpp fzupdate.hpp epsmap.hpp version.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c fzupdate.cpp -o $(OBJ)/fzupdate.o
 
 fzupdate: $(OBJ)/fzupdate.o $(OBJ)/epsmap.o $(CORE_OBJS)

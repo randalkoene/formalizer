@@ -29,6 +29,7 @@ form = cgi.FieldStorage()
 #variable = form.getvalue('variable')
 update = form.getvalue('update')
 T_emulate = form.getvalue('T_emulate')
+map_days = form.getvalue('map_days')
 verbose = form.getvalue('verbose')
 
 
@@ -100,17 +101,22 @@ if __name__ == '__main__':
         add_to_cmd = ' -t '+T_emulate
     if verbose:
         add_to_cmd += ' -V'
+    # Let's comment out the following for now to get some feedback
+    # else:
+    #     add_to_cmd += ' -q'
 
     thecmd = ''
     if ((update=='repeating') or (update=='both')):
         print('<p>Updating repeating Nodes.</p>')
-        thecmd = "./fzupdate -q -E STDOUT -r"+add_to_cmd
+        thecmd = "./fzupdate -E STDOUT -r"+add_to_cmd
         try_command_call(thecmd)
         print('<p><b>To see which Nodes were modified, see the <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=repeating_updated">repeating_updated</a> Named Node List.</b></p>')
 
     if ((update=='variable') or (update=='both')):
+        if map_days:
+            add_to_cmd += ' -D '+map_days
         print('<p>Updating variable and unspecified target date Nodes.</p>')
-        thecmd = "./fzupdate -q -E STDOUT -u"+add_to_cmd
+        thecmd = "./fzupdate -E STDOUT -u"+add_to_cmd
         try_command_call(thecmd)
         print('<p><b>To see which Nodes were modified, see the <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=batch_updated">batch_updated</a> Named Node List.</b></p>')
 

@@ -115,15 +115,13 @@ void fzdashboard::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen once in main(), for the derived class
 }
 
-/* (uncomment to include access to memory-resident Graph)
-Graph & fzgraphsearch::graph() {
+Graph & fzdashboard::graph() {
     ERRTRACE;
     if (!graphmemman.get_Graph(graph_ptr)) {
         standard_exit_error(exit_resident_graph_missing, "Memory resident Graph not found.", __func__);
     }
     return *graph_ptr;
 }
-*/
 
 int generate_dashboard() {
     if (fzdsh.config.json_path.empty()) {
