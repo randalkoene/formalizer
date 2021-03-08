@@ -122,6 +122,7 @@ std::string Graphmod_results::info_str() {
 }
 
 std::string unique_name_Graphmod() {
+//VERYVERBOSEOUT("Check shared memory timestamp: "+TimeStamp("%Y%m%d%H%M%S",ActualTime())+"\n");
     return TimeStamp("%Y%m%d%H%M%S",ActualTime());
 }
 

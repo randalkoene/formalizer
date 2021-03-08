@@ -124,6 +124,7 @@ struct EPS_map {
     //size_t firstday_slotspassed = 0;
     int slots_per_chunk;
     time_t previous_group_td = -1;
+    time_t t_beyond; ///< Will be initialized to the time right after the last slot, then incremented by pack_interval_beyond if in back_moveable mode.
 
     targetdate_sorted_Nodes & nodelist;
     eps_data_vec_t & epsdata;

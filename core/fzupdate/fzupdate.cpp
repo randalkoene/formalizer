@@ -41,8 +41,8 @@ fzupdate fzu;
  */
 fzupdate::fzupdate() : formalizer_standard_program(false), config(*this),
                  reftime(add_option_args, add_usage_top) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "rubRNT:D:";
-    add_usage_top += " [-r|-u|-b|-R|-N] [-T <t_max|full>] [-D <days>]";
+    add_option_args += "rubRNT:D:P:d";
+    add_usage_top += " [-r|-u|-b|-R|-N] [-T <t_max|full>] [-D <days>] [-P <pack_interval>] [-d]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "The -T limit overrides the 'map_days' configuration or default parameter.\n"
@@ -72,7 +72,9 @@ void fzupdate::usage_hook() {
           "    -R calculate time required for incomplete repeating Nodes to -T\n"
           "    -N calculate the minutes required for incomplete non-repeating Nodes to -T\n"
           "    -T update up to and including <t_max> or 'full' update\n"
-          "    -D number of days to map with -u (default in config, or 14)\n");
+          "    -D number of days to map with -u (default in config, or 14)\n"
+          "    -P interval seconds for moveable packing beyond map (or 'none')\n"
+          "    -d dry-run, do not modify Graph\n");
 }
 
 /**
@@ -136,6 +138,21 @@ bool fzupdate::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'P': {
+        if (cargs=="none") {
+            config.pack_moveable = false;
+        } else {
+            config.pack_moveable = true;
+            config.pack_interval_beyond = std::atoi(cargs.c_str());
+        }
+        return true;
+    }
+
+    case 'd': {
+        dryrun = true;
+        return true;
+    }
+
     }
 
     return false;
@@ -190,6 +207,8 @@ bool fzu_configurable::set_parameter(const std::string & parlabel, const std::st
     CONFIG_TEST_AND_SET_PAR(doearlier_endofday,"doearlier_endofday", parlabel, get_time_of_day_seconds(parvalue));
     CONFIG_TEST_AND_SET_PAR(eps_group_offset_mins,"eps_group_offset_mins", parlabel, get_positive_integer(parvalue, "eps_group_offset_mins"));
     CONFIG_TEST_AND_SET_PAR(update_to_earlier_allowed,"update_to_earlier_allowed", parlabel, (parvalue != "false"));
+    CONFIG_TEST_AND_SET_PAR(pack_moveable,"pack_moveable", parlabel, (parvalue != "false"));
+    CONFIG_TEST_AND_SET_PAR(pack_interval_beyond, "pack_interval_beyond", parlabel, get_positive_integer(parvalue, "pack_interval_beyond"));
     CONFIG_TEST_AND_SET_PAR(fetch_days_beyond_t_limit, "fetch_days_beyond_t_limit", parlabel, get_positive_integer(parvalue, "fetch_days_beyond_t_limit"));
     CONFIG_TEST_AND_SET_PAR(showmaps,"showmaps", parlabel, (parvalue != "false"));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
@@ -234,7 +253,10 @@ Graph_modifications & fzupdate::graphmod() {
 
 void fzupdate::prepare_Graphmod_shared_memory(unsigned long _segsize) {
     segsize = _segsize;
-VERYVERBOSEOUT("What's up with actual time? = "+std::to_string(ActualTime())+'\n');
+    time_t timecode = ActualTime();
+    VERYVERBOSEOUT("Using ActualTime time code for shared memory segment name: "+std::to_string(timecode)+'\n');
+    segname = TimeStamp("%Y%m%d%H%M%S", timecode);
+    VERYVERBOSEOUT("Corresponding TimeStamp with seconds: "+segname+'\n');
     segname = unique_name_Graphmod(); // a unique name to share with `fzserverpq`
     VERYVERBOSEOUT("Unique shared memory block name generated: "+segname+"\n");
 }
@@ -255,6 +277,10 @@ int update_repeating(time_t t_pass) {
     }
 
     //fzu.graphmod().data.back().set_Edit_flags(editflags.get_Edit_flags());
+
+    if (fzu.dryrun) {
+        return standard_exit_success("Dryrun - update repeating done.");
+    }
 
     auto ret = server_request_with_shared_data(fzu.get_segname(), fzu.graph().get_server_port());
     if (ret != exit_ok) {
@@ -349,6 +375,10 @@ bool request_batch_targetdates_modifications(const targetdate_sorted_Nodes & upd
 
     VERYVERBOSEOUT(show_shm_request(batchmodtd_ptr));
 
+    if (fzu.dryrun) {
+        return standard_exit_success("Dryrun - update batch of Nodes done.");
+    }
+
     auto ret = server_request_with_shared_data(fzu.get_segname(), fzu.graph().get_server_port());
     if (ret != exit_ok) {
         return standard_exit_error(ret, "Graph server returned error.", __func__);
@@ -360,9 +390,34 @@ bool request_batch_targetdates_modifications(const targetdate_sorted_Nodes & upd
 /**
  * Note: Much of this is a re-implementation of the Formalizer 1.x process carried out by dil2al when the
  *       function alcomp.cc:generate_AL_CRT() is called.
+ * 
+ * Outline of steps:
+ * 1. Determine the time limit (fzu.t_limit) up to which mapping is to be done.
+ * 2. Initialize constraints, including constraints.t_fetchlimit (which is beyond fzu.t_limit).
+ * 3. Collect all incomplete Nodes + Repeats up to constraints.t_fetchlimit.
+ * 4. Determine EPS data, find out how many chunks are required for each.
+ * 5. Set constraints based on the number of chunks needed for non-repeating Nodes.
+ * 6. Create an EPS map for constraints.days_in_map. Set map time stamps, create list of 5 minute slots, create Node key to EPS data index lookup table.
+ * 7. Place exact target date Nodes. Up to fzu.t_limit, map exact target date Nodes (plus collect some additional information).
+ * 8. Place fixed target date Nodes. Up to fzu.t_limit, map fixed and inherit target date Nodes (plus collect some additional information).
+ * 9. Group and place moveable (variable and unspecified) Nodes.
+ * 10. From the map, collect the Nodes to update and their new target dates.
+ * 11. Request modification of that batch.
+ * 
+ * The fzu.config.pack_moveable mode:
+ *   The optional alternative update method for variable target date Nodes is to map them carefully
+ *   up to the indicated time, and to move the rest to a pre-determined series of offsets beyond that.
+ * 
+ * Revised moveable treatment as per Trello card https://trello.com/c/zWqexJ9g:
+ *   The even more alternative method is not to modify variable target date Nodes at all, but to treat
+ *   them as a priority-sorted list to choose from or fill in where time permits.
  */
 int update_variable(time_t t_pass) {
     updvar_set_t_limit(t_pass);
+
+    if (fzu.config.pack_moveable) {
+        VERBOSEOUT("Pack-moveable mode.\n");
+    }
 
     if (fzu.t_limit == RTt_maxtime) {
         // Let's keep this case from exploding: Set the limit to time needed to complete non-repeating Nodes.
@@ -381,7 +436,7 @@ int update_variable(time_t t_pass) {
     }
 
     update_constraints constraints;
-    targetdate_sorted_Nodes incomplete_repeating = Nodes_incomplete_with_repeating_by_targetdate(fzu.graph(), constraints.t_fetchlimit, 0);
+    targetdate_sorted_Nodes incomplete_repeating = Nodes_incomplete_with_repeating_by_targetdate(fzu.graph(), constraints.t_fetchlimit, 0, fzu.config.pack_moveable);
     Edit_flags editflags;
     editflags.set_Edit_targetdate();
 
@@ -514,10 +569,32 @@ int required_time_for_nonrepeating_Nodes() {
     return standard_exit_success("Update variable target date Nodes done.");
 }*/
 
+void test_time(time_t t) {
+    FZOUT("t = "+std::to_string(t)+' ');
+    FZOUT(TimeStampYmdHM(t)+' ');
+    FZOUT(TimeStamp("%Y%m%d%H%M%S",t)+'\n')
+}
+
+void time_conversion_tests() {
+    time_t t = -1;
+    test_time(t);
+    t = 0;
+    test_time(t);
+    t = ActualTime();
+    test_time(t);
+    t = RTt_maxtime;
+    test_time(t);
+    standard.completed_ok();
+}
+
 int main(int argc, char *argv[]) {
     ERRTRACE;
 
     fzu.init_top(argc, argv);
+
+    if (fzu.dryrun) {
+        VERBOSEOUT("Dryrun mode.\n");
+    }
 
     switch (fzu.flowcontrol) {
 

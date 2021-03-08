@@ -45,6 +45,8 @@ public:
     time_t doearlier_endofday = 68400;
     unsigned int eps_group_offset_mins = 2;
     bool update_to_earlier_allowed = true;
+    bool pack_moveable = false;               ///< This activates and alternative 'full' processing of variable target date Nodes.
+    time_t pack_interval_beyond = (24*60*60); ///< In pack_moveable mode, interval to use for packing beyond the map.
     unsigned long fetch_days_beyond_t_limit = 30;
     bool showmaps = true;
 };
@@ -69,6 +71,8 @@ public:
     ReferenceTime reftime;
 
     time_t t_limit = 0; ///< Time to update to (inclusively), 0 means unspecified (use config.map_days).
+
+    bool dryrun = false;
 
     fzupdate();
 

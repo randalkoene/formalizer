@@ -49,10 +49,16 @@ constexpr const std::tm safe_undefined_localtime = {
  * A Formalizer standardized version of the localtime() function that always
  * returns a usable value, but which may log errors or warnings as needed.
  * 
+ * Note that errno is only set if localtime() returns nullptr, and therefore should
+ * only be tested then. The errno value is otherwise undefined. One of the safeties
+ * included here, in addition to always providing a usable time structure is an
+ * optional error code that is always set to a valid value.
+ * 
  * @param t_ptr Pointer to a (time_t) variable containing the UNIX epoch time to convert.
+ * @param errorcode_ptr Optional pointer to a buffer for an errno error code.
  * @return Pointer to a local calendar time structure.
  */
-const std::tm * safe_localtime(const std::time_t * t_ptr) {
+const std::tm * safe_localtime(const std::time_t * t_ptr, int * errorcode_ptr) {
 
     if (!t_ptr) {
         return &safe_undefined_localtime;
@@ -62,8 +68,12 @@ const std::tm * safe_localtime(const std::time_t * t_ptr) {
     }
 
     std::tm * localtime_ptr = localtime(t_ptr);
-    if (errno != EOVERFLOW) {
+    if (localtime_ptr != nullptr) {
         return localtime_ptr;
+    }
+
+    if (errorcode_ptr) {
+        (*errorcode_ptr) = errno; // should only be EOVERFLOW
     }
 
     return &safe_max_localtime;

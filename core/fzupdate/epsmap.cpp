@@ -172,6 +172,7 @@ EPS_map::EPS_map(time_t _t, unsigned long days_in_map, targetdate_sorted_Nodes &
     }
     firstdaystart = day_start_time(_t);
     time_t epochtime_aftermap = firstdaystart + (days_in_map * seconds_per_day);
+    t_beyond = epochtime_aftermap;
 
     time_t t_diff = starttime - firstdaystart;
     size_t firstday_slotspassed = t_diff / five_minutes_in_seconds;
@@ -466,6 +467,11 @@ void EPS_map::group_and_place_movable() {
 
                 if (epsgroup_newtd < 0) { // mostly, for tasks with MAXTIME target dates that don't fit into the map
                     mark_insufficient_map_slots(epsmap);
+                    if (fzu.config.pack_moveable) {
+                        // Keep going and update variable target date Nodes beyond the map at intervals.
+                        epsmap.t_beyond += fzu.config.pack_interval_beyond;
+                        propose_updated_targetdates(epsmap.t_beyond, epsmap);
+                    }
 
                 } else {
                     propose_updated_targetdates(epsgroup_newtd, epsmap);
@@ -485,7 +491,8 @@ void EPS_map::group_and_place_movable() {
         if (!node_ptr) {
             ADDERROR(__func__, "Received a null-node");
         } else {
-            if (node_ptr->effective_targetdate() > fzu.t_limit) {
+            // With the `pack_moveable` option, keep trying to pack more moveables into the map.
+            if ((!fzu.config.pack_moveable) &&(node_ptr->effective_targetdate() > fzu.t_limit)) {
                 break;
             }
             eps_data & epsdataref = epsdata[it.index];
@@ -519,11 +526,11 @@ targetdate_sorted_Nodes EPS_map::get_eps_update_nodes() {
         if (!node_ptr) {
             standard_exit_error(exit_general_error, "Unexpected node_ptr == nullptr", __func__);
         }
-        if (node_ptr->effective_targetdate() > fzu.t_limit) {
+        if ((!fzu.config.pack_moveable) && (node_ptr->effective_targetdate() > fzu.t_limit)) {
             break;
         }
 
-        eps_data & epsdataref = epsdata.at(i);
+        eps_data & epsdataref = epsdata.at(i); // *** Beware! I assumed that i cannot be too large here.
 
         if (epsdataref.chunks_req > 0) {
             if (t != group_td) {

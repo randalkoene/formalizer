@@ -245,23 +245,26 @@ targetdate_sorted_Nodes Nodes_incomplete_by_targetdate(Graph & graph) {
  * @param sortednodes A list of target date sorted Node pointers.
  * @param t_max Limit to which to generate the resulting list of Node pointers.
  * @param N_max Maximum size of list to return (zero means no size limit).
+ * @param limit_repeats_only If true then apply t_max only to repeating Nodes.
  * @return A target date sorted list of Node pointers with repeats.
  */
-targetdate_sorted_Nodes Nodes_with_repeats_by_targetdate(const targetdate_sorted_Nodes & sortednodes, time_t t_max, size_t N_max) {
+targetdate_sorted_Nodes Nodes_with_repeats_by_targetdate(const targetdate_sorted_Nodes & sortednodes, time_t t_max, size_t N_max, bool limit_repeats_only) {
     targetdate_sorted_Nodes withrepeats;
     if (t_max < 0) {
         t_max = RTt_maxtime;
     }
     for (const auto & [t, node_ptr] : sortednodes) {
-        if (t > t_max) {
+        if ((t > t_max) && (!limit_repeats_only)) {
             break;
         }
         // Note that you cannot immediately apply N_max here, because the first repeated Nodes
         // might fill up all the space even though others will have earlier target dates.
         if (node_ptr->get_repeats()) {
-            auto tdwithrepeats = node_ptr->repeat_targetdates(t_max, N_max, t);
-            for (const auto & t_repeat : tdwithrepeats) {
-                withrepeats.emplace(t_repeat, node_ptr);
+            if (t <= t_max) {
+                auto tdwithrepeats = node_ptr->repeat_targetdates(t_max, N_max, t);
+                for (const auto & t_repeat : tdwithrepeats) {
+                    withrepeats.emplace(t_repeat, node_ptr);
+                }
             }
         } else {
             withrepeats.emplace(t, node_ptr);
@@ -283,11 +286,12 @@ targetdate_sorted_Nodes Nodes_with_repeats_by_targetdate(const targetdate_sorted
  * @param graph A valid Graph object.
  * @param t_max Limit to which to generate the resulting list of Node pointers.
  * @param N_max Maximum size of list to return (zero means no size limit).
+ * @param limit_repeats_only If true then apply t_max only to repeating Nodes.
  * @return A target date sorted list of Node pointers with repeats.
  */
-targetdate_sorted_Nodes Nodes_incomplete_with_repeating_by_targetdate(Graph & graph, time_t t_max, size_t N_max) {
+targetdate_sorted_Nodes Nodes_incomplete_with_repeating_by_targetdate(Graph & graph, time_t t_max, size_t N_max, bool limit_repeats_only) {
     targetdate_sorted_Nodes incomplete = Nodes_incomplete_by_targetdate(graph);
-    return Nodes_with_repeats_by_targetdate(incomplete, t_max, N_max);
+    return Nodes_with_repeats_by_targetdate(incomplete, t_max, N_max, limit_repeats_only);
 }
 
 /**

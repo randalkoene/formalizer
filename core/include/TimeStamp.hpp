@@ -38,9 +38,10 @@ extern const std::string weekday_str[day_of_week::_num_dow];
  * returns a usable value, but which may log errors or warnings as needed.
  * 
  * @param t_ptr Pointer to a (time_t) variable containing the UNIX epoch time to convert.
+ * @param errorcode_ptr Optional pointer to a buffer for an errno error code.
  * @return Pointer to a local calendar time structure.
  */
-const std::tm * safe_localtime(const std::time_t * t_ptr);
+const std::tm * safe_localtime(const std::time_t * t_ptr, int * errorcode_ptr = nullptr);
 
 /**
  * Convert a Formalizer time stamp string into local Unix time.

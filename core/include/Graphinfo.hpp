@@ -93,9 +93,10 @@ targetdate_sorted_Nodes Nodes_incomplete_by_targetdate(Graph & graph);
  * @param sortednodes A list of target date sorted Node pointers.
  * @param t_max Limit to which to generate the resulting list of Node pointers.
  * @param N_max Maximum size of list to return (zero means no size limit).
+ * @param limit_repeats_only If true then apply t_max only to repeating Nodes.
  * @return A target date sorted list of Node pointers with repeats.
  */
-targetdate_sorted_Nodes Nodes_with_repeats_by_targetdate(const targetdate_sorted_Nodes & sortednodes, time_t t_max, size_t N_max);
+targetdate_sorted_Nodes Nodes_with_repeats_by_targetdate(const targetdate_sorted_Nodes & sortednodes, time_t t_max, size_t N_max, bool limit_repeats_only = false);
 
 /**
  * Returns targetdate sorted Nodes that are incomplete, augmented with repeated instances.
@@ -105,9 +106,10 @@ targetdate_sorted_Nodes Nodes_with_repeats_by_targetdate(const targetdate_sorted
  * @param graph A valid Graph object.
  * @param t_max Limit to which to generate the resulting list of Node pointers.
  * @param N_max Maximum size of list to return (zero means no size limit).
+ * @param limit_repeats_only If true then apply t_max only to repeating Nodes.
  * @return A target date sorted list of Node pointers with repeats.
  */
-targetdate_sorted_Nodes Nodes_incomplete_with_repeating_by_targetdate(Graph & graph, time_t t_max, size_t N_max);
+targetdate_sorted_Nodes Nodes_incomplete_with_repeating_by_targetdate(Graph & graph, time_t t_max, size_t N_max, bool limit_repeats_only = false);
 
 /**
  * Selects all Nodes that are incomplete and repeating and lists them by (inherited)
