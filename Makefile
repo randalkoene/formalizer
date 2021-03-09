@@ -14,6 +14,7 @@ MEDIAPATH=$(FORMALIZERPATH)/media
 FORMALIZERPATH_THIS=$(FORMALIZERPATH)
 FZCONFIGSRCPATH=$(FORMALIZERPATH)/config
 FZCONFIGPATH=$(HOME)/.formalizer
+LOCALBINDIR=$(HOME)/local/bin
 
 #TEMPLATEDIR = -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\" 
 
@@ -120,6 +121,10 @@ EXECUTABLES += $(TOOLSPATH)/system/top/index-term.sh
 CONFIGEXPOSE =
 CONFIGEXPOSE += $(FZCONFIGPATH)/server_address
 
+# local/bin programs needed by CGI scripts
+LOCALBINSYM =
+LOCALBINSYM += $(LOCALBINDIR)/aha
+
 # symbolic links to executables for CGI scripts and configuration files to call upon
 SYMBIN = 
 SYMBIN += $(COREPATH)/fzedit/fzedit
@@ -132,15 +137,19 @@ SYMBIN += $(COREPATH)/fzupdate/fzupdate
 SYMBIN += $(TOOLSPATH)/interface/fzdashboard/fzdashboard
 SYMBIN += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml
 SYMBIN += $(TOOLSPATH)/interface/fzloghtml/fzloghtml
+SYMBIN += $(TOOLSPATH)/interface/fzlogmap/fzlogmap
 SYMBIN += $(TOOLSPATH)/interface/fzserver-info/fzserver-info
+SYMBIN += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_a2c.json
 SYMBIN += $(COREPATH)/fzguide.system/fzguide.system
 SYMBIN += $(CONFIGEXPOSE)
+SYMBIN += $(LOCALBINSYM)
 
 # CGI scripts that need to be copied to $(CGIDIR)
 CGIEXE =
 CGIEXE += $(COREPATH)/fzedit/fzedit-cgi.py
 CGIEXE += $(COREPATH)/fzgraph/fzgraph-cgi.py
 CGIEXE += $(COREPATH)/fzgraphsearch/fzgraphsearch-cgi.py
+CGIEXE += $(COREPATH)/fzguide.system/fzguide.system-cgi.py
 CGIEXE += $(COREPATH)/fzquerypq/fzquerypq-cgi.py
 CGIEXE += $(COREPATH)/fztask/fztask-cgi.py
 CGIEXE += $(COREPATH)/fzupdate/fzupdate-cgi.py
@@ -151,7 +160,8 @@ CGIEXE += $(TOOLSPATH)/interface/fzlink/fzlink.py
 CGIEXE += $(TOOLSPATH)/interface/fzlogtime/fzlogtime
 CGIEXE += $(TOOLSPATH)/interface/fzlogtime/fzlogtime.cgi
 CGIEXE += $(TOOLSPATH)/interface/fzserver-info/fzserver-info-cgi.py
-CGIEXE += $(COREPATH)/fzguide.system/fzguide.system-cgi.py
+CGIEXE += $(TOOLSPATH)/interface/fzuistate/fzuistate.py
+CGIEXE += $(TOOLSPATH)/system/metrics/sysmet-extract/sysmet-extract-cgi.py
 
 # CGI scripts for machine-local use with w3m, which can launch programs as the user
 LOCALCGI =

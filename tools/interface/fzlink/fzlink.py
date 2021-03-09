@@ -40,7 +40,77 @@ page_header = '''<html>
 .chktop { 
     background-color: #B0C4F5;
 }
+#darkmode {
+position: fixed;
+bottom: 0px;
+right: 0px;
+}
 </style>
+<button id="darkmode" class="button button2" onclick="switch_light_or_dark();">Light / Dark</button>
+'''
+
+page_tail = '''<hr>
+<script>
+var darkmode = 0;
+function set_darkmode() {
+    if (darkmode < 1) {
+        //document.body.style.background = "#ffffff";
+        document.body.removeAttribute('data-theme');
+    } else {
+        //document.body.style.background = "#7f7f7f";
+        document.body.setAttribute('data-theme', 'dark');
+    }
+}
+function switch_light_or_dark() {
+    darkmode = 1 - darkmode;
+    set_darkmode();
+}
+function init_darkmode() {
+    set_darkmode();
+}
+const darkmodebutton = document.getElementById('darkmode');
+function sendData( data ) {
+  const XHR = new XMLHttpRequest(),
+        FD  = new FormData();
+  for( name in data ) {
+    FD.append( name, data[ name ] );
+  }
+  XHR.addEventListener( 'load', function( event ) {
+    console.log( 'Darkmode setting stored, response loaded.' );
+  } );
+  XHR.addEventListener(' error', function( event ) {
+    console.error( 'Failed to communicate darkmode setting.' );
+  } );
+  XHR.open( 'POST', '/cgi-bin/fzuistate.py' );
+  XHR.send( FD );
+}
+darkmodebutton.addEventListener( 'click', function()
+    { sendData( { 'darkmode' : darkmode } );
+} )
+var uistate = new XMLHttpRequest();
+uistate.onreadystatechange = function() {
+    if (this.readyState == 4) {
+        if (this.status == 200) {
+            // Parse UI state
+            console.log(uistate.response);
+            var state_data = uistate.responseText;
+            var json_uistate = JSON.parse(state_data);
+            if (json_uistate.hasOwnProperty('darkmode')) {
+                darkmode = json_uistate['darkmode'];
+                set_darkmode();
+            }
+        } else {
+            console.error('State loading failed.');
+            // default init
+            init_darkmode();
+        }
+    }
+};
+uistate.open( 'GET', '/cgi-bin/fzuistate.py' );
+uistate.send(); // no form data presently means we're requesting state
+</script>
+</body>
+</html>
 '''
 
 thecmd = ""
@@ -125,7 +195,7 @@ def render_output():
             print(f'\n<br>\n<p>\n<button class="button button2" onclick="location.href=\'/cgi-bin/fzlink.py?id={id}&alt=histfull\';">full history</button>\n</p>\n<br>\n')
 
     if addframe:
-        print("<hr>\n</body>\n</html>")
+        print(page_tail)
 
 if __name__ == '__main__':
 

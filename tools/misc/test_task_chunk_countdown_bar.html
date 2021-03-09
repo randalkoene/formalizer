@@ -48,6 +48,30 @@
 </style>
 <body>
 
+<!-- Notes:
+- This is just an example that shows how the visualization can work, and it
+  uses front-end timers to do most of the animation, so that there is less
+  need for server-client communication.
+- You can add to this Server-Sent Events (SSEs) as the way to subscribe
+  listeners to the Formalizer events that matter to a dashboard. For
+  example, there can be a central fztask-server (perhaps implemented as
+  a little Flask server) that is being informed when a task chunk was
+  closed (or it may detect it if nothing has happened for quite a while),
+  when one is opened, and how much time there is before an alert should be
+  given. The central server can be listened to by fztask.py (the command
+  line utility for Formalizer task management), as well as by any number of
+  other task monitors and managers.
+- On the client side, you can use a standard .js Fromalizer resource that
+  any monitor/manager page can load, and which works much as shown at
+  https://www.smashingmagazine.com/2018/02/sse-websockets-data-flow-http2/.
+- To begin building this, just start making a a tiny fztask-server to begin
+  testing the registration of listeners and broadcasting events. You can
+  let fztask keep on doing its autonomous task chunk sleep for now, right
+  after it informs the fztask-server. That way, its functionality is
+  unchanged for now, while the little server is being developed. The first
+  test client can be the fron dashboard, showing task chunk countdowns.
+-->
+
 
    <section class="container">
      <div class="timerBar">

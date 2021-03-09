@@ -6,6 +6,11 @@
 <title>Formalizer: Incomplete Nodes by Effective Target Date</title>
 </head>
 <style>
+#darkmode {
+position: fixed;
+bottom: 0px;
+right: 0px;
+}
 </style>
 <body>
 
@@ -16,6 +21,7 @@
 <form action="/cgi-bin/fzgraphhtml-cgi.py" method="GET"><input type="submit" value="Show"> <input type="number" name="num_elements" value="{{ num_to_show }}" style="width: 7em"> or <input type="checkbox" name="all" {{ all_checked }}> unlimited Nodes | within interval from today to <input type="number" name="max_td" value="{{ t_max }}" style="width: 12em"> or <input type="number" name="num_days" value="{{ num_days }}" style="width: 7em"> days | <input type="checkbox" name="norepeats"> no repeats</form>
 Showing <code>{{ actual_num_shown }}</code> Nodes. Enter date-time stamps in <code>YYYYmmdd[HHMM]</code> format (time optional).
 </p>
+<button id="darkmode" class="button button2" onclick="switch_light_or_dark();">Light / Dark</button>
 
 <table class="blueTable">
 <tbody>

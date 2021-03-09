@@ -57,6 +57,14 @@
         "Accounting - Temp-New" : {
             "url" : "https://docs.google.com/spreadsheets/d/1-be-haSP3cqnwinYokcg0x91e8f-_LBT9HQOy9QHhxs/edit#gid=0",
             "window" : "_blank"
+        },
+        "Intention Performance" : {
+            "url" : "/cgi-bin/sysmet-extract-cgi.py?categories=intentions",
+            "window" : "_blank"
+        },
+        "Work Performance" : {
+            "url" : "/cgi-bin/sysmet-extract-cgi.py?categories=work",
+            "window" : "_blank"
         }
     },
     "NOTITLE" : {

@@ -253,10 +253,6 @@ Graph_modifications & fzupdate::graphmod() {
 
 void fzupdate::prepare_Graphmod_shared_memory(unsigned long _segsize) {
     segsize = _segsize;
-    time_t timecode = ActualTime();
-    VERYVERBOSEOUT("Using ActualTime time code for shared memory segment name: "+std::to_string(timecode)+'\n');
-    segname = TimeStamp("%Y%m%d%H%M%S", timecode);
-    VERYVERBOSEOUT("Corresponding TimeStamp with seconds: "+segname+'\n');
     segname = unique_name_Graphmod(); // a unique name to share with `fzserverpq`
     VERYVERBOSEOUT("Unique shared memory block name generated: "+segname+"\n");
 }
