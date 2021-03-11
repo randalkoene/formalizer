@@ -52,7 +52,7 @@ fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) {
 void fzgraphhtml::usage_hook() {
     //ga.usage_hook();
     FZOUT("    -n Show data for Node with <node-ID>\n"
-          "    -m Editing form for Node with <node-ID>\n"
+          "    -m Editing form for Node with <node-ID> ('new' to define new Node)\n"
           "    -I Show data for incomplete Nodes\n"
           "    -r Show with repeats of repeating Nodes\n"
           "    -L Show data for Nodes in Named Node List, or show Names if '?'\n"

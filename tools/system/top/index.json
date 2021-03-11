@@ -243,7 +243,7 @@
     },
     "Action: " : {
         "Add Node" : {
-            "url" : "/formalizer/add_node.html",
+            "url" : "/cgi-bin/fzgraphhtml-cgi.py?edit=new",
             "window" : "_blank"
         },
         "Add Log Entry" : {

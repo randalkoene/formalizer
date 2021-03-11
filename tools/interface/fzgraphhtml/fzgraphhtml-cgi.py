@@ -42,6 +42,7 @@ form = cgi.FieldStorage()
 
 # Get data from fields
 #startfrom = form.getvalue('startfrom')
+help = form.getvalue('help')
 id = form.getvalue('id')
 srclist = form.getvalue('srclist')
 edit = form.getvalue('edit')
@@ -55,6 +56,62 @@ num_elements = form.getvalue('num_elements')
 num_unlimited = form.getvalue('all')
 max_td = form.getvalue('max_td')
 num_days = form.getvalue('num_days')
+
+# The following should only show information that is safe to provide
+# to those who have permission to connect to this CGI handler.
+interface_options_help = '''
+<html>
+<link rel="stylesheet" href="/fz.css">
+<head>
+<title>fzgraphhtml-cgi API</title>
+</head>
+<body>
+<h1>fzgraphhtml-cgi API</h1>
+
+<p>
+Main modes:
+<ul>
+<li><code>edit</code>: Node Edit Page
+<li><code>id</code>: List of Named Node Lists
+<li><code>srclist</code>: List of Nodes in a specified Named Node List
+<li><code>topics</code>: List of Topics
+<li><code>topic</code>: List of Nodes in a specified Topic
+<li><code>norepeats</code>: List of Incomplete Nodes in order of Effective Target Date
+<li>By default: Schedule of Incomplete Nodes with Repeats of Repeating Nodes
+</ul>
+</p>
+
+<p>
+Note that <code>fzlink.py</code> generates the single Node Info Page (without editing form elements).
+</p>
+
+<h3>Node Edit Page</h3>
+
+<p>
+<code>fzgraphhtml-cgi.py?edit=NODE_ID</code><br>
+Genereates the Node Edit form page for the Node identified by NODE_ID.
+</p>
+
+<p>
+Note that this is also used to create the form with which tot define a new Node.
+Simply set NODE_ID to the string 'new'.
+</p>
+
+<h3>List of Named Node Lists</h3>
+
+<p>
+<code>fzgraphhtml-cgi.py?id=NODE_ID</code><br>
+Generates the list of all existing Named Node Lists with action links. The NODE_ID is applied
+to these action links, for example, to add the specified Node to a Named Node List.
+</p>
+
+<p>
+(more info to come)
+</p>
+
+</body>
+</html>
+'''
 
 modify_template = '''<tr><td>[<a href="/cgi-bin/fzgraphhtml-cgi.py?srclist={{{{ list_name }}}}">{{{{ list_name }}}}</a>]</td><td><a href="http://{fzserverpq}/fz/graph/namedlists/{{{{ list_name }}}}?add={node_id}">[add]</a></td></tr>
 '''
@@ -296,7 +353,16 @@ def generate_Incomplete_Nodes_list():
     try_command_call(thecmd)
 
 
+def show_interface_options():
+    print("Content-type:text/html\n\n")
+    print(interface_options_help)
+
+
 if __name__ == '__main__':
+    if help:
+        show_interface_options()
+        sys.exit(0)
+
     if id:
         generate_embeddable_list_of_NNLs_to_add_Node_to()
         sys.exit(0)

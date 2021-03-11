@@ -633,8 +633,93 @@ const std::string patt_token[_patt_num] = {
 static const char update_skip_template_A[] = R"USTEMP( | <input type="submit" name="action" value="update"> to <input type="datetime-local" id="tpass" name="tpass" min="1990-01-01T00:00:00" value=")USTEMP";
 static const char update_skip_template_B[] = R"USTEMP("> <input type="submit" name="action" value="skip"> <input type="number" name="num_skip" min="1" max="100" step="1" value=1>)USTEMP";
 
+bool render_new_node_page() {
+    ERRTRACE;
+
+    Graph & graph = fzgh.graph();
+    
+    // this is where you do the same as in render_Node_data(), with a few extra bits
+    render_environment env;
+    fzgraphhtml_templates templates;
+    load_templates(templates);
+    template_varvalues nodevars;
+
+    // Let's use a Node_data object for standardized defaults.
+    Node_data ndata;
+    long required_mins = (ndata.hours * 60.0);
+    double required_hrs = ndata.hours;
+    td_property tdprop = ndata.tdproperty;
+    td_pattern tdpatt = ndata.tdpattern;
+
+    nodevars.emplace("node-id", "NEW");
+
+    if (ndata.repeats) {
+        nodevars.emplace("td_update_skip", update_skip_template_A+TimeStamp("%Y-%m-%dT%H:%M", ActualTime())+update_skip_template_B);
+    } else {
+        nodevars.emplace("td_update_skip", "");
+    }
+
+    nodevars.emplace("node-text", ndata.utf8_text);
+    nodevars.emplace("comp", to_precision_string(0.0));
+    nodevars.emplace("req_hrs", to_precision_string(required_hrs));
+    nodevars.emplace("req_mins", std::to_string(required_mins));
+    nodevars.emplace("val", to_precision_string(ndata.valuation));
+
+    time_t t_eff = ndata.targetdate;
+    nodevars.emplace("eff_td", TimeStampYmdHM(t_eff));
+    nodevars.emplace("eff_td_date",TimeStamp("%Y-%m-%d", t_eff));
+    nodevars.emplace("eff_td_time",TimeStamp("%H:%M", t_eff));
+
+    std::string prop_value[_tdprop_num] = {"", "", "", "", ""};
+    if (tdprop<_tdprop_num) {
+        prop_value[tdprop] = "checked";
+    } else {
+        ADDERROR(__func__, "New Node has unrecognized TD property "+std::to_string((int) tdprop));
+    }
+    for (int i = 0; i < _tdprop_num; ++i) {
+        nodevars.emplace(prop_token[i],prop_value[i]);
+    }
+
+    std::string patt_value[_patt_num] = {"", "", "", "", "", "", "", "", ""};
+    if (tdpatt<_patt_num) {
+        patt_value[tdpatt] = "checked";
+    } else {
+        ADDERROR(__func__, "New Node has unrecognized TD pattern "+std::to_string((int) tdpatt));
+    }
+    for (int i = 0; i < _patt_num; ++i) {
+        if (i != OLD_patt_span) {
+            nodevars.emplace(patt_token[i],patt_value[i]);
+        }
+    }
+
+    nodevars.emplace("td_every", std::to_string(ndata.tdevery));
+    nodevars.emplace("td_span", std::to_string(ndata.tdspan));
+    nodevars.emplace("fzserverpq", graph.get_server_full_address());
+    nodevars.emplace("topics", "");
+    nodevars.emplace("superiors", "");
+    nodevars.emplace("dependencies", "");
+
+    std::string rendered_node_data = env.render(templates[node_edit_temp], nodevars);
+
+    if (fzgh.config.rendered_out_path == "STDOUT") {
+        FZOUT(rendered_node_data);
+    } else {
+        if (!string_to_file(fzgh.config.rendered_out_path, rendered_node_data))
+            standard_exit_error(exit_file_error, "Unable to write rendered page to file.", __func__);
+    }
+
+    return true;
+}
+
+/**
+ * Note: `fzgh.node_idstr == "new"` means generate edit page to collect information for a new Node.
+ */
 bool render_node_edit() {
     ERRTRACE;
+
+    if (fzgh.node_idstr == "new") {
+        return render_new_node_page();
+    }
 
     auto [node_ptr, graph_ptr] = find_Node_by_idstr(fzgh.node_idstr, fzgh.graph_ptr);
     if (!graph_ptr) {
