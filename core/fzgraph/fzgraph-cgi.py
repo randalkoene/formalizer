@@ -106,6 +106,7 @@ edit_result_page_head = '''Content-type:text/html
 
 <html>
 <head>
+<meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
 <title>fz: Graph - Add Node</title>
 </head>
@@ -129,6 +130,8 @@ edit_fail_page_tail = '''<hr>
 '''
 
 def convert_to_targetdate(alttargetdate: str):
+    if (len(alttargetdate)<16):
+        return ''
     atd = alttargetdate.split('T')
     atd_date = atd[0].split('-')
     atd_time = atd[1].split(':')
@@ -137,6 +140,8 @@ def convert_to_targetdate(alttargetdate: str):
 
 
 def convert_date_and_time_to_targetdate(alt2_targetdate: str, alt2_targettime: str):
+    if ((len(alt2_targetdate)<10) or (len(alt2_targettime)<5)):
+        return ''
     atd_date = alt2_targetdate.split('-')
     atd_time = alt2_targettime.split(':')
     atd_YmdHM = f'{atd_date[0]}{atd_date[1]}{atd_date[2]}{atd_time[0]}{atd_time[1]}'

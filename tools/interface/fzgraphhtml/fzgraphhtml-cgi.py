@@ -118,6 +118,7 @@ modify_template = '''<tr><td>[<a href="/cgi-bin/fzgraphhtml-cgi.py?srclist={{{{ 
 
 listpagehead = '''<html>
 <head>
+<meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/bluetable.css">
 <title>fz:modify Named Node List</title>
@@ -134,6 +135,7 @@ listpagehead = '''<html>
 
 listpagehead_nomodif = '''<html>
 <head>
+<meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/bluetable.css">
 <title>Named Node List: {list_name}</title>
@@ -146,6 +148,7 @@ listpagehead_nomodif = '''<html>
 
 listpagehead_alllists = '''<html>
 <head>
+<meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/bluetable.css">
 <title>Named Node Lists</title>
@@ -165,6 +168,7 @@ listpagetail = '''</tbody></table>
 editpagehead = '''Content-type:text/html
 
 <head>
+<meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
 <title>Formalizer: Edit Node</title>
 </head>
@@ -187,6 +191,7 @@ editpagetail = '''</tbody></table>
 topicspagehead = '''Content-type:text/html
 
 <head>
+<meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
 <title>Formalizer: Topics</title>
 </head>

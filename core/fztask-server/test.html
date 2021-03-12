@@ -3,10 +3,97 @@
 
 <HEAD>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
 <TITLE>Test</TITLE>
 </HEAD>
+<style>
+.container {
+  max-width: 1024px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.timerBar {
+  width: 150px;
+  height: 400px;
+  background-color: darkblue;
+  position: relative;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+
+.timerBarFill {
+  background-color: #68edcb;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  bottom: 0;
+  transition: 1s;
+}
+
+.timerBarText {
+  position: absolute;
+  top: 10px;
+  text-align: center;
+  color: #ffffff;
+  left: 5;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.5em;
+}    
+</style>
 <BODY>
 <H1>Test</H1>
+
+<section class="container">
+    <div class="timerBar">
+        <div class="timerBarFill">
+        </div>
+        <div class="timerBarTextContainer">
+            <div class="timerBarText"></div>
+        </div>
+    </div>
+</section>
+
+<script>
+    const fill = document.querySelector(".timerBarFill");
+    const text = document.querySelector(".timerBarText");
+    const initialTime = 180;
+    let secondsLeft = initialTime;
+    let heightPct = 100;
+
+    let countDown = setInterval(tick, 100);
+
+    function tick() {
+        secondsLeft--;
+        text.textContent = `${secondsLeft}`;
+        if (secondsLeft === 0) {
+            clearInterval(countDown);
+            fill.style.height = 0;
+            return;
+        }
+        heightPct = secondsLeft / initialTime;
+        console.log(`${heightPct}%`);
+        fill.style.height = `${heightPct * 100}%`;
+        if (heightPct < 120 / 180) {
+            fill.style.backgroundColor = '#f2ed6d';
+        }
+        if (heightPct < 60 / 180) {
+            fill.style.backgroundColor = '#ea7267';
+        }
+
+    }
+
+    function calcHeight(time) {
+
+    }
+</script>
+    
+
 
 <script type="text/javascript">
 window.onload = function() {
@@ -23,11 +110,13 @@ window.onload = function() {
         const t = JSON.parse(event.data).t
         const mins = JSON.parse(event.data).mins
         console.log('TC_start t = '+ t + ', mins = ' + mins)
+        secondsLeft = initialTime;
     });
 
     source.addEventListener("TC_end", function(event) {
         const t = JSON.parse(event.data).t
         console.log('TC_end t = '+ t)
+        secondsLeft = 0;
     });
 };
 // Could add connection stop detection as in https://medium.com/conectric-networks/a-look-at-server-sent-events-54a77f8d6ff7

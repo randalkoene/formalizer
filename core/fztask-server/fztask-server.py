@@ -1,3 +1,4 @@
+import sys
 import queue
 
 import flask
@@ -11,12 +12,22 @@ import json
 # manager such as fztask.py or a browser-based javascript manager can implement
 # a corresponding little state machine that requests or reacts to changes in
 # Task Chunk state.
+#
+# You can make this visible via all addresses to this machine by specifying the
+# special address '0.0.0.0'. You can either provide that in app.run(host='0.0.0.0')
+# or via 'flask run --host 0.0.0.0'.
+#
+# Note though: You really should not run the Flask server in DEVELOPMENT mode
+# when exposed beyond localhost. See the following link for information about
+# running a Flask server in a production environment:
+# http://flask.pocoo.org/docs/quickstart/#a-minimal-application
 
 app = flask.Flask(__name__)
 flask_cors.CORS(app)
 
 
 @app.route('/')
+@flask_cors.cross_origin()
 def hello_world():
     return 'Hello, cross-origin World!'
 
@@ -57,6 +68,7 @@ def format_sse(data: str, event=None) -> str:
 
 
 @app.route('/ping')
+@flask_cors.cross_origin()
 def ping():
     msg = format_sse(data='pong')
     announcer.announce(msg=msg)
@@ -64,6 +76,7 @@ def ping():
 
 
 @app.route('/listen', methods=['GET'])
+@flask_cors.cross_origin()
 def listen():
 
     def stream():
@@ -76,6 +89,7 @@ def listen():
 
 
 @app.route('/start')
+@flask_cors.cross_origin()
 def TC_start():
     if flask.request.args.get('t'):
         t_start = flask.request.args.get('t')
@@ -94,6 +108,7 @@ def TC_start():
 
 
 @app.route('/end')
+@flask_cors.cross_origin()
 def TC_end():
     if flask.request.args.get('t'):
         t_end = flask.request.args.get('t')
@@ -105,3 +120,10 @@ def TC_end():
     response = flask.make_response('TC end announced', 200)
     response.headers['Content-Type'] = 'application/json'
     return response
+
+
+if __name__ == '__main__':
+
+    app.debug = True
+    app.run(host = '0.0.0.0', port=5000)
+    sys.exit(0)
