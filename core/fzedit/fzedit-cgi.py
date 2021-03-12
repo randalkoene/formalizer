@@ -3,6 +3,10 @@
 # Randal A. Koene, 20201209
 #
 # CGI script to forward Node editing data to fzedit.
+#
+# This handler is currently also able to handle new Node specification, and
+# will call fzgraph when the Node ID is "new" or "NEW". For a very similar
+# implementation aimed specifically at adding new Nodes, please see fzgraph-cgi.py.
 
 # Import modules for CGI handling 
 try:
@@ -18,6 +22,82 @@ from traceback import print_exc
 from subprocess import Popen, PIPE
 
 textfile = '/var/www/webdata/formalizer/node-text.html'
+
+# The following should only show information that is safe to provide
+# to those who have permission to connect to this CGI handler.
+interface_options_help = '''
+<html>
+<link rel="stylesheet" href="/fz.css">
+<head>
+<title>fzedit-cgi API</title>
+</head>
+<body>
+<h1>fzedit-cgi API</h1>
+
+<p>
+Main modes:
+<ul>
+<li><code>action=modify</code>: Modify Node or Add Node.
+<li><code>action=update</code>: Update repeating Node past specified date-time.
+<li><code>action=skip</code>: Skip repeating Node N times.
+</ul>
+</p>
+
+<h3>Modify Node or Add Node</h3>
+
+<p>
+<code>fzedit-cgi.py?action=modify</code><br>
+Expects an array of parameters:
+</p>
+<ul>
+<li>verbosity: Verbose if "=on".
+<li>id: Node ID. If "id=new" or "id=NEW" then add new Node.
+<li>text: Node description text.
+<li>comp: Node completion value.
+<li>set_complete: if "=on" then set Node completion to 1.0 and adjust required to match.
+<li>req_hrs: Node required time, expressed in hours.
+<li>req_mins: Node required time, expressed in minutes.
+<li>add_hrs: Add hours to Node required time.
+<li>add_mins: Add minutes to Node required time.
+<li>val: Node valuation.
+<li>targetdate: Node target date in YYYYmmddHHMM format.
+<li>alt_targetdate: Node target date in YYYY-mm-ddTHH:MM:SS format.
+<li>alt2_targetdate: Node target date calendar date in YYYY-mm-dd format.
+<li>alt2_targettime: Node target date clock time in HH:MM:SS format.
+<li>prop: Node target date property ("=unspecified", "=variable", "=inherit", "=fixed", "=exact").
+<li>patt: Node target date pattern ("=daily", "=workdays", "=weekly", "=biweekly", "=monthly", "=endofmonth", "=yearly").
+<li>every: Repeating Node every K instances of pattern.
+<li>span: Repeating Node with N instances ("=0" means indefinite).
+
+<li>orig_mins: Original Node minutes required. Used with 'add_mins', 'add_hrs' and 'set_complete'.
+<li>orig_td: Used to determine whether 'targetdate' or 'alt_targetdate' should be applied if both are given.
+</ul>
+
+<h3>Update repeating Node past specified date-time</h3>
+
+<p>
+<code>fzedit-cgi.py?action=update</code><br>
+Expects the following parameters:
+</p>
+<ul>
+<li>id: Node ID.
+<li>tpass: Update repeating Node past date-time in YYYY-mm-ddTHH:MM:SS format.
+</ul>
+
+<h3>Skip repeating Node N times</h3>
+
+<p>
+<code>fzedit-cgi.py?action=skip</code><br>
+Expects the following parameters:
+</p>
+<ul>
+<li>id: Node ID.
+<li>num_skip: Skip 'num_skip' instances of repeating Node.
+</ul>
+
+</body>
+</html>
+'''
 
 testingoutputstart='''Content-type:text/html
 
@@ -43,6 +123,7 @@ def cgi_testing_end():
 # Create instance of FieldStorage 
 form = cgi.FieldStorage() 
 
+help = form.getvalue('help')
 id = form.getvalue('id')
 
 edit_result_page_head = '''Content-type:text/html
@@ -173,7 +254,13 @@ def modify_node():
     with open(textfile,'w') as f:
         f.write(text)
 
-    thecmd = f"./fzedit {verbosearg} -E STDOUT -M {id} -f {textfile} -c {comp:.5f} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}"
+    if ((id == 'NEW') or (id == 'new')):
+        # topics = form.getvalue('topics')
+        # superiors = form.getvalue('superiors')
+        # dependencies = form.getvalue('dependencies')
+        thecmd = f'./fzgraph {verbosearg} -E STDOUT -M node -f {textfile} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}'
+    else:
+        thecmd = f"./fzedit {verbosearg} -E STDOUT -M {id} -f {textfile} -c {comp:.5f} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}"
 
     print(f'<!-- Call command: {thecmd} -->')
 
@@ -224,7 +311,15 @@ def skip_node():
         print(edit_fail_page_tail)
 
 
+def show_interface_options():
+    print("Content-type:text/html\n\n")
+    print(interface_options_help)
+
+
 if __name__ == '__main__':
+    if help:
+        show_interface_options()
+        sys.exit(0)
 
     global verbosearg
     action = form.getvalue('action')
