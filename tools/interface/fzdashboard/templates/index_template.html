@@ -2,8 +2,10 @@
 <HTML>
 
 <HEAD>
-<meta charset="utf-8" />
 <noscript><meta http-equiv="refresh" content="0; url=/index-static.html" /></noscript>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
 <link rel="icon" href="/favicon-32x32.png">
 <link rel="stylesheet" href="/fz.css">
 <style>
@@ -50,6 +52,41 @@
         bottom: 0px;
         right: 0px;
     }
+    .container {
+    position: fixed;
+    top: 120px;
+    right: 0px;
+}
+
+.timerBar {
+  width: 100px;
+  height: 200px; /* in CSS 96px == 1 inch */
+  background-color: darkblue;
+  position: relative;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+
+.timerBarFill {
+  background-color: #196107;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  bottom: 0;
+  transition: 1s;
+}
+
+.timerBarText {
+  position: relative;
+  top: 10px;
+  width: 100%;
+  text-align: center;
+  color: #ffffff;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.5em;
+}
 </style>
 <TITLE>Formalizer Environment v2.0a - Top</TITLE>
 </HEAD>
@@ -130,6 +167,15 @@ Links to inspedct common default ErrQ and WarnQ logging output files used by For
 
 <hr>
 
+<section class="container">
+    <div class="timerBar">
+        <div class="timerBarFill">
+        </div>
+        <div class="timerBarTextContainer">
+            <div class="timerBarText"></div>
+        </div>
+    </div>
+</section>
 
 <!-- clock script adapted from https://codepen.io/kase/pen/LxNzWj -->
 <script type="text/javascript">
@@ -224,6 +270,73 @@ uistate.onreadystatechange = function() {
 };
 uistate.open( 'GET', '/cgi-bin/fzuistate.py' );
 uistate.send(); // no form data presently means we're requesting state
+
+const fill = document.querySelector(".timerBarFill");
+const text = document.querySelector(".timerBarText");
+let chunk_seconds = 20*60;
+// a bit pointless, because CSS pixels are not real pixels, better to just redraw each second
+//let secondsperupdate = chunk_seconds / 600; // e.g. 20*60 / 600 = 2 seconds
+let secondsperupdate = 1;
+let secondsLeft = chunk_seconds;
+let heightPct = 100;
+
+// every hundred millisecond, but probably should only do when a line less
+//let countDown = setInterval(tick, secondsperupdate * 1000);
+let countDown = null;
+
+function tick() {
+    secondsLeft -= secondsperupdate;
+    var minsleft = Math.floor(secondsLeft / 60);
+    var secsleft = secondsLeft % 60;
+    var secstr = ("0" + secsleft).substr(-2);
+    text.textContent = `${minsleft}:${secstr}`;
+    if (secondsLeft === 0) {
+        clearInterval(countDown);
+        fill.style.height = 0;
+        return;
+    }
+    heightPct = 100 * secondsLeft / chunk_seconds;
+    //console.log(`${heightPct}%`);
+    fill.style.height = `${heightPct}%`;
+    if (heightPct < 50) {
+        fill.style.backgroundColor = '#f2ed6d';
+    }
+    if (heightPct < 25) {
+        fill.style.backgroundColor = '#ea7267';
+    }
+
+}
+
+window.onload = function() {
+    // subscribe to Task Chunk messages
+    var source = new EventSource('http://morpheus.local:5000/listen');
+
+    // handle messages
+    source.onmessage = function(event) {
+        // Do something with the data:
+        console.log(event.data);
+    };
+
+    source.addEventListener("TC_start", function(event) {
+        const t = JSON.parse(event.data).t
+        const mins = JSON.parse(event.data).mins
+        console.log('TC_start t = '+ t + ', mins = ' + mins)
+        chunk_seconds = mins * 60;
+        secondsLeft = chunk_seconds;
+        countDown = setInterval(tick, secondsperupdate * 1000);
+    });
+
+    source.addEventListener("TC_end", function(event) {
+        const t = JSON.parse(event.data).t
+        console.log('TC_end t = '+ t)
+        clearInterval(countDown);
+        secondsLeft = 0;
+    });
+
+    // *** Here, could do an initial request to the server for the current Task Chunk state.
+};
+// Could add connection stop detection as in https://medium.com/conectric-networks/a-look-at-server-sent-events-54a77f8d6ff7
+
 </script>
 </BODY>
 

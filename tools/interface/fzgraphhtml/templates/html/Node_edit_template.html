@@ -32,7 +32,7 @@ TD Pattern:
 <input type="radio" name="patt" value="yearly" {{ patt_yearly }}> yearly<br>
 Every: <input type="number" name="every" min="1" step="1" value="{{ td_every }}"> Span: <input type="number" name="span" min="0" step="1" value="{{ td_span }}">
 <hr>
-Completion: <input type="number" name="comp" min="-4.0" max="1.0" step="0.01" value="{{ comp }}"> Set completed: <input type="checkbox" name="set_complete"><br>
+Completion: <input type="number" name="comp" min="-4.0" max="1.0" step="0.01" value="{{ comp }}"> Set completed: <input type="checkbox" name="set_complete"> | Hours required to complete: {{ hrs_to_complete }}<br>
 Required:  <input type="number" name="req_hrs" min="0.0" max="1000.0" step="0.00001" value={{ req_hrs }}> hrs, or <input type="number" name="req_mins" min="0" max="10000" step="1" value={{ req_mins }}> mins
 | Add: <input type="number" name="add_hrs" min="-1000.0" max="1000.0" step="0.00001" value=0> hrs, or <input type="number" name="add_mins" min="-10000" max="10000" step="1" value=0> mins
 <br><input type="hidden" name="orig_mins" value="{{ req_mins }}">

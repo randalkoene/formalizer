@@ -661,6 +661,7 @@ bool render_new_node_page() {
 
     nodevars.emplace("node-text", ndata.utf8_text);
     nodevars.emplace("comp", to_precision_string(0.0));
+    nodevars.emplace("hrs_to_complete", to_precision_string(required_hrs));
     nodevars.emplace("req_hrs", to_precision_string(required_hrs));
     nodevars.emplace("req_mins", std::to_string(required_mins));
     nodevars.emplace("val", to_precision_string(ndata.valuation));
@@ -752,7 +753,13 @@ bool render_node_edit() {
     }
 
     nodevars.emplace("node-text", node.get_text());
-    nodevars.emplace("comp", to_precision_string(node.get_completion()));
+    float completion = node.get_completion();
+    nodevars.emplace("comp", to_precision_string(completion));
+    if ((completion >= 0.0) && (completion < 1.0)) {
+        nodevars.emplace("hrs_to_complete", to_precision_string(required_hrs*(1.0-completion)));
+    } else {
+        nodevars.emplace("hrs_to_complete", "0.00");
+    }
     nodevars.emplace("req_hrs", to_precision_string(required_hrs));
     nodevars.emplace("req_mins", std::to_string(required_mins));
     nodevars.emplace("val", to_precision_string(node.get_valuation()));
