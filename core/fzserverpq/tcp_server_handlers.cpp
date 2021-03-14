@@ -843,6 +843,180 @@ const node_parameter_edit_map_t node_parameter_edit_set_map = {
     {Edit_flags::required, set_required}
 };
 
+typedef bool node_context_edit_func_t(Node &, std::string);
+typedef std::map<std::string, node_context_edit_func_t*> node_context_edit_map_t;
+
+/**
+ * E.g. /fz/graph/nodes/20200901061505.1/topics/add?organization=1.0&oop-change=1.0
+ *      /fz/graph/nodes/20200901061505.1/topics/remove?literature=[1.0]
+ * @param node The Node to edit.
+ * @param editstr String containing an edit command and parameter label-value pairs.
+ */
+bool handle_node_topics_edit(Node & node, std::string editstr) {
+    if (editstr.empty()) {
+        return standard_error("Missing parameter value", __func__);
+    }
+    if (editstr.substr(0,4) == "add?") {
+        // *** get the topic and relevance
+        // *** change the node
+        // *** set the edit flag
+        return standard_error("MISSING IMPLEMENTATION: add topic", __func__);
+    } else if (editstr.substr(0,7) == "remove?") {
+        // *** get the topic
+        // *** change the node
+        // *** set the edit flag
+        return standard_error("MISSING IMPLEMENTATION: remove topic", __func__);
+    } else {
+        return standard_error("Unrecognized Topic edit string: '" + editstr + '\'', __func__);
+    }
+    const_cast<Edit_flags *>(&(node.get_editflags()))->set_Edit_topics();
+    return true;
+}
+
+typedef bool node_superiors_edit_func_t(Node &, std::string);
+typedef std::map<std::string, node_superiors_edit_func_t*> node_superiors_edit_map_t;
+
+bool handle_node_superiors_add(Node & node, std::string superiorstr) {
+    if (superiorstr.empty()) {
+        return standard_error("Missing superior ID", __func__);
+    }
+    Node * dep_ptr = fzs.graph_ptr->Node_by_idstr(superiorstr.substr(0,NODE_ID_STR_NUMCHARS));
+    // *** change the node
+    // *** set the edit flag
+    return standard_error("MISSING IMPLEMENTATION: add superior", __func__);
+    // *** This needs Edge attention in memory and database.
+    //return true;
+}
+
+bool handle_node_superiors_remove(Node & node, std::string superiorstr) {
+    if (superiorstr.empty()) {
+        return standard_error("Missing superior ID", __func__);
+    }
+    Node * dep_ptr = fzs.graph_ptr->Node_by_idstr(superiorstr.substr(0,NODE_ID_STR_NUMCHARS));
+    // *** change the node
+    // *** set the edit flag
+    return standard_error("MISSING IMPLEMENTATION: remove superior", __func__);
+    // *** This needs Edge attention in memory and database.
+    //return true;
+}
+
+bool handle_node_superiors_addlist(Node & node, std::string superiorslist) {
+    if (superiorslist.empty()) {
+        return standard_error("Missing superiors list", __func__);
+    }
+    // *** get superiors from list
+    // *** change the node
+    // *** set the edit flag
+    return standard_error("MISSING IMPLEMENTATION: addlist to superiors", __func__);
+    // *** This needs Edge attention in memory and database.
+    //return true;
+}
+
+const node_superiors_edit_map_t node_superiors_edit_map = {
+    {"add", handle_node_superiors_add},
+    {"remove", handle_node_superiors_remove},
+    {"addlist", handle_node_superiors_addlist}
+};
+
+/**
+ * E.g. /fz/graph/nodes/20200901061505.1/superiors/add?20090309102906.1=
+ *      /fz/graph/nodes/20200901061505.1/superiors/remove?20090309102906.1=
+ * @param node The Node to edit.
+ * @param editstr String containing an edit command and Superior Node ID.
+ */
+bool handle_node_superiors_edit(Node & node, std::string editstr) {
+    if (editstr.empty()) {
+        return standard_error("Missing edit string", __func__);
+    }
+    auto parpos = editstr.find('?');
+    if (parpos == std::string::npos) {
+        return standard_error("Missing superiors parameters", __func__);
+    }
+    auto it = node_superiors_edit_map.find(editstr.substr(0, parpos));
+    if (it == node_superiors_edit_map.end()) {
+        return standard_error("Unsupported Node context request: '" + editstr.substr(0,parpos) + '\'', __func__);
+    }
+    if (!it->second(node, editstr.substr(parpos+1))) {
+        return false;
+    }
+    return true;
+}
+
+typedef bool node_dependencies_edit_func_t(Node &, std::string);
+typedef std::map<std::string, node_dependencies_edit_func_t*> node_dependencies_edit_map_t;
+
+bool handle_node_dependencies_add(Node & node, std::string dependencystr) {
+    if (dependencystr.empty()) {
+        return standard_error("Missing dependency ID", __func__);
+    }
+    Node * dep_ptr = fzs.graph_ptr->Node_by_idstr(dependencystr.substr(0,NODE_ID_STR_NUMCHARS));
+    // *** change the node
+    // *** set the edit flag
+    return standard_error("MISSING IMPLEMENTATION: add dependency", __func__);
+    // *** This needs Edge attention in memory and database.
+    //return true;
+}
+
+bool handle_node_dependencies_remove(Node & node, std::string dependencystr) {
+    if (dependencystr.empty()) {
+        return standard_error("Missing dependency ID", __func__);
+    }
+    Node * dep_ptr = fzs.graph_ptr->Node_by_idstr(dependencystr.substr(0,NODE_ID_STR_NUMCHARS));
+    // *** change the node
+    // *** set the edit flag
+    return standard_error("MISSING IMPLEMENTATION: remove dependency", __func__);
+    // *** This needs Edge attention in memory and database.
+    //return true;
+}
+
+bool handle_node_dependencies_addlist(Node & node, std::string dependencieslist) {
+    if (dependencieslist.empty()) {
+        return standard_error("Missing dependencies list", __func__);
+    }
+    // *** get dependencies from list
+    // *** change the node
+    // *** set the edit flag
+    return standard_error("MISSING IMPLEMENTATION: addlist to dependencies", __func__);
+    // *** This needs Edge attention in memory and database.
+    //return true;
+}
+
+const node_dependencies_edit_map_t node_dependencies_edit_map = {
+    {"add", handle_node_dependencies_add},
+    {"remove", handle_node_dependencies_remove},
+    {"addlist", handle_node_dependencies_addlist}
+};
+
+/**
+ * E.g. /fz/graph/nodes/20200901061505.1/dependencies/add?20090309102906.1=
+ *      /fz/graph/nodes/20200901061505.1/dependencies/remove?20090309102906.1=
+ * @param node The Node to edit.
+ * @param editstr String containing an edit command and Dependencies Node ID.
+ */
+bool handle_node_dependencies_edit(Node & node, std::string editstr) {
+    if (editstr.empty()) {
+        return standard_error("Missing edit string", __func__);
+    }
+    auto parpos = editstr.find('?');
+    if (parpos == std::string::npos) {
+        return standard_error("Missing dependencies parameters", __func__);
+    }
+    auto it = node_dependencies_edit_map.find(editstr.substr(0, parpos));
+    if (it == node_dependencies_edit_map.end()) {
+        return standard_error("Unsupported Node context request: '" + editstr.substr(0,parpos) + '\'', __func__);
+    }
+    if (!it->second(node, editstr.substr(parpos+1))) {
+        return false;
+    }
+    return true;
+}
+
+const node_context_edit_map_t node_context_edit_map = {
+    {"topics", handle_node_topics_edit},
+    {"superiors", handle_node_superiors_edit},
+    {"dependencies", handle_node_dependencies_edit}
+};
+
 /**
  * Address a specified parameter, then carry out a command, such as `set` or `add`, or show the parameter
  * in the format indicated by the extension. Where parameters have units, multiple units and unit conversion
@@ -857,6 +1031,13 @@ const node_parameter_edit_map_t node_parameter_edit_set_map = {
  *   /fz/graph/nodes/20200901061505.1/valuation.txt
  *   /fz/graph/nodes/20200901061505.1/topics/add?organization=1.0&oop-change=1.0
  *   /fz/graph/nodes/20200901061505.1/topics/remove?literature=[1.0]
+ *   /fz/graph/nodes/20091115180507.1/superiors/remove?20090309102906.1=
+ *   /fz/graph/nodes/20091115180507.1/dependencies/remove?20120716181425.1=
+ *   /fz/graph/nodes/20091115180507.1/dependencies/add?20120716181425.1=
+ *   /fz/graph/nodes/20091115180507.1/dependencies/addlist?dependencies=
+ * or
+ *   /fz/graph/nodes/20091115180507.1/dependencies?add=20120716181425.1
+ *   /fz/graph/nodes/20091115180507.1/dependencies?addlist=dependencies
  */
 bool handle_node_direct_parameter(Node & node, std::string extension, std::string & response_html) {
     ERRTRACE;
@@ -906,7 +1087,13 @@ bool handle_node_direct_parameter(Node & node, std::string extension, std::strin
             break;
         }
         case '/': {
-            return standard_error("Node Topics editing not yet supported", __func__);
+            auto it = node_context_edit_map.find(extension.substr(0, seppos));
+            if (it == node_context_edit_map.end()) {
+                return standard_error("Unsupported Node context request: '" + extension.substr(0,seppos) + '\'', __func__);
+            }
+            if (!it->second(node, extension.substr(seppos+1))) {
+                return false;
+            }
             break;
         }
         default: {

@@ -500,6 +500,7 @@ std::string render_Node_topics(Graph & graph, Node & node, bool remove_button = 
 
 std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button = false) {
     std::string sups_str;
+    std::string graphserveraddr = graph.get_server_full_address();
     for (const auto & edge_ptr : node.sup_Edges()) {
         if (edge_ptr) {
             if (fzgh.config.outputformat == output_node) {
@@ -514,7 +515,7 @@ std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button
                     sups_str += remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length);
                 }
                 if (remove_button) {
-                    sups_str += "[<a href=\"/fz/graph/nodes/" + node.get_id_str() + "/superiors/remove?" + edge_ptr->get_sup_str() + "=\">remove</a>]";
+                    sups_str += "[<a href=\""+graphserveraddr+"/fz/graph/nodes/" + node.get_id_str() + "/superiors/remove?" + edge_ptr->get_sup_str() + "=\">remove</a>]";
                 }
                 sups_str += "</li>\n";
             }
@@ -525,6 +526,7 @@ std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button
 
 std::string render_Node_dependencies(Graph & graph, Node & node, bool remove_button = false) {
     std::string deps_str;
+    std::string graphserveraddr = graph.get_server_full_address();
     for (const auto & edge_ptr : node.dep_Edges()) {
         if (edge_ptr) {
             if (fzgh.config.outputformat == output_node) {
@@ -539,7 +541,7 @@ std::string render_Node_dependencies(Graph & graph, Node & node, bool remove_but
                     deps_str += remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length);
                 }
                 if (remove_button) {
-                    deps_str += "[<a href=\"/fz/graph/nodes/" + node.get_id_str() + "/superiors/remove?" + edge_ptr->get_sup_str() + "=\">remove</a>]";
+                    deps_str += "[<a href=\""+graphserveraddr+"/fz/graph/nodes/" + node.get_id_str() + "/superiors/remove?" + edge_ptr->get_sup_str() + "=\">remove</a>]";
                 }
                 deps_str += "</li>\n";
             }
