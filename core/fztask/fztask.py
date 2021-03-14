@@ -26,6 +26,7 @@ fzsetupconfigdir = fzuserbase+'/config/fzsetup.py'
 fzsetupconfig = fzsetupconfigdir+'/config.json'
 
 fztaskserveraddr='127.0.0.1:5000'
+taskserver: None
 
 
 # Handle the case where even fzsetup.py does not have a configuration file yet.
@@ -256,7 +257,7 @@ def close_chunk(args):
     retcode = try_subprocess_check_output(thecmd, 'fzlog_res', config)
     exit_error(retcode,'Attempt to close Log chunk failed.', False, fztasklockfile)
     last_T_close = stamp_t_close
-    if not fztaskAPI.end_task_chunk(fztaskserveraddr, stamp_t_close):
+    if not taskserver.end_task_chunk(stamp_t_close):
         print(f'\n{ANSI_warn}Unable to inform fztask-server of chunk close.{ANSI_warn}\n')
 
 
@@ -480,7 +481,7 @@ def open_chunk(node, args):
     cmderrorreviewstr = config['cmderrorreviewstr']
     exit_error(retcode, f'Attempt to open new Log chunk failed.{cmderrorreviewstr}', True, fztasklockfile)
     # Calling fztask-server in set_chunk_timer_and_alert() instead.
-    # if not fztaskAPI.start_task_chunk(fztaskserveraddr, stamp_T_open, ):
+    # if not taskserver.start_task_chunk(stamp_T_open, ):
     #     print(f'\n{ANSI_warn}Unable to inform fztask-server of chunk close.{ANSI_warn}\n')
     return retcode
 
@@ -582,7 +583,7 @@ def set_chunk_timer_and_alert(args, node):
         print(f'{ANSI_lt}Setting chunk duration: {ANSI_yb}{int(interval_seconds/60)}{ANSI_nrm}{ANSI_lt} mins. Chunk starts now.')
         try:
             mark_chunk_timing(interval_seconds)
-            if not fztaskAPI.start_task_chunk(fztaskserveraddr, stamp_T_open, int(interval_seconds/60)):
+            if not taskserver.start_task_chunk(stamp_T_open, int(interval_seconds/60)):
                 print(f'\n{ANSI_warn}Unable to inform fztask-server of chunk close.{ANSI_warn}\n')
             time.sleep(interval_seconds)
             proceed_choice = chunk_interval_alert()
@@ -653,6 +654,9 @@ if __name__ == '__main__':
     fztask_long_id = "Control:Task" + f" v{version} (core v{core_version})"
 
     get_server_address(fzuserbase)
+
+    taskserver = fztaskAPI.FZTaskServer()
+    taskserver.address = fztaskserveraddr
 
     fztask_ansi()
 

@@ -12,15 +12,16 @@ import fztaskAPI
 
 if __name__ == '__main__':
 
+    taskserver = fztaskAPI.FZTaskServer()
     while True:
         starttask = input('Next, signal the start of a task (press ENTER).')
         now = datetime.now()
         t_stamp = now.strftime(r'%Y%m%d%H%M')
         mins = 20
         print(f'Starting TC at {t_stamp} for {mins} minutes.')
-        fztaskAPI.start_task_chunk('localhost:5000', t_stamp, mins)
+        taskserver.start_task_chunk(t_stamp, mins)
         endtask = input('Next, signal the end of the task (press ENTER).')
         now = datetime.now()
         t_stamp = now.strftime(r'%Y%m%d%H%M')
         print(f'Ending TC at {t_stamp}.')
-        fztaskAPI.end_task_chunk('localhost:5000', t_stamp)
+        taskserver.end_task_chunk(t_stamp)
