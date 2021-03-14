@@ -25,6 +25,8 @@ fzuserbase = userhome + '/.formalizer'
 fzsetupconfigdir = fzuserbase+'/config/fzsetup.py'
 fzsetupconfig = fzsetupconfigdir+'/config.json'
 
+fztaskserveraddr='127.0.0.1:5000'
+
 
 # Handle the case where even fzsetup.py does not have a configuration file yet.
 try:
@@ -69,6 +71,7 @@ from Logaccess import *
 from TimeStamp import *
 from tcpclient import get_server_address
 from proclock import *
+import fztaskAPI
 
 ANSI_sel = '\u001b[38;5;33m'
 ANSI_upd = '\u001b[38;5;148m'
@@ -92,6 +95,7 @@ config['exact_Node_intervals'] = True
 
 last_node = ''
 last_T_close = ''
+stamp_T_open = ''
 cycle_updated = False
 
 # Potentially replace defaults with values from fztask config file
@@ -252,6 +256,8 @@ def close_chunk(args):
     retcode = try_subprocess_check_output(thecmd, 'fzlog_res', config)
     exit_error(retcode,'Attempt to close Log chunk failed.', False, fztasklockfile)
     last_T_close = stamp_t_close
+    if not fztaskAPI.end_task_chunk(fztaskserveraddr, stamp_t_close):
+        print(f'\n{ANSI_warn}Unable to inform fztask-server of chunk close.{ANSI_warn}\n')
 
 
 def select_Node_for_Log_chunk():
@@ -459,18 +465,23 @@ def refresh_panes():
 
 
 def open_chunk(node, args):
+    global stamp_T_open
     pause_key('open new chunk',config['addpause'])
     thecmd = 'fzlog -c ' + node
     if args.T_emulate:
-        thecmd += ' -t ' + args.T_emulate
+        stamp_T_open = args.T_emulate
     else:
         # this was added to prevent a gap due to time taken while selecting (see FIX THIS list item in https://trello.com/c/I2f2kvmc)
-        thecmd += ' -t ' + last_T_close
+        stamp_T_open = last_T_close
+    thecmd += ' -t ' + stamp_T_open
     if config['verbose']:
         thecmd += ' -V'
     retcode = try_subprocess_check_output(thecmd, 'fzlog_res', config)
     cmderrorreviewstr = config['cmderrorreviewstr']
     exit_error(retcode, f'Attempt to open new Log chunk failed.{cmderrorreviewstr}', True, fztasklockfile)
+    # Calling fztask-server in set_chunk_timer_and_alert() instead.
+    # if not fztaskAPI.start_task_chunk(fztaskserveraddr, stamp_T_open, ):
+    #     print(f'\n{ANSI_warn}Unable to inform fztask-server of chunk close.{ANSI_warn}\n')
     return retcode
 
 
@@ -571,6 +582,8 @@ def set_chunk_timer_and_alert(args, node):
         print(f'{ANSI_lt}Setting chunk duration: {ANSI_yb}{int(interval_seconds/60)}{ANSI_nrm}{ANSI_lt} mins. Chunk starts now.')
         try:
             mark_chunk_timing(interval_seconds)
+            if not fztaskAPI.start_task_chunk(fztaskserveraddr, stamp_T_open, int(interval_seconds/60)):
+                print(f'\n{ANSI_warn}Unable to inform fztask-server of chunk close.{ANSI_warn}\n')
             time.sleep(interval_seconds)
             proceed_choice = chunk_interval_alert()
 

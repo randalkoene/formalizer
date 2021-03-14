@@ -9,6 +9,22 @@
 <link rel="icon" href="/favicon-32x32.png">
 <link rel="stylesheet" href="/fz.css">
 <style>
+    .mainpanel {
+        float: left;
+        width: 87.5%;
+        padding: 10px;
+    }
+    .rightpanel {
+        float: right;
+        width: 12.5%;
+        padding: 10px;
+    }
+    /* clear floats after columns */
+    .bodyrow:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
     #clock {
         position: fixed;
         top: 0px;
@@ -90,13 +106,17 @@
 </style>
 <TITLE>Formalizer Environment v2.0a - Top</TITLE>
 </HEAD>
-<BODY onload="javascript:clockStart()">
-<H1>Formalizer Environment v2.0a - Top</H1>
+<BODY>
 
-<!-- <p id="clock"></p> -->
 <button id="clock" class="button button2">_____</button>
 <button id="duplicate" class="button button2" onclick="window.open('/index.html','_blank');">duplicate</button>
 
+<div class="bodyrow">
+<div class="mainpanel">
+<!-- <BODY onload="javascript:clockStart()"> -->
+<H1>Formalizer Environment v2.0a - Top</H1>
+
+<!-- <p id="clock"></p> -->
 {{ button-sections }}
 <button id="darkmode" class="button button2" onclick="switch_light_or_dark();">Light / Dark</button>
 
@@ -166,7 +186,9 @@ Links to inspedct common default ErrQ and WarnQ logging output files used by For
 <p>Ubuntu-Apache2 Default Page: <a href="ubuntu-apache2-index.html">ubuntu-apache2-index.html</a></p>
 
 <hr>
+</div> <!-- end of mainpanel -->
 
+<div class="rightpanel">
 <section class="container">
     <div class="timerBar">
         <div class="timerBarFill">
@@ -176,6 +198,8 @@ Links to inspedct common default ErrQ and WarnQ logging output files used by For
         </div>
     </div>
 </section>
+</div> <!-- end of rightpanel -->
+</div> <!-- end of bodyrow -->
 
 <!-- clock script adapted from https://codepen.io/kase/pen/LxNzWj -->
 <script type="text/javascript">
@@ -308,6 +332,8 @@ function tick() {
 }
 
 window.onload = function() {
+    clockStart();
+
     // subscribe to Task Chunk messages
     var source = new EventSource('http://morpheus.local:5000/listen');
 

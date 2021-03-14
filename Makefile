@@ -68,6 +68,8 @@ EXECUTABLES += $(COREPATH)/fzserverpq/fzserverpqd.sh
 EXECUTABLES += $(COREPATH)/fzsetup/fzsetup.py
 # EXECUTABLES += $(COREPATH)/fzshift/fzshift
 EXECUTABLES += $(COREPATH)/fztask/fztask.py
+EXECUTABLES += $(COREPATH)/fztask-server/fztask-server.py
+EXECUTABLES += $(COREPATH)/fztask-server/fztask-serverd.sh
 EXECUTABLES += $(COREPATH)/fzupdate/fzupdate
 
 # EXECUTABLES += $(TOOLSPATH)/addnode/addnode.py
@@ -188,6 +190,10 @@ WEBINTERFACES += $(COREPATH)/fzgraphsearch/fzgraphsearch-form.html
 SYMWEB =
 SYMWEB += $(FZCONFIGPATH)/.fzchunkmarks
 
+# Necessary symlinks into the core/include directory
+SYMINCLUDE =
+SYMINCLUDE = $(COREPATH)/fztask-server/fztaskAPI.py
+
 # Web interface files and web resources to copy to the root web servable directory
 TOPLEVEL =
 # The following two are now done via fzdashboard
@@ -248,6 +254,7 @@ executables: $(EXECUTABLES)
 	sudo ln -f -s $(LOCALCGI) $(W3MCGIDIR)/
 	cp -f $(WEBINTERFACES) $(WEBINTERFACESDIR)/
 	sudo ln -f -s $(SYMWEB) $(WEBINTERFACESDIR)/
+	ln -f -s $(SYMINCLUDE) $(COREINCLUDEPATH)/
 	sudo cp -f $(TOPLEVEL) $(WEBBASEDIR)/
 	./pycmdlinks.sh $(EXEDIR)
 

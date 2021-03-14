@@ -28,8 +28,8 @@ flask_cors.CORS(app)
 
 @app.route('/')
 @flask_cors.cross_origin()
-def hello_world():
-    return 'Hello, cross-origin World!'
+def server_status():
+    return 'The FZ Task Server is listening.'
 
 
 class MessageAnnouncer:
@@ -67,6 +67,7 @@ def format_sse(data: str, event=None) -> str:
     return msg
 
 
+# The ping-pong route can be used to test the SSE client-server connection.
 @app.route('/ping')
 @flask_cors.cross_origin()
 def ping():
@@ -75,6 +76,7 @@ def ping():
     return {}, 200
 
 
+# Subscribe to SSE messages
 @app.route('/listen', methods=['GET'])
 @flask_cors.cross_origin()
 def listen():
