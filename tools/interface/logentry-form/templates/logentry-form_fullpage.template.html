@@ -5,6 +5,7 @@
 <meta charset="utf-8" />
 <link rel="icon" href="/favicon-32x32.png">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>Log: Add Entry</title>
 </head>
 
@@ -18,7 +19,7 @@
 <form action="/cgi-bin/logentry-form.py" method="post">
 <br>
 <textarea rows="15" cols="100" name="entrytext"></textarea><br>
-<input type="submit" value="submit" />
+Add entry for <input type="submit" name="makeentry" value="Log Chunk Node" /> or <input type="submit" name="makeentry" value="Other Node" />.
 </form>
 
 <hr>
@@ -27,6 +28,8 @@
 <p>Please note: This is an early experimental version of a web interface to fzlog/logentry.
 Additional capabilities, such as selecting an alternative Node as the owner of a Log entrytext
 will be added incrementally.</p>
+
+<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 
 </html>

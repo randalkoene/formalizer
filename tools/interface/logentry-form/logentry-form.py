@@ -28,6 +28,30 @@ config['logcmdcalls'] = False
 
 results = {}
 
+pagehead = """Content-type:text/html
+
+<html>
+<head>
+<link rel="stylesheet" href="/fz.css">
+<title>Prototype: Submitting Log Entry to fzlog</title>
+</head>
+<body>
+"""
+
+pagetail = """</body>
+</html>
+"""
+
+selectnodehtml = """
+Choose a Node and add it to the <b>select</b> List:
+<ul>
+<li><a href="/select.html" target="_blank">FZ: Selection Entry Points</a></li>
+</ul>
+<form action="/cgi-bin/logentry-form.py" method="post">
+Make Log entry for <input type="submit" name="makeentry" value="Selected Node" />.
+</form>
+"""
+
 # We need this everywhere to run various shell commands.
 def try_subprocess_check_output(thecmdstring, resstore):
     if config['verbose']:
@@ -58,47 +82,107 @@ def try_subprocess_check_output(thecmdstring, resstore):
         return 1
 
 
-def send_to_fzlog(logentrytmpfile: str, node = None):
+def get_Node_from_selected_NNL() -> str:
+    retcode = try_subprocess_check_output(f"./fzgraphhtml -o STDOUT -E STDOUT -L 'selected' -F node -N 1 -e -q",'selected')
+    if (retcode != 0):
+        return ''
+    if results['selected']:
+        node = results['selected'][0:16]
+        # print(f'Selected: {node}')
+        if (len(node) != 16):
+            return ''
+        else:
+            return node # do not use decode() here, it is already a string
+    else:
+        return ''
+
+
+def send_to_fzlog(logentrytmpfile: str, node = None, printhead = True):
     thecmd=f"./fzlog -e -E STDOUT -d formalizer -s randalk -f {logentrytmpfile}"
     #thecmd='./fzlog -h -V -E STDOUT -W STDOUT'
     # *** Probably add this as in logentry.py: node = check_same_as_chunk(node)
     if node:
         thecmd += f" -n {node}"
+
+    if printhead:
+        print(pagehead)
     retcode = try_subprocess_check_output(thecmd, 'fzlog_res')
     if (retcode != 0):
         print('<p><b>Attempt to add Log entry via fzlog failed.</b></p>')
     else:
         print('<p><b>Entry added to Log.</b></p>')
+    print(pagetail)
+
+
+def send_to_fzlog_with_selected_Node(logentrytmpfile: str):
+    print(pagehead)
+    node = get_Node_from_selected_NNL()
+    if not node:
+        print("<p><b>Unable to retrieve target Node from NNL 'selected'.</b></p>")
+        print(selectnodehtml)
+        print(pagetail)
+    
+    send_to_fzlog(logentrytmpfile, node, False)
+
+
+def select_Node():
+    print(pagehead)
+    print(selectnodehtml)
+    print(pagetail)
+
+
+def missing_option():
+    print(pagehead)
+    print('<p><b>No makeentry option was specified.</b></p>')
+    print(pagetail)
+    sys.exit(0)
+
+
+def missing_entry_text():
+    print(pagehead)
+    print('<p><b>No Log entry text submitted.</b></p>')
+    print(pagetail)
+    sys.exit(0)
+
+
+def unknown_option():
+    print(pagehead)
+    print('<p><b>Unknown make entry option.</b></p>')
+    print(pagetail)
+    sys.exit(0)
 
 
 if __name__ == '__main__':
-    print("Content-type:text/html\n\n")
-    print("<html>")
-    print("<head>")
-    print('<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">')
-    print("<title>Prototype: Submitting Log Entry to fzlog</title>")
-    print("</head>")
-    print("<body>")
-
     form = cgi.FieldStorage()
+    makeentry_option = form.getvalue("makeentry")
     entrytext = form.getvalue("entrytext")
 
-    if not entrytext:
-        print('<p><b>No Log entry text submitted.</b></p>')
-        print("</body>")
-        print("</html>")
-        sys.exit(0)
+    if not makeentry_option:
+        missing_option()
 
-    if entrytext:
+    logentrytextfile = cgiwritabledir+"logentry-text.html"
+    if (makeentry_option == "Selected Node"):
+        send_to_fzlog_with_selected_Node(logentrytextfile)
+
+    else:
+        if not entrytext:
+            missing_entry_text()
+
+        try:
+            os.remove(logentrytextfile)
+        except OSError:
+            pass
         # making sure the files are group writable
-        logentrytextfile = cgiwritabledir+"logentry-text.html"
         with open(os.open(logentrytextfile, os.O_CREAT | os.O_WRONLY, 0o664),"w") as f:
             f.write(entrytext)
         os.chmod(logentrytextfile,stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH )
 
-        send_to_fzlog(logentrytextfile)
-
-    print("</body>")
-    print("</html>")
+        if (makeentry_option == "Log Chunk Node"):
+            send_to_fzlog(logentrytextfile)
+        else:
+            if (makeentry_option == "Other Node"):
+                select_Node()
+            else:
+                unknown_option()
 
     sys.exit(0)

@@ -22,6 +22,18 @@ source.addEventListener("TC_end", function(event) {
     console.log('TC_end t = '+ t)
 });
 
+// Subscriber Listens for TC_state event
+source.addEventListener("TC_state", function(event) {
+    const active = JSON.parse(event.data).active
+    const t = JSON.parse(event.data).t
+    if (active) {
+        const mins = JSON.parse(event.data).mins
+        console.log('TC_state ACTIVE t_open = '+ t + ', mins = ' + mins)
+    } else {
+        console.log('TC_state INACTIVE t_close = '+ t)
+    }
+});
+
 // +---- Making broadcast requests
 
 // +---- Sending state change signals

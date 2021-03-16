@@ -55,7 +55,7 @@ class FZTaskServer:
     # @param t_start A Formalizer time stamp string for the Task Chunk start.
     # @param minutes The duration of the Task Chunk in minutes.
     def start_task_chunk(self, t_start: str, minutes: int) -> bool:
-        chunk_start_data = { 't': t_start, 'minutes': str(minutes) }
+        chunk_start_data = { 't': t_start, 'mins': str(minutes) }
         return self.get('/start', params=chunk_start_data)
 
     def end_task_chunk(self, t_end: str) -> bool:
@@ -63,6 +63,9 @@ class FZTaskServer:
         return self.get('/end', params=chunk_end_data)
 
     # +---- Making broadcast requests
+
+    def task_chunk_state(self) -> bool:
+        return self.get('/state')
 
     # +---- Listening to subscriptions
 

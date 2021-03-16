@@ -226,6 +226,7 @@ function clockStart() {
     updateClock();
     var idval = setInterval(updateClock, 60000); // update each minute, since we're not showing seconds here
 }
+// +---- start of part that is now actually in fzuistate.js
 var darkmode = 0;
 function set_darkmode() {
     if (darkmode < 1) {
@@ -246,7 +247,7 @@ function init_darkmode() {
 
 //init_darkmode(); // *** The uistate reading function at the bottom already takes care of this.
 
-// Let's make out state storable
+// Let's make our state storable
 const darkmodebutton = document.getElementById('darkmode');
 function sendData( data ) {
   const XHR = new XMLHttpRequest(),
@@ -294,6 +295,7 @@ uistate.onreadystatechange = function() {
 };
 uistate.open( 'GET', '/cgi-bin/fzuistate.py' );
 uistate.send(); // no form data presently means we're requesting state
+// +---- end of part that is now actually in fzuistate.js
 
 const fill = document.querySelector(".timerBarFill");
 const text = document.querySelector(".timerBarText");
@@ -334,8 +336,9 @@ function tick() {
 window.onload = function() {
     clockStart();
 
+    let taskserveraddr = 'http://morpheus.local:5000';
     // subscribe to Task Chunk messages
-    var source = new EventSource('http://morpheus.local:5000/listen');
+    var source = new EventSource(taskserveraddr+'/listen');
 
     // handle messages
     source.onmessage = function(event) {
@@ -359,7 +362,50 @@ window.onload = function() {
         secondsLeft = 0;
     });
 
-    // *** Here, could do an initial request to the server for the current Task Chunk state.
+    source.addEventListener("TC_state", function(event) {
+        const active = JSON.parse(event.data).active
+        console.log('TC_state state = ' + active)
+        const t = JSON.parse(event.data).t
+        if (active) {
+            const mins = JSON.parse(event.data).mins
+            console.log('TC_state ACTIVE t_open = '+ t + ', mins = ' + mins)
+            chunk_seconds = mins * 60;
+            var jststamp = t.substring(0,3) + '-' + t.substring(4,5) + '-' + t.substring(6,7) + 'T' + t.substring(8,9) + ':' + t.substring(10,11) + ':00';
+            var jschunk_start = new Date(jststamp);
+            var jstnow = new Date();
+            var secs_tdiff = (jstnow - jschunk_start) / 1000;
+            if (secs_tdiff >= chunk_seconds) {
+                secondsLeft = 0;
+            } else {
+                secondsLeft = chunk_seconds - secs_tdiff;
+            }
+            countDown = setInterval(tick, secondsperupdate * 1000);
+        } else {
+            console.log('TC_state INACTIVE t_close = '+ t)
+            clearInterval(countDown);
+            secondsLeft = 0;
+        }
+    });
+
+    function request_TCstate() {
+        const XHR = new XMLHttpRequest(),
+        FD  = new FormData();
+        // This needs no actual FormData
+        // Define what happens on successful data submission
+        XHR.addEventListener( 'load', function( event ) {
+            console.log( 'TC status request sent, response loaded.' );
+        } );
+        // Define what happens in case of error
+        XHR.addEventListener(' error', function( event ) {
+            console.error( 'Failed to communicate TC status request.' );
+        } );
+        // Set up our request
+        XHR.open( 'GET', taskserveraddr + '/state' ); // was POST
+        // Send our FormData object; HTTP headers are set automatically
+        XHR.send(); // was ( FD )
+    }
+    // Request the initial Task state.
+    request_TCstate();
 };
 // Could add connection stop detection as in https://medium.com/conectric-networks/a-look-at-server-sent-events-54a77f8d6ff7
 

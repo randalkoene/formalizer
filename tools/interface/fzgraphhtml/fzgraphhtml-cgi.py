@@ -167,6 +167,7 @@ listpagetail = '''</tbody></table>
 
 editpagehead = '''Content-type:text/html
 
+<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
@@ -174,6 +175,10 @@ editpagehead = '''Content-type:text/html
 </head>
 <body>
 <style type="text/css">
+td.paramtitle {
+    vertical-align: top;
+    font-weight: bold;
+}
 .chktop {
     background-color: #B0C4F5;
 }
