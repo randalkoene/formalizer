@@ -38,7 +38,8 @@ document.getElementById('alt_targetdate').value = new Date().toISOString().subst
 <input type="radio" name="patt" value="yearly" {{ patt_yearly }}> yearly</td>
 </tr>
 <tr>
-<td class="paramtitle">Every: </td><td><input type="number" name="every" min="1" step="1" value="{{ td_every }}"><br>&nbsp; </td><td class="paramtitle">Span: <input type="number" name="span" min="0" step="1" value="{{ td_span }}"><br>&nbsp;</td>
+<td class="paramtitle">Every: </td><td><input type="number" name="every" min="1" step="1" value="{{ td_every }}"><br>&nbsp; </td><td class="paramtitle">Span: <input type="number" name="span" min="0" step="1" value="{{ td_span }}">
+| <small>[<a href="/cgi-bin/fzupdate-cgi.py?update=breakeps&T_pass={{ eff_td }}">break up {{ eff_td }} EPS group]</a></small><br>&nbsp;</td>
 </tr>
 <tr>
 <td class="paramtitle">Completion: </td><td><input type="number" name="comp" min="-4.0" max="1.0" step="0.01" value="{{ comp }}"><br>&nbsp; </td><td>Set completed: <input type="checkbox" name="set_complete"> | Hours required to complete: {{ hrs_to_complete }}<br>

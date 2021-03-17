@@ -31,6 +31,7 @@ update = form.getvalue('update')
 T_emulate = form.getvalue('T_emulate')
 map_days = form.getvalue('map_days')
 verbose = form.getvalue('verbose')
+T_pass = form.getvalue('T_pass')
 
 
 pagehead = '''Content-type:text/html
@@ -106,6 +107,12 @@ if __name__ == '__main__':
     #     add_to_cmd += ' -q'
 
     thecmd = ''
+    if ((update=="breakeps") and T_pass):
+        print(f'<p>Breaking EPS group with target date {T_pass}.</p>')
+        thecmd = "./fzupdate -E STDOUT -b -T "+T_pass
+        try_command_call(thecmd)
+        print('<p><b>To see the new target dates assigned, see this <a href="/cgi-bin/fzgraphhtml-cgi.py?num_elements=256&all=on&max_td=202106242138&num_days=&norepeats=on">Schedule of Nodes</a>.</b></p>')
+
     if ((update=='repeating') or (update=='both')):
         print('<p>Updating repeating Nodes.</p>')
         thecmd = "./fzupdate -E STDOUT -r"+add_to_cmd
