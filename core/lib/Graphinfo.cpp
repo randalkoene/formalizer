@@ -136,6 +136,7 @@ void append_filter_bit_status(std::string & s, bool bitflag, std::string label, 
 std::string Node_Filter::str() {
     static const char repeats_value[2][6] = {"false", "true"};
     std::string s;
+    append_filter_bit_status(s, filtermask.Edit_tcreated(), "t_created", TimeStampYmdHM(t_created_lowerbound), TimeStampYmdHM(t_created_upperbound));
     append_filter_bit_status(s, filtermask.Edit_text(), "text", lowerbound.utf8_text.substr(0,10), upperbound.utf8_text.substr(0,10));
     append_filter_bit_status(s, filtermask.Edit_completion(), "completion", to_precision_string(lowerbound.completion,3), to_precision_string(upperbound.completion,3));
     append_filter_bit_status(s, filtermask.Edit_required(), "hours", to_precision_string(lowerbound.hours,3), to_precision_string(upperbound.hours,3));
@@ -147,6 +148,11 @@ std::string Node_Filter::str() {
     append_filter_bit_status(s, filtermask.Edit_tdevery(), "tdevery", std::to_string(lowerbound.tdevery), std::to_string(upperbound.tdevery));
     append_filter_bit_status(s, filtermask.Edit_tdspan(), "tdspan", std::to_string(lowerbound.tdspan), std::to_string(upperbound.tdspan));
     append_filter_bit_status(s, filtermask.Edit_topics(), "topics", join(lowerbound.topics,","), join(upperbound.topics,","));
+    if (case_sensitive) {
+        s += "case sensitive\n";
+    } else {
+        s += "not case sensitive\n";
+    }
     return s;
 }
 
@@ -163,11 +169,25 @@ targetdate_sorted_Nodes Nodes_subset(Graph & graph, const Node_Filter & nodefilt
         return nodes;
     }
 
+    std::string uppersearchtext;
+    if (nodefilter.filtermask.Edit_text() && (!nodefilter.case_sensitive)) {
+        uppersearchtext = nodefilter.lowerbound.utf8_text;
+        std::transform (uppersearchtext.begin(), uppersearchtext.end(), uppersearchtext.begin(), ::toupper);
+    }
+
     for (const auto & [nkey, node_ptr] : graph.get_nodes()) {
 
         if (nodefilter.filtermask.Edit_text()) {
-            if ((node_ptr->get_text().find(nodefilter.lowerbound.utf8_text.c_str()) == Node_utf8_text::npos)) {
-                continue;
+            if (!nodefilter.case_sensitive) {
+                std::string uppertext(node_ptr->get_text().c_str());
+                std::transform (uppertext.begin(), uppertext.end(), uppertext.begin(), ::toupper);
+                if (uppertext.find(uppersearchtext) == std::string::npos) {
+                    continue;
+                }
+            } else {
+                if (node_ptr->get_text().find(nodefilter.lowerbound.utf8_text.c_str()) == Node_utf8_text::npos) {
+                    continue;
+                }
             }
         }
         if (nodefilter.filtermask.Edit_completion()) {
@@ -199,6 +219,14 @@ targetdate_sorted_Nodes Nodes_subset(Graph & graph, const Node_Filter & nodefilt
             if ((node_ptr->get_tdpattern() != nodefilter.lowerbound.tdpattern) && (node_ptr->get_tdpattern() != nodefilter.upperbound.tdpattern)) {
                 continue;
             }
+        }
+        if (nodefilter.filtermask.Edit_tcreated()) {
+            if ((nodefilter.t_created_lowerbound > RTt_unspecified) && (node_ptr->t_created() < nodefilter.t_created_lowerbound)) {
+                continue;
+            }
+            if ((nodefilter.t_created_upperbound > RTt_unspecified) && (node_ptr->t_created() > nodefilter.t_created_upperbound)) {
+                continue;
+            }            
         }
         // matched all filter requirements
         nodes.emplace(node_ptr->effective_targetdate(), node_ptr.get());

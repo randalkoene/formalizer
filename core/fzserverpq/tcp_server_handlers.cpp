@@ -880,7 +880,7 @@ bool handle_node_superiors_add(Node & node, std::string superiorstr) {
     if (superiorstr.empty()) {
         return standard_error("Missing superior ID", __func__);
     }
-    Node * dep_ptr = fzs.graph_ptr->Node_by_idstr(superiorstr.substr(0,NODE_ID_STR_NUMCHARS));
+    //Node * dep_ptr = fzs.graph_ptr->Node_by_idstr(superiorstr.substr(0,NODE_ID_STR_NUMCHARS));
     // *** change the node
     // *** set the edit flag
     return standard_error("MISSING IMPLEMENTATION: add superior", __func__);
@@ -892,7 +892,7 @@ bool handle_node_superiors_remove(Node & node, std::string superiorstr) {
     if (superiorstr.empty()) {
         return standard_error("Missing superior ID", __func__);
     }
-    Node * dep_ptr = fzs.graph_ptr->Node_by_idstr(superiorstr.substr(0,NODE_ID_STR_NUMCHARS));
+    //Node * dep_ptr = fzs.graph_ptr->Node_by_idstr(superiorstr.substr(0,NODE_ID_STR_NUMCHARS));
     // *** change the node
     // *** set the edit flag
     return standard_error("MISSING IMPLEMENTATION: remove superior", __func__);
@@ -949,7 +949,7 @@ bool handle_node_dependencies_add(Node & node, std::string dependencystr) {
     if (dependencystr.empty()) {
         return standard_error("Missing dependency ID", __func__);
     }
-    Node * dep_ptr = fzs.graph_ptr->Node_by_idstr(dependencystr.substr(0,NODE_ID_STR_NUMCHARS));
+    //Node * dep_ptr = fzs.graph_ptr->Node_by_idstr(dependencystr.substr(0,NODE_ID_STR_NUMCHARS));
     // *** change the node
     // *** set the edit flag
     return standard_error("MISSING IMPLEMENTATION: add dependency", __func__);
@@ -961,7 +961,7 @@ bool handle_node_dependencies_remove(Node & node, std::string dependencystr) {
     if (dependencystr.empty()) {
         return standard_error("Missing dependency ID", __func__);
     }
-    Node * dep_ptr = fzs.graph_ptr->Node_by_idstr(dependencystr.substr(0,NODE_ID_STR_NUMCHARS));
+    //Node * dep_ptr = fzs.graph_ptr->Node_by_idstr(dependencystr.substr(0,NODE_ID_STR_NUMCHARS));
     // *** change the node
     // *** set the edit flag
     return standard_error("MISSING IMPLEMENTATION: remove dependency", __func__);

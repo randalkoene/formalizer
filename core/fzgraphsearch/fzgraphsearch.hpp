@@ -42,7 +42,7 @@ struct fzgraphsearch: public formalizer_standard_program {
 
     // Graph_access ga; // to include Graph or Log access support
 
-    std::string search_string;
+    Node_Filter nodefilter;
     std::string listname;
 
     Graph_ptr graph_ptr = nullptr;

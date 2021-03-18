@@ -319,6 +319,7 @@ public:
         tdevery    = 0b0000'0010'0000'0000,
         tdspan     = 0b0000'0100'0000'0000,
         topicrels  = 0b0000'1000'0000'0000,
+        tcreated   = 0b0001'0000'0000'0000,
         error      = 0b0100'0000'0000'0000'0000'0000'0000'0000 // see how this is used in Node_advance_repeating()
     };
 protected:
@@ -341,6 +342,7 @@ public:
     void set_Edit_tdpattern() { editflags |= Edit_flags::tdpattern; }
     void set_Edit_tdevery() { editflags |= Edit_flags::tdevery; }
     void set_Edit_tdspan() { editflags |= Edit_flags::tdspan; }
+    void set_Edit_tcreated() { editflags |= Edit_flags::tcreated; }
     void set_Edit_error() { editflags |= Edit_flags::error; }
     bool Edit_topics() const { return editflags & Edit_flags::topics; }
     bool Edit_topicrels() const { return editflags & Edit_flags::topicrels; }
@@ -354,6 +356,7 @@ public:
     bool Edit_tdpattern() const { return editflags & Edit_flags::tdpattern; }
     bool Edit_tdevery() const { return editflags & Edit_flags::tdevery; }
     bool Edit_tdspan() const { return editflags & Edit_flags::tdspan; }
+    bool Edit_tcreated() const { return editflags & Edit_flags::tcreated; }
     bool Edit_error() const { return editflags & Edit_flags::error; }
     bool None() const { return editflags == 0; }
 };

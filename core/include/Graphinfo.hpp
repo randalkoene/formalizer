@@ -55,8 +55,11 @@ std::vector<std::string> Topic_IDs_to_Tags(Graph & graph, std::vector<Topic_ID> 
  * used to search for Node subsets, for example.
  */
 struct Node_Filter {
+    time_t t_created_lowerbound = RTt_unspecified;
+    time_t t_created_upperbound = RTt_unspecified;
     Node_data lowerbound; // values must be >= to these thresholds (where it makes sense)
     Node_data upperbound; // values must be <= to these thresholds (where it makes sense)
+    bool case_sensitive = true;
     Edit_flags filtermask;
 
     std::string str();

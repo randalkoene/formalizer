@@ -24,10 +24,25 @@ from subprocess import Popen, PIPE
 searchresultsNNL = 'fzgraphsearch_cgi'
 
 # Create instance of FieldStorage 
-form = cgi.FieldStorage() 
+form = cgi.FieldStorage()
 
 # Get data from fields
+verbose = form.getvalue('verbose')
 searchstring = form.getvalue('searchstring')
+case_sensitive = form.getvalue('case_sensitive')
+t_created_from = form.getvalue('t_created_from')
+t_created_through = form.getvalue('t_created_through')
+completion_lower = form.getvalue('completion_lower')
+completion_upper = form.getvalue('completion_upper')
+hours_lower = form.getvalue('hours_lower')
+hours_upper = form.getvalue('hours_upper')
+TD_lower = form.getvalue('TD_lower')
+TD_upper = form.getvalue('TD_upper')
+tdprop_lower = form.getvalue('tdprop_lower')
+tdprop_upper = form.getvalue('tdprop_upper')
+repeats = form.getvalue('repeats')
+tdpatt_lower = form.getvalue('tdpatt_lower')
+tdpatt_upper = form.getvalue('tdpatt_upper')
 
 #<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 graphsearch_results_head = '''Content-type:text/html
@@ -84,7 +99,61 @@ def clear_NNL(listname: str) -> bool:
 
 
 def Graph_search(searchstr: str, listname: str) -> bool:
-    searchcmd = f"./fzgraphsearch -q -E STDOUT -s '{searchstr}' -l '{listname}'"
+    searchcmd = f"./fzgraphsearch -q -E STDOUT -l '{listname}'"
+    if searchstr:
+        searchcmd += f" -s '{searchstr}'"
+    if (case_sensitive != "on"):
+        searchcmd += " -z"
+    if t_created_from:
+        searchcmd += f" -i '{t_created_from}0000'"
+    if t_created_through:
+        searchcmd += f" -I '{t_created_through}2359'"
+    if completion_lower:
+        try:
+            searchcmd += f" -c {float(completion_lower):.3f}"
+        except:
+            print(f'Unable to convert completion_lower ({completion_lower}) to float.')
+            return False
+    if completion_upper:
+        try:
+            searchcmd += f" -C {float(completion_upper):.3f}"
+        except:
+            print(f'Unable to convert completion_upper ({completion_upper}) to float.')
+            return False
+    if hours_lower:
+        try:
+            searchcmd += f" -m {int(hours_lower * 60)}"
+        except:
+            print(f'Unable to convert hours_lower ({hours_lower}) to integer minutes.')
+            return False
+    if hours_upper:
+        try:
+            searchcmd += f" -M {int(hours_upper * 60)}"
+        except:
+            print(f'Unable to convert hours_upper ({hours_upper}) to integer minutes.')
+            return False
+    if TD_lower:
+        searchcmd += f" -t {TD_lower}"
+    if TD_upper:
+        searchcmd += f" -T {TD_upper}"
+    if tdprop_lower:
+        searchcmd += f" -p {tdprop_lower}"
+    if tdprop_upper:
+        searchcmd += f" -P {tdprop_upper}"
+    if repeats:
+        if (repeats == "true"):
+            searchcmd += " -r"
+        else:
+            if (repeats == "false"):
+                searchcmd += " -R"
+    if tdpatt_lower:
+        searchcmd += f' -d {tdpatt_lower}'
+    if tdpatt_upper:
+        searchcmd += f' -D {tdpatt_upper}'
+    if verbose:
+        searchcmd += ' -V'
+
+    print(f'thecmd = {searchcmd}')
     return try_command_call(searchcmd)
 
 
@@ -104,6 +173,7 @@ def render_search_results():
     else:
         print('-->')
 
+    # *** should add t_created_from and t_created_through here
     print(f'<!-- Graph_search("{searchstring}",{searchresultsNNL}) output')
     if not Graph_search(searchstring, searchresultsNNL):
         Call_Error('Search returned error.')

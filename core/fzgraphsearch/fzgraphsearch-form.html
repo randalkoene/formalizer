@@ -12,7 +12,71 @@
 <h1>FZ: Search Graph</h1>
 
 <form action="/cgi-bin/fzgraphsearch-cgi.py" method="post">
-Search Node descriptions for this string: <input type="text" name="searchstring"><br />
+<p>
+Verbose: <input type="checkbox" name="verbose">
+</p>
+<p>
+Search Node descriptions for this string: <input type="text" name="searchstring" size="50"> Case sensitive: <input type="checkbox" name="case_sensitive" checked>
+</p>
+<p>
+Nodes created from (YYYYmmdd) <input type="text" name="t_created_from"> through (YYYYmmdd) <input type="text" name="t_created_through">.
+</p>
+<p>
+Nodes with completion ratio greater than or equal to <input type="text" name="completion_lower"> and smaller than or equal to <input type="text" name="completion_upper">.
+</p>
+<p>
+Nodes with required hours greater than or equal to <input type="text" name="hours_lower"> and smaller than or equal to <input type="text" name="hours_upper">.
+</p>
+<p>
+Nodes with effective target date at or after (YYYYmmddHHMM) <input type="text" name="TD_lower"> and before or at (YYYYmmddHHMM) <input type="text" name="TD_upper">.
+</p>
+<p>
+Node with <label for="tdprop_lower">target date property</label>	
+<select name="tdprop_lower">
+<option value='' selected>any</option>
+<option value='unspecified'>unspecified</option>
+<option value='variable'>variable</option>
+<option value='inherit'>inherit</option>
+<option value='fixed'>fixed</option>
+<option value='exact'>exact</option>
+</select>
+<label for="tdprop_upper">or</label>
+<select name="tdprop_upper">
+<option value='' selected>any</option>
+<option value='unspecified'>unspecified</option>
+<option value='variable'>variable</option>
+<option value='inherit'>inherit</option>
+<option value='fixed'>fixed</option>
+<option value='exact'>exact</option>
+</select>.
+</p>
+<p>
+Nodes that <input type="radio" name="repeats" value="true"> repeat, <input type="radio" name="repeats" value="false"> do not repeat, or <input type="radio" name="repeats" value="" checked> either.
+</p>
+<p>
+Node with <label for="tdpatt_lower">repeat pattern</label>	
+<select name="tdpatt_lower">
+<option value='' selected>any</option>
+<option value='daily'>daily</option>
+<option value='workdays'>workdays</option>
+<option value='weekly'>weekly</option>
+<option value='biweekly'>biweekly</option>
+<option value='monthly'>monthly</option>
+<option value='endofmonthoffset'>endofmonthoffset</option>
+<option value='yearly'>yearly</option>
+</select>
+<label for="tdpatt_upper">or</label>
+<select name="tdpatt_upper">
+<option value='' selected>any</option>
+<option value='daily'>daily</option>
+<option value='workdays'>workdays</option>
+<option value='weekly'>weekly</option>
+<option value='biweekly'>biweekly</option>
+<option value='monthly'>monthly</option>
+<option value='endofmonthoffset'>endofmonthoffset</option>
+<option value='yearly'>yearly</option>
+</select>.
+</p>
     
 <input type="submit" value="Submit" />
 </form>

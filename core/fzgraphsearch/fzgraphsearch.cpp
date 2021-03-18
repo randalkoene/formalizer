@@ -13,12 +13,14 @@
 
 // std
 #include <iostream>
+#include <algorithm>
 
 // core
 #include "error.hpp"
 #include "standard.hpp"
 #include "Graphinfo.hpp"
 #include "Graphmodify.hpp"
+#include "Graphtoken.hpp"
 #include "tcpclient.hpp"
 
 // local
@@ -37,10 +39,12 @@ fzgraphsearch fzgs;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphsearch::fzgraphsearch() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "s:l:";
-    add_usage_top += " [-s <search-string>] -l <list-name>";
+    add_option_args += "s:l:i:I:zc:C:m:M:t:T:rRp:P:d:D:";
+    add_usage_top += " [-s <search-string>] [-z] [-i <date-time>] [-I <date-time>] [-c <comp_min>] [-C <comp_max>] [-m <mins_min>] [-M <mins_max>] [-t <TD_min>] [-T <TD_max>] [-p <tdprop_1>] [-P <tdprop_2>] [-r|-R] [-d <tdpatt_1>] [-D <tdpatt_2>] -l <list-name>";
     //usage_head.push_back("Description at the head of usage information.\n");
-    //usage_tail.push_back("Extra usage information.\n");
+    usage_tail.push_back("Target date property options are: unspecified, variable, inherit, fixed, exact.\n"
+                         "Repeat pattern options are: nonrepeating, weekly, biweekly, monthly,\n"
+                         "endofmonth_offset, yearly.\n");
 }
 
 /**
@@ -49,8 +53,23 @@ fzgraphsearch::fzgraphsearch() : formalizer_standard_program(false), config(*thi
  */
 void fzgraphsearch::usage_hook() {
     //ga.usage_hook();
-    FZOUT("    -s Description contains <search-string>.\n"
-          "    -l Named Node List to receive the search results.\n");
+    FZOUT("    -l Named Node List to receive the search results.\n"
+          "    -s Description contains <search-string>.\n"
+          "    -z Not case sensitive.\n"
+          "    -i Nodes created from <date-time>.\n"
+          "    -I Nodes created through <date-time>.\n"
+          "    -c Nodes with completion ratio greater than or equal to <comp_min>.\n"
+          "    -C Nodes with completion ratio smaller than or equal to <comp_max>.\n"
+          "    -m Nodes with required minutes greater than or equal to <mins_min>.\n"
+          "    -M Nodes with required minutes greater than or equal to <mins_min>.\n"
+          "    -t Nodes with effective target date at or after <TD_min>.\n"
+          "    -T Nodes with effective target date at or before <TD_min>.\n"
+          "    -p Nodes with target date property <tdprop_1>.\n"
+          "    -P Nodes with target date property <tdprop_2>.\n"
+          "    -r Nodes that repeat.\n"
+          "    -R Nodes that do not repeat.\n"
+          "    -d Nodes with repeat pattern <tdpatt_1>.\n"
+          "    -D Nodes with repeat pattern <tdpatt_2>.\n");
 }
 
 /**
@@ -70,7 +89,87 @@ bool fzgraphsearch::options_hook(char c, std::string cargs) {
     switch (c) {
 
     case 's': {
-        search_string = cargs;
+        nodefilter.lowerbound.utf8_text = cargs;
+        nodefilter.filtermask.set_Edit_text();
+        return true;
+    }
+
+    case 'i': {
+        nodefilter.t_created_lowerbound = time_stamp_time(cargs);
+        nodefilter.filtermask.set_Edit_tcreated();
+        return true;
+    }
+
+    case 'I': {
+        nodefilter.t_created_upperbound = time_stamp_time(cargs);
+        nodefilter.filtermask.set_Edit_tcreated();
+        return true;
+    }
+
+    case 'z': {
+        nodefilter.case_sensitive = false;
+        return true;
+    }
+
+    case 'c': {
+        nodefilter.lowerbound.completion = std::atof(cargs.c_str());
+        return true;
+    }
+
+    case 'C': {
+        nodefilter.upperbound.completion = std::atof(cargs.c_str());
+        return true;
+    }
+
+    case 'm': {
+        nodefilter.lowerbound.hours = ((float)std::atoi(cargs.c_str())) / 60.0;
+        return true;
+    }
+
+    case 'M': {
+        nodefilter.upperbound.hours = ((float)std::atoi(cargs.c_str())) / 60.0;
+        return true;
+    }
+
+    case 't': {
+        nodefilter.lowerbound.targetdate = time_stamp_time(cargs);
+        return true;
+    }
+
+    case 'T': {
+        nodefilter.upperbound.targetdate = time_stamp_time(cargs);
+        return true;
+    }
+
+    case 'p': {
+        nodefilter.lowerbound.tdproperty = interpret_config_tdproperty(cargs);
+        return true;
+    }
+
+    case 'P': {
+        nodefilter.upperbound.tdproperty = interpret_config_tdproperty(cargs);
+        return true;
+    }
+
+    case 'r': {
+        nodefilter.lowerbound.repeats = true;
+        nodefilter.upperbound.repeats = true;
+        return true;
+    }
+
+    case 'R': {
+        nodefilter.lowerbound.repeats = false;
+        nodefilter.upperbound.repeats = false;
+        return true;
+    }
+
+    case 'd': {
+        nodefilter.lowerbound.tdpattern = interpret_config_tdpattern(cargs);
+        return true;
+    }
+
+    case 'D': {
+        nodefilter.upperbound.tdpattern = interpret_config_tdpattern(cargs);
         return true;
     }
 
@@ -124,21 +223,11 @@ int find_nodes() {
     }
 
     // set up filter
-    Node_Filter nodefilter;
-    nodefilter.lowerbound.utf8_text = fzgs.search_string;
-    nodefilter.filtermask.set_Edit_text();
-    //nodefilter.lowerbound.completion = 0.0;
-    //nodefilter.upperbound.completion = 0.99999;
-    //nodefilter.lowerbound.tdproperty = variable;
-    //nodefilter.upperbound.tdproperty = variable;
-    //nodefilter.lowerbound.targetdate = t;
-    //nodefilter.upperbound.targetdate = t;
-    //nodefilter.filtermask.set_Edit_completion();
-    //nodefilter.filtermask.set_Edit_tdproperty();
-    //nodefilter.filtermask.set_Edit_targetdate();
+    // *** Already done during command line parameter parsing.
+    VERYVERBOSEOUT("Node filter:\n"+fzgs.nodefilter.str());
 
     // find subset of Nodes
-    targetdate_sorted_Nodes matched_nodes = Nodes_subset(fzgs.graph(), nodefilter);
+    targetdate_sorted_Nodes matched_nodes = Nodes_subset(fzgs.graph(), fzgs.nodefilter);
 
     size_t total_found = matched_nodes.size();
     if (total_found < 1) {
