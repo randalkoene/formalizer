@@ -138,8 +138,12 @@ def Graph_search(searchstr: str, listname: str) -> bool:
         searchcmd += f" -T {TD_upper}"
     if tdprop_lower:
         searchcmd += f" -p {tdprop_lower}"
+        if not tdprop_upper:
+            searchcmd += f" -P {tdprop_lower}"
     if tdprop_upper:
         searchcmd += f" -P {tdprop_upper}"
+        if not tdprop_lower:
+            searchcmd += f" -p {tdprop_upper}"
     if repeats:
         if (repeats == "true"):
             searchcmd += " -r"
@@ -148,8 +152,12 @@ def Graph_search(searchstr: str, listname: str) -> bool:
                 searchcmd += " -R"
     if tdpatt_lower:
         searchcmd += f' -d {tdpatt_lower}'
+        if not tdpatt_upper:
+            searchcmd += f' -D {tdpatt_lower}'
     if tdpatt_upper:
         searchcmd += f' -D {tdpatt_upper}'
+        if not tdpatt_lower:
+            searchcmd += f' -d {tdpatt_upper}'
     if verbose:
         searchcmd += ' -V'
 
@@ -182,7 +190,7 @@ def render_search_results():
 
     print('<!-- Render search results Named Node List -->')
     print('<table class="blueTable"><tbody>')
-    rendercmd = f"./fzgraphhtml -q -e -L '{searchresultsNNL}' -o STDOUT -E STDOUT"
+    rendercmd = f"./fzgraphhtml -q -e -L '{searchresultsNNL}' -N all -o STDOUT -E STDOUT"
     try_command_call(rendercmd)
     print('</tbody></table>')
 

@@ -239,6 +239,10 @@
         "Time and Date" : {
             "url" : "https://www.timeanddate.com/sun/usa/san-francisco",
             "window" : "_blank"
+        },
+        "World Time Zones" : {
+            "url" : "https://www.worldtimebuddy.com/",
+            "window" : "_blank"
         }
     },
     "Action: " : {

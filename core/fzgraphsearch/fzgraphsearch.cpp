@@ -113,63 +113,75 @@ bool fzgraphsearch::options_hook(char c, std::string cargs) {
 
     case 'c': {
         nodefilter.lowerbound.completion = std::atof(cargs.c_str());
+        nodefilter.filtermask.set_Edit_completion();
         return true;
     }
 
     case 'C': {
         nodefilter.upperbound.completion = std::atof(cargs.c_str());
+        nodefilter.filtermask.set_Edit_completion();
         return true;
     }
 
     case 'm': {
         nodefilter.lowerbound.hours = ((float)std::atoi(cargs.c_str())) / 60.0;
+        nodefilter.filtermask.set_Edit_required();
         return true;
     }
 
     case 'M': {
         nodefilter.upperbound.hours = ((float)std::atoi(cargs.c_str())) / 60.0;
+        nodefilter.filtermask.set_Edit_required();
         return true;
     }
 
     case 't': {
         nodefilter.lowerbound.targetdate = time_stamp_time(cargs);
+        nodefilter.filtermask.set_Edit_targetdate();
         return true;
     }
 
     case 'T': {
         nodefilter.upperbound.targetdate = time_stamp_time(cargs);
+        nodefilter.filtermask.set_Edit_targetdate();
         return true;
     }
 
     case 'p': {
         nodefilter.lowerbound.tdproperty = interpret_config_tdproperty(cargs);
+        nodefilter.filtermask.set_Edit_tdproperty();
         return true;
     }
 
     case 'P': {
         nodefilter.upperbound.tdproperty = interpret_config_tdproperty(cargs);
+        nodefilter.filtermask.set_Edit_tdproperty();
         return true;
     }
 
     case 'r': {
         nodefilter.lowerbound.repeats = true;
         nodefilter.upperbound.repeats = true;
+        nodefilter.filtermask.set_Edit_repeats();
         return true;
     }
 
     case 'R': {
         nodefilter.lowerbound.repeats = false;
         nodefilter.upperbound.repeats = false;
+        nodefilter.filtermask.set_Edit_repeats();
         return true;
     }
 
     case 'd': {
         nodefilter.lowerbound.tdpattern = interpret_config_tdpattern(cargs);
+        nodefilter.filtermask.set_Edit_tdpattern();
         return true;
     }
 
     case 'D': {
         nodefilter.upperbound.tdpattern = interpret_config_tdpattern(cargs);
+        nodefilter.filtermask.set_Edit_tdpattern();
         return true;
     }
 
