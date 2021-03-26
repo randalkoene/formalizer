@@ -148,6 +148,12 @@ edit_success_page_tail = f'''<b>Node modified. To review or edit more, follow th
 </html>
 '''
 
+create_success_page_tail = f'''<b>Node created. To review or edit, find the new Node in the Graph.</b>
+<hr>
+</body>
+</html>
+'''
+
 edit_fail_page_tail = '''<hr>
 </body>
 </html>
@@ -274,7 +280,10 @@ def modify_node():
     print(f'<!-- Call command: {thecmd} -->')
 
     if try_call_command(thecmd):
-        print(edit_success_page_tail)
+        if ((id == 'NEW') or (id == 'new')):
+            print(create_success_page_tail)
+        else:
+            print(edit_success_page_tail)
     else:
         print(edit_fail_page_tail)
 
@@ -338,7 +347,7 @@ if __name__ == '__main__':
     else:
         verbosearg = '-q'
 
-    if (action=='modify'):
+    if (action=='modify') or (action=='create'):
         modify_node()
     else:
         if (action=='update'):

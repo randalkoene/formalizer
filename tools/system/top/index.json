@@ -1,5 +1,5 @@
 {
-    "NOTITLE" : {
+    "System: " : {
         "Next Nodes" : {
             "url" : "/cgi-bin/fzgraphhtml-cgi.py",
             "window" : "_blank"
@@ -17,7 +17,7 @@
             "window" : "_blank"
         },
         "Calendar" : {
-            "url" : "https://calendar.google.com/calendar/",
+            "url" : "https://calendar.google.com/calendar/?authuser=randal.a.koene@gmail.com",
             "window" : "_blank"
         },
         "Morning Protocol" : {
@@ -67,7 +67,45 @@
             "window" : "_blank"
         }
     },
-    "NOTITLE" : {
+    "Communication: " : {
+        "E-Mail" : {
+            "url" : "https://mail.google.com/mail/?authuser=rkoene@carboncopies.org",
+            "window" : "_blank"
+        },
+        "Messenger" : {
+            "url" : "https://www.messenger.com/",
+            "window" : "_blank"
+        },
+        "Discord" : {
+            "url" : "https://discord.com/channels/@me",
+            "window" : "_blank"
+        },
+        "Slack" : {
+            "url" : "https://app.slack.com/",
+            "window" : "_blank"
+        },
+        "Hangouts" : {
+            "url" : "https://hangouts.google.com/",
+            "window" : "_blank"
+        },
+        "cortex" : {
+            "url" : "http://cortex.carboncopies.org",
+            "window" : "_blank"
+        },
+        "amygdala" : {
+            "url" : "http://amygdala.carboncopies.org",
+            "window" : "_blank"
+        },
+        "cerebellum" : {
+            "url" : "http://cerebellum.carboncopies.org",
+            "window" : "_blank"
+        },
+        "call.carboncopies.org" : {
+            "url" : "http://call.carboncopies.org",
+            "window" : "_blank"
+        }
+    },
+    "FZ Admin: " : {
         "Server Status" : {
             "url" : "/cgi-bin/fzserver-info-cgi.py",
             "window" : "_blank"
@@ -80,9 +118,25 @@
             "url" : "http://{{ fzserverpq }}/fz/ReqQ",
             "window" : ""
         },
+        "ReqQ Log" : {
+            "url" : "/formalizer/formalizer.core.server.requests.log",
+            "window" : "_blank"
+        },
         "ErrQ Status" : {
             "url" : "http://{{ fzserverpq }}/fz/ErrQ",
             "window" : ""
+        },
+        "Server ErrQ Log" : {
+            "url" : "/formalizer/formalizer.core.server.error.ErrQ.log",
+            "window" : "_blank"
+        },
+        "General ErrQ Log" : {
+            "url" : "/formalizer/formalizer.core.error.ErrQ.log",
+            "window" : "_blank"
+        },
+        "General WarnQ Log" : {
+            "url" : "/formalizer/formalizer.core.error.WarnQ.log",
+            "window" : "_blank"
         },
         "Verbose" : {
             "url" : "http://{{ fzserverpq }}/fz/verbosity?set=normal",
@@ -115,6 +169,10 @@
         "DB Log Status" : {
             "url" : "http://{{ fzserverpq }}/fz/db/log",
             "window" : ""
+        },
+        "DB SimPQ Log" : {
+            "url" : "/formalizer/formalizer.core.fzpostgres.SimPQ.log",
+            "window" : "_blank"
         },
         "set NNL persistent" : {
             "url" : "http://{{ fzserverpq }}/fz/graph/namedlists/_set?persistent=true",
@@ -256,6 +314,18 @@
         },
         "Search Graph" : {
             "url" : "/formalizer/fzgraphsearch-form.html",
+            "window" : "_blank"
+        },
+        "Select Node" : {
+            "url" : "/select.html",
+            "window" : "_blank"
+        },
+        "Filter Log" : {
+            "url" : "/formalizer/fzloghtml-form.html",
+            "window" : "_blank"
+        },
+        "Filter &amp; Edit Guide" : {
+            "url" : "/formalizer/fzguide.system-form.html",
             "window" : "_blank"
         }
     }
