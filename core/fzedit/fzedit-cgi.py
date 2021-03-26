@@ -213,6 +213,8 @@ def modify_node():
     every = int(form.getvalue('every'))
     span = int(form.getvalue('span'))
 
+    topics=form.getvalue('topics')
+
     orig_mins = int(form.getvalue('orig_mins'))
     orig_td = form.getvalue('orig_td')
 
@@ -264,6 +266,8 @@ def modify_node():
         # superiors = form.getvalue('superiors')
         # dependencies = form.getvalue('dependencies')
         thecmd = f'./fzgraph {verbosearg} -E STDOUT -M node -f {textfile} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}'
+        if topics:
+            thecmd += " -g '"+topics+"'"
     else:
         thecmd = f"./fzedit {verbosearg} -E STDOUT -M {id} -f {textfile} -c {comp:.5f} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}"
 

@@ -41,7 +41,8 @@ std::vector<std::string> template_ids = {
     "Node_template",
     "node_pars_in_list_card_template",
     "topic_pars_in_list_template",
-    "Node_edit_template"
+    "Node_edit_template",
+    "Node_new_template"
 };
 
 typedef std::map<template_id_enum,std::string> fzgraphhtml_templates;
@@ -282,7 +283,11 @@ struct line_render_parameters {
         varvals.emplace("title",topic.get_title().c_str());
         varvals.emplace("keyrel",topic.keyrel_str());
         if (fzgh.add_to_node) {
-            varvals.emplace("add_to_node","<td>[<a href=\"http://"+fzgh.graph().get_server_full_address()+"/fz/graph/nodes/"+fzgh.node_idstr+"/topics/add?"+topic.get_tag().c_str()+"=1.0\">add to "+fzgh.node_idstr+"</a>]</td>");
+            if (fzgh.node_idstr=="NEW") {
+                varvals.emplace("add_to_node","<td>[<a href=\"/cgi-bin/fzgraphhtml-cgi.py?edit=new&topics="+std::string(topic.get_tag().c_str())+"\">add to NEW</a>]</td>");
+            } else {
+                varvals.emplace("add_to_node","<td>[<a href=\"http://"+fzgh.graph().get_server_full_address()+"/fz/graph/nodes/"+fzgh.node_idstr+"/topics/add?"+topic.get_tag().c_str()+"=1.0\">add to "+fzgh.node_idstr+"</a>]</td>");
+            }
         } else {
             varvals.emplace("add_to_node","");
         }
@@ -397,6 +402,15 @@ bool render_named_node_list_names(line_render_parameters & lrp) {
     return lrp.present();
 }
 
+/**
+ * Turn a Named Node List into rendered HTML. Optionally, included HTML
+ * page head and tail from templates.
+ * Results are sent to one of three targets:
+ * 1. STDOUT, if indicated in fzgh.config.rendered_out_path
+ * 2. A file, as per fzgh.config.rendered_out_path
+ * 3. The internal fzgh.cache_str container for further used by another
+ *    function, if indicated by fzgh.cache_it.
+ */
 bool render_named_node_list() {
 
     line_render_parameters lrp(fzgh.list_name,__func__);
@@ -407,7 +421,7 @@ bool render_named_node_list() {
 
     Named_Node_List_ptr namedlist_ptr = lrp.graph().get_List(fzgh.list_name);
     if (!namedlist_ptr) {
-        standard_exit_error(exit_general_error, "Named Node List "+fzgh.list_name+" not found.", __func__);
+        return standard_error("Named Node List "+fzgh.list_name+" not found.", __func__);
     }
 
     unsigned int num_render = (fzgh.config.num_to_show > namedlist_ptr->list.size()) ? namedlist_ptr->list.size() : fzgh.config.num_to_show;
@@ -427,7 +441,12 @@ bool render_named_node_list() {
             break;
     }
 
-    return lrp.present();
+    if (fzgh.cache_it) {
+        fzgh.cache_str = std::move(lrp.rendered_page);
+        return true;
+    } else {
+        return lrp.present();
+    }
 }
 
 bool render_topics() {
@@ -654,11 +673,12 @@ bool render_new_node_page() {
     td_pattern tdpatt = ndata.tdpattern;
 
     nodevars.emplace("node-id", "NEW");
-
-    if (ndata.repeats) {
-        nodevars.emplace("td_update_skip", update_skip_template_A+TimeStamp("%Y-%m-%dT%H:%M", ActualTime())+update_skip_template_B);
+    if (fzgh.list_name.empty()) {
+        nodevars.emplace("is_disabled", " disabled");
+        nodevars.emplace("notice_1", " <b>add a Topic to enable 'create'</b> ");
     } else {
-        nodevars.emplace("td_update_skip", "");
+        nodevars.emplace("is_disabled", "");
+        nodevars.emplace("notice_1", "<input type=\"hidden\" name=\"topics\" value=\""+fzgh.list_name+"\">");
     }
 
     nodevars.emplace("node-text", ndata.utf8_text);
@@ -669,6 +689,9 @@ bool render_new_node_page() {
     nodevars.emplace("val", to_precision_string(ndata.valuation));
 
     time_t t_eff = ndata.targetdate;
+    if (t_eff == RTt_unspecified) {
+        t_eff = today_end_time();
+    }
     nodevars.emplace("eff_td", TimeStampYmdHM(t_eff));
     nodevars.emplace("eff_td_date",TimeStamp("%Y-%m-%d", t_eff));
     nodevars.emplace("eff_td_time",TimeStamp("%H:%M", t_eff));
@@ -698,11 +721,26 @@ bool render_new_node_page() {
     nodevars.emplace("td_every", std::to_string(ndata.tdevery));
     nodevars.emplace("td_span", std::to_string(ndata.tdspan));
     nodevars.emplace("fzserverpq", graph.get_server_full_address());
-    nodevars.emplace("topics", "");
-    nodevars.emplace("superiors", "");
-    nodevars.emplace("dependencies", "");
+    nodevars.emplace("topics", fzgh.list_name);
 
-    std::string rendered_node_data = env.render(templates[node_edit_temp], nodevars);
+    fzgh.config.embeddable = true;
+    fzgh.cache_it = true;
+    standard_mute();
+    fzgh.list_name = "superiors";
+    if (render_named_node_list()) {
+        nodevars.emplace("superiors", fzgh.cache_str);
+    } else {
+        nodevars.emplace("superiors", "Please add at least one Superior.");
+    }
+    fzgh.list_name = "dependencies";
+    if (render_named_node_list()) {
+        nodevars.emplace("dependencies", fzgh.cache_str);
+    } else {
+        nodevars.emplace("dependencies", "");
+    }
+    standard_unmute();
+
+    std::string rendered_node_data = env.render(templates[node_new_temp], nodevars);
 
     if (fzgh.config.rendered_out_path == "STDOUT") {
         FZOUT(rendered_node_data);

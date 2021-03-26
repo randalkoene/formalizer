@@ -232,6 +232,10 @@ std::pair<int, std::string> safe_cmdline_options(int argc, char *argv[], std::st
 void key_pause();
 bool default_choice(const std::string question, char not_default);
 
+// Temporarily cache 'quiet' and 'veryverbose' flags to mute program output.
+void standard_mute();
+void standard_unmute();
+
 /// Another set of exit options, these with potential messages.
 int standard_exit_success(std::string veryverbose_message);
 [[noreturn]] int standard_exit_error(int exit_code, std::string error_message, const char * problem__func__);

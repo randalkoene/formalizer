@@ -239,6 +239,23 @@ void formalizer_standard_program::commandline(int argc, char *argv[]) {
     }
 }
 
+bool standard_mute_cache_quiet = false;
+bool standard_mute_cache_veryverbose = false;
+bool standard_mute_cache_mute_error = false;
+void standard_mute() {
+    standard_mute_cache_quiet = standard.quiet;
+    standard_mute_cache_veryverbose = standard.veryverbose;
+    standard_mute_cache_mute_error = mute_error;
+    standard.quiet = true;
+    standard.veryverbose = false;
+    mute_error = true;
+}
+void standard_unmute() {
+    standard.quiet = standard_mute_cache_quiet;
+    standard.veryverbose = standard_mute_cache_veryverbose;
+    mute_error = standard_mute_cache_mute_error;
+}
+
 void formalizer_standard_program::init(int argc, char *argv[], std::string version, std::string module, std::ostream * o, std::ostream * e) {
     ERRHERE(".top");
     // Do these here so that they also work for derived classes.s

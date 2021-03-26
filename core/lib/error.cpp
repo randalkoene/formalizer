@@ -13,6 +13,8 @@
 
 namespace fz {
 
+bool mute_error = false;
+
 Errors ErrQ(DEFAULT_ERRLOGPATH);
 Errors WarnQ(DEFAULT_WARNLOGPATH);
 
@@ -71,6 +73,8 @@ bool Errors::init() {
  * @param e description of the error.
  */
 void Errors::push(std::string f, std::string e) {
+    if (mute_error)
+        return;
     if (f.empty())
         f = "unidentified";
     if (e.empty())

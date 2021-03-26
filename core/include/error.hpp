@@ -122,6 +122,8 @@ enum exit_status_code {
     exit_NUMENUMS ///< this one simplifies corresponding array definition, e.g. char[exit_NUMENUMS]
     };
 
+extern bool mute_error;
+
 #ifdef NO_ERR_TRACE
     /// Global variable that can be updated to give a better hint about where exactly an error occurred.
     extern std::string errhint;

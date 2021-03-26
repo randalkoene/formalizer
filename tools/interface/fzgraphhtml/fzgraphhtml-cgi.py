@@ -46,6 +46,7 @@ help = form.getvalue('help')
 id = form.getvalue('id')
 srclist = form.getvalue('srclist')
 edit = form.getvalue('edit')
+topics = form.getvalue('topics') # this is used with edit=new
 topicslist = form.getvalue('topics')
 topic = form.getvalue('topic')
 tonode = form.getvalue('to-node')
@@ -171,6 +172,7 @@ editpagehead = '''Content-type:text/html
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/bluetable.css">
 <title>Formalizer: Edit Node</title>
 </head>
 <body>
@@ -285,6 +287,8 @@ def generate_NNL_page():
 
 def generate_Node_edit_form_page():
     thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -m "+edit
+    if topics:
+        thecmd += " -t '"+topics+"'"
     print(editpagehead)
     try_command_call(thecmd)
     print(editpagetail)

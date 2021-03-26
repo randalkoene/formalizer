@@ -24,6 +24,7 @@ enum template_id_enum {
     node_pars_in_list_card_temp,
     topic_pars_in_list_temp,
     node_edit_temp,
+    node_new_temp,
     NUM_temp
 };
 

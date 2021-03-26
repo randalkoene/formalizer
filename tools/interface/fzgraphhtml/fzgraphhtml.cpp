@@ -42,7 +42,11 @@ fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) {
     add_option_args += "n:m:Irt:i:L:N:M:D:x:o:eT:F:uC";
     add_usage_top += " [-n <node-ID>|-m <node-ID>|-I|-t <topic-ID|topic-tag|?>|-L <name|?>] [-r] [-N <num>] [-M <max-YYYYmmddHHMM>] [-D <num-days>] [-x <len>] [-o <output-path>] [-e] [-T <named|node|Node>=<path>] [-F html|txt|node|desc] [-u] [-C]";
     //usage_head.push_back("Description at the head of usage information.\n");
-    usage_tail.push_back("When no [N <num>] is provided then the configured value is used.\n");
+    usage_tail.push_back(
+        "Notes:\n"
+        "1. When no [N <num>] is provided then the configured value is used.\n"
+        "2. With '-m new', the '-t' argument is used to provide a comma\n"
+        "   delimited list of Topics to associate the new Node with.\n");
 }
 
 /**
@@ -167,7 +171,9 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
     }
 
     case 't': {
-        flowcontrol = flow_topics;
+        if (flowcontrol != flow_node_edit) {
+            flowcontrol = flow_topics;
+        }
         list_name = cargs;
         return true;
     }
@@ -418,8 +424,7 @@ int main(int argc, char *argv[]) {
     }
 
     case flow_named_list: {
-        render_named_node_list();
-        break;
+        return standard_exit(render_named_node_list(), "Named Node List rendered.", exit_general_error, "Unable to render Named Node List.", __func__);
     }
 
     case flow_topics: {

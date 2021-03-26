@@ -84,6 +84,9 @@ struct fzgraphhtml: public formalizer_standard_program {
 
     Graph * graph_ptr = nullptr;
 
+    bool cache_it = false;
+    std::string cache_str;
+
     // Graph_access ga; // to include Graph or Log access support
 
     fzgraphhtml();
