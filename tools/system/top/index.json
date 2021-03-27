@@ -305,15 +305,27 @@
     },
     "Action: " : {
         "Log Time" : {
-            "url" : "/cgi-bin/fzlogtime.cgi?quiet=true&cgivar=wrap",
-            "window" : "_blank"
-        },
-        "Add Node" : {
-            "url" : "/cgi-bin/fzgraphhtml-cgi.py?edit=new",
+            "url" : "/cgi-bin/fzlogtime.cgi?source=nonlocal",
             "window" : "_blank"
         },
         "Add Log Entry" : {
             "url" : "/formalizer/logentry-form_fullpage.template.html",
+            "window" : "_blank"
+        },
+        "Open Log Chunk" : {
+            "url" : "/cgi-bin/fzlog-cgi.py?action=open",
+            "window" : "_blank"
+        },
+        "Close Log Chunk" : {
+            "url" : "/cgi-bin/fzlog-cgi.py?action=close",
+            "window" : "_blank"
+        },
+        "Reopen Log Chunk" : {
+            "url" : "/cgi-bin/fzlog-cgi.py?action=reopen",
+            "window" : "_blank"
+        },
+        "Add Node" : {
+            "url" : "/cgi-bin/fzgraphhtml-cgi.py?edit=new",
             "window" : "_blank"
         },
         "Search Graph" : {

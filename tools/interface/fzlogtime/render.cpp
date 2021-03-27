@@ -60,8 +60,14 @@ void append_rendered_hour(time_t t, std::string & rendered_str) {
     for (int i = 0; i < 12; i++) {
         if (i > 0)
             rendered_str += ' ';
-        if (t > fzlt.edata.newest_chunk_t)
-            rendered_str += "<a href=\"/cgi-bin/fztask-cgi.py?T=" + TimeStamp("%Y%m%d%H%M", t) + "\">"; // add link
+        if (t > fzlt.edata.newest_chunk_t) {
+            rendered_str += "<a href=\"/cgi-bin/fztask-cgi.py?T=" + TimeStamp("%Y%m%d%H%M", t);
+            if (fzlt.nonlocal) {
+                rendered_str += "&n=on\">"; // add link
+            } else {
+                rendered_str += "\">"; // add link
+            }
+        }
         if (t >= fzlt.T_page_build)
             rendered_str += "<b>"; // add bold
         rendered_str += ('0'+(i/2));
@@ -144,7 +150,11 @@ bool render_logtime_page() {
         varvals.emplace("T_last_log_chunk", TimeStampYmdHM(fzlt.edata.newest_chunk_t));
         varvals.emplace("T_page_build", TimeStampYmdHM(fzlt.T_page_build));
         if (fzlt.config.wrap_cgi_script) {
-            varvals.emplace("fzlogtime_call", "fzlogtime.cgi?");
+            if (fzlt.nonlocal) {
+                varvals.emplace("fzlogtime_call", "fzlogtime.cgi?source=nonlocal&");
+            } else {
+                varvals.emplace("fzlogtime_call", "fzlogtime.cgi?");
+            }
         } else {
             varvals.emplace("fzlogtime_call", "fzlogtime?");
         }

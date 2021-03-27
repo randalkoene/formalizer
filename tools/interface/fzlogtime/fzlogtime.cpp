@@ -37,8 +37,8 @@ fzlogtime fzlt;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzlogtime::fzlogtime() : formalizer_standard_program(false), config(*this), flowcontrol(flow_logtime_page), ga(*this, add_option_args, add_usage_top) {
-    add_option_args += "D:eo:C:";
-    add_usage_top += " [-D <date>] [-e] [-o <output-path>] [-C <skip,wrap>]";
+    add_option_args += "D:neo:C:";
+    add_usage_top += " [-D <date>] [-n] [-e] [-o <output-path>] [-C <skip,wrap>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("\nNote that CGI calls can be fickle. For this reason, the -C\n"
                            "option enables variants. For example, the 'wrap' option\n"
@@ -53,8 +53,9 @@ fzlogtime::fzlogtime() : formalizer_standard_program(false), config(*this), flow
 void fzlogtime::usage_hook() {
     ga.usage_hook();
     FZOUT("    -D print page for <date>\n"
+          "    -n generate links with non-local argument\n"
           "    -e embeddable (no HTML head or tail)\n"
-          "    -C CGI mode needd:\n"
+          "    -C CGI mode needs:\n"
           "         wrap: to be wrapped in a shell script\n"
           "         skip: to skip the 'Content-type' header\n"
           "    -o Rendered output to <output-path> (\"STDOUT\" is default)\n");
@@ -93,12 +94,17 @@ bool fzlogtime::options_hook(char c, std::string cargs) {
 
     case 'D': {
         T_page_date = ymd_stamp_time(cargs, false, true);
-        break;
+        return true;
+    }
+
+    case 'n': {
+        fzlt.nonlocal = true;
+        return true;
     }
 
     case 'e': {
         fzlt.embeddable = true;
-        break;
+        return true;
     }
 
     case 'o': {

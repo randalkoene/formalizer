@@ -47,6 +47,8 @@ struct fzlogtime: public formalizer_standard_program {
 
     entry_data edata;
 
+    bool nonlocal = false;
+
     bool embeddable = false;
 
     time_t T_page_date = RTt_unspecified;

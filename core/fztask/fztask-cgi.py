@@ -24,13 +24,48 @@ from subprocess import Popen, PIPE
 # Create instance of FieldStorage 
 form = cgi.FieldStorage() 
 
+non_local = form.getvalue('n')
+
 cmdoptions = ""
 
 # Get data from fields
 T_emulated = form.getvalue('T')
-if T_emulated:
-    if T_emulated != 'actual':
-        cmdoptions += f" -T {T_emulated}"
+if (T_emulated == '') or (T_emulated == 'actual'):
+    fzlog_T = ''
+else:
+    fzlog_T = '&T='+T_emulated
+
+
+fztask_webpage = f"""Content-type:text/html
+
+<html>
+<link rel="stylesheet" href="/fz.css">
+<head>
+<title>fz: Task</title>
+</head>
+<body>
+<h1>fz: Task</h1>
+
+<p>T = {T_emulated}</p>
+
+<ol>
+<li>[<a href="/formalizer/logentry-form_fullpage.template.html" target="_blank">Make Log entry</a>]</li>
+<li>[<a href="/cgi-bin/fzlog-cgi.py?action=close{fzlog_T}" target="_blank">Close Log chunk</a>]</li>
+<li>[<a href="cgi-bin/fzgraphhtml-cgi.py" target="_blank">Update Schedule</a>]</li>
+<li>[<a href="/select.html" target="_blank">Select Node for Next Log chunk</a>]</li>
+<li>[<a href="/cgi-bin/fzlog-cgi.py?action=open{fzlog_T}" target="_blank">Open New Log chunk</a>]</li>
+</ol>
+
+<hr>
+[<a href="/index.html">fz: Top</a>]
+
+</body>
+</html>
+"""
+
+if (non_local == 'on'):
+    print(fztask_webpage)
+    sys.exit(0)
 
 #thecmd = "./fztask"+cmdoptions
 #nohup env -u QUERY_STRING urxvt -rv -title "dil2al daemon" -geometry +$xhloc+$xvloc -fade 30 -e dil2al -T$emulatedtime -S &
