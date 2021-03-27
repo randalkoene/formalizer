@@ -29,6 +29,21 @@ def selected_Node_description(config: dict, excerpt_len = 0):
         return ''
 
 
+def get_selected_Node(config: dict) -> str:
+    retcode = try_subprocess_check_output(f"fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected', config)
+    cmderrorreviewstr = config['cmderrorreviewstr']
+    exit_error(retcode, f'Attempt to get selected Node failed.{cmderrorreviewstr}', True)
+    if (retcode == 0):
+        node = (results['selected'][0:16]).decode()
+        print(f'Selected: {node}')
+        if results['selected']:
+            return results['selected'][0:16]
+        else:
+            return ''
+    else:
+        return ''
+
+
 def browse_for_Node(config: dict):
     print('Use the browser to select a node.')
     #retcode = pty.spawn([config['localbrowser'],'http://localhost/select.html'])
@@ -37,17 +52,7 @@ def browse_for_Node(config: dict):
     cmderrorreviewstr = config['cmderrorreviewstr']
     exit_error(retcode, f'Attempt to browse for Node selection failed.{cmderrorreviewstr}', True)
     if (retcode == 0):
-        retcode = try_subprocess_check_output(f"fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected', config)
-        exit_error(retcode, f'Attempt to get selected Node failed.{cmderrorreviewstr}', True)
-        if (retcode == 0):
-            node = (results['selected'][0:16]).decode()
-            print(f'Selected: {node}')
-            if results['selected']:
-                return results['selected'][0:16]
-            else:
-                return ''
-        else:
-            return ''
+        return get_selected_Node(config)
     else:
         return ''
 

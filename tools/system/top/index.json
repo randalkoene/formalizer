@@ -304,6 +304,10 @@
         }
     },
     "Action: " : {
+        "Log Time" : {
+            "url" : "/cgi-bin/fzlogtime.cgi?quiet=true&cgivar=wrap",
+            "window" : "_blank"
+        },
         "Add Node" : {
             "url" : "/cgi-bin/fzgraphhtml-cgi.py?edit=new",
             "window" : "_blank"

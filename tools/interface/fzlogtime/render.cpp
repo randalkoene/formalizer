@@ -56,7 +56,7 @@ bool load_templates(fzlogtime_templates & templates) {
 
 void append_rendered_hour(time_t t, std::string & rendered_str) {
     constexpr const time_t five_minutes_in_seconds = 5*60;
-    rendered_str += TimeStamp(" %H:", t); // actually generate this in case of Daylight Savings time change
+    rendered_str += TimeStamp(" <b>%H:</b>", t); // actually generate this in case of Daylight Savings time change
     for (int i = 0; i < 12; i++) {
         if (i > 0)
             rendered_str += ' ';
