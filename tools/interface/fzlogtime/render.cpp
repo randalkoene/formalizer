@@ -129,6 +129,11 @@ bool render_logtime_page() {
         } else {
             varvals.emplace("cmd_or_cgi", "cmd");
         }
+        if (fzlt.nonlocal) {
+            varvals.emplace("hidden_nonlocal","&n=on");
+        } else {
+            varvals.emplace("hidden_nonlocal","");
+        }
         rendered_str += env.render(templates[logtime_head_temp], varvals);
     }
 
@@ -159,6 +164,11 @@ bool render_logtime_page() {
             varvals.emplace("fzlogtime_call", "fzlogtime?");
         }
         varvals.emplace("cgi_variants",cgi_variants_args());
+        if (fzlt.nonlocal) {
+            varvals.emplace("hidden_nonlocal","<input type=\"hidden\" name=\"n\" value=\"on\">");
+        } else {
+            varvals.emplace("hidden_nonlocal","");
+        }
         rendered_str += env.render(templates[logtime_tail_temp], varvals);
     }
 

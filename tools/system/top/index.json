@@ -305,7 +305,7 @@
     },
     "Action: " : {
         "Log Time" : {
-            "url" : "/cgi-bin/fzlogtime.cgi?source=nonlocal",
+            "url" : "/cgi-bin/fzlogtime.cgi?source=nonlocal&cgivar=wrap",
             "window" : "_blank"
         },
         "Add Log Entry" : {

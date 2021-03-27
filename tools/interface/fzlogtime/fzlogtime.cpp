@@ -127,7 +127,8 @@ const std::map<std::string, char> token_option_map = {
     {"cgivar",'C'},
     {"embeddable",'e'},
     {"quiet",'q'},
-    {"veryverbose",'V'}
+    {"veryverbose",'V'},
+    {"source",'n'} // this assumes that finding the token 'source' means it is set to 'nonlocal'
 };
 
 bool cgi_hook(const std::string & token, const std::string & value) {

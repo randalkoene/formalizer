@@ -86,18 +86,26 @@ def local_fzlogtime() -> bool:
     thecmd = './fzlogtime' + extra_cmd_args(verbosity)
     retcode = try_subprocess_check_output(thecmd, 'logtime', verbosity)
     if (retcode == 0):
-        print(results['logtime'])
-        return True
+        try:
+            print(results['logtime'].decode())
+            return True
+        except:
+            print(logtime_failure)
+            return False
     else:
         print(logtime_failure)
         return False
 
 def nonlocal_fzlogtime() -> bool:
-    thecmd = './fzlogtime -n ' + extra_cmd_args(verbosity)
+    thecmd = './fzlogtime -E STDOUT -W STDOUT -n ' + extra_cmd_args(verbosity)
     retcode = try_subprocess_check_output(thecmd, 'logtime', verbosity)
     if (retcode == 0):
-        print(results['logtime'])
-        return True
+        try:
+            print(results['logtime'].decode())
+            return True
+        except:
+            print(logtime_failure)
+            return False
     else:
         print(logtime_failure)
         return False

@@ -229,7 +229,7 @@ def get_selected_Node(verbosity = 1) -> str:
         if (verbosity > 1):
             print(f'Selected: {node}')
         if results['selected']:
-            return results['selected'][0:16]
+            return node
         else:
             return ''
     else:
