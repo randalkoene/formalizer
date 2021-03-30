@@ -1,0 +1,5 @@
+
+[{{ t_chunkopen }}]:[{{ t_chunkclose }}]({{ t_diff }})[{{ node_id }}]:
+
+{{ entries }}
+

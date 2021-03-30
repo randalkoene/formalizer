@@ -25,6 +25,7 @@ enum flow_options {
     flow_close_chunk = 2,  /// request: close Log chunk
     flow_open_chunk = 3,   /// request: open new Log chunk with associated Node
     flow_reopen_chunk = 4, /// request: undo close Log chunk
+    flow_replace_entry = 5,/// request: modify Log entry
     flow_NUMoptions
 };
 

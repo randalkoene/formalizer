@@ -117,6 +117,19 @@ bool add_Logentry_pq(const active_pq & apq, const Log_entry & entry) {
     return simple_call_pq(apq.conn,tstr);
 }
 
+bool modify_Logentry_pq(const active_pq & apq, const Log_entry & entry) {
+    ERRTRACE;
+    if (!apq.conn)
+        return false;
+
+    Logentry_pq epq(&entry);
+    std::string set_expressions;
+    set_expressions += "nid = " + epq.nid_pqstr() + ',';
+    set_expressions += " text = " + epq.text_pqstr();
+    std::string tstr("UPDATE "+apq.pq_schemaname + ".Logentries SET "+ set_expressions + " WHERE id = " + epq.id_pqstr());
+    return simple_call_pq(apq.conn,tstr);
+}
+
 /**
  * Store all the Chunks and Entries of the Log in the PostgreSQL database.
  * 
@@ -201,6 +214,29 @@ bool append_Log_entry_pq(const Log_entry & entry, Postgres_access & pa) {
 
     ERRHERE(".append");
     if (!add_Logentry_pq(apq, entry)) STORE_LOG_PQ_RETURN(false);
+
+    STORE_LOG_PQ_RETURN(true);
+}
+
+/**
+ * Update Entry in existing table in schema of PostgreSQL database.
+ * 
+ * @param entry A valid Log entry object.
+ * @param pa Access object with database name and Formalizer schema name.
+ * @returns True if the Log entry was successfully updated in the database.
+ */
+bool update_Log_entry_pq(const Log_entry & entry, Postgres_access & pa) {
+    ERRTRACE;
+    active_pq apq;
+    apq.conn = connection_setup_pq(pa.dbname());
+    if (!apq.conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define STORE_LOG_PQ_RETURN(r) { PQfinish(apq.conn); return r; }
+    apq.pq_schemaname = pa.pq_schemaname();
+
+    ERRHERE(".update");
+    if (!modify_Logentry_pq(apq, entry)) STORE_LOG_PQ_RETURN(false);
 
     STORE_LOG_PQ_RETURN(true);
 }

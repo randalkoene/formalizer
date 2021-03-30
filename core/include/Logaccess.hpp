@@ -46,6 +46,42 @@ struct entry_data {
 };
 
 /**
+ * Query the Log to find specific entry point.
+ * 
+ * The results are returned in an `entry_data` structure, which includes
+ * information about the corresponding Log chunk and about the specified
+ * Log entry. It also makes the in-memory Graph available via pointer.
+ * 
+ * This function sets the following `entry_data` structure variables:
+ * 
+ *   log_ptr           Unique_ptr receives and owns a Log object.
+ *   c_newest          Receives pointer to corresponding Log_chunk object.
+ *   c_newest_chunk_t  Set to open time (==chunk ID) of corresponding Log
+ *                     chunk.
+ *   is_open           True if the corresponding Log chunk is open, false
+ *                     otherwise.
+ *   e_newest          Receives pointer to the specified Log_entry
+ *                     object in the Log chunk.
+ *   newest_minor_id   Set to the minor ID of the entry at e_newest.
+ * 
+ * Note that the behavior of the call to `Log::get_newest_Entry()` that
+ * sets e_newest is different here than when called on other Log
+ * intervals. Here, only the last Log chunk is loaded from the database,
+ * so that there are no entries if that chunk has none. Under other
+ * circumstances it would be possible that an empty most recent Log
+ * chunk would return as newest Log entry an object for the last entry
+ * in the preceding Log chunk.
+ * 
+ * The `edata.newest_minor_id` must be set to the enumerator of the
+ * Log entry within the Log chunk specified by `chunk_id_str`.
+ * 
+ * @param[in] pa A valid initialization object for database access.
+ * @param[in] chunk_id_str The ID string of a Log chunk.
+ * @param[out] edata A convenient structure for the related data.
+ */
+void get_Log_data(Postgres_access & pa, std::string chunk_id_str, entry_data & edata);
+
+/**
  * Query the Log to find most recent entry points.
  * 
  * The results are returned in an `entry_data` structure, which includes

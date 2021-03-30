@@ -38,8 +38,12 @@ using namespace fz;
 enum template_id_enum {
     LogHTML_head_temp,
     LogHTML_tail_temp,
-    LogHTML_chunk_temp,
-    LogHTML_entry_temp,
+    Log_chunk_RAW_temp,
+    Log_chunk_TXT_temp,
+    Log_chunk_HTML_temp,
+    Log_entry_RAW_temp,
+    Log_entry_TXT_temp,
+    Log_entry_HTML_temp,
     Log_most_recent_HTML_temp,
     Log_most_recent_TXT_temp,
     Log_most_recent_RAW_temp,
@@ -49,8 +53,12 @@ enum template_id_enum {
 const std::vector<std::string> template_ids = {
     "LogHTML_head_template.html",
     "LogHTML_tail_template.html",
-    "LogHTML_chunk_template.html",
-    "LogHTML_entry_template.html",
+    "Log_chunk_template.raw",
+    "Log_chunk_template.txt",
+    "Log_chunk_template.html",
+    "Log_entry_template.raw",
+    "Log_entry_template.txt",
+    "Log_entry_template.html",
     "Log_most_recent_template.html",
     "Log_most_recent_template.txt",
     "Log_most_recent_template.raw"
@@ -60,6 +68,7 @@ typedef std::map<template_id_enum,std::string> fzloghtml_templates;
 
 render_environment env;
 fzloghtml_templates templates;
+std::string * active_entry_template = nullptr;
 
 bool load_templates(fzloghtml_templates & templates) {
     templates.clear();
@@ -92,14 +101,19 @@ void prepare_custom_template(std::string & customtemplate) {
 std::string render_Log_entry(Log_entry & entry) {
     template_varvalues varvals;
     varvals.emplace("minor_id",std::to_string(entry.get_minor_id()));
+    varvals.emplace("entry_id",entry.get_id_str());
     varvals.emplace("entry_text",make_embeddable_html(entry.get_entrytext(),fzlh.config.interpret_text));
     if (entry.same_node_as_chunk()) {
         varvals.emplace("node_id","");
     } else {
         std::string nodestr(entry.get_nodeidkey().str());
-        varvals.emplace("node_id","[<a href=\"/cgi-bin/fzlink.py?id="+nodestr+"\">"+nodestr+"</a>]");
+        if (fzlh.recent_format == most_recent_html) {
+            varvals.emplace("node_id","[<a href=\"/cgi-bin/fzlink.py?id="+nodestr+"\">"+nodestr+"</a>]");
+        } else {
+            varvals.emplace("node_id",nodestr);
+        }
     }
-    return env.render(templates[LogHTML_entry_temp],varvals);
+    return env.render(*active_entry_template,varvals);
 }
 
 bool send_rendered_to_output(std::string & rendered_text) {
@@ -146,7 +160,27 @@ bool render_Log_interval() {
     ERRTRACE;
     std::string customtemplate;
     if (fzlh.custom_template.empty() || (!fzlh.noframe)) {
-        load_templates(templates);
+        load_templates(templates); // *** wait? doesn't this segfault further down on the other templates if skipped???
+    }
+
+    std::string * active_chunk_template;
+    switch (fzlh.recent_format) {
+        case most_recent_raw: {
+            active_chunk_template = &templates[Log_chunk_RAW_temp];
+            active_entry_template = &templates[Log_entry_RAW_temp];
+            break;
+        }
+
+        case most_recent_txt: {
+            active_chunk_template = &templates[Log_chunk_TXT_temp];
+            active_entry_template = &templates[Log_entry_TXT_temp];
+            break;
+        }
+
+        default: {
+            active_chunk_template = &templates[Log_chunk_HTML_temp];
+            active_entry_template = &templates[Log_entry_HTML_temp];
+        }
     }
 
     if (!fzlh.custom_template.empty()) {
@@ -208,7 +242,7 @@ bool render_Log_interval() {
             }
             varvals.emplace("entries",combined_entries);
             if (customtemplate.empty()) {
-                rendered_logcontent += env.render(templates[LogHTML_chunk_temp], varvals);
+                rendered_logcontent += env.render(*active_chunk_template, varvals);
             } else {
                 rendered_logcontent += env.render(customtemplate, varvals);
             }

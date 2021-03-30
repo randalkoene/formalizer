@@ -1,0 +1,4 @@
+ENTRY:{{ minor_id }}:{{ node_id }}
+__BEGIN__
+{{ entry_text }}
+__END__

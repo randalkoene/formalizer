@@ -17,12 +17,16 @@ from io import StringIO
 from traceback import print_exc
 import subprocess
 
+contentfilepath="/var/www/webdata/formalizer/fzlog-cgi.html"
+
 # Create instance of FieldStorage 
 form = cgi.FieldStorage()
 
 help = form.getvalue('help')
 action = form.getvalue('action')
 node = form.getvalue('node')
+id = form.getvalue('id')
+replacement_text = form.getvalue('text')
 T_emulated = form.getvalue('T')
 if (T_emulated == 'actual'): # 'actual' and '' have the same effect
     T_emulated = ''
@@ -52,6 +56,8 @@ Operations:
 <li><code>action=open</code>: Open a new Log chunk.
 <li><code>action=close</code>: Close Log chunk (if open).
 <li><code>action=reopen</code>: Reopen Log chunk (if closed).
+<li><code>action=editentry</code>: Edit Log entry. (Leads to 'replaceentry'.)
+<li><code>action=replaceentry</code>: Replace Log entry. (Comes from 'editentry'.)
 </ul>
 </p>
 
@@ -86,6 +92,28 @@ Close the most recent Log chunk if it is open. If provided, an EMULATED_TIME can
 <p>
 <code>fzlog-cgi.py?action=reopen[&amp;verbosity=0|1|2]</code><br>
 Reopen the most recent Log chunk if it is closed.
+</p>
+
+<h3>Edit Log entry</h3>
+
+<p>
+<code>fzlog-cgi.py?action=editentry&id=ENTRY_ID[&amp;verbosity=0|1|2]</code><br>
+Edit the Log entry with ID specified by ENTRY_ID.
+</p>
+
+<h3>Replace Log entry</h3>
+
+<p>
+<code>fzlog-cgi.py</code> with POST arguments:
+<ul>
+<li><code>action=replaceentry</code>
+<li><code>id=ENTRY_ID</code>
+<li><code>text=REPLACEMENT_TEXT</code>
+<li>(Optional) <code>node=NODE_ID</code>
+<li>(Optional) <code>verbosity=0|1|2</code>
+</ul>
+Edit the Log entry with ID specified by ENTRY_ID. If a <code>NODE_ID</code>
+is also provided then the Node associated with the Log entry is also set.
 </p>
 
 </body>
@@ -185,6 +213,80 @@ reopenpagetail_failure = '''<p><b>ERROR: Unable to reopen Log chunk (<a href="/c
 </html>
 '''
 
+editentrypagehead = '''Content-type:text/html
+
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<title>fz: Edit Log entry</title>
+</head>
+<body>
+<h3>fz: Edit Log entry</h3>
+'''
+
+editentryform_start = '''<form action="/cgi-bin/fzlog-cgi.py" method="post">
+<br>
+<textarea rows="15" cols="100" name="text">'''
+
+editentryform_middle = '''</textarea><br>
+<p>Associated with Node: <input type="text" name="node" value="'''
+
+editentryform_end = f'''"></p>
+<input type="hidden" name="action" value="replaceentry">
+<input type="hidden" name="id" value="{id}">
+<p>
+Replace entry <input type="submit" name="replaceentry" value="Text" /> or <input type="submit" name="replaceentry" value="Text and Node" />.
+</p>
+</form>
+'''
+
+editentrypagetail_success = '''<hr>
+[<a href="/index.html">fz: Top</a>]
+
+</body>
+</html>
+'''
+
+editentrypagetail_failure = '''<p><b>ERROR: Unable to edit Log entry.</b></p>
+
+<hr>
+[<a href="/index.html">fz: Top</a>]
+
+</body>
+</html>
+'''
+
+replaceentrypagehead = '''Content-type:text/html
+
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<title>fz: Replace Log entry</title>
+</head>
+<body>
+<h3>fz: Replace Log entry</h3>
+'''
+
+replaceentrypagetail_success = '''<p><b>Log entry content replaced.</b></p>
+
+<hr>
+[<a href="/index.html">fz: Top</a>]
+
+</body>
+</html>
+'''
+
+replaceentrypagetail_failure = '''<p><b>ERROR: Unable to replace Log entry content.</b></p>
+
+<hr>
+[<a href="/index.html">fz: Top</a>]
+
+</body>
+</html>
+'''
+
 results = {}
 
 def try_subprocess_check_output(thecmdstring: str, resstore: str, verbosity: 1) -> int:
@@ -270,6 +372,51 @@ def reopen_Log_chunk(verbosity = 1) -> bool:
         print(reopenpagetail_failure)
     return (retcode == 0)
 
+def extract_node_and_text(getlogentryoutput: str) -> tuple:
+    firstlineend = getlogentryoutput.find('\n')
+    nodestr = getlogentryoutput[0:firstlineend]
+    textstr = getlogentryoutput[firstlineend+1:]
+    node = (nodestr[1:])[:-1]
+    return (node, textstr)
+
+def edit_Log_entry(id: str, verbosity = 0) -> bool:
+    print(editentrypagehead)
+    thecmd = './get_log_entry.sh '+id+' ./fzloghtml'
+    retcode = try_subprocess_check_output(thecmd, 'entry_text', verbosity)
+    if (retcode == 0):
+        entrynode, entrytext = extract_node_and_text(results['entry_text'].decode())
+        print('<p>Editing Log entry: <b>'+id+'</b></p>')
+        print(editentryform_start)
+        print(entrytext, end='')
+        print(editentryform_middle)
+        print(entrynode, end='')
+        print(editentryform_end)
+        print(editentrypagetail_success)
+    else:
+        print(editentrypagetail_failure)
+    return (retcode == 0)
+
+def replace_Log_entry(id: str, text: str, verbosity = 0) -> bool:
+    with open(contentfilepath, 'w') as f:
+        f.write(text)
+    print(replaceentrypagehead)
+    thecmd = './fzlog -E STDOUT -W STDOUT -r ' + id + ' -f ' + contentfilepath + extra_cmd_args(T_emulated, verbosity)
+    if node:
+        thecmd += ' -n ' + node
+    print('<!-- thecmd = '+thecmd+' -->')
+    retcode = try_subprocess_check_output(thecmd, 'replace_log', verbosity)
+    if (retcode == 0):
+        print('<p>Replacement content: </p>')
+        print(text)
+        if node:
+            print(f'<p>Replacement Node: {node}</p>')
+        else:
+            print('<p>Now associated with <b>the same Node</b> as the Log chunk.</p>')
+        print(replaceentrypagetail_success)
+    else:
+        print(replaceentrypagetail_failure)
+    return (retcode == 0)
+
 def show_interface_options():
     print("Content-type:text/html\n\n")
     print(interface_options_help)
@@ -297,3 +444,22 @@ if __name__ == '__main__':
             sys.exit(0)
         else:
             sys.exit(1)
+    if (action == 'editentry'):
+        if not verbositystr:
+            verbosity = 0
+        res = edit_Log_entry(id, verbosity)
+        if res:
+            sys.exit(0)
+        else:
+            sys.exit(1)
+    if (action == 'replaceentry'):
+        if not verbositystr:
+            verbosity = 0
+        res = replace_Log_entry(id, replacement_text, verbosity)
+        if res:
+            sys.exit(0)
+        else:
+            sys.exit(1)
+
+    show_interface_options()
+    sys.exit(0)

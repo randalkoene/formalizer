@@ -43,8 +43,8 @@ fzlog fzl;
  */
 fzlog::fzlog() : formalizer_standard_program(false), config(*this), ga(*this, add_option_args, add_usage_top),
                  reftime(add_option_args, add_usage_top) {
-    add_option_args += "en:T:CRc:f:";
-    add_usage_top += " [-e] [-n <node-ID>] [-T <text>] [-C] [-R] [-c <node-ID>] [-f <content-file>]";
+    add_option_args += "er:n:T:CRc:f:";
+    add_usage_top += " -e|-r <entry-ID>|-C|-R|-c <node-ID>|-h [-n <node-ID>] [-T <text>] [-f <content-file>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "If [-c] is called when a Log chunk is still open then the Log chunk\n"
@@ -58,13 +58,24 @@ fzlog::fzlog() : formalizer_standard_program(false), config(*this), ga(*this, ad
 void fzlog::usage_hook() {
     ga.usage_hook();
     reftime.usage_hook();
-    FZOUT("    -e make Log entry\n");
-    FZOUT("    -n entry belongs to Node with <node-ID>\n");
-    FZOUT("    -T entry <text> from the command line\n");
-    FZOUT("    -f entry text from <content-file> (\"STDIN\" for stdin until eof, CTRL+D)\n");
-    FZOUT("    -C close Log chunk (if open)\n");
-    FZOUT("    -R reopen Log chunk (if closed)\n");
-    FZOUT("    -c open new Log chunk for Node <node-ID>\n");
+    FZOUT("    -e make Log entry\n"
+          "    -r replace Log entry <entry-ID>\n"
+          "    -n entry belongs to Node with <node-ID>\n"
+          "    -T entry <text> from the command line\n"
+          "    -f entry text from <content-file> (\"STDIN\" for stdin until eof, CTRL+D)\n"
+          "    -C close Log chunk (if open)\n"
+          "    -R reopen Log chunk (if closed)\n"
+          "    -c open new Log chunk for Node <node-ID>\n");
+}
+
+void get_entry_ID_and_chunk_ID(std::string & cargs) {
+    std::string formerror;
+    Log_TimeStamp logstamp;
+    if (!valid_Log_entry_ID(cargs, formerror, &logstamp)) {
+        standard_exit_error(exit_command_line_error, "Invalid Log Entry ID specification: "+formerror, __func__);
+    }
+    fzl.edata.newest_minor_id = logstamp.minor_id;
+    fzl.newchunk_node_id = cargs.substr(0,12);
 }
 
 /**
@@ -96,6 +107,12 @@ bool fzlog::options_hook(char c, std::string cargs) {
 
     case 'e': {
         flowcontrol = flow_make_entry;
+        return true;
+    }
+
+    case 'r': {
+        flowcontrol = flow_replace_entry;
+        get_entry_ID_and_chunk_ID(cargs);
         return true;
     }
 
@@ -185,6 +202,61 @@ void verbose_test_output(const entry_data & edata) {
     } else {
         FZOUT("TESTING: The last entry in that chunk has minor id "+std::to_string(edata.newest_minor_id)+'\n');
     }
+}
+
+/**
+ * This is used to replace the content of an existing Log entry. It is modeled directly
+ * after the make_entry() function and can be used as a way to edit Log content.
+ * 
+ * This expects the Log entry text content to be:
+ * a) Already in `edata.utf8_text`.
+ * b) In a file found at the path specified by `fzl.config.content_file`.
+ * 
+ * If the `edata.specific_node_id` string is empty then the Log entry is
+ * (re)assigned to the surrounding Log chunk's Node history. If it is not
+ * empty then this function confirms that the specified Node exists and
+ * (re)assigns the Log entry to the history of that Node.
+ * 
+ * Where `make_entry()` uses `get_newest_Log_data()` to prepare to append
+ * a new Log entry, this function tries to get the Log data for an existing
+ * chunk, as specified by the base of the Log Entry ID to be replaced.
+ * Similarly, where `make_entry()` calls `append_Log_entry_pq()`, this
+ * calls `update_Log_entry_pq()`.
+ * 
+ * The string variable `fzl.newchunk_node_id` should already contain a
+ * reference to an existing Log chunk.
+ * The parameter `edata.newest_minor_id` should contain the enumerator of
+ * and existing Log entry within that chunk.
+ * 
+ * @param edata Structure that contains necessary Log entry data.
+ */
+bool replace_entry(entry_data & edata) {
+    ERRTRACE;
+    auto [exit_code, errstr] = get_content(edata.utf8_text, fzl.config.content_file, "Log entry");
+    if (exit_code != exit_ok)
+        standard_exit_error(exit_code, errstr, __func__);
+
+    check_specific_node(edata);
+    get_Log_data(fzl.ga, fzl.newchunk_node_id, edata);
+
+    //verbose_test_output(edata);
+
+    // *** maybe add a try-catch here
+    Log_TimeStamp log_stamp(edata.newest_chunk_t,true,edata.newest_minor_id); // do not add 1 here!
+    Log_entry * new_entry;
+    if (edata.node_ptr) {
+        new_entry = new Log_entry(log_stamp, edata.utf8_text, edata.node_ptr->get_id().key(), edata.c_newest);
+        //*** This should probably be able to cause an update of the Node history chain and the histories cache!
+    } else {
+        new_entry = new Log_entry(log_stamp, edata.utf8_text, edata.c_newest);
+    }
+
+    if (!update_Log_entry_pq(*new_entry, fzl.ga)) {
+        standard_exit_error(exit_database_error, "Unable to update Log entry", __func__);
+    }
+    VERBOSEOUT("Log entry "+new_entry->get_id_str()+" modified.\n");
+
+    return true;
 }
 
 bool make_entry(entry_data & edata) {
@@ -407,6 +479,11 @@ int main(int argc, char *argv[]) {
 
     case flow_make_entry: {
         make_entry(fzl.edata);
+        break;
+    }
+
+    case flow_replace_entry: {
+        replace_entry(fzl.edata);
         break;
     }
 

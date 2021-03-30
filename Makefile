@@ -97,6 +97,7 @@ EXECUTABLES += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-term.sh
 EXECUTABLES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml
 EXECUTABLES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-term.sh
 EXECUTABLES += $(TOOLSPATH)/interface/fzloghtml/fzlog-mostrecent.sh
+EXECUTABLES += $(TOOLSPATH)/interface/fzloghtml/get_log_entry.sh
 EXECUTABLES += $(TOOLSPATH)/interface/fzlogmap/fzlogmap
 EXECUTABLES += $(TOOLSPATH)/interface/fzlogtime/fzlogtime
 EXECUTABLES += $(TOOLSPATH)/interface/fzlogtime/fzlogtime-term.sh
@@ -139,6 +140,7 @@ SYMBIN += $(COREPATH)/fzupdate/fzupdate
 SYMBIN += $(TOOLSPATH)/interface/fzdashboard/fzdashboard
 SYMBIN += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml
 SYMBIN += $(TOOLSPATH)/interface/fzloghtml/fzloghtml
+SYMBIN += $(TOOLSPATH)/interface/fzloghtml/get_log_entry.sh
 SYMBIN += $(TOOLSPATH)/interface/fzlogmap/fzlogmap
 SYMBIN += $(TOOLSPATH)/interface/fzlogtime/fzlogtime
 SYMBIN += $(TOOLSPATH)/interface/fzserver-info/fzserver-info
@@ -212,6 +214,7 @@ TOPLEVEL += $(TOOLSPATH)/interface/resources/bluetable.css
 TOPLEVEL += $(MEDIAPATH)/favicon-192x192.png
 TOPLEVEL += $(MEDIAPATH)/favicon-32x32.png
 TOPLEVEL += $(MEDIAPATH)/favicon-16x16.png
+TOPLEVEL += $(FZCONFIGSRCPATH)/logentry.py/favicon-logentry-32x32.png
 
 # Test files to copy to web servable Formalizer directory
 TESTS = 

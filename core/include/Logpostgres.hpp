@@ -87,6 +87,8 @@ std::string entry_minor_id_pq(unsigned int minor_id);
 
 bool add_Logentry_pq(const active_pq & apq, const Log_entry & entry);
 
+bool modify_Logentry_pq(const active_pq & apq, const Log_entry & entry);
+
 bool store_Log_pq(const Log & log, Postgres_access & pa, void (*progressfunc)(unsigned long, unsigned long) = NULL);
 
 /**
@@ -97,6 +99,15 @@ bool store_Log_pq(const Log & log, Postgres_access & pa, void (*progressfunc)(un
  * @returns True if the Log entry was successfully stored in the database.
  */
 bool append_Log_entry_pq(const Log_entry & entry, Postgres_access & pa);
+
+/**
+ * Update Entry in existing table in schema of PostgreSQL database.
+ * 
+ * @param entry A valid Log entry object.
+ * @param pa Access object with database name and Formalizer schema name.
+ * @returns True if the Log entry was successfully updated in the database.
+ */
+bool update_Log_entry_pq(const Log_entry & entry, Postgres_access & pa);
 
 /**
  * Close the Chunk specified, which must already exist within a table in

@@ -41,7 +41,9 @@ log_interval_head = '''Content-type:text/html
 <html>
 <head>
 <link rel="stylesheet" href="/fz.css">
-<title>Formalizer: Log interval</title>
+<link rel="icon" href="/favicon-logentry-32x32.png">
+<meta http-equiv="cache-control" content="no-cache" />
+<title>fz: Log interval</title>
 </head>
 <body>
 <style type="text/css">
