@@ -62,8 +62,9 @@ num_days = form.getvalue('num_days')
 # to those who have permission to connect to this CGI handler.
 interface_options_help = '''
 <html>
-<link rel="stylesheet" href="/fz.css">
 <head>
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fzgraphhtml-cgi API</title>
 </head>
 <body>
@@ -110,6 +111,7 @@ to these action links, for example, to add the specified Node to a Named Node Li
 (more info to come)
 </p>
 
+<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -122,6 +124,7 @@ listpagehead = '''<html>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/bluetable.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz:modify Named Node List</title>
 </head>
 <body>
@@ -139,6 +142,7 @@ listpagehead_nomodif = '''<html>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/bluetable.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>Named Node List: {list_name}</title>
 </head>
 <body>
@@ -152,6 +156,7 @@ listpagehead_alllists = '''<html>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/bluetable.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>Named Node Lists</title>
 </head>
 <body>
@@ -162,6 +167,7 @@ listpagehead_alllists = '''<html>
 '''
 
 listpagetail = '''</tbody></table>
+<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -173,6 +179,7 @@ editpagehead = '''Content-type:text/html
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/bluetable.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>Formalizer: Edit Node</title>
 </head>
 <body>
@@ -191,6 +198,7 @@ td.paramtitle {
 
 editpagetail = '''</tbody></table>
 <hr>
+<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -200,6 +208,7 @@ topicspagehead = '''Content-type:text/html
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>Formalizer: Topics</title>
 </head>
 <body>
@@ -214,6 +223,7 @@ topicspagehead = '''Content-type:text/html
 
 topicspagetail = '''</tbody></table>
 <hr>
+<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''

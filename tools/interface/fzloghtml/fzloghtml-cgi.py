@@ -42,6 +42,7 @@ log_interval_head = '''Content-type:text/html
 <head>
 <link rel="stylesheet" href="/fz.css">
 <link rel="icon" href="/favicon-logentry-32x32.png">
+<link rel="stylesheet" href="/fzuistate.css">
 <meta http-equiv="cache-control" content="no-cache" />
 <title>fz: Log interval</title>
 </head>
@@ -75,6 +76,7 @@ or<br />
 
 <p>[<a href="/index.html">fz: Top</a>]</p>
 
+<script type="text/javascript" src="/fzuistate.js"></script>
 '''
 
 
