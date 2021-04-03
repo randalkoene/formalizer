@@ -93,4 +93,11 @@ border: 2px solid #581f04;
 background-color: #b14b11;
 color: white;
 }
+a.node:link {color: #000000; text-decoration:none;}
+a.node:visited {color: #000000; text-decoration:none;}
+a.node:hover {color: #000000; text-decoration:underline; background:#55db50;}
+a.id:link {color: #000000; text-decoration:underline;}
+a.id:visited {color: #000000; text-decoration:underline;}
+a.id:hover {color: #000000; text-decoration:underline; background:#55db50;}
+a.nnl:hover {background:#55db50;}
 

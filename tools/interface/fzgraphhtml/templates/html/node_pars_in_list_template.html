@@ -1,10 +1,10 @@
 <tr>
+<td><a class="nnl" href="http://{{ fzserverpq }}/fz/graph/namedlists/_select?id={{ node_id }}">[select]</a></td>
+<td><a class="nnl" href="/cgi-bin/fzgraphhtml-cgi.py?id={{ node_id }}&srclist={{ srclist }}">[list]</a></td>
 <td>{{ targetdate }}</td>
 <td>{{ tdprop }}</td>
 <td{{ alertstyle }}>{{ req_hrs }}</td>
-<td>{{ excerpt }}</td>
+<td><a class="id" href="/cgi-bin/fzgraphhtml-cgi.py?edit={{ node_id }}">{{ node_id }}</a></td>
+<td><a class="node" href="/cgi-bin/fzlink.py?id={{ node_id }}">{{ excerpt }}</a></td>
 <td><a href="/cgi-bin/fzgraphhtml-cgi.py?topic={{ topic }}">{{ topic }}</a></td>
-<td><a href="/cgi-bin/fzlink.py?id={{ node_id }}">{{ node_id }}</a></td>
-<td><a href="http://{{ fzserverpq }}/fz/graph/namedlists/_select?id={{ node_id }}">[select]</a></td>
-<td><a href="/cgi-bin/fzgraphhtml-cgi.py?id={{ node_id }}&srclist={{ srclist }}">[list]</a></td>
 </tr>

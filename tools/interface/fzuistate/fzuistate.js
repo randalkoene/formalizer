@@ -2,6 +2,14 @@
 // Formalizer Web UI standard state handling
 // Note: Load this in a <script> tag at end of <body> section or within $("document").ready(function(){ ... }); as when in <head> section.
 
+// add the logtime button
+var ltbtnelement = document.createElement("div");
+ltbtnelement.innerHTML = "<button id=\"logtime\" class=\"button button2\" onclick=\"window.open('/cgi-bin/fzlogtime.cgi?source=nonlocal&cgivar=wrap','_blank');\">Log Time</button>";
+document.body.prepend(ltbtnelement);
+// add the logentry button
+var lebtnelement = document.createElement("div");
+lebtnelement.innerHTML = "<button id=\"logentry\" class=\"button button1\" onclick=\"window.open('/formalizer/logentry-form_fullpage.template.html','_blank');\">Add Log Entry</button>";
+document.body.prepend(lebtnelement);
 // add the darkmode button
 var dmbtnelement = document.createElement("div");
 dmbtnelement.innerHTML = "<button id=\"darkmode\" class=\"button button2\" onclick=\"switch_light_or_dark();\">Light / Dark</button>";
