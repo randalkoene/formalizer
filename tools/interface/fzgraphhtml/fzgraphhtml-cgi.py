@@ -167,6 +167,11 @@ listpagehead_alllists = '''<html>
 '''
 
 listpagetail = '''</tbody></table>
+
+<hr>
+
+<p>[<a href="/index.html">fz: Top</a>]</p>
+
 <script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
@@ -223,6 +228,9 @@ topicspagehead = '''Content-type:text/html
 
 topicspagetail = '''</tbody></table>
 <hr>
+
+<p>[<a href="/index.html">fz: Top</a>]</p>
+
 <script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>

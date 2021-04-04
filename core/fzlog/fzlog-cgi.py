@@ -126,6 +126,7 @@ openpagehead = '''Content-type:text/html
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz: open Log chunk</title>
 </head>
 <body>
@@ -133,11 +134,11 @@ openpagehead = '''Content-type:text/html
 
 '''
 
-openpagetail_success = '''<p><b>New Log chunk opened (<a href="/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END">link</a>).</b></p>
-
+openpagetail_success = '''
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
+<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -147,6 +148,7 @@ openpagetail_failure = '''<p><b>ERROR: Unable to open new Log chunk (<a href="/c
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
+<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -337,6 +339,34 @@ def get_selected_Node(verbosity = 1) -> str:
     else:
         return ''
 
+def render_node_with_history(node: str, verbosity = 0):
+    nodedatacmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -n "+node
+    nodehistcmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -N -c 50 -n "+node
+    thisscript = os.path.realpath(__file__)
+    print(f'<!--(For dev reference, this script is at {thisscript}.) -->')
+
+    print(f'\n<!-- Primary command: {nodedatacmd} -->\n')
+    print('<br>\n<table><tbody>\n')
+    retcode = try_subprocess_check_output(nodedatacmd, 'node_data', verbosity)
+    if (retcode != 0):
+        print('<tr><td><b>Unable to display Node data.</b></td></tr>')
+    else:
+        print(results['node_data'].decode())
+    print("</tbody></table>")
+
+    print(f'\n<!-- Secondary command: {nodehistcmd} -->\n')
+    print('<br>\n<table><tbody>\n')
+    print('<br>\n\n')
+    retcode = try_subprocess_check_output(nodehistcmd, 'node_history', verbosity)
+    if (retcode != 0):
+        print('<tr><td><b>Unable to display Node history.</b></td></tr>')
+    else:
+        print(results['node_history'].decode())
+    print("</tbody></table>")
+
+    print(f'<noscript>\n<br>\n<p>\n[<a href="/cgi-bin/fzlink.py?id={node}&alt=histfull">full history</a>]\n</p>\n<br>\n</noscript>')
+    print(f'\n<br>\n<p>\n<button class="button button2" onclick="location.href=\'/cgi-bin/fzlink.py?id={node}&alt=histfull\';">full history</button>\n</p>\n<br>\n')
+
 def open_new_Log_chunk(node: str, T_emulated: str, verbosity = 1) -> bool:
     print(openpagehead)
     if not node:
@@ -347,6 +377,7 @@ def open_new_Log_chunk(node: str, T_emulated: str, verbosity = 1) -> bool:
     thecmd = './fzlog -E STDOUT -W STDOUT -c ' + node + extra_cmd_args(T_emulated, verbosity)
     retcode = try_subprocess_check_output(thecmd, 'open_chunk', verbosity)
     if (retcode == 0):
+        render_node_with_history(node)
         print(openpagetail_success)
     else:
         print(openpagetail_failure)

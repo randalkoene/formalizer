@@ -6,10 +6,15 @@
 #logentry {
     position: fixed;
     bottom: 0px;
-    right: 130px;
+    right: 240px;
 }
 #logtime {
     position: fixed;
     bottom: 0px;
-    right: 275px;
+    right: 385px;
+}
+#addnode {
+    position: fixed;
+    bottom: 0px;
+    right: 130px;
 }

@@ -2,6 +2,10 @@
 // Formalizer Web UI standard state handling
 // Note: Load this in a <script> tag at end of <body> section or within $("document").ready(function(){ ... }); as when in <head> section.
 
+// add the addnode button
+var anbtnelement = document.createElement("div");
+anbtnelement.innerHTML = "<button id=\"addnode\" class=\"button button2\" onclick=\"window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new','_blank');\">Add Node</button>";
+document.body.prepend(anbtnelement);
 // add the logtime button
 var ltbtnelement = document.createElement("div");
 ltbtnelement.innerHTML = "<button id=\"logtime\" class=\"button button2\" onclick=\"window.open('/cgi-bin/fzlogtime.cgi?source=nonlocal&cgivar=wrap','_blank');\">Log Time</button>";
