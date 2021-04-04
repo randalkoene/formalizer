@@ -26,11 +26,46 @@ from subprocess import Popen, PIPE
 
 # Get data from fields
 #startfrom = form.getvalue('startfrom')
+verbositymap = {
+    0 : "quiet",
+    1 : "normal",
+    2 : "very verbose"
+}
+verbositycmdmap = {
+    0 : " -q",
+    1 : "",
+    2 : " -V"
+}
+verbosity = 1
 
-print("Content-type:text/html\n\n")
+pagehead = '''Content-type:text/html
 
-#thisscript = os.path.realpath(__file__)
-#print(f'(For dev reference, this script is at {thisscript}.)')
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>fz: Refresh Node Histories</title>
+</head>
+<body>
+<h3>fz: Refresh Node Histories</h3>
+
+'''
+
+pagetail = '''
+<hr>
+
+<p>[<a href="/index.html">fz: Top</a>]</p>
+
+<script type="text/javascript" src="/fzuistate.js"></script>
+</body>
+</html>
+'''
+
+print(pagehead)
+
+thisscript = os.path.realpath(__file__)
+print(f'<!-- (For dev reference, this script is at {thisscript}.) -->')
 
 #cmdoptions = ""
 
@@ -38,11 +73,14 @@ print("Content-type:text/html\n\n")
 #    cmdoptions += ' -1 '+startfrom
 
 #if cmdoptions:
+print(f'Verbosity is set to: {verbositymap[verbosity]}')
 
-thecmd = "./fzquerypq -q -d formalizer -s randalk -E STDOUT -R histories"
+thecmd = "./fzquerypq -d formalizer -s randalk -E STDOUT -R histories" + verbositycmdmap[verbosity]
 
-#print('Using this command: ',thecmd)
+print(f'<!-- Using this command: {thecmd} -->')
 #print('<br>\n')
+
+print('<pre>')
 
 try:
     p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
@@ -61,11 +99,5 @@ except Exception as ex:
     for line in a:
         print(line)
 
-#if "name" not in form or "addr" not in form:
-#    print("<H1>Error</H1>")
-#    print("Please fill in the name and addr fields.")
-#    return
-
-#print("</table>")
-#print("</body>")
-#print("</html>")
+print('</pre>')
+print(pagetail)
