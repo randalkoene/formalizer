@@ -19,7 +19,8 @@ time_t interpret_config_targetdate(const std::string & parvalue) {
         return RTt_unspecified;
 
     if (parvalue == "TODAY") {
-        return today_end_time();
+        //return today_end_time(); 
+        return ymd_stamp_time(DateStampYmd(ActualTime())+"2330"); // this needs less adjustment when used to generate new Nodes
     }
 
     time_t t = time_stamp_time(parvalue);

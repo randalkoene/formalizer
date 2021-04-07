@@ -91,10 +91,54 @@ struct button_section_data {
 std::string value_by_label(JSON_element_data_vec & buffers, const std::string matchlabel) {
     for (auto & buffer : buffers) {
         if (buffer.label == matchlabel) {
-            return env.render(buffer.text, inner_varvals);
+            return env.render(buffer.text, inner_varvals); // The JSON string value can contain placeholders that are filled in according to inner_varvals.
         }
     }
     return "";
+}
+
+/* We might even want to do this if we want to use more complicated strings in the URL:
+
+string url_encode(const string &value) {
+    ostringstream escaped;
+    escaped.fill('0');
+    escaped << hex;
+
+    for (string::const_iterator i = value.begin(), n = value.end(); i != n; ++i) {
+        string::value_type c = (*i);
+
+        // Keep alphanumeric and other accepted characters intact
+        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+            escaped << c;
+            continue;
+        }
+
+        // Any other characters are percent-encoded
+        escaped << uppercase;
+        escaped << '%' << setw(2) << int((unsigned char) c);
+        escaped << nouppercase;
+    }
+
+    return escaped.str();
+}
+
+*/
+
+// We need to do this, because double quotes are not allowed in URL strings.
+std::string escape_double_quotes(const std::string & unescaped_str) {
+    std::string escaped_str(unescaped_str.size()*3, '_');
+    size_t j = 0;
+    for (size_t i = 0; i < unescaped_str.size(); ++i) {
+        if (unescaped_str[i] == '"') {
+            escaped_str[j++] = '%';
+            escaped_str[j++] = '2';
+            escaped_str[j++] = '2';
+        } else {
+            escaped_str[j++] = unescaped_str[i];
+        }
+    }
+    escaped_str.resize(j);
+    return escaped_str;
 }
 
 std::string render_buttons(render_environment & env, fzdashboard_templates & templates, JSON_block * block_ptr, dynamic_or_static html_output = dynamic_html) {
@@ -113,7 +157,7 @@ std::string render_buttons(render_environment & env, fzdashboard_templates & tem
             bool here = false;
             if (button->children->find_many(button_info) == 2) {
                 here = (value_by_label(button_info, "window") != "_blank");
-                varvals.emplace("url", value_by_label(button_info, "url"));
+                varvals.emplace("url", escape_double_quotes(value_by_label(button_info, "url")));
                 if (html_output == dynamic_html) {
                     varvals.emplace("num", button_num_char);
                 }

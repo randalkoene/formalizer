@@ -47,7 +47,7 @@ tdpatt_upper = form.getvalue('tdpatt_upper')
 def append_to_str(strval: str) -> str:
     parval = eval(strval)
     if parval:
-        return strval+'="'+parval+'"&'
+        return strval+'='+parval+'&' # you should NOT put double quotes around this, because a GET URL string does not want those (for more see url_encode() in fzdashboard:render.cpp)
     else:
         return ''
 

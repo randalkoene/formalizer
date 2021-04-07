@@ -74,7 +74,8 @@
         "concepts": "cpp",
         "ranges": "cpp",
         "span": "cpp",
-        "stop_token": "cpp"
+        "stop_token": "cpp",
+        "*.ipp": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled",
     "python.linting.pylintEnabled": true,

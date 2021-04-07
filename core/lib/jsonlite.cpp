@@ -44,14 +44,12 @@ bool is_json_comment(const std::string & keylabel) {
  * @return Processed value string.
  */
 std::string json_post_process_valuestring(const std::string & rawstr) {
-    FZOUT(rawstr);
     std::string processedstr(rawstr);
     size_t j = 0;
     for (size_t i = 0; i < rawstr.size(); ++i) {
         if (processedstr[i] == '\\') {
             if ((i+1) < rawstr.size()) {
                 if (processedstr[i+1] == '"') {
-                    FZOUT('+');
                     processedstr[j++] = '"';
                     ++i; // skip one
                     continue;
@@ -62,7 +60,6 @@ std::string json_post_process_valuestring(const std::string & rawstr) {
     }
     // j now indicates the new string size
     processedstr.resize(j);
-    FZOUT(processedstr);
     return processedstr;
 }
 
