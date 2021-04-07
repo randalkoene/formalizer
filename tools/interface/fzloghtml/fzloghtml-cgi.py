@@ -56,8 +56,16 @@ table tr.chktop { background: #B0C4F5; }
 '''
 
 cgi_custom_tail = '''
+<p>Enter HTML text here to append a Log Entry:
+<form action="/cgi-bin/logentry-form.py" method="post">
+<textarea rows="10" cols="100" name="entrytext"></textarea><br>
+Add entry for <input type="submit" name="makeentry" value="Log Chunk Node" /> or <input type="submit" name="makeentry" value="Other Node" />.
+</form>
+</p>
+
 <hr>
 
+Select another part of the Log:
 <form action="/cgi-bin/fzloghtml-cgi.py" method="post">
 <input type="text" name="startfrom"> start at this YYYYmmddHHMM time stamp (default: 24 hours before end of interval)<br />
 <input type="text" name="endbefore"> end before this YYYYmmddHHMM time stamp (default: 1 second after most recent Log entry)<br />

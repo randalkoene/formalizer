@@ -33,12 +33,18 @@ pagehead = """Content-type:text/html
 <html>
 <head>
 <link rel="stylesheet" href="/fz.css">
-<title>Prototype: Submitting Log Entry to fzlog</title>
+<link rel="stylesheet" href="/fzuistate.css">
+<title>fz: Log Entry (fzlog)</title>
 </head>
 <body>
 """
 
-pagetail = """</body>
+pagetail = """<hr>
+
+<p>[<a href="/index.html">fz: Top</a>]</p>
+
+<script type="text/javascript" src="/fzuistate.js"></script>
+</body>
 </html>
 """
 
@@ -56,6 +62,7 @@ Make Log entry for <input type="submit" name="makeentry" value="Selected Node" /
 def try_subprocess_check_output(thecmdstring, resstore):
     if config['verbose']:
         print(f'Calling subprocess: `{thecmdstring}`', flush=True)
+    print('<pre>')
     if config['logcmdcalls']:
         with open(config['cmdlog'],'a') as f:
             f.write(thecmdstring+'\n')
@@ -67,9 +74,9 @@ def try_subprocess_check_output(thecmdstring, resstore):
         if resstore:
             results[resstore] = result
         child_stdout.close()
-        if result:
+        if result and config['verbose']:
             print(result)
-        #print(result.replace('\n', '<BR>'))
+        print('</pre>')
         return 0
 
     except Exception as ex:                
@@ -79,6 +86,7 @@ def try_subprocess_check_output(thecmdstring, resstore):
         a = f.getvalue().splitlines()
         for line in a:
             print(line)
+        print('</pre>')
         return 1
 
 

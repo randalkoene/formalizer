@@ -44,6 +44,31 @@ repeats = form.getvalue('repeats')
 tdpatt_lower = form.getvalue('tdpatt_lower')
 tdpatt_upper = form.getvalue('tdpatt_upper')
 
+def append_to_str(strval: str) -> str:
+    parval = eval(strval)
+    if parval:
+        return strval+'="'+parval+'"&'
+    else:
+        return ''
+
+search_recreate_str = append_to_str('searchstring')
+search_recreate_str += append_to_str('case_sensitive')
+search_recreate_str += append_to_str('t_created_from')
+search_recreate_str += append_to_str('t_created_through')
+search_recreate_str += append_to_str('completion_lower')
+search_recreate_str += append_to_str('completion_upper')
+search_recreate_str += append_to_str('hours_lower')
+search_recreate_str += append_to_str('hours_upper')
+search_recreate_str += append_to_str('TD_lower')
+search_recreate_str += append_to_str('TD_upper')
+search_recreate_str += append_to_str('tdprop_lower')
+search_recreate_str += append_to_str('tdprop_upper')
+search_recreate_str += append_to_str('repeats')
+search_recreate_str += append_to_str('tdpatt_lower')
+search_recreate_str += append_to_str('tdpatt_upper')
+if search_recreate_str[-1] == '&':
+    search_recreate_str = search_recreate_str[:-1]
+
 #<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 graphsearch_results_head = '''Content-type:text/html
 
@@ -174,6 +199,8 @@ def Call_Error(msg: str):
 
 def render_search_results():
     print(graphsearch_results_head)
+
+    print(f'<!-- Search filter expression used: {search_recreate_str} -->')
 
     print(f'<!-- Clear_NNL({searchresultsNNL}) output')
     if not clear_NNL(searchresultsNNL):

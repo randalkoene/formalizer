@@ -167,6 +167,7 @@ class JSON_data {
     size_t num_element = 0;
     size_t num_blocks = 0;
     bool get_number_value(const std::string & jsonstr, size_t & pos, JSON_element & element);
+    bool get_string_value(const std::string & jsonstr, size_t & pos, JSON_element & element);
     JSON_element * get_element(const std::string & jsonstr, size_t & pos, JSON_block & parent);
     JSON_block * block_opening(const std::string & jsonstr, size_t & pos, JSON_element & parent);
 

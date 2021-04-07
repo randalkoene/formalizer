@@ -12,6 +12,7 @@ except:
 import sys, cgi, os, stat
 sys.stderr = sys.stdout
 from time import strftime
+import datetime
 import traceback
 from io import StringIO
 from traceback import print_exc
@@ -27,51 +28,6 @@ form = cgi.FieldStorage()
 non_local = form.getvalue('n')
 
 cmdoptions = ""
-
-# Get data from fields
-T_emulated = form.getvalue('T')
-if (T_emulated == '') or (T_emulated == 'actual'):
-    fzlog_T = ''
-else:
-    fzlog_T = '&T='+T_emulated
-
-
-fztask_webpage_head = f"""Content-type:text/html
-
-<html>
-<link rel="stylesheet" href="/fz.css">
-<head>
-<title>fz: Task</title>
-</head>
-<body>
-<h1>fz: Task</h1>
-
-<p>T = {T_emulated}</p>
-
-<ol>
-<li>[<a href="/formalizer/logentry-form_fullpage.template.html" target="_blank">Make Log entry</a>]
-"""
-
-fztask_webpage_middle_1 = f"""</li>
-<li>[<a href="/cgi-bin/fzlog-cgi.py?action=close{fzlog_T}" target="_blank">Close Log chunk</a>]<br>
-"""
-
-fztask_webpage_middle_2 = f"""
-</li>
-<li>[<a href="cgi-bin/fzgraphhtml-cgi.py" target="_blank">Update Schedule</a>]</li>
-<li>[<a href="/select.html" target="_blank">Select Node for Next Log chunk</a>]<br>
-"""
-
-fztask_webpage_tail = f"""</li>
-<li>[<a href="/cgi-bin/fzlog-cgi.py?action=open{fzlog_T}" target="_blank">Open New Log chunk</a>]</li>
-</ol>
-
-<hr>
-[<a href="/index.html">fz: Top</a>]
-
-</body>
-</html>
-"""
 
 results = {}
 
@@ -152,6 +108,78 @@ if (non_local == 'on'):
     t_open = chunkdatavec[0]
     open_or_closed = chunkdatavec[1]
     num_entries = chunkdatavec[3]
+    t_open_epoch = int(datetime.datetime.strptime(t_open, '%Y%m%d%H%M').timestamp())
+    # Get data from fields
+    T_emulated = form.getvalue('T')
+    if (T_emulated == '') or (T_emulated == 'actual'):
+        fzlog_T = ''
+        t_epoch = int(datetime.datetime.now().timestamp())
+        diff_minutes = int((t_epoch - t_open_epoch) / 60)
+        diff_min_str = f'at least {diff_minutes}'
+    else:
+        fzlog_T = '&T='+T_emulated
+        t_epoch = int(datetime.datetime.strptime(T_emulated, '%Y%m%d%H%M').timestamp())
+        diff_minutes = int((t_epoch - t_open_epoch) / 60)
+        diff_min_str = str(diff_minutes)
+
+fztask_webpage_head = f"""Content-type:text/html
+
+<html>
+<head>
+<meta charset="utf-8" />
+<link rel="icon" href="/favicon-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>fz: Task</title>
+<style>
+td.stateinfo {{
+    background-color: #b8bfff;
+}}
+</style>
+</head>
+<body>
+<h1>fz: Task</h1>
+
+<p>T = {T_emulated} ({diff_min_str} minutes since Log chunk opening)</p>
+
+<table><tbody>
+<tr>
+<td>1. [<a href="/formalizer/logentry-form_fullpage.template.html" target="_blank">Make Log entry</a>]</td>
+<td class="stateinfo">
+"""
+
+fztask_webpage_middle_1 = f"""</td></tr>
+<tr>
+<td>2. [<a href="/cgi-bin/fzlog-cgi.py?action=close{fzlog_T}" target="_blank">Close Log chunk</a>]</td>
+<td class="stateinfo">
+"""
+
+fztask_webpage_middle_2 = f"""</td></tr>
+<tr>
+<td>3. [<a href="cgi-bin/fzgraphhtml-cgi.py" target="_blank">Update Schedule</a>]</td>
+<td class="stateinfo"></td>
+</tr>
+<tr>
+<td>4. [<a href="/select.html" target="_blank">Select Node for Next Log chunk</a>]</td>
+<td class="stateinfo"><table><tbody>
+"""
+
+fztask_webpage_tail = f"""</tbody></table></td></tr>
+<tr>
+<td>5. [<a href="/cgi-bin/fzlog-cgi.py?action=open{fzlog_T}">Open New Log chunk</a>]</td>
+<td class="stateinfo"></td>
+</tr>
+</tbody></table>
+
+<hr>
+[<a href="/index.html">fz: Top</a>]
+
+<script type="text/javascript" src="/fzuistate.js"></script>
+</body>
+</html>
+"""
+
+if (non_local == 'on'):
     print(fztask_webpage_head)
     print(f'Log entries in this chunk: {num_entries}')
     print(fztask_webpage_middle_1)
@@ -163,6 +191,9 @@ if (non_local == 'on'):
     print(get_selected_Node_HTML())
     print(fztask_webpage_tail)
     sys.exit(0)
+
+
+### Below is executed only when run locally (e.g. in w3m)
 
 #thecmd = "./fztask"+cmdoptions
 #nohup env -u QUERY_STRING urxvt -rv -title "dil2al daemon" -geometry +$xhloc+$xvloc -fade 30 -e dil2al -T$emulatedtime -S &

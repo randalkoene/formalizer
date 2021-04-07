@@ -33,6 +33,40 @@ bool is_json_comment(const std::string & keylabel) {
 }
 
 /**
+ * Post-process the raw value string extracted from a JSON structure.
+ * 
+ * Note: At the moment all this does is post-process string-type values
+ *       to convert escaped double quotes to regular double quotes.
+ * 
+ * *** This can be extended to identify and evaluate multiple value types.
+ * 
+ * @param rawstr Reference to the raw value string.
+ * @return Processed value string.
+ */
+std::string json_post_process_valuestring(const std::string & rawstr) {
+    FZOUT(rawstr);
+    std::string processedstr(rawstr);
+    size_t j = 0;
+    for (size_t i = 0; i < rawstr.size(); ++i) {
+        if (processedstr[i] == '\\') {
+            if ((i+1) < rawstr.size()) {
+                if (processedstr[i+1] == '"') {
+                    FZOUT('+');
+                    processedstr[j++] = '"';
+                    ++i; // skip one
+                    continue;
+                }
+            }
+        }
+        processedstr[j++] = processedstr[i];
+    }
+    // j now indicates the new string size
+    processedstr.resize(j);
+    FZOUT(processedstr);
+    return processedstr;
+}
+
+/**
  * Extract parameter label and parameter value from a content line.
  * 
  * A line typically has this format:
@@ -43,6 +77,17 @@ bool is_json_comment(const std::string & keylabel) {
  * 
  * And to deactivate a configuration option, just turn the variable
  * key into a comment.
+ * 
+ * Important assumptions:
+ * 
+ * - The value is a double-quotes enclosed string. (This function does not
+ *   read other JSON value types directly. *** It is quite easy to add a
+ *   function that does. Just grab everything after the colon, drop possible
+ *   comma at end, strip whitespace on both ends of the value. Then identify
+ *   its type and parse.)
+ * - The parameter label does not contain double quotes.
+ * - A colon and any amount of whitespace separates label and value.
+ * - The value can contain double quotes.
  * 
  * @param par_value_pair A string in the expected format.
  * @return A pair of strings representing the parameter and the value.
@@ -64,10 +109,16 @@ jsonlite_label_value_pair json_param_value(const std::string & par_value_pair) {
         return std::make_pair("","");
     }
     start = pos+1;
-    if ((pos = par_value_pair.find('"',start)) == std::string::npos) {
+    // The parameter value could include double quotes, so look for the closing
+    // quotes from the end, and then post-process the string value to un-escape
+    // double quotes.
+    // Previously: if ((pos = par_value_pair.find('"',start)) == std::string::npos) {
+    pos = par_value_pair.find_last_of('"');
+    if ((pos == std::string::npos) || (pos <= start)) {
         return std::make_pair("","");
     }
     std::string parvalue(par_value_pair.substr(start,pos-start));
+    parvalue = json_post_process_valuestring(parvalue);
     return std::make_pair(parlabel,parvalue);
 }
 
@@ -136,6 +187,13 @@ std::string json_label_value_pairs_to_string(const jsonlite_label_value_pairs & 
     return jsoncontentstr;
 }
 
+/**
+ * *** It is a bit odd that this implementation reads all JSON values as
+ *     strings but writes out JSON formatted strings with non-string
+ *     parameter values. For consistency, we should soon probably implement
+ *     identifying and parsing of other types. See the dev comment in
+ *     json_param_value() above.
+ */
 std::string JSON_element::json_str(size_t indent) {
     std::string str;
     if (indent > 0) {
@@ -198,6 +256,39 @@ bool JSON_data::get_number_value(const std::string & jsonstr, size_t & pos, JSON
     return true;
 }
 
+/**
+ * This is a little bit different than in the case of the even simpler JSON-lite parsing above,
+ * because in this case the JSON string is not assumed to be separated into distinct lines.
+ * We cannot simply search from the end of the string. Instead, we need to find a double quote that
+ * has not been escaped. This search is really a tiny state-machine.
+ * 
+ * @param jsonstr Reference to the whole JSON string.
+ * @param pos Reference to string position that is indicating the first position after the opening double quotes.
+ */
+bool JSON_data::get_string_value(const std::string & jsonstr, size_t & pos, JSON_element & element) {
+    size_t escape_pos = std::string::npos;
+    size_t candidate_pos = pos - 1;
+    while ((candidate_pos = jsonstr.find_first_of("\"\\", candidate_pos + 1)) != std::string::npos) {
+        if (candidate_pos == std::string::npos) { // no luck
+            ERRRETURNNULL(__func__, "Missing end-quote of JSON string value at or near character number "+std::to_string(pos)+'.');
+            return false;
+        } else {
+            if (jsonstr[candidate_pos] == '\\') {
+                escape_pos = candidate_pos;
+            } else {
+                if (escape_pos != (candidate_pos - 1)) { // found closing double quotes!
+                    element.text = json_post_process_valuestring(jsonstr.substr(pos, candidate_pos - pos));
+                    element.type = json_string;
+                    ++num_element;
+                    pos = candidate_pos + 1;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 JSON_element * JSON_data::get_element(const std::string & jsonstr, size_t & pos, JSON_block & parent) {
     size_t next_json_ctrl = jsonstr.find('"', pos);
     if (next_json_ctrl == std::string::npos) {
@@ -225,14 +316,9 @@ JSON_element * JSON_data::get_element(const std::string & jsonstr, size_t & pos,
         }
         case '"': {
             pos = next_json_ctrl + 1;
-            next_json_ctrl = jsonstr.find('"',pos);
-            if (next_json_ctrl == std::string::npos) {
-                ERRRETURNNULL(__func__, "Missing end-quote of JSON string value at or near character number "+std::to_string(pos)+'.');
+            if (!get_string_value(jsonstr, pos, *element_ptr)) {
+                ERRRETURNNULL(__func__, "Unknown type of JSON element value at character "+std::to_string(pos)+'.');
             }
-            element_ptr->text = jsonstr.substr(pos, next_json_ctrl - pos);
-            element_ptr->type = json_string;
-            pos = next_json_ctrl + 1;
-            ++num_element;
             return element_ptr;
         }
         case 't': {
