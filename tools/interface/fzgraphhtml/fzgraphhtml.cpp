@@ -46,7 +46,10 @@ fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) {
         "Notes:\n"
         "1. When no [N <num>] is provided then the configured value is used.\n"
         "2. With '-m new', the '-t' argument is used to provide a comma\n"
-        "   delimited list of Topics to associate the new Node with.\n");
+        "   delimited list of Topics to associate the new Node with.\n"
+        "3. When a custom template path starts with 'STRING:' then it is\n"
+        "   interpreted to mean that the custom template is given in the\n"
+        "   argument string instead of in a file.\n");
 }
 
 /**
@@ -68,7 +71,7 @@ void fzgraphhtml::usage_hook() {
           "    -x Excerpt length <len>\n"
           "    -o Rendered output to <output-path> (\"STDOUT\" is default)\n"
           "    -e Embeddable, no head and tail templates\n"
-          "    -T Use custom template instead of named, node or single Node\n"
+          "    -T Use custom template instead of topics, named, node or single Node\n"
           "    -F Output format: html (default), txt, node, desc\n"
           "    -u Update 'shortlist' Named Node List\n"
           "    -C (TEST) card output format\n");
@@ -109,6 +112,10 @@ bool custom_template(const std::string & cargs) {
     }
     if (replace_template == "Node") {
         template_ids[node_temp] = cargs.substr(equalpos);
+        return true;
+    }
+    if (replace_template == "topics") {
+        template_ids[topic_pars_in_list_temp] = cargs.substr(equalpos);
         return true;
     }
     return false;

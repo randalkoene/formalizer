@@ -39,6 +39,18 @@ pagehead = """Content-type:text/html
 <body>
 """
 
+redirect_head = """Content-type:text/html
+
+<html>
+<head>
+<meta http-equiv="refresh" content="3;url=/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END" />
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>fz: Log Entry (fzlog)</title>
+</head>
+<body>
+"""
+
 pagetail = """<hr>
 
 <p>[<a href="/index.html">fz: Top</a>]</p>
@@ -53,6 +65,7 @@ Choose a Node and add it to the <b>select</b> List:
 <ul>
 <li><a href="/select.html" target="_blank">FZ: Selection Entry Points</a></li>
 </ul>
+<input type="hidden" name="showrecent" value="on">
 <form action="/cgi-bin/logentry-form.py" method="post">
 Make Log entry for <input type="submit" name="makeentry" value="Selected Node" />.
 </form>
@@ -113,12 +126,17 @@ def send_to_fzlog(logentrytmpfile: str, node = None, printhead = True):
         thecmd += f" -n {node}"
 
     if printhead:
-        print(pagehead)
+        if showrecent:
+            print(redirect_head)
+        else:
+            print(pagehead)
     retcode = try_subprocess_check_output(thecmd, 'fzlog_res')
     if (retcode != 0):
-        print('<p><b>Attempt to add Log entry via fzlog failed.</b></p>')
+        print('<p class="fail"><b>Attempt to add Log entry via fzlog failed.</b></p>')
     else:
-        print('<p><b>Entry added to Log.</b></p>')
+        print('<p class="success"><b>Entry added to Log.</b></p>')
+    if showrecent:
+        print('<p><b>Redirecting to most recent Log in 3 seconds...</b></p>')
     print(pagetail)
 
 
@@ -126,7 +144,7 @@ def send_to_fzlog_with_selected_Node(logentrytmpfile: str):
     print(pagehead)
     node = get_Node_from_selected_NNL()
     if not node:
-        print("<p><b>Unable to retrieve target Node from NNL 'selected'.</b></p>")
+        print("<p class=\"fail\"><b>Unable to retrieve target Node from NNL 'selected'.</b></p>")
         print(selectnodehtml)
         print(pagetail)
     
@@ -141,21 +159,21 @@ def select_Node():
 
 def missing_option():
     print(pagehead)
-    print('<p><b>No makeentry option was specified.</b></p>')
+    print('<p class="fail"><b>No makeentry option was specified.</b></p>')
     print(pagetail)
     sys.exit(0)
 
 
 def missing_entry_text():
     print(pagehead)
-    print('<p><b>No Log entry text submitted.</b></p>')
+    print('<p class="fail"><b>No Log entry text submitted.</b></p>')
     print(pagetail)
     sys.exit(0)
 
 
 def unknown_option():
     print(pagehead)
-    print('<p><b>Unknown make entry option.</b></p>')
+    print('<p class="fail"><b>Unknown make entry option.</b></p>')
     print(pagetail)
     sys.exit(0)
 
@@ -163,6 +181,7 @@ def unknown_option():
 if __name__ == '__main__':
     form = cgi.FieldStorage()
     makeentry_option = form.getvalue("makeentry")
+    showrecent = form.getvalue("showrecent")
     entrytext = form.getvalue("entrytext")
 
     if not makeentry_option:

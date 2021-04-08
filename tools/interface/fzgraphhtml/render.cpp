@@ -47,43 +47,58 @@ std::vector<std::string> template_ids = {
 
 typedef std::map<template_id_enum,std::string> fzgraphhtml_templates;
 
+/**
+ * This templates loading function recognizes special cases for custom
+ * templates:
+ * - "/something" is interpreted as a custom template path.
+ * - "STRING:something" is interpreted as a custom template directly in the string.
+ */
 bool load_templates(fzgraphhtml_templates & templates) {
     templates.clear();
 
     for (int i = 0; i < NUM_temp; ++i) {
         if (template_ids[i].front() == '/') { // we need this in case a custom template was specified
-            if (!file_to_string(template_ids[i], templates[static_cast<template_id_enum>(i)]))
+            if (!file_to_string(template_ids[i], templates[static_cast<template_id_enum>(i)])) {
                 ERRRETURNFALSE(__func__, "unable to load " + template_ids[i]);
+            }
         } else {
-            std::string format_subdir, format_ext;
-            switch (fzgh.config.outputformat) {
-
-                case output_txt: {
-                    format_subdir = "/txt/";
-                    format_ext = ".txt";
-                    break;
+            if ((template_ids[i].size()>6) && (template_ids[i][6]==':')) { // expecting a custom template in the string itself
+                if (template_ids[i].substr(0,7) != "STRING:") {
+                    ERRRETURNFALSE(__func__, "incorrect 'STRING:' based custome template syntax: " + template_ids[i]);
                 }
+                templates[static_cast<template_id_enum>(i)] = template_ids[i].substr(7);
+            } else {
+                std::string format_subdir, format_ext;
+                switch (fzgh.config.outputformat) {
 
-                case output_node: {
-                    format_subdir = "/node/";
-                    format_ext = ".node";
-                    break;
+                    case output_txt: {
+                        format_subdir = "/txt/";
+                        format_ext = ".txt";
+                        break;
+                    }
+
+                    case output_node: {
+                        format_subdir = "/node/";
+                        format_ext = ".node";
+                        break;
+                    }
+
+                    case output_desc: {
+                        format_subdir = "/desc/";
+                        format_ext = ".desc";
+                        break;
+                    }
+
+                    default: { // html
+                        format_subdir = "/html/";
+                        format_ext = ".html";
+                    }
                 }
-
-                case output_desc: {
-                    format_subdir = "/desc/";
-                    format_ext = ".desc";
-                    break;
-                }
-
-                default: { // html
-                    format_subdir = "/html/";
-                    format_ext = ".html";
+                std::string template_path(template_dir + format_subdir + template_ids[i] + format_ext);
+                if (!file_to_string(template_path, templates[static_cast<template_id_enum>(i)])) {
+                    ERRRETURNFALSE(__func__, "unable to load " + template_path);
                 }
             }
-            std::string template_path(template_dir + format_subdir + template_ids[i] + format_ext);
-            if (!file_to_string(template_path, templates[static_cast<template_id_enum>(i)]))
-                ERRRETURNFALSE(__func__, "unable to load " + template_path);
         }
     }
 
@@ -676,12 +691,13 @@ bool render_new_node_page() {
     if (fzgh.list_name.empty()) {
         nodevars.emplace("is_disabled", " disabled");
         nodevars.emplace("notice_1", " <b>add a Topic to enable 'create'</b> ");
+        nodevars.emplace("node-text", " (add a Topic to enable description entry) ");
     } else {
         nodevars.emplace("is_disabled", "");
         nodevars.emplace("notice_1", "<input type=\"hidden\" name=\"topics\" value=\""+fzgh.list_name+"\">");
+        nodevars.emplace("node-text", ndata.utf8_text);
     }
 
-    nodevars.emplace("node-text", ndata.utf8_text);
     nodevars.emplace("comp", to_precision_string(0.0));
     nodevars.emplace("hrs_to_complete", to_precision_string(required_hrs));
     nodevars.emplace("req_hrs", to_precision_string(required_hrs));

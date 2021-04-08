@@ -143,7 +143,7 @@ openpagetail_success = '''
 </html>
 '''
 
-openpagetail_failure = '''<p><b>ERROR: Unable to open new Log chunk (<a href="/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END">link</a>).</b></p>
+openpagetail_failure = '''<p class="fail"><b>ERROR: Unable to open new Log chunk (<a href="/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END">link</a>).</b></p>
 
 <hr>
 [<a href="/index.html">fz: Top</a>]
@@ -159,6 +159,7 @@ closepagehead = '''Content-type:text/html
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz: close Log chunk</title>
 </head>
 <body>
@@ -166,20 +167,22 @@ closepagehead = '''Content-type:text/html
 
 '''
 
-closepagetail_success = '''<p><b>Log chunk closed (<a href="/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END">link</a>).</b></p>
+closepagetail_success = '''<p class="success"><b>Log chunk closed (<a href="/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END">link</a>).</b></p>
 
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
+<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
 
-closepagetail_failure = '''<p><b>ERROR: Unable to close Log chunk (<a href="/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END">link</a>).</b></p>
+closepagetail_failure = '''<p class="fail"><b>ERROR: Unable to close Log chunk (<a href="/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END">link</a>).</b></p>
 
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
+<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -190,6 +193,7 @@ reopenpagehead = '''Content-type:text/html
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz: reopen Log chunk</title>
 </head>
 <body>
@@ -197,20 +201,22 @@ reopenpagehead = '''Content-type:text/html
 
 '''
 
-reopenpagetail_success = '''<p><b>Log chunk reopened (<a href="/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END">link</a>).</b></p>
+reopenpagetail_success = '''<p class="success"><b>Log chunk reopened (<a href="/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END">link</a>).</b></p>
 
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
+<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
 
-reopenpagetail_failure = '''<p><b>ERROR: Unable to reopen Log chunk (<a href="/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END">link</a>).</b></p>
+reopenpagetail_failure = '''<p class="fail"><b>ERROR: Unable to reopen Log chunk (<a href="/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END">link</a>).</b></p>
 
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
+<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -221,6 +227,7 @@ editentrypagehead = '''Content-type:text/html
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Edit Log entry</title>
 </head>
 <body>
@@ -246,15 +253,17 @@ Replace entry <input type="submit" name="replaceentry" value="Text" /> or <input
 editentrypagetail_success = '''<hr>
 [<a href="/index.html">fz: Top</a>]
 
+<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
 
-editentrypagetail_failure = '''<p><b>ERROR: Unable to edit Log entry.</b></p>
+editentrypagetail_failure = '''<p class="fail"><b>ERROR: Unable to edit Log entry.</b></p>
 
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
+<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -265,26 +274,29 @@ replaceentrypagehead = '''Content-type:text/html
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Replace Log entry</title>
 </head>
 <body>
 <h3>fz: Replace Log entry</h3>
 '''
 
-replaceentrypagetail_success = '''<p><b>Log entry content replaced.</b></p>
+replaceentrypagetail_success = '''<p class="success"><b>Log entry content replaced.</b></p>
 
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
+<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
 
-replaceentrypagetail_failure = '''<p><b>ERROR: Unable to replace Log entry content.</b></p>
+replaceentrypagetail_failure = '''<p class="fail"><b>ERROR: Unable to replace Log entry content.</b></p>
 
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
+<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''

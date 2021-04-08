@@ -48,6 +48,7 @@ srclist = form.getvalue('srclist')
 edit = form.getvalue('edit')
 topics = form.getvalue('topics') # this is used with edit=new
 topicslist = form.getvalue('topics')
+topics_alt = form.getvalue('topics_alt') # uses a custome template
 topic = form.getvalue('topic')
 tonode = form.getvalue('to-node')
 norepeats = form.getvalue('norepeats')
@@ -214,7 +215,8 @@ topicspagehead = '''Content-type:text/html
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/fzuistate.css">
-<title>Formalizer: Topics</title>
+<link rel="stylesheet" href="/bluetable.css">
+<title>fz: Topics</title>
 </head>
 <body>
 <style type="text/css">
@@ -222,8 +224,9 @@ topicspagehead = '''Content-type:text/html
     background-color: #B0C4F5;
 }
 </style>
+<h1>fz: Topics</h1>
 <br>
-<table><tbody>
+<table class="blueTable"><tbody>
 '''
 
 topicspagetail = '''</tbody></table>
@@ -236,6 +239,8 @@ topicspagetail = '''</tbody></table>
 </html>
 '''
 
+custom_topics_template = r'''<a href="/cgi-bin/fzgraphhtml-cgi.py?topic={{ topic_id }}">{{ tag }}</a> [<a href="/cgi-bin/fzgraphhtml-cgi.py?edit=new&topics={{ tag }}">add to NEW</a>] _SPLIT_'''
+
 # *** OBTAIN THIS SOMEHOW!
 #with open(dotformalizer_path+'/server_address','r') as f:
 #    fzserverpq_addrport = f.read()
@@ -245,15 +250,18 @@ with open('./server_address','r') as f:
 custom_template_file = webdata_path+'/modify_NNL_template.html'
 
 
-def try_command_call(thecmd):
+def try_command_call(thecmd, printhere = True) -> str:
     try:
         p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
         (child_stdin,child_stdout) = (p.stdin, p.stdout)
         child_stdin.close()
         result = child_stdout.read()
         child_stdout.close()
-        print(result)
-        #print(result.replace('\n', '<BR>'))
+        if printhere:
+            print(result)
+            return ''
+        else:
+            return result
 
     except Exception as ex:                
         print(ex)
@@ -262,6 +270,7 @@ def try_command_call(thecmd):
         a = f.getvalue().splitlines()
         for line in a:
             print(line)
+        return ''
 
 
 def log(msg):
@@ -321,6 +330,22 @@ def generate_topics_page():
     try_command_call(thecmd)
     #print(topicspagetail)
 
+def generate_alternative_topics_page():
+    thecmd = "./fzgraphhtml -q -e -t '?' -E STDOUT -o STDOUT"
+    if tonode:
+        thecmd += " -i " + tonode
+    thecmd += f" -T 'topics=STRING:{custom_topics_template}'"
+    #print("Content-type:text/html\n\n")
+    print(topicspagehead)
+    print('<tr>')
+    resstr = try_command_call(thecmd, False)
+    resvec = resstr.split('_SPLIT_')
+    for i in range(0,len(resvec)):
+        if (i % 4) == 0:
+            print('</tr>\n<tr>')
+        print(f'<td>{resvec[i]}</td>')
+    print('</tr>')
+    print(topicspagetail)
 
 def generate_topic_nodes_page():
     thecmd = "./fzgraphhtml -q -t '"+topic+"' -E STDOUT -o STDOUT"
@@ -409,6 +434,10 @@ if __name__ == '__main__':
 
     if topicslist:
         generate_topics_page()
+        sys.exit(0)
+
+    if topics_alt:
+        generate_alternative_topics_page()
         sys.exit(0)
     
     if topic:
