@@ -63,3 +63,10 @@ def get_Log_days_data(numdays: int, config: dict):
         return False
     return True
 
+def get_Log_interval_data(from_date: str, to_date: str, config: dict):
+    thecmd = f"fzloghtml -1 {from_date} -2 {to_date} -T 'STR:{{{{ t_chunkopen }}}} {{{{ t_chunkclose }}}} {{{{ t_diff_mins }}}} {{{{ node_id }}}}\n' -o STDOUT -N -q"
+    retcode = try_subprocess_check_output(thecmd, 'intervallogdata', config)
+    exit_error(retcode, 'Attempt to get Log interval data failed.', True)
+    if (retcode != 0):
+        return False
+    return True

@@ -59,6 +59,8 @@ def parse_options():
     parser.add_argument('-s', '--schema', dest='schemaname', help='specify schema name (default: $USER)')
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='turn on verbose mode')
     parser.add_argument('-D', '--days', dest='numdays', help='number of days (default = 10)')
+    parser.add_argument('-1', '--from', dest='from_date', help='from date (default: -D assumed)')
+    parser.add_argument('-2', '--to', dest='to_date', help='to date (default: -D assumed)')
     parser.add_argument('-t', '--topic', dest='topic', help='topic tag to invoice (default = neurobotx)')
     parser.add_argument('-m', '--multiplier', dest='multiplier', help='multiplication factor (default = 1.0)')
 
@@ -73,6 +75,8 @@ def parse_options():
         print('Verbose mode.', flush=True)
     if not args.numdays:
         args.numdays = 10
+    if args.from_date and args.to_date:
+        args.numdays = -1
     if not args.topic:
         args.topic = 'neurobotx'
     if not args.multiplier:
@@ -90,7 +94,7 @@ def parse_options():
     return args
 
 
-def collect_data(numdays: int):
+def collect_data_days(numdays: int):
     if not get_Log_days_data(numdays, config):
         print('Unable to obtain data.')
         sys.exit(1)
@@ -99,16 +103,29 @@ def collect_data(numdays: int):
     print(f'Number of entries: {len(logdatavec)}')
     return logdatavec
 
+def collect_data_interval(from_date: str, to_date: str):
+    if not get_Log_interval_data(from_date, to_date, config):
+        print('Unable to obtain data.')
+        sys.exit(1)
+    logdatavec = results['intervallogdata'].decode().split('\n')
+    print(f'From             : {from_date}')
+    print(f'To               : {to_date}')
+    print(f'Number of entries: {len(logdatavec)}')
+    return logdatavec
 
 def filter_data(logdatavec, topictag):
     filtered = []
+    cnt = 0
     for dataline in logdatavec:
         linedata = dataline.split()
         if (len(linedata) == 4):
             ttag = get_main_topic(linedata[3], config)
             if (ttag == topictag):
                 filtered.append(linedata)
-    print(f'Filtered entries: {len(filtered)}')
+        if (cnt % 100) == 0:
+            print('+', end="", flush=True)
+        cnt += 1
+    print(f'\nFiltered entries: {len(filtered)}')
     return filtered
 
 
@@ -145,7 +162,10 @@ if __name__ == '__main__':
 
     args = parse_options()
 
-    logdatavec = collect_data(args.numdays)
+    if args.from_date and args.to_date:
+        logdatavec = collect_data_interval(args.from_date, args.to_date)
+    else:
+        logdatavec = collect_data_days(args.numdays)
 
     filtered = filter_data(logdatavec, args.topic)
 
