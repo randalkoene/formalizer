@@ -1,5 +1,5 @@
 
-[{{ t_chunkopen }}]:[{{ t_chunkclose }}]({{ t_diff }})[{{ node_id }}]:
+[{{ t_chunkopen }}]:[{{ t_chunkclose }}]({{ t_diff }})[{{ node_id }}]{{ node_info }}:
 
 {{ entries }}
 

@@ -36,7 +36,7 @@ pagehead = """Content-type:text/html
 <link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Log Entry (fzlog)</title>
 </head>
-<body onload="do_if_opened_by_script('','Go to Log','/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END');">
+<body onload="do_if_opened_by_script('Keep Page','Go to Log','/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END');">
 """
 
 redirect_head = """Content-type:text/html

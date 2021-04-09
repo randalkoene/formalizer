@@ -136,7 +136,7 @@ bool send_rendered_to_output(std::string & rendered_text) {
  * memory-resident Graph, also show a short exerpt of Node description.
  */
 std::string include_Node_info(const Node_ID & node_id) {
-    std::string nodestr = node_id.str();
+    std::string nodestr;
     if (fzlh.config.node_excerpt_len > 0) {
         Graph_ptr graphptr = fzlh.get_Graph_ptr(); // only attempts to fetch it the first time
         if (graphptr) {
@@ -220,7 +220,8 @@ bool render_Log_interval() {
 
             template_varvalues varvals;
             Node_ID node_id = chunkptr->get_NodeID();
-            varvals.emplace("node_id",include_Node_info(node_id));
+            varvals.emplace("node_id", node_id.str());
+            varvals.emplace("node_info", include_Node_info(node_id));
             varvals.emplace("node_link","/cgi-bin/fzlink.py?id="+node_id.str());
             //varvals.emplace("fzserverpq",graph.get_server_full_address()); *** so far, this is independent of whether the Graph is memory-resident
             varvals.emplace("t_chunkopen",chunkptr->get_tbegin_str());
