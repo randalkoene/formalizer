@@ -36,7 +36,7 @@ pagehead = """Content-type:text/html
 <link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Log Entry (fzlog)</title>
 </head>
-<body>
+<body onload="do_if_opened_by_script('','Go to Log','/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END');">
 """
 
 redirect_head = """Content-type:text/html
@@ -49,6 +49,12 @@ redirect_head = """Content-type:text/html
 <title>fz: Log Entry (fzlog)</title>
 </head>
 <body>
+"""
+
+keep_page = "<script>function do_if_opened_by_script(button_text, alt_text, alt_url) { /* do nothing */ }</script>"
+
+timed_close_page = """<button id="closing_countdown" class="button button1" onclick="Keep_or_Close_Page('closing_countdown');">Keep Page</button>
+<script type="text/javascript" src="/fzclosing_window.js"></script>
 """
 
 pagetail = """<hr>
@@ -133,10 +139,14 @@ def send_to_fzlog(logentrytmpfile: str, node = None, printhead = True):
     retcode = try_subprocess_check_output(thecmd, 'fzlog_res')
     if (retcode != 0):
         print('<p class="fail"><b>Attempt to add Log entry via fzlog failed.</b></p>')
+        print(keep_page)
     else:
         print('<p class="success"><b>Entry added to Log.</b></p>')
-    if showrecent:
-        print('<p><b>Redirecting to most recent Log in 3 seconds...</b></p>')
+        if showrecent:
+            print('<p><b>Redirecting to most recent Log in 3 seconds...</b></p>')
+            print(keep_page)
+        else:
+            print(timed_close_page)
     print(pagetail)
 
 

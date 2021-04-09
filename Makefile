@@ -209,6 +209,7 @@ TOPLEVEL += $(TOOLSPATH)/interface/fzuistate/fzuistate.css
 TOPLEVEL += $(TOOLSPATH)/interface/fzuistate/fzuistate.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/fz.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/fz-cards.css
+TOPLEVEL += $(TOOLSPATH)/interface/resources/fzclosing_window.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/w3.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/bluetable.css
 TOPLEVEL += $(MEDIAPATH)/favicon-192x192.png
@@ -225,6 +226,7 @@ TESTS += $(TOOLSPATH)/misc/test_visual_counters.html
 TESTS += $(TOOLSPATH)/misc/test_add_node.html
 TESTS += $(TOOLSPATH)/misc/test_task_chunk_countdown_bar.html
 TESTS += $(TOOLSPATH)/misc/test_webfileread.html
+TESTS += $(TOOLSPATH)/misc/test_timed_close.html
 # +----- end  : Select Formalizer executables -----+
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
