@@ -227,6 +227,7 @@ TESTS += $(TOOLSPATH)/misc/test_add_node.html
 TESTS += $(TOOLSPATH)/misc/test_task_chunk_countdown_bar.html
 TESTS += $(TOOLSPATH)/misc/test_webfileread.html
 TESTS += $(TOOLSPATH)/misc/test_timed_close.html
+TESTS += $(TOOLSPATH)/misc/test_maketimer.html
 # +----- end  : Select Formalizer executables -----+
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
