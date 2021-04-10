@@ -31,9 +31,19 @@
   bottom: 0;
   transition: 1s;
 }
-.timerBarText {
+.timerBarText1 {
   position: relative;
   top: 10px;
+  width: 100%;
+  text-align: center;
+  color: #ffffff;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.5em;
+}
+.timerBarText2 {
+  position: relative;
+  top: 35px;
   width: 100%;
   text-align: center;
   color: #ffffff;
@@ -67,7 +77,8 @@ Minutes: <input id="timerMinutes" type="number" min="0" max="10000" value="5">
         <div class="timerBarFill">
         </div>
         <div class="timerBarTextContainer">
-            <div class="timerBarText"></div>
+            <div class="timerBarText1"></div>
+            <div class="timerBarText2"></div>
         </div>
     </div>
 </section>
@@ -75,7 +86,8 @@ Minutes: <input id="timerMinutes" type="number" min="0" max="10000" value="5">
 <script type="text/javascript">
 
 const fill = document.querySelector(".timerBarFill");
-const text = document.querySelector(".timerBarText");
+const text1 = document.querySelector(".timerBarText1");
+const text2 = document.querySelector(".timerBarText2");
 let chunk_seconds = 20*60;
 // a bit pointless, because CSS pixels are not real pixels, better to just redraw each second
 //let secondsperupdate = chunk_seconds / 600; // e.g. 20*60 / 600 = 2 seconds
@@ -91,9 +103,12 @@ let countDown = null;
 function tick() {
     secondsLeft -= secondsperupdate;
     var minsleft = Math.floor(secondsLeft / 60);
+    var hoursleft = Math.floor(minsleft/60);
+    var mins_remain = minsleft - (60*hoursleft);
     var secsleft = secondsLeft % 60;
     var secstr = ("0" + secsleft).substr(-2);
-    text.textContent = `${minsleft}:${secstr}`;
+    text1.textContent = `${hoursleft}:${mins_remain}:${secstr}`;
+    text2.textContent = `${minsleft}:${secstr}`;
     if (secondsLeft === 0) {
         clearInterval(countDown);
         fill.style.height = 0;
