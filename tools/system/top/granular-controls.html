@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<HTML>
+
+<HEAD>
+<meta charset="utf-8" />
+<noscript><meta http-equiv="refresh" content="0; url=/granular-controls-static.html" /></noscript>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="icon" href="/favicon-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<style>
+.mainpanel {
+    float: left;
+    width: 87.5%;
+    padding: 10px;
+}
+.rightpanel {
+    float: right;
+    width: 12.5%;
+    padding: 10px;
+}
+/* clear floats after columns */
+.bodyrow:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+#clock {
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    margin: 20px auto;
+    padding: 0;
+    background: #999;
+    text-align: center;
+    line-height: 40px;
+    color: #000;
+    font-size: 34px;
+    font-family: calibri;
+}
+#duplicate {
+    position: fixed;
+    top: 70px;
+    right: 0px;
+}
+#classical {
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+}
+#EBM {
+    position: fixed;
+    bottom: 50px;
+    right: 0px;
+}
+#industrial {
+    position: fixed;
+    bottom: 100px;
+    right: 0px;
+}
+#meditative {
+    position: fixed;
+    bottom: 150px;
+    right: 0px;
+}
+.container {
+    position: fixed;
+    top: 120px;
+    right: 0px;
+}
+</style>
+<TITLE>fz: Granular Controls</TITLE>
+</HEAD>
+<BODY>
+
+<!-- <p id="clock"></p> -->
+<button id="clock" class="button button2">_____</button>
+<button id="duplicate" class="button button2" onclick="window.open('/index.html','_blank');">duplicate</button>
+
+<div class="bodyrow">
+<div class="mainpanel">
+<!-- <BODY onload="javascript:clockStart()"> -->
+<H1>fz: Granular Controls</H1>
+
+<p>
+Use granular Formalizer controls with caution. The controls elicit actions that are normally purposefully placed within a specific context or sequence.
+</p>
+<p>
+For example, suddenly Opening a Log Chunk can lead to inadvertently closing one without the option to catch up how time was actually spent.
+</p>
+<p>
+Granular Control:
+<button class="button button1" onclick="window.open('/cgi-bin/fzlog-cgi.py?action=open','_blank');">Open Log Chunk for Selected</button>
+<button class="button button2" onclick="window.open('/cgi-bin/fzlog-cgi.py?action=close','_blank');">Close Log Chunk</button>
+<button class="button button1" onclick="window.open('/cgi-bin/fzlog-cgi.py?action=reopen','_blank');">Reopen Log Chunk</button>
+</p>
+
+<button id="classical" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPxdxF1BhIPpl6s08kllCLs5','_blank');">classical</button>
+<button id="EBM" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPzyg3_daMmuG79hZ56uHeCy','_blank');">EBM</button>
+<button id="industrial" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPwXtRPtB6dyUFg3CC0Fbreo','_blank');">industrial</button>
+<button id="meditative" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPypoHjDibsdYpTg606q8V1F','_blank');">meditative</button>
+
+<hr>
+
+</div> <!-- end of mainpanel -->
+
+<div class="rightpanel">
+<section class="container">
+    <div class="timerBar">
+        <div class="timerBarFill">
+        </div>
+        <div class="timerBarTextContainer">
+            <div class="timerBarText"></div>
+        </div>
+    </div>
+</section>
+</div> <!-- end of rightpanel -->
+</div> <!-- end of bodyrow -->
+
+
+<!-- clock script adapted from https://codepen.io/kase/pen/LxNzWj -->
+<script type="text/javascript">
+function updateClock() {
+    var currentTime = new Date();
+    // Operating System Clock Hours for 24h clock
+    var currentHours = currentTime.getHours();
+    // Operating System Clock Minutes
+    var currentMinutes = currentTime.getMinutes();
+    // Operating System Clock Seconds
+    //var currentSeconds = currentTime.getSeconds();
+    // Adding 0 if Minutes & Seconds is More or Less than 10
+    currentMinutes = (currentMinutes < 10 ? "0" : "") + currentMinutes;
+    //currentSeconds = (currentSeconds < 10 ? "0" : "") + currentSeconds;
+    // display first 24h clock and after line break 12h version
+    var currentTimeString = currentHours + ":" + currentMinutes; // + ":" + currentSeconds;
+    // print clock js in div #clock.
+    document.getElementById("clock").innerHTML = currentTimeString;
+    //var t = setTimeout(function(){ updateClock() }, 1000); /* setting timer */ // this actually blows up the stack!
+}
+// let's skip using jQuery $(document).ready(function () { setInterval(updateClock, 1000); } );
+//updateClock(); // initiate the process
+function clockStart() {
+    updateClock();
+    var idval = setInterval(updateClock, 60000); // update each minute, since we're not showing seconds here
+}
+</script>
+<script type="text/javascript" src="/fzuistate.js"></script>
+</BODY>
+
+</HTML>

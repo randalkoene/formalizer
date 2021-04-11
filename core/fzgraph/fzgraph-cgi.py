@@ -118,8 +118,10 @@ edit_result_page_head = '''Content-type:text/html
 </style>
 '''
 
-edit_success_page_tail = f'''<b>Node added. To review or edit more, follow this link: <a href="/cgi-bin/fzgraphhtml-cgi.py?edit={id}">{id}</a>.</b>
+edit_success_page_tail = f'''<p class="success"><b>Node added. To review or edit more, follow this link: <a href="/cgi-bin/fzgraphhtml-cgi.py?edit={id}">{id}</a>.</b></p>
 <hr>
+<button id="closing_countdown" class="button button1" onclick="Keep_or_Close_Page('closing_countdown');">Keep Page</button>
+<script type="text/javascript" src="/fzclosing_window.js"></script>
 </body>
 </html>
 '''
@@ -174,16 +176,54 @@ def try_call_command(thecmd: str):
 def add_node():
     text = form.getvalue('text')
     comp = '0.0'
-    req_hrs = float(form.getvalue('req_hrs'))
-    req_mins = int(form.getvalue('req_mins'))
+    comp_code = form.getvalue('comp_code')
+    if comp_code:
+        comp_code = float(comp_code)
+        # Takes precedence over comp
+        comp = comp_code
+
+    req_mins_typical = form.getvalue('req_mins_typical')
+    if req_mins_typical:
+        req_mins_typical = int(req_mins_typical)
+    req_hrs = form.getvalue('req_hrs')
+    if req_hrs:
+        req_hrs = float(req_hrs)
+    req_mins = form.getvalue('req_mins')
+    if req_mins:
+        req_mins = int(req_mins)
+    if req_hrs or req_mins:
+        # if a specific value was entered that takes precedence
+        if not req_mins:
+            req_mins = 0
+        if req_hrs:
+            req_mins += int(60*req_hrs)
+    else:
+        req_mins = req_mins_typical
+
     add_hrs = float(form.getvalue('add_hrs'))
     add_mins = int(form.getvalue('add_mins'))
-    val = float(form.getvalue('val'))
+
+    val_typical = form.getvalue('val_typical')
+    if val_typical:
+        val_typical = float(val_typical)
+    val = form.getvalue('val')
+    if val:
+        val = float(val)
+    if not val:
+        val = val_typical
+
     targetdate = form.getvalue('targetdate')
     alt_targetdate = form.getvalue('alt_targetdate')
     alt2_targetdate = form.getvalue('alt2_targetdate')
     alt2_targettime = form.getvalue('alt2_targettime')
+
     prop = form.getvalue('prop')
+
+    repeats = form.getvalue('repeats')
+    if repeats:
+        repeats = True
+    else:
+        repeats = False
     patt = form.getvalue('patt')
     every = int(form.getvalue('every'))
     span = int(form.getvalue('span'))
@@ -270,7 +310,7 @@ if __name__ == '__main__':
         add_node()
     else:
         print(edit_result_page_head)
-        print(f'<p><b>Unrecognized Node add action: {action}</b><p>')
+        print(f'<p class="fail"><b>Unrecognized Node add action: {action}</b><p>')
         print(edit_fail_page_tail)
 
     sys.exit(0)

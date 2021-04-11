@@ -202,6 +202,7 @@ TOPLEVEL =
 # The following two are now done via fzdashboard
 #TOPLEVEL += $(TOOLSPATH)/system/top/index.html
 #TOPLEVEL += $(TOOLSPATH)/system/top/index-static.html
+TOPLEVEL += $(TOOLSPATH)/system/top/granular-controls.html
 TOPLEVEL += $(TOOLSPATH)/system/top/select.html
 TOPLEVEL += $(TOOLSPATH)/system/top/integrity.html
 TOPLEVEL += $(TOOLSPATH)/system/top/integrity-static.html

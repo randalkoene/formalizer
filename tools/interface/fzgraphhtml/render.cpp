@@ -706,7 +706,8 @@ bool render_new_node_page() {
 
     time_t t_eff = ndata.targetdate;
     if (t_eff == RTt_unspecified) {
-        t_eff = today_end_time();
+        //t_eff = today_end_time();
+        t_eff = ymd_stamp_time(DateStampYmd(ActualTime())+"2330"); // Giving ourselves a little extra half hour at the end of the day by default.
     }
     nodevars.emplace("eff_td", TimeStampYmdHM(t_eff));
     nodevars.emplace("eff_td_date",TimeStamp("%Y-%m-%d", t_eff));

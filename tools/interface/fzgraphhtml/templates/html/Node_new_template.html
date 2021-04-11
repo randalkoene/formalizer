@@ -12,7 +12,8 @@
 <td>
 <hr>
 
-<table>
+<table class="blueTable"><tbody>
+
 <tr>
 <td class="paramtitle">Targetdate: </td><td><input type="number" name="targetdate" min="0", max="999912312359" step="1" value="{{ eff_td }}"> </td><td>(<code>YYYYmmddHHMM</code> format),
 or <input type="datetime-local" id="alt_targetdate" name="alt_targetdate" min="1990-01-01T00:00:00" value="{{ eff_td_date }}T{{ eff_td_time }}"> (local format),
@@ -22,6 +23,7 @@ or <input type="date" id="alt2_targetdate" name="alt2_targetdate" min="1990-01-0
 document.getElementById('alt_targetdate').value = new Date().toISOString().substring(0, 10);
 </script> -->
 </tr>
+
 <tr>
 <td class="paramtitle">TD Property:</td><td colspan=2>
 <input type="radio" name="prop" value="unspecified" {{ prop_unspecified }}> unspecified |
@@ -30,6 +32,11 @@ document.getElementById('alt_targetdate').value = new Date().toISOString().subst
 <input type="radio" name="prop" value="fixed" {{ prop_fixed }}> fixed |
 <input type="radio" name="prop" value="exact" {{ prop_exact }}> exact</td>
 </tr>
+
+<tr>
+<td class="paramtitle"><label for="repeats"> Repeats:</label></td><td colspan="2"><input type="checkbox" id="repeats" name="repeats" value="True">  (takes precedence over stored TD pattern -- <b>BEWARE: fzgraph and fzedit don't support this yet!</b>)</td>
+</tr>
+
 <tr>
 <td class="paramtitle">TD Pattern:</td><td colspan=2>
 <input type="radio" name="patt" value="nonperiodic" {{ patt_nonperiodic }}> nonperiodic |
@@ -41,20 +48,50 @@ document.getElementById('alt_targetdate').value = new Date().toISOString().subst
 <input type="radio" name="patt" value="eofmonth" {{ patt_endofmonthoffset }}> end-of-month offset |
 <input type="radio" name="patt" value="yearly" {{ patt_yearly }}> yearly</td>
 </tr>
+
 <tr>
-<td class="paramtitle">Every: </td><td><input type="number" name="every" min="1" step="1" value="{{ td_every }}"><br>&nbsp; </td><td class="paramtitle">Span: <input type="number" name="span" min="0" step="1" value="{{ td_span }}"><br>&nbsp;</td>
+<td class="paramtitle">Every:</td><td><input type="number" name="every" min="1" step="1" value="{{ td_every }}"></td><td class="paramtitle">Span: <input type="number" name="span" min="0" step="1" value="{{ td_span }}"></td>
 </tr>
+
+</tbody></table>
+&nbsp;<br>
+<table class="blueTable"><tbody>
+
 <tr>
-<td class="paramtitle">Completion: </td><td><input type="number" name="comp" min="-4.0" max="1.0" step="0.01" value="{{ comp }}"><br>&nbsp; </td><td>Set completed: <input type="checkbox" name="set_complete"> | Hours required to complete: {{ hrs_to_complete }}<br>
-Special codes: -1 = obsolete, -2 = replaced, -3 = done differently, -4 = no longer possible (did not come to pass)</td>
+<td class="paramtitle">Completion:</td><td><input type="number" name="comp" min="-4.0" max="1.0" step="0.01" value="{{ comp }}"><br>Set completed: <input type="checkbox" name="set_complete"></td>
+<td>Special codes:
+<input type="radio" id="nocode" name="comp_code" value="" checked> <label for="nocode">N/A</label>
+<input type="radio" id="obsolete" name="comp_code" value="-1"> <label for="obsolete">obsolete</label>
+<input type="radio" id="replaced" name="comp_code" value="-2"> <label for="replaced">replaced</label>
+<input type="radio" id="differently" name="comp_code" value="-3"> <label for="differently">done differently</label>
+<input type="radio" id="notpossible" name="comp_code" value="-4"> <label for="notpossible">no longer possible (did not come to pass)</label>
+<br> | Hours required to complete: <b>{{ hrs_to_complete }}</b></td>
 </tr>
-<tr><td class="paramtitle">Required:  </td><td><input type="number" name="req_hrs" min="0.0" max="1000.0" step="0.00001" value={{ req_hrs }}> </td><td>hrs, or <input type="number" name="req_mins" min="0" max="10000" step="1" value={{ req_mins }}> mins
-| Add: <input type="number" name="add_hrs" min="-1000.0" max="1000.0" step="0.00001" value=0> hrs, or <input type="number" name="add_mins" min="-10000" max="10000" step="1" value=0> mins
-<br><input type="hidden" name="orig_mins" value="{{ req_mins }}"></td>
+
+<tr>
+<td class="paramtitle">Required:</td>
+<td colspan="2">
+<input type="radio" id="zerochunks" name="req_mins_typical" value="0" checked> <label for="zerochunks">0 mins</label>
+<input type="radio" id="onechunk" name="req_mins_typical" value="20" checked> <label for="onechunk">20 mins</label>
+<input type="radio" id="twochunks" name="req_mins_typical" value="40"> <label for="twochunks">40 mins</label>
+<input type="radio" id="threechunks" name="req_mins_typical" value="60"> <label for="threechunks">60 mins</label>
+<input type="radio" id="nonchunked" name="req_mins_typical" value=""> <label for="nonchunked">other</label>
+<input type="number" name="req_hrs" min="0.0" max="1000.0" step="0.00001" value=""> hrs + <input type="number" name="req_mins" min="0" max="10000" step="1" value=""> mins
+<input type="hidden" name="orig_mins" value="{{ req_mins }}"></td>
 </tr>
-<tr><td class="paramtitle">Valuation: </td><td><input type="number" name="val" min="0.0" max="10.0" step="0.1" value="{{ val }}"></td><td></td>
+
+<tr>
+<td class="paramtitle">Valuation:</td>
+<td colspan="2">
+<input type="radio" id="valone" name="val_typical" value="1.0"> <label for="valone">1.0</label>
+<input type="radio" id="valtwo" name="val_typical" value="2.0"> <label for="valtwo">2.0</label>
+<input type="radio" id="valthree" name="val_typical" value="3.0" checked> <label for="valthree">3.0</label>
+<input type="radio" id="atypical" name="val_typical" value=""> <label for="atypical">other</label>
+<input type="number" name="val" min="0.0" max="10.0" step="0.1" value=""></td>
 </tr>
+
 </table>
+
 <hr>
 
 <textarea cols="80" rows="24" name="text"{{ is_disabled }}>

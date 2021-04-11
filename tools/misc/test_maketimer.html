@@ -106,6 +106,7 @@ function tick() {
     var hoursleft = Math.floor(minsleft/60);
     var mins_remain = minsleft - (60*hoursleft);
     var secsleft = secondsLeft % 60;
+    console.log('minsleft='+minsleft+', hoursleft='+hoursleft+', mins_remain='+mins_remain+', secsleft='+secsleft)
     var secstr = ("0" + secsleft).substr(-2);
     text1.textContent = `${hoursleft}:${mins_remain}:${secstr}`;
     text2.textContent = `${minsleft}:${secstr}`;
@@ -140,8 +141,9 @@ function timer_end() {
 function button_timer_start() {
     const hours_input = document.getElementById("timerHours");
     const minutes_input = document.getElementById("timerMinutes");
-    var mins = minutes_input.value;
-    var hours = hours_input.value;
+    var mins = Number(minutes_input.value);
+    var hours = Number(hours_input.value);
+    console.log('mins = '+mins+', hours = '+hours)
     timer_start(mins+(60*hours));
 }
 

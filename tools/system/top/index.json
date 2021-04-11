@@ -320,16 +320,8 @@
             "url" : "/formalizer/logentry-form_fullpage.template.html",
             "window" : "_blank"
         },
-        "Open Log Chunk" : {
-            "url" : "/cgi-bin/fzlog-cgi.py?action=open",
-            "window" : "_blank"
-        },
-        "Close Log Chunk" : {
-            "url" : "/cgi-bin/fzlog-cgi.py?action=close",
-            "window" : "_blank"
-        },
-        "Reopen Log Chunk" : {
-            "url" : "/cgi-bin/fzlog-cgi.py?action=reopen",
+        "Log Chunk Granular" : {
+            "url" : "/granular-controls.html",
             "window" : "_blank"
         },
         "Add Node" : {
