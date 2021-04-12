@@ -126,9 +126,10 @@ form = cgi.FieldStorage()
 help = form.getvalue('help')
 id = form.getvalue('id')
 
-edit_result_page_head = '''Content-type:text/html
+start_CGI_output = '''Content-type:text/html
+'''
 
-<html>
+edit_result_page_head = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
@@ -142,14 +143,18 @@ edit_result_page_head = '''Content-type:text/html
 </style>
 '''
 
-edit_success_page_tail = f'''<b>Node modified. To review or edit more, follow this link: <a href="/cgi-bin/fzgraphhtml-cgi.py?edit={id}">{id}</a>.</b>
+edit_success_page_tail = f'''<p class="success"><b>Node modified. To review or edit more, follow this link: <a href="/cgi-bin/fzgraphhtml-cgi.py?edit={id}">{id}</a>.</b></p>
 <hr>
+<button id="closing_countdown" class="button button1" onclick="Keep_or_Close_Page('closing_countdown');">Keep Page</button>
+<script type="text/javascript" src="/fzclosing_window.js"></script>
 </body>
 </html>
 '''
 
-create_success_page_tail = f'''<b>Node created. To review or edit, find the new Node in the Graph.</b>
+create_success_page_tail = f'''<p class="success"><b>Node created. To review or edit, find the new Node in the Graph.</b></p>
 <hr>
+<button id="closing_countdown" class="button button1" onclick="Keep_or_Close_Page('closing_countdown');">Keep Page</button>
+<script type="text/javascript" src="/fzclosing_window.js"></script>
 </body>
 </html>
 '''
@@ -200,28 +205,92 @@ def try_call_command(thecmd: str):
             print(line)
         return False
 
+def get_int_or_None(cgiarg: str):
+    vstr = form.getvalue(cgiarg)
+    if vstr:
+        try:
+            return int(vstr)
+        except:
+            return None
+    return None
+
+def get_float_or_None(cgiarg: str):
+    vstr = form.getvalue(cgiarg)
+    if vstr:
+        try:
+            return float(vstr)
+        except:
+            return None
+    return None
 
 def modify_node():
+    print(start_CGI_output) # very useful, because CGI errors are printed from here on if they occur
+
+    create_new = ((id == 'NEW') or (id == 'new'))
+
     text = form.getvalue('text')
-    comp = float(form.getvalue('comp'))
+
+    comp = get_float_or_None('comp')
+    comp_code = get_float_or_None('comp_code')
+    if comp_code:
+        comp = comp_code # precedence
     set_complete = form.getvalue('set_complete')
-    req_hrs = float(form.getvalue('req_hrs'))
-    req_mins = int(form.getvalue('req_mins'))
-    add_hrs = float(form.getvalue('add_hrs'))
-    add_mins = int(form.getvalue('add_mins'))
-    val = float(form.getvalue('val'))
+
+    req_mins_typical = get_int_or_None('req_mins_typical')
+    req_hrs = get_float_or_None('req_hrs')
+    req_mins = get_int_or_None('req_mins')
+
+    add_hrs = get_float_or_None('add_hrs')
+    add_mins = get_int_or_None('add_mins')
+
+    val_typical = get_float_or_None('val_typical')
+    val = get_float_or_None('val')
+    if not val:
+        val = val_typical
+
     targetdate = form.getvalue('targetdate')
     alt_targetdate = form.getvalue('alt_targetdate')
     alt2_targetdate = form.getvalue('alt2_targetdate')
     alt2_targettime = form.getvalue('alt2_targettime')
+
     prop = form.getvalue('prop')
+
+    repeats = form.getvalue('repeats')
+    if repeats:
+        repeats = True
+    else:
+        repeats = False
     patt = form.getvalue('patt')
-    every = int(form.getvalue('every'))
-    span = int(form.getvalue('span'))
+    every = get_int_or_None('every')
+    span = get_int_or_None('span')
 
     topics=form.getvalue('topics')
 
-    orig_mins = int(form.getvalue('orig_mins'))
+    orig_mins = get_int_or_None('orig_mins')
+    if not orig_mins:
+        orig_mins = 0
+
+    if create_new: # *** currently, we use a different interpretation in the two cases
+        if req_hrs or req_mins:
+            # if a specific value was entered that takes precedence
+            if create_new: 
+                if not req_mins:
+                    req_mins = 0
+                if req_hrs:
+                    req_mins += int(60*req_hrs)
+        else:
+            req_mins = req_mins_typical
+    else:
+        if (req_mins_typical == None) or (req_mins_typical == ''):
+            if (req_mins == None) and (req_hrs == None):
+                req_mins = orig_mins
+                req_hrs = orig_mins / 60.0
+            else:
+                if req_hrs == None:
+                    req_hrs = req_mins / 60.0
+                if req_mins == None:
+                    req_mins = int(60*req_hrs)
+
     orig_td = form.getvalue('orig_td')
 
     if (set_complete=='on'):
@@ -229,10 +298,10 @@ def modify_node():
         comp = 1.0
 
     # add_hrs and add_mins are combined
-    if (add_hrs != 0):
+    if add_hrs:
         add_mins += int(add_hrs*60.0)
 
-    if (add_mins != 0):
+    if add_mins:
         if (comp >= 0.0):
             completed_mins = int(float(orig_mins)*comp)
         req_mins = orig_mins + add_mins
@@ -267,7 +336,7 @@ def modify_node():
     with open(textfile,'w') as f:
         f.write(text)
 
-    if ((id == 'NEW') or (id == 'new')):
+    if create_new:
         # topics = form.getvalue('topics')
         # superiors = form.getvalue('superiors')
         # dependencies = form.getvalue('dependencies')
@@ -280,15 +349,17 @@ def modify_node():
     print(f'<!-- Call command: {thecmd} -->')
 
     if try_call_command(thecmd):
-        if ((id == 'NEW') or (id == 'new')):
+        if create_new:
             print(create_success_page_tail)
         else:
             print(edit_success_page_tail)
     else:
+        print('<p class="fail"><b>Call to fzedit or fzgraph returned error. (Check state of Nodes in database.)</b></p>')
         print(edit_fail_page_tail)
 
 
 def update_node():
+    print(start_CGI_output) # very useful, because CGI errors are printed from here on if they occur
     tpass = form.getvalue('tpass')
     tpass_YmdHM = convert_to_targetdate(tpass)
 
@@ -301,18 +372,23 @@ def update_node():
 
     print(f'<!-- Call command: {thecmd} -->')
     
-    print(f'Skipping instances of Node {id} past {tpass_YmdHM}.')
-
     if try_call_command(thecmd):
+        print(f'<p class="success">Skipping all instances of Node {id} past {tpass_YmdHM}.</p>')
         print(edit_success_page_tail)
     else:
+        print(f'<p class="fail">Call to `fzgraph -C` returned an error.</p>')
         print(edit_fail_page_tail)
 
 
 def skip_node():
-    num_skip = form.getvalue('num_skip')
-
+    print(start_CGI_output) # very useful, because CGI errors are printed from here on if they occur
+    num_skip = get_int_or_None('num_skip')
     print(edit_result_page_head)
+    if not num_skip:
+        print('<p class="fail"><b>Missing number of instances to skip.</b></p>')
+        print(edit_fail_page_tail)
+        return
+
     thisscript = os.path.realpath(__file__)
     print(f'<!--(For dev reference, this script is at {thisscript}.) -->')
     print('<!-- [Formalizer: fzedit handler]\n<p></p> -->')
@@ -321,16 +397,16 @@ def skip_node():
 
     print(f'<!-- Call command: {thecmd} -->')
     
-    print(f'Skipping {num_skip} instances of Node {id}.')
-
     if try_call_command(thecmd):
+        print(f'<p class="success">Skipping {num_skip} instances of Node {id}.</p>')
         print(edit_success_page_tail)
     else:
+        print(f'<p class="fail">Call to `fzgraph -C` returned an error.</p>')
         print(edit_fail_page_tail)
 
 
 def show_interface_options():
-    print("Content-type:text/html\n\n")
+    print(start_CGI_output) # very useful, because CGI errors are printed from here on if they occur
     print(interface_options_help)
 
 
@@ -357,7 +433,7 @@ if __name__ == '__main__':
                 skip_node()
             else:
                 print(edit_result_page_head)
-                print(f'<p><b>Unrecognized Node edit action: {action}</b><p>')
+                print(f'<p class="fail"><b>Unrecognized Node edit action: {action}</b><p>')
                 print(edit_fail_page_tail)
 
     sys.exit(0)

@@ -102,9 +102,10 @@ form = cgi.FieldStorage()
 help = form.getvalue('help')
 id = form.getvalue('id')
 
-edit_result_page_head = '''Content-type:text/html
+start_CGI_output = '''Content-type:text/html
+'''
 
-<html>
+edit_result_page_head = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
@@ -172,25 +173,38 @@ def try_call_command(thecmd: str):
             print(line)
         return False
 
+def get_int_or_None(cgiarg: str):
+    vstr = form.getvalue(cgiarg)
+    if vstr:
+        try:
+            return int(vstr)
+        except:
+            return None
+    return None
+
+def get_float_or_None(cgiarg: str):
+    vstr = form.getvalue(cgiarg)
+    if vstr:
+        try:
+            return float(vstr)
+        except:
+            return None
+    return None
 
 def add_node():
-    text = form.getvalue('text')
-    comp = '0.0'
-    comp_code = form.getvalue('comp_code')
-    if comp_code:
-        comp_code = float(comp_code)
-        # Takes precedence over comp
-        comp = comp_code
+    print(start_CGI_output) # very useful, because CGI errors are printed from here on if they occur
 
-    req_mins_typical = form.getvalue('req_mins_typical')
-    if req_mins_typical:
-        req_mins_typical = int(req_mins_typical)
-    req_hrs = form.getvalue('req_hrs')
-    if req_hrs:
-        req_hrs = float(req_hrs)
-    req_mins = form.getvalue('req_mins')
-    if req_mins:
-        req_mins = int(req_mins)
+    text = form.getvalue('text')
+
+    comp = get_float_or_None('comp')
+    comp_code = get_float_or_None('comp_code')
+    if comp_code:
+        comp = comp_code # precedence
+    set_complete = form.getvalue('set_complete')
+
+    req_mins_typical = get_int_or_None('req_mins_typical')
+    req_hrs = get_float_or_None('req_hrs')
+    req_mins = get_int_or_None('req_mins')
     if req_hrs or req_mins:
         # if a specific value was entered that takes precedence
         if not req_mins:
@@ -200,15 +214,11 @@ def add_node():
     else:
         req_mins = req_mins_typical
 
-    add_hrs = float(form.getvalue('add_hrs'))
-    add_mins = int(form.getvalue('add_mins'))
+    add_hrs = get_float_or_None('add_hrs')
+    add_mins = get_int_or_None('add_mins')
 
-    val_typical = form.getvalue('val_typical')
-    if val_typical:
-        val_typical = float(val_typical)
-    val = form.getvalue('val')
-    if val:
-        val = float(val)
+    val_typical = get_float_or_None('val_typical')
+    val = get_float_or_None('val')
     if not val:
         val = val_typical
 
@@ -225,17 +235,25 @@ def add_node():
     else:
         repeats = False
     patt = form.getvalue('patt')
-    every = int(form.getvalue('every'))
-    span = int(form.getvalue('span'))
+    every = get_int_or_None('every')
+    span = get_int_or_None('span')
 
-    orig_mins = int(form.getvalue('orig_mins'))
+    topics=form.getvalue('topics')
+
+    orig_mins = get_int_or_None('orig_mins')
+    if not orig_mins:
+        orig_mins = 0
     orig_td = form.getvalue('orig_td')
 
+    if (set_complete=='on'):
+        req_mins = int(float(orig_mins)*comp)
+        comp = 1.0
+
     # add_hrs and add_mins are combined
-    if (add_hrs != 0):
+    if add_hrs:
         add_mins += int(add_hrs*60.0)
 
-    if (add_mins != 0):
+    if add_mins:
         if (comp >= 0.0):
             completed_mins = int(float(orig_mins)*comp)
         req_mins = orig_mins + add_mins
@@ -275,8 +293,10 @@ def add_node():
         # superiors = form.getvalue('superiors')
         # dependencies = form.getvalue('dependencies')
         thecmd = f'./fzgraph {verbosearg} -E STDOUT -M node -f {textfile} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}'
+        if topics:
+            thecmd += " -g '"+topics+"'"
     else:
-        print('<b>Expected "id=NEW" or "id=new".</b>')
+        print('<p class="fail"><b>Expected "id=NEW" or "id=new".</b></p>')
         print(edit_fail_page_tail)
         return
 
@@ -285,6 +305,7 @@ def add_node():
     if try_call_command(thecmd):
         print(edit_success_page_tail)
     else:
+        print('<p class="fail"><b>Call to fzgraph returned error. (Check if a Node was created or not.)</b></p>')
         print(edit_fail_page_tail)
 
 
