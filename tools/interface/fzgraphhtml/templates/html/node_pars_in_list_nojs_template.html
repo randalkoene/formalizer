@@ -4,7 +4,7 @@
 <td>{{ targetdate }}</td>
 <td>{{ tdprop }}</td>
 <td{{ alertstyle }}>{{ req_hrs }}</td>
-<td class="id_cell" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit={{ node_id }}','_blank');">{{ node_id }}</td>
+<td><a class="id" href="/cgi-bin/fzgraphhtml-cgi.py?edit={{ node_id }}" target="_blank">{{ node_id }}</a></td>
 <td><a class="node" href="/cgi-bin/fzlink.py?id={{ node_id }}">{{ excerpt }}</a></td>
 <td><a href="/cgi-bin/fzgraphhtml-cgi.py?topic={{ topic }}">{{ topic }}</a></td>
 </tr>

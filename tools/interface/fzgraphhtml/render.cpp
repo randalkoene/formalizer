@@ -35,6 +35,7 @@ using namespace fz;
 
 std::vector<std::string> template_ids = {
     "node_pars_in_list_template",
+    "node_pars_in_list_nojs_template",
     "node_pars_in_list_head_template",
     "node_pars_in_list_tail_template",
     "named_node_list_in_list_template",
@@ -281,7 +282,11 @@ struct line_render_parameters {
         if (fzgh.test_cards) {
             rendered_page += env.render(templates[node_pars_in_list_card_temp], varvals);
         } else {
-            rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
+            if (fzgh.no_javascript) {
+                rendered_page += env.render(templates[node_pars_in_list_nojs_temp], varvals);
+            } else {
+                rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
+            }
         }
     }
 

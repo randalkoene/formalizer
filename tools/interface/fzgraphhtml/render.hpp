@@ -17,6 +17,7 @@ using namespace fz;
 
 enum template_id_enum {
     node_pars_in_list_temp,
+    node_pars_in_list_nojs_temp,
     node_pars_in_list_head_temp,
     node_pars_in_list_tail_temp,
     named_node_list_in_list_temp,

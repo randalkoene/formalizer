@@ -117,6 +117,12 @@ struct JSON_element: JSON_element_data {
     bool is_string() const { return type == JSON_element_type::json_string; }
     bool is_block() const { return type == JSON_element_type::json_block; }
     bool find_one(JSON_element_data & buffer) const { return buffer.copy_if_match(*this); }
+    /**
+     * Compare the label of this JSON element with labels in `buffer_list`. As soon as
+     * one matches, copy the value of this element to the `JSON_element_data` of that
+     * item in `buffer_list`, thereby returning the value for the label that the item was
+     * looking for.
+     */
     bool find_one_of(JSON_element_data_vec & buffer_list) {
         for (auto & buffer : buffer_list) {
             if (buffer.copy_if_match(*this)) {
@@ -142,6 +148,12 @@ struct JSON_block {
         }
         return false;
     }
+    /**
+     * Check all the elements in the JSON block and compare each one's label
+     * with the labels in `buffer_list` (see `JSON_elements_vec::find_one_of()`).
+     * Values are returned in the `JSON_element_data` of the `buffer_list` items
+     * for their respective labels.
+     */
     unsigned int find_many(JSON_element_data_vec & buffer_list) const {
         unsigned int num_find = buffer_list.size();
         if (num_find < 1) {

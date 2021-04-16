@@ -80,6 +80,8 @@ struct fzgraphhtml: public formalizer_standard_program {
 
     int num_days = 0; // used only as a cache to render in accordance with arguments received
 
+    bool no_javascript = false;
+
     time_t t_last_rendered = 0;
 
     Graph * graph_ptr = nullptr;

@@ -99,6 +99,8 @@ a.node:hover {color: #000000; text-decoration:underline; background:#55db50;}
 a.id:link {color: #000000; text-decoration:underline;}
 a.id:visited {color: #000000; text-decoration:underline;}
 a.id:hover {color: #000000; text-decoration:underline; background:#55db50;}
+.id_cell {color: #000000; text-decoration:underline; cursor: pointer;}
+.id_cell:hover {color: #000000; text-decoration:underline; background:#55db50;}
 a.nnl:hover {background:#55db50;}
 .success { background-color: #84ec7a; }
 .fail { background-color: rgb(206, 70, 70);}

@@ -73,9 +73,11 @@ bool load_templates(fzdashboard_templates & templates, dynamic_or_static html_ou
     return true;
 }
 
+/* *** The following are not presently in use. ***
 struct button_data {
     std::string url;
     std::string label;
+    bool needs_SPA_info = false; // by default, assume that using '?SPA=no' (single page application) specification for the static HTML version is not necessary
 };
 
 struct section_data {
@@ -86,15 +88,32 @@ struct section_data {
 struct button_section_data {
     std::vector<section_data> sections;
 };
+*/
 
 // *** We don't need this if we make JSON blocks use maps to search by label.
-std::string value_by_label(JSON_element_data_vec & buffers, const std::string matchlabel) {
+std::string text_by_label(JSON_element_data_vec & buffers, const std::string matchlabel) {
     for (auto & buffer : buffers) {
         if (buffer.label == matchlabel) {
             return env.render(buffer.text, inner_varvals); // The JSON string value can contain placeholders that are filled in according to inner_varvals.
         }
     }
     return "";
+}
+bool flag_by_label(JSON_element_data_vec & buffers, const std::string matchlabel) {
+    for (auto & buffer : buffers) {
+        if (buffer.label == matchlabel) {
+            return buffer.flag;
+        }
+    }
+    return false;
+}
+void set_text_by_label(JSON_element_data_vec & buffers, const std::string matchlabel, std::string text) {
+    for (auto & buffer : buffers) {
+        if (buffer.label == matchlabel) {
+            buffer.text = text;
+            return;
+        }
+    }
 }
 
 /* We might even want to do this if we want to use more complicated strings in the URL:
@@ -146,20 +165,25 @@ std::string render_buttons(render_environment & env, fzdashboard_templates & tem
         return "";
     }
     std::string buttons_str;
-    JSON_element_data_vec button_info;
+    JSON_element_data_vec button_info; // register which variables to look for in the JSON string
     button_info.emplace_back("url");
     button_info.emplace_back("window");
+    button_info.emplace_back("SPAinfo");
     std::string button_num_char("1");
     for (auto & button : block_ptr->elements) {
         if (is_populated_JSON_block(button.get())) {
             template_varvalues varvals;
             varvals.emplace("label", button->label);
             bool here = false;
-            if (button->children->find_many(button_info) == 2) {
-                here = (value_by_label(button_info, "window") != "_blank");
-                varvals.emplace("url", escape_double_quotes(value_by_label(button_info, "url")));
+            // grab data for the labels in `button_info`, only 2 are mandatory, "SPAinfo" is optional
+            if (button->children->find_many(button_info) >= 2) {
+                here = (text_by_label(button_info, "window") != "_blank");
                 if (html_output == dynamic_html) {
+                    varvals.emplace("url", escape_double_quotes(text_by_label(button_info, "url")));
                     varvals.emplace("num", button_num_char);
+                } else {
+                    varvals.emplace("url", escape_double_quotes(text_by_label(button_info, "url"))+text_by_label(button_info, "SPAinfo")); // using a string and not a flag here, because some URLs may already have arguments (use "&SPA=no") and others not (use "?SPA=no")
+                    set_text_by_label(button_info, "SPAinfo", ""); // explicitly clear, since it doesn't always get replaced
                 }
                 if (here) {
                     buttons_str += env.render(templates[index_button_here_temp], varvals);
@@ -214,7 +238,7 @@ bool render(std::string & json_str, dynamic_or_static html_output) {
             } else {
                 varvals.emplace("section_heading", section->label);
             }
-            varvals.emplace("buttons", render_buttons(env, templates, section->children.get()));
+            varvals.emplace("buttons", render_buttons(env, templates, section->children.get(), html_output));
             button_sections += env.render(templates[index_section_temp], varvals);
         }
     }

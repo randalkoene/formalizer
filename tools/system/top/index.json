@@ -2,11 +2,13 @@
     "System: " : {
         "Next Nodes" : {
             "url" : "/cgi-bin/fzgraphhtml-cgi.py",
-            "window" : "_blank"
+            "window" : "_blank",
+            "SPAinfo" : "?SPA=no"
         },
         "VTD Nodes" : {
             "url" : "/cgi-bin/fzgraphsearch-cgi.py?completion_lower=0.0&completion_upper=0.99&tdprop_lower=variable&tdprop_upper=variable&repeats=false",
-            "window" : "_blank"
+            "window" : "_blank",
+            "SPAinfo" : "&SPA=no"
         },
         "Recent Log" : {
             "url" : "/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END",

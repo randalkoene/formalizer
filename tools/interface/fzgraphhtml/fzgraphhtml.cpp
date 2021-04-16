@@ -39,8 +39,8 @@ fzgraphhtml fzgh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:m:Irt:i:L:N:M:D:x:o:eT:F:uC";
-    add_usage_top += " [-n <node-ID>|-m <node-ID>|-I|-t <topic-ID|topic-tag|?>|-L <name|?>] [-r] [-N <num>] [-M <max-YYYYmmddHHMM>] [-D <num-days>] [-x <len>] [-o <output-path>] [-e] [-T <named|node|Node>=<path>] [-F html|txt|node|desc] [-u] [-C]";
+    add_option_args += "n:m:Irt:i:L:N:M:D:x:o:eT:F:uCj";
+    add_usage_top += " [-n <node-ID>|-m <node-ID>|-I|-t <topic-ID|topic-tag|?>|-L <name|?>] [-r] [-N <num>] [-M <max-YYYYmmddHHMM>] [-D <num-days>] [-x <len>] [-o <output-path>] [-e] [-T <named|node|Node>=<path>] [-F html|txt|node|desc] [-u] [-C] [-j]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "Notes:\n"
@@ -74,7 +74,8 @@ void fzgraphhtml::usage_hook() {
           "    -T Use custom template instead of topics, named, node or single Node\n"
           "    -F Output format: html (default), txt, node, desc\n"
           "    -u Update 'shortlist' Named Node List\n"
-          "    -C (TEST) card output format\n");
+          "    -C (TEST) card output format\n"
+          "    -j no Javascript\n");
 }
 
 unsigned int parvalue_to_num_to_show(const std::string & parvalue) {
@@ -247,6 +248,11 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
 
     case 'C': {
         test_cards = true;
+        return true;
+    }
+
+    case 'j': {
+        no_javascript = true;
         return true;
     }
    

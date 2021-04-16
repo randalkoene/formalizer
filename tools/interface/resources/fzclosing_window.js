@@ -16,11 +16,13 @@ var closing_button_url;
 var stp;
 function do_if_opened_by_script(button_text, alt_text, alt_url) {
     if(window.opener === null) {
+        console.log('window/tab not auto-closable');
         //window.location.href = '<YOUR_DEFAULT_URL>';
         x = document.getElementById(id);
         x.innerHTML = alt_text;
         closing_button_url = alt_url;
     } else {
+        console.log('auto-closing countdown started');
         closing_button_text = button_text;
         Start_Closing_Countdown('closing_countdown');
     }

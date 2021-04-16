@@ -42,6 +42,17 @@ form = cgi.FieldStorage()
 
 # Get data from fields
 #startfrom = form.getvalue('startfrom')
+
+# statevars
+def addstate(v) -> str:
+    if v:
+        return '&'+v
+    else:
+        return ''
+SPA = form.getvalue('SPA')
+statevars = addstate(SPA)
+
+# local
 help = form.getvalue('help')
 id = form.getvalue('id')
 srclist = form.getvalue('srclist')
@@ -284,6 +295,8 @@ def generate_embeddable_list_of_NNLs_to_add_Node_to():
     with open(custom_template_file,'w') as f:
         f.write(modify_template_content)
     thecmd = "./fzgraphhtml -q -e -L '?' -o STDOUT -E STDOUT -T 'named="+custom_template_file+"'"
+    if SPA:
+        thecmd += ' -j' # no Javascript
     # Make page head, including form input for new Named Node List to add to
     print("Content-type:text/html\n\n")
     print(listpagehead.format(node_id=id))
@@ -300,6 +313,8 @@ def generate_embeddable_list_of_NNLs_to_add_Node_to():
 
 def generate_NNL_page():
     thecmd = "./fzgraphhtml -q -e -L '"+srclist+"' -o STDOUT -E STDOUT"
+    if SPA:
+        thecmd += ' -j' # no Javascript
     print("Content-type:text/html\n\n")
     if srclist == '?':
         print(listpagehead_alllists)
@@ -316,6 +331,8 @@ def generate_Node_edit_form_page():
     thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -m "+edit
     if topics:
         thecmd += " -t '"+topics+"'"
+    if SPA:
+        thecmd += ' -j' # no Javascript
     print(editpagehead)
     try_command_call(thecmd)
     print(editpagetail)
@@ -325,6 +342,8 @@ def generate_topics_page():
     thecmd = "./fzgraphhtml -q -t '?' -E STDOUT -o STDOUT"
     if tonode:
         thecmd += " -i " + tonode
+    if SPA:
+        thecmd += ' -j' # no Javascript
     print("Content-type:text/html\n\n")
     #print(topicspagehead)
     try_command_call(thecmd)
@@ -335,6 +354,8 @@ def generate_alternative_topics_page():
     if tonode:
         thecmd += " -i " + tonode
     thecmd += f" -T 'topics=STRING:{custom_topics_template}'"
+    if SPA:
+        thecmd += ' -j' # no Javascript
     #print("Content-type:text/html\n\n")
     print(topicspagehead)
     print('<tr>')
@@ -349,6 +370,8 @@ def generate_alternative_topics_page():
 
 def generate_topic_nodes_page():
     thecmd = "./fzgraphhtml -q -t '"+topic+"' -E STDOUT -o STDOUT"
+    if SPA:
+        thecmd += ' -j' # no Javascript
     print("Content-type:text/html\n\n")
     try_command_call(thecmd)
 
@@ -377,6 +400,9 @@ def generate_Next_Nodes_Schedule_page():
     if num_days:
         thecmd += ' -D '+num_days
 
+    if SPA:
+        thecmd += ' -j' # no Javascript
+
     log(thecmd)
 
     try_command_call(thecmd)
@@ -404,6 +430,9 @@ def generate_Incomplete_Nodes_list():
 
     if num_days:
         thecmd += ' -D '+num_days
+
+    if SPA:
+        thecmd += ' -j' # no Javascript
 
     log(thecmd)
 
