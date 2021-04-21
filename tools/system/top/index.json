@@ -26,6 +26,10 @@
             "url" : "https://calendar.google.com/calendar/?authuser=randal.a.koene@gmail.com",
             "window" : "_blank"
         },
+        "EarlyWiz" : {
+            "url" : "/formalizer/earlywiz.html",
+            "window" : "_blank"
+        },
         "Morning Protocol" : {
             "url" : "/cgi-bin/fzguide.system-cgi.py?submit=Read",
             "window" : "_blank"
@@ -280,6 +284,10 @@
         }
     },
     "Information: " : {
+        "System and Formalizer" : {
+            "url" : "https://docs.google.com/document/d/1rYPFgzFgjkF1xGx3uABiXiaDR5sfmOzqYQRqSntcyyY/edit?usp=sharing",
+            "window" : "_blank"
+        },
         "C++ / C" : {
             "url" : "https://trello.com/b/BIRsdsnE",
             "window" : "_blank"

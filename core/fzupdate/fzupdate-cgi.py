@@ -4,36 +4,6 @@
 #
 # CGI script to call fzupdate.
 
-# Import modules for CGI handling 
-try:
-    import cgitb; cgitb.enable()
-except:
-    pass
-import sys, cgi, os
-sys.stderr = sys.stdout
-from time import strftime
-import traceback
-from io import StringIO
-from traceback import print_exc
-from subprocess import Popen, PIPE
-
-# cgitb.enable()
-# cgitb.disable()
-# cgitb.enable(display=0, logdir="/tmp/test_python_cgiformget.log")
-
-# Create instance of FieldStorage 
-form = cgi.FieldStorage() 
-
-# Get data from fields
-#repeating = form.getvalue('repeating')
-#variable = form.getvalue('variable')
-update = form.getvalue('update')
-T_emulate = form.getvalue('T_emulate')
-map_days = form.getvalue('map_days')
-verbose = form.getvalue('verbose')
-T_pass = form.getvalue('T_pass')
-
-
 pagehead = '''Content-type:text/html
 
 <html>
@@ -58,10 +28,55 @@ pagehead = '''Content-type:text/html
 </style>
 '''
 
+print(pagehead)
+
+# Import modules for CGI handling 
+try:
+    import cgitb; cgitb.enable()
+except:
+    pass
+import sys, cgi, os
+sys.stderr = sys.stdout
+from time import strftime
+import traceback
+from io import StringIO
+from traceback import print_exc
+from subprocess import Popen, PIPE
+
+from fzmodbase import *
+from tcpclient import get_server_address
+import Graphaccess
+
+Graphaccess.fzmodulebasedir='./' # for use from CGI script
+
+# cgitb.enable()
+# cgitb.disable()
+# cgitb.enable(display=0, logdir="/tmp/test_python_cgiformget.log")
+
+# Create instance of FieldStorage 
+form = cgi.FieldStorage() 
+
+# Get data from fields
+#repeating = form.getvalue('repeating')
+#variable = form.getvalue('variable')
+update = form.getvalue('update')
+T_emulate = form.getvalue('T_emulate')
+map_days = form.getvalue('map_days')
+verbose = form.getvalue('verbose')
+T_pass = form.getvalue('T_pass')
+
+
 pagetail = '''<hr>
 </body>
 </html>
 '''
+
+show_passedfixed_steps = ("""<p>Number of passed Fixed or Exact Target Date Nodes: ???</p>
+<p>(Actually, you should just list the NNL here with fzgraphhtml.)</p>
+<p>Manually update Nodes that should not be converted: <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=passed_fixed">passed_fixed NNL</a></p>
+<p><b>Reload</b> to see how many remain.</p>
+<p><a href="/cgi-bin/fzupdate-cgi.py?update=convert_passedfixed">Update the rest</a>.</p>
+""")
 
 
 def try_command_call(thecmd):
@@ -87,9 +102,49 @@ def try_command_call(thecmd):
     print('</pre></div>')
 
 
-if __name__ == '__main__':
+def make_filter_passed_fixed():
+    completionfilter = 'completion=[0.0-0.999]'
+    hoursfilter = 'hours=[0.001-1000.0]'
+    if T_emulate:
+        targetdatesfilter = f'targetdate=[MIN-{T_emulate}]'
+    else:
+        targetdatesfilter = 'targetdate=[MIN-NOW]'
+    tdpropertiesfilter = 'tdproperty=[fixed-exact]'
+    return f'{completionfilter},{hoursfilter},{targetdatesfilter},{tdpropertiesfilter},repeats=false'
 
-    print(pagehead)
+
+filterstr = ''
+def get_passed_fixed() ->int:
+    global filterstr
+    config = {}
+    config['verbose'] = True
+    config['logcmdcalls'] = False
+    config['logcmderrors'] = False
+    if not Graphaccess.clear_NNL('passed_fixed', config):
+        return -1
+    if (filterstr == ''):
+        filterstr = make_filter_passed_fixed()
+    num = Graphaccess.select_to_NNL(filterstr,'passed_fixed')
+    if (num < 0):
+        return -2
+    return num
+
+
+# This is based on the process carred out in fztask.py:update_passed_fixed().
+def prepare_convert_passed_fixed():
+    get_server_address('.')
+    num = get_passed_fixed()
+    print(show_passedfixed_steps)
+
+
+def convert_passed_fixed():
+    get_server_address('.')
+    num_fixed_converted = Graphaccess.edit_nodes_in_NNL('passed_fixed','tdproperty','variable')
+    if (num_fixed_converted > 0):
+        print(f'<p><b>Converted {num_fixed_converted} Fixed or Exact Target Date Nodes to Variable Target Date Nodes.</b></p>')
+
+
+if __name__ == '__main__':
 
     thisscript = os.path.realpath(__file__)
     print(f'<!--(For dev reference, this script is at {thisscript}.) -->')
@@ -126,6 +181,14 @@ if __name__ == '__main__':
         thecmd = "./fzupdate -E STDOUT -u"+add_to_cmd
         try_command_call(thecmd)
         print('<p><b>To see which Nodes were modified, see the <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=batch_updated">batch_updated</a> Named Node List.</b></p>')
+
+    if (update=='passedfixed'):
+        prepare_convert_passed_fixed()
+        thecmd="passedfixed"
+    
+    if (update=='convert_passedfixed'):
+        convert_passed_fixed()
+        thecmd="convert_passedfixed"
 
     if (len(thecmd)==0):
         print('<p><b>Unrecognized update request.</b></p>')

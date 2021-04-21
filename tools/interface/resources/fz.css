@@ -93,6 +93,15 @@ border: 2px solid #581f04;
 background-color: #b14b11;
 color: white;
 }
+.button_inactive {
+    background-color: var(--color-bg);
+    color: rgb(71, 71, 71);
+    border: 2px solid #c9c9c9;
+}
+.button_inactive:hover {
+    background-color: var(--color-bg);
+    color: rgb(71, 71, 71);
+}
 a.node:link {color: #000000; text-decoration:none;}
 a.node:visited {color: #000000; text-decoration:none;}
 a.node:hover {color: #000000; text-decoration:underline; background:#55db50;}

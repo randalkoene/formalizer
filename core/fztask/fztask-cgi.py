@@ -104,19 +104,29 @@ def get_most_recent_Log_chunk_info(verbosity = 1) -> list:
         return []
 
 def nonlocal_fztask_page():
+    print('Content-type:text/html\n\n')
     new_GET_str = ''
+
     # Get data from fields
     is_static = form.getvalue('is_static')
+
     T_emulated = form.getvalue('T')
+    if (T_emulated == '') or (T_emulated == 'actual'):
+        T_emulated = None
     if T_emulated:
         new_GET_str += '&T='+T_emulated
+        T_emulated_showhtml = T_emulated
+    else:
+        T_emulated_showhtml = "<b>actual time</b>"
+    
     # Prepare state data
     chunkdatavec = get_most_recent_Log_chunk_info()
     t_open = chunkdatavec[0]
     open_or_closed = chunkdatavec[1]
+    recent_id = chunkdatavec[2]
     num_entries = chunkdatavec[3]
     t_open_epoch = int(datetime.datetime.strptime(t_open, '%Y%m%d%H%M').timestamp())
-    if (T_emulated == '') or (T_emulated == 'actual'):
+    if not T_emulated:
         fzlog_T = ''
         t_epoch = int(datetime.datetime.now().timestamp())
         diff_minutes = int((t_epoch - t_open_epoch) / 60)
@@ -130,13 +140,26 @@ def nonlocal_fztask_page():
         open_closed_str = f'<b>Opened</b> at {t_open}.'
     else:
         open_closed_str = f'<b>Closed.</b>'
+    got_selected = False
+    same_node = False
     selected_node_HTML = get_selected_Node_HTML()
+    # Check if same Node (needs confirmation)
+    if selected_node_HTML:
+        idstr_start = selected_node_HTML.find('?id=')
+        if (idstr_start >= 0):
+            got_selected = True
+            idstr_start += 4
+            idstr_end = selected_node_HTML.find('"',idstr_start)
+            if (idstr_start < 0):
+                got_selected = False
+            else:
+                selected_id = selected_node_HTML[idstr_start:idstr_end]
+                if (recent_id == selected_id):
+                    same_node = True
     static_page_call = '/cgi-bin/fztask-cgi.py?is_static=on'+new_GET_str
 
     if is_static:
-        fztask_webpage = ("Content-type:text/html\n"
-        "\n"
-        "<html>\n"
+        fztask_webpage = ("<html>\n"
         "<head>\n"
         """<meta charset="utf-8" />\n"""
         """<link rel="icon" href="/favicon-32x32.png">\n"""
@@ -153,7 +176,7 @@ def nonlocal_fztask_page():
         "<!-- STATIC version -->"
         "<h1>fz: Task</h1>\n"
         "\n"
-        f"<p>T = {T_emulated} ({diff_min_str} minutes since Log chunk opening)</p>\n"
+        f"<p>T = {T_emulated_showhtml} ({diff_min_str} minutes since Log chunk opening)</p>\n"
         "\n"
         "<table><tbody>\n"
         "<tr>\n"
@@ -166,18 +189,31 @@ def nonlocal_fztask_page():
         """<td class="stateinfo">\n"""
         f'{open_closed_str}\n'
         """</td></tr>\n"""
-        """<tr>\n"""
-        """<td>3. [<a href="cgi-bin/fzgraphhtml-cgi.py" target="_blank">Update Schedule</a>]</td>\n"""
-        """<td class="stateinfo"></td>\n"""
+        """<tr>\n""")
+
+        if T_emulated:
+            fztask_webpage += ("""<td>3. (Updating Schedule not recommended in Emulated Time.) [<a href="cgi-bin/fzgraphhtml-cgi.py" target="_blank">Update Anyway</a>]</td>\n""")
+        else:
+            fztask_webpage += ("""<td>3. [<a href="cgi-bin/fzgraphhtml-cgi.py" target="_blank">Update Schedule</a>]</td>\n""")
+
+        fztask_webpage += ("""<td class="stateinfo"></td>\n"""
         """</tr>\n"""
         """<tr>\n"""
         """<td>4. [<a href="/select.html" target="_blank">Select Node for Next Log chunk</a>]</td>\n"""
         """<td class="stateinfo"><table><tbody>\n"""
         f'{selected_node_HTML}\n'
         f"""</tbody></table></td></tr>\n"""
-        """<tr>\n"""
-        f"""<td>5. [<a href="/cgi-bin/fzlog-cgi.py?action=open{fzlog_T}">Open New Log chunk</a>]</td>\n"""
-        """<td class="stateinfo"></td>\n"""
+        """<tr>\n""")
+
+        if got_selected:
+            if same_node:
+                fztask_webpage += (f"""<td>5. [Open New Log chunk] confirm: [<a href="/cgi-bin/fzlog-cgi.py?action=open{fzlog_T}">Same Node - Open Log chunk</a>]</td>\n""")
+            else:
+                fztask_webpage += (f"""<td>5. [<a href="/cgi-bin/fzlog-cgi.py?action=open{fzlog_T}">Open New Log chunk</a>]</td>\n""")
+        else:
+            fztask_webpage += (f"""<td>5. [Open New Log chunk] (select a Node to activate)</td>\n""")
+
+        fztask_webpage += ("""<td class="stateinfo"></td>\n"""
         """</tr>\n"""
         """</tbody></table>\n"""
         """\n"""
@@ -188,9 +224,7 @@ def nonlocal_fztask_page():
         """</html>\n""")
 
     else:
-        fztask_webpage = ("Content-type:text/html\n"
-        "\n"
-        "<html>\n"
+        fztask_webpage = ("<html>\n"
         "<head>\n"
         """<meta charset="utf-8" />\n"""
         f"""<noscript><meta http-equiv="refresh" content="0; url={static_page_call}" /></noscript>"""
@@ -207,7 +241,7 @@ def nonlocal_fztask_page():
         "<body>\n"
         "<h1>fz: Task</h1>\n"
         "\n"
-        f"<p>T = {T_emulated} ({diff_min_str} minutes since Log chunk opening)</p>\n"
+        f"<p>T = {T_emulated_showhtml} ({diff_min_str} minutes since Log chunk opening)</p>\n"
         "\n"
         "<table><tbody>\n"
         "<tr>\n"
@@ -220,18 +254,31 @@ def nonlocal_fztask_page():
         """<td class="stateinfo">\n"""
         f'{open_closed_str}\n'
         """</td></tr>\n"""
-        """<tr>\n"""
-        """<td>3. <button class="button button1" onclick="window.open('cgi-bin/fzgraphhtml-cgi.py','_blank');">Update Schedule</button></td>\n"""
-        """<td class="stateinfo"></td>\n"""
+        """<tr>\n""")
+
+        if T_emulated:
+            fztask_webpage += ("""<td>3. (Updating Schedule not recommended in Emulated Time.) <button class="button button1" onclick="window.open('cgi-bin/fzgraphhtml-cgi.py','_blank');">Update Anyway</button></td>\n""")
+        else:
+            fztask_webpage += ("""<td>3. <button class="button button1" onclick="window.open('cgi-bin/fzgraphhtml-cgi.py','_blank');">Update Schedule</button></td>\n""")
+
+        fztask_webpage += ("""<td class="stateinfo"></td>\n"""
         """</tr>\n"""
         """<tr>\n"""
         """<td>4. <button class="button button2" onclick="window.open('/select.html','_blank');">Select Node for Next Log chunk</button></td>\n"""
         """<td class="stateinfo"><table><tbody>\n"""
         f'{selected_node_HTML}\n'
         f"""</tbody></table></td></tr>\n"""
-        """<tr>\n"""
-        f"""<td>5. <button class="button button1" onclick="window.open('/cgi-bin/fzlog-cgi.py?action=open{fzlog_T}','');">Open New Log chunk</button></td>\n"""
-        """<td class="stateinfo"></td>\n"""
+        """<tr>\n""")
+
+        if got_selected:
+            if same_node:
+                fztask_webpage += (f"""<td>5. <button class="button button_inactive">Open New Log chunk</button> confirm: <button class="button button2" onclick="window.open('/cgi-bin/fzlog-cgi.py?action=open{fzlog_T}','');">Same Node - Open Log chunk</button></td>\n""")
+            else:
+                fztask_webpage += (f"""<td>5. <button class="button button1" onclick="window.open('/cgi-bin/fzlog-cgi.py?action=open{fzlog_T}','');">Open New Log chunk</button></td>\n""")
+        else:
+            fztask_webpage += (f"""<td>5. <button class="button button1">Open New Log chunk</button> (select Node to activate)</td>\n""")
+
+        fztask_webpage += ("""<td class="stateinfo"></td>\n"""
         """</tr>\n"""
         """</tbody></table>\n"""
         """\n"""

@@ -9,13 +9,14 @@ Versioning is based on https://semver.org/. See coreversion.hpp for more.
 """
 
 import socket
+from fzmodbase import *
 from error import *
 from fzcmdcalls import *
 from tcpclient import serial_API_request
 
 
 def selected_Node_description(config: dict, excerpt_len = 0):
-    thecmd = "fzgraphhtml -L 'selected' -F desc -N 1 -e -q"
+    thecmd = f"{fzmodulebasedir}fzgraphhtml -L 'selected' -F desc -N 1 -e -q"
     if (excerpt_len > 0):
         thecmd += f' -x {excerpt_len}'
     retcode = try_subprocess_check_output(thecmd,'selected_desc', config)
@@ -30,7 +31,7 @@ def selected_Node_description(config: dict, excerpt_len = 0):
 
 
 def get_selected_Node(config: dict) -> str:
-    retcode = try_subprocess_check_output(f"fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected', config)
+    retcode = try_subprocess_check_output(f"{fzmodulebasedir}fzgraphhtml -L 'selected' -F node -N 1 -e -q",'selected', config)
     cmderrorreviewstr = config['cmderrorreviewstr']
     exit_error(retcode, f'Attempt to get selected Node failed.{cmderrorreviewstr}', True)
     if (retcode == 0):
@@ -58,7 +59,7 @@ def browse_for_Node(config: dict):
 
 
 def clear_NNL(listname: str, config: dict):
-    thecmd = f"fzgraph -C '/fz/graph/namedlists/{listname}?delete='"
+    thecmd = f"{fzmodulebasedir}fzgraph -C '/fz/graph/namedlists/{listname}?delete='"
     if config['verbose']:
         thecmd += ' -V'
     retcode = try_subprocess_check_output(thecmd, 'clearlist', config)
@@ -87,7 +88,7 @@ def edit_nodes_in_NNL(listname: str, param_label: str, valstr: str):
 def get_node_data(node: str, param_labels: str, config: dict):
     # *** not yet implemented, decide if you use GET or FZ method
     # *** here's a less efficient, temporary version
-    thecmd = f'fzgraphhtml -n {node} -o STDOUT -F node -e -q'
+    thecmd = f'{fzmodulebasedir}fzgraphhtml -n {node} -o STDOUT -F node -e -q'
     retcode = try_subprocess_check_output(thecmd, 'nodedata', config)
     exit_error(retcode, f'Attempt to get Node data for Node {node} failed.', True)
     if (retcode != 0):
@@ -108,7 +109,7 @@ def get_main_topic(node: str, config: dict):
     with open(config['customtemplate'],'w') as f:
         f.write(customtemplate)
     customtemplatefile = config['customtemplate']
-    topicgettingcmd = f"fzgraphhtml -q -T 'Node={customtemplatefile}' -n {node}"
+    topicgettingcmd = f"{fzmodulebasedir}fzgraphhtml -q -T 'Node={customtemplatefile}' -n {node}"
     retcode = try_subprocess_check_output(topicgettingcmd, 'topic', config)
     cmderrorreviewstr = config['cmderrorreviewstr']
     exit_error(retcode, f'Attempt to get Node topic failed.{cmderrorreviewstr}', True)
