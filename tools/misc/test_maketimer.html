@@ -83,6 +83,39 @@ Minutes: <input id="timerMinutes" type="number" min="0" max="10000" value="5">
     </div>
 </section>
 
+<section>
+    <audio id="timeover1">
+        <!-- <source src="horse.ogg" type="audio/ogg"> -->
+        <source src="/formalizer/SlowMorning.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <audio id="timeover2">
+        <!-- <source src="horse.ogg" type="audio/ogg"> -->
+        <source src="/formalizer/Daybreak.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <audio id="timeover3">
+        <!-- <source src="horse.ogg" type="audio/ogg"> -->
+        <source src="/formalizer/EarlyRiser.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <audio id="timeover4">
+        <!-- <source src="horse.ogg" type="audio/ogg"> -->
+        <source src="/formalizer/sms-alert-1-daniel_simon.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <p>
+        <button id="chooseAudio" class="button button1" onclick="chooseSound('1');">Select SlowMorning.mp3</button>
+        <button id="chooseAudio" class="button button1" onclick="chooseSound('2');">Select Daybreak.mp3</button>
+        <button id="chooseAudio" class="button button1" onclick="chooseSound('3');">Select EarlyRiser.mp3</button>
+        <button id="chooseAudio" class="button button1" onclick="chooseSound('4');">Select sms-alert-1-daniel_simon.mp3</button>
+    </p>
+    <p>
+        <button id="stopAudio" class="button button2" onclick="stopSound();">Stop Audible Alert</button>
+        <button id="testAudio" class="button button1" onclick="startSound();">Test Audible Alert</button>
+    </p>
+</section>
+
 <script type="text/javascript">
 
 const fill = document.querySelector(".timerBarFill");
@@ -96,12 +129,39 @@ let secondsLeft = chunk_seconds;
 let heightPct = 0; // start empty before a timer is set
 fill.style.height = 0;
 
+let t_start = 0;
+
 // every hundred millisecond, but probably should only do when a line less
 //let countDown = setInterval(tick, secondsperupdate * 1000);
 let countDown = null;
 
+var audioelement = document.getElementById("timeover1");
+
+// A sound to play when the timer has run out.
+function startSound() {
+    audioelement.loop = true;
+    audioelement.play();
+}
+
+function stopSound() {
+    audioelement.pause();
+    audioelement.load();
+}
+
+function chooseSound(num) {
+    audioelement = document.getElementById("timeover"+num);
+}
+
 function tick() {
-    secondsLeft -= secondsperupdate;
+    // *** Change this to (occasionally) confirm the actual time remaining by doing a diff between start time and now.
+    //     That is more reliable than the interval timer.
+    //secondsLeft -= secondsperupdate;
+    // *** Could do Date.now() check less often than once per second and allow subtraction most of the time
+    var secondsPassed = (Date.now() - t_start) / 1000;
+    secondsLeft = chunk_seconds - secondsPassed;
+    if (secondsLeft < 0) {
+        secondsLeft = 0;
+    }
     var minsleft = Math.floor(secondsLeft / 60);
     var hoursleft = Math.floor(minsleft/60);
     var mins_remain = minsleft - (60*hoursleft);
@@ -113,6 +173,7 @@ function tick() {
     if (secondsLeft === 0) {
         clearInterval(countDown);
         fill.style.height = 0;
+        startSound();
         return;
     }
     heightPct = 100 * secondsLeft / chunk_seconds;
@@ -127,6 +188,7 @@ function tick() {
 
 }
 function timer_start(mins) {
+    t_start = Date.now(); // We're using clock time differences instead of relying on setInterval to be accurate.
     console.log('Timer mins = ' + mins);
     chunk_seconds = mins * 60;
     secondsLeft = chunk_seconds;
