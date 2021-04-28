@@ -40,7 +40,7 @@ namespace fz {
  */
 bool client_socket_shmem_request(std::string request_str, std::string server_ip_address, uint16_t port_number, std::string & response_str) {
     //struct sockaddr_in address;
-    #define str_SIZE 100
+    #define str_SIZE 1000 // was 100, but that caused trouble when fzserverpq /fz API requests gave HTML responses to fzgraph -C
     int sock = 0;
     struct sockaddr_in serv_addr;
     char str[str_SIZE];

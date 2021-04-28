@@ -118,6 +118,8 @@ Minutes: <input id="timerMinutes" type="number" min="0" max="10000" value="5">
 
 <script type="text/javascript">
 
+'use strict'; // Helps us prevent errors through implicit var/let.
+
 const fill = document.querySelector(".timerBarFill");
 const text1 = document.querySelector(".timerBarText1");
 const text2 = document.querySelector(".timerBarText2");
@@ -129,7 +131,7 @@ let secondsLeft = chunk_seconds;
 let heightPct = 0; // start empty before a timer is set
 fill.style.height = 0;
 
-let t_start = 0;
+var timer_t_start = 0;
 
 // every hundred millisecond, but probably should only do when a line less
 //let countDown = setInterval(tick, secondsperupdate * 1000);
@@ -157,17 +159,21 @@ function tick() {
     //     That is more reliable than the interval timer.
     //secondsLeft -= secondsperupdate;
     // *** Could do Date.now() check less often than once per second and allow subtraction most of the time
-    var secondsPassed = (Date.now() - t_start) / 1000;
-    secondsLeft = chunk_seconds - secondsPassed;
-    if (secondsLeft < 0) {
-        secondsLeft = 0;
+    var t_now = Date.now();
+    var millisecondsPassed = t_now - timer_t_start;
+    //console.log('timer_t_start = '+timer_t_start+', t_now = '+t_now+', millisecondsPassed = '+millisecondsPassed+', chunk_seconds = '+chunk_seconds);
+    var millisecondsLeft = (1000*chunk_seconds) - millisecondsPassed;
+    if (millisecondsLeft < 0) {
+        millisecondsLeft = 0;
     }
+    secondsLeft = millisecondsLeft / 1000.0;
+    //console.log('millisecondsLeft = '+millisecondsLeft+', secondsLeft = '+secondsLeft);
     var minsleft = Math.floor(secondsLeft / 60);
     var hoursleft = Math.floor(minsleft/60);
     var mins_remain = minsleft - (60*hoursleft);
-    var secsleft = secondsLeft % 60;
-    console.log('minsleft='+minsleft+', hoursleft='+hoursleft+', mins_remain='+mins_remain+', secsleft='+secsleft)
-    var secstr = ("0" + secsleft).substr(-2);
+    var secsleft = Math.ceil(secondsLeft % 60);
+    var secstr = ("0" + secsleft.toString()).substr(-2);
+    console.log('minsleft='+minsleft+', hoursleft='+hoursleft+', mins_remain='+mins_remain+', secstr='+secstr)
     text1.textContent = `${hoursleft}:${mins_remain}:${secstr}`;
     text2.textContent = `${minsleft}:${secstr}`;
     if (secondsLeft === 0) {
@@ -188,7 +194,8 @@ function tick() {
 
 }
 function timer_start(mins) {
-    t_start = Date.now(); // We're using clock time differences instead of relying on setInterval to be accurate.
+    timer_t_start = Date.now(); // We're using clock time differences instead of relying on setInterval to be accurate.
+    console.log('Timer t_start = ' + timer_t_start);
     console.log('Timer mins = ' + mins);
     chunk_seconds = mins * 60;
     secondsLeft = chunk_seconds;
@@ -211,18 +218,34 @@ function button_timer_start() {
 
 window.onload = function() {
 
-    source.addEventListener("TC_start", function(event) {
-        const t = JSON.parse(event.data).t;
-        const mins = JSON.parse(event.data).mins;
-        console.log('Event t_start = '+t);
-        timer_start(mins);
-    });
+    var remote_control = false;
 
-    source.addEventListener("TC_end", function(event) {
-        const t = JSON.parse(event.data).t
-        console.log('Event t_end = '+ t)
-        timer_end();
-    });
+    if (remote_control) {
+    
+        let taskserveraddr = 'http://morpheus.local:5000';
+        // subscribe to Task Chunk messages
+        var source = new EventSource(taskserveraddr+'/listen');
+
+        console.log('Connecting timer to remote control from '+taskserveraddr);
+
+        source.addEventListener("TC_start", function(event) {
+            const t = JSON.parse(event.data).t;
+            const mins = JSON.parse(event.data).mins;
+            console.log('Event t_start = '+t);
+            timer_start(mins);
+        });
+
+        source.addEventListener("TC_end", function(event) {
+            const t = JSON.parse(event.data).t
+            console.log('Event t_end = '+ t)
+            timer_end();
+        });
+
+    } else {
+
+        console.log('Timer without connection to remote control.');
+
+    }
 
 };
 

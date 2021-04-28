@@ -71,12 +71,11 @@ pagetail = '''<hr>
 </html>
 '''
 
-show_passedfixed_steps = ("""<p>Number of passed Fixed or Exact Target Date Nodes: ???</p>
-<p>(Actually, you should just list the NNL here with fzgraphhtml.)</p>
+show_passedfixed_steps = """<p>(Actually, you should just list the NNL here with fzgraphhtml.)</p>
 <p>Manually update Nodes that should not be converted: <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=passed_fixed">passed_fixed NNL</a></p>
 <p><b>Reload</b> to see how many remain.</p>
 <p><a href="/cgi-bin/fzupdate-cgi.py?update=convert_passedfixed">Update the rest</a>.</p>
-""")
+"""
 
 
 def try_command_call(thecmd):
@@ -120,13 +119,23 @@ def get_passed_fixed() ->int:
     config['verbose'] = True
     config['logcmdcalls'] = False
     config['logcmderrors'] = False
+    # Note that Graphaccess uses the subprocess call in fzcmdcalls.py, which does not include a <pre> block.
+    # Add this here if needed:
+    if config['verbose']:
+        print('<div class="map"><pre>')
     if not Graphaccess.clear_NNL('passed_fixed', config):
+        if config['verbose']:
+            print('</pre></div>')
         return -1
     if (filterstr == ''):
         filterstr = make_filter_passed_fixed()
     num = Graphaccess.select_to_NNL(filterstr,'passed_fixed')
     if (num < 0):
+        if config['verbose']:
+            print('</pre></div>')
         return -2
+    if config['verbose']:
+        print('</pre></div>')
     return num
 
 
@@ -134,6 +143,7 @@ def get_passed_fixed() ->int:
 def prepare_convert_passed_fixed():
     get_server_address('.')
     num = get_passed_fixed()
+    print(f"<p>Number of passed Fixed or Exact Target Date Nodes: {num}</p>")
     print(show_passedfixed_steps)
 
 
