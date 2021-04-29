@@ -195,7 +195,10 @@ WEBINTERFACES += $(COREPATH)/fzguide.system/fzguide.system-form.html
 # WEBINTERFACES += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-form.html
 WEBINTERFACES += $(TOOLSPATH)/interface/logentry-form/templates/logentry-form_fullpage.template.html
 WEBINTERFACES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-form.html
+WEBINTERFACES += $(TOOLSPATH)/interface/timer/timer.html
 WEBINTERFACES += $(TOOLSPATH)/system/earlywiz/earlywiz.html
+WEBINTERFACES += $(TOOLSPATH)/system/latewiz/latewiz.html
+WEBINTERFACES += $(TOOLSPATH)/system/latewiz/templates/prep-morning-exercise.html
 WEBINTERFACES += $(TOOLSPATH)/system/metrics/sysmet-add/sysmet-add-form.html
 
 # Data files to make available for reading to web interfaces via symbolic links
@@ -239,7 +242,6 @@ TESTS += $(TOOLSPATH)/misc/test_add_node.html
 TESTS += $(TOOLSPATH)/misc/test_task_chunk_countdown_bar.html
 TESTS += $(TOOLSPATH)/misc/test_webfileread.html
 TESTS += $(TOOLSPATH)/misc/test_timed_close.html
-TESTS += $(TOOLSPATH)/misc/test_maketimer.html
 # +----- end  : Select Formalizer executables -----+
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html

@@ -38,6 +38,10 @@
             "url" : "/cgi-bin/fzguide.system-cgi.py?submit=Read&chapter=ACT&spec_chapter=on",
             "window" : "_blank"
         },
+        "LateWiz" : {
+            "url" : "/formalizer/latewiz.html",
+            "window" : "_blank"
+        },
         "Integrity" : {
             "url" : "/integrity.html",
             "window" : "_blank"
@@ -352,6 +356,10 @@
         },
         "Filter &amp; Edit Guide" : {
             "url" : "/formalizer/fzguide.system-form.html",
+            "window" : "_blank"
+        },
+        "Timer" : {
+            "url" : "/formalizer/timer.html",
             "window" : "_blank"
         }
     }
