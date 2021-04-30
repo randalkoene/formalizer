@@ -200,6 +200,7 @@ WEBINTERFACES += $(TOOLSPATH)/system/earlywiz/earlywiz.html
 WEBINTERFACES += $(TOOLSPATH)/system/latewiz/latewiz.html
 WEBINTERFACES += $(TOOLSPATH)/system/latewiz/templates/prep-morning-exercise.html
 WEBINTERFACES += $(TOOLSPATH)/system/metrics/sysmet-add/sysmet-add-form.html
+WEBINTERFACES += $(TOOLSPATH)/system/planning/decisions/rttdecision/rttdecision-template.html
 
 # Data files to make available for reading to web interfaces via symbolic links
 SYMWEB =

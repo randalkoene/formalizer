@@ -20,7 +20,9 @@ from io import StringIO
 from traceback import print_exc
 from subprocess import Popen, PIPE
 
+cgireadabledir = "/var/www/html/formalizer/"
 cgiwritabledir = "/var/www/webdata/formalizer/"
+authoritativelogentryform = cgireadabledir+"logentry-form_fullpage.template.html" # in a place that CGI can see
 
 config = {}
 config['verbose'] = True
@@ -75,6 +77,13 @@ Choose a Node and add it to the <b>select</b> List:
 <form action="/cgi-bin/logentry-form.py" method="post">
 Make Log entry for <input type="submit" name="makeentry" value="Selected Node" />.
 </form>
+"""
+
+selecttemplatehtml = """
+Choose one of these <b>templates</b>:
+<ul>
+<li>[<a href="/cgi-bin/logentry-form.py?makeentry=usetemplate&template=decisionRTT">select template</a>] Decision Making Template (System.Planning.Decisions.RTT).
+</ul>
 """
 
 # We need this everywhere to run various shell commands.
@@ -167,6 +176,43 @@ def select_Node():
     print(pagetail)
 
 
+def select_Template():
+    print(pagehead)
+    print(selecttemplatehtml)
+    print(pagetail)
+
+
+# A readable location for CGI scripts is probably /var/www/html/formalizer,
+# although the /var/www/webdata is another candidate.
+templatefiles = {
+    'decisionRTT' : cgireadabledir+'rttdecision-template.html'
+}
+
+def templated_entry(template):
+    print("Content-type:text/html\n")
+    try:
+        with open(authoritativelogentryform, "r") as f:
+            formhtml = f.read()
+    except:
+        print(f'<html><head><title>fz: Log Entry (fzlog) - Error</title></head><body><b>Error: Unable to read file at {authoritativelogentryform}.</b></body></html>')
+        sys.exit(0)
+    textareapos = formhtml.find('</textarea>')
+    if (textareapos < 0):
+        print(f'<html><head><title>fz: Log Entry (fzlog) - Error</title></head><body><b>Error: Missing textarea end tag in HTML file at {authoritativelogentryform}.</b></body></html>')
+        sys.exit(0)
+    # Note that the templates need to be available in a location that the CGI script can access and read.
+    # I.e. the master Makefile needs to copy them to such a location.
+    try:
+        templatepath = templatefiles[template]
+        with open(templatepath, "r") as f:
+            templatehtml = f.read()
+    except:
+        print(f'<html><head><title>fz: Log Entry (fzlog) - Error</title></head><body><b>Error: Unable to read template file for {template}.</b></body></html>')
+        sys.exit(0)
+    form_with_template_html = formhtml[0:textareapos] + templatehtml + formhtml[textareapos:]
+    print(form_with_template_html)
+
+
 def missing_option():
     print(pagehead)
     print('<p class="fail"><b>No makeentry option was specified.</b></p>')
@@ -181,6 +227,13 @@ def missing_entry_text():
     sys.exit(0)
 
 
+def entry_text_write_problem(logentrytextfile):
+    print(pagehead)
+    print(f'<p class="fail"><b>Unable to cache Log entry text through file at {logentrytextfile}.</b></p>')
+    print(pagetail)
+    sys.exit(0)
+
+
 def unknown_option():
     print(pagehead)
     print('<p class="fail"><b>Unknown make entry option.</b></p>')
@@ -188,38 +241,57 @@ def unknown_option():
     sys.exit(0)
 
 
+def write_entrytext_to_file(entrytext, logentrytextfile):
+    if not entrytext:
+        missing_entry_text()
+
+    try:
+        os.remove(logentrytextfile)
+    except OSError:
+        pass
+    try:
+        # making sure the files are group writable
+        with open(os.open(logentrytextfile, os.O_CREAT | os.O_WRONLY, 0o664),"w") as f:
+            f.write(entrytext)
+        os.chmod(logentrytextfile,stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH )
+    except:
+        entry_text_write_problem(logentrytextfile)  
+
+
 if __name__ == '__main__':
     form = cgi.FieldStorage()
     makeentry_option = form.getvalue("makeentry")
     showrecent = form.getvalue("showrecent")
     entrytext = form.getvalue("entrytext")
+    template = form.getvalue("template")
 
     if not makeentry_option:
         missing_option()
 
     logentrytextfile = cgiwritabledir+"logentry-text.html"
+
+    # Option: Resolve "Other Node" as "Selected Node" (2nd step)
     if (makeentry_option == "Selected Node"):
         send_to_fzlog_with_selected_Node(logentrytextfile)
 
     else:
-        if not entrytext:
-            missing_entry_text()
-
-        try:
-            os.remove(logentrytextfile)
-        except OSError:
-            pass
-        # making sure the files are group writable
-        with open(os.open(logentrytextfile, os.O_CREAT | os.O_WRONLY, 0o664),"w") as f:
-            f.write(entrytext)
-        os.chmod(logentrytextfile,stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH )
-
-        if (makeentry_option == "Log Chunk Node"):
-            send_to_fzlog(logentrytextfile)
+        # Option: Choose a Template
+        if (makeentry_option == "Templates"):
+            select_Template()
         else:
-            if (makeentry_option == "Other Node"):
-                select_Node()
+            # Option: Use a chosen Template
+            if (makeentry_option == "usetemplate"):
+                templated_entry(template)
             else:
-                unknown_option()
+                write_entrytext_to_file(entrytext, logentrytextfile)
+                # Option: Make Log entry for the Log Chunk Node
+                if (makeentry_option == "Log Chunk Node"):
+                    send_to_fzlog(logentrytextfile)
+                else:
+                    # Option: Make Log entry for another Node (1st step)
+                    if (makeentry_option == "Other Node"):
+                        select_Node()
+                    else:
+                        unknown_option()
 
     sys.exit(0)
