@@ -1,6 +1,6 @@
 # fzserverpq - Memory-resident Graph server for the Formalizer environment
 
-fzserverpq is the Postgres-compatible version of the C++ implementation of teh Formalizer data server.
+fzserverpq is the Postgres-compatible version of the C++ implementation of the Formalizer graph data server.
 
 For more information see:
 

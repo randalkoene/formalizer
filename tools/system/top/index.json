@@ -79,6 +79,10 @@
         "Work Performance" : {
             "url" : "/cgi-bin/sysmet-extract-cgi.py?categories=work",
             "window" : "_blank"
+        },
+        "Help" : {
+            "url" : "/formalizer/System/system-help.html",
+            "window" : "_blank"
         }
     },
     "Communication: " : {
