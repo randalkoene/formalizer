@@ -206,6 +206,7 @@ bool render_Log_interval() {
 
     COMPILEDPING(std::cout,"PING: got templates\n");
 
+    std::string temporalcontextstr, t_open_str;
     for (const auto & [chunk_key, chunkptr] : fzlh.edata.log_ptr->get_Chunks()) {
 
         //COMPILEDPING(std::cout,"PING: commencing chunk idx#"+std::to_string(chunk_idx)+'\n');
@@ -222,15 +223,23 @@ bool render_Log_interval() {
             Node_ID node_id = chunkptr->get_NodeID();
             varvals.emplace("node_id", node_id.str());
             varvals.emplace("node_info", include_Node_info(node_id));
-            varvals.emplace("node_link","/cgi-bin/fzlink.py?id="+node_id.str());
+            varvals.emplace("node_link", "/cgi-bin/fzlink.py?id="+node_id.str());
             //varvals.emplace("fzserverpq",graph.get_server_full_address()); *** so far, this is independent of whether the Graph is memory-resident
-            varvals.emplace("t_chunkopen",chunkptr->get_tbegin_str());
+            t_open_str = chunkptr->get_tbegin_str();
+            varvals.emplace("chunk_id", t_open_str);
+            if (fzlh.filter.nkey.isnullkey()) {
+                varvals.emplace("t_chunkopen", t_open_str);
+            } else { // In Node Histories, add links for temporal context.
+                temporalcontextstr = "<a href=\"/cgi-bin/fzloghtml-cgi.py?around="+t_open_str+"&daysinterval=3#"+t_open_str+"\" target=\"_blank\">"+t_open_str+"</a>";
+                varvals.emplace("t_chunkopen", temporalcontextstr);
+            }
+            varvals.emplace("temp_context", temporalcontextstr);
             time_t t_chunkclose = chunkptr->get_close_time();
             time_t t_chunkopen = chunkptr->get_open_time();
             if (t_chunkclose < chunkptr->get_open_time()) {
-                varvals.emplace("t_chunkclose","OPEN");
-                varvals.emplace("t_diff","");
-                varvals.emplace("t_diff_mins",""); // typically, only either t_diff or t_diff_mins appears in a template
+                varvals.emplace("t_chunkclose", "OPEN");
+                varvals.emplace("t_diff", "");
+                varvals.emplace("t_diff_mins", ""); // typically, only either t_diff or t_diff_mins appears in a template
             } else {
                 varvals.emplace("t_chunkclose",TimeStampYmdHM(t_chunkclose));
                 time_t t_diff = (t_chunkclose - t_chunkopen)/60; // mins

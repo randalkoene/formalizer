@@ -17,6 +17,7 @@
 #define FORMALIZER_MODULE_ID "Formalizer:Interface:Log:HTML"
 
 // std
+#include <cmath>
 #include <iostream>
 #include <memory>
 #include <charconv>
@@ -45,11 +46,11 @@ fzloghtml fzlh;
  */
 fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
                          iscale(interval_none), interval(0), noframe(false), recent_format(most_recent_html) {
-    add_option_args += "n:1:2:o:D:H:w:Nc:rRF:T:";
-    add_usage_top += " [-n <node-ID>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
+    add_option_args += "n:1:2:a:o:D:H:w:Nc:rRF:T:";
+    add_usage_top += " [-n <node-ID>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
     usage_tail.push_back(
-        "The <time-stamp1> and <time-stamp_2> arguments expect standardized\n"
+        "The <time-stamp1>, <time-stamp_2> and <time-stamp> arguments expect standardized\n"
         "Formalizer time stamps, e.g. 202009140614, but will also accept date stamps\n"
         "of analogous form, e.g. 20200914.\n"
         "Without a Node specification, the default is:\n"
@@ -59,6 +60,9 @@ fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flow
         "  complete Node history\n"
         "Interval start or end specified by time-stamp or relative offset takes\n"
         "precedence over number of chunks or reverse from most recent.\n"
+        "If '-a' is specified without an interval in days, hours or weeks, then the\n"
+        "default interval is from 3 days before to 3 days after the specified time\n"
+        "stamp.\n"
         "An example of a custom template is:\n"
         "  'STR:{{ t_chunkopen }} {{ t_diff_mins }} {{ node_id }}\\n'\n");
 }
@@ -72,6 +76,7 @@ void fzloghtml::usage_hook() {
     FZOUT("    -n belongs to <node-ID>\n"
           "    -1 start from <time-stamp-1>\n"
           "    -2 end at <time-stamp-2>\n"
+          "    -a centered around <time-stamp>\n"
           "    -D interval size of <days>\n"
           "    -H interval size of <hours>\n"
           "    -w interval size of <weeks>\n"
@@ -124,6 +129,17 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
             break;
         } else {
             filter.t_to = t;
+        }
+        return true;
+    }
+
+    case 'a': {
+        time_t t = ymd_stamp_time(cargs);
+        if (t==RTt_invalid_time_stamp) {
+            VERBOSEERR("Invalid 'around' time or date stamp "+cargs+'\n');
+            break;
+        } else {
+            t_center_around = t;
         }
         return true;
     }
@@ -221,6 +237,25 @@ void fzloghtml::init_top(int argc, char *argv[]) {
 }
 
 void fzloghtml::set_filter() {
+    if (t_center_around != RTt_unspecified) {
+        if (iscale == interval_none) {
+            iscale = interval_days;
+            interval = 6; // default is from 3 days before to 3 days after
+        }
+        unsigned int half_interval = std::ceil(((float)interval)/2.0);
+        switch (iscale) {
+        case interval_weeks: {
+            filter.t_from = t_center_around - half_interval*(7*24*60*60);
+        }
+        case interval_hours: {
+            filter.t_from = t_center_around - half_interval*(60*60);
+        }
+        default: { // days
+            filter.t_from = t_center_around - half_interval*(24*60*60);
+        }
+        }
+        filter.t_to = RTt_unspecified;
+    }
     if (!((filter.t_from!=RTt_unspecified) && (filter.t_to!=RTt_unspecified))) { // not a fully absolute time interval
         if (iscale != interval_none) {
             if ((filter.t_from==RTt_unspecified) && (filter.t_to==RTt_unspecified)) { // relative interval from most recent

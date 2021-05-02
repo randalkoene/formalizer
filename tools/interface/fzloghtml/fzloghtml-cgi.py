@@ -27,6 +27,7 @@ form = cgi.FieldStorage()
 # Get data from fields
 startfrom = form.getvalue('startfrom')
 endbefore  = form.getvalue('endbefore')
+around = form.getvalue('around')
 daysinterval  = form.getvalue('daysinterval')
 weeksinterval  = form.getvalue('weeksinterval')
 hoursinterval  = form.getvalue('hoursinterval')
@@ -117,6 +118,8 @@ def render_log_interval():
 
     cmdoptions = ""
 
+    if around:
+        cmdoptions += ' -a '+around
     if startfrom:
         cmdoptions += ' -1 '+startfrom
     if endbefore:

@@ -64,6 +64,8 @@ struct fzloghtml: public formalizer_standard_program {
 
     Log_filter filter;
 
+    time_t t_center_around = RTt_unspecified;
+
     interval_scale iscale;
     unsigned int interval;
     bool noframe;
