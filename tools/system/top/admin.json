@@ -1,0 +1,92 @@
+{
+    "FZ Admin: " : {
+        "Server Status" : {
+            "url" : "/cgi-bin/fzserver-info-cgi.py",
+            "window" : "_blank"
+        },
+        "Port Status" : {
+            "url" : "http://{{ fzserverpq }}/fz/status",
+            "window" : ""
+        },
+        "ReqQ Status" : {
+            "url" : "http://{{ fzserverpq }}/fz/ReqQ",
+            "window" : ""
+        },
+        "ReqQ Log" : {
+            "url" : "/formalizer/formalizer.core.server.requests.log",
+            "window" : "_blank"
+        },
+        "ErrQ Status" : {
+            "url" : "http://{{ fzserverpq }}/fz/ErrQ",
+            "window" : ""
+        },
+        "Server ErrQ Log" : {
+            "url" : "/formalizer/formalizer.core.server.error.ErrQ.log",
+            "window" : "_blank"
+        },
+        "General ErrQ Log" : {
+            "url" : "/formalizer/formalizer.core.error.ErrQ.log",
+            "window" : "_blank"
+        },
+        "General WarnQ Log" : {
+            "url" : "/formalizer/formalizer.core.error.WarnQ.log",
+            "window" : "_blank"
+        },
+        "Verbose" : {
+            "url" : "http://{{ fzserverpq }}/fz/verbosity?set=normal",
+            "window" : ""
+        },
+        "Very Verbose" : {
+            "url" : "http://{{ fzserverpq }}/fz/verbosity?set=very",
+            "window" : ""
+        },
+        "Quiet" : {
+            "url" : "http://{{ fzserverpq }}/fz/verbosity?set=quiet",
+            "window" : ""
+        },
+        "DB mode" : {
+            "url" : "http://{{ fzserverpq }}/fz/db/mode",
+            "window" : ""
+        },
+        "DB run" : {
+            "url" : "http://{{ fzserverpq }}/fz/db/mode?set=run",
+            "window" : ""
+        },
+        "DB log" : {
+            "url" : "http://{{ fzserverpq }}/fz/db/mode?set=log",
+            "window" : ""
+        },
+        "DB sim" : {
+            "url" : "http://{{ fzserverpq }}/fz/db/mode?set=sim",
+            "window" : ""
+        },
+        "DB Log Status" : {
+            "url" : "http://{{ fzserverpq }}/fz/db/log",
+            "window" : ""
+        },
+        "DB SimPQ Log" : {
+            "url" : "/formalizer/formalizer.core.fzpostgres.SimPQ.log",
+            "window" : "_blank"
+        },
+        "set NNL persistent" : {
+            "url" : "http://{{ fzserverpq }}/fz/graph/namedlists/_set?persistent=true",
+            "window" : ""
+        },
+        "set NNL non-persistent" : {
+            "url" : "http://{{ fzserverpq }}/fz/graph/namedlists/_set?persistent=false",
+            "window" : ""
+        },
+        "reload NNL" : {
+            "url" : "http://{{ fzserverpq }}/fz/graph/namedlists/_reload",
+            "window" : ""
+        },
+        "refresh Node histories" : {
+            "url" : "/cgi-bin/fzquerypq-cgi.py",
+            "window" : "_blank"
+        },
+        "Stop Server" : {
+            "url" : "http://{{ fzserverpq }}/fz/_stop",
+            "window" : ""
+        }
+    }
+}

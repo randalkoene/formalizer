@@ -47,27 +47,28 @@ enum template_id_enum {
 
 const std::vector<std::string> template_ids[2] = {
     {
-        "index_template.html",
-        "index_section_template.html",
-        "index_button_here_template.html",
-        "index_button_there_template.html",
+        "template.html",
+        "section_template.html",
+        "button_here_template.html",
+        "button_there_template.html",
     },
     {
-        "index-static_template.html",
-        "index-static_section_template.html",
-        "index-static_button_here_template.html",
-        "index-static_button_there_template.html"  
+        "static_template.html",
+        "static_section_template.html",
+        "static_button_here_template.html",
+        "static_button_there_template.html"  
     }
 };
 
 typedef std::map<template_id_enum,std::string> fzdashboard_templates;
 
-bool load_templates(fzdashboard_templates & templates, dynamic_or_static html_output = dynamic_html) {
+bool load_templates(std::string dashboardlabel, fzdashboard_templates & templates, dynamic_or_static html_output = dynamic_html) {
     templates.clear();
 
+    std::string template_directory(template_dir + "/" + dashboardlabel + "/");
     for (int i = 0; i < NUM_temp; ++i) {
-        if (!file_to_string(template_dir + "/" + template_ids[html_output][i], templates[static_cast<template_id_enum>(i)]))
-            ERRRETURNFALSE(__func__, "unable to load " + template_ids[html_output][i]);
+        if (!file_to_string(template_directory + template_ids[html_output][i], templates[static_cast<template_id_enum>(i)]))
+            ERRRETURNFALSE(__func__, "unable to load " + template_directory + template_ids[html_output][i]);
     }
 
     return true;
