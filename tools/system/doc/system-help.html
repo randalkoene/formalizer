@@ -1,0 +1,246 @@
+<HTML>
+<!--
+Formalizer
+System Help v.2020.2.28
+Randal A. Koene, 20200228
+
+ChangeLog:
+
+2020-02-28:
+Draft the first front-page to System Help. The aims are that it should:
+a) load fast
+b) contain an at-a-glance overview of normal System use
+c) have a clear set of buttons to helpful resources.
+
+NOTE: You can make this more legible by defining specific classes and using some
+classes for some cells and others for others. That way you get different regular
+backgrounds and hover backgrounds depending on the cell's class.
+See for example: https://stackoverflow.com/questions/35585179/how-do-i-use-the-css-hover-on-only-some-cells-in-a-table/35585440
+
+And for a transparent cell background, in the <TD> specify:
+style="background-color: rgba(200,200,200, 0.5);"
+
+-->
+<LINK REL="SHORTCUT ICON" HREF="file:///home/randalk/images/icons/formalizer.png">
+
+<HEAD>
+<TITLE>Formalizer: System Help</TITLE>
+<style>
+body
+{
+font-family:arial, Helvetica, sans-serif;
+background-image:url(../../backgrounds/desert-background-1000x667.jpg);
+background-size:cover;
+}
+.rowhighlight {
+background-color: rgba(200,200,200,0.7);
+}
+th, td {
+padding: 5px;
+font-size: 14px;
+}
+td:hover {
+background-color: bisque;
+}
+a {
+text-decoration: none;
+}
+a {
+color: #0000ff;
+}
+a:visited {
+color: #0000af;
+}
+</style>
+
+</HEAD>
+
+<BODY>
+
+<h1>Formalizer: System Help</h1>
+
+<TABLE>
+  <TR>
+    <TD><a href="file:///cgi-bin/dil2al?dil2al=AcS0"><B>GENERATE AL (AcS0)</B></TD>
+    <TD><a href="../../lists.html">AL &amp; HIERARCHY</a></TD>
+    <TD><a href="#USE">SYSTEM USE</a></TD>
+    <TD><a href="#HELP">SYSTEM HELP</a></TD>
+    <TD><a href="#PROBLEM">YOUR PROBLEM</a></TD>
+    <TD><a href="#DATA">DATA</a></TD>
+  </TR>
+</TABLE>
+
+<TABLE>
+
+<!-- row 1: system use -->
+<TR>
+  <TH align=left colspan=8><p id="USE" style="font-size:30px; color:#1c87c9; font-family:courier;"><BR>SYSTEM USE</p>
+</TR>
+
+<TR>
+  <TD align=left colspan=4>
+    <OL>
+      <LI>Start with the morning Metrics and a freshly updated AL.
+      <LI>Use active Task Chunking - keep the daemon on!
+      <LI>Carry out run-throughs and DAF identification for the day's tasks.
+      <LI>Use this System Help as needed when issues arise.
+      <LI>Update Progress Metrics throughout the day.
+    </OL>
+  </TD>
+  <TD align=center colspan=4>
+    <a href="file:///home/randalk/doc/html/lists/formalizer.metrics-days-categories.csv" target="_blank"><img src="file:///home/randalk/octave/dil2altaskdatahourly.png" style="float:center;width:250px;height:166px;"></a>
+  </TD>
+</TR>
+
+<!-- row 2: system help -->
+<TR>
+  <TH align=left colspan=8><p id="HELP" style="font-size:30px; color:#1c87c9; font-family:courier;"><BR>SYSTEM HELP</p>
+</TR>
+<TR>
+
+  <!-- col 1 -->
+  <TD align=center><a href="file:///home/randalk/doc/html/index.html" target="_blank"><img src="icons/dashboard.png"></a></TD>
+  <!-- col 2 -->
+  <TD align=center><a href="file:///home/randalk/doc/html/System/RTT-Summarized/Overview.html#0R60" target="_blank"><img src="icons/RTT-Summarized-HTML.png"></a></TD>
+  <!-- col 3 -->
+  <TD align=center><a href="file:///home/randalk/doc/tex/Change/NoC-System-Summary.html#Action"></a><img src="icons/System-Action-HTML.png"></TD>
+  <!-- col 4 -->
+  <TD align=center><a href="https://docs.google.com/spreadsheets/d/1p1lLpNOy6OeBQC_MNpzRqsLCPFEpnaF-ZfEAZ1KlRFc/edit#gid=1467656114" target="_blank"><img src="icons/decisions-and-communication.png"></a></TD>
+  <!-- col 5 -->
+  <TD align=center><a href="file:///home/randalk/doc/html/lists/System/rtt-momentary.html" target="_blank"><img src="icons/RTT-Momentary.png"></a></TD>
+
+</TR>
+<TR valign=top class="rowhighlight">
+
+  <!-- col 1 -->
+  <TD align=center><a href="file:///home/randalk/doc/html/index.html" target="_blank"><b>DASHBOARD</b></a></TD>
+  <!-- col 2 -->
+  <TD align=center><a href="file:///home/randalk/doc/html/System/RTT-Summarized/Overview.html#0R60" target="_blank"><b>Summary Overview: Psychological</b></a></TD>
+  <!-- col 3 -->
+  <TD align=center><a href="file:///home/randalk/doc/tex/Change/NoC-System-Summary.html#Action" target="_blank"><b>System: Action</b></a></TD>
+  <!-- col 4 -->
+  <TD align=center><a href="https://docs.google.com/spreadsheets/d/1p1lLpNOy6OeBQC_MNpzRqsLCPFEpnaF-ZfEAZ1KlRFc/edit#gid=1467656114" target="_blank"><b>DAF - Discomforts, Anxieties, Fears</b></a></TD>
+  <!-- col 5 -->
+  <TD align=center><a href="file:///home/randalk/doc/html/lists/System/rtt-momentary.html" target="_blank"><b>RTT Momentary</b></a></TD>
+
+<!-- row 3: your problem -->
+<TR>
+  <TH align=left colspan=8><p id="PROBLEM" style="font-size:30px; color:#1c87c9; font-family:courier;"><BR>YOUR PROBLEM</p>
+</TR>
+<TR valign=top class="rowhighlight">
+
+  <!-- col 1 -->
+  <TD align=center><a href="help/how-to-tackle-a-task.html">I don't immediately know how to tackle a task.</a></TD>
+  <!-- col 2 -->
+  <TD align=center>I'm using a distraction to procrastinate.</TD>
+  <!-- col 3 -->
+  <TD align=center><a href="help/contacting-responding-making-me-anxious.html">Contacting / responding to someone is making me anxious.</a></TD>
+  <!-- col 4 -->
+  <TD align=center>All sorts of ancillary stuff seems to use up most of the time in the day.</TD>
+  <!-- col 5 -->
+  <TD align=center>I'm having a hard time sticking with a long task.</TD>
+
+</TR>
+
+<TR valign=top class="rowhighlight">
+
+  <!-- col 1 -->
+  <TD align=center><a href="help/difficulty-getting-started.html">I'm having difficulty getting started in the morning, getting stuck on infrastructure or time wastage.</a></TD>
+  <!-- col 2 -->
+  <TD align=center><a href="help/tasks-in-priority-order.html">I'm not dealing with tasks in the sensible priority order.</a></TD>
+  <!-- col 3 -->
+  <TD align=center><a href="help/hard-time-back-into-work.html">I'm having a hard time getting back into work after a non-work interval (e.g., lunch, dinner).</a></TD>
+  <!-- col 4 -->
+  <TD align=center><a href="help/overwhelmed-by-email.html">I am overwhelmed by the amount of email waiting for me.</a></TD>
+  <!-- col 5 -->
+  <TD align=center><a href="help/anxious-or-nervous.html">I am anxious about doing soemthing, or I am nervous about the next step of the current task. I sense my mind looking for ways to delay geetting on with it.</a></TD>
+
+</TR>
+
+
+<TR valign=top class="rowhighlight">
+
+  <!-- col 1 -->
+  <TD align=center>I'm wasting time (e.g. video, news).</TD>
+  <!-- col 2 -->
+  <TD align=center><a href="help/too-many-thoughts.html">There are too many thoughts, things to keep in mind, perceived balls to keep in the air. My mind is spinning a bit.</a></TD>
+  <!-- col 3 -->
+  <TD align=center><a href="help/AL-crammed-with-tasks.html">The AL (of the next day/days) looks crammed with fixed tasks that don't leave room for the variable target date tasks that should actually be prioritized.</a></TD>
+  <!-- col 4 -->
+  <TD align=center><a href="help/difficulty-with-emotions.html">I'm having difficulties with emotions. They may be overwhelming, or they may be coming at a very inconvenient time, or I may have time to properly deal with them.</a></TD>
+  <!-- col 5 -->
+  <TD align=center><a href="help/disrupted-by-emergency.html">An urgent or emergency situation that was not anticipated or planned for, at least not in its actual and apparent form, is distrupting anticipated task time required or day schedule. On top of the urgent challenge itself, concern over the disruption and the effect on the day's measured performance is causing anxiety.</a></TD>
+
+</TR>
+
+</TABLE>
+
+<!-- <p>
+  Links open in the same tab. To open in a new tab, many browsers support CTRL+Click.
+</p> -->
+
+<TABLE>
+
+<!-- data section -->
+<TR>
+  <TH align=left colspan=4><p id="DATA" style="font-size:30px; color:#1c87c9; font-family:courier;"><BR>DATA</p>
+</TR>
+
+<!-- time zones -->
+<TR>
+
+  <TD><p style="color:#6cd7f9;">PDT/PST</p></TD>
+  <TD><p style="color:#6cd7f9;">EDT/EST</p></TD>
+  <TD><p style="color:#6cd7f9;">UK</p></TD>
+  <TD><p style="color:#6cd7f9;">CET</p></TD>
+  <TD rowspan=8><a href="file:///home/randalk/tmp/formalizer.metrics-days-categories.png"><img src="file:///home/randalk/tmp/formalizer.metrics-days-categories.png" width="100%"></a></TD>
+  
+</TR>
+<TR>
+  <TD><p style="color:#4cb7e9;">00:00</p></TD>
+  <TD><p style="color:#4cb7e9;">03:00</p></TD>
+  <TD><p style="color:#4cb7e9;">08:00</p></TD>
+  <TD><p style="color:#4cb7e9;"><b>09:00</b></p></TD>
+</TR>
+<TR>
+  <TD><p style="color:#4cb7e9;">01:00</p></TD>
+  <TD><p style="color:#4cb7e9;">04:00</p></TD>
+  <TD><p style="color:#4cb7e9;"><b>09:00</b></p></TD>
+  <TD><p style="color:#4cb7e9;">10:00</p></TD>
+</TR>
+<TR>
+  <TD><p style="color:#4cb7e9;">06:00</p></TD>
+  <TD><p style="color:#4cb7e9;"><b>09:00</b></p></TD>
+  <TD><p style="color:#4cb7e9;">14:00</p></TD>
+  <TD><p style="color:#4cb7e9;">15:00</p></TD>
+</TR>
+<TR>
+  <TD><p style="color:#4cb7e9;">08:00</p></TD>
+  <TD><p style="color:#4cb7e9;">11:00</p></TD>
+  <TD><p style="color:#4cb7e9;">16:00</p></TD>
+  <TD><p style="color:#4cb7e9;"><b>17:00</b></p></TD>
+</TR>
+<TR>
+  <TD><p style="color:#4cb7e9;"><b>09:00</b></p></TD>
+  <TD><p style="color:#4cb7e9;">12:00</p></TD>
+  <TD><p style="color:#4cb7e9;"><b>17:00</b></p></TD>
+  <TD><p style="color:#4cb7e9;">18:00</p></TD>
+</TR>
+<TR>
+  <TD><p style="color:#4cb7e9;">14:00</p></TD>
+  <TD><p style="color:#4cb7e9;"><b>17:00</b></p></TD>
+  <TD><p style="color:#4cb7e9;">22:00</p></TD>
+  <TD><p style="color:#4cb7e9;">23:00</p></TD>
+</TR>
+<TR>
+  <TD><p style="color:#4cb7e9;"><b>17:00</b></p></TD>
+  <TD><p style="color:#4cb7e9;">20:00</p></TD>
+  <TD><p style="color:#4cb7e9;">01:00</p></TD>
+  <TD><p style="color:#4cb7e9;">02:00</p></TD>
+</TR>
+
+</TABLE>
+
+</BODY>
+
+</HTML>

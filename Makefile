@@ -196,6 +196,9 @@ WEBINTERFACES += $(COREPATH)/fzguide.system/fzguide.system-form.html
 WEBINTERFACES += $(TOOLSPATH)/interface/logentry-form/templates/logentry-form_fullpage.template.html
 WEBINTERFACES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-form.html
 WEBINTERFACES += $(TOOLSPATH)/interface/timer/timer.html
+WEBINTERFACES += $(TOOLSPATH)/system/doc/doc.html
+WEBINTERFACES += $(TOOLSPATH)/system/doc/help
+WEBINTERFACES += $(TOOLSPATH)/system/doc/system-help.html
 WEBINTERFACES += $(TOOLSPATH)/system/earlywiz/earlywiz.html
 WEBINTERFACES += $(TOOLSPATH)/system/latewiz/latewiz.html
 WEBINTERFACES += $(TOOLSPATH)/system/latewiz/templates/prep-morning-exercise.html
@@ -276,7 +279,7 @@ executables: $(EXECUTABLES)
 	sudo ln -f -s $(SYMBIN) $(CGIDIR)/
 	sudo cp -f $(CGIEXE) $(CGIDIR)/
 	sudo ln -f -s $(LOCALCGI) $(W3MCGIDIR)/
-	cp -f $(WEBINTERFACES) $(WEBINTERFACESDIR)/
+	cp -r -f $(WEBINTERFACES) $(WEBINTERFACESDIR)/
 	sudo ln -f -s $(SYMWEB) $(WEBINTERFACESDIR)/
 	ln -f -s $(SYMINCLUDE) $(COREINCLUDEPATH)/
 	sudo cp -f $(TOPLEVEL) $(WEBBASEDIR)/

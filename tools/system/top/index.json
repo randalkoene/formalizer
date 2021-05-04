@@ -292,8 +292,8 @@
         }
     },
     "Information: " : {
-        "System and Formalizer" : {
-            "url" : "https://docs.google.com/document/d/1rYPFgzFgjkF1xGx3uABiXiaDR5sfmOzqYQRqSntcyyY/edit?usp=sharing",
+        "Sys:Doc" : {
+            "url" : "/formalizer/doc.html",
             "window" : "_blank"
         },
         "C++ / C" : {
