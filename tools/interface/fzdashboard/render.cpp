@@ -65,7 +65,12 @@ typedef std::map<template_id_enum,std::string> fzdashboard_templates;
 bool load_templates(std::string dashboardlabel, fzdashboard_templates & templates, dynamic_or_static html_output = dynamic_html) {
     templates.clear();
 
-    std::string template_directory(template_dir + "/" + dashboardlabel + "/");
+    std::string template_directory;
+    if (dashboardlabel.substr(0,7) == "custom:") {
+        template_directory = dashboardlabel.substr(7);
+    } else {
+        template_directory = template_dir + "/" + dashboardlabel + "/";
+    }
     for (int i = 0; i < NUM_temp; ++i) {
         if (!file_to_string(template_directory + template_ids[html_output][i], templates[static_cast<template_id_enum>(i)]))
             ERRRETURNFALSE(__func__, "unable to load " + template_directory + template_ids[html_output][i]);
@@ -224,7 +229,7 @@ bool render(std::string & json_str, dynamic_or_static html_output) {
     VERBOSEOUT("Number of elements: "+std::to_string(data.size())+'\n');
 
     fzdashboard_templates templates;
-    load_templates(templates, html_output);
+    load_templates(fzdsh.target, templates, html_output);
 
     // Prepare a few globally applicable template variable replacements
     inner_varvals.emplace("fzserverpq",fzdsh.graph().get_server_full_address());
@@ -248,11 +253,17 @@ bool render(std::string & json_str, dynamic_or_static html_output) {
     varvals.emplace("button-sections",button_sections);
     std::string rendered_str = env.render(templates[index_temp], varvals);
 
+    std::string embed_html_name;
+    if (fzdsh.target.substr(0,7) == "custom:") {
+        embed_html_name = "custom";
+    } else {
+        embed_html_name = fzdsh.target;
+    }
     std::string output_name;
     if (html_output == dynamic_html) {
-        output_name += "/index.html";
+        output_name += '/' + embed_html_name + ".html";
     } else {
-        output_name += "/index-static.html";
+        output_name += '/' + embed_html_name + "-static.html";
     }
     
     return send_rendered_to_output(output_name, rendered_str);

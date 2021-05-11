@@ -42,6 +42,10 @@ struct fzdashboard: public formalizer_standard_program {
 
     flow_options flowcontrol;
 
+    std::string target;
+    bool json_path_from_arg = false;
+    bool top_path_from_arg = false;
+
     // Graph_access ga; // to include Graph or Log access support
 
     fzdashboard();

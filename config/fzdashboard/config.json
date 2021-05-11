@@ -1,4 +1,4 @@
 {
     "top_path" : "/var/www/html",
-    "json_path" : "/home/randalk/src/formalizer/tools/system/top/index.json"
+    "json_path" : "/home/randalk/src/formalizer/tools/system/top"
 }

@@ -38,8 +38,8 @@ fzdashboard fzdsh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzdashboard::fzdashboard() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "Df:o:";
-    add_usage_top += " [-D] [-f <json-file>] [-o <output-dir>]";
+    add_option_args += "D:f:o:";
+    add_usage_top += " [-D index|admin|custom:<template-dir>] [-f <json-file>] [-o <output-dir>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     //usage_tail.push_back("Extra usage information.\n");
 }
@@ -50,7 +50,8 @@ fzdashboard::fzdashboard() : formalizer_standard_program(false), config(*this) {
  */
 void fzdashboard::usage_hook() {
     //ga.usage_hook();
-    FZOUT("    -D render dashboard\n"
+    FZOUT("    -D render a predefined dashboard, or render with custom templates at\n"
+          "       <template-dir>\n"
           "    -f JSON dashboard definition file path\n"
           "    -o output directory or STDOUT (default in config or current dir)\n");
 }
@@ -73,15 +74,18 @@ bool fzdashboard::options_hook(char c, std::string cargs) {
 
     case 'D': {
         flowcontrol = flow_dashboard;
+        target = cargs;
         return true;
     }
 
     case 'f': {
+        json_path_from_arg = true;
         config.json_path = cargs;
         return true;
     }
 
     case 'o': {
+        top_path_from_arg = true;
         config.top_path = cargs;
         return true;
     }
@@ -124,8 +128,18 @@ Graph & fzdashboard::graph() {
 }
 
 int generate_dashboard() {
-    if (fzdsh.config.json_path.empty()) {
-        return standard_exit_error(exit_command_line_error, "Missing JSON dashboard specification file.", __func__);
+    if (fzdsh.target.substr(0,7) == "custom:") {
+        if ((!fzdsh.json_path_from_arg) || (!fzdsh.top_path_from_arg)) {
+            return standard_exit_error(exit_command_line_error, "Explicit JSON source (-f) and output path (-o) must be provided with custom template directory (-D custom:<template-dir>).", __func__);
+        }
+    } else {
+        if (!fzdsh.json_path_from_arg) {
+            // The JSON path directory should already be in json_path, just add the target.
+            if (fzdsh.config.json_path.empty()) {
+                return standard_exit_error(exit_command_line_error, "Missing JSON dashboard specification file", __func__);
+            }
+            fzdsh.config.json_path += '/' + fzdsh.target+".json";
+        }
     }
 
     std::string json_str;
