@@ -8,6 +8,17 @@
 <link rel="stylesheet" href="/fzuistate.css">
 <link rel="stylesheet" href="/clock.css">
 <title>fz:met: Day Nutrition</title>
+<style>
+    .nutri_beneficial {
+        background-color: greenyellow;
+    }
+    .nutri_mediocre {
+        background-color: lightgray;
+    }
+    .nutri_problematic {
+        background-color: palevioletred;
+    }
+</style>
 </head>
 <body>
 <h1>fz:met: Day Nutrition</h1>
@@ -28,8 +39,26 @@
 <td>
 <section>
     <h2>Frequent Entries (plan and actual)</h2>
-    <p class="nutri_mediocre"><input type="checkbox"> | <input type="checkbox"> | Rockstar recovery energy drink.</p>
-    <p class="nutri_beneficial"><input type="checkbox"> | <input type="checkbox"> | Coffee.</p>
+    <p id="rockstarrecovery" class="nutri_mediocre"><input id="cal_rockstarrecovery" value="10" disabled> cal/can | <input id="plan_rockstarrecovery" type="checkbox"> | <input id="log_rockstarrecovery" type="checkbox"> | Rockstar recovery energy drink.</p>
+    <p id="coffee" class="nutri_beneficial"><input id="cal_rockstarrecovery" value="5" disabled> cal/cup | <input id="plan_coffee" type="checkbox"> | <input id="log_coffee" type="checkbox"> | Coffee.</p>
+    <p id="sausageeggsw" class="nutri_mediocre"><input id="cal_sausageeggsw" value="400" disabled> cal/sandwich | <input id="plan_sausageeggsw" type="checkbox"> | <input id="log_sausageeggsw" type="checkbox"> | Sausage and Egg breakfast sandwich.</p>
+    <p id="vodka" class="nutri_problematic"><input id="cal_vodka" value="64" disabled> cal/floz | <input id="plan_vodka" type="checkbox"> | <input id="log_vodka" type="checkbox"> | Vodka.</p>
+    <p id="driedapricots" class="nutri_beneficial"><input id="cal_driedapricots" value="18" disabled> cal/apricot | <input id="plan_driedapricots" type="checkbox"> | <input id="log_driedapricots" type="checkbox"> | Dried Apricots.</p>
+    <p id="sourdoughbread" class="nutri_mediocre"><input id="cal_sourdoughbread" value="120" disabled> cal/slice | <input id="plan_sourdoughbread" type="checkbox"> | <input id="log_sourdoughbread" type="checkbox"> | Sourdough Bread.</p>
+    <p id="cheddarcheese" class="nutri_mediocre"><input id="cal_cheddarcheese" value="80" disabled> cal/slice | <input id="plan_cheddarcheese" type="checkbox"> | <input id="log_cheddarcheese" type="checkbox"> | Cheddar Cheese.</p>
+    <p id="butter" class="nutri_mediocre"><input id="cal_butter" value="100" disabled> cal/Tbsp | <input id="plan_butter" type="checkbox"> | <input id="log_butter" type="checkbox"> | Butter.</p>
+    <p id="palakpaneer" class="nutri_beneficial"><input id="cal_palakpaneer" value="410" disabled> cal/meal | <input id="plan_palakpaneer" type="checkbox"> | <input id="log_palakpaneer" type="checkbox"> | Palak Paneer.</p>
+    <p id="yogurt" class="nutri_beneficial"><input id="cal_yogurt" value="140" disabled> cal/4oz | <input id="plan_yogurt" type="checkbox"> | <input id="log_yogurt" type="checkbox"> | Yogurt.</p>
+    <p id="orange" class="nutri_mediocre"><input id="cal_orange" value="45" disabled> cal/orange | <input id="plan_orange" type="checkbox"> | <input id="log_orange" type="checkbox"> | Orange.</p>
+    <p id="celery" class="nutri_beneficial"><input id="cal_celery" value="7" disabled> cal/stalk | <input id="plan_celery" type="checkbox"> | <input id="log_celery" type="checkbox"> | Celery.</p>
+    <p id="" class="nutri_"><input id="cal_" value="" disabled> cal/ | <input id="plan_" type="checkbox"> | <input id="log_" type="checkbox"> | .</p>
+    <p id="" class="nutri_"><input id="cal_" value="" disabled> cal/ | <input id="plan_" type="checkbox"> | <input id="log_" type="checkbox"> | .</p>
+    <p id="" class="nutri_"><input id="cal_" value="" disabled> cal/ | <input id="plan_" type="checkbox"> | <input id="log_" type="checkbox"> | .</p>
+    <p id="" class="nutri_"><input id="cal_" value="" disabled> cal/ | <input id="plan_" type="checkbox"> | <input id="log_" type="checkbox"> | .</p>
+    <p id="" class="nutri_"><input id="cal_" value="" disabled> cal/ | <input id="plan_" type="checkbox"> | <input id="log_" type="checkbox"> | .</p>
+    <p id="" class="nutri_"><input id="cal_" value="" disabled> cal/ | <input id="plan_" type="checkbox"> | <input id="log_" type="checkbox"> | .</p>
+    <p id="" class="nutri_"><input id="cal_" value="" disabled> cal/ | <input id="plan_" type="checkbox"> | <input id="log_" type="checkbox"> | .</p>
+    <p id="" class="nutri_"><input id="cal_" value="" disabled> cal/ | <input id="plan_" type="checkbox"> | <input id="log_" type="checkbox"> | .</p>
 </section>
 
 <section>
