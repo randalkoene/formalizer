@@ -68,12 +68,20 @@
     <tr id="yogurt"><td><input class="cal" id="cal_yogurt" value="140" disabled> cal/4oz</td><td><input id="plan_yogurt" class="plan"></td><td><input id="log_yogurt" class="log"></td><td class="nutri_beneficial">Yogurt.</td></tr>
     <tr id="orange"><td><input class="cal" id="cal_orange" value="45" disabled> cal/orange</td><td><input id="plan_orange" class="plan"></td><td><input id="log_orange" class="log"></td><td class="nutri_mediocre">Orange.</td></tr>
     <tr id="celery"><td><input class="cal" id="cal_celery" value="7" disabled> cal/stalk</td><td><input id="plan_celery" class="plan"></td><td><input id="log_celery" class="log"></td><td class="nutri_beneficial">Celery.</td></tr>
-    <tr id="whiskey"><td><input class="cal" id="cal_whiskey" value="70" disabled> cal/floz</td><td><input id="plan_whiskey" class="plan"></td><td><input id="log_whiskey" class="plan"></td><td class="nutri_problematic">Whiskey.</td></tr>
-    <tr id="soylent"><td><input class="cal" id="cal_soylent" value="400" disabled> cal/bottle</td><td><input id="plan_soylent" class="plan"></td><td><input id="log_soylent" class="plan"></td><td class="nutri_beneficial">Soylent.</td></tr>
-    <tr id="mornpastry"><td><input class="cal" id="cal_mornpastry" value="230" disabled> cal/</td><td><input id="plan_mornpastry" class="plan"></td><td><input id="log_mornpastry" class="plan"></td><td class="nutri_problematic">Morning Pastry (e.g. Svenhart).</td></tr>
-    <tr id=""><td><input class="cal" id="cal_" value="" disabled> cal/</td><td><input id="plan_" class="plan"></td><td><input id="log_" class="plan"></td><td class="nutri_">.</td></tr>
-    <tr id=""><td><input class="cal" id="cal_" value="" disabled> cal/</td><td><input id="plan_" class="plan"></td><td><input id="log_" class="plan"></td><td class="nutri_">.</td></tr>
-</tbody></table>
+    <tr id="whiskey"><td><input class="cal" id="cal_whiskey" value="70" disabled> cal/floz</td><td><input id="plan_whiskey" class="plan"></td><td><input id="log_whiskey" class="log"></td><td class="nutri_problematic">Whiskey.</td></tr>
+    <tr id="soylent"><td><input class="cal" id="cal_soylent" value="400" disabled> cal/bottle</td><td><input id="plan_soylent" class="plan"></td><td><input id="log_soylent" class="log"></td><td class="nutri_beneficial">Soylent.</td></tr>
+    <tr id="mornpastry"><td><input class="cal" id="cal_mornpastry" value="230" disabled> cal/pastry</td><td><input id="plan_mornpastry" class="plan"></td><td><input id="log_mornpastry" class="log"></td><td class="nutri_problematic">Morning Pastry (e.g. Svenhart).</td></tr>
+    <tr id="figs"><td><input class="cal" id="cal_figs" value="36" disabled> cal/fig</td><td><input id="plan_figs" class="plan"></td><td><input id="log_figs" class="log"></td><td class="nutri_mediocre"> Dried Figs.</td></tr>
+    <tr id="wholeryegerman"><td><input class="cal" id="cal_wholeryegerman" value="180" disabled> cal/slice</td><td><input id="plan_wholeryegerman" class="plan"></td><td><input id="log_wholeryegerman" class="log"></td><td class="nutri_mediocre">Whole Rye German Breads (dark).</td></tr>
+    <tr id="salami"><td><input class="cal" id="cal_salami" value="41" disabled> cal/slice</td><td><input id="plan_salami" class="plan"></td><td><input id="log_salami" class="log"></td><td class="nutri_benficial">Salami.</td></tr>
+    <tr id=""><td><input class="cal" id="cal_" value="" disabled> cal/</td><td><input id="plan_" class="plan"></td><td><input id="log_" class="log"></td><td class="nutri_">.</td></tr>
+    <tr id=""><td><input class="cal" id="cal_" value="" disabled> cal/</td><td><input id="plan_" class="plan"></td><td><input id="log_" class="log"></td><td class="nutri_">.</td></tr>
+</tbody>
+<tfoot>
+    <tr><td>Totals:</td><td id="plan_total_calories">0</td><td id="log_total_calories">0</td><td></td></tr>
+</tfoot>
+</table>
+
 </section>
 
 <section>
@@ -106,6 +114,52 @@
 <script type="text/javascript" src="/clock.js"></script>
 <script>
     var clock = new floatClock('clock');
+
+    class dayNutrition {
+        constructor() {
+            // Element lists
+            this.calories_list = document.getElementsByClassName("cal");
+            this.plan_list = document.getElementsByClassName("plan");
+            this.log_list = document.getElementsByClassName("log");
+            this.num_items = this.calories_list.length;
+            // Element references
+            this.plan_total_calories = document.getElementById("plan_total_calories");
+            this.log_total_calories = document.getElementById("log_total_calories");
+            // Listeners
+            for (var i = 0; i < this.num_items; i++) {
+                this.plan_list[i].addEventListener('change', this.update_plan_totals.bind(this));
+                this.log_list[i].addEventListener('change', this.update_log_totals.bind(this));
+            }
+        }
+
+        total_calories(quantity_list) {
+            var total_calories = 0;
+            for (var i = 0; i < this.num_items; i++) {
+                if (quantity_list[i].value !== "") {
+                    //console.log('value of item '+i.toString()+' is '+quantity_list[i].value);
+                    total_calories += parseFloat(this.calories_list[i].value) * parseFloat(quantity_list[i].value);
+                }
+            }
+            //console.log('total = '+total_calories.toString());
+            return total_calories;
+        }
+
+        update_plan_totals() {
+            var plan_totals = this.total_calories(this.plan_list);
+            this.plan_total_calories.innerHTML = plan_totals.toString();
+            return plan_totals;
+        }
+
+        update_log_totals() {
+            var log_totals = this.total_calories(this.log_list);
+            this.log_total_calories.innerHTML = log_totals.toString();
+            return log_totals;
+        }
+
+    };
+    var dN = new dayNutrition();
+    dN.update_plan_totals();
+    dN.update_log_totals();
 </script>
 </body>
 
