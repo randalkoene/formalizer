@@ -143,7 +143,7 @@ listpagehead = '''<html>
 <h3>fz:modfy Named Node List</h3>
 <p>List element is Node {node_id}</p>
 
-<form action="/cgi-bin/fzgraph-cgi.py" method="post"><input type="hidden" name="add" value="{node_id}">
+<form action="/cgi-bin/fzgraph-cgi.py" method="post"><input type="hidden" name="action" value="addtoNNL"><input type="hidden" name="add" value="{node_id}">
 <p>Add to any new or existing List: <input type="text" name="namedlist" size="40" maxlength="60"> <input type="submit" value="add"></p>
 </form>
 

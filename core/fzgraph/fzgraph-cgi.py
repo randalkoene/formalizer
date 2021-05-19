@@ -132,6 +132,81 @@ edit_fail_page_tail = '''<hr>
 </html>
 '''
 
+NNL_edit_result_page_head = '''<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<title>fz: Graph - Add to Named Node List</title>
+</head>
+<body>
+<style type="text/css">
+.chktop {
+    background-color: #B0C4F5;
+}
+</style>
+'''
+
+NNL_edit_success_page_tail = f'''<hr>
+<button id="closing_countdown" class="button button1" onclick="Keep_or_Close_Page('closing_countdown');">Keep Page</button>
+<script type="text/javascript" src="/fzclosing_window.js"></script>
+</body>
+</html>
+'''
+
+missing_action_request_html = '''<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<title>fz: Graph - Missing Graph Action Request</title>
+</head>
+<body>
+<style type="text/css">
+.chktop {
+    background-color: #B0C4F5;
+}
+</style>
+<p class="fail"><b>ERROR: Missing Graph action request.</b></p>
+<hr>
+[<a href="/index.html">fz: Top</a>]
+
+</body>
+</html>
+'''
+
+unrecognized_action_request_page_head = '''<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<title>fz: Graph - Unrecognized Graph Action Request</title>
+</head>
+<body>
+<style type="text/css">
+.chktop {
+    background-color: #B0C4F5;
+}
+</style>
+'''
+
+missing_addtoNNL_arguments = '''<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<title>fz: Graph - Missing Arguments in Add to NNL Request</title>
+</head>
+<body>
+<style type="text/css">
+.chktop {
+    background-color: #B0C4F5;
+}
+</style>
+<p class="fail"><b>ERROR: Missing 'add_id' or 'namedlist' form arguments in 'addtoNNL' Graph action request.</b></p>
+<hr>
+[<a href="/index.html">fz: Top</a>]
+
+</body>
+</html>
+'''
+
 def convert_to_targetdate(alttargetdate: str):
     if (len(alttargetdate)<16):
         return ''
@@ -309,9 +384,47 @@ def add_node():
         print(edit_fail_page_tail)
 
 
+def add_to_NNL():
+    print(start_CGI_output) # very useful, because CGI errors are printed from here on if they occur
+
+    add_id = form.getvalue('add')
+    namedlist = form.getvalue('namedlist')
+
+    if not add_id or not namedlist:
+        print(missing_addtoNNL_arguments)
+        return
+
+    thecmd = f"./fzgraph {verbosearg} -E STDOUT -L add -l '{namedlist}' -S '{add_id}'"
+
+    print(NNL_edit_result_page_head)
+    thisscript = os.path.realpath(__file__)
+    print(f'<!--(For dev reference, this script is at {thisscript}.) -->')
+    print('<!-- [Formalizer: fzgraph handler]\n<p></p> -->')
+    print(f'<!-- Call command: {thecmd} -->')
+
+    if try_call_command(thecmd):
+        print(f"<p class=\"success\"><b>Node {add_id} added to NNL '{namedlist}'.</b></p>")
+        print(NNL_edit_success_page_tail)
+    else:
+        print(f"<p class=\"fail\"><b>Call to fzgraph returned error. (Check if a Node was added to Named Node List '{namedlist}' or not.)</b></p>")
+        print(edit_fail_page_tail)
+
+
 def show_interface_options():
     print("Content-type:text/html\n\n")
     print(interface_options_help)
+
+
+def missing_action_request():
+    print("Content-type:text/html\n\n")
+    print(missing_action_request_html)
+
+
+def unrecognized_action_request(action: str):
+    print("Content-type:text/html\n\n")
+    print(unrecognized_action_request_page_head)
+    print(f'<p class="fail"><b>Unrecognized Node add action: {action}</b><p>')
+    print(edit_fail_page_tail)
 
 
 if __name__ == '__main__':
@@ -319,8 +432,12 @@ if __name__ == '__main__':
         show_interface_options()
         sys.exit(0)
 
-    global verbosearg
     action = form.getvalue('action')
+    if not action:
+        missing_action_request()
+        sys.exit(0)
+
+    global verbosearg
     verbosity = form.getvalue('verbosity')
     if (verbosity == "verbose"):
         verbosearg = '-V'
@@ -329,9 +446,11 @@ if __name__ == '__main__':
 
     if (action=='modify'):
         add_node()
-    else:
-        print(edit_result_page_head)
-        print(f'<p class="fail"><b>Unrecognized Node add action: {action}</b><p>')
-        print(edit_fail_page_tail)
+        sys.exit(0)
 
+    if (action=='addtoNNL'):
+        add_to_NNL()
+        sys.exit(0)
+
+    unrecognized_action_request(action)
     sys.exit(0)
