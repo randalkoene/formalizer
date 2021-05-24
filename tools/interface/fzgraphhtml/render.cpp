@@ -174,10 +174,21 @@ struct line_render_parameters {
         varvals.emplace("node_id","");
         varvals.emplace("topic","");
         varvals.emplace("targetdate","");
-        varvals.emplace("alertstyle","");
+        time_t t_nextday = ymd_stamp_time(datestamp); // have to do this, because a Node's tdate is not indicative of the day start
+        time_t t_daystart = t_nextday - seconds_per_day; // *** breaks slightly when switching to daylight savings time
+        time_t seconds_available = seconds_per_day;
+        if ((t_daystart < t_render) && (t_nextday > t_render)) {
+            seconds_available = t_nextday - t_render;
+        }
+        float hours_available = ((float)seconds_available / 3600.0);
+        if ((t_nextday < t_render) || (day_total_hrs > hours_available)) {
+            varvals.emplace("alertstyle", " class=\"high_req\"");
+        } else {
+            varvals.emplace("alertstyle", ""); // " class=\"fit_req\"");
+        }
         varvals.emplace("req_hrs",to_precision_string(day_total_hrs,2));
         varvals.emplace("tdprop","");
-        varvals.emplace("excerpt","");
+        varvals.emplace("excerpt", "");
         varvals.emplace("fzserverpq","");
         varvals.emplace("srclist","");
         rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
@@ -243,13 +254,17 @@ struct line_render_parameters {
         }
         std::string tdstamp(TimeStampYmdHM(tdate));
         if (showdate && (tdstamp.substr(0,8) != datestamp)) {
+            // *** BEWARE: For very extensive Node time spans, tdate may more than a day out, thereby skipping days!
+            //     You should probably actually just keep track of day starts from one day to the next and place
+            //     an insert even if there was no targetdate of a Node on a particular day (if a full calendar is
+            //     being created rather than a temporally ordered list of Nodes).
             datestamp = tdstamp.substr(0,8);
             insert_day_start(tdate);
         }
         std::string alertstyle;
         if (fzgh.config.show_current_time) {
             if (tdate <= t_render) {
-                alertstyle = " style=\"color:red\"";
+                alertstyle = " class=\"passed_td\"";
                 std::string tdstr = "<a href=\"/cgi-bin/fzlink.py?id="+nodestr+"\">"+tdstamp+"</a>";
                 varvals.emplace("targetdate",tdstr);
             } else {

@@ -113,4 +113,6 @@ a.id:hover {color: #000000; text-decoration:underline; background:#55db50;}
 a.nnl:hover {background:#55db50;}
 .success { background-color: #84ec7a; }
 .fail { background-color: rgb(206, 70, 70);}
-
+.passed_td { color: red; }
+.high_req { color: red; }
+.fit_req { color: blue; }
