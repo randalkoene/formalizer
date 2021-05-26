@@ -45,7 +45,7 @@ redirect_head = """Content-type:text/html
 
 <html>
 <head>
-<meta http-equiv="refresh" content="3;url=/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END" />
+<meta http-equiv="refresh" content="2;url=/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END" />
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Log Entry (fzlog)</title>
