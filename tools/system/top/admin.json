@@ -1,5 +1,5 @@
 {
-    "FZ Admin: " : {
+    "Node Server: " : {
         "Server Status" : {
             "url" : "/cgi-bin/fzserver-info-cgi.py",
             "window" : "_blank"
@@ -87,6 +87,12 @@
         "Stop Server" : {
             "url" : "http://{{ fzserverpq }}/fz/_stop",
             "window" : ""
+        }
+    },
+    "Database: " : {
+        "Backups" : {
+            "url" : "/cgi-bin/fzbackup-cgi.py?action=show",
+            "window" : "_blank"
         }
     }
 }
