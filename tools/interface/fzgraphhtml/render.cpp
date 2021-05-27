@@ -171,9 +171,6 @@ struct line_render_parameters {
 
     void insert_previous_day_summary() {
         template_varvalues varvals;
-        varvals.emplace("node_id","");
-        varvals.emplace("topic","");
-        varvals.emplace("targetdate","");
         time_t t_nextday = ymd_stamp_time(datestamp); // have to do this, because a Node's tdate is not indicative of the day start
         time_t t_daystart = t_nextday - seconds_per_day; // *** breaks slightly when switching to daylight savings time
         time_t seconds_available = seconds_per_day;
@@ -186,7 +183,10 @@ struct line_render_parameters {
         } else {
             varvals.emplace("alertstyle", ""); // " class=\"fit_req\"");
         }
-        varvals.emplace("req_hrs",to_precision_string(day_total_hrs,2));
+        varvals.emplace("req_hrs", to_precision_string(day_total_hrs,2));
+        varvals.emplace("targetdate", to_precision_string(hours_available,2));
+        varvals.emplace("node_id","");
+        varvals.emplace("topic","");
         varvals.emplace("tdprop","");
         varvals.emplace("excerpt", "");
         varvals.emplace("fzserverpq","");
