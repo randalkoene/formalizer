@@ -33,6 +33,8 @@ enum flow_options {
     flow_NUMoptions
 };
 
+typedef std::map<std::string, std::string> root_path_map_type;
+
 class fzs_configurable : public configurable {
 public:
     fzs_configurable(formalizer_standard_program &fsp) : configurable("fzserverpq", fsp) {}
@@ -42,7 +44,7 @@ public:
 
     uint16_t port_number = 8090;   ///< Default port number to listen on.
     bool persistent_NNL = true;    ///< Default Named Node Lists are synchronized in-memory and database.
-    std::string www_file_root = "/var/www/html"; ///< Root as presented for direct TCP-port API file serving.
+    root_path_map_type www_file_root; // = { {"", "/var/www/html"} }; ///< Root as presented for direct TCP-port API file serving.
     std::string request_log = reqqfilepath;
 };
 

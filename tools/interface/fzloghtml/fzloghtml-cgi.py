@@ -41,9 +41,11 @@ log_interval_head = '''Content-type:text/html
 
 <html>
 <head>
+<meta charset="utf-8" />
 <link rel="stylesheet" href="/fz.css">
 <link rel="icon" href="/favicon-logentry-32x32.png">
 <link rel="stylesheet" href="/fzuistate.css">
+<link rel="stylesheet" href="/clock.css">
 <meta http-equiv="cache-control" content="no-cache" />
 <title>fz: Log interval</title>
 </head>
@@ -54,6 +56,7 @@ log_interval_head = '''Content-type:text/html
 }
 table tr.chktop { background: #B0C4F5; }
 </style>
+<button id="clock" class="button button2">_____</button>
 '''
 
 cgi_custom_tail = '''
@@ -86,6 +89,10 @@ or<br />
 <p>[<a href="/index.html">fz: Top</a>]</p>
 
 <script type="text/javascript" src="/fzuistate.js"></script>
+<script type="text/javascript" src="/clock.js"></script>
+<script>
+    var clock = new floatClock('clock');
+</script>
 '''
 
 

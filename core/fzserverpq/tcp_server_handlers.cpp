@@ -1440,8 +1440,42 @@ bool handle_fz_vfs_request(int new_socket, const std::string & fzrequesturl) {
     return false;
 }
 
+/**
+ * Translate a url into a file path by doing the following:
+ * 1. Compare the first part of the path (up to the first '/') with defined roots.
+ * 2. If there is a match, then the file path is the defined root-path concatenated
+ *    with the remainder of the url.
+ * 3. If there is no match, then see if a default root has been defined, i.e. a
+ *    root with an empty key, and if so, then the file path is the corresponding
+ *    root-path concatenated with the entire url.
+ * 4. If there is no '/' then also use the default root-path, if defined.
+ * 5. Finally, in all other cases, return http_not_found.
+ * E.g:
+ *    '/doc/tex/Change/Change.html' -> ('doc') -> '/home/randalk/doc/tex/Change/Change.html'
+ *    '/formalizer/earlywiz.html' -> ('') -> '/var/www/html/formalizer/earlywiz.html'
+ *    '/index.html' -> ('') -> '/var/www/html/index.html'
+ */
 void direct_tcpport_api_file_serving(int new_socket, const std::string & url) {
-    std::string file_path(fzs.config.www_file_root+url);
+    std::string file_path;
+    auto rootkey_end = url.find('/', 1); // skip the initial '/'
+    if (rootkey_end != std::string::npos) {
+        std::string rootkey = url.substr(1, rootkey_end - 1); // e.g. 'doc', do not include the initial '/', nor the '/' you just found
+        FZOUT("Searching for: "+rootkey+'\n');
+        auto it = fzs.config.www_file_root.find(rootkey);
+        if (it != fzs.config.www_file_root.end()) {
+            file_path = it->second + url.substr(rootkey_end); // e.g. '/home/randalk/doc' + '/tex/Change/Change.html'
+            FZOUT("FOUND! Making file_path: "+file_path+'\n');
+        }
+    }
+    if (file_path.empty()) {
+        auto it = fzs.config.www_file_root.find("");
+        if (it != fzs.config.www_file_root.end()) {
+            file_path = it->second + url;
+        } else {
+            handle_request_error(new_socket, http_not_found, "Requested file ("+url+") not found.");
+            return;
+        }
+    }
 
     //uninitialized_buffer buf;
     std::vector<char> buf;

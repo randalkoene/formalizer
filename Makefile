@@ -237,6 +237,7 @@ TOPLEVEL += $(TOOLSPATH)/interface/resources/bluetable.css
 TOPLEVEL += $(MEDIAPATH)/favicon-192x192.png
 TOPLEVEL += $(MEDIAPATH)/favicon-32x32.png
 TOPLEVEL += $(MEDIAPATH)/favicon-16x16.png
+TOPLEVEL += $(MEDIAPATH)/favicon.ico
 TOPLEVEL += $(FZCONFIGSRCPATH)/logentry.py/favicon-logentry-32x32.png
 
 # Test files to copy to web servable Formalizer directory

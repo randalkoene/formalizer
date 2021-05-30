@@ -101,9 +101,8 @@ Note C: Both <list-name>?add and <list-name>?copy can receive optional
           [&prepend=true|false]
 Note D: Using the direct TCP-port API, absolute URLs are translated so that
         the root '/' is at the actual filesystem location specified by the
-        configuration variable 'www_file_root'. It presently evaluates to
-        )UTAIL";
-static const char usage_tail_str_B[] = R"UTAIL(.
+        configuration variable 'www_file_root'. See the 'FILE SERVING'
+        section below for the configured mapping.
 
 API USING 'FZ' REQUEST
 ----------------------
@@ -151,7 +150,22 @@ utility can be used to make FZ requests. Some examples:
   |>> s.send('NNLlen(dependencies);NNLlen(superiors)'.encode()) 
   |>> data = ''
   |>> data = s.recv(1024).decode()
+
+FILE SERVING
+------------
+
+The configured mapping applied to 'http:server-ip:port/path' requests (as
+per Node D above) is:
+
 )UTAIL";
+
+std::string print_www_file_roots() {
+    std::string res;
+    for (const auto & [rootkey, pathbase] : fzs.config.www_file_root) {
+        res += "  (/'"+rootkey+"') -> "+pathbase+'\n';
+    }
+    return res;
+}
 
 /**
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
@@ -161,7 +175,31 @@ fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga
                            flowcontrol(flow_unknown), graph_ptr(nullptr), ReqQ(config.reqqfilepath) {
     add_option_args += "Gp:L:";
     add_usage_top += " [-G] [-p <port-number>] [-L <request-log>]";
-    usage_tail.push_back(usage_tail_str_A+fzs.config.www_file_root+usage_tail_str_B);
+    usage_tail.push_back(usage_tail_str_A); // root path mapping cannot be inserted here, because config is parsed later
+}
+
+/**
+ * Extract a map of recognized roots and target file paths from the 'www_file_root'
+ * configuration string.
+ * Note: This is a very simple format, e.g. "=/var/www/html&doc=/home/randalk/doc".
+ *       This format does not support paths that contain ampersands or equal signs.
+ *       Commas are also not allowed, because the super-simple JSON-lite function used
+ *       for configuration parsing uses those to separate config lines.
+ *       *** It could be extended to actual JSON if there is good cause to do so.
+ * @param www_file_roots String containing encoded roots and paths.
+ * @return A map of string pairs, one for each root and path pair.
+ */
+root_path_map_type parse_www_file_roots(const std::string & www_file_roots) {
+    auto roots_paths_vec = split(www_file_roots, '&');
+    root_path_map_type roots_paths_map;
+    for (const auto roots_paths_str : roots_paths_vec) {
+        auto colon_pos = roots_paths_str.find('=');
+        if (colon_pos == std::string::npos) {
+            standard_exit_error(exit_bad_config_value, "Invalid www_file_root syntax: "+www_file_roots, __func__);
+        }
+        roots_paths_map.emplace(roots_paths_str.substr(0, colon_pos), roots_paths_str.substr(colon_pos+1));
+    }
+    return roots_paths_map;
 }
 
 /**
@@ -175,7 +213,7 @@ bool fzs_configurable::set_parameter(const std::string & parlabel, const std::st
     // *** You could also implement try-catch here to gracefully report problems with configuration files.
     CONFIG_TEST_AND_SET_PAR(port_number, "port_number", parlabel, std::stoi(parvalue));
     CONFIG_TEST_AND_SET_PAR(persistent_NNL, "persistent_NNL", parlabel, (parvalue != "false"));
-    CONFIG_TEST_AND_SET_PAR(www_file_root, "www_file_root", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(www_file_root, "www_file_root", parlabel, parse_www_file_roots(parvalue));
     CONFIG_TEST_AND_SET_PAR(request_log, "request_log", parlabel, parvalue);
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
@@ -191,6 +229,8 @@ void fzserverpq::usage_hook() {
           "    -p Specify <port-number> on which the sever will listen\n"
           "    -L Log requests received in <request-log> (or STDOUT), currently set\n"
           "       to: "+ReqQ.get_errfilepath()+'\n');
+    // Now the mapping should be available:
+    usage_tail.push_back(print_www_file_roots());
 }
 
 /**
