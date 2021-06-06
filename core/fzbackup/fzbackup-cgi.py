@@ -95,6 +95,8 @@ pagehead = '''Content-type:text/html
 
 pagetail = '''
 <hr>
+<button class="button button1" onclick="window.open('/formalizer/development/backup_to_github.html','_blank');">Backups to GitHub</button>
+<hr>
 [<a href="/index.html">fz: Top</a>]
 
 <script type="text/javascript" src="/fzuistate.js"></script>

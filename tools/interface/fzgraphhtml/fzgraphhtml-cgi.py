@@ -134,6 +134,7 @@ modify_template = '''<tr><td>[<a href="/cgi-bin/fzgraphhtml-cgi.py?srclist={{{{ 
 listpagehead = '''<html>
 <head>
 <meta charset="utf-8">
+<link rel="icon" href="/favicon-nodes-32x32.png">
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/bluetable.css">
 <link rel="stylesheet" href="/fzuistate.css">
@@ -152,6 +153,7 @@ listpagehead = '''<html>
 listpagehead_nomodif = '''<html>
 <head>
 <meta charset="utf-8">
+<link rel="icon" href="/favicon-nodes-32x32.png">
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/bluetable.css">
 <link rel="stylesheet" href="/fzuistate.css">
@@ -166,6 +168,7 @@ listpagehead_nomodif = '''<html>
 listpagehead_alllists = '''<html>
 <head>
 <meta charset="utf-8">
+<link rel="icon" href="/favicon-nodes-32x32.png">
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/bluetable.css">
 <link rel="stylesheet" href="/fzuistate.css">
@@ -194,6 +197,7 @@ editpagehead = '''Content-type:text/html
 <html>
 <head>
 <meta charset="utf-8">
+<link rel="icon" href="/favicon-nodes-32x32.png">
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/bluetable.css">
 <link rel="stylesheet" href="/fzuistate.css">
@@ -224,6 +228,7 @@ topicspagehead = '''Content-type:text/html
 
 <head>
 <meta charset="utf-8">
+<link rel="icon" href="/favicon-nodes-32x32.png">
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/fzuistate.css">
 <link rel="stylesheet" href="/bluetable.css">

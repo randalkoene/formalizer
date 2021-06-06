@@ -282,6 +282,8 @@ def nonlocal_fztask_page():
         """</tr>\n"""
         """</tbody></table>\n"""
         """\n"""
+        """*** Missing behavior on this page: (1) There should be no need to press reload, changing the 'select' NNL to a different Node should cause state-change here. (2) Successful opening of new Log chunks should cause visible state change so that there is no question if that was already done (in addition to the Node history that pops up), perhaps even start count-down to closing page.\n"""
+        """(3) Both the content of this page, and the LogTime mini day-display could be integrated in the Top page as part of tab areas or overlays that change."""
         """<hr>\n"""
         """[<a href="/index.html">fz: Top</a>]\n"""
         """\n"""
