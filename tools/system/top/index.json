@@ -231,7 +231,7 @@
             "window" : "_blank"
         },
         "Weather Service (94122)" : {
-            "url" : "https://forecast.weather.gov/MapClick.php?lat=37.76012500000007&lon=-122.47004999999996#.X85MfGhKhhE",
+            "url" : "https://forecast.weather.gov/MapClick.php?lon=-122.49773025512692&lat=37.7576011273171",
             "window" : "_blank"
         },
         "Time and Date" : {

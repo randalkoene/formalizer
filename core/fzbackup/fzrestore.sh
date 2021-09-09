@@ -12,7 +12,7 @@ if [ $# -lt 1 -o "$1" = "-h" ]; then
 	echo "See, for example, in ~/.formalizer/archive/postgres/."
 	echo ""
 	echo "Options:"
-	echo "  -s rename an existing schema if it exists before restoring"
+	echo "  -s rename an existing schema (usually USER) if it exists before restoring"
 	echo "     Use this if you are restoring to an existing database, and"
 	echo "     if you want to test a different version of the Formalizer"
 	echo "     Graph and Log data. If you want to delete the old scheme"

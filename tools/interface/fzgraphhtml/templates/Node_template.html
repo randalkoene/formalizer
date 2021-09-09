@@ -1,0 +1,43 @@
+<tr>
+<td><h3>Node ID: <b>{{ node-id }}</b></h3></td>
+</tr>
+<tr>
+<td>
+<hr>
+{{ node-text }}
+</td>
+</tr>
+<tr>
+<td>
+<hr>
+Completion: {{ comp }}<br>
+Required: {{ req_hrs }} hrs ({{ req_mins}} mins)<br>
+Valuation: {{ val }}<br>
+Targetdate: {{ eff_td }}<br>
+TD Property: {{ td_prop }}<br>
+TD Pattern: {{ td_patt }} every: {{ td_every }} span: {{ td_span }}<br>
+Topics: {{ topics }}
+</td>
+</tr>
+<tr>
+<td>
+Superiors:
+<ol>
+{{ superiors }}
+</ol>
+</td>
+</tr>
+<tr>
+<td>
+Dependencies:
+<ol>
+{{ dependencies }}
+</ol>
+</td>
+</tr>
+<tr>
+<td>
+<hr>
+[<a href="/cgi-bin/fzlink.py?id={{ node-id }}&alt=hist50">node history</a>]
+</td>
+</tr>
