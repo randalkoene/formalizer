@@ -63,6 +63,13 @@ cursor: pointer;
 [data-theme="dark"] {
 --color-bg: LightSteelBlue;
 }
+[data-theme="dark_alt1"] {
+--color-bg: rgb(79, 128, 192);
+}
+[data-theme="dark_alt2"] {
+--color-bg: rgb(2, 42, 94);
+--color-text: rgb(173, 173, 173);
+}
 body {
 background-color: var(--color-bg);
 }

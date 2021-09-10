@@ -42,7 +42,8 @@ config = {
 results = {}
 
 ui_state = {
-    'darkmode' : False,
+    #'darkmode' : False,
+    'darkmode' : 0,
     'something' : 100
 }
 
@@ -183,10 +184,11 @@ def attempt_send_ui_state(uistate: dict):
 def handle_ui_state_update():
     form = cgi.FieldStorage()
 
-    # darkmode expects '0' or '1'
+    # in fzuistate_twoonly.js: darkmode expects '0' or '1'
+    # in fzuistate.js: darkmode expects an integer between 0 and nummodes-1 (see fzuistate.js).
     darkmode = form.getvalue('darkmode')
     if darkmode:
-        ui_state['darkmode'] = bool(int(darkmode))
+        ui_state['darkmode'] = int(darkmode) # bool(int(darkmode))
         if (attempt_write_ui_state(ui_state)):
             simple_ok_response()
         else:

@@ -195,18 +195,24 @@ function clockStart() {
     var idval = setInterval(updateClock, 60000); // update each minute, since we're not showing seconds here
 }
 // +---- start of part that is now actually in fzuistate.js
+var nummodes = 4;
 var darkmode = 0;
 function set_darkmode() {
     if (darkmode < 1) {
-        //document.body.style.background = "#ffffff";
         document.body.removeAttribute('data-theme');
-    } else {
-        //document.body.style.background = "#7f7f7f";
+    } else if (darkmode == 1) {
         document.body.setAttribute('data-theme', 'dark');
+    } else if (darkmode == 2) {
+        document.body.setAttribute('data-theme', 'dark_alt1');
+    } else {
+        document.body.setAttribute('data-theme', 'dark_alt2');
     }
 }
 function switch_light_or_dark() {
-    darkmode = 1 - darkmode;
+    darkmode += 1;
+    if (darkmode >= nummodes) {
+        darkmode = 0;
+    }
     set_darkmode();
 }
 function init_darkmode() {
@@ -251,7 +257,7 @@ uistate.onreadystatechange = function() {
             var state_data = uistate.responseText;
             var json_uistate = JSON.parse(state_data);
             if (json_uistate.hasOwnProperty('darkmode')) {
-                darkmode = json_uistate['darkmode'];
+                darkmode = Number(json_uistate['darkmode']);
                 set_darkmode();
             }
         } else {

@@ -19,24 +19,16 @@ var dmbtnelement = document.createElement("div");
 dmbtnelement.innerHTML = "<button id=\"darkmode\" class=\"button button2\" onclick=\"switch_light_or_dark();\">Light / Dark</button>";
 document.body.prepend(dmbtnelement);
 // darkmode handling
-var nummodes = 4;
 var darkmode = 0;
 function set_darkmode() {
     if (darkmode < 1) {
         document.body.removeAttribute('data-theme');
-    } else if (darkmode == 1) {
-        document.body.setAttribute('data-theme', 'dark');
-    } else if (darkmode == 2) {
-        document.body.setAttribute('data-theme', 'dark_alt1');
     } else {
-        document.body.setAttribute('data-theme', 'dark_alt2');
+        document.body.setAttribute('data-theme', 'dark');
     }
 }
 function switch_light_or_dark() {
-    darkmode += 1;
-    if (darkmode >= nummodes) {
-        darkmode = 0;
-    }
+    darkmode = 1 - darkmode;
     set_darkmode();
 }
 function init_darkmode() {
@@ -76,7 +68,7 @@ uistate.onreadystatechange = function() {
             var state_data = uistate.responseText;
             var json_uistate = JSON.parse(state_data);
             if (json_uistate.hasOwnProperty('darkmode')) {
-                darkmode = Number(json_uistate['darkmode']);
+                darkmode = json_uistate['darkmode'];
                 set_darkmode();
             }
         } else {
