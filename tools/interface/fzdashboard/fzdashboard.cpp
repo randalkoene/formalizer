@@ -53,7 +53,11 @@ void fzdashboard::usage_hook() {
     FZOUT("    -D render a predefined dashboard, or render with custom templates at\n"
           "       <template-dir>\n"
           "    -f JSON dashboard definition file path\n"
-          "    -o output directory or STDOUT (default in config or current dir)\n");
+          "    -o output directory or STDOUT (default in config or current dir)\n"
+          "\n"
+          "    The path to JSON definitions for predefined index and admin dashboards\n"
+          "    is specified in the fzdashboard configuration file. It is presently\n"
+          "    set to: "+fzdsh.config.json_path+'\n');
 }
 
 /**

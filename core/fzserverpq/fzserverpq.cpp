@@ -311,8 +311,10 @@ void load_Graph_and_stay_resident() {
 
     std::string ipaddrstr;
     if (!find_server_address(ipaddrstr)) {
-        standard_error("Unable to determine server IP address", __func__);
-        RETURN_AFTER_UNLOCKING;   
+        standard_error("Unable to determine server IP address (launching only for localhost)", __func__);
+        VERYVERBOSEOUT("No Internet. Launching server only for localhost access.");
+        //RETURN_AFTER_UNLOCKING;
+        ipaddrstr = "127.0.0.1";
     }
 
     fzs.graph_ptr->set_server_IPaddr(ipaddrstr);

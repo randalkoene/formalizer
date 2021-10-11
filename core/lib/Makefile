@@ -225,6 +225,10 @@ $(OBJ)/Guidepostgres.o: Guidepostgres.cpp $(INC)/Guidepostgres.hpp $(INC)/fzpost
 						$(INC)/general.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c Guidepostgres.cpp -o $(OBJ)/Guidepostgres.o
 
+$(OBJ)/DataSheet.o: DataSheet.cpp $(INC)/DataSheet.hpp \
+						$(INC)/general.hpp $(INC)/error.hpp
+	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c DataSheet.cpp -o $(OBJ)/DataSheet.o
+
 clean:
 	rm -f $(OBJ)/*.o $(TEST)/*.o
 

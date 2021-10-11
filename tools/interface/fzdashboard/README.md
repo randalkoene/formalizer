@@ -1,5 +1,5 @@
-# fzdashboard - {{ brief_title }}}
+# fzdashboard - Webpage dashboard generator.
 
-{{ readme_description }}
+For help and information  about the definition files for dashboards, see `fzdashboard -h`.
 
 Randal A. Koene, 20210226

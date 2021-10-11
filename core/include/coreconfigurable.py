@@ -11,6 +11,7 @@ Note: The `coreconfigurable` variable is a tuple instead of a list, which is muc
 coreconfigurable = (
     'error',
     'fzpostgres',
-    'standard'
+    'standard',
+    'DataSheet',
     )
     

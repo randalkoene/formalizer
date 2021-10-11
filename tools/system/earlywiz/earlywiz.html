@@ -24,32 +24,38 @@
 
 <hr>
 
+<form action="/cgi-bin/earlywiz.py" method="POST">
+
+<input type="submit" value="Process">
+
 <table><tbody><tr>
 <td>
 <section>
     <h2>Fast rise</h2>
-    <p><input type="checkbox"> Take vitamins and supplements.</p>
-    <p><input type="checkbox"> Plan nutrition for the day: <a href="/formalizer/day-nutrition.html" target="_blank">Day Nutrition</a>.</p>
-    <p><input type="checkbox"> Make coffee.</p>
-    <p><input type="checkbox"> Update (or catch up) the Log.  (<b>Log autodetectable.</b>)</p>
-    <p><input type="checkbox"> Do push-ups or other exercises. (Number / measure: <input type="text">)</p>
-    <p><input type="checkbox"> Have a shower (etc).</p>
-    <p><input type="checkbox"> If you check news in the morning then use <a href="/formalizer/test_maketimer.html" target="_blank">a timer</a>.</p>
+    <p><input name="supplements" type="checkbox"> Take vitamins and supplements.</p>
+    <p><input name="nutriplan" type="checkbox"> Plan nutrition for the day: <a href="/formalizer/day-nutrition.html" target="_blank">Day Nutrition</a>.</p>
+    <p><input name="coffee" type="checkbox"> Make coffee.</p>
+    <p><input name="logcatchup" type="checkbox"> Update (or catch up) the Log.  (<b>Log autodetectable.</b>)</p>
+    <p><input name="exercise" type="checkbox"> Do push-ups or other exercises. (Number / measure: <input name="num_pushups" type="text">)</p>
+    <p><input name="shower" type="checkbox"> Have a shower (etc).</p>
+    <p><input name="news" type="checkbox"> If you check news in the morning then use <a href="/formalizer/test_maketimer.html" target="_blank">a timer</a>.</p>
 </section>
 
 <section>
     <h2>Fast start</h2>
-    <p><input type="checkbox"> Sync <a href="https://calendar.google.com/calendar/?authuser=randal.a.koene@gmail.com" target="_blank">Google Calendar</a> with Schedule. (<b>Automatable.</b>)</p>
-    <p><input type="checkbox"> <a href="/cgi-bin/fzupdate-cgi.py?update=passedfixed" target="_blank">Confirm passed non-repeating Fixed Nodes to convert to Variable</a> - or - manually update them.</p>
-    <p><input type="checkbox"> Auto-update passed repeating Nodes to their next instances.</p>
-    <p><input type="checkbox"> Review <a href="https://trello.com/b/tlgXjZBm" target="_blank">Promises</a>, update, revise and re-prioritize as needed.</p>
-    <p><input type="checkbox"> Ensure that highest priority Promises are represented in the Schedule. (<b>Schedule autodetectable.</b>)</p>
-    <p><input type="checkbox"> Review <a href="https://trello.com/b/tlgXjZBm" target="_blank">Milestone Tracks</a>. These map to Milestones, Dependencies, Roadmap Path, Values and Urgency.</p>
-    <p><input type="checkbox"> Identify Challenges and Decisions in the Schedule, tag as such. <a href="https://trello.com/b/mnu1VKIn" target="_blank">Known Challenges and Decisions</a> must be represented by at least one Node.</p>
-    <p><input type="checkbox"> Auto-update Variable Nodes. (Or replace this with different handling of Variable Nodes.)</p>
-    <p><input type="checkbox"> Ensure Schedule is realistic. E.g. map to time intervals on calendar day. Account for mini-days, and Nodes best in morning/evening. (<b>Automatable.</b>)</p>
-    <p><input type="checkbox"> Make sure that Formalizer database backups are mirrored to separate storage (USB drive, mirrored account, cloud storage). (<b>Automatable</b>)</p>
+    <p><input name="calendar" type="checkbox"> Sync <a href="https://calendar.google.com/calendar/?authuser=randal.a.koene@gmail.com" target="_blank">Google Calendar</a> with Schedule. (<b>Automatable.</b>)</p>
+    <p><input name="passedfixed" type="checkbox"> <a href="/cgi-bin/fzupdate-cgi.py?update=passedfixed" target="_blank">Confirm passed non-repeating Fixed Nodes to convert to Variable</a> - or - manually update them.</p>
+    <p><input name="repeating" type="checkbox"> Auto-update passed repeating Nodes to their next instances.</p>
+    <p><input name="promises" type="checkbox"> Review <a href="https://trello.com/b/tlgXjZBm" target="_blank">Promises</a>, update, revise and re-prioritize as needed.</p>
+    <p><input name="priority" type="checkbox"> Ensure that highest priority Promises are represented in the Schedule. (<b>Schedule autodetectable.</b>)</p>
+    <p><input name="milestones" type="checkbox"> Review <a href="https://trello.com/b/tlgXjZBm" target="_blank">Milestone Tracks</a>. These map to Milestones, Dependencies, Roadmap Path, Values and Urgency.</p>
+    <p><input name="challenges" type="checkbox"> Identify Challenges and Decisions in the Schedule, tag as such. <a href="https://trello.com/b/mnu1VKIn" target="_blank">Known Challenges and Decisions</a> must be represented by at least one Node.</p>
+    <p><input name="variable" type="checkbox"> Auto-update Variable Nodes. (Or replace this with different handling of Variable Nodes.)</p>
+    <p><input name="realistic" type="checkbox"> Ensure Schedule is realistic. E.g. map to time intervals on calendar day. Account for mini-days, and Nodes best in morning/evening. (<b>Automatable.</b>)</p>
+    <p><input name="backup" type="checkbox"> Make sure that Formalizer database backups are mirrored to separate storage (USB drive, mirrored account, cloud storage). (<b>Automatable</b>)</p>
 </section>
+
+</form>
 
 <!-- For more, see 202104150714 and 202104160642. -->
 </td>
@@ -58,7 +64,7 @@
 
 <section>
     <h2>Counterproductive behavior</h2>
-    <p><input type="checkbox"> Excessive morning time spent reading online news - or equivalent. (<b>Log autodetectable.</b>)</p>
+    <p><input id="excess_online" type="checkbox"> Excessive morning time spent reading online news - or equivalent. (<b>Log autodetectable.</b>)</p>
 </section>
 
 </td>

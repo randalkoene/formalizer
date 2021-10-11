@@ -170,12 +170,8 @@
             "url" : "https://trello.com/b/ABTA2xEA",
             "window" : "_blank"
         },
-        "Neurobotx" : {
-            "url" : "https://trello.com/b/Pw1dr2Br",
-            "window" : "_blank"
-        },
-        "Ongoing Opportunities Search" : {
-            "url" : "https://trello.com/b/asCOUeKD",
+        "Fixing Personal Life" : {
+            "url" : "https://trello.com/b/zUiabFZx",
             "window" : "_blank"
         },
         "FORMALIZER-NEWAL-METHOD" : {
@@ -188,6 +184,10 @@
         }
     },
     "Track Collections: " : {
+        "Health" : {
+            "url" : "https://trello.com/b/uNGTL6aO",
+            "window" : "_blank"
+        },
         "Financials, Income &amp; Capital" : {
             "url" : "https://trello.com/b/n8YN7jwd",
             "window" : "_blank"
@@ -196,12 +196,12 @@
             "url" : "https://trello.com/b/gPUx2CON",
             "window" : "_blank"
         },
-        "Health" : {
-            "url" : "https://trello.com/b/uNGTL6aO",
-            "window" : "_blank"
-        },
         "Writing Projects" : {
             "url" : "https://trello.com/b/U81T3ycQ",
+            "window" : "_blank"
+        },
+        "Ongoing Opportunities Search" : {
+            "url" : "https://trello.com/b/asCOUeKD",
             "window" : "_blank"
         }
     },

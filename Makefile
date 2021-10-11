@@ -176,6 +176,7 @@ CGIEXE += $(TOOLSPATH)/interface/fzlink/fzlink.py
 CGIEXE += $(TOOLSPATH)/interface/fzlogtime/fzlogtime.cgi
 CGIEXE += $(TOOLSPATH)/interface/fzserver-info/fzserver-info-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzuistate/fzuistate.py
+CGIEXE += $(TOOLSPATH)/system/earlywiz/earlywiz.py
 CGIEXE += $(TOOLSPATH)/system/metrics/sysmet-extract/sysmet-extract-cgi.py
 
 # CGI scripts for machine-local use with w3m, which can launch programs as the user
@@ -252,6 +253,11 @@ TESTS += $(TOOLSPATH)/misc/test_add_node.html
 TESTS += $(TOOLSPATH)/misc/test_task_chunk_countdown_bar.html
 TESTS += $(TOOLSPATH)/misc/test_webfileread.html
 TESTS += $(TOOLSPATH)/misc/test_timed_close.html
+
+# CGI processors that are used by test HTML pages
+TESTCGI =
+TESTCGI += $(TOOLSPATH)/misc/test_python_cgianalysis.py
+TESTCGI += $(TOOLSPATH)/misc/test_python_cgiformget.py
 # +----- end  : Select Formalizer executables -----+
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
@@ -294,6 +300,7 @@ executables: $(EXECUTABLES)
 # call `make tests` to make test files available
 tests: $(TESTS)
 	sudo cp -f $(TESTS) $(WEBINTERFACESDIR)/
+	sudo cp -f $(TESTCGI) $(CGIDIR)/
 
 # call `make doxygen` to refresh code documentation
 doxygen: FORCE
