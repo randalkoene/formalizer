@@ -76,8 +76,11 @@ def chkbx2bool(chkbx_val) ->bool:
     return True
 
 class WizData:
-    def __init__(self):
+    def __init__(self, datakeys: list, form):
+        self.keys = datakeys
         self.data = {}
+        for k in datakeys:
+            self.data[k] = form.getvalue(k)
     def size(self) ->int:
         return len(self.data)
     def csv_str(self) ->str:
@@ -100,34 +103,15 @@ class WizData:
 
 class FastRiseData(WizData):
     def __init__(self, form):
-        super().__init__()
-        self.data['supplements'] = form.getvalue('supplements')
-        self.data['nutriplan'] = form.getvalue('nutriplan')
-        self.data['coffee'] = form.getvalue('coffee')
-        self.data['logcatchup'] = form.getvalue('logcatchup')
-        self.data['exercise'] = form.getvalue('exercise')
-        self.data['shower'] = form.getvalue('shower')
-        self.data['news'] = form.getvalue('news')
-        self.data['num_pushups'] = form.getvalue('num_pushups')
+        super().__init__(['supplements','nutriplan','coffee','logcatchup','exercise','shower','news','outside','num_pushups',], form)
 
 class FastStartData(WizData):
     def __init__(self, form):
-        super().__init__()
-        self.data['calendar'] = form.getvalue('calendar')
-        self.data['passedfixed'] = form.getvalue('passedfixed')
-        self.data['repeating'] = form.getvalue('repeating')
-        self.data['promises'] = form.getvalue('promises')
-        self.data['priority'] = form.getvalue('priority')
-        self.data['milestones'] = form.getvalue('milestones')
-        self.data['challenges'] = form.getvalue('challenges')
-        self.data['variable'] = form.getvalue('variable')
-        self.data['realistic'] = form.getvalue('realistic')
-        self.data['backup'] = form.getvalue('backup')
+        super().__init__(['calendar','passedfixed','repeating','promises','priority','milestones','challenges','sumdoable','variable','realistic','backup',], form)
 
 class CounterProductive(WizData):
     def __init__(self, form):
-        super().__init__()
-        self.data['excess_online'] = form.getvalue('excess_online')
+        super().__init__(['excess_online',], form)
 
 def process_earlywiz_form(form):
     fastrisedata = FastRiseData(form)

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['www_5ffile_5froot_722',['www_file_root',['../classfzs__configurable.html#a74be48011ed4f6a08ee4955372471458',1,'fzs_configurable']]]
+  ['wizdata_762',['WizData',['../classearlywiz_1_1WizData.html',1,'earlywiz']]],
+  ['www_5ffile_5froot_763',['www_file_root',['../classfzsl__configurable.html#adc55464cf86247e24fe984b26983b373',1,'fzsl_configurable']]]
 ];

@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['year_5fmonth_5fday_5ft_872',['year_month_day_t',['../structfz_1_1year__month__day__t.html',1,'fz']]]
+  ['uninitialized_5fbuffer_929',['uninitialized_buffer',['../classfz_1_1uninitialized__buffer.html',1,'fz']]],
+  ['uninitialized_5fchar_930',['uninitialized_char',['../structfz_1_1uninitialized__char.html',1,'fz']]],
+  ['update_5fconstraints_931',['update_constraints',['../structupdate__constraints.html',1,'']]]
 ];

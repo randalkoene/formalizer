@@ -1,4 +1,5 @@
 <map id="fz::shared_memory_server" name="fz::shared_memory_server">
-<area shape="rect" id="node1" title=" " alt="" coords="5,5,201,32"/>
-<area shape="rect" id="node2" href="$structfzserverpq.html" title=" " alt="" coords="58,80,149,107"/>
+<area shape="rect" id="node1" title=" " alt="" coords="15,5,211,32"/>
+<area shape="rect" id="node2" href="$structfzserverpq.html" title=" " alt="" coords="5,80,96,107"/>
+<area shape="rect" id="node3" href="$structfzserverpqlog.html" title=" " alt="" coords="121,80,231,107"/>
 </map>

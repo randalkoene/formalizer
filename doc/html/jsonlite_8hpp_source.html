@@ -80,36 +80,163 @@ $(function() {
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#define __JSONLITE_HPP (__COREVERSION_HPP)</span></div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment">// std</span></div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#include &lt;map&gt;</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &lt;fstream&gt;</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacefz.html">fz</a> {</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#include &lt;memory&gt;</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &lt;vector&gt;</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &lt;map&gt;</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#include &lt;fstream&gt;</span></div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">typedef</span> std::string jsonlite_parlabel;</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">typedef</span> std::string jsonlite_parvalue;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">typedef</span> std::vector&lt;std::string&gt; jsonlite_lines;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">typedef</span> std::pair&lt;std::string, std::string&gt; jsonlite_label_value_pair;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keyword">typedef</span> std::map&lt;jsonlite_parlabel, jsonlite_parvalue&gt; jsonlite_label_value_pairs;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keywordtype">bool</span> <a class="code" href="namespacefz.html#a5007b00e853ca6197ecbda5704c1642e">is_json_comment</a>(<span class="keyword">const</span> std::string &amp; keylabel);</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;jsonlite_label_value_pair <a class="code" href="namespacefz.html#a6128b734ed961d522923052e768e200b">json_param_value</a>(<span class="keyword">const</span> std::string &amp; par_value_pair);</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160; </div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;jsonlite_lines <a class="code" href="namespacefz.html#a615f67507873ff02f050b57a562b028d">json_get_param_value_lines</a>(std::string &amp; configcontentstr);</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160; </div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;jsonlite_label_value_pairs <a class="code" href="namespacefz.html#a436d3fb0b87afd17f5c45ff0e50145fe">json_get_label_value_pairs_from_string</a>(std::string &amp; jsoncontentstr);</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;std::string <a class="code" href="namespacefz.html#aec59f006cec171ddbb6e0fc0c91b6312">json_label_value_pairs_to_string</a>(<span class="keyword">const</span> jsonlite_label_value_pairs &amp; labelvaluepairs);</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; </div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;} <span class="comment">// namespace fz</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacefz.html">fz</a> {</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">typedef</span> std::string jsonlite_parlabel;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">typedef</span> std::string jsonlite_parvalue;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keyword">typedef</span> std::vector&lt;std::string&gt; jsonlite_lines;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">typedef</span> std::pair&lt;std::string, std::string&gt; jsonlite_label_value_pair;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keyword">typedef</span> std::map&lt;jsonlite_parlabel, jsonlite_parvalue&gt; jsonlite_label_value_pairs;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; </div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keywordtype">bool</span> <a class="code" href="namespacefz.html#a5007b00e853ca6197ecbda5704c1642e">is_json_comment</a>(<span class="keyword">const</span> std::string &amp; keylabel);</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;jsonlite_label_value_pair <a class="code" href="namespacefz.html#a6128b734ed961d522923052e768e200b">json_param_value</a>(<span class="keyword">const</span> std::string &amp; par_value_pair);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;jsonlite_lines <a class="code" href="namespacefz.html#a615f67507873ff02f050b57a562b028d">json_get_param_value_lines</a>(std::string &amp; configcontentstr);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160; </div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;jsonlite_label_value_pairs <a class="code" href="namespacefz.html#a436d3fb0b87afd17f5c45ff0e50145fe">json_get_label_value_pairs_from_string</a>(std::string &amp; jsoncontentstr);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;std::string <a class="code" href="namespacefz.html#aec59f006cec171ddbb6e0fc0c91b6312">json_label_value_pairs_to_string</a>(<span class="keyword">const</span> jsonlite_label_value_pairs &amp; labelvaluepairs);</div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="preprocessor">#endif // __JSONLITE_HPP</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="keyword">enum</span> JSON_element_type {</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    json_string = 0,</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    json_number = 1,</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    json_flag = 2,</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    json_block = 3,</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    NUM_json_element_types</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;};</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment">// forward declaration</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="keyword">struct </span>JSON_block;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160; </div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="comment">// *** Note: If we want to turn this into a std::pair&lt;std::string, JSON_el_data&gt; in</span></div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="comment">//     order to make use of maps for quick search by label then blocks will have to</span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="comment">//     use multimap, because we already in some cases make JSON strings with repeated labels.</span></div>
+<div class="line"><a name="l00084"></a><span class="lineno"><a class="line" href="structfz_1_1JSON__element__data.html">   84</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfz_1_1JSON__element__data.html">JSON_element_data</a> {</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    std::string label;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160; </div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    JSON_element_type type = JSON_element_type::json_string;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordtype">float</span> number = 0.0;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    std::string text;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keywordtype">bool</span> flag = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160; </div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <a class="code" href="structfz_1_1JSON__element__data.html">JSON_element_data</a>(std::string _label): label(_label) {}</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordtype">void</span> copy_nonlabel_data(<span class="keyword">const</span> <a class="code" href="structfz_1_1JSON__element__data.html">JSON_element_data</a> &amp; element) {</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;        type = element.type;</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;        <span class="keywordflow">if</span> (type == JSON_element_type::json_string) {</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;            text = element.text;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        }</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;        number = element.number;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;        flag = element.flag;</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    }</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <span class="keywordtype">bool</span> copy_if_match(<span class="keyword">const</span> <a class="code" href="structfz_1_1JSON__element__data.html">JSON_element_data</a> &amp; element) {</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;        <span class="keywordflow">if</span> (label == element.label) {</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;            copy_nonlabel_data(element);</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;            <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;        }</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    }</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;};</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160; </div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="keyword">typedef</span> std::vector&lt;JSON_element_data&gt; JSON_element_data_vec;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160; </div>
+<div class="line"><a name="l00112"></a><span class="lineno"><a class="line" href="structfz_1_1JSON__element.html">  112</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfz_1_1JSON__element.html">JSON_element</a>: <a class="code" href="structfz_1_1JSON__element__data.html">JSON_element_data</a> {</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    std::unique_ptr&lt;JSON_block&gt; children;</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <a class="code" href="structfz_1_1JSON__element.html">JSON_element</a>(std::string _label): <a class="code" href="structfz_1_1JSON__element__data.html">JSON_element_data</a>(_label) {}</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keywordtype">bool</span> is_flag()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> type == JSON_element_type::json_flag; }</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keywordtype">bool</span> is_number()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> type == JSON_element_type::json_number; }</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <span class="keywordtype">bool</span> is_string()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> type == JSON_element_type::json_string; }</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <span class="keywordtype">bool</span> is_block()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> type == JSON_element_type::json_block; }</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    <span class="keywordtype">bool</span> find_one(<a class="code" href="structfz_1_1JSON__element__data.html">JSON_element_data</a> &amp; buffer)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> buffer.copy_if_match(*<span class="keyword">this</span>); }</div>
+<div class="line"><a name="l00126"></a><span class="lineno"><a class="line" href="structfz_1_1JSON__element.html#ae6fdafcb9ee371477d7b19d1010bcb2f">  126</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="structfz_1_1JSON__element.html#ae6fdafcb9ee371477d7b19d1010bcb2f">find_one_of</a>(JSON_element_data_vec &amp; buffer_list) {</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp; buffer : buffer_list) {</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;            <span class="keywordflow">if</span> (buffer.copy_if_match(*<span class="keyword">this</span>)) {</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;                <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;            }</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;        }</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    }</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    std::string <a class="code" href="structfz_1_1JSON__element.html#aff1be7c87b1aaa098d321ed5572a3ce8">json_str</a>(<span class="keywordtype">size_t</span> indent = 0);</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;};</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160; </div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;<span class="keyword">typedef</span> std::vector&lt;std::unique_ptr&lt;JSON_element&gt;&gt; JSON_elements_vec;</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160; </div>
+<div class="line"><a name="l00139"></a><span class="lineno"><a class="line" href="structfz_1_1JSON__block.html">  139</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfz_1_1JSON__block.html">JSON_block</a> {</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;    JSON_elements_vec elements;</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;    <span class="keywordtype">bool</span> find_one(<a class="code" href="structfz_1_1JSON__element__data.html">JSON_element_data</a> &amp; buffer)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp; element : elements) {</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;            <span class="keywordflow">if</span> (element) {</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;                <span class="keywordflow">if</span> (element-&gt;find_one(buffer)) {</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;                    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;                }</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;            }</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;        }</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    }</div>
+<div class="line"><a name="l00157"></a><span class="lineno"><a class="line" href="structfz_1_1JSON__block.html#a727b97769fa32bd3cad08bfe270d3726">  157</a></span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="structfz_1_1JSON__block.html#a727b97769fa32bd3cad08bfe270d3726">find_many</a>(JSON_element_data_vec &amp; buffer_list)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;        <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> num_find = buffer_list.size();</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;        <span class="keywordflow">if</span> (num_find &lt; 1) {</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;            <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;        }</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;        <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> num_found = 0;</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp; element : elements) {</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;            <span class="keywordflow">if</span> (element) {</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;                <span class="keywordflow">if</span> (element-&gt;find_one_of(buffer_list)) {</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;                    ++num_found;</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;                    <span class="keywordflow">if</span> (num_found &gt;= num_find) {</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;                        <span class="keywordflow">return</span> num_found;</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;                    }</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;                }</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;            }</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;        } </div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;        <span class="keywordflow">return</span> num_found;       </div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    }</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    std::string json_str(<span class="keywordtype">size_t</span> indent = 0);</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;};</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160; </div>
+<div class="line"><a name="l00178"></a><span class="lineno"><a class="line" href="classfz_1_1JSON__data.html">  178</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfz_1_1JSON__data.html">JSON_data</a> {</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    <span class="keywordtype">size_t</span> num_element = 0;</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    <span class="keywordtype">size_t</span> num_blocks = 0;</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    <span class="keywordtype">bool</span> get_number_value(<span class="keyword">const</span> std::string &amp; jsonstr, <span class="keywordtype">size_t</span> &amp; pos, <a class="code" href="structfz_1_1JSON__element.html">JSON_element</a> &amp; element);</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    <span class="keywordtype">bool</span> get_string_value(<span class="keyword">const</span> std::string &amp; jsonstr, <span class="keywordtype">size_t</span> &amp; pos, <a class="code" href="structfz_1_1JSON__element.html">JSON_element</a> &amp; element);</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    <a class="code" href="structfz_1_1JSON__element.html">JSON_element</a> * get_element(<span class="keyword">const</span> std::string &amp; jsonstr, <span class="keywordtype">size_t</span> &amp; pos, <a class="code" href="structfz_1_1JSON__block.html">JSON_block</a> &amp; parent);</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    <a class="code" href="structfz_1_1JSON__block.html">JSON_block</a> * block_opening(<span class="keyword">const</span> std::string &amp; jsonstr, <span class="keywordtype">size_t</span> &amp; pos, <a class="code" href="structfz_1_1JSON__element.html">JSON_element</a> &amp; parent);</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160; </div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    <a class="code" href="structfz_1_1JSON__element.html">JSON_element</a> data;</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    <a class="code" href="classfz_1_1JSON__data.html">JSON_data</a>(): data(<span class="stringliteral">&quot;&quot;</span>) {}</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    <a class="code" href="classfz_1_1JSON__data.html">JSON_data</a>(<span class="keyword">const</span> std::string &amp; jsonstr): data(<span class="stringliteral">&quot;&quot;</span>) { parse_JSON(jsonstr, data); }</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    <span class="keywordtype">bool</span> parse_JSON(<span class="keyword">const</span> std::string &amp; jsonstr, <a class="code" href="structfz_1_1JSON__element.html">JSON_element</a> &amp; data);</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    <span class="keywordtype">size_t</span> size() { <span class="keywordflow">return</span> num_element; }</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    <span class="keywordtype">size_t</span> blocks() { <span class="keywordflow">return</span> num_blocks; }</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;    <a class="code" href="structfz_1_1JSON__block.html">JSON_block</a> * content() { <span class="keywordflow">return</span> data.children.get(); }</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    JSON_elements_vec &amp; content_elements() { <span class="keywordflow">return</span> data.children-&gt;elements; }</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    std::string json_str();</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;};</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160; </div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;<span class="keywordtype">bool</span> is_populated_JSON_block(<a class="code" href="structfz_1_1JSON__element.html">JSON_element</a> * element_ptr);</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160; </div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;} <span class="comment">// namespace fz</span></div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160; </div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;<span class="preprocessor">#endif // __JSONLITE_HPP</span></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="anamespacefz_html_a615f67507873ff02f050b57a562b028d"><div class="ttname"><a href="namespacefz.html#a615f67507873ff02f050b57a562b028d">fz::json_get_param_value_lines</a></div><div class="ttdeci">jsonlite_lines json_get_param_value_lines(std::string &amp;configcontentstr)</div><div class="ttdoc">Convert the content of a JSON subset string into a vector of '&quot;parameter&quot; : &quot;value&quot;' statement string...</div><div class="ttdef"><b>Definition:</b> jsonlite.cpp:78</div></div>
-<div class="ttc" id="anamespacefz_html_a6128b734ed961d522923052e768e200b"><div class="ttname"><a href="namespacefz.html#a6128b734ed961d522923052e768e200b">fz::json_param_value</a></div><div class="ttdeci">jsonlite_label_value_pair json_param_value(const std::string &amp;par_value_pair)</div><div class="ttdoc">Extract parameter label and parameter value from a content line.</div><div class="ttdef"><b>Definition:</b> jsonlite.cpp:47</div></div>
-<div class="ttc" id="anamespacefz_html_a436d3fb0b87afd17f5c45ff0e50145fe"><div class="ttname"><a href="namespacefz.html#a436d3fb0b87afd17f5c45ff0e50145fe">fz::json_get_label_value_pairs_from_string</a></div><div class="ttdeci">jsonlite_label_value_pairs json_get_label_value_pairs_from_string(std::string &amp;jsoncontentstr)</div><div class="ttdoc">Convert a string containing JSON subset content into a map of parameter label-value pairs.</div><div class="ttdef"><b>Definition:</b> jsonlite.cpp:101</div></div>
-<div class="ttc" id="anamespacefz_html_aec59f006cec171ddbb6e0fc0c91b6312"><div class="ttname"><a href="namespacefz.html#aec59f006cec171ddbb6e0fc0c91b6312">fz::json_label_value_pairs_to_string</a></div><div class="ttdeci">std::string json_label_value_pairs_to_string(const jsonlite_label_value_pairs &amp;labelvaluepairs)</div><div class="ttdoc">Convert JSON subset label-value pairs into a JSON content string.</div><div class="ttdef"><b>Definition:</b> jsonlite.cpp:118</div></div>
-<div class="ttc" id="anamespacefz_html_a5007b00e853ca6197ecbda5704c1642e"><div class="ttname"><a href="namespacefz.html#a5007b00e853ca6197ecbda5704c1642e">fz::is_json_comment</a></div><div class="ttdeci">bool is_json_comment(const std::string &amp;keylabel)</div><div class="ttdoc">Identify json key labels that are actually comments.</div><div class="ttdef"><b>Definition:</b> jsonlite.cpp:22</div></div>
+<div class="ttc" id="astructfz_1_1JSON__element_html"><div class="ttname"><a href="structfz_1_1JSON__element.html">fz::JSON_element</a></div><div class="ttdef"><b>Definition:</b> jsonlite.hpp:112</div></div>
+<div class="ttc" id="anamespacefz_html_a615f67507873ff02f050b57a562b028d"><div class="ttname"><a href="namespacefz.html#a615f67507873ff02f050b57a562b028d">fz::json_get_param_value_lines</a></div><div class="ttdeci">jsonlite_lines json_get_param_value_lines(std::string &amp;configcontentstr)</div><div class="ttdoc">Convert the content of a JSON subset string into a vector of '&quot;parameter&quot; : &quot;value&quot;' statement string...</div><div class="ttdef"><b>Definition:</b> jsonlite.cpp:129</div></div>
+<div class="ttc" id="astructfz_1_1JSON__element_html_ae6fdafcb9ee371477d7b19d1010bcb2f"><div class="ttname"><a href="structfz_1_1JSON__element.html#ae6fdafcb9ee371477d7b19d1010bcb2f">fz::JSON_element::find_one_of</a></div><div class="ttdeci">bool find_one_of(JSON_element_data_vec &amp;buffer_list)</div><div class="ttdoc">Compare the label of this JSON element with labels in buffer_list.</div><div class="ttdef"><b>Definition:</b> jsonlite.hpp:126</div></div>
+<div class="ttc" id="anamespacefz_html_a6128b734ed961d522923052e768e200b"><div class="ttname"><a href="namespacefz.html#a6128b734ed961d522923052e768e200b">fz::json_param_value</a></div><div class="ttdeci">jsonlite_label_value_pair json_param_value(const std::string &amp;par_value_pair)</div><div class="ttdoc">Extract parameter label and parameter value from a content line.</div><div class="ttdef"><b>Definition:</b> jsonlite.cpp:92</div></div>
+<div class="ttc" id="astructfz_1_1JSON__element_html_aff1be7c87b1aaa098d321ed5572a3ce8"><div class="ttname"><a href="structfz_1_1JSON__element.html#aff1be7c87b1aaa098d321ed5572a3ce8">fz::JSON_element::json_str</a></div><div class="ttdeci">std::string json_str(size_t indent=0)</div><div class="ttdoc">*** It is a bit odd that this implementation reads all JSON values as strings but writes out JSON for...</div><div class="ttdef"><b>Definition:</b> jsonlite.cpp:194</div></div>
+<div class="ttc" id="anamespacefz_html_a436d3fb0b87afd17f5c45ff0e50145fe"><div class="ttname"><a href="namespacefz.html#a436d3fb0b87afd17f5c45ff0e50145fe">fz::json_get_label_value_pairs_from_string</a></div><div class="ttdeci">jsonlite_label_value_pairs json_get_label_value_pairs_from_string(std::string &amp;jsoncontentstr)</div><div class="ttdoc">Convert a string containing JSON subset content into a map of parameter label-value pairs.</div><div class="ttdef"><b>Definition:</b> jsonlite.cpp:152</div></div>
+<div class="ttc" id="astructfz_1_1JSON__block_html"><div class="ttname"><a href="structfz_1_1JSON__block.html">fz::JSON_block</a></div><div class="ttdef"><b>Definition:</b> jsonlite.hpp:139</div></div>
+<div class="ttc" id="aclassfz_1_1JSON__data_html"><div class="ttname"><a href="classfz_1_1JSON__data.html">fz::JSON_data</a></div><div class="ttdef"><b>Definition:</b> jsonlite.hpp:178</div></div>
+<div class="ttc" id="anamespacefz_html_aec59f006cec171ddbb6e0fc0c91b6312"><div class="ttname"><a href="namespacefz.html#aec59f006cec171ddbb6e0fc0c91b6312">fz::json_label_value_pairs_to_string</a></div><div class="ttdeci">std::string json_label_value_pairs_to_string(const jsonlite_label_value_pairs &amp;labelvaluepairs)</div><div class="ttdoc">Convert JSON subset label-value pairs into a JSON content string.</div><div class="ttdef"><b>Definition:</b> jsonlite.cpp:169</div></div>
+<div class="ttc" id="astructfz_1_1JSON__block_html_a727b97769fa32bd3cad08bfe270d3726"><div class="ttname"><a href="structfz_1_1JSON__block.html#a727b97769fa32bd3cad08bfe270d3726">fz::JSON_block::find_many</a></div><div class="ttdeci">unsigned int find_many(JSON_element_data_vec &amp;buffer_list) const</div><div class="ttdoc">Check all the elements in the JSON block and compare each one's label with the labels in buffer_list ...</div><div class="ttdef"><b>Definition:</b> jsonlite.hpp:157</div></div>
+<div class="ttc" id="anamespacefz_html_a5007b00e853ca6197ecbda5704c1642e"><div class="ttname"><a href="namespacefz.html#a5007b00e853ca6197ecbda5704c1642e">fz::is_json_comment</a></div><div class="ttdeci">bool is_json_comment(const std::string &amp;keylabel)</div><div class="ttdoc">Identify json key labels that are actually comments.</div><div class="ttdef"><b>Definition:</b> jsonlite.cpp:25</div></div>
+<div class="ttc" id="astructfz_1_1JSON__element__data_html"><div class="ttname"><a href="structfz_1_1JSON__element__data.html">fz::JSON_element_data</a></div><div class="ttdef"><b>Definition:</b> jsonlite.hpp:84</div></div>
 <div class="ttc" id="anamespacefz_html"><div class="ttname"><a href="namespacefz.html">fz</a></div><div class="ttdoc">On Ubuntu, to install the libpq libraries, including the libpq-fe.h header file, do: sudo apt-get ins...</div><div class="ttdef"><b>Definition:</b> apiclient.hpp:26</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

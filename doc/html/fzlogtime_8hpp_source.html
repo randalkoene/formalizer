@@ -115,26 +115,28 @@ $(function() {
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160; </div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <a class="code" href="structfz_1_1entry__data.html">entry_data</a> edata;</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; </div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordtype">bool</span> embeddable = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordtype">bool</span> nonlocal = <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    time_t T_page_date = <a class="code" href="namespacefz.html#aef05dd6bfa4d4a09d3eace4949b6fab0a328419ab650b1af199fdb58a44105aaa">RTt_unspecified</a>;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    time_t T_page_build = <a class="code" href="namespacefz.html#aef05dd6bfa4d4a09d3eace4949b6fab0a328419ab650b1af199fdb58a44105aaa">RTt_unspecified</a>;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <a class="code" href="structfz_1_1CGI__Token__Values.html">CGI_Token_Values</a> cgi;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">bool</span> embeddable = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160; </div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    time_t T_page_date = <a class="code" href="namespacefz.html#aef05dd6bfa4d4a09d3eace4949b6fab0a328419ab650b1af199fdb58a44105aaa">RTt_unspecified</a>;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    time_t T_page_build = <a class="code" href="namespacefz.html#aef05dd6bfa4d4a09d3eace4949b6fab0a328419ab650b1af199fdb58a44105aaa">RTt_unspecified</a>;</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <a class="code" href="structfzlogtime.html">fzlogtime</a>();</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <a class="code" href="structfz_1_1CGI__Token__Values.html">CGI_Token_Values</a> cgi;</div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160; </div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> usage_hook();</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <a class="code" href="structfzlogtime.html">fzlogtime</a>();</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> options_hook(<span class="keywordtype">char</span> c, std::string cargs);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> usage_hook();</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160; </div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">void</span> init_top(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> *argv[]);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> options_hook(<span class="keywordtype">char</span> c, std::string cargs);</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;};</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keywordtype">void</span> init_top(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> *argv[]);</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="keyword">extern</span> <a class="code" href="structfzlogtime.html">fzlogtime</a> fzlt;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;};</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="preprocessor">#endif // __FZLOGTIME_HPP</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="keyword">extern</span> <a class="code" href="structfzlogtime.html">fzlogtime</a> fzlt;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="preprocessor">#endif // __FZLOGTIME_HPP</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="astructfz_1_1entry__data_html"><div class="ttname"><a href="structfz_1_1entry__data.html">fz::entry_data</a></div><div class="ttdoc">A useful data structure for keeping related data together.</div><div class="ttdef"><b>Definition:</b> Logaccess.hpp:35</div></div>
 <div class="ttc" id="astructfzlogtime_html"><div class="ttname"><a href="structfzlogtime.html">fzlogtime</a></div><div class="ttdef"><b>Definition:</b> fzlogtime.hpp:40</div></div>

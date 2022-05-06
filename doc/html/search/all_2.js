@@ -11,7 +11,7 @@ var searchData=
   ['boilerplate_48',['boilerplate',['../structboilerplate.html',1,'']]],
   ['boilerplate_2ecpp_49',['boilerplate.cpp',['../boilerplate_8cpp.html',1,'']]],
   ['bp_5fconfigurable_50',['bp_configurable',['../classbp__configurable.html',1,'']]],
-  ['breakpoint_5findices_51',['Breakpoint_Indices',['../classfz_1_1Log.html#a536d7fb0f2241d8e0053f4b4318b9bbb',1,'fz::Log::Breakpoint_Indices()'],['../namespacefz.html#a4fe8573cb9eb9e476160a2c65e371907',1,'fz::Breakpoint_Indices()']]],
+  ['breakpoint_5findices_51',['Breakpoint_Indices',['../classfz_1_1Log.html#a536d7fb0f2241d8e0053f4b4318b9bbb',1,'fz::Log::Breakpoint_Indices()'],['../classfz_1_1Log.html#a536d7fb0f2241d8e0053f4b4318b9bbb',1,'fz::Log::Breakpoint_Indices()'],['../namespacefz.html#ad3abb29c608556e6534dbb67c4878f16',1,'fz::Breakpoint_Indices()']]],
   ['breakpoint_5fpq_52',['Breakpoint_pq',['../classfz_1_1Breakpoint__pq.html',1,'fz']]],
   ['byte_5fmap_53',['Byte_Map',['../structfz_1_1Byte__Map.html',1,'fz::Byte_Map'],['../structfz_1_1Byte__Map.html#a7873101edd3637e347fcdccb39fb0248',1,'fz::Byte_Map::Byte_Map()']]],
   ['byte_5fvector_5ft_54',['byte_vector_t',['../namespacefz.html#abec42076c72022f11008c3bcf9636554',1,'fz']]],

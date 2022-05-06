@@ -177,6 +177,69 @@ const <a class="el" href="structfz_1_1Log__entry__ID__key.html">Log_entry_ID_key
 <tr class="memitem:a01ce4468141c56915742fcab6937bd8b"><td class="memItemLeft" align="right" valign="top"><a id="a01ce4468141c56915742fcab6937bd8b"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_id_str</b> () const</td></tr>
 <tr class="separator:a01ce4468141c56915742fcab6937bd8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3c6b627cf8b79541d79f54e3d90bc20"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#ab3c6b627cf8b79541d79f54e3d90bc20">Log_entry</a> (const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_id, std::string _entrytext, const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;_nodeidkey, const <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *_chunk=NULL)</td></tr>
+<tr class="memdesc:ab3c6b627cf8b79541d79f54e3d90bc20"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfz_1_1Log.html">Log</a> entry constructor.  <a href="classfz_1_1Log__entry.html#ab3c6b627cf8b79541d79f54e3d90bc20">More...</a><br /></td></tr>
+<tr class="separator:ab3c6b627cf8b79541d79f54e3d90bc20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0af2c62cfb0b4f76aac1a0b535afcd65"><td class="memItemLeft" align="right" valign="top"><a id="a0af2c62cfb0b4f76aac1a0b535afcd65"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Log_entry</b> (const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_id, std::string _entrytext, const <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *_chunk=NULL)</td></tr>
+<tr class="separator:a0af2c62cfb0b4f76aac1a0b535afcd65"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5ea770e3f036fa372879a0213eed61f"><td class="memItemLeft" align="right" valign="top"><a id="ae5ea770e3f036fa372879a0213eed61f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Log_entry</b> (const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_id, std::string _entrytext, const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;_nodeidkey, bool previschunk, const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_prev, bool nextischunk, const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_next, const <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *_chunk=NULL)</td></tr>
+<tr class="separator:ae5ea770e3f036fa372879a0213eed61f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44c92e980d6fe83ba2576e31f2611a45"><td class="memItemLeft" align="right" valign="top"><a id="a44c92e980d6fe83ba2576e31f2611a45"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Log_entry</b> (const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_id, std::string _entrytext, bool previschunk, const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_prev, bool nextischunk, const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_next, const <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *_chunk=NULL)</td></tr>
+<tr class="separator:a44c92e980d6fe83ba2576e31f2611a45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e0367664f5e6e6292b33783724ae6a2"><td class="memItemLeft" align="right" valign="top"><a id="a8e0367664f5e6e6292b33783724ae6a2"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#a8e0367664f5e6e6292b33783724ae6a2">set_Node_rapid_access</a> (<a class="el" href="classfz_1_1Node.html">Node</a> &amp;_node)</td></tr>
+<tr class="memdesc:a8e0367664f5e6e6292b33783724ae6a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> pointer to the same <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> as node_idkey if it was not set during construction. <br /></td></tr>
+<tr class="separator:a8e0367664f5e6e6292b33783724ae6a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a824e1e9a555aed1964f9ebae07e2e38d"><td class="memItemLeft" align="right" valign="top"><a id="a824e1e9a555aed1964f9ebae07e2e38d"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Chunk</b> (const <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *_chunk)</td></tr>
+<tr class="separator:a824e1e9a555aed1964f9ebae07e2e38d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc575fefa0d4989d69e84d103adadc5e"><td class="memItemLeft" align="right" valign="top"><a id="abc575fefa0d4989d69e84d103adadc5e"></a>
+const <a class="el" href="classfz_1_1Log__entry__ID.html">Log_entry_ID</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_id</b> () const</td></tr>
+<tr class="separator:abc575fefa0d4989d69e84d103adadc5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe3c96f8e16ff0d3ec5badcdd4cb46f5"><td class="memItemLeft" align="right" valign="top"><a id="afe3c96f8e16ff0d3ec5badcdd4cb46f5"></a>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_minor_id</b> () const</td></tr>
+<tr class="separator:afe3c96f8e16ff0d3ec5badcdd4cb46f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d8f19b1ce43063af3a9aebdba0882cb"><td class="memItemLeft" align="right" valign="top"><a id="a0d8f19b1ce43063af3a9aebdba0882cb"></a>
+const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_nodeidkey</b> () const</td></tr>
+<tr class="separator:a0d8f19b1ce43063af3a9aebdba0882cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e473aa2850a3b97e8da6eb5703e6968"><td class="memItemLeft" align="right" valign="top"><a id="a9e473aa2850a3b97e8da6eb5703e6968"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>same_node_as_chunk</b> () const</td></tr>
+<tr class="separator:a9e473aa2850a3b97e8da6eb5703e6968"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ee50570809de8d859d719cd726e004a"><td class="memItemLeft" align="right" valign="top"><a id="a2ee50570809de8d859d719cd726e004a"></a>
+const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_entrytext</b> ()</td></tr>
+<tr class="separator:a2ee50570809de8d859d719cd726e004a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed8de05a005d46e9e46a6b986dc02929"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#aed8de05a005d46e9e46a6b986dc02929">set_text</a> (const std::string utf8str)</td></tr>
+<tr class="memdesc:aed8de05a005d46e9e46a6b986dc02929"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the <a class="el" href="classfz_1_1Log__entry.html#ac5d3c4229775444699e1edb4e77efbef" title="Reference to the Node this belongs to or zero-stamp.">Log_entry.entrytext</a> parameter content and ensure that it contains valid UTF8 encoded content.  <a href="classfz_1_1Log__entry.html#aed8de05a005d46e9e46a6b986dc02929">More...</a><br /></td></tr>
+<tr class="separator:aed8de05a005d46e9e46a6b986dc02929"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aedd571afdd2d79291abd527ae19bb4b2"><td class="memItemLeft" align="right" valign="top"><a id="aedd571afdd2d79291abd527ae19bb4b2"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_text_unchecked</b> (const std::string utf8str)</td></tr>
+<tr class="separator:aedd571afdd2d79291abd527ae19bb4b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b4666a7d84e280a3ae7e72ec3d82465"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#a3b4666a7d84e280a3ae7e72ec3d82465">get_Node</a> ()</td></tr>
+<tr class="memdesc:a3b4666a7d84e280a3ae7e72ec3d82465"><td class="mdescLeft">&#160;</td><td class="mdescRight">Use only where guaranteed!  <a href="classfz_1_1Log__entry.html#a3b4666a7d84e280a3ae7e72ec3d82465">More...</a><br /></td></tr>
+<tr class="separator:a3b4666a7d84e280a3ae7e72ec3d82465"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9424c85700bcd1df6bdba26b78a060db"><td class="memItemLeft" align="right" valign="top"><a id="a9424c85700bcd1df6bdba26b78a060db"></a>
+<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#a9424c85700bcd1df6bdba26b78a060db">get_Node</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph)</td></tr>
+<tr class="memdesc:a9424c85700bcd1df6bdba26b78a060db"><td class="mdescLeft">&#160;</td><td class="mdescRight">find node based on locally specified <a class="el" href="classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use.">Node_ID</a> (inlined below) <br /></td></tr>
+<tr class="separator:a9424c85700bcd1df6bdba26b78a060db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75be1b959fccc960687749b5750ec4b2"><td class="memItemLeft" align="right" valign="top"><a id="a75be1b959fccc960687749b5750ec4b2"></a>
+<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#a75be1b959fccc960687749b5750ec4b2">get_local_or_inherited_Node</a> ()</td></tr>
+<tr class="memdesc:a75be1b959fccc960687749b5750ec4b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">get locally specified or inherited pointer to <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> <br /></td></tr>
+<tr class="separator:a75be1b959fccc960687749b5750ec4b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0aa93a5330db06e83a8d9ef8e712641d"><td class="memItemLeft" align="right" valign="top"><a id="a0aa93a5330db06e83a8d9ef8e712641d"></a>
+<a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_Chunk</b> ()</td></tr>
+<tr class="separator:a0aa93a5330db06e83a8d9ef8e712641d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a754af5677734858d2453db1b45b24c26"><td class="memItemLeft" align="right" valign="top"><a id="a754af5677734858d2453db1b45b24c26"></a>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_epoch_time</b> () const</td></tr>
+<tr class="separator:a754af5677734858d2453db1b45b24c26"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a045e68b2b4c9e2990a2e8131558c50eb"><td class="memItemLeft" align="right" valign="top"><a id="a045e68b2b4c9e2990a2e8131558c50eb"></a>
+const <a class="el" href="structfz_1_1Log__entry__ID__key.html">Log_entry_ID_key</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_id_key</b> () const</td></tr>
+<tr class="separator:a045e68b2b4c9e2990a2e8131558c50eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01ce4468141c56915742fcab6937bd8b"><td class="memItemLeft" align="right" valign="top"><a id="a01ce4468141c56915742fcab6937bd8b"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_id_str</b> () const</td></tr>
+<tr class="separator:a01ce4468141c56915742fcab6937bd8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classfz_1_1Log__by__Node__chainable"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classfz_1_1Log__by__Node__chainable')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classfz_1_1Log__by__Node__chainable.html">fz::Log_by_Node_chainable</a></td></tr>
 <tr class="memitem:a040b85e25b934b092ac8fd2f4a9aa505 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="a040b85e25b934b092ac8fd2f4a9aa505"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__by__Node__chainable.html#a040b85e25b934b092ac8fd2f4a9aa505">Log_by_Node_chainable</a> ()</td></tr>
@@ -233,6 +296,59 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__by__Node__chainable.html#af55ea4a68dd3caea62ed594a190ca45a">set_Node_next_ptr</a> (<a class="el" href="classfz_1_1Log__entry.html">Log_entry</a> *nextptr)</td></tr>
 <tr class="memdesc:af55ea4a68dd3caea62ed594a190ca45a inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="mdescLeft">&#160;</td><td class="mdescRight">See the description of <a class="el" href="classfz_1_1Log__by__Node__chainable.html#a7fa4278c74ddbf6c8a33f4dd08e1816f" title="Set the previous in chain-by-Node based on a Log chunk pointer.">Log_chunk::set_Node_prev_ptr</a>. <br /></td></tr>
 <tr class="separator:af55ea4a68dd3caea62ed594a190ca45a inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a040b85e25b934b092ac8fd2f4a9aa505 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="a040b85e25b934b092ac8fd2f4a9aa505"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__by__Node__chainable.html#a040b85e25b934b092ac8fd2f4a9aa505">Log_by_Node_chainable</a> ()</td></tr>
+<tr class="memdesc:a040b85e25b934b092ac8fd2f4a9aa505 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="mdescLeft">&#160;</td><td class="mdescRight">Next in chain-by-Node. <br /></td></tr>
+<tr class="separator:a040b85e25b934b092ac8fd2f4a9aa505 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16225dd7d4949381dca4e8f9e590d1c7 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="a16225dd7d4949381dca4e8f9e590d1c7"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Log_by_Node_chainable</b> (const <a class="el" href="structfz_1_1Log__chain__target.html">Log_chain_target</a> &amp;_prev, const <a class="el" href="structfz_1_1Log__chain__target.html">Log_chain_target</a> &amp;_next)</td></tr>
+<tr class="separator:a16225dd7d4949381dca4e8f9e590d1c7 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b28868c3880f3087b707da9a0be77ee inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="a5b28868c3880f3087b707da9a0be77ee"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Log_by_Node_chainable</b> (bool previschunk, const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_prev, bool nextischunk, const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;_next)</td></tr>
+<tr class="separator:a5b28868c3880f3087b707da9a0be77ee inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4e43fb2db60e2f59a3bf28bdced5362 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="aa4e43fb2db60e2f59a3bf28bdced5362"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>node_prev_isnullptr</b> ()</td></tr>
+<tr class="separator:aa4e43fb2db60e2f59a3bf28bdced5362 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35f06a92cbf6d7dcedcfe10b4354cc89 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="a35f06a92cbf6d7dcedcfe10b4354cc89"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>node_next_isnullptr</b> ()</td></tr>
+<tr class="separator:a35f06a92cbf6d7dcedcfe10b4354cc89 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a74d6a6ff270ea910ddf0e3415a2f4c41 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="a74d6a6ff270ea910ddf0e3415a2f4c41"></a>
+const <a class="el" href="structfz_1_1Log__chain__target.html">Log_chain_target</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_node_prev</b> () const</td></tr>
+<tr class="separator:a74d6a6ff270ea910ddf0e3415a2f4c41 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa36a9b09ffa20d4dbc61ad9bf944d352 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="aa36a9b09ffa20d4dbc61ad9bf944d352"></a>
+const <a class="el" href="structfz_1_1Log__chain__target.html">Log_chain_target</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_node_next</b> () const</td></tr>
+<tr class="separator:aa36a9b09ffa20d4dbc61ad9bf944d352 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad4d7f565241598e04253a49b6d147c16 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="ad4d7f565241598e04253a49b6d147c16"></a>
+Log_ptr_pair&#160;</td><td class="memItemRight" valign="bottom"><b>get_node_prev_ptr</b> ()</td></tr>
+<tr class="separator:ad4d7f565241598e04253a49b6d147c16 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7612896001af603047aa8bca5610156b inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="a7612896001af603047aa8bca5610156b"></a>
+Log_ptr_pair&#160;</td><td class="memItemRight" valign="bottom"><b>get_node_next_ptr</b> ()</td></tr>
+<tr class="separator:a7612896001af603047aa8bca5610156b inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91eb8c265a8f4bb358916856507cad13 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="a91eb8c265a8f4bb358916856507cad13"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__by__Node__chainable.html#a91eb8c265a8f4bb358916856507cad13">set_Node_prev_null</a> ()</td></tr>
+<tr class="memdesc:a91eb8c265a8f4bb358916856507cad13 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set functions that (each) set BOTH target .ptr and .key values. <br /></td></tr>
+<tr class="separator:a91eb8c265a8f4bb358916856507cad13 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a31de9beab27170fcd0f950cc1af67b31 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="a31de9beab27170fcd0f950cc1af67b31"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Node_next_null</b> ()</td></tr>
+<tr class="separator:a31de9beab27170fcd0f950cc1af67b31 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab276d0a92442f48783b2b73257caf886 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="ab276d0a92442f48783b2b73257caf886"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Node_prev</b> (<a class="el" href="structfz_1_1Log__chain__target.html">Log_chain_target</a> _prev)</td></tr>
+<tr class="separator:ab276d0a92442f48783b2b73257caf886 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb2a42c3a4bb06433310e09b9cd5e74c inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="acb2a42c3a4bb06433310e09b9cd5e74c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Node_next</b> (<a class="el" href="structfz_1_1Log__chain__target.html">Log_chain_target</a> _next)</td></tr>
+<tr class="separator:acb2a42c3a4bb06433310e09b9cd5e74c inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7fa4278c74ddbf6c8a33f4dd08e1816f inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="a7fa4278c74ddbf6c8a33f4dd08e1816f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Node_prev_ptr</b> (<a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *prevptr)</td></tr>
+<tr class="separator:a7fa4278c74ddbf6c8a33f4dd08e1816f inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab1ad41b0149fec674daadea0e660fd9e inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="ab1ad41b0149fec674daadea0e660fd9e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Node_prev_ptr</b> (<a class="el" href="classfz_1_1Log__entry.html">Log_entry</a> *prevptr)</td></tr>
+<tr class="separator:ab1ad41b0149fec674daadea0e660fd9e inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf89bf47645680279caf65805e3ac634 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="acf89bf47645680279caf65805e3ac634"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Node_next_ptr</b> (<a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *nextptr)</td></tr>
+<tr class="separator:acf89bf47645680279caf65805e3ac634 inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af55ea4a68dd3caea62ed594a190ca45a inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="af55ea4a68dd3caea62ed594a190ca45a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Node_next_ptr</b> (<a class="el" href="classfz_1_1Log__entry.html">Log_entry</a> *nextptr)</td></tr>
+<tr class="separator:af55ea4a68dd3caea62ed594a190ca45a inherit pub_methods_classfz_1_1Log__by__Node__chainable"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
@@ -247,13 +363,13 @@ const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a>&#160;<
 std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#ac5d3c4229775444699e1edb4e77efbef">entrytext</a></td></tr>
 <tr class="memdesc:ac5d3c4229775444699e1edb4e77efbef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reference to the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> this belongs to or zero-stamp. <br /></td></tr>
 <tr class="separator:ac5d3c4229775444699e1edb4e77efbef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a814753ce9b111e325e3d61b9e35a113d"><td class="memItemLeft" align="right" valign="top"><a id="a814753ce9b111e325e3d61b9e35a113d"></a>
-<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#a814753ce9b111e325e3d61b9e35a113d">node</a> = nullptr</td></tr>
-<tr class="memdesc:a814753ce9b111e325e3d61b9e35a113d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Text content (typically in HTML). <br /></td></tr>
-<tr class="separator:a814753ce9b111e325e3d61b9e35a113d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a22b560cc965b97bfe0bee80f46ee13c7"><td class="memItemLeft" align="right" valign="top"><a id="a22b560cc965b97bfe0bee80f46ee13c7"></a>
+<tr class="memitem:ad155cf5f8b4a2fceb09cffd9cccb083b"><td class="memItemLeft" align="right" valign="top"><a id="ad155cf5f8b4a2fceb09cffd9cccb083b"></a>
+<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__entry.html#ad155cf5f8b4a2fceb09cffd9cccb083b">node</a> = nullptr</td></tr>
+<tr class="memdesc:ad155cf5f8b4a2fceb09cffd9cccb083b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Text content (typically in HTML). <br /></td></tr>
+<tr class="separator:ad155cf5f8b4a2fceb09cffd9cccb083b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0696ad9e9ac301b380e7f19f80172f2f"><td class="memItemLeft" align="right" valign="top"><a id="a0696ad9e9ac301b380e7f19f80172f2f"></a>
 <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>chunk</b></td></tr>
-<tr class="separator:a22b560cc965b97bfe0bee80f46ee13c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a0696ad9e9ac301b380e7f19f80172f2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classfz_1_1Log__by__Node__chainable"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classfz_1_1Log__by__Node__chainable')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classfz_1_1Log__by__Node__chainable.html">fz::Log_by_Node_chainable</a></td></tr>
 <tr class="memitem:ad7179bcb1e9a197cf74589e7e922fc5c inherit pro_attribs_classfz_1_1Log__by__Node__chainable"><td class="memItemLeft" align="right" valign="top"><a id="ad7179bcb1e9a197cf74589e7e922fc5c"></a>
 <a class="el" href="structfz_1_1Log__chain__target.html">Log_chain_target</a>&#160;</td><td class="memItemRight" valign="bottom"><b>node_prev</b></td></tr>
@@ -265,16 +381,81 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:acd1b2a0733103b7bbeb76b467ea85446"><td class="memItemLeft" align="right" valign="top"><a id="acd1b2a0733103b7bbeb76b467ea85446"></a>
+<tr class="memitem:af31ef15863cb3c9383790dc16c3f2304"><td class="memItemLeft" align="right" valign="top"><a id="af31ef15863cb3c9383790dc16c3f2304"></a>
 class&#160;</td><td class="memItemRight" valign="bottom"><b>Log</b></td></tr>
-<tr class="separator:acd1b2a0733103b7bbeb76b467ea85446"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:add9bc2bc3db65f6597e5199cb52481e2"><td class="memItemLeft" align="right" valign="top"><a id="add9bc2bc3db65f6597e5199cb52481e2"></a>
+<tr class="separator:af31ef15863cb3c9383790dc16c3f2304"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee89f9970afae459cbdd321b280ee098"><td class="memItemLeft" align="right" valign="top"><a id="aee89f9970afae459cbdd321b280ee098"></a>
 class&#160;</td><td class="memItemRight" valign="bottom"><b>Log_chunk</b></td></tr>
-<tr class="separator:add9bc2bc3db65f6597e5199cb52481e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:aee89f9970afae459cbdd321b280ee098"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ab3c6b627cf8b79541d79f54e3d90bc20"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab3c6b627cf8b79541d79f54e3d90bc20">&#9670;&nbsp;</a></span>Log_entry()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ab3c6b627cf8b79541d79f54e3d90bc20">&#9670;&nbsp;</a></span>Log_entry() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">fz::Log_entry::Log_entry </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;&#160;</td>
+          <td class="paramname"><em>_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>_entrytext</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;&#160;</td>
+          <td class="paramname"><em>_nodeidkey</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *&#160;</td>
+          <td class="paramname"><em>_chunk</em> = <code>NULL</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classfz_1_1Log.html">Log</a> entry constructor. </p>
+<p>The variants are somewhat similar, providing less or more information up front.</p>
+<p>Notice that we are not immediately attempting to set the <code>node</code> rapid-access cache that would correspond with <code>node_idkey</code>. That is, beause we cannot be certain that this object is being created within a context where the corresponding <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> object actually exists and a pointer to it is identifiable. The rapid-access pointer must be set explicitly via <code><a class="el" href="classfz_1_1Log__entry.html#a8e0367664f5e6e6292b33783724ae6a2" title="Set Node pointer to the same Node as node_idkey if it was not set during construction.">set_Node_rapid_access()</a></code>, which can also be called by the parametrized overload of the <code><a class="el" href="classfz_1_1Log__entry.html#a3b4666a7d84e280a3ae7e72ec3d82465" title="Use only where guaranteed!">get_Node()</a></code> member function.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">id</td><td>A valid <a class="el" href="classfz_1_1Log.html">Log</a> entry ID stamp. </td></tr>
+    <tr><td class="paramname">_entrytext</td><td>The <a class="el" href="classfz_1_1Log.html">Log</a> entry textual content. It will be made utf8 safe. </td></tr>
+    <tr><td class="paramname">_nodeifkey</td><td>Optional valid <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> ID key identifying the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> that owns this entry. </td></tr>
+    <tr><td class="paramname">_chunk</td><td>Optional valid pointer to a <code><a class="el" href="classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk.">Log_chunk</a></code> object (this can be an extra safety measure). </td></tr>
+    <tr><td class="paramname">previschunk</td><td>Optional chaining flag that specifies the preceding in chain is a chunk (or not). </td></tr>
+    <tr><td class="paramname">_prev</td><td>Optional valid <a class="el" href="classfz_1_1Log.html">Log</a> chunk or entry ID stamp that specifies the preceding in chain. </td></tr>
+    <tr><td class="paramname">nextischunk</td><td>Optional chaining flag that specifies the next in chain is a chunk (or not). </td></tr>
+    <tr><td class="paramname">_next</td><td>Optional valid <a class="el" href="classfz_1_1Log.html">Log</a> chunk or entry ID statmp that specifies the next in chain. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ab3c6b627cf8b79541d79f54e3d90bc20"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab3c6b627cf8b79541d79f54e3d90bc20">&#9670;&nbsp;</a></span>Log_entry() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -361,7 +542,35 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Log_chunk</b></td></
 </div>
 </div>
 <a id="a3b4666a7d84e280a3ae7e72ec3d82465"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3b4666a7d84e280a3ae7e72ec3d82465">&#9670;&nbsp;</a></span>get_Node()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b4666a7d84e280a3ae7e72ec3d82465">&#9670;&nbsp;</a></span>get_Node() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfz_1_1Node.html">Node</a>* fz::Log_entry::get_Node </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Use only where guaranteed! </p>
+<p>locally cached <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> (can be nullptr) </p>
+
+</div>
+</div>
+<a id="a3b4666a7d84e280a3ae7e72ec3d82465"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b4666a7d84e280a3ae7e72ec3d82465">&#9670;&nbsp;</a></span>get_Node() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -418,7 +627,36 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Log_chunk</b></td></
 </div>
 </div>
 <a id="aed8de05a005d46e9e46a6b986dc02929"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aed8de05a005d46e9e46a6b986dc02929">&#9670;&nbsp;</a></span>set_text()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aed8de05a005d46e9e46a6b986dc02929">&#9670;&nbsp;</a></span>set_text() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fz::Log_entry::set_text </td>
+          <td>(</td>
+          <td class="paramtype">const std::string&#160;</td>
+          <td class="paramname"><em>utf8str</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the <a class="el" href="classfz_1_1Log__entry.html#ac5d3c4229775444699e1edb4e77efbef" title="Reference to the Node this belongs to or zero-stamp.">Log_entry.entrytext</a> parameter content and ensure that it contains valid UTF8 encoded content. </p>
+<p>Attempts to assign content to the text parameter as provided, and replaces any invalid UTF8 code points with a replacement character. The default replacement character is the UTF8 'REPLACEMENT CHARACTER' 0xfffd.</p>
+<p>If invalid UTF8 code points were encountered and replaced then it is reported through ADDWARNING.</p>
+<p>Note 1: ASCII text is valid UTF8 text and will be assigned unaltered. Note 2: This does not test for valid HTML5 at this time.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">utf8str</td><td>a string that should contain UTF8 encoded text. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aed8de05a005d46e9e46a6b986dc02929"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aed8de05a005d46e9e46a6b986dc02929">&#9670;&nbsp;</a></span>set_text() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -448,7 +686,9 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Log_chunk</b></td></
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>core/include/<a class="el" href="Logtypes_8hpp_source.html">Logtypes.hpp</a></li>
+<li>inactive/include/<a class="el" href="Logtypesunshared_8hpp_source.html">Logtypesunshared.hpp</a></li>
 <li>core/lib/Logtypes.cpp</li>
+<li>inactive/lib/Logtypesunshared.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

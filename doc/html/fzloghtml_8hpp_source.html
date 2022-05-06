@@ -132,42 +132,45 @@ $(function() {
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <a class="code" href="structfz_1_1Log__filter.html">Log_filter</a> filter;</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    interval_scale iscale;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> interval;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keywordtype">bool</span> noframe;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    std::string custom_template;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    time_t t_center_around = <a class="code" href="namespacefz.html#aef05dd6bfa4d4a09d3eace4949b6fab0a328419ab650b1af199fdb58a44105aaa">RTt_unspecified</a>;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    interval_scale iscale;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> interval;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordtype">bool</span> noframe;</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160; </div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <a class="code" href="structfz_1_1entry__data.html">entry_data</a> edata;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="comment">//std::unique_ptr&lt;Log&gt; log;</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keywordtype">bool</span> graph_attempted = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    most_recent_format recent_format;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    std::string custom_template;</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160; </div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <a class="code" href="structfz_1_1entry__data.html">entry_data</a> edata;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="comment">//std::unique_ptr&lt;Log&gt; log;</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordtype">bool</span> graph_attempted = <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <a class="code" href="structfzloghtml.html">fzloghtml</a>();</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    most_recent_format recent_format;</div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160; </div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> usage_hook();</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <a class="code" href="structfzloghtml.html">fzloghtml</a>();</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; </div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> options_hook(<span class="keywordtype">char</span> c, std::string cargs);</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> usage_hook();</div>
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160; </div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordtype">void</span> init_top(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> *argv[]);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> options_hook(<span class="keywordtype">char</span> c, std::string cargs);</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160; </div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordtype">void</span> set_filter();</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordtype">void</span> init_top(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> *argv[]);</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keywordtype">void</span> get_Log_interval();</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keywordtype">void</span> set_filter();</div>
 <div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160; </div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <a class="code" href="classfz_1_1Graph.html">Graph_ptr</a> get_Graph_ptr();</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160; </div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;};</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keywordtype">void</span> get_Log_interval();</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160; </div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <a class="code" href="classfz_1_1Graph.html">Graph_ptr</a> get_Graph_ptr();</div>
 <div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160; </div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="keyword">extern</span> <a class="code" href="structfzloghtml.html">fzloghtml</a> fzlh;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;};</div>
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160; </div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="preprocessor">#endif // __FZLOGHTML_HPP</span></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="keyword">extern</span> <a class="code" href="structfzloghtml.html">fzloghtml</a> fzlh;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160; </div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="preprocessor">#endif // __FZLOGHTML_HPP</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="astructfz_1_1entry__data_html"><div class="ttname"><a href="structfz_1_1entry__data.html">fz::entry_data</a></div><div class="ttdoc">A useful data structure for keeping related data together.</div><div class="ttdef"><b>Definition:</b> Logaccess.hpp:35</div></div>
 <div class="ttc" id="astructfz_1_1Graph__access_html"><div class="ttname"><a href="structfz_1_1Graph__access.html">fz::Graph_access</a></div><div class="ttdoc">A standardized way to access the Graph database.</div><div class="ttdef"><b>Definition:</b> Graphaccess.hpp:36</div></div>
-<div class="ttc" id="aclassfz_1_1Graph_html"><div class="ttname"><a href="classfz_1_1Graph.html">fz::Graph</a></div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:716</div></div>
+<div class="ttc" id="aclassfz_1_1Graph_html"><div class="ttname"><a href="classfz_1_1Graph.html">fz::Graph</a></div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:717</div></div>
 <div class="ttc" id="aclassfz_1_1configurable_html"><div class="ttname"><a href="classfz_1_1configurable.html">fz::configurable</a></div><div class="ttdoc">Formalizer standard programs that can use configuration files should include a class that inherits co...</div><div class="ttdef"><b>Definition:</b> config.hpp:167</div></div>
+<div class="ttc" id="anamespacefz_html_aef05dd6bfa4d4a09d3eace4949b6fab0a328419ab650b1af199fdb58a44105aaa"><div class="ttname"><a href="namespacefz.html#aef05dd6bfa4d4a09d3eace4949b6fab0a328419ab650b1af199fdb58a44105aaa">fz::RTt_unspecified</a></div><div class="ttdeci">@ RTt_unspecified</div><div class="ttdoc">when scheduling this is interpreted as 'no specified target date to take into account'</div><div class="ttdef"><b>Definition:</b> ReferenceTime.hpp:34</div></div>
 <div class="ttc" id="agraph2dil_8hpp_html_ae2f423a6ec032d0cde29d8e3dd70efa9aaafcd972b9acb5a19b116a32cf8a2edc"><div class="ttname"><a href="graph2dil_8hpp.html#ae2f423a6ec032d0cde29d8e3dd70efa9aaafcd972b9acb5a19b116a32cf8a2edc">flow_NUMoptions</a></div><div class="ttdeci">@ flow_NUMoptions</div><div class="ttdoc">request: convert Graph to DIL files</div><div class="ttdef"><b>Definition:</b> graph2dil.hpp:42</div></div>
 <div class="ttc" id="astandard_8hpp_html"><div class="ttname"><a href="standard_8hpp.html">standard.hpp</a></div></div>
 <div class="ttc" id="aclassfzlh__configurable_html_aff9217c570ab2c14deb56db79cb3edf9"><div class="ttname"><a href="classfzlh__configurable.html#aff9217c570ab2c14deb56db79cb3edf9">fzlh_configurable::dest</a></div><div class="ttdeci">std::string dest</div><div class="ttdoc">where to send rendered output (default: &quot;STDOUT&quot;)</div><div class="ttdef"><b>Definition:</b> fzloghtml.hpp:52</div></div>

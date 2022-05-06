@@ -124,9 +124,37 @@ const <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *&#160;</td>
 <tr class="memitem:ad57f549f0380f832ebb77a6b30bca0ff"><td class="memItemLeft" align="right" valign="top">Log_chunk_ptr_map::const_iterator&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__chunks__Map.html#ad57f549f0380f832ebb77a6b30bca0ff">find_nearest</a> (std::time_t t, bool later, bool throw_if_invalid=false) const</td></tr>
 <tr class="memdesc:ad57f549f0380f832ebb77a6b30bca0ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find index of <a class="el" href="classfz_1_1Log.html">Log</a> chunk by its ID closest to time t.  <a href="structfz_1_1Log__chunks__Map.html#ad57f549f0380f832ebb77a6b30bca0ff">More...</a><br /></td></tr>
 <tr class="separator:ad57f549f0380f832ebb77a6b30bca0ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ca420e5f36d2d6c3f550f0244769748"><td class="memItemLeft" align="right" valign="top"><a id="a3ca420e5f36d2d6c3f550f0244769748"></a>
+const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__chunks__Map.html#a3ca420e5f36d2d6c3f550f0244769748">get_tbegin_key</a> (Log_chunk_ptr_map::iterator idx) const</td></tr>
+<tr class="memdesc:a3ca420e5f36d2d6c3f550f0244769748"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get reference to ID key of <a class="el" href="classfz_1_1Log.html">Log</a> chunk by index. <br /></td></tr>
+<tr class="separator:a3ca420e5f36d2d6c3f550f0244769748"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4bcda18d70b0d2141ecd142d51d017e6"><td class="memItemLeft" align="right" valign="top"><a id="a4bcda18d70b0d2141ecd142d51d017e6"></a>
+<a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__chunks__Map.html#a4bcda18d70b0d2141ecd142d51d017e6">get_key_copy</a> (Log_chunk_ptr_map::const_iterator idx) const</td></tr>
+<tr class="memdesc:a4bcda18d70b0d2141ecd142d51d017e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a copy of the ID key of <a class="el" href="classfz_1_1Log.html">Log</a> chunk by index, or null-key if out of range. <br /></td></tr>
+<tr class="separator:a4bcda18d70b0d2141ecd142d51d017e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc725c0b179b692c7bf58c2dba69cf38"><td class="memItemLeft" align="right" valign="top"><a id="abc725c0b179b692c7bf58c2dba69cf38"></a>
+const <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__chunks__Map.html#abc725c0b179b692c7bf58c2dba69cf38">get_tbegin_idT</a> (Log_chunk_ptr_map::iterator idx) const</td></tr>
+<tr class="memdesc:abc725c0b179b692c7bf58c2dba69cf38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get reference to TimeStamp of <a class="el" href="classfz_1_1Log.html">Log</a> chunk by index. <br /></td></tr>
+<tr class="separator:abc725c0b179b692c7bf58c2dba69cf38"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a121abf8f6828d2212396db972b1aa69a"><td class="memItemLeft" align="right" valign="top"><a id="a121abf8f6828d2212396db972b1aa69a"></a>
+const <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__chunks__Map.html#a121abf8f6828d2212396db972b1aa69a">get_chunk</a> (Log_chunk_ptr_map::const_iterator idx) const</td></tr>
+<tr class="memdesc:a121abf8f6828d2212396db972b1aa69a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get pointer to <a class="el" href="classfz_1_1Log.html">Log</a> chunk by index. Returns nullptr if out of range. <br /></td></tr>
+<tr class="separator:a121abf8f6828d2212396db972b1aa69a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55647c9a6bc5e3c9df8f175e4e98d57f"><td class="memItemLeft" align="right" valign="top">std::pair&lt; Log_chunk_ptr_map::const_iterator, const <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__chunks__Map.html#a55647c9a6bc5e3c9df8f175e4e98d57f">find_index_and_pointer</a> (const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> chunk_id) const</td></tr>
+<tr class="memdesc:a55647c9a6bc5e3c9df8f175e4e98d57f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find index of <a class="el" href="classfz_1_1Log.html">Log</a> chunk pointer by ID key by brute force sequential search. Returns size() if not found.  <a href="structfz_1_1Log__chunks__Map.html#a55647c9a6bc5e3c9df8f175e4e98d57f">More...</a><br /></td></tr>
+<tr class="separator:a55647c9a6bc5e3c9df8f175e4e98d57f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a4255a72733a1fc5b8618387209101d"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__chunks__Map.html#a7a4255a72733a1fc5b8618387209101d">get_chunk</a> (const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a> chunk_id) const</td></tr>
+<tr class="memdesc:a7a4255a72733a1fc5b8618387209101d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get index of <a class="el" href="classfz_1_1Log.html">Log</a> chunk pointer by ID key. Returns size() if not found.  <a href="structfz_1_1Log__chunks__Map.html#a7a4255a72733a1fc5b8618387209101d">More...</a><br /></td></tr>
+<tr class="separator:a7a4255a72733a1fc5b8618387209101d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad57f549f0380f832ebb77a6b30bca0ff"><td class="memItemLeft" align="right" valign="top">Log_chunk_ptr_map::const_iterator&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__chunks__Map.html#ad57f549f0380f832ebb77a6b30bca0ff">find_nearest</a> (std::time_t t, bool later, bool throw_if_invalid=false) const</td></tr>
+<tr class="memdesc:ad57f549f0380f832ebb77a6b30bca0ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find index of <a class="el" href="classfz_1_1Log.html">Log</a> chunk by its ID closest to time t.  <a href="structfz_1_1Log__chunks__Map.html#ad57f549f0380f832ebb77a6b30bca0ff">More...</a><br /></td></tr>
+<tr class="separator:ad57f549f0380f832ebb77a6b30bca0ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
+<tr class="memitem:aa390082bc40b7ba5106857c9ddd97a88"><td class="memItemLeft" align="right" valign="top">unsigned long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__chunks__Map.html#aa390082bc40b7ba5106857c9ddd97a88">Chunks_total_minutes</a> (<a class="el" href="structfz_1_1Log__chunks__Map.html">Log_chunks_Map</a> &amp;chunks)</td></tr>
+<tr class="memdesc:aa390082bc40b7ba5106857c9ddd97a88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sum of durations of <a class="el" href="classfz_1_1Log.html">Log</a> chunks.  <a href="structfz_1_1Log__chunks__Map.html#aa390082bc40b7ba5106857c9ddd97a88">More...</a><br /></td></tr>
+<tr class="separator:aa390082bc40b7ba5106857c9ddd97a88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa390082bc40b7ba5106857c9ddd97a88"><td class="memItemLeft" align="right" valign="top">unsigned long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Log__chunks__Map.html#aa390082bc40b7ba5106857c9ddd97a88">Chunks_total_minutes</a> (<a class="el" href="structfz_1_1Log__chunks__Map.html">Log_chunks_Map</a> &amp;chunks)</td></tr>
 <tr class="memdesc:aa390082bc40b7ba5106857c9ddd97a88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sum of durations of <a class="el" href="classfz_1_1Log.html">Log</a> chunks.  <a href="structfz_1_1Log__chunks__Map.html#aa390082bc40b7ba5106857c9ddd97a88">More...</a><br /></td></tr>
 <tr class="separator:aa390082bc40b7ba5106857c9ddd97a88"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -136,7 +164,7 @@ Friends</h2></td></tr>
 <p>A deque list of smart pointers to <a class="el" href="classfz_1_1Log.html">Log</a> chunks. This is how chunks are connected in the <a class="el" href="classfz_1_1Log.html">Log</a> data structure. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="acc5656d5a461decf2a4d922408374fd1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acc5656d5a461decf2a4d922408374fd1">&#9670;&nbsp;</a></span>find_index_and_pointer()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#acc5656d5a461decf2a4d922408374fd1">&#9670;&nbsp;</a></span>find_index_and_pointer() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -164,8 +192,76 @@ Friends</h2></td></tr>
 
 </div>
 </div>
+<a id="a55647c9a6bc5e3c9df8f175e4e98d57f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a55647c9a6bc5e3c9df8f175e4e98d57f">&#9670;&nbsp;</a></span>find_index_and_pointer() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::pair&lt;Log_chunk_ptr_map::const_iterator, const <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a>*&gt; fz::Log_chunks_Map::find_index_and_pointer </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a>&#160;</td>
+          <td class="paramname"><em>chunk_id</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Find index of <a class="el" href="classfz_1_1Log.html">Log</a> chunk pointer by ID key by brute force sequential search. Returns size() if not found. </p>
+<p>Fast search for index and pointer to <a class="el" href="classfz_1_1Log.html">Log</a> chunk by ID key. Returns [size, nullptr] if not found. </p>
+
+</div>
+</div>
 <a id="ad57f549f0380f832ebb77a6b30bca0ff"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad57f549f0380f832ebb77a6b30bca0ff">&#9670;&nbsp;</a></span>find_nearest()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ad57f549f0380f832ebb77a6b30bca0ff">&#9670;&nbsp;</a></span>find_nearest() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Log_chunk_ptr_map::const_iterator fz::Log_chunks_Map::find_nearest </td>
+          <td>(</td>
+          <td class="paramtype">std::time_t&#160;</td>
+          <td class="paramname"><em>t</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>later</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>throw_if_invalid</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Find index of <a class="el" href="classfz_1_1Log.html">Log</a> chunk by its ID closest to time t. </p>
+<p>This search will return either the index for the <a class="el" href="classfz_1_1Log.html">Log</a> chunk with the same start time, or the nearest above or below, depending on the <code>later</code> flag.</p>
+<p>If the start time provided would not convert to a valid <a class="el" href="classfz_1_1Log.html">Log</a> ID time stamp then this function returns an iterator to the earliest element in the map if <code>throw_if_invalid</code> is false. Otherwise it throws an <a class="el" href="classfz_1_1ID__exception.html" title="Exception thrown when a Node ID is of invalid form.">ID_exception</a>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">t</td><td>The <a class="el" href="classfz_1_1Log.html">Log</a> chunk start time to search for. </td></tr>
+    <tr><td class="paramname">later</td><td>Find start time &gt;= t, otherwise find start time &lt;= t. </td></tr>
+    <tr><td class="paramname">throw_if_invalid</td><td>If true then requests with invalid t throw an <a class="el" href="classfz_1_1ID__exception.html" title="Exception thrown when a Node ID is of invalid form.">ID_exception</a>. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The closest index in the list, or end() if not found. </dd></dl>
+
+</div>
+</div>
+<a id="ad57f549f0380f832ebb77a6b30bca0ff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad57f549f0380f832ebb77a6b30bca0ff">&#9670;&nbsp;</a></span>find_nearest() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -212,7 +308,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="a7c0533df1fdd0918c8ed1b235c6cf9f4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7c0533df1fdd0918c8ed1b235c6cf9f4">&#9670;&nbsp;</a></span>get_chunk()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a7c0533df1fdd0918c8ed1b235c6cf9f4">&#9670;&nbsp;</a></span>get_chunk() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -240,9 +336,30 @@ Friends</h2></td></tr>
 
 </div>
 </div>
+<a id="a7a4255a72733a1fc5b8618387209101d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7a4255a72733a1fc5b8618387209101d">&#9670;&nbsp;</a></span>get_chunk() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="classfz_1_1Log__chunk.html">Log_chunk</a>* fz::Log_chunks_Map::get_chunk </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structfz_1_1Log__chunk__ID__key.html">Log_chunk_ID_key</a>&#160;</td>
+          <td class="paramname"><em>chunk_id</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get index of <a class="el" href="classfz_1_1Log.html">Log</a> chunk pointer by ID key. Returns size() if not found. </p>
+<p>Get pointer to <a class="el" href="classfz_1_1Log.html">Log</a> chunk by ID key. Returns nullptr if not found. </p>
+
+</div>
+</div>
 <h2 class="groupheader">Friends And Related Function Documentation</h2>
 <a id="aa390082bc40b7ba5106857c9ddd97a88"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa390082bc40b7ba5106857c9ddd97a88">&#9670;&nbsp;</a></span>Chunks_total_minutes</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aa390082bc40b7ba5106857c9ddd97a88">&#9670;&nbsp;</a></span>Chunks_total_minutes <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -276,9 +393,47 @@ Friends</h2></td></tr>
 
 </div>
 </div>
+<a id="aa390082bc40b7ba5106857c9ddd97a88"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa390082bc40b7ba5106857c9ddd97a88">&#9670;&nbsp;</a></span>Chunks_total_minutes <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned long Chunks_total_minutes </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfz_1_1Log__chunks__Map.html">Log_chunks_Map</a> &amp;&#160;</td>
+          <td class="paramname"><em>chunks</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Sum of durations of <a class="el" href="classfz_1_1Log.html">Log</a> chunks. </p>
+<p>Sum of durations of <a class="el" href="classfz_1_1Log.html">Log</a> chunks.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">chunks</td><td>a deque containing a sorted list <a class="el" href="classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk.">Log_chunk</a> pointers. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the sum total of time logged in minutes. </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following files:<ul>
 <li>core/include/<a class="el" href="Logtypes_8hpp_source.html">Logtypes.hpp</a></li>
+<li>inactive/include/<a class="el" href="Logtypesunshared_8hpp_source.html">Logtypesunshared.hpp</a></li>
 <li>core/lib/Logtypes.cpp</li>
+<li>inactive/lib/Logtypesunshared.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
