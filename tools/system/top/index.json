@@ -26,6 +26,10 @@
             "url" : "https://calendar.google.com/calendar/?authuser=randal.a.koene@gmail.com",
             "window" : "_blank"
         },
+        "DayWiz" : {
+            "url" : "/cgi-bin/daywiz.py",
+            "window" : "_blank"
+        },
         "EarlyWiz" : {
             "url" : "/formalizer/earlywiz.html",
             "window" : "_blank"
@@ -45,15 +49,15 @@
         "LateWiz" : {
             "url" : "/formalizer/latewiz.html",
             "window" : "_blank"
-        },
-        "Integrity" : {
-            "url" : "/integrity.html",
-            "window" : "_blank"
         }
     },
     "NOTITLE" : {
         "Metrics" : {
-            "url" : "https://docs.google.com/spreadsheets/d/1LeVD95TeBv_3QNby-Robe_BXS20g3WJEO3udy9mIb8I/edit#gid=0",
+            "url" : "https://docs.google.com/spreadsheets/d/1_UX286LRCFbp5V1nnNIKMdggfELggocSXy80x-DZtM0/edit#gid=0",
+            "window" : "_blank"
+        },
+        "Exercise" : {
+            "url" : "https://docs.google.com/spreadsheets/d/12SfaINJq2-axU9133aNfG8yERbckuBzUyhGdptTRzG4/edit#gid=0",
             "window" : "_blank"
         },
         "DAF &amp; Comm" : {
@@ -84,8 +88,12 @@
             "url" : "/cgi-bin/sysmet-extract-cgi.py?categories=work",
             "window" : "_blank"
         },
+        "Integrity" : {
+            "url" : "/integrity.html",
+            "window" : "_blank"
+        },
         "Help" : {
-            "url" : "/formalizer/System/system-help.html",
+            "url" : "/formalizer/system-help.html",
             "window" : "_blank"
         }
     },
@@ -128,6 +136,10 @@
         }
     },
     "System Boards: " : {
+        "Promises" : {
+            "url" : "https://trello.com/b/mnu1VKIn",
+            "window" : "_blank"
+        },
         "Challenges" : {
             "url" : "https://trello.com/b/mnu1VKIn",
             "window" : "_blank"

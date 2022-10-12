@@ -108,6 +108,7 @@ EXECUTABLES += $(TOOLSPATH)/interface/fzserver-info/fzserver-info
 EXECUTABLES += $(TOOLSPATH)/interface/logentry/logentry.py
 EXECUTABLES += $(TOOLSPATH)/interface/nodeboard/nodeboard
 EXECUTABLES += $(TOOLSPATH)/interface/panes/panes-term.sh
+EXECUTABLES += $(TOOLSPATH)/system/daywiz/daywiz.py
 EXECUTABLES += $(TOOLSPATH)/system/earlywiz/earlywiz.py
 # EXECUTABLES += $(TOOLSPATH)/system/fzcatchup/fzcatchup
 # EXECUTABLES += $(TOOLSPATH)/system/fzpassed/fzpassed
@@ -141,6 +142,7 @@ SYMBIN += $(COREPATH)/fzupdate/fzupdate
 SYMBIN += $(COREPATH)/include/ansicolorcodes.py
 SYMBIN += $(COREPATH)/include/error.py
 SYMBIN += $(COREPATH)/include/fzcmdcalls.py
+SYMBIN += $(COREPATH)/include/fzhtmlpage.py
 SYMBIN += $(COREPATH)/include/fzmodbase.py
 SYMBIN += $(COREPATH)/include/Graphaccess.py
 SYMBIN += $(COREPATH)/include/proclock.py
@@ -176,6 +178,7 @@ CGIEXE += $(TOOLSPATH)/interface/fzlink/fzlink.py
 CGIEXE += $(TOOLSPATH)/interface/fzlogtime/fzlogtime.cgi
 CGIEXE += $(TOOLSPATH)/interface/fzserver-info/fzserver-info-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzuistate/fzuistate.py
+CGIEXE += $(TOOLSPATH)/system/daywiz/daywiz.py
 CGIEXE += $(TOOLSPATH)/system/earlywiz/earlywiz.py
 CGIEXE += $(TOOLSPATH)/system/metrics/sysmet-extract/sysmet-extract-cgi.py
 
@@ -296,6 +299,7 @@ executables: $(EXECUTABLES)
 	ln -f -s $(SYMINCLUDE) $(COREINCLUDEPATH)/
 	sudo cp -f $(TOPLEVEL) $(WEBBASEDIR)/
 	./pycmdlinks.sh $(EXEDIR)
+	@echo '--- NOTE: You may still need to update browser caches, e.g. shift+reload in firefox.'
 
 # call `make tests` to make test files available
 tests: $(TESTS)
