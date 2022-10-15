@@ -17,12 +17,13 @@ except:
 import sys, cgi, os
 sys.stderr = sys.stdout
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from time import time
 import json
 from os.path import exists
 
 from fzhtmlpage import *
+from fznutrition import *
 
 # Create instance of FieldStorage 
 # NOTE: Only parameters that have a "name" (not just an "id") are submitted.
@@ -38,7 +39,7 @@ t_run = datetime.now() # Use this to make sure that all auto-generated times on 
 # TODO: *** Switch to using the database.
 #JSON_DATA_PATH='/home/randalk/.formalizer/.daywiz_data.json' # Permission issues.
 JSON_DATA_PATH='/var/www/webdata/formalizer/.daywiz_data.json'
-NEW_JSON_DATA_PATH='/var/www/webdata/formalizer/.new_daywiz_data.json'
+#NEW_JSON_DATA_PATH='/var/www/webdata/formalizer/.new_daywiz_data.json'
 
 # Collection of tables and their prefix abbreviations:
 data_tables = {
@@ -63,6 +64,7 @@ WIZTABLE_LINES=[
 	[ 'shower', 0, 'checkbox', 6, 10, 'Have a shower.', '' ],
 	[ 'lotion', 0, 'checkbox', 6, 10, 'Put on lotion.', '' ],
 	[ 'teeth', 0, 'checkbox', 6, 10, 'Brush teeth.', '' ],
+	[ 'neoprene', 0, 'checkbox', 6, 10, 'Wearing neoprene for fitness training.', '' ],
 	[ 'pushup2', 0, 'checkbox', 6, 10, 'Second push-ups.', '' ],
 	[ 'emailparsed', 0, 'number', 8, 20, 'Emails parsed.', '' ],
 	[ 'emailresp', 0, 'number', 8, 20, 'Emails responded to.', '' ],
@@ -96,80 +98,6 @@ exercises = {
 	'firepoi': [ 'minutes', ],
 	'hillhiking': [ 'minutes', ],
 	'kayaking': [ 'minutes', ],
-}
-
-# ====================== Nutrition information:
-
-nutrition = {
-	'coffee': [ 5, 'cup', ],
-	'almond milk': [ 90, 'cup', ],
-	'soylent': [ 400, 'bottle', ],
-	'protein shake': [ 180, 'bottle', ],
-	'yogurt': [ 140, '4oz', ],
-	'dried apricots': [ 18, 'apricot', ],
-	'raisins': [ 6, 'raisin', ],
-	'dried figs': [ 36, 'fig', ],
-	'celery': [ 7, 'stalk', ],
-	'tomato grape': [ 1, 'grape', ],
-	'orange': [ 45, 'orange', ],
-	'mandarin': [ 47, 'mandarin', ],
-	'blueberries': [ 85, 'cup', ],
-	'avocado': [ 322, 'avocado', ],
-	'banana': [ 105, 'banana', ],
-	'walnut pieces': [ 190, 'quartercup', ],
-	'peanuts': [ 161, 'oz', ],
-	'peanut butter': [ 188, '2tbsp', ],
-	'sardines': [ 36, 'oz', ],
-	'tuna': [ 110, '3ozcan', ],
-	'protein bar': [ 90, 'bar', ],
-	'sushi': [ 33.3, 'roll', ],
-	'hummus': [ 25, 'tbsp', ],
-	'egg': [ 60, 'egg', ],
-	'salami': [ 41, 'slice', ],
-	'turkey': [ 54, 'oz', ],
-	'jerky': [ 130, 'stick', ],
-	'cereal with milk': [ 230, 'bowl', ],
-	'rice cake': [ 35, 'rice cake', ],
-	'seaweed': [ 48, 'serving', ],
-	'knackebrot': [ 20, 'slice', ],
-	'ezekiel bread': [ 80, 'slice', ],
-	'falafel': [ 57, 'falafel', ],
-	'orzo salad': [ 332, 'cup', ],
-	'feta olive mix': [ 336, '200g' ],
-	'broccoli cheddar bowl': [ 460, 'bowl', ],
-	'palak paneer': [ 410, 'meal', ],
-	'mac and cheese': [ 450, 'meal' ],
-	'chili': [ 540, '2srvcan' ],
-	'cheesy scramble': [ 210, 'package', ],
-	'impossible burger': [ 240, 'patty', ],
-	'rockstar recovery': [ 10, 'can', ],
-	'potato salad': [ 44, 'oz', ],
-	'egg salad': [ 90, 'oz', ],
-	'beef patty': [ 240, 'patty', ],
-	'hamburger': [ 420, 'burger', ],
-	'sausage and egg breakfast sandwich': [ 400, 'sandwich', ],
-	'quiche': [ 420, 'serving', ],
-	'orowheat bread': [ 100, 'slice', ],
-	'sourdough bread': [ 120, 'slice', ],
-	'whole rye german breads': [ 180, 'slice', ],
-	'honey': [ 64, 'tbsp', ],
-	'nutella': [ 100, 'tbsp', ],
-	'camembert': [ 114, 'wedge', ],
-	'brie': [ 110, 'oz', ],
-	'cheddar': [ 80, 'slice', ],
-	'butter': [ 100, 'tbsp', ],
-	'lasagna': [ 310, 'serving', ],
-	'whiskey': [ 70, 'floz', ],
-	'vodka': [ 64, 'floz', ],
-	'morning pastry': [ 230, 'pastry', ],
-	'cheetos': [ 160, 'oz', ],
-	'candybar': [ 240, 'bar', ],
-	'lollipop': [ 22, 'lollipop', ],
-	'chips': [ 160, 'oz', ],
-	'pizza with cheese': [ 250, 'slice', ],
-	'gummi bears': [ 8, 'bear', ],
-	'licorice pieces': [ 10, 'piece', ],
-	'white chocolate': [ 160, 'oz', ],
 }
 
 # ====================== Debug helpers:
@@ -226,7 +154,7 @@ DAYPAGE_WIZTABLE_STYLE='''<style>
 </style>
 '''
 DAYPAGE_TABLES_FRAME='''<table class="col_right_separated">
-<tr><th>Wizard Record</th><th>Nutrition Record</th></tr>
+<tr><th>Wizard Record</th><th>Nutrition <a href="/cgi-bin/metrics.py?cmd=show&selectors=nutrition">Record</a> (<a href="/cgi-bin/nutrition.py?cmd=show">Planner</a>)</th></tr>
 <tr valign="top">
 <td>%s</td>
 <td>%s</td>
@@ -276,7 +204,8 @@ NUTRI_ACCOUNTS_TABLES_FRAME='''<table>
 NUTRI_TABLE_HEAD='<table>\n<tr><th>approx. time</th><th>consumed</th><th>quantity</th><th>units</th><th>calories</th></tr>\n'
 CONSUMED_TR_FRAME='''<tr><td>%s</td><td><input id="%s" type="text" value="%s" %s></td><td><input id="%s" type="text" value="%s" style="width: 8em;" %s></td><td>%s</td><td>%s</td>
 '''
-NUTRI_TABLE_SUMMARY='<tr><th></th><th></th><th></th><th></th><th>%s</th></tr>\n'
+NUTRI_TABLE_SUMMARY='<tr><th>Prev:</th><th>%s</th><th></th><th>Sum:</th><th>%s</th></tr>\n'
+NUTRI_TABLE_TARGET='<tr><th>Unknown:</th><th>%s</th><th></th><th>Target:</th><th>%s</th></tr>\n'
 ENTRYLINE_TR_FRAME='''<tr><td><input type="time" id="nutri_add_time" value="%s" %s></td><td><input id="nutri_add_name" type="text" %s></td><td><input id="nutri_add_quantity type="text" style="width: 8em;" %s></td><td>(units)</td><td>(calories)</td>
 '''
 
@@ -291,6 +220,36 @@ ACCOUNTED_TR_FRAME='''<tr><td>%s</td><td><input id="%s" type="text" value="%s" %
 '''
 ACCOUNTENTRY_TR_FRAME='''<tr><td><input type="time" id="acct_add_time" value="%s" %s></td><td><input id="acct_add_name" type="text" %s></td><td><input id="acct_add_spent type="number" style="width: 8em;" %s></td><td><input id="acct_add_received type="number" style="width: 8em;" %s></td><td><input id="acct_add_category type="text" %s></td>
 '''
+
+# ====================== Helpful standardized functions:
+
+def datetime2datestr(day: datetime) ->str:
+	return day.strftime('%Y.%m.%d')
+
+def datestr2datetime(datestr: str) ->datetime:
+	return datetime.strptime(datestr, '%Y.%m.%d')
+
+def consumed_calories_and_units(nutri_data: list) ->tuple:
+	name = str(nutri_data[1]).lower()
+	quantity = float(nutri_data[2])
+	if name in nutrition:
+		return ( name, quantity, int(quantity*nutrition[name][0]), nutrition[name][1] )
+	else:
+		return ( name, quantity, 5000, '(unit)' ) # As a warning that there is unmatched data.
+
+def consumed_calories(nutri_data: list) ->int:
+	name = str(nutri_data[1]).lower()
+	quantity = float(nutri_data[2])
+	if name in nutrition:
+		return int(quantity*nutrition[name][0])
+	else:
+		return 5000 # As a warning that there is unmatched data.
+
+def day_calories(day_consumption: list) ->int:
+	calories = 0
+	for nutri_data in day_consumption:
+		calories += consumed_calories(nutri_data)
+	return calories
 
 # ====================== Classes that manage content in page areas:
 
@@ -460,9 +419,10 @@ class daypage_wiztable:
 		return False
 
 class daypage_nutritable:
-	def __init__(self, day: datetime, day_data: dict, is_new: bool):
+	def __init__(self, day: datetime, day_data: dict, multiday_data: dict, is_new: bool):
 		self.day = day
 		self.day_data = day_data
+		self.multiday_data = multiday_data
 		self.logged = []
 		if not is_new:
 			if 'nutrition' in self.day_data:
@@ -478,15 +438,8 @@ class daypage_nutritable:
 		h, m = self.time_tuple(idx)
 		return TIME_FRAME % ( 'nutri_edit_th_'+str(idx), str(h), SUBMIT_ON_INPUT, 'nutri_edit_tm_'+str(idx), str(m), SUBMIT_ON_INPUT )
 
-	def consumed_html(self, data_list: list, idx: int) ->str:
-		name = str(self.logged[idx][1]).lower()
-		quantity = float(self.logged[idx][2])
-		if name in nutrition:
-			calories = int(quantity*nutrition[name][0])
-			unit = nutrition[name][1]
-		else:
-			calories = 5000 # As a warning that there is unmatched data.
-			unit = '(unit)'
+	def consumed_html(self, idx: int) ->str:
+		name, quantity, calories, unit = consumed_calories_and_units(self.logged[idx])
 		self.calories += calories
 		return CONSUMED_TR_FRAME % (
 			self.time_html(idx),
@@ -506,8 +459,9 @@ class daypage_nutritable:
 		table_str = NUTRI_TABLE_HEAD
 		self.calories = 0
 		for i in range(len(self.logged)):
-			table_str += self.consumed_html(self.logged[i], i)
-		table_str += NUTRI_TABLE_SUMMARY % str(self.calories)
+			table_str += self.consumed_html(i)
+		table_str += NUTRI_TABLE_SUMMARY % ( str(self.multiday_data['caloriestotal']), str(self.calories) )
+		table_str += NUTRI_TABLE_TARGET % ( str(self.multiday_data['dayscaloriesunknown']), str(self.multiday_data['caloriethreshold']) )
 		table_str += self.entryline_html()
 		return table_str + '</table>\n'
 
@@ -728,14 +682,15 @@ class daypage_accounts:
 		return False
 
 class nutri_and_accounts_tables:
-	def __init__(self, day: datetime, day_data: dict, is_new: bool):
+	def __init__(self, day: datetime, day_data: dict, multiday_data: dict, is_new: bool):
 		self.day = day
 		self.day_data = day_data
+		self.multiday_data = multiday_data
 		self.is_new = is_new
 
 		self.frame = NUTRI_ACCOUNTS_TABLES_FRAME
 		self.tables = {
-			'nutrition': daypage_nutritable(day, self.day_data, is_new),
+			'nutrition': daypage_nutritable(day, self.day_data, self.multiday_data, is_new),
 			'exercise': daypage_exercise(day, self.day_data, is_new),
 			'accounts': daypage_accounts(day, self.day_data, is_new),
 		}
@@ -765,14 +720,15 @@ class nutri_and_accounts_tables:
 		return self.day_data
 
 class daypage_tables:
-	def __init__(self, day: datetime, day_data: dict, is_new: bool):
+	def __init__(self, day: datetime, day_data: dict, multiday_data: dict, is_new: bool):
 		self.day = day
 		self.day_data = day_data
+		self.multiday_data = multiday_data
 		self.is_new = is_new
 
 		self.frame = DAYPAGE_TABLES_FRAME
 		self.wiztable = daypage_wiztable(day, self.day_data, is_new)
-		self.nutriaccountstable = nutri_and_accounts_tables(day, self.day_data, is_new)
+		self.nutriaccountstable = nutri_and_accounts_tables(day, self.day_data, self.multiday_data, is_new)
 
 	def generate_html_head(self) ->str:
 		return DAYPAGE_WIZTABLE_STYLE
@@ -785,9 +741,7 @@ class daypage_tables:
 			'wiztable': self.wiztable.get_data(),
 		}
 		nea = self.nutriaccountstable.get_dict()
-		#print('==============> daypage_tables.nutriaccountstable.day_data keys: '+str(nea.keys()))
 		self.day_data.update(  nea )
-		#print('==============> daypage_tables.day_data keys: '+str(self.day_data.keys()))
 		return self.day_data
 
 class daypage(fz_htmlpage):
@@ -798,16 +752,17 @@ class daypage(fz_htmlpage):
 		self.is_new = force_new
 
 		self.daywiz_data = {}
-		#self.new_daywiz_data = {}
-		#self.load_daywiz_json()
-		self.new_load_daywiz_json()
+		self.load_daywiz_json()
+		if 'cache' in self.daywiz_data:
+			self.multiday_data = self.daywiz_data['cache']
+		else:
+			self.multiday_data = self.get_multiday_data()
 
 		#gothere('daypage.__init__')
 		if force_new:
 			self.day_data = {}
 		else:
-			#self.day_data = self.get_day_data(self.day_str)
-			self.day_data = self.new_get_day_data(self.day_str)
+			self.day_data = self.get_day_data(self.day_str)
 			self.is_new = (len(self.day_data) == 0)
 
 		self.html_std = fz_html_standard('daywiz.py')
@@ -817,13 +772,21 @@ class daypage(fz_htmlpage):
 		self.html_clock = fz_html_clock()
 		self.html_title = fz_html_title('DayWiz')
 		self.date_picker = fz_html_datepicker(self.day)
-		self.tables = daypage_tables(self.day, self.day_data, self.is_new)
+		self.tables = daypage_tables(self.day, self.day_data, self.multiday_data, self.is_new)
 		# TODO: *** Remove the following line and all references to self.debug once no longer needed.
 		self.debug = debug_test()
 
 		self.head_list = [ self.html_std, self.html_icon, self.html_style, self.html_uistate, self.html_clock, self.tables, self.html_title, ]
 		self.body_list = [ self.html_std, self.html_title, self.html_clock, self.date_picker, self.tables, self.debug, ]
 		self.tail_list = [ self.html_std, self.html_uistate, self.html_clock, ]
+
+	# def legacy_load_daywiz_json(self):
+	# 	if exists(JSON_DATA_PATH):
+	# 		try:
+	# 			with open(JSON_DATA_PATH, 'r') as f:
+	# 				self.daywiz_data = json.load(f)
+	# 		except:
+	# 			self.daywiz_data = {}
 
 	def load_daywiz_json(self):
 		if exists(JSON_DATA_PATH):
@@ -833,18 +796,28 @@ class daypage(fz_htmlpage):
 			except:
 				self.daywiz_data = {}
 
-	def new_load_daywiz_json(self):
-		if exists(NEW_JSON_DATA_PATH):
-			try:
-				with open(NEW_JSON_DATA_PATH, 'r') as f:
-					self.daywiz_data = json.load(f)
-			except:
-				self.daywiz_data = {}
-
 	# Store JSON in format: {'YYYY.mm.dd': { 'wiztable': ..., 'nutrition': ..., 'exercise': ..., 'accounts': ...}, etc.}
+	# def legacy_save_daywiz_json(self) ->bool:
+	# 	global global_debug_str
+	# 	self.daywiz_data[self.day_str] = self.tables.get_dict()
+	# 	try:
+	# 		with open(JSON_DATA_PATH, 'w') as f:
+	# 			json.dump(self.daywiz_data, f)
+	# 		return True
+	# 	except Exception as e:
+	# 		global_debug_str += '<p><b>'+str(e)+'</b></p>'
+	# 		return False
+
+	# Store JSON in format: {'wiztable': {...days...}, 'nutrition': {...days...}, 'exercise': {...days...}, 'accounts': {...days...}}
 	def save_daywiz_json(self) ->bool:
 		global global_debug_str
-		self.daywiz_data[self.day_str] = self.tables.get_dict()
+		# Replace data for this day with updated data:
+		day_dict = self.tables.get_dict()
+		for tablekey in data_tables:
+			if tablekey in day_dict:
+				self.daywiz_data[tablekey][self.day_str] = day_dict[tablekey]
+		# Replace multiday cache with updated cached data:
+		self.daywiz_data['cache'] = self.multiday_data
 		try:
 			with open(JSON_DATA_PATH, 'w') as f:
 				json.dump(self.daywiz_data, f)
@@ -853,23 +826,8 @@ class daypage(fz_htmlpage):
 			global_debug_str += '<p><b>'+str(e)+'</b></p>'
 			return False
 
-	# Store JSON in format: {'wiztable': {...days...}, 'nutrition': {...days...}, 'exercise': {...days...}, 'accounts': {...days...}}
-	def new_save_daywiz_json(self) ->bool:
-		global global_debug_str
-		day_dict = self.tables.get_dict()
-		for tablekey in data_tables:
-			if tablekey in day_dict:
-				self.daywiz_data[tablekey][self.day_str] = day_dict[tablekey]
-		try:
-			with open(NEW_JSON_DATA_PATH, 'w') as f:
-				json.dump(self.daywiz_data, f)
-			return True
-		except Exception as e:
-			global_debug_str += '<p><b>'+str(e)+'</b></p>'
-			return False
-
 	# The following can be used to convert from legacy format to new format:
-	# def new_save_daywiz_json(self) ->bool:
+	# def convert_save_daywiz_json(self) ->bool:
 	# 	global global_debug_str
 	# 	self.daywiz_data[self.day_str] = self.tables.get_dict()
 	# 	self.new_daywiz_data = {
@@ -896,35 +854,124 @@ class daypage(fz_htmlpage):
 	# 		global_debug_str += '<p><b>'+str(e)+'</b></p>'
 	# 		return False
 
-	def get_day_data(self, daystr: str) ->dict:
-		if daystr in self.daywiz_data:
-			return self.daywiz_data[daystr]
-		else:
-			return {}
+	# def legacy_get_day_data(self, daystr: str) ->dict:
+	# 	if daystr in self.daywiz_data:
+	# 		return self.daywiz_data[daystr]
+	# 	else:
+	# 		return {}
 
-	def new_get_day_data(self, daystr: str) ->dict:
+	def get_day_data(self, daystr: str) ->dict:
 		day_dict = {}
 		for tablekey in data_tables:
 			if daystr in self.daywiz_data[tablekey]:
 				day_dict[tablekey] = self.daywiz_data[tablekey][daystr]
 		return day_dict
 
+	def get_wiz_data(self, datestr: str, label: str, from_end=True) ->list:
+		try:
+			wiz_list = self.daywiz_data['wiztable'][datestr]
+			if from_end:
+				for data in reversed(wiz_list):
+					if data[0] == label:
+						return data
+				return None
+			for data in wiz_list:
+				if data[0] == label:
+					return data
+				return None
+		except:
+			return None
+
+	# The colorie total is determined over the range of days for which such
+	# data is known.
+	# Days within that range where the `daynutri` checkbox is not checked are counted
+	# as 2300 calories to encourage tracking and remove not tracking as a way to avoid
+	# detection of undesired behavior.
+	# An excess of the total subtracts from the normal threshold.
+	def get_calorie_threshold(self) ->dict:
+		nutri = self.daywiz_data['nutrition']
+		nutridays = list(nutri.keys())
+		nutri_multiday = {
+			'caloriethreshold': WEIGHTLOSS_TARGET_CALORIES,
+			'caloriestotal': 0,
+			'dayscaloriesunknown': 0,
+		}
+		if len(nutridays) <= 0:
+			return nutri_multiday
+		# Find the earliest in the data:
+		nutridays.sort()
+		start_idx = 0
+		nextdaystr = nutridays[start_idx]
+		# Skip empties at the start:
+		while len(nutri[nextdaystr]) < 1:
+			start_idx += 1
+			nextdaystr = nutridays[start_idx]
+		# From the first non-empty, check every day until the current day:
+		nextday = datestr2datetime(nextdaystr)
+		numdays = 0
+		total_calories = 0
+		unknown = 0
+		while nextdaystr != self.day_str:
+			nutri_data = self.get_wiz_data(nextdaystr, 'daynutri')
+			if nutri_data is None:
+				#print('===========> no daynutri: '+nextdaystr)
+				unknown += 1
+				total_calories += UNKNOWN_DAY_CALORIES_ASSUMED
+			else:
+				if nutri_data[2] != 'checked':
+					unknown += 1
+					#print('==============> daynutri unchecked: '+nextdaystr)
+					total_calories += UNKNOWN_DAY_CALORIES_ASSUMED
+				else:
+					if nextdaystr not in nutri:
+						unknown += 1
+						#print('==============> date missing in nutri: '+nextdaystr)
+						total_calories += UNKNOWN_DAY_CALORIES_ASSUMED
+					else:
+						nextday_consumption = nutri[nextdaystr]
+						if len(nextday_consumption) < 1:
+							unknown += 1
+							#print('==============> consumption untracked: '+nextdaystr)
+							total_calories += UNKNOWN_DAY_CALORIES_ASSUMED
+						else:
+							total_calories += day_calories(nextday_consumption)
+			numdays += 1
+			nextday = nextday + timedelta(days=1)
+			nextdaystr = datetime2datestr(nextday)
+		# Calculate possible discrepancy:
+		nutri_multiday['caloriestotal'] = total_calories
+		nutri_multiday['dayscaloriesunknown'] = unknown
+		intended_calories = numdays*WEIGHTLOSS_TARGET_CALORIES
+		cal_over = max(0, total_calories - intended_calories)
+		threshold = WEIGHTLOSS_TARGET_CALORIES - cal_over
+		nutri_multiday['caloriethreshold'] = max(MIN_CALORIES_THRESHOLD, threshold)
+		return nutri_multiday
+
+	# This returns data that is derived from information about multiple days, e.g.
+	# calorie threshold derived from the sum over the previous days.
+	# The data may be retrieved from storage or calculated on the spot.
+	def get_multiday_data(self) ->dict:
+		multiday_data = self.get_calorie_threshold()
+		return multiday_data
+
+	def _update_nutri_multiday(self):
+		self.multiday_data.update( self.get_calorie_threshold() )
+
 	def _update_wiz(self, update_target: list, update_val: str) ->bool:
 		if self.tables.wiztable.update(update_target[1], update_target[2], update_val):
-			return self.new_save_daywiz_json()
-			#return self.save_daywiz_json()
+			return self.save_daywiz_json()
 		return False
 
 	def _update_nutri_add(self, update_target: list, update_val: str) ->bool:
 		if self.tables.nutriaccountstable.tables['nutrition'].update_add(update_target[2], update_val):
-			return self.new_save_daywiz_json()
-			#return self.save_daywiz_json()
+			self._update_nutri_multiday()
+			return self.save_daywiz_json()
 		return False
 
 	def _update_nutri_edit(self, update_target: list, update_val: str) ->bool:
 		if self.tables.nutriaccountstable.tables['nutrition'].update_edit(int(update_target[3]), update_target[2], update_val):
-			return self.new_save_daywiz_json()
-			#return self.save_daywiz_json()
+			self._update_nutri_multiday()
+			return self.save_daywiz_json()
 		return False
 
 	def _update_nutri(self, update_target: list, update_val: str) ->bool:
@@ -936,14 +983,12 @@ class daypage(fz_htmlpage):
 
 	def _update_exerc_add(self, update_target: list, update_val: str) ->bool:
 		if self.tables.nutriaccountstable.tables['exercise'].update_add(update_target[2], update_val):
-			return self.new_save_daywiz_json()
-			#return self.save_daywiz_json()
+			return self.save_daywiz_json()
 		return False
 
 	def _update_exerc_edit(self, update_target: list, update_val: str) ->bool:
 		if self.tables.nutriaccountstable.tables['exercise'].update_edit(int(update_target[3]), update_target[2], update_val):
-			return self.new_save_daywiz_json()
-			#return self.save_daywiz_json()
+			return self.save_daywiz_json()
 		return False
 
 	def _update_exerc(self, update_target: list, update_val: str) ->bool:
@@ -955,14 +1000,12 @@ class daypage(fz_htmlpage):
 
 	def _update_acct_add(self, update_target: list, update_val: str) ->bool:
 		if self.tables.nutriaccountstable.tables['accounts'].update_add(update_target[2], update_val):
-			return self.new_save_daywiz_json()
-			#return self.save_daywiz_json()
+			return self.save_daywiz_json()
 		return False
 
 	def _update_acct_edit(self, update_target: list, update_val: str) ->bool:
 		if self.tables.nutriaccountstable.tables['accounts'].update_edit(int(update_target[3]), update_target[2], update_val):
-			return self.new_save_daywiz_json()
-			#return self.save_daywiz_json()
+			return self.save_daywiz_json()
 		return False
 
 	def _update_acct(self, update_target: list, update_val: str) ->bool:
@@ -998,7 +1041,7 @@ class daypage(fz_htmlpage):
 	def show(self):
 		print("Content-type:text/html\n\n")
 		print(self.generate_html())
-		#self.new_save_daywiz_json() # To convert the JSON data from legacy format to new format.
+		#self.convert_save_daywiz_json() # To convert the JSON data from legacy format to new format.
 
 # ====================== Entry parsers:
 

@@ -147,6 +147,40 @@ class fz_html_datepicker:
 	def generate_html_body(self) ->str:
 		return DATEPICKER_FRAME % ( self.day.strftime('%Y-%m-%d'), SUBMIT_ON_INPUT )
 
+# Note that list_of_str_tuples_generator can simply generate or return a list
+# of strings if bodyline_template contains only one place holder.
+class fz_html_multilinetable:
+    def __init__(self, head_template: str, bodyframe_template: str, bodyline_template: str, list_of_str_tuples_generator):
+        self.head_template = head_template
+        self.bodyframe_template = bodyframe_template
+        self.bodyline_template = bodyline_template
+        self.list_of_str_tuples_generator = list_of_str_tuples_generator
+        self.lines_html = ''
+
+    def generate_html_head(self) ->str:
+        return self.head_template
+
+    def generate_html_body(self) ->str:
+        self.lines_html = ''
+        for str_tuple in self.list_of_str_tuples_generator():
+            self.lines_html += self.bodyline_template % str_tuple
+        return self.bodyframe_template % self.lines_html
+
+class fz_html_multicomponent:
+    def __init__(self, head_template: str, body_template: str):
+        self.head_template = head_template
+        self.body_template = body_template
+        self.components = {}
+
+    def generate_html_head(self) ->str:
+        return self.head_template
+
+    def generate_data_tuple(self) ->tuple:
+        return tuple( [ comp.generate_html_body() for comp in self.components.values() ] )
+
+    def generate_html_body(self) ->str:
+        return self.body_template % self.generate_data_tuple()
+
 class fz_htmlpage:
 	def __init__(self):
 		self.head_list = []
@@ -178,3 +212,20 @@ class fz_htmlpage:
 		page_str += self.generate_html_body()
 		page_str += self.generate_html_tail()
 		return page_str
+
+ERROR_FRAME='''<p>
+Error: <b>%s</b>
+</p>
+'''
+class fz_errorpage:
+	def __init__(self, error_message: str):
+		self.error_message = error_message
+
+	def generate_html_head(self) ->str:
+		return ''
+
+	def generate_html_body(self) ->str:
+		return ERROR_FRAME % str(self.error_message)
+
+	def generate_html_tail(self) ->str:
+		return ''
