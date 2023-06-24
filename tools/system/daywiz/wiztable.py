@@ -38,7 +38,7 @@ WIZTABLE_LINES=[
 	[ '20091115180507.1', 5, 'schedfits', 0, 'checkbox', 20, 24, 'Ensure schedule is mathematically doable. (Sum of required times fits into available time.)', '' ],
 	[ '20091115180507.1', 2, 'variable', 0, 'checkbox', 20, 24, 'Auto-update Variable Nodes. (Or replace this with different handling of Variable Nodes.)', '' ],
 	[ '20091115180507.1', 5, 'realistic', 0, 'checkbox', 20, 24, 'Ensure Schedule is realistic. E.g. map to time intervals on calendar day. Account for mini-days, and Nodes best in morning/evening.', '' ], # Automatable.
-	[ '20091115180507.1', 5, 'backup', 0, 'checkbox', 20, 24, 'Make sure that Formalizer database backups are mirrored to separate storage (USB drive, mirrored account, cloud storage).', '' ], # Automatable.
+	[ '20091115180507.1', 5, 'backup', 0, 'checkbox', 20, 24, 'Make sure that Formalizer database backups are mirrored to separate storage (USB drive, mirrored account, cloud storage). E.g., run fzbackup-mirror-to-github.sh.', '' ], # Automatable.
 	[ '20100403134619.1', 4, 'pushup3', 0, 'checkbox', 20, 24, 'Third push-ups (e.g. during dinner).', '' ],
 	[ '20200601093905.1', 5, 'acctcomplete', 0, 'checkbox', 20, 24, 'Accounting of the day completed.', '' ],
 	[ '20200601093905.1', 3, 'armodafinil', 0, 'number', 21, 24, 'Armodafinil taken (mg).', '' ],

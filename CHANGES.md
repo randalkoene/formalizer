@@ -8,6 +8,8 @@
   some assurance that things don't get messed up. In fact, it
   looks like no push had ever been done from harmonia, so the
   credentials for that were added.
+- Updated wiztable.py to include instructions on running
+  fzbackup-mirror-to-github.sh.
 
 20230614
 
