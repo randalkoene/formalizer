@@ -1,4 +1,3 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" title=" " alt="" coords="5,5,195,32"/>
-<area shape="rect" id="node2" href="$classfz_1_1Log__Breakpoints.html" title=" " alt="" coords="243,5,393,32"/>
+<area shape="rect" id="node1" href="$classfz_1_1graph__mem__managers.html" title="Keep track of multiple shared memory segments, switch which one is considered active for allocator us..." alt="" coords="5,5,197,32"/>
 </map>

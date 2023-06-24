@@ -1,5 +1,5 @@
 <map id="fz::Edge" name="fz::Edge">
-<area shape="rect" id="node1" title=" " alt="" coords="209,392,283,419"/>
+<area shape="rect" id="node1" title=" " alt="" coords="207,392,282,419"/>
 <area shape="rect" id="node2" href="$classfz_1_1Edge__ID.html" title="Edge ID that caches its ID stamp for frequent use." alt="" coords="293,288,388,315"/>
 <area shape="rect" id="node3" href="$structfz_1_1Edge__ID__key.html" title="Standardized Formalizer Edge ID key." alt="" coords="362,199,487,225"/>
 <area shape="rect" id="node4" href="$structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key." alt="" coords="275,95,401,121"/>

@@ -1,3 +1,4 @@
 {
-    "rendered_out_path" : "STDOUT"
+    "rendered_out_path" : "STDOUT",
+    "hours_offset": 0
 }

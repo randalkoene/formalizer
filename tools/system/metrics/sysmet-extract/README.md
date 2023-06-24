@@ -21,6 +21,11 @@ It is fine to start simple, for example, by commencing with a single metric, e.g
 
 Here we describe the main Category grouping specification files provided, their purpose, and their relationship to similar specifications in the Formalizer 1.x environment.
 
+1. `categories_a2c.json`: Also known as "Intentions Performance" through the Formalizer dashboard buttons. First defined around 2019.
+2. `categories_hourly.json`: Based on Formalizer 1.x task metrics categories. In use up to about Jan. 2021.
+3. `categories_work.json`: Also known as "Work Performance" through the Formalizer dashboard buttons.
+4. `categories_main2023.json`: A quick metric tracking the balance of effort on Voxa, CCF and other life Values. Introduced in 2023.
+
 ### categories_a2c.json - Activities to Categories
 
 The specifications in `categories_a2c.json` provide categories as used during daily Morning System metrics updates. They correspond to the categories specified in `formalizer.self-evaluation-categories.rc` used with the Formalizer 1.x environment up to Jan. 2021. Description copied from that file:
@@ -156,3 +161,20 @@ The categories are:
 
 >  
 > `other:`
+
+### categories_work.json - Tracking Types of Work
+
+These specifications were developed with Formalizer 2.x. The documentation below applies to the corresponding JSON file.
+
+(Documentation to be added here.)
+
+### categories_main2023.json - 2023 Three Main Groups
+
+These specifications were developed with Formalizer 2.x. The documentation below applies to the corresponding JSON file.
+
+A quick metric tracking the balance of effort on Voxa, CCF and other life Values.
+
+
+
+---
+Randal A. Koene, 2020, 2021, 2023

@@ -1,0 +1,18 @@
+{
+    "Voxa" : {
+        "Topics" : "voxa"
+    },
+    "CCF" : {
+        "Topics" : "carboncopies;cc-research;cc-operations;meetings;department-meeting;fund-raising;grant-writing"
+    },
+    "OtherValues" : {
+        "Topics" : "self-improvement"
+    },
+    "Procrastinated" : {
+    	"NNLs" : "procrastination"
+    },
+    "Sleep" : {
+        "NNLs" : "group_sleep"
+    },
+    "other" : "DEFAULT"
+}

@@ -25,7 +25,7 @@ namespace fz {
  * @param writestate returns the iostate flags when provided (default: nullptr)
  * @return true if the write from string was successful.
  */
-bool string_to_file(std::string path, std::string & s, std::ofstream::iostate * writestate) {
+bool string_to_file(const std::string path, const std::string & s, std::ofstream::iostate * writestate) {
     std::ofstream ofs(path, std::ifstream::out);
 
     if (writestate) (*writestate) = ofs.rdstate();

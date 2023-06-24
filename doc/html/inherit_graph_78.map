@@ -1,3 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$structfz_1_1shared__memory__manager.html" title="Every shared memory segment (e.g. for a different copy of a Graph) can have its own instance of these..." alt="" coords="5,5,219,32"/>
+<area shape="rect" id="node1" title=" " alt="" coords="5,31,84,57"/>
+<area shape="rect" id="node2" href="$classfz_1_1Node__histories.html" title="These Node histories are generated (and cached) in a manner where the set of chunks lists only those ..." alt="" coords="149,5,287,32"/>
+<area shape="rect" id="node3" href="$structfz_1_1template__varvalues.html" title=" " alt="" coords="132,56,304,83"/>
 </map>

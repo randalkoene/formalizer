@@ -42,7 +42,8 @@ enum interval_scale {
 enum most_recent_format {
     most_recent_raw,
     most_recent_txt,
-    most_recent_html
+    most_recent_html,
+    most_recent_json
 };
 
 class fzlm_configurable: public configurable {
@@ -71,6 +72,9 @@ struct fzlogmap: public formalizer_standard_program {
     unsigned int interval;
     bool noframe;
     bool calendar;
+    bool interpret_open_as_tcurrent;
+    bool minute_map;
+    bool by_category;
 
     std::string custom_template;
 

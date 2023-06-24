@@ -15,6 +15,8 @@
 
 using namespace fz;
 
+extern int hours_offset;
+
 bool render_logtime_page();
 
 #endif // __RENDER_HPP

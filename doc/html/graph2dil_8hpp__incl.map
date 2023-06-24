@@ -1,11 +1,11 @@
 <map id="tools/conversion/graph2dil/graph2dil.hpp" name="tools/conversion/graph2dil/graph2dil.hpp">
-<area shape="rect" id="node1" title=" " alt="" coords="1181,5,1376,47"/>
+<area shape="rect" id="node1" title="This header file is used for declarations specific to the graph2dil tool." alt="" coords="1181,5,1376,47"/>
 <area shape="rect" id="node2" href="$tools_2conversion_2graph2dil_2version_8hpp_source.html" title=" " alt="" coords="2548,95,2647,121"/>
 <area shape="rect" id="node4" title=" " alt="" coords="5,483,83,509"/>
 <area shape="rect" id="node5" title=" " alt="" coords="2185,259,2236,285"/>
 <area shape="rect" id="node6" title=" " alt="" coords="1639,333,1702,360"/>
 <area shape="rect" id="node7" href="$config_8hpp_source.html" title=" " alt="" coords="295,333,385,360"/>
-<area shape="rect" id="node9" href="$standard_8hpp.html" title=" " alt="" coords="284,408,391,435"/>
+<area shape="rect" id="node9" href="$standard_8hpp.html" title="This header file declares standard structures and functions that should be used with any standardized..." alt="" coords="284,408,391,435"/>
 <area shape="rect" id="node15" href="$Graphtypes_8hpp_source.html" title=" " alt="" coords="1216,95,1341,121"/>
 <area shape="rect" id="node3" title=" " alt="" coords="671,557,729,584"/>
 <area shape="rect" id="node8" href="$coreversion_8hpp_source.html" title=" " alt="" coords="687,483,814,509"/>
@@ -25,10 +25,10 @@
 <area shape="rect" id="node24" title=" " alt="" coords="1466,169,1633,211"/>
 <area shape="rect" id="node25" title=" " alt="" coords="1709,169,1875,211"/>
 <area shape="rect" id="node26" title=" " alt="" coords="1900,169,2127,211"/>
-<area shape="rect" id="node27" href="$error_8hpp.html" title=" " alt="" coords="564,259,644,285"/>
+<area shape="rect" id="node27" href="$error_8hpp.html" title="This header file declares error handling classes and functions for use with core Formalizer C++ code." alt="" coords="564,259,644,285"/>
 <area shape="rect" id="node29" href="$general_8hpp_source.html" title=" " alt="" coords="712,259,811,285"/>
-<area shape="rect" id="node30" href="$TimeStamp_8hpp.html" title=" " alt="" coords="2311,259,2436,285"/>
-<area shape="rect" id="node34" href="$Graphbase_8hpp.html" title=" " alt="" coords="2151,177,2271,203"/>
+<area shape="rect" id="node30" href="$TimeStamp_8hpp.html" title="This header file declares Formalizer TimeStamp format and operations." alt="" coords="2311,259,2436,285"/>
+<area shape="rect" id="node34" href="$Graphbase_8hpp.html" title="This header file declares Shared Memory Graph, Node and Edge types for use with the Formalizer." alt="" coords="2151,177,2271,203"/>
 <area shape="rect" id="node28" title=" " alt="" coords="687,333,761,360"/>
 <area shape="rect" id="node31" title=" " alt="" coords="2379,333,2434,360"/>
 <area shape="rect" id="node32" href="$ReferenceTime_8hpp_source.html" title=" " alt="" coords="2076,333,2225,360"/>

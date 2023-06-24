@@ -16,6 +16,14 @@ import traceback
 from io import StringIO
 from traceback import print_exc
 import subprocess
+import json
+
+try:
+    with open('/home/randalk/.formalizer/config/fzlogtime/config.json', 'r') as f:
+        config_json = json.load(f)
+except Exception as e:
+    config_json = {}
+#print('config_json='+str(config_json))
 
 # Create instance of FieldStorage 
 form = cgi.FieldStorage()
@@ -74,16 +82,25 @@ def try_subprocess_check_output(thecmdstring: str, resstore: str, verbosity: 1) 
         return 0
 
 def extra_cmd_args(verbosity = 1) -> str:
+    global config_json
+
+    #print('GOT HERE')
+
     extra = ''
     if verbosity < 1:
         extra += ' -q'
     else:
         if verbosity > 1:
             extra += ' -V'
+
+    if 'hours_offset' in config_json:
+        #print('OFFSETTING HOURS')
+        extra += ' -H '+str(config_json['hours_offset'])
     return extra
 
 def local_fzlogtime() -> bool:
     thecmd = './fzlogtime' + extra_cmd_args(verbosity)
+    #print("thecmd="+thecmd)
     retcode = try_subprocess_check_output(thecmd, 'logtime', verbosity)
     if (retcode == 0):
         try:
@@ -98,6 +115,7 @@ def local_fzlogtime() -> bool:
 
 def nonlocal_fzlogtime() -> bool:
     thecmd = './fzlogtime -E STDOUT -W STDOUT -n ' + extra_cmd_args(verbosity)
+    #print('thecmd='+thecmd)
     retcode = try_subprocess_check_output(thecmd, 'logtime', verbosity)
     if (retcode == 0):
         try:

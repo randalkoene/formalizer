@@ -1,22 +1,6 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="29,436,141,463"/>
-<area shape="rect" id="node2" href="$classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="221,385,343,412"/>
-<area shape="rect" id="node19" href="$classfz_1_1err__configbase.html" title=" " alt="" coords="213,436,351,463"/>
-<area shape="rect" id="node3" href="$classbp__configurable.html" title=" " alt="" coords="415,5,540,32"/>
-<area shape="rect" id="node4" href="$classfz_1_1fzpq__configurable.html" title=" " alt="" coords="399,56,556,83"/>
-<area shape="rect" id="node5" href="$classfzdsh__configurable.html" title=" " alt="" coords="405,107,549,133"/>
-<area shape="rect" id="node6" href="$classfze__configurable.html" title=" " alt="" coords="413,157,542,184"/>
-<area shape="rect" id="node7" href="$classfzge__configurable.html" title=" " alt="" coords="409,208,546,235"/>
-<area shape="rect" id="node8" href="$classfzgh__configurable.html" title=" " alt="" coords="409,259,546,285"/>
-<area shape="rect" id="node9" href="$classfzgs__configurable.html" title=" " alt="" coords="409,309,545,336"/>
-<area shape="rect" id="node10" href="$classfzl__configurable.html" title=" " alt="" coords="415,360,540,387"/>
-<area shape="rect" id="node11" href="$classfzlh__configurable.html" title=" " alt="" coords="411,411,544,437"/>
-<area shape="rect" id="node12" href="$classfzlm__configurable.html" title=" " alt="" coords="408,461,547,488"/>
-<area shape="rect" id="node13" href="$classfzlt__configurable.html" title=" " alt="" coords="412,512,543,539"/>
-<area shape="rect" id="node14" href="$classfzs__configurable.html" title=" " alt="" coords="413,563,541,589"/>
-<area shape="rect" id="node15" href="$classfzsi__configurable.html" title=" " alt="" coords="411,613,543,640"/>
-<area shape="rect" id="node16" href="$classfzsl__configurable.html" title=" " alt="" coords="411,664,543,691"/>
-<area shape="rect" id="node17" href="$classfzu__configurable.html" title=" " alt="" coords="413,715,542,741"/>
-<area shape="rect" id="node18" href="$classg2d__configurable.html" title=" " alt="" coords="411,765,544,792"/>
-<area shape="rect" id="node20" href="$classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="5,385,165,412"/>
+<area shape="rect" id="node1" href="$classfz_1_1Log__by__Node__chainable.html" title="Base class for Log components that are chainable as belonging to a Node." alt="" coords="5,5,204,32"/>
+<area shape="rect" id="node2" href="$classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk." alt="" coords="252,5,363,32"/>
+<area shape="rect" id="node3" href="$classfz_1_1Log__entry.html" title=" " alt="" coords="254,56,361,83"/>
+<area shape="rect" id="node4" href="$classfz_1_1Log__data.html" title="Log data base class providing shared parameters and functions." alt="" coords="54,56,155,83"/>
 </map>

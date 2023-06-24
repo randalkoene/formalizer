@@ -1,13 +1,13 @@
 <map id="core/include/Guidepostgres.hpp" name="core/include/Guidepostgres.hpp">
-<area shape="rect" id="node1" title=" " alt="" coords="672,5,899,32"/>
+<area shape="rect" id="node1" title="{{ header_description }}" alt="" coords="672,5,899,32"/>
 <area shape="rect" id="node2" href="$coreversion_8hpp_source.html" title=" " alt="" coords="311,304,438,331"/>
 <area shape="rect" id="node4" title=" " alt="" coords="989,304,1067,331"/>
 <area shape="rect" id="node5" href="$fzpostgres_8hpp_source.html" title=" " alt="" coords="498,80,617,107"/>
 <area shape="rect" id="node3" title=" " alt="" coords="489,379,548,405"/>
 <area shape="rect" id="node6" title=" " alt="" coords="526,155,589,181"/>
-<area shape="rect" id="node7" href="$standard_8hpp.html" title=" " alt="" coords="687,229,793,256"/>
+<area shape="rect" id="node7" href="$standard_8hpp.html" title="This header file declares standard structures and functions that should be used with any standardized..." alt="" coords="687,229,793,256"/>
 <area shape="rect" id="node13" href="$config_8hpp_source.html" title=" " alt="" coords="413,155,502,181"/>
-<area shape="rect" id="node14" href="$TimeStamp_8hpp.html" title=" " alt="" coords="181,155,307,181"/>
+<area shape="rect" id="node14" href="$TimeStamp_8hpp.html" title="This header file declares Formalizer TimeStamp format and operations." alt="" coords="181,155,307,181"/>
 <area shape="rect" id="node19" title=" " alt="" coords="613,155,697,181"/>
 <area shape="rect" id="node8" title=" " alt="" coords="700,304,780,331"/>
 <area shape="rect" id="node9" title=" " alt="" coords="805,304,875,331"/>

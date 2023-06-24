@@ -1,5 +1,5 @@
 <map id="core/include/Guidepostgres.hpp" name="core/include/Guidepostgres.hpp">
-<area shape="rect" id="node1" title=" " alt="" coords="5,5,232,32"/>
+<area shape="rect" id="node1" title="{{ header_description }}" alt="" coords="5,5,232,32"/>
 <area shape="rect" id="node2" href="$fzguide_8system_8hpp_source.html" title=" " alt="" coords="41,80,196,121"/>
-<area shape="rect" id="node3" href="$fzguide_8system_8cpp.html" title=" " alt="" coords="41,169,196,211"/>
+<area shape="rect" id="node3" href="$fzguide_8system_8cpp.html" title="Authoritative server of System guide content." alt="" coords="41,169,196,211"/>
 </map>

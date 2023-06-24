@@ -504,6 +504,10 @@ public:
     long minutes_to_complete() const { return seconds_to_complete()/60; }
     float hours_to_complete() const { return ((float)seconds_to_complete())/3600.0; }
 
+    bool is_active() const { return (completion >= 0.0) && (completion < 1.0); }
+    bool is_complete() const { return completion >= 1.0; }
+    bool is_incomplete() const { return completion < 1.0; }
+
     const Node_utf8_text & get_text() const { return text; }
 
     time_t get_targetdate() const { return targetdate; }

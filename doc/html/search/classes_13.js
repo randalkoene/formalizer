@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['year_5fmonth_5fday_5ft_933',['year_month_day_t',['../structfz_1_1year__month__day__t.html',1,'fz']]]
+  ['wizdata_1024',['WizData',['../classearlywiz_1_1WizData.html',1,'earlywiz']]],
+  ['wiztable_5fline_1025',['wiztable_line',['../classdaywiz_1_1wiztable__line.html',1,'daywiz']]]
 ];

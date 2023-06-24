@@ -23,6 +23,8 @@ CGIDIR=/usr/lib/cgi-bin
 W3MCGIDIR=/usr/lib/w3m/cgi-bin
 WEBBASEDIR=/var/www/html
 WEBINTERFACESDIR=$(WEBBASEDIR)/formalizer
+WEBDATADIR=/var/www/webdata/formalizer
+WBEINTERFACETODATA=$(WEBINTERFACESDIR)/data
 
 INC=$(COREINCLUDEPATH)
 OBJ=./obj
@@ -110,7 +112,10 @@ EXECUTABLES += $(TOOLSPATH)/interface/nodeboard/nodeboard
 EXECUTABLES += $(TOOLSPATH)/interface/panes/panes-term.sh
 EXECUTABLES += $(TOOLSPATH)/system/daywiz/daywiz.py
 EXECUTABLES += $(TOOLSPATH)/system/daywiz/metrics.py
+EXECUTABLES += $(TOOLSPATH)/system/daywiz/score.py
+EXECUTABLES += $(TOOLSPATH)/system/daywiz/wiztable.py
 EXECUTABLES += $(TOOLSPATH)/system/daywiz/nutrition.py
+EXECUTABLES += $(TOOLSPATH)/system/daywiz/consumed.py
 EXECUTABLES += $(TOOLSPATH)/system/earlywiz/earlywiz.py
 # EXECUTABLES += $(TOOLSPATH)/system/fzcatchup/fzcatchup
 # EXECUTABLES += $(TOOLSPATH)/system/fzpassed/fzpassed
@@ -158,7 +163,9 @@ SYMBIN += $(TOOLSPATH)/interface/fzloghtml/get_log_entry.sh
 SYMBIN += $(TOOLSPATH)/interface/fzlogmap/fzlogmap
 SYMBIN += $(TOOLSPATH)/interface/fzlogtime/fzlogtime
 SYMBIN += $(TOOLSPATH)/interface/fzserver-info/fzserver-info
-SYMBIN += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_a2c.json
+SYMBIN += $(TOOLSPATH)/interface/nodeboard/nodeboard
+#SYMBIN += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_a2c.json
+#SYMBIN += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_main2023.json
 SYMBIN += $(COREPATH)/fzguide.system/fzguide.system
 SYMBIN += $(CONFIGEXPOSE)
 SYMBIN += $(LOCALBINSYM)
@@ -183,9 +190,19 @@ CGIEXE += $(TOOLSPATH)/interface/fzserver-info/fzserver-info-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzuistate/fzuistate.py
 CGIEXE += $(TOOLSPATH)/system/daywiz/daywiz.py
 CGIEXE += $(TOOLSPATH)/system/daywiz/metrics.py
+CGIEXE += $(TOOLSPATH)/system/daywiz/score.py
+CGIEXE += $(TOOLSPATH)/system/daywiz/wiztable.py
 CGIEXE += $(TOOLSPATH)/system/daywiz/nutrition.py
+CGIEXE += $(TOOLSPATH)/system/daywiz/consumed.py
 CGIEXE += $(TOOLSPATH)/system/earlywiz/earlywiz.py
 CGIEXE += $(TOOLSPATH)/system/metrics/sysmet-extract/sysmet-extract-cgi.py
+CGIEXE += $(TOOLSPATH)/interface/nodeboard/nodeboard-cgi.py
+
+# Data files that need to be symlinked into the WEBDATADIR directory
+SYMDATA = 
+SYMDATA += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_a2c.json
+SYMDATA += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_work.json
+SYMDATA += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_main2023.json
 
 # CGI scripts for machine-local use with w3m, which can launch programs as the user
 LOCALCGI =
@@ -297,9 +314,11 @@ executables: $(EXECUTABLES)
 	mkdir -p $(EXEDIR)
 	ln -f -s $(EXECUTABLES) $(EXEDIR)/
 	sudo ln -f -s $(SYMBIN) $(CGIDIR)/
+	sudo ln -f -s $(SYMDATA) $(WEBDATADIR)/
 	sudo cp -f $(CGIEXE) $(CGIDIR)/
 	sudo ln -f -s $(LOCALCGI) $(W3MCGIDIR)/
 	cp -r -f $(WEBINTERFACES) $(WEBINTERFACESDIR)/
+	sudo ln -f -s $(WEBDATADIR) $(WBEINTERFACETODATA)
 	sudo ln -f -s $(SYMWEB) $(WEBINTERFACESDIR)/
 	ln -f -s $(SYMINCLUDE) $(COREINCLUDEPATH)/
 	sudo cp -f $(TOPLEVEL) $(WEBBASEDIR)/

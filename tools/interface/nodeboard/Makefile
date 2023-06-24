@@ -24,7 +24,7 @@ MACHOPT= $(GCCTUNE) $(SSEOPT)
 FORMALIZERPATH=$(HOME)/src/formalizer
 COREINCLUDEPATH=$(FORMALIZERPATH)/core/include
 CORELIBPATH=$(FORMALIZERPATH)/core/lib
-FORMALIZERPATH_THIS=$(FORMALIZERPATH)/tools/nodeboard
+FORMALIZERPATH_THIS=$(FORMALIZERPATH)/tools/interface/nodeboard
 
 TEMPLATEDIR = -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\" 
 
@@ -108,6 +108,8 @@ CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
 CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphbase.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphinfo.o
+CORE_OBJS += $(CORELIBPATH)/obj/GraphLogxmap.o
 CORE_OBJS += $(CORELIBPATH)/obj/fzpostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphaccess.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o

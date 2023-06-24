@@ -25,6 +25,7 @@
 #include "error.hpp"
 #include "standard.hpp"
 #include "general.hpp"
+#include "ReferenceTime.hpp"
 #include "TimeStamp.hpp"
 #include "stringio.hpp"
 #include "jsonlite.hpp"
@@ -45,10 +46,12 @@ fzlogmap fzlm;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzlogmap::fzlogmap() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
-                         iscale(interval_none), interval(0), noframe(false), calendar(false), recent_format(most_recent_html) {
-    add_option_args += "1:2:o:D:H:w:Nc:rRF:T:f:C";
-    add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-F <raw|txt|html>] [-T <file|'STR:string'>] [-f <groupsfile>] [-C]";
+fzlogmap::fzlogmap() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), 
+                        ga(*this, add_option_args, add_usage_top), iscale(interval_none), interval(0),
+                        noframe(false), calendar(false), interpret_open_as_tcurrent(false),
+                        minute_map(true), by_category(false), recent_format(most_recent_html) {
+    add_option_args += "1:2:o:D:H:w:Nc:rRtnGF:T:f:C";
+    add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-t] [-n] [-F <raw|txt|html>] [-G] [-T <file|'STR:string'>] [-f <groupsfile>] [-C]";
     usage_head.push_back("Generate Mapping of requested Log records.\n");
     usage_tail.push_back(
         "The <time-stamp1> and <time-stamp_2> arguments expect standardized\n"
@@ -77,8 +80,11 @@ void fzlogmap::usage_hook() {
           "    -c interval size of <num> Log chunks\n"
           "    -r interval from most recent\n"
           "    -R most recent Log data\n"
-          "    -F format of most recent Log data:\n"
-          "       raw, txt, html (default)\n"
+          "    -t interpret open Log chunk as to the current time\n"
+          "    -n no minute map (totals only, unless in -C mode)\n"
+          "    -F format of mapped Log data:\n"
+          "       json, raw, txt, html (default)\n"
+          "    -G by cagegory group (not days) if JSON\n"
           "    -T use custom template from file or string (if 'STR:')\n"
           "    -f read category group specifications from <groupsfile>\n"
           "    -C present in calendar format\n"
@@ -167,19 +173,44 @@ bool fzlogmap::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 't': {
+        interpret_open_as_tcurrent = true;
+        return true;
+    }
+
+    case 'n': {
+        minute_map = false;
+        return true;
+    }
+
+    // *** NOTE: At the moment, format specifiers other than json are ignored in fzlogmap
+    //           and the output is always pure text. See sysmet-extract-cgi.py
+    //           for an example of how that text is turned into HTML for
+    //           display in a browser.
     case 'F': {
-        if (cargs == "raw") {
-            fzlm.recent_format = most_recent_raw;
+        if (cargs == "json") {
+            fzlm.recent_format = most_recent_json;
         } else {
-            if (cargs == "txt") {
-                fzlm.recent_format = most_recent_txt;
+            if (cargs == "raw") {
+                fzlm.recent_format = most_recent_raw;
             } else {
-                fzlm.recent_format = most_recent_html;
+                if (cargs == "txt") {
+                    fzlm.recent_format = most_recent_txt;
+                } else {
+                    fzlm.recent_format = most_recent_html;
+                }
             }
         }
         return true;
     }
 
+    case 'G': {
+        by_category = true;
+        return true;
+    }
+
+    // *** NOTE: At the moment, templates are not used in fzlogmap. These are
+    //           from the inherited code (fzloghtml).
     case 'T': {
         fzlm.custom_template = cargs;
         return true;
@@ -398,22 +429,29 @@ typedef std::vector<Node_ptr> fz_minute_record_t;
  */
 struct Minute_Record_Map {
     fz_minute_record_t minuterecord;
+    time_t t_current;
     time_t t_start;
     time_t t_end;
 
     Minute_Record_Map(time_t from_t, time_t before_t, bool inclusive = false) : t_start(from_t), t_end(before_t) { init(inclusive); }
-    Minute_Record_Map(Graph & graph, Log & log) {
+    Minute_Record_Map(Graph & graph, Log & log, bool interpret_open_as_tcurrent = false) {
+        t_current = ActualTime(); // *** Could use a reftime here as in fzlog instead (with option hook and all).
         t_start = log.oldest_chunk_t();
         t_end = log.newest_chunk_t();
-        init(true);
-        populate(graph, log);
+        init(true, interpret_open_as_tcurrent);
+        populate(graph, log, interpret_open_as_tcurrent);
     }
 
-    void init(bool inclusive = false) {
+    void init(bool inclusive = false, bool interpret_open_as_tcurrent = false) {
         if (inclusive) {
-            t_end += 60;
+            if (interpret_open_as_tcurrent) {
+                t_end = t_current + 60;
+            } else {
+                t_end += 60;
+            }
         }
         size_t approx_size = ((t_end - t_start) / 60) + 1; // This hopefully hops over leap seconds and includes an extra minute.
+        //FZOUT("Approx size is: "+std::to_string(approx_size)+'\n'); std::cout.flush();
         minuterecord.resize(approx_size, nullptr);
     }
 
@@ -441,8 +479,11 @@ struct Minute_Record_Map {
     }
 
 
-    void populate(Graph & graph, Log & log) {
+    // *** ERROR: This segfaults for: ./fzlogmap -V -1 20221030 -2 202212312359 -n -t -o STDOUT -F json -G -f /var/www/webdata/formalizer/categories_main2023.json
+    void populate(Graph & graph, Log & log, bool interpret_open_as_tcurrent = false) {
         Log_chunks_Map & chunks = log.get_Chunks();
+        //long dummyvar = 0;
+        ssize_t minuterecord_size = minuterecord.size();
         for (const auto & [chunk_id, chunk_ptr] : chunks) {
             if (chunk_ptr) {
                 time_t t_open = chunk_ptr->get_open_time();
@@ -454,10 +495,34 @@ struct Minute_Record_Map {
                         ridx_from = 0; // skip any before the mapped record
                     }
                     ssize_t ridx_before = record_index(t_close);
-                    std::fill (minuterecord.begin()+ridx_from, minuterecord.begin()+ridx_before, nptr);
+                    if ((nptr!=nullptr) && (ridx_from<ridx_before) && (ridx_from>=0) && (ridx_before<minuterecord_size)) {
+                        std::fill (minuterecord.begin()+ridx_from, minuterecord.begin()+ridx_before, nptr);
+                    } else {
+                        standard_error("Null Node or bad from-to record indexes for Log chunk "+chunk_id.str()+", skipping", __func__);
+                    }
+                    //std::fill (minuterecord.begin()+ridx_from, minuterecord.begin()+ridx_before, nptr); // <==== *** This is where it segfaults!
+                    //dummyvar += (long) ridx_before + (long) ridx_from + (long) nptr;
+                } else {
+                    if (interpret_open_as_tcurrent) {
+                        t_close = t_current;
+                        Node_ptr nptr = chunk_ptr->get_Node(graph);
+                        ssize_t ridx_from = record_index(t_open);
+                        if (ridx_from < 0) {
+                            ridx_from = 0; // skip any before the mapped record
+                        }
+                        ssize_t ridx_before = record_index(t_close);
+                        if ((nptr!=nullptr) && (ridx_from<ridx_before) && (ridx_from>=0) && (ridx_before<minuterecord_size)) {
+                            std::fill (minuterecord.begin()+ridx_from, minuterecord.begin()+ridx_before, nptr);
+                        } else {
+                            standard_error("Null Node or bad from-to record indexes for Log chunk "+chunk_id.str()+", skipping", __func__);
+                        }
+                        std::fill (minuterecord.begin()+ridx_from, minuterecord.begin()+ridx_before, nptr);
+                        //dummyvar += (long) ridx_before + (long) ridx_from + (long) nptr;
+                    }
                 }
             }
         }
+        //exit(0);
     }
 
 };
@@ -526,6 +591,10 @@ void build_Node_category_cache_map(Log & log, Node_Category_Cache_Map & nccmap) 
     }
 }
 
+/**
+ * This produces the rudimentary, linear text output showing the categorization of the minutes in each
+ * hour of the day, and the days in the interval.
+ */
 std::string map2str(const Minute_Record_Map & mrmap, Node_Category_Cache_Map & nccmap, Set_builder_data & groups, bool singlechar = true) {
     std::string mapstr;
     Graph & graph = fzlm.graph();
@@ -567,6 +636,9 @@ std::string map2str(const Minute_Record_Map & mrmap, Node_Category_Cache_Map & n
 constexpr ssize_t minsperrow = 30;
 constexpr ssize_t rowsperhour = 60/minsperrow;
 
+/**
+ * This produces the text output in days-of-the-week calendar format.
+ */
 std::string map2cal(const Minute_Record_Map & mrmap, Node_Category_Cache_Map & nccmap, Set_builder_data & groups, bool singlechar = true, cat_translation_map_ptr translation = nullptr) {
     std::string mapstr;
     Graph & graph = fzlm.graph();
@@ -616,7 +688,7 @@ since there's no point having to reconstitute from pointers.
 
 // *** extremely inefficient, even for incrementing from a map!
 //     at the least, you should just build a map with category label and a totals structure,
-//     where the totals structure has a place for grant total and a vector for day totals
+//     where the totals structure has a place for grand total and a vector for day totals
 struct Minute_Totals {
     std::map<std::string, size_t> mintotals;
     Minute_Totals(category_set_t & categories) {
@@ -706,8 +778,8 @@ std::string totals2str(Minute_Totals_vec_t & mintotvec, category_set_t & categor
         totstr.back() = '\n';
     }
     Minute_Totals grandtotals(categories);
-    for (const auto & mintot_ptr : mintotvec) {
-        for (const auto & [categorystr, minutes] : mintot_ptr->mintotals) {
+    for (const auto & mintot_ptr : mintotvec) { // each day
+        for (const auto & [categorystr, minutes] : mintot_ptr->mintotals) { // each category
             if (hours) {
                 totstr += to_precision_string(minutes/60.0, 2, ' ', colwidth) + ' ';
             } else {
@@ -726,6 +798,92 @@ std::string totals2str(Minute_Totals_vec_t & mintotvec, category_set_t & categor
         }
     }
     totstr += '\n';   
+    return totstr;
+}
+
+// For a single category, days of data.
+struct DaysByCategory {
+    std::string categorystr;
+    std::vector<size_t> day_minutes;
+    size_t total_minutes;
+    DaysByCategory(const std::string & catstr): total_minutes(0) {
+        categorystr = catstr;
+    }
+};
+typedef std::unique_ptr<DaysByCategory> DaysByCategory_ptr;
+typedef std::map<std::string, DaysByCategory_ptr> DaysByCategory_map_t;
+
+std::string minutes_or_hours_str(size_t minutes, bool hours) {
+    if (hours) {
+        return to_precision_string(minutes/60.0, 2);
+    }
+    return to_precision_string(minutes, 0);
+}
+
+/**
+ * Produces JSON output of the form:
+ * [ { "header": <header>, "days": [<hours>, <hours>, ...], "total": <hours> }, ... ]
+ * or of the form:
+ * { "days": [ { "<header>": <hours>, ...}, ... ], "totals": { "<header>": <hours>, ... } }
+ * 
+ * @param daysbycategory Arrange data by cagegory, showing the minutes per day in each. Otherwise,
+ *                       arrange by day and show the minutes per category in each day.
+ * @param header Include categories header or not. (See how this is used to avoid printing map print codes.)
+ * ...
+ */
+std::string totals2json(Minute_Totals_vec_t & mintotvec, category_set_t & categories, bool daysbycategory = true, bool hours = true) {
+    std::string totstr;
+    if (daysbycategory) {
+        // Prepare map with all categories, empty day data.
+        DaysByCategory_map_t catmap;
+        for (const auto & catstr : categories) {
+            DaysByCategory_ptr category_ptr = std::make_unique<DaysByCategory>(catstr);
+            catmap.emplace(catstr, std::move(category_ptr));
+        }
+        // Parse days to add minutes for each category.
+        for (const auto & mintot_ptr : mintotvec) { // each day
+            for (const auto & [categorystr, minutes] : mintot_ptr->mintotals) { // each category
+                catmap[categorystr]->day_minutes.emplace_back(minutes);
+                catmap[categorystr]->total_minutes += minutes;
+            }
+        }
+        // Produce JSON representation.
+        totstr += "[\n";
+        for (const auto & [categorystr, dbc_ptr] : catmap) {
+            totstr += "\t{ \"header\": \""+categorystr+"\", \"days\": [";
+            unsigned int num_days = dbc_ptr->day_minutes.size();
+            for (unsigned int i = 0; i < num_days; i++) {
+                totstr += minutes_or_hours_str(dbc_ptr->day_minutes[i], hours);
+                if ((i+1)<num_days) {
+                    totstr += ", ";
+                }
+            }
+            totstr += "], \"total\": " + minutes_or_hours_str(dbc_ptr->total_minutes, hours) + " },\n";
+        }
+        totstr[totstr.size()-2] = '\n'; totstr[totstr.size()-1] = ']'; totstr += '\n';
+    } else {
+        // Calculate totals by category.
+        Minute_Totals grandtotals(categories);
+        for (const auto & mintot_ptr : mintotvec) { // each day
+            for (const auto & [categorystr, minutes] : mintot_ptr->mintotals) { // each category
+                grandtotals.mintotals[categorystr] += minutes;
+            }
+        }
+        // Produce JSON representation.
+        totstr += "{\n\t\"days\": [ ";
+        for (const auto & mintot_ptr : mintotvec) { // each day
+            totstr += "{ ";
+            for (const auto & [categorystr, minutes] : mintot_ptr->mintotals) { // each category
+                totstr += '"'+categorystr+"\": "+minutes_or_hours_str(minutes, hours)+", ";
+            }
+            totstr[totstr.size()-2] = '}'; totstr[totstr.size()-1] = ','; totstr += ' ';
+        }
+        totstr[totstr.size()-2] = ']'; totstr[totstr.size()-1] = ','; totstr += "\n\t\"totals\": { ";
+        for (const auto & [categorystr, minutes] : grandtotals.mintotals) {
+            totstr += '"'+categorystr+"\": "+minutes_or_hours_str(minutes, hours)+", ";
+        }
+        totstr[totstr.size()-2] = '}'; totstr[totstr.size()-1] = '\n'; totstr += "}\n";
+    }
     return totstr;
 }
 
@@ -870,7 +1028,7 @@ bool make_map() {
     Log & logref = *(fzlm.edata.log_ptr);
 
     // Map Log interval to Nodes.
-    Minute_Record_Map mrmap(fzlm.graph(), logref);
+    Minute_Record_Map mrmap(fzlm.graph(), logref, fzlm.interpret_open_as_tcurrent);
     VERYVERBOSEOUT("Mapped "+std::to_string(mrmap.minutes())+" minutes to Nodes.\n");
 
     // Map Nodes to Category groups.
@@ -926,7 +1084,11 @@ bool make_map() {
         FZOUT(totals2str(totals, uniquecodes, false));
 
     } else {
-        FZOUT(map2str(mrmap, nccmap, groups));
+        if (fzlm.minute_map) {
+            FZOUT(map2str(mrmap, nccmap, groups));
+        } else {
+            map2str(mrmap, nccmap, groups); // This is caching data.
+        }
         // Get the unique set of categories from the Node Category Cache Map.
         // Note that this set can be smaller than the number of groups if
         // not all were represented by Nodes in the time interval.
@@ -934,7 +1096,11 @@ bool make_map() {
         nccmap.category_set(categories);
         VERYVERBOSEOUT("Mapped Nodes to "+std::to_string(categories.size())+" categories.\n");
         auto totals = map2totals(mrmap, nccmap, groups, categories);
-        FZOUT('\n'+totals2str(totals, categories));
+        if (fzlm.recent_format == most_recent_json) {
+            FZOUT(totals2json(totals, categories, fzlm.by_category));
+        } else {
+            FZOUT('\n'+totals2str(totals, categories));
+        }
     }
 
     return true;

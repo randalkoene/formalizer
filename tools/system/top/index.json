@@ -88,6 +88,10 @@
             "url" : "/cgi-bin/sysmet-extract-cgi.py?categories=work",
             "window" : "_blank"
         },
+        "Main Performance" : {
+            "url" : "/cgi-bin/sysmet-extract-cgi.py?categories=main2023",
+            "window" : "_blank"
+        },
         "Integrity" : {
             "url" : "/integrity.html",
             "window" : "_blank"
@@ -136,6 +140,10 @@
         }
     },
     "System Boards: " : {
+        "Main Performance" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?f=main2023",
+            "window" : "_blank"
+        },
         "Promises" : {
             "url" : "https://trello.com/b/mnu1VKIn",
             "window" : "_blank"

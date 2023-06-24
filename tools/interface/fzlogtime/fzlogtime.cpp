@@ -37,8 +37,8 @@ fzlogtime fzlt;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzlogtime::fzlogtime() : formalizer_standard_program(false), config(*this), flowcontrol(flow_logtime_page), ga(*this, add_option_args, add_usage_top) {
-    add_option_args += "D:neo:C:";
-    add_usage_top += " [-D <date>] [-n] [-e] [-o <output-path>] [-C <skip,wrap>]";
+    add_option_args += "D:neo:C:H:";
+    add_usage_top += " [-D <date>] [-n] [-e] [-o <output-path>] [-C <skip,wrap>] [-H <hours-offset>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("\nNote that CGI calls can be fickle. For this reason, the -C\n"
                            "option enables variants. For example, the 'wrap' option\n"
@@ -58,7 +58,8 @@ void fzlogtime::usage_hook() {
           "    -C CGI mode needs:\n"
           "         wrap: to be wrapped in a shell script\n"
           "         skip: to skip the 'Content-type' header\n"
-          "    -o Rendered output to <output-path> (\"STDOUT\" is default)\n");
+          "    -o Rendered output to <output-path> (\"STDOUT\" is default)\n"
+          "    -H Hours offset (pos/neg integer)\n");
 }
 
 bool parse_cgi_variants(const std::string & cargs) {
@@ -116,6 +117,11 @@ bool fzlogtime::options_hook(char c, std::string cargs) {
         return parse_cgi_variants(cargs);
     }
 
+    case 'H': {
+        hours_offset = atoi(cargs.c_str());
+        return true;
+    }
+
     }
 
     return false;
@@ -128,6 +134,7 @@ const std::map<std::string, char> token_option_map = {
     {"embeddable",'e'},
     {"quiet",'q'},
     {"veryverbose",'V'},
+    {"H", 'H'},
     {"source",'n'} // this assumes that finding the token 'source' means it is set to 'nonlocal'
 };
 

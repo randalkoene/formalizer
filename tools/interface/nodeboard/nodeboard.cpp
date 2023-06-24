@@ -22,52 +22,85 @@
 
 using namespace fz;
 
-struct nodeboard: public formalizer_standard_program {
-    Graph_access ga;
+nodeboard nb;
 
-    nodeboard(): formalizer_standard_program(false), ga(*this, add_option_args, add_usage_top) {
-        //add_option_args += "n:";
-        //add_usage_top += " [-n <Node-ID>]";
+bool random_test() {
+    FZOUT("\nThis is a test. Let's go find the Graph, so that we have some Nodes to work with.\n\n");
+    key_pause();
+
+    FZOUT("\nThe Graph has "+std::to_string(nb.graph().num_Nodes())+" Nodes.\n\n");
+
+    return standard_exit(node_board_render_random_test(nb), "Random test Node board created.\n", exit_general_error, "Unable to map interval.", __func__);
+}
+
+bool named_list() {
+    Named_Node_List_ptr namedlist_ptr = nb.graph().get_List(nb.list_name);
+    if (!namedlist_ptr) {
+        return standard_error("Named Node List "+nb.list_name+" not found.", __func__);
     }
 
-    virtual void usage_hook() {
-        ga.usage_hook();
-    }
+    return standard_exit(node_board_render_named_list(namedlist_ptr, nb), "Named Node List board created.\n", exit_general_error, "Unable to create Named Node List board.", __func__);
+}
 
-    virtual bool options_hook(char c, std::string cargs) {
+// E.g: nodeboard -l "{milestones_formalizer,procrastination,group_sleep}"
+bool list_of_named_lists() {
+    return standard_exit(node_board_render_list_of_named_lists(nb), "Kanban board created.\n", exit_general_error, "Unable to create Kanban board.", __func__);
+}
 
-        if (ga.options_hook(c,cargs))
-            return true;
+// E.g: nodeboard -t "{carboncopies,cc-research,cc-operations}"
+bool list_of_topics() {
+    return standard_exit(node_board_render_list_of_topics(nb), "Kanban board created.\n", exit_general_error, "Unable to create Kanban board.", __func__);
+}
 
-        /*
-        switch (c) {
+// E.g: nodeboard -m "{carboncopies,NNL:milestones_formalizer}"
+bool list_of_topics_and_NNLs() {
+    return standard_exit(node_board_render_list_of_topics_and_NNLs(nb), "Kanban board created.\n", exit_general_error, "Unable to create Kanban board.", __func__);
+}
 
-        }
-        */
-
-       return false;
-    }
-} nb;
+// E.g: nodeboard -f /var/www/webdata/formalizer/categories_main2023.json
+bool sysmet_categories() {
+    return standard_exit(node_board_render_sysmet_categories(nb), "Kanban board created.\n", exit_general_error, "Unable to create Kanban board.", __func__);
+}
 
 int main(int argc, char *argv[]) {
     nb.init(argc,argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 
-    FZOUT("\nThis is a test. Let's go find the Graph, so that we have some Nodes to work with.\n\n");
-    key_pause();
+    switch (nb.flowcontrol) {
 
-    //std::unique_ptr<Graph> graph = nb.ga.request_Graph_copy();
-    Graph * graph = graphmemman.find_Graph_in_shared_memory();
-    if (!graph) {
-        ADDERROR(__func__, "Memory resident Graph not found");
-        FZERR("Memory resident Graph not found.\n");
-        standard.exit(exit_general_error);
-    }
+        case flow_named_list: {
+            named_list();
+            break;
+        }
 
-    FZOUT("\nThe Graph has "+std::to_string(graph->num_Nodes())+" Nodes.\n\n");
+        case flow_random_test: {
+            random_test();
+            break;
+        }
 
-    if (!node_board_render(*graph)) {
-        ADDERROR(__func__,"unable to render node board");
-        standard.exit(exit_general_error);
+        case flow_listof_NNL: {
+            list_of_named_lists();
+            break;
+        }
+
+        case flow_listof_topics: {
+            list_of_topics();
+            break;
+        }
+
+        case flow_listof_mixed: {
+            list_of_topics_and_NNLs();
+            break;
+        }
+
+        case flow_sysmet_categories: {
+            sysmet_categories();
+            break;
+        }
+
+        default: {
+            nb.print_usage();
+        }
+
     }
 
     return standard.completed_ok();

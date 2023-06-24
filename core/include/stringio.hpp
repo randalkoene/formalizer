@@ -21,7 +21,7 @@
 
 namespace fz {
 
-bool string_to_file(std::string path, std::string & s, std::ofstream::iostate * writestate = nullptr);
+bool string_to_file(const std::string path, const std::string & s, std::ofstream::iostate * writestate = nullptr);
 
 bool string_to_file_with_backup(std::string path, std::string & s, std::string backupext, bool & backedup, std::ofstream::iostate * writestate = nullptr);
 

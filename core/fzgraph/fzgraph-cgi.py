@@ -9,6 +9,12 @@
 # the fzedit-cgi.py handler is also currently able to handle new Node specification, and
 # will call fzgraph when the Node ID is "new" or "NEW".
 
+start_CGI_output = '''Content-type:text/html
+'''
+
+# This helps spot errors by printing to the browser.
+print(start_CGI_output)
+
 # Import modules for CGI handling 
 try:
     import cgitb; cgitb.enable()
@@ -101,9 +107,6 @@ form = cgi.FieldStorage()
 
 help = form.getvalue('help')
 id = form.getvalue('id')
-
-start_CGI_output = '''Content-type:text/html
-'''
 
 edit_result_page_head = '''<html>
 <head>
@@ -267,7 +270,7 @@ def get_float_or_None(cgiarg: str):
     return None
 
 def add_node():
-    print(start_CGI_output) # very useful, because CGI errors are printed from here on if they occur
+    #print(start_CGI_output) # very useful, because CGI errors are printed from here on if they occur
 
     text = form.getvalue('text')
 
@@ -385,7 +388,7 @@ def add_node():
 
 
 def add_to_NNL():
-    print(start_CGI_output) # very useful, because CGI errors are printed from here on if they occur
+    #print(start_CGI_output) # very useful, because CGI errors are printed from here on if they occur
 
     add_id = form.getvalue('add')
     namedlist = form.getvalue('namedlist')
@@ -411,17 +414,17 @@ def add_to_NNL():
 
 
 def show_interface_options():
-    print("Content-type:text/html\n\n")
+    #print("Content-type:text/html\n\n")
     print(interface_options_help)
 
 
 def missing_action_request():
-    print("Content-type:text/html\n\n")
+    #print("Content-type:text/html\n\n")
     print(missing_action_request_html)
 
 
 def unrecognized_action_request(action: str):
-    print("Content-type:text/html\n\n")
+    #print("Content-type:text/html\n\n")
     print(unrecognized_action_request_page_head)
     print(f'<p class="fail"><b>Unrecognized Node add action: {action}</b><p>')
     print(edit_fail_page_tail)

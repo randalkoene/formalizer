@@ -29,6 +29,7 @@
 
 using namespace fz;
 
+int hours_offset = 0;
 
 enum template_id_enum {
     logtime_head_temp,
@@ -56,7 +57,11 @@ bool load_templates(fzlogtime_templates & templates) {
 
 void append_rendered_hour(time_t t, std::string & rendered_str) {
     constexpr const time_t five_minutes_in_seconds = 5*60;
-    rendered_str += TimeStamp(" <b>%H:</b>", t); // actually generate this in case of Daylight Savings time change
+    time_t visible_t = t;
+    if (hours_offset != 0) {
+        visible_t += (hours_offset * 60 * 60);
+    }
+    rendered_str += TimeStamp(" <b>%H:</b>", visible_t); // actually generate this in case of Daylight Savings time change
     for (int i = 0; i < 12; i++) {
         if (i > 0)
             rendered_str += ' ';
@@ -95,6 +100,40 @@ std::string cgi_variants_args() {
         return "cgivar=" + cvargs + '&';
     }
     return cvargs;
+}
+
+std::string get_logtime_call_format() {
+    if (fzlt.config.wrap_cgi_script) {
+        if (fzlt.nonlocal) {
+            return "fzlogtime.cgi?source=nonlocal&";
+        } else {
+            return "fzlogtime.cgi?";
+        }
+    }
+
+    return "fzlogtime?";
+}
+
+/**
+ * Generate a list of the last 14 days before the page date as links that
+ * jump to specific previous day fzlogtime pages.
+ * Each of these requires a link much like the previous day link, combining:
+ * "/cgi-bin/{{ fzlogtime_call }}{{ cgi_variants }}D={{ day_Ymd }}"
+ */
+std::string make_recent_days_links_list() {
+    std::string recent_days_links;
+    constexpr const time_t day_in_seconds = 24*60*60;
+    time_t T_day = fzlt.T_page_date;
+    for (int i = 0; i < 14; i++) {
+        T_day -= day_in_seconds;
+        std::string T_day_str = DateStampYmd(T_day);
+        std::string day_link = "/cgi-bin/"+get_logtime_call_format()+cgi_variants_args()+"D="+T_day_str;
+        recent_days_links += "<a href=\""+day_link+"\">"+T_day_str+"</a> ";
+        if (i==5) {
+            recent_days_links += "<br>";
+        }
+    }
+    return recent_days_links;
 }
 
 /**
@@ -154,21 +193,14 @@ bool render_logtime_page() {
         varvals.emplace("prevday", DateStampYmd(fzlt.T_page_date - 1));
         varvals.emplace("T_last_log_chunk", TimeStampYmdHM(fzlt.edata.newest_chunk_t));
         varvals.emplace("T_page_build", TimeStampYmdHM(fzlt.T_page_build));
-        if (fzlt.config.wrap_cgi_script) {
-            if (fzlt.nonlocal) {
-                varvals.emplace("fzlogtime_call", "fzlogtime.cgi?source=nonlocal&");
-            } else {
-                varvals.emplace("fzlogtime_call", "fzlogtime.cgi?");
-            }
-        } else {
-            varvals.emplace("fzlogtime_call", "fzlogtime?");
-        }
-        varvals.emplace("cgi_variants",cgi_variants_args());
+        varvals.emplace("fzlogtime_call", get_logtime_call_format());
+        varvals.emplace("cgi_variants", cgi_variants_args());
         if (fzlt.nonlocal) {
             varvals.emplace("hidden_nonlocal","<input type=\"hidden\" name=\"n\" value=\"on\">");
         } else {
             varvals.emplace("hidden_nonlocal","");
         }
+        varvals.emplace("recent_days", make_recent_days_links_list() );
         rendered_str += env.render(templates[logtime_tail_temp], varvals);
     }
 
