@@ -1,3 +1,6 @@
+20230626
+- Added fzdaily.sh call to fzbackup-mirror-to-github.sh.
+
 20230624
 
 - Updating fzbackup-mirror-to-github.sh script to combine mirroring

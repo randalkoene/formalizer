@@ -23,6 +23,11 @@ cp /var/www/webdata/formalizer/.daywiz_data.json $daywizjsonpath
 echo "Copied DayWiz JSON data to $daywizjsonpath."
 echo ""
 
+fzdaily.sh
+
+echo "Checked conditional running of daily ops to prepare a backup."
+echo ""
+
 cd $HOME/.formalizer
 git add .
 git commit -m "Update for $todaydate."
