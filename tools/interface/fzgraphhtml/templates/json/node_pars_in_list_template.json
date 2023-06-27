@@ -1,0 +1,7 @@
+{
+	"targetdate": "{{ rawtd }}",
+	"tdprop": "{{ tdprop }}",
+	"req_hrs": "{{ req_hrs }}",
+	"topic": "{{ topic }}",
+	"node_id": "{{ node_id }}"
+},

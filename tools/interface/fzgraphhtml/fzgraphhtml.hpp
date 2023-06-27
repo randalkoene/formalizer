@@ -39,6 +39,7 @@ enum output_format {
     output_txt = 1,
     output_node = 2,
     output_desc = 3,
+    output_json = 4,
     output_NUM
 };
 

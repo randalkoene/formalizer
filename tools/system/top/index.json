@@ -140,7 +140,7 @@
         }
     },
     "System Boards: " : {
-        "Main Performance" : {
+        "Main Categories" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?f=main2023",
             "window" : "_blank"
         },

@@ -64,7 +64,8 @@ def extra_cmd_args(T_emulated: str, verbosity = 1) -> str:
     return extra
 
 def get_selected_Node(verbosity = 1) -> str:
-    retcode = try_subprocess_check_output(f"./fzgraphhtml -E STDOUT -W STDOUT -L 'selected' -F node -N 1 -e -q",'selected', verbosity)
+    #retcode = try_subprocess_check_output(f"./fzgraphhtml -E STDOUT -W STDOUT -L 'selected' -F node -N 1 -e -q",'selected', verbosity)
+    retcode = try_subprocess_check_output(f"./fzgraphhtml -E STDOUT -W /dev/null -L 'selected' -F node -N 1 -e -q",'selected', verbosity)
     if (retcode != 0) and (verbosity > 0):
         print(f'Attempt to get selected Node failed.')
         return ''
@@ -80,7 +81,8 @@ def get_selected_Node(verbosity = 1) -> str:
         return ''
 
 def get_selected_Node_HTML(verbosity = 1) -> str:
-    retcode = try_subprocess_check_output(f"./fzgraphhtml -E STDOUT -W STDOUT -L 'selected' -F html -N 1 -e -q",'selected_html', verbosity)
+    #retcode = try_subprocess_check_output(f"./fzgraphhtml -E STDOUT -W STDOUT -L 'selected' -F html -N 1 -e -q",'selected_html', verbosity)
+    retcode = try_subprocess_check_output(f"./fzgraphhtml -E STDOUT -W /dev/null -L 'selected' -F html -N 1 -e -q",'selected_html', verbosity)
     if (retcode != 0) and (verbosity > 0):
         print(f'Attempt to get selected Node data failed.')
         return ''

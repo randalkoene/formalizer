@@ -1,0 +1,7 @@
+{
+	"topic_id": "{{ topic_id }}",
+	"sup_id": "{{ sup_id }}",
+	"tag": "{{ tag }}",
+	"title": "{{ title }}",
+	"keyrel": "{{ keyrel }}"
+}

@@ -72,7 +72,7 @@ void fzgraphhtml::usage_hook() {
           "    -o Rendered output to <output-path> (\"STDOUT\" is default)\n"
           "    -e Embeddable, no head and tail templates\n"
           "    -T Use custom template instead of topics, named, node or single Node\n"
-          "    -F Output format: html (default), txt, node, desc\n"
+          "    -F Output format: html (default), txt, json, node, desc\n"
           "    -u Update 'shortlist' Named Node List\n"
           "    -C (TEST) card output format\n"
           "    -j no Javascript\n");
@@ -126,6 +126,9 @@ output_format parse_output_format(const std::string & parvalue) {
     if (parvalue == "txt") {
         VERYVERBOSEOUT("TEXT output\n");
         return output_txt;
+    } if (parvalue == "json") {
+        VERYVERBOSEOUT("JSON output\n");
+        return output_json;
     } if (parvalue == "node") {
         VERYVERBOSEOUT("NODE output\n");
         return output_node;

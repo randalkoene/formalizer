@@ -78,6 +78,12 @@ bool load_templates(fzgraphhtml_templates & templates) {
                         break;
                     }
 
+                    case output_json: {
+                        format_subdir = "/json/";
+                        format_ext = ".json";
+                        break;
+                    }
+
                     case output_node: {
                         format_subdir = "/node/";
                         format_ext = ".node";
@@ -273,6 +279,7 @@ struct line_render_parameters {
         } else {
             varvals.emplace("targetdate",tdstamp);
         }
+        varvals.emplace("rawtd",tdstamp);
         varvals.emplace("alertstyle",alertstyle);
         float hours_to_show;
         if (fzgh.config.show_still_required) {

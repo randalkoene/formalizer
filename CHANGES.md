@@ -1,5 +1,10 @@
 20230626
 - Added fzdaily.sh call to fzbackup-mirror-to-github.sh.
+- Added JSON output option to fzgraphhtml.
+- Started drafting schedule.py.
+- Switched warnings output from STDOUT to /dev/nulll in fztask-cgi.py
+  to avoid broken Log chunk control pages due to no "rawtd" in
+  HTML templates.
 
 20230624
 

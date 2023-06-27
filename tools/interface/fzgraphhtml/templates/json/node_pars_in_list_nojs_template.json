@@ -1,0 +1,8 @@
+{
+	"targetdate": "{{ targetdate }}",
+	"tdprop": "{{ tdprop }}",
+	"req_hrs": "{{ req_hrs }}",
+	"excerpt": "{{ excerpt }}",
+	"topic": "{{ topic }}",
+	"node_id": "{{ node_id }}"
+}
