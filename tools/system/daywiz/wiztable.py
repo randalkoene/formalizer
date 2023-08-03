@@ -9,13 +9,14 @@
 # full: [ node, weight, id, time.time(), type, hr_ideal_from, hr_ideal_to, description, state, ]
 #       weight is 1 to 5, weights are often given in accordance with discipline challenge or critical importance
 # stored in JSON: [ id, time.time(), state, ]
-# NOTE: Horizontal lines are drawn based on the HRFROM-HRTO grouping.
+# NOTE: Horizontal lines are drawn using the WIZLINE_VISIBLE_TOPBORDER code, demarkating transitions
+#       to items with a different Node link.
 WIZTABLE_LINES=[
 	[ '20060914084328.1', 1, 'coffee', 0, 'checkbox', 6, 9, 'Start timer and make coffee.', '' ],
 	[ '20060914084328.1', 2, 'vitamins', 0, 'checkbox', 6, 9, 'Take vitamins and supplements.', '' ],
 	[ '20060914084328.1', 5, 'log', 0, 'checkbox', 6, 9, 'Update (or catch up) the Log.', '' ], # Log autodetectable.
 	[ '20060914084328.1', 3, 'news', 0, 'checkbox', 6, 9, 'Use <a href="/formalizer/test_maketimer.html" target="_blank">a timer or skip news reading.', '' ],
-	[ '20060914084328.1', 1, 'ritual', 0, 'checkbox', 6, 9, 'Ritual: Have some coffee outside.', '' ],
+	[ '20060914084328.1', 1, 'ritual', 0, 'checkbox', 6, 9, 'Ritual: Meditate or do yoga outside.', '' ],
 	[ '20211017053846.1', 4, 'weight', 0, 'number', 6, 10, 'Measure weight.', '' ],
 	[ '20211017053846.1', 4, 'pushup1', 0, 'checkbox', 6, 10, 'First push-ups (e.g. before/after shower).', '' ],
 	[ '20211017053846.1', 2, 'shower', 0, 'checkbox', 6, 10, 'Have a shower.', '' ],
@@ -23,6 +24,7 @@ WIZTABLE_LINES=[
 	[ '20211017053846.1', 4, 'teeth', 0, 'checkbox', 6, 10, 'Brush teeth.', '' ],
 	[ '20140428114648.1', 2, 'neoprene', 0, 'checkbox', 6, 10, 'Wearing neoprene for fitness training.', '' ],
 	[ '20140428114648.1', 4, 'pushup2', 0, 'checkbox', 6, 10, 'Second push-ups (e.g. during lunch).', '' ],
+	[ '20140921041431.1', 5, 'startedearly', 0, 'checkbox', 6, 10, 'Started early, at least an hour into priority intentions by 10 am.', ''],
 	[ '20081125102516.1', 5, 'emailparsed', 0, 'number', 8, 20, 'Emails parsed.', '' ],
 	[ '20081125102516.1', 5, 'emailurgent', 0, 'checkbox', 8, 20, 'Urgent emails identified.', '' ],
 	[ '20081125102516.1', 5, 'emailresp', 0, 'number', 8, 20, 'Emails responded to.', '' ],
@@ -41,6 +43,8 @@ WIZTABLE_LINES=[
 	[ '20091115180507.1', 5, 'backup', 0, 'checkbox', 20, 24, 'Make sure that Formalizer database backups are mirrored to separate storage (USB drive, mirrored account, cloud storage). E.g., run fzbackup-mirror-to-github.sh.', '' ], # Automatable.
 	[ '20100403134619.1', 4, 'pushup3', 0, 'checkbox', 20, 24, 'Third push-ups (e.g. during dinner).', '' ],
 	[ '20200601093905.1', 5, 'acctcomplete', 0, 'checkbox', 20, 24, 'Accounting of the day completed.', '' ],
+	[ '20230727204001.1', 5, 'lovedbody', 0, 'checkbox', 20, 24, 'Loved my body.', '' ],
+	[ '20230727204001.1', 5, 'lovedmind', 0, 'checkbox', 20, 24, 'Loved my mind.', '' ],
 	[ '20200601093905.1', 3, 'armodafinil', 0, 'number', 21, 24, 'Armodafinil taken (mg).', '' ],
 	[ '20200601093905.1', 3, 'alcohol', 0, 'number', 21, 24, 'Alcohol consumed (ml).', '' ],
 	[ '20200601093905.1', 4, 'daynutri', 0, 'checkbox', 22, 24, 'Finalize day nutrition.', '' ],
