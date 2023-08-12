@@ -34,6 +34,7 @@ showmetricsfile = webdata_path+'/sysmet-extract.html'
 intentionscategoriesfile = "/var/www/webdata/formalizer/categories_a2c.json"
 workcategoriesfile = "/var/www/webdata/formalizer/categories_work.json"
 main2023categoriesfile = "/var/www/webdata/formalizer/categories_main2023.json"
+new2023categoriesfile = "/var/www/webdata/formalizer/categories_new2023.json"
 
 HTML_HEAD='''<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -125,25 +126,25 @@ def show_work_categories():
     thecmd = f"./fzlogmap -D 7 -r -o STDOUT -q -f {workcategoriesfile} | ./aha -b > {showmetricsfile}"
     generate_and_show(thecmd)
 
-def generate_main2023_thisday():
-    thecmd = f"./fzlogmap -D 1 -r -t -o STDOUT -q -f {main2023categoriesfile} | ./aha -n -b > {showmetricsfile}"
+def generate_main2023_thisday(categoriesfile:str):
+    thecmd = f"./fzlogmap -D 1 -r -t -o STDOUT -q -f {categoriesfile} | ./aha -n -b > {showmetricsfile}"
     generate_and_show(thecmd)
 
-def generate_main2023_thisweek():
+def generate_main2023_thisweek(categoriesfile:str):
     from_tstamp = most_recent_Sunday_datestamp()
     to_tstamp = now_timestamp()
-    thecmd = f"./fzlogmap -1 {from_tstamp} -2 {to_tstamp} -t -o STDOUT -q -f {main2023categoriesfile} | ./aha -n -b > {showmetricsfile}"
+    thecmd = f"./fzlogmap -1 {from_tstamp} -2 {to_tstamp} -t -o STDOUT -q -f {categoriesfile} | ./aha -n -b > {showmetricsfile}"
     generate_and_show(thecmd)
 
-def generate_main2023_7days():
-    thecmd = f"./fzlogmap -D 6 -r -t -o STDOUT -q -f {main2023categoriesfile} | ./aha -n -b > {showmetricsfile}"
+def generate_main2023_7days(categoriesfile:str):
+    thecmd = f"./fzlogmap -D 6 -r -t -o STDOUT -q -f {categoriesfile} | ./aha -n -b > {showmetricsfile}"
     generate_and_show(thecmd)
 
-def show_main2023_categories_map():
+def show_main2023_categories_map(categoriesfile:str):
     print(HTML_HEAD)
-    generate_main2023_thisday()
-    generate_main2023_thisweek()
-    generate_main2023_7days()
+    generate_main2023_thisday(categoriesfile)
+    generate_main2023_thisweek(categoriesfile)
+    generate_main2023_7days(categoriesfile)
     print(HTML_TAIL)
 
 MAIN2023_PLOT = '''
@@ -155,13 +156,22 @@ MAIN2023_PLOT = '''
 <td style="width:30%%">%s</td>
 </tr>
 <p>
-<a href="/cgi-bin/sysmet-extract-cgi.py?categories=main2023&showmap=yes">Show map of time usage.</a>
+<a href="/cgi-bin/sysmet-extract-cgi.py?categories=%s&showmap=yes">Show map of time usage.</a>
 </p>
 </table>
 '''
 
-intended_hours_per_week = {
+intended_hours_per_week_main2023 = {
     'Voxa': 40,
+    'CCF': 40,
+    'OtherValues': 20,
+    'Procrastinated': 0,
+    'Sleep': 49,
+    'other': 19,
+}
+
+intended_hours_per_week_new2023 = {
+    'Nextup': 40,
     'CCF': 40,
     'OtherValues': 20,
     'Procrastinated': 0,
@@ -175,7 +185,7 @@ def get_categories_main(json_filepath:str)->list:
         print('<b>Categories JSON not found at '+json_filepath+'.</b>')
         return None
     try:
-        with open(main2023categoriesfile, 'r') as f:
+        with open(json_filepath, 'r') as f:
             categories_dict = load(f)
         return list(categories_dict.keys())
     except Exception as e:
@@ -263,15 +273,15 @@ def line_graph_scores(figtitle:str, scores:list)->str:
     fig.add_hline(y=1.0)
     return pxio.to_html(fig, full_html=False)
 
-def show_main2023_categories():
+def show_main2023_categories(categoriesfile:str, catselect:str, intended_hours_per_week:dict):
     import plotly.express as px
     import plotly.io as pxio
     import pandas as pd
 
-    all_categories = get_categories_main(main2023categoriesfile)
+    all_categories = get_categories_main(categoriesfile)
     intended_hours = hours_in_categories_order(all_categories, intended_hours_per_week)
 
-    thisday_thisday = this_plus_n_days(main2023categoriesfile, n_days=1, use_this_day=True)
+    thisday_thisday = this_plus_n_days(categoriesfile, n_days=1, use_this_day=True)
     thisday_content = bar_plot_actual_and_intended(
         'Today',
         all_categories,
@@ -279,7 +289,7 @@ def show_main2023_categories():
         [x/7.0 for x in intended_hours],
         )
 
-    thisweek_totals = a_week(main2023categoriesfile, n_weeks_ago=0)
+    thisweek_totals = a_week(categoriesfile, n_weeks_ago=0)
     thisweek_content = bar_plot_actual_and_intended(
         'This week (Sunday to Saturday)',
         all_categories,
@@ -287,7 +297,7 @@ def show_main2023_categories():
         intended_hours,
         )
 
-    sevendays_totals = this_plus_n_days(main2023categoriesfile, n_days=6, use_this_day=False)
+    sevendays_totals = this_plus_n_days(categoriesfile, n_days=6, use_this_day=False)
     sevendays_content = bar_plot_actual_and_intended(
         'The last 7 days',
         all_categories,
@@ -297,7 +307,7 @@ def show_main2023_categories():
 
     num_weeks = 26
     scores_content = ''
-    scores_weeks = weeks_scores(main2023categoriesfile, all_categories, intended_hours, n_weeks=num_weeks)
+    scores_weeks = weeks_scores(categoriesfile, all_categories, intended_hours, n_weeks=num_weeks)
     if scores_weeks is not None:
         scores_content = line_graph_scores(
             'Scores for the previous %d weeks' % num_weeks,
@@ -305,7 +315,7 @@ def show_main2023_categories():
             )
 
     print(HTML_HEAD)
-    print(MAIN2023_PLOT % (thisday_content, thisweek_content, sevendays_content, scores_content))
+    print(MAIN2023_PLOT % (thisday_content, thisweek_content, sevendays_content, scores_content, catselect))
     print(HTML_TAIL)
     
 if __name__ == '__main__':
@@ -315,10 +325,18 @@ if __name__ == '__main__':
 
     if (categories == 'main2023'):
         if (showmap == 'yes'):
-            show_main2023_categories_map()
+            show_main2023_categories_map(main2023categoriesfile)
             sys.exit(0)
         else:
-            show_main2023_categories()
+            show_main2023_categories(main2023categoriesfile, 'main2023', intended_hours_per_week_main2023)
+            sys.exit(0)
+
+    if (categories == 'new2023'):
+        if (showmap == 'yes'):
+            show_main2023_categories_map(new2023categoriesfile)
+            sys.exit(0)
+        else:
+            show_main2023_categories(new2023categoriesfile, 'new2023', intended_hours_per_week_new2023)
             sys.exit(0)
 
     show_intentions_categories()

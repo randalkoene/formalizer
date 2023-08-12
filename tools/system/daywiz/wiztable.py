@@ -12,11 +12,11 @@
 # NOTE: Horizontal lines are drawn using the WIZLINE_VISIBLE_TOPBORDER code, demarkating transitions
 #       to items with a different Node link.
 WIZTABLE_LINES=[
+	[ '20060914084328.1', 5, 'log', 0, 'checkbox', 6, 9, 'Update (or catch up) the Log.', '' ], # Log autodetectable.
+	[ '20060914084328.1', 1, 'ritual', 0, 'checkbox', 6, 9, 'Ritual: Meditate or do yoga outside.', '' ],
 	[ '20060914084328.1', 1, 'coffee', 0, 'checkbox', 6, 9, 'Start timer and make coffee.', '' ],
 	[ '20060914084328.1', 2, 'vitamins', 0, 'checkbox', 6, 9, 'Take vitamins and supplements.', '' ],
-	[ '20060914084328.1', 5, 'log', 0, 'checkbox', 6, 9, 'Update (or catch up) the Log.', '' ], # Log autodetectable.
 	[ '20060914084328.1', 3, 'news', 0, 'checkbox', 6, 9, 'Use <a href="/formalizer/test_maketimer.html" target="_blank">a timer or skip news reading.', '' ],
-	[ '20060914084328.1', 1, 'ritual', 0, 'checkbox', 6, 9, 'Ritual: Meditate or do yoga outside.', '' ],
 	[ '20211017053846.1', 4, 'weight', 0, 'number', 6, 10, 'Measure weight.', '' ],
 	[ '20211017053846.1', 4, 'pushup1', 0, 'checkbox', 6, 10, 'First push-ups (e.g. before/after shower).', '' ],
 	[ '20211017053846.1', 2, 'shower', 0, 'checkbox', 6, 10, 'Have a shower.', '' ],

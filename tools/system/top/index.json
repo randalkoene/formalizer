@@ -88,8 +88,8 @@
             "url" : "/cgi-bin/sysmet-extract-cgi.py?categories=work",
             "window" : "_blank"
         },
-        "Main Performance" : {
-            "url" : "/cgi-bin/sysmet-extract-cgi.py?categories=main2023",
+        "New Main Performance" : {
+            "url" : "/cgi-bin/sysmet-extract-cgi.py?categories=new2023",
             "window" : "_blank"
         },
         "Integrity" : {

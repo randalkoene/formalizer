@@ -203,6 +203,7 @@ SYMDATA =
 SYMDATA += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_a2c.json
 SYMDATA += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_work.json
 SYMDATA += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_main2023.json
+SYMDATA += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_new2023.json
 
 # CGI scripts for machine-local use with w3m, which can launch programs as the user
 LOCALCGI =

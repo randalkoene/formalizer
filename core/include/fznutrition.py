@@ -138,6 +138,10 @@ nutrition = {
 	'white chocolate': [ 160, 'oz', ],
 	'tiramisu': [ 572, 'serving', ],
 	'spinach ravioli': [ 220, '10 pieces', ],
+	'beer': [ 154, '1 can', ],
+	'grapefruit': [ 52, '1 fruit', ],
+	'baked beans': [ 392, 'cup', ],
+	'ice cream': [ 410, 'pint', ],
 }
 
 lowcal_filling_nutritious = [
@@ -174,6 +178,7 @@ fruit = [
 	'apple sauce',
 	'canned peaches',
 	'cranberry sauce',
+	'grapefruit',
 ]
 
 vegetables = [
@@ -206,6 +211,7 @@ meals = [
 	'quiche',
 	'lasagna',
 	'spinach ravioli',
+	'baked beans',
 ]
 
 drinks = [
@@ -217,6 +223,7 @@ drinks = [
 	'whiskey',
 	'vodka',
 	'jagermeister',
+	'beer',
 ]
 
 nutrition_groups = {
