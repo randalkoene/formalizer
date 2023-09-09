@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<HTML>
+
+<HEAD>
+<meta charset="utf-8" />
+<noscript><meta http-equiv="refresh" content="0; url=/integrity-static.html" /></noscript>
+<link rel="icon" href="/favicon-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<style>
+    #clock {
+        position: fixed;
+        top: 0px;
+        right: 0px;
+        margin: 20px auto;
+        padding: 0;
+        background: #999;
+        text-align: center;
+        line-height: 40px;
+        color: #000;
+        font-size: 34px;
+        font-family: calibri;
+    }
+    #duplicate {
+        position: fixed;
+        top: 70px;
+        right: 0px;
+    }
+    #classical {
+        position: fixed;
+        bottom: 0px;
+        right: 0px;
+    }
+    #EBM {
+        position: fixed;
+        bottom: 50px;
+        right: 0px;
+    }
+    #industrial {
+        position: fixed;
+        bottom: 100px;
+        right: 0px;
+    }
+    #meditative {
+        position: fixed;
+        bottom: 150px;
+        right: 0px;
+    }
+</style>
+<TITLE>Formalizer Environment v2.0a - Locations</TITLE>
+</HEAD>
+<BODY onload="javascript:clockStart()">
+<H1>Formalizer Environment v2.0a - Locations</H1>
+
+<!-- <p id="clock"></p> -->
+<button id="clock" class="button button2">_____</button>
+
+This table is meant to simplify finding things. These can be digital or real-life things.
+To edit this table, open the file ~/src/formalizer/tools/system/top/locations.html, edit it and then run 'make executables' from the ~/src/formalizer directory.
+
+<table class="blueTable">
+<tbody>
+<tr>
+<td><a class="nnl" href="translate-link">ExtremeSSD/videos-from-phone-20230828</a></td>
+<td>Copies of videos taken on my phone between 2021-08-14 and 2023-08-28.</td>
+</tr>
+<tr>
+<td><a class="nnl" href="translate-link">ExtremeSSD/photos-from-phone-20230828</a></td>
+<td>Copies of photos taken on my phone between 2021-08-14 and 2023-08-28.</td>
+</tr>
+</tbody>
+</table>
+
+<br>
+Action: <button class="button button1" onclick="light_or_dark();">Light / Dark</button>
+<br>
+<button class="button button2" onclick="location.href='/index.html';">fz: Top</button>
+<br>
+
+<hr>
+
+
+<!-- clock script adapted from https://codepen.io/kase/pen/LxNzWj -->
+<script type="text/javascript">
+function updateClock() {
+    var currentTime = new Date();
+    // Operating System Clock Hours for 24h clock
+    var currentHours = currentTime.getHours();
+    // Operating System Clock Minutes
+    var currentMinutes = currentTime.getMinutes();
+    // Operating System Clock Seconds
+    //var currentSeconds = currentTime.getSeconds();
+    // Adding 0 if Minutes & Seconds is More or Less than 10
+    currentMinutes = (currentMinutes < 10 ? "0" : "") + currentMinutes;
+    //currentSeconds = (currentSeconds < 10 ? "0" : "") + currentSeconds;
+    // display first 24h clock and after line break 12h version
+    var currentTimeString = currentHours + ":" + currentMinutes; // + ":" + currentSeconds;
+    // print clock js in div #clock.
+    document.getElementById("clock").innerHTML = currentTimeString;
+    //var t = setTimeout(function(){ updateClock() }, 1000); /* setting timer */ // this actually blows up the stack!
+}
+// let's skip using jQuery $(document).ready(function () { setInterval(updateClock, 1000); } );
+//updateClock(); // initiate the process
+function clockStart() {
+    updateClock();
+    var idval = setInterval(updateClock, 60000); // update each minute, since we're not showing seconds here
+}
+var lightdark = 0;
+function light_or_dark() {
+    if (lightdark > 0) {
+        //document.body.style.background = "#ffffff";
+        document.body.removeAttribute('data-theme');
+    } else {
+        //document.body.style.background = "#7f7f7f";
+        document.body.setAttribute('data-theme', 'dark');
+    }
+    lightdark = 1 - lightdark;
+}
+</script>
+</BODY>
+
+</HTML>
