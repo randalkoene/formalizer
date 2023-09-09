@@ -10,6 +10,13 @@ import os
 import datetime
 from json import loads
 import numpy as np
+from subprocess import Popen, PIPE
+
+# *** THESE SHOULD BE SET BY SETUP CONFIGURATION
+# *** Perhaps read the following from ~/.formalizer/webdata_path
+webdata_path = "/var/www/webdata/formalizer"
+webschedulefile = webdata_path+'/fzschedule.html'
+defaultschedulefile = '/dev/shm/fzschedule.html'
 
 thisdatetime = datetime.datetime.now()
 thisdate=thisdatetime.strftime('%Y%m%d')
@@ -18,14 +25,50 @@ thisminute=thisdatetime.minute
 thisminutes=60*thishour + thisminute
 thisday_datetime = datetime.datetime.strptime(thisdate, '%Y%m%d')
 
+# We need this so that permissions of a /dev/shm/fzschedule*.json file
+# that happens to exist do not obstruct this run.
+#timestamp=thisdatetime.strftime('%Y%m%d%H%M%S')
+#shm_fzschedule='/dev/shm/fzschedule-%s.json' % timestamp
+#shm_fznodedesc='/dev/shm/fznode_desc-%s.json' % timestamp
+
 tdprop_by_node = {}
+
+def try_command_call(thecmd, printhere = True)->tuple:
+    try:
+        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,stderr=PIPE,close_fds=True, universal_newlines=True)
+        (child_stdin,child_stdout,child_stderr) = (p.stdin, p.stdout, p.stderr)
+        child_stdin.close()
+        result = child_stdout.read()
+        child_stdout.close()
+        error = child_stderr.read()
+        child_stderr.close()
+        if printhere:
+            print(result)
+            print(error)
+            return ('','')
+        else:
+            return (result, error)
+
+    except Exception as ex:                
+        print(ex)
+        f = StringIO()
+        print_exc(file=f)
+        a = f.getvalue().splitlines()
+        for line in a:
+            print(line)
+        return ('','')
 
 def get_schedule_data(options:dict)->dict:
 
-    os.system('fzgraphhtml -I -r -o /dev/shm/fzschedule.json -E STDOUT -D %d -F json -q -e' % options['num_days'])
+    print('Fetching Schedule data for %d days.' % options['num_days'])
 
-    with open('/dev/shm/fzschedule.json','r') as f:
-        schedjsontxt = f.read()
+    if options['web']: thecmd = './'
+    else: thecmd = ''
+    thecmd += 'fzgraphhtml -I -r -o STDOUT -E STDOUT -N all -D %d -F json -q -e' % options['num_days']
+    schedjsontxt, schederr = try_command_call(thecmd, printhere=False)
+
+    if schederr != '':
+        print(schederr)
 
     schedjsontxt = '[\n'+schedjsontxt[:-2]+'\n]'
 
@@ -34,11 +77,24 @@ def get_schedule_data(options:dict)->dict:
     #print(str(scheduledata))
     return scheduledata
 
-def get_node_description(node_id:str)->str:
-    os.system('fzgraphhtml -n %s -o /dev/shm/fznode_desc.json -E STDOUT -F desc -q' % node_id)
-    with open('/dev/shm/fznode_desc.json','r') as f:
-        node_desc = f.read()
-    return node_desc[0:60]
+def get_node_description(node_id:str, options:dict)->str:
+    if options['web']: thecmd = './'
+    else: thecmd = ''
+    thecmd += 'fzgraphhtml -n %s -o STDOUT -E STDOUT -F desc -x 100 -q' % node_id
+    node_desc, node_err = try_command_call(thecmd, printhere=False)
+    if node_err != '':
+        print(node_err)
+    return node_desc
+
+def remove_file(path:str):
+    try:
+        os.remove(path)
+    except Exception as e:
+        print('File clean-up exception: '+str(e))
+
+#def clean_up_temporary_files():
+#    remove_file(shm_fzschedule)
+#    remove_file(shm_fznodedesc)
 
 def convert_to_data_by_day(scheduledata:dict)->dict:
 
@@ -163,14 +219,12 @@ def map_variable_target_date_entries(days:dict, daysmap:np.ndarray, start_at=0)-
     print('Minutes consumed by variable target date Nodes: %d' % variable_consumed)
     return daysmap, variable_consumed
 
-def get_and_map_more_variable_target_date_entries(days:dict, daysmap:np.ndarray, remaining_minutes:int)->tuple:
+def get_and_map_more_variable_target_date_entries(days:dict, daysmap:np.ndarray, remaining_minutes:int, options:dict)->tuple:
     num_mapped_days = len(days)
     num_days = 15
     while True:
         print('Getting more variable target date Nodes in %d days.' % num_days)
-        options = {
-            "num_days": num_days,
-        }
+        options["num_days"] = num_days
         more_schedule_data = get_schedule_data(options)
         more_days = convert_to_data_by_day(more_schedule_data)
         more_day_dates = list(more_days.keys())
@@ -182,10 +236,12 @@ def get_and_map_more_variable_target_date_entries(days:dict, daysmap:np.ndarray,
                     num_minutes = int(float(entry['req_hrs'])*60.0)
                     more_minutes += num_minutes
                     if more_minutes >= remaining_minutes:
+                        print('Additional variable target date Node minutes found: %d' % more_minutes)
                         return map_variable_target_date_entries(more_days, daysmap, start_at=len(days))
         num_days += 15
         if num_days > 150:
             print('WARNING: Unable to fill all remaining minutes with variable target date Nodes within 150 days.')
+            print('Additional variable target date Node minutes found: %d' % more_minutes)
             return map_variable_target_date_entries(more_days, daysmap, start_at=len(days))
 
 def get_interval(start_minute:int, end_minute:int, days:dict)->tuple:
@@ -195,62 +251,111 @@ def get_interval(start_minute:int, end_minute:int, days:dict)->tuple:
     end_time = thisday_datetime + end_delta
     return start_time, end_time, (end_minute-start_minute)
 
-def print_entry(start_minute:int, end_minute:int, days:dict, node_id:str):
+def print_entry(start_minute:int, end_minute:int, days:dict, node_id:str, options:dict):
     interval_start, interval_end, interval_minutes = get_interval(start_minute, end_minute, days)
-    node_desc = get_node_description(node_id).replace('\n',' ')
-    print('%s - %s (%s mins): [%s, %s] %s' % (interval_start.strftime('%x %X'), interval_end.strftime('%x %X'), str(interval_minutes), node_id, tdprop_by_node[float(node_id)], node_desc))
+    node_desc = get_node_description(node_id, options).replace('\n',' ')
+    print('%s - %s (%s mins): [%s, %s] %s' % (interval_start.strftime('%x %H:%M'), interval_end.strftime('%x %H:%M'), str(interval_minutes), node_id, tdprop_by_node[float(node_id)], node_desc))
 
-def print_map(daysmap:np.ndarray, passed_minutes:int, days:dict):
+def print_map(daysmap:np.ndarray, passed_minutes:int, days:dict, options:dict):
     node_id = 0
     start_minute = 0
     for minute in range(passed_minutes, len(daysmap)):
         if daysmap[minute] != node_id:
             if node_id != 0:
-                print_entry(start_minute, minute, days, node_id)
+                print_entry(start_minute, minute, days, node_id, options)
             node_id = daysmap[minute]
             start_minute = minute
     print_entry(start_minute, len(daysmap), days, node_id)
 
-ENTRY_HTML_TEMPLATE = '''<tr><td>%s</td><td>%d mins</td><td>%s</td><td>%s</td><td>%s</td></tr>
+DAY_QUARTER_COLOR = {
+    0: '000000',
+    1: '007f00',
+    2: '0000ff',
+    3: 'ff00ff',
+}
+
+ENTRY_HTML_TEMPLATE = '''<tr>
+<td style="color:#%s;">%s</td><td>%s%d mins</td>
+<td><a class="nnl" href="http://127.0.0.1:8090/fz/graph/namedlists/_select?id=%s">[select]</a></td>
+<td class="id_cell" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=%s','_blank');">%s</td>
+<td>%s</td><td><a class="node" href="/cgi-bin/fzlink.py?id=%s">%s</a></td></tr>
 '''
 
 MAP_HTML_TEMPLATE = '''<html>
 <head>
-<title>Formalizer Calendar Schedule</title>
+<link rel="icon" href="/favicon-nodes-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fz-cards.css">
+<link rel="stylesheet" href="/bluetable.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>Formalizer: Proposed Schedule</title>
 </head>
 <body>
-<table>
+<h2>Formalizer: Proposed Schedule</h2>
+<button id="darkmode" class="button button2" onclick="switch_light_or_dark();">Light / Dark</button>
+<table class="blueTable">
+<tbody>
 %s
+</tbody>
 </table>
+<hr>
+<p>[<a href="/index.html">fz: Top</a>]</p>
+
+<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
 
-def print_entry_html(start_minute:int, end_minute:int, days:dict, node_id:float)->str:
+def print_entry_html(start_minute:int, end_minute:int, days:dict, node_id:float, options:dict)->str:
     interval_start, interval_end, interval_minutes = get_interval(start_minute, end_minute, days)
-    node_desc = get_node_description(node_id).replace('\n',' ')
-    return ENTRY_HTML_TEMPLATE % (interval_start.strftime('%x %X'), interval_minutes, node_id, tdprop_by_node[float(node_id)], node_desc)
+    interval_hrs = interval_minutes // 60
+    if interval_hrs<1: interval_hrs_str = ''
+    elif interval_hrs==1: interval_hrs_str = '%d hr ' % interval_hrs
+    else: interval_hrs_str = '%d hrs ' % interval_hrs
+    interval_mins = interval_minutes % 60
+    dayquarter = interval_start.hour // 6
+    node_desc = get_node_description(node_id, options).replace('\n',' ')
+    return ENTRY_HTML_TEMPLATE % (
+        DAY_QUARTER_COLOR[dayquarter],
+        interval_start.strftime('%x %H:%M'),
+        interval_hrs_str,
+        interval_mins,
+        node_id,
+        node_id,
+        node_id,
+        tdprop_by_node[float(node_id)],
+        node_id,
+        node_desc)
 
-def print_map_html(daysmap:np.ndarray, passed_minutes:int, days:dict):
+def print_map_html(daysmap:np.ndarray, passed_minutes:int, days:dict, options:dict):
     node_id = 0
     start_minute = 0
     rows = ''
     for minute in range(passed_minutes, len(daysmap)):
         if daysmap[minute] != node_id:
             if node_id != 0:
-                rows += print_entry_html(start_minute, minute, days, node_id)
+                rows += print_entry_html(start_minute, minute, days, node_id, options)
             node_id = daysmap[minute]
             start_minute = minute
-    rows += print_entry_html(start_minute, len(daysmap), days, node_id)
+    rows += print_entry_html(start_minute, len(daysmap), days, node_id, options)
     map_html = MAP_HTML_TEMPLATE % rows
-    with open('/var/www/html/fzcalsched.html','w') as f:
-        f.write(map_html)
+    try:
+        print('Writing days map to %s.' % options['outfile'])
+        with open(options['outfile'],'w') as f:
+            f.write(map_html)
+        print('Days map written to %s.' % options['outfile'])
+    except Exception as e:
+        print('Unable to write days map to file. Exception: '+str(e))
 
 HELP='''
 schedule.py -d <num_days>
 
 Options:
   -d    Number of days to schedule (default: 1).
+  -w    Output to web schedule file.
+
+The resulting schedule is written to %s if -w, otherwise
+to %s.
 
 '''
 
@@ -258,19 +363,26 @@ def parse_command_line()->dict:
     from sys import argv
 
     num_days = 1
+    outfile = defaultschedulefile
+    web = False
 
     cmdline = argv.copy()
     scriptpath = cmdline.pop(0)
     while len(cmdline) > 0:
         arg = cmdline.pop(0)
         if arg == '-h':
-            print(HELP)
+            print(HELP % (webschedulefile, defaultschedulefile))
             exit(0)
         elif arg== '-d':
             num_days = int(cmdline.pop(0))
+        elif arg== '-w':
+            outfile = webschedulefile
+            web = True
 
     return {
         "num_days": num_days,
+        "outfile": outfile,
+        "web": web,
     }
 
 STRATEGY_1='''
@@ -290,8 +402,6 @@ Strategy 1:
 
 Problems / to fix:
 - Inherited target date Nodes are not properly dealt with.
-- Variable target date Nodes are not found on later days as needed.
-  (Probably keep finding more until all minutes are used up.)
 '''
 
 STRATEGY_DESCRIPTION={
@@ -313,5 +423,7 @@ if __name__ == '__main__':
     daysmap, variable_consumed = map_variable_target_date_entries(days, daysmap)
     remaining_minutes = total_minutes - exact_consumed - fixed_consumed - variable_consumed - passed_minutes
     print('Remaining minutes to fill with variable target date entries: %d' % remaining_minutes)
-    daysmap, more_variable_consumed = get_and_map_more_variable_target_date_entries(days, daysmap, remaining_minutes)
-    print_map_html(daysmap, passed_minutes, days)
+    if remaining_minutes > 0:
+        daysmap, more_variable_consumed = get_and_map_more_variable_target_date_entries(days, daysmap, remaining_minutes, options)
+    print_map_html(daysmap, passed_minutes, days, options)
+    #clean_up_temporary_files()

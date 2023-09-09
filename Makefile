@@ -164,6 +164,7 @@ SYMBIN += $(TOOLSPATH)/interface/fzlogmap/fzlogmap
 SYMBIN += $(TOOLSPATH)/interface/fzlogtime/fzlogtime
 SYMBIN += $(TOOLSPATH)/interface/fzserver-info/fzserver-info
 SYMBIN += $(TOOLSPATH)/interface/nodeboard/nodeboard
+SYMBIN += $(TOOLSPATH)/system/schedule/schedule.py
 #SYMBIN += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_a2c.json
 #SYMBIN += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_main2023.json
 SYMBIN += $(COREPATH)/fzguide.system/fzguide.system
@@ -197,6 +198,7 @@ CGIEXE += $(TOOLSPATH)/system/daywiz/consumed.py
 CGIEXE += $(TOOLSPATH)/system/earlywiz/earlywiz.py
 CGIEXE += $(TOOLSPATH)/system/metrics/sysmet-extract/sysmet-extract-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/nodeboard/nodeboard-cgi.py
+CGIEXE += $(TOOLSPATH)/system/schedule/schedule-cgi.py
 
 # Data files that need to be symlinked into the WEBDATADIR directory
 SYMDATA = 
@@ -252,6 +254,7 @@ TOPLEVEL += $(TOOLSPATH)/system/top/granular-controls.html
 TOPLEVEL += $(TOOLSPATH)/system/top/select.html
 TOPLEVEL += $(TOOLSPATH)/system/top/integrity.html
 TOPLEVEL += $(TOOLSPATH)/system/top/integrity-static.html
+TOPLEVEL += $(TOOLSPATH)/system/top/locations.html
 TOPLEVEL += $(TOOLSPATH)/interface/fzuistate/fzuistate.css
 TOPLEVEL += $(TOOLSPATH)/interface/fzuistate/fzuistate.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/clock.css

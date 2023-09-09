@@ -49,7 +49,12 @@ fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) {
         "   delimited list of Topics to associate the new Node with.\n"
         "3. When a custom template path starts with 'STRING:' then it is\n"
         "   interpreted to mean that the custom template is given in the\n"
-        "   argument string instead of in a file.\n");
+        "   argument string instead of in a file.\n"
+        "4. Without -x, -n output generates embeddable HTML descriptions.\n"
+        "   With -x, -n output removes HTML tags in the excerpt.\n"
+        "5. The number of elements limit (-N) overrides the limits set\n"
+        "   by -D and -M. To ensure that -D or -M can reach their limit\n"
+        "   set '-N all'.\n");
 }
 
 /**
@@ -65,9 +70,9 @@ void fzgraphhtml::usage_hook() {
           "    -L Show data for Nodes in Named Node List, or show Names if '?'\n"
           "    -t Show data for Nodes with Topic, or show Topics if '?'\n"
           "    -i Include 'add-to-node' for <node-id>\n"
-          "    -N Show data for <num> elements (all=no limit)\n"
-          "    -M Show data up to and including <max-YYYYmmddHHMM>\n"
-          "    -D Show data for <num-days> days\n"
+          "    -N Show data for <num> elements (all=no limit), see note 5.\n"
+          "    -M Show data up to and including <max-YYYYmmddHHMM>, see note 5.\n"
+          "    -D Show data for <num-days> days, see note 5.\n"
           "    -x Excerpt length <len>\n"
           "    -o Rendered output to <output-path> (\"STDOUT\" is default)\n"
           "    -e Embeddable, no head and tail templates\n"
@@ -222,6 +227,7 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
 
     case 'x': {
         config.excerpt_length = atoi(cargs.c_str());
+        config.excerpt_requested = true;
         return true;
     }
 

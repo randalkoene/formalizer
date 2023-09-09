@@ -182,10 +182,6 @@
         }
     },
     "Current Tracks: " : {
-        "VOXA" : {
-            "url" : "https://trello.com/b/nyrFIMyd",
-            "window" : "_blank"
-        },
         "CARBONCOPIES" : {
             "url" : "https://trello.com/b/ABTA2xEA",
             "window" : "_blank"
@@ -222,6 +218,10 @@
         },
         "Ongoing Opportunities Search" : {
             "url" : "https://trello.com/b/asCOUeKD",
+            "window" : "_blank"
+        },
+        "Locations" : {
+            "url" : "/locations.html",
             "window" : "_blank"
         }
     },

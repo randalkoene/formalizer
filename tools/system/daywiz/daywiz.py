@@ -55,6 +55,17 @@ data_tables = {
     'exercise': 'exerc',
     'accounts': 'acct',
     'milestones': 'mile',
+    'comms': 'comms',
+}
+
+bool_to_checked = {
+    0: '',
+    1: 'checked',
+}
+
+truefalse_to_bool = {
+    'true': 1,
+    'false': 0,
 }
 
 global last_line_node
@@ -99,10 +110,23 @@ def gothere(mark: str):
 
 # TODO: *** Remove this when no longer needed.
 class debug_test:
-    def __init__(self):
+    def __init__(self, directives: dict, formfields: cgi.FieldStorage):
         from os import getcwd
         #self.current_dir = getcwd()
+        self.directives = directives
+        self.form_input = self.get_form_input(formfields)
         self.print_this = ''
+
+    def get_form_input(self, formfields: cgi.FieldStorage):
+        form_input = {}
+        for input_key in formfields.keys():
+            form_input[input_key] = formfields.getvalue(input_key) # *** Safer to use getlist().
+        return form_input
+
+    def generate_html_head(self) ->str:
+        head_str = '<!-- Input Directives: %s -->\n' % str(self.directives)
+        head_str += '<!-- Form input: %s -->\n' % str(self.form_input)
+        return head_str
 
     def generate_html_body(self) ->str:
         return self.print_this
@@ -153,6 +177,7 @@ WIZLINE_VISIBLE_TOPBORDER='style="border-top: 1px solid black;"'
 WIZLINE_RECOMMENDED_FRAME='%s - %s'
 WIZLINE_CHECKBOX_FRAME='<input id="%s" type="checkbox" %s %s>'
 WIZLINE_NUMBER_FRAME='<input id="%s" type="text" value="%s" style="width: 8em;" %s>'
+WIZLINE_TEXT_FRAME='<input id="%s" type="text" value="%s" %s>'
 
 NUTRI_ACCOUNTS_TABLES_FRAME='''<table>
 <tr>
@@ -185,6 +210,12 @@ NUTRI_ACCOUNTS_TABLES_FRAME='''<table>
 <tr>
 <td>%s</td>
 </tr>
+<tr>
+<th>Communications</th>
+</tr>
+<tr>
+<td>%s</td>
+</tr>
 </table>
 '''
 
@@ -213,7 +244,26 @@ ACCOUNTED_TR_FRAME='''<tr><td>%s</td><td><input id="%s" type="text" value="%s" %
 ACCOUNTENTRY_TR_FRAME='''<tr><td><input type="time" id="acct_add_time" value="%s" %s></td><td><input id="acct_add_name" type="text" %s></td><td><input id="acct_add_spent" type="number" style="width: 8em;" %s></td><td><input id="acct_add_received" type="number" style="width: 8em;" %s></td><td><input id="acct_add_category" type="text" %s></td>
 '''
 
+COMMS_TABLE_HEAD='<table>\n<tr><th>approx. time</th><th>contact name</th><th>done</th><th>note</th></tr>\n'
+COMMS_TR_FRAME='''<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td>
+'''
+COMMSENTRY_TR_FRAME='''<tr><td><input type="time" id="comms_add_time" value="%s" %s></td><td><input id="comms_add_name" type="text" %s></td><td><input id="comms_add_done" type="checkbox" %s></td><td><input id="comms_add_note" type="text" %s></td>
+'''
+
 # ====================== Helpful standardized functions:
+
+def state_html(idstr: str, intype: str, state) ->str:
+    if intype == 'checkbox':
+        # Expects that state is int 0 or 1.
+        return WIZLINE_CHECKBOX_FRAME % ( idstr, bool_to_checked[int(state)], SUBMIT_ON_CHANGE )
+    elif intype == 'number':
+        # Expects that state is float or int.
+        return WIZLINE_NUMBER_FRAME % ( idstr, str(state), SUBMIT_ON_INPUT )
+    elif intype == 'text':
+        # Expects that state is str.
+        return WIZLINE_TEXT_FRAME % ( idstr, str(state), SUBMIT_ON_INPUT )
+    else:
+        return ''
 
 def datetime2datestr(day: datetime) ->str:
     return day.strftime('%Y.%m.%d')
@@ -283,6 +333,8 @@ class wiztable_line:
     def weight(self)->float:
         return self._weight
 
+    # === Produce HTML:
+
     def id_str(self, pre='') ->str:
         return pre+self._id
         #return pre+str(self._idx)
@@ -335,9 +387,13 @@ class wiztable_line:
         return WIZLINE_FRAME % ( self.recommended_str(), self.time_html(), top_border, str(self._weight), self._nodelink, self._description, self.state_str(), self.extra_str() )
         #return WIZLINE_FRAME % ( self.recommended_str(), self.id_str('wiz_t_'), self.time_str(), SUBMIT_ON_INPUT, self._description, self.state_str(), self.extra_str() )
 
+    # === Produce data dictionary:
+
     def get_data(self) ->list:
         t = 0 if self._t is None else datetime.timestamp(self._t)
         return [ self._id, t, self._state, ]
+
+    # === Member functions for data updates:
 
     def update_time(self, t_new: str) ->bool:
         t_list = t_new.split(':')
@@ -367,6 +423,7 @@ class wiztable_line:
             return self.update_time(datetime.now().strftime('%H:%M'))
         return True
 
+# Left side checklist objects.
 class daypage_wiztable:
     def __init__(self, day: datetime, day_data: dict, is_new: bool):
         self.day = day
@@ -381,6 +438,22 @@ class daypage_wiztable:
         self.number_metrics = [0, 0 ]    # Number of number inputs in table, number of filled number inputs.
         self.score = 0.0
         self.score_possible = 0.0
+
+    def merge_data(self, day_data: list):
+        for wizline in day_data:
+            _id = wizline[0]
+            if _id in self.lines_indices:
+                idx = self.lines_indices[_id]
+                self.lines_list[idx][WIZTABLE_LINES_TIME] = wizline[1]
+                self.lines_list[idx][WIZTABLE_LINES_STATE] = wizline[2]
+
+    def make_wiztable_index(self) ->dict:
+        wiztable_dict = {}
+        for i in range(len(self.lines_list)):
+            wiztable_dict[self.lines_list[i][WIZTABLE_LINES_ITEM]] = i
+        return wiztable_dict
+
+    # === Produce HTML:
 
     def add_to_checkbox_metrics(self, chkmetrics_pair: list, weight: float):
         self.checkbox_metrics[0] += chkmetrics_pair[0]
@@ -408,22 +481,12 @@ class daypage_wiztable:
         table_str += WIZTABLE_SUMMARY % ( str(int(self.score)), str(int(self.score_possible)), str(self.checkbox_metrics[1]+self.number_metrics[1]), str(self.checkbox_metrics[0]+self.number_metrics[0]) )
         return table_str + '</table>\n'
 
-    def make_wiztable_index(self) ->dict:
-        wiztable_dict = {}
-        for i in range(len(self.lines_list)):
-            wiztable_dict[self.lines_list[i][WIZTABLE_LINES_ITEM]] = i
-        return wiztable_dict
-
-    def merge_data(self, day_data: list):
-        for wizline in day_data:
-            _id = wizline[0]
-            if _id in self.lines_indices:
-                idx = self.lines_indices[_id]
-                self.lines_list[idx][WIZTABLE_LINES_TIME] = wizline[1]
-                self.lines_list[idx][WIZTABLE_LINES_STATE] = wizline[2]
+    # === Produce data dictionary:
 
     def get_data(self) ->list:
         return [ self.lines[i].get_data() for i in range(len(self.lines)) ]
+
+    # === Member functions for data updates:
 
     def update(self, element: str, line_id: str, new_val: str) ->bool:
         if line_id in self.lines_indices:
@@ -448,6 +511,8 @@ class daypage_milestones:
             if 'milestones' in self.day_data:
                 self.in_rotation = self.day_data['milestones']
 
+    # === Produce HTML:
+
     def milestone_html(self, milestone_data: list, idx: int) ->str:
         node_id, description, pattern_pct = milestone_data
         return MILESTONE_CELL_TEMPLATE % ( str(node_id), str(description), str(pattern_pct) )
@@ -457,6 +522,8 @@ class daypage_milestones:
         for i in range(len(self.in_rotation)):
             table_str += self.milestone_html(self.in_rotation[i], i)
         return table_str + '</tr>\n</table>\n'
+
+    # === Produce data dictionary:
 
     def get_data(self) ->list:
         return self.in_rotation
@@ -471,6 +538,8 @@ class daypage_nutritable:
             if 'nutrition' in self.day_data:
                 self.logged = self.day_data['nutrition']
         self.calories = 0
+
+    # === Produce HTML:
 
     def time_tuple(self, idx: int) ->tuple:
         t = self.logged[idx][0]
@@ -508,8 +577,12 @@ class daypage_nutritable:
         table_str += self.entryline_html()
         return table_str + '</table>\n'
 
+    # === Produce data dictionary:
+
     def get_data(self) ->list:
         return self.logged
+
+    # === Member functions for data updates:
 
     def update_add(self, element: str, new_val: str) ->bool:
         add_list = [ time(), '', 0 ]
@@ -576,6 +649,8 @@ class daypage_exercise:
             if 'exercise' in self.day_data:
                 self.logged = self.day_data['exercise']
 
+    # === Produce HTML:
+
     def time_tuple(self, idx: int) ->tuple:
         t = self.logged[idx][0]
         dtime = t_run if t==0 else datetime.fromtimestamp(t)
@@ -600,8 +675,12 @@ class daypage_exercise:
         table_str += self.entryline_html()
         return table_str + '</table>\n'
 
+    # === Produce data dictionary:
+
     def get_data(self) ->list:
         return self.logged
+
+    # === Member functions for data updates:
 
     def update_add(self, element: str, new_val: str) ->bool:
         add_list = [ time(), '', 0 ]
@@ -650,6 +729,8 @@ class daypage_accounts:
             if 'accounts' in self.day_data:
                 self.logged = self.day_data['accounts']
 
+    # === Produce HTML:
+
     def time_tuple(self, idx: int) ->tuple:
         t = self.logged[idx][0]
         dtime = t_run if t==0 else datetime.fromtimestamp(t)
@@ -691,8 +772,12 @@ class daypage_accounts:
         table_str += self.entryline_html()
         return table_str + '</table>\n'
 
+    # === Produce data dictionary:
+
     def get_data(self) ->list:
         return self.logged
+
+    # === Member functions for data updates:
 
     def update_add(self, element: str, new_val: str) ->bool:
         add_list = [ time(), '', 0, 0, '', ]
@@ -742,6 +827,101 @@ class daypage_accounts:
             return True
         return False
 
+class daypage_communications:
+    def __init__(self, day: datetime, day_data: dict, is_new: bool):
+        self.day = day
+        self.day_data = day_data
+        self.logged = []
+        if not is_new:
+            if 'comms' in self.day_data:
+                self.logged = self.day_data['comms']
+
+    # === Produce HTML:
+
+    def time_tuple(self, idx: int) ->tuple:
+        t = self.logged[idx][0]
+        dtime = t_run if t==0 else datetime.fromtimestamp(t)
+        return ( dtime.hour, dtime.minute )
+
+    def time_html(self, idx: int) ->str:
+        h, m = self.time_tuple(idx)
+        return TIME_FRAME % ( 'comms_edit_th_'+str(idx), str(h), SUBMIT_ON_INPUT, 'comms_edit_tm_'+str(idx), str(m), SUBMIT_ON_INPUT )
+
+    def comms_html(self, data_list: list, idx: int) ->str:
+        return COMMS_TR_FRAME % (
+            self.time_html(idx),
+            state_html('comms_edit_name_'+str(idx), 'text', str(self.logged[idx][1])),
+            state_html('comms_edit_done_'+str(idx), 'checkbox', int(self.logged[idx][2])),
+            state_html('comms_edit_note_'+str(idx), 'text', str(self.logged[idx][3])),
+            )
+
+    def entryline_html(self) ->str:
+        return COMMSENTRY_TR_FRAME % (
+            datetime.now().strftime('%H:%M'),
+            SUBMIT_ON_INPUT,
+            SUBMIT_ON_INPUT,
+            SUBMIT_ON_CHANGE,
+            SUBMIT_ON_INPUT, )
+
+    def generate_html_body(self) ->str:
+        table_str = COMMS_TABLE_HEAD
+        for i in range(len(self.logged)):
+            table_str += self.comms_html(self.logged[i], i)
+        table_str += self.entryline_html()
+        return table_str + '</table>\n'
+
+    # === Produce data dictionary:
+
+    def get_data(self) ->list:
+        return self.logged
+
+    # === Member functions for data updates:
+
+    def update_add(self, element: str, new_val: str) ->bool:
+        add_list = [ time(), '', 0, '', ]
+        if element == 'name':
+            add_list[1] = new_val
+            self.logged.append(add_list)
+            return True
+        return False
+
+    def update_edit(self, idx: int, element: str, new_val: str) ->bool:
+        if idx > len(self.logged):
+            return False
+        edit_list = self.logged[idx]
+
+        if element == 'name':
+            edit_list[1] = new_val
+            self.logged[idx] = edit_list
+            return True
+
+        if element == 'th':
+            h, m = self.time_tuple(idx)
+            t_edited = self.day.replace(hour=int(new_val), minute=m)
+            edit_list[0] = datetime.timestamp(t_edited)
+            self.logged[idx] = edit_list
+            return True
+
+        if element == 'tm':
+            h, m = self.time_tuple(idx)
+            t_edited = self.day.replace(hour=h, minute=int(new_val))
+            edit_list[0] = datetime.timestamp(t_edited)
+            self.logged[idx] = edit_list
+            return True
+
+        if element == 'done':
+            edit_list[2] = truefalse_to_bool[new_val]
+            self.logged[idx] = edit_list
+            return True
+
+        if element == 'note':
+            edit_list[3] = new_val
+            self.logged[idx] = edit_list
+            return True
+
+        return False
+
+# Right side data tables objects.
 class nutri_and_accounts_tables:
     def __init__(self, day: datetime, day_data: dict, multiday_data: dict, is_new: bool):
         self.day = day
@@ -750,18 +930,25 @@ class nutri_and_accounts_tables:
         self.is_new = is_new
 
         self.frame = NUTRI_ACCOUNTS_TABLES_FRAME
+
+        # --- Individual components of right side data tables.
         self.tables = {
             'milestones': daypage_milestones(day, self.day_data, self.multiday_data, is_new),
             'nutrition': daypage_nutritable(day, self.day_data, self.multiday_data, is_new),
             'exercise': daypage_exercise(day, self.day_data, is_new),
             'accounts': daypage_accounts(day, self.day_data, is_new),
+            'comms': daypage_communications(day, self.day_data, is_new),
         }
+
+    # === Produce HTML:
 
     def generate_html_head(self) ->str:
         return ''
 
     def generate_html_body(self) ->str:
         return self.frame % tuple([ self.tables[table].generate_html_body() for table in self.tables ])
+
+    # === Produce data dictionary:
 
     def get_dict(self) ->dict:
         self.day_data = {}
@@ -777,14 +964,20 @@ class daypage_tables:
         self.is_new = is_new
 
         self.frame = DAYPAGE_TABLES_FRAME
+        # --- Left side checklist.
         self.wiztable = daypage_wiztable(day, self.day_data, is_new)
+        # --- Right side data tables.
         self.nutriaccountstable = nutri_and_accounts_tables(day, self.day_data, self.multiday_data, is_new)
+
+    # === Produce HTML:
 
     def generate_html_head(self) ->str:
         return DAYPAGE_WIZTABLE_STYLE
 
     def generate_html_body(self) ->str:
         return self.frame % (self.wiztable.generate_html_body(), self.nutriaccountstable.generate_html_body())
+
+    # === Produce data dictionary:
 
     def get_dict(self) ->dict:
         self.day_data = {
@@ -796,6 +989,7 @@ class daypage_tables:
 
 class daypage(fz_htmlpage):
     def __init__(self, directives: dict, force_new=False):
+        # === Initializing page objects (not yet generating or showing data in a specific format):
         super().__init__()
         self.day_str = directives['date']
         self.day = datetime.strptime(self.day_str, '%Y.%m.%d')
@@ -815,18 +1009,24 @@ class daypage(fz_htmlpage):
             self.day_data = self.get_day_data(self.day_str)
             self.is_new = (len(self.day_data) == 0)
 
+        # --- Individual components of the page.
+        #     Components with main actions in page style and standard presentation:
         self.html_std = fz_html_standard('daywiz.py')
         self.html_icon = fz_html_icon()
         self.html_style = fz_html_style(['fz', ])
         self.html_uistate = fz_html_uistate()
         self.html_clock = fz_html_clock()
         self.html_title = fz_html_title('DayWiz')
+
+        #     Components with main actions in body content:
         self.date_picker = fz_html_datepicker(self.day)
         self.tables = daypage_tables(self.day, self.day_data, self.multiday_data, self.is_new)
-        # TODO: *** Remove the following line and all references to self.debug once no longer needed.
-        self.debug = debug_test()
 
-        self.head_list = [ self.html_std, self.html_icon, self.html_style, self.html_uistate, self.html_clock, self.tables, self.html_title, ]
+        # TODO: *** Remove the following line and all references to self.debug once no longer needed.
+        self.debug = debug_test(directives, form)
+
+        # --- Components that have action-calls in head, body and tail groups.
+        self.head_list = [ self.html_std, self.html_icon, self.html_style, self.html_uistate, self.html_clock, self.tables, self.html_title, self.debug, ]
         self.body_list = [ self.html_std, self.html_title, self.html_clock, self.date_picker, self.tables, ]
         self.tail_list = [ self.html_std, self.html_uistate, self.html_clock, ]
 
@@ -837,14 +1037,6 @@ class daypage(fz_htmlpage):
     #               self.daywiz_data = json.load(f)
     #       except:
     #           self.daywiz_data = {}
-
-    def load_daywiz_json(self):
-        if exists(JSON_DATA_PATH):
-            try:
-                with open(JSON_DATA_PATH, 'r') as f:
-                    self.daywiz_data = json.load(f)
-            except:
-                self.daywiz_data = {}
 
     # Store JSON in format: {'YYYY.mm.dd': { 'wiztable': ..., 'nutrition': ..., 'exercise': ..., 'accounts': ...}, etc.}
     # def legacy_save_daywiz_json(self) ->bool:
@@ -857,31 +1049,6 @@ class daypage(fz_htmlpage):
     #   except Exception as e:
     #       global_debug_str += '<p><b>'+str(e)+'</b></p>'
     #       return False
-
-    # Store JSON in format: {'wiztable': {...days...}, 'nutrition': {...days...}, 'exercise': {...days...}, 'accounts': {...days...}}
-    def save_daywiz_json(self, dryrun=False) ->bool:
-        global global_debug_str
-        # Replace data for this day with updated data:
-        day_dict = self.tables.get_dict()
-        for tablekey in data_tables:
-            if tablekey in day_dict:
-                if tablekey in self.daywiz_data:
-                    self.daywiz_data[tablekey][self.day_str] = day_dict[tablekey]
-                else: # First save to a newly added data table.
-                    self.daywiz_data[tablekey] = { self.day_str: day_dict[tablekey], }
-        # Replace multiday cache with updated cached data:
-        self.daywiz_data['cache'] = self.multiday_data
-        try:
-            if dryrun:
-                with open('/dev/shm/daywiz_update_dryrun.json', 'w') as f:
-                    json.dump(self.daywiz_data, f)
-            else:
-                with open(JSON_DATA_PATH, 'w') as f:
-                    json.dump(self.daywiz_data, f)
-            return True
-        except Exception as e:
-            global_debug_str += '<p><b>'+str(e)+'</b></p>'
-            return False
 
     # The following can be used to convert from legacy format to new format:
     # def convert_save_daywiz_json(self) ->bool:
@@ -916,6 +1083,43 @@ class daypage(fz_htmlpage):
     #       return self.daywiz_data[daystr]
     #   else:
     #       return {}
+
+    # === Member functions for data dictionary storage and retrieval:
+
+    def load_daywiz_json(self):
+        if exists(JSON_DATA_PATH):
+            try:
+                with open(JSON_DATA_PATH, 'r') as f:
+                    self.daywiz_data = json.load(f)
+            except:
+                self.daywiz_data = {}
+
+    # Store JSON in format: {'wiztable': {...days...}, 'nutrition': {...days...}, 'exercise': {...days...}, 'accounts': {...days...}}
+    def save_daywiz_json(self, dryrun=False) ->bool:
+        global global_debug_str
+        # Replace data for this day with updated data:
+        day_dict = self.tables.get_dict()
+        for tablekey in data_tables:
+            if tablekey in day_dict:
+                if tablekey in self.daywiz_data:
+                    self.daywiz_data[tablekey][self.day_str] = day_dict[tablekey]
+                else: # First save to a newly added data table.
+                    self.daywiz_data[tablekey] = { self.day_str: day_dict[tablekey], }
+        # Replace multiday cache with updated cached data:
+        self.daywiz_data['cache'] = self.multiday_data
+        try:
+            if dryrun:
+                with open('/dev/shm/daywiz_update_dryrun.json', 'w') as f:
+                    json.dump(self.daywiz_data, f)
+            else:
+                with open(JSON_DATA_PATH, 'w') as f:
+                    json.dump(self.daywiz_data, f)
+            return True
+        except Exception as e:
+            global_debug_str += '<p><b>'+str(e)+'</b></p>'
+            return False
+
+    # === Member functions for data parsing:
 
     def get_day_data(self, daystr: str) ->dict:
         day_dict = {}
@@ -1013,6 +1217,8 @@ class daypage(fz_htmlpage):
         multiday_data = self.get_calorie_threshold()
         return multiday_data
 
+    # === Member functions for data updates:
+
     def _update_nutri_multiday(self):
         self.multiday_data.update( self.get_calorie_threshold() )
 
@@ -1053,41 +1259,60 @@ class daypage(fz_htmlpage):
 
         return False
 
-    def _update_exerc_add(self, update_target: list, update_val: str) ->bool:
-        if self.tables.nutriaccountstable.tables['exercise'].update_add(update_target[2], update_val):
+    # def _update_exerc_add(self, update_target: list, update_val: str) ->bool:
+    #     if self.tables.nutriaccountstable.tables['exercise'].update_add(update_target[2], update_val):
+    #         return self.save_daywiz_json()
+    #     return False
+
+    # def _update_acct_add(self, update_target: list, update_val: str) ->bool:
+    #     if self.tables.nutriaccountstable.tables['accounts'].update_add(update_target[2], update_val):
+    #         return self.save_daywiz_json()
+    #     return False
+
+    # def _update_exerc_edit(self, update_target: list, update_val: str) ->bool:
+    #     if self.tables.nutriaccountstable.tables['exercise'].update_edit(int(update_target[3]), update_target[2], update_val):
+    #         return self.save_daywiz_json()
+    #     return False
+
+    # def _update_acct_edit(self, update_target: list, update_val: str) ->bool:
+    #     if self.tables.nutriaccountstable.tables['accounts'].update_edit(int(update_target[3]), update_target[2], update_val):
+    #         return self.save_daywiz_json()
+    #     return False
+
+    # def _update_exerc(self, update_target: list, update_val: str) ->bool:
+    #     if update_target[1] == 'add':
+    #         return self._update_exerc_add(update_target, update_val)
+
+    #     if update_target[1] == 'edit':
+    #         return self._update_exerc_edit(update_target, update_val)
+
+    #     return False
+
+    # def _update_acct(self, update_target: list, update_val: str) ->bool:
+    #     if update_target[1] == 'add':
+    #         return self._update_acct_add(update_target, update_val)
+
+    #     if update_target[1] == 'edit':
+    #         return self._update_acct_edit(update_target, update_val)
+
+    #     return False
+
+    def _update_stddata_add(self, datatable: str, update_target: list, update_val: str) ->bool:
+        if self.tables.nutriaccountstable.tables[datatable].update_add(update_target[2], update_val):
             return self.save_daywiz_json()
         return False
 
-    def _update_exerc_edit(self, update_target: list, update_val: str) ->bool:
-        if self.tables.nutriaccountstable.tables['exercise'].update_edit(int(update_target[3]), update_target[2], update_val):
+    def _update_stddata_edit(self, datatable: str, update_target: list, update_val: str) ->bool:
+        if self.tables.nutriaccountstable.tables[datatable].update_edit(int(update_target[3]), update_target[2], update_val):
             return self.save_daywiz_json()
         return False
 
-    def _update_exerc(self, update_target: list, update_val: str) ->bool:
+    def _update_stddata(self, datatable: str, update_target: list, update_val: str) ->bool:
         if update_target[1] == 'add':
-            return self._update_exerc_add(update_target, update_val)
+            return self._update_stddata_add(datatable, update_target, update_val)
 
         if update_target[1] == 'edit':
-            return self._update_exerc_edit(update_target, update_val)
-
-        return False
-
-    def _update_acct_add(self, update_target: list, update_val: str) ->bool:
-        if self.tables.nutriaccountstable.tables['accounts'].update_add(update_target[2], update_val):
-            return self.save_daywiz_json()
-        return False
-
-    def _update_acct_edit(self, update_target: list, update_val: str) ->bool:
-        if self.tables.nutriaccountstable.tables['accounts'].update_edit(int(update_target[3]), update_target[2], update_val):
-            return self.save_daywiz_json()
-        return False
-
-    def _update_acct(self, update_target: list, update_val: str) ->bool:
-        if update_target[1] == 'add':
-            return self._update_acct_add(update_target, update_val)
-
-        if update_target[1] == 'edit':
-            return self._update_acct_edit(update_target, update_val)
+            return self._update_stddata_edit(datatable, update_target, update_val)
 
         return False
 
@@ -1104,10 +1329,13 @@ class daypage(fz_htmlpage):
             return self._update_nutri(update_target, update_val)
 
         if update_target[0] == 'exerc': # [ exerc, add/edit, name/th/tm/quantity, idx, ]
-            return self._update_exerc(update_target, update_val)
+            return self._update_stddata('exercise', update_target, update_val)
 
-        if update_target[0] == 'acct': # [ acct, add/edit, name/th/tm/quantity, idx, ]
-            return self._update_acct(update_target, update_val)
+        if update_target[0] == 'acct': # [ acct, add/edit, name/th/tm/category, idx, ]
+            return self._update_stddata('accounts', update_target, update_val)
+
+        if update_target[0] == 'comms': # [ comms, add/edit, name/th/tm/done/note, idx, ]
+            return self._update_stddata('comms', update_target, update_val)
 
         return False
 
@@ -1122,10 +1350,7 @@ class daypage(fz_htmlpage):
     def update_from_list(self, args: list) ->bool:
         return self._update(args[0], args[1])
 
-    def show(self):
-        #print("Content-type:text/html\n\n")
-        print(self.generate_html())
-        #self.convert_save_daywiz_json() # To convert the JSON data from legacy format to new format.
+    # === Member functions for use by other scripts (e.g. consumed.py, see add_nutrition_to_log below):
 
     def add_nutrition_to_multidaylog(self, name:str, quantity:float, hour:int, minute:int, dryrun=False) ->str:
         dtime = self.day.replace(hour=hour, minute=minute)
@@ -1156,6 +1381,15 @@ class daypage(fz_htmlpage):
         # self._update_nutri_multiday()
         # self.save_daywiz_json()
         # return self.generate_html()
+
+    # === Member function for DayWiz page HTML generation:
+
+    def show(self):
+        #print("Content-type:text/html\n\n")
+        print(self.generate_html())
+        #self.convert_save_daywiz_json() # To convert the JSON data from legacy format to new format.
+
+# ====================== End of class definitions.
 
 # ====================== Entry parsers:
 
@@ -1208,6 +1442,7 @@ def launch(directives: dict):
         _page.show()
 
 # Call this from other scripts, e.g. consumed.py.
+# This does not produce daywiz page output, but it can use the information.
 def add_nutrition_to_log(datestr:str, name:str, quantity:float, hour:int, minute:int, dryrun=False)->str:
     directives = { 'date': datestr }
     _page = daypage(directives)

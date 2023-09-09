@@ -41,7 +41,6 @@ nutrition = {
 	'peanuts': [ 161, 'oz', ],
 	'cashews': [ 157, 'oz', ],
 	'peanut butter': [ 188, '2tbsp', ],
-	'sardines': [ 36, 'oz', ],
 	'tuna': [ 110, '3ozcan', ],
 	'crab salad': [ 381, 'cup', ],
 	'protein bar': [ 90, 'bar', ],
@@ -142,6 +141,19 @@ nutrition = {
 	'grapefruit': [ 52, '1 fruit', ],
 	'baked beans': [ 392, 'cup', ],
 	'ice cream': [ 410, 'pint', ],
+	'saltine': [ 12, 'cracker', ],
+	'cashews': [ 7, 'cashew', ],
+	'sardines': [ 191, '3.75 oz cans', ],
+	'salsa verde': [ 11, '2 tbsp', ],
+	'salsa bravas': [ 324, 'serving', ],
+	'rum': [ 64, 'serving', ],
+	'balini': [ 138, 'full balini', ],
+	'pancake': [ 64, 'pancake', ],
+	'hamburger bun': [ 120, 'calories', ],
+	'corned beef': [ 120, 'serving', ],
+	'larabar': [ 200, 'bar', ],
+	'raspberries': [ 1, '1 raspberry',],
+	'crab cakes': [ 220, 'crabcake', ],
 }
 
 lowcal_filling_nutritious = [
@@ -160,6 +172,7 @@ lowcal_snack = [
 	'blueberries',
 	'rice cake',
 	'seaweed',
+	'cashews',
 ]
 
 fruit = [
@@ -179,6 +192,7 @@ fruit = [
 	'canned peaches',
 	'cranberry sauce',
 	'grapefruit',
+	'raspberries',
 ]
 
 vegetables = [
@@ -212,6 +226,7 @@ meals = [
 	'lasagna',
 	'spinach ravioli',
 	'baked beans',
+	'salsa bravas',
 ]
 
 drinks = [
@@ -224,6 +239,7 @@ drinks = [
 	'vodka',
 	'jagermeister',
 	'beer',
+	'rum',
 ]
 
 nutrition_groups = {
