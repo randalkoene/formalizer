@@ -475,6 +475,33 @@ targetdate_sorted_Nodes Nodes_with_topic_by_targetdate(Graph & graph, Topic_ID i
 }
 
 /**
+ * Selects all Nodes that appear in a specific Named Node Lilst and lists them by
+ * effective target date.
+ * 
+ * @param graph A valid Graph data structure.
+ * @param namedlist_ptr A valid Named Node List pointer.
+ * @return A map of pointers to nodes by effective targetdate.
+ */
+targetdate_sorted_Nodes Nodes_in_list_by_targetdate(Graph & graph, Named_Node_List_ptr namedlist_ptr) {
+    targetdate_sorted_Nodes nodes;
+    if (!namedlist_ptr) {
+        standard_error("Named Node List not found.", __func__);
+        return nodes;
+    }
+
+    for (const auto & nkey: namedlist_ptr->list) {
+        Node * node_ptr = graph.Node_by_id(nkey);
+        if (!node_ptr) {
+            standard_error("Node "+nkey.str()+" not found in Graph, skipping", __func__);
+            continue;
+        }
+
+        nodes.emplace(node_ptr->effective_targetdate(), node_ptr);
+    }
+    return nodes; // automatic copy elision std::move(nodes);
+}
+
+/**
  * Assign a category to a Node.
  * 
  * This returns a reference to `cat_cache`, which is where the assigned category

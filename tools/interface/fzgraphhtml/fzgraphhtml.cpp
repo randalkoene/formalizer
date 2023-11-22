@@ -39,9 +39,8 @@ fzgraphhtml fzgh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:m:Irt:i:L:N:M:D:x:o:eT:F:uCj";
-    add_usage_top += " [-n <node-ID>|-m <node-ID>|-I|-t <topic-ID|topic-tag|?>|-L <name|?>] [-r] [-N <num>] [-M <max-YYYYmmddHHMM>] [-D <num-days>] [-x <len>] [-o <output-path>] [-e] [-T <named|node|Node>=<path>] [-F html|txt|node|desc] [-u] [-C] [-j]";
-    //usage_head.push_back("Description at the head of usage information.\n");
+    add_option_args += "n:m:Irt:i:L:N:M:D:x:o:s:eT:F:uCj";
+    add_usage_top += " [-n <node-ID>|-m <node-ID>|-I|-t <topic-ID|topic-tag|?>|-L <name|?>] [-r] [-N <num>] [-M <max-YYYYmmddHHMM>] [-D <num-days>] [-x <len>] [-o <output-path>] [-s <sortkeys>] [-e] [-T <named|node|Node>=<path>] [-F html|txt|node|desc] [-u] [-C] [-j]";    //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "Notes:\n"
         "1. When no [N <num>] is provided then the configured value is used.\n"
@@ -75,6 +74,7 @@ void fzgraphhtml::usage_hook() {
           "    -D Show data for <num-days> days, see note 5.\n"
           "    -x Excerpt length <len>\n"
           "    -o Rendered output to <output-path> (\"STDOUT\" is default)\n"
+          "    -s Sort by: targetdate\n"
           "    -e Embeddable, no head and tail templates\n"
           "    -T Use custom template instead of topics, named, node or single Node\n"
           "    -F Output format: html (default), txt, json, node, desc\n"
@@ -233,6 +233,13 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
 
     case 'o': {
         config.rendered_out_path = cargs;
+        return true;
+    }
+
+    case 's': {
+        if (cargs == "targetdate") {
+            config.sort_by_targetdate = true;
+        }
         return true;
     }
 

@@ -1,3 +1,3 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$structfz_1_1shared__memory__manager.html" title="Every shared memory segment (e.g. for a different copy of a Graph) can have its own instance of these..." alt="" coords="5,5,219,32"/>
+<area shape="rect" id="node1" href="$classfz_1_1Shared__Memory__exception.html" title="Exception thrown manager or allocator are requested when none are active." alt="" coords="5,5,224,32"/>
 </map>

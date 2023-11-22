@@ -154,6 +154,23 @@ nutrition = {
 	'larabar': [ 200, 'bar', ],
 	'raspberries': [ 1, '1 raspberry',],
 	'crab cakes': [ 220, 'crabcake', ],
+	'chickpeas': [ 46, '1 tbsp', ],
+	'mayonaise': [ 94, '1 tbsp', ],
+	'cucumber': [ 45, 'cucumber',],
+	'onion': [ 44, 'medium', ],
+	'salmon': [ 412, 'half filet', ],
+	'rice': [ 206, 'cup', ],
+	'medium tortilla': [ 60, 'tortilla', ],
+	'nutrigrain bar': [ 130, 'bar', ],
+	'strawberries': [ 6, 'strawberry', ],
+	'swiss cheese': [ 80, 'slice', ],
+	'wine': [ 123, 'glass', ],
+	'potato': [ 161, 'medium potato', ],
+	'peas': [ 210, '3.5 cup can', ],
+	'green beans': [ 60, '3.5 cup can', ],
+	'egg white wraps': [ 25, 'wrap', ],
+	'graham cracker': [ 59, 'large rectangular', ],
+	'hot dog': [ 151, 'hot dog', ],
 }
 
 lowcal_filling_nutritious = [
@@ -164,6 +181,7 @@ lowcal_filling_nutritious = [
 	'egg',
 	'falafel',
 	'feta olive mix',
+	'hummus',
 ]
 
 lowcal_snack = [
@@ -193,12 +211,21 @@ fruit = [
 	'cranberry sauce',
 	'grapefruit',
 	'raspberries',
+	'strawberries',
 ]
 
 vegetables = [
 	'celery',
 	'bell pepper',
 	'yams',
+	'chickpeas',
+	'cucumber',
+	'onion',
+	'potato',
+	'fried breakfast potatoes',
+	'hashbrown',
+	'peas',
+	'green beans',
 ]
 
 meals = [
@@ -211,6 +238,7 @@ meals = [
 	'pesto tortellini',
 	'palak paneer',
 	'tofu miso soup with noodles',
+	'tofu egg salad sandwich',
 	'mac and cheese',
 	'chili',
 	'vegetarian burrito',
@@ -227,6 +255,9 @@ meals = [
 	'spinach ravioli',
 	'baked beans',
 	'salsa bravas',
+	'sausage and egg breakfast sandwich',
+	'pizza with cheese',
+	'soylent',
 ]
 
 drinks = [
@@ -240,6 +271,76 @@ drinks = [
 	'jagermeister',
 	'beer',
 	'rum',
+	'wine'
+]
+
+breads = [
+	'bagel',
+	'ezekiel bread',
+	'hamburger bun',
+	'knackebrot',
+	'medium tortilla',
+	'orowheat bread',
+	'panini bread',
+	'saltine',
+	'sourdough bread',
+	'whole rye german breads',
+	'egg white wraps',
+]
+
+dairy = [
+	'blue cheese',
+	'brie',
+	'camembert',
+	'cheddar',
+	'cream cheese',
+	'gouda',
+	'provolone',
+	'swiss cheese',
+]
+
+seafood = [
+	'crab cakes',
+	'salmon',
+	'sea bass',
+	'sushi',
+	'tuna',
+	'crab salad',
+]
+
+meat = [
+	'beef patty',
+	'corned beef',
+	'ham',
+	'jerky',
+	'salami',
+	'sausage',
+	'turkey',
+]
+
+deserts = [
+	'apfel kuchen',
+	'cheese cake',
+	'creme brule',
+	'ice cream',
+	'pudding',
+	'pumpkin pie',
+	'tiramisu',
+
+]
+
+nuts = [
+	'peanuts',
+	'pecans',
+	'walnut pieces',
+]
+
+spread = [
+	'butter',
+	'honey',
+	'mayonaise',
+	'nutella',
+	'peanut butter',
 ]
 
 nutrition_groups = {
@@ -247,6 +348,13 @@ nutrition_groups = {
 	'Low Calorie Snack': [ 'lowcalsnack', lowcal_snack ],
 	'Fruit': [ 'fruit', fruit ],
 	'Vegetables': [ 'vegetables', vegetables ],
-	'Meals': [ 'meals', meals ],
+	'Nuts': [ 'nuts', nuts ],
+	'Dairy': [ 'dairy', dairy ],
+	'Seafood': [ 'seafood', seafood ],
+	'Meat': [ 'meat', meat ],
+	'Spread': [ 'spread', spread ],
+	'Breads': [ 'breads', breads ],
+	'Deserts': [ 'deserts', deserts ],
 	'Drinks': [ 'drinks', drinks ],
+	'Meals': [ 'meals', meals ],
 }

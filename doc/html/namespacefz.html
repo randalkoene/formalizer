@@ -1034,6 +1034,9 @@ unsigned long&#160;</td><td class="memItemRight" valign="bottom"><b>Edges_with_d
 <tr class="memitem:ac8be39e0425eacd0b6da8a8721861333"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefz.html#ade8fd9836dfeac48419a3e0a89f0f8f2">targetdate_sorted_Nodes</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ac8be39e0425eacd0b6da8a8721861333">Nodes_with_topic_by_targetdate</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, <a class="el" href="namespacefz.html#afddacf07ad964643983aa625bd00aba8">Topic_ID</a> id)</td></tr>
 <tr class="memdesc:ac8be39e0425eacd0b6da8a8721861333"><td class="mdescLeft">&#160;</td><td class="mdescRight">Selects all Nodes that include a specific <a class="el" href="classfz_1_1Topic.html">Topic</a> ID and lists them by (inherited) target date.  <a href="namespacefz.html#ac8be39e0425eacd0b6da8a8721861333">More...</a><br /></td></tr>
 <tr class="separator:ac8be39e0425eacd0b6da8a8721861333"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae62ff7921be30fed8109b0b3a9ceab0d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefz.html#ade8fd9836dfeac48419a3e0a89f0f8f2">targetdate_sorted_Nodes</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ae62ff7921be30fed8109b0b3a9ceab0d">Nodes_in_list_by_targetdate</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, <a class="el" href="structfz_1_1Named__Node__List.html">Named_Node_List_ptr</a> namedlist_ptr)</td></tr>
+<tr class="memdesc:ae62ff7921be30fed8109b0b3a9ceab0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Selects all Nodes that appear in a specific Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> Lilst and lists them by effective target date.  <a href="namespacefz.html#ae62ff7921be30fed8109b0b3a9ceab0d">More...</a><br /></td></tr>
+<tr class="separator:ae62ff7921be30fed8109b0b3a9ceab0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1d448863f42dc4a4fe439a5b35a1747f"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a1d448863f42dc4a4fe439a5b35a1747f">total_minutes_incomplete_repeating</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, time_t from_t, time_t before_t, bool mapexact=true)</td></tr>
 <tr class="memdesc:a1d448863f42dc4a4fe439a5b35a1747f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the total required time for all incomplete repeating Nodes and their instances within a time interval.  <a href="namespacefz.html#a1d448863f42dc4a4fe439a5b35a1747f">More...</a><br /></td></tr>
 <tr class="separator:a1d448863f42dc4a4fe439a5b35a1747f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5524,6 +5527,44 @@ constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>TOPIC_TAG
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A map of pointers to nodes by <a class="el" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key.">Node_ID_key</a>. </dd></dl>
+
+</div>
+</div>
+<a id="ae62ff7921be30fed8109b0b3a9ceab0d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae62ff7921be30fed8109b0b3a9ceab0d">&#9670;&nbsp;</a></span>Nodes_in_list_by_targetdate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefz.html#ade8fd9836dfeac48419a3e0a89f0f8f2">targetdate_sorted_Nodes</a> fz::Nodes_in_list_by_targetdate </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;&#160;</td>
+          <td class="paramname"><em>graph</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfz_1_1Named__Node__List.html">Named_Node_List_ptr</a>&#160;</td>
+          <td class="paramname"><em>namedlist_ptr</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Selects all Nodes that appear in a specific Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> Lilst and lists them by effective target date. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">graph</td><td>A valid <a class="el" href="classfz_1_1Graph.html">Graph</a> data structure. </td></tr>
+    <tr><td class="paramname">namedlist_ptr</td><td>A valid Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> List pointer. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A map of pointers to nodes by effective targetdate. </dd></dl>
 
 </div>
 </div>

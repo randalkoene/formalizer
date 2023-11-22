@@ -1,9 +1,11 @@
 {
     "Nextup" : {
-        "Topics" : "nre"
+        "Topics" : "nre",
+        "NNLs": "group_nextup"
     },
     "CCF" : {
-        "Topics" : "carboncopies;cc-research;cc-operations;meetings;department-meeting;fund-raising;grant-writing"
+        "Topics" : "carboncopies;cc-research;cc-operations;meetings;department-meeting;fund-raising;grant-writing",
+        "NNLs": "grou_ccf"
     },
     "OtherValues" : {
         "Topics" : "self-improvement"

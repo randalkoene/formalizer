@@ -470,17 +470,35 @@ bool render_named_node_list() {
 
     lrp.prep(num_render);
 
-    for (const auto & nkey : namedlist_ptr->list) {
+    if (fzgh.config.sort_by_targetdate) {
 
-        Node * node_ptr = lrp.graph().Node_by_id(nkey);
-        if (node_ptr) {
-            lrp.render_Node(*node_ptr, node_ptr->effective_targetdate(), false);
-        } else {
-            standard_error("Node "+nkey.str()+" not found in Graph, skipping", __func__);
+        targetdate_sorted_Nodes list_nodes = Nodes_in_list_by_targetdate(lrp.graph(), namedlist_ptr);
+
+        for (const auto & [tdate, node_ptr] : list_nodes) {
+
+            if (node_ptr) {
+                lrp.render_Node(*node_ptr, tdate, false);
+            }
+
+            if (--num_render == 0)
+                break;
         }
 
-        if (--num_render == 0)
-            break;
+    } else {
+
+        for (const auto & nkey : namedlist_ptr->list) {
+
+            Node * node_ptr = lrp.graph().Node_by_id(nkey);
+            if (node_ptr) {
+                lrp.render_Node(*node_ptr, node_ptr->effective_targetdate(), false);
+            } else {
+                standard_error("Node "+nkey.str()+" not found in Graph, skipping", __func__);
+            }
+
+            if (--num_render == 0)
+                break;
+        }
+
     }
 
     if (fzgh.cache_it) {

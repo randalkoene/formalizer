@@ -32,6 +32,8 @@ from fznutrition import *
 form = cgi.FieldStorage()
 #cgitb.enable()
 
+print("Content-type:text/html\n\n")
+
 t_run = datetime.now() # Use this to make sure that all auto-generated times on the page use the same time.
 
 # ====================== String templates used to generate content for page areas:
@@ -108,7 +110,7 @@ class nutritionpage(fz_htmlpage):
         self.tail_list = [ self.html_std, self.html_uistate, self.html_clock, ]
 
     def show(self):
-        print("Content-type:text/html\n\n")
+        #print("Content-type:text/html\n\n")
         print(self.generate_html())
 
 # ====================== Entry parsers:

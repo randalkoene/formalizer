@@ -84,6 +84,8 @@ exercises = {
     'kayaking': [ 'minutes', ],
     'skiing': [ 'minutes', ],
     'stamina': [ 'minutes', ],
+    'weights': [ 'minutes', ],
+    'wood splitting': [ 'minutes', ],
 }
 
 # ====================== Debug helpers:
@@ -157,7 +159,7 @@ DAYPAGE_TABLES_FRAME='''<table class="col_right_separated">
 [List of links to in-rotation milestone Nodes belongs here with progress indication.]<br>
 [A link to milestone planning should be here, something like a tree.]</th></tr>
 <tr valign="top">
-<td>%s</td>
+<td width="50%%">%s</td>
 <td>%s</td>
 </tr>
 </table>
@@ -178,6 +180,7 @@ WIZLINE_RECOMMENDED_FRAME='%s - %s'
 WIZLINE_CHECKBOX_FRAME='<input id="%s" type="checkbox" %s %s>'
 WIZLINE_NUMBER_FRAME='<input id="%s" type="text" value="%s" style="width: 8em;" %s>'
 WIZLINE_TEXT_FRAME='<input id="%s" type="text" value="%s" %s>'
+WIZLINE_LONGER_TEXT_FRAME='<input id="%s" type="text" value="%s" style="width: 40em;" %s>'
 
 NUTRI_ACCOUNTS_TABLES_FRAME='''<table>
 <tr>
@@ -247,7 +250,7 @@ ACCOUNTENTRY_TR_FRAME='''<tr><td><input type="time" id="acct_add_time" value="%s
 COMMS_TABLE_HEAD='<table>\n<tr><th>approx. time</th><th>contact name</th><th>done</th><th>note</th></tr>\n'
 COMMS_TR_FRAME='''<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td>
 '''
-COMMSENTRY_TR_FRAME='''<tr><td><input type="time" id="comms_add_time" value="%s" %s></td><td><input id="comms_add_name" type="text" %s></td><td><input id="comms_add_done" type="checkbox" %s></td><td><input id="comms_add_note" type="text" %s></td>
+COMMSENTRY_TR_FRAME='''<tr><td><input type="time" id="comms_add_time" value="%s" %s></td><td><input id="comms_add_name" type="text" %s></td><td><input id="comms_add_done" type="checkbox" %s></td><td><input id="comms_add_note" type="text" style="width: 40em;" %s></td>
 '''
 
 # ====================== Helpful standardized functions:
@@ -262,6 +265,8 @@ def state_html(idstr: str, intype: str, state) ->str:
     elif intype == 'text':
         # Expects that state is str.
         return WIZLINE_TEXT_FRAME % ( idstr, str(state), SUBMIT_ON_INPUT )
+    elif intype == 'longertext':
+        return WIZLINE_LONGER_TEXT_FRAME % ( idstr, str(state), SUBMIT_ON_INPUT )
     else:
         return ''
 
@@ -852,7 +857,7 @@ class daypage_communications:
             self.time_html(idx),
             state_html('comms_edit_name_'+str(idx), 'text', str(self.logged[idx][1])),
             state_html('comms_edit_done_'+str(idx), 'checkbox', int(self.logged[idx][2])),
-            state_html('comms_edit_note_'+str(idx), 'text', str(self.logged[idx][3])),
+            state_html('comms_edit_note_'+str(idx), 'longertext', str(self.logged[idx][3])),
             )
 
     def entryline_html(self) ->str:

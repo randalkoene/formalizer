@@ -59,6 +59,7 @@ public:
     text_interpretation interpret_text = text_interpretation::raw;
     bool show_current_time = true;
     bool include_daysummary = true;
+    bool sort_by_targetdate = false; // Note: Right now, this is used only by Named Node List output.
 };
 
 

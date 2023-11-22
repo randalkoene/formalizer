@@ -68,8 +68,33 @@ $(function() {
 <div class="title">fztask - Task Control </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>{{ readme_description }}</p>
-<p>Randal A. Koene, 20201125 </p>
+<div class="textblock"><p>The fztask tool is a command line tool that persists, presently running in a while-loop, iteratively carrying out the sequence:</p>
+<ol type="1">
+<li>Make a Log entry.</li>
+<li>Choose a new Node for the next Log Chunk or simply close the Log Chunk.</li>
+<li>Update the Schedule.</li>
+<li>Start new Log Chunk (if applicable).</li>
+<li>Set a timer for the Log Chunk.</li>
+</ol>
+<p>The Node for the next Log Chunk is chosen:</p>
+<ol type="1">
+<li>From a shortlist of Nodes.</li>
+<li>By browsing available Nodes.</li>
+</ol>
+<p>The shortlist is updated very simply. It is composed of two parts:</p>
+<ol type="1">
+<li>The 5 most recent Nodes.</li>
+<li>The 5 next Nodes in the Schedule.</li>
+</ol>
+<p>No attempt is made to shuffle or randomize, or to prioritize in a smart way.</p>
+<p><b>Note</b>: When using a modern browser, the functionality of fztask is included in the options available as follows:</p>
+<ul>
+<li>Log Chunk entry and closing: On the page generated through the "Recent Log" button of the main Formalizer index.</li>
+<li>Selecting a new Node: Via the "Log Time" button on that page, then through the time selection and then the "Select Node for next Log Chunk" button, which offers access to the list of Next Nodes, Recent Log, and much more.</li>
+<li>A timer: Via the "Timer" button on the main Formalizer index page.</li>
+</ul>
+<hr  />
+<p> Randal A. Koene, 20201125 </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 <!-- start footer part -->

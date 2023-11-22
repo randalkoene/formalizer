@@ -19,7 +19,7 @@ WIZTABLE_LINES=[
 	[ '20060914084328.1', 3, 'news', 0, 'checkbox', 6, 8, 'Use <a href="/formalizer/test_maketimer.html" target="_blank">a timer or skip news reading.', '' ],
 	[ '20091115180507.1', 2, 'nextnutri', 0, 'checkbox', 6, 9, 'Plan nutrition for the next day.', '' ],
 	[ '20091115180507.1', 5, 'calsync', 0, 'checkbox', 6, 9, 'Sync <a href="https://calendar.google.com/calendar/?authuser=randal.a.koene@gmail.com" target="_blank">Google Calendar</a> with Schedule.', '' ], # Automatable.
-	[ '20091115180507.1', 3, 'promises', 0, 'checkbox', 6, 9, 'Review <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=promises"><b>Promises</b></a> (<a href="https://trello.com/b/KsIljqx3/promises">and Board</a>), update, revise and re-prioritize as needed. Make sure Scheduling is correct.', '' ],
+	[ '20091115180507.1', 3, 'promises', 0, 'checkbox', 6, 9, 'Review <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=promises&sort_by=targetdate"><b>Promises</b></a> (<a href="https://trello.com/b/KsIljqx3/promises">and Board</a>), update, revise and re-prioritize as needed. Make sure Scheduling is correct.', '' ],
 	[ '20091115180507.1', 5, 'passedfixed', 0, 'checkbox', 6, 9, '<a href="/cgi-bin/fzupdate-cgi.py?update=passedfixed" target="_blank">Confirm passed non-repeating Fixed Nodes to convert to Variable</a> - or - manually update them.', '' ],
 	[ '20091115180507.1', 5, 'passedrepeat', 0, 'checkbox', 6, 9, 'Auto-update passed repeating Nodes to their next instances.', '' ],
 	[ '20091115180507.1', 3, 'priority', 0, 'checkbox', 6, 9, 'Ensure that highest priority Promises are represented in the Schedule.', '' ], # Schedule autodetectable.

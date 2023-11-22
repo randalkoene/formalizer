@@ -69,6 +69,7 @@ num_elements = form.getvalue('num_elements')
 num_unlimited = form.getvalue('all')
 max_td = form.getvalue('max_td')
 num_days = form.getvalue('num_days')
+sort_by = form.getvalue('sort_by')
 
 # The following should only show information that is safe to provide
 # to those who have permission to connect to this CGI handler.
@@ -320,6 +321,8 @@ def generate_NNL_page():
     thecmd = "./fzgraphhtml -q -e -L '"+srclist+"' -o STDOUT -E STDOUT"
     if SPA:
         thecmd += ' -j' # no Javascript
+    if sort_by == 'targetdate':
+        thecmd += ' -s targetdate'
     print("Content-type:text/html\n\n")
     if srclist == '?':
         print(listpagehead_alllists)

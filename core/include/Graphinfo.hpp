@@ -149,6 +149,16 @@ key_sorted_Nodes Nodes_created_in_time_interval(Graph & graph, time_t earliest, 
 targetdate_sorted_Nodes Nodes_with_topic_by_targetdate(Graph & graph, Topic_ID id);
 
 /**
+ * Selects all Nodes that appear in a specific Named Node Lilst and lists them by
+ * effective target date.
+ * 
+ * @param graph A valid Graph data structure.
+ * @param namedlist_ptr A valid Named Node List pointer.
+ * @return A map of pointers to nodes by effective targetdate.
+ */
+targetdate_sorted_Nodes Nodes_in_list_by_targetdate(Graph & graph, Named_Node_List_ptr namedlist_ptr);
+
+/**
  * Returns the total required time for all incomplete repeating Nodes and their instances
  * within a time interval.
  * 
