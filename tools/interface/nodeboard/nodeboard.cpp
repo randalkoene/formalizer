@@ -33,6 +33,14 @@ bool random_test() {
     return standard_exit(node_board_render_random_test(nb), "Random test Node board created.\n", exit_general_error, "Unable to map interval.", __func__);
 }
 
+bool node_dependencies() {
+    if (!nb.node_ptr) {
+        return standard_error("Node not found.", __func__);
+    }
+
+    return standard_exit(node_board_render_dependencies(nb), "Node dependencies board created.\n", exit_general_error, "Unable to create Node dependencies board.", __func__);
+}
+
 bool named_list() {
     Named_Node_List_ptr namedlist_ptr = nb.graph().get_List(nb.list_name);
     if (!namedlist_ptr) {
@@ -66,6 +74,11 @@ int main(int argc, char *argv[]) {
     nb.init(argc,argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 
     switch (nb.flowcontrol) {
+
+        case flow_node: {
+            node_dependencies();
+            break;
+        }
 
         case flow_named_list: {
             named_list();

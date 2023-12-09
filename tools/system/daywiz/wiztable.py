@@ -23,14 +23,14 @@ WIZTABLE_LINES=[
 	[ '20091115180507.1', 5, 'passedfixed', 0, 'checkbox', 6, 9, '<a href="/cgi-bin/fzupdate-cgi.py?update=passedfixed" target="_blank">Confirm passed non-repeating Fixed Nodes to convert to Variable</a> - or - manually update them.', '' ],
 	[ '20091115180507.1', 5, 'passedrepeat', 0, 'checkbox', 6, 9, 'Auto-update passed repeating Nodes to their next instances.', '' ],
 	[ '20091115180507.1', 3, 'priority', 0, 'checkbox', 6, 9, 'Ensure that highest priority Promises are represented in the Schedule.', '' ], # Schedule autodetectable.
-	[ '20091115180507.1', 4, 'milestones', 0, 'checkbox', 6, 9, 'Review upcoming Milestones (<a href="https://trello.com/b/tlgXjZBm" target="_blank">Milestone Tracks</a>, mapped to Milestones, Dependencies, Roadmap Path, Values and Urgency.) Ensure there are Nodes to complete upcoming Milestones.', '' ],
-	[ '20091115180507.1', 4, 'decisions', 0, 'checkbox', 6, 9, 'Identify Challenges and Decisions in the Schedule, tag as such, add to <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=challenges_open">NNL</a>. <a href="https://trello.com/b/mnu1VKIn" target="_blank">Known Challenges and Decisions</a> must be represented by at least one Node.', '' ],
+	[ '20091115180507.1', 4, 'milestones', 0, 'checkbox', 6, 9, 'Review upcoming Milestones (<a href="/cgi-bin/nodeboard-cgi.py?n=20101230042609.1" target="_blank">Milestones Kanban</a>, <a href="https://trello.com/b/tlgXjZBm" target="_blank">Milestone Tracks</a>, <a href="https://trello.com/b/t2RmUmlN" target="_blank">Milestones Trello</a>, mapped to Milestones, Dependencies, Roadmap Path, Values and Urgency.) Ensure there are Nodes to complete upcoming Milestones.', '' ],
+	[ '20091115180507.1', 4, 'decisions', 0, 'checkbox', 6, 9, 'Identify Challenges and Decisions in the Schedule, tag as such, add to <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=challenges_open&sort_by=targetdate" target="_blank">NNL</a>. <a href="https://trello.com/b/mnu1VKIn" target="_blank">Known Challenges and Decisions</a> must be represented by at least one Node.', '' ],
 	[ '20091115180507.1', 5, 'schedfits', 0, 'checkbox', 6, 9, 'Ensure schedule is mathematically doable. (Sum of required times fits into available time.)', '' ],
 	[ '20091115180507.1', 2, 'variable', 0, 'checkbox', 6, 9, 'Auto-update Variable Nodes. (Or replace this with different handling of Variable Nodes.)', '' ],
 	[ '20091115180507.1', 5, 'realistic', 0, 'checkbox', 6, 9, 'Ensure Schedule is realistic. E.g. map to time intervals on calendar day. Account for mini-days, and Nodes best in morning/evening.', '' ], # Automatable.
 	[ '20091115180507.1', 5, 'backup', 0, 'checkbox', 6, 9, 'Make sure that Formalizer database backups are mirrored to separate storage (USB drive, mirrored account, cloud storage). E.g., run fzbackup-mirror-to-github.sh.', '' ], # Automatable.
 	[ '20091115180507.1', 5, 'relations', 0, 'checkbox', 6, 9, 'Prepare the list of people that I already know I should communicate with this day.', '' ],
-	[ '20211017053846.1', 4, 'weight', 0, 'number', 6, 10, 'Measure weight.', '' ],
+	[ '20211017053846.1', 4, 'weight', 0, 'number', 6, 10, 'Measure <a href="/cgi-bin/metrics.py?cmd=show&selectors=wiztable">weight</a>.', '' ],
 	[ '20211017053846.1', 4, 'pushup1', 0, 'checkbox', 6, 10, 'First push-ups (e.g. before/after shower).', '' ],
 	[ '20211017053846.1', 2, 'shower', 0, 'checkbox', 6, 10, 'Have a shower.', '' ],
 	[ '20211017053846.1', 3, 'lotion', 0, 'checkbox', 6, 10, 'Put on lotion.', '' ],

@@ -21,6 +21,8 @@ from datetime import datetime
 from time import time
 import json
 from os.path import exists
+import plotly.express as px
+import plotly.io as pxio
 
 from fzhtmlpage import *
 
@@ -53,7 +55,12 @@ METRIC_DAY_FRAME='''%s
 METRIC_LINE_FRAME='''<tr><td>%s</td><td>%s</td><td>%s</td></tr>
 '''
 
-class metric_line:
+WEIGHT_FIGURE='''<tr><td>Weight:<br>%s</td></tr>
+'''
+
+print("Content-type:text/html\n\n")
+
+class nutrition_line:
     def __init__(self, data, idx: int):
         self.data = data
         self.idx = idx
@@ -73,13 +80,50 @@ class metric_line:
             str(self._quantity),
         )
 
+# class wiztable_line:
+#     def __init__(self, data, idx:int):
+#         self.data = data # This is something like ['weight',0,'']
+#         self.idx = idx
+
+#         # NOTE: *** At present, this shows only weight.
+#         self._t = None
+#         self._weight = None
+#         if data[0] == 'weight':
+#             if data[1] != 0:
+#                 self._t = datetime.fromtimestamp(data[1])
+#                 self._weight = float(data[2])
+
+#     def time_str(self) ->str:
+#         return self._t.strftime('%Y.%m.%d %H:%M')
+
+#     def generate_html_body(self) ->str:
+#         if self._t is None:
+#             return ''
+#         else:
+#             return METRIC_LINE_FRAME % (
+#                     'weight',
+#                     self.time_str(),
+#                     str(self._weight),
+#                 )
+
+class unknown_line:
+    def __init__(self, selector:str):
+        self.selector = selector
+
+    def generate_html_body(self) ->str:
+        return 'Unknown metrics selector: "%s".' % self.selector
+
 class metric_day:
-    def __init__(self, data, day_key: str):
+    def __init__(self, data, day_key: str, selector: str):
         self.data = data # Assumed to be a list.
         self.day_key = day_key
+        self.selector = selector
 
         # Parse data:
-        self.lines = [ metric_line(self.data[i], i) for i in range(len(self.data)) ]
+        if selector == 'nutrition':
+            self.lines = [ nutrition_line(self.data[i], i) for i in range(len(self.data)) ]
+        else:
+            self.lines = [ unknown_line(selector) ]
         # self._t = datetime.fromtimestamp(data[0])
         # self._description = data[1]
         # self._quantity = data[2]
@@ -89,18 +133,50 @@ class metric_day:
 
     def generate_html_body(self) ->str:
         multi_line = ''
-        for i in range(len(self.data)):
-            multi_line += self.lines[i].generate_html_body()
+        for line in self.lines:
+            if line is not None:
+                multi_line += line.generate_html_body()
         return METRIC_DAY_FRAME % multi_line
 
+class metric_graph_day:
+    def __init__(self, data, day_key:str, selector:str):
+        self.data = data # Assumed to be a list.
+        self.day_key = day_key
+        self.selector = selector
+
+        # Parse data:
+        self.weight = None
+        if selector == 'wiztable':
+            # NOTE: *** At present, this shows only weight.
+            for data_item in data:
+                if data_item[0] == 'weight':
+                    if data_item[2] != '':
+                        self.weight = float(data_item[2])
+
+    # def generate_html_body(self) ->str:
+    #     multi_line = ''
+    #     for line in self.lines:
+    #         if line is not None:
+    #             multi_line += line.generate_html_body()
+    #     return METRIC_DAY_FRAME % multi_line
+
+    def generate_html_body_and_graph_data(self) ->tuple:
+        weight_day = datetime.strptime(self.day_key, '%Y.%m.%d')
+        weight_value = self.weight
+        html_str = ''
+        return html_str, weight_value, weight_day
+
 class metric_tables:
-    def __init__(self, day: datetime, metric_data: dict):
+    '''
+    This inserts the HTML code for a list of nutrition consumptions.
+    '''
+    def __init__(self, day: datetime, metric_data: dict, selector: str):
         self.day = day
         self.metric_data = metric_data
 
         #print('===========> '+str(self.metric_data))
         #self.lines = [ metric_line(self.metric_data[i], i) for i in range(len(self.metric_data)) ]
-        self.days = [ metric_day(self.metric_data[day_key], day_key) for day_key in self.metric_data ]
+        self.days = [ metric_day(self.metric_data[day_key], day_key, selector) for day_key in self.metric_data ]
         self.content = ''
 
     def generate_html_head(self) ->str:
@@ -111,6 +187,41 @@ class metric_tables:
         for i in range(len(self.days)):
             self.content += self.days[i].generate_html_body()
         return METRICPAGE_BODY_FRAME % self.content
+
+    def generate_html_tail(self) ->str:
+        return ''
+
+class metric_graphs:
+    '''
+    This inserts the HTML code for a graph that shows weight changes over time.
+    '''
+    def __init__(self, day: datetime, metric_data: dict, selector: str):
+        self.day = day
+        self.metric_data = metric_data
+
+        #print('===========> '+str(self.metric_data))
+        #self.lines = [ metric_line(self.metric_data[i], i) for i in range(len(self.metric_data)) ]
+        self.days = [ metric_graph_day(self.metric_data[day_key], day_key, selector) for day_key in self.metric_data ]
+        self.content = ''
+
+    def generate_html_head(self) ->str:
+        return METRICPAGE_HEAD_STYLE
+
+    def generate_html_body(self) ->str:
+        self.content = ''
+        metric_data = []
+        metric_days = []
+        for i in range(len(self.days)):
+            html_str, weight_value, weight_day = self.days[i].generate_html_body_and_graph_data()
+            if weight_value is not None:
+                self.content += html_str
+                metric_data.append(weight_value)
+                metric_days.append(weight_day)
+        #fig = px.scatter(metric_data, x=metric_days, y=metric_data)
+        fig = px.line(metric_data, x=metric_days, y=metric_data)
+        fig.update_yaxes(range=[173, 240])
+        self.content = WEIGHT_FIGURE % pxio.to_html(fig, full_html=False)
+        return '%s' % self.content
 
     def generate_html_tail(self) ->str:
         return ''
@@ -142,9 +253,12 @@ class metricspage(fz_htmlpage):
         self.tail_list = [ self.html_std, self.html_uistate, self.html_clock, ]
 
         # Select metric to work with:
-        self.metric = self.select_metric_data()
+        self.metric, self.selector = self.select_metric_data()
         if self.metric is not None:
-            self.tables = metric_tables(self.day, self.metric)
+            if self.selector == 'nutrition':
+                self.tables = metric_tables(self.day, self.metric, self.selector)
+            else:
+                self.tables = metric_graphs(self.day, self.metric, self.selector)
             self.head_list.append( self.tables )
             self.body_list.append( self.tables )
             self.tail_list.append( self.tables )
@@ -157,18 +271,20 @@ class metricspage(fz_htmlpage):
             except:
                 self.metrics_data = {}
 
-    def select_metric_data(self) ->dict:
+    def select_metric_data(self) ->tuple:
         entry_point = self.metrics_data
+        the_selector = ''
         for selector in self.metric_selection:
             if selector in entry_point:
                 entry_point = entry_point[selector]
+                the_selector = selector
             else:
                 self.body_list.append( fz_errorpage('Unable to select metric %s from %s: ' % ( str(selector), str(self.metric_selection))) )
                 return None
-        return entry_point
+        return entry_point, the_selector
 
     def show(self):
-        print("Content-type:text/html\n\n")
+        #print("Content-type:text/html\n\n")
         print(self.generate_html())
 
 # ====================== Entry parsers:

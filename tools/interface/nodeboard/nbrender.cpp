@@ -10,6 +10,7 @@
 #include "error.hpp"
 #include "general.hpp"
 #include "stringio.hpp"
+#include "html.hpp"
 #include "Graphtypes.hpp"
 #include "Graphinfo.hpp"
 #include "templater.hpp"
@@ -55,8 +56,8 @@ nodeboard::nodeboard():
     output_path("/var/www/html/formalizer/test_node_card.html"),
     graph_ptr(nullptr) {
 
-    add_option_args += "RL:l:t:m:f:H:o:";
-    add_usage_top += " [-R] [-L <name>] [-l {<name>,...}] [-t {<topic>,...}]"
+    add_option_args += "Rn:L:l:t:m:f:H:o:";
+    add_usage_top += " [-R] [-n <node-ID>] [-L <name>] [-l {<name>,...}] [-t {<topic>,...}]"
         " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-H <board-header>]"
         " [-o <output-file|STDOUT>]";
 }
@@ -65,6 +66,7 @@ void nodeboard::usage_hook() {
     ga.usage_hook();
     FZOUT(
         "    -R Test with random selection of Nodes\n"
+        "    -n Node dependencies\n"
         "    -L Use Nodes data in Named Node List\n"
         "    -l List of Named Node Lists\n"
         "    -t List of Topics\n"
@@ -90,6 +92,12 @@ bool nodeboard::options_hook(char c, std::string cargs) {
     
     switch (c) {
     
+        case 'n': {
+            flowcontrol = flow_node;
+            node_ptr = graph().Node_by_id(cargs);
+            return true;
+        }
+
         case 'R': {
             flowcontrol = flow_random_test;
             return true;
@@ -198,6 +206,7 @@ bool nodeboard::to_output(const std::string & rendered_board) {
     if (!string_to_file(output_path, rendered_board)) {
         ERRRETURNFALSE(__func__,"unable to write rendered board to "+output_path);
     }
+    FZOUT("Board rendered to "+output_path+".\n");
     return true;
 }
 
@@ -213,6 +222,7 @@ bool nodeboard::get_Node_card(const Node * node_ptr, std::string & rendered_card
     // For each node: Set up a map of content to template position IDs.
     template_varvalues nodevars;
     nodevars.emplace("node-id", node_ptr->get_id_str());
+    nodevars.emplace("node-deps", node_ptr->get_id_str());
     nodevars.emplace("node-text", node_ptr->get_text());
 
     // For each node: Create a Kanban card and add it to the output HTML.
@@ -220,15 +230,39 @@ bool nodeboard::get_Node_card(const Node * node_ptr, std::string & rendered_card
     return true;
 }
 
-bool nodeboard::get_column(const std::string & column_header, const std::string & rendered_cards, std::string & rendered_columns) {
+bool nodeboard::get_column(const std::string & column_header, const std::string & rendered_cards, std::string & rendered_columns, const std::string extra_header = "") {
     // For each column: Set up a map of content to template position IDs.
     template_varvalues column;
     column.emplace("column-id", column_header);
+    column.emplace("column-extra", extra_header);
     column.emplace("column-cards", rendered_cards);
 
     // For each node: Create a Kanban card and add it to the output HTML.
     rendered_columns += env.render(templates[kanban_column_temp], column);
+    num_columns++;
     return true;
+}
+
+bool nodeboard::get_dependencies_column(const std::string & column_header, const Node * column_node, std::string & rendered_columns, const std::string extra_header = "") {
+
+    if (!column_node) {
+        standard_error("Node not found, skipping", __func__);
+        return false;
+    }
+
+    std::string rendered_cards;
+
+    for (const auto & edge_ptr : column_node->dep_Edges()) {
+        if (edge_ptr) {
+
+            if (!get_Node_card(edge_ptr->get_dep(), rendered_cards)) {
+                standard_error("Node "+edge_ptr->get_dep_str()+" not found in Graph, skipping", __func__);
+            }
+
+        }
+    }
+
+    return get_column(column_header, rendered_cards, rendered_columns, extra_header);
 }
 
 bool nodeboard::get_NNL_column(const std::string & nnl_str, std::string & rendered_columns) {
@@ -292,12 +326,13 @@ bool nodeboard::make_multi_column_board(const std::string & rendered_columns) {
     template_varvalues board;
     // Insert the HTML for all the cards into the Kanban board.
     std::string column_widths;
-    for (unsigned int i=0; i<list_names_vec.size(); i++) {
+    for (unsigned int i=0; i<num_columns; i++) {
         column_widths += " 270px";
     }
-    board.emplace("board-header",board_title);
-    board.emplace("column-widths",column_widths);
-    board.emplace("the-columns",rendered_columns);
+    board.emplace("board-header", board_title);
+    board.emplace("board-extra", board_title_extra);
+    board.emplace("column-widths", column_widths);
+    board.emplace("the-columns", rendered_columns);
     std::string rendered_board = env.render(templates[kanban_board_temp], board);
 
     return to_output(rendered_board);
@@ -333,6 +368,43 @@ bool node_board_render_random_test(nodeboard & nb) {
     }
 
     return nb.make_simple_grid_board(rendered_cards);
+}
+
+bool node_board_render_dependencies(nodeboard & nb) {
+    if (!nb.node_ptr) {
+        return false;
+    }
+
+    if (!nb.render_init()) {
+        return false;
+    }
+
+    if (!nb.board_title_specified) {
+        nb.board_title = nb.node_ptr->get_id_str();
+        std::string idtext(nb.node_ptr->get_id_str());
+        nb.board_title = "<a href=\"/cgi-bin/fzlink.py?id="+idtext+"\">"+idtext+"</a>";
+
+        std::string htmltext(nb.node_ptr->get_text().c_str());
+        nb.board_title_extra = remove_html_tags(htmltext).substr(0,nb.excerpt_length);
+    }
+
+    std::string rendered_columns;
+
+    for (const auto & edge_ptr : nb.node_ptr->dep_Edges()) {
+        if (edge_ptr) {
+
+            Node * dep_ptr = edge_ptr->get_dep();
+            std::string htmltext(dep_ptr->get_text().c_str());
+
+            std::string idtext(edge_ptr->get_dep_str());
+            std::string column_header_with_link = "<a href=\"/cgi-bin/fzlink.py?id="+idtext+"\">"+idtext+"</a> (<a href=\"/cgi-bin/nodeboard-cgi.py?n="+idtext+"\">DEP</a>)";
+
+            nb.get_dependencies_column(column_header_with_link, edge_ptr->get_dep(), rendered_columns, remove_html_tags(htmltext).substr(0,nb.excerpt_length));
+
+        }
+    }
+
+    return nb.make_multi_column_board(rendered_columns);
 }
 
 bool node_board_render_named_list(Named_Node_List_ptr namedlist_ptr, nodeboard & nb) {

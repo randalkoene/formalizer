@@ -59,6 +59,7 @@ form = cgi.FieldStorage()
 
 # Get data from fields
 sysmet_file = form.getvalue('f')
+node_dependencies = form.getvalue('n')
 
 # *** OBTAIN THIS SOMEHOW!
 #with open('./server_address','r') as f:
@@ -117,6 +118,11 @@ def show_sysmet_board(sysmet_json_path:str, sysmet_output_path:str):
 def show_main2023_board():
     show_sysmet_board(main2023categoriesfile, '/main2023categories-kanban.html')
 
+def show_node_dependencies_board():
+    thecmd = f"./nodeboard -n {node_dependencies} -q -o /var/www/webdata/formalizer/node_dependencies_kanban.html"
+    res = try_command_call(thecmd, print_result=False)
+    print(REDIRECT % "/node_dependencies_kanban.html")
+
 HELP='''
 <html>
 <body>
@@ -131,6 +137,10 @@ def show_help():
 if __name__ == '__main__':
     if (sysmet_file == 'main2023'):
         show_main2023_board()
+        sys.exit(0)
+
+    if (node_dependencies != ''):
+        show_node_dependencies_board()
         sys.exit(0)
 
     show_help()

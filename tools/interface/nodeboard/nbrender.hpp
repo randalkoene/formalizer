@@ -47,9 +47,12 @@ struct nodeboard: public formalizer_standard_program {
 
     flow_options flowcontrol;
 
+    Node * node_ptr = nullptr;
     std::string source_file;
     std::string list_name;
     std::vector<std::string> list_names_vec;
+
+    int excerpt_length = 160;
 
     Topic_ID topic_id = 0;
 
@@ -57,6 +60,7 @@ struct nodeboard: public formalizer_standard_program {
 
     bool board_title_specified = false;
     std::string board_title; // Set to -f name or "Kanban Board" if not provided.
+    std::string board_title_extra;
 
     std::string output_path;
 
@@ -64,6 +68,8 @@ struct nodeboard: public formalizer_standard_program {
 
     render_environment env;
     nodeboard_templates templates;
+
+    unsigned int num_columns = 0;
 
     nodeboard();
 
@@ -83,7 +89,9 @@ struct nodeboard: public formalizer_standard_program {
 
     bool get_Node_card(const Node * node_ptr, std::string & rendered_cards);
 
-    bool get_column(const std::string & column_header, const std::string & rendered_cards, std::string & rendered_columns);
+    bool get_column(const std::string & column_header, const std::string & rendered_cards, std::string & rendered_columns, const std::string extra_header);
+
+    bool get_dependencies_column(const std::string & column_header, const Node * column_node, std::string & rendered_columns, const std::string extra_header);
 
     bool get_NNL_column(const std::string & nnl_str, std::string & rendered_columns);
 
@@ -96,6 +104,8 @@ struct nodeboard: public formalizer_standard_program {
 };
 
 bool node_board_render_random_test(nodeboard & nb);
+
+bool node_board_render_dependencies(nodeboard & nb);
 
 bool node_board_render_named_list(Named_Node_List_ptr namedlist_ptr, nodeboard & nb);
 
