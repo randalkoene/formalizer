@@ -70,6 +70,10 @@ bool sysmet_categories() {
     return standard_exit(node_board_render_sysmet_categories(nb), "Kanban board created.\n", exit_general_error, "Unable to create Kanban board.", __func__);
 }
 
+bool NNL_dependencies() {
+    return standard_exit(node_board_render_NNL_dependencies(nb), "NNL dependencies Kanban board created.\n", exit_general_error, "Unable to create NNL dependencies Kanban board.", __func__);
+}
+
 int main(int argc, char *argv[]) {
     nb.init(argc,argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 
@@ -107,6 +111,11 @@ int main(int argc, char *argv[]) {
 
         case flow_sysmet_categories: {
             sysmet_categories();
+            break;
+        }
+
+        case flow_NNL_dependencies: {
+            NNL_dependencies();
             break;
         }
 

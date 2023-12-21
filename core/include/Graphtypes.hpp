@@ -282,8 +282,8 @@ typedef bi::allocator<Node_ID_key, segment_manager_t> Node_ID_key_allocator;
  * Nodes see:
  * https://trello.com/c/zcUpEAXi/189-fzserverpq-named-lists#comment-5fac08dc178a257eb6f953ac
  */
-typedef bi::deque<Node_ID_key, Node_ID_key_allocator> Node_List;
-typedef bi::set<Node_ID_key, std::less<Node_ID_key>, Node_ID_key_allocator> Node_Set;
+typedef bi::deque<Node_ID_key, Node_ID_key_allocator> Node_List; // must initialize with graphmemman.get_allocator()
+typedef bi::set<Node_ID_key, std::less<Node_ID_key>, Node_ID_key_allocator> Node_Set; // must initialize with graphmemman.get_allocator()
 //typedef bi::vector<const Node_ID_key, Node_ID_key_allocator> Node_List;
 
 /**

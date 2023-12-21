@@ -43,6 +43,10 @@ form = cgi.FieldStorage()
 # Get data from fields
 #startfrom = form.getvalue('startfrom')
 
+def log(msg):
+    with open(logfile,'w') as f:
+        f.write(msg)
+
 # statevars
 def addstate(v) -> str:
     if v:
@@ -70,6 +74,8 @@ num_unlimited = form.getvalue('all')
 max_td = form.getvalue('max_td')
 num_days = form.getvalue('num_days')
 sort_by = form.getvalue('sort_by')
+
+subtrees_list = form.getvalue('subtrees')
 
 # The following should only show information that is safe to provide
 # to those who have permission to connect to this CGI handler.
@@ -290,10 +296,6 @@ def try_command_call(thecmd, printhere = True) -> str:
         return ''
 
 
-def log(msg):
-    with open(logfile,'w') as f:
-        f.write(msg)
-
 
 def generate_embeddable_list_of_NNLs_to_add_Node_to():
     # Make the command for fzgraphhtml with custom template file instead of named_node_list_in_list_template.html
@@ -388,10 +390,16 @@ def generate_Next_Nodes_Schedule_page():
     global max_td
     global num_unlimited
     global num_days
+    global subtrees_list
     
     print("Content-type:text/html\n\n")
 
-    thecmd = "./fzgraphhtml -q -I -r -o STDOUT -E STDOUT"
+    if subtrees_list:
+        subtrees_par = " -S "+subtrees_list
+    else:
+        subtrees_par = ""
+
+    thecmd = f"./fzgraphhtml -q -I -r{subtrees_par} -o STDOUT -E STDOUT"
     #thecmd = "./fzgraphhtml -q -I -o STDOUT -E STDOUT"
 
     if max_td:

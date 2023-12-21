@@ -23,7 +23,7 @@ WIZTABLE_LINES=[
 	[ '20091115180507.1', 5, 'passedfixed', 0, 'checkbox', 6, 9, '<a href="/cgi-bin/fzupdate-cgi.py?update=passedfixed" target="_blank">Confirm passed non-repeating Fixed Nodes to convert to Variable</a> - or - manually update them.', '' ],
 	[ '20091115180507.1', 5, 'passedrepeat', 0, 'checkbox', 6, 9, 'Auto-update passed repeating Nodes to their next instances.', '' ],
 	[ '20091115180507.1', 3, 'priority', 0, 'checkbox', 6, 9, 'Ensure that highest priority Promises are represented in the Schedule.', '' ], # Schedule autodetectable.
-	[ '20091115180507.1', 4, 'milestones', 0, 'checkbox', 6, 9, 'Review upcoming Milestones (<a href="/cgi-bin/nodeboard-cgi.py?n=20101230042609.1" target="_blank">Milestones Kanban</a>, <a href="https://trello.com/b/tlgXjZBm" target="_blank">Milestone Tracks</a>, <a href="https://trello.com/b/t2RmUmlN" target="_blank">Milestones Trello</a>, mapped to Milestones, Dependencies, Roadmap Path, Values and Urgency.) Ensure there are Nodes to complete upcoming Milestones.', '' ],
+	[ '20091115180507.1', 4, 'milestones', 0, 'checkbox', 6, 9, 'Review upcoming Milestones (<a href="/cgi-bin/nodeboard-cgi.py?n=20101230042609.1" target="_blank">Milestones Kanban</a>, <a href="https://trello.com/b/tlgXjZBm" target="_blank">Milestone Tracks</a>, <a href="https://trello.com/b/t2RmUmlN" target="_blank">Milestones Trello</a>, mapped to Milestones, Dependencies, Roadmap Path, Values and Urgency.) Ensure there are Nodes to complete upcoming Milestones. Also, review progress on current main Nodes side-by-side.', '' ],
 	[ '20091115180507.1', 4, 'decisions', 0, 'checkbox', 6, 9, 'Identify Challenges and Decisions in the Schedule, tag as such, add to <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=challenges_open&sort_by=targetdate" target="_blank">NNL</a>. <a href="https://trello.com/b/mnu1VKIn" target="_blank">Known Challenges and Decisions</a> must be represented by at least one Node.', '' ],
 	[ '20091115180507.1', 5, 'schedfits', 0, 'checkbox', 6, 9, 'Ensure schedule is mathematically doable. (Sum of required times fits into available time.)', '' ],
 	[ '20091115180507.1', 2, 'variable', 0, 'checkbox', 6, 9, 'Auto-update Variable Nodes. (Or replace this with different handling of Variable Nodes.)', '' ],
@@ -49,6 +49,7 @@ WIZTABLE_LINES=[
 	[ '20200601093905.1', 3, 'armodafinil', 0, 'number', 21, 24, 'Armodafinil taken (mg).', '' ],
 	[ '20200601093905.1', 3, 'alcohol', 0, 'number', 21, 24, 'Alcohol consumed (ml).', '' ],
 	[ '20200601093905.1', 4, 'daynutri', 0, 'checkbox', 22, 24, 'Finalize day nutrition.', '' ],
+	[ '20200601093905.1', 4, 'timeuse', 0, 'checkbox', 22, 24, 'Review how I <a href="/cgi-bin/sysmet-extract-cgi.py?categories=new2023" target="_blank"><b>used my time</b></a>.', '' ],
 ]
 WIZTABLE_LINES_NODE=0
 WIZTABLE_LINES_WEIGHT=1

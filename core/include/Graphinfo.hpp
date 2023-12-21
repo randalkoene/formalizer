@@ -66,6 +66,46 @@ struct Node_Filter {
 };
 
 /**
+ * Collect all unique Nodes in the dependencies tree of a Node.
+ * 
+ * @param node_ptr A valid pointer to Node.
+ * @param fulldepth_dependencies A base_Node_Set container for the resulting set of dependencies.
+ * @return True if successful.
+ */
+bool Node_Dependencies_fulldepth(const Node* node_ptr, base_Node_Set & fulldepth_dependencies);
+
+/**
+ * Collect the subtrees that are the full dependencies of all Nodes in a
+ * Named Nodes List.
+ * 
+ * @param nnl_str Named Nodes List.
+ * @return A map in which the keys are the Node IDs of Nodes in the NNL and
+ *         the values are each a set of unique Nodes that are the dependencies.
+ */
+std::map<Node_ID_key, base_Node_Set, std::less<Node_ID_key>> Threads_Subtrees(Graph & graph, const std::string & nnl_str);
+
+/**
+ * See how this is used in fzgraphhtml and nodeboard.
+ */
+struct Map_of_Subtrees {
+    std::map<Node_ID_key, base_Node_Set, std::less<Node_ID_key>> map_of_subtrees;
+    std::string subtrees_list_name;
+    bool has_subtrees = false;
+
+    Map_of_Subtrees() {}
+
+    bool collect(Graph & graph, const std::string & list_name);
+
+    bool is_subtree_head(Node_ID_key subtree_key) const;
+
+    const base_Node_Set & get_subtree_set(Node_ID_key subtree_key) const;
+
+    bool node_in_subtree(Node_ID_key subtree_key, Node_ID_key node_key) const;
+
+    bool node_in_any_subtree(Node_ID_key node_key) const;
+};
+
+/**
  * Finds all Nodes that match a specified Node_Filter.
  * 
  * @param graph A valid Graph data structure.

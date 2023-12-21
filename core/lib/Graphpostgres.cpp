@@ -263,6 +263,137 @@ typedef std::set<NNLmod_update> NNLmod_update_set;
 //typedef std::map<Named_List_String, bool> NNLmod_update_set;
 
 /**
+ * Interpret the type of modification that was carried out in
+ * one Graphmod_result object. Call the corresponding database
+ * update function.
+ * 
+ * This is called both from functions that use shared memory
+ * and those that do not, i.e. from handle_Graph_modifications_pq()
+ * and from handle_Graph_modifications_unshared_pq(). In this
+ * manner, the same process is used from fzserverpq calls that
+ * communicate through shared memory and those that communicate
+ * through the FZ TCP API.
+ * 
+ * @param graph A valid Graph structure that contains modified data.
+ * @param conn An active connection to the database.
+ * @param schemaname The Postgres schema name for Formalizer data.
+ * @param nnlupdates A set of NNL updates.
+ * @param change_data A valid Graphmod_result object.
+ * @result True if successful.
+ */
+bool handle_one_modification_pq(Graph & graph, PGconn* conn, const std::string & schemaname, NNLmod_update_set & nnlupdates, const Graphmod_result & change_data) {
+    switch (change_data.request_handled) {
+
+        case graphmod_add_node: {
+            Node * n = graph.Node_by_id(change_data.node_key);
+            if (n) {
+                if (!add_Node_pq(conn, schemaname, n)) {
+                    return false;
+                }
+            } else {
+                ADDERROR(__func__, "New Node "+change_data.node_key.str()+" not found in Graph");
+                return false;
+            }
+            #ifdef USE_CHANGE_HISTORY
+            // this is an example of a place where the state of a change history record would be
+            // updated to `applied-in-storage`. See https://trello.com/c/FxSP8If8.
+            #endif
+            break;
+        }
+
+        case graphmod_add_edge: {
+            Edge * e = graph.Edge_by_id(change_data.edge_key);
+            if (e) {
+                if (!add_Edge_pq(conn, schemaname, e)) {
+                    return false;
+                }
+            } else {
+                ADDERROR(__func__, "New Edge "+change_data.edge_key.str()+" not found in Graph");
+                return false;
+            }
+            #ifdef USE_CHANGE_HISTORY
+            // this is an example of a place where the state of a change history record would be
+            // updated to `applied-in-storage`. See https://trello.com/c/FxSP8If8.
+            #endif
+            break;
+        }
+
+        case namedlist_add: {
+            nnlupdates.emplace(change_data.resstr, true);
+            break;
+        }
+
+        case namedlist_remove: {
+            if (const_cast<Graph *>(&graph)->get_List(change_data.resstr.c_str())) { // was the List removed after removing the last Node?
+                nnlupdates.emplace(change_data.resstr, true);
+            } else {
+                nnlupdates.emplace(change_data.resstr, false);
+            }
+            break;
+        }
+
+        case namedlist_delete: {
+            nnlupdates.emplace(change_data.resstr, false);
+            break;
+        }
+
+        case graphmod_edit_node: {
+            Node * n = graph.Node_by_id(change_data.node_key);
+            if (n) {
+                if (!update_Node_pq(conn, schemaname, *n, n->get_editflags())) {
+                    return false;
+                } else { // you can clear the Node's Edit_flags now
+                    n->clear_editflags();
+                }
+            } else {
+                ADDERROR(__func__, "Node with modifications to update in database "+change_data.node_key.str()+" not found in Graph");
+                return false;
+            }
+            #ifdef USE_CHANGE_HISTORY
+            // this is an example of a place where the state of a change history record would be
+            // updated to `applied-in-storage`. See https://trello.com/c/FxSP8If8.
+            #endif
+            break;
+        }
+
+        case graphmod_edit_edge: {
+            // *** Not yet implemented! Letting this drop through to the default warning.
+            //break;
+        }
+
+        case batchmod_targetdates: {
+            if (!update_batch_node_targetdates_pq(conn, schemaname, graph, change_data.resstr.c_str())) {
+                return false;
+            }
+            #ifdef USE_CHANGE_HISTORY
+            // this is an example of a place where the state of a change history record would be
+            // updated to `applied-in-storage`. See https://trello.com/c/FxSP8If8.
+            #endif
+            break;
+        }
+
+        case batchmod_tpassrepeating: {
+            if (!update_batch_nodes_pq(conn, schemaname, graph, change_data.resstr.c_str())) {
+                return false;
+            }                
+            #ifdef USE_CHANGE_HISTORY
+            // this is an example of a place where the state of a change history record would be
+            // updated to `applied-in-storage`. See https://trello.com/c/FxSP8If8.
+            #endif                
+            break;
+        }
+
+        default: {
+            // This should never happen.
+            ADDERROR(__func__, "Unrecognized modification request ("+std::to_string((int) change_data.request_handled)+')');
+            return false;
+        }
+
+    }
+    return true;
+}
+
+/**
  * Process the defined set of possible modifications of Graph data and carry
  * out those modifications in the database.
  * 
@@ -279,7 +410,7 @@ typedef std::set<NNLmod_update> NNLmod_update_set;
  * @param graph A valid Graph structure that contains modified data.
  * @param dbname The Postgres database name.
  * @param schemaname The Postgres schema name for Formalizer data.
- * @param Graphmod_results A data structure detailing modifications to apply.
+ * @param modifications A data structure detailing modifications to apply.
  */
 bool handle_Graph_modifications_pq(Graph & graph, std::string dbname, std::string schemaname, Graphmod_results & modifications) {
     ERRTRACE;
@@ -290,120 +421,74 @@ bool handle_Graph_modifications_pq(Graph & graph, std::string dbname, std::strin
     PGconn* conn = connection_setup_pq(dbname);
     if (!conn) return false;
 
-    // Define a clean return that closes the connection to the database and cleans up.
-    #define MODIFY_GRAPH_PQ_RETURN(r) { PQfinish(conn); return r; }
+    NNLmod_update_set nnlupdates;
+
+    for (const auto & change_data : modifications.results) { // change_data is of type Graphmod_result.
+
+        if (!handle_one_modification_pq(graph, conn, schemaname, nnlupdates, change_data)) {
+            PQfinish(conn); return false;
+        }
+
+    }
+
+    PQfinish(conn);
+
+    // Here we deal with the Named Node List modification synchronizations
+    if (graph.persistent_Lists()) {
+        for (const auto & nnl_update : nnlupdates) {
+            if (nnl_update.modified) {
+                if (!Update_Named_Node_List_pq(dbname, schemaname, nnl_update.list_name.c_str(), *(const_cast<Graph *>(&graph)))) {
+                    return standard_error("Synchronizing Named Node List update to database failed", __func__);
+                }
+            } else {
+                if (!Delete_Named_Node_List_pq(dbname, schemaname, nnl_update.list_name.c_str())) {
+                    return standard_error("Synchronizing Named Node List deletion in database failed", __func__);
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Process the defined set of possible modifications of Graph data and carry
+ * out those modifications in the database. This version of the call does not
+ * use shared memory.
+ * 
+ * This is called after modifications have been made in the in-memory Graph
+ * data structure. See, for example, how this is used in
+ * `fzserverpq:handle_request_stack()`.
+ * 
+ * Note: For development information about the proposed set of possible
+ *       modifications, see https://trello.com/c/FxSP8If8.
+ * 
+ * For more information about the complete path involved in modifications,
+ * see https://trello.com/c/eUjjF1yZ.
+ * 
+ * @param graph A valid Graph structure that contains modified data.
+ * @param dbname The Postgres database name.
+ * @param schemaname The Postgres schema name for Formalizer data.
+ * @param modifications A data structure detailing modifications to apply.
+ */
+bool handle_Graph_modifications_unshared_pq(Graph & graph, std::string dbname, std::string schemaname, Graphmod_unshared_results & modifications) {
+    ERRTRACE;
+    if (modifications.results.empty()) {
+        ERRRETURNFALSE(__func__, "There are no in-memory Graph changes to send to storage.");
+    }
+
+    PGconn* conn = connection_setup_pq(dbname);
+    if (!conn) {
+        ERRRETURNFALSE(__func__, "Missing reference to connected database.");
+    }
 
     NNLmod_update_set nnlupdates;
 
-    for (const auto & change_data : modifications.results) {
+    for (const auto & change_data : modifications.results) { // change_data is of type Graphmod_result.
 
-        switch (change_data.request_handled) {
-
-            case graphmod_add_node: {
-                Node * n = graph.Node_by_id(change_data.node_key);
-                if (n) {
-                    if (!add_Node_pq(conn, schemaname, n)) {
-                        MODIFY_GRAPH_PQ_RETURN(false);
-                    }
-                } else {
-                    ADDERROR(__func__, "New Node "+change_data.node_key.str()+" not found in Graph");
-                    MODIFY_GRAPH_PQ_RETURN(false);
-                }
-                #ifdef USE_CHANGE_HISTORY
-                // this is an example of a place where the state of a change history record would be
-                // updated to `applied-in-storage`. See https://trello.com/c/FxSP8If8.
-                #endif
-                break;
-            }
-
-            case graphmod_add_edge: {
-                Edge * e = graph.Edge_by_id(change_data.edge_key);
-                if (e) {
-                    if (!add_Edge_pq(conn, schemaname, e)) {
-                        MODIFY_GRAPH_PQ_RETURN(false);
-                    }
-                } else {
-                    ADDERROR(__func__, "New Edge "+change_data.edge_key.str()+" not found in Graph");
-                    MODIFY_GRAPH_PQ_RETURN(false);
-                }
-                #ifdef USE_CHANGE_HISTORY
-                // this is an example of a place where the state of a change history record would be
-                // updated to `applied-in-storage`. See https://trello.com/c/FxSP8If8.
-                #endif
-                break;
-            }
-
-            case namedlist_add: {
-                nnlupdates.emplace(change_data.resstr, true);
-                break;
-            }
-
-            case namedlist_remove: {
-                if (const_cast<Graph *>(&graph)->get_List(change_data.resstr.c_str())) { // was the List removed after removing the last Node?
-                    nnlupdates.emplace(change_data.resstr, true);
-                } else {
-                    nnlupdates.emplace(change_data.resstr, false);
-                }
-                break;
-            }
-
-            case namedlist_delete: {
-                nnlupdates.emplace(change_data.resstr, false);
-                break;
-            }
-
-            case graphmod_edit_node: {
-                Node * n = graph.Node_by_id(change_data.node_key);
-                if (n) {
-                    if (!update_Node_pq(conn, schemaname, *n, n->get_editflags())) {
-                        MODIFY_GRAPH_PQ_RETURN(false);
-                    } else { // you can clear the Node's Edit_flags now
-                        n->clear_editflags();
-                    }
-                } else {
-                    ADDERROR(__func__, "Node with modifications to update in database "+change_data.node_key.str()+" not found in Graph");
-                    MODIFY_GRAPH_PQ_RETURN(false);
-                }
-                #ifdef USE_CHANGE_HISTORY
-                // this is an example of a place where the state of a change history record would be
-                // updated to `applied-in-storage`. See https://trello.com/c/FxSP8If8.
-                #endif
-                break;
-            }
-
-            case graphmod_edit_edge: {
-                // *** Not yet implemented! Letting this drop through to the default warning.
-                //break;
-            }
-
-            case batchmod_targetdates: {
-                if (!update_batch_node_targetdates_pq(conn, schemaname, graph, change_data.resstr.c_str())) {
-                    MODIFY_GRAPH_PQ_RETURN(false);
-                }
-                #ifdef USE_CHANGE_HISTORY
-                // this is an example of a place where the state of a change history record would be
-                // updated to `applied-in-storage`. See https://trello.com/c/FxSP8If8.
-                #endif
-                break;
-            }
-
-            case batchmod_tpassrepeating: {
-                if (!update_batch_nodes_pq(conn, schemaname, graph, change_data.resstr.c_str())) {
-                    MODIFY_GRAPH_PQ_RETURN(false);
-                }                
-                #ifdef USE_CHANGE_HISTORY
-                // this is an example of a place where the state of a change history record would be
-                // updated to `applied-in-storage`. See https://trello.com/c/FxSP8If8.
-                #endif                
-                break;
-            }
-
-            default: {
-                // This should never happen.
-                ADDERROR(__func__, "Unrecognized modification request ("+std::to_string((int) change_data.request_handled)+')');
-                MODIFY_GRAPH_PQ_RETURN(false);
-            }
-
+        if (!handle_one_modification_pq(graph, conn, schemaname, nnlupdates, change_data)) {
+            PQfinish(conn);
+            ERRRETURNFALSE(__func__, "Failed database modification for "+Graph_modification_request_str.at(change_data.request_handled));
         }
 
     }

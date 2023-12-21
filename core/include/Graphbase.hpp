@@ -65,8 +65,9 @@
 //#include <ctime>
 //#include <cstdint>
 #include <map>
-//#include <set>
+#include <set>
 #include <vector>
+#include <deque>
 
 // core
 #include "error.hpp"
@@ -128,6 +129,19 @@ extern const std::map<std::string, td_property> td_property_map;
 enum td_pattern { patt_daily, patt_workdays, patt_weekly, patt_biweekly, patt_monthly, patt_endofmonthoffset, patt_yearly, OLD_patt_span, patt_nonperiodic, _patt_num };
 extern const std::string td_pattern_str[_patt_num];
 extern const std::map<std::string, td_pattern> td_pattern_map;
+
+static constexpr const char* const graph_exception_stub = "attempted Graph access without valid reference to resident Graph ";
+
+/// Exception thrown when a resident Graph is missing and
+//  the error is not dealt with some other way.
+class NoGraph_exception {
+    std::string nographexceptioncase;
+public:
+    NoGraph_exception(std::string _nographexceptioncase) : nographexceptioncase(_nographexceptioncase) {
+        ADDERROR("Graph::Graph",graph_exception_stub+nographexceptioncase);
+    }
+    std::string what() { return std::string(graph_exception_stub) + nographexceptioncase; }
+};
 
 static constexpr const char* const node_exception_stub = "attempted Node_ID construction with invalid ";
 
@@ -257,6 +271,9 @@ struct Node_ID_key { // used to be a union with `ID Compare idC;` (see comments 
     friend bool identical_Node_ID_key(const Node_ID_key & key1, const Node_ID_key & key2, std::string & trace);
 };
 
+typedef std::deque<Node_ID_key> base_Node_List; // Unshared alternative to Graphtypes:Node_List.
+typedef std::set<Node_ID_key, std::less<Node_ID_key>> base_Node_Set; // Unshared alternative to Graphtypes:Node_Set.
+
 /**
  * Standardized Formalizer Edge ID key.
  * 
@@ -320,6 +337,7 @@ public:
         tdspan     = 0b0000'0100'0000'0000,
         topicrels  = 0b0000'1000'0000'0000,
         tcreated   = 0b0001'0000'0000'0000,
+        supdep     = 0b0010'0000'0000'0000, // This one is not a Node edit, instead it refers to all Edge edits.
         error      = 0b0100'0000'0000'0000'0000'0000'0000'0000 // see how this is used in Node_advance_repeating()
     };
 protected:

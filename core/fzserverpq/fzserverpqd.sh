@@ -5,11 +5,15 @@
 #
 # Daemonize the Graph server.
 
+fzserverpq_error_log="/var/www/html/formalizer/formalizer.core.server.error.ErrQ.log"
+
 echo "This is not yet a full daemonization. That is yet to be implemented."
 echo "This is really just a handy start script."
 echo ""
+echo "Errors are logged to $fzserverpq_error_log."
+echo ""
 
-fzserverpq -G -E /var/www/html/formalizer/formalizer.core.server.error.ErrQ.log
+fzserverpq -G -E $fzserverpq_error_log
 
 if [ $? -ne 0 ]; then
 

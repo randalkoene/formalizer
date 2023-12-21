@@ -29,6 +29,8 @@
 #include "tcp_serialized_data_handlers.hpp"
 #include "fzserverpq.hpp"
 
+#define TEST_MORE_THAN_NODE_MODIFICATIONS
+
 using namespace fz;
 
 bool handle_request_response(int socket, const std::string & text, std::string msg) {
@@ -741,6 +743,12 @@ bool handle_node_direct_edit_multiple_pars(Node & node, const std::string & exte
 typedef bool node_parameter_edit_func_t(Node &, std::string);
 typedef std::map<Edit_flags_type, node_parameter_edit_func_t*> node_parameter_edit_map_t;
 
+// Note: This route was tested by:
+//       1. calling: fzgraph -C "/fz/graph/nodes/20200901061505.1/completion?set=0.123"
+//       2. checking the server log: cat /var/www/html/formalizer/formalizer.core.server.requests.log
+//       3. checking the new completion state of Node 20200901061505.1 without explicitly reloading
+//          the fzserverpq.
+//       4. stopping fzserverpq and reloading (to confirm update in the database).
 bool set_completion(Node & node, std::string valstr) {
     if (valstr.empty()) {
         return standard_error("Missing parameter value", __func__);
@@ -748,9 +756,18 @@ bool set_completion(Node & node, std::string valstr) {
     float completion = std::atof(valstr.c_str()); // here, we allow everything (including special negative value codes)
     node.set_completion(completion);
     const_cast<Edit_flags *>(&(node.get_editflags()))->set_Edit_completion();
+#ifdef TEST_MORE_THAN_NODE_MODIFICATIONS
+    fzs.modifications_ptr->add(graphmod_edit_node, node.get_id().key());
+#endif
     return true;
 }
 
+// Note: This route was tested by:
+//       1. calling: fzgraph -C "/fz/graph/nodes/20200901061505.1/completion?add=0.123"
+//       2. checking the server log: cat /var/www/html/formalizer/formalizer.core.server.requests.log
+//       3. checking the new completion state of Node 20200901061505.1 without explicitly reloading
+//          the fzserverpq.
+//       4. stopping fzserverpq and reloading (to confirm update in the database).
 bool add_completion(Node & node, std::string valstr) {
     if (valstr.empty()) {
         return standard_error("Missing parameter value", __func__);
@@ -778,9 +795,18 @@ bool add_completion(Node & node, std::string valstr) {
         }
     }
     const_cast<Edit_flags *>(&(node.get_editflags()))->set_Edit_completion();
+#ifdef TEST_MORE_THAN_NODE_MODIFICATIONS
+    fzs.modifications_ptr->add(graphmod_edit_node, node.get_id().key());
+#endif
     return true;
 }
 
+// Note: This route was tested by:
+//       1. calling: fzgraph -C "/fz/graph/nodes/20200901061505.1/required?set=0.123h"
+//       2. checking the server log: cat /var/www/html/formalizer/formalizer.core.server.requests.log
+//       3. checking the new completion state of Node 20200901061505.1 without explicitly reloading
+//          the fzserverpq.
+//       4. stopping fzserverpq and reloading (to confirm update in the database).
 bool set_required(Node & node, std::string valstr) {
     if (valstr.empty()) {
         return standard_error("Missing parameter value", __func__);
@@ -802,9 +828,18 @@ bool set_required(Node & node, std::string valstr) {
     }
     node.set_required(required); // we permit explicit setting of any value, including negative value codes
     const_cast<Edit_flags *>(&(node.get_editflags()))->set_Edit_required();
+#ifdef TEST_MORE_THAN_NODE_MODIFICATIONS
+    fzs.modifications_ptr->add(graphmod_edit_node, node.get_id().key());
+#endif
     return true;
 }
 
+// Note: This route was tested by:
+//       1. calling: fzgraph -C "/fz/graph/nodes/20200901061505.1/required?add=0.123h"
+//       2. checking the server log: cat /var/www/html/formalizer/formalizer.core.server.requests.log
+//       3. checking the new completion state of Node 20200901061505.1 without explicitly reloading
+//          the fzserverpq.
+//       4. stopping fzserverpq and reloading (to confirm update in the database).
 bool add_required(Node & node, std::string valstr) {
     if (valstr.empty()) {
         return standard_error("Missing parameter value", __func__);
@@ -830,6 +865,9 @@ bool add_required(Node & node, std::string valstr) {
         node.set_required(required);
     }
     const_cast<Edit_flags *>(&(node.get_editflags()))->set_Edit_required();
+#ifdef TEST_MORE_THAN_NODE_MODIFICATIONS
+    fzs.modifications_ptr->add(graphmod_edit_node, node.get_id().key());
+#endif
     return true;
 }
 
@@ -876,16 +914,31 @@ bool handle_node_topics_edit(Node & node, std::string editstr) {
 typedef bool node_superiors_edit_func_t(Node &, std::string);
 typedef std::map<std::string, node_superiors_edit_func_t*> node_superiors_edit_map_t;
 
+// Note: This route was tested by:
+//       1. calling: fzgraph -C "/fz/graph/nodes/20231106091904.1/superiors/add?20231218212505.1="
+//       2. checking the server log: cat /var/www/html/formalizer/formalizer.core.server.requests.log
+//       3. checking the new superiors state of Node 20231106091904.1 without explicitly reloading
+//          the fzserverpq.
+//       4. stopping fzserverpq and reloading (to confirm update in the database).
 bool handle_node_superiors_add(Node & node, std::string superiorstr) {
     if (superiorstr.empty()) {
         return standard_error("Missing superior ID", __func__);
     }
-    //Node * dep_ptr = fzs.graph_ptr->Node_by_idstr(superiorstr.substr(0,NODE_ID_STR_NUMCHARS));
-    // *** change the node
-    // *** set the edit flag
-    return standard_error("MISSING IMPLEMENTATION: add superior", __func__);
-    // *** This needs Edge attention in memory and database.
-    //return true;
+    if (!fzs.graph().Node_by_idstr(superiorstr)) {
+        return standard_error("Invalid superior ID ("+superiorstr+')', __func__);
+    }
+#ifdef TEST_MORE_THAN_NODE_MODIFICATIONS
+    std::string edge_id_str = node.get_id_str()+'>'+superiorstr;
+    Edge_ptr edge_ptr = fzs.graph().create_and_add_Edge(edge_id_str);
+    if (!edge_ptr) {
+        return standard_error("Creating edge failed for "+edge_id_str, __func__);
+    }
+    // *** set the edit flag in the Edge (when it has those)
+    fzs.modifications_ptr->add(graphmod_add_edge, edge_ptr->get_id().key());
+    return true;
+#else
+    return standard_error("MISSING IMPLEMENTATION: add superior", __func__);    
+#endif
 }
 
 bool handle_node_superiors_remove(Node & node, std::string superiorstr) {
@@ -896,7 +949,8 @@ bool handle_node_superiors_remove(Node & node, std::string superiorstr) {
     // *** change the node
     // *** set the edit flag
     return standard_error("MISSING IMPLEMENTATION: remove superior", __func__);
-    // *** This needs Edge attention in memory and database.
+    // *** This needs Edge attention in memory and database. This means
+    //     that Update_Node_pq() is not enough for the database updates.
     //return true;
 }
 
@@ -904,12 +958,24 @@ bool handle_node_superiors_addlist(Node & node, std::string superiorslist) {
     if (superiorslist.empty()) {
         return standard_error("Missing superiors list", __func__);
     }
-    // *** get superiors from list
-    // *** change the node
-    // *** set the edit flag
+    Named_Node_List_ptr superiorsNNL_ptr = fzs.graph().get_List(superiorslist);
+    if (!superiorsNNL_ptr) {
+        return standard_error("Named Node List "+superiorslist+" not found.", __func__);
+    }
+#ifdef TEST_MORE_THAN_NODE_MODIFICATIONS
+    for (const auto & superior_idkey : superiorsNNL_ptr->list) {
+        std::string edge_id_str = node.get_id_str()+'>'+superior_idkey.str();
+        Edge_ptr edge_ptr = fzs.graph().create_and_add_Edge(edge_id_str);
+        if (!edge_ptr) {
+            return standard_error("Creating edge failed for "+edge_id_str, __func__);
+        }
+        // *** set the edit flag in the Edge (when it has those)
+        fzs.modifications_ptr->add(graphmod_add_edge, edge_ptr->get_id().key());
+    }
+    return true;
+#else
     return standard_error("MISSING IMPLEMENTATION: addlist to superiors", __func__);
-    // *** This needs Edge attention in memory and database.
-    //return true;
+#endif
 }
 
 const node_superiors_edit_map_t node_superiors_edit_map = {
@@ -921,6 +987,7 @@ const node_superiors_edit_map_t node_superiors_edit_map = {
 /**
  * E.g. /fz/graph/nodes/20200901061505.1/superiors/add?20090309102906.1=
  *      /fz/graph/nodes/20200901061505.1/superiors/remove?20090309102906.1=
+ *      /fz/graph/nodes/20200901061505.1/superiors/addlist?superiors=
  * @param node The Node to edit.
  * @param editstr String containing an edit command and Superior Node ID.
  */
@@ -936,7 +1003,10 @@ bool handle_node_superiors_edit(Node & node, std::string editstr) {
     if (it == node_superiors_edit_map.end()) {
         return standard_error("Unsupported Node context request: '" + editstr.substr(0,parpos) + '\'', __func__);
     }
-    if (!it->second(node, editstr.substr(parpos+1))) {
+    parpos++;
+    auto equalpos = editstr.find('=', parpos);
+    if (equalpos == std::string::npos) equalpos = editstr.size();
+    if (!it->second(node, editstr.substr(parpos, equalpos - parpos))) {
         return false;
     }
     return true;
@@ -945,16 +1015,31 @@ bool handle_node_superiors_edit(Node & node, std::string editstr) {
 typedef bool node_dependencies_edit_func_t(Node &, std::string);
 typedef std::map<std::string, node_dependencies_edit_func_t*> node_dependencies_edit_map_t;
 
+// Note: This route was tested by:
+//       1. calling: fzgraph -C "/fz/graph/nodes/20231218212505.1/dependencies/add?20231205160914.1="
+//       2. checking the server log: cat /var/www/html/formalizer/formalizer.core.server.requests.log
+//       3. checking the new dependencies state of Node 20231218212505.1 without explicitly reloading
+//          the fzserverpq.
+//       4. stopping fzserverpq and reloading (to confirm update in the database).
 bool handle_node_dependencies_add(Node & node, std::string dependencystr) {
     if (dependencystr.empty()) {
         return standard_error("Missing dependency ID", __func__);
     }
-    //Node * dep_ptr = fzs.graph_ptr->Node_by_idstr(dependencystr.substr(0,NODE_ID_STR_NUMCHARS));
-    // *** change the node
-    // *** set the edit flag
+    if (!fzs.graph().Node_by_idstr(dependencystr)) {
+        return standard_error("Invalid dependency ID ("+dependencystr+')', __func__);
+    }
+#ifdef TEST_MORE_THAN_NODE_MODIFICATIONS
+    std::string edge_id_str = dependencystr+'>'+node.get_id_str();
+    Edge_ptr edge_ptr = fzs.graph().create_and_add_Edge(edge_id_str);
+    if (!edge_ptr) {
+        return standard_error("Creating edge failed for "+edge_id_str, __func__);
+    }
+    // *** set the edit flag in the Edge (when it has those)
+    fzs.modifications_ptr->add(graphmod_add_edge, edge_ptr->get_id().key());
+    return true;
+#else
     return standard_error("MISSING IMPLEMENTATION: add dependency", __func__);
-    // *** This needs Edge attention in memory and database.
-    //return true;
+#endif
 }
 
 bool handle_node_dependencies_remove(Node & node, std::string dependencystr) {
@@ -973,12 +1058,24 @@ bool handle_node_dependencies_addlist(Node & node, std::string dependencieslist)
     if (dependencieslist.empty()) {
         return standard_error("Missing dependencies list", __func__);
     }
-    // *** get dependencies from list
-    // *** change the node
-    // *** set the edit flag
+    Named_Node_List_ptr dependenciesNNL_ptr = fzs.graph().get_List(dependencieslist);
+    if (!dependenciesNNL_ptr) {
+        return standard_error("Named Node List "+dependencieslist+" not found.", __func__);
+    }
+#ifdef TEST_MORE_THAN_NODE_MODIFICATIONS
+    for (const auto & dependency_idkey : dependenciesNNL_ptr->list) {
+        std::string edge_id_str = dependency_idkey.str()+'>'+node.get_id_str();
+        Edge_ptr edge_ptr = fzs.graph().create_and_add_Edge(edge_id_str);
+        if (!edge_ptr) {
+            return standard_error("Creating edge failed for "+edge_id_str, __func__);
+        }
+        // *** set the edit flag in the Edge (when it has those)
+        fzs.modifications_ptr->add(graphmod_add_edge, edge_ptr->get_id().key());
+    }
+    return true;
+#else
     return standard_error("MISSING IMPLEMENTATION: addlist to dependencies", __func__);
-    // *** This needs Edge attention in memory and database.
-    //return true;
+#endif
 }
 
 const node_dependencies_edit_map_t node_dependencies_edit_map = {
@@ -990,6 +1087,7 @@ const node_dependencies_edit_map_t node_dependencies_edit_map = {
 /**
  * E.g. /fz/graph/nodes/20200901061505.1/dependencies/add?20090309102906.1=
  *      /fz/graph/nodes/20200901061505.1/dependencies/remove?20090309102906.1=
+ *      /fz/graph/nodes/20200901061505.1/dependencies/addlist?dependencies=
  * @param node The Node to edit.
  * @param editstr String containing an edit command and Dependencies Node ID.
  */
@@ -1005,7 +1103,10 @@ bool handle_node_dependencies_edit(Node & node, std::string editstr) {
     if (it == node_dependencies_edit_map.end()) {
         return standard_error("Unsupported Node context request: '" + editstr.substr(0,parpos) + '\'', __func__);
     }
-    if (!it->second(node, editstr.substr(parpos+1))) {
+    parpos++;
+    auto equalpos = editstr.find('=', parpos);
+    if (equalpos == std::string::npos) equalpos = editstr.size();
+    if (!it->second(node, editstr.substr(parpos, equalpos - parpos))) {
         return false;
     }
     return true;
@@ -1024,6 +1125,7 @@ const node_context_edit_map_t node_context_edit_map = {
  * Also, `add` or `remove` Topics when `topics/` is the next part of the URL.
  * For example:
  *   /fz/graph/nodes/20200901061505.1/completion?set=1.0
+ *   /fz/graph/nodes/20200901061505.1/completion?add=0.5
  *   /fz/graph/nodes/20200901061505.1/required?add=45m
  *   /fz/graph/nodes/20200901061505.1/required?add=-45m
  *   /fz/graph/nodes/20200901061505.1/required?add=0.75h
@@ -1042,6 +1144,10 @@ const node_context_edit_map_t node_context_edit_map = {
 bool handle_node_direct_parameter(Node & node, std::string extension, std::string & response_html) {
     ERRTRACE;
 
+#ifdef TEST_MORE_THAN_NODE_MODIFICATIONS
+    fzs.modifications_ptr = std::make_unique<Graphmod_unshared_results>();
+#endif
+
     // skip '/'
     extension.erase(0,1);
     // identify the parameter
@@ -1051,15 +1157,16 @@ bool handle_node_direct_parameter(Node & node, std::string extension, std::strin
     }
     // identify the command
     Edit_flags editflags;
-    if (!editflags.set_Edit_flag_by_label(extension.substr(0,seppos))) {
-        return standard_error("Unrecognized Node parameter: '" + extension + '\'', __func__); // extension.substr(0,seppos) + '\'', __func__);
+    std::string route_extension = extension.substr(0,seppos);
+    if (!editflags.set_Edit_flag_by_label(route_extension)) {
+        return standard_error("Unrecognized Node parameter: '" + route_extension + '\'', __func__); // extension.substr(0,seppos) + '\'', __func__);
     }
     // *** Eventually, you probably want to make this more like the serial data version,
     // *** where Node_data knows how to parse string values and set itself, and then
     // *** Edit_flags are used to either set a specific Node parameter or add to it.
     switch (extension[seppos]) {
         case '?': {
-            if (extension.substr(seppos+1,4) == "set=") {
+            if (extension.substr(seppos+1,4) == "set=") { // completion?set=val or required?set=val
                 auto it = node_parameter_edit_set_map.find(editflags.get_Edit_flags());
                 if (it == node_parameter_edit_set_map.end()) {
                     return standard_error("Unsupported Node parameter set request: '" + extension.substr(0,seppos) + '\'', __func__);
@@ -1068,7 +1175,7 @@ bool handle_node_direct_parameter(Node & node, std::string extension, std::strin
                     return false;
                 }
             } else {
-                if (extension.substr(seppos+1,4) == "add=") {
+                if (extension.substr(seppos+1,4) == "add=") { // completion?add=val or required?add=val
                     auto it = node_parameter_edit_add_map.find(editflags.get_Edit_flags());
                     if (it == node_parameter_edit_add_map.end()) {
                         return standard_error("Unsupported Node parameter add request: '" + extension.substr(0,seppos) + '\'', __func__);
@@ -1086,7 +1193,7 @@ bool handle_node_direct_parameter(Node & node, std::string extension, std::strin
             return standard_error("Node parameter value printing not yet supported", __func__);
             break;
         }
-        case '/': {
+        case '/': { // topics, superiors, dependencies
             auto it = node_context_edit_map.find(extension.substr(0, seppos));
             if (it == node_context_edit_map.end()) {
                 return standard_error("Unsupported Node context request: '" + extension.substr(0,seppos) + '\'', __func__);
@@ -1100,10 +1207,19 @@ bool handle_node_direct_parameter(Node & node, std::string extension, std::strin
             // nothing to do here
         }
     }
+#ifndef TEST_MORE_THAN_NODE_MODIFICATIONS
     // update in database
     if (!Update_Node_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), node, editflags)) {
         return standard_error("Synchronizing Node update to database failed", __func__);
     }
+#endif
+
+#ifdef TEST_MORE_THAN_NODE_MODIFICATIONS
+    // Note: In this call, where editflags are needed they are obtained from the modified Node.
+    if (!handle_Graph_modifications_unshared_pq(fzs.graph(), fzs.ga.dbname(), fzs.ga.pq_schemaname(), *fzs.modifications_ptr.get())) {
+        return standard_error("Synchronizing Graph update to database failed", __func__);
+    }
+#endif
 
     // post-modification validity test
     if (editflags.Edit_error()) { // check this AFTER synchronizing (see note in Graphmodify.hpp:Edit_flags)

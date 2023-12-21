@@ -46,6 +46,7 @@ TOOLSCOMPDIRS += $(TOOLSPATH)/dev/boilerplate
 TOOLSCOMPDIRS += $(TOOLSPATH)/interface/fzloghtml
 TOOLSCOMPDIRS += $(TOOLSPATH)/interface/fzgraphhtml
 TOOLSCOMPDIRS += $(TOOLSPATH)/interface/nodeboard
+TOOLSCOMPDIRS += $(TOOLSPATH)/interface/fzvismilestones
 
 COMPILABLES = $(LIBCOMPDIRS) $(CORECOMPDIRS) $(TOOLSCOMPDIRS)
 # +----- end  : Select Formalizer compilables -----+
@@ -106,7 +107,7 @@ EXECUTABLES += $(TOOLSPATH)/interface/fzlogtime/fzlogtime
 EXECUTABLES += $(TOOLSPATH)/interface/fzlogtime/fzlogtime-term.sh
 EXECUTABLES += $(TOOLSPATH)/interface/fzserver-info/fzserver-info
 # EXECUTABLES += $(TOOLSPATH)/interface/fzvizgraph/fzvizgraph
-# EXECUTABLES += $(TOOLSPATH)/interface/fzvizmilestones/fzvizmilestones
+EXECUTABLES += $(TOOLSPATH)/interface/fzvismilestones/fzvismilestones
 EXECUTABLES += $(TOOLSPATH)/interface/logentry/logentry.py
 EXECUTABLES += $(TOOLSPATH)/interface/nodeboard/nodeboard
 EXECUTABLES += $(TOOLSPATH)/interface/panes/panes-term.sh
@@ -164,6 +165,7 @@ SYMBIN += $(TOOLSPATH)/interface/fzlogmap/fzlogmap
 SYMBIN += $(TOOLSPATH)/interface/fzlogtime/fzlogtime
 SYMBIN += $(TOOLSPATH)/interface/fzserver-info/fzserver-info
 SYMBIN += $(TOOLSPATH)/interface/nodeboard/nodeboard
+SYMBIN += $(TOOLSPATH)/interface/fzvismilestones/fzvismilestones
 SYMBIN += $(TOOLSPATH)/system/schedule/schedule.py
 #SYMBIN += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_a2c.json
 #SYMBIN += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_main2023.json
@@ -198,6 +200,7 @@ CGIEXE += $(TOOLSPATH)/system/daywiz/consumed.py
 CGIEXE += $(TOOLSPATH)/system/earlywiz/earlywiz.py
 CGIEXE += $(TOOLSPATH)/system/metrics/sysmet-extract/sysmet-extract-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/nodeboard/nodeboard-cgi.py
+CGIEXE += $(TOOLSPATH)/interface/fzvismilestones/fzvismilestones-cgi.py
 CGIEXE += $(TOOLSPATH)/system/schedule/schedule-cgi.py
 
 # Data files that need to be symlinked into the WEBDATADIR directory

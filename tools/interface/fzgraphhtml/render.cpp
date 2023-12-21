@@ -122,6 +122,8 @@ struct line_render_parameters {
     size_t actual_num_render = 0;
     time_t t_render = 0; ///< The time when page rendering commenced.
     float day_total_hrs = 0.0;
+    Map_of_Subtrees map_of_subtrees;
+    std::string subtrees_list_tag;
 
     line_render_parameters(const std::string _srclist, const char * problem__func__) : srclist(_srclist) {
         graph_ptr = graphmemman.find_Graph_in_shared_memory();
@@ -172,6 +174,10 @@ struct line_render_parameters {
                             templates[node_pars_in_list_head_temp].size() +
                             templates[node_pars_in_list_tail_temp].size());
             rendered_page += rendered_head(); //templates[node_pars_in_list_head_temp];
+        }
+        map_of_subtrees.collect(graph(), fzgh.subtrees_list_name);
+        if (map_of_subtrees.has_subtrees) {
+            subtrees_list_tag = "<b>["+fzgh.subtrees_list_name+"]</b>";
         }
     }
 
@@ -296,7 +302,11 @@ struct line_render_parameters {
 
         varvals.emplace("tdprop",render_tdproperty(node));
         std::string htmltext(node.get_text().c_str());
-        varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
+        if (map_of_subtrees.node_in_any_subtree(node.get_id().key())) {
+            varvals.emplace("excerpt",subtrees_list_tag+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
+        } else {
+            varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
+        }
         //varvals.emplace("excerpt",remove_html(htmltext).substr(0,fzgh.config.excerpt_length));
         varvals.emplace("fzserverpq",graph_ptr->get_server_full_address());
         varvals.emplace("srclist",srclist);

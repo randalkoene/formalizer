@@ -34,7 +34,10 @@ const std::vector<std::string> template_ids = {
     "Node_board",
     "Node_card",
     "Kanban_board",
-    "Kanban_column"
+    "Kanban_column",
+    "Kanban_alt_column",
+    "Kanban_alt_board",
+    "Node_alt_card"
 };
 
 bool load_templates(nodeboard_templates & templates) {
@@ -56,29 +59,34 @@ nodeboard::nodeboard():
     output_path("/var/www/html/formalizer/test_node_card.html"),
     graph_ptr(nullptr) {
 
-    add_option_args += "Rn:L:l:t:m:f:H:o:";
-    add_usage_top += " [-R] [-n <node-ID>] [-L <name>] [-l {<name>,...}] [-t {<topic>,...}]"
-        " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-H <board-header>]"
-        " [-o <output-file|STDOUT>]";
+    add_option_args += "Rn:L:D:l:t:m:f:IF:H:To:";
+    add_usage_top += " [-R] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
+        " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-I] [-F <substring>]"
+        " [-H <board-header>] [-T] [-o <output-file|STDOUT>]";
 }
 
 void nodeboard::usage_hook() {
     ga.usage_hook();
     FZOUT(
-        "    -R Test with random selection of Nodes\n"
-        "    -n Node dependencies\n"
-        "    -L Use Nodes data in Named Node List\n"
-        "    -l List of Named Node Lists\n"
-        "    -t List of Topics\n"
-        "    -m List of mixed Topics and NNLs (prepend with 'NNL:')\n"
-        "    -f Use categories from sysmet-style JSON file\n"
+        "    -R Test with random selection of Nodes.\n"
+        "    -n Node dependencies.\n"
+        "    -L Use Nodes data in Named Node List.\n"
+        "    -D Dependencies of Nodes in Named Node List.\n"
+        "    -l List of Named Node Lists.\n"
+        "    -t List of Topics.\n"
+        "    -m List of mixed Topics and NNLs (prepend with 'NNL:').\n"
+        "    -f Use categories from sysmet-style JSON file.\n"
         "\n"
         "       If <name> or <topic> contain a ':' then text preceding it is\n"
         "       used as a custom header.\n"
         "\n"
-        "    -I Include completed Nodes\n"
-        "    -H Board header\n"
-        "    -o Output to file (or STDOUT)\n"
+        "    -I Include completed Nodes.\n"
+        "       This also includes Nodes with completion values < 0.\n"
+        "    -F Filter to show only Nodes where the first 80 characters contain the\n"
+        "       substring.\n"
+        "    -H Board header.\n"
+        "    -T Threads.\n"
+        "    -o Output to file (or STDOUT).\n"
         "       Default: /var/www/html/formalizer/test_node_card.html\n"
         "\n"
     );
@@ -109,6 +117,12 @@ bool nodeboard::options_hook(char c, std::string cargs) {
             return true;
         }
 
+        case 'D': {
+            flowcontrol = flow_NNL_dependencies;
+            list_name = cargs;
+            return true;
+        }
+
         case 'l': {
             flowcontrol = flow_listof_NNL;
             return parse_list_names(cargs);
@@ -135,9 +149,20 @@ bool nodeboard::options_hook(char c, std::string cargs) {
             return true;
         }
 
+        case 'F': {
+            filter_substring = cargs;
+            uri_encoded_filter_substring = uri_encode(filter_substring);
+            return true;
+        }
+
         case 'H': {
             board_title_specified = true;
             board_title = cargs;
+            return true;
+        }
+
+        case 'T': {
+            threads = true;
             return true;
         }
 
@@ -219,14 +244,80 @@ bool nodeboard::get_Node_card(const Node * node_ptr, std::string & rendered_card
         return true;
     }
 
+    std::string node_text = node_ptr->get_text();
+    if (!filter_substring.empty()) {
+        std::string excerpt = node_text.substr(0, filter_substring_excerpt_length);
+        if (excerpt.find(filter_substring)==std::string::npos) {
+            return true;
+        }
+    }
+
     // For each node: Set up a map of content to template position IDs.
     template_varvalues nodevars;
     nodevars.emplace("node-id", node_ptr->get_id_str());
     nodevars.emplace("node-deps", node_ptr->get_id_str());
-    nodevars.emplace("node-text", node_ptr->get_text());
+    nodevars.emplace("node-text", node_text);
+
+    std::string include_filter_substr;
+    if (!filter_substring.empty()) {
+        include_filter_substr = "&F="+uri_encoded_filter_substring;
+    }
+    if (show_completed) {
+        include_filter_substr += "&I=true";
+    }
+    nodevars.emplace("filter-substr", include_filter_substr);
 
     // For each node: Create a Kanban card and add it to the output HTML.
     rendered_cards += env.render(templates[node_card_temp], nodevars);
+    return true;
+}
+
+bool nodeboard::get_Node_alt_card(const Node * node_ptr, std::string & rendered_cards) {
+    if (!node_ptr) {
+        return false;
+    }
+
+    if ((!show_completed) && (!node_ptr->is_active())) {
+        return true;
+    }
+
+    std::string node_text = node_ptr->get_text();
+    if (!filter_substring.empty()) {
+        std::string excerpt = node_text.substr(0, filter_substring_excerpt_length);
+        if (excerpt.find(filter_substring)==std::string::npos) {
+            return true;
+        }
+    }
+
+    // For each node: Set up a map of content to template position IDs.
+    template_varvalues nodevars;
+    nodevars.emplace("node-id", node_ptr->get_id_str());
+    nodevars.emplace("node-deps", node_ptr->get_id_str());
+    nodevars.emplace("node-text", node_text);
+    float progress = node_ptr->get_completion()*100.0;
+    if (progress < 0.0) progress = 100.0;
+    if (progress > 100.0) progress = 100.0;
+    nodevars.emplace("node-progress", to_precision_string(progress, 1));
+
+    std::string node_color;
+    if (node_ptr->is_active()) {
+        node_color = "w3-light-grey";
+    } else {
+        node_color = "w3-dark-grey";
+    }
+    nodevars.emplace("node-color", node_color);
+
+    std::string include_filter_substr;
+    if (!filter_substring.empty()) {
+        include_filter_substr = "&F="+uri_encoded_filter_substring;
+    }
+    if (show_completed) {
+        include_filter_substr += "&I=true";
+    }
+    nodevars.emplace("filter-substr", include_filter_substr);
+
+    // For each node: Create a Kanban card and add it to the output HTML.
+    rendered_cards += env.render(templates[node_alt_card_temp], nodevars);
     return true;
 }
 
@@ -239,6 +330,19 @@ bool nodeboard::get_column(const std::string & column_header, const std::string 
 
     // For each node: Create a Kanban card and add it to the output HTML.
     rendered_columns += env.render(templates[kanban_column_temp], column);
+    num_columns++;
+    return true;
+}
+
+bool nodeboard::get_alt_column(const std::string & column_header, const std::string & rendered_cards, std::string & rendered_columns, const std::string extra_header = "") {
+    // For each column: Set up a map of content to template position IDs.
+    template_varvalues column;
+    column.emplace("column-id", column_header);
+    column.emplace("column-extra", extra_header);
+    column.emplace("column-cards", rendered_cards);
+
+    // For each node: Create a Kanban card and add it to the output HTML.
+    rendered_columns += env.render(templates[kanban_alt_column_temp], column);
     num_columns++;
     return true;
 }
@@ -263,6 +367,50 @@ bool nodeboard::get_dependencies_column(const std::string & column_header, const
     }
 
     return get_column(column_header, rendered_cards, rendered_columns, extra_header);
+}
+
+//bool nodeboard::get_fulldepth_dependencies_column(const std::string & column_header, const base_Node_Set & column_set, std::string & rendered_columns, const std::string extra_header = "") {
+bool nodeboard::get_fulldepth_dependencies_column(const std::string & column_header, Node_ID_key column_key, std::string & rendered_columns, const std::string extra_header = "") {
+    if (!map_of_subtrees.is_subtree_head(column_key)) {
+        standard_error("Node "+column_key.str()+" is not a head Node in NNL '"+map_of_subtrees.subtrees_list_name+"', skipping", __func__);
+        return false;
+    }
+
+    std::string rendered_cards;
+
+    float tot_required_hrs = 0;
+    float tot_completed_hrs = 0;
+    // Add all dependencies found to the column as cards.
+    for (const auto & depkey : map_of_subtrees.get_subtree_set(column_key)) {
+        Node_ptr depnode_ptr = graph().Node_by_id(depkey);
+        if (!depnode_ptr) {
+            standard_error("Dependency Node "+depkey.str()+" not found, skipping", __func__);
+            continue;
+        }
+        if (!get_Node_alt_card(depnode_ptr, rendered_cards)) {
+            standard_error("Dependency Node "+depkey.str()+" not found in Graph, skipping", __func__);
+        }
+
+        // Obtain contributions to thread progress.
+        float completion = depnode_ptr->get_completion();
+        float required = depnode_ptr->get_required();
+        if (completion < 0.0) {
+            completion = 1.0;
+            required = 0.0;
+        } else {
+            if (completion > 1.0) {
+                required = required*completion;
+                completion = 1.0;
+            }
+        }
+        tot_required_hrs += required;
+        tot_completed_hrs += (required*completion);
+    }
+
+    float thread_progress = 100.0 * tot_completed_hrs / tot_required_hrs;
+    std::string extra_header_with_progress = extra_header + "<br>Progress: " + to_precision_string(thread_progress, 1) + "&#37;";
+
+    return get_alt_column(column_header, rendered_cards, rendered_columns, extra_header_with_progress);
 }
 
 bool nodeboard::get_NNL_column(const std::string & nnl_str, std::string & rendered_columns) {
@@ -322,7 +470,29 @@ bool nodeboard::make_simple_grid_board(const std::string & rendered_cards) {
     return to_output(rendered_board);
 }
 
-bool nodeboard::make_multi_column_board(const std::string & rendered_columns) {
+std::string nodeboard::call_comment_string() {
+    std::string call_comment;
+    if (node_ptr != nullptr) {
+        call_comment += " Node="+node_ptr->get_id_str();
+    }
+    if (!source_file.empty()) {
+        call_comment += " source_file="+source_file;
+    }
+    if (!list_name.empty()) {
+        call_comment += " list_name="+list_name;
+    }
+    if (!filter_substring.empty()) {
+        call_comment += " filter_substring="+filter_substring;
+    }
+    if (show_completed) {
+        call_comment += " show_completed=true";
+    } else {
+        call_comment += " show_completed=false";
+    }
+    return call_comment;
+}
+
+bool nodeboard::make_multi_column_board(const std::string & rendered_columns, bool use_alt_board) {
     template_varvalues board;
     // Insert the HTML for all the cards into the Kanban board.
     std::string column_widths;
@@ -333,7 +503,14 @@ bool nodeboard::make_multi_column_board(const std::string & rendered_columns) {
     board.emplace("board-extra", board_title_extra);
     board.emplace("column-widths", column_widths);
     board.emplace("the-columns", rendered_columns);
-    std::string rendered_board = env.render(templates[kanban_board_temp], board);
+    board.emplace("call-comment", call_comment_string());
+    board.emplace("post-extra", post_extra);
+    std::string rendered_board;
+    if (use_alt_board) {
+        rendered_board = env.render(templates[kanban_alt_board_temp], board);
+    } else {
+        rendered_board = env.render(templates[kanban_board_temp], board);
+    }
 
     return to_output(rendered_board);
 }
@@ -390,18 +567,40 @@ bool node_board_render_dependencies(nodeboard & nb) {
 
     std::string rendered_columns;
 
+    std::string include_filter_substr("&F="+nb.uri_encoded_filter_substring);
+    if (nb.show_completed) {
+        include_filter_substr += "&I=true";
+    }
+
     for (const auto & edge_ptr : nb.node_ptr->dep_Edges()) {
         if (edge_ptr) {
 
             Node * dep_ptr = edge_ptr->get_dep();
+
+            if ((!nb.show_completed) && (!dep_ptr->is_active())) {
+                continue;
+            }
+
             std::string htmltext(dep_ptr->get_text().c_str());
+            std::string tagless(remove_html_tags(htmltext));
+
+            if (!nb.filter_substring.empty()) {
+                std::string excerpt = tagless.substr(0, nb.filter_substring_excerpt_length);
+                if (excerpt.find(nb.filter_substring)==std::string::npos) {
+                    continue;
+                }
+            }
 
             std::string idtext(edge_ptr->get_dep_str());
-            std::string column_header_with_link = "<a href=\"/cgi-bin/fzlink.py?id="+idtext+"\">"+idtext+"</a> (<a href=\"/cgi-bin/nodeboard-cgi.py?n="+idtext+"\">DEP</a>)";
+            std::string column_header_with_link = "<a href=\"/cgi-bin/fzlink.py?id="+idtext+"\">"+idtext+"</a> (<a href=\"/cgi-bin/nodeboard-cgi.py?n="+idtext+include_filter_substr+"\">DEP</a>)";
 
-            nb.get_dependencies_column(column_header_with_link, edge_ptr->get_dep(), rendered_columns, remove_html_tags(htmltext).substr(0,nb.excerpt_length));
+            nb.get_dependencies_column(column_header_with_link, edge_ptr->get_dep(), rendered_columns, tagless.substr(0,nb.excerpt_length));
 
         }
+    }
+
+    if (!nb.show_completed) {
+        nb.post_extra = "<button class=\"button button1\" onclick=\"window.open('/cgi-bin/nodeboard-cgi.py?n="+nb.node_ptr->get_id_str()+include_filter_substr+"&I=true');\">Include Completed</button>";
     }
 
     return nb.make_multi_column_board(rendered_columns);
@@ -548,4 +747,70 @@ bool node_board_render_sysmet_categories(nodeboard & nb) {
     }
 
     return node_board_render_list_of_topics_and_NNLs(nb);
+}
+
+//bool node_board_render_NNL_dependencies(Named_Node_List_ptr namedlist_ptr, nodeboard & nb) {
+bool node_board_render_NNL_dependencies(nodeboard & nb) {
+    Named_Node_List_ptr namedlist_ptr = nb.graph().get_List(nb.list_name);
+    if (!namedlist_ptr) {
+        return false;
+    }
+
+    if (!nb.render_init()) {
+        return false;
+    }
+
+    if (!nb.board_title_specified) {
+        nb.board_title = "Dependencies of Nodes in NNL '"+nb.list_name+'\'';
+    }
+
+    if (nb.threads) {
+        nb.board_title_extra =
+            "<b>Threads</b>:<br>"
+            "Where @VISOUTPUT: ...@ is defined in Node content it is shown as the expected advantageous non-internal (visible) output of a thread.<br>"
+            "Otherwise, an excerpt of Node content is shown as the thread header.<br>"
+            "The Nodes in a thread should be a clear set of steps leading to the output.";
+    }
+
+    // auto map_of_subtrees = Threads_Subtrees(nb.graph(), nb.list_name);
+    // if (map_of_subtrees.empty()) {
+    //     return false;
+    // }
+    nb.map_of_subtrees.collect(nb.graph(), nb.list_name);
+    if (!nb.map_of_subtrees.has_subtrees) return false;
+
+    std::string rendered_columns;
+
+    for (const auto & nkey : namedlist_ptr->list) {
+
+        // Get the next thread header Node.
+        Node * node_ptr = nb.graph().Node_by_id(nkey);
+
+        std::string idtext(nkey.str());
+        std::string headnode_id_link = "<a href=\"/cgi-bin/fzlink.py?id="+idtext+"\">"+idtext+"</a>";
+
+        std::string htmltext(node_ptr->get_text().c_str());
+
+        std::string headnode_description;
+        if (nb.threads) {
+            auto visoutput_start = htmltext.find("@VISOUTPUT:");
+            if (visoutput_start != std::string::npos) {
+                visoutput_start += 11;
+                auto visoutput_end = htmltext.find('@', visoutput_start);
+                if (visoutput_end != std::string::npos) {
+                    headnode_description = "<b>"+htmltext.substr(visoutput_start, visoutput_end - visoutput_start)+"</b>";
+                }
+            }
+        }
+
+        if (headnode_description.empty()) {
+            headnode_description = remove_html_tags(htmltext).substr(0,nb.excerpt_length);
+        }
+
+        //nb.get_fulldepth_dependencies_column(headnode_description, map_of_subtrees[nkey], rendered_columns, headnode_id_link);
+        nb.get_fulldepth_dependencies_column(headnode_description, nkey, rendered_columns, headnode_id_link);
+
+    }
+
+    return nb.make_multi_column_board(rendered_columns, true);
 }

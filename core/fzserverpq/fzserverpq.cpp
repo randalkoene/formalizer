@@ -178,6 +178,11 @@ fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga
     usage_tail.push_back(usage_tail_str_A); // root path mapping cannot be inserted here, because config is parsed later
 }
 
+Graph & fzserverpq::graph() {
+    if (graph_ptr) return *graph_ptr;
+    throw NoGraph_exception(" in fzserverpq.");
+}
+
 /**
  * Extract a map of recognized roots and target file paths from the 'www_file_root'
  * configuration string.
@@ -192,7 +197,7 @@ fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga
 root_path_map_type parse_www_file_roots(const std::string & www_file_roots) {
     auto roots_paths_vec = split(www_file_roots, '&');
     root_path_map_type roots_paths_map;
-    for (const auto roots_paths_str : roots_paths_vec) {
+    for (const auto & roots_paths_str : roots_paths_vec) {
         auto colon_pos = roots_paths_str.find('=');
         if (colon_pos == std::string::npos) {
             standard_exit_error(exit_bad_config_value, "Invalid www_file_root syntax: "+www_file_roots, __func__);

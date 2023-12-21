@@ -60,6 +60,23 @@ form = cgi.FieldStorage()
 # Get data from fields
 sysmet_file = form.getvalue('f')
 node_dependencies = form.getvalue('n')
+filter_string = form.getvalue('F')
+show_completed = form.getvalue('I')
+subtree_list = form.getvalue('D')
+threads = form.getvalue('T')
+
+if filter_string != '':
+    include_filter_string = ' -F %s' % filter_string
+else:
+    include_filter_string = ''
+if show_completed == 'true':
+    include_show_completed = ' -I'
+else:
+    include_show_completed = ''
+if threads:
+    include_threads = ' -T'
+else:
+    include_threads = ''
 
 # *** OBTAIN THIS SOMEHOW!
 #with open('./server_address','r') as f:
@@ -108,7 +125,7 @@ Click here: <a href="/formalizer/data%s">%s</a>
 '''
 
 def show_sysmet_board(sysmet_json_path:str, sysmet_output_path:str):
-    thecmd = f"./nodeboard -f {sysmet_json_path} -q -o /var/www/webdata/formalizer{sysmet_output_path}"
+    thecmd = f"./nodeboard -f {sysmet_json_path} {include_filter_string} {include_show_completed} -q -o /var/www/webdata/formalizer{sysmet_output_path}"
     #thecmd = f"./nodeboard -f {sysmet_json_path} -o STDOUT"
     res = try_command_call(thecmd, print_result=False)
     #print(res)
@@ -119,9 +136,14 @@ def show_main2023_board():
     show_sysmet_board(main2023categoriesfile, '/main2023categories-kanban.html')
 
 def show_node_dependencies_board():
-    thecmd = f"./nodeboard -n {node_dependencies} -q -o /var/www/webdata/formalizer/node_dependencies_kanban.html"
+    thecmd = f"./nodeboard -n {node_dependencies} {include_filter_string} {include_show_completed} -q -o /var/www/webdata/formalizer/node_dependencies_kanban.html"
     res = try_command_call(thecmd, print_result=False)
     print(REDIRECT % "/node_dependencies_kanban.html")
+
+def show_subtree_board():
+    thecmd = f"./nodeboard -D {subtree_list} {include_threads} {include_show_completed} -q -o /var/www/webdata/formalizer/subtree_list_kanban.html"
+    res = try_command_call(thecmd, print_result=False)
+    print(REDIRECT % "/subtree_list_kanban.html")
 
 HELP='''
 <html>
@@ -137,6 +159,10 @@ def show_help():
 if __name__ == '__main__':
     if (sysmet_file == 'main2023'):
         show_main2023_board()
+        sys.exit(0)
+
+    if subtree_list:
+        show_subtree_board()
         sys.exit(0)
 
     if (node_dependencies != ''):

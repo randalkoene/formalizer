@@ -63,7 +63,11 @@ struct fzserverpq: public formalizer_standard_program, public shared_memory_serv
     // *** A v0.1 simplistic server request log (see https://trello.com/c/dnKYchIu for the better way).
     Errors ReqQ;
 
+    std::unique_ptr<Graphmod_unshared_results> modifications_ptr;
+
     fzserverpq();
+
+    Graph & graph();
 
     virtual void usage_hook();
 

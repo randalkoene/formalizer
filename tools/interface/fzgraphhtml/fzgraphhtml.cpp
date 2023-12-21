@@ -39,8 +39,11 @@ fzgraphhtml fzgh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:m:Irt:i:L:N:M:D:x:o:s:eT:F:uCj";
-    add_usage_top += " [-n <node-ID>|-m <node-ID>|-I|-t <topic-ID|topic-tag|?>|-L <name|?>] [-r] [-N <num>] [-M <max-YYYYmmddHHMM>] [-D <num-days>] [-x <len>] [-o <output-path>] [-s <sortkeys>] [-e] [-T <named|node|Node>=<path>] [-F html|txt|node|desc] [-u] [-C] [-j]";    //usage_head.push_back("Description at the head of usage information.\n");
+    add_option_args += "n:m:Irt:i:L:N:M:D:x:o:s:S:eT:F:uCj";
+    add_usage_top += " [-n <node-ID>|-m <node-ID>|-I|-t <topic-ID|topic-tag|?>|-L <name|?>]"
+        " [-r] [-N <num>] [-M <max-YYYYmmddHHMM>] [-D <num-days>] [-x <len>]"
+        " [-o <output-path>] [-s <sortkeys>] [-S <NNL>] [-e] [-T <named|node|Node>=<path>]"
+        " [-F html|txt|node|desc] [-u] [-C] [-j]";    //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "Notes:\n"
         "1. When no [N <num>] is provided then the configured value is used.\n"
@@ -62,25 +65,26 @@ fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) {
  */
 void fzgraphhtml::usage_hook() {
     //ga.usage_hook();
-    FZOUT("    -n Show data for Node with <node-ID>\n"
-          "    -m Editing form for Node with <node-ID> ('new' to define new Node)\n"
-          "    -I Show data for incomplete Nodes\n"
-          "    -r Show with repeats of repeating Nodes\n"
-          "    -L Show data for Nodes in Named Node List, or show Names if '?'\n"
-          "    -t Show data for Nodes with Topic, or show Topics if '?'\n"
-          "    -i Include 'add-to-node' for <node-id>\n"
+    FZOUT("    -n Show data for Node with <node-ID>.\n"
+          "    -m Editing form for Node with <node-ID> ('new' to define new Node).\n"
+          "    -I Show data for incomplete Nodes.\n"
+          "    -r Show with repeats of repeating Nodes.\n"
+          "    -L Show data for Nodes in Named Node List, or show Names if '?'.\n"
+          "    -t Show data for Nodes with Topic, or show Topics if '?'.\n"
+          "    -i Include 'add-to-node' for <node-id>.\n"
           "    -N Show data for <num> elements (all=no limit), see note 5.\n"
           "    -M Show data up to and including <max-YYYYmmddHHMM>, see note 5.\n"
           "    -D Show data for <num-days> days, see note 5.\n"
-          "    -x Excerpt length <len>\n"
-          "    -o Rendered output to <output-path> (\"STDOUT\" is default)\n"
-          "    -s Sort by: targetdate\n"
-          "    -e Embeddable, no head and tail templates\n"
-          "    -T Use custom template instead of topics, named, node or single Node\n"
-          "    -F Output format: html (default), txt, json, node, desc\n"
-          "    -u Update 'shortlist' Named Node List\n"
-          "    -C (TEST) card output format\n"
-          "    -j no Javascript\n");
+          "    -x Excerpt length <len>.\n"
+          "    -o Rendered output to <output-path> (\"STDOUT\" is default).\n"
+          "    -s Sort by: targetdate.\n"
+          "    -S Highlight Nodes within dependency subtrees of Nodes in NNL.\n"
+          "    -e Embeddable, no head and tail templates.\n"
+          "    -T Use custom template instead of topics, named, node or single Node.\n"
+          "    -F Output format: html (default), txt, json, node, desc.\n"
+          "    -u Update 'shortlist' Named Node List.\n"
+          "    -C (TEST) card output format.\n"
+          "    -j no Javascript.\n");
 }
 
 unsigned int parvalue_to_num_to_show(const std::string & parvalue) {
@@ -240,6 +244,11 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
         if (cargs == "targetdate") {
             config.sort_by_targetdate = true;
         }
+        return true;
+    }
+
+    case 'S': {
+        subtrees_list_name = cargs;
         return true;
     }
 

@@ -171,6 +171,7 @@ nutrition = {
 	'egg white wraps': [ 25, 'wrap', ],
 	'graham cracker': [ 59, 'large rectangular', ],
 	'hot dog': [ 151, 'hot dog', ],
+	'olives': [ 4, 'olive', ],
 }
 
 lowcal_filling_nutritious = [

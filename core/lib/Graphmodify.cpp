@@ -18,6 +18,51 @@ Graphmod_error::Graphmod_error(exit_status_code ecode, std::string msg) : exit_c
     safecpy(msg, message, 256);
 }
 
+void graphmod_results_add_to_info_str(const Graphmod_result & modres, std::string & infostr) {
+    switch (modres.request_handled) {
+        case graphmod_add_node: {
+            infostr += "\n\tadded Node with ID "+modres.node_key.str();
+            break;
+        }
+        case graphmod_add_edge: {
+            infostr += "\n\tadded Edge with ID "+modres.edge_key.str();
+            break;
+        }
+        case namedlist_add: {
+            infostr += "\n\tadded Node with ID "+(modres.node_key.str()+" to NNL ")+modres.resstr.c_str();
+            break;
+        }
+        case namedlist_remove: {
+            infostr += "\n\tremoved Node with ID "+(modres.node_key.str()+" from NNL ")+modres.resstr.c_str();
+            break;
+        }
+        case namedlist_delete: {
+            infostr += "\n\tdelete Named Node List ";
+            infostr += modres.resstr.c_str();
+        }
+        case graphmod_edit_node: {
+            infostr += "\n\tedited Node with ID "+modres.node_key.str();
+            break;
+        }
+        case graphmod_edit_edge: {
+            infostr += "\n\tedited Edge with ID "+modres.edge_key.str();
+            break;
+        }
+        case batchmod_targetdates: {
+            infostr += "\n\tupdated target dates of movable Nodes in Named Node List "+std::string(modres.resstr.c_str());
+            break;
+        }
+        case batchmod_tpassrepeating: {
+            infostr += "\n\tupdated target dates of repeating Nodes in Named Node List "+std::string(modres.resstr.c_str());
+            break;
+        }
+        default: {
+            // this should never happen
+            infostr += "\n\tunrecognized modification request!";
+        }
+    }
+}
+
 bool Graphmod_results::add(Graph_modification_request _request, const Node_ID_key & _nkey) {
     graphmemman.cache();
     if (!graphmemman.set_active(segment_name)) {
@@ -74,48 +119,41 @@ std::string Graphmod_results::info_str() {
     }
 
     for (const auto & modres : results) {
-        switch (modres.request_handled) {
-            case graphmod_add_node: {
-                infostr += "\n\tadded Node with ID "+modres.node_key.str();
-                break;
-            }
-            case graphmod_add_edge: {
-                infostr += "\n\tadded Edge with ID "+modres.edge_key.str();
-                break;
-            }
-            case namedlist_add: {
-                infostr += "\n\tadded Node with ID "+(modres.node_key.str()+" to NNL ")+modres.resstr.c_str();
-                break;
-            }
-            case namedlist_remove: {
-                infostr += "\n\tremoved Node with ID "+(modres.node_key.str()+" from NNL ")+modres.resstr.c_str();
-                break;
-            }
-            case namedlist_delete: {
-                infostr += "\n\tdelete Named Node List ";
-                infostr += modres.resstr.c_str();
-            }
-            case graphmod_edit_node: {
-                infostr += "\n\tedited Node with ID "+modres.node_key.str();
-                break;
-            }
-            case graphmod_edit_edge: {
-                infostr += "\n\tedited Edge with ID "+modres.edge_key.str();
-                break;
-            }
-            case batchmod_targetdates: {
-                infostr += "\n\tupdated target dates of movable Nodes in Named Node List "+std::string(modres.resstr.c_str());
-                break;
-            }
-            case batchmod_tpassrepeating: {
-                infostr += "\n\tupdated target dates of repeating Nodes in Named Node List "+std::string(modres.resstr.c_str());
-                break;
-            }
-            default: {
-                // this should never happen
-                infostr += "\n\tunrecognized modification request!";
-            }
-        }
+        graphmod_results_add_to_info_str(modres, infostr);
+    }
+    infostr += '\n';
+    return infostr;
+}
+
+bool Graphmod_unshared_results::add(Graph_modification_request _request, const Node_ID_key & _nkey) {
+    results.emplace_back(_request, _nkey);
+    return true;
+}
+
+bool Graphmod_unshared_results::add(Graph_modification_request _request, const Edge_ID_key & _ekey) {
+    results.emplace_back(_request, _ekey);
+    return true;
+}
+
+bool Graphmod_unshared_results::add(Graph_modification_request _request, const std::string _name, const Node_ID_key & _nkey) {
+    results.emplace_back(_request, _name, _nkey);
+    return true;
+}
+
+bool Graphmod_unshared_results::add(Graph_modification_request _request, const std::string _name) {
+    results.emplace_back(_request, _name);
+    return true;
+}
+
+std::string Graphmod_unshared_results::info_str() {
+    std::string infostr("Graph modifications:");
+    if (results.empty()) {
+        infostr += "\n\tnone\n";
+        return infostr;
+    }
+
+    for (const auto & modres : results) {
+        graphmod_results_add_to_info_str(modres, infostr);
     }
     infostr += '\n';
     return infostr;
@@ -248,6 +286,14 @@ Node_ptr Graph_modify_add_node(Graph & graph, const std::string & graph_segname,
 }
 
 /// Create an Edge in the Graph's shared segment and add it to the Graph.
+/// For a detailed description of the process, see the fzgraph README.md.
+/// @params graph Must be a valid reference to the Graph.
+/// @params graph_segname The name of a shared memory segment containing
+///         superiors and dependencies information.
+/// @params gmoddata Contains data for the new Edge in an object pointed
+///         to by gmoddata.edge_ptr.
+/// @return The pointer to the Edge object that provided requested data
+///         is returned upon success. A null pointer otherwise.
 Edge_ptr Graph_modify_add_edge(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata) {
     if (!gmoddata.edge_ptr) {
         return nullptr;

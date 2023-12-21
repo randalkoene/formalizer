@@ -306,7 +306,9 @@ const std::map<std::string, Edit_flags_type> flagbylabel = {
     {"tdpattern", Edit_flags::tdpattern},
     {"tdevery", Edit_flags::tdevery},
     {"tdspan", Edit_flags::tdspan},
-    {"topicrels", Edit_flags::topicrels}
+    {"topicrels", Edit_flags::topicrels},
+    {"superiors", Edit_flags::supdep},
+    {"dependencies", Edit_flags::supdep}
 };
 
 bool Edit_flags::set_Edit_flag_by_label(const std::string flaglabel) {

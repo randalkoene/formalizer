@@ -157,6 +157,104 @@ std::string Node_Filter::str() {
 }
 
 /**
+ * Collect all unique Nodes in the dependencies tree of a Node.
+ * 
+ * @param node_ptr A valid pointer to Node.
+ * @param fulldepth_dependencies A Node_Set container for the resulting set of dependencies.
+ * @return True if successful.
+ */
+bool Node_Dependencies_fulldepth(const Node* node_ptr, base_Node_Set & fulldepth_dependencies) {
+    if (!node_ptr) return false;
+
+    // Get dependencies edges.
+    for (const auto & edge_ptr : node_ptr->dep_Edges()) {
+        if (!edge_ptr) continue;
+
+        // Try to add dependency Node to set.
+        bool is_new;
+        std::tie (std::ignore, is_new) = fulldepth_dependencies.emplace(edge_ptr->get_dep_key());
+
+        // If the Node is new to the set then seek its dependencies.
+        if (is_new) {
+            if (!Node_Dependencies_fulldepth(edge_ptr->get_dep(), fulldepth_dependencies)) {
+                standard_error("Recursive dependencies collection failed, skipping", __func__);
+                continue;
+            }
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Collect the subtrees that are the full dependencies of all Nodes in a
+ * Named Nodes List.
+ * 
+ * @param nnl_str Named Nodes List.
+ * @return A map in which the keys are the Node IDs of Nodes in the NNL and
+ *         the values are each a set of unique Nodes that are the dependencies.
+ */
+std::map<Node_ID_key, base_Node_Set, std::less<Node_ID_key>> Threads_Subtrees(Graph & graph, const std::string & nnl_str) {
+    std::map<Node_ID_key, base_Node_Set, std::less<Node_ID_key>> map_of_subtrees;
+
+    Named_Node_List_ptr namedlist_ptr = graph.get_List(nnl_str);
+    if (!namedlist_ptr) {
+        standard_error("Named Node List "+nnl_str+" not found.", __func__);
+        return map_of_subtrees;
+    }
+
+    for (const auto & nkey : namedlist_ptr->list) {
+
+        Node * node_ptr = graph.Node_by_id(nkey);
+
+        base_Node_Set fulldepth_dependencies;
+        if (!Node_Dependencies_fulldepth(node_ptr, fulldepth_dependencies)) {
+            standard_error("Full depth dependencies collection failed for Node "+nkey.str()+", skipping", __func__);
+            continue;
+        }
+
+        map_of_subtrees[nkey] = fulldepth_dependencies;
+
+    }
+
+    return map_of_subtrees;
+}
+
+bool Map_of_Subtrees::collect(Graph & graph, const std::string & list_name) {
+    if (list_name.empty()) return false;
+    subtrees_list_name = list_name;
+    map_of_subtrees = Threads_Subtrees(graph, subtrees_list_name);
+    has_subtrees = !map_of_subtrees.empty();
+    return true;
+}
+
+bool Map_of_Subtrees::is_subtree_head(Node_ID_key subtree_key) const {
+    if (!has_subtrees) return false;
+    return map_of_subtrees.find(subtree_key) != map_of_subtrees.end();
+}
+
+const base_Node_Set & Map_of_Subtrees::get_subtree_set(Node_ID_key subtree_key) const {
+    return map_of_subtrees.at(subtree_key);
+}
+
+bool Map_of_Subtrees::node_in_subtree(Node_ID_key subtree_key, Node_ID_key node_key) const {
+    if (!has_subtrees) return false;
+    auto subtree = map_of_subtrees.find(subtree_key);
+    if (subtree == map_of_subtrees.end()) return false;
+    const base_Node_Set & subtree_ref = subtree->second;
+    if (subtree_ref.find(node_key) == subtree_ref.end()) return false;
+    return true;
+}
+
+bool Map_of_Subtrees::node_in_any_subtree(Node_ID_key node_key) const {
+    if (!has_subtrees) return false;
+    for (const auto & [subtree_key, subtree_ref]: map_of_subtrees) {
+        if (subtree_ref.find(node_key) != subtree_ref.end()) return true;
+    }
+    return false;
+}
+
+/**
  * Finds all Nodes that match a specified Node_Filter.
  * 
  * @param graph A valid Graph data structure.

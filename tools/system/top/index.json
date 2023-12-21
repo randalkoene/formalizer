@@ -10,6 +10,11 @@
             "window" : "_blank",
             "SPAinfo" : "&SPA=no"
         },
+        "Nodes and Threads" : {
+            "url" : "/cgi-bin/fzgraphhtml-cgi.py?subtrees=threads",
+            "window" : "_blank",
+            "SPAinfo" : "&SPA=no"
+        },
         "Recent Log" : {
             "url" : "/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END",
             "window" : "_blank"
@@ -152,8 +157,12 @@
             "url" : "https://trello.com/b/mnu1VKIn",
             "window" : "_blank"
         },
-        "Milestones" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?n=20101230042609.1",
+        "Threads" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?D=threads&I=true&T=true",
+            "window" : "_blank"
+        },
+        "Milestone Categories" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20101230042609.1&F=%5B",
             "window" : "_blank"
         },
         "Roadmap" : {
@@ -182,6 +191,14 @@
         }
     },
     "Current Tracks: " : {
+        "Graph" : {
+            "url" : "/cgi-bin/fzvismilestones-cgi.py",
+            "window" : "_blank"
+        },
+        "Milestones" : {
+            "url" : "/cgi-bin/fzvismilestones-cgi.py?F=%5B",
+            "window" : "_blank"
+        },
         "CARBONCOPIES" : {
             "url" : "https://trello.com/b/ABTA2xEA",
             "window" : "_blank"

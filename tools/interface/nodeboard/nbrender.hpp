@@ -14,6 +14,7 @@
 
 #include "Graphtypes.hpp"
 #include "Graphaccess.hpp"
+#include "Graphinfo.hpp"
 #include "templater.hpp"
 
 using namespace fz;
@@ -29,6 +30,7 @@ enum flow_options {
     flow_listof_topics = 10,
     flow_listof_mixed = 11,
     flow_sysmet_categories = 12,
+    flow_NNL_dependencies = 13,       ///< request: show dependencies of Nodes in Named Node List
     flow_NUMoptions
 };
 
@@ -37,6 +39,9 @@ enum template_id_enum {
     node_card_temp,
     kanban_board_temp,
     kanban_column_temp,
+    kanban_alt_column_temp,
+    kanban_alt_board_temp,
+    node_alt_card_temp,
     NUM_temp
 };
 
@@ -52,15 +57,23 @@ struct nodeboard: public formalizer_standard_program {
     std::string list_name;
     std::vector<std::string> list_names_vec;
 
+    Map_of_Subtrees map_of_subtrees;
+
     int excerpt_length = 160;
 
     Topic_ID topic_id = 0;
 
     bool show_completed = false;
+    bool threads = false;
+
+    std::string filter_substring;
+    int filter_substring_excerpt_length = 80;
+    std::string uri_encoded_filter_substring;
 
     bool board_title_specified = false;
     std::string board_title; // Set to -f name or "Kanban Board" if not provided.
     std::string board_title_extra;
+    std::string post_extra;
 
     std::string output_path;
 
@@ -89,9 +102,15 @@ struct nodeboard: public formalizer_standard_program {
 
     bool get_Node_card(const Node * node_ptr, std::string & rendered_cards);
 
+    bool get_Node_alt_card(const Node * node_ptr, std::string & rendered_cards);
+
     bool get_column(const std::string & column_header, const std::string & rendered_cards, std::string & rendered_columns, const std::string extra_header);
 
+    bool get_alt_column(const std::string & column_header, const std::string & rendered_cards, std::string & rendered_columns, const std::string extra_header);
+
     bool get_dependencies_column(const std::string & column_header, const Node * column_node, std::string & rendered_columns, const std::string extra_header);
+
+    bool get_fulldepth_dependencies_column(const std::string & column_header, Node_ID_key column_key, std::string & rendered_columns, const std::string extra_header);
 
     bool get_NNL_column(const std::string & nnl_str, std::string & rendered_columns);
 
@@ -99,7 +118,9 @@ struct nodeboard: public formalizer_standard_program {
 
     bool make_simple_grid_board(const std::string & rendered_cards);
 
-    bool make_multi_column_board(const std::string & rendered_cards);
+    std::string call_comment_string();
+
+    bool make_multi_column_board(const std::string & rendered_cards, bool use_alt_board = false);
 
 };
 
@@ -116,5 +137,7 @@ bool node_board_render_list_of_topics(nodeboard & nb);
 bool node_board_render_list_of_topics_and_NNLs(nodeboard & nb);
 
 bool node_board_render_sysmet_categories(nodeboard & nb);
+
+bool node_board_render_NNL_dependencies(nodeboard & nb);
 
 #endif // __NBRENDER_HPP

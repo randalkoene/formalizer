@@ -37,6 +37,18 @@ enum Graph_modification_request {
     NUM_graphmod_requests
 };
 
+const std::map<Graph_modification_request, std::string> Graph_modification_request_str = {
+    {graphmod_add_node, "add_node"},
+    {graphmod_add_edge, "add_edge"},
+    {namedlist_add, "add_to_NNL"},
+    {namedlist_remove, "remove_from_NNL"},
+    {namedlist_delete, "delete_NNL"},
+    {graphmod_edit_node, "edit_node"},
+    {graphmod_edit_edge, "edit_edge"},
+    {batchmod_targetdates, "batch_targetdates"},
+    {batchmod_tpassrepeating, "batch_tpassrepeating"}
+};
+
 /**
  * This is the data structure used by the server to return information about
  * the error that caused a Graph modification request stack to be rejected.
@@ -99,6 +111,22 @@ public:
     Graphmod_result_Vector results;
 
     Graphmod_results(std::string segname) : segment_name(segname), results(graphmemman.get_allocator(segname)) {}
+
+    bool add(Graph_modification_request _request, const Node_ID_key & _nkey);
+    bool add(Graph_modification_request _request, const Edge_ID_key & _ekey);
+    bool add(Graph_modification_request _request, const std::string _name, const Node_ID_key & _nkey);
+    bool add(Graph_modification_request _request, const std::string _name);
+
+    std::string info_str();
+};
+
+typedef std::vector<Graphmod_result> Graphmod_unshared_result_Vector;
+
+struct Graphmod_unshared_results {
+public:
+    Graphmod_unshared_result_Vector results;
+
+    Graphmod_unshared_results() {}
 
     bool add(Graph_modification_request _request, const Node_ID_key & _nkey);
     bool add(Graph_modification_request _request, const Edge_ID_key & _ekey);

@@ -74,6 +74,14 @@ std::string remove_html_tags(const std::string & htmlstr);
  */
 std::string make_embeddable_html(const std::string & htmlstr, text_interpretation interpretation = text_interpretation::raw);
 
+/**
+ * Convert a string into a URI-safe string.
+ * 
+ * @param s Unencoded string.
+ * @return Encoded string.
+ */
+std::string uri_encode(std::string s);
+
 } // namespace fz
 
 #endif // __HTML_HPP
