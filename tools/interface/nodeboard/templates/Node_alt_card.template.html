@@ -1,0 +1,13 @@
+<div class="Node1">
+
+  <div class="w3-card-4 w3-blue">
+    <!-- <img src="img_avatar.png" alt="Avatar" style="width:100%"> -->
+    <div class="container {{ node-color }}">
+      <p class="w3-medium">{{ node-text }}</p>
+      <p><b><a href="/cgi-bin/fzlink.py?id={{ node-id }}">{{ node-id }}</a></b> (<a href="/cgi-bin/nodeboard-cgi.py?n={{ node-deps }}{{ filter-substr }}">DEP</a>)</p>
+      <p>Progress: {{ node-progress }}&#37;</p>
+    </div>
+  </div>
+
+
+</div>
