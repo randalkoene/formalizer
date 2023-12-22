@@ -272,7 +272,7 @@ bool nodeboard::get_Node_card(const Node * node_ptr, std::string & rendered_card
     return true;
 }
 
-bool nodeboard::get_Node_alt_card(const Node * node_ptr, std::string & rendered_cards) {
+bool nodeboard::get_Node_alt_card(const Node * node_ptr, std::time_t tdate, std::string & rendered_cards) {
     if (!node_ptr) {
         return false;
     }
@@ -298,6 +298,7 @@ bool nodeboard::get_Node_alt_card(const Node * node_ptr, std::string & rendered_
     if (progress < 0.0) progress = 100.0;
     if (progress > 100.0) progress = 100.0;
     nodevars.emplace("node-progress", to_precision_string(progress, 1));
+    nodevars.emplace("node-targetdate", " ("+DateStampYmd(tdate)+')');
 
     std::string node_color;
     if (node_ptr->is_active()) {
@@ -381,14 +382,15 @@ bool nodeboard::get_fulldepth_dependencies_column(const std::string & column_hea
     float tot_required_hrs = 0;
     float tot_completed_hrs = 0;
     // Add all dependencies found to the column as cards.
-    for (const auto & depkey : map_of_subtrees.get_subtree_set(column_key)) {
-        Node_ptr depnode_ptr = graph().Node_by_id(depkey);
+    //for (const auto & depkey : map_of_subtrees.get_subtree_set(column_key)) {
+    for (const auto & [tdate, depnode_ptr] : map_of_subtrees.get_subtree_set(column_key).tdate_node_pointers) {
+        //Node_ptr depnode_ptr = graph().Node_by_id(depkey);
         if (!depnode_ptr) {
-            standard_error("Dependency Node "+depkey.str()+" not found, skipping", __func__);
+            standard_error("Dependency Node not found, skipping", __func__);
             continue;
         }
-        if (!get_Node_alt_card(depnode_ptr, rendered_cards)) {
-            standard_error("Dependency Node "+depkey.str()+" not found in Graph, skipping", __func__);
+        if (!get_Node_alt_card(depnode_ptr, tdate, rendered_cards)) {
+            standard_error("Dependency Node not found in Graph, skipping", __func__);
         }
 
         // Obtain contributions to thread progress.
@@ -407,7 +409,10 @@ bool nodeboard::get_fulldepth_dependencies_column(const std::string & column_hea
         tot_completed_hrs += (required*completion);
     }
 
-    float thread_progress = 100.0 * tot_completed_hrs / tot_required_hrs;
+    float thread_progress = 0;
+    if (tot_required_hrs > 0.0) {
+        thread_progress = 100.0 * tot_completed_hrs / tot_required_hrs;
+    }
     std::string extra_header_with_progress = extra_header + "<br>Progress: " + to_precision_string(thread_progress, 1) + "&#37;";
 
     return get_alt_column(column_header, rendered_cards, rendered_columns, extra_header_with_progress);
@@ -547,6 +552,30 @@ bool node_board_render_random_test(nodeboard & nb) {
     return nb.make_simple_grid_board(rendered_cards);
 }
 
+std::string with_and_without_inactive_Nodes_buttons(const std::string & flow_request, const std::string & extra_options, bool current_page_shows_inactive) {
+    std::string with_inactive(
+        "<button class=\"button button1\" onclick=\"window.open('/cgi-bin/nodeboard-cgi.py?"
+        + flow_request
+        + extra_options
+        + "&I=true'");
+    std::string without_inactive(
+        "<button class=\"button button1\" onclick=\"window.open('/cgi-bin/nodeboard-cgi.py?"
+        + flow_request
+        + extra_options
+        + "'");
+    if (current_page_shows_inactive) {
+        with_inactive += ",'_self');\">Refresh</button>";
+        without_inactive += ");\">Exclude Completed/Inactive</button>";
+        with_inactive += without_inactive;
+        return with_inactive;
+    } else {
+        with_inactive += ");\">Include Completed/Inactive</button>";
+        without_inactive += ",'_self');\">Refresh</button>";
+        without_inactive += with_inactive;
+        return without_inactive;
+    }
+}
+
 bool node_board_render_dependencies(nodeboard & nb) {
     if (!nb.node_ptr) {
         return false;
@@ -599,9 +628,7 @@ bool node_board_render_dependencies(nodeboard & nb) {
         }
     }
 
-    if (!nb.show_completed) {
-        nb.post_extra = "<button class=\"button button1\" onclick=\"window.open('/cgi-bin/nodeboard-cgi.py?n="+nb.node_ptr->get_id_str()+include_filter_substr+"&I=true');\">Include Completed</button>";
-    }
+    nb.post_extra = with_and_without_inactive_Nodes_buttons("n="+nb.node_ptr->get_id_str(), include_filter_substr, nb.show_completed);
 
     return nb.make_multi_column_board(rendered_columns);
 }
@@ -764,18 +791,20 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
         nb.board_title = "Dependencies of Nodes in NNL '"+nb.list_name+'\'';
     }
 
+    std::string threads_option;
+    if (nb.threads) threads_option = "&T=true";
+
+    nb.board_title_extra = with_and_without_inactive_Nodes_buttons("D="+nb.list_name, threads_option, nb.show_completed);
+
     if (nb.threads) {
-        nb.board_title_extra =
+        nb.board_title_extra +=
             "<b>Threads</b>:<br>"
             "Where @VISOUTPUT: ...@ is defined in Node content it is shown as the expected advantageous non-internal (visible) output of a thread.<br>"
             "Otherwise, an excerpt of Node content is shown as the thread header.<br>"
             "The Nodes in a thread should be a clear set of steps leading to the output.";
     }
 
-    // auto map_of_subtrees = Threads_Subtrees(nb.graph(), nb.list_name);
-    // if (map_of_subtrees.empty()) {
-    //     return false;
-    // }
+    nb.map_of_subtrees.sort_by_targetdate = true;
     nb.map_of_subtrees.collect(nb.graph(), nb.list_name);
     if (!nb.map_of_subtrees.has_subtrees) return false;
 
@@ -807,7 +836,6 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
             headnode_description = remove_html_tags(htmltext).substr(0,nb.excerpt_length);
         }
 
-        //nb.get_fulldepth_dependencies_column(headnode_description, map_of_subtrees[nkey], rendered_columns, headnode_id_link);
         nb.get_fulldepth_dependencies_column(headnode_description, nkey, rendered_columns, headnode_id_link);
 
     }

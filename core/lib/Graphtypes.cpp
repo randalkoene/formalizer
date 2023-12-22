@@ -992,6 +992,70 @@ bool Named_Node_List::remove(const Node_ID_key & nkey) {
     return false;
 }
 
+/**
+ * Change the order of Nodes in a Named Node List by moving a
+ * Node from a specified position one position closer to the
+ * head of the list. List length and features remain unchanged.
+ * 
+ * @param from_position Position in list of Node ID key to be moved.
+ * @return True if successfully moved.
+ */
+bool Named_Node_List::move_toward_head(unsigned int from_position) {
+    if (from_position == 0) return false;
+    if (from_position >= size()) return false;
+
+    auto cached = list.at(from_position);
+    auto pos_it = list.begin() + from_position;
+    list.erase(pos_it);
+
+    pos_it--;
+    list.insert(pos_it, cached);
+    return true;
+}
+
+/**
+ * Change the order of Nodes in a Named Node List by moving a
+ * Node from a specified position one position closer to the
+ * tail of the list. List length and features remain unchanged.
+ * 
+ * @param from_position Position in list of Node ID key to be moved.
+ * @return True if successfully moved.
+ */
+bool Named_Node_List::move_toward_tail(unsigned int from_position) {
+    if (from_position >= (size()-1)) return false;
+
+    auto cached = list.at(from_position);
+    auto pos_it = list.begin() + from_position;
+    list.erase(pos_it);
+
+    pos_it++;
+    list.insert(pos_it, cached);
+    return true;
+}
+
+/**
+ * Change the order of Nodes in a Named Node List by moving a
+ * Node from a specified position another specified position
+ * in the list. List length and features remain unchanged.
+ * 
+ * @param from_position Position in list to move Node ID key from.
+ * @param to_position Position in list to move Node ID key to.
+ * @return True if successfully moved.
+ */
+bool Named_Node_List::move_to_position(unsigned int from_position, unsigned int to_position) {
+    if (from_position >= size()) return false;
+    if (to_position >= size()) return false;
+    if (from_position == to_position) return true;
+
+    auto cached = list.at(from_position);
+    auto pos_it = list.begin() + from_position;
+    list.erase(pos_it);
+
+    pos_it = list.begin() + to_position;
+    list.insert(pos_it, cached);
+    return true;
+}
+
 std::vector<std::string> Graph::get_List_names() const {
     std::vector<std::string> names_vec;
     for (const auto & [nls, nnl] : namedlists) {

@@ -37,9 +37,11 @@ struct fzvismilestones: public formalizer_standard_program {
 
     //Node * node_ptr = nullptr;
 
-    int excerpt_length = 160;
+    int excerpt_length = 80;
 
     bool show_completed = false;
+
+    bool show_only_labels = false;
 
     std::string filter_substring;
     int filter_substring_excerpt_length = 80;

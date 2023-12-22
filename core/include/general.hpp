@@ -69,6 +69,8 @@ inline std::string &trim(std::string &s, const char *t = " \t\n\r\f\v") {
     return ltrim(rtrim(s, t), t);
 }
 
+std::string get_enclosed_substring(const std::string & s, char open_enclosure, char close_enclosure, const std::string & alt_return);
+
 /**
  * Safely copy from a string (not null-terminated) to a char buffer of limited
  * size. This can even include null-characters that were in the string. This

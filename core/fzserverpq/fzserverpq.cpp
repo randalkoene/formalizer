@@ -84,6 +84,7 @@ The GET/PATCH port API includes the following:
   /fz/graph/namedlists/<list-name>?remove=<node-id>
   /fz/graph/namedlists/<list-name>?delete=
   /fz/graph/namedlists/<list-name>?copy=<from_name>[&from_max=N][&to_max=M]
+  /fz/graph/namedlists/<list-name>?move=<from_pos>&<up=|down=|to=<to_pos>>
   /fz/graph/namedlists/_select?id=<node-id>
   /fz/graph/namedlists/_recent?id=<node-id>
   /fz/graph/namedlists/_shortlist

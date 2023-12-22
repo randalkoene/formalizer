@@ -17,6 +17,37 @@
 
 using namespace fz;
 
+#define SUCCESSFUL_OUTPUT_SIGNAL_FILE "/dev/shm/fzvismilestones.webapp.updated"
+
+static const char usage_tail_str_A[] = R"UTAIL(
+Notes:
+-----
+
+An output option ('-O') must be provided.
+
+The 'webapp' output option does the following:
+
+1. Render the Graph to Cytoscape JSON data Javascript.
+2. Extract an archived web app template to the specified
+   (or default) output directory.
+3. Replace the web app network.js file with the new
+   Javascript data file.
+
+The default output directory for the web app is:
+
+   /var/www/webdata/formalizer/cytowebapp/data
+
+The access URL for the web app (assuming a browser on
+the Formalizer localhost server) is:
+
+   http://localhost/formalizer/data/cytowebapp
+
+If the graph is not visible in the web app then it may be
+necessary to change the 'Visual Style' or 'Layout', using
+the selectors available in the app.
+
+)UTAIL";
+
 #define DEFAULT_OUTPUT_FILE "/var/www/html/formalizer/test_node_graph.sif"
 #define DEFAULT_GRAPHML_FILE "/var/www/html/formalizer/test_node_graph.graphml"
 fzvismilestones::fzvismilestones():
@@ -26,17 +57,19 @@ fzvismilestones::fzvismilestones():
     //output_path(DEFAULT_OUTPUT_FILE),
     graph_ptr(nullptr) {
 
-    add_option_args += "O:IF:o:";
-    add_usage_top += " [-O <output-format>] [-I] [-F <substring>] [-o <output-file|STDOUT>]";
+    add_option_args += "O:ILF:o:";
+    add_usage_top += " <-O <output-format>> [-I] [-L] [-F <substring>] [-o <output-file|STDOUT>]";
+    usage_tail.push_back(usage_tail_str_A);
 }
 
 void fzvismilestones::usage_hook() {
     ga.usage_hook();
     FZOUT(
-        "    -O Output format:\n"
-        "       SIF, GraphML, webapp, webview\n"
+        "    -O Output format (required!):\n"
+        "       webapp, webview, SIF, GraphML\n"
         "    -I Include completed Nodes.\n"
         "       This also includes Nodes with completion values < 0.\n"
+        "    -L Show only labels enclosed in square brackets.\n"
         "    -F Filter to show only Nodes where the first 80 characters contain the\n"
         "       substring.\n"
         "    -o Output to file (or STDOUT).\n"
@@ -73,6 +106,11 @@ bool fzvismilestones::options_hook(char c, std::string cargs) {
             return true;
         }
 
+        case 'L': {
+            show_only_labels = true;
+            return true;
+        }
+
         case 'F': {
             filter_substring = cargs;
             uri_encoded_filter_substring = uri_encode(filter_substring);
@@ -105,6 +143,10 @@ bool fzvismilestones::render_init() {
     return true;
 }
 
+bool signal_successful_update(const std::string & updated_path) {
+    return string_to_file(SUCCESSFUL_OUTPUT_SIGNAL_FILE, "updated "+updated_path);
+}
+
 bool fzvismilestones::to_output(const std::string & rendered) {
     if (output_path=="STDOUT") {
         FZOUT(rendered);
@@ -115,7 +157,7 @@ bool fzvismilestones::to_output(const std::string & rendered) {
         ERRRETURNFALSE(__func__,"unable to write rendered to "+output_path);
     }
     FZOUT("Rendered to "+output_path+".\n");
-    return true;
+    return signal_successful_update(output_path);
 }
 
 bool fzvismilestones::check_inactive(Node_ptr node_ptr) {
@@ -171,7 +213,7 @@ std::string generate_cytoscape_script() {
 #define EDGETYPE " dep_on"
 #define SCRIPTPATH "/dev/shm/cytoscape.script"
 #define DEFAULT_CYTOSCAPE "/home/randalk/local/bin/Cytoscape_v3.10.1/cytoscape.sh"
-#define DEFAULT_OUTPUT_DIR "/var/www/html/formalizer"
+#define DEFAULT_OUTPUT_DIR "/var/www/webdata/formalizer"
 
 bool fzvismilestones::render_as_SIF() {
     std::string rendered;
@@ -289,6 +331,14 @@ std::string fzvismilestones::get_or_add_edge_SUID() {
     return std::to_string(edge_SUID);
 }
 
+std::string replace_quotes(const std::string & s) {
+    std::string out_s(s);
+    for (unsigned int i = 0; i<s.size(); i++) {
+        if (s[i] == '"')  out_s[i] = '_';
+    }
+    return out_s;
+}
+
 bool fzvismilestones::render_Cytoscape_JSON(std::string & rendered) {
     std::string name = "Graph";
     rendered = CYTOSCAPEJS_HEAD_0;
@@ -316,14 +366,25 @@ bool fzvismilestones::render_Cytoscape_JSON(std::string & rendered) {
         if (check_filtered(node_ptr)) continue;
 
         std::string node_idstr = node_ptr->get_id_str();
+
+        std::string node_label;
+        std::string htmltext(node_ptr->get_text().c_str());
+        std::string notags(remove_html_tags(htmltext));
+        if (show_only_labels) {
+            node_label = get_enclosed_substring(notags, '[', ']', node_idstr).substr(0,excerpt_length);
+        } else {
+            node_label = notags.substr(0,excerpt_length);
+        }
+        node_label = replace_quotes(node_label);
+        
         std::string node_SUID_str = get_or_add_node_SUID(node_idstr);
 
         nodes += 
             "{\n"
             "      \"data\" : {\n"
             "        \"id\" : \"" + node_SUID_str + "\",\n"
-            "        \"shared_name\" : \"" + node_idstr + "\",\n"
-            "        \"name\" : \"" + node_idstr + "\",\n"
+            "        \"shared_name\" : \"" + node_label + "\",\n"
+            "        \"name\" : \"" + node_label + "\",\n"
             "        \"SUID\" : " + node_SUID_str + ",\n"
             "        \"selected\" : false\n"
             "      }\n"

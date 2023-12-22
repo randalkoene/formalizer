@@ -13,7 +13,7 @@
 #       to items with a different Node link.
 WIZTABLE_LINES=[
 	[ '20060914084328.1', 5, 'log', 0, 'checkbox', 6, 8, 'Update (or catch up) the Log.', '' ], # Log autodetectable.
-	[ '20060914084328.1', 1, 'ritual', 0, 'checkbox', 6, 8, 'Ritual: Meditate or do yoga outside.', '' ],
+	[ '20060914084328.1', 1, 'ritual', 0, 'checkbox', 6, 8, 'Ritual: Meditate or do yoga (preferably outside).', '' ],
 	[ '20060914084328.1', 1, 'coffee', 0, 'checkbox', 6, 8, 'Start timer and make coffee.', '' ],
 	[ '20060914084328.1', 2, 'vitamins', 0, 'checkbox', 6, 8, 'Take vitamins and supplements.', '' ],
 	[ '20060914084328.1', 3, 'news', 0, 'checkbox', 6, 8, 'Use <a href="/formalizer/test_maketimer.html" target="_blank">a timer or skip news reading.', '' ],
@@ -22,9 +22,9 @@ WIZTABLE_LINES=[
 	[ '20091115180507.1', 3, 'promises', 0, 'checkbox', 6, 9, 'Review <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=promises&sort_by=targetdate"><b>Promises</b></a> (<a href="https://trello.com/b/KsIljqx3/promises">and Board</a>), update, revise and re-prioritize as needed. Make sure Scheduling is correct.', '' ],
 	[ '20091115180507.1', 5, 'passedfixed', 0, 'checkbox', 6, 9, '<a href="/cgi-bin/fzupdate-cgi.py?update=passedfixed" target="_blank">Confirm passed non-repeating Fixed Nodes to convert to Variable</a> - or - manually update them.', '' ],
 	[ '20091115180507.1', 5, 'passedrepeat', 0, 'checkbox', 6, 9, 'Auto-update passed repeating Nodes to their next instances.', '' ],
-	[ '20091115180507.1', 3, 'priority', 0, 'checkbox', 6, 9, 'Ensure that highest priority Promises are represented in the Schedule.', '' ], # Schedule autodetectable.
+	[ '20091115180507.1', 3, 'priority', 0, 'checkbox', 6, 9, 'Ensure that highest priority <a href="/cgi-bin/fzgraphhtml-cgi.py?subtrees=promises" target="_blank">Promises are represented in the Schedule</a>.', '' ], # Schedule autodetectable.
 	[ '20091115180507.1', 4, 'milestones', 0, 'checkbox', 6, 9, 'Review upcoming Milestones (<a href="/cgi-bin/nodeboard-cgi.py?n=20101230042609.1" target="_blank">Milestones Kanban</a>, <a href="https://trello.com/b/tlgXjZBm" target="_blank">Milestone Tracks</a>, <a href="https://trello.com/b/t2RmUmlN" target="_blank">Milestones Trello</a>, mapped to Milestones, Dependencies, Roadmap Path, Values and Urgency.) Ensure there are Nodes to complete upcoming Milestones. Also, review progress on current main Nodes side-by-side.', '' ],
-	[ '20091115180507.1', 4, 'decisions', 0, 'checkbox', 6, 9, 'Identify Challenges and Decisions in the Schedule, tag as such, add to <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=challenges_open&sort_by=targetdate" target="_blank">NNL</a>. <a href="https://trello.com/b/mnu1VKIn" target="_blank">Known Challenges and Decisions</a> must be represented by at least one Node.', '' ],
+	[ '20091115180507.1', 4, 'decisions', 0, 'checkbox', 6, 9, 'Identify <a href="/cgi-bin/fzgraphhtml-cgi.py?subtrees=challenges_open" target="_blank">Challenges and Decisions in the Schedule</a>, tag as such, add to <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=challenges_open&sort_by=targetdate" target="_blank">NNL</a>. <a href="https://trello.com/b/mnu1VKIn" target="_blank">Known Challenges and Decisions</a> must be represented by at least one Node.', '' ],
 	[ '20091115180507.1', 5, 'schedfits', 0, 'checkbox', 6, 9, 'Ensure schedule is mathematically doable. (Sum of required times fits into available time.)', '' ],
 	[ '20091115180507.1', 2, 'variable', 0, 'checkbox', 6, 9, 'Auto-update Variable Nodes. (Or replace this with different handling of Variable Nodes.)', '' ],
 	[ '20091115180507.1', 5, 'realistic', 0, 'checkbox', 6, 9, 'Ensure Schedule is realistic. E.g. map to time intervals on calendar day. Account for mini-days, and Nodes best in morning/evening.', '' ], # Automatable.

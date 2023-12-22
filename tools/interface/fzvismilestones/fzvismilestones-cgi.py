@@ -30,9 +30,14 @@ home = str(Path.home())
 # *** Perhaps read the following from ~/.formalizer/webdata_path
 webdata_path = "/var/www/webdata/formalizer"
 
-DEFAULT_OUTPUT_FILE = webdata_path+"/test_node_graph.sif"
+logfile = webdata_path+'/fzvismilestones.log'
 
-DEFAULT_REDIRECT_TARGET = "/cytoscape_graph.html"
+#DEFAULT_OUTPUT_FILE = webdata_path+"/test_node_graph.sif"
+
+#DEFAULT_REDIRECT_TARGET = "/data/cytoscape_graph.html"
+DEFAULT_REDIRECT_TARGET = "/data/cytowebapp"
+
+SUCCESSFUL_OUTPUT_SIGNAL_FILE = "/dev/shm/fzvismilestones.webapp.updated"
 
 # Create instance of FieldStorage 
 form = cgi.FieldStorage() 
@@ -40,15 +45,20 @@ form = cgi.FieldStorage()
 # Get data from fields
 filter_string = form.getvalue('F')
 show_completed = form.getvalue('I')
+show_only_labels = form.getvalue('L')
 
 if filter_string != '':
-    include_filter_string = ' -F %s' % filter_string
+    include_filter_string = " -F '%s'" % filter_string
 else:
     include_filter_string = ''
 if show_completed == 'true':
     include_show_completed = ' -I'
 else:
     include_show_completed = ''
+if show_only_labels == 'true':
+    include_show_only_labels = ' -L'
+else:
+    include_show_only_labels = ''
 
 # *** OBTAIN THIS SOMEHOW!
 #with open('./server_address','r') as f:
@@ -83,7 +93,7 @@ def try_command_call(thecmd, print_result=True)->str:
 
 REDIRECT='''
 <html>
-<meta http-equiv="Refresh" content="0; url='/formalizer/data%s'" />
+<meta http-equiv="Refresh" content="0; url='/formalizer%s'" />
 </html>
 '''
 
@@ -96,10 +106,30 @@ Click here: <a href="/formalizer/data%s">%s</a>
 </html>
 '''
 
+FAILED_UPDATE='''
+<html>
+<body>
+Failed to update web app network.js file.
+</body>
+</html>
+'''
+
 def show_graph():
-    thecmd = f"./fzvismilestones {include_filter_string} {include_show_completed} -q -o {DEFAULT_OUTPUT_FILE}"
+    thecmd = f"./fzvismilestones -O webapp {include_filter_string} {include_show_completed} {include_show_only_labels} -q" # -o {DEFAULT_OUTPUT_FILE}"
+
+    with open(logfile,'w') as f:
+        f.write(thecmd)
+
+    if exists(SUCCESSFUL_OUTPUT_SIGNAL_FILE):
+        os.remove(SUCCESSFUL_OUTPUT_SIGNAL_FILE)
+
     res = try_command_call(thecmd, print_result=False)
-    print(REDIRECT % DEFAULT_REDIRECT_TARGET)
+
+    # Check successful update.
+    if exists(SUCCESSFUL_OUTPUT_SIGNAL_FILE):
+        print(REDIRECT % DEFAULT_REDIRECT_TARGET)
+    else:
+        print(FAILED_UPDATE)
 
 HELP='''
 <html>

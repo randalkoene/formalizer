@@ -65,6 +65,16 @@ struct Node_Filter {
     std::string str();
 };
 
+struct Node_Subtree {
+    base_Node_Set set_by_key;
+    targetdate_sorted_Nodes tdate_node_pointers;
+
+    void build_targetdate_sorted(Graph & graph);
+};
+
+//typedef std::map<Node_ID_key, base_Node_Set, std::less<Node_ID_key>> map_of_subtrees_t;
+typedef std::map<Node_ID_key, Node_Subtree, std::less<Node_ID_key>> map_of_subtrees_t;
+
 /**
  * Collect all unique Nodes in the dependencies tree of a Node.
  * 
@@ -82,14 +92,15 @@ bool Node_Dependencies_fulldepth(const Node* node_ptr, base_Node_Set & fulldepth
  * @return A map in which the keys are the Node IDs of Nodes in the NNL and
  *         the values are each a set of unique Nodes that are the dependencies.
  */
-std::map<Node_ID_key, base_Node_Set, std::less<Node_ID_key>> Threads_Subtrees(Graph & graph, const std::string & nnl_str);
+map_of_subtrees_t Threads_Subtrees(Graph & graph, const std::string & nnl_str, bool sort_by_targetdate = false);
 
 /**
  * See how this is used in fzgraphhtml and nodeboard.
  */
 struct Map_of_Subtrees {
-    std::map<Node_ID_key, base_Node_Set, std::less<Node_ID_key>> map_of_subtrees;
+    map_of_subtrees_t map_of_subtrees;
     std::string subtrees_list_name;
+    bool sort_by_targetdate = false;
     bool has_subtrees = false;
 
     Map_of_Subtrees() {}
@@ -98,11 +109,13 @@ struct Map_of_Subtrees {
 
     bool is_subtree_head(Node_ID_key subtree_key) const;
 
-    const base_Node_Set & get_subtree_set(Node_ID_key subtree_key) const;
+    const Node_Subtree & get_subtree_set(Node_ID_key subtree_key) const;
 
     bool node_in_subtree(Node_ID_key subtree_key, Node_ID_key node_key) const;
 
     bool node_in_any_subtree(Node_ID_key node_key) const;
+
+    bool node_in_heads_or_any_subtree(Node_ID_key node_key) const;
 };
 
 /**

@@ -348,6 +348,9 @@ struct NNL_add_data {
     Node_ID_key nkey;
     int16_t features = 0;
     int32_t maxsize = 0;
+    char move = '_';
+    unsigned int from_position = 0;
+    unsigned int to_position = 0;
 };
 
 typedef bool add_data_func_t(const std::string&, NNL_add_data&);
@@ -388,12 +391,37 @@ bool add_data_prepend(const std::string &value, NNL_add_data & adddata) {
     return true;
 }
 
+bool add_data_move(const std::string &value, NNL_add_data & adddata) {
+    adddata.from_position = atoi(value.c_str());
+    return true;
+}
+
+bool add_data_up(const std::string &value, NNL_add_data & adddata) {
+    adddata.move = 'u';
+    return true;
+}
+
+bool add_data_down(const std::string &value, NNL_add_data & adddata) {
+    adddata.move = 'd';
+    return true;
+}
+
+bool add_data_to(const std::string &value, NNL_add_data & adddata) {
+    adddata.move = 't';
+    adddata.to_position = atoi(value.c_str());
+    return true;
+}
+
 const add_data_map_t NNL_list_add_features = {
     {"add", add_data_nkey},
     {"maxsize", add_data_maxsize},
     {"unique", add_data_unique},
     {"fifo", add_data_fifo},
-    {"prepend", add_data_prepend}
+    {"prepend", add_data_prepend},
+    {"move", add_data_move},
+    {"up", add_data_up},
+    {"down", add_data_down},
+    {"to", add_data_to}
 };
 
 /*
@@ -550,6 +578,62 @@ bool handle_delete_list(const std::string & list_name, const GET_token_value_vec
     return true;
 }
 
+bool handle_move_within_list(const std::string & list_name, const GET_token_value_vec & token_value_vec, std::string & response_html) {
+    ERRTRACE;
+
+    VERYVERBOSEOUT("Moving Node within Named Node List "+list_name+'\n');
+
+    NNL_add_data adddata;
+    if (!get_add_data(token_value_vec, adddata)) {
+        return standard_error("Unable to carry out 'move' within Named Node List", __func__);
+    }
+
+    // confirm that the NNL exists and the Node ID position to move from is within the Named Node List
+    auto nnl_ptr = fzs.graph_ptr->get_List(list_name);
+    if (!nnl_ptr) {
+        return standard_error("Named Node List ("+list_name+") not found in Graph for move within list request", __func__);
+    }
+    if (adddata.from_position >= nnl_ptr->size()) {
+        return standard_error("Position "+std::to_string(adddata.from_position)+" does not exist in Named Node List ("+list_name+")", __func__);
+    }
+
+    bool res = false;
+    switch (adddata.move) {
+        case 'u': {
+            res = nnl_ptr->move_toward_head(adddata.from_position);
+            break;
+        }
+        case 'd': {
+            res = nnl_ptr->move_toward_tail(adddata.from_position);
+            break;
+        }
+        case 't': {
+            res = nnl_ptr->move_to_position(adddata.from_position, adddata.to_position);
+            break;
+        }
+        default: {
+            standard_error("Unrecognized 'move' request ("+std::string(1, adddata.move)+") for Named Node List", __func__);
+        }
+    }
+    if (!res) {
+        return standard_error("Unable to move Node within Named Node List "+list_name, __func__);
+    }
+
+    // synchronize with stored List
+    if (fzs.graph_ptr->persistent_Lists()) {
+        if (!Update_Named_Node_List_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), list_name, *fzs.graph_ptr)) {
+            return standard_error("Synchronizing Named Node List update to database failed", __func__);
+        }
+    }
+
+    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
+                    "<p>Named Node List modified.</p>\n"
+                    "<p><b>Moved</b> within List "+list_name+".</p>\n"
+                    "</body>\n</html>\n";
+
+    return true;
+}
+
 typedef std::map<std::string, unsigned int> Command_Token_Map;
 
 const Command_Token_Map NNL_noargs_commands = {
@@ -567,7 +651,8 @@ const Command_Token_Map NNL_list_commands = {
     {"add", NNLlistcmd_add},
     {"remove", NNLlistcmd_remove},
     {"copy", NNLlistcmd_copy},
-    {"delete", NNLlistcmd_delete}
+    {"delete", NNLlistcmd_delete},
+    {"move", NNLlistcmd_move}
 };
 
 unsigned int find_in_command_map(const std::string & cmd_candidate, const Command_Token_Map & CTmap) {
@@ -1261,6 +1346,15 @@ bool handle_node_direct_request(std::string nodereqstr, std::string & response_h
     return standard_error("No known request token found: "+nodereqstr, __func__);
 }
 
+/** Examples:
+ *    /fz/graph/namedlists/threads?add=20230912080006.1
+ *    /fz/graph/namedlists/threads?remove=20230912080006.1
+ *    /fz/graph/namedlists/superiors?delete=
+ *    /fz/graph/namedlists/recent?copy=superiors&to_max=5
+ *    /fz/graph/namedlists/threads?move=3&up=
+ *    /fz/graph/namedlists/promises?move=2&down=
+ *    /fz/graph/namedlists/challenges_open?move=3&to=5
+ */
 // *** Note: This could be improved by putting the standardized handler functions into a const
 //     map with the command as a key and the function to be called. This would replace all of
 //     the switch statements.
@@ -1347,6 +1441,10 @@ bool handle_named_list_direct_request(std::string namedlistreqstr, std::string &
 
             case NNLlistcmd_delete: {
                 return handle_delete_list(list_name, token_value_vec, response_html);
+            }
+
+            case NNLlistcmd_move: {
+                return handle_move_within_list(list_name, token_value_vec, response_html);
             }
 
             default: {

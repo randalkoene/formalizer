@@ -701,6 +701,9 @@ public:
     bool contains(const Node_ID_key & nkey) {
         return (std::find(list.begin(), list.end(), nkey) != list.end());
     }
+    bool move_toward_head(unsigned int from_position);
+    bool move_toward_tail(unsigned int from_position);
+    bool move_to_position(unsigned int from_position, unsigned int to_position);
 };
 typedef Named_Node_List * Named_Node_List_ptr; // use this pointer only within the context of one program (not to be stored in shared memory)
 typedef std::pair<const Named_List_String, Named_Node_List> Named_Node_List_Map_value_type;

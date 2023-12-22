@@ -254,7 +254,7 @@ struct line_render_parameters {
      * @param tdate Target date to show (e.g. effective target date or locally specified target date).
      * @param showdate Insert date and day of week if true.
      */
-    void render_Node(const Node & node, time_t tdate, bool showdate = true) {
+    void render_Node(const Node & node, time_t tdate, bool showdate = true, int list_pos = -1) {
         template_varvalues varvals;
         std::string nodestr(node.get_id_str());
         varvals.emplace("node_id",nodestr);
@@ -302,7 +302,7 @@ struct line_render_parameters {
 
         varvals.emplace("tdprop",render_tdproperty(node));
         std::string htmltext(node.get_text().c_str());
-        if (map_of_subtrees.node_in_any_subtree(node.get_id().key())) {
+        if (map_of_subtrees.node_in_heads_or_any_subtree(node.get_id().key())) {
             varvals.emplace("excerpt",subtrees_list_tag+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
         } else {
             varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
@@ -310,6 +310,11 @@ struct line_render_parameters {
         //varvals.emplace("excerpt",remove_html(htmltext).substr(0,fzgh.config.excerpt_length));
         varvals.emplace("fzserverpq",graph_ptr->get_server_full_address());
         varvals.emplace("srclist",srclist);
+        if (list_pos<0) {
+            varvals.emplace("list_pos", "");
+        } else {
+            varvals.emplace("list_pos","&list_pos="+std::to_string(list_pos));
+        }
 
         if (fzgh.test_cards) {
             rendered_page += env.render(templates[node_pars_in_list_card_temp], varvals);
@@ -484,10 +489,12 @@ bool render_named_node_list() {
 
         targetdate_sorted_Nodes list_nodes = Nodes_in_list_by_targetdate(lrp.graph(), namedlist_ptr);
 
+        int list_pos = 0;
         for (const auto & [tdate, node_ptr] : list_nodes) {
 
             if (node_ptr) {
-                lrp.render_Node(*node_ptr, tdate, false);
+                lrp.render_Node(*node_ptr, tdate, false, list_pos);
+                list_pos++;
             }
 
             if (--num_render == 0)
@@ -496,11 +503,13 @@ bool render_named_node_list() {
 
     } else {
 
+        int list_pos = 0;
         for (const auto & nkey : namedlist_ptr->list) {
 
             Node * node_ptr = lrp.graph().Node_by_id(nkey);
             if (node_ptr) {
-                lrp.render_Node(*node_ptr, node_ptr->effective_targetdate(), false);
+                lrp.render_Node(*node_ptr, node_ptr->effective_targetdate(), false, list_pos);
+                list_pos++;
             } else {
                 standard_error("Node "+nkey.str()+" not found in Graph, skipping", __func__);
             }

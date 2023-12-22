@@ -102,7 +102,7 @@ struct nodeboard: public formalizer_standard_program {
 
     bool get_Node_card(const Node * node_ptr, std::string & rendered_cards);
 
-    bool get_Node_alt_card(const Node * node_ptr, std::string & rendered_cards);
+    bool get_Node_alt_card(const Node * node_ptr, std::time_t tdate, std::string & rendered_cards);
 
     bool get_column(const std::string & column_header, const std::string & rendered_cards, std::string & rendered_columns, const std::string extra_header);
 

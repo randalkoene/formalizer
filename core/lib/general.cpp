@@ -126,6 +126,27 @@ std::string join(const std::vector<std::string> & svec, const std::string delim)
 }
 
 /**
+ * Find and return a substring enclosed by opening and closing
+ * characters.
+ * 
+ * This is often used to find labels between brackets, e.g. [SOME-LABEL].
+ * 
+ * @param s The string to search in.
+ * @param open_enclosure The opening character before the substring.
+ * @param close_enclosure The closing character after the substring.
+ * @param alt_return The string to return if an enclosed substring was not found.
+ * @return The substring between enclosing characters or the alt_return string.
+ */
+std::string get_enclosed_substring(const std::string & s, char open_enclosure, char close_enclosure, const std::string & alt_return) {
+    auto open_pos = s.find(open_enclosure);
+    if (open_pos == std::string::npos) return alt_return;
+    auto close_pos = s.find(close_enclosure, open_pos);
+    if (close_pos == std::string::npos) return alt_return;
+    open_pos++;
+    return s.substr(open_pos, close_pos - open_pos);
+}
+
+/**
  * Safely copy from a string (not null-terminated) to a char buffer of limited
  * size. This can even include null-characters that were in the string. This
  * is safer than std::copy(), string::copy(), strcpy() or strncpy().

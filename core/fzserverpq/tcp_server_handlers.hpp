@@ -41,6 +41,7 @@ enum NNL_list_cmd {
     NNLlistcmd_remove = 2,
     NNLlistcmd_copy = 3,
     NNLlistcmd_delete = 4,
+    NNLlistcmd_move = 5,
     NNLlistcmd_NUM
 };
 

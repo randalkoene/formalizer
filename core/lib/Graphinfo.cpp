@@ -186,6 +186,13 @@ bool Node_Dependencies_fulldepth(const Node* node_ptr, base_Node_Set & fulldepth
     return true;
 }
 
+void Node_Subtree::build_targetdate_sorted(Graph & graph) {
+    for (const auto & nkey : set_by_key) {
+        Node * node_ptr = graph.Node_by_id(nkey);
+        tdate_node_pointers.emplace(node_ptr->effective_targetdate(), node_ptr);
+    }
+};
+
 /**
  * Collect the subtrees that are the full dependencies of all Nodes in a
  * Named Nodes List.
@@ -194,8 +201,8 @@ bool Node_Dependencies_fulldepth(const Node* node_ptr, base_Node_Set & fulldepth
  * @return A map in which the keys are the Node IDs of Nodes in the NNL and
  *         the values are each a set of unique Nodes that are the dependencies.
  */
-std::map<Node_ID_key, base_Node_Set, std::less<Node_ID_key>> Threads_Subtrees(Graph & graph, const std::string & nnl_str) {
-    std::map<Node_ID_key, base_Node_Set, std::less<Node_ID_key>> map_of_subtrees;
+map_of_subtrees_t Threads_Subtrees(Graph & graph, const std::string & nnl_str, bool sort_by_targetdate) {
+    map_of_subtrees_t map_of_subtrees;
 
     Named_Node_List_ptr namedlist_ptr = graph.get_List(nnl_str);
     if (!namedlist_ptr) {
@@ -207,10 +214,15 @@ std::map<Node_ID_key, base_Node_Set, std::less<Node_ID_key>> Threads_Subtrees(Gr
 
         Node * node_ptr = graph.Node_by_id(nkey);
 
-        base_Node_Set fulldepth_dependencies;
-        if (!Node_Dependencies_fulldepth(node_ptr, fulldepth_dependencies)) {
+        //base_Node_Set fulldepth_dependencies;
+        Node_Subtree fulldepth_dependencies;
+        if (!Node_Dependencies_fulldepth(node_ptr, fulldepth_dependencies.set_by_key)) {
             standard_error("Full depth dependencies collection failed for Node "+nkey.str()+", skipping", __func__);
             continue;
+        }
+
+        if (sort_by_targetdate) {
+            fulldepth_dependencies.build_targetdate_sorted(graph);
         }
 
         map_of_subtrees[nkey] = fulldepth_dependencies;
@@ -223,7 +235,7 @@ std::map<Node_ID_key, base_Node_Set, std::less<Node_ID_key>> Threads_Subtrees(Gr
 bool Map_of_Subtrees::collect(Graph & graph, const std::string & list_name) {
     if (list_name.empty()) return false;
     subtrees_list_name = list_name;
-    map_of_subtrees = Threads_Subtrees(graph, subtrees_list_name);
+    map_of_subtrees = Threads_Subtrees(graph, subtrees_list_name, sort_by_targetdate);
     has_subtrees = !map_of_subtrees.empty();
     return true;
 }
@@ -233,7 +245,7 @@ bool Map_of_Subtrees::is_subtree_head(Node_ID_key subtree_key) const {
     return map_of_subtrees.find(subtree_key) != map_of_subtrees.end();
 }
 
-const base_Node_Set & Map_of_Subtrees::get_subtree_set(Node_ID_key subtree_key) const {
+const Node_Subtree & Map_of_Subtrees::get_subtree_set(Node_ID_key subtree_key) const {
     return map_of_subtrees.at(subtree_key);
 }
 
@@ -241,7 +253,7 @@ bool Map_of_Subtrees::node_in_subtree(Node_ID_key subtree_key, Node_ID_key node_
     if (!has_subtrees) return false;
     auto subtree = map_of_subtrees.find(subtree_key);
     if (subtree == map_of_subtrees.end()) return false;
-    const base_Node_Set & subtree_ref = subtree->second;
+    const base_Node_Set & subtree_ref = subtree->second.set_by_key;
     if (subtree_ref.find(node_key) == subtree_ref.end()) return false;
     return true;
 }
@@ -249,7 +261,16 @@ bool Map_of_Subtrees::node_in_subtree(Node_ID_key subtree_key, Node_ID_key node_
 bool Map_of_Subtrees::node_in_any_subtree(Node_ID_key node_key) const {
     if (!has_subtrees) return false;
     for (const auto & [subtree_key, subtree_ref]: map_of_subtrees) {
-        if (subtree_ref.find(node_key) != subtree_ref.end()) return true;
+        if (subtree_ref.set_by_key.find(node_key) != subtree_ref.set_by_key.end()) return true;
+    }
+    return false;
+}
+
+bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key) const {
+    if (!has_subtrees) return false;
+    for (const auto & [subtree_key, subtree_ref]: map_of_subtrees) {
+        if (subtree_key == node_key) return true;
+        if (subtree_ref.set_by_key.find(node_key) != subtree_ref.set_by_key.end()) return true;
     }
     return false;
 }

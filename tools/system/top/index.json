@@ -196,7 +196,7 @@
             "window" : "_blank"
         },
         "Milestones" : {
-            "url" : "/cgi-bin/fzvismilestones-cgi.py?F=%5B",
+            "url" : "/cgi-bin/fzvismilestones-cgi.py?F=%5B&L=true",
             "window" : "_blank"
         },
         "CARBONCOPIES" : {

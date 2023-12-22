@@ -60,6 +60,7 @@ statevars = addstate(SPA)
 help = form.getvalue('help')
 id = form.getvalue('id')
 srclist = form.getvalue('srclist')
+list_pos = form.getvalue('list_pos')
 edit = form.getvalue('edit')
 topics = form.getvalue('topics') # this is used with edit=new
 topicslist = form.getvalue('topics')
@@ -149,7 +150,7 @@ listpagehead = '''<html>
 </head>
 <body>
 <h3>fz:modfy Named Node List</h3>
-<p>List element is Node {node_id}</p>
+<p>List element is Node {node_id} at list position {list_pos}.</p>
 
 <form action="/cgi-bin/fzgraph-cgi.py" method="post"><input type="hidden" name="action" value="addtoNNL"><input type="hidden" name="add" value="{node_id}">
 <p>Add to any new or existing List: <input type="text" name="namedlist" size="40" maxlength="60"> <input type="submit" value="add"></p>
@@ -307,11 +308,16 @@ def generate_embeddable_list_of_NNLs_to_add_Node_to():
         thecmd += ' -j' # no Javascript
     # Make page head, including form input for new Named Node List to add to
     print("Content-type:text/html\n\n")
-    print(listpagehead.format(node_id=id))
+    print(listpagehead.format(node_id=id, list_pos=list_pos))
     # Include a remove-from-srclist button if srclist was not empty
     print(f'<p>Add to [<a href="http://{fzserverpq_addrport}/fz/graph/namedlists/superiors?add={id}">superiors</a>] list / add to [<a href="http://{fzserverpq_addrport}/fz/graph/namedlists/dependencies?add={id}">dependencies</a>] list.</p>\n')
     if srclist:
         print(f'\n<p>Or, <a href="http://{fzserverpq_addrport}/fz/graph/namedlists/{srclist}?remove={id}">[remove from {srclist}]</a></p>\n')
+        print(f'\n<p>Or, <a href="http://{fzserverpq_addrport}/fz/graph/namedlists/{srclist}?move={list_pos}&up=">[move up within {srclist}]</a></p>\n')
+        print(f'\n<p>Or, <a href="http://{fzserverpq_addrport}/fz/graph/namedlists/{srclist}?move={list_pos}&down=">[move down within {srclist}]</a></p>\n')
+        print(f'\n<p><form action="http://{fzserverpq_addrport}/fz/graph/namedlists/{srclist}" method="get">'
+            +f'<input type="hidden" name="move" value="{list_pos}">'
+            +f'Move to position: <input type="text" name="to" size="12" maxlength="12"> <input type="submit" value="move"></p></form>')
 
     print('Or, add to one of the Named Node Lists below:\n\n<table class="blueTable"><tbody>')
     try_command_call(thecmd)
