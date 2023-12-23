@@ -324,21 +324,22 @@ extern const std::map<std::string, Edit_flags_type> flagbylabel;
 class Edit_flags {
 public:
     enum editmask : Edit_flags_type {
-        topics     = 0b0000'0000'0000'0001,
-        valuation  = 0b0000'0000'0000'0010,
-        completion = 0b0000'0000'0000'0100,
-        required   = 0b0000'0000'0000'1000,
-        text       = 0b0000'0000'0001'0000,
-        targetdate = 0b0000'0000'0010'0000,
-        tdproperty = 0b0000'0000'0100'0000,
-        repeats    = 0b0000'0000'1000'0000,
-        tdpattern  = 0b0000'0001'0000'0000,
-        tdevery    = 0b0000'0010'0000'0000,
-        tdspan     = 0b0000'0100'0000'0000,
-        topicrels  = 0b0000'1000'0000'0000,
-        tcreated   = 0b0001'0000'0000'0000,
-        supdep     = 0b0010'0000'0000'0000, // This one is not a Node edit, instead it refers to all Edge edits.
-        error      = 0b0100'0000'0000'0000'0000'0000'0000'0000 // see how this is used in Node_advance_repeating()
+        topics     = 0b0000'0000'0000'0000'0000'0000'0000'0001,
+        valuation  = 0b0000'0000'0000'0000'0000'0000'0000'0010,
+        completion = 0b0000'0000'0000'0000'0000'0000'0000'0100,
+        required   = 0b0000'0000'0000'0000'0000'0000'0000'1000,
+        text       = 0b0000'0000'0000'0000'0000'0000'0001'0000,
+        targetdate = 0b0000'0000'0000'0000'0000'0000'0010'0000,
+        tdproperty = 0b0000'0000'0000'0000'0000'0000'0100'0000,
+        repeats    = 0b0000'0000'0000'0000'0000'0000'1000'0000,
+        tdpattern  = 0b0000'0000'0000'0000'0000'0001'0000'0000,
+        tdevery    = 0b0000'0000'0000'0000'0000'0010'0000'0000,
+        tdspan     = 0b0000'0000'0000'0000'0000'0100'0000'0000,
+        topicrels  = 0b0000'0000'0000'0000'0000'1000'0000'0000,
+        tcreated   = 0b0000'0000'0000'0000'0001'0000'0000'0000,
+        supdep     = 0b0000'0000'0000'0000'0010'0000'0000'0000, // This one is not a Node edit, instead it refers to all Edge edits.
+        nnl        = 0b0000'0000'0000'0000'0100'0000'0000'0000, // This one is not a Node edit, instead it refers to all Named Nodes List edits.
+        error      = 0b0100'0000'0000'0000'0000'0000'0000'0000  // see how this is used in Node_advance_repeating()
     };
 protected:
     Edit_flags_type editflags;

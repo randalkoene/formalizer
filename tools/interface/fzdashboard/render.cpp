@@ -232,7 +232,9 @@ bool render(std::string & json_str, dynamic_or_static html_output) {
     load_templates(fzdsh.target, templates, html_output);
 
     // Prepare a few globally applicable template variable replacements
-    inner_varvals.emplace("fzserverpq",fzdsh.graph().get_server_full_address());
+    std::string ipport = fzdsh.graph().get_server_full_address();
+    inner_varvals.emplace("fzserverpq",ipport);
+    VERBOSEOUT("Embedded server addresses receive IP:Port: "+ipport+'\n');
 
     std::string button_sections;
 

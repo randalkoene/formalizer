@@ -1,0 +1,9 @@
+digraph "core/include/safebak" {
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_24d671cfcbc5d5238a6bd565a49d198f {
+    graph [ bgcolor="#ddddee", pencolor="black", label="include" fontname="Helvetica", fontsize="10", URL="dir_24d671cfcbc5d5238a6bd565a49d198f.html"]
+  dir_ff62f6fe41b4fb791743287c22c8d9ed [shape=box, label="safebak", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_ff62f6fe41b4fb791743287c22c8d9ed.html"];
+  }
+}

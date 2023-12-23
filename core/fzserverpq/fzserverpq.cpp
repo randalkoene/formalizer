@@ -67,19 +67,43 @@ to file content read at /proc.)
 The GET/PATCH port API includes the following:
 
   /fz/status
+  /fz/ipport
   /fz/ErrQ
   /fz/ReqQ
   /fz/_stop
   /fz/verbosity?set=<normal|quiet|very>
+
   /fz/db/mode
   /fz/db/mode?set=<run|log|sim>
+
   /fz/graph/logtime?<node-id>=<mins>[&T=<emulated-time>]
+
   /fz/graph/nodes/logtime?<node-id>=<mins>[&T=<emulated-time>]
+
   /fz/graph/nodes/<node-id>?skip=<<num>|toT>[&T=<emulated-time>]
   /fz/graph/nodes/<node-id>/completion?set=<ratio>
   /fz/graph/nodes/<node-id>/completion?add=[-]<ratio>|<minutes>m
   /fz/graph/nodes/<node-id>/required?set=<minutes>m|<hours>h
   /fz/graph/nodes/<node-id>/required?add=[-]<minutes>m|<hours>h
+  /fz/graph/nodes/<node-id>/valuation.<raw|txt|html|json>
+  /fz/graph/nodes/<node-id>/completion.<raw|txt|html|json>
+  /fz/graph/nodes/<node-id>/required.<raw|txt|html|json>
+  /fz/graph/nodes/<node-id>/targetdate.<raw|txt|html|json>
+  /fz/graph/nodes/<node-id>/effectivetd.<raw|txt|html|json>
+  /fz/graph/nodes/<node-id>/text.<raw|txt|html|json>
+  /fz/graph/nodes/<node-id>/tdproperty.<raw|txt|html|json>
+  /fz/graph/nodes/<node-id>/repeats.<raw|txt|html|json>
+  /fz/graph/nodes/<node-id>/tdpattern.<raw|txt|html|json>
+  /fz/graph/nodes/<node-id>/tdevery.<raw|txt|html|json>
+  /fz/graph/nodes/<node-id>/tdspan.<raw|txt|html|json>
+  /fz/graph/nodes/<node-id>/topics.<raw|txt|html|json>
+  /fz/graph/nodes/<node-id>/in_NNLs.<raw|txt|html|json>
+
+  /fz/graph/nodes/<node-id>/superiors/<add|remove>?<node-id>=
+  /fz/graph/nodes/<node-id>/superiors/addlist?<superiors|<list-name>>=
+  /fz/graph/nodes/<node-id>/dependencies/<add|remove>?<node-id>=
+  /fz/graph/nodes/<node-id>/dependencies/addlist?<dependencies|<list-name>>=
+
   /fz/graph/namedlists/<list-name>?add=<node-id>[&FEATURES/MAXSIZE]
   /fz/graph/namedlists/<list-name>?remove=<node-id>
   /fz/graph/namedlists/<list-name>?delete=
@@ -156,7 +180,7 @@ FILE SERVING
 ------------
 
 The configured mapping applied to 'http:server-ip:port/path' requests (as
-per Node D above) is:
+per Note D above) is:
 
 )UTAIL";
 
@@ -217,6 +241,7 @@ root_path_map_type parse_www_file_roots(const std::string & www_file_roots) {
  */
 bool fzs_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     // *** You could also implement try-catch here to gracefully report problems with configuration files.
+    CONFIG_TEST_AND_SET_PAR(default_to_localhost, "default_to_localhost", parlabel, (parvalue == "true"));
     CONFIG_TEST_AND_SET_PAR(port_number, "port_number", parlabel, std::stoi(parvalue));
     CONFIG_TEST_AND_SET_PAR(persistent_NNL, "persistent_NNL", parlabel, (parvalue != "false"));
     CONFIG_TEST_AND_SET_PAR(www_file_root, "www_file_root", parlabel, parse_www_file_roots(parvalue));
@@ -315,20 +340,24 @@ void load_Graph_and_stay_resident() {
     VERYVERBOSEOUT(graphmemman.info_str());
     VERYVERBOSEOUT(Graph_Info_str(*fzs.graph_ptr));
 
-    std::string ipaddrstr;
-    if (!find_server_address(ipaddrstr)) {
-        standard_error("Unable to determine server IP address (launching only for localhost)", __func__);
-        VERYVERBOSEOUT("No Internet. Launching server only for localhost access.");
-        //RETURN_AFTER_UNLOCKING;
-        ipaddrstr = "127.0.0.1";
+    if (fzs.config.default_to_localhost) {
+        VERYVERBOSEOUT("Configured to default to localhost. Local server access only.");
+        fzs.ipaddrstr = "127.0.0.1";
+    } else {
+        if (!find_server_address(fzs.ipaddrstr)) {
+            standard_error("Unable to determine server IP address (launching only for localhost)", __func__);
+            VERYVERBOSEOUT("No Internet. Launching server only for localhost access.");
+            //RETURN_AFTER_UNLOCKING;
+            fzs.ipaddrstr = "127.0.0.1";
+        }
     }
 
-    fzs.graph_ptr->set_server_IPaddr(ipaddrstr);
+    fzs.graph_ptr->set_server_IPaddr(fzs.ipaddrstr);
     fzs.graph_ptr->set_server_port(fzs.config.port_number);
     VERYVERBOSEOUT("The server will be available on:\n  localhost:"+fzs.graph_ptr->get_server_port_str()+"\n  "+fzs.graph_ptr->get_server_full_address()+'\n');
     std::string serveraddresspath(FORMALIZER_ROOT "/server_address");
-    ipaddrstr = fzs.graph_ptr->get_server_full_address();
-    if (!string_to_file(serveraddresspath, ipaddrstr)) {
+    fzs.ipaddrstr = fzs.graph_ptr->get_server_full_address();
+    if (!string_to_file(serveraddresspath, fzs.ipaddrstr)) {
         standard_error("Unable to store server IP address in ", __func__);
         RETURN_AFTER_UNLOCKING;
     }

@@ -1,0 +1,11 @@
+digraph "core/fzlog" {
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_4270bfced15e0e73154b13468c7c9ad9 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="core" fontname="Helvetica", fontsize="10", URL="dir_4270bfced15e0e73154b13468c7c9ad9.html"]
+  dir_24d671cfcbc5d5238a6bd565a49d198f [shape=box label="include" fillcolor="white" style="filled" color="red" URL="dir_24d671cfcbc5d5238a6bd565a49d198f.html"];
+  dir_24f7e2d1096f59cdeee8f2c202e36901 [shape=box, label="fzlog", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_24f7e2d1096f59cdeee8f2c202e36901.html"];
+  }
+  dir_24f7e2d1096f59cdeee8f2c202e36901->dir_24d671cfcbc5d5238a6bd565a49d198f [headlabel="7", labeldistance=1.5 headhref="dir_000008_000050.html"];
+}

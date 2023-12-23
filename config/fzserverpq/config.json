@@ -1,4 +1,5 @@
 {
+    "default_to_localhost": "true",
     "port_number" : "8090",
     "persistent_NNL" : "true",
     "www_file_root" : "=/var/www/html&doc=/home/randalk/doc",

@@ -331,14 +331,6 @@ std::string fzvismilestones::get_or_add_edge_SUID() {
     return std::to_string(edge_SUID);
 }
 
-std::string replace_quotes(const std::string & s) {
-    std::string out_s(s);
-    for (unsigned int i = 0; i<s.size(); i++) {
-        if (s[i] == '"')  out_s[i] = '_';
-    }
-    return out_s;
-}
-
 bool fzvismilestones::render_Cytoscape_JSON(std::string & rendered) {
     std::string name = "Graph";
     rendered = CYTOSCAPEJS_HEAD_0;
@@ -375,7 +367,7 @@ bool fzvismilestones::render_Cytoscape_JSON(std::string & rendered) {
         } else {
             node_label = notags.substr(0,excerpt_length);
         }
-        node_label = replace_quotes(node_label);
+        node_label = replace_char(node_label, '"');
         
         std::string node_SUID_str = get_or_add_node_SUID(node_idstr);
 

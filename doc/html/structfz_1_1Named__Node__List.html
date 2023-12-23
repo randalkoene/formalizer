@@ -116,6 +116,15 @@ size_t&#160;</td><td class="memItemRight" valign="bottom"><b>size</b> ()</td></t
 <tr class="memitem:adc6b3363dafbc5a32e5fb5e1f63bc00f"><td class="memItemLeft" align="right" valign="top"><a id="adc6b3363dafbc5a32e5fb5e1f63bc00f"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>contains</b> (const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;nkey)</td></tr>
 <tr class="separator:adc6b3363dafbc5a32e5fb5e1f63bc00f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fd666f565bfff175b2b4fca2f71a8f8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Named__Node__List.html#a2fd666f565bfff175b2b4fca2f71a8f8">move_toward_head</a> (unsigned int from_position)</td></tr>
+<tr class="memdesc:a2fd666f565bfff175b2b4fca2f71a8f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change the order of Nodes in a Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> List by moving a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> from a specified position one position closer to the head of the list.  <a href="structfz_1_1Named__Node__List.html#a2fd666f565bfff175b2b4fca2f71a8f8">More...</a><br /></td></tr>
+<tr class="separator:a2fd666f565bfff175b2b4fca2f71a8f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09b9e98ee31c2c34c971dcfcab767c36"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Named__Node__List.html#a09b9e98ee31c2c34c971dcfcab767c36">move_toward_tail</a> (unsigned int from_position)</td></tr>
+<tr class="memdesc:a09b9e98ee31c2c34c971dcfcab767c36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change the order of Nodes in a Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> List by moving a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> from a specified position one position closer to the tail of the list.  <a href="structfz_1_1Named__Node__List.html#a09b9e98ee31c2c34c971dcfcab767c36">More...</a><br /></td></tr>
+<tr class="separator:a09b9e98ee31c2c34c971dcfcab767c36"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae50e2fef0ab3d96691626986bc4e4d87"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Named__Node__List.html#ae50e2fef0ab3d96691626986bc4e4d87">move_to_position</a> (unsigned int from_position, unsigned int to_position)</td></tr>
+<tr class="memdesc:ae50e2fef0ab3d96691626986bc4e4d87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change the order of Nodes in a Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> List by moving a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> from a specified position another specified position in the list.  <a href="structfz_1_1Named__Node__List.html#ae50e2fef0ab3d96691626986bc4e4d87">More...</a><br /></td></tr>
+<tr class="separator:ae50e2fef0ab3d96691626986bc4e4d87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -177,6 +186,101 @@ int32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="s
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True if the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> ID key was added, false if not (e.g. due to unique or maxsize settings). </dd></dl>
+
+</div>
+</div>
+<a id="ae50e2fef0ab3d96691626986bc4e4d87"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae50e2fef0ab3d96691626986bc4e4d87">&#9670;&nbsp;</a></span>move_to_position()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::Named_Node_List::move_to_position </td>
+          <td>(</td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>from_position</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>to_position</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Change the order of Nodes in a Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> List by moving a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> from a specified position another specified position in the list. </p>
+<p>List length and features remain unchanged.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_position</td><td>Position in list to move <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> ID key from. </td></tr>
+    <tr><td class="paramname">to_position</td><td>Position in list to move <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> ID key to. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if successfully moved. </dd></dl>
+
+</div>
+</div>
+<a id="a2fd666f565bfff175b2b4fca2f71a8f8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2fd666f565bfff175b2b4fca2f71a8f8">&#9670;&nbsp;</a></span>move_toward_head()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::Named_Node_List::move_toward_head </td>
+          <td>(</td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>from_position</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Change the order of Nodes in a Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> List by moving a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> from a specified position one position closer to the head of the list. </p>
+<p>List length and features remain unchanged.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_position</td><td>Position in list of <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> ID key to be moved. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if successfully moved. </dd></dl>
+
+</div>
+</div>
+<a id="a09b9e98ee31c2c34c971dcfcab767c36"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a09b9e98ee31c2c34c971dcfcab767c36">&#9670;&nbsp;</a></span>move_toward_tail()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::Named_Node_List::move_toward_tail </td>
+          <td>(</td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>from_position</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Change the order of Nodes in a Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> List by moving a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> from a specified position one position closer to the tail of the list. </p>
+<p>List length and features remain unchanged.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_position</td><td>Position in list of <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> ID key to be moved. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if successfully moved. </dd></dl>
 
 </div>
 </div>

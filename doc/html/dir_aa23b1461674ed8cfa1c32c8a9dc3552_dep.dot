@@ -1,0 +1,11 @@
+digraph "tools/dev/boilerplate/templates" {
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_1847c9c35288ecd6857dd1a91bc191c0 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="boilerplate" fontname="Helvetica", fontsize="10", URL="dir_1847c9c35288ecd6857dd1a91bc191c0.html"]
+  dir_aa23b1461674ed8cfa1c32c8a9dc3552 [shape=box, label="templates", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_aa23b1461674ed8cfa1c32c8a9dc3552.html"];
+  }
+  dir_4270bfced15e0e73154b13468c7c9ad9 [shape=box label="core" fillcolor="white" style="filled" color="red" URL="dir_4270bfced15e0e73154b13468c7c9ad9.html"];
+  dir_aa23b1461674ed8cfa1c32c8a9dc3552->dir_4270bfced15e0e73154b13468c7c9ad9 [headlabel="4", labeldistance=1.5 headhref="dir_000064_000001.html"];
+}

@@ -665,10 +665,15 @@ bool node_topics_from_pq(Node & node, std::string topicsstr, std::string topicre
     auto trvec = array_from_pq(topicrelevancestr);
 
     if (tvec.size()!=trvec.size()) {
-        ERRRETURNFALSE(__func__,"number of topics does not match number of topic relevance values for Node ["+node.get_id().str()+']');
+        //ERRRETURNFALSE
+        ADDERROR(__func__,"number of topics ("+std::to_string(tvec.size())+") does not match number of topic relevance values ("+std::to_string(trvec.size())+") for Node ["+node.get_id().str()+']');
+    }
+    long unsigned int min_size = tvec.size();
+    if (min_size > trvec.size()) {
+        min_size = trvec.size();
     }
 
-    for (long unsigned int i = 0; i < tvec.size(); ++i) {
+    for (long unsigned int i = 0; i < min_size; ++i) {
         node.add_topic(atoi(tvec[i].c_str()),std::stof(trvec[i])); // ** maybe try-catch std::stoi instead
     }
 

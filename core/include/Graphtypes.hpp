@@ -513,6 +513,7 @@ public:
     time_t get_targetdate() const { return targetdate; }
     std::string get_targetdate_str() const { return TimeStampYmdHM(targetdate); }
     td_property get_tdproperty() const { return tdproperty; }
+    std::string get_tdproperty_str() const { return td_property_str[tdproperty]; }
     bool td_unspecified() const { return tdproperty == td_property::unspecified; }
     bool td_inherit() const { return tdproperty == td_property::inherit; }
     bool td_variable() const { return tdproperty == td_property::variable; }
@@ -521,6 +522,7 @@ public:
 
     bool get_repeats() const { return repeats; }
     td_pattern get_tdpattern() const { return tdpattern; }
+    std::string get_tdpattern_str() const { return td_pattern_str[tdpattern]; }
     bool daily() const { return tdpattern == td_pattern::patt_daily; }
     bool workdays() const { return tdpattern == td_pattern::patt_workdays; }
     bool weekly() const { return tdpattern == td_pattern::patt_weekly; }
@@ -690,15 +692,15 @@ public:
     Named_Node_List(): list(graphmemman.get_allocator()), set(graphmemman.get_allocator()), features(0), maxsize(0) {} // name("", graphmemman.get_allocator()),
     Named_Node_List(const Node_ID_key & nkey, int16_t _features = 0, int32_t _maxsize = 0): list(graphmemman.get_allocator()), set(graphmemman.get_allocator()), features(_features), maxsize(_maxsize) { add(nkey); }
     //Named_Node_List(const Node_ID_key & nkey): list(graphmemman.get_allocator()), features(0) { list.emplace_back(nkey); }
-    bool prepend() { return (features & prepend_mask) != 0; }
-    bool unique() { return (features & unique_mask) != 0; }
-    bool fifo() { return (features & fifo_mask) != 0; }
+    bool prepend() const { return (features & prepend_mask) != 0; }
+    bool unique() const { return (features & unique_mask) != 0; }
+    bool fifo() const { return (features & fifo_mask) != 0; }
     bool add(const Node_ID_key & nkey);
     bool remove(const Node_ID_key & nkey);
-    int16_t get_features() { return features; }
-    int32_t get_maxsize() { return maxsize; }
-    size_t size() { return list.size(); }
-    bool contains(const Node_ID_key & nkey) {
+    int16_t get_features() const { return features; }
+    int32_t get_maxsize() const { return maxsize; }
+    size_t size() const { return list.size(); }
+    bool contains(const Node_ID_key & nkey) const {
         return (std::find(list.begin(), list.end(), nkey) != list.end());
     }
     bool move_toward_head(unsigned int from_position);
@@ -804,7 +806,6 @@ public:
     ssize_t edit_all_in_List(const std::string _name, const Edit_flags & editflags, const Node_data & nodedata);
 
     /// crossref tables: topics x nodes
-
     /**
      * Find a pointer to the main Topic of a Node as indicated by the maximum
      * `Topic_Relevance` value.
@@ -818,6 +819,13 @@ public:
      */
     Topic * main_Topic_of_Node(const Node & node) const { return main_topic(topics,node); }
 
+    /// crossref tables: namedlists x nodes
+    bool Node_is_in_NNLs(const Node_ID_key & nkey) const;
+    bool Node_is_in_NNLs(const Node & node) const { return Node_is_in_NNLs(node.get_id().key()); }
+    std::set<std::string> find_all_NNLs_Node_is_in(const Node_ID_key & nkey) const;
+    std::set<std::string> find_all_NNLs_Node_is_in(const Node & node) const { return find_all_NNLs_Node_is_in(node.get_id().key()); }
+
+    /// misc
     std::string get_server_IPaddr() { return server_IP_str.c_str(); }
     void set_server_IPaddr(std::string _ipaddrstr) { server_IP_str = _ipaddrstr.c_str(); }
     uint16_t get_server_port() { return port_number; }

@@ -1,0 +1,16 @@
+digraph "Graphical Class Hierarchy"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node0 [label="fzhtmlpage.fz_html\l_multilinetable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfzhtmlpage_1_1fz__html__multilinetable.html",tooltip=" "];
+  Node0 -> Node1 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node1 [label="consumed.consumed_nutrition\l_group",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classconsumed_1_1consumed__nutrition__group.html",tooltip=" "];
+  Node0 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="consumed.consumed_other",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classconsumed_1_1consumed__other.html",tooltip=" "];
+  Node0 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="nutrition.nutrition\l_lowcalnutritious",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnutrition_1_1nutrition__lowcalnutritious.html",tooltip=" "];
+  Node0 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="nutrition.nutrition\l_lowcalsnack",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnutrition_1_1nutrition__lowcalsnack.html",tooltip=" "];
+}

@@ -1,0 +1,46 @@
+digraph "Graphical Class Hierarchy"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node0 [label="fz::configbase",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfz_1_1configbase.html",tooltip="This is the base component for Formalizer configuration file configuration parameter loading and pars..."];
+  Node0 -> Node1 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node1 [label="fz::configurable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfz_1_1configurable.html",tooltip="Formalizer standard programs that can use configuration files should include a class that inherits co..."];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="bp_configurable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classbp__configurable.html",tooltip=" "];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="fz::fzpq_configurable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfz_1_1fzpq__configurable.html",tooltip=" "];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="fzdsh_configurable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfzdsh__configurable.html",tooltip=" "];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="fze_configurable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfze__configurable.html",tooltip=" "];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="fzge_configurable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfzge__configurable.html",tooltip=" "];
+  Node1 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="fzgh_configurable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfzgh__configurable.html",tooltip=" "];
+  Node1 -> Node8 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="fzgs_configurable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfzgs__configurable.html",tooltip=" "];
+  Node1 -> Node9 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="fzl_configurable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfzl__configurable.html",tooltip=" "];
+  Node1 -> Node10 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="fzlh_configurable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfzlh__configurable.html",tooltip=" "];
+  Node1 -> Node11 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="fzlm_configurable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfzlm__configurable.html",tooltip=" "];
+  Node1 -> Node12 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node12 [label="fzlt_configurable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfzlt__configurable.html",tooltip=" "];
+  Node1 -> Node13 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node13 [label="fzs_configurable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfzs__configurable.html",tooltip=" "];
+  Node1 -> Node14 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node14 [label="fzsi_configurable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfzsi__configurable.html",tooltip=" "];
+  Node1 -> Node15 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node15 [label="fzsl_configurable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfzsl__configurable.html",tooltip=" "];
+  Node1 -> Node16 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node16 [label="fzu_configurable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfzu__configurable.html",tooltip=" "];
+  Node1 -> Node17 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node17 [label="g2d_configurable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classg2d__configurable.html",tooltip=" "];
+  Node0 -> Node18 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node18 [label="fz::err_configbase",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfz_1_1err__configbase.html",tooltip=" "];
+  Node150 [label="fz::main_init_register",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfz_1_1main__init__register.html",tooltip="Classes that need an initialization function to be called first-thing upon entering main() (but not b..."];
+  Node150 -> Node1 [dir="back",color="firebrick4",fontsize="10",style="solid",fontname="Helvetica"];
+}

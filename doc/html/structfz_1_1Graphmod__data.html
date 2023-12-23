@@ -85,23 +85,32 @@ $(function() {
 Inheritance diagram for fz::Graphmod_data:</div>
 <div class="dyncontent">
 <div class="center"><img src="structfz_1_1Graphmod__data__inherit__graph.png" border="0" usemap="#afz_1_1Graphmod__data_inherit__map" alt="Inheritance graph"/></div>
-<map name="afz_1_1Graphmod__data_inherit__map" id="afz_1_1Graphmod__data_inherit__map">
-<area shape="rect" title="This is the data structure used for elements of the request stack for Graph modification." alt="" coords="5,80,152,107"/>
-<area shape="rect" href="classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="26,5,131,32"/>
-</map>
+<!-- MAP 0 -->
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
 Collaboration diagram for fz::Graphmod_data:</div>
 <div class="dyncontent">
 <div class="center"><img src="structfz_1_1Graphmod__data__coll__graph.png" border="0" usemap="#afz_1_1Graphmod__data_coll__map" alt="Collaboration graph"/></div>
-<map name="afz_1_1Graphmod__data_coll__map" id="afz_1_1Graphmod__data_coll__map">
-<area shape="rect" title="This is the data structure used for elements of the request stack for Graph modification." alt="" coords="5,80,152,107"/>
-<area shape="rect" href="classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="26,5,131,32"/>
-</map>
+<!-- MAP 1 -->
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:ae919907f5353e5f72c06e2ed442e92e5"><td class="memItemLeft" align="right" valign="top"><a id="ae919907f5353e5f72c06e2ed442e92e5"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Graphmod_data</b> (Graph_modification_request _request, <a class="el" href="classfz_1_1Node.html">Node</a> *_node_ptr)</td></tr>
+<tr class="separator:ae919907f5353e5f72c06e2ed442e92e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0acf118ac104dae02bc77c6b0b3d0ac2"><td class="memItemLeft" align="right" valign="top"><a id="a0acf118ac104dae02bc77c6b0b3d0ac2"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Graphmod_data</b> (Graph_modification_request _request, <a class="el" href="classfz_1_1Edge.html">Edge</a> *_edge_ptr)</td></tr>
+<tr class="separator:a0acf118ac104dae02bc77c6b0b3d0ac2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54bfcc7cde776ffa4630a670c4372edc"><td class="memItemLeft" align="right" valign="top"><a id="a54bfcc7cde776ffa4630a670c4372edc"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Graphmod_data</b> (Graph_modification_request _request, <a class="el" href="structfz_1_1Named__Node__List__Element.html">Named_Node_List_Element</a> *_nodelist_ptr)</td></tr>
+<tr class="separator:a54bfcc7cde776ffa4630a670c4372edc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b52c29c4d12af9f1e5bf260a73cf45c"><td class="memItemLeft" align="right" valign="top"><a id="a9b52c29c4d12af9f1e5bf260a73cf45c"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Graphmod_data</b> (<a class="el" href="structfz_1_1Batchmod__targetdates.html">Batchmod_targetdates</a> *_batchmodtd_ptr)</td></tr>
+<tr class="separator:a9b52c29c4d12af9f1e5bf260a73cf45c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc2fc8c4b226b0cf43ecf8c00cc4b241"><td class="memItemLeft" align="right" valign="top"><a id="acc2fc8c4b226b0cf43ecf8c00cc4b241"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Graphmod_data</b> (<a class="el" href="structfz_1_1Batchmod__tpass.html">Batchmod_tpass</a> *_batchmodtpass_ptr)</td></tr>
+<tr class="separator:acc2fc8c4b226b0cf43ecf8c00cc4b241"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae919907f5353e5f72c06e2ed442e92e5"><td class="memItemLeft" align="right" valign="top"><a id="ae919907f5353e5f72c06e2ed442e92e5"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Graphmod_data</b> (Graph_modification_request _request, <a class="el" href="classfz_1_1Node.html">Node</a> *_node_ptr)</td></tr>
 <tr class="separator:ae919907f5353e5f72c06e2ed442e92e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -262,6 +271,7 @@ Additional Inherited Members</h2></td></tr>
 , <b>topicrels</b> = 0b0000'1000'0000'0000
 , <br />
 &#160;&#160;<b>tcreated</b> = 0b0001'0000'0000'0000
+, <b>supdep</b> = 0b0010'0000'0000'0000
 , <b>error</b> = 0b0100'0000'0000'0000'0000'0000'0000'0000
 <br />
  }</td></tr>
@@ -275,8 +285,9 @@ Edit_flags_type&#160;</td><td class="memItemRight" valign="bottom"><b>editflags<
 <div class="textblock"><p>This is the data structure used for elements of the request stack for <a class="el" href="classfz_1_1Graph.html">Graph</a> modification. </p>
 <p>Each part of the modification requested is represented by one of these elements, including the data that is pointed to by one or more of the shared memory pointers.</p>
 <p>For more information about <a class="el" href="classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node.">Edit_flags</a> and Edit protocols, see: <a href="https://trello.com/c/ooCyccJ0/95-fzedit-node-and-edge-editor#comment-5fc059eee4536d8a147db56f">https://trello.com/c/ooCyccJ0/95-fzedit-node-and-edge-editor#comment-5fc059eee4536d8a147db56f</a> </p>
-</div><hr/>The documentation for this struct was generated from the following file:<ul>
+</div><hr/>The documentation for this struct was generated from the following files:<ul>
 <li>core/include/<a class="el" href="Graphmodify_8hpp_source.html">Graphmodify.hpp</a></li>
+<li>core/include/safebak/<a class="el" href="Graphmodify__safebak_8hpp_source.html">Graphmodify_safebak.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

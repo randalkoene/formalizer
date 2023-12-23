@@ -25,5 +25,13 @@ The two commands above will:
 
 For more information, see `fzdashboard -h`.
 
+#### Beware: Refresh the dashboard to use a new Formalizer server address
+
+Some of the dashboard links include direct TCP calls to the server through
+the server port. The URLs for those links are generated based on the
+server IP address that was active when fzdashboard was run.
+
+To use a new Formalizer server IP address, refresh the dashboards.
+
 ---
 Randal A. Koene, 2022

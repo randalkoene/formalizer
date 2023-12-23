@@ -966,6 +966,226 @@ const node_parameter_edit_map_t node_parameter_edit_set_map = {
     {Edit_flags::required, set_required}
 };
 
+typedef bool node_parameter_show_by_extension_func_t(std::string, std::string, std::string &);
+typedef std::map<std::string, node_parameter_show_by_extension_func_t*> node_parameter_show_by_extension_map_t;
+
+bool handle_node_parameter_show_raw(std::string parlabel, std::string parvalue, std::string & response_html) {
+    response_html = parvalue;
+    return true;
+}
+
+bool handle_node_parameter_show_txt(std::string parlabel, std::string parvalue, std::string & response_html) {
+    response_html = parlabel+'='+parvalue;
+    return true;
+}
+
+bool handle_node_parameter_show_html(std::string parlabel, std::string parvalue, std::string & response_html) {
+    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
+        + parlabel + " = " + parvalue
+        + "\n</body>\n</html>\n";
+    return true;
+}
+
+bool handle_node_parameter_show_json(std::string parlabel, std::string parvalue, std::string & response_html) {
+    response_html = "{\n"
+        "    \"" + parlabel + "\": " + parvalue
+        + "\n}\n";
+    return true;
+}
+
+const node_parameter_show_by_extension_map_t node_parameter_show_by_extension_map = {
+    {"raw", handle_node_parameter_show_raw},
+    {"txt", handle_node_parameter_show_txt},
+    {"html", handle_node_parameter_show_html},
+    {"json", handle_node_parameter_show_json},
+};
+
+bool handle_node_strdata_show_raw(std::string parlabel, std::string parvalue, std::string & response_html) {
+    response_html = parvalue;
+    return true;
+}
+
+bool handle_node_strdata_show_txt(std::string parlabel, std::string parvalue, std::string & response_html) {
+    response_html = parlabel+'='+parvalue;
+    return true;
+}
+
+bool handle_node_strdata_show_html(std::string parlabel, std::string parvalue, std::string & response_html) {
+    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
+        + parlabel + " = " + parvalue
+        + "\n</body>\n</html>\n";
+    return true;
+}
+
+bool handle_node_strdata_show_json(std::string parlabel, std::string parvalue, std::string & response_html) {
+    response_html = "{\n"
+        "    \"" + parlabel + "\": \"" + replace_char(parvalue, '"', '\'')
+        + "\"\n}\n";
+    return true;
+}
+
+const node_parameter_show_by_extension_map_t node_strdata_show_by_extension_map = {
+    {"raw", handle_node_strdata_show_raw},
+    {"txt", handle_node_strdata_show_txt},
+    {"html", handle_node_strdata_show_html},
+    {"json", handle_node_strdata_show_json},
+};
+
+typedef bool node_map_show_by_extension_func_t(std::string, std::map<std::string, std::string>, std::string &);
+typedef std::map<std::string, node_map_show_by_extension_func_t*> node_map_show_by_extension_map_t;
+
+bool handle_node_map_show_raw(std::string parlabel, const std::map<std::string, std::string> parmap, std::string & response_html) {
+    for (const auto & [pairlabel, pairvalue] : parmap) {
+        response_html += pairlabel + ',' + pairvalue + '\n';
+    }
+    return true;
+}
+
+bool handle_node_map_show_txt(std::string parlabel, const std::map<std::string, std::string> parmap, std::string & response_html) {
+    for (const auto & [pairlabel, pairvalue] : parmap) {
+        response_html += pairlabel + ':' + pairvalue + '\n';
+    }
+    return true;
+}
+
+bool handle_node_map_show_html(std::string parlabel, const std::map<std::string, std::string> parmap, std::string & response_html) {
+    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n<table>\n";
+    for (const auto & [pairlabel, pairvalue] : parmap) {
+        response_html += "<tr><td>"+pairlabel + "</td><td>" + pairvalue + "</td></tr>\n";
+    }
+    response_html += "</table>\n</body>\n</html>\n";
+    return true;
+}
+
+bool handle_node_map_show_json(std::string parlabel, const std::map<std::string, std::string> parmap, std::string & response_html) {
+    response_html = "{";
+    for (const auto & [pairlabel, pairvalue] : parmap) {
+        response_html += "\n    \"" + replace_char(pairlabel, '"', '\'') + "\": \"" + replace_char(pairvalue, '"', '\'') + "\",";
+    }
+    response_html.back() = '\n';
+    response_html += "}\n";
+    return true;
+}
+
+const node_map_show_by_extension_map_t node_map_show_by_extension_map = {
+    {"raw", handle_node_map_show_raw},
+    {"txt", handle_node_map_show_txt},
+    {"html", handle_node_map_show_html},
+    {"json", handle_node_map_show_json},
+};
+
+typedef bool node_parameter_show_func_t(Node &, std::string, std::string &);
+typedef std::map<std::string, node_parameter_show_func_t*> node_parameter_show_map_t;
+
+bool single_node_parameter_show(const std::string & show_type_extension, std::string parlabel, std::string parvalue, std::string & response_html) {
+    if (show_type_extension.empty()) {
+        return standard_error("Missing parameter show type extension", __func__);
+    }
+    auto it = node_parameter_show_by_extension_map.find(show_type_extension);
+    if (it == node_parameter_show_by_extension_map.end()) {
+        return standard_error("Unrecognized parameter show type extension ("+show_type_extension+')', __func__);
+    }
+    return it->second(parlabel, parvalue, response_html);
+}
+
+bool handle_node_valuation_show(Node & node, std::string show_type_extension, std::string & response_html) {
+    return single_node_parameter_show(show_type_extension, "valuation", to_precision_string(node.get_valuation(), 2), response_html);
+}
+
+bool handle_node_completion_show(Node & node, std::string show_type_extension, std::string & response_html) {
+    return single_node_parameter_show(show_type_extension, "completion", to_precision_string(node.get_completion(), 5), response_html);
+}
+
+bool handle_node_required_show(Node & node, std::string show_type_extension, std::string & response_html) {
+    return single_node_parameter_show(show_type_extension, "required", to_precision_string(node.get_required_hours(), 2), response_html);
+}
+
+bool handle_node_targetdate_show(Node & node, std::string show_type_extension, std::string & response_html) {
+    return single_node_parameter_show(show_type_extension, "targetdate", node.get_targetdate_str(), response_html);
+}
+
+bool single_node_strdata_show(const std::string & show_type_extension, std::string parlabel, std::string parvalue, std::string & response_html) {
+    if (show_type_extension.empty()) {
+        return standard_error("Missing string data show type extension", __func__);
+    }
+    auto it = node_strdata_show_by_extension_map.find(show_type_extension);
+    if (it == node_strdata_show_by_extension_map.end()) {
+        return standard_error("Unrecognized string data show type extension ("+show_type_extension+')', __func__);
+    }
+    return it->second(parlabel, parvalue, response_html);
+}
+
+bool handle_node_text_show(Node & node, std::string show_type_extension, std::string & response_html) {
+    return single_node_strdata_show(show_type_extension, "text", node.get_text().c_str(), response_html);
+}
+
+bool handle_node_tdproperty_show(Node & node, std::string show_type_extension, std::string & response_html) {
+    return single_node_strdata_show(show_type_extension, "tdproperty", node.get_tdproperty_str(), response_html);
+}
+
+bool handle_node_repeats_show(Node & node, std::string show_type_extension, std::string & response_html) {
+    std::string repeats_str = node.get_repeats() ? "true" : "false";
+    return single_node_parameter_show(show_type_extension, "repeats", repeats_str, response_html);
+}
+
+bool handle_node_tdpattern_show(Node & node, std::string show_type_extension, std::string & response_html) {
+    return single_node_strdata_show(show_type_extension, "tdpattern", node.get_tdpattern_str(), response_html);
+}
+
+bool handle_node_tdevery_show(Node & node, std::string show_type_extension, std::string & response_html) {
+    return single_node_parameter_show(show_type_extension, "tdevery", std::to_string(node.get_tdevery()), response_html);
+}
+
+bool handle_node_tdspan_show(Node & node, std::string show_type_extension, std::string & response_html) {
+    return single_node_parameter_show(show_type_extension, "tdspan", std::to_string(node.get_tdspan()), response_html);
+}
+
+bool single_node_map_show(const std::string & show_type_extension, std::string parlabel, const std::map<std::string, std::string> & parmap, std::string & response_html) {
+    if (show_type_extension.empty()) {
+        return standard_error("Missing string data show type extension", __func__);
+    }
+    auto it = node_map_show_by_extension_map.find(show_type_extension);
+    if (it == node_map_show_by_extension_map.end()) {
+        return standard_error("Unrecognized map show type extension ("+show_type_extension+')', __func__);
+    }
+    return it->second(parlabel, parmap, response_html);
+}
+
+bool handle_node_topics_show(Node & node, std::string show_type_extension, std::string & response_html) {
+    auto topics = node.get_topics();
+    std::map<std::string, std::string> topics_map;
+    for (const auto & [topic_id, topic_rel] : topics) {
+        topics_map.emplace(fzs.graph().find_Topic_Tag_by_id(topic_id), to_precision_string(topic_rel, 2));
+    }
+    return single_node_map_show(show_type_extension, "topics", topics_map, response_html);
+}
+
+bool handle_node_NNLs_show(Node & node, std::string show_type_extension, std::string & response_html) {
+    standard_error("TESTING: Got to 1", __func__);
+    auto nnls_set = fzs.graph().find_all_NNLs_Node_is_in(node);
+    standard_error("TESTING: Got to 2", __func__);
+    std::map<std::string, std::string> nnls_map;
+    for (const auto & list_name : nnls_set) {
+        nnls_map.emplace(list_name, "");
+    }
+    return single_node_map_show(show_type_extension, "in_NNLs", nnls_map, response_html);
+}
+
+const node_parameter_show_map_t node_parameter_show_map = {
+    {"valuation", handle_node_valuation_show},
+    {"completion", handle_node_completion_show},
+    {"required", handle_node_required_show},
+    {"targetdate", handle_node_targetdate_show},
+    {"text", handle_node_text_show},
+    {"tdproperty", handle_node_tdproperty_show},
+    {"repeats", handle_node_repeats_show},
+    {"tdpattern", handle_node_tdpattern_show},
+    {"tdevery", handle_node_tdevery_show},
+    {"tdspan", handle_node_tdspan_show},
+    {"topics", handle_node_topics_show},
+    {"in_NNLs", handle_node_NNLs_show},
+};
+
 typedef bool node_context_edit_func_t(Node &, std::string);
 typedef std::map<std::string, node_context_edit_func_t*> node_context_edit_map_t;
 
@@ -980,19 +1200,39 @@ bool handle_node_topics_edit(Node & node, std::string editstr) {
         return standard_error("Missing parameter value", __func__);
     }
     if (editstr.substr(0,4) == "add?") {
-        // *** get the topic and relevance
-        // *** change the node
-        // *** set the edit flag
-        return standard_error("MISSING IMPLEMENTATION: add topic", __func__);
+        unsigned int num_topics_added = 0;
+        auto topics_relevances_vec = split(editstr.substr(4), '&');
+        for (const auto & topic_relevance : topics_relevances_vec) {
+            auto topic_relevance_pair = split(topic_relevance, '=');
+            if (topic_relevance_pair.size() < 2) {
+                standard_error("Incomplete parameter value pair ("+topic_relevance+')', __func__);
+                continue;
+            }
+            if (!node.add_topic(topic_relevance_pair[0], "", atof(topic_relevance_pair[1].c_str()))) {
+                standard_error("Failed to add topic ("+topic_relevance_pair[0]+')', __func__);
+                continue;
+            }
+            num_topics_added++;
+        }
+        if (num_topics_added==0) {
+            return standard_error("Failed to add topics ("+editstr.substr(4)+')', __func__);
+        }
     } else if (editstr.substr(0,7) == "remove?") {
-        // *** get the topic
-        // *** change the node
-        // *** set the edit flag
-        return standard_error("MISSING IMPLEMENTATION: remove topic", __func__);
+        auto topic_relevance_pair = split(editstr.substr(7), '=');
+        if (topic_relevance_pair.size() < 1) {
+            return standard_error("Missing topic tag", __func__);
+        }
+        if (!node.remove_topic(topic_relevance_pair[0])) {
+            return standard_error("Failed to remove topic ("+topic_relevance_pair[0]+')', __func__);
+        }
     } else {
         return standard_error("Unrecognized Topic edit string: '" + editstr + '\'', __func__);
     }
     const_cast<Edit_flags *>(&(node.get_editflags()))->set_Edit_topics();
+    const_cast<Edit_flags *>(&(node.get_editflags()))->set_Edit_topicrels();
+#ifdef TEST_MORE_THAN_NODE_MODIFICATIONS
+    fzs.modifications_ptr->add(graphmod_edit_node, node.get_id().key());
+#endif
     return true;
 }
 
@@ -1215,7 +1455,19 @@ const node_context_edit_map_t node_context_edit_map = {
  *   /fz/graph/nodes/20200901061505.1/required?add=-45m
  *   /fz/graph/nodes/20200901061505.1/required?add=0.75h
  *   /fz/graph/nodes/20200901061505.1/required?set=2h
- *   /fz/graph/nodes/20200901061505.1/valuation.txt
+ *   /fz/graph/nodes/20200901061505.1/valuation.raw
+ *   /fz/graph/nodes/20200901061505.1/completion.txt
+ *   /fz/graph/nodes/20200901061505.1/required.html
+ *   /fz/graph/nodes/20200901061505.1/targetdate.json
+ *   /fz/graph/nodes/20200901061505.1/effectivetd.json
+ *   /fz/graph/nodes/20200901061505.1/text.json
+ *   /fz/graph/nodes/20200901061505.1/tdproperty.json
+ *   /fz/graph/nodes/20200901061505.1/repeats.json
+ *   /fz/graph/nodes/20200901061505.1/tdpattern.json
+ *   /fz/graph/nodes/20200901061505.1/tdevery.json
+ *   /fz/graph/nodes/20200901061505.1/tdspan.json
+ *   /fz/graph/nodes/20200901061505.1/topics.json
+ *   /fz/graph/nodes/20200901061505.1/in_NNLs.json
  *   /fz/graph/nodes/20200901061505.1/topics/add?organization=1.0&oop-change=1.0
  *   /fz/graph/nodes/20200901061505.1/topics/remove?literature=[1.0]
  *   /fz/graph/nodes/20091115180507.1/superiors/remove?20090309102906.1=
@@ -1242,7 +1494,7 @@ bool handle_node_direct_parameter(Node & node, std::string extension, std::strin
     }
     // identify the command
     Edit_flags editflags;
-    std::string route_extension = extension.substr(0,seppos);
+    std::string route_extension = extension.substr(0,seppos); //  E.g. completion, required, valuation, etc.
     if (!editflags.set_Edit_flag_by_label(route_extension)) {
         return standard_error("Unrecognized Node parameter: '" + route_extension + '\'', __func__); // extension.substr(0,seppos) + '\'', __func__);
     }
@@ -1275,7 +1527,15 @@ bool handle_node_direct_parameter(Node & node, std::string extension, std::strin
             break;
         }
         case '.': {
-            return standard_error("Node parameter value printing not yet supported", __func__);
+            auto it = node_parameter_show_map.find(route_extension);
+            if (it == node_parameter_show_map.end()) {
+                return standard_error("Unsupported Node parameter show request: '" + route_extension + '\'', __func__);
+            }
+            standard_error("TESTING: route_extension="+route_extension, __func__);
+            if (!it->second(node, extension.substr(seppos+1), response_html)) {
+                return false;
+            }
+            return true; // No DB update, and response_html was already prepared.
             break;
         }
         case '/': { // topics, superiors, dependencies
@@ -1569,6 +1829,7 @@ bool handle_fz_vfs_graph_request(int new_socket, const std::string & fzrequestur
 
 const Command_Token_Map general_noargs_commands = {
     {"status", fznoargcmd_status},
+    {"ipport", fznoargcmd_ipport},
     {"ReqQ", fznoargcmd_reqq},
     {"ErrQ", fznoargcmd_errq},
     {"_stop", fznoargcmd_stop},
@@ -1580,6 +1841,11 @@ const Command_Token_Map general_noargs_commands = {
 bool handle_status(int new_socket) {
     std::string status_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nServer status: LISTENING\n</body>\n</html>\n");
     return handle_request_response(new_socket, status_html, "Status reported");
+}
+
+bool handle_ipport(int new_socket) {
+    std::string ipport_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nServer address: "+fzs.ipaddrstr+"\n</body>\n</html>\n");
+    return handle_request_response(new_socket, ipport_html, "IPPort reported");
 }
 
 bool handle_stop(int new_socket) {
@@ -1611,6 +1877,10 @@ bool handle_fz_vfs_request(int new_socket, const std::string & fzrequesturl) {
 
             case fznoargcmd_status: {
                 return handle_status(new_socket);
+            }
+
+            case fznoargcmd_ipport: {
+                return handle_ipport(new_socket);
             }
 
             case fznoargcmd_reqq: {

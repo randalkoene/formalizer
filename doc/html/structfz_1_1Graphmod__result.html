@@ -108,6 +108,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ab8e9a037a0a21d76b4fd31bdf5bfae68"><td class="memItemLeft" align="right" valign="top"><a id="ab8e9a037a0a21d76b4fd31bdf5bfae68"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Graphmod_result</b> (Graph_modification_request _request, const std::string _name)</td></tr>
 <tr class="separator:ab8e9a037a0a21d76b4fd31bdf5bfae68"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c37e8fe13c6f0d5964161202de1dfc2"><td class="memItemLeft" align="right" valign="top"><a id="a4c37e8fe13c6f0d5964161202de1dfc2"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Graphmod_result</b> (Graph_modification_request _request, const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;_nkey)</td></tr>
+<tr class="separator:a4c37e8fe13c6f0d5964161202de1dfc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed83a1739e8b7ef10cb461cfd4fd707c"><td class="memItemLeft" align="right" valign="top"><a id="aed83a1739e8b7ef10cb461cfd4fd707c"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Graphmod_result</b> (Graph_modification_request _request, const <a class="el" href="structfz_1_1Edge__ID__key.html">Edge_ID_key</a> &amp;_ekey)</td></tr>
+<tr class="separator:aed83a1739e8b7ef10cb461cfd4fd707c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a113e6e905fb8f1a1c65eb6aae9bc4204"><td class="memItemLeft" align="right" valign="top"><a id="a113e6e905fb8f1a1c65eb6aae9bc4204"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Graphmod_result</b> (Graph_modification_request _request, const std::string _name, const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;_nkey)</td></tr>
+<tr class="separator:a113e6e905fb8f1a1c65eb6aae9bc4204"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab8e9a037a0a21d76b4fd31bdf5bfae68"><td class="memItemLeft" align="right" valign="top"><a id="ab8e9a037a0a21d76b4fd31bdf5bfae68"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Graphmod_result</b> (Graph_modification_request _request, const std::string _name)</td></tr>
+<tr class="separator:ab8e9a037a0a21d76b4fd31bdf5bfae68"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -131,8 +143,9 @@ Graph_modification_request&#160;</td><td class="memItemRight" valign="bottom"><b
 <div class="textblock"><p>This is the data structure used by the server to return information about the successful results of a <a class="el" href="classfz_1_1Graph.html">Graph</a> modification request. </p>
 <p>A request stack is carried only if the entire stack can be processed successfully. The information returned is a vector of these elements, each of which delivers useful information about <a class="el" href="classfz_1_1Graph.html">Graph</a> modifications made, such as the new ID of a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> or <a class="el" href="classfz_1_1Edge.html">Edge</a> that was created.</p>
 <p>Note: Upon successful update, a <code>batchmod_targetdates</code> request also returns this structure, with a reference in <code>resstr</code> to a Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> List containing all of the Nodes for which targetdates were updated. </p>
-</div><hr/>The documentation for this struct was generated from the following file:<ul>
+</div><hr/>The documentation for this struct was generated from the following files:<ul>
 <li>core/include/<a class="el" href="Graphmodify_8hpp_source.html">Graphmodify.hpp</a></li>
+<li>core/include/safebak/<a class="el" href="Graphmodify__safebak_8hpp_source.html">Graphmodify_safebak.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

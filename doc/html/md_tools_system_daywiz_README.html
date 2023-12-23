@@ -69,7 +69,25 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p>The <code>daywiz</code> tool is a wizard tool that helps carry out a set of System recommended steps throughout the day.</p>
-<p>See <a href="https://trello.com/c/JssbodOF">https://trello.com/c/JssbodOF</a> . </p>
+<h1>Files</h1>
+<ol type="1">
+<li><code>daywiz.py</code>: The principal DayWiz script. Displays and provides interface to DayWiz.</li>
+<li><code>consumed.py</code>: Generates a helpful table of known foods for consumption entry.</li>
+<li><code>metrics.py</code>: Use this to load metrics data, parse it, and produce useful output.</li>
+<li><code>nutrition.py</code>: (Under construction. Intended to help with nutrition planning.)</li>
+<li><code>score.py</code>: Generate evaluated and scored output for the day and recent days.</li>
+<li><code>wiztable.py</code>: Contains the definition of the table on the left-hand side of the DayWiz page.</li>
+</ol>
+<h1>Additional dependencies</h1>
+<ol type="1">
+<li><code>core/include/fznutrition.py</code>: Data file for known foods, categories, etc.</li>
+<li><code>core/include/fzhtmlpage.py</code>: HTML page builder template classes.</li>
+</ol>
+<h1>More</h1>
+<p>See <a href="https://trello.com/c/JssbodOF">https://trello.com/c/JssbodOF</a> .</p>
+<p>Also, note that the metrics defined and calculated in the Formalizer component <code>tools/system/metrics</code> are separate from those in DayWiz.</p>
+<hr  />
+<p> Randal A. Koene, 2023 </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 <!-- start footer part -->

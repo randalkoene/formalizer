@@ -129,6 +129,41 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
 <a class="el" href="structfz_1_1Batchmod__tpass.html">Batchmod_tpass</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph__modifications.html#abbe99e9af8e8a2d9c375a12fabadcd13">request_Batch_Node_Tpass</a> (time_t t_pass)</td></tr>
 <tr class="memdesc:abbe99e9af8e8a2d9c375a12fabadcd13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a BATCH modification request for a list of Nodes and t_pass. Retruns a pointer to <a class="el" href="structfz_1_1Batchmod__targetdates.html">Batchmod_targetdates</a> created (in shared memory). <br /></td></tr>
 <tr class="separator:abbe99e9af8e8a2d9c375a12fabadcd13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa3b23e685193b8a7fd6d79c31a707e6d"><td class="memItemLeft" align="right" valign="top"><a id="aa3b23e685193b8a7fd6d79c31a707e6d"></a>
+<a class="el" href="classfz_1_1Graph.html">Graph_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_reference_Graph</b> () const</td></tr>
+<tr class="separator:aa3b23e685193b8a7fd6d79c31a707e6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90cdfa389b6c3bb8d2ec614d85d369ed"><td class="memItemLeft" align="right" valign="top"><a id="a90cdfa389b6c3bb8d2ec614d85d369ed"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph__modifications.html#a90cdfa389b6c3bb8d2ec614d85d369ed">generate_unique_Node_ID_str</a> ()</td></tr>
+<tr class="memdesc:a90cdfa389b6c3bb8d2ec614d85d369ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used in <code><a class="el" href="classfz_1_1Graph__modifications.html#a77dbaaf4ce25f5ae753b32d5399e6602" title="Build an ADD_NODE request. Returns a pointer to the Node data being created (in shared memory).">request_add_Node()</a></code>. Returns empty string is no usable ID was available for current time. <br /></td></tr>
+<tr class="separator:a90cdfa389b6c3bb8d2ec614d85d369ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96063620a049cb4b78c0b0400398cb1d"><td class="memItemLeft" align="right" valign="top"><a id="a96063620a049cb4b78c0b0400398cb1d"></a>
+<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph__modifications.html#a96063620a049cb4b78c0b0400398cb1d">request_add_Node</a> ()</td></tr>
+<tr class="memdesc:a96063620a049cb4b78c0b0400398cb1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an ADD_NODE request. Returns a pointer to the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> data being created (in shared memory). <br /></td></tr>
+<tr class="separator:a96063620a049cb4b78c0b0400398cb1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65cbafa0f8b37838d89d73235610011f"><td class="memItemLeft" align="right" valign="top"><a id="a65cbafa0f8b37838d89d73235610011f"></a>
+<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph__modifications.html#a65cbafa0f8b37838d89d73235610011f">request_edit_Node</a> (std::string nkeystr)</td></tr>
+<tr class="memdesc:a65cbafa0f8b37838d89d73235610011f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an EDIT NODE request. Returns a pointer to the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> data being created (in shared memory). <br /></td></tr>
+<tr class="separator:a65cbafa0f8b37838d89d73235610011f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1ec200c26e024ef0da74e720e47c861"><td class="memItemLeft" align="right" valign="top"><a id="ad1ec200c26e024ef0da74e720e47c861"></a>
+<a class="el" href="classfz_1_1Edge.html">Edge</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph__modifications.html#ad1ec200c26e024ef0da74e720e47c861">request_add_Edge</a> (const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;depkey, const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;supkey)</td></tr>
+<tr class="memdesc:ad1ec200c26e024ef0da74e720e47c861"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an ADD EDGE request. Returns a pointer to the <a class="el" href="classfz_1_1Edge.html">Edge</a> data being created (in shared memory). <br /></td></tr>
+<tr class="separator:ad1ec200c26e024ef0da74e720e47c861"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a68d73fc36f58ad3e73e194927c38c62b"><td class="memItemLeft" align="right" valign="top"><a id="a68d73fc36f58ad3e73e194927c38c62b"></a>
+<a class="el" href="classfz_1_1Edge.html">Edge</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph__modifications.html#a68d73fc36f58ad3e73e194927c38c62b">request_edit_Edge</a> (std::string ekeystr)</td></tr>
+<tr class="memdesc:a68d73fc36f58ad3e73e194927c38c62b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an EDIT EDGE request. Returns a pointer to the <a class="el" href="classfz_1_1Edge.html">Edge</a> data being created (in shared memory). <br /></td></tr>
+<tr class="separator:a68d73fc36f58ad3e73e194927c38c62b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa15388ae584156878b66428e0bc33160"><td class="memItemLeft" align="right" valign="top"><a id="aa15388ae584156878b66428e0bc33160"></a>
+<a class="el" href="structfz_1_1Named__Node__List__Element.html">Named_Node_List_Element</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph__modifications.html#aa15388ae584156878b66428e0bc33160">request_Named_Node_List_Element</a> (Graph_modification_request request, const std::string _name, const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;nkey)</td></tr>
+<tr class="memdesc:aa15388ae584156878b66428e0bc33160"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> List request. Returns a pointer to <a class="el" href="structfz_1_1Named__Node__List__Element.html" title="This shared memory data structure is used in Graphmodify and fzserverpq.">Named_Node_List_Element</a> data (in shared memory). <br /></td></tr>
+<tr class="separator:aa15388ae584156878b66428e0bc33160"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a385d3a3965017373a24ea5b2edaa75"><td class="memItemLeft" align="right" valign="top"><a id="a1a385d3a3965017373a24ea5b2edaa75"></a>
+<a class="el" href="structfz_1_1Batchmod__targetdates.html">Batchmod_targetdates</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph__modifications.html#a1a385d3a3965017373a24ea5b2edaa75">request_Batch_Node_Targetdates</a> (const <a class="el" href="namespacefz.html#ade8fd9836dfeac48419a3e0a89f0f8f2">targetdate_sorted_Nodes</a> &amp;nodelist)</td></tr>
+<tr class="memdesc:a1a385d3a3965017373a24ea5b2edaa75"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a BATCH modification request for a list of Nodes and targetdates. Retruns a pointer to <a class="el" href="structfz_1_1Batchmod__targetdates.html">Batchmod_targetdates</a> created (in shared memory). <br /></td></tr>
+<tr class="separator:a1a385d3a3965017373a24ea5b2edaa75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf01d4271f66b1257f38c7de1984a29b"><td class="memItemLeft" align="right" valign="top"><a id="adf01d4271f66b1257f38c7de1984a29b"></a>
+<a class="el" href="structfz_1_1Batchmod__tpass.html">Batchmod_tpass</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph__modifications.html#adf01d4271f66b1257f38c7de1984a29b">request_Batch_Node_Tpass</a> (time_t t_pass)</td></tr>
+<tr class="memdesc:adf01d4271f66b1257f38c7de1984a29b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a BATCH modification request for a list of Nodes and t_pass. Retruns a pointer to <a class="el" href="structfz_1_1Batchmod__targetdates.html">Batchmod_targetdates</a> created (in shared memory). <br /></td></tr>
+<tr class="separator:adf01d4271f66b1257f38c7de1984a29b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -186,7 +221,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>core/include/<a class="el" href="Graphmodify_8hpp_source.html">Graphmodify.hpp</a></li>
+<li>core/include/safebak/<a class="el" href="Graphmodify__safebak_8hpp_source.html">Graphmodify_safebak.hpp</a></li>
 <li>core/lib/Graphmodify.cpp</li>
+<li>core/lib/safebak/Graphmodify_safebak.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

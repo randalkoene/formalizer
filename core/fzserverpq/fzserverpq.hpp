@@ -42,9 +42,10 @@ public:
 
     static constexpr const char * reqqfilepath = "/tmp/formalizer.core.fzserverpq.ReqQ.log";
 
-    uint16_t port_number = 8090;   ///< Default port number to listen on.
-    bool persistent_NNL = true;    ///< Default Named Node Lists are synchronized in-memory and database.
-    root_path_map_type www_file_root; // = { {"", "/var/www/html"} }; ///< Root as presented for direct TCP-port API file serving.
+    bool default_to_localhost = false; ///< If true the use localhost as server IP address (no remote access).
+    uint16_t port_number = 8090;       ///< Default port number to listen on.
+    bool persistent_NNL = true;        ///< Default Named Node Lists are synchronized in-memory and database.
+    root_path_map_type www_file_root;  // = { {"", "/var/www/html"} }; ///< Root as presented for direct TCP-port API file serving.
     std::string request_log = reqqfilepath;
 };
 
@@ -64,6 +65,8 @@ struct fzserverpq: public formalizer_standard_program, public shared_memory_serv
     Errors ReqQ;
 
     std::unique_ptr<Graphmod_unshared_results> modifications_ptr;
+
+    std::string ipaddrstr; // After load_Graph_and_stay_resident() is called this contains both the IP address and Port number, e.g. "127.0.0.0:8090".
 
     fzserverpq();
 

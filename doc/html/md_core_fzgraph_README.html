@@ -82,6 +82,97 @@ $(function() {
 <li>Add an actual, limited-use, Node removal option to <code>fzgraph</code>.</li>
 </ol>
 <p>The third method may be worthwhile if experience shows it to be so. Unless that happens, it is likely that the work involved would consume more time than the time spent correcting Node creation mistakes by other means.</p>
+<h2>Background information about how an Edge is added</h2>
+<p>One way to create and Edge is to call fzgraph as follows:</p>
+<p><code>fzgraph -M edges -S &lt;superior-id&gt; -D &lt;dependency-id&gt;</code></p>
+<p>Within <code>fzgraph</code>, this leads to the function <code>addedge.cpp:make_edges()</code>, which does:</p>
+<ol type="1">
+<li>Read the superiors and dependencies lists.</li>
+<li>Create a shared memory chunk of the necessary size.</li>
+<li>For each superior-dependency pair, call <code>add_Edge_request()</code> to prepare a request in the shared memory area.</li>
+<li>Call <code><a class="el" href="namespacefz.html#ae1f8fda024c1d778ea48ace049e6406d" title="Contact the server with the unique label of shared memory containing data for a Graph modification re...">server_request_with_shared_data()</a></code> to give the request to the active <code>fzserverpq</code> instance via TCP.</li>
+</ol>
+<p>In <code>fzserverpq</code>, once the Graph has been loaded and remains resident, the <code>tcpserver.cpp:<a class="el" href="namespacefz.html#a326d23fce4986b21fbe0d8cbcbcc776a" title="Set up an IPv4 TCP socket on specified port and listen for client connections from any address.">server_socket_listen()</a></code> function enters a loop where it listens for incoming TCP requests. The incoming request is not preceded by GET, PATCH, FZ, STOP or PING, so it is interpreted as a request through shared memory. That is handled by the member function <code>fzserverpq::handle_request_with_data_share()</code>:</p>
+<ol type="1">
+<li>Calls <code>shm_server_handlers.cpp:handle_request_stack()</code> with the shared memory segment.</li>
+<li>Sends a TCP response.</li>
+<li>Removes the reference to the shared memory segment.</li>
+</ol>
+<p>In <code>handle_request_stack()</code>:</p>
+<ol type="1">
+<li>Find the Graph modifications that were provided in the shared memory segment.</li>
+<li>Check if the request stack is valid.</li>
+<li>Prepare a part of the shared memory segment for responses.</li>
+<li>For each modification request, make one of many possible calls to carry out Graph modifications in memory. In this case, a call is made to <code>Graph_modify_add_edge()</code>.</li>
+<li>Call <code><a class="el" href="namespacefz.html#ac85e6fa77b067a4325f52513f547047c" title="Process the defined set of possible modifications of Graph data and carry out those modifications in ...">handle_Graph_modifications_pq()</a></code> to carry out modifications in the stored database. These modifications are obtained from a results object that was prepared while carrying out in-memory modifications.</li>
+</ol>
+<p>In <code>Graphmodify.cpp:Graph_modify_add_edge()</code>:</p>
+<ol type="1">
+<li>A shared memory segment is activated to access requested Edge data, including superior and dependency.</li>
+<li>The <code>Graph::create_and_add_Edge()</code> function is called to modify the graph by adding the new edge.</li>
+<li>Once the new Edge object has been created in the shared-memory Graph, its <code>copy_content()</code> member function is called to obtain its parameter settings from the data that was supplied.</li>
+</ol>
+<p>It is interesting to note how this differs from modification requests made directly to fzserverpq through the FZ TCP API. An FZ TCP request requires quite a bit of routing. First, it leads to <code>fzserverpq::handle_special_purpose_request()</code>. That leads to one of:</p>
+<ul>
+<li><code>handle_serialized_data_request()</code></li>
+<li><code>handle_fz_vfs_request()</code></li>
+<li><code>direct_tcpport_api_file_serving()</code></li>
+</ul>
+<p>Our Graph request goes to <code>handle_fz_vfs_request()</code>, which uses virtual paths as a way to specify actions. This function can make a number of calls to short-cut commands, or lead to database or graph requests. Ours is a graph request via <code>handle_fz_vfs_graph_request()</code>, which can handle:</p>
+<ul>
+<li>Log time requests via <code>node_add_logged_time()</code>.</li>
+<li>Nodes requests via <code>handle_node_direct_request()</code>.</li>
+<li>NNL requests vai <code>handle_named_list_direct_request()</code>.</li>
+</ul>
+<p>Ours is a Nodes request, and <code>handle_node_direct_request()</code> can handle:</p>
+<ul>
+<li>A show request via <code>handle_node_direct_show()</code>. These will make it possible to receive output in HTML and other formats.</li>
+<li>An edit or modification request via <code>handle_node_direct_edit_multiple_pars()</code>. These requests are Formalizer System actions that affect multiple parameters of a Node, such as completing a Node, skipping an instance of a repeated Node, or possibly skipping multiple instances.</li>
+<li>A parameter request via <code>handle_node_direct_parameter()</code>. Such a request addresses a specific parameter of a Node and can include requests that act on a specific superior or dependency (i.e. can also affect an Edge).</li>
+</ul>
+<p>Ours is a request to add a specific superior, so it leads to the function <code>handle_node_direct_parameter()</code>. This function first looks for actions on the Node (which contain a '?' for parameter values), then show actions (which contain a '.'), and for actions that refer to further branches of information, such as "topics", "superiors", or "dependencies". Our request contains a "/superiors/" token as part of the route. Via a map, this leads to <code>handle_node_superiors_edit()</code>, which recognizes the actions:</p>
+<ul>
+<li><code>add</code></li>
+<li><code>remove</code></li>
+<li><code>addlist</code></li>
+</ul>
+<p>Ours is an "/add?" call, so that leads to <code>tcp_server_handlers.cpp:handle_node_superiors_add()</code>, which, once properly implemented, will do:</p>
+<ol type="1">
+<li>Find the intended superior Node in the Graph by its ID.</li>
+<li>Carry out the Edge creation and Node modification in memory.</li>
+<li>Set Edit flags.</li>
+</ol>
+<p>Once these modifications have been made in memory and the function returns successfully, remaining processing in <code>handle_node_direct_parameter()</code> does:</p>
+<ol type="1">
+<li>Update the database based on edit flags via <code><a class="el" href="namespacefz.html#a4c73d83a9556d9e2ff47d6aa53b24fd7" title="Direct interface to the Node update function that sets up the database connection first.">Update_Node_pq()</a></code>.</li>
+<li>Carry out a validity test checking Edit errors.</li>
+<li>Create the response HTML, which is ultimately sent back through the TCP link.</li>
+</ol>
+<p>An important question is how <code><a class="el" href="namespacefz.html#a4c73d83a9556d9e2ff47d6aa53b24fd7" title="Direct interface to the Node update function that sets up the database connection first.">Update_Node_pq()</a></code> differs from <code><a class="el" href="namespacefz.html#ac85e6fa77b067a4325f52513f547047c" title="Process the defined set of possible modifications of Graph data and carry out those modifications in ...">handle_Graph_modifications_pq()</a></code>. Both are in <code>Graphpostgres.cpp</code>.</p>
+<p><code><a class="el" href="namespacefz.html#a4c73d83a9556d9e2ff47d6aa53b24fd7" title="Direct interface to the Node update function that sets up the database connection first.">Update_Node_pq()</a></code> does:</p>
+<ol type="1">
+<li>Create a connection to the database.</li>
+<li>Call <code>update_Node_pq()</code> with the edit flags.</li>
+<li>Clear edit flags.</li>
+<li>Finish the database action and connection.</li>
+</ol>
+<p><b>Note: The <code>update_Node_pq()</code> function may not take care of Edge changes. Indeed, the function only includees calls to Node edits.</b></p>
+<p><code><a class="el" href="namespacefz.html#ac85e6fa77b067a4325f52513f547047c" title="Process the defined set of possible modifications of Graph data and carry out those modifications in ...">handle_Graph_modifications_pq()</a></code> does:</p>
+<ol type="1">
+<li>Create a connection to the database.</li>
+<li>Use the <code>Graphmod_results:results[i].request_handled</code> identifiers to call specific database update functions. In our case, <code>add_Edge_pq()</code>. The <code>update_Node_pq()</code> option also exists for Node edits.</li>
+<li>Finish the database action and connection.</li>
+</ol>
+<p>The <code><a class="el" href="namespacefz.html#ac85e6fa77b067a4325f52513f547047c" title="Process the defined set of possible modifications of Graph data and carry out those modifications in ...">handle_Graph_modifications_pq()</a></code> function is far more capable than the <code><a class="el" href="namespacefz.html#a4c73d83a9556d9e2ff47d6aa53b24fd7" title="Direct interface to the Node update function that sets up the database connection first.">Update_Node_pq()</a></code> function, as it pertains to many more components than just the Nodes.</p>
+<p>Note that adding an edge in the database requires only a call from <code><a class="el" href="namespacefz.html#ac85e6fa77b067a4325f52513f547047c" title="Process the defined set of possible modifications of Graph data and carry out those modifications in ...">handle_Graph_modifications_pq()</a></code> to <code>add_Edge_pq()</code>, because the necessary Graph connections from Nodes are created purely from the list of Node and Edges in the database.</p>
+<p>There is additional information in <a href="https://trello.com/c/eUjjF1yZ">https://trello.com/c/eUjjF1yZ</a>.</p>
+<h3>Aside:</h3>
+<p>A Graph modification request that goes to <code>handle_serialized_data_request()</code>, does:</p>
+<ol type="1">
+<li>Requests are tokenized.</li>
+<li>Requests are sent to <code>handle_request_args()</code>.</li>
+</ol>
+<p>That handler uses a map to call one of several functions for NNL or Node modifications. For our modification request, we are sent to <code>Nodes_match()</code>, which identifies the Node(s) involved and leads to the function <code>handle_serialized_data_request_response()</code>, which then returns the set of Nodes in CSV format.</p>
 <hr  />
 <p>Randal A. Koene, 2020 </p>
 </div></div><!-- contents -->

@@ -125,6 +125,14 @@ std::string join(const std::vector<std::string> & svec, const std::string delim)
     }
 }
 
+std::string replace_char(const std::string & s, char c, char replacement) {
+    std::string out_s(s);
+    for (unsigned int i = 0; i<s.size(); i++) {
+        if (s[i] == c)  out_s[i] = replacement;
+    }
+    return out_s;
+}
+
 /**
  * Find and return a substring enclosed by opening and closing
  * characters.

@@ -64,6 +64,7 @@ enum fz_general_noarg_cmd {
     fznoargcmd_verbosity_normal = 5,
     fznoargcmd_verbosity_quiet = 6,
     fznoargcmd_verbosity_very = 7,
+    fznoargcmd_ipport = 8,
     fznoargcmd_NUM
 };
 

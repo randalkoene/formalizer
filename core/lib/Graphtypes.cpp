@@ -1391,6 +1391,25 @@ bool Graph::topics_exist(const Topics_Set & topicsset) {
     return true;
 }
 
+bool Graph::Node_is_in_NNLs(const Node_ID_key & nkey) const {
+    for (const auto & [nl_name, nnl] : namedlists) {
+        if (nnl.contains(nkey)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+std::set<std::string> Graph::find_all_NNLs_Node_is_in(const Node_ID_key & nkey) const {
+    std::set<std::string> nnls_set;
+    for (const auto & [nl_name, nnl] : namedlists) {
+        if (nnl.contains(nkey)) {
+            nnls_set.emplace(nl_name.c_str());
+        }
+    }
+    return nnls_set;
+}
+
 // +----- begin: friend functions -----+
 
 /**

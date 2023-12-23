@@ -596,6 +596,20 @@ std::string render_Node_topics(Graph & graph, Node & node, bool remove_button = 
     return topics_str;
 }
 
+std::string render_Node_NNLs(Graph & graph, Node & node) {
+    auto nnlsvec = graph.find_all_NNLs_Node_is_in(node);
+    std::string nnls_str;
+    int i = 0;
+    for (const auto & list_name : nnlsvec) {
+        if (i>0) {
+            nnls_str += ", ";
+        }
+        nnls_str += list_name;
+        ++i;
+    }
+    return nnls_str;
+}
+
 std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button = false) {
     std::string sups_str;
     std::string graphserveraddr = graph.get_server_full_address();
@@ -709,6 +723,7 @@ std::string render_Node_data(Graph & graph, Node & node) {
     nodevars.emplace("td_every", std::to_string(node.get_tdevery()));
     nodevars.emplace("td_span", std::to_string(node.get_tdspan()));
     nodevars.emplace("topics", render_Node_topics(graph, node));
+    nodevars.emplace("NNLs", render_Node_NNLs(graph, node));
     nodevars.emplace("superiors", render_Node_superiors(graph, node));
     nodevars.emplace("dependencies", render_Node_dependencies(graph, node));
 
@@ -921,6 +936,7 @@ bool render_node_edit() {
     nodevars.emplace("td_span", std::to_string(node.get_tdspan()));
     nodevars.emplace("fzserverpq", graph.get_server_full_address());
     nodevars.emplace("topics", render_Node_topics(graph, node, true));
+    nodevars.emplace("NNLs", render_Node_NNLs(graph, node));
     nodevars.emplace("superiors", render_Node_superiors(graph, node, true));
     nodevars.emplace("dependencies", render_Node_dependencies(graph, node, true));
 

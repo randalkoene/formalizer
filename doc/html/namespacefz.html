@@ -125,6 +125,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Graph__access.html">Graph_access</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A standardized way to access the <a class="el" href="classfz_1_1Graph.html">Graph</a> database.  <a href="structfz_1_1Graph__access.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1NoGraph__exception.html">NoGraph_exception</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exception thrown when a resident <a class="el" href="classfz_1_1Graph.html">Graph</a> is missing and.  <a href="classfz_1_1NoGraph__exception.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1ID__exception.html">ID_exception</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exception thrown when a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> ID is of invalid form.  <a href="classfz_1_1ID__exception.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -151,6 +154,11 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Node__Filter.html">Node_Filter</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filter class that helps construct filter specifications.  <a href="structfz_1_1Node__Filter.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Node__Subtree.html">Node_Subtree</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Map__of__Subtrees.html">Map_of_Subtrees</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">See how this is used in fzgraphhtml and nodeboard.  <a href="structfz_1_1Map__of__Subtrees.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Set__builder__data.html">Set_builder_data</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Data structure that specifies <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> grouping categories.  <a href="structfz_1_1Set__builder__data.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -164,6 +172,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Graphmod__results.html">Graphmod_results</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is the results object that manages the collection of results for all requests on the stack.  <a href="structfz_1_1Graphmod__results.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Graphmod__unshared__results.html">Graphmod_unshared_results</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1TD__Node__shm.html">TD_Node_shm</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -403,9 +413,18 @@ typedef std::pair&lt; std::string, float &gt;&#160;</td><td class="memItemRight"
 <tr class="memitem:a891f4fc73fdf09b0dfa5b4dce2631244"><td class="memItemLeft" align="right" valign="top"><a id="a891f4fc73fdf09b0dfa5b4dce2631244"></a>
 typedef std::vector&lt; <a class="el" href="namespacefz.html#a3d31dd53be55a148b33ff3a70be11d63">Tag_Label_Real_Value</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Tag_Label_Real_Value_Vector</b></td></tr>
 <tr class="separator:a891f4fc73fdf09b0dfa5b4dce2631244"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3aa3b263d37dc60210e5b8342bd6039"><td class="memItemLeft" align="right" valign="top"><a id="ab3aa3b263d37dc60210e5b8342bd6039"></a>
+typedef std::deque&lt; <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>base_Node_List</b></td></tr>
+<tr class="separator:ab3aa3b263d37dc60210e5b8342bd6039"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8137bed79571a2b3f92b5d57533e0523"><td class="memItemLeft" align="right" valign="top"><a id="a8137bed79571a2b3f92b5d57533e0523"></a>
+typedef std::set&lt; <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a>, std::less&lt; <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>base_Node_Set</b></td></tr>
+<tr class="separator:a8137bed79571a2b3f92b5d57533e0523"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab1b12fceddd8928f8ec037a096a022aa"><td class="memItemLeft" align="right" valign="top"><a id="ab1b12fceddd8928f8ec037a096a022aa"></a>
 typedef std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>Edit_flags_type</b></td></tr>
 <tr class="separator:ab1b12fceddd8928f8ec037a096a022aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e038512db99e651fa90ca9987a9204c"><td class="memItemLeft" align="right" valign="top"><a id="a0e038512db99e651fa90ca9987a9204c"></a>
+typedef std::map&lt; <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a>, <a class="el" href="structfz_1_1Node__Subtree.html">Node_Subtree</a>, std::less&lt; <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>map_of_subtrees_t</b></td></tr>
+<tr class="separator:a0e038512db99e651fa90ca9987a9204c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b0ab81021660db114065569784d125a"><td class="memItemLeft" align="right" valign="top"><a id="a8b0ab81021660db114065569784d125a"></a>
 typedef std::map&lt; std::string, std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>cat_translation_map</b></td></tr>
 <tr class="separator:a8b0ab81021660db114065569784d125a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -414,33 +433,36 @@ typedef cat_translation_map *&#160;</td><td class="memItemRight" valign="bottom"
 <tr class="separator:aec0885b44585883a34916c30db3c473d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abec42076c72022f11008c3bcf9636554"><td class="memItemLeft" align="right" valign="top">typedef std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#abec42076c72022f11008c3bcf9636554">byte_vector_t</a></td></tr>
 <tr class="separator:abec42076c72022f11008c3bcf9636554"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa616d06b1b79674eb34eda8fa8e37c4b"><td class="memItemLeft" align="right" valign="top"><a id="aa616d06b1b79674eb34eda8fa8e37c4b"></a>
+<tr class="memitem:a9ca61d6e0119b10aa1e72541aea6041c"><td class="memItemLeft" align="right" valign="top"><a id="a9ca61d6e0119b10aa1e72541aea6041c"></a>
 typedef bi::allocator&lt; <a class="el" href="structfz_1_1Graphmod__result.html">Graphmod_result</a>, segment_manager_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Graphmod_result_allocator</b></td></tr>
-<tr class="separator:aa616d06b1b79674eb34eda8fa8e37c4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa6ef79f3fc9c4d4bedf0861101caf8cd"><td class="memItemLeft" align="right" valign="top"><a id="aa6ef79f3fc9c4d4bedf0861101caf8cd"></a>
+<tr class="separator:a9ca61d6e0119b10aa1e72541aea6041c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa88f7ad5c52613cbdab3441bfec21e2b"><td class="memItemLeft" align="right" valign="top"><a id="aa88f7ad5c52613cbdab3441bfec21e2b"></a>
 typedef bi::vector&lt; <a class="el" href="structfz_1_1Graphmod__result.html">Graphmod_result</a>, Graphmod_result_allocator &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Graphmod_result_Vector</b></td></tr>
-<tr class="separator:aa6ef79f3fc9c4d4bedf0861101caf8cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4fa537bf5acc60ca565ec12592f5b3c2"><td class="memItemLeft" align="right" valign="top"><a id="a4fa537bf5acc60ca565ec12592f5b3c2"></a>
+<tr class="separator:aa88f7ad5c52613cbdab3441bfec21e2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3fdb18b176297572a9f352c246b9dd2"><td class="memItemLeft" align="right" valign="top"><a id="ad3fdb18b176297572a9f352c246b9dd2"></a>
+typedef std::vector&lt; <a class="el" href="structfz_1_1Graphmod__result.html">Graphmod_result</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Graphmod_unshared_result_Vector</b></td></tr>
+<tr class="separator:ad3fdb18b176297572a9f352c246b9dd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9f65aa70259f159805797630984f75a"><td class="memItemLeft" align="right" valign="top"><a id="ab9f65aa70259f159805797630984f75a"></a>
 typedef bi::offset_ptr&lt; <a class="el" href="structfz_1_1TD__Node__shm.html">TD_Node_shm</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>TD_Node_shm_offsetptr</b></td></tr>
-<tr class="separator:a4fa537bf5acc60ca565ec12592f5b3c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2203bfc58494043b2813c0c0066d1fb2"><td class="memItemLeft" align="right" valign="top"><a id="a2203bfc58494043b2813c0c0066d1fb2"></a>
+<tr class="separator:ab9f65aa70259f159805797630984f75a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66842abb8fdbe2884e579824de76a481"><td class="memItemLeft" align="right" valign="top"><a id="a66842abb8fdbe2884e579824de76a481"></a>
 typedef bi::offset_ptr&lt; <a class="el" href="structfz_1_1Batchmod__targetdates.html">Batchmod_targetdates</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Batchmod_targetdates_offsetptr</b></td></tr>
-<tr class="separator:a2203bfc58494043b2813c0c0066d1fb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0e3aa07e512b43ba7825887f9df78153"><td class="memItemLeft" align="right" valign="top"><a id="a0e3aa07e512b43ba7825887f9df78153"></a>
+<tr class="separator:a66842abb8fdbe2884e579824de76a481"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36d7eef7381ea8040c24b763563bbc64"><td class="memItemLeft" align="right" valign="top"><a id="a36d7eef7381ea8040c24b763563bbc64"></a>
 typedef <a class="el" href="structfz_1_1Batchmod__targetdates.html">Batchmod_targetdates</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Batchmod_targetdates_ptr</b></td></tr>
-<tr class="separator:a0e3aa07e512b43ba7825887f9df78153"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a291aa8ef8e311a1673579b45d9e26e9e"><td class="memItemLeft" align="right" valign="top"><a id="a291aa8ef8e311a1673579b45d9e26e9e"></a>
+<tr class="separator:a36d7eef7381ea8040c24b763563bbc64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f39fc18d46af4e898649f869bed5b13"><td class="memItemLeft" align="right" valign="top"><a id="a6f39fc18d46af4e898649f869bed5b13"></a>
 typedef bi::offset_ptr&lt; <a class="el" href="structfz_1_1Batchmod__tpass.html">Batchmod_tpass</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Batchmod_tpass_offsetptr</b></td></tr>
-<tr class="separator:a291aa8ef8e311a1673579b45d9e26e9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a31eddbf35a6d227a9571de84928c7c6a"><td class="memItemLeft" align="right" valign="top"><a id="a31eddbf35a6d227a9571de84928c7c6a"></a>
+<tr class="separator:a6f39fc18d46af4e898649f869bed5b13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c99aaaa0a7eedbe76088dab5fbc3f46"><td class="memItemLeft" align="right" valign="top"><a id="a5c99aaaa0a7eedbe76088dab5fbc3f46"></a>
 typedef <a class="el" href="structfz_1_1Batchmod__tpass.html">Batchmod_tpass</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Batchmod_tpass_ptr</b></td></tr>
-<tr class="separator:a31eddbf35a6d227a9571de84928c7c6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad6e97e86ec4e226544d9e83060109b85"><td class="memItemLeft" align="right" valign="top"><a id="ad6e97e86ec4e226544d9e83060109b85"></a>
+<tr class="separator:a5c99aaaa0a7eedbe76088dab5fbc3f46"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ed576074a31ccba9bf09681f64ac505"><td class="memItemLeft" align="right" valign="top"><a id="a7ed576074a31ccba9bf09681f64ac505"></a>
 typedef bi::allocator&lt; <a class="el" href="structfz_1_1Graphmod__data.html">Graphmod_data</a>, segment_manager_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Graphmod_data_allocator</b></td></tr>
-<tr class="separator:ad6e97e86ec4e226544d9e83060109b85"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a698c4de85d4c32654287bbcfb50c0724"><td class="memItemLeft" align="right" valign="top"><a id="a698c4de85d4c32654287bbcfb50c0724"></a>
+<tr class="separator:a7ed576074a31ccba9bf09681f64ac505"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a115ae8b5e1de8b90ebe8e352810462ea"><td class="memItemLeft" align="right" valign="top"><a id="a115ae8b5e1de8b90ebe8e352810462ea"></a>
 typedef bi::vector&lt; <a class="el" href="structfz_1_1Graphmod__data.html">Graphmod_data</a>, Graphmod_data_allocator &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Graphmod_data_Vector</b></td></tr>
-<tr class="separator:a698c4de85d4c32654287bbcfb50c0724"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a115ae8b5e1de8b90ebe8e352810462ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b4361969858babf3a2b83f4f1ebcfa2"><td class="memItemLeft" align="right" valign="top"><a id="a7b4361969858babf3a2b83f4f1ebcfa2"></a>
 typedef bi::offset_ptr&lt; <a class="el" href="classfz_1_1Graph.html">Graph</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a7b4361969858babf3a2b83f4f1ebcfa2">Graph_Graph_ptr</a></td></tr>
 <tr class="memdesc:a7b4361969858babf3a2b83f4f1ebcfa2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Formalizer specific base types for ease of modification (movable pointers) <br /></td></tr>
@@ -644,9 +666,9 @@ typedef std::vector&lt; <a class="el" href="structfz_1_1render__varpos.html">ren
 <tr class="memitem:a6816aa2a6ca096b5918902e6e261cc68"><td class="memItemLeft" align="right" valign="top"><a id="a6816aa2a6ca096b5918902e6e261cc68"></a>
 typedef std::tuple&lt; unsigned int, unsigned int, unsigned int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ymd_tuple</b></td></tr>
 <tr class="separator:a6816aa2a6ca096b5918902e6e261cc68"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3cf959cddb14130a5bcc564755c6c177"><td class="memItemLeft" align="right" valign="top"><a id="a3cf959cddb14130a5bcc564755c6c177"></a>
+<tr class="memitem:aca78c283fd0d2dd313804d0bfffdb0a0"><td class="memItemLeft" align="right" valign="top"><a id="aca78c283fd0d2dd313804d0bfffdb0a0"></a>
 typedef std::set&lt; <a class="el" href="structfz_1_1NNLmod__update.html">NNLmod_update</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>NNLmod_update_set</b></td></tr>
-<tr class="separator:a3cf959cddb14130a5bcc564755c6c177"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:aca78c283fd0d2dd313804d0bfffdb0a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a609e8de3728db723e67ea620749e6cac"><td class="memItemLeft" align="right" valign="top"><a id="a609e8de3728db723e67ea620749e6cac"></a>
 typedef std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a609e8de3728db723e67ea620749e6cac">GraphIDcache</a></td></tr>
 <tr class="memdesc:a609e8de3728db723e67ea620749e6cac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Formalizer specific base types for ease of modification (container types) <br /></td></tr>
@@ -727,6 +749,18 @@ Enumerations</h2></td></tr>
 , <br />
 &#160;&#160;<b>batchmod_tpassrepeating</b>
 , <b>NUM_graphmod_requests</b>
+, <b>graphmod_add_node</b>
+, <b>graphmod_add_edge</b>
+, <br />
+&#160;&#160;<b>namedlist_add</b>
+, <b>namedlist_remove</b>
+, <b>namedlist_delete</b>
+, <b>graphmod_edit_node</b>
+, <br />
+&#160;&#160;<b>graphmod_edit_edge</b>
+, <b>batchmod_targetdates</b>
+, <b>batchmod_tpassrepeating</b>
+, <b>NUM_graphmod_requests</b>
 <br />
  }</td></tr>
 <tr class="separator:a0394e24a5de7f64b2802f12007a2f3c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -738,6 +772,15 @@ Enumerations</h2></td></tr>
 , <br />
 &#160;&#160;<b>pqt_keyword</b>
 , <b>pqt_relevance</b>
+, <b>_pqt_NUM</b>
+, <b>pqt_id</b>
+, <br />
+&#160;&#160;<b>pqt_supid</b>
+, <b>pqt_tag</b>
+, <b>pqt_title</b>
+, <b>pqt_keyword</b>
+, <br />
+&#160;&#160;<b>pqt_relevance</b>
 , <b>_pqt_NUM</b>
 <br />
  }</td></tr>
@@ -760,6 +803,23 @@ Enumerations</h2></td></tr>
 , <br />
 &#160;&#160;<b>pqn_tdspan</b>
 , <b>_pqn_NUM</b>
+, <b>pqn_id</b>
+, <b>pqn_topics</b>
+, <br />
+&#160;&#160;<b>pqn_topicrelevance</b>
+, <b>pqn_valuation</b>
+, <b>pqn_completion</b>
+, <b>pqn_required</b>
+, <br />
+&#160;&#160;<b>pqn_text</b>
+, <b>pqn_targetdate</b>
+, <b>pqn_tdproperty</b>
+, <b>pqn_isperiodic</b>
+, <br />
+&#160;&#160;<b>pqn_tdperiodic</b>
+, <b>pqn_tdevery</b>
+, <b>pqn_tdspan</b>
+, <b>_pqn_NUM</b>
 <br />
  }</td></tr>
 <tr class="separator:a7349c0b699f57fccff3f53513df94839"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -772,6 +832,15 @@ Enumerations</h2></td></tr>
 &#160;&#160;<b>pqe_urgency</b>
 , <b>pqe_priority</b>
 , <b>_pqe_NUM</b>
+, <b>pqe_id</b>
+, <br />
+&#160;&#160;<b>pqe_dependency</b>
+, <b>pqe_significance</b>
+, <b>pqe_importance</b>
+, <b>pqe_urgency</b>
+, <br />
+&#160;&#160;<b>pqe_priority</b>
+, <b>_pqe_NUM</b>
 <br />
  }</td></tr>
 <tr class="separator:a2fbebf38d141f22704b7eedd52437b28"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -782,6 +851,12 @@ Enumerations</h2></td></tr>
 , <b>pqNNL_nodeids</b>
 , <br />
 &#160;&#160;<b>_pqNNL_NUM</b>
+, <b>pqNNL_name</b>
+, <b>pqNNL_features</b>
+, <b>pqNNL_maxsize</b>
+, <br />
+&#160;&#160;<b>pqNNL_nodeids</b>
+, <b>_pqNNL_NUM</b>
 <br />
  }</td></tr>
 <tr class="separator:a735a3a71054f2c2c507b5faadcdadef8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -835,6 +910,130 @@ Enumerations</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:aef05dd6bfa4d4a09d3eace4949b6fab0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0394e24a5de7f64b2802f12007a2f3c1"><td class="memItemLeft" align="right" valign="top"><a id="a0394e24a5de7f64b2802f12007a2f3c1"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>Graph_modification_request</b> { <br />
+&#160;&#160;<b>graphmod_add_node</b>
+, <b>graphmod_add_edge</b>
+, <b>namedlist_add</b>
+, <b>namedlist_remove</b>
+, <br />
+&#160;&#160;<b>namedlist_delete</b>
+, <b>graphmod_edit_node</b>
+, <b>graphmod_edit_edge</b>
+, <b>batchmod_targetdates</b>
+, <br />
+&#160;&#160;<b>batchmod_tpassrepeating</b>
+, <b>NUM_graphmod_requests</b>
+, <b>graphmod_add_node</b>
+, <b>graphmod_add_edge</b>
+, <br />
+&#160;&#160;<b>namedlist_add</b>
+, <b>namedlist_remove</b>
+, <b>namedlist_delete</b>
+, <b>graphmod_edit_node</b>
+, <br />
+&#160;&#160;<b>graphmod_edit_edge</b>
+, <b>batchmod_targetdates</b>
+, <b>batchmod_tpassrepeating</b>
+, <b>NUM_graphmod_requests</b>
+<br />
+ }</td></tr>
+<tr class="separator:a0394e24a5de7f64b2802f12007a2f3c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab6fa1d38b1f961757e7f352be3764d8f"><td class="memItemLeft" align="right" valign="top"><a id="ab6fa1d38b1f961757e7f352be3764d8f"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>pq_Tfields</b> { <br />
+&#160;&#160;<b>pqt_id</b>
+, <b>pqt_supid</b>
+, <b>pqt_tag</b>
+, <b>pqt_title</b>
+, <br />
+&#160;&#160;<b>pqt_keyword</b>
+, <b>pqt_relevance</b>
+, <b>_pqt_NUM</b>
+, <b>pqt_id</b>
+, <br />
+&#160;&#160;<b>pqt_supid</b>
+, <b>pqt_tag</b>
+, <b>pqt_title</b>
+, <b>pqt_keyword</b>
+, <br />
+&#160;&#160;<b>pqt_relevance</b>
+, <b>_pqt_NUM</b>
+<br />
+ }</td></tr>
+<tr class="separator:ab6fa1d38b1f961757e7f352be3764d8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7349c0b699f57fccff3f53513df94839"><td class="memItemLeft" align="right" valign="top"><a id="a7349c0b699f57fccff3f53513df94839"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>pq_Nfields</b> { <br />
+&#160;&#160;<b>pqn_id</b>
+, <b>pqn_topics</b>
+, <b>pqn_topicrelevance</b>
+, <b>pqn_valuation</b>
+, <br />
+&#160;&#160;<b>pqn_completion</b>
+, <b>pqn_required</b>
+, <b>pqn_text</b>
+, <b>pqn_targetdate</b>
+, <br />
+&#160;&#160;<b>pqn_tdproperty</b>
+, <b>pqn_isperiodic</b>
+, <b>pqn_tdperiodic</b>
+, <b>pqn_tdevery</b>
+, <br />
+&#160;&#160;<b>pqn_tdspan</b>
+, <b>_pqn_NUM</b>
+, <b>pqn_id</b>
+, <b>pqn_topics</b>
+, <br />
+&#160;&#160;<b>pqn_topicrelevance</b>
+, <b>pqn_valuation</b>
+, <b>pqn_completion</b>
+, <b>pqn_required</b>
+, <br />
+&#160;&#160;<b>pqn_text</b>
+, <b>pqn_targetdate</b>
+, <b>pqn_tdproperty</b>
+, <b>pqn_isperiodic</b>
+, <br />
+&#160;&#160;<b>pqn_tdperiodic</b>
+, <b>pqn_tdevery</b>
+, <b>pqn_tdspan</b>
+, <b>_pqn_NUM</b>
+<br />
+ }</td></tr>
+<tr class="separator:a7349c0b699f57fccff3f53513df94839"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fbebf38d141f22704b7eedd52437b28"><td class="memItemLeft" align="right" valign="top"><a id="a2fbebf38d141f22704b7eedd52437b28"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>pq_Efields</b> { <br />
+&#160;&#160;<b>pqe_id</b>
+, <b>pqe_dependency</b>
+, <b>pqe_significance</b>
+, <b>pqe_importance</b>
+, <br />
+&#160;&#160;<b>pqe_urgency</b>
+, <b>pqe_priority</b>
+, <b>_pqe_NUM</b>
+, <b>pqe_id</b>
+, <br />
+&#160;&#160;<b>pqe_dependency</b>
+, <b>pqe_significance</b>
+, <b>pqe_importance</b>
+, <b>pqe_urgency</b>
+, <br />
+&#160;&#160;<b>pqe_priority</b>
+, <b>_pqe_NUM</b>
+<br />
+ }</td></tr>
+<tr class="separator:a2fbebf38d141f22704b7eedd52437b28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a735a3a71054f2c2c507b5faadcdadef8"><td class="memItemLeft" align="right" valign="top"><a id="a735a3a71054f2c2c507b5faadcdadef8"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>pq_NNLfields</b> { <br />
+&#160;&#160;<b>pqNNL_name</b>
+, <b>pqNNL_features</b>
+, <b>pqNNL_maxsize</b>
+, <b>pqNNL_nodeids</b>
+, <br />
+&#160;&#160;<b>_pqNNL_NUM</b>
+, <b>pqNNL_name</b>
+, <b>pqNNL_features</b>
+, <b>pqNNL_maxsize</b>
+, <br />
+&#160;&#160;<b>pqNNL_nodeids</b>
+, <b>_pqNNL_NUM</b>
+<br />
+ }</td></tr>
+<tr class="separator:a735a3a71054f2c2c507b5faadcdadef8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e7d16bab09bae4a92f744431bc98591"><td class="memItemLeft" align="right" valign="top"><a id="a3e7d16bab09bae4a92f744431bc98591"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>http_response_code</b> { <b>http_ok</b> = 200
 , <b>http_bad_request</b> = 400
 , <b>http_not_found</b> = 404
@@ -966,6 +1165,12 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="name
 <tr class="memitem:a56881d63a827a663822facaab67b15ef"><td class="memItemLeft" align="right" valign="top">std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a56881d63a827a663822facaab67b15ef">trim</a> (std::string &amp;s, const char *t=&quot; \t\n\r\f\v&quot;)</td></tr>
 <tr class="memdesc:a56881d63a827a663822facaab67b15ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Trim whitespace on both ends of a string.  <a href="namespacefz.html#a56881d63a827a663822facaab67b15ef">More...</a><br /></td></tr>
 <tr class="separator:a56881d63a827a663822facaab67b15ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a655dfeed12628eb700f5f6e07a1d7874"><td class="memItemLeft" align="right" valign="top"><a id="a655dfeed12628eb700f5f6e07a1d7874"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>replace_char</b> (const std::string &amp;s, char c, char replacement='_')</td></tr>
+<tr class="separator:a655dfeed12628eb700f5f6e07a1d7874"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a43dbf64dc00781a4cd1308f0842ebad4"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a43dbf64dc00781a4cd1308f0842ebad4">get_enclosed_substring</a> (const std::string &amp;s, char open_enclosure, char close_enclosure, const std::string &amp;alt_return)</td></tr>
+<tr class="memdesc:a43dbf64dc00781a4cd1308f0842ebad4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find and return a substring enclosed by opening and closing characters.  <a href="namespacefz.html#a43dbf64dc00781a4cd1308f0842ebad4">More...</a><br /></td></tr>
+<tr class="separator:a43dbf64dc00781a4cd1308f0842ebad4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3a73be79a425edc61347438db441c2c6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a3a73be79a425edc61347438db441c2c6">safecpy</a> (std::string &amp;str, char *buf, size_t bufsize)</td></tr>
 <tr class="memdesc:a3a73be79a425edc61347438db441c2c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Safely copy from a string (not null-terminated) to a char buffer of limited size.  <a href="namespacefz.html#a3a73be79a425edc61347438db441c2c6">More...</a><br /></td></tr>
 <tr class="separator:a3a73be79a425edc61347438db441c2c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1013,6 +1218,12 @@ unsigned long&#160;</td><td class="memItemRight" valign="bottom"><b>Edges_with_d
 <tr class="memitem:a4f94c797bfe00822cb2905b11a9657b4"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a4f94c797bfe00822cb2905b11a9657b4">Topic_IDs_to_Tags</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, std::vector&lt; <a class="el" href="namespacefz.html#afddacf07ad964643983aa625bd00aba8">Topic_ID</a> &gt; IDs_vec)</td></tr>
 <tr class="memdesc:a4f94c797bfe00822cb2905b11a9657b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a vector of <a class="el" href="classfz_1_1Topic.html">Topic</a> tag label strings for a specified vector of known <a class="el" href="classfz_1_1Topic.html">Topic</a> IDs from a specified <a class="el" href="classfz_1_1Graph.html">Graph</a>.  <a href="namespacefz.html#a4f94c797bfe00822cb2905b11a9657b4">More...</a><br /></td></tr>
 <tr class="separator:a4f94c797bfe00822cb2905b11a9657b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af504534ef4765402bbdb2493f95d0c6b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#af504534ef4765402bbdb2493f95d0c6b">Node_Dependencies_fulldepth</a> (const <a class="el" href="classfz_1_1Node.html">Node</a> *node_ptr, base_Node_Set &amp;fulldepth_dependencies)</td></tr>
+<tr class="memdesc:af504534ef4765402bbdb2493f95d0c6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collect all unique Nodes in the dependencies tree of a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a>.  <a href="namespacefz.html#af504534ef4765402bbdb2493f95d0c6b">More...</a><br /></td></tr>
+<tr class="separator:af504534ef4765402bbdb2493f95d0c6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92ddfa7d332e3e44f98382ef179c428d"><td class="memItemLeft" align="right" valign="top">map_of_subtrees_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a92ddfa7d332e3e44f98382ef179c428d">Threads_Subtrees</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, const std::string &amp;nnl_str, bool sort_by_targetdate=false)</td></tr>
+<tr class="memdesc:a92ddfa7d332e3e44f98382ef179c428d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collect the subtrees that are the full dependencies of all Nodes in a Named Nodes List.  <a href="namespacefz.html#a92ddfa7d332e3e44f98382ef179c428d">More...</a><br /></td></tr>
+<tr class="separator:a92ddfa7d332e3e44f98382ef179c428d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a843459a8cad97af396b31c848c4740a0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefz.html#ade8fd9836dfeac48419a3e0a89f0f8f2">targetdate_sorted_Nodes</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a843459a8cad97af396b31c848c4740a0">Nodes_subset</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, const <a class="el" href="structfz_1_1Node__Filter.html">Node_Filter</a> &amp;nodefilter)</td></tr>
 <tr class="memdesc:a843459a8cad97af396b31c848c4740a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds all Nodes that match a specified <a class="el" href="structfz_1_1Node__Filter.html" title="Filter class that helps construct filter specifications.">Node_Filter</a>.  <a href="namespacefz.html#a843459a8cad97af396b31c848c4740a0">More...</a><br /></td></tr>
 <tr class="separator:a843459a8cad97af396b31c848c4740a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1073,9 +1284,8 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
 <a class="el" href="classfz_1_1Node.html">Node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a7e02adb2dc643534902a369f700343ec">Graph_modify_add_node</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, const std::string &amp;graph_segname, const <a class="el" href="structfz_1_1Graphmod__data.html">Graphmod_data</a> &amp;gmoddata)</td></tr>
 <tr class="memdesc:a7e02adb2dc643534902a369f700343ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a>'s shared segment and add it to the <a class="el" href="classfz_1_1Graph.html">Graph</a>. <br /></td></tr>
 <tr class="separator:a7e02adb2dc643534902a369f700343ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a827b8c92cd9a30aeb67974458b5cc0b6"><td class="memItemLeft" align="right" valign="top"><a id="a827b8c92cd9a30aeb67974458b5cc0b6"></a>
-<a class="el" href="classfz_1_1Edge.html">Edge_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a827b8c92cd9a30aeb67974458b5cc0b6">Graph_modify_add_edge</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, const std::string &amp;graph_segname, const <a class="el" href="structfz_1_1Graphmod__data.html">Graphmod_data</a> &amp;gmoddata)</td></tr>
-<tr class="memdesc:a827b8c92cd9a30aeb67974458b5cc0b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create an <a class="el" href="classfz_1_1Edge.html">Edge</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a>'s shared segment and add it to the <a class="el" href="classfz_1_1Graph.html">Graph</a>. <br /></td></tr>
+<tr class="memitem:a827b8c92cd9a30aeb67974458b5cc0b6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Edge.html">Edge_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a827b8c92cd9a30aeb67974458b5cc0b6">Graph_modify_add_edge</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, const std::string &amp;graph_segname, const <a class="el" href="structfz_1_1Graphmod__data.html">Graphmod_data</a> &amp;gmoddata)</td></tr>
+<tr class="memdesc:a827b8c92cd9a30aeb67974458b5cc0b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create an <a class="el" href="classfz_1_1Edge.html">Edge</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a>'s shared segment and add it to the <a class="el" href="classfz_1_1Graph.html">Graph</a>.  <a href="namespacefz.html#a827b8c92cd9a30aeb67974458b5cc0b6">More...</a><br /></td></tr>
 <tr class="separator:a827b8c92cd9a30aeb67974458b5cc0b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adb97c31cf206e8ce1769904661f433f7"><td class="memItemLeft" align="right" valign="top"><a id="adb97c31cf206e8ce1769904661f433f7"></a>
 <a class="el" href="classfz_1_1Node.html">Node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#adb97c31cf206e8ce1769904661f433f7">Graph_modify_edit_node</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, const std::string &amp;graph_segname, const <a class="el" href="structfz_1_1Graphmod__data.html">Graphmod_data</a> &amp;gmoddata)</td></tr>
@@ -1185,6 +1395,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="name
 <tr class="memitem:ac85e6fa77b067a4325f52513f547047c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ac85e6fa77b067a4325f52513f547047c">handle_Graph_modifications_pq</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, std::string dbname, std::string schemaname, <a class="el" href="structfz_1_1Graphmod__results.html">Graphmod_results</a> &amp;modifications)</td></tr>
 <tr class="memdesc:ac85e6fa77b067a4325f52513f547047c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process the defined set of possible modifications of <a class="el" href="classfz_1_1Graph.html">Graph</a> data and carry out those modifications in the database.  <a href="namespacefz.html#ac85e6fa77b067a4325f52513f547047c">More...</a><br /></td></tr>
 <tr class="separator:ac85e6fa77b067a4325f52513f547047c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28b2010b68d787bc1f202bb9c0402822"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a28b2010b68d787bc1f202bb9c0402822">handle_Graph_modifications_unshared_pq</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, std::string dbname, std::string schemaname, <a class="el" href="structfz_1_1Graphmod__unshared__results.html">Graphmod_unshared_results</a> &amp;modifications)</td></tr>
+<tr class="memdesc:a28b2010b68d787bc1f202bb9c0402822"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process the defined set of possible modifications of <a class="el" href="classfz_1_1Graph.html">Graph</a> data and carry out those modifications in the database.  <a href="namespacefz.html#a28b2010b68d787bc1f202bb9c0402822">More...</a><br /></td></tr>
+<tr class="separator:a28b2010b68d787bc1f202bb9c0402822"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5ae4b124721a2a2a59d23b208ddc5e61"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a5ae4b124721a2a2a59d23b208ddc5e61">Init_Named_Node_Lists_pq</a> (std::string dbname, std::string schemaname)</td></tr>
 <tr class="memdesc:a5ae4b124721a2a2a59d23b208ddc5e61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Postgres storage of Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> Lists:  <a href="namespacefz.html#a5ae4b124721a2a2a59d23b208ddc5e61">More...</a><br /></td></tr>
 <tr class="separator:a5ae4b124721a2a2a59d23b208ddc5e61"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1245,6 +1458,9 @@ td_pattern&#160;</td><td class="memItemRight" valign="bottom"><b>interpret_confi
 <tr class="memitem:ace6526dcd6de634cebf67c9c78d0428f"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ace6526dcd6de634cebf67c9c78d0428f">make_embeddable_html</a> (const std::string &amp;htmlstr, text_interpretation interpretation=text_interpretation::raw)</td></tr>
 <tr class="memdesc:ace6526dcd6de634cebf67c9c78d0428f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Efficiently and reliably filter snippets of HTML text such that they become optimally embeddable within other HTML.  <a href="namespacefz.html#ace6526dcd6de634cebf67c9c78d0428f">More...</a><br /></td></tr>
 <tr class="separator:ace6526dcd6de634cebf67c9c78d0428f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ccd23a3b259b377888ca0d649ec972a"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a0ccd23a3b259b377888ca0d649ec972a">uri_encode</a> (std::string s)</td></tr>
+<tr class="memdesc:a0ccd23a3b259b377888ca0d649ec972a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a string into a URI-safe string.  <a href="namespacefz.html#a0ccd23a3b259b377888ca0d649ec972a">More...</a><br /></td></tr>
+<tr class="separator:a0ccd23a3b259b377888ca0d649ec972a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5007b00e853ca6197ecbda5704c1642e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a5007b00e853ca6197ecbda5704c1642e">is_json_comment</a> (const std::string &amp;keylabel)</td></tr>
 <tr class="memdesc:a5007b00e853ca6197ecbda5704c1642e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Identify json key labels that are actually comments.  <a href="namespacefz.html#a5007b00e853ca6197ecbda5704c1642e">More...</a><br /></td></tr>
 <tr class="separator:a5007b00e853ca6197ecbda5704c1642e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1554,6 +1770,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>identical_Edges</b> (
 <tr class="memitem:a0d56dcf9ec811c82f940e7061ce1661b"><td class="memItemLeft" align="right" valign="top"><a id="a0d56dcf9ec811c82f940e7061ce1661b"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>append_filter_bit_status</b> (std::string &amp;s, bool bitflag, std::string label, std::string lower_str, std::string upper_str)</td></tr>
 <tr class="separator:a0d56dcf9ec811c82f940e7061ce1661b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e57f3d34eb8255b60ea053ec466d776"><td class="memItemLeft" align="right" valign="top"><a id="a4e57f3d34eb8255b60ea053ec466d776"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>graphmod_results_add_to_info_str</b> (const <a class="el" href="structfz_1_1Graphmod__result.html">Graphmod_result</a> &amp;modres, std::string &amp;infostr)</td></tr>
+<tr class="separator:a4e57f3d34eb8255b60ea053ec466d776"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac99455b568fc2d7dbf7b1c150197bb28"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ac99455b568fc2d7dbf7b1c150197bb28">Node_completed_repeating</a> (<a class="el" href="classfz_1_1Node.html">Node</a> &amp;node, <a class="el" href="classfz_1_1Edit__flags.html">Edit_flags</a> &amp;editflags, time_t t_ref=<a class="el" href="namespacefz.html#aef05dd6bfa4d4a09d3eace4949b6fab0a328419ab650b1af199fdb58a44105aaa">RTt_unspecified</a>)</td></tr>
 <tr class="memdesc:ac99455b568fc2d7dbf7b1c150197bb28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Depending on the tdpattern type of a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a>, potentially modify its targetdate in accordance with that repetition pattern and reset its completion ratio.  <a href="namespacefz.html#ac99455b568fc2d7dbf7b1c150197bb28">More...</a><br /></td></tr>
 <tr class="separator:ac99455b568fc2d7dbf7b1c150197bb28"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1575,6 +1794,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>pq_topiclayout
 <tr class="memitem:a99302d2f14ee4f41fbe2a9e2eed2c2c0"><td class="memItemLeft" align="right" valign="top"><a id="a99302d2f14ee4f41fbe2a9e2eed2c2c0"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>pq_NNLlayout</b> (&quot;name char(81) PRIMARY KEY,&quot; &quot;features smallint,&quot; &quot;maxsize integer,&quot; &quot;nodeids char(16)[]&quot;)</td></tr>
 <tr class="separator:a99302d2f14ee4f41fbe2a9e2eed2c2c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab205a2fcc8d2839e75a2a426c201bfca"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ab205a2fcc8d2839e75a2a426c201bfca">handle_one_modification_pq</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, PGconn *conn, const std::string &amp;schemaname, NNLmod_update_set &amp;nnlupdates, const <a class="el" href="structfz_1_1Graphmod__result.html">Graphmod_result</a> &amp;change_data)</td></tr>
+<tr class="memdesc:ab205a2fcc8d2839e75a2a426c201bfca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interpret the type of modification that was carried out in one <a class="el" href="structfz_1_1Graphmod__result.html" title="This is the data structure used by the server to return information about the successful results of a...">Graphmod_result</a> object.  <a href="namespacefz.html#ab205a2fcc8d2839e75a2a426c201bfca">More...</a><br /></td></tr>
+<tr class="separator:ab205a2fcc8d2839e75a2a426c201bfca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afe38748c6da4110ea71ee010642d3606"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#afe38748c6da4110ea71ee010642d3606">get_Topic_pq_field_numbers</a> (PGresult *res)</td></tr>
 <tr class="memdesc:afe38748c6da4110ea71ee010642d3606"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve field column numbers for topics query to make sure the correct field numbers are used.  <a href="namespacefz.html#afe38748c6da4110ea71ee010642d3606">More...</a><br /></td></tr>
 <tr class="separator:afe38748c6da4110ea71ee010642d3606"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1621,6 +1843,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
 <tr class="memitem:ab1d08ade9ece7006b630ef58262efd2c"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ab1d08ade9ece7006b630ef58262efd2c">convert_special_data_html</a> (const std::string &amp;htmlstr, size_t frompos, size_t beforepos)</td></tr>
 <tr class="memdesc:ab1d08ade9ece7006b630ef58262efd2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">This tokenizes, i.e.  <a href="namespacefz.html#ab1d08ade9ece7006b630ef58262efd2c">More...</a><br /></td></tr>
 <tr class="separator:ab1d08ade9ece7006b630ef58262efd2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad129ac575bb7a02584b8aece761757fb"><td class="memItemLeft" align="right" valign="top"><a id="ad129ac575bb7a02584b8aece761757fb"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hexchar</b> (unsigned char c, unsigned char &amp;hex1, unsigned char &amp;hex2)</td></tr>
+<tr class="separator:ad129ac575bb7a02584b8aece761757fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af3be8dc4c8df2ffff30795e117a2a007"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#af3be8dc4c8df2ffff30795e117a2a007">json_post_process_valuestring</a> (const std::string &amp;rawstr)</td></tr>
 <tr class="memdesc:af3be8dc4c8df2ffff30795e117a2a007"><td class="mdescLeft">&#160;</td><td class="mdescRight">Post-process the raw value string extracted from a JSON structure.  <a href="namespacefz.html#af3be8dc4c8df2ffff30795e117a2a007">More...</a><br /></td></tr>
 <tr class="separator:af3be8dc4c8df2ffff30795e117a2a007"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1730,6 +1955,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>mute_error</b> = fals
 <tr class="separator:a4b29454d06889dc887c6a36ca1c8f83b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5c09898831c45c42a4875335c5c5ec21"><td class="memItemLeft" align="right" valign="top">const std::map&lt; std::string, Edit_flags_type &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>flagbylabel</b></td></tr>
 <tr class="separator:a5c09898831c45c42a4875335c5c5ec21"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae1f933c98077a8f99e1d371b33ac65b"><td class="memItemLeft" align="right" valign="top">const std::map&lt; Graph_modification_request, std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Graph_modification_request_str</b></td></tr>
+<tr class="separator:aae1f933c98077a8f99e1d371b33ac65b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a08b2654accac9e8891359985237e495e"><td class="memItemLeft" align="right" valign="top"><a id="a08b2654accac9e8891359985237e495e"></a>
 <a class="el" href="classfz_1_1graph__mem__managers.html">graph_mem_managers</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a08b2654accac9e8891359985237e495e">graphmemman</a></td></tr>
 <tr class="memdesc:a08b2654accac9e8891359985237e495e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Global access to shared memory managers for <a class="el" href="classfz_1_1Graph.html">Graph</a> data structures. <br /></td></tr>
@@ -1744,30 +1971,30 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>mute_error</b> = fals
 <tr class="separator:ab7c6b78f22faaba74483392e9188a336"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a05d8c691662e60b7f7a041e6d67ff4ac"><td class="memItemLeft" align="right" valign="top">const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>weekday_str</b> [day_of_week::_num_dow]</td></tr>
 <tr class="separator:a05d8c691662e60b7f7a041e6d67ff4ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0e9f249ab6da4a5330fbf47805b36b49"><td class="memItemLeft" align="right" valign="top">const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>pq_topic_fieldnames</b> [_pqt_NUM]</td></tr>
-<tr class="separator:a0e9f249ab6da4a5330fbf47805b36b49"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4e2e72b75f6a44514c6175b6dd58988c"><td class="memItemLeft" align="right" valign="top">const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>pq_node_fieldnames</b> [_pqn_NUM]</td></tr>
-<tr class="separator:a4e2e72b75f6a44514c6175b6dd58988c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a593c105236196b2da156f585c6d7ae30"><td class="memItemLeft" align="right" valign="top">const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>pq_edge_fieldnames</b> [_pqe_NUM]</td></tr>
-<tr class="separator:a593c105236196b2da156f585c6d7ae30"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a40054abc0cdb4156693ceafa10eda38a"><td class="memItemLeft" align="right" valign="top"><a id="a40054abc0cdb4156693ceafa10eda38a"></a>
+<tr class="memitem:a6fc52933ef4168620f90311de4df2a78"><td class="memItemLeft" align="right" valign="top">const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>pq_topic_fieldnames</b> [_pqt_NUM]</td></tr>
+<tr class="separator:a6fc52933ef4168620f90311de4df2a78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae700e2bafc4331d3347a1962a14d7b65"><td class="memItemLeft" align="right" valign="top">const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>pq_node_fieldnames</b> [_pqn_NUM]</td></tr>
+<tr class="separator:ae700e2bafc4331d3347a1962a14d7b65"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a58eb1389cf1205452a7dfd69e988dcb6"><td class="memItemLeft" align="right" valign="top">const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>pq_edge_fieldnames</b> [_pqe_NUM]</td></tr>
+<tr class="separator:a58eb1389cf1205452a7dfd69e988dcb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc5133964c1ea32f8104d9f5b750bd56"><td class="memItemLeft" align="right" valign="top"><a id="adc5133964c1ea32f8104d9f5b750bd56"></a>
 unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_topic_field</b> [_pqt_NUM]</td></tr>
-<tr class="separator:a40054abc0cdb4156693ceafa10eda38a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1a4a02a14d1fd045bd92c84b18c51cc1"><td class="memItemLeft" align="right" valign="top"><a id="a1a4a02a14d1fd045bd92c84b18c51cc1"></a>
+<tr class="separator:adc5133964c1ea32f8104d9f5b750bd56"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abba2fa538b482567b16dd5a7ef50fcc1"><td class="memItemLeft" align="right" valign="top"><a id="abba2fa538b482567b16dd5a7ef50fcc1"></a>
 unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_node_field</b> [_pqn_NUM]</td></tr>
-<tr class="separator:a1a4a02a14d1fd045bd92c84b18c51cc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae856eb9ebccda1813f38aef6ebed04b4"><td class="memItemLeft" align="right" valign="top"><a id="ae856eb9ebccda1813f38aef6ebed04b4"></a>
+<tr class="separator:abba2fa538b482567b16dd5a7ef50fcc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07927c6740fdad3a437a306546ffeb81"><td class="memItemLeft" align="right" valign="top"><a id="a07927c6740fdad3a437a306546ffeb81"></a>
 unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_edge_field</b> [_pqe_NUM]</td></tr>
-<tr class="separator:ae856eb9ebccda1813f38aef6ebed04b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd3867ed7aa9968c6dc3743c08621727"><td class="memItemLeft" align="right" valign="top">const std::map&lt; std::string, <a class="el" href="namespacefz.html#a6c45e5e183774ed3322e5c3d445b3f70">td_property</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>tdprop_by_pqtdprop</b></td></tr>
-<tr class="separator:acd3867ed7aa9968c6dc3743c08621727"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab47d47929bea0b332de69408d4880092"><td class="memItemLeft" align="right" valign="top">const std::map&lt; std::string, td_pattern &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>tdpatt_by_pqtdpatt</b></td></tr>
-<tr class="separator:ab47d47929bea0b332de69408d4880092"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac99b967f1e4c929092428be6c828fc79"><td class="memItemLeft" align="right" valign="top">const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>pq_NNL_fieldnames</b> [_pqNNL_NUM]</td></tr>
-<tr class="separator:ac99b967f1e4c929092428be6c828fc79"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5ceb0d28253fe10059d57ef3330dd979"><td class="memItemLeft" align="right" valign="top"><a id="a5ceb0d28253fe10059d57ef3330dd979"></a>
+<tr class="separator:a07927c6740fdad3a437a306546ffeb81"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a721c8cc078a6b39b2603c86680c0b573"><td class="memItemLeft" align="right" valign="top">const std::map&lt; std::string, <a class="el" href="namespacefz.html#a6c45e5e183774ed3322e5c3d445b3f70">td_property</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>tdprop_by_pqtdprop</b></td></tr>
+<tr class="separator:a721c8cc078a6b39b2603c86680c0b573"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7c65c6c42a33bdb3871ee3ce28ca0db"><td class="memItemLeft" align="right" valign="top">const std::map&lt; std::string, td_pattern &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>tdpatt_by_pqtdpatt</b></td></tr>
+<tr class="separator:ad7c65c6c42a33bdb3871ee3ce28ca0db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0a3b61cbcee151ad5409ad5e01466cd"><td class="memItemLeft" align="right" valign="top">const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>pq_NNL_fieldnames</b> [_pqNNL_NUM]</td></tr>
+<tr class="separator:ad0a3b61cbcee151ad5409ad5e01466cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0adaba1f184616b5de6b289b901a79e"><td class="memItemLeft" align="right" valign="top"><a id="ad0adaba1f184616b5de6b289b901a79e"></a>
 unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>pq_NNL_field</b> [_pqNNL_NUM]</td></tr>
-<tr class="separator:a5ceb0d28253fe10059d57ef3330dd979"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:ad0adaba1f184616b5de6b289b901a79e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace795313bd567e5ab648f4ab92598bba"><td class="memItemLeft" align="right" valign="top">const std::map&lt; std::string, text_interpretation &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>text_interpretation_flags_map</b></td></tr>
 <tr class="separator:ace795313bd567e5ab648f4ab92598bba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac04ef6e0f35fe1bf076661e5cdddc084"><td class="memItemLeft" align="right" valign="top">const std::map&lt; std::string, std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ac04ef6e0f35fe1bf076661e5cdddc084">html_special_codes</a></td></tr>
@@ -3580,6 +3807,59 @@ constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>TOPIC_TAG
 
 </div>
 </div>
+<a id="a43dbf64dc00781a4cd1308f0842ebad4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a43dbf64dc00781a4cd1308f0842ebad4">&#9670;&nbsp;</a></span>get_enclosed_substring()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string fz::get_enclosed_substring </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>s</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>open_enclosure</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>close_enclosure</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>alt_return</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Find and return a substring enclosed by opening and closing characters. </p>
+<p>This is often used to find labels between brackets, e.g. [SOME-LABEL].</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>The string to search in. </td></tr>
+    <tr><td class="paramname">open_enclosure</td><td>The opening character before the substring. </td></tr>
+    <tr><td class="paramname">close_enclosure</td><td>The closing character after the substring. </td></tr>
+    <tr><td class="paramname">alt_return</td><td>The string to return if an enclosed substring was not found. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The substring between enclosing characters or the alt_return string. </dd></dl>
+
+</div>
+</div>
 <a id="a9f3fa62a73b340350dec9f23936460f8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9f3fa62a73b340350dec9f23936460f8">&#9670;&nbsp;</a></span>get_Log_data()</h2>
 
@@ -3765,6 +4045,43 @@ constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>TOPIC_TAG
 
 </div>
 </div>
+<a id="a827b8c92cd9a30aeb67974458b5cc0b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a827b8c92cd9a30aeb67974458b5cc0b6">&#9670;&nbsp;</a></span>Graph_modify_add_edge()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfz_1_1Edge.html">Edge_ptr</a> fz::Graph_modify_add_edge </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;&#160;</td>
+          <td class="paramname"><em>graph</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>graph_segname</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structfz_1_1Graphmod__data.html">Graphmod_data</a> &amp;&#160;</td>
+          <td class="paramname"><em>gmoddata</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Create an <a class="el" href="classfz_1_1Edge.html">Edge</a> in the <a class="el" href="classfz_1_1Graph.html">Graph</a>'s shared segment and add it to the <a class="el" href="classfz_1_1Graph.html">Graph</a>. </p>
+<p>For a detailed description of the process, see the fzgraph README.md. @params graph Must be a valid reference to the <a class="el" href="classfz_1_1Graph.html">Graph</a>. @params graph_segname The name of a shared memory segment containing superiors and dependencies information. @params gmoddata Contains data for the new <a class="el" href="classfz_1_1Edge.html">Edge</a> in an object pointed to by gmoddata.edge_ptr. </p><dl class="section return"><dt>Returns</dt><dd>The pointer to the <a class="el" href="classfz_1_1Edge.html">Edge</a> object that provided requested data is returned upon success. A null pointer otherwise. </dd></dl>
+
+</div>
+</div>
 <a id="a5539a3a36958457da6b2a29693e8dd6a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5539a3a36958457da6b2a29693e8dd6a">&#9670;&nbsp;</a></span>Graph_modify_batch_node_tpassrepeating()</h2>
 
@@ -3859,10 +4176,138 @@ constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>TOPIC_TAG
     <tr><td class="paramname">graph</td><td>A valid <a class="el" href="classfz_1_1Graph.html">Graph</a> structure that contains modified data. </td></tr>
     <tr><td class="paramname">dbname</td><td>The Postgres database name. </td></tr>
     <tr><td class="paramname">schemaname</td><td>The Postgres schema name for Formalizer data. </td></tr>
+    <tr><td class="paramname">modifications</td><td>A data structure detailing modifications to apply.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>This is called after modifications have been made in the in-memory <a class="el" href="classfz_1_1Graph.html">Graph</a> data structure. See, for example, how this is used in <code>fzserverpq:handle_request_stack()</code>.</p>
+<p>Note: For development information about the proposed set of possible modifications, see <a href="https://trello.com/c/FxSP8If8">https://trello.com/c/FxSP8If8</a>.</p>
+<p>For more information about the complete path involved in modifications, see <a href="https://trello.com/c/eUjjF1yZ">https://trello.com/c/eUjjF1yZ</a>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">graph</td><td>A valid <a class="el" href="classfz_1_1Graph.html">Graph</a> structure that contains modified data. </td></tr>
+    <tr><td class="paramname">dbname</td><td>The Postgres database name. </td></tr>
+    <tr><td class="paramname">schemaname</td><td>The Postgres schema name for Formalizer data. </td></tr>
     <tr><td class="paramname"><a class="el" href="structfz_1_1Graphmod__results.html" title="This is the results object that manages the collection of results for all requests on the stack.">Graphmod_results</a></td><td>A data structure detailing modifications to apply. </td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a28b2010b68d787bc1f202bb9c0402822"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a28b2010b68d787bc1f202bb9c0402822">&#9670;&nbsp;</a></span>handle_Graph_modifications_unshared_pq()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::handle_Graph_modifications_unshared_pq </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;&#160;</td>
+          <td class="paramname"><em>graph</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>dbname</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>schemaname</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfz_1_1Graphmod__unshared__results.html">Graphmod_unshared_results</a> &amp;&#160;</td>
+          <td class="paramname"><em>modifications</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Process the defined set of possible modifications of <a class="el" href="classfz_1_1Graph.html">Graph</a> data and carry out those modifications in the database. </p>
+<p>This version of the call does not use shared memory.</p>
+<p>This is called after modifications have been made in the in-memory <a class="el" href="classfz_1_1Graph.html">Graph</a> data structure. See, for example, how this is used in <code>fzserverpq:handle_request_stack()</code>.</p>
+<p>Note: For development information about the proposed set of possible modifications, see <a href="https://trello.com/c/FxSP8If8">https://trello.com/c/FxSP8If8</a>.</p>
+<p>For more information about the complete path involved in modifications, see <a href="https://trello.com/c/eUjjF1yZ">https://trello.com/c/eUjjF1yZ</a>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">graph</td><td>A valid <a class="el" href="classfz_1_1Graph.html">Graph</a> structure that contains modified data. </td></tr>
+    <tr><td class="paramname">dbname</td><td>The Postgres database name. </td></tr>
+    <tr><td class="paramname">schemaname</td><td>The Postgres schema name for Formalizer data. </td></tr>
+    <tr><td class="paramname">modifications</td><td>A data structure detailing modifications to apply. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ab205a2fcc8d2839e75a2a426c201bfca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab205a2fcc8d2839e75a2a426c201bfca">&#9670;&nbsp;</a></span>handle_one_modification_pq()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::handle_one_modification_pq </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;&#160;</td>
+          <td class="paramname"><em>graph</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">PGconn *&#160;</td>
+          <td class="paramname"><em>conn</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>schemaname</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">NNLmod_update_set &amp;&#160;</td>
+          <td class="paramname"><em>nnlupdates</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structfz_1_1Graphmod__result.html">Graphmod_result</a> &amp;&#160;</td>
+          <td class="paramname"><em>change_data</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Interpret the type of modification that was carried out in one <a class="el" href="structfz_1_1Graphmod__result.html" title="This is the data structure used by the server to return information about the successful results of a...">Graphmod_result</a> object. </p>
+<p>Call the corresponding database update function.</p>
+<p>This is called both from functions that use shared memory and those that do not, i.e. from <a class="el" href="namespacefz.html#ac85e6fa77b067a4325f52513f547047c" title="Process the defined set of possible modifications of Graph data and carry out those modifications in ...">handle_Graph_modifications_pq()</a> and from <a class="el" href="namespacefz.html#a28b2010b68d787bc1f202bb9c0402822" title="Process the defined set of possible modifications of Graph data and carry out those modifications in ...">handle_Graph_modifications_unshared_pq()</a>. In this manner, the same process is used from fzserverpq calls that communicate through shared memory and those that communicate through the FZ TCP API.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">graph</td><td>A valid <a class="el" href="classfz_1_1Graph.html">Graph</a> structure that contains modified data. </td></tr>
+    <tr><td class="paramname">conn</td><td>An active connection to the database. </td></tr>
+    <tr><td class="paramname">schemaname</td><td>The Postgres schema name for Formalizer data. </td></tr>
+    <tr><td class="paramname">nnlupdates</td><td>A set of NNL updates. </td></tr>
+    <tr><td class="paramname">change_data</td><td>A valid <a class="el" href="structfz_1_1Graphmod__result.html" title="This is the data structure used by the server to return information about the successful results of a...">Graphmod_result</a> object. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if successful. </dd></dl>
 
 </div>
 </div>
@@ -5334,6 +5779,52 @@ constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>TOPIC_TAG
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True if the repeating <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> was modified for the completed iteration, false if an invalid circumstance was encountered. </dd></dl>
+
+</div>
+</div>
+<a id="af504534ef4765402bbdb2493f95d0c6b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af504534ef4765402bbdb2493f95d0c6b">&#9670;&nbsp;</a></span>Node_Dependencies_fulldepth()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::Node_Dependencies_fulldepth </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td>
+          <td class="paramname"><em>node_ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">base_Node_Set &amp;&#160;</td>
+          <td class="paramname"><em>fulldepth_dependencies</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Collect all unique Nodes in the dependencies tree of a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">node_ptr</td><td>A valid pointer to <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a>. </td></tr>
+    <tr><td class="paramname">fulldepth_dependencies</td><td>A base_Node_Set container for the resulting set of dependencies. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if successful.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">node_ptr</td><td>A valid pointer to <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a>. </td></tr>
+    <tr><td class="paramname">fulldepth_dependencies</td><td>A Node_Set container for the resulting set of dependencies. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if successful. </dd></dl>
 
 </div>
 </div>
@@ -6897,7 +7388,7 @@ template&lt;typename Out &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">void(*)(unsigned long, unsigned long)&#160;</td>
-          <td class="paramname"><em>progress_func</em>&#160;</td>
+          <td class="paramname"><em>progress_func</em> = <code>NULL</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -7313,6 +7804,49 @@ template&lt;typename Out &gt; </div>
 
 <p>Obtain the PID of this program. </p>
 <p>To use, #include &lt;sys/types.h&gt;, #include &lt;unistd.h&gt;. </p>
+
+</div>
+</div>
+<a id="a92ddfa7d332e3e44f98382ef179c428d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a92ddfa7d332e3e44f98382ef179c428d">&#9670;&nbsp;</a></span>Threads_Subtrees()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">map_of_subtrees_t fz::Threads_Subtrees </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;&#160;</td>
+          <td class="paramname"><em>graph</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>nnl_str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>sort_by_targetdate</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Collect the subtrees that are the full dependencies of all Nodes in a Named Nodes List. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">nnl_str</td><td>Named Nodes List. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A map in which the keys are the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> IDs of Nodes in the NNL and the values are each a set of unique Nodes that are the dependencies. </dd></dl>
 
 </div>
 </div>
@@ -7883,6 +8417,33 @@ template&lt;typename Out &gt; </div>
 
 </div>
 </div>
+<a id="a0ccd23a3b259b377888ca0d649ec972a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0ccd23a3b259b377888ca0d649ec972a">&#9670;&nbsp;</a></span>uri_encode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string fz::uri_encode </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>s</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Convert a string into a URI-safe string. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>Unencoded string. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Encoded string. </dd></dl>
+
+</div>
+</div>
 <a id="a6b5a614340e67aa9ff729f387ca8e987"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6b5a614340e67aa9ff729f387ca8e987">&#9670;&nbsp;</a></span>utf8_safe()</h2>
 
@@ -8345,7 +8906,34 @@ template&lt;typename Out &gt; </div>
 <div class="line">    {<span class="stringliteral">&quot;tdpattern&quot;</span>, Edit_flags::tdpattern},</div>
 <div class="line">    {<span class="stringliteral">&quot;tdevery&quot;</span>, Edit_flags::tdevery},</div>
 <div class="line">    {<span class="stringliteral">&quot;tdspan&quot;</span>, Edit_flags::tdspan},</div>
-<div class="line">    {<span class="stringliteral">&quot;topicrels&quot;</span>, Edit_flags::topicrels}</div>
+<div class="line">    {<span class="stringliteral">&quot;topicrels&quot;</span>, Edit_flags::topicrels},</div>
+<div class="line">    {<span class="stringliteral">&quot;superiors&quot;</span>, Edit_flags::supdep},</div>
+<div class="line">    {<span class="stringliteral">&quot;dependencies&quot;</span>, Edit_flags::supdep}</div>
+<div class="line">}</div>
+</div><!-- fragment -->
+</div>
+</div>
+<a id="aae1f933c98077a8f99e1d371b33ac65b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aae1f933c98077a8f99e1d371b33ac65b">&#9670;&nbsp;</a></span>Graph_modification_request_str</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::map&lt;Graph_modification_request, std::string&gt; fz::Graph_modification_request_str</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    {graphmod_add_node, <span class="stringliteral">&quot;add_node&quot;</span>},</div>
+<div class="line">    {graphmod_add_edge, <span class="stringliteral">&quot;add_edge&quot;</span>},</div>
+<div class="line">    {namedlist_add, <span class="stringliteral">&quot;add_to_NNL&quot;</span>},</div>
+<div class="line">    {namedlist_remove, <span class="stringliteral">&quot;remove_from_NNL&quot;</span>},</div>
+<div class="line">    {namedlist_delete, <span class="stringliteral">&quot;delete_NNL&quot;</span>},</div>
+<div class="line">    {graphmod_edit_node, <span class="stringliteral">&quot;edit_node&quot;</span>},</div>
+<div class="line">    {graphmod_edit_edge, <span class="stringliteral">&quot;edit_edge&quot;</span>},</div>
+<div class="line">    {batchmod_targetdates, <span class="stringliteral">&quot;batch_targetdates&quot;</span>},</div>
+<div class="line">    {batchmod_tpassrepeating, <span class="stringliteral">&quot;batch_tpassrepeating&quot;</span>}</div>
 <div class="line">}</div>
 </div><!-- fragment -->
 </div>
@@ -8473,14 +9061,14 @@ template&lt;typename Out &gt; </div>
 </div><!-- fragment -->
 </div>
 </div>
-<a id="a593c105236196b2da156f585c6d7ae30"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a593c105236196b2da156f585c6d7ae30">&#9670;&nbsp;</a></span>pq_edge_fieldnames</h2>
+<a id="a58eb1389cf1205452a7dfd69e988dcb6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a58eb1389cf1205452a7dfd69e988dcb6">&#9670;&nbsp;</a></span>pq_edge_fieldnames</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const std::string fz::pq_edge_fieldnames[_pqe_NUM]</td>
+          <td class="memname">const std::string fz::pq_edge_fieldnames</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -8527,14 +9115,14 @@ template&lt;typename Out &gt; </div>
 </div><!-- fragment -->
 </div>
 </div>
-<a id="ac99b967f1e4c929092428be6c828fc79"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac99b967f1e4c929092428be6c828fc79">&#9670;&nbsp;</a></span>pq_NNL_fieldnames</h2>
+<a id="ad0a3b61cbcee151ad5409ad5e01466cd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad0a3b61cbcee151ad5409ad5e01466cd">&#9670;&nbsp;</a></span>pq_NNL_fieldnames</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const std::string fz::pq_NNL_fieldnames[_pqNNL_NUM]</td>
+          <td class="memname">const std::string fz::pq_NNL_fieldnames</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -8545,14 +9133,14 @@ template&lt;typename Out &gt; </div>
 </div><!-- fragment -->
 </div>
 </div>
-<a id="a4e2e72b75f6a44514c6175b6dd58988c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4e2e72b75f6a44514c6175b6dd58988c">&#9670;&nbsp;</a></span>pq_node_fieldnames</h2>
+<a id="ae700e2bafc4331d3347a1962a14d7b65"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae700e2bafc4331d3347a1962a14d7b65">&#9670;&nbsp;</a></span>pq_node_fieldnames</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const std::string fz::pq_node_fieldnames[_pqn_NUM]</td>
+          <td class="memname">const std::string fz::pq_node_fieldnames</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -8572,14 +9160,14 @@ template&lt;typename Out &gt; </div>
 </div><!-- fragment -->
 </div>
 </div>
-<a id="a0e9f249ab6da4a5330fbf47805b36b49"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0e9f249ab6da4a5330fbf47805b36b49">&#9670;&nbsp;</a></span>pq_topic_fieldnames</h2>
+<a id="a6fc52933ef4168620f90311de4df2a78"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6fc52933ef4168620f90311de4df2a78">&#9670;&nbsp;</a></span>pq_topic_fieldnames</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const std::string fz::pq_topic_fieldnames[_pqt_NUM]</td>
+          <td class="memname">const std::string fz::pq_topic_fieldnames</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -8765,14 +9353,14 @@ template&lt;typename Out &gt; </div>
 </div><!-- fragment -->
 </div>
 </div>
-<a id="ab47d47929bea0b332de69408d4880092"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab47d47929bea0b332de69408d4880092">&#9670;&nbsp;</a></span>tdpatt_by_pqtdpatt</h2>
+<a id="ad7c65c6c42a33bdb3871ee3ce28ca0db"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7c65c6c42a33bdb3871ee3ce28ca0db">&#9670;&nbsp;</a></span>tdpatt_by_pqtdpatt</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const std::map&lt;std::string, td_pattern&gt; fz::tdpatt_by_pqtdpatt</td>
+          <td class="memname">const std::map&lt; std::string, td_pattern &gt; fz::tdpatt_by_pqtdpatt</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -8788,14 +9376,14 @@ template&lt;typename Out &gt; </div>
 </div><!-- fragment -->
 </div>
 </div>
-<a id="acd3867ed7aa9968c6dc3743c08621727"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acd3867ed7aa9968c6dc3743c08621727">&#9670;&nbsp;</a></span>tdprop_by_pqtdprop</h2>
+<a id="a721c8cc078a6b39b2603c86680c0b573"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a721c8cc078a6b39b2603c86680c0b573">&#9670;&nbsp;</a></span>tdprop_by_pqtdprop</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const std::map&lt;std::string, <a class="el" href="namespacefz.html#a6c45e5e183774ed3322e5c3d445b3f70">td_property</a>&gt; fz::tdprop_by_pqtdprop</td>
+          <td class="memname">const std::map&lt; std::string, <a class="el" href="namespacefz.html#a6c45e5e183774ed3322e5c3d445b3f70">td_property</a> &gt; fz::tdprop_by_pqtdprop</td>
         </tr>
       </table>
 </div><div class="memdoc">

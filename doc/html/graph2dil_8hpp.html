@@ -92,42 +92,7 @@ $(function() {
 Include dependency graph for graph2dil.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="graph2dil_8hpp__incl.png" border="0" usemap="#atools_2conversion_2graph2dil_2graph2dil_8hpp" alt=""/></div>
-<map name="atools_2conversion_2graph2dil_2graph2dil_8hpp" id="atools_2conversion_2graph2dil_2graph2dil_8hpp">
-<area shape="rect" title="This header file is used for declarations specific to the graph2dil tool." alt="" coords="1181,5,1376,47"/>
-<area shape="rect" href="tools_2conversion_2graph2dil_2version_8hpp_source.html" title=" " alt="" coords="2548,95,2647,121"/>
-<area shape="rect" title=" " alt="" coords="5,483,83,509"/>
-<area shape="rect" title=" " alt="" coords="2185,259,2236,285"/>
-<area shape="rect" title=" " alt="" coords="1639,333,1702,360"/>
-<area shape="rect" href="config_8hpp_source.html" title=" " alt="" coords="295,333,385,360"/>
-<area shape="rect" href="standard_8hpp.html" title="This header file declares standard structures and functions that should be used with any standardized..." alt="" coords="284,408,391,435"/>
-<area shape="rect" href="Graphtypes_8hpp_source.html" title=" " alt="" coords="1216,95,1341,121"/>
-<area shape="rect" title=" " alt="" coords="671,557,729,584"/>
-<area shape="rect" href="coreversion_8hpp_source.html" title=" " alt="" coords="687,483,814,509"/>
-<area shape="rect" title=" " alt="" coords="297,483,377,509"/>
-<area shape="rect" title=" " alt="" coords="402,483,473,509"/>
-<area shape="rect" title=" " alt="" coords="107,483,173,509"/>
-<area shape="rect" title=" " alt="" coords="197,483,273,509"/>
-<area shape="rect" title=" " alt="" coords="549,483,611,509"/>
-<area shape="rect" title=" " alt="" coords="2312,408,2371,435"/>
-<area shape="rect" title=" " alt="" coords="409,177,476,203"/>
-<area shape="rect" title=" " alt="" coords="500,177,543,203"/>
-<area shape="rect" title=" " alt="" coords="617,177,703,203"/>
-<area shape="rect" title=" " alt="" coords="727,169,905,211"/>
-<area shape="rect" title=" " alt="" coords="929,169,1084,211"/>
-<area shape="rect" title=" " alt="" coords="1108,169,1271,211"/>
-<area shape="rect" title=" " alt="" coords="1295,169,1441,211"/>
-<area shape="rect" title=" " alt="" coords="1466,169,1633,211"/>
-<area shape="rect" title=" " alt="" coords="1709,169,1875,211"/>
-<area shape="rect" title=" " alt="" coords="1900,169,2127,211"/>
-<area shape="rect" href="error_8hpp.html" title="This header file declares error handling classes and functions for use with core Formalizer C++ code." alt="" coords="564,259,644,285"/>
-<area shape="rect" href="general_8hpp_source.html" title=" " alt="" coords="712,259,811,285"/>
-<area shape="rect" href="TimeStamp_8hpp.html" title="This header file declares Formalizer TimeStamp format and operations." alt="" coords="2311,259,2436,285"/>
-<area shape="rect" href="Graphbase_8hpp.html" title="This header file declares Shared Memory Graph, Node and Edge types for use with the Formalizer." alt="" coords="2151,177,2271,203"/>
-<area shape="rect" title=" " alt="" coords="687,333,761,360"/>
-<area shape="rect" title=" " alt="" coords="2379,333,2434,360"/>
-<area shape="rect" href="ReferenceTime_8hpp_source.html" title=" " alt="" coords="2076,333,2225,360"/>
-<area shape="rect" title=" " alt="" coords="2121,408,2180,435"/>
-</map>
+<!-- MAP 0 -->
 </div>
 </div>
 <p><a href="graph2dil_8hpp_source.html">Go to the source code of this file.</a></p>
@@ -275,18 +240,27 @@ Enumerations</h2></td></tr>
 , <b>flow_NUMoptions</b>
 , <b>flow_unknown</b> = 0
 , <br />
-&#160;&#160;<b>flow_node</b> = 1
+&#160;&#160;<b>flow_SIF</b> = 1
+, <b>flow_GraphML</b> = 2
+, <b>flow_webapp</b> = 3
+, <b>flow_webview</b> = 4
+, <br />
+&#160;&#160;<b>flow_NUMoptions</b>
+, <b>flow_unknown</b> = 0
+, <b>flow_node</b> = 1
 , <b>flow_named_list</b> = 4
-, <b>flow_topics</b> = 5
+, <br />
+&#160;&#160;<b>flow_topics</b> = 5
 , <b>flow_topic_nodes</b> = 6
-, <br />
-&#160;&#160;<b>flow_random_test</b> = 8
+, <b>flow_random_test</b> = 8
 , <b>flow_listof_NNL</b> = 9
-, <b>flow_listof_topics</b> = 10
-, <b>flow_listof_mixed</b> = 11
 , <br />
-&#160;&#160;<b>flow_sysmet_categories</b> = 12
-, <b>flow_NUMoptions</b>
+&#160;&#160;<b>flow_listof_topics</b> = 10
+, <b>flow_listof_mixed</b> = 11
+, <b>flow_sysmet_categories</b> = 12
+, <b>flow_NNL_dependencies</b> = 13
+, <br />
+&#160;&#160;<b>flow_NUMoptions</b>
 <br />
  }</td></tr>
 <tr class="separator:ae2f423a6ec032d0cde29d8e3dd70efa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -396,7 +370,10 @@ Enumerations</h2></td></tr>
 , <b>kanban_board_temp</b>
 , <b>kanban_column_temp</b>
 , <br />
-&#160;&#160;<b>NUM_temp</b>
+&#160;&#160;<b>kanban_alt_column_temp</b>
+, <b>kanban_alt_board_temp</b>
+, <b>node_alt_card_temp</b>
+, <b>NUM_temp</b>
 <br />
  }</td></tr>
 <tr class="separator:a2ebe7e34081280713d55d9a83e0a4556"><td class="memSeparator" colspan="2">&#160;</td></tr>

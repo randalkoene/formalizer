@@ -1,0 +1,8 @@
+digraph "Graphical Class Hierarchy"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node0 [label="fz::Set_builder_data",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structfz_1_1Set__builder__data.html",tooltip="Data structure that specifies Node grouping categories."];
+}

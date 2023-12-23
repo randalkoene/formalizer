@@ -1,0 +1,48 @@
+digraph "fz::formalizer_standard_program"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="fz::formalizer_standard\l_program",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="This class provides a framework for standardized Formalizer programs."];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="boilerplate",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structboilerplate.html",tooltip=" "];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="dil2graph",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classdil2graph.html",tooltip=" "];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="fzdashboard",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structfzdashboard.html",tooltip=" "];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="fzedit",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structfzedit.html",tooltip=" "];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="fzgraphedit",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfzgraphedit.html",tooltip=" "];
+  Node1 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="fzgraphhtml",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structfzgraphhtml.html",tooltip=" "];
+  Node1 -> Node8 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="fzgraphsearch",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structfzgraphsearch.html",tooltip=" "];
+  Node1 -> Node9 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="fzguide_system",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structfzguide__system.html",tooltip=" "];
+  Node1 -> Node10 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="fzlog",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structfzlog.html",tooltip=" "];
+  Node1 -> Node11 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="fzloghtml",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structfzloghtml.html",tooltip=" "];
+  Node1 -> Node12 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node12 [label="fzlogmap",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structfzlogmap.html",tooltip=" "];
+  Node1 -> Node13 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node13 [label="fzlogtime",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structfzlogtime.html",tooltip=" "];
+  Node1 -> Node14 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node14 [label="fzquerypq",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structfzquerypq.html",tooltip=" "];
+  Node1 -> Node15 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node15 [label="fzserver_info",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structfzserver__info.html",tooltip=" "];
+  Node1 -> Node16 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node16 [label="fzserverpq",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structfzserverpq.html",tooltip=" "];
+  Node1 -> Node17 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node17 [label="fzserverpqlog",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structfzserverpqlog.html",tooltip=" "];
+  Node1 -> Node18 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node18 [label="fzupdate",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structfzupdate.html",tooltip=" "];
+  Node1 -> Node19 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node19 [label="fzvismilestones",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structfzvismilestones.html",tooltip=" "];
+  Node1 -> Node20 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node20 [label="graph2dil",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structgraph2dil.html",tooltip=" "];
+  Node1 -> Node21 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node21 [label="nodeboard",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structnodeboard.html",tooltip=" "];
+}

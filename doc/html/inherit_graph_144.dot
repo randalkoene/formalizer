@@ -1,0 +1,8 @@
+digraph "Graphical Class Hierarchy"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node0 [label="render_Breakpoint",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structrender__Breakpoint.html",tooltip="Add a Breakpoint's data and that of its first Log chunk to a cumulative render string."];
+}

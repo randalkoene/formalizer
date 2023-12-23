@@ -70,7 +70,34 @@ $(function() {
 <div class="contents">
 <div class="textblock"><p>For example, you may want to check the memory-resident existence and state of Graph data.</p>
 <p>This tool can provide such information on the command line. It can also work with a small Python CGI script to deliver the information in a browser-visual form.</p>
-<p>Randal A. Koene, 2020 </p>
+<h1>Server IP address</h1>
+<p>You can obtain the server IP address from the server status information in a number of different formats. For example:</p>
+<p><code>fzserver-info -G -F json</code></p>
+<p>The call above returns a JSON dictionary, in which the element "listen_location" specifies the IP address and port of the running fzserverpq instance.</p>
+<p>Note that there is now also a direct TCP call to a running fzserverpq instance that can obtain the IP address and port. This is useful for core and tool applications that need that to craft URLs.</p>
+<p>Those programs can use at least two ways to obtain the IP:Port string:</p>
+<div class="fragment"><div class="line">std::string get_server_address() {</div>
+<div class="line">    VERBOSEOUT(&quot;Sending API request to Server port.\n&quot;);</div>
+<div class="line">    std::string response_str;</div>
+<div class="line">    if (!http_GET(graph().get_server_IPaddr(), graph().get_server_port(), &quot;/fz/ipport&quot;, response_str)) {</div>
+<div class="line">        return standard_exit_error(exit_communication_error, &quot;API request to Server port failed &quot;, __func__);</div>
+<div class="line">    }</div>
+<div class="line"> </div>
+<div class="line">    auto response_vec = split(response_str,&#39;\n&#39;);</div>
+<div class="line">    for (const auto &amp; line_str : response_vec) {</div>
+<div class="line">        if (line_str.substr(0,15) == &quot;Server address:&quot;) {</div>
+<div class="line">            std::string ipport = line_str.substr(16);</div>
+<div class="line">            VERYVERBOSEOUT(&quot;Server address:\n\n&quot;+ipport);</div>
+<div class="line">            return ipport;</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line">    VERBOSEOUT(&quot;No server address in response received.&quot;)</div>
+<div class="line">    return &quot;&quot;</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>Or, via the library call <code>Graph::get_server_full_address()</code>.</p>
+<p>See, for example, how this is done in fzdashboard.</p>
+<hr  />
+<p> Randal A. Koene, 2020, 2023 </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 <!-- start footer part -->
