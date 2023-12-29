@@ -46,8 +46,8 @@ fzloghtml fzlh;
  */
 fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
                          iscale(interval_none), interval(0), noframe(false), recent_format(most_recent_html) {
-    add_option_args += "n:1:2:a:o:D:H:w:Nc:rRF:T:";
-    add_usage_top += " [-n <node-ID>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
+    add_option_args += "n:1:2:a:o:D:H:w:Nc:rRf:ACF:T:";
+    add_usage_top += " [-n <node-ID>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-A] [-C] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
     usage_tail.push_back(
         "The <time-stamp1>, <time-stamp_2> and <time-stamp> arguments expect standardized\n"
@@ -83,11 +83,22 @@ void fzloghtml::usage_hook() {
           "    -c interval size of <num> Log chunks\n"
           "    -r interval from most recent\n"
           "    -R most recent Log data\n"
+          "    -f Filter by search text\n"
+          "    -A All search terms must be in a Log chunk\n"
+          "    -C Case insensitive search\n"
           "    -F format of most recent Log data:\n"
           "       raw, txt, html (default)\n"
           "    -T use custom template from file or string (if 'STR:')\n"
           "    -o write HTML Log interval to <outputfile> (default=STDOUT)\n"
           "    -N no HTML page frame\n");
+}
+
+std::vector<std::string> parse_search_strings(const std::string & search_strings_arg) {
+    std::vector<std::string> search_strings_vec = split(search_strings_arg, ' ');
+    for (unsigned int i = 0; i < search_strings_vec.size(); i++) {
+        search_strings_vec[i] = trim(search_strings_vec[i]);
+    }
+    return search_strings_vec;
 }
 
 /**
@@ -184,6 +195,21 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
 
     case 'R': {
         flowcontrol = flow_most_recent;
+        return true;
+    }
+
+    case 'f': {
+        search_strings = parse_search_strings(cargs);
+        return true;
+    }
+
+    case 'A': {
+        mustcontainall = true;
+        return true;
+    }
+
+    case 'C': {
+        caseinsensitive = true;
         return true;
     }
 

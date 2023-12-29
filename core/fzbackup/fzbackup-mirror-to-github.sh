@@ -6,6 +6,14 @@
 #
 # Note: At present, this script may only work when run as user randalk.
 
+now_timestamp=`date +%Y%m%d%H%M%S`
+echo "$now_timestamp" > /dev/shm/fzbackup-mirror-to-github.launched
+
+signalfile=""
+if [ "$1" = "-S" ]; then
+	signalfile="$2"
+fi
+
 echo "==================================================="
 echo "Pushing database backups and DayWiz JSON to GitHub."
 echo "==================================================="
@@ -13,6 +21,13 @@ echo ""
 echo "Note: Your username for this Github account is 'koenera'."
 echo "      Your password is: S17...@4..."
 echo ""
+
+# echo "JUST TESTING!"
+# if [ "$signalfile" != "" ]; then
+# 	now_timestamp=`date +%Y%m%d%H%M%S`
+# 	printf $now_timestamp > $signalfile
+# fi
+# exit 0
 
 todaydate=`date +%F`
 Ymddate=`date +%Y%m%d`
@@ -38,3 +53,25 @@ echo "Formalizer database backups mirrored to GitHub."
 echo ""
 echo "Please remember to prune excess backups from time to time."
 echo ""
+
+num_daywiz=$(ls $HOME/.formalizer/archive/daywiz_data-* | wc -l)
+num_db=$(ls $HOME/.formalizer/archive/postgres | wc -l)
+
+echo "There are $num_daywiz DayWiz JSON data backup files."
+echo "There are $num_db Formalizer database backup files."
+echo ""
+
+echo "List of Database backup files:"
+echo "-----------------------------"
+ls $HOME/.formalizer/archive/postgres
+
+echo ""
+echo "List of DayWiz JSON data backup files:"
+echo "-------------------------------------"
+cd $HOME/.formalizer/archive
+ls daywiz_data-*
+
+if [ "$signalfile" != "" ]; then
+	now_timestamp=`date +%Y%m%d%H%M%S`
+	printf $now_timestamp > $signalfile
+fi

@@ -13,7 +13,7 @@ from error import *
 
 
 # default local Formalizer server IP address and port
-serverIPport = ''
+serverIPport = None
 
 
 def get_server_address(fzuserbase: str):
@@ -29,7 +29,10 @@ def get_server_address(fzuserbase: str):
     return serverIPport
 
 
-def client_socket_request(request_str: str):
+def client_socket_request(request_str: str, running_on_server=False):
+    global serverIPport
+    if running_on_server:
+        serverIPport = "127.0.0.1:8090"
     if not serverIPport:
         exit_error(1, 'Unspecified server address and port. Call get_server_address() first.')
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -42,14 +45,14 @@ def client_socket_request(request_str: str):
 
 
 # Takes a request string without the preceding 'FZ ' code.
-def serial_API_request(request_str: str):
-    res = client_socket_request(f'FZ {request_str}')
+def serial_API_request(request_str: str, running_on_server=False, error_exit_pause=True):
+    res = client_socket_request(f'FZ {request_str}', running_on_server=running_on_server)
     d = res.split()
     d_len = len(d)
     if ((d_len < 2) or (d[0] != 'FZ')):
-        exit_error(1, 'Server did not respond to FZ request as expected.')
+        exit_error(1, 'Server did not respond to FZ request as expected.', exit_pause=error_exit_pause)
     if (d[1] != '200'):
-        exit_error(1, f'Server returned FZ error response {d[1]}.')
+        exit_error(1, f'Server returned FZ error response {d[1]}.', exit_pause=error_exit_pause)
     if (d_len < 3):
         return ''
     if (d_len < 4):

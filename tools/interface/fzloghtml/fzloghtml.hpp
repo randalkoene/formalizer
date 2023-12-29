@@ -70,6 +70,10 @@ struct fzloghtml: public formalizer_standard_program {
     unsigned int interval;
     bool noframe;
 
+    std::vector<std::string> search_strings;
+    bool mustcontainall = false;
+    bool caseinsensitive = false;
+
     std::string custom_template;
 
     entry_data edata;

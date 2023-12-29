@@ -4,6 +4,8 @@
 #
 # This CGI handler provides a near-verbatim equivalent access to fzloghtml via web form.
 
+print("Content-type:text/html\n\n")
+
 # Import modules for CGI handling 
 try:
     import cgitb; cgitb.enable()
@@ -12,10 +14,14 @@ except:
 import sys, cgi, os
 sys.stderr = sys.stdout
 from time import strftime
+from datetime import datetime
 import traceback
 from io import StringIO
 from traceback import print_exc
 from subprocess import Popen, PIPE
+
+from fzmodbase import *
+from TimeStamp import add_days_to_TimeStamp, add_weeks_to_TimeStamp
 
 # cgitb.enable()
 # cgitb.disable()
@@ -35,11 +41,19 @@ numchunks = form.getvalue('numchunks')
 node = form.getvalue('node')
 frommostrecent = form.getvalue('frommostrecent')
 mostrecentdata = form.getvalue('mostrecentdata')
+searchtext = form.getvalue('searchtext')
+andall = form.getvalue('andall')
+caseinsensitive = form.getvalue('caseinsensitive')
+
+try:
+    if searchtext:
+        with open('/var/www/webdata/formalizer/searchtext.test','w') as f:
+            f.write(searchtext)
+except:
+    pass
 
 #<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-log_interval_head = '''Content-type:text/html
-
-<html>
+log_interval_head = '''<html>
 <head>
 <meta charset="utf-8" />
 <link rel="stylesheet" href="/fz.css">
@@ -79,6 +93,9 @@ Select another part of the Log:
 <input type="text" name="numchunks"> number of Log chunks (interval takes precedence)<br />
 <input type="checkbox" name="frommostrecent"> from most recent (interval takes precedence)<br />
 <input type="text" name="node"> belongs to node, node history<br />
+<input type="text" name="searchtext"> must contain search text
+<input type="checkbox" name="caseinsensitive"> case insensitive
+<input type="checkbox" name="andall"> must contain each<br />
 or<br />
 <input type="checkbox" name="mostrecentdata"> show most recent Log data summary<br />
 
@@ -97,7 +114,6 @@ or<br />
 
 
 def render_most_recent():
-    print("Content-type:text/html\n\n")
     thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -R"
     try:
         p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
@@ -117,12 +133,84 @@ def render_most_recent():
             print(line)
 
 
-def render_log_interval():
-    print(log_interval_head)
-    thisscript = os.path.realpath(__file__)
-    print(f'<!-- (For dev reference, this script is at {thisscript}.) -->')
-    print('<h1>Formalizer: HTML FORM interface to fzloghtml</h1>\n<p></p>\n<table><tbody>')
+def get_uri_arg_separator(arg_i:int)->str:
+    if arg_i==0:
+        return '?'
+    else:
+        return '&'
 
+def is_before_now(endbefore:str)->bool:
+    d_now = datetime.now()
+    if len(endbefore)==8:
+        endbefore += "0000"
+    d_endbefore = datetime.strptime(endbefore, '%Y%m%d%H%M')
+    return d_endbefore < d_now
+
+def uri_safe(arg:str)->str:
+    safe_arg=''
+    for i in range(len(arg)):
+        if arg[i]==' ':
+            safe_arg += '%20'
+        else:
+            safe_arg += arg[i]
+    return safe_arg
+
+def build_uri_options(diff_numchunks=0, diff_startfrom=0, diff_weeks_startfrom=0, diff_endbefore=0, diff_weeks_endbefore=0)->str:
+    urioptions = ""
+
+    arg_i=0
+    if around:
+        urioptions += get_uri_arg_separator(arg_i)+'around='+around
+        arg_i += 1
+    if startfrom:
+        new_startfrom=startfrom
+        if diff_startfrom!=0:
+            new_startfrom = add_days_to_TimeStamp(tstamp=startfrom, numdays=diff_startfrom)
+        if diff_weeks_startfrom!=0:
+            new_startfrom = add_weeks_to_TimeStamp(tstamp=startfrom, numweeks=diff_weeks_startfrom)
+        urioptions += get_uri_arg_separator(arg_i)+'startfrom='+new_startfrom
+        arg_i += 1
+    if endbefore:
+        new_endbefore=endbefore
+        if diff_endbefore!=0:
+            new_endbefore = add_days_to_TimeStamp(tstamp=endbefore, numdays=diff_endbefore)
+        if diff_weeks_endbefore!=0:
+            new_endbefore = add_weeks_to_TimeStamp(tstamp=endbefore, numweeks=diff_weeks_endbefore)
+        urioptions += get_uri_arg_separator(arg_i)+'endbefore='+new_endbefore
+        arg_i += 1
+    if daysinterval:
+        urioptions += get_uri_arg_separator(arg_i)+'daysinterval='+daysinterval
+        arg_i += 1
+    if weeksinterval:
+        urioptions += get_uri_arg_separator(arg_i)+'weeksinterval='+weeksinterval
+        arg_i += 1
+    if hoursinterval:
+        urioptions += get_uri_arg_separator(arg_i)+'hoursinterval='+hoursinterval
+        arg_i += 1
+    if numchunks:
+        new_numchunks=int(numchunks)
+        if diff_numchunks!=0:
+            new_numchunks += diff_numchunks
+        urioptions += get_uri_arg_separator(arg_i)+'numchunks='+str(new_numchunks)
+        arg_i += 1
+    if frommostrecent:
+        urioptions += get_uri_arg_separator(arg_i)+'frommostrecent=on'
+        arg_i += 1
+    if node:
+        urioptions += get_uri_arg_separator(arg_i)+'node='+node
+        arg_i += 1
+    if searchtext:
+        urioptions += get_uri_arg_separator(arg_i)+'searchtext='+uri_safe(searchtext)
+    if andall:
+        urioptions += get_uri_arg_separator(arg_i)+'andall=on'
+        arg_i += 1
+    if caseinsensitive:
+        urioptions += get_uri_arg_separator(arg_i)+'caseinsensitive=on'
+        arg_i += 1
+
+    return urioptions
+
+def build_command_options()->str:
     cmdoptions = ""
 
     if around:
@@ -143,6 +231,32 @@ def render_log_interval():
         cmdoptions += ' -r '
     if node:
         cmdoptions += ' -n '+node
+    if searchtext:
+        cmdoptions += ' -f "'+searchtext+'"'
+    if andall:
+        cmdoptions += ' -A '
+    if caseinsensitive:
+        cmdoptions += ' -C '
+
+    return cmdoptions
+
+def render_log_interval():
+    print(log_interval_head)
+    thisscript = os.path.realpath(__file__)
+    print(f'<!-- (For dev reference, this script is at {thisscript}.) -->')
+    print('<h1>Formalizer: HTML FORM interface to fzloghtml</h1>\n<p></p>\n<table><tbody>')
+    if numchunks:
+        earlier_uri = build_uri_options(diff_numchunks=50)
+        print(f"<button class=\"button button1\" onclick=\"window.open('/cgi-bin/fzloghtml-cgi.py{earlier_uri}','_self');\">Earlier (50 Chunks)</button>")
+        evenearlier_uri = build_uri_options(diff_numchunks=250)
+        print(f"<button class=\"button button2\" onclick=\"window.open('/cgi-bin/fzloghtml-cgi.py{evenearlier_uri}','_self');\">Earlier (250 Chunks)</button>")
+    if startfrom:
+        earlier_uri = build_uri_options(diff_startfrom=-10)
+        print(f"<button class=\"button button1\" onclick=\"window.open('/cgi-bin/fzloghtml-cgi.py{earlier_uri}','_self');\">Earlier (10 days)</button>")
+        evenearlier_uri = build_uri_options(diff_weeks_startfrom=-5)
+        print(f"<button class=\"button button2\" onclick=\"window.open('/cgi-bin/fzloghtml-cgi.py{evenearlier_uri}','_self');\">Earlier (5 weeks)</button>")
+
+    cmdoptions = build_command_options()
 
     if cmdoptions:
         thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -N "+cmdoptions
@@ -168,6 +282,14 @@ def render_log_interval():
         print('<tr><td><b>Missing request arguments.</b></td></tr>')
 
     print('</tbody></table>')
+
+    if endbefore:
+        if is_before_now(endbefore):
+            later_uri = build_uri_options(diff_endbefore=10)
+            print(f"<button class=\"button button1\" onclick=\"window.open('/cgi-bin/fzloghtml-cgi.py{later_uri}','_self');\">Later (10 days)</button>")
+            evenlater_uri = build_uri_options(diff_weeks_endbefore=5)
+            print(f"<button class=\"button button2\" onclick=\"window.open('/cgi-bin/fzloghtml-cgi.py{evenlater_uri}','_self');\">Later (5 weeks)</button>")
+
     print('<a name="END">&nbsp;</a>')
     print(cgi_custom_tail)
     print("</body>\n</html>")

@@ -34,6 +34,8 @@ intentionscategoriesfile = "/var/www/webdata/formalizer/categories_a2c.json"
 workcategoriesfile = "/var/www/webdata/formalizer/categories_work.json"
 main2023categoriesfile = "/var/www/webdata/formalizer/categories_main2023.json"
 
+logfile = webdata_path + '/nodeboard-cgi.log'
+
 # HTML_HEAD='''<?xml version="1.0" encoding="UTF-8" ?>
 # <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 # <html xmlns="http://www.w3.org/1999/xhtml">
@@ -65,7 +67,7 @@ show_completed = form.getvalue('I')
 subtree_list = form.getvalue('D')
 threads = form.getvalue('T')
 
-if filter_string != '':
+if filter_string:
     include_filter_string = ' -F %s' % filter_string
 else:
     include_filter_string = ''
@@ -82,7 +84,15 @@ else:
 #with open('./server_address','r') as f:
 #    fzserverpq_addrport = f.read()
 
+def log(logstr):
+    with open(logfile, 'w') as f:
+        f.write(logstr)
+
 def try_command_call(thecmd, print_result=True)->str:
+    try:
+        log(thecmd)
+    except:
+        pass
     try:
         #print(thecmd, flush=True)
         p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,stderr=PIPE,close_fds=True, universal_newlines=True)

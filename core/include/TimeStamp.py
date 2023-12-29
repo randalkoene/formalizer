@@ -9,7 +9,7 @@ Versioning is based on https://semver.org/. See coreversion.hpp for more.
 """
 
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def ActualTime():
@@ -17,7 +17,7 @@ def ActualTime():
 
 
 def TimeStamp(t):
-    return t.strftime("%Y%m%d%H%M%S")
+    return time.strftime("%Y%m%d%H%M%S", t)
 
 
 def NowTimeStamp():
@@ -60,3 +60,18 @@ def is_Future(s):
     else:
         return False
 
+def add_days_to_TimeStamp(tstamp:str, numdays:int)->str:
+    if len(tstamp)==12:
+        d = datetime.strptime(tstamp, '%Y%m%d%H%M')
+    else:
+        d = datetime.strptime(tstamp[0:8], '%Y%m%d')
+    delta = timedelta(days=numdays)
+    return (d + delta).strftime("%Y%m%d%H%M")
+
+def add_weeks_to_TimeStamp(tstamp:str, numweeks:int)->str:
+    if len(tstamp)==12:
+        d = datetime.strptime(tstamp, '%Y%m%d%H%M')
+    else:
+        d = datetime.strptime(tstamp[0:8], '%Y%m%d')
+    delta = timedelta(weeks=numweeks)
+    return (d + delta).strftime("%Y%m%d%H%M")

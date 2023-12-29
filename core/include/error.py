@@ -40,7 +40,7 @@ def pause_key(action_str, pausehere = True):
     return pausekey
 
 
-def exit_error(retcode, errormessage, ask_exit = False, unlockfile: str = ''):
+def exit_error(retcode, errormessage, ask_exit = False, unlockfile: str = '', exit_pause = True):
     if (retcode != 0):
         print(f'\n{ANSI_alert}'+errormessage+f'{ANSI_nrm}\n')
         if ask_exit:
@@ -57,5 +57,6 @@ def exit_error(retcode, errormessage, ask_exit = False, unlockfile: str = ''):
             if unlockfile:
                 miniconfig = { 'verbose' : True }
                 unlock_it(unlockfile, miniconfig)
-            exitenter = pause_key('exit')
+            if exit_pause:
+                exitenter = pause_key('exit')
             sys.exit(retcode)

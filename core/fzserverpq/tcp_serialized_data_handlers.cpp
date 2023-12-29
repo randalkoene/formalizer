@@ -15,7 +15,7 @@
 #include "error.hpp"
 #include "standard.hpp"
 //#include "general.hpp"
-//#include "stringio.hpp"
+#include "stringio.hpp"
 #include "Graphtypes.hpp"
 #include "Graphinfo.hpp"
 #include "Graphpostgres.hpp"
@@ -538,11 +538,74 @@ bool NNL_edit_nodes(int socket, const std::string & argstr) {
     return handle_serialized_data_request_response(socket, std::to_string(num_edited), "Serializing number of Nodes in NNL edited.");
 }
 
+std::string build_CGI_argument_string(const std::string & uriargs) {
+    std::string argumentstring;
+    auto argsvec = split(uriargs, '&');
+    for (const auto & argpairstr : argsvec) {
+        auto argpairvec = split(argpairstr, '=');
+        if (argpairvec.size()>=2) {
+            if (!argpairvec[1].empty()) {
+                argumentstring += " -"+argpairvec[0]+' '+argpairvec[1];
+                continue;
+            }
+        }
+        if (!argpairvec[0].empty()) {
+            argumentstring += " -"+argpairvec[0];
+        }
+    }
+    return argumentstring;
+}
+
+/**
+ * Run one of the CGI programs from a predefined list of permitted
+ * programs with arguments and output file in the background.
+ * The program is run as the same user that is running the
+ * fzserverpq persistent process.
+ * 
+ * E.g. CGIbg_run_as_user(fzbackup-mirror-to-github.sh,S=/dev/shm/fzbackup-mirror-to-github.signal,/dev/shm/fzbackup-mirror-to-github.out)
+ */
+bool CGI_bg_run_as_user(int socket, const std::string & argstr) {
+    ERRTRACE;
+
+    // extract list name, parameter to edit, and new value
+    auto argsvec = split(argstr,',');
+    if (argsvec.size() < 3) {
+        handle_serialized_data_request_error(socket, "Missing CGI program, arguments list, or output file: '" + argstr + '\'');
+        return false;
+    }
+    if (!find_in_vec_of_strings(fzs.config.predefined_CGIbg, argsvec[0])) {
+        handle_serialized_data_request_error(socket, "CGI request "+argsvec[0]+" is not in the list of permitted background CGI programs.");
+        return false;
+    }
+    if (argsvec[2].empty()) {
+        handle_serialized_data_request_error(socket, "Missing output file specification for background CGI process.");
+        return false;
+    }
+
+    std::string cgiargs = build_CGI_argument_string(argsvec[1]);
+
+    std::string cmdstr = argsvec[0]+cgiargs+" > "+argsvec[2]+" 2>1&";
+    VERYVERBOSEOUT("CGI_bg_run_as_user cmdstr="+cmdstr+'\n');
+    // *** TESTING
+    // std::string timestamp=TimeStamp("%Y%m%d%H%M%S",ActualTime());
+    // std::string res = "TESTING";
+    std::string res = shellcmd2str(cmdstr);
+    std::string logstr = "fzserverpq FZ CGIbg_run_as_user response for command string:\n\n"+cmdstr+"\n\nIs:\n\n"+res;
+    std::string logfile = "/dev/shm/CGI_bg_run_as_user.log";
+    if (!string_to_file(logfile, logstr)) {
+        standard_error("Writing to log file " + logfile + " failed.", __func__);
+    }
+
+    // respond to FZ request with log file reference
+    return handle_serialized_data_request_response(socket, logfile, "Serializing background CGI call as user.");
+}
+
 const serialized_func_map_t serialized_data_functions = {
     {"NNLlen", NNL_len},
     {"nodes_match", Nodes_match},
     {"NNLadd_match", NNL_add_match},
-    {"NNLedit_nodes", NNL_edit_nodes}
+    {"NNLedit_nodes", NNL_edit_nodes},
+    {"CGIbg_run_as_user", CGI_bg_run_as_user}
 };
 
 bool handle_request_args(int socket, const FZ_request_args & fra) {

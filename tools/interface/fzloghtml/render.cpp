@@ -11,6 +11,9 @@
     #include <iostream>
 #endif
 
+// std
+#include <locale>
+
 // core
 #include "error.hpp"
 #include "general.hpp"
@@ -87,7 +90,7 @@ const std::map<std::string, std::string> template_code_replacements = {
 
 void prepare_custom_template(std::string & customtemplate) {
     customtemplate = fzlh.custom_template.substr(4);
-    for (const auto [codestr, repstr] : template_code_replacements) {
+    for (const auto & [codestr, repstr] : template_code_replacements) {
         size_t codepos = 0;
         while (true) {
             codepos = customtemplate.find(codestr, codepos);
@@ -152,12 +155,96 @@ std::string include_Node_info(const Node_ID & node_id) {
     return nodestr;
 }
 
+bool entry_has_each(const std::string & entrytextref) {
+    for (const auto & search_text : fzlh.search_strings) {
+        if (entrytextref.find(search_text)==std::string::npos) {
+            return false;
+        }
+    }
+    return true;
+}
+
+std::string lowercase(const std::string & s, std::locale & loc) {
+    std::string s_lower(s);
+    for (size_t i = 0; i < s.size(); i++) {
+        s_lower[i] = std::tolower(s[i], loc);
+    }
+    return s_lower;
+}
+
+bool search_text_not_included(Log_chunk * chunkptr, std::locale & loc) {
+    if (fzlh.caseinsensitive) {
+        if (fzlh.mustcontainall) {
+            for (const auto& entryptr : chunkptr->get_entries()) {
+                if (entryptr) {
+                    std::string entrytext = lowercase(entryptr->get_entrytext(), loc);
+                    if (entry_has_each(entrytext)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        for (const auto& entryptr : chunkptr->get_entries()) {
+            if (entryptr) {
+                std::string entrytext = lowercase(entryptr->get_entrytext(), loc);
+                for (const auto & search_text : fzlh.search_strings) {
+                    if (entrytext.find(search_text)!=std::string::npos) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    if (fzlh.mustcontainall) {
+        for (const auto& entryptr : chunkptr->get_entries()) {
+            if (entryptr) {
+                const auto & entrytextref = entryptr->get_entrytext();
+                if (entry_has_each(entrytextref)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    for (const auto& entryptr : chunkptr->get_entries()) {
+        if (entryptr) {
+            const auto & entrytextref = entryptr->get_entrytext();
+            for (const auto & search_text : fzlh.search_strings) {
+                if (entrytextref.find(search_text)!=std::string::npos) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+std::string make_around_button(const std::string & logchunk_id) {
+    return "<button class=\"button button1\" onclick=\"window.open('/cgi-bin/fzloghtml-cgi.py?around="+
+            logchunk_id+"#"+logchunk_id+"','_blank');\">context</button>";
+}
+
 /**
  * Convert Log content that was retrieved with filtering to HTML using
  * rending templates and send to designated output destination.
  */
 bool render_Log_interval() {
     ERRTRACE;
+
+    std::locale loc;
+    if (!fzlh.search_strings.empty()) {
+        if (fzlh.caseinsensitive) {
+            for (unsigned int i = 0; i < fzlh.search_strings.size(); i++) {
+                fzlh.search_strings[i] = lowercase(fzlh.search_strings[i], loc);
+            }
+        }
+    }
+
     std::string customtemplate;
     if (fzlh.custom_template.empty() || (!fzlh.noframe)) {
         load_templates(templates); // *** wait? doesn't this segfault further down on the other templates if skipped???
@@ -212,6 +299,11 @@ bool render_Log_interval() {
         //COMPILEDPING(std::cout,"PING: commencing chunk idx#"+std::to_string(chunk_idx)+'\n');
 
         if (chunkptr) {
+            if (!fzlh.search_strings.empty()) {
+                if (search_text_not_included(chunkptr.get(), loc)) {
+                    continue;
+                }
+            }
             std::string combined_entries;
             for (const auto& entryptr : chunkptr->get_entries()) {
                 if (entryptr) {
@@ -221,12 +313,17 @@ bool render_Log_interval() {
 
             template_varvalues varvals;
             Node_ID node_id = chunkptr->get_NodeID();
-            varvals.emplace("node_id", node_id.str());
-            varvals.emplace("node_info", include_Node_info(node_id));
-            varvals.emplace("node_link", "/cgi-bin/fzlink.py?id="+node_id.str());
-            //varvals.emplace("fzserverpq",graph.get_server_full_address()); *** so far, this is independent of whether the Graph is memory-resident
             t_open_str = chunkptr->get_tbegin_str();
             varvals.emplace("chunk_id", t_open_str);
+            varvals.emplace("node_id", node_id.str());
+            if (fzlh.search_strings.empty()) {
+                varvals.emplace("node_info", include_Node_info(node_id));
+            } else {
+                std::string around_button = make_around_button(t_open_str);
+                varvals.emplace("node_info", include_Node_info(node_id)+around_button);
+            }
+            varvals.emplace("node_link", "/cgi-bin/fzlink.py?id="+node_id.str());
+            //varvals.emplace("fzserverpq",graph.get_server_full_address()); *** so far, this is independent of whether the Graph is memory-resident
             if (fzlh.filter.nkey.isnullkey()) {
                 varvals.emplace("t_chunkopen", t_open_str);
             } else { // In Node Histories, add links for temporal context.

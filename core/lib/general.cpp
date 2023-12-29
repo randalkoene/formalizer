@@ -125,6 +125,13 @@ std::string join(const std::vector<std::string> & svec, const std::string delim)
     }
 }
 
+bool find_in_vec_of_strings(const std::vector<std::string> & svec, const std::string & s) {
+    for (const auto & candidate : svec) {
+        if (candidate == s) return true;
+    }
+    return false;
+}
+
 std::string replace_char(const std::string & s, char c, char replacement) {
     std::string out_s(s);
     for (unsigned int i = 0; i<s.size(); i++) {

@@ -153,6 +153,13 @@ Recognized requests are:
   NNLedit_nodes(passed_fixed,tdproperty,variable)
     Edit the specified parameter (e.g. tdproperty) to the specified value
     (e.g. variable) on all Nodes in the specified List (e.g. passed_fixed).
+  CGIgb_run_as_user(cgiprog,uriargs,outfile)
+    Run the cgiprog program as the same user as the one running fzserverpq
+    in the background, using command line arguments obtained by parsing
+    the string in uriargs that is given in URI argument format. The
+    specified cgiprog can only run if it was included in the comma
+    delimited list of permitted programs in fzserverpq configuration
+    variable 'predefined_CGIbg'.
 
 FZ serialized data requests can be batched via simple concatenation, e.g.:
 
@@ -246,6 +253,7 @@ bool fzs_configurable::set_parameter(const std::string & parlabel, const std::st
     CONFIG_TEST_AND_SET_PAR(persistent_NNL, "persistent_NNL", parlabel, (parvalue != "false"));
     CONFIG_TEST_AND_SET_PAR(www_file_root, "www_file_root", parlabel, parse_www_file_roots(parvalue));
     CONFIG_TEST_AND_SET_PAR(request_log, "request_log", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(predefined_CGIbg, "predefined_CGIbg", parlabel, split(parvalue,',')); // E.g. from "fzbackup-mirror-to-github.sh,fzinfo"
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }

@@ -6,6 +6,11 @@
 #
 # The `fzsetup` utility is the authoritative method to prepare or refresh a Formalizer environment.
 
+# TODO:
+# - To make fzbackup-from-web-cgi.py work correctly:
+#   - Make sure the user running fzserverpq is a member of the www-data group.
+#   - Make sure the /var/www/webdata/formalizer directory is writable by the www-data group.
+
 # std
 import os
 import sys

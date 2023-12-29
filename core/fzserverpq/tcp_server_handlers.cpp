@@ -1161,9 +1161,7 @@ bool handle_node_topics_show(Node & node, std::string show_type_extension, std::
 }
 
 bool handle_node_NNLs_show(Node & node, std::string show_type_extension, std::string & response_html) {
-    standard_error("TESTING: Got to 1", __func__);
     auto nnls_set = fzs.graph().find_all_NNLs_Node_is_in(node);
-    standard_error("TESTING: Got to 2", __func__);
     std::map<std::string, std::string> nnls_map;
     for (const auto & list_name : nnls_set) {
         nnls_map.emplace(list_name, "");
@@ -1531,7 +1529,6 @@ bool handle_node_direct_parameter(Node & node, std::string extension, std::strin
             if (it == node_parameter_show_map.end()) {
                 return standard_error("Unsupported Node parameter show request: '" + route_extension + '\'', __func__);
             }
-            standard_error("TESTING: route_extension="+route_extension, __func__);
             if (!it->second(node, extension.substr(seppos+1), response_html)) {
                 return false;
             }

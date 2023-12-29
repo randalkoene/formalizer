@@ -69,6 +69,8 @@ inline std::string &trim(std::string &s, const char *t = " \t\n\r\f\v") {
     return ltrim(rtrim(s, t), t);
 }
 
+bool find_in_vec_of_strings(const std::vector<std::string> & svec, const std::string & s);
+
 std::string replace_char(const std::string & s, char c, char replacement = '_');
 
 std::string get_enclosed_substring(const std::string & s, char open_enclosure, char close_enclosure, const std::string & alt_return);

@@ -55,6 +55,7 @@ COMPILABLES = $(LIBCOMPDIRS) $(CORECOMPDIRS) $(TOOLSCOMPDIRS)
 EXECUTABLES =
 EXECUTABLES += $(COREPATH)/fzbackup/fzbackup.py
 EXECUTABLES += $(COREPATH)/fzbackup/fzbackup-mirror-to-github.sh
+EXECUTABLES += $(COREPATH)/fzbackup/fzbackup-from-web-cgi.py
 EXECUTABLES += $(COREPATH)/fzedit/fzedit
 EXECUTABLES += $(COREPATH)/fzgraph/fzgraph
 EXECUTABLES += $(COREPATH)/fzgraphsearch/fzgraphsearch
@@ -176,6 +177,7 @@ SYMBIN += $(LOCALBINSYM)
 # CGI scripts that need to be copied to $(CGIDIR)
 CGIEXE =
 CGIEXE += $(COREPATH)/fzbackup/fzbackup-cgi.py
+CGIEXE += $(COREPATH)/fzbackup/fzbackup-from-web-cgi.py
 CGIEXE += $(COREPATH)/fzedit/fzedit-cgi.py
 CGIEXE += $(COREPATH)/fzgraph/fzgraph-cgi.py
 CGIEXE += $(COREPATH)/fzgraphsearch/fzgraphsearch-cgi.py
