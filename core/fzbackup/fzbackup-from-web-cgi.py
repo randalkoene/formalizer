@@ -132,11 +132,38 @@ Does the group have write permission in the directory?
 
 BACKUP_RESULT='''
 <html>
-<title>fzbackup-from-web-cgi.py - Result</title>
+<head>
+<link rel="icon" href="/favicon-nodes-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>FZ: fzbackup-from-web-cgi.py - Result</title>
+<style>
+td {
+	padding: 15px;
+	vertical-align: top;
+}
+</style>
 <body>
 <pre>
 %s
 </pre>
+<table>
+<tbody>
+<tr>
+<td>
+<pre>
+%s
+</pre>
+</td>
+<td>
+<pre>
+%s
+</pre>
+</td>
+</tr>
+</tbody>
+</table>
+<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -155,13 +182,23 @@ def get_signal_value(signalfile:str)->tuple:
 	except Exception as e:
 		return ("0", str(e))
 
+def get_result_parts(full_result_string:str)->tuple:
+	part2_start = full_result_string.find("List of Database")
+	part3_start = full_result_string.find("List of DayWiz")
+	if part2_start < 0:
+		return (full_result_string, '', '')
+	if part3_start < 0:
+		return (full_result_string[0:part2_start], full_result_string[part2_start:], '')
+	return (full_result_string[0:part2_start], full_result_string[part2_start:part3_start], full_result_string[part3_start:])
+
 def show_backup_result(cgioutfile:str):
 	try:
 		with open(cgioutfile,'r') as f:
 			cgioutstr=f.read()
 	except:
 		cgioutstr="ERROR: Unable to read %s" % cgioutfile
-	print(BACKUP_RESULT % cgioutstr)
+	result_parts = get_result_parts(cgioutstr)
+	print(BACKUP_RESULT % result_parts)
 
 def backup_with_mirror_to_github():
 	#1. Launch fzbackup-mirror-to-github.sh on the server as the right user in the background.

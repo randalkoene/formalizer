@@ -61,6 +61,7 @@ executables = (
     'fzrestore.sh',
     'fzserverpqd.sh',
     'graph-resident.py',
-    'graph-topics.sh'
+    'graph-topics.sh',
+    'fzvismilestones',
     )
     

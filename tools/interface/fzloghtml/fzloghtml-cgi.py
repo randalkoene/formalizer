@@ -21,7 +21,7 @@ from traceback import print_exc
 from subprocess import Popen, PIPE
 
 from fzmodbase import *
-from TimeStamp import add_days_to_TimeStamp, add_weeks_to_TimeStamp
+from TimeStamp import add_days_to_TimeStamp, add_weeks_to_TimeStamp, NowTimeStamp
 
 # cgitb.enable()
 # cgitb.disable()
@@ -31,6 +31,7 @@ from TimeStamp import add_days_to_TimeStamp, add_weeks_to_TimeStamp
 form = cgi.FieldStorage() 
 
 # Get data from fields
+alloflog = form.getvalue('alloflog')
 startfrom = form.getvalue('startfrom')
 endbefore  = form.getvalue('endbefore')
 around = form.getvalue('around')
@@ -44,6 +45,10 @@ mostrecentdata = form.getvalue('mostrecentdata')
 searchtext = form.getvalue('searchtext')
 andall = form.getvalue('andall')
 caseinsensitive = form.getvalue('caseinsensitive')
+
+if alloflog:
+    startfrom = "199001010000"
+    endbefore = NowTimeStamp()
 
 try:
     if searchtext:
@@ -85,6 +90,7 @@ Add entry for <input type="submit" name="makeentry" value="Log Chunk Node" /> or
 
 Select another part of the Log:
 <form action="/cgi-bin/fzloghtml-cgi.py" method="post">
+<input type="checkbox" name="alloflog"> all of the Log<br />
 <input type="text" name="startfrom"> start at this YYYYmmddHHMM time stamp (default: 24 hours before end of interval)<br />
 <input type="text" name="endbefore"> end before this YYYYmmddHHMM time stamp (default: 1 second after most recent Log entry)<br />
 <input type="text" name="daysinterval"> interval size in days<br />
@@ -93,7 +99,7 @@ Select another part of the Log:
 <input type="text" name="numchunks"> number of Log chunks (interval takes precedence)<br />
 <input type="checkbox" name="frommostrecent"> from most recent (interval takes precedence)<br />
 <input type="text" name="node"> belongs to node, node history<br />
-<input type="text" name="searchtext"> must contain search text
+<input type="text" name="searchtext" size="48"> must contain search text
 <input type="checkbox" name="caseinsensitive"> case insensitive
 <input type="checkbox" name="andall"> must contain each<br />
 or<br />

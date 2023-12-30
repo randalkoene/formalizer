@@ -119,6 +119,40 @@ struct Map_of_Subtrees {
 };
 
 /**
+ * Functions for working with @PREREQS:...@ and @PROVIDES:...@ data in Nodes.
+ */
+
+enum Prerequisite_States {
+    unsolved = 0,       // No known Node provides this.
+    unfulfilled = 1,    // The Node that provides this has not been completed.
+    fulfilled = 2,      // The prerequisite has been fulfilled.
+    numPrerequisite_States
+};
+
+// *** TODO: Could use maps instead of vectors.
+// *** TODO: Further speed-up is possible by caching prerequisites and provides
+//           for each Node.
+struct Prerequisite {
+    std::string prereq;
+    Prerequisite_States _state = unsolved;
+    Node * provided_by = nullptr;
+
+    Prerequisite(const std::string & _prereq): prereq(_prereq) {}
+
+    const std::string & str() const { return prereq; }
+
+    Prerequisite_States state() const { return _state; }
+
+    void update(const std::vector<std::string> & provided_vec, Node * provider);
+};
+
+std::vector<Prerequisite> get_prerequisites(const Node & node, bool check_prerequisites = false);
+
+std::vector<std::string> get_provides_capabilities(const Node & node);
+
+void check_prerequisites_provided_by_dependencies(const Node & node, std::vector<Prerequisite> & prereqs, int go_deeper = 10);
+
+/**
  * Finds all Nodes that match a specified Node_Filter.
  * 
  * @param graph A valid Graph data structure.

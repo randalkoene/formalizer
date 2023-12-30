@@ -101,11 +101,80 @@ void prepare_custom_template(std::string & customtemplate) {
     }
 }
 
-std::string render_Log_entry(Log_entry & entry) {
+std::string lowercase(const std::string & s, std::locale & loc) {
+    std::string s_lower(s);
+    for (size_t i = 0; i < s.size(); i++) {
+        s_lower[i] = std::tolower(s[i], loc);
+    }
+    return s_lower;
+}
+
+void get_earliest_candidate(int & earliest_found, std::size_t & earliest_found_loc, int candidate_i, std::size_t candidate_loc) {
+    if (earliest_found < 0) {
+        earliest_found = candidate_i;
+        earliest_found_loc = candidate_loc;
+        return;
+    }
+
+    if (earliest_found_loc > candidate_loc) {
+        earliest_found = candidate_i;
+        earliest_found_loc = candidate_loc;
+    }
+}
+
+std::size_t find_next_loc_with_a_search_term(const std::string & s, std::size_t start_loc, int & search_term_found) {
+    std::size_t earliest_loc = std::string::npos;
+    for (unsigned int i = 0; i < fzlh.search_strings.size(); i++) {
+        std::size_t candidate_loc = s.find(fzlh.search_strings[i], start_loc);
+        if (candidate_loc != std::string::npos) {
+            get_earliest_candidate(search_term_found, earliest_loc, i, candidate_loc);
+        }
+    }
+    return earliest_loc;
+}
+
+std::string add_search_highlighting(std::string & s, std::locale & loc) {
+    std::string s_out;
+    std::string * s_ptr = &s;
+    std::string s_lowercase;
+    if (fzlh.caseinsensitive) {
+        s_lowercase = lowercase(s, loc);
+        s_ptr = &s_lowercase;
+    }
+    std::size_t proc_loc = 0;
+    while (true) {
+        // 1. Find the next of the search terms in the string, from current processed location.
+        int search_term_found = -1;
+        std::size_t next_loc = find_next_loc_with_a_search_term(*s_ptr, proc_loc, search_term_found);
+        // 2. Copy up to that location.
+        if (search_term_found >= 0) {
+            s_out += s.substr(proc_loc, next_loc - proc_loc);
+            // 3. Highlight the search term found.
+            s_out += "<span class=\"searched\">";
+            s_out += s.substr(next_loc, fzlh.search_strings[search_term_found].size()); //fzlh.search_strings[search_term_found];
+            s_out += "</span>";
+            // 4. On to the next location with one of the search terms.
+            proc_loc = next_loc + fzlh.search_strings[search_term_found].size();
+        } else {
+            break;
+        }
+    }
+    if (proc_loc < s.size()) {
+        s_out += s.substr(proc_loc, s.size() - proc_loc);
+    }
+    return s_out;
+}
+
+std::string render_Log_entry(Log_entry & entry, std::locale & loc) {
     template_varvalues varvals;
     varvals.emplace("minor_id",std::to_string(entry.get_minor_id()));
     varvals.emplace("entry_id",entry.get_id_str());
-    varvals.emplace("entry_text",make_embeddable_html(entry.get_entrytext(),fzlh.config.interpret_text));
+    if (fzlh.search_strings.empty()) {
+        varvals.emplace("entry_text",make_embeddable_html(entry.get_entrytext(),fzlh.config.interpret_text));
+    } else {
+        std::string text_to_highlight = make_embeddable_html(entry.get_entrytext(),fzlh.config.interpret_text);
+        varvals.emplace("entry_text",add_search_highlighting(text_to_highlight, loc));
+    }
     if (entry.same_node_as_chunk()) {
         varvals.emplace("node_id","");
     } else {
@@ -162,14 +231,6 @@ bool entry_has_each(const std::string & entrytextref) {
         }
     }
     return true;
-}
-
-std::string lowercase(const std::string & s, std::locale & loc) {
-    std::string s_lower(s);
-    for (size_t i = 0; i < s.size(); i++) {
-        s_lower[i] = std::tolower(s[i], loc);
-    }
-    return s_lower;
 }
 
 bool search_text_not_included(Log_chunk * chunkptr, std::locale & loc) {
@@ -307,7 +368,7 @@ bool render_Log_interval() {
             std::string combined_entries;
             for (const auto& entryptr : chunkptr->get_entries()) {
                 if (entryptr) {
-                    combined_entries += render_Log_entry(*entryptr);
+                    combined_entries += render_Log_entry(*entryptr, loc);
                 }
             }
 

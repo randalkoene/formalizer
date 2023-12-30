@@ -300,6 +300,34 @@ bool nodeboard::get_Node_alt_card(const Node * node_ptr, std::time_t tdate, std:
     nodevars.emplace("node-progress", to_precision_string(progress, 1));
     nodevars.emplace("node-targetdate", " ("+DateStampYmd(tdate)+')');
 
+    std::string prereqs_str;
+    if (threads) {
+        // Look for specified prerequisites and their state.
+        auto prereqs = get_prerequisites(*node_ptr, true);
+        if (!prereqs.empty()) {
+            unsigned int num_unsolved = 0;
+            unsigned int num_unfulfilled = 0;
+            for (const auto & prereq : prereqs) {
+                if (prereq.state()==unsolved) {
+                    num_unsolved++;
+                } else if (prereq.state()==unfulfilled) {
+                    num_unfulfilled++;
+                }
+            }
+            if ((num_unsolved > 0) || (num_unfulfilled > 0)) {
+                prereqs_str += "<p>";
+                if (num_unsolved > 0) {
+                    prereqs_str += std::to_string(num_unsolved)+" unsolved ";
+                }
+                if (num_unfulfilled > 0) {
+                    prereqs_str += std::to_string(num_unfulfilled)+" unfulfilled ";
+                }
+                prereqs_str += "prerequisites</p>";
+            }
+        }
+    }
+    nodevars.emplace("node-prereqs", prereqs_str);
+
     std::string node_color;
     if (node_ptr->is_active()) {
         node_color = "w3-light-grey";

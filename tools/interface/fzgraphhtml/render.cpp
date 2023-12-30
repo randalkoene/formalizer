@@ -662,6 +662,60 @@ std::string render_Node_dependencies(Graph & graph, Node & node, bool remove_but
     return deps_str;
 }
 
+typedef std::string string_attributes_func_t(const std::string&);
+typedef std::map<Prerequisite_States, string_attributes_func_t*> string_attributes_map_t;
+
+std::string unsolved_prerequisite_attributes(const std::string & prerequisite) {
+    return "<span style=\"color:red;\">"+prerequisite+"</span>";
+}
+
+std::string unfulfilled_prerequisite_attributes(const std::string & prerequisite) {
+    return prerequisite;
+}
+
+std::string fulfilled_prerequisite_attributes(const std::string & prerequisite) {
+    return "<b>"+prerequisite+"</b>";
+}
+
+const string_attributes_map_t string_attributes = {
+    {unsolved, unsolved_prerequisite_attributes},
+    {unfulfilled, unfulfilled_prerequisite_attributes},
+    {fulfilled, fulfilled_prerequisite_attributes},
+};
+
+std::string render_Node_prerequisites_and_provides_capabilities(Node & node) {
+    std::string render_str;
+    auto prereqs = get_prerequisites(node, true);
+
+    if (!prereqs.empty()) {
+        render_str += "<br>Prerequisites:\n<ul>\n";
+        //int prereq_num = 0;
+        for (const auto & prereq : prereqs) {
+            // if (prereq_num>0) {
+            //     render_str += ", ";
+            // }
+            render_str += "<li>"+string_attributes.at(prereq.state())(prereq.str())+'\n';
+            //prepreq_num++;
+        }
+        render_str += "</ul>\n";
+    }
+
+    auto provides = get_provides_capabilities(node);
+    if (!provides.empty()) {
+        render_str += "<br>Provides capabilities:\n<ul>\n";
+        //int provides_num = 0;
+        for (const auto & capability : provides) {
+            // if (provides_num>0) {
+            //     render_str += ", ";
+            // }
+            render_str += "<li>"+capability+'\n';
+            //provides_num++;
+        }
+        render_str += "</ul>\n";
+    }
+
+    return render_str;
+}
 
 /**
  * Individual Node data rendering.
@@ -726,6 +780,7 @@ std::string render_Node_data(Graph & graph, Node & node) {
     nodevars.emplace("NNLs", render_Node_NNLs(graph, node));
     nodevars.emplace("superiors", render_Node_superiors(graph, node));
     nodevars.emplace("dependencies", render_Node_dependencies(graph, node));
+    nodevars.emplace("prereqs-provides", render_Node_prerequisites_and_provides_capabilities(node));
 
     return env.render(templates[node_temp], nodevars);
 }

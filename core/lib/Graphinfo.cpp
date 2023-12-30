@@ -276,6 +276,87 @@ bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key) const {
 }
 
 /**
+ * Functions for working with @PREREQS:...@ and @PROVIDES:...@ data in Nodes.
+ */
+
+void Prerequisite::update(const std::vector<std::string> & provided_vec, Node * provider) {
+    if (_state == fulfilled) {
+        return;
+    }
+    for (const auto & provided : provided_vec) {
+        if (prereq == provided) {
+            if (provider->get_completion() >= 1.0) {
+                _state = fulfilled;
+                provided_by = provider;
+                return;
+            }
+            _state = unfulfilled;
+            provided_by = provider;
+            return;
+        }
+    }
+}
+
+std::vector<Prerequisite> get_prerequisites(const Node & node, bool check_prerequisites) {
+    std::vector<Prerequisite> prereqs;
+    std::string text(node.get_text().c_str());
+    auto prereqs_start = text.find("@PREREQS:");
+    if (prereqs_start == std::string::npos) {
+        return prereqs;
+    }
+    prereqs_start += 9;
+    auto prereqs_end = text.find('@', prereqs_start);
+    if (prereqs_end == std::string::npos) {
+        return prereqs;
+    }
+    std::string prereqs_str = text.substr(prereqs_start, prereqs_end - prereqs_start);
+    auto prereqs_strvec = split(prereqs_str, ',');
+    for (const auto & prereq_str : prereqs_strvec) {
+        prereqs.emplace_back(Prerequisite(prereq_str));
+    }
+
+    if (check_prerequisites && (!prereqs.empty())) {
+        check_prerequisites_provided_by_dependencies(node, prereqs);
+    }
+
+    return prereqs;
+}
+
+std::vector<std::string> get_provides_capabilities(const Node & node) {
+    std::vector<std::string> provides;
+    std::string text(node.get_text().c_str());
+    auto provides_start = text.find("@PROVIDES:");
+    if (provides_start == std::string::npos) {
+        return provides;
+    }
+    provides_start += 10;
+    auto provides_end = text.find('@', provides_start);
+    if (provides_end == std::string::npos) {
+        return provides;
+    }
+    std::string provides_str = text.substr(provides_start, provides_end - provides_start);
+    provides = split(provides_str, ',');
+    return provides;
+}
+
+void check_prerequisites_provided_by_dependencies(const Node & node, std::vector<Prerequisite> & prereqs, int go_deeper) {
+    for (const auto & edge_ptr : node.dep_Edges()) {
+        if (edge_ptr) {
+            Node * dep_ptr = edge_ptr->get_dep();
+            if (dep_ptr) {
+                auto dep_provides = get_provides_capabilities(*dep_ptr);
+                for (auto & prereq : prereqs) {
+                    prereq.update(dep_provides, dep_ptr);
+                }
+                if (go_deeper>0) {
+                    check_prerequisites_provided_by_dependencies(*dep_ptr, prereqs, go_deeper-1);
+                }
+            }
+        }
+    }
+}
+
+/**
  * Finds all Nodes that match a specified Node_Filter.
  * 
  * @param graph A valid Graph data structure.

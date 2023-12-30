@@ -6,6 +6,7 @@
       <p class="w3-medium">{{ node-text }}</p>
       <p><b><a href="/cgi-bin/fzlink.py?id={{ node-id }}">{{ node-id }}</a></b> (<a href="/cgi-bin/nodeboard-cgi.py?n={{ node-deps }}{{ filter-substr }}">DEP</a>)</p>
       <p>Progress: {{ node-progress }}&#37;{{ node-targetdate }}</p>
+      {{ node-prereqs }}
     </div>
   </div>
 

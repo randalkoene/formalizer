@@ -129,3 +129,7 @@ a.nnl:hover {background:#55db50;}
 .hrmin input[type="number"] {
    width:10px;
 }
+.searched {
+    background-color: rgb(252, 161, 3);
+    color: rgb(163, 49, 79);
+}
