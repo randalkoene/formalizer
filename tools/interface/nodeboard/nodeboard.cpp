@@ -74,13 +74,37 @@ bool NNL_dependencies() {
     return standard_exit(node_board_render_NNL_dependencies(nb), "NNL dependencies Kanban board created.\n", exit_general_error, "Unable to create NNL dependencies Kanban board.", __func__);
 }
 
+bool node_dependencies_tree() {
+    if (!nb.node_ptr) {
+        return standard_error("Node not found.", __func__);
+    }
+
+    return standard_exit(node_board_render_dependencies_tree(nb), "Node dependencies tree created.\n", exit_general_error, "Unable to create Node dependencies tree.", __func__);
+}
+
+bool node_superiors_tree() {
+    if (!nb.node_ptr) {
+        return standard_error("Node not found.", __func__);
+    }
+
+    return standard_exit(node_board_render_superiors_tree(nb), "Node superiors tree created.\n", exit_general_error, "Unable to create Node superiors tree.", __func__);
+}
+
 int main(int argc, char *argv[]) {
     nb.init(argc,argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 
     switch (nb.flowcontrol) {
 
         case flow_node: {
-            node_dependencies();
+            if (nb.show_dependencies_tree) {
+                nb.flowcontrol = flow_dependencies_tree;
+                node_dependencies_tree();
+            } else if (nb.show_superiors_tree) {
+                nb.flowcontrol = flow_superiors_tree;
+                node_superiors_tree();
+            } else {
+                node_dependencies();
+            }
             break;
         }
 
@@ -116,6 +140,16 @@ int main(int argc, char *argv[]) {
 
         case flow_NNL_dependencies: {
             NNL_dependencies();
+            break;
+        }
+
+        case flow_dependencies_tree: {
+            node_dependencies_tree();
+            break;
+        }
+
+        case flow_superiors_tree: {
+            node_superiors_tree();
             break;
         }
 

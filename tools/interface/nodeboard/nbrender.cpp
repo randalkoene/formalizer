@@ -7,6 +7,9 @@
  * For more about this, see the Trello card at https://trello.com/c/w2XnEQcc
  */
 
+#include <iostream>
+#include <stdexcept>
+
 #include "error.hpp"
 #include "general.hpp"
 #include "stringio.hpp"
@@ -59,8 +62,8 @@ nodeboard::nodeboard():
     output_path("/var/www/html/formalizer/test_node_card.html"),
     graph_ptr(nullptr) {
 
-    add_option_args += "Rn:L:D:l:t:m:f:IF:H:To:";
-    add_usage_top += " [-R] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
+    add_option_args += "RGgn:L:D:l:t:m:f:IF:H:To:";
+    add_usage_top += " [-R] [-G|-g] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
         " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-I] [-F <substring>]"
         " [-H <board-header>] [-T] [-o <output-file|STDOUT>]";
 }
@@ -69,6 +72,8 @@ void nodeboard::usage_hook() {
     ga.usage_hook();
     FZOUT(
         "    -R Test with random selection of Nodes.\n"
+        "    -G Use grid to show dependencies tree.\n"
+        "    -g Use grid to show superiors tree.\n"
         "    -n Node dependencies.\n"
         "    -L Use Nodes data in Named Node List.\n"
         "    -D Dependencies of Nodes in Named Node List.\n"
@@ -108,6 +113,16 @@ bool nodeboard::options_hook(char c, std::string cargs) {
 
         case 'R': {
             flowcontrol = flow_random_test;
+            return true;
+        }
+
+        case 'G': {
+            show_dependencies_tree = true;
+            return true;
+        }
+
+        case 'g': {
+            show_superiors_tree = true;
             return true;
         }
 
@@ -317,7 +332,7 @@ bool nodeboard::get_Node_alt_card(const Node * node_ptr, std::time_t tdate, std:
             if ((num_unsolved > 0) || (num_unfulfilled > 0)) {
                 prereqs_str += "<p>";
                 if (num_unsolved > 0) {
-                    prereqs_str += std::to_string(num_unsolved)+" unsolved ";
+                    prereqs_str += "<span style=\"color:red;\">"+std::to_string(num_unsolved)+" unsolved</span> ";
                 }
                 if (num_unfulfilled > 0) {
                     prereqs_str += std::to_string(num_unfulfilled)+" unfulfilled ";
@@ -525,17 +540,28 @@ std::string nodeboard::call_comment_string() {
     return call_comment;
 }
 
-bool nodeboard::make_multi_column_board(const std::string & rendered_columns, bool use_alt_board) {
+bool nodeboard::make_multi_column_board(const std::string & rendered_columns, bool use_alt_board, bool specify_rows) {
     template_varvalues board;
     // Insert the HTML for all the cards into the Kanban board.
     std::string column_widths;
     for (unsigned int i=0; i<num_columns; i++) {
-        column_widths += " 270px";
+        column_widths += " 240px";
     }
+    //column_widths = " 270px repeat("+std::to_string(num_columns)+")";
     board.emplace("board-header", board_title);
     board.emplace("board-extra", board_title_extra);
     board.emplace("column-widths", column_widths);
     board.emplace("the-columns", rendered_columns);
+    std::string specified_rows;
+    if (specify_rows) {
+        specified_rows = "grid-template-rows:";
+        for (unsigned int i=0; i<num_rows; i++) {
+            specified_rows += " 400px";
+        }
+        specified_rows += ";\n";
+        //specified_rows = "grid-template-rows: 300px repeat("+std::to_string(num_rows)+");\n";
+    }
+    board.emplace("row-heights", specified_rows);
     board.emplace("call-comment", call_comment_string());
     board.emplace("post-extra", post_extra);
     std::string rendered_board;
@@ -869,4 +895,268 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
     }
 
     return nb.make_multi_column_board(rendered_columns, true);
+}
+
+struct Node_Grid_Element {
+    unsigned int col_pos = 0;
+    unsigned int row_pos = 0;
+    unsigned int span = 1;
+    const Node * node_ptr;
+    const Node * above;
+
+    Node_Grid_Element(const Node & node, const Node * _above, unsigned int _colpos, unsigned int _rowpos): col_pos(_colpos), row_pos(_rowpos), node_ptr(&node), above(_above) {}
+};
+
+struct Node_Grid_Row {
+    unsigned int legit_row;
+    unsigned int row_number;
+
+    Node_Grid_Row(unsigned int _rownumber): legit_row(12345), row_number(_rownumber) {}
+    bool is_legit_row() const { return legit_row == 12345; }
+};
+
+struct Node_Grid {
+    unsigned int col_total = 0;
+    unsigned int row_total = 0;
+    std::map<Node_ID_key, Node_Grid_Element> nodes;
+    std::vector<Node_Grid_Row> rows;
+
+    Node_Grid(const Node & top_node, bool superiors = false) {
+        extend();
+
+        add(top_node, nullptr, 0, 0); //add(row, top_node, nullptr, 0, 0);
+
+        if (superiors) {
+            add_superiors(top_node, 0, 0);
+        } else {
+            add_dependencies(top_node, 0, 0);
+        }
+        find_node_spans(rows.size()-1);
+    }
+
+    unsigned int num_elements() { return nodes.size(); }
+
+    bool is_in_grid(const Node & node) const {
+        return nodes.find(node.get_id().key()) != nodes.end();
+    }
+
+    Node_Grid_Element & add(const Node & node, const Node * above, unsigned int _colpos, unsigned int _rowpos) {
+        Node_Grid_Element element(node, above, _colpos, _rowpos);
+        auto it = nodes.emplace(node.get_id().key(), element).first;
+        Node_Grid_Element & placed_element = (*it).second;
+        return placed_element;
+    }
+
+    Node_Grid_Element & add_to_row(unsigned int row_idx, unsigned int col_idx, const Node & node, const Node & above) {
+        return add(node, &above, col_idx, row_idx);
+    }
+
+    Node_Grid_Row & extend() {
+        Node_Grid_Row row(rows.size());
+        rows.emplace_back(row);
+        row_total = rows.size();
+        return rows.back();
+    }
+
+    unsigned int add_dependencies(const Node & node, unsigned int node_row, unsigned int node_col) {
+        unsigned int dep_row = node_row + 1;
+        if (dep_row >= rows.size()) {
+            extend();
+        }
+
+        // Collect node dependencies as elements in the row.
+        unsigned int rel_dep_idx = 0;
+        const Edges_Set & dep_edges = node.dep_Edges();
+        for (const auto & edge_ptr : dep_edges) {
+            if (edge_ptr) {
+                Node * dep_ptr = edge_ptr->get_dep();
+                if (dep_ptr) {
+                    if (!is_in_grid(*dep_ptr)) { // Unique.
+                        // Add to row.
+                        add_to_row(dep_row, node_col, *dep_ptr, node);
+                        if (node_col > col_total) {
+                            col_total = node_col;
+                        }
+                        // Depth first search.
+                        node_col = add_dependencies(*dep_ptr, dep_row, node_col);
+                    }
+                    rel_dep_idx++;
+                    if (rel_dep_idx < dep_edges.size()) {
+                        node_col++;
+                    }
+                }
+            }
+        }
+        return node_col;
+    }
+
+    unsigned int add_superiors(const Node & node, unsigned int node_row, unsigned int node_col) {
+        unsigned int sup_row = node_row + 1;
+        if (sup_row >= rows.size()) {
+            extend();
+        }
+
+        // Collect node superiors as elements in the row.
+        unsigned int rel_sup_idx = 0;
+        const Edges_Set & sup_edges = node.sup_Edges();
+        for (const auto & edge_ptr : sup_edges) {
+            if (edge_ptr) {
+                Node * sup_ptr = edge_ptr->get_sup();
+                if (sup_ptr) {
+                    if (!is_in_grid(*sup_ptr)) { // Unique.
+                        // Add to row.
+                        add_to_row(sup_row, node_col, *sup_ptr, node);
+                        if (node_col > col_total) {
+                            col_total = node_col;
+                        }
+                        // Depth first search.
+                        node_col = add_superiors(*sup_ptr, sup_row, node_col);
+                    }
+                    rel_sup_idx++;
+                    if (rel_sup_idx < sup_edges.size()) {
+                        node_col++;
+                    }
+                }
+            }
+        }
+        return node_col;
+    }
+
+    void find_node_spans(unsigned int row_idx) {
+        for (auto & [key, element] : nodes) {
+            if (element.above) {
+                auto it_above = nodes.find(element.above->get_id().key()); // Find by key, because the map gets rebuilt when more space is needed during element adding.
+                if (it_above != nodes.end()) {
+                    Node_Grid_Element & above = it_above->second;
+                    if ((above.col_pos+(above.span - 1)) < element.col_pos) {
+                        above.span = (element.col_pos - above.col_pos) + 1;
+                        //FZOUT("col_pos="+std::to_string(above.col_pos)+" span="+std::to_string(above.span)+'\n'); std::cout.flush();
+                    }
+                }
+            }
+        }
+    }
+
+};
+
+std::string into_grid(unsigned int row_idx, unsigned int col_idx, unsigned int span, const std::string & content) {
+    std::string to_grid = "<div style=\"grid-area: " // position: absolute; 
+        + std::to_string(row_idx+1) + " / "
+        + std::to_string(col_idx+1);
+    if (span > 1) {
+        to_grid += " / " + std::to_string(row_idx+1) + " / span "
+            + std::to_string(span);
+    }
+    to_grid += ";\">" + content + "</div>\n";
+    return to_grid;
+}
+
+bool node_board_render_dependencies_tree(nodeboard & nb) {
+    if (!nb.node_ptr) {
+        return false;
+    }
+
+    Node_Grid grid(*nb.node_ptr);
+
+    if (!nb.render_init()) {
+        return false;
+    }
+
+    if (!nb.board_title_specified) {
+        nb.board_title = "Dependencies tree of Node "+nb.node_ptr->get_id_str();
+    }
+
+    std::string threads_option;
+    if (nb.threads) threads_option = "&T=true";
+
+    nb.board_title_extra = with_and_without_inactive_Nodes_buttons("G=true&n="+nb.node_ptr->get_id_str(), threads_option, nb.show_completed);
+
+    // if (nb.threads) {
+    //     nb.board_title_extra +=
+    //         "<b>Tree</b>:<br>"
+    //         "Where @VISOUTPUT: ...@ is defined in Node content it is shown as the expected advantageous non-internal (visible) output of a thread.<br>"
+    //         "Otherwise, an excerpt of Node content is shown as the thread header.<br>"
+    //         "The Nodes in a thread should be a clear set of steps leading to the output.";
+    // }
+
+    std::string rendered_grid;
+
+    for (const auto & [nkey, element] : grid.nodes) {
+
+        std::string rendered_card;
+        if (!nb.get_Node_alt_card(element.node_ptr, element.node_ptr->get_targetdate(), rendered_card)) {
+            standard_error("Node not found in Graph, skipping", __func__);
+            continue;
+        }
+        if (!rendered_card.empty()) {
+            rendered_grid += into_grid(element.row_pos, element.col_pos, element.span, rendered_card);
+        }
+
+    }
+
+    nb.num_columns = grid.col_total;
+    nb.num_rows = grid.row_total;
+
+    // FZOUT("Number of rows: "+std::to_string(grid.row_total)+'\n');
+    // FZOUT("Number of columns: "+std::to_string(grid.col_total)+'\n');
+    // FZOUT("Number of elements: "+std::to_string(grid.num_elements())+'\n');
+
+    // FZOUT("Drawing board...\n"); std::cout.flush();
+
+    return nb.make_multi_column_board(rendered_grid, true, true);
+}
+
+bool node_board_render_superiors_tree(nodeboard & nb) {
+    if (!nb.node_ptr) {
+        return false;
+    }
+
+    Node_Grid grid(*nb.node_ptr, true);
+
+    if (!nb.render_init()) {
+        return false;
+    }
+
+    if (!nb.board_title_specified) {
+        nb.board_title = "Superiors tree of Node "+nb.node_ptr->get_id_str();
+    }
+
+    std::string threads_option;
+    if (nb.threads) threads_option = "&T=true";
+
+    nb.board_title_extra = with_and_without_inactive_Nodes_buttons("g=true&n="+nb.node_ptr->get_id_str(), threads_option, nb.show_completed);
+
+    // if (nb.threads) {
+    //     nb.board_title_extra +=
+    //         "<b>Tree</b>:<br>"
+    //         "Where @VISOUTPUT: ...@ is defined in Node content it is shown as the expected advantageous non-internal (visible) output of a thread.<br>"
+    //         "Otherwise, an excerpt of Node content is shown as the thread header.<br>"
+    //         "The Nodes in a thread should be a clear set of steps leading to the output.";
+    // }
+
+    std::string rendered_grid;
+
+    for (const auto & [nkey, element] : grid.nodes) {
+
+        std::string rendered_card;
+        if (!nb.get_Node_alt_card(element.node_ptr, element.node_ptr->get_targetdate(), rendered_card)) {
+            standard_error("Node not found in Graph, skipping", __func__);
+            continue;
+        }
+        if (!rendered_card.empty()) {
+            rendered_grid += into_grid(element.row_pos, element.col_pos, element.span, rendered_card);
+        }
+
+    }
+
+    nb.num_columns = grid.col_total;
+    nb.num_rows = grid.row_total;
+
+    // FZOUT("Number of rows: "+std::to_string(grid.row_total)+'\n');
+    // FZOUT("Number of columns: "+std::to_string(grid.col_total)+'\n');
+    // FZOUT("Number of elements: "+std::to_string(grid.num_elements())+'\n');
+
+    // FZOUT("Drawing board...\n"); std::cout.flush();
+
+    return nb.make_multi_column_board(rendered_grid, true, true);
 }

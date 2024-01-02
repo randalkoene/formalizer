@@ -352,6 +352,11 @@ bool render_Log_interval() {
         rendered_logcontent += templates[LogHTML_head_temp];
     }
 
+    if (fzlh.show_total_time_applied) {
+        std::string time_applied_str = std::to_string(fzlh.total_minutes_applied/60) + ':' + std::to_string(fzlh.total_minutes_applied % 60);
+        rendered_logcontent += "<tr><td><p><b>Actual time applied to Log Chunks: "+time_applied_str+"<b></p></td></tr>\n";
+    }
+
     COMPILEDPING(std::cout,"PING: got templates\n");
 
     std::string temporalcontextstr, t_open_str;

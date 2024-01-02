@@ -11,7 +11,8 @@
 .grid-container {
   display: grid;
   grid-template-columns:{{ column-widths }};
-  grid-gap: 5px;
+  {{ row-heights  }}
+  grid-gap: 5px 5px;
   background-color: #2196F3;
   padding: 5px;
   overflow-x: scroll;
@@ -46,8 +47,9 @@
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
   transition: 0.3s;
   width: 230px;
-  /* height: 400px; */
+  height: 390px;
   text-align: left;
+  overflow: scroll;
 }
 
 .w3-card-4:hover {

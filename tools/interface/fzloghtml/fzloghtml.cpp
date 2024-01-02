@@ -46,8 +46,8 @@ fzloghtml fzlh;
  */
 fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
                          iscale(interval_none), interval(0), noframe(false), recent_format(most_recent_html) {
-    add_option_args += "n:1:2:a:o:D:H:w:Nc:rRf:ACF:T:";
-    add_usage_top += " [-n <node-ID>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-A] [-C] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
+    add_option_args += "n:1:2:a:o:D:H:w:Nc:rRf:ACtF:T:";
+    add_usage_top += " [-n <node-ID>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-A] [-C] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
     usage_tail.push_back(
         "The <time-stamp1>, <time-stamp_2> and <time-stamp> arguments expect standardized\n"
@@ -86,6 +86,7 @@ void fzloghtml::usage_hook() {
           "    -f Filter by search text\n"
           "    -A All search terms must be in a Log chunk\n"
           "    -C Case insensitive search\n"
+          "    -t Show total time applied\n"
           "    -F format of most recent Log data:\n"
           "       raw, txt, html (default)\n"
           "    -T use custom template from file or string (if 'STR:')\n"
@@ -210,6 +211,11 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
 
     case 'C': {
         caseinsensitive = true;
+        return true;
+    }
+
+    case 't': {
+        show_total_time_applied = true;
         return true;
     }
 
@@ -385,9 +391,14 @@ void fzloghtml::set_filter() {
 
 }
 
-void fzloghtml::get_Log_interval() {
+bool fzloghtml::get_Log_interval() {
 
     edata.log_ptr = ga.request_Log_excerpt(filter);
+
+    if (!edata.log_ptr) {
+        standard_error("Missing Log excerpt.", __func__);
+        return false;
+    }
 
     VERYVERBOSEOUT("\nfound:\n");
     VERYVERBOSEOUT("  chunks : "+std::to_string(edata.log_ptr->num_Chunks())+'\n');
@@ -395,6 +406,11 @@ void fzloghtml::get_Log_interval() {
 
     // *** Should we call log.setup_Chain_nodeprevnext() ?
 
+    if (show_total_time_applied) {
+        total_minutes_applied = Chunks_total_minutes(edata.log_ptr->get_Chunks());
+    }
+
+    return true;
 }
 
 Graph_ptr fzloghtml::get_Graph_ptr() {
@@ -410,7 +426,9 @@ Graph_ptr fzloghtml::get_Graph_ptr() {
 
 bool read_and_render_Log_interval() {
     fzlh.set_filter();
-    fzlh.get_Log_interval();
+    if (!fzlh.get_Log_interval()) {
+        return false;
+    }
     return render_Log_interval();
 }
 

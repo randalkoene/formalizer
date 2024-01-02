@@ -1330,6 +1330,10 @@ std::vector<size_t> Chunks_per_Breakpoint(Log & log) {
  * Calculate the total number of minutes logged for all Log chunks in the
  * specified deque.
  * 
+ * For example, this can be used to determine the actual time applied to
+ * a Node by loading a Log map with all the Log Chunks that belong to a
+ * Node (see fzloghtml::get_Log_interval()).
+ * 
  * @param chunks a deque containing a sorted list Log_chunk pointers.
  * @return the sum total of time logged in minutes.
  */

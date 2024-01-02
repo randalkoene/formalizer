@@ -173,6 +173,7 @@ nutrition = {
 	'hot dog': [ 151, 'hot dog', ],
 	'olives': [ 4, 'olive', ],
 	'pinto beans': [ 200, 'can',],
+	'cinnamon bun': [ 284, 'bun', ],
 }
 
 lowcal_filling_nutritious = [

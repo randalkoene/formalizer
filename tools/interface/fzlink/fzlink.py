@@ -163,7 +163,7 @@ def build_command(id, alt):
                                 altcmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -N -c 50 -n "+id
                             else:
                                 if (alt=="histfull"):
-                                    altcmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -N -n "+id
+                                    altcmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -N -t -n "+id
 
 
 def render_output():

@@ -62,6 +62,8 @@ form = cgi.FieldStorage()
 # Get data from fields
 sysmet_file = form.getvalue('f')
 node_dependencies = form.getvalue('n')
+node_dependencies_tree = form.getvalue('G')
+node_superiors_tree = form.getvalue('g')
 filter_string = form.getvalue('F')
 show_completed = form.getvalue('I')
 subtree_list = form.getvalue('D')
@@ -146,7 +148,12 @@ def show_main2023_board():
     show_sysmet_board(main2023categoriesfile, '/main2023categories-kanban.html')
 
 def show_node_dependencies_board():
-    thecmd = f"./nodeboard -n {node_dependencies} {include_filter_string} {include_show_completed} -q -o /var/www/webdata/formalizer/node_dependencies_kanban.html"
+    if node_dependencies_tree:
+        thecmd = f"./nodeboard -G -n {node_dependencies} {include_filter_string} {include_show_completed} {include_threads} -q -o /var/www/webdata/formalizer/node_dependencies_kanban.html"
+    elif node_superiors_tree:
+        thecmd = f"./nodeboard -g -n {node_dependencies} {include_filter_string} {include_show_completed} {include_threads} -q -o /var/www/webdata/formalizer/node_dependencies_kanban.html"
+    else:
+        thecmd = f"./nodeboard -n {node_dependencies} {include_filter_string} {include_show_completed} -q -o /var/www/webdata/formalizer/node_dependencies_kanban.html"
     res = try_command_call(thecmd, print_result=False)
     print(REDIRECT % "/node_dependencies_kanban.html")
 

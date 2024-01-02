@@ -31,6 +31,8 @@ enum flow_options {
     flow_listof_mixed = 11,
     flow_sysmet_categories = 12,
     flow_NNL_dependencies = 13,       ///< request: show dependencies of Nodes in Named Node List
+    flow_dependencies_tree = 14,      ///< request: show tree of Node dependencies in a grid
+    flow_superiors_tree = 15,         ///< request: show tree of Node dependencies in a grid
     flow_NUMoptions
 };
 
@@ -65,6 +67,8 @@ struct nodeboard: public formalizer_standard_program {
 
     bool show_completed = false;
     bool threads = false;
+    bool show_dependencies_tree = false;
+    bool show_superiors_tree = false;
 
     std::string filter_substring;
     int filter_substring_excerpt_length = 80;
@@ -83,6 +87,7 @@ struct nodeboard: public formalizer_standard_program {
     nodeboard_templates templates;
 
     unsigned int num_columns = 0;
+    unsigned int num_rows = 0;
 
     nodeboard();
 
@@ -120,7 +125,7 @@ struct nodeboard: public formalizer_standard_program {
 
     std::string call_comment_string();
 
-    bool make_multi_column_board(const std::string & rendered_cards, bool use_alt_board = false);
+    bool make_multi_column_board(const std::string & rendered_cards, bool use_alt_board = false, bool specify_rows = false);
 
 };
 
@@ -139,5 +144,9 @@ bool node_board_render_list_of_topics_and_NNLs(nodeboard & nb);
 bool node_board_render_sysmet_categories(nodeboard & nb);
 
 bool node_board_render_NNL_dependencies(nodeboard & nb);
+
+bool node_board_render_dependencies_tree(nodeboard & nb);
+
+bool node_board_render_superiors_tree(nodeboard & nb);
 
 #endif // __NBRENDER_HPP

@@ -82,6 +82,9 @@ struct fzloghtml: public formalizer_standard_program {
 
     most_recent_format recent_format;
 
+    bool show_total_time_applied = false;
+    unsigned long total_minutes_applied = -1;
+
     fzloghtml();
 
     virtual void usage_hook();
@@ -92,7 +95,7 @@ struct fzloghtml: public formalizer_standard_program {
 
     void set_filter();
 
-    void get_Log_interval();
+    bool get_Log_interval();
 
     /// Attempts to find memory-resident Graph but does not exit if it is not found.
     Graph_ptr get_Graph_ptr();
