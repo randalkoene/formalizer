@@ -17,6 +17,7 @@ from subprocess import Popen, PIPE
 webdata_path = "/var/www/webdata/formalizer"
 webschedulefile = webdata_path+'/fzschedule.html'
 defaultschedulefile = '/dev/shm/fzschedule.html'
+csvschedulefile = '/fzschedule.csv'
 
 thisdatetime = datetime.datetime.now()
 thisdate=thisdatetime.strftime('%Y%m%d')
@@ -169,9 +170,40 @@ def map_exact_target_date_entries(days:dict, daysmap:np.ndarray)->tuple:
     print('Minutes consumed by exact target date Nodes: %d' % exact_consumed)
     return daysmap, exact_consumed
 
-def map_fixed_target_date_entries(days:dict, daysmap:np.ndarray)->tuple:
+def min_block_available_backwards(daysmap:np.ndarray, i:int, min_block_size:int)->bool:
+    while i>=0:
+        if daysmap[i] != 0: return False
+        min_block_size -= 1
+        if min_block_size < 1: return True
+        i -= 1
+    return False
+
+def set_block_to_node_backwards(daysmap:np.ndarray, i:int, block_size:int, node_id:float)->int:
+    while block_size > 0:
+        daysmap[i]=node_id
+        i -= 1
+        block_size -= 1
+    return i
+
+def min_block_available_forwards(daysmap:np.ndarray, i:int, min_block_size:int)->bool:
+    while i<len(daysmap):
+        if daysmap[i] != 0: return False
+        min_block_size -= 1
+        if min_block_size < 1: return True
+        i += 1
+    return False
+
+def set_block_to_node_forwards(daysmap:np.ndarray, i:int, block_size:int, node_id:float)->int:
+    while block_size > 0:
+        daysmap[i]=node_id
+        i += 1
+        block_size -= 1
+    return i
+
+def map_fixed_target_date_entries(days:dict, daysmap:np.ndarray, options:dict)->tuple:
     # For each fixed target date entry, find the latest available minute
     # and start filling back from there.
+    min_block_size = options['min_block_size']
     day_dates = list(days.keys())
     fixed_consumed = 0
     for day_n in range(len(days)):
@@ -188,15 +220,19 @@ def map_fixed_target_date_entries(days:dict, daysmap:np.ndarray)->tuple:
                 tdprop_by_node[node_id] = 'fixed'
                 i = latest_td_index
                 while i>=0 and num_minutes>0:
-                    if daysmap[i]==0:
-                        daysmap[i]=node_id
-                        num_minutes -= 1
-                        fixed_consumed += 1
-                    i -= 1
+                    next_grab = min(num_minutes, min_block_size)
+                    if min_block_available_backwards(daysmap, i, next_grab): #daysmap[i]==0:
+                        i = set_block_to_node_backwards(daysmap, i, next_grab, node_id)
+                        #daysmap[i]=node_id
+                        num_minutes -= next_grab
+                        fixed_consumed += next_grab
+                    else:
+                        i -= 1
     print('Minutes consumed by fixed target date Nodes: %d' % fixed_consumed)
     return daysmap, fixed_consumed
 
-def map_variable_target_date_entries(days:dict, daysmap:np.ndarray, start_at=0)->tuple:
+def map_variable_target_date_entries(days:dict, daysmap:np.ndarray, options:dict, start_at=0)->tuple:
+    min_block_size = options['min_block_size']
     day_dates = list(days.keys())
     variable_consumed = 0
     for day_n in range(start_at, len(days)):
@@ -211,11 +247,14 @@ def map_variable_target_date_entries(days:dict, daysmap:np.ndarray, start_at=0)-
                 tdprop_by_node[node_id] = 'variable'
                 i = 0
                 while i<len(daysmap) and num_minutes>0:
-                    if daysmap[i]==0:
-                        daysmap[i]=node_id
+                    next_grab = min(num_minutes, min_block_size)
+                    if min_block_available_forwards(daysmap, i, next_grab): #daysmap[i]==0:
+                        i = set_block_to_node_forwards(daysmap, i, next_grab, node_id)
+                        #daysmap[i]=node_id
                         num_minutes -= 1
                         variable_consumed += 1
-                    i += 1
+                    else:
+                        i += 1
     print('Minutes consumed by variable target date Nodes: %d' % variable_consumed)
     return daysmap, variable_consumed
 
@@ -237,12 +276,12 @@ def get_and_map_more_variable_target_date_entries(days:dict, daysmap:np.ndarray,
                     more_minutes += num_minutes
                     if more_minutes >= remaining_minutes:
                         print('Additional variable target date Node minutes found: %d' % more_minutes)
-                        return map_variable_target_date_entries(more_days, daysmap, start_at=len(days))
+                        return map_variable_target_date_entries(more_days, daysmap, options=options, start_at=len(days))
         num_days += 15
         if num_days > 150:
             print('WARNING: Unable to fill all remaining minutes with variable target date Nodes within 150 days.')
             print('Additional variable target date Node minutes found: %d' % more_minutes)
-            return map_variable_target_date_entries(more_days, daysmap, start_at=len(days))
+            return map_variable_target_date_entries(more_days, daysmap, options=options, start_at=len(days))
 
 def get_interval(start_minute:int, end_minute:int, days:dict)->tuple:
     start_delta = datetime.timedelta(minutes=start_minute)
@@ -273,6 +312,13 @@ DAY_QUARTER_COLOR = {
     2: '0000ff',
     3: 'ff00ff',
 }
+
+ENTRY_CSV_TEMPLATE = '''%s,%s,%s,%s
+'''
+
+MAP_CSV_TEMPLATE = '''start,minutes,tdprop,id
+%s
+'''
 
 ENTRY_HTML_TEMPLATE = '''<tr>
 <td style="color:#%s;">%s</td><td>%s%d mins</td>
@@ -306,6 +352,17 @@ MAP_HTML_TEMPLATE = '''<html>
 </html>
 '''
 
+def print_entry_csv(start_minute:int, end_minute:int, days:dict, node_id:float, options:dict)->str:
+    interval_start, interval_end, interval_minutes = get_interval(start_minute, end_minute, days)
+    #node_desc = get_node_description(node_id, options).replace('\n',' ')
+    #print('Printing entry for Node '+str(node_id))
+    return ENTRY_CSV_TEMPLATE % (
+        interval_start.strftime('%x %H:%M'),
+        interval_minutes,
+        tdprop_by_node[float(node_id)],
+        node_id,)
+        #node_desc)
+
 def print_entry_html(start_minute:int, end_minute:int, days:dict, node_id:float, options:dict)->str:
     interval_start, interval_end, interval_minutes = get_interval(start_minute, end_minute, days)
     interval_hrs = interval_minutes // 60
@@ -326,6 +383,28 @@ def print_entry_html(start_minute:int, end_minute:int, days:dict, node_id:float,
         tdprop_by_node[float(node_id)],
         node_id,
         node_desc)
+
+def print_map_csv(daysmap:np.ndarray, passed_minutes:int, days:dict, options:dict):
+    node_id = 0
+    start_minute = 0
+    rows = ''
+    for minute in range(passed_minutes, len(daysmap)):
+        if daysmap[minute] != node_id:
+            if node_id != 0:
+                rows += print_entry_csv(start_minute, minute, days, node_id, options)
+            node_id = daysmap[minute]
+            start_minute = minute
+    if node_id != 0:
+        rows += print_entry_csv(start_minute, len(daysmap), days, node_id, options)
+    map_csv = MAP_CSV_TEMPLATE % rows
+    #print(map_csv)
+    try:
+        print('Writing days map to %s.' % options['outfile'])
+        with open(options['outfile'],'w') as f:
+            f.write(map_csv)
+        print('Days map written to %s.' % options['outfile'])
+    except Exception as e:
+        print('Unable to write days map to file. Exception: '+str(e))
 
 def print_map_html(daysmap:np.ndarray, passed_minutes:int, days:dict, options:dict):
     node_id = 0
@@ -348,14 +427,19 @@ def print_map_html(daysmap:np.ndarray, passed_minutes:int, days:dict, options:di
         print('Unable to write days map to file. Exception: '+str(e))
 
 HELP='''
-schedule.py -d <num_days>
+schedule.py -d <num_days> <-w|-c|-W> [-s <min-minutes>]
 
 Options:
   -d    Number of days to schedule (default: 1).
   -w    Output to web schedule file.
+  -c    Output to .csv format.
+  -W    Output to .csv for use in web output.
+  -s    Minimum block size in minutes (default: 1).
 
-The resulting schedule is written to %s if -w, otherwise
-to %s.
+The resulting schedule is written to /tmp%s if -c,
+to %s%s if -W,
+to %s if -w,
+otherwise to %s.
 
 '''
 
@@ -365,24 +449,37 @@ def parse_command_line()->dict:
     num_days = 1
     outfile = defaultschedulefile
     web = False
+    csv = False
+    min_block_size = 1
 
     cmdline = argv.copy()
     scriptpath = cmdline.pop(0)
     while len(cmdline) > 0:
         arg = cmdline.pop(0)
         if arg == '-h':
-            print(HELP % (webschedulefile, defaultschedulefile))
+            print(HELP % (csvschedulefile, webdata_path, csvschedulefile, webschedulefile, defaultschedulefile))
             exit(0)
         elif arg== '-d':
             num_days = int(cmdline.pop(0))
         elif arg== '-w':
             outfile = webschedulefile
             web = True
+        elif arg== '-c':
+            outfile = '/tmp'+csvschedulefile
+            csv = True
+        elif arg== '-W':
+            outfile = webdata_path+csvschedulefile
+            csv = True
+            web = True # This ensures that thecmd are preceded by './'.
+        elif arg== '-s':
+            min_block_size = int(cmdline.pop(0))
 
     return {
         "num_days": num_days,
         "outfile": outfile,
         "web": web,
+        "csv": csv,
+        "min_block_size": min_block_size,
     }
 
 STRATEGY_1='''
@@ -419,11 +516,14 @@ if __name__ == '__main__':
     days = convert_to_data_by_day(schedule_data)
     daysmap, total_minutes, passed_minutes = initialize_days_map(days)
     daysmap, exact_consumed = map_exact_target_date_entries(days, daysmap)
-    daysmap, fixed_consumed = map_fixed_target_date_entries(days, daysmap)
-    daysmap, variable_consumed = map_variable_target_date_entries(days, daysmap)
+    daysmap, fixed_consumed = map_fixed_target_date_entries(days, daysmap, options)
+    daysmap, variable_consumed = map_variable_target_date_entries(days, daysmap, options=options)
     remaining_minutes = total_minutes - exact_consumed - fixed_consumed - variable_consumed - passed_minutes
     print('Remaining minutes to fill with variable target date entries: %d' % remaining_minutes)
     if remaining_minutes > 0:
         daysmap, more_variable_consumed = get_and_map_more_variable_target_date_entries(days, daysmap, remaining_minutes, options)
-    print_map_html(daysmap, passed_minutes, days, options)
+    if options['csv']:
+        print_map_csv(daysmap, passed_minutes, days, options)
+    else:
+        print_map_html(daysmap, passed_minutes, days, options)
     #clean_up_temporary_files()

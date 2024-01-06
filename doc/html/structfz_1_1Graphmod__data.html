@@ -85,13 +85,19 @@ $(function() {
 Inheritance diagram for fz::Graphmod_data:</div>
 <div class="dyncontent">
 <div class="center"><img src="structfz_1_1Graphmod__data__inherit__graph.png" border="0" usemap="#afz_1_1Graphmod__data_inherit__map" alt="Inheritance graph"/></div>
-<!-- MAP 0 -->
+<map name="afz_1_1Graphmod__data_inherit__map" id="afz_1_1Graphmod__data_inherit__map">
+<area shape="rect" title="This is the data structure used for elements of the request stack for Graph modification." alt="" coords="5,80,152,107"/>
+<area shape="rect" href="classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="26,5,131,32"/>
+</map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
 Collaboration diagram for fz::Graphmod_data:</div>
 <div class="dyncontent">
 <div class="center"><img src="structfz_1_1Graphmod__data__coll__graph.png" border="0" usemap="#afz_1_1Graphmod__data_coll__map" alt="Collaboration graph"/></div>
-<!-- MAP 1 -->
+<map name="afz_1_1Graphmod__data_coll__map" id="afz_1_1Graphmod__data_coll__map">
+<area shape="rect" title="This is the data structure used for elements of the request stack for Graph modification." alt="" coords="5,80,152,107"/>
+<area shape="rect" href="classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="26,5,131,32"/>
+</map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -255,23 +261,24 @@ time_t&#160;</td><td class="memItemRight" valign="bottom"><b>t_pass</b> = <a cla
 Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pub_types_classfz_1_1Edit__flags"><td colspan="2" onclick="javascript:toggleInherit('pub_types_classfz_1_1Edit__flags')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classfz_1_1Edit__flags.html">fz::Edit_flags</a></td></tr>
 <tr class="memitem:acc34d25a1ef5502c6731b3083119b197 inherit pub_types_classfz_1_1Edit__flags"><td class="memItemLeft" align="right" valign="top"><a id="acc34d25a1ef5502c6731b3083119b197"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>editmask</b> : Edit_flags_type { <br />
-&#160;&#160;<b>topics</b> = 0b0000'0000'0000'0001
-, <b>valuation</b> = 0b0000'0000'0000'0010
-, <b>completion</b> = 0b0000'0000'0000'0100
-, <b>required</b> = 0b0000'0000'0000'1000
+&#160;&#160;<b>topics</b> = 0b0000'0000'0000'0000'0000'0000'0000'0001
+, <b>valuation</b> = 0b0000'0000'0000'0000'0000'0000'0000'0010
+, <b>completion</b> = 0b0000'0000'0000'0000'0000'0000'0000'0100
+, <b>required</b> = 0b0000'0000'0000'0000'0000'0000'0000'1000
 , <br />
-&#160;&#160;<b>text</b> = 0b0000'0000'0001'0000
-, <b>targetdate</b> = 0b0000'0000'0010'0000
-, <b>tdproperty</b> = 0b0000'0000'0100'0000
-, <b>repeats</b> = 0b0000'0000'1000'0000
+&#160;&#160;<b>text</b> = 0b0000'0000'0000'0000'0000'0000'0001'0000
+, <b>targetdate</b> = 0b0000'0000'0000'0000'0000'0000'0010'0000
+, <b>tdproperty</b> = 0b0000'0000'0000'0000'0000'0000'0100'0000
+, <b>repeats</b> = 0b0000'0000'0000'0000'0000'0000'1000'0000
 , <br />
-&#160;&#160;<b>tdpattern</b> = 0b0000'0001'0000'0000
-, <b>tdevery</b> = 0b0000'0010'0000'0000
-, <b>tdspan</b> = 0b0000'0100'0000'0000
-, <b>topicrels</b> = 0b0000'1000'0000'0000
+&#160;&#160;<b>tdpattern</b> = 0b0000'0000'0000'0000'0000'0001'0000'0000
+, <b>tdevery</b> = 0b0000'0000'0000'0000'0000'0010'0000'0000
+, <b>tdspan</b> = 0b0000'0000'0000'0000'0000'0100'0000'0000
+, <b>topicrels</b> = 0b0000'0000'0000'0000'0000'1000'0000'0000
 , <br />
-&#160;&#160;<b>tcreated</b> = 0b0001'0000'0000'0000
-, <b>supdep</b> = 0b0010'0000'0000'0000
+&#160;&#160;<b>tcreated</b> = 0b0000'0000'0000'0000'0001'0000'0000'0000
+, <b>supdep</b> = 0b0000'0000'0000'0000'0010'0000'0000'0000
+, <b>nnl</b> = 0b0000'0000'0000'0000'0100'0000'0000'0000
 , <b>error</b> = 0b0100'0000'0000'0000'0000'0000'0000'0000
 <br />
  }</td></tr>

@@ -1,5 +1,5 @@
 <map id="fz::formalizer_standard_program" name="fz::formalizer_standard_program">
-<area shape="rect" id="node1" title="This class provides a framework for standardized Formalizer programs." alt="" coords="5,454,179,495"/>
+<area shape="rect" id="node1" title="This class provides a framework for standardized Formalizer programs." alt="" coords="5,479,179,521"/>
 <area shape="rect" id="node2" href="$structboilerplate.html" title=" " alt="" coords="243,5,335,32"/>
 <area shape="rect" id="node3" href="$classdil2graph.html" title=" " alt="" coords="248,56,331,83"/>
 <area shape="rect" id="node4" href="$structfzdashboard.html" title=" " alt="" coords="238,107,341,133"/>
@@ -17,6 +17,7 @@
 <area shape="rect" id="node16" href="$structfzserverpq.html" title=" " alt="" coords="244,715,335,741"/>
 <area shape="rect" id="node17" href="$structfzserverpqlog.html" title=" " alt="" coords="234,765,345,792"/>
 <area shape="rect" id="node18" href="$structfzupdate.html" title=" " alt="" coords="250,816,329,843"/>
-<area shape="rect" id="node19" href="$structgraph2dil.html" title=" " alt="" coords="248,867,331,893"/>
-<area shape="rect" id="node20" href="$structnodeboard.html" title=" " alt="" coords="244,917,335,944"/>
+<area shape="rect" id="node19" href="$structfzvismilestones.html" title=" " alt="" coords="227,867,352,893"/>
+<area shape="rect" id="node20" href="$structgraph2dil.html" title=" " alt="" coords="248,917,331,944"/>
+<area shape="rect" id="node21" href="$structnodeboard.html" title=" " alt="" coords="244,968,335,995"/>
 </map>

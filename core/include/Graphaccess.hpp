@@ -38,7 +38,7 @@ struct Graph_access: public Postgres_access {
     /**
      * Carry out initializations needed to enable access to the Graph data structure.
      * 
-     * @param add_topion_args_here receiving string where "d:" is appended to extend
+     * @param add_option_args_here receiving string where "d:" is appended to extend
      *                             command line options recognized.
      * @param add_usage_top_here receiving string where the option format is appended
      *                           to extend the top line of usage output.

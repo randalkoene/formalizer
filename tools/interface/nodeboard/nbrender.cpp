@@ -7,6 +7,7 @@
  * For more about this, see the Trello card at https://trello.com/c/w2XnEQcc
  */
 
+#include <cmath>
 #include <iostream>
 #include <stdexcept>
 
@@ -40,7 +41,11 @@ const std::vector<std::string> template_ids = {
     "Kanban_column",
     "Kanban_alt_column",
     "Kanban_alt_board",
-    "Node_alt_card"
+    "Node_alt_card",
+    "Schedule_card",
+    "Schedule_board",
+    "Schedule_column",
+    "Node_analysis_card",
 };
 
 bool load_templates(nodeboard_templates & templates) {
@@ -62,10 +67,10 @@ nodeboard::nodeboard():
     output_path("/var/www/html/formalizer/test_node_card.html"),
     graph_ptr(nullptr) {
 
-    add_option_args += "RGgn:L:D:l:t:m:f:IF:H:To:";
+    add_option_args += "RGgn:L:D:l:t:m:f:c:IF:H:TPo:";
     add_usage_top += " [-R] [-G|-g] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
-        " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-I] [-F <substring>]"
-        " [-H <board-header>] [-T] [-o <output-file|STDOUT>]";
+        " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-F <substring>]"
+        " [-H <board-header>] [-T] [-P] [-o <output-file|STDOUT>]";
 }
 
 void nodeboard::usage_hook() {
@@ -79,18 +84,20 @@ void nodeboard::usage_hook() {
         "    -D Dependencies of Nodes in Named Node List.\n"
         "    -l List of Named Node Lists.\n"
         "    -t List of Topics.\n"
-        "    -m List of mixed Topics and NNLs (prepend with 'NNL:').\n"
-        "    -f Use categories from sysmet-style JSON file.\n"
         "\n"
         "       If <name> or <topic> contain a ':' then text preceding it is\n"
         "       used as a custom header.\n"
         "\n"
+        "    -m List of mixed Topics and NNLs (prepend with 'NNL:').\n"
+        "    -f Use categories from sysmet-style JSON file.\n"
+        "    -c Generate schedule based on CSV file.\n"
         "    -I Include completed Nodes.\n"
         "       This also includes Nodes with completion values < 0.\n"
         "    -F Filter to show only Nodes where the first 80 characters contain the\n"
         "       substring.\n"
         "    -H Board header.\n"
         "    -T Threads.\n"
+        "    -P Progress analaysis.\n"
         "    -o Output to file (or STDOUT).\n"
         "       Default: /var/www/html/formalizer/test_node_card.html\n"
         "\n"
@@ -159,6 +166,12 @@ bool nodeboard::options_hook(char c, std::string cargs) {
             return true;
         }
 
+        case 'c': {
+            flowcontrol = flow_csv_schedule;
+            source_file = cargs;
+            return true;
+        }
+
         case 'I': {
             show_completed = true;
             return true;
@@ -178,6 +191,11 @@ bool nodeboard::options_hook(char c, std::string cargs) {
 
         case 'T': {
             threads = true;
+            return true;
+        }
+
+        case 'P': {
+            progress_analysis = true;
             return true;
         }
 
@@ -222,6 +240,51 @@ bool nodeboard::parse_header_identifier(const std::string & arg, std::string & h
     return true;
 }
 
+CSV_Data::CSV_Data(Graph & graph, const std::string & csv_line) {
+    std::vector<std::string> csv_elements = split(csv_line, ',');
+    if (csv_elements.size() < 4) {
+        node_ptr = nullptr;
+        return;
+    }
+
+    std::vector<std::string> start_components = split(csv_elements[0], ' ');
+    if (start_components.size() < 2) {
+        node_ptr = nullptr;
+        return;
+    }
+
+    start_date = start_components[0];
+    start_time = start_components[1];
+    num_minutes = atoi(csv_elements[1].c_str());
+    tdprop = csv_elements[2][0];
+    node_ptr = graph.Node_by_idstr(csv_elements[3]);
+}
+
+bool nodeboard::parse_csv(const std::string & csv_data) {
+    std::vector<std::string> csv_lines = split(csv_data, '\n');
+    if (csv_lines.size() < 2) {
+        standard_error("Missing data lines in CSV file.", __func__);
+        return false;
+    }
+
+    std::string current_day;
+    for (unsigned int i = 1; i < csv_lines.size(); i++) {
+        CSV_Data data(graph(), csv_lines[i]);
+        if (!data.node_ptr) {
+            continue;
+        }
+        if (data.start_date != current_day) {
+            current_day = data.start_date;
+            FZOUT("\nTESTING --> New day: "+data.start_date+'\n');
+            csv_data_vec.emplace_back(CSV_Data_Day());
+        }
+        csv_data_vec.back().day.emplace_back(data);
+        FZOUT("+");
+    }
+    FZOUT("\n");
+    return true;
+}
+
 Graph & nodeboard::graph() { 
     if (graph_ptr) {
         return *graph_ptr;
@@ -231,6 +294,29 @@ Graph & nodeboard::graph() {
         standard_exit_error(exit_general_error, "Memory resident Graph not found.", __func__);
     }
     return *graph_ptr;
+}
+
+std::string nodeboard::build_nodeboard_cgi_call(flow_options _floption, bool _threads, bool _showcompleted, bool _progressanalysis) {
+    std::string cgi_cmd("/cgi-bin/nodeboard-cgi.py?");
+    switch (_floption) {
+        case flow_NNL_dependencies: {
+            cgi_cmd += "D="+list_name;
+            break;
+        }
+        default: {
+            return "";
+        }
+    }
+    if (_showcompleted) {
+        cgi_cmd += "&I=true";
+    }
+    if (_threads) {
+        cgi_cmd += "&T=true";
+    }
+    if (_progressanalysis) {
+        cgi_cmd += "&P=true";
+    }
+    return cgi_cmd;
 }
 
 bool nodeboard::render_init() {
@@ -287,20 +373,20 @@ bool nodeboard::get_Node_card(const Node * node_ptr, std::string & rendered_card
     return true;
 }
 
-bool nodeboard::get_Node_alt_card(const Node * node_ptr, std::time_t tdate, std::string & rendered_cards) {
+Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time_t tdate, std::string & rendered_cards, Node_Subtree * subtree_ptr) {
     if (!node_ptr) {
-        return false;
+        return node_render_error;
     }
 
     if ((!show_completed) && (!node_ptr->is_active())) {
-        return true;
+        return node_not_rendered;
     }
 
     std::string node_text = node_ptr->get_text();
     if (!filter_substring.empty()) {
         std::string excerpt = node_text.substr(0, filter_substring_excerpt_length);
         if (excerpt.find(filter_substring)==std::string::npos) {
-            return true;
+            return node_not_rendered;
         }
     }
 
@@ -309,24 +395,29 @@ bool nodeboard::get_Node_alt_card(const Node * node_ptr, std::time_t tdate, std:
     nodevars.emplace("node-id", node_ptr->get_id_str());
     nodevars.emplace("node-deps", node_ptr->get_id_str());
     nodevars.emplace("node-text", node_text);
-    float progress = node_ptr->get_completion()*100.0;
+    float completion = node_ptr->get_completion();
+    float progress = completion*100.0;
     if (progress < 0.0) progress = 100.0;
     if (progress > 100.0) progress = 100.0;
     nodevars.emplace("node-progress", to_precision_string(progress, 1));
     nodevars.emplace("node-targetdate", " ("+DateStampYmd(tdate)+')');
 
     std::string prereqs_str;
+    std::string hours_applied_str;
     if (threads) {
         // Look for specified prerequisites and their state.
         auto prereqs = get_prerequisites(*node_ptr, true);
         if (!prereqs.empty()) {
             unsigned int num_unsolved = 0;
             unsigned int num_unfulfilled = 0;
+            unsigned int num_fulfilled = 0;
             for (const auto & prereq : prereqs) {
                 if (prereq.state()==unsolved) {
                     num_unsolved++;
                 } else if (prereq.state()==unfulfilled) {
                     num_unfulfilled++;
+                } else {
+                    num_fulfilled++;
                 }
             }
             if ((num_unsolved > 0) || (num_unfulfilled > 0)) {
@@ -339,9 +430,61 @@ bool nodeboard::get_Node_alt_card(const Node * node_ptr, std::time_t tdate, std:
                 }
                 prereqs_str += "prerequisites</p>";
             }
+
+            if (subtree_ptr) {
+                subtree_ptr->prerequisites_with_solving_nodes += num_fulfilled + num_unfulfilled;
+                subtree_ptr->unsolved_prerequisites += num_unsolved;
+            }
+        }
+
+        if (progress_analysis && (!node_ptr->is_special_code())) {
+            float hours_applied;
+            float hours_required = node_ptr->get_required_hours();
+            if (!node_ptr->get_repeats()) {
+                // Determine actual time applied to this Node from its Log history.
+                auto minutes_applied = get_Node_total_minutes_applied(node_ptr->get_id().key());
+                hours_applied = float(minutes_applied)/60.0;
+                hours_applied_str = "<p>hours applied: "+to_precision_string(hours_applied, 2);
+
+                // If possible, propose a corrected required time.
+                if (minutes_applied > 0) {
+                    // Also, detect incorrect completion==0.
+                    if (completion==0.0) {
+                        hours_applied_str += " <span style=\"color:red;\"><b>Erroneous Zero Completion</b></span>";
+                    } else {
+                        long minutes_required = node_ptr->get_required_minutes();
+                        if (completion > 1.0) {
+                            minutes_required = round(float(minutes_required)*completion);
+                            completion = 1.0;
+                        }
+                        long proposed_minutes_required = round(float(minutes_applied) / completion);
+                        if (proposed_minutes_required != minutes_required) {
+                            hours_required = float(proposed_minutes_required)/60.0;
+                            hours_applied_str += " Proposed corrected required time: <b>"+to_precision_string(hours_required, 2)+" hrs</b>";
+                        }
+                    }
+                }
+            } else {
+                hours_applied = hours_required*completion;
+                hours_applied_str = "<p>hours applied (this instance): "+to_precision_string(hours_applied, 2);
+            }
+            hours_applied_str += "</p>";
+
+            // Check if more granularity would be advised.
+            float hours_remaining = (1.0-completion)*hours_required;
+            if (hours_remaining > 2.0) {
+                hours_applied_str += "<p style=\"color:red;\">Advise more granularity!</p>";
+            }
+
+            if (subtree_ptr) {
+                // Gather combined data for subtree.
+                subtree_ptr->hours_required += hours_required;
+                subtree_ptr->hours_applied += hours_applied;
+            }
         }
     }
     nodevars.emplace("node-prereqs", prereqs_str);
+    nodevars.emplace("node-hrsapplied", hours_applied_str);
 
     std::string node_color;
     if (node_ptr->is_active()) {
@@ -361,11 +504,71 @@ bool nodeboard::get_Node_alt_card(const Node * node_ptr, std::time_t tdate, std:
     nodevars.emplace("filter-substr", include_filter_substr);
 
     // For each node: Create a Kanban card and add it to the output HTML.
-    rendered_cards += env.render(templates[node_alt_card_temp], nodevars);
+    if (progress_analysis) {
+        rendered_cards += env.render(templates[node_analysis_card_temp], nodevars);
+    } else {
+        rendered_cards += env.render(templates[node_alt_card_temp], nodevars);
+    }
+    if (node_ptr->is_active()) {
+        return node_rendered_active;
+    }
+    return node_rendered_inactive;
+}
+
+/**
+ * vh = 1% of viewport height
+ * Try to use 5/6 of height for the calendar, i.e. about 84vh.
+ * A day contains 288 blocks of 5 minutes each, or 72 of 20 minutes each (each 84/72=1.17vh or about 1.2vh), or 48 (each 1.75vh) of 30 minutes each (each 2.8vh).
+ * There are 1440 minutes in a day.
+ * Finding the nearest 20 minute block: trunc((start_minute/1440)*72)
+ * Finding the position of a 20 minute-chunked start: trunc( 1.17*(start_minute/1440)*72)
+ */
+float get_card_vertical_position(const std::string & start_time, float v_offset = 4.0) {
+    int hour = atoi(start_time.substr(0, 2).c_str());
+    int minute = atoi(start_time.substr(3, 2).c_str());
+    float start_minute = (hour*60) + minute;
+    return 1.17*(start_minute/1440.0)*72.0 + v_offset;
+}
+
+/**
+ * Each minute is 1/1440 of the day, thus, using the same vertical calculation as above,
+ * each minute has a height of 84/1440=0.0583vh.
+ */
+float get_card_height(unsigned int minutes) {
+    return (float(minutes))*0.0583;
+}
+
+const std::map<char, std::string> schedule_entry_color = {
+    {'e', "w3-light-grey"},
+    {'f', "w3-pale-green"},
+    {'v', "w3-khaki"}
+};
+
+bool nodeboard::get_Schedule_card(const CSV_Data & entry_data, std::string & rendered_cards) {
+    if (!entry_data.node_ptr) {
+        return false;
+    }
+
+    std::string node_text = entry_data.node_ptr->get_text();
+    std::string excerpt = remove_html_tags(node_text).substr(0, 80);
+
+    // For each node: Set up a map of content to template position IDs.
+    template_varvalues nodevars;
+    nodevars.emplace("node-id", entry_data.node_ptr->get_id_str());
+    nodevars.emplace("node-color", schedule_entry_color.at(entry_data.tdprop));
+    nodevars.emplace("node-text", excerpt);
+    nodevars.emplace("start-time", entry_data.start_time);
+    nodevars.emplace("minutes", std::to_string(entry_data.num_minutes));
+    nodevars.emplace("vert-pos", to_precision_string(get_card_vertical_position(entry_data.start_time), 2));
+    nodevars.emplace("node-height", to_precision_string(get_card_height(entry_data.num_minutes)));
+    nodevars.emplace("fzserverpq", graph().get_server_full_address());
+
+    // For each node: Create a Kanban card and add it to the output HTML.
+    rendered_cards += env.render(templates[schedule_card_temp], nodevars);
     return true;
 }
 
-bool nodeboard::get_column(const std::string & column_header, const std::string & rendered_cards, std::string & rendered_columns, const std::string extra_header = "") {
+bool nodeboard::get_column(const std::string & column_header, const std::string & rendered_cards, std::string & rendered_columns, const std::string extra_header = "", template_id_enum column_template = kanban_column_temp) {
     // For each column: Set up a map of content to template position IDs.
     template_varvalues column;
     column.emplace("column-id", column_header);
@@ -373,23 +576,23 @@ bool nodeboard::get_column(const std::string & column_header, const std::string 
     column.emplace("column-cards", rendered_cards);
 
     // For each node: Create a Kanban card and add it to the output HTML.
-    rendered_columns += env.render(templates[kanban_column_temp], column);
+    rendered_columns += env.render(templates[column_template], column);
     num_columns++;
     return true;
 }
 
-bool nodeboard::get_alt_column(const std::string & column_header, const std::string & rendered_cards, std::string & rendered_columns, const std::string extra_header = "") {
-    // For each column: Set up a map of content to template position IDs.
-    template_varvalues column;
-    column.emplace("column-id", column_header);
-    column.emplace("column-extra", extra_header);
-    column.emplace("column-cards", rendered_cards);
+// bool nodeboard::get_alt_column(const std::string & column_header, const std::string & rendered_cards, std::string & rendered_columns, const std::string extra_header = "") {
+//     // For each column: Set up a map of content to template position IDs.
+//     template_varvalues column;
+//     column.emplace("column-id", column_header);
+//     column.emplace("column-extra", extra_header);
+//     column.emplace("column-cards", rendered_cards);
 
-    // For each node: Create a Kanban card and add it to the output HTML.
-    rendered_columns += env.render(templates[kanban_alt_column_temp], column);
-    num_columns++;
-    return true;
-}
+//     // For each node: Create a Kanban card and add it to the output HTML.
+//     rendered_columns += env.render(templates[kanban_alt_column_temp], column);
+//     num_columns++;
+//     return true;
+// }
 
 bool nodeboard::get_dependencies_column(const std::string & column_header, const Node * column_node, std::string & rendered_columns, const std::string extra_header = "") {
 
@@ -413,8 +616,34 @@ bool nodeboard::get_dependencies_column(const std::string & column_header, const
     return get_column(column_header, rendered_cards, rendered_columns, extra_header);
 }
 
+/*
+When an NNL is converted to a board with dependencies, and when the Threads flag
+is set, then requesting progress analysis causes the Log histories of the Nodes
+in the Threads to be retrieved in order to obtain the actual time spent on each.
+
+In a Node page, pressing the history button calls fzlink, and if it is the full
+history, then that uses fzloghtml with the -t and -n options, so that only
+Log chunks belonging to a Node are retrieved, and so that total time applied is
+shown.
+
+In fzloghtml, this is done by:
+
+1. fzloghtml fzlh; // Has Log_filter called filter.
+2. During constructor of fzlh: fzlh.ga(*fzlh, add_option_args, add_usage_top); // Graph_access
+3. fzlh.filter.nkey = Node_ID_key(id_str);
+4. fzlh.set_filter(); // Can skip! This does nothing, because nothing set implies full history for Node.
+5. log_ptr = ga.request_Log_excerpt(filter);
+6. total_minutes_applied = Chunks_total_minutes(edata.log_ptr->get_Chunks());
+*/
+
+unsigned long nodeboard::get_Node_total_minutes_applied(const Node_ID_key nkey) {
+    filter.nkey = nkey;
+    std::unique_ptr<Log> log_uptr = ga.request_Log_excerpt(filter);
+    return Chunks_total_minutes(log_uptr->get_Chunks());
+}
+
 //bool nodeboard::get_fulldepth_dependencies_column(const std::string & column_header, const base_Node_Set & column_set, std::string & rendered_columns, const std::string extra_header = "") {
-bool nodeboard::get_fulldepth_dependencies_column(const std::string & column_header, Node_ID_key column_key, std::string & rendered_columns, const std::string extra_header = "") {
+bool nodeboard::get_fulldepth_dependencies_column(std::string & column_header, Node_ID_key column_key, std::string & rendered_columns, const std::string extra_header = "") {
     if (!map_of_subtrees.is_subtree_head(column_key)) {
         standard_error("Node "+column_key.str()+" is not a head Node in NNL '"+map_of_subtrees.subtrees_list_name+"', skipping", __func__);
         return false;
@@ -424,16 +653,21 @@ bool nodeboard::get_fulldepth_dependencies_column(const std::string & column_hea
 
     float tot_required_hrs = 0;
     float tot_completed_hrs = 0;
+    unsigned int active_rendered = 0;
     // Add all dependencies found to the column as cards.
     //for (const auto & depkey : map_of_subtrees.get_subtree_set(column_key)) {
-    for (const auto & [tdate, depnode_ptr] : map_of_subtrees.get_subtree_set(column_key).tdate_node_pointers) {
+    auto & subtree_set = map_of_subtrees.get_subtree_set(column_key);
+    for (const auto & [tdate, depnode_ptr] : subtree_set.tdate_node_pointers) {
         //Node_ptr depnode_ptr = graph().Node_by_id(depkey);
         if (!depnode_ptr) {
             standard_error("Dependency Node not found, skipping", __func__);
             continue;
         }
-        if (!get_Node_alt_card(depnode_ptr, tdate, rendered_cards)) {
+        auto noderenderresult = get_Node_alt_card(depnode_ptr, tdate, rendered_cards, const_cast<Node_Subtree*>(&subtree_set));
+        if (noderenderresult==node_render_error) {
             standard_error("Dependency Node not found in Graph, skipping", __func__);
+        } else if (noderenderresult==node_rendered_active) {
+            active_rendered++;
         }
 
         // Obtain contributions to thread progress.
@@ -458,7 +692,27 @@ bool nodeboard::get_fulldepth_dependencies_column(const std::string & column_hea
     }
     std::string extra_header_with_progress = extra_header + "<br>Progress: " + to_precision_string(thread_progress, 1) + "&#37;";
 
-    return get_alt_column(column_header, rendered_cards, rendered_columns, extra_header_with_progress);
+    if (progress_analysis) {
+        if (subtree_set.hours_required > 0.0) {
+            float corrected_thread_progress = 100.0 * subtree_set.hours_applied / subtree_set.hours_required;
+            extra_header_with_progress += "<br>Corrected progress: " + to_precision_string(corrected_thread_progress, 1) + "&#37;";
+
+            if ((subtree_set.unsolved_prerequisites > 0) && (subtree_set.prerequisites_with_solving_nodes > 0)) {
+                float unsolved_ratio = float(subtree_set.unsolved_prerequisites)/float(subtree_set.prerequisites_with_solving_nodes);
+                float hours_estimate_with_unsolved = (1.0 + unsolved_ratio)*subtree_set.hours_required;
+                float estimated_progress_with_unsolved = 100.0 * subtree_set.hours_applied / hours_estimate_with_unsolved;
+                extra_header_with_progress += "<br>Estimated progress with missing solutions: " + to_precision_string(estimated_progress_with_unsolved, 1) + "&#37;";
+            }
+        } else {
+            extra_header_with_progress += "<br>(Unable to show corrected progress. Zero hours required.)";
+        }
+    }
+
+    if (threads && (active_rendered==0)) {
+        column_header = "<span style=\"color:red;\">"+column_header+"</span>";
+    }
+
+    return get_column(column_header, rendered_cards, rendered_columns, extra_header_with_progress, kanban_alt_column_temp);
 }
 
 bool nodeboard::get_NNL_column(const std::string & nnl_str, std::string & rendered_columns) {
@@ -508,6 +762,25 @@ bool nodeboard::get_Topic_column(const std::string & topic_str, std::string & re
     return get_column(header, rendered_cards, rendered_columns);
 }
 
+bool nodeboard::get_day_column(unsigned int day_idx, std::string & rendered_columns) {
+    std::string header(csv_data_vec[day_idx].day[0].start_date);
+
+    time_t t_day = ymd_stamp_time("20"+header.substr(6, 2)+header.substr(0, 2)+header.substr(3, 2));
+    header = "<h4>"+WeekDay(t_day)+' '+DateStampYmd(t_day)+"</h4>";
+
+    std::string rendered_cards;
+
+    for (const auto & entry_data : csv_data_vec[day_idx].day) {
+
+        if (!get_Schedule_card(entry_data, rendered_cards)) {
+            standard_error("Node not found in Graph, skipping", __func__);
+        }
+
+    }
+
+    return get_column(header, rendered_cards, rendered_columns, "", schedule_column_temp);
+}
+
 bool nodeboard::make_simple_grid_board(const std::string & rendered_cards) {
     template_varvalues board;
     // Insert the HTML for all the cards into the Kanban board.
@@ -540,17 +813,19 @@ std::string nodeboard::call_comment_string() {
     return call_comment;
 }
 
-bool nodeboard::make_multi_column_board(const std::string & rendered_columns, bool use_alt_board, bool specify_rows) {
+bool nodeboard::make_multi_column_board(const std::string & rendered_columns, template_id_enum board_template, bool specify_rows, const std::string & col_width, const std::string & card_width) {
     template_varvalues board;
     // Insert the HTML for all the cards into the Kanban board.
     std::string column_widths;
     for (unsigned int i=0; i<num_columns; i++) {
-        column_widths += " 240px";
+        column_widths += col_width;
     }
-    //column_widths = " 270px repeat("+std::to_string(num_columns)+")";
     board.emplace("board-header", board_title);
     board.emplace("board-extra", board_title_extra);
     board.emplace("column-widths", column_widths);
+    if (!card_width.empty()) {
+        board.emplace("card-width", card_width);
+    }
     board.emplace("the-columns", rendered_columns);
     std::string specified_rows;
     if (specify_rows) {
@@ -565,11 +840,7 @@ bool nodeboard::make_multi_column_board(const std::string & rendered_columns, bo
     board.emplace("call-comment", call_comment_string());
     board.emplace("post-extra", post_extra);
     std::string rendered_board;
-    if (use_alt_board) {
-        rendered_board = env.render(templates[kanban_alt_board_temp], board);
-    } else {
-        rendered_board = env.render(templates[kanban_board_temp], board);
-    }
+    rendered_board = env.render(templates[board_template], board);
 
     return to_output(rendered_board);
 }
@@ -606,6 +877,7 @@ bool node_board_render_random_test(nodeboard & nb) {
     return nb.make_simple_grid_board(rendered_cards);
 }
 
+// *** TODO: Replace this with something that uses the make_button and build_nodeboard_cgi_call functions.
 std::string with_and_without_inactive_Nodes_buttons(const std::string & flow_request, const std::string & extra_options, bool current_page_shows_inactive) {
     std::string with_inactive(
         "<button class=\"button button1\" onclick=\"window.open('/cgi-bin/nodeboard-cgi.py?"
@@ -830,6 +1102,29 @@ bool node_board_render_sysmet_categories(nodeboard & nb) {
     return node_board_render_list_of_topics_and_NNLs(nb);
 }
 
+std::string prepare_headnode_description(nodeboard & nb, const Node & node) {
+    std::string headnode_description;
+
+    std::string htmltext(node.get_text().c_str());
+
+    if (nb.threads) {
+        auto visoutput_start = htmltext.find("@VISOUTPUT:");
+        if (visoutput_start != std::string::npos) {
+            visoutput_start += 11;
+            auto visoutput_end = htmltext.find('@', visoutput_start);
+            if (visoutput_end != std::string::npos) {
+                headnode_description = "<b>"+htmltext.substr(visoutput_start, visoutput_end - visoutput_start)+"</b>";
+            }
+        }
+    }
+
+    if (headnode_description.empty()) {
+        headnode_description = remove_html_tags(htmltext).substr(0,nb.excerpt_length);
+    }
+
+    return headnode_description;
+}
+
 //bool node_board_render_NNL_dependencies(Named_Node_List_ptr namedlist_ptr, nodeboard & nb) {
 bool node_board_render_NNL_dependencies(nodeboard & nb) {
     Named_Node_List_ptr namedlist_ptr = nb.graph().get_List(nb.list_name);
@@ -851,11 +1146,14 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
     nb.board_title_extra = with_and_without_inactive_Nodes_buttons("D="+nb.list_name, threads_option, nb.show_completed);
 
     if (nb.threads) {
+        nb.board_title_extra += make_button(nb.build_nodeboard_cgi_call(flow_NNL_dependencies, nb.threads, true, true), "With Progress Analysis", false);
         nb.board_title_extra +=
+            "<button class=\"button button1\" onclick=\"window.open('/cgi-bin/fzquerypq-cgi.py','_blank');\">Update Node histories</button>"
             "<b>Threads</b>:<br>"
             "Where @VISOUTPUT: ...@ is defined in Node content it is shown as the expected advantageous non-internal (visible) output of a thread.<br>"
             "Otherwise, an excerpt of Node content is shown as the thread header.<br>"
-            "The Nodes in a thread should be a clear set of steps leading to the output.";
+            "The Nodes in a thread should be a clear set of steps leading to the output.<br>"
+            "A red header indicates that there are no active Nodes to work on in a thread.";
     }
 
     nb.map_of_subtrees.sort_by_targetdate = true;
@@ -868,33 +1166,23 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
 
         // Get the next thread header Node.
         Node * node_ptr = nb.graph().Node_by_id(nkey);
+        if (!node_ptr) {
+            standard_error("Node "+nkey.str()+" not found in Graph, skipping", __func__);
+            continue;
+        }
+
+        // TODO: *** Should progress analysis also be applied to the header Node?
 
         std::string idtext(nkey.str());
         std::string headnode_id_link = "<a href=\"/cgi-bin/fzlink.py?id="+idtext+"\">"+idtext+"</a>";
 
-        std::string htmltext(node_ptr->get_text().c_str());
-
-        std::string headnode_description;
-        if (nb.threads) {
-            auto visoutput_start = htmltext.find("@VISOUTPUT:");
-            if (visoutput_start != std::string::npos) {
-                visoutput_start += 11;
-                auto visoutput_end = htmltext.find('@', visoutput_start);
-                if (visoutput_end != std::string::npos) {
-                    headnode_description = "<b>"+htmltext.substr(visoutput_start, visoutput_end - visoutput_start)+"</b>";
-                }
-            }
-        }
-
-        if (headnode_description.empty()) {
-            headnode_description = remove_html_tags(htmltext).substr(0,nb.excerpt_length);
-        }
+        std::string headnode_description(prepare_headnode_description(nb, *node_ptr));
 
         nb.get_fulldepth_dependencies_column(headnode_description, nkey, rendered_columns, headnode_id_link);
 
     }
 
-    return nb.make_multi_column_board(rendered_columns, true);
+    return nb.make_multi_column_board(rendered_columns, kanban_alt_board_temp);
 }
 
 struct Node_Grid_Element {
@@ -1084,7 +1372,7 @@ bool node_board_render_dependencies_tree(nodeboard & nb) {
     for (const auto & [nkey, element] : grid.nodes) {
 
         std::string rendered_card;
-        if (!nb.get_Node_alt_card(element.node_ptr, element.node_ptr->get_targetdate(), rendered_card)) {
+        if (nb.get_Node_alt_card(element.node_ptr, element.node_ptr->get_targetdate(), rendered_card)==node_render_error) {
             standard_error("Node not found in Graph, skipping", __func__);
             continue;
         }
@@ -1103,7 +1391,7 @@ bool node_board_render_dependencies_tree(nodeboard & nb) {
 
     // FZOUT("Drawing board...\n"); std::cout.flush();
 
-    return nb.make_multi_column_board(rendered_grid, true, true);
+    return nb.make_multi_column_board(rendered_grid, kanban_alt_board_temp, true);
 }
 
 bool node_board_render_superiors_tree(nodeboard & nb) {
@@ -1139,7 +1427,7 @@ bool node_board_render_superiors_tree(nodeboard & nb) {
     for (const auto & [nkey, element] : grid.nodes) {
 
         std::string rendered_card;
-        if (!nb.get_Node_alt_card(element.node_ptr, element.node_ptr->get_targetdate(), rendered_card)) {
+        if (nb.get_Node_alt_card(element.node_ptr, element.node_ptr->get_targetdate(), rendered_card)==node_render_error) {
             standard_error("Node not found in Graph, skipping", __func__);
             continue;
         }
@@ -1158,5 +1446,33 @@ bool node_board_render_superiors_tree(nodeboard & nb) {
 
     // FZOUT("Drawing board...\n"); std::cout.flush();
 
-    return nb.make_multi_column_board(rendered_grid, true, true);
+    return nb.make_multi_column_board(rendered_grid, kanban_alt_board_temp, true);
+}
+
+bool node_board_render_csv_schedule(nodeboard & nb) {
+    std::string csv_str;
+    if (!file_to_string(nb.source_file, csv_str)) {
+        return standard_exit_error(exit_file_error, "Unable to read file at "+nb.source_file, __func__);
+    }
+
+    if (!nb.parse_csv(csv_str)) {
+        return standard_exit_error(exit_file_error, "Unparsable CSV file "+nb.source_file, __func__);
+    }
+
+    if (!nb.render_init()) {
+        return false;
+    }
+
+    std::string rendered_days;
+
+    for (unsigned int day_idx = 0; day_idx < nb.csv_data_vec.size(); day_idx++) {
+
+        nb.get_day_column(day_idx, rendered_days);
+
+    }
+
+    float col_width = 95.0/float(nb.csv_data_vec.size());
+    float card_width = 0.95*col_width;
+
+    return nb.make_multi_column_board(rendered_days, schedule_board_temp, false, ' '+to_precision_string(col_width, 2)+"vw", to_precision_string(card_width, 2)+"vw");
 }

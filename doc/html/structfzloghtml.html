@@ -137,9 +137,9 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="memitem:a209a761459818a1714512cf0e5c6d668"><td class="memItemLeft" align="right" valign="top"><a id="a209a761459818a1714512cf0e5c6d668"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_filter</b> ()</td></tr>
 <tr class="separator:a209a761459818a1714512cf0e5c6d668"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5c3d3419fd7b00ffc220efcfa359e4ef"><td class="memItemLeft" align="right" valign="top"><a id="a5c3d3419fd7b00ffc220efcfa359e4ef"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>get_Log_interval</b> ()</td></tr>
-<tr class="separator:a5c3d3419fd7b00ffc220efcfa359e4ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ed3cfe60003d33ca44510e2d50233bb"><td class="memItemLeft" align="right" valign="top"><a id="a3ed3cfe60003d33ca44510e2d50233bb"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>get_Log_interval</b> ()</td></tr>
+<tr class="separator:a3ed3cfe60003d33ca44510e2d50233bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3fccdf59fa861b519a50e1f6bfadec4e"><td class="memItemLeft" align="right" valign="top"><a id="a3fccdf59fa861b519a50e1f6bfadec4e"></a>
 <a class="el" href="classfz_1_1Graph.html">Graph_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfzloghtml.html#a3fccdf59fa861b519a50e1f6bfadec4e">get_Graph_ptr</a> ()</td></tr>
 <tr class="memdesc:a3fccdf59fa861b519a50e1f6bfadec4e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to find memory-resident Graph but does not exit if it is not found. <br /></td></tr>
@@ -194,6 +194,15 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>interval</b><
 <tr class="memitem:a8ad78d51c0c345b582d8bca0ac2f4a13"><td class="memItemLeft" align="right" valign="top"><a id="a8ad78d51c0c345b582d8bca0ac2f4a13"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>noframe</b></td></tr>
 <tr class="separator:a8ad78d51c0c345b582d8bca0ac2f4a13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac3aec9d9f87c69e3bdf4fb620ca019b2"><td class="memItemLeft" align="right" valign="top"><a id="ac3aec9d9f87c69e3bdf4fb620ca019b2"></a>
+std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>search_strings</b></td></tr>
+<tr class="separator:ac3aec9d9f87c69e3bdf4fb620ca019b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe4b292b3ea2eee842575c20645b3433"><td class="memItemLeft" align="right" valign="top"><a id="afe4b292b3ea2eee842575c20645b3433"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>mustcontainall</b> = false</td></tr>
+<tr class="separator:afe4b292b3ea2eee842575c20645b3433"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8a33ce6d988baa2db4a5054acc7fb54"><td class="memItemLeft" align="right" valign="top"><a id="af8a33ce6d988baa2db4a5054acc7fb54"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>caseinsensitive</b> = false</td></tr>
+<tr class="separator:af8a33ce6d988baa2db4a5054acc7fb54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a729556ee28c10f7189e903812d548cc7"><td class="memItemLeft" align="right" valign="top"><a id="a729556ee28c10f7189e903812d548cc7"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>custom_template</b></td></tr>
 <tr class="separator:a729556ee28c10f7189e903812d548cc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -206,6 +215,12 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>graph_attempted</b> =
 <tr class="memitem:ab2a9ce540c19722f3f48f1622cb2778c"><td class="memItemLeft" align="right" valign="top"><a id="ab2a9ce540c19722f3f48f1622cb2778c"></a>
 most_recent_format&#160;</td><td class="memItemRight" valign="bottom"><b>recent_format</b></td></tr>
 <tr class="separator:ab2a9ce540c19722f3f48f1622cb2778c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a119887cc66ef73afe9ac8a19bb6d33c4"><td class="memItemLeft" align="right" valign="top"><a id="a119887cc66ef73afe9ac8a19bb6d33c4"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>show_total_time_applied</b> = false</td></tr>
+<tr class="separator:a119887cc66ef73afe9ac8a19bb6d33c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8590fda5b50a92843e6607ed7d85e1fd"><td class="memItemLeft" align="right" valign="top"><a id="a8590fda5b50a92843e6607ed7d85e1fd"></a>
+unsigned long&#160;</td><td class="memItemRight" valign="bottom"><b>total_minutes_applied</b> = -1</td></tr>
+<tr class="separator:a8590fda5b50a92843e6607ed7d85e1fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classfz_1_1formalizer__standard__program"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classfz_1_1formalizer__standard__program')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></td></tr>
 <tr class="memitem:ac70799cb4aa56195b9873aa96b4aa296 inherit pub_attribs_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="ac70799cb4aa56195b9873aa96b4aa296"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1formalizer__standard__program.html#ac70799cb4aa56195b9873aa96b4aa296">add_option_args</a></td></tr>

@@ -507,6 +507,7 @@ public:
     bool is_active() const { return (completion >= 0.0) && (completion < 1.0); }
     bool is_complete() const { return completion >= 1.0; }
     bool is_incomplete() const { return completion < 1.0; }
+    bool is_special_code() const { return completion < 0.0; }
 
     const Node_utf8_text & get_text() const { return text; }
 

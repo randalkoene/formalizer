@@ -1,22 +1,23 @@
 <map id="core/include/Graphbase.hpp" name="core/include/Graphbase.hpp">
-<area shape="rect" id="node1" title="This header file declares Shared Memory Graph, Node and Edge types for use with the Formalizer." alt="" coords="446,5,649,32"/>
-<area shape="rect" id="node2" href="$coreversion_8hpp_source.html" title=" " alt="" coords="772,304,899,331"/>
-<area shape="rect" id="node4" title=" " alt="" coords="314,80,365,107"/>
-<area shape="rect" id="node5" title=" " alt="" coords="5,155,68,181"/>
-<area shape="rect" id="node6" href="$error_8hpp.html" title="This header file declares error handling classes and functions for use with core Formalizer C++ code." alt="" coords="389,80,469,107"/>
-<area shape="rect" id="node16" href="$ReferenceTime_8hpp_source.html" title=" " alt="" coords="682,155,831,181"/>
-<area shape="rect" id="node19" href="$TimeStamp_8hpp.html" title="This header file declares Formalizer TimeStamp format and operations." alt="" coords="821,80,946,107"/>
-<area shape="rect" id="node3" title=" " alt="" coords="601,379,659,405"/>
-<area shape="rect" id="node7" title=" " alt="" coords="340,155,413,181"/>
-<area shape="rect" id="node8" title=" " alt="" coords="144,304,207,331"/>
-<area shape="rect" id="node9" href="$config_8hpp_source.html" title=" " alt="" coords="437,155,527,181"/>
-<area shape="rect" id="node10" href="$standard_8hpp.html" title="This header file declares standard structures and functions that should be used with any standardized..." alt="" coords="399,229,506,256"/>
-<area shape="rect" id="node11" title=" " alt="" coords="667,304,747,331"/>
-<area shape="rect" id="node12" title=" " alt="" coords="231,304,301,331"/>
-<area shape="rect" id="node13" title=" " alt="" coords="325,304,391,331"/>
-<area shape="rect" id="node14" title=" " alt="" coords="415,304,491,331"/>
-<area shape="rect" id="node15" title=" " alt="" coords="515,304,593,331"/>
-<area shape="rect" id="node17" title=" " alt="" coords="890,229,949,256"/>
-<area shape="rect" id="node18" title=" " alt="" coords="794,229,853,256"/>
-<area shape="rect" id="node20" title=" " alt="" coords="856,155,911,181"/>
+<area shape="rect" id="node1" title="This header file declares Shared Memory Graph, Node and Edge types for use with the Formalizer." alt="" coords="225,5,427,32"/>
+<area shape="rect" id="node2" href="$coreversion_8hpp_source.html" title=" " alt="" coords="685,304,812,331"/>
+<area shape="rect" id="node4" title=" " alt="" coords="133,80,183,107"/>
+<area shape="rect" id="node5" title=" " alt="" coords="207,80,250,107"/>
+<area shape="rect" id="node6" title=" " alt="" coords="75,155,137,181"/>
+<area shape="rect" id="node7" title=" " alt="" coords="5,304,68,331"/>
+<area shape="rect" id="node8" href="$error_8hpp.html" title="This header file declares error handling classes and functions for use with core Formalizer C++ code." alt="" coords="325,80,405,107"/>
+<area shape="rect" id="node17" href="$ReferenceTime_8hpp_source.html" title=" " alt="" coords="665,155,814,181"/>
+<area shape="rect" id="node20" href="$TimeStamp_8hpp.html" title="This header file declares Formalizer TimeStamp format and operations." alt="" coords="789,80,914,107"/>
+<area shape="rect" id="node3" title=" " alt="" coords="127,379,186,405"/>
+<area shape="rect" id="node9" title=" " alt="" coords="403,155,476,181"/>
+<area shape="rect" id="node10" href="$config_8hpp_source.html" title=" " alt="" coords="500,155,589,181"/>
+<area shape="rect" id="node11" href="$standard_8hpp.html" title="This header file declares standard structures and functions that should be used with any standardized..." alt="" coords="273,229,379,256"/>
+<area shape="rect" id="node12" title=" " alt="" coords="194,304,274,331"/>
+<area shape="rect" id="node13" title=" " alt="" coords="299,304,369,331"/>
+<area shape="rect" id="node14" title=" " alt="" coords="393,304,459,331"/>
+<area shape="rect" id="node15" title=" " alt="" coords="483,304,559,331"/>
+<area shape="rect" id="node16" title=" " alt="" coords="583,304,661,331"/>
+<area shape="rect" id="node18" title=" " alt="" coords="806,229,865,256"/>
+<area shape="rect" id="node19" title=" " alt="" coords="723,229,782,256"/>
+<area shape="rect" id="node21" title=" " alt="" coords="940,155,995,181"/>
 </map>

@@ -23,7 +23,7 @@ from subprocess import Popen, PIPE
 from pathlib import Path
 home = str(Path.home())
 
-#print("Content-type:text/html\n\n")
+print("Content-type:text/html\n\n")
 
 # *** THESE SHOULD BE SET BY SETUP CONFIGURATION
 # *** Perhaps read the following from ~/.formalizer/webdata_path
@@ -34,6 +34,8 @@ schedulename = '/fzschedule.html'
 schedulefile = webdata_path+schedulename
 redirectpath = '/formalizer/data'+schedulename
 
+schedulecsvfile = webdata_path+'/fzschedule.csv'
+
 # cgitb.enable()
 # cgitb.disable()
 # cgitb.enable(display=0, logdir="/tmp/test_python_cgiformget.log")
@@ -43,6 +45,8 @@ form = cgi.FieldStorage()
 
 # Get data from fields
 num_days_str = form.getvalue('num_days')
+calendar_schedule = form.getvalue('c')
+min_block_size = form.getvalue('s')
 
 # local
 help = form.getvalue('help')
@@ -67,6 +71,8 @@ Generate a proposed schedule.
 Options:
 <ul>
 <li><code>num_days</code>: Number of days
+<li><code>c</code>: Make calendar
+<li><code>s</code>: Minimum block size in minutes
 </ul>
 </p>
 
@@ -83,16 +89,19 @@ REDIRECT='''
 
 def try_command_call(thecmd, printhere = True) -> str:
     try:
-        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
-        (child_stdin,child_stdout) = (p.stdin, p.stdout)
+        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,stderr=PIPE,close_fds=True, universal_newlines=True)
+        (child_stdin,child_stdout,child_stderr) = (p.stdin, p.stdout, p.stderr)
         child_stdin.close()
         result = child_stdout.read()
+        error = child_stderr.read()
         child_stdout.close()
+        child_stderr.close()
         if printhere:
             print(result)
             return ''
-        else:
-            return result
+        if len(error)>0:
+            print(error)
+        return result
 
     except Exception as ex:                
         print(ex)
@@ -108,14 +117,30 @@ def log(msg):
         f.write(msg)
 
 def generate_schedule():
-    thecmd = "./schedule.py -w -d %s" % num_days
+    if min_block_size:
+        min_block_size_arg = '-s %s' % min_block_size
+    else:
+        min_block_size_arg = ''
+    thecmd = "./schedule.py -w -d %s %s" % (num_days, min_block_size_arg)
     log(try_command_call(thecmd, printhere=False))
-    print("Content-type:text/html\n\n")
+    #print("Content-type:text/html\n\n")
     #print('Done')
     print(REDIRECT % redirectpath)
 
+def generate_calendar_schedule():
+    if min_block_size:
+        min_block_size_arg = '-s %s' % min_block_size
+    else:
+        min_block_size_arg = ''
+    thecmd = "./schedule.py -W -d %s %s" % (num_days, min_block_size_arg)
+    log(try_command_call(thecmd, printhere=False))
+    thecmd = f"./nodeboard -c {schedulecsvfile} -H 'Proposed Schedule' -q -o {schedulefile}"
+    log(try_command_call(thecmd, printhere=False))
+    #print("Content-type:text/html\n\n")
+    print(REDIRECT % redirectpath)
+
 def show_interface_options():
-    print("Content-type:text/html\n\n")
+    #print("Content-type:text/html\n\n")
     print(interface_options_help)
 
 if __name__ == '__main__':
@@ -126,5 +151,9 @@ if __name__ == '__main__':
     if num_days_str:
         num_days = int(num_days_str)
     
+    if calendar_schedule:
+        generate_calendar_schedule()
+        sys.exit(0)
+
     generate_schedule()
     sys.exit(0)

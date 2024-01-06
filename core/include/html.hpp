@@ -82,6 +82,16 @@ std::string make_embeddable_html(const std::string & htmlstr, text_interpretatio
  */
 std::string uri_encode(std::string s);
 
+/**
+ * Make HTML code for a link button.
+ * 
+ * @param link A link to open when the button is pressed.
+ * @param label The label to put on the button.
+ * @param samepage If true then the link is opened in the same browser page.
+ * @return HTML code string to embed.
+ */
+std::string make_button(const std::string & link, const std::string & label, bool samepage);
+
 } // namespace fz
 
 #endif // __HTML_HPP

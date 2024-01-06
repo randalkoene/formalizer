@@ -90,6 +90,14 @@ bool node_superiors_tree() {
     return standard_exit(node_board_render_superiors_tree(nb), "Node superiors tree created.\n", exit_general_error, "Unable to create Node superiors tree.", __func__);
 }
 
+bool csv_schedule() {
+    if (nb.source_file.empty()) {
+        return standard_error("Missing source file argument.", __func__);
+    }
+
+    return standard_exit(node_board_render_csv_schedule(nb), "Schedule created from CSV file.\n", exit_general_error, "Unable to create schedule from CSV file.", __func__);
+}
+
 int main(int argc, char *argv[]) {
     nb.init(argc,argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 
@@ -150,6 +158,11 @@ int main(int argc, char *argv[]) {
 
         case flow_superiors_tree: {
             node_superiors_tree();
+            break;
+        }
+
+        case flow_csv_schedule: {
+            csv_schedule();
             break;
         }
 

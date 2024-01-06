@@ -174,6 +174,9 @@ nutrition = {
 	'olives': [ 4, 'olive', ],
 	'pinto beans': [ 200, 'can',],
 	'cinnamon bun': [ 284, 'bun', ],
+	'oats': [ 300, 'cup', ],
+	'hash browns': [ 326, '100 g', ],
+	'cellophane noodles': [ 492, 'cup', ],
 }
 
 lowcal_filling_nutritious = [
@@ -215,6 +218,7 @@ fruit = [
 	'grapefruit',
 	'raspberries',
 	'strawberries',
+	'olives',
 ]
 
 vegetables = [
@@ -229,11 +233,25 @@ vegetables = [
 	'hashbrown',
 	'peas',
 	'green beans',
+	'pinto beans',
+	'rice',
+	'baked beans',
+]
+
+breakfast = [
+	'oats',
+	'cereal with milk',
+	'muesli',
+	'morning pastry',
+	'omlette',
+	'pancake',
+	'sticky bun',
+	'sausage and egg breakfast sandwich',
+	'cheesy scramble',
+	'hash browns',
 ]
 
 meals = [
-	'cereal with milk',
-	'muesli',
 	'protein shake',
 	'orzo salad',
 	'feta olive mix',
@@ -245,7 +263,6 @@ meals = [
 	'mac and cheese',
 	'chili',
 	'vegetarian burrito',
-	'cheesy scramble',
 	'impossible burger',
 	'stuffing',	
 	'hamburger',
@@ -256,11 +273,14 @@ meals = [
 	'quiche',
 	'lasagna',
 	'spinach ravioli',
-	'baked beans',
 	'salsa bravas',
-	'sausage and egg breakfast sandwich',
 	'pizza with cheese',
 	'soylent',
+	'balini',
+	'bibimbap',
+	'egg salad',
+	'potato salad',
+	'cellophane noodles',
 ]
 
 drinks = [
@@ -319,6 +339,7 @@ meat = [
 	'salami',
 	'sausage',
 	'turkey',
+	'hot dog',
 ]
 
 deserts = [
@@ -359,5 +380,6 @@ nutrition_groups = {
 	'Breads': [ 'breads', breads ],
 	'Deserts': [ 'deserts', deserts ],
 	'Drinks': [ 'drinks', drinks ],
+	'Breakfast': [ 'breakfast', breakfast ],
 	'Meals': [ 'meals', meals ],
 }

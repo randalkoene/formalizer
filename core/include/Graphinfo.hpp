@@ -69,6 +69,12 @@ struct Node_Subtree {
     base_Node_Set set_by_key;
     targetdate_sorted_Nodes tdate_node_pointers;
 
+    // For combined data collection (e.g. see nodeboard:nbrender.cpp).
+    float hours_required = 0.0;
+    float hours_applied = 0.0;
+    unsigned int prerequisites_with_solving_nodes = 0;
+    unsigned int unsolved_prerequisites = 0;
+
     void build_targetdate_sorted(Graph & graph);
 };
 

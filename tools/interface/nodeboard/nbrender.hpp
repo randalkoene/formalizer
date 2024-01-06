@@ -33,6 +33,7 @@ enum flow_options {
     flow_NNL_dependencies = 13,       ///< request: show dependencies of Nodes in Named Node List
     flow_dependencies_tree = 14,      ///< request: show tree of Node dependencies in a grid
     flow_superiors_tree = 15,         ///< request: show tree of Node dependencies in a grid
+    flow_csv_schedule = 16,           ///< request: show schedule based on CSV file
     flow_NUMoptions
 };
 
@@ -44,10 +45,37 @@ enum template_id_enum {
     kanban_alt_column_temp,
     kanban_alt_board_temp,
     node_alt_card_temp,
+    schedule_card_temp,
+    schedule_board_temp,
+    schedule_column_temp,
+    node_analysis_card_temp,
     NUM_temp
 };
 
+enum Node_render_result {
+    node_render_error = -1,
+    node_not_rendered = 0,
+    node_rendered_inactive = 1,
+    node_rendered_active = 2,
+    NUM_Noderenderresult
+};
+
 typedef std::map<template_id_enum,std::string> nodeboard_templates;
+
+struct CSV_Data {
+    std::string start_date;
+    std::string start_time;
+    unsigned int num_minutes;
+    char tdprop;
+    Node * node_ptr;
+
+    CSV_Data(Graph & graph, const std::string & csv_line);
+};
+
+struct CSV_Data_Day {
+    std::vector<CSV_Data> day;
+
+};
 
 struct nodeboard: public formalizer_standard_program {
     Graph_access ga;
@@ -67,6 +95,7 @@ struct nodeboard: public formalizer_standard_program {
 
     bool show_completed = false;
     bool threads = false;
+    bool progress_analysis = false;
     bool show_dependencies_tree = false;
     bool show_superiors_tree = false;
 
@@ -81,7 +110,11 @@ struct nodeboard: public formalizer_standard_program {
 
     std::string output_path;
 
+    std::vector<CSV_Data_Day> csv_data_vec;
+
     Graph *graph_ptr;
+
+    Log_filter filter;
 
     render_environment env;
     nodeboard_templates templates;
@@ -99,7 +132,11 @@ struct nodeboard: public formalizer_standard_program {
 
     bool parse_header_identifier(const std::string & arg, std::string & header, std::string & identifier);
 
+    bool parse_csv(const std::string & csv_data);
+
     Graph & graph();
+
+    std::string build_nodeboard_cgi_call(flow_options _floption, bool _threads, bool _showcompleted, bool _progressanalysis);
 
     bool render_init();
 
@@ -107,25 +144,31 @@ struct nodeboard: public formalizer_standard_program {
 
     bool get_Node_card(const Node * node_ptr, std::string & rendered_cards);
 
-    bool get_Node_alt_card(const Node * node_ptr, std::time_t tdate, std::string & rendered_cards);
+    Node_render_result get_Node_alt_card(const Node * node_ptr, std::time_t tdate, std::string & rendered_cards, Node_Subtree * subtree_ptr = nullptr);
 
-    bool get_column(const std::string & column_header, const std::string & rendered_cards, std::string & rendered_columns, const std::string extra_header);
+    bool get_Schedule_card(const CSV_Data & entry_data, std::string & rendered_cards);
 
-    bool get_alt_column(const std::string & column_header, const std::string & rendered_cards, std::string & rendered_columns, const std::string extra_header);
+    bool get_column(const std::string & column_header, const std::string & rendered_cards, std::string & rendered_columns, const std::string extra_header, template_id_enum column_template);
+
+    //bool get_alt_column(const std::string & column_header, const std::string & rendered_cards, std::string & rendered_columns, const std::string extra_header);
 
     bool get_dependencies_column(const std::string & column_header, const Node * column_node, std::string & rendered_columns, const std::string extra_header);
 
-    bool get_fulldepth_dependencies_column(const std::string & column_header, Node_ID_key column_key, std::string & rendered_columns, const std::string extra_header);
+    unsigned long get_Node_total_minutes_applied(const Node_ID_key nkey);
+
+    bool get_fulldepth_dependencies_column(std::string & column_header, Node_ID_key column_key, std::string & rendered_columns, const std::string extra_header);
 
     bool get_NNL_column(const std::string & nnl_str, std::string & rendered_columns);
 
     bool get_Topic_column(const std::string & topic_str, std::string & rendered_columns);
 
+    bool get_day_column(unsigned int day_idx, std::string & rendered_columns);
+
     bool make_simple_grid_board(const std::string & rendered_cards);
 
     std::string call_comment_string();
 
-    bool make_multi_column_board(const std::string & rendered_cards, bool use_alt_board = false, bool specify_rows = false);
+    bool make_multi_column_board(const std::string & rendered_columns, template_id_enum board_template = kanban_board_temp, bool specify_rows = false, const std::string & col_width = " 240px", const std::string & card_width = "230px");
 
 };
 
@@ -148,5 +191,7 @@ bool node_board_render_NNL_dependencies(nodeboard & nb);
 bool node_board_render_dependencies_tree(nodeboard & nb);
 
 bool node_board_render_superiors_tree(nodeboard & nb);
+
+bool node_board_render_csv_schedule(nodeboard & nb);
 
 #endif // __NBRENDER_HPP

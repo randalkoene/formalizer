@@ -159,6 +159,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Map__of__Subtrees.html">Map_of_Subtrees</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">See how this is used in fzgraphhtml and nodeboard.  <a href="structfz_1_1Map__of__Subtrees.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Prerequisite.html">Prerequisite</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Set__builder__data.html">Set_builder_data</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Data structure that specifies <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> grouping categories.  <a href="structfz_1_1Set__builder__data.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -736,6 +738,13 @@ Enumerations</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:a457fe66ad9a864a8062ed33117e53841"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f4e820f8f63e643b57168e3053e4cc0"><td class="memItemLeft" align="right" valign="top"><a id="a9f4e820f8f63e643b57168e3053e4cc0"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a9f4e820f8f63e643b57168e3053e4cc0">Prerequisite_States</a> { <b>unsolved</b> = 0
+, <b>unfulfilled</b> = 1
+, <b>fulfilled</b> = 2
+, <b>numPrerequisite_States</b>
+ }</td></tr>
+<tr class="memdesc:a9f4e820f8f63e643b57168e3053e4cc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Functions for working with @PREREQS:...@ and @PROVIDES:...@ data in Nodes. <br /></td></tr>
+<tr class="separator:a9f4e820f8f63e643b57168e3053e4cc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0394e24a5de7f64b2802f12007a2f3c1"><td class="memItemLeft" align="right" valign="top"><a id="a0394e24a5de7f64b2802f12007a2f3c1"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>Graph_modification_request</b> { <br />
 &#160;&#160;<b>graphmod_add_node</b>
 , <b>graphmod_add_edge</b>
@@ -1165,6 +1174,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="name
 <tr class="memitem:a56881d63a827a663822facaab67b15ef"><td class="memItemLeft" align="right" valign="top">std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a56881d63a827a663822facaab67b15ef">trim</a> (std::string &amp;s, const char *t=&quot; \t\n\r\f\v&quot;)</td></tr>
 <tr class="memdesc:a56881d63a827a663822facaab67b15ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Trim whitespace on both ends of a string.  <a href="namespacefz.html#a56881d63a827a663822facaab67b15ef">More...</a><br /></td></tr>
 <tr class="separator:a56881d63a827a663822facaab67b15ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62a232087a843af01f1e80879b0fee21"><td class="memItemLeft" align="right" valign="top"><a id="a62a232087a843af01f1e80879b0fee21"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>find_in_vec_of_strings</b> (const std::vector&lt; std::string &gt; &amp;svec, const std::string &amp;s)</td></tr>
+<tr class="separator:a62a232087a843af01f1e80879b0fee21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a655dfeed12628eb700f5f6e07a1d7874"><td class="memItemLeft" align="right" valign="top"><a id="a655dfeed12628eb700f5f6e07a1d7874"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>replace_char</b> (const std::string &amp;s, char c, char replacement='_')</td></tr>
 <tr class="separator:a655dfeed12628eb700f5f6e07a1d7874"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1224,6 +1236,15 @@ unsigned long&#160;</td><td class="memItemRight" valign="bottom"><b>Edges_with_d
 <tr class="memitem:a92ddfa7d332e3e44f98382ef179c428d"><td class="memItemLeft" align="right" valign="top">map_of_subtrees_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a92ddfa7d332e3e44f98382ef179c428d">Threads_Subtrees</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, const std::string &amp;nnl_str, bool sort_by_targetdate=false)</td></tr>
 <tr class="memdesc:a92ddfa7d332e3e44f98382ef179c428d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collect the subtrees that are the full dependencies of all Nodes in a Named Nodes List.  <a href="namespacefz.html#a92ddfa7d332e3e44f98382ef179c428d">More...</a><br /></td></tr>
 <tr class="separator:a92ddfa7d332e3e44f98382ef179c428d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a182f20a5b6307ee3611d589e48520d3d"><td class="memItemLeft" align="right" valign="top"><a id="a182f20a5b6307ee3611d589e48520d3d"></a>
+std::vector&lt; <a class="el" href="structfz_1_1Prerequisite.html">Prerequisite</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>get_prerequisites</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node, bool check_prerequisites=false)</td></tr>
+<tr class="separator:a182f20a5b6307ee3611d589e48520d3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a32e664badb729e9f3e97cc522a418e"><td class="memItemLeft" align="right" valign="top"><a id="a2a32e664badb729e9f3e97cc522a418e"></a>
+std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>get_provides_capabilities</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node)</td></tr>
+<tr class="separator:a2a32e664badb729e9f3e97cc522a418e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa97d9900d443111e431935202a7e8f8b"><td class="memItemLeft" align="right" valign="top"><a id="aa97d9900d443111e431935202a7e8f8b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>check_prerequisites_provided_by_dependencies</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node, std::vector&lt; <a class="el" href="structfz_1_1Prerequisite.html">Prerequisite</a> &gt; &amp;prereqs, int go_deeper=10)</td></tr>
+<tr class="separator:aa97d9900d443111e431935202a7e8f8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a843459a8cad97af396b31c848c4740a0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefz.html#ade8fd9836dfeac48419a3e0a89f0f8f2">targetdate_sorted_Nodes</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a843459a8cad97af396b31c848c4740a0">Nodes_subset</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, const <a class="el" href="structfz_1_1Node__Filter.html">Node_Filter</a> &amp;nodefilter)</td></tr>
 <tr class="memdesc:a843459a8cad97af396b31c848c4740a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds all Nodes that match a specified <a class="el" href="structfz_1_1Node__Filter.html" title="Filter class that helps construct filter specifications.">Node_Filter</a>.  <a href="namespacefz.html#a843459a8cad97af396b31c848c4740a0">More...</a><br /></td></tr>
 <tr class="separator:a843459a8cad97af396b31c848c4740a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2655,6 +2676,14 @@ constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>TOPIC_TAG
 
 <p>Calculate the total number of minutes logged for all <a class="el" href="classfz_1_1Log.html">Log</a> chunks in the specified deque. </p>
 <p>Sum of durations of <a class="el" href="classfz_1_1Log.html">Log</a> chunks.</p>
+<p>For example, this can be used to determine the actual time applied to a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> by loading a <a class="el" href="classfz_1_1Log.html">Log</a> map with all the <a class="el" href="classfz_1_1Log.html">Log</a> Chunks that belong to a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> (see fzloghtml::get_Log_interval()).</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">chunks</td><td>a deque containing a sorted list <a class="el" href="classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk.">Log_chunk</a> pointers. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the sum total of time logged in minutes.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">chunks</td><td>a deque containing a sorted list <a class="el" href="classfz_1_1Log__chunk.html" title="Specifies the start time, Node, close time, and set of entries of a Log chunk.">Log_chunk</a> pointers. </td></tr>
@@ -8908,7 +8937,8 @@ template&lt;typename Out &gt; </div>
 <div class="line">    {<span class="stringliteral">&quot;tdspan&quot;</span>, Edit_flags::tdspan},</div>
 <div class="line">    {<span class="stringliteral">&quot;topicrels&quot;</span>, Edit_flags::topicrels},</div>
 <div class="line">    {<span class="stringliteral">&quot;superiors&quot;</span>, Edit_flags::supdep},</div>
-<div class="line">    {<span class="stringliteral">&quot;dependencies&quot;</span>, Edit_flags::supdep}</div>
+<div class="line">    {<span class="stringliteral">&quot;dependencies&quot;</span>, Edit_flags::supdep},</div>
+<div class="line">    {<span class="stringliteral">&quot;in_NNLs&quot;</span>, Edit_flags::nnl},</div>
 <div class="line">}</div>
 </div><!-- fragment -->
 </div>

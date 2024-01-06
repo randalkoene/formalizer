@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html style="overflow-x:scroll;">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="icon" href="/favicon-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<style>
+.grid-container {
+  display: grid;
+  grid-template-columns:{{ column-widths }};
+  {{ row-heights  }}
+  grid-gap: 5px 5px;
+  background-color: #2196F3;
+  padding: 5px;
+  overflow-x: scroll;
+  width: fit-content;
+  position: absolute;
+  left: 20px;
+}
+
+.grid-container > div {
+  background-color: rgba(255, 255, 255, 0.8);
+  text-align: left;
+  padding: 5px;
+  font-size: 12px;
+}
+
+.schedule-column-container {
+  display: grid;
+  grid-template-columns:{{ column-widths }};
+  grid-gap: 5px;
+  background-color: #2196F3;
+  padding: 5px;
+  align-content: flex-start;
+  height: 90vh;
+  position: relative;
+}
+
+.schedule-column-container > div {
+  background-color: rgba(255, 255, 255, 0.8);
+  text-align: left;
+  padding: 5px;
+  font-size: 10px;
+  margin: 5px;
+}
+
+/*.schedule-column-content {
+  position: absolute;
+}*/
+
+.w3-card-4 {
+  border-radius: 20px;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+  width: {{ card-width }};
+  position: absolute;
+  text-align: left;
+  overflow: hidden;
+}
+
+.w3-card-4:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.4);
+  z-index:555555 !important;
+  height: 120px !important;
+  background-color: rgba(255, 255, 0, 1.0) !important;
+}
+
+.container {
+  padding: 0px 16px;
+}
+
+h4 {
+  text-align: center;
+}
+</style>
+<title>{{ board-header }}</title>
+</head>
+<body>
+
+<h2>{{ board-header }}</h2>
+
+<!-- call comment: {{ call-comment }} -->
+
+{{ board-extra }}
+
+<div class="grid-container">
+
+{{ the-columns }}
+
+</div>
+
+{{ post-extra }}
+
+<script type="text/javascript" src="/fzuistate.js"></script>
+</body>
+</html> 

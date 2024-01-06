@@ -68,7 +68,18 @@ $(function() {
 <div class="title">fzbackup - Formalizer core utility to back up the Formalizer environment </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"></div></div><!-- contents -->
+<div class="textblock"><h2>How to provide a button on an HTML page that runs fzbackup as the right user</h2>
+<ol type="1">
+<li>The button on the HTML page calls a CGI script in a new window (<code>target="_blank"</code>).</li>
+<li>The CGI script makes a FZ API call to <code>fzserverpq</code>, which is running as the right user.</li>
+<li>That call is a predefined permitted System call that launches the <code>fzbackup</code> process in the predefined manner, e.g. via <code>fzbackup-mirror-to-github.sh</code>, as a background process, so that it does not keep <code>fzserverpq</code> busy.</li>
+<li>The background process writes its output to a known file.</li>
+<li>The original CGI script waited around for that file to appear, possibly even writing content to the new HTML page as it works.</li>
+<li>The output of the backup process appears on the new HTML page.</li>
+</ol>
+<hr  />
+<p> Randal A. Koene 2023 </p>
+</div></div><!-- contents -->
 </div><!-- PageDoc -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

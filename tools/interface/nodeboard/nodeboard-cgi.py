@@ -68,6 +68,7 @@ filter_string = form.getvalue('F')
 show_completed = form.getvalue('I')
 subtree_list = form.getvalue('D')
 threads = form.getvalue('T')
+progress_analysis = form.getvalue('P')
 
 if filter_string:
     include_filter_string = ' -F %s' % filter_string
@@ -81,6 +82,10 @@ if threads:
     include_threads = ' -T'
 else:
     include_threads = ''
+if progress_analysis:
+    include_progress_analysis = ' -P'
+else:
+    include_progress_analysis = ''
 
 # *** OBTAIN THIS SOMEHOW!
 #with open('./server_address','r') as f:
@@ -149,16 +154,16 @@ def show_main2023_board():
 
 def show_node_dependencies_board():
     if node_dependencies_tree:
-        thecmd = f"./nodeboard -G -n {node_dependencies} {include_filter_string} {include_show_completed} {include_threads} -q -o /var/www/webdata/formalizer/node_dependencies_kanban.html"
+        thecmd = f"./nodeboard -G -n {node_dependencies} {include_filter_string} {include_show_completed} {include_threads} {include_progress_analysis} -q -o /var/www/webdata/formalizer/node_dependencies_kanban.html"
     elif node_superiors_tree:
-        thecmd = f"./nodeboard -g -n {node_dependencies} {include_filter_string} {include_show_completed} {include_threads} -q -o /var/www/webdata/formalizer/node_dependencies_kanban.html"
+        thecmd = f"./nodeboard -g -n {node_dependencies} {include_filter_string} {include_show_completed} {include_threads} {include_progress_analysis} -q -o /var/www/webdata/formalizer/node_dependencies_kanban.html"
     else:
         thecmd = f"./nodeboard -n {node_dependencies} {include_filter_string} {include_show_completed} -q -o /var/www/webdata/formalizer/node_dependencies_kanban.html"
     res = try_command_call(thecmd, print_result=False)
     print(REDIRECT % "/node_dependencies_kanban.html")
 
 def show_subtree_board():
-    thecmd = f"./nodeboard -D {subtree_list} {include_threads} {include_show_completed} -q -o /var/www/webdata/formalizer/subtree_list_kanban.html"
+    thecmd = f"./nodeboard -D {subtree_list} {include_threads} {include_progress_analysis} {include_show_completed} -q -o /var/www/webdata/formalizer/subtree_list_kanban.html"
     res = try_command_call(thecmd, print_result=False)
     print(REDIRECT % "/subtree_list_kanban.html")
 

@@ -333,4 +333,13 @@ std::string uri_encode(std::string s) {
     return std::string(v.cbegin(), v.cend());
 }
 
+std::string make_button(const std::string & link, const std::string & label, bool samepage) {
+    std::string button_str("<button class=\"button button1\" onclick=\"window.open('"+link+'\'');
+    if (samepage) {
+        button_str += ",'_self'";
+    }
+    button_str += ");\">" + label + "</button>";
+    return button_str;
+}
+
 } // namespace fz
