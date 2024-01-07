@@ -151,6 +151,7 @@ SYMBIN += $(COREPATH)/fzupdate/fzupdate
 SYMBIN += $(COREPATH)/include/ansicolorcodes.py
 SYMBIN += $(COREPATH)/include/error.py
 SYMBIN += $(COREPATH)/include/fzcmdcalls.py
+SYMBIN += $(COREPATH)/include/fzbgprogress.py
 SYMBIN += $(COREPATH)/include/fzhtmlpage.py
 SYMBIN += $(COREPATH)/include/fzmodbase.py
 SYMBIN += $(COREPATH)/include/fznutrition.py
@@ -292,6 +293,8 @@ TESTS += $(TOOLSPATH)/misc/test_timed_close.html
 TESTCGI =
 TESTCGI += $(TOOLSPATH)/misc/test_python_cgianalysis.py
 TESTCGI += $(TOOLSPATH)/misc/test_python_cgiformget.py
+TESTCGI += $(TOOLSPATH)/misc/test_progress_indicator.py
+TESTCGI += $(TOOLSPATH)/misc/test_background_process.py
 # +----- end  : Select Formalizer executables -----+
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html

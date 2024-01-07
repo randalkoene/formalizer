@@ -113,6 +113,8 @@ struct Map_of_Subtrees {
 
     bool collect(Graph & graph, const std::string & list_name);
 
+    unsigned long total_node_count() const;
+
     bool is_subtree_head(Node_ID_key subtree_key) const;
 
     const Node_Subtree & get_subtree_set(Node_ID_key subtree_key) const;

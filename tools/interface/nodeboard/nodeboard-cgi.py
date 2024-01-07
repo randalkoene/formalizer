@@ -24,6 +24,10 @@ from io import StringIO
 from traceback import print_exc
 from subprocess import Popen, PIPE
 from pathlib import Path
+
+from fzmodbase import *
+from fzbgprogress import *
+
 home = str(Path.home())
 
 # *** THESE SHOULD BE SET BY SETUP CONFIGURATION
@@ -69,6 +73,9 @@ show_completed = form.getvalue('I')
 subtree_list = form.getvalue('D')
 threads = form.getvalue('T')
 progress_analysis = form.getvalue('P')
+calendar_file = form.getvalue('c')
+header_arg = form.getvalue('H')
+vertical_multiplier = form.getvalue('M')
 
 if filter_string:
     include_filter_string = ' -F %s' % filter_string
@@ -162,10 +169,53 @@ def show_node_dependencies_board():
     res = try_command_call(thecmd, print_result=False)
     print(REDIRECT % "/node_dependencies_kanban.html")
 
+ANALYSIS_PROGRESS_PAGE = '''
+<html>
+<body>
+<h3>Running progress analysis...</h3>
+%s
+<script>
+%s
+
+progressloop();
+
+</script>
+</body>
+</html>
+'''
+
+# If I want this to show progress:
+# 1. Launch it in the background with >logfile 2>&1 &.
+# 2. Print the progress page (see test_progress_indicator FZ method).
+# 3. In nodeboard, use the -p /var/www/webdata/formalizer/nodeboard-progress.state option
+#    and have nodeboard update that file as it works through cards.
+# 4. The done-page will be  /formalizer/data/subtree_list_kanban.html.
 def show_subtree_board():
-    thecmd = f"./nodeboard -D {subtree_list} {include_threads} {include_progress_analysis} {include_show_completed} -q -o /var/www/webdata/formalizer/subtree_list_kanban.html"
-    res = try_command_call(thecmd, print_result=False)
-    print(REDIRECT % "/subtree_list_kanban.html")
+    nodeboard_logfile = '/var/www/webdata/formalizer/nodeboard.log'
+    progress_state_file = 'nodeboard_progress.state'
+    progress_state_path = '/var/www/webdata/formalizer/%s' % progress_state_file
+    result_file = 'subtree_list_kanban.html'
+    result_page_path = '/var/www/webdata/formalizer/%s' % result_file
+    result_page_url = '/formalizer/data/%s' % result_file
+    if progress_analysis:
+        thecmd = f"./nodeboard -D {subtree_list} {include_threads} {include_progress_analysis} {include_show_completed} -p {progress_state_path} -q -o {result_page_path} >{nodeboard_logfile} 2>&1 &"
+        res = try_command_call(thecmd, print_result=False)
+        embed_in_html, embed_in_script = make_background_progress_monitor(progress_state_file, result_page_url)
+        print(ANALYSIS_PROGRESS_PAGE % (embed_in_html, embed_in_script))
+    else:
+        thecmd = f"./nodeboard -D {subtree_list} {include_threads} {include_show_completed} -q -o {result_page_path}"
+        res = try_command_call(thecmd, print_result=False)
+        print(REDIRECT % "/subtree_list_kanban.html")
+
+def show_calendar_schedule_board():
+    if vertical_multiplier:
+        vertical_multiplier_arg = ' -M %s' % vertical_multiplier
+    else:
+        vertical_multiplier_arg = ''
+    if header_arg:
+        header_arg_str = " -H '%s'" % header_arg
+    thecmd = f"./nodeboard -c '{calendar_file}'{header_arg_str}{vertical_multiplier_arg} -q -o STDOUT"
+    res = try_command_call(thecmd, print_result=True)
 
 HELP='''
 <html>
@@ -187,8 +237,12 @@ if __name__ == '__main__':
         show_subtree_board()
         sys.exit(0)
 
-    if (node_dependencies != ''):
+    if node_dependencies: #(node_dependencies != ''):
         show_node_dependencies_board()
+        sys.exit(0)
+
+    if calendar_file:
+        show_calendar_schedule_board()
         sys.exit(0)
 
     show_help()

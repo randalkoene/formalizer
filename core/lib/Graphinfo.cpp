@@ -240,6 +240,14 @@ bool Map_of_Subtrees::collect(Graph & graph, const std::string & list_name) {
     return true;
 }
 
+unsigned long Map_of_Subtrees::total_node_count() const {
+    unsigned long count = 0;
+    for (const auto & [nkey, subtree] : map_of_subtrees) {
+        count += subtree.tdate_node_pointers.size();
+    }
+    return count;
+}
+
 bool Map_of_Subtrees::is_subtree_head(Node_ID_key subtree_key) const {
     if (!has_subtrees) return false;
     return map_of_subtrees.find(subtree_key) != map_of_subtrees.end();

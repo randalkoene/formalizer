@@ -99,6 +99,13 @@ struct nodeboard: public formalizer_standard_program {
     bool show_dependencies_tree = false;
     bool show_superiors_tree = false;
 
+    time_t t_before = 0;
+
+    std::string progress_state_file;
+    unsigned long node_total = 0;
+    unsigned long progress_node_count = 0;
+    int last_percentage_state = -1;
+
     std::string filter_substring;
     int filter_substring_excerpt_length = 80;
     std::string uri_encoded_filter_substring;
@@ -111,6 +118,8 @@ struct nodeboard: public formalizer_standard_program {
     std::string output_path;
 
     std::vector<CSV_Data_Day> csv_data_vec;
+
+    float vertical_multiplier = 1.0;
 
     Graph *graph_ptr;
 
@@ -136,7 +145,7 @@ struct nodeboard: public formalizer_standard_program {
 
     Graph & graph();
 
-    std::string build_nodeboard_cgi_call(flow_options _floption, bool _threads, bool _showcompleted, bool _progressanalysis);
+    std::string build_nodeboard_cgi_call(flow_options _floption, bool _threads, bool _showcompleted, bool _progressanalysis, float multiplier = 1.0);
 
     bool render_init();
 
@@ -145,6 +154,10 @@ struct nodeboard: public formalizer_standard_program {
     bool get_Node_card(const Node * node_ptr, std::string & rendered_cards);
 
     Node_render_result get_Node_alt_card(const Node * node_ptr, std::time_t tdate, std::string & rendered_cards, Node_Subtree * subtree_ptr = nullptr);
+
+    float get_card_vertical_position(const std::string & start_time, float v_offset = 4.0);
+
+    float get_card_height(unsigned int minutes);
 
     bool get_Schedule_card(const CSV_Data & entry_data, std::string & rendered_cards);
 
@@ -155,6 +168,8 @@ struct nodeboard: public formalizer_standard_program {
     bool get_dependencies_column(const std::string & column_header, const Node * column_node, std::string & rendered_columns, const std::string extra_header);
 
     unsigned long get_Node_total_minutes_applied(const Node_ID_key nkey);
+
+    void progress_state_update();
 
     bool get_fulldepth_dependencies_column(std::string & column_header, Node_ID_key column_key, std::string & rendered_columns, const std::string extra_header);
 

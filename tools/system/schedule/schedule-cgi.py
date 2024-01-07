@@ -47,6 +47,7 @@ form = cgi.FieldStorage()
 num_days_str = form.getvalue('num_days')
 calendar_schedule = form.getvalue('c')
 min_block_size = form.getvalue('s')
+vertical_multiplier = form.getvalue('M')
 
 # local
 help = form.getvalue('help')
@@ -132,9 +133,13 @@ def generate_calendar_schedule():
         min_block_size_arg = '-s %s' % min_block_size
     else:
         min_block_size_arg = ''
+    if vertical_multiplier:
+        vertical_multiplier_arg = '-M %s' % vertical_multiplier
+    else:
+        vertical_multiplier_arg = ''
     thecmd = "./schedule.py -W -d %s %s" % (num_days, min_block_size_arg)
     log(try_command_call(thecmd, printhere=False))
-    thecmd = f"./nodeboard -c {schedulecsvfile} -H 'Proposed Schedule' -q -o {schedulefile}"
+    thecmd = f"./nodeboard -c {schedulecsvfile} -H 'Proposed Schedule' {vertical_multiplier_arg} -q -o {schedulefile}"
     log(try_command_call(thecmd, printhere=False))
     #print("Content-type:text/html\n\n")
     print(REDIRECT % redirectpath)

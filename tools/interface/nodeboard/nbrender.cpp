@@ -67,10 +67,10 @@ nodeboard::nodeboard():
     output_path("/var/www/html/formalizer/test_node_card.html"),
     graph_ptr(nullptr) {
 
-    add_option_args += "RGgn:L:D:l:t:m:f:c:IF:H:TPo:";
+    add_option_args += "RGgn:L:D:l:t:m:f:c:IF:H:TPb:M:p:o:";
     add_usage_top += " [-R] [-G|-g] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
         " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-F <substring>]"
-        " [-H <board-header>] [-T] [-P] [-o <output-file|STDOUT>]";
+        " [-H <board-header>] [-T] [-P] [-b <before>] [-M <multiplier>] [-p <progress-state-file>] [-o <output-file|STDOUT>]";
 }
 
 void nodeboard::usage_hook() {
@@ -98,6 +98,9 @@ void nodeboard::usage_hook() {
         "    -H Board header.\n"
         "    -T Threads.\n"
         "    -P Progress analaysis.\n"
+        "    -b Before time stamp.\n"
+        "    -M Vertical length multiplier.\n"
+        "    -p Progress state file\n"
         "    -o Output to file (or STDOUT).\n"
         "       Default: /var/www/html/formalizer/test_node_card.html\n"
         "\n"
@@ -199,6 +202,24 @@ bool nodeboard::options_hook(char c, std::string cargs) {
             return true;
         }
 
+        case 'b': {
+            t_before = ymd_stamp_time(cargs);
+            return true;
+        }
+
+        case 'M': {
+            vertical_multiplier = atof(cargs.c_str());
+            if (vertical_multiplier < 1.0) {
+                vertical_multiplier = 1.0;
+            }
+            return true;
+        }
+
+        case 'p': {
+            progress_state_file = cargs;
+            return true;
+        }
+
         case 'o': {
             output_path = cargs;
             return true;
@@ -275,13 +296,13 @@ bool nodeboard::parse_csv(const std::string & csv_data) {
         }
         if (data.start_date != current_day) {
             current_day = data.start_date;
-            FZOUT("\nTESTING --> New day: "+data.start_date+'\n');
+            //FZOUT("\nTESTING --> New day: "+data.start_date+'\n');
             csv_data_vec.emplace_back(CSV_Data_Day());
         }
         csv_data_vec.back().day.emplace_back(data);
-        FZOUT("+");
+        //FZOUT("+");
     }
-    FZOUT("\n");
+    //FZOUT("\n");
     return true;
 }
 
@@ -296,12 +317,20 @@ Graph & nodeboard::graph() {
     return *graph_ptr;
 }
 
-std::string nodeboard::build_nodeboard_cgi_call(flow_options _floption, bool _threads, bool _showcompleted, bool _progressanalysis) {
+std::string nodeboard::build_nodeboard_cgi_call(flow_options _floption, bool _threads, bool _showcompleted, bool _progressanalysis, float multiplier) {
     std::string cgi_cmd("/cgi-bin/nodeboard-cgi.py?");
     switch (_floption) {
         case flow_NNL_dependencies: {
             cgi_cmd += "D="+list_name;
             break;
+        }
+        case flow_csv_schedule: {
+            std::string multiplier_arg;
+            if (multiplier > 1.0) {
+                multiplier_arg = "&M="+to_precision_string(multiplier, 1);
+            }
+            cgi_cmd += "c="+source_file+"&H=Proposed_Schedule"+multiplier_arg;
+            return cgi_cmd;
         }
         default: {
             return "";
@@ -481,6 +510,10 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
                 subtree_ptr->hours_required += hours_required;
                 subtree_ptr->hours_applied += hours_applied;
             }
+
+            if (get_provides_capabilities(*node_ptr).empty()) {
+                prereqs_str += "<p style=\"color:coral;\">No provides specified.</p>";
+            }
         }
     }
     nodevars.emplace("node-prereqs", prereqs_str);
@@ -523,19 +556,19 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
  * Finding the nearest 20 minute block: trunc((start_minute/1440)*72)
  * Finding the position of a 20 minute-chunked start: trunc( 1.17*(start_minute/1440)*72)
  */
-float get_card_vertical_position(const std::string & start_time, float v_offset = 4.0) {
+float nodeboard::get_card_vertical_position(const std::string & start_time, float v_offset) {
     int hour = atoi(start_time.substr(0, 2).c_str());
     int minute = atoi(start_time.substr(3, 2).c_str());
     float start_minute = (hour*60) + minute;
-    return 1.17*(start_minute/1440.0)*72.0 + v_offset;
+    return 1.17*(start_minute/1440.0)*72.0*vertical_multiplier + v_offset;
 }
 
 /**
  * Each minute is 1/1440 of the day, thus, using the same vertical calculation as above,
  * each minute has a height of 84/1440=0.0583vh.
  */
-float get_card_height(unsigned int minutes) {
-    return (float(minutes))*0.0583;
+float nodeboard::get_card_height(unsigned int minutes) {
+    return (float(minutes))*0.0583*vertical_multiplier;
 }
 
 const std::map<char, std::string> schedule_entry_color = {
@@ -638,8 +671,26 @@ In fzloghtml, this is done by:
 
 unsigned long nodeboard::get_Node_total_minutes_applied(const Node_ID_key nkey) {
     filter.nkey = nkey;
+    if (t_before > 0) {
+        filter.t_to = t_before;
+    }
     std::unique_ptr<Log> log_uptr = ga.request_Log_excerpt(filter);
     return Chunks_total_minutes(log_uptr->get_Chunks());
+}
+
+void nodeboard::progress_state_update() {
+    int percentage;
+    if (progress_node_count >= node_total) {
+        percentage = 100;
+    } else {
+        percentage = int(100.0*(float(progress_node_count)/float(node_total)));
+    }
+    if (last_percentage_state < percentage) {
+        last_percentage_state = percentage;
+        if (!string_to_file(progress_state_file, std::to_string(percentage))) {
+            standard_error("Unable to write progress to "+progress_state_file, __func__);
+        }
+    }
 }
 
 //bool nodeboard::get_fulldepth_dependencies_column(const std::string & column_header, const base_Node_Set & column_set, std::string & rendered_columns, const std::string extra_header = "") {
@@ -668,6 +719,13 @@ bool nodeboard::get_fulldepth_dependencies_column(std::string & column_header, N
             standard_error("Dependency Node not found in Graph, skipping", __func__);
         } else if (noderenderresult==node_rendered_active) {
             active_rendered++;
+        }
+
+        if (!progress_state_file.empty()) {
+            progress_node_count++;
+            if (progress_node_count < node_total) { // Do not signal 100% until output is completely provided.
+                progress_state_update();
+            }
         }
 
         // Obtain contributions to thread progress.
@@ -842,7 +900,14 @@ bool nodeboard::make_multi_column_board(const std::string & rendered_columns, te
     std::string rendered_board;
     rendered_board = env.render(templates[board_template], board);
 
-    return to_output(rendered_board);
+    if (to_output(rendered_board)) {
+        if (!progress_state_file.empty()) {
+            progress_node_count = node_total;
+            progress_state_update();
+        }
+        return true;
+    }
+    return false;
 }
 
 bool node_board_render_random_test(nodeboard & nb) {
@@ -1160,6 +1225,10 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
     nb.map_of_subtrees.collect(nb.graph(), nb.list_name);
     if (!nb.map_of_subtrees.has_subtrees) return false;
 
+    if (!nb.progress_state_file.empty()) {
+        nb.node_total = nb.map_of_subtrees.total_node_count();
+    }
+
     std::string rendered_columns;
 
     for (const auto & nkey : namedlist_ptr->list) {
@@ -1473,6 +1542,9 @@ bool node_board_render_csv_schedule(nodeboard & nb) {
 
     float col_width = 95.0/float(nb.csv_data_vec.size());
     float card_width = 0.95*col_width;
+
+    nb.post_extra = make_button(nb.build_nodeboard_cgi_call(flow_csv_schedule, false, false, false, nb.vertical_multiplier-1.0), "smaller", true)
+        + make_button(nb.build_nodeboard_cgi_call(flow_csv_schedule, false, false, false, nb.vertical_multiplier+1.0), "larger", true);
 
     return nb.make_multi_column_board(rendered_days, schedule_board_temp, false, ' '+to_precision_string(col_width, 2)+"vw", to_precision_string(card_width, 2)+"vw");
 }

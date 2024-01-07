@@ -251,8 +251,8 @@ def map_variable_target_date_entries(days:dict, daysmap:np.ndarray, options:dict
                     if min_block_available_forwards(daysmap, i, next_grab): #daysmap[i]==0:
                         i = set_block_to_node_forwards(daysmap, i, next_grab, node_id)
                         #daysmap[i]=node_id
-                        num_minutes -= 1
-                        variable_consumed += 1
+                        num_minutes -= next_grab
+                        variable_consumed += next_grab
                     else:
                         i += 1
     print('Minutes consumed by variable target date Nodes: %d' % variable_consumed)
