@@ -270,6 +270,24 @@ day_of_week time_day_of_week(time_t t) {
     return (day_of_week)tm_ptr->tm_wday;
 }
 
+unsigned int time_hour(time_t t) {
+    const std::tm * tm_ptr;
+    tm_ptr = safe_localtime(&t);
+    return tm_ptr->tm_hour;
+}
+
+unsigned int time_minute(time_t t) {
+    const std::tm * tm_ptr;
+    tm_ptr = safe_localtime(&t);
+    return tm_ptr->tm_min;
+}
+
+time_of_day_t time_of_day(time_t t) {
+    const std::tm * tm_ptr;
+    tm_ptr = safe_localtime(&t);
+    return time_of_day_t(tm_ptr->tm_hour, tm_ptr->tm_min);
+}
+
 int time_month_length(time_t t) {
     if (t < 0) {
         return 0;

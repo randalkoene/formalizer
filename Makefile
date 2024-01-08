@@ -47,6 +47,7 @@ TOOLSCOMPDIRS += $(TOOLSPATH)/interface/fzloghtml
 TOOLSCOMPDIRS += $(TOOLSPATH)/interface/fzgraphhtml
 TOOLSCOMPDIRS += $(TOOLSPATH)/interface/nodeboard
 TOOLSCOMPDIRS += $(TOOLSPATH)/interface/fzvismilestones
+TOOLSCOMPDIRS += $(TOOLSPATH)/system/schedule
 
 COMPILABLES = $(LIBCOMPDIRS) $(CORECOMPDIRS) $(TOOLSCOMPDIRS)
 # +----- end  : Select Formalizer compilables -----+
@@ -130,6 +131,7 @@ EXECUTABLES += $(TOOLSPATH)/system/requestmanual/requestmanual.py
 # EXECUTABLES += $(TOOLSPATH)/system/schedule/favorvariable/favorvariable
 # EXECUTABLES += $(TOOLSPATH)/system/syswizard/syswizard
 EXECUTABLES += $(TOOLSPATH)/system/top/index-term.sh
+EXECUTABLES += $(TOOLSPATH)/system/schedule/schedule
 
 # configuration files needed by CGI scripts
 CONFIGEXPOSE =
@@ -169,6 +171,7 @@ SYMBIN += $(TOOLSPATH)/interface/fzserver-info/fzserver-info
 SYMBIN += $(TOOLSPATH)/interface/nodeboard/nodeboard
 SYMBIN += $(TOOLSPATH)/interface/fzvismilestones/fzvismilestones
 SYMBIN += $(TOOLSPATH)/system/schedule/schedule.py
+SYMBIN += $(TOOLSPATH)/system/schedule/schedule
 #SYMBIN += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_a2c.json
 #SYMBIN += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_main2023.json
 SYMBIN += $(COREPATH)/fzguide.system/fzguide.system

@@ -31,6 +31,13 @@ enum day_of_week: unsigned int {
     _num_dow
 };
 
+struct time_of_day_t {
+    unsigned int hour;
+    unsigned int minute;
+    time_of_day_t(unsigned int hr = 0, unsigned int min = 0): hour(hr), minute(min) {}
+    unsigned int num_minutes() { return 60*hour + minute; }
+};
+
 extern const std::string weekday_str[day_of_week::_num_dow];
 
 /**
@@ -120,6 +127,9 @@ std::string WeekDay(time_t t);
 time_t time_add_day(time_t t, int days = 1);
 time_t time_add_month(time_t t, int months = 1);
 day_of_week time_day_of_week(time_t t);
+unsigned int time_hour(time_t t);
+unsigned int time_minute(time_t t);
+time_of_day_t time_of_day(time_t t);
 int time_month_length(time_t t);
 time_t time_add_month_EOMoffset(time_t t);
 

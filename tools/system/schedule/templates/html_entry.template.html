@@ -1,0 +1,5 @@
+<tr>
+<td style="color:#{{ dayquarter-color  }};">{{ interval-start }}</td><td>{{ interval-hours }}{{ interval-minutes }} mins</td>
+<td><a class="nnl" href="http://127.0.0.1:8090/fz/graph/namedlists/_select?id={{ node-id }}">[select]</a></td>
+<td class="id_cell" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit={{ node-id }}','_blank');">{{ node-id }}</td>
+<td>{{ tdprop }}</td><td><a class="node" href="/cgi-bin/fzlink.py?id={{ node-id }}">{{ node-desc }}</a></td></tr>

@@ -513,6 +513,7 @@ public:
 
     time_t get_targetdate() const { return targetdate; }
     std::string get_targetdate_str() const { return TimeStampYmdHM(targetdate); }
+    time_of_day_t get_targetdate_timeofday() const { return time_of_day(targetdate); }
     td_property get_tdproperty() const { return tdproperty; }
     std::string get_tdproperty_str() const { return td_property_str[tdproperty]; }
     bool td_unspecified() const { return tdproperty == td_property::unspecified; }
