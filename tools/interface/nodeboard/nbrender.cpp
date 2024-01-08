@@ -572,10 +572,25 @@ float nodeboard::get_card_height(unsigned int minutes) {
 }
 
 const std::map<char, std::string> schedule_entry_color = {
-    {'e', "w3-light-grey"},
-    {'f', "w3-pale-green"},
-    {'v', "w3-khaki"}
+    {'e', "#ffc0cb"}, // pink
+    {'E', "#dda0dd"}, // exact with repeats, plum
+    {'f', "#98fb98"}, // pale-green
+    {'F', "#66cdaa"}, // fixed with repeats, mediumacquamarine
+    {'v', "#f0e68c"}, // khaki
+    {'u', "#d3d3d3"}, // light-grey
+    {'i', "#c4f0a2"}, // mixed khaki and pale-green using https://www.w3schools.com/colors/colors_mixer.asp
 };
+
+std::string get_schedule_card_color(const CSV_Data & entry_data) {
+    if (entry_data.node_ptr->get_repeats()) {
+        if (entry_data.tdprop == 'e') {
+            return schedule_entry_color.at('E');
+        }
+        return schedule_entry_color.at('F');
+    }
+
+    return schedule_entry_color.at(entry_data.tdprop);
+}
 
 bool nodeboard::get_Schedule_card(const CSV_Data & entry_data, std::string & rendered_cards) {
     if (!entry_data.node_ptr) {
@@ -588,7 +603,7 @@ bool nodeboard::get_Schedule_card(const CSV_Data & entry_data, std::string & ren
     // For each node: Set up a map of content to template position IDs.
     template_varvalues nodevars;
     nodevars.emplace("node-id", entry_data.node_ptr->get_id_str());
-    nodevars.emplace("node-color", schedule_entry_color.at(entry_data.tdprop));
+    nodevars.emplace("node-color", get_schedule_card_color(entry_data));
     nodevars.emplace("node-text", excerpt);
     nodevars.emplace("start-time", entry_data.start_time);
     nodevars.emplace("minutes", std::to_string(entry_data.num_minutes));

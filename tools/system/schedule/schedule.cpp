@@ -353,6 +353,20 @@ unsigned long schedule::set_block_to_node_backwards(unsigned long idx, int next_
     return idx;
 }
 
+// See README.md.
+bool include_in_fixed_td_step(const Node & node) {
+    if (node.td_fixed()) return true;
+    if (node.td_unspecified()) return false;
+    if (!node.td_inherit()) return false; // takes care of td_variable() and td_exact()
+
+    // Find the origin Node for the targetdate used.
+    Node_ptr origin = nullptr;
+    node.effective_targetdate(&origin);
+    if ((origin==nullptr) || (origin==&node)) return false;
+    if (origin->td_exact() || origin->td_fixed()) return true;
+    return false;
+}
+
 // For each fixed target date entry, find the latest available minute
 // and start filling back from there.
 bool schedule::map_fixed_target_date_entries_late() {
@@ -361,7 +375,7 @@ bool schedule::map_fixed_target_date_entries_late() {
     for (const auto & [ day, day_entries ] : days) {
         for (const auto & node_ptr : day_entries->entries) {
             if (node_ptr) {
-                if (node_ptr->td_fixed()) {
+                if (include_in_fixed_td_step(*node_ptr)) {
                     auto nkey = node_ptr->get_id().key();
                     int num_minutes = node_ptr->get_required_minutes();
                     time_of_day_t timeofday = node_ptr->get_targetdate_timeofday();
@@ -392,7 +406,7 @@ bool schedule::map_fixed_target_date_entries_late_from_sorted() {
 
     unsigned int num_schedule = schedule_size;
     for (const auto & [tdate, node_ptr] : incnodes_with_repeats) {
-        if (node_ptr->td_fixed() && (tdate >= thisdatetime)) {
+        if (include_in_fixed_td_step(*node_ptr) && (tdate >= thisdatetime)) {
 
             auto nkey = node_ptr->get_id().key();
             int num_minutes = node_ptr->get_required_minutes();
@@ -445,6 +459,20 @@ unsigned long schedule::set_block_to_node_forwards(unsigned long idx, int next_g
     return idx;
 }
 
+// See README.md.
+bool include_in_variable_td_step(const Node & node) {
+    if (node.td_variable()) return true;
+    if (node.td_unspecified()) return true;
+    if (!node.td_inherit()) return false; // takes care of td_fixed() and td_exact()
+
+    // Find the origin Node for the targetdate used.
+    Node_ptr origin = nullptr;
+    node.effective_targetdate(&origin);
+    if ((origin==nullptr) || (origin==&node)) return true;
+    if (origin->td_exact() || origin->td_fixed()) return false;
+    return true;
+}
+
 bool schedule::map_variable_target_date_entries_early(unsigned int start_at) {
     variable_consumed = 0;
     unsigned int mapped_day_count = 0;
@@ -455,7 +483,7 @@ bool schedule::map_variable_target_date_entries_early(unsigned int start_at) {
         }
         for (const auto & node_ptr : day_entries->entries) {
             if (node_ptr) {
-                if (node_ptr->td_variable()) {
+                if (include_in_variable_td_step(*node_ptr)) {
                     auto nkey = node_ptr->get_id().key();
                     int num_minutes = node_ptr->get_required_minutes();
                     //time_of_day_t timeofday = node_ptr->get_targetdate_timeofday();
@@ -506,7 +534,7 @@ bool schedule::get_and_map_more_variable_target_date_entries(unsigned long remai
         while (true) {
             Node * node_ptr = it->second;
             if (node_ptr) {
-                if (node_ptr->td_variable()) {
+                if (include_in_variable_td_step(*node_ptr)) {
                     more_minutes += node_ptr->get_required_minutes();
                     if (more_minutes >= remaining_minutes) {
                         VERBOSEOUT("Additional variable target date Node minutes found: "+std::to_string(more_minutes)+'\n');
@@ -534,7 +562,7 @@ bool schedule::map_variable_target_date_entries_early_from_sorted() {
 
     unsigned int num_schedule = schedule_size;
     for (const auto & [tdate, node_ptr] : incnodes_with_repeats) {
-        if (node_ptr->td_variable()) {
+        if (include_in_variable_td_step(*node_ptr)) {
 
             auto nkey = node_ptr->get_id().key();
             int num_minutes = node_ptr->get_required_minutes();
