@@ -39,6 +39,7 @@ typedef std::map<template_id_enum,std::string> schedule_templates;
 
 enum schedule_strategy {
     fixed_late_variable_early_strategy,
+    fixed_late_variable_early_from_sorted_strategy,
     NUMstrategies
 };
 
@@ -66,10 +67,15 @@ struct Day_Entries {
 typedef std::unique_ptr<Day_Entries> day_entries_uptr;
 
 struct Days_Map: public std::vector<Node_ID_key> {
-    void fill(unsigned long from_idx, unsigned long before_idx, Node_ID_key nkey) {
-        for (unsigned long idx = from_idx; idx < before_idx; idx++) {
+    unsigned long fill(unsigned long from_idx, unsigned long before_idx, Node_ID_key nkey) {
+        unsigned long consumed = 0;
+        for (unsigned long idx = from_idx; (idx < before_idx) && (idx < size()); idx++) {
+            if (at(idx).isnullkey()) {
+                consumed++;
+            }
             at(idx) = nkey;
         }
+        return consumed;
     }
 };
 
@@ -78,6 +84,10 @@ struct schedule: public formalizer_standard_program {
 
     flow_options flowcontrol;
     schedule_strategy strategy = fixed_late_variable_early_strategy;
+
+    bool inc_exact = true;
+    bool inc_fixed = true;
+    bool inc_variable = true;
 
     time_t thisdatetime;
     std::string thisdate;
@@ -132,11 +142,17 @@ struct schedule: public formalizer_standard_program {
 
     bool map_exact_target_date_entries();
 
+    unsigned int get_estimated_offset_day(time_t t);
+
+    bool map_exact_target_date_entries_from_sorted();
+
     bool min_block_available_backwards(unsigned long idx, int next_grab);
 
     unsigned long set_block_to_node_backwards(unsigned long idx, int next_grab, Node_ID_key nkey);
 
     bool map_fixed_target_date_entries_late();
+
+    bool map_fixed_target_date_entries_late_from_sorted();
 
     bool min_block_available_forwards(unsigned long idx, int next_grab);
 
@@ -145,6 +161,8 @@ struct schedule: public formalizer_standard_program {
     bool map_variable_target_date_entries_early(unsigned int start_at = 0);
 
     bool get_and_map_more_variable_target_date_entries(unsigned long remaining_minutes);
+
+    bool map_variable_target_date_entries_early_from_sorted();
 
     bool generate_schedule();
 

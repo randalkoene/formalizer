@@ -119,10 +119,12 @@ def log(msg):
 
 def generate_schedule():
     if min_block_size:
-        min_block_size_arg = '-s %s' % min_block_size
+        #min_block_size_arg = '-s %s' % min_block_size
+        min_block_size_arg = '-b %s' % min_block_size
     else:
         min_block_size_arg = ''
-    thecmd = "./schedule.py -w -d %s %s" % (num_days, min_block_size_arg)
+    #thecmd = "./schedule.py -w -d %s %s" % (num_days, min_block_size_arg)
+    thecmd = "./schedule -w -S f_late_v_early_2 -D %s %s" % (num_days, min_block_size_arg)
     log(try_command_call(thecmd, printhere=False))
     #print("Content-type:text/html\n\n")
     #print('Done')
@@ -130,14 +132,16 @@ def generate_schedule():
 
 def generate_calendar_schedule():
     if min_block_size:
-        min_block_size_arg = '-s %s' % min_block_size
+        #min_block_size_arg = '-s %s' % min_block_size
+        min_block_size_arg = '-b %s' % min_block_size
     else:
         min_block_size_arg = ''
     if vertical_multiplier:
         vertical_multiplier_arg = '-M %s' % vertical_multiplier
     else:
         vertical_multiplier_arg = ''
-    thecmd = "./schedule.py -W -d %s %s" % (num_days, min_block_size_arg)
+    #thecmd = "./schedule.py -W -d %s %s" % (num_days, min_block_size_arg)
+    thecmd = "./schedule -W -S f_late_v_early_2 -D %s %s" % (num_days, min_block_size_arg)
     log(try_command_call(thecmd, printhere=False))
     thecmd = f"./nodeboard -c {schedulecsvfile} -H 'Proposed Schedule' {vertical_multiplier_arg} -q -o {schedulefile}"
     log(try_command_call(thecmd, printhere=False))

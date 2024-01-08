@@ -148,7 +148,6 @@ bool schedule_render_html(schedule & sch) {
 	}
 
 	sch.render_init();
-	sch.t_today_start = today_start_time();
 
 	Node_ID_key nkey;
 	unsigned long start_minute = 0;
@@ -190,7 +189,7 @@ std::string render_entry_csv(schedule & sch, unsigned long start_minute, unsigne
 	std::string entry(TimeStamp("%x %H:%M,", interval.start));
 	entry += std::to_string(interval.minutes) + ',';
 	entry += node_ptr->get_tdproperty_str() + ',';
-	entry += nkey.str();
+	entry += nkey.str() + '\n';
 	return entry;
 }
 

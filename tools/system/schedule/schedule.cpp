@@ -45,13 +45,14 @@ schedule::schedule():
     flowcontrol(flow_unknown),
     graph_ptr(nullptr) {
 
-    add_option_args += "wcWd:s:";
-    add_usage_top += " <-H|-w|-c|-W> [-d <num_days>] [-s <min_minutes>] [-o <output-file|STDOUT>]";
+    add_option_args += "HwcWS:D:b:efxo:";
+    add_usage_top += " <-H|-w|-c|-W> [-S <strategy>] [-D <num_days>] [-b <min_minutes>] [-e] [-f] [-x] [-o <output-file|STDOUT>]";
 
     thisdatetime = ActualTime();
     thisdate = DateStampYmd(thisdatetime);
     thistimeofday = time_of_day(thisdatetime);
     thisminutes = thistimeofday.num_minutes();
+    t_today_start = today_start_time();
 }
 
 void schedule::usage_hook() {
@@ -61,8 +62,13 @@ void schedule::usage_hook() {
         "    -w HTML output for web page.\n"
         "    -c CSV output.\n"
         "    -W CSV output for use in web app.\n"
-        "    -d Number of days to schedule (default: 1).\n"
-        "    -s Minimum block size in minutes (default: 1).\n"
+        "    -S Use strategy:\n"
+        "       f_late_v_early (default), f_late_v_early_2\n"
+        "    -D Number of days to schedule (default: 1).\n"
+        "    -b Minimum block size in minutes (default: 1).\n"
+        "    -e Exclude exact target date Nodes.\n"
+        "    -f Exclude fixed target date Nodes.\n"
+        "    -x Exclude variable target date Nodes.\n"
         "    -o Output to file (or STDOUT).\n"
         "       (Default depends on output target.)\n"
         "\n"
@@ -97,7 +103,16 @@ bool schedule::options_hook(char c, std::string cargs) {
             return true;
         }
 
-        case 'd': {
+        case 'S': {
+            if (cargs == "f_late_v_early") {
+                strategy = fixed_late_variable_early_strategy;
+            } else if (cargs == "f_late_v_early_2") {
+                strategy = fixed_late_variable_early_from_sorted_strategy;
+            }
+            return true;
+        }
+
+        case 'D': {
             num_days = atoi(cargs.c_str());
             if (num_days < 1) {
                 num_days = 1;
@@ -105,11 +120,26 @@ bool schedule::options_hook(char c, std::string cargs) {
             return true;
         }
 
-        case 's': {
+        case 'b': {
             min_block_size = atoi(cargs.c_str());
             if (min_block_size < 1) {
                 min_block_size = 1;
             }
+            return true;
+        }
+
+        case 'e': {
+            inc_exact = false;
+            return true;
+        }
+
+        case 'f': {
+            inc_fixed = false;
+            return true;
+        }
+
+        case 'x': {
+            inc_variable = false;
             return true;
         }
 
@@ -170,11 +200,12 @@ bool schedule::convert_to_data_by_day() {
 
     // Go through the sorted Nodes and their repeats in targetdate order.
     unsigned int num_schedule = schedule_size;
+    VERBOSEOUT("Number of Nodes and repeats to assign to days: "+std::to_string(num_schedule)+'\n');
     for (const auto & [tdate, node_ptr] : incnodes_with_repeats) {
 
         if (node_ptr) {
-            // Does the next entry still belong to the same day?
-            unsigned long entry_day = atol(node_ptr->get_targetdate_str().substr(0, 8).c_str());
+            // Does the next entry still belong to the same day (use tdate, not node_ptr->get_targetdate())?
+            unsigned long entry_day = date_as_ulong(tdate);
             if (entry_day != day) {
 
                 // Move this completed day list to the days collection.
@@ -212,7 +243,12 @@ bool schedule::convert_to_data_by_day() {
 }
 
 bool schedule::initialize_daymap() {
-    total_minutes = days.size()*24*60;
+    if (strategy == fixed_late_variable_early_strategy) {
+        total_minutes = days.size()*24*60;
+    } else {
+        total_minutes = (get_estimated_offset_day(incnodes_with_repeats.rbegin()->first)+1)*24*60;
+    }
+    
     VERBOSEOUT("Number of minutes in daysmap: "+std::to_string(total_minutes)+'\n');
     daysmap.resize(total_minutes);
     /*
@@ -247,8 +283,7 @@ bool schedule::map_exact_target_date_entries() {
                         td_start_index = passed_minutes;
                     }
                     // VERBOSE("EXACT "+node_ptr->get_id_str()+": "+std::to_string(td_start_index)+" - "+std::to_string(td_minute_index)+'\n');
-                    daysmap.fill(td_start_index, td_minute_index, nkey);
-                    exact_consumed += (td_minute_index - td_start_index);
+                    exact_consumed += daysmap.fill(td_start_index, td_minute_index, nkey);
                 }
             }
         }
@@ -257,6 +292,43 @@ bool schedule::map_exact_target_date_entries() {
     VERBOSEOUT("Minutes consumed by exact target date Nodes: "+std::to_string(exact_consumed)+'\n');
     return true;
 }
+
+// *** TODO: This does may not work entirely correctly around daylight savings changes.
+unsigned int schedule::get_estimated_offset_day(time_t t) {
+    unsigned long seconds = t - t_today_start;
+    return seconds / 86400;
+}
+
+// This uses the same strategy as above, but obtains data directly from
+// the incnode_with_repeats list.
+bool schedule::map_exact_target_date_entries_from_sorted() {
+    exact_consumed = 0;
+
+    unsigned int num_schedule = schedule_size;
+    for (const auto & [tdate, node_ptr] : incnodes_with_repeats) {
+        if (node_ptr->td_exact() && (tdate >= thisdatetime)) {
+
+            // Tag indexed map entries with Node key.
+            auto nkey = node_ptr->get_id().key();
+            unsigned int num_minutes = node_ptr->get_required_minutes();
+            time_of_day_t timeofday = node_ptr->get_targetdate_timeofday();
+            unsigned long td_minute_index = (get_estimated_offset_day(tdate)*60*24) + (timeofday.hour*60) + timeofday.minute;
+            unsigned long td_start_index = td_minute_index - num_minutes;
+            if (td_start_index < passed_minutes) {
+                td_start_index = passed_minutes;
+            }
+            exact_consumed += daysmap.fill(td_start_index, td_minute_index, nkey);
+
+        }
+
+        // Continue until the specified limit is reached.
+        if (--num_schedule == 0)
+            break;
+    }
+    VERBOSEOUT("Minutes consumed by exact target date Nodes: "+std::to_string(exact_consumed)+'\n');
+    return true;
+}
+
 
 bool schedule::min_block_available_backwards(unsigned long idx, int next_grab) {
     while (idx >= passed_minutes) {
@@ -310,6 +382,41 @@ bool schedule::map_fixed_target_date_entries_late() {
             }
         }
         mapped_day_count++;
+    }
+    VERBOSEOUT("Minutes consumed by fixed target date Nodes: "+std::to_string(fixed_consumed)+'\n');
+    return true;
+}
+
+bool schedule::map_fixed_target_date_entries_late_from_sorted() {
+    fixed_consumed = 0;
+
+    unsigned int num_schedule = schedule_size;
+    for (const auto & [tdate, node_ptr] : incnodes_with_repeats) {
+        if (node_ptr->td_fixed() && (tdate >= thisdatetime)) {
+
+            auto nkey = node_ptr->get_id().key();
+            int num_minutes = node_ptr->get_required_minutes();
+            time_of_day_t timeofday = node_ptr->get_targetdate_timeofday();
+            unsigned long latest_td_minute_index = (get_estimated_offset_day(tdate)*60*24) + (timeofday.hour*60) + timeofday.minute;
+            // Find blocks starting at the latest possible index.
+            if (latest_td_minute_index < daysmap.size()) {
+                unsigned long idx = latest_td_minute_index;
+                while ((idx >= passed_minutes) && (num_minutes > 0)) {
+                    int next_grab = (num_minutes < min_block_size) ? num_minutes : min_block_size;
+                    if (min_block_available_backwards(idx, next_grab)) {
+                        idx = set_block_to_node_backwards(idx, next_grab, nkey);
+                        num_minutes -= next_grab;
+                        fixed_consumed += next_grab;
+                    } else {
+                        idx--;
+                    }
+                }
+            }
+        }
+
+        // Continue until the specified limit is reached.
+        if (--num_schedule == 0)
+            break;
     }
     VERBOSEOUT("Minutes consumed by fixed target date Nodes: "+std::to_string(fixed_consumed)+'\n');
     return true;
@@ -422,6 +529,37 @@ bool schedule::get_and_map_more_variable_target_date_entries(unsigned long remai
     return true;
 }
 
+bool schedule::map_variable_target_date_entries_early_from_sorted() {
+    variable_consumed = 0;
+
+    unsigned int num_schedule = schedule_size;
+    for (const auto & [tdate, node_ptr] : incnodes_with_repeats) {
+        if (node_ptr->td_variable()) {
+
+            auto nkey = node_ptr->get_id().key();
+            int num_minutes = node_ptr->get_required_minutes();
+            unsigned long idx = passed_minutes;
+            while ((idx < daysmap.size()) && (num_minutes > 0)) {
+                int next_grab = (num_minutes < min_block_size) ? num_minutes : min_block_size;
+                if (min_block_available_forwards(idx, next_grab)) {
+                    idx = set_block_to_node_forwards(idx, next_grab, nkey);
+                    num_minutes -= next_grab;
+                    variable_consumed += next_grab;
+                } else {
+                    idx++;
+                }
+            }
+
+        }
+
+        // Continue until the specified limit is reached.
+        if (--num_schedule == 0)
+            break;
+    }
+    VERBOSEOUT("Minutes consumed by variable target date Nodes: "+std::to_string(variable_consumed)+'\n');
+    return true;
+}
+
 bool schedule::generate_schedule() {
     switch (strategy) {
         case fixed_late_variable_early_strategy: {
@@ -435,19 +573,50 @@ bool schedule::generate_schedule() {
             if (!initialize_daymap()) {
                 return false;
             }
-            if (!map_exact_target_date_entries()) {
+            if (inc_exact) {
+                if (!map_exact_target_date_entries()) {
+                    return false;
+                }
+            }
+            if (inc_fixed) {
+                if (!map_fixed_target_date_entries_late()) {
+                    return false;
+                }
+            }
+            if (inc_variable) {
+                if (!map_variable_target_date_entries_early()) {
+                    return false;
+                }
+                unsigned long remaining_minutes = total_minutes - exact_consumed - fixed_consumed - variable_consumed - passed_minutes;
+                VERBOSEOUT("Remaining minutes to fill with variable target date entries: "+std::to_string(remaining_minutes)+'\n');
+                if (remaining_minutes > 0) {
+                    if (!get_and_map_more_variable_target_date_entries(remaining_minutes)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        case fixed_late_variable_early_from_sorted_strategy: {
+            VERBOSEOUT(strategy1);
+            if (!get_schedule_data(num_days)) {
                 return false;
             }
-            if (!map_fixed_target_date_entries_late()) {
+            if (!initialize_daymap()) {
                 return false;
             }
-            if (!map_variable_target_date_entries_early()) {
-                return false;
+            if (inc_exact) {
+                if (!map_exact_target_date_entries_from_sorted()) {
+                    return false;
+                }
             }
-            unsigned long remaining_minutes = total_minutes - exact_consumed - fixed_consumed - variable_consumed - passed_minutes;
-            VERBOSEOUT("Remaining minutes to fill with variable target date entries: "+std::to_string(remaining_minutes)+'\n');
-            if (remaining_minutes > 0) {
-                if (!get_and_map_more_variable_target_date_entries(remaining_minutes)) {
+            if (inc_fixed) {
+                if (!map_fixed_target_date_entries_late_from_sorted()) {
+                    return false;
+                }
+            }
+            if (inc_variable) {
+                if (!map_variable_target_date_entries_early_from_sorted()) {
                     return false;
                 }
             }

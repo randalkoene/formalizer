@@ -435,6 +435,9 @@ Options:
   -c    Output to .csv format.
   -W    Output to .csv for use in web output.
   -s    Minimum block size in minutes (default: 1).
+  -E    Exclude exact.
+  -F    Exclude fixed.
+  -V    Exclude variable.
 
 The resulting schedule is written to /tmp%s if -c,
 to %s%s if -W,
@@ -451,6 +454,9 @@ def parse_command_line()->dict:
     web = False
     csv = False
     min_block_size = 1
+    inc_exact = True
+    inc_fixed = True
+    inc_variable = True
 
     cmdline = argv.copy()
     scriptpath = cmdline.pop(0)
@@ -473,6 +479,12 @@ def parse_command_line()->dict:
             web = True # This ensures that thecmd are preceded by './'.
         elif arg== '-s':
             min_block_size = int(cmdline.pop(0))
+        elif arg== '-E':
+            inc_exact = False
+        elif arg== '-F':
+            inc_fixed = False
+        elif arg== '-V':
+            inc_variable = False
 
     return {
         "num_days": num_days,
@@ -480,6 +492,9 @@ def parse_command_line()->dict:
         "web": web,
         "csv": csv,
         "min_block_size": min_block_size,
+        "inc_exact": inc_exact,
+        "inc_fixed": inc_fixed,
+        "inc_variable": inc_variable,
     }
 
 STRATEGY_1='''
@@ -515,13 +530,19 @@ if __name__ == '__main__':
     schedule_data = get_schedule_data(options)
     days = convert_to_data_by_day(schedule_data)
     daysmap, total_minutes, passed_minutes = initialize_days_map(days)
-    daysmap, exact_consumed = map_exact_target_date_entries(days, daysmap)
-    daysmap, fixed_consumed = map_fixed_target_date_entries(days, daysmap, options)
-    daysmap, variable_consumed = map_variable_target_date_entries(days, daysmap, options=options)
-    remaining_minutes = total_minutes - exact_consumed - fixed_consumed - variable_consumed - passed_minutes
-    print('Remaining minutes to fill with variable target date entries: %d' % remaining_minutes)
-    if remaining_minutes > 0:
-        daysmap, more_variable_consumed = get_and_map_more_variable_target_date_entries(days, daysmap, remaining_minutes, options)
+    exact_consumed = 0
+    fixed_consumed = 0
+    variable_consumed = 0
+    if options['inc_exact']:
+        daysmap, exact_consumed = map_exact_target_date_entries(days, daysmap)
+    if options['inc_fixed']:
+        daysmap, fixed_consumed = map_fixed_target_date_entries(days, daysmap, options)
+    if options['inc_variable']:
+        daysmap, variable_consumed = map_variable_target_date_entries(days, daysmap, options=options)
+        remaining_minutes = total_minutes - exact_consumed - fixed_consumed - variable_consumed - passed_minutes
+        print('Remaining minutes to fill with variable target date entries: %d' % remaining_minutes)
+        if remaining_minutes > 0:
+            daysmap, more_variable_consumed = get_and_map_more_variable_target_date_entries(days, daysmap, remaining_minutes, options)
     if options['csv']:
         print_map_csv(daysmap, passed_minutes, days, options)
     else:

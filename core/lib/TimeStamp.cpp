@@ -288,6 +288,14 @@ time_of_day_t time_of_day(time_t t) {
     return time_of_day_t(tm_ptr->tm_hour, tm_ptr->tm_min);
 }
 
+unsigned long date_as_ulong(time_t t) {
+    const std::tm * tm_ptr;
+    tm_ptr = safe_localtime(&t);
+    unsigned long ulongdate = (tm_ptr->tm_year+1900)*10000;
+    ulongdate += (tm_ptr->tm_mon+1)*100 + tm_ptr->tm_mday;
+    return ulongdate;
+}
+
 int time_month_length(time_t t) {
     if (t < 0) {
         return 0;

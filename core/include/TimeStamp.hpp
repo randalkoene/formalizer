@@ -130,6 +130,7 @@ day_of_week time_day_of_week(time_t t);
 unsigned int time_hour(time_t t);
 unsigned int time_minute(time_t t);
 time_of_day_t time_of_day(time_t t);
+unsigned long date_as_ulong(time_t t);
 int time_month_length(time_t t);
 time_t time_add_month_EOMoffset(time_t t);
 
