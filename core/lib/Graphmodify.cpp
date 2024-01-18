@@ -28,6 +28,10 @@ void graphmod_results_add_to_info_str(const Graphmod_result & modres, std::strin
             infostr += "\n\tadded Edge with ID "+modres.edge_key.str();
             break;
         }
+        case graphmod_remove_edge: {
+            infostr += "\n\tremoved Edge with ID "+modres.edge_key.str();
+            break;
+        }
         case namedlist_add: {
             infostr += "\n\tadded Node with ID "+(modres.node_key.str()+" to NNL ")+modres.resstr.c_str();
             break;
@@ -879,6 +883,35 @@ Edge * Graph_modifications::request_add_Edge(const Node_ID_key & depkey, const N
     data.emplace_back(graphmod_add_edge, edge_ptr);
     return edge_ptr;
 }
+
+Edge * Graph_modifications::request_remove_Edge(std::string ekeystr) {
+    // The Edge must already exist in the memory-resident graph provided through graph_ptr.
+    if (!graph_ptr) {
+        return nullptr;
+    }
+    if (!(graph_ptr->Edge_by_idstr(ekeystr))) {
+        ADDERROR(__func__, "Edge with ID "+ekeystr+" not found in Graph.");
+        return nullptr;
+    }
+
+    // Create Edge object with existing Edge ID in the shared memory segment being used to share a modifications request stack.
+    graphmemman.set_active(segment_name);
+    segment_memory_t * smem = graphmemman.get_segmem();
+    if (!smem) {
+        ADDERROR(__func__, "Shared segment pointer was null pointer");
+        return nullptr;
+    }
+
+    Edge * edge_ptr = smem->construct<Edge>(bi::anonymous_instance)(ekeystr); // this normal pointer is emplaced into an offset_ptr
+    if (!edge_ptr) {
+        ADDERROR(__func__, "Unable to construct Edge data carrier in shared memory");
+        return nullptr;
+    }
+    
+    data.emplace_back(graphmod_remove_edge, edge_ptr);
+    return edge_ptr;
+}
+
 
 Edge * Graph_modifications::request_edit_Edge(std::string ekeystr) {
     // The Edge must already exist in the memory-resident graph provided through graph_ptr.

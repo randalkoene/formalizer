@@ -857,6 +857,50 @@ std::map<std::string, float> Node::Topic_TagRels(Topic_Tags * topictags) {
     return topictagrels;
 }
 
+Node * Node::has_sup(const std::string & sup_idstr) const {
+    Node_ID_key sup_key(sup_idstr);
+    auto sup_edges_set = sup_Edges();
+    for (const auto & edge_ptr : sup_edges_set) {
+        if (edge_ptr->get_sup_key()==sup_key) {
+            return edge_ptr->get_sup();
+        }
+    }
+    return nullptr;
+}
+
+Node * Node::has_dep(const std::string & dep_idstr) const {
+    Node_ID_key dep_key(dep_idstr);
+    auto dep_edges_set = dep_Edges();
+    for (const auto & edge_ptr : dep_edges_set) {
+        if (edge_ptr->get_dep_key()==dep_key) {
+            return edge_ptr->get_dep();
+        }
+    }
+    return nullptr;
+}
+
+Edge * Node::get_Edge_by_sup(const std::string & sup_idstr) const {
+    Node_ID_key sup_key(sup_idstr);
+    auto sup_edges_set = sup_Edges();
+    for (const auto & edge_ptr : sup_edges_set) {
+        if (edge_ptr->get_sup_key()==sup_key) {
+            return edge_ptr.get();
+        }
+    }
+    return nullptr;
+}
+
+Edge * Node::get_Edge_by_dep(const std::string & dep_idstr) const {
+    Node_ID_key dep_key(dep_idstr);
+    auto dep_edges_set = dep_Edges();
+    for (const auto & edge_ptr : dep_edges_set) {
+        if (edge_ptr->get_dep_key()==dep_key) {
+            return edge_ptr.get();
+        }
+    }
+    return nullptr;
+}
+
 Edge_ID::Edge_ID(Edge_ID_key _idkey): idkey(_idkey), idS_cache("") { //, graphmemman.get_allocator()) {
     std::string formerror;
     if (!valid_Node_ID(idkey.dep.idT,formerror)) throw(ID_exception(formerror));

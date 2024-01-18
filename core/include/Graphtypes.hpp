@@ -616,6 +616,12 @@ public:
     const Edges_Set & sup_Edges() const { return supedges; }
     const Edges_Set & dep_Edges() const { return depedges; }
 
+    Node * has_sup(const std::string & sup_idstr) const; // returns nullptr if not in sup_Edges()
+    Node * has_dep(const std::string & sup_idstr) const; // returns nullptr if not in dep_Edges()
+
+    Edge * get_Edge_by_sup(const std::string & sup_idstr) const; // returns nullptr if not in sup_Edges()
+    Edge * get_Edge_by_dep(const std::string & dep_idstr) const; // returns nullptr if not in dep_Edges()
+
     /// friend (utility) functions
     friend Topic * main_topic(const Topic_Tags & topictags, const Node & node); // friend function to ensure search with available Topic_Tags
     friend Topic * main_topic(Graph & _graph, Node & node);

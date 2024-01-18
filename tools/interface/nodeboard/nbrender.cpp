@@ -430,6 +430,7 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
     if (progress > 100.0) progress = 100.0;
     nodevars.emplace("node-progress", to_precision_string(progress, 1));
     nodevars.emplace("node-targetdate", " ("+DateStampYmd(tdate)+')');
+    nodevars.emplace("fzserverpq", graph().get_server_full_address());
 
     std::string prereqs_str;
     std::string hours_applied_str;
@@ -708,6 +709,11 @@ void nodeboard::progress_state_update() {
     }
 }
 
+std::string nodeboard::tosup_todep_html_buttons(const Node_ID_key & column_key) {
+    return "<span><button class=\"tiny_button tiny_green\" onclick=\"window.open('http://"+graph().get_server_full_address()+"/fz/graph/namedlists/superiors?add="+column_key.str()+"');\">2sup</button>"
+           "<button class=\"tiny_button\" onclick=\"window.open('http://"+graph().get_server_full_address()+"/fz/graph/namedlists/dependencies?add="+column_key.str()+"');\">2dep</button></span>";
+}
+
 //bool nodeboard::get_fulldepth_dependencies_column(const std::string & column_header, const base_Node_Set & column_set, std::string & rendered_columns, const std::string extra_header = "") {
 bool nodeboard::get_fulldepth_dependencies_column(std::string & column_header, Node_ID_key column_key, std::string & rendered_columns, const std::string extra_header = "") {
     if (!map_of_subtrees.is_subtree_head(column_key)) {
@@ -764,6 +770,7 @@ bool nodeboard::get_fulldepth_dependencies_column(std::string & column_header, N
         thread_progress = 100.0 * tot_completed_hrs / tot_required_hrs;
     }
     std::string extra_header_with_progress = extra_header + "<br>Progress: " + to_precision_string(thread_progress, 1) + "&#37;";
+    extra_header_with_progress += tosup_todep_html_buttons(column_key);
 
     if (progress_analysis) {
         if (subtree_set.hours_required > 0.0) {
@@ -1282,6 +1289,11 @@ struct Node_Grid_Element {
 struct Node_Grid_Row {
     unsigned int legit_row;
     unsigned int row_number;
+    // The following list is used to collect references to elements that
+    // are in this row, so that we can generate the HTML output with grid
+    // elements appearing in sensible order (which makes discovering the
+    // cause of rendering errors much easier.
+    std::vector<Node_Grid_Element*> elements;
 
     Node_Grid_Row(unsigned int _rownumber): legit_row(12345), row_number(_rownumber) {}
     bool is_legit_row() const { return legit_row == 12345; }
@@ -1295,8 +1307,7 @@ struct Node_Grid {
 
     Node_Grid(const Node & top_node, bool superiors = false) {
         extend();
-
-        add(top_node, nullptr, 0, 0); //add(row, top_node, nullptr, 0, 0);
+        add_to_row(0, 0, top_node, nullptr);
 
         if (superiors) {
             add_superiors(top_node, 0, 0);
@@ -1319,8 +1330,10 @@ struct Node_Grid {
         return placed_element;
     }
 
-    Node_Grid_Element & add_to_row(unsigned int row_idx, unsigned int col_idx, const Node & node, const Node & above) {
-        return add(node, &above, col_idx, row_idx);
+    Node_Grid_Element & add_to_row(unsigned int row_idx, unsigned int col_idx, const Node & node, const Node * above) {
+        Node_Grid_Element & element = add(node, above, col_idx, row_idx);
+        rows[row_idx].elements.emplace_back(&element);
+        return element;
     }
 
     Node_Grid_Row & extend() {
@@ -1345,7 +1358,7 @@ struct Node_Grid {
                 if (dep_ptr) {
                     if (!is_in_grid(*dep_ptr)) { // Unique.
                         // Add to row.
-                        add_to_row(dep_row, node_col, *dep_ptr, node);
+                        add_to_row(dep_row, node_col, *dep_ptr, &node);
                         if (node_col > col_total) {
                             col_total = node_col;
                         }
@@ -1377,7 +1390,7 @@ struct Node_Grid {
                 if (sup_ptr) {
                     if (!is_in_grid(*sup_ptr)) { // Unique.
                         // Add to row.
-                        add_to_row(sup_row, node_col, *sup_ptr, node);
+                        add_to_row(sup_row, node_col, *sup_ptr, &node);
                         if (node_col > col_total) {
                             col_total = node_col;
                         }
@@ -1453,17 +1466,28 @@ bool node_board_render_dependencies_tree(nodeboard & nb) {
 
     std::string rendered_grid;
 
-    for (const auto & [nkey, element] : grid.nodes) {
+    // Generate output row by row for a sensible output order of the
+    // elements of the grid that were collected. Previously, this was
+    // simply 'for (const auto & [nkey, element] : grid.nodes)', which
+    // placed elements in the right positions, but made finding the
+    // cause of rendering errors very difficult due to the nearly random
+    // order of elements in the resulting HTML output.
+    for (const auto & row : grid.rows) {
+        if (row.is_legit_row()) {
+            for (const auto & element_ptr : row.elements) {
+                if (element_ptr) {
 
-        std::string rendered_card;
-        if (nb.get_Node_alt_card(element.node_ptr, element.node_ptr->get_targetdate(), rendered_card)==node_render_error) {
-            standard_error("Node not found in Graph, skipping", __func__);
-            continue;
+                    std::string rendered_card;
+                    if (nb.get_Node_alt_card(element_ptr->node_ptr, element_ptr->node_ptr->get_targetdate(), rendered_card)==node_render_error) {
+                        standard_error("Node not found in Graph, skipping", __func__);
+                        continue;
+                    }
+                    if (!rendered_card.empty()) {
+                        rendered_grid += into_grid(element_ptr->row_pos, element_ptr->col_pos, element_ptr->span, rendered_card);
+                    }
+                }
+            }
         }
-        if (!rendered_card.empty()) {
-            rendered_grid += into_grid(element.row_pos, element.col_pos, element.span, rendered_card);
-        }
-
     }
 
     nb.num_columns = grid.col_total;
@@ -1508,17 +1532,28 @@ bool node_board_render_superiors_tree(nodeboard & nb) {
 
     std::string rendered_grid;
 
-    for (const auto & [nkey, element] : grid.nodes) {
+    // Generate output row by row for a sensible output order of the
+    // elements of the grid that were collected. Previously, this was
+    // simply 'for (const auto & [nkey, element] : grid.nodes)', which
+    // placed elements in the right positions, but made finding the
+    // cause of rendering errors very difficult due to the nearly random
+    // order of elements in the resulting HTML output.
+    for (const auto & row : grid.rows) {
+        if (row.is_legit_row()) {
+            for (const auto & element_ptr : row.elements) {
+                if (element_ptr) {
 
-        std::string rendered_card;
-        if (nb.get_Node_alt_card(element.node_ptr, element.node_ptr->get_targetdate(), rendered_card)==node_render_error) {
-            standard_error("Node not found in Graph, skipping", __func__);
-            continue;
+                    std::string rendered_card;
+                    if (nb.get_Node_alt_card(element_ptr->node_ptr, element_ptr->node_ptr->get_targetdate(), rendered_card)==node_render_error) {
+                        standard_error("Node not found in Graph, skipping", __func__);
+                        continue;
+                    }
+                    if (!rendered_card.empty()) {
+                        rendered_grid += into_grid(element_ptr->row_pos, element_ptr->col_pos, element_ptr->span, rendered_card);
+                    }
+                }
+            }
         }
-        if (!rendered_card.empty()) {
-            rendered_grid += into_grid(element.row_pos, element.col_pos, element.span, rendered_card);
-        }
-
     }
 
     nb.num_columns = grid.col_total;

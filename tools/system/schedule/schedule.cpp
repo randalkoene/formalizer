@@ -354,7 +354,7 @@ unsigned long schedule::set_block_to_node_backwards(unsigned long idx, int next_
 }
 
 // See README.md.
-bool include_in_fixed_td_step(const Node & node) {
+bool include_in_fixed_td_step(Node & node) {
     if (node.td_fixed()) return true;
     if (node.td_unspecified()) return false;
     if (!node.td_inherit()) return false; // takes care of td_variable() and td_exact()
@@ -460,7 +460,7 @@ unsigned long schedule::set_block_to_node_forwards(unsigned long idx, int next_g
 }
 
 // See README.md.
-bool include_in_variable_td_step(const Node & node) {
+bool include_in_variable_td_step(Node & node) {
     if (node.td_variable()) return true;
     if (node.td_unspecified()) return true;
     if (!node.td_inherit()) return false; // takes care of td_fixed() and td_exact()

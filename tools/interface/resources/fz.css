@@ -109,6 +109,30 @@ color: white;
     background-color: var(--color-bg);
     color: rgb(71, 71, 71);
 }
+.tiny_button {
+border: 1px solid #008CBA;
+color: black;
+background-color: var(--color-bg);
+padding: 1px 2px;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+font-size: 10px;
+margin: 2px 1px;
+transition-duration: 0.4s;
+cursor: pointer;
+width: min-content;
+}
+.tiny_button:hover {
+background-color: #008CBA;
+color: white;
+}
+.tiny_green {
+border: 1px solid #4CAF50;
+}
+.tiny_green:hover {
+background-color: #4CAF50;
+}
 a.node:link {color: #000000; text-decoration:none;}
 a.node:visited {color: #000000; text-decoration:none;}
 a.node:hover {color: #000000; text-decoration:underline; background:#55db50;}

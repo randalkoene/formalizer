@@ -3,11 +3,15 @@
   <div class="w3-card-4 w3-blue">
     <!-- <img src="img_avatar.png" alt="Avatar" style="width:100%"> -->
     <div class="container {{ node-color }}">
+      {{ node-prereqs }}
+      <button class="tiny_button tiny_green" onclick="window.open('http://{{ fzserverpq }}/fz/graph/namedlists/superiors?add={{ node-id }}');">2sup</button>
+      <button class="tiny_button" onclick="window.open('http://{{ fzserverpq }}/fz/graph/namedlists/dependencies?add={{ node-id }}');">2dep</button>
+      <button class="tiny_button tiny_green" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new&tosup={{ node-id }}');">mkwsup</button>
+      <button class="tiny_button" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new&todep={{ node-id }}');">mkwdep</button>
+      {{ node-hrsapplied }}
+      <p>Progress: {{ node-progress }}&#37;{{ node-targetdate }}</p>
       <p class="w3-medium">{{ node-text }}</p>
       <p><b><a href="/cgi-bin/fzlink.py?id={{ node-id }}">{{ node-id }}</a></b> (<a href="/cgi-bin/nodeboard-cgi.py?n={{ node-deps }}{{ filter-substr }}">DEP</a>)</p>
-      <p>Progress: {{ node-progress }}&#37;{{ node-targetdate }}</p>
-      {{ node-hrsapplied }}
-      {{ node-prereqs }}
     </div>
   </div>
 

@@ -177,6 +177,14 @@ nutrition = {
 	'oats': [ 300, 'cup', ],
 	'hash browns': [ 326, '100 g', ],
 	'cellophane noodles': [ 492, 'cup', ],
+	'ramen': [ 188, 'serving', ],
+	'tomato soup': [ 74, 'cup', ],
+	'granulated sugar': [ 16, 'tsp', ],
+	'marshmallow': [ 23, 'marshmallow', ],
+	'double cheeseburger': [ 437, 'sandwich', ],
+	'milk shake': [ 350, "regular shake", ],
+	'biscoff cookies': [ 150, "serving", ],
+	'kroket': [ 131, 'kroket', ],
 }
 
 lowcal_filling_nutritious = [
@@ -281,6 +289,10 @@ meals = [
 	'egg salad',
 	'potato salad',
 	'cellophane noodles',
+	'ramen',
+	'tomato soup',
+	'double cheeseburger',
+	'kroket',
 ]
 
 drinks = [

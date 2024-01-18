@@ -76,6 +76,10 @@ max_td = form.getvalue('max_td')
 num_days = form.getvalue('num_days')
 sort_by = form.getvalue('sort_by')
 
+# optional extra arguments for edit=new
+tosup = form.getvalue('tosup')
+todep = form.getvalue('todep')
+
 subtrees_list = form.getvalue('subtrees')
 
 # The following should only show information that is safe to provide
@@ -117,6 +121,12 @@ Genereates the Node Edit form page for the Node identified by NODE_ID.
 <p>
 Note that this is also used to create the form with which tot define a new Node.
 Simply set NODE_ID to the string 'new'.
+</p>
+
+<p>
+The edit new option can take an additional argument, either 'tosup=NODE_ID' or
+'todep=NODE_ID', in which case the corresponding Node is added to the superiors
+or dependencies NNL before the new Node page is opened.
 </p>
 
 <h3>List of Named Node Lists</h3>
@@ -344,6 +354,14 @@ def generate_NNL_page():
 
 
 def generate_Node_edit_form_page():
+    if edit=='new':
+        if tosup:
+            thecmd = "./fzgraph -q -L add -l superiors -S "+tosup
+            try_command_call(thecmd, printhere=False)
+        elif todep:
+            thecmd = "./fzgraph -q -L add -l dependencies -D "+todep
+            try_command_call(thecmd, printhere=False)
+
     thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -m "+edit
     if topics:
         thecmd += " -t '"+topics+"'"

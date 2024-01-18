@@ -34,6 +34,7 @@ enum Graph_modification_request {
     graphmod_edit_edge,
     batchmod_targetdates,
     batchmod_tpassrepeating,
+    graphmod_remove_edge,
     NUM_graphmod_requests
 };
 
@@ -46,7 +47,8 @@ const std::map<Graph_modification_request, std::string> Graph_modification_reque
     {graphmod_edit_node, "edit_node"},
     {graphmod_edit_edge, "edit_edge"},
     {batchmod_targetdates, "batch_targetdates"},
-    {batchmod_tpassrepeating, "batch_tpassrepeating"}
+    {batchmod_tpassrepeating, "batch_tpassrepeating"},
+    {graphmod_remove_edge, "remove_edge"}
 };
 
 /**
@@ -252,6 +254,8 @@ public:
     Node * request_edit_Node(std::string nkeystr); // alt: (const Node_ID_key & nkey);
     /// Build an ADD EDGE request. Returns a pointer to the Edge data being created (in shared memory).
     Edge * request_add_Edge(const Node_ID_key & depkey, const Node_ID_key & supkey);
+    /// Build an REMOVE EDGE request. Returns a pointer to the Edge data carrier being created (in shared memory).
+    Edge * request_remove_Edge(std::string ekeystr);
     /// Build an EDIT EDGE request. Returns a pointer to the Edge data being created (in shared memory).
     Edge * request_edit_Edge(std::string ekeystr); // alt: (const Edge_ID_key & ekey);
     /// Build a Named Node List request. Returns a pointer to Named_Node_List_Element data (in shared memory).

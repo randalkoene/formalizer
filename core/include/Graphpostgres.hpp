@@ -85,6 +85,8 @@ bool add_Node_pq(PGconn *conn, std::string schemaname, const Node *node);
 
 bool add_Edge_pq(PGconn *conn, std::string schemaname, const Edge *edge);
 
+bool remove_Edge_pq(PGconn *conn, std::string schemaname, const Edge_ID_key & id);
+
 bool store_Graph_pq(const Graph& graph, std::string dbname, std::string schemaname, void (*progressfunc)(unsigned long, unsigned long) = NULL);
 
 bool load_Graph_pq(Graph& graph, std::string dbname, std::string schemaname);

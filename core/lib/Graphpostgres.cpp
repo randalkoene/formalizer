@@ -10,6 +10,7 @@
 // core
 #include "error.hpp"
 #include "general.hpp"
+#include "Graphbase.hpp"
 #include "Graphtypes.hpp"
 #include "fzpostgres.hpp"
 #include "Graphmodify.hpp"
@@ -184,6 +185,17 @@ bool add_Edge_pq(PGconn *conn, std::string schemaname, const Edge *edge) {
     return simple_call_pq(conn, estr);
 }
 
+bool remove_Edge_pq(PGconn *conn, std::string schemaname, const Edge_ID_key & id) {
+    ERRHERE(".1");
+    if (id.isnullkey()) {
+        ERRRETURNFALSE(__func__, "unable to remove a NULL Edge");
+    }
+
+    std::string tablename(schemaname+".Edges");
+    const std::string deletestr("DELETE FROM "+tablename+" WHERE id = '"+id.str()+"'");
+    return simple_call_pq(conn, deletestr);
+}
+
 /**
  * Store all the Nodes and Edges of the Graph in the PostgreSQL database.
  * 
@@ -309,6 +321,24 @@ bool handle_one_modification_pq(Graph & graph, PGconn* conn, const std::string &
                 }
             } else {
                 ADDERROR(__func__, "New Edge "+change_data.edge_key.str()+" not found in Graph");
+                return false;
+            }
+            #ifdef USE_CHANGE_HISTORY
+            // this is an example of a place where the state of a change history record would be
+            // updated to `applied-in-storage`. See https://trello.com/c/FxSP8If8.
+            #endif
+            break;
+        }
+
+        case graphmod_remove_edge: {
+            // Edge must be removed from Graph before removing from database.
+            Edge * e = graph.Edge_by_id(change_data.edge_key);
+            if (!e) {
+                if (!remove_Edge_pq(conn, schemaname, change_data.edge_key)) {
+                    return false;
+                }
+            } else {
+                ADDERROR(__func__, "Edge "+change_data.edge_key.str()+" to remove is still in Graph");
                 return false;
             }
             #ifdef USE_CHANGE_HISTORY

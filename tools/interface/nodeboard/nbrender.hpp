@@ -171,6 +171,8 @@ struct nodeboard: public formalizer_standard_program {
 
     void progress_state_update();
 
+    std::string tosup_todep_html_buttons(const Node_ID_key & column_key);
+
     bool get_fulldepth_dependencies_column(std::string & column_header, Node_ID_key column_key, std::string & rendered_columns, const std::string extra_header);
 
     bool get_NNL_column(const std::string & nnl_str, std::string & rendered_columns);

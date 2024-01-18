@@ -104,6 +104,12 @@ bool handle_named_list_parameters(const GET_token_value_vec & token_value_vec, s
     return true;
 }
 
+// Note: Using the fzclosing_window.js script for this does not work, because it is intended for
+//       a different use-case where another script causes a window to be opened, then automatically closed.
+//       You can add code here to show a nice counter, as in the other script.
+#define AUTO_CLOSING_HTML_BODY_OPEN "<body onload=\"setTimeout(function() { window.close(); }, 3000);\">\n"
+#define AUTO_CLOSING_HTML_BODY_CLOSE "(This window closes automatically in 3 seconds.)\n</body>\n"
+
 /// For convenience, this recognizes a shorthand for adding a Node to the 'selected" Named Node List.
 bool handle_selected_list(const GET_token_value_vec & token_value_vec, std::string & response_html) {
     ERRTRACE;
@@ -137,10 +143,12 @@ bool handle_selected_list(const GET_token_value_vec & token_value_vec, std::stri
             return standard_error("Synchronizing 'selected' update to database failed", __func__);
         }
     }
-    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
+    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n"
+                    AUTO_CLOSING_HTML_BODY_OPEN
                     "<p>Named Node List modified.</p>\n"
                     "<p><b>Added</b> "+nkey.str()+" to List 'selected'.</p>\n"
-                    "</body>\n</html>\n";
+                    AUTO_CLOSING_HTML_BODY_CLOSE
+                    "</html>\n";
 
     return true;
 }
@@ -1268,13 +1276,20 @@ bool handle_node_superiors_remove(Node & node, std::string superiorstr) {
     if (superiorstr.empty()) {
         return standard_error("Missing superior ID", __func__);
     }
-    //Node * dep_ptr = fzs.graph_ptr->Node_by_idstr(superiorstr.substr(0,NODE_ID_STR_NUMCHARS));
-    // *** change the node
-    // *** set the edit flag
+    Edge * edge_ptr = node.get_Edge_by_sup(superiorstr);
+    if (!edge_ptr) {
+        return standard_error("Node "+node.get_id_str()+" does not have superior with ID "+superiorstr, __func__);
+    }
+#ifdef TEST_MORE_THAN_NODE_MODIFICATIONS
+    if (!fzs.graph().remove_Edge(edge_ptr)) {
+        return standard_error("Failed to remove Edge "+edge_ptr->get_id_str()+" from in-memory Graph", __func__);
+    }
+    // *** set the edit flag in the Edge (when it has those)
+    fzs.modifications_ptr->add(graphmod_remove_edge, edge_ptr->get_key());
+    return true;
+#else
     return standard_error("MISSING IMPLEMENTATION: remove superior", __func__);
-    // *** This needs Edge attention in memory and database. This means
-    //     that Update_Node_pq() is not enough for the database updates.
-    //return true;
+#endif
 }
 
 bool handle_node_superiors_addlist(Node & node, std::string superiorslist) {
@@ -1369,12 +1384,20 @@ bool handle_node_dependencies_remove(Node & node, std::string dependencystr) {
     if (dependencystr.empty()) {
         return standard_error("Missing dependency ID", __func__);
     }
-    //Node * dep_ptr = fzs.graph_ptr->Node_by_idstr(dependencystr.substr(0,NODE_ID_STR_NUMCHARS));
-    // *** change the node
-    // *** set the edit flag
+    Edge * edge_ptr = node.get_Edge_by_dep(dependencystr);
+    if (!edge_ptr) {
+        return standard_error("Node "+node.get_id_str()+" does not have dependency with ID "+dependencystr, __func__);
+    }
+#ifdef TEST_MORE_THAN_NODE_MODIFICATIONS
+    if (!fzs.graph().remove_Edge(edge_ptr)) {
+        return standard_error("Failed to remove Edge "+edge_ptr->get_id_str()+" from in-memory Graph", __func__);
+    }
+    // *** set the edit flag in the Edge (when it has those)
+    fzs.modifications_ptr->add(graphmod_remove_edge, edge_ptr->get_key());
+    return true;
+#else
     return standard_error("MISSING IMPLEMENTATION: remove dependency", __func__);
-    // *** This needs Edge attention in memory and database.
-    //return true;
+#endif
 }
 
 bool handle_node_dependencies_addlist(Node & node, std::string dependencieslist) {
@@ -1573,6 +1596,13 @@ bool handle_node_direct_parameter(Node & node, std::string extension, std::strin
     return true;
 }
 
+/**
+ * Examples:
+ *   /fz/graph/nodes/logtime?<T>
+ *   /fz/graph/nodes/<node-id>.<html|desc>
+ *   /fz/graph/nodes/<node-id>?<completion|required|skip>...
+ *   /fz/graph/nodes/<node-id>/...
+ */
 bool handle_node_direct_request(std::string nodereqstr, std::string & response_html) {
     ERRTRACE;
 
@@ -1750,6 +1780,11 @@ bool show_ErrQ(int new_socket) {
 /**
  * Handle a database request in the Formalizer /fz/ virtual filesystem.
  * 
+ * Examples:
+ *   /fz/db/mode
+ *   /fz/db/mode?set=<run|log|sim>
+ *   /fz/db/log
+ * 
  * @param new_socket The communication socket file handler to respond to.
  * @param fzrequesturl The URL-like string containing the request to handle.
  * @return True if the request was handled successfully.
@@ -1789,6 +1824,11 @@ bool handle_fz_vfs_database_request(int new_socket, const std::string & fzreques
 
 /**
  * Handle a Graph request in the Formalizer /fz/ virtual filesystem.
+ * 
+ * Examples:
+ *   /fz/graph/logtime?<T>
+ *   /fz/graph/nodes/...
+ *   /fz/graph/namedlists/...
  * 
  * @param new_socket The communication socket file handler to respond to.
  * @param fzrequesturl The URL-like string containing the request to handle.
@@ -1861,6 +1901,16 @@ bool handle_set_verbosity(int new_socket, std::string verbosity_str, bool veryve
 
 /**
  * Handle a request in the Formalizer /fz/ virtual filesystem.
+ * 
+ * Examples:
+ *   /fz/status
+ *   /fz/ipport
+ *   /fz/ReqQ
+ *   /fz/ErrQ
+ *   /fz/_stop
+ *   /fz/verbosity?set=<normal|quiet|very>
+ *   /fz/db/...
+ *   /fz/graph/...
  * 
  * @param new_socket The communication socket file handler to respond to.
  * @param fzrequesturl The URL-like string containing the request to handle.
@@ -1972,6 +2022,12 @@ void direct_tcpport_api_file_serving(int new_socket, const std::string & url) {
     handle_request_error(new_socket, http_not_found, "Requested file ("+url+") not found.");
 }
 
+/**
+ * Examples:
+ *   FZ NNLlen(superiors);NNLlen(dependencies)
+ *   GET/PATCH /fz/graph/nodes/<node-id>/completion?set=<ratio>
+ *   /doc/txt/system.txt
+ */
 void fzserverpq::handle_special_purpose_request(int new_socket, const std::string & request_str) {
     ERRTRACE;
 
