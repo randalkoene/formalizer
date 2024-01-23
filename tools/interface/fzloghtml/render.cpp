@@ -380,6 +380,8 @@ bool render_Log_interval() {
             template_varvalues varvals;
             Node_ID node_id = chunkptr->get_NodeID();
             t_open_str = chunkptr->get_tbegin_str();
+            time_t t_chunkclose = chunkptr->get_close_time();
+            time_t t_chunkopen = chunkptr->get_open_time();
             varvals.emplace("chunk_id", t_open_str);
             varvals.emplace("node_id", node_id.str());
             if (fzlh.search_strings.empty()) {
@@ -390,21 +392,27 @@ bool render_Log_interval() {
             }
             varvals.emplace("node_link", "/cgi-bin/fzlink.py?id="+node_id.str());
             //varvals.emplace("fzserverpq",graph.get_server_full_address()); *** so far, this is independent of whether the Graph is memory-resident
+            std::string t_open_visible_str(t_open_str);
+            if (fzlh.config.timezone_offset_hours != 0) {
+                t_open_visible_str = TimeStampYmdHM(t_chunkopen + (fzlh.config.timezone_offset_hours*3600));
+            }
             if (fzlh.filter.nkey.isnullkey()) {
-                varvals.emplace("t_chunkopen", t_open_str);
+                varvals.emplace("t_chunkopen", t_open_visible_str);
             } else { // In Node Histories, add links for temporal context.
-                temporalcontextstr = "<a href=\"/cgi-bin/fzloghtml-cgi.py?around="+t_open_str+"&daysinterval=3#"+t_open_str+"\" target=\"_blank\">"+t_open_str+"</a>";
+                temporalcontextstr = "<a href=\"/cgi-bin/fzloghtml-cgi.py?around="+t_open_str+"&daysinterval=3#"+t_open_str+"\" target=\"_blank\">"+t_open_visible_str+"</a>";
                 varvals.emplace("t_chunkopen", temporalcontextstr);
             }
             varvals.emplace("temp_context", temporalcontextstr);
-            time_t t_chunkclose = chunkptr->get_close_time();
-            time_t t_chunkopen = chunkptr->get_open_time();
-            if (t_chunkclose < chunkptr->get_open_time()) {
+            if (t_chunkclose < t_chunkopen) {
                 varvals.emplace("t_chunkclose", "OPEN");
                 varvals.emplace("t_diff", "");
                 varvals.emplace("t_diff_mins", ""); // typically, only either t_diff or t_diff_mins appears in a template
             } else {
-                varvals.emplace("t_chunkclose",TimeStampYmdHM(t_chunkclose));
+                time_t _tchunkclose = t_chunkclose;
+                if (fzlh.config.timezone_offset_hours != 0) {
+                    _tchunkclose += (fzlh.config.timezone_offset_hours*3600);
+                }
+                varvals.emplace("t_chunkclose", TimeStampYmdHM(_tchunkclose));
                 time_t t_diff = (t_chunkclose - t_chunkopen)/60; // mins
                 varvals.emplace("t_diff_mins", std::to_string(t_diff)); // particularly useful for cutom templates
                 if (t_diff >= 120) {

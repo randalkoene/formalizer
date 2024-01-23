@@ -247,6 +247,7 @@ bool fzlh_configurable::set_parameter(const std::string & parlabel, const std::s
     CONFIG_TEST_AND_SET_PAR(dest, "outputfile", parlabel, parvalue);
     CONFIG_TEST_AND_SET_PAR(interpret_text, "interpret_text", parlabel, config_parse_text_interpretation(parvalue));
     CONFIG_TEST_AND_SET_PAR(node_excerpt_len, "node_excerpt_len", parlabel, std::atoi(parvalue.c_str()));
+    CONFIG_TEST_AND_SET_PAR(timezone_offset_hours, "timezone_offset_hours", parlabel, std::atoi(parvalue.c_str()));
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
 

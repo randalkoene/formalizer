@@ -52,6 +52,7 @@ public:
     std::string dest;   ///< where to send rendered output (default: "STDOUT")
     text_interpretation interpret_text = text_interpretation::raw;
     size_t node_excerpt_len = 0;
+    int timezone_offset_hours = 0;
 };
 
 struct fzloghtml: public formalizer_standard_program {
