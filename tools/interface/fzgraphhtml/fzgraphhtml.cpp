@@ -315,6 +315,7 @@ bool fzgh_configurable::set_parameter(const std::string & parlabel, const std::s
     CONFIG_TEST_AND_SET_PAR(interpret_text, "interpret_text", parlabel, config_parse_text_interpretation(parvalue));
     CONFIG_TEST_AND_SET_PAR(show_current_time, "show_current_time", parlabel, parvalue_to_bool(parvalue));
     CONFIG_TEST_AND_SET_PAR(include_daysummary, "include_daysummary", parlabel, parvalue_to_bool(parvalue));
+    CONFIG_TEST_AND_SET_PAR(timezone_offset_hours, "timezone_offset_hours", parlabel, atoi(parvalue.c_str()));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }

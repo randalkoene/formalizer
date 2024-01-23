@@ -414,6 +414,27 @@ bool Node::add_topic(std::string tag, std::string title, float topicrelevance) {
     return add_topic(graph->topics, tag, title, topicrelevance); // NOTICE: Accessing friend class member variable directly to avoid const issues with get_topics().
 }
 
+// Note that there is also a version of this that does not take a parameter.
+float Node::hours_to_complete(time_t tdate_compare) const {
+    if (is_first_instance(tdate_compare)) {
+        return hours_to_complete();
+    }
+    return get_required_hours();
+}
+
+// Note that there is also a version of this that does not take a parameter.
+long Node::minutes_to_complete(time_t tdate_compare) const {
+    if (is_first_instance(tdate_compare)) {
+        return minutes_to_complete();
+    }
+    return get_required_minutes();
+}
+
+bool Node::is_first_instance(time_t tdate_compare) const {
+    if (!repeats) return true;
+    return tdate_compare == const_cast<Node *>(this)->effective_targetdate();
+}
+
 bool Node::remove_topic(uint16_t id) {
     if (topics.size()<=1) return false; /// By convention, you must have at least one topic tag.
     return (topics.erase(id)>0);

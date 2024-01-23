@@ -265,6 +265,14 @@ bool schedule::initialize_daymap() {
     return true;
 }
 
+/**
+ * Note: When an exact target date Node has been partially completed, i.e.
+ *       minutes_to_complete() is less than get_required_minutes(), then,
+ *       if the current time is later than the start time of the exact
+ *       time interval, then it makes sense that the remaining time belongs
+ *       at the end of the interval. Otherwise, we can map it to the start
+ *       of the interval (e.g. to complete a meeting early).
+ */
 bool schedule::map_exact_target_date_entries() {
     exact_consumed = 0;
     unsigned int mapped_day_count = 0;
@@ -275,10 +283,17 @@ bool schedule::map_exact_target_date_entries() {
                 if (node_ptr->td_exact()) {
                     // Tag indexed map entries with Node key.
                     auto nkey = node_ptr->get_id().key();
-                    unsigned int num_minutes = node_ptr->get_required_minutes();
-                    time_of_day_t timeofday = node_ptr->get_targetdate_timeofday();
+                    unsigned int original_req_minutes = node_ptr->get_required_minutes();
+                    unsigned int num_minutes = node_ptr->minutes_to_complete();
+                    time_of_day_t timeofday = node_ptr->get_targetdate_timeofday(); // *** May not work for unspecified/inherited.
                     unsigned long td_minute_index = (mapped_day_count*60*24) + (timeofday.hour*60) + timeofday.minute;
-                    unsigned long td_start_index = td_minute_index - num_minutes;
+                    unsigned long td_start_index = td_minute_index - num_minutes; // From end of exact time interval.
+                    if (num_minutes < original_req_minutes) {
+                        if (thisdatetime < (node_ptr->effective_targetdate()-(60*original_req_minutes))) {
+                            td_start_index = td_minute_index - original_req_minutes; // From start of exact time interval.
+                            td_minute_index = td_start_index + num_minutes;
+                        }
+                    }
                     if (td_start_index < passed_minutes) {
                         td_start_index = passed_minutes;
                     }
@@ -310,10 +325,17 @@ bool schedule::map_exact_target_date_entries_from_sorted() {
 
             // Tag indexed map entries with Node key.
             auto nkey = node_ptr->get_id().key();
-            unsigned int num_minutes = node_ptr->get_required_minutes();
-            time_of_day_t timeofday = node_ptr->get_targetdate_timeofday();
+            unsigned int original_req_minutes = node_ptr->get_required_minutes();
+            unsigned int num_minutes = node_ptr->minutes_to_complete(tdate); // This takes into account if this is the first instance or a repeat.
+            time_of_day_t timeofday = node_ptr->get_targetdate_timeofday(); // *** May not work for unspecified/inherited.
             unsigned long td_minute_index = (get_estimated_offset_day(tdate)*60*24) + (timeofday.hour*60) + timeofday.minute;
             unsigned long td_start_index = td_minute_index - num_minutes;
+            if (num_minutes < original_req_minutes) {
+                if (thisdatetime < (node_ptr->effective_targetdate()-(60*original_req_minutes))) {
+                    td_start_index = td_minute_index - original_req_minutes; // From start of exact time interval.
+                    td_minute_index = td_start_index + num_minutes;
+                }
+            }
             if (td_start_index < passed_minutes) {
                 td_start_index = passed_minutes;
             }
@@ -377,7 +399,7 @@ bool schedule::map_fixed_target_date_entries_late() {
             if (node_ptr) {
                 if (include_in_fixed_td_step(*node_ptr)) {
                     auto nkey = node_ptr->get_id().key();
-                    int num_minutes = node_ptr->get_required_minutes();
+                    int num_minutes = node_ptr->minutes_to_complete(); // *** This does not seem to be able to discern first instance or repeat (as tdate is not available).
                     time_of_day_t timeofday = node_ptr->get_targetdate_timeofday();
                     unsigned long latest_td_minute_index = (mapped_day_count*60*24) + (timeofday.hour*60) + timeofday.minute;
                     // Find blocks starting at the latest possible index.
@@ -409,7 +431,7 @@ bool schedule::map_fixed_target_date_entries_late_from_sorted() {
         if (include_in_fixed_td_step(*node_ptr) && (tdate >= thisdatetime)) {
 
             auto nkey = node_ptr->get_id().key();
-            int num_minutes = node_ptr->get_required_minutes();
+            int num_minutes = node_ptr->minutes_to_complete(tdate); // This takes into account if this is the first instance or a repeat.
             time_of_day_t timeofday = node_ptr->get_targetdate_timeofday();
             unsigned long latest_td_minute_index = (get_estimated_offset_day(tdate)*60*24) + (timeofday.hour*60) + timeofday.minute;
             // Find blocks starting at the latest possible index.
@@ -485,7 +507,7 @@ bool schedule::map_variable_target_date_entries_early(unsigned int start_at) {
             if (node_ptr) {
                 if (include_in_variable_td_step(*node_ptr)) {
                     auto nkey = node_ptr->get_id().key();
-                    int num_minutes = node_ptr->get_required_minutes();
+                    int num_minutes = node_ptr->minutes_to_complete();
                     //time_of_day_t timeofday = node_ptr->get_targetdate_timeofday();
                     //unsigned long latest_td_minute_index = (mapped_day_count*60*24) + (timeofday.hour*60) + timeofday.minute;
                     // Find blocks starting at the earliest possible index.
@@ -535,7 +557,7 @@ bool schedule::get_and_map_more_variable_target_date_entries(unsigned long remai
             Node * node_ptr = it->second;
             if (node_ptr) {
                 if (include_in_variable_td_step(*node_ptr)) {
-                    more_minutes += node_ptr->get_required_minutes();
+                    more_minutes += node_ptr->minutes_to_complete();
                     if (more_minutes >= remaining_minutes) {
                         VERBOSEOUT("Additional variable target date Node minutes found: "+std::to_string(more_minutes)+'\n');
                         return map_variable_target_date_entries_early(num_mapped_days);
@@ -565,7 +587,7 @@ bool schedule::map_variable_target_date_entries_early_from_sorted() {
         if (include_in_variable_td_step(*node_ptr)) {
 
             auto nkey = node_ptr->get_id().key();
-            int num_minutes = node_ptr->get_required_minutes();
+            int num_minutes = node_ptr->minutes_to_complete();
             unsigned long idx = passed_minutes;
             while ((idx < daysmap.size()) && (num_minutes > 0)) {
                 int next_grab = (num_minutes < min_block_size) ? num_minutes : min_block_size;

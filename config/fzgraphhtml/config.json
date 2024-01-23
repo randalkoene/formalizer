@@ -3,5 +3,6 @@
     "excerpt_length" : "120",
     "rendered_out_path" : "STDOUT",
     "interpret_text" : "detect_links",
-    "show_current_time" : "true"
+    "show_current_time" : "true",
+    "timezone_offset_hours": "9"
 }

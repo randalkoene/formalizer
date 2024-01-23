@@ -503,6 +503,8 @@ public:
     time_t seconds_to_complete() const; // inlined below
     long minutes_to_complete() const { return seconds_to_complete()/60; }
     float hours_to_complete() const { return ((float)seconds_to_complete())/3600.0; }
+    float hours_to_complete(time_t tdate_compare) const; // This version works for first instances and repeats (see fzgraphhtml).
+    long minutes_to_complete(time_t tdate_compare) const; // This version works for first instances and repeats (see fzgraphhtml).
 
     bool is_active() const { return (completion >= 0.0) && (completion < 1.0); }
     bool is_complete() const { return completion >= 1.0; }
@@ -523,6 +525,7 @@ public:
     bool td_exact() const { return tdproperty == td_property::exact; }
 
     bool get_repeats() const { return repeats; }
+    bool is_first_instance(time_t tdate_compare) const;
     td_pattern get_tdpattern() const { return tdpattern; }
     std::string get_tdpattern_str() const { return td_pattern_str[tdpattern]; }
     bool daily() const { return tdpattern == td_pattern::patt_daily; }

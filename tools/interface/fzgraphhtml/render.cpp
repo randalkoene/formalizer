@@ -265,6 +265,16 @@ struct line_render_parameters {
             varvals.emplace("topic","MISSING TOPIC!");
         }
         std::string tdstamp(TimeStampYmdHM(tdate));
+        std::string vis_tdstamp_str;
+        if (fzgh.config.timezone_offset_hours==0) {
+            vis_tdstamp_str = tdstamp;
+        } else {
+            if (fzgh.config.timezone_offset_hours > 0) {
+                vis_tdstamp_str = TimeStampYmdHM(tdate + (fzgh.config.timezone_offset_hours*3600))+'-'+std::to_string(fzgh.config.timezone_offset_hours);
+            } else {
+                vis_tdstamp_str = TimeStampYmdHM(tdate + (fzgh.config.timezone_offset_hours*3600))+'+'+std::to_string(-fzgh.config.timezone_offset_hours);
+            }
+        }
         if (showdate && (tdstamp.substr(0,8) != datestamp)) {
             // *** BEWARE: For very extensive Node time spans, tdate may more than a day out, thereby skipping days!
             //     You should probably actually just keep track of day starts from one day to the next and place
@@ -277,23 +287,19 @@ struct line_render_parameters {
         if (fzgh.config.show_current_time) {
             if (tdate <= t_render) {
                 alertstyle = " class=\"passed_td\"";
-                std::string tdstr = "<a href=\"/cgi-bin/fzlink.py?id="+nodestr+"\">"+tdstamp+"</a>";
+                std::string tdstr = "<a href=\"/cgi-bin/fzlink.py?id="+nodestr+"\">"+vis_tdstamp_str+"</a>";
                 varvals.emplace("targetdate",tdstr);
             } else {
-                varvals.emplace("targetdate",tdstamp);
+                varvals.emplace("targetdate",vis_tdstamp_str);
             }
         } else {
-            varvals.emplace("targetdate",tdstamp);
+            varvals.emplace("targetdate",vis_tdstamp_str);
         }
         varvals.emplace("rawtd",tdstamp);
         varvals.emplace("alertstyle",alertstyle);
         float hours_to_show;
         if (fzgh.config.show_still_required) {
-            if (node.get_repeats() && (const_cast<Node *>(&node)->effective_targetdate() != tdate)) {
-                hours_to_show = node.get_required_hours();
-            } else {
-                hours_to_show = node.hours_to_complete();
-            }
+            hours_to_show = node.hours_to_complete(tdate); // This checks if it is a repeat or first instance.
         } else {
             hours_to_show = node.get_required_hours();
         }
