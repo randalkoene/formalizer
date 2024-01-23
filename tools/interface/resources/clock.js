@@ -31,7 +31,24 @@ class floatClock {
         }
     }
 
+    makeClockString( hrs, mins, secs ) {
+        if (this.showseconds) {
+            return hrs + ":" + mins + ":" + secs;
+        } else {
+            return hrs + ":" + mins;
+        }
+    }
+
     updateClock() {
+        var clockmode = 0;
+        var tz_offset_hours = 9;
+        if (typeof window.global_clockmode !== 'undefined') {
+            clockmode = window.global_clockmode;
+        }
+        if (typeof window.global_timezone_offset_hours !== 'undefined') {
+            tz_offset_hours = parseInt(window.global_timezone_offset_hours);
+            //console.log(`tz_offset_hours = ${tz_offset_hours}`);
+        }
         var currentTime = new Date();
         // Operating System Clock 24-hour Hours, Minutes, and (optionally) Seconds
         this.currentHours = currentTime.getHours();
@@ -46,12 +63,18 @@ class floatClock {
             this.currentSeconds = (this.currentSeconds < 10 ? "0" : "") + this.currentSeconds;
         }
 
-        // Show updated time
-        if (this.showseconds) {
-            this.clockelement.innerHTML = this.currentHours + ":" + this.currentMinutes + ":" + this.currentSeconds;
-        } else {
-            this.clockelement.innerHTML = this.currentHours + ":" + this.currentMinutes;
+        var mainclockstr = this.makeClockString(this.currentHours, this.currentMinutes, this.currentSeconds);
+        var clockstr = mainclockstr;
+
+        // Other time zone(s)
+        if (clockmode > 0) {
+            var tzhours = (this.currentHours + tz_offset_hours) % 24;
+            var tzclockstr = this.makeClockString(tzhours, this.currentMinutes, this.currentSeconds);
+            clockstr += "|"+tzclockstr;
         }
+
+        // Show updated time
+        this.clockelement.innerHTML = clockstr;
     }
 
     clockStart() {
@@ -68,3 +91,5 @@ class floatClock {
         console.log('floatClock started');
     }
 };
+
+window.global_clock = new floatClock('clock');

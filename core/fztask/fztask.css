@@ -1,0 +1,29 @@
+.timerBar {
+  width: 100px;
+  height: 200px; /* in CSS 96px == 1 inch */
+  background-color: darkblue;
+  position: relative;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+
+.timerBarFill {
+  background-color: #196107;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  bottom: 0;
+  transition: 1s;
+}
+
+.timerBarText {
+  position: relative;
+  top: 10px;
+  width: 100%;
+  text-align: center;
+  color: #ffffff;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.5em;
+}

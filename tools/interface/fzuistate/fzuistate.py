@@ -35,6 +35,7 @@ from traceback import print_exc
 
 webdata_path = "/var/www/webdata/formalizer"
 uistatefile = webdata_path+'/fzuistate.json'
+errorlog = webdata_path+'/fzuistate.log'
 
 config = {
     'verbose' : False
@@ -44,8 +45,17 @@ results = {}
 ui_state = {
     #'darkmode' : False,
     'darkmode' : 0,
+    'clockmode': 0,
+    'tz_offset_hours': 9,
     'something' : 100
 }
+
+def to_log(logthis:str):
+    try:
+        with open(errorlog,'w') as f:
+            f.write(logthis)
+    except:
+        pass
 
 # We need this everywhere to run various shell commands.
 def try_subprocess_check_output(thecmdstring, resstore):
@@ -184,11 +194,27 @@ def attempt_send_ui_state(uistate: dict):
 def handle_ui_state_update():
     form = cgi.FieldStorage()
 
+    updated=False
+
     # in fzuistate_twoonly.js: darkmode expects '0' or '1'
     # in fzuistate.js: darkmode expects an integer between 0 and nummodes-1 (see fzuistate.js).
     darkmode = form.getvalue('darkmode')
     if darkmode:
         ui_state['darkmode'] = int(darkmode) # bool(int(darkmode))
+        updated=True
+    clockmode = form.getvalue('clockmode')
+    if clockmode:
+        ui_state['clockmode'] = int(clockmode)
+        updated=True
+    try:
+        tzoffsethours = form.getvalue('tz_offset_hours')
+        if tzoffsethours:
+            ui_state['tz_offset_hours'] = int(tzoffsethours)
+            updated=True
+    except Exception as e:
+        to_log(str(e))
+
+    if updated:
         if (attempt_write_ui_state(ui_state)):
             simple_ok_response()
         else:
