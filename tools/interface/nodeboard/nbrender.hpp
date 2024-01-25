@@ -115,6 +115,11 @@ struct nodeboard: public formalizer_standard_program {
     std::string board_title_extra;
     std::string post_extra;
 
+    std::string grid_column_width = " 260px";
+    std::string column_container_width = "250px";
+    std::string card_width = "240px";
+    std::string card_height = "240px";
+
     std::string output_path;
 
     std::vector<CSV_Data_Day> csv_data_vec;
@@ -134,6 +139,8 @@ struct nodeboard: public formalizer_standard_program {
     nodeboard();
 
     virtual void usage_hook();
+
+    bool set_grid_and_card_sizes(const std::string & cargs);
 
     virtual bool options_hook(char c, std::string cargs);
 
@@ -185,7 +192,7 @@ struct nodeboard: public formalizer_standard_program {
 
     std::string call_comment_string();
 
-    bool make_multi_column_board(const std::string & rendered_columns, template_id_enum board_template = kanban_board_temp, bool specify_rows = false, const std::string & col_width = " 240px", const std::string & card_width = "230px");
+    bool make_multi_column_board(const std::string & rendered_columns, template_id_enum board_template = kanban_board_temp, bool specify_rows = false, const std::string & col_width = " 240px", const std::string & container_width = "230px", const std::string & card_width = "220px", const std::string & card_height = "390px");
 
 };
 

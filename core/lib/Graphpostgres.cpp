@@ -387,8 +387,18 @@ bool handle_one_modification_pq(Graph & graph, PGconn* conn, const std::string &
         }
 
         case graphmod_edit_edge: {
-            // *** Not yet implemented! Letting this drop through to the default warning.
-            //break;
+            Edge * e = graph.Edge_by_id(change_data.edge_key);
+            if (e) {
+                if (!update_Edge_pq(conn, schemaname, *e, e->get_editflags())) {
+                    return false;
+                } else { // you can clear the Node's Edit_flags now
+                    e->clear_editflags();
+                }
+            } else {
+                ADDERROR(__func__, "Edge with modifications to update in database "+change_data.edge_key.str()+" not found in Graph");
+                return false;
+            }
+            break;
         }
 
         case batchmod_targetdates: {
@@ -764,7 +774,7 @@ bool read_Nodes_pq(PGconn* conn, std::string schemaname, Graph & graph) {
 
             std::string id = PQgetvalue(res, r, pq_node_field[pqn_id]);
             try {
-                Node * node = graph.create_and_add_Node(id);
+                Node * node = graph.create_and_add_Node(id); // After this, the "graph" pointer within node is also valid.
                 if (!node) {
                     if (graph.error == Graph::g_adddupnode) {
                         ERRRETURNFALSE(__func__,"duplicate Node ["+id+']');
@@ -812,6 +822,9 @@ bool read_Nodes_pq(PGconn* conn, std::string schemaname, Graph & graph) {
 
                     }
                 }
+#endif
+#ifdef ADD_TAG_FLAGS
+                node->refresh_boolean_tag_flags();
 #endif
 
             } catch (ID_exception idexception) {
@@ -1355,6 +1368,46 @@ bool Update_Node_pq(std::string dbname, std::string schemaname, const Node & nod
     PQfinish(conn);
     return res;
 }
+
+//     The Edge's `editflags` should be cleared if this function returns successfully. (The Update_Edge_pq()
+//     function below does do this.)
+bool update_Edge_pq(PGconn* conn, const std::string & schemaname, const Edge & edge, const Edit_flags & _editflags) {
+    ERRTRACE;
+
+    // Convert Node data and update row in table
+    std::string tablename(schemaname+".edges");
+
+    Edge_pq epq(&edge);
+    // Prepare SET expressions
+    std::string set_expressions;
+    if (_editflags.Edit_dependency()) {
+        set_expressions += pq_edge_fieldnames[pqe_dependency] + " = " + epq.dependency_pqstr() + ',';
+    }
+    if (_editflags.Edit_significance()) {
+        set_expressions += pq_edge_fieldnames[pqe_significance] + " = " + epq.significance_pqstr() + ',';
+    }
+    if (_editflags.Edit_importance()) {
+        set_expressions += pq_edge_fieldnames[pqe_importance] + " = " + epq.importance_pqstr() + ',';
+    }
+    if (_editflags.Edit_urgency()) {
+        set_expressions += pq_edge_fieldnames[pqe_urgency] + " = " + epq.urgency_pqstr() + ',';
+    }
+    if (_editflags.Edit_priority()) {
+        set_expressions += pq_edge_fieldnames[pqe_priority] + " = " + epq.priority_pqstr() + ',';
+    }
+
+    if (!set_expressions.empty()) {
+        set_expressions.pop_back();
+    }
+
+    std::string estr("UPDATE " + schemaname + ".Edges SET " + set_expressions + " WHERE id = "+epq.id_pqstr());
+    if (!simple_call_pq(conn, estr)) {
+        ERRRETURNFALSE(__func__, "Unable to update Edge "+edge.get_id_str());
+    }
+
+    return true;
+}
+
 
 /// Update targetdates of multiple Nodes.
 bool update_batch_node_targetdates_pq(PGconn* conn, std::string schemaname, Graph & graph, const std::string NNL_name) {

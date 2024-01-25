@@ -172,31 +172,31 @@ bool fzedit::options_hook(char c, std::string cargs) {
 
     case 'Y': {
         ed.dependency = std::stof(cargs);
-        // *** Edge editing flags not yet implemented.
+        editflags.set_Edit_dependency();
         return true;
     }
 
     case 'G': {
         ed.significance = std::stof(cargs);
-        // *** Edge editing flags not yet implemented.
+        editflags.set_Edit_significance();
         return true;
     }
 
     case 'I': {
         ed.importance = std::stof(cargs);
-        // *** Edge editing flags not yet implemented.
+        editflags.set_Edit_importance();
         return true;
     }
 
     case 'U': {
         ed.urgency = std::stof(cargs);
-        // *** Edge editing flags not yet implemented.
+        editflags.set_Edit_urgency();
         return true;
     }
 
     case 'P': {
         ed.priority = std::stof(cargs);
-        // *** Edge editing flags not yet implemented.
+        editflags.set_Edit_priority();
         return true;
     }
 

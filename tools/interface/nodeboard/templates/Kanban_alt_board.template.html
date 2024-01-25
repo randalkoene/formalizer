@@ -13,7 +13,7 @@
 <style>
 .grid-container {
   display: grid;
-  grid-template-columns:{{ column-widths }};
+  grid-template-columns:{{ column-widths }}; /* W1 */
   {{ row-heights  }}
   grid-gap: 5px 5px;
   background-color: #2196F3;
@@ -31,7 +31,7 @@
 
 .alt-column-container {
   display: grid;
-  grid-template-columns: 250px;
+  grid-template-columns: {{ container-width }}; /* W2 */
   grid-gap: 5px;
   background-color: #2196F3;
   padding: 5px;
@@ -45,12 +45,25 @@
   font-size: 10px;
 }
 
+/* box-shadow:0 4px 10px 0 rgba(0,0,0,0.2),0 4px 20px 0 rgba(0,0,0,0.19)  */
+.header-card {
+  background-color: rgba(255, 215, 0, 0.8) !important;
+  width: {{ container-width  }}; /* W3 */
+  height: 220px; /* H1 */
+  text-align: left !important;
+  overflow: scroll;
+  font-size: 12px !important;
+}
+/*.header-card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.4);
+}*/
+
 .w3-card-4 {
   border-radius: 20px;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
   transition: 0.3s;
-  width: 230px;
-  height: 390px;
+  width: {{ card-width  }}; /* W4 */
+  height: {{ card-height  }}; /* H2 */
   text-align: left;
   overflow: scroll;
 }

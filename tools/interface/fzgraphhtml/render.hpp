@@ -26,6 +26,7 @@ enum template_id_enum {
     topic_pars_in_list_temp,
     node_edit_temp,
     node_new_temp,
+    node_pars_in_list_with_remove_temp,
     NUM_temp
 };
 

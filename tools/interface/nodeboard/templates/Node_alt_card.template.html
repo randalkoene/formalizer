@@ -4,8 +4,8 @@
     <!-- <img src="img_avatar.png" alt="Avatar" style="width:100%"> -->
     <div class="container {{ node-color }}">
       {{ node-prereqs }}
-      <button class="tiny_button tiny_green" onclick="window.open('http://{{ fzserverpq }}/fz/graph/namedlists/superiors?add={{ node-id }}');">2sup</button>
-      <button class="tiny_button" onclick="window.open('http://{{ fzserverpq }}/fz/graph/namedlists/dependencies?add={{ node-id }}');">2dep</button>
+      <button class="tiny_button tiny_green" onclick="window.open('http://{{ fzserverpq }}/fz/graph/namedlists/superiors?add={{ node-id }}&unique=true');">2sup</button>
+      <button class="tiny_button" onclick="window.open('http://{{ fzserverpq }}/fz/graph/namedlists/dependencies?add={{ node-id }}&unique=true');">2dep</button>
       <button class="tiny_button tiny_green" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new&tosup={{ node-id }}');">mkwsup</button>
       <button class="tiny_button" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new&todep={{ node-id }}');">mkwdep</button>
       {{ node-hrsapplied }}

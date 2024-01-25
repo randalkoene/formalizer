@@ -48,6 +48,7 @@ public:
     root_path_map_type www_file_root;  // = { {"", "/var/www/html"} }; ///< Root as presented for direct TCP-port API file serving.
     std::string request_log = reqqfilepath;
     std::vector<std::string> predefined_CGIbg;
+    long tzadjust_seconds = 0;
 };
 
 struct fzserverpq: public formalizer_standard_program, public shared_memory_server {

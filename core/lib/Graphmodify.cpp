@@ -336,14 +336,29 @@ Node_ptr Graph_modify_edit_node(Graph & graph, const std::string & graph_segname
     }
    
     // *** In the following, Edit_flags could instead be in Node and therefore also in modifications_node.
-    node_ptr->edit_content(modifications_node,gmoddata);
+    node_ptr->edit_content(modifications_node, gmoddata);
     return node_ptr;
 }
 
 /// Edit and Edge in the Graph.
 Edge_ptr Graph_modify_edit_edge(Graph & graph, const std::string & graph_segname, const Graphmod_data & gmoddata) {
-    // *** Not yet implemented.
-    return nullptr;
+    if (!gmoddata.edge_ptr) {
+        return nullptr;
+    }
+
+    if (!graphmemman.set_active(graph_segname)) { // activate just in case
+        ADDERROR(__func__, "Unable to activate segment "+graph_segname+" for Edge edits with possible allocations");
+        return nullptr;
+    }
+
+    Edge & modifications_edge = *gmoddata.edge_ptr;
+    Edge_ptr edge_ptr = graph.Edge_by_id(modifications_edge.get_key());
+    if (!edge_ptr) {
+        return nullptr;
+    }
+
+    edge_ptr->edit_content(modifications_edge, gmoddata);
+    return edge_ptr;
 }
 
 /**

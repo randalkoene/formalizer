@@ -4,5 +4,6 @@
     "persistent_NNL" : "true",
     "www_file_root" : "=/var/www/html&doc=/home/randalk/doc",
     "request_log" : "/var/www/html/formalizer/formalizer.core.server.requests.log",
-    "predefined_CGIbg": "fzbackup-mirror-to-github.sh"
+    "predefined_CGIbg": "fzbackup-mirror-to-github.sh",
+    "timezone_offset_hours": "9"
 }

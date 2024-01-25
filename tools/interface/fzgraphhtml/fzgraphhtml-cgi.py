@@ -27,6 +27,9 @@ from subprocess import Popen, PIPE
 from pathlib import Path
 home = str(Path.home())
 
+from fzmodbase import *
+from tcpclient import get_server_address
+
 # *** THESE SHOULD BE SET BY SETUP CONFIGURATION
 # *** Perhaps read the following from ~/.formalizer/webdata_path
 webdata_path = "/var/www/webdata/formalizer"
@@ -39,6 +42,9 @@ logfile = webdata_path+'/fzgraphhtml-cgi.log'
 
 # Create instance of FieldStorage 
 form = cgi.FieldStorage() 
+
+# Print this early to catch errors:
+print("Content-type:text/html\n\n")
 
 # Get data from fields
 #startfrom = form.getvalue('startfrom')
@@ -210,9 +216,9 @@ listpagetail = '''</tbody></table>
 </html>
 '''
 
-editpagehead = '''Content-type:text/html
-
-<html>
+#editpagehead = '''Content-type:text/html
+#
+editpagehead = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="icon" href="/favicon-nodes-32x32.png">
@@ -237,13 +243,23 @@ td.paramtitle {
 
 editpagetail = '''</tbody></table>
 <hr>
+<script>
+function edge_update(event) {
+    var edge_id = event.target.id.substring(4);
+    var modtype = event.target.id.substring(0,3);
+    var value = event.target.value;
+    //window.open('http://%s/fz/);
+    window.open('/cgi-bin/fzedit-cgi.py?edge='+edge_id+'&edgemod='+modtype+'&modval='+value);
+}
+</script>
 <script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
 
-topicspagehead = '''Content-type:text/html
-
+#topicspagehead = '''Content-type:text/html
+#
+topicspagehead = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="icon" href="/favicon-nodes-32x32.png">
@@ -280,17 +296,23 @@ custom_topics_template = r'''<a href="/cgi-bin/fzgraphhtml-cgi.py?topic={{ topic
 #    fzserverpq_addrport = f.read()
 with open('./server_address','r') as f:
     fzserverpq_addrport = f.read()
+# OR: fzserverpq_addrport = get_server_address('.')
 #fzserverpq_addrport = 'aether.local:8090'
 custom_template_file = webdata_path+'/modify_NNL_template.html'
 
 
 def try_command_call(thecmd, printhere = True) -> str:
     try:
-        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
-        (child_stdin,child_stdout) = (p.stdin, p.stdout)
+        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,stderr=PIPE,close_fds=True, universal_newlines=True)
+        (child_stdin,child_stdout,child_stderr) = (p.stdin, p.stdout, p.stderr)
         child_stdin.close()
         result = child_stdout.read()
         child_stdout.close()
+        error = child_stderr.read()
+        child_stderr.close()
+        if error:
+            if len(error)>0:
+                print(error)
         if printhere:
             print(result)
             return ''
@@ -317,10 +339,10 @@ def generate_embeddable_list_of_NNLs_to_add_Node_to():
     if SPA:
         thecmd += ' -j' # no Javascript
     # Make page head, including form input for new Named Node List to add to
-    print("Content-type:text/html\n\n")
+    #print("Content-type:text/html\n\n")
     print(listpagehead.format(node_id=id, list_pos=list_pos))
     # Include a remove-from-srclist button if srclist was not empty
-    print(f'<p>Add to [<a href="http://{fzserverpq_addrport}/fz/graph/namedlists/superiors?add={id}">superiors</a>] list / add to [<a href="http://{fzserverpq_addrport}/fz/graph/namedlists/dependencies?add={id}">dependencies</a>] list.</p>\n')
+    print(f'<p>Add to [<a href="http://{fzserverpq_addrport}/fz/graph/namedlists/superiors?add={id}&unique=true">superiors</a>] list / add to [<a href="http://{fzserverpq_addrport}/fz/graph/namedlists/dependencies?add={id}&unique=true">dependencies</a>] list.</p>\n')
     if srclist:
         print(f'\n<p>Or, <a href="http://{fzserverpq_addrport}/fz/graph/namedlists/{srclist}?remove={id}">[remove from {srclist}]</a></p>\n')
         print(f'\n<p>Or, <a href="http://{fzserverpq_addrport}/fz/graph/namedlists/{srclist}?move={list_pos}&up=">[move up within {srclist}]</a></p>\n')
@@ -341,7 +363,7 @@ def generate_NNL_page():
         thecmd += ' -j' # no Javascript
     if sort_by == 'targetdate':
         thecmd += ' -s targetdate'
-    print("Content-type:text/html\n\n")
+    #print("Content-type:text/html\n\n")
     if srclist == '?':
         print(listpagehead_alllists)
     else:
@@ -356,10 +378,12 @@ def generate_NNL_page():
 def generate_Node_edit_form_page():
     if edit=='new':
         if tosup:
-            thecmd = "./fzgraph -q -L add -l superiors -S "+tosup
+            #thecmd = "./fzgraph -q -L add -l superiors -S "+tosup
+            thecmd = f'./fzgraph -q -C "/fz/graph/namedlists/superiors?add={tosup}&unique=true"'
             try_command_call(thecmd, printhere=False)
         elif todep:
-            thecmd = "./fzgraph -q -L add -l dependencies -D "+todep
+            #thecmd = "./fzgraph -q -L add -l dependencies -D "+todep
+            thecmd = f'./fzgraph -q -C "/fz/graph/namedlists/dependencies?add={todep}&unique=true"'
             try_command_call(thecmd, printhere=False)
 
     thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -m "+edit
@@ -369,7 +393,7 @@ def generate_Node_edit_form_page():
         thecmd += ' -j' # no Javascript
     print(editpagehead)
     try_command_call(thecmd)
-    print(editpagetail)
+    print(editpagetail % fzserverpq_addrport)
 
 
 def generate_topics_page():
@@ -378,7 +402,7 @@ def generate_topics_page():
         thecmd += " -i " + tonode
     if SPA:
         thecmd += ' -j' # no Javascript
-    print("Content-type:text/html\n\n")
+    #print("Content-type:text/html\n\n")
     #print(topicspagehead)
     try_command_call(thecmd)
     #print(topicspagetail)
@@ -406,7 +430,7 @@ def generate_topic_nodes_page():
     thecmd = "./fzgraphhtml -q -t '"+topic+"' -E STDOUT -o STDOUT"
     if SPA:
         thecmd += ' -j' # no Javascript
-    print("Content-type:text/html\n\n")
+    #print("Content-type:text/html\n\n")
     try_command_call(thecmd)
 
 
@@ -416,7 +440,7 @@ def generate_Next_Nodes_Schedule_page():
     global num_days
     global subtrees_list
     
-    print("Content-type:text/html\n\n")
+    #print("Content-type:text/html\n\n")
 
     if subtrees_list:
         subtrees_par = " -S "+subtrees_list
@@ -453,7 +477,7 @@ def generate_Incomplete_Nodes_list():
     global num_unlimited
     global num_days
     
-    print("Content-type:text/html\n\n")
+    #print("Content-type:text/html\n\n")
 
     thecmd = "./fzgraphhtml -q -I -o STDOUT -E STDOUT"
 
@@ -480,7 +504,7 @@ def generate_Incomplete_Nodes_list():
 
 
 def show_interface_options():
-    print("Content-type:text/html\n\n")
+    #print("Content-type:text/html\n\n")
     print(interface_options_help)
 
 

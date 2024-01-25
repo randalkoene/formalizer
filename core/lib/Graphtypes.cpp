@@ -4,6 +4,7 @@
 //#define USE_COMPILEDPING
 
 // std
+#include <cstring>
 #include <iomanip>
 #include <map>
 
@@ -170,6 +171,9 @@ segment_memory_t * graph_mem_managers::allocate_and_activate_shared_memory(std::
 //std::unique_ptr<Graph> graph_mem_managers::allocate_Graph_in_shared_memory() {
 Graph_ptr graph_mem_managers::allocate_Graph_in_shared_memory() {
 
+    // TODO: *** To improve the guess, we could take note of the space actually consumed after loading the graph,
+    //           and we could then update a configuration value (stored in .config/) that sets a value somewhat larger.
+    //           This way, the segment provided will always grow as needed.
     segment_memory_t * segment = allocate_and_activate_shared_memory("fzgraph", 20*1024*1024); // *** improve this wild guess
     if (!segment)
         return nullptr;
@@ -448,6 +452,67 @@ bool Node::remove_topic(std::string tag) {
     return remove_topic(topic->get_id());
 }
 
+struct cmp_cstr
+{
+   bool operator()(const char *a, const char *b) const
+   {
+      return std::strcmp(a, b) < 0;
+   }
+};
+const std::map<const char *, Boolean_Tag_Flags::boolean_flag, cmp_cstr> boolean_flag_map = {
+    { "TZADJUST", Boolean_Tag_Flags::tzadjust },
+};
+
+/**
+ * Search the Node description for @...@ tags, identify those that are
+ * known boolean flag tags and set flags accordingly. Flags are reset
+ * before doing this.
+ */
+void Node::refresh_boolean_tag_flags() {
+    bflags.clear(); // clear
+
+    auto & description = get_text();
+    size_t search_pos = 0;
+    while (true) {
+        size_t start_tag = description.find('@', search_pos);
+        if (start_tag == Node_utf8_text::npos) return;
+        size_t end_tag = description.find('@', start_tag+1);
+        if (end_tag == Node_utf8_text::npos) return;
+        search_pos = end_tag+1;
+
+        start_tag++;
+        if (start_tag == end_tag) continue;
+
+        auto tag = description.substr(start_tag, end_tag - start_tag);
+        auto bflag_it = boolean_flag_map.find(tag.c_str());
+        if (bflag_it ==  boolean_flag_map.end()) continue; // Tag was not a known boolean flag tag.
+
+        Boolean_Tag_Flags::boolean_flag bflag = bflag_it->second;
+        bflags.or_set(bflag);
+    }
+}
+
+std::vector<Boolean_Tag_Flags::boolean_flag> Boolean_Tag_Flags::get_Boolean_Tag_flags_vec() const {
+    std::vector<Boolean_Tag_Flags::boolean_flag> bvec;
+    if (TZadjust()) bvec.emplace_back(Boolean_Tag_Flags::tzadjust);
+    if (Error()) bvec.emplace_back(Boolean_Tag_Flags::error);
+    return bvec;
+}
+
+const std::map<Boolean_Tag_Flags::boolean_flag, const std::string> boolean_flag_str_map = {
+    { Boolean_Tag_Flags::tzadjust, "TZADJUST" },
+    { Boolean_Tag_Flags::error,  "error" },
+};
+
+std::vector<std::string> Boolean_Tag_Flags::get_Boolean_Tag_flags_strvec() const {
+    std::vector<std::string> bstrvec;
+    auto bvec = get_Boolean_Tag_flags_vec();
+    for (const auto & _bflag : bvec) {
+        bstrvec.emplace_back(boolean_flag_str_map.at(_bflag));
+    }
+    return bstrvec;
+}
+
 /**
  * Attempt to set the semaphore variables of all Nodes in the graph to a specified
  * value.
@@ -562,6 +627,17 @@ time_t Node::inherit_targetdate(Node_ptr * origin) {
 }
 
 /**
+ * Applies a time-zone adjustment to a time (see its use in effective_targetdate())
+ * if a) the TZADJUST flag is set, b) the Node::graph pointer is valid, and
+ * c) the Graph has received a non-zero t_tzadjust value to use.
+ */
+time_t Node::tz_adjusted_targetdate(time_t t) const {
+    if (!get_bflags().TZadjust()) return t;
+    if (!graph) return t;
+    return graph->tz_adjust(t);
+}
+
+/**
  * Determine the effective target date of the Node using the inheritance protocol.
  * 
  * If the Node target date is specified at the Node then that target date is used.
@@ -610,10 +686,10 @@ time_t Node::effective_targetdate(Node_ptr * origin) {
         *origin = this; // the default
     }
     if ((tdproperty == td_property::unspecified) || (tdproperty == td_property::inherit))
-        return inherit_targetdate(origin);
+        return tz_adjusted_targetdate(inherit_targetdate(origin));
 
     if (targetdate >= 0) {
-        return targetdate;
+        return tz_adjusted_targetdate(targetdate);
     }
 
     // beyond this point are unexpected (non-protocol) circumstances, variable/fixed/exact with negative targetdate
@@ -625,7 +701,7 @@ time_t Node::effective_targetdate(Node_ptr * origin) {
         standard_error("Erroneous (non-protocol) target date ("+std::to_string((long)targetdate)+") + TD property ("+td_property_str[tdproperty]+") in Node "+get_id_str()+". Attempting to treat as unspecified.", __func__);
     }
 
-    return targetdate; // complain loudly, warning of possible unintended consequences
+    return tz_adjusted_targetdate(targetdate); // complain loudly, warning of possible unintended consequences
 
     //return inherit_targetdate(origin); -- But don't secretly change here (see Log of 20201230).
 }
@@ -979,6 +1055,56 @@ void Edge::copy_content(Edge & from_edge) {
     set_importance(from_edge.get_importance());
     set_urgency(from_edge.get_urgency());
     set_priority(from_edge.get_priority());
+}
+
+/**
+ * Edit Edge data in accordance with reference data in the `from_edge`, and
+ * edit only the data indicated by the `edit_flags`.
+ */
+void Edge::edit_content(Edge & from_edge, const Edit_flags & edit_flags) {
+    if (edit_flags.Edit_dependency()) {
+        set_dependency(from_edge.get_dependency());
+    }
+    if (edit_flags.Edit_significance()) {
+        set_significance(from_edge.get_significance());
+    }
+    if (edit_flags.Edit_importance()) {
+        set_importance(from_edge.get_importance());
+    }
+    if (edit_flags.Edit_urgency()) {
+        set_urgency(from_edge.get_urgency());
+    }
+    if (edit_flags.Edit_priority()) {
+        set_priority(from_edge.get_priority());
+    }
+
+    // Set the Edit_flags of the modified Node
+    editflags.set_Edit_flags(edit_flags.get_Edit_flags());
+}
+
+/**
+ * Edit Edge data in accordance with reference data in the edgedata
+ * object and edit only the data indicated by the `edit_flags`.
+ */
+void Edge::edit_content(const Edge_data & edgedata, const Edit_flags & edit_flags) {
+    if (edit_flags.Edit_dependency()) {
+        set_dependency(edgedata.dependency);
+    }
+    if (edit_flags.Edit_significance()) {
+        set_significance(edgedata.significance);
+    }
+    if (edit_flags.Edit_importance()) {
+        set_importance(edgedata.importance);
+    }
+    if (edit_flags.Edit_urgency()) {
+        set_urgency(edgedata.urgency);
+    }
+    if (edit_flags.Edit_priority()) {
+        set_priority(edgedata.priority);
+    }
+
+    // Set the Edit_flags of the modified Node
+    editflags.set_Edit_flags(edit_flags.get_Edit_flags());
 }
 
 /**

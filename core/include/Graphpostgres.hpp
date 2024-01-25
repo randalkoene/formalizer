@@ -57,8 +57,11 @@
  */
 #include <libpq-fe.h>
 
-/// definte the following to confirm that any combination of fixed + unspecified target date becomes inherit
+/// define the following to confirm that any combination of fixed + unspecified target date becomes inherit
 #define DOUBLE_CHECK_INHERIT
+
+/// define the following to set up flags based on tags in Node description text (added 2024-01-25)
+#define ADD_TAG_FLAGS
 
 
 namespace fz {
@@ -94,6 +97,8 @@ bool load_Graph_pq(Graph& graph, std::string dbname, std::string schemaname);
 bool update_Node_pq(PGconn* conn, const std::string & schemaname, const Node & node, const Edit_flags & _editflags);
 
 bool Update_Node_pq(std::string dbname, std::string schemaname, const Node & node, const Edit_flags & _editflags);
+
+bool update_Edge_pq(PGconn* conn, const std::string & schemaname, const Edge & edge, const Edit_flags & _editflags);
 
 /// Update targetdates of multiple Nodes.
 bool update_batch_node_targetdates_pq(PGconn* conn, std::string schemaname, Graph & graph, const std::string NNL_name);

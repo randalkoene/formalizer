@@ -434,6 +434,40 @@ public:
 };
 
 /**
+ * A bitmask of flags for the data components of a Node.
+ * 
+ * Note A: This is not only used to specify modifications (see Graphmodify), but
+ *         also to build filters (see Graphinfo).
+ * Note B: Graphmodify objects that are instantiated in shared memory inherit this,
+ *         so this class needs to remain free of container class variables.
+ */
+typedef std::uint32_t Boolean_Tag_Flags_type;
+class Boolean_Tag_Flags {
+public:
+    enum boolean_flag : Boolean_Tag_Flags_type {
+        tzadjust     = 0b0000'0000'0000'0000'0000'0000'0000'0001,
+        error        = 0b0100'0000'0000'0000'0000'0000'0000'0000
+    };
+protected:
+    Boolean_Tag_Flags_type bflags;
+public:
+    Boolean_Tag_Flags() : bflags(0) {}
+    Boolean_Tag_Flags_type get_Boolean_Tag_flags() const { return bflags; }
+    std::vector<Boolean_Tag_Flags::boolean_flag> get_Boolean_Tag_flags_vec() const;
+    std::vector<std::string> get_Boolean_Tag_flags_strvec() const;
+    void clear() { bflags = 0; }
+    void copy_Boolean_Tag_flags(Boolean_Tag_Flags_type _bflags) { bflags = _bflags; }
+    void or_set(Boolean_Tag_Flags_type _bflags) { bflags |= _bflags; }
+    //bool set_Boolean_Tag_flag_by_label(const std::string flaglabel);
+    void set_TZadjust() { bflags |= Boolean_Tag_Flags::tzadjust; }
+    void set_Error() { bflags |= Boolean_Tag_Flags::error; }
+    bool TZadjust() const { return bflags & Boolean_Tag_Flags::tzadjust; }
+    bool Error() const { return bflags & Boolean_Tag_Flags::error; }
+    bool None() const { return bflags == 0; }
+};
+
+
+/**
  * The Node class is the principal object type within a Formalizer Graph.
  * 
  * (A woefully incomplete class documentation.)
@@ -466,14 +500,19 @@ protected:
  
     Edit_flags editflags;   /// flags used to indicate Node data that has been modified (or should be modified, https://trello.com/c/eUjjF1yZ)
 
+    Boolean_Tag_Flags bflags; /// flags representing boolean tags parsed from the Node description.
+
     #define SEM_TRAVERSED 1
     mutable int semaphore; /// used to detect graph traversal etc.
 
     int get_semaphore() { return semaphore; }
     void set_semaphore(int sval) { semaphore = sval; }
     bool set_all_semaphores(int sval);
+
     time_t nested_inherit_targetdate(Node_ptr & origin); // only called by the same or by inherit_targetdate()
     time_t inherit_targetdate(Node_ptr * origin = nullptr);        // may be called by effective_targetdate()
+
+    time_t tz_adjusted_targetdate(time_t t) const; // depends on the TZADJUST flag.
 
 public:
     // Protected constructor to ensure Nodes are created in the correct type of memory.
@@ -543,6 +582,9 @@ public:
     /// edit flags specify which Node parameters have been modified from stored values
     const Edit_flags & get_editflags() { return editflags; }
     void clear_editflags() { editflags.clear(); }
+
+    void refresh_boolean_tag_flags();
+    const Boolean_Tag_Flags & get_bflags() const { return bflags; }
 
     /// change parameters: topics
     bool add_topic(Topic_Tags &topictags, Topic_ID topicid, float topicrelevance);
@@ -646,6 +688,8 @@ protected:
     Graph_Node_ptr dep; // rapid access
     Graph_Node_ptr sup; // rapid access
 
+    Edit_flags editflags;   /// flags used to indicate Node data that has been modified (or should be modified, https://trello.com/c/eUjjF1yZ)
+
 public:
     // Create only through graph with awareness of allocators.
     Edge(Node &_dep, Node &_sup): id(_dep,_sup), dep(&_dep), sup(&_sup) {}
@@ -680,6 +724,12 @@ public:
     void set_priority(float p) { priority = p; }
 
     void copy_content(Edge & from_edge);
+    void edit_content(Edge & from_edge, const Edit_flags & edit_flags);
+    void edit_content(const Edge_data & edgedata, const Edit_flags & edit_flags);
+
+    /// edit flags specify which Edge parameters have been modified from stored values
+    const Edit_flags & get_editflags() { return editflags; }
+    void clear_editflags() { editflags.clear(); }
 
     /// friend (utility) functions
     friend bool identical_Edges(Edge & edge1, Edge & edge2, std::string & trace);
@@ -752,6 +802,8 @@ protected:
     Server_Addr_String server_IP_str;   ///< Shared memory cache of active server IP address.
 
     bool warn_loops = true;
+
+    long t_tzadjust = 0; // (positive or negative) seconds to add for time-zone adjustment.
 
     void set_all_semaphores(int sval);
 
@@ -843,6 +895,8 @@ public:
     void set_server_port(uint16_t _portnumber) { port_number = _portnumber; }
     std::string get_server_port_str() { return std::to_string(port_number); }
     std::string get_server_full_address() { return get_server_IPaddr() + ':' + get_server_port_str(); }
+    void set_tz_adjust(long tzadjust_seconds) { t_tzadjust = tzadjust_seconds; }
+    time_t tz_adjust(time_t t) { return t + t_tzadjust; }
 
     /// friend (utility) functions
     friend bool identical_Graphs(Graph & graph1, Graph & graph2, std::string & trace);

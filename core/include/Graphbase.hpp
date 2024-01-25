@@ -324,22 +324,27 @@ extern const std::map<std::string, Edit_flags_type> flagbylabel;
 class Edit_flags {
 public:
     enum editmask : Edit_flags_type {
-        topics     = 0b0000'0000'0000'0000'0000'0000'0000'0001,
-        valuation  = 0b0000'0000'0000'0000'0000'0000'0000'0010,
-        completion = 0b0000'0000'0000'0000'0000'0000'0000'0100,
-        required   = 0b0000'0000'0000'0000'0000'0000'0000'1000,
-        text       = 0b0000'0000'0000'0000'0000'0000'0001'0000,
-        targetdate = 0b0000'0000'0000'0000'0000'0000'0010'0000,
-        tdproperty = 0b0000'0000'0000'0000'0000'0000'0100'0000,
-        repeats    = 0b0000'0000'0000'0000'0000'0000'1000'0000,
-        tdpattern  = 0b0000'0000'0000'0000'0000'0001'0000'0000,
-        tdevery    = 0b0000'0000'0000'0000'0000'0010'0000'0000,
-        tdspan     = 0b0000'0000'0000'0000'0000'0100'0000'0000,
-        topicrels  = 0b0000'0000'0000'0000'0000'1000'0000'0000,
-        tcreated   = 0b0000'0000'0000'0000'0001'0000'0000'0000,
-        supdep     = 0b0000'0000'0000'0000'0010'0000'0000'0000, // This one is not a Node edit, instead it refers to all Edge edits.
-        nnl        = 0b0000'0000'0000'0000'0100'0000'0000'0000, // This one is not a Node edit, instead it refers to all Named Nodes List edits.
-        error      = 0b0100'0000'0000'0000'0000'0000'0000'0000  // see how this is used in Node_advance_repeating()
+        topics       = 0b0000'0000'0000'0000'0000'0000'0000'0001, // A Node edit.
+        valuation    = 0b0000'0000'0000'0000'0000'0000'0000'0010, // A Node edit.
+        completion   = 0b0000'0000'0000'0000'0000'0000'0000'0100, // A Node edit.
+        required     = 0b0000'0000'0000'0000'0000'0000'0000'1000, // A Node edit.
+        text         = 0b0000'0000'0000'0000'0000'0000'0001'0000, // A Node edit.
+        targetdate   = 0b0000'0000'0000'0000'0000'0000'0010'0000, // A Node edit.
+        tdproperty   = 0b0000'0000'0000'0000'0000'0000'0100'0000, // A Node edit.
+        repeats      = 0b0000'0000'0000'0000'0000'0000'1000'0000, // A Node edit.
+        tdpattern    = 0b0000'0000'0000'0000'0000'0001'0000'0000, // A Node edit.
+        tdevery      = 0b0000'0000'0000'0000'0000'0010'0000'0000, // A Node edit.
+        tdspan       = 0b0000'0000'0000'0000'0000'0100'0000'0000, // A Node edit.
+        topicrels    = 0b0000'0000'0000'0000'0000'1000'0000'0000, // A Node edit.
+        tcreated     = 0b0000'0000'0000'0000'0001'0000'0000'0000, // A Node edit.
+        supdep       = 0b0000'0000'0000'0000'0010'0000'0000'0000, // This one is not a Node edit, instead it refers to all Edge edits.
+        nnl          = 0b0000'0000'0000'0000'0100'0000'0000'0000, // This one is not a Node edit, instead it refers to all Named Nodes List edits.
+        dependency   = 0b0000'0000'0000'0000'1000'0000'0000'0000, // An Edge edit.
+        significance = 0b0000'0000'0000'0001'0000'0000'0000'0000, // An Edge edit.
+        importance   = 0b0000'0000'0000'0010'0000'0000'0000'0000, // An Edge edit.
+        urgency      = 0b0000'0000'0000'0100'0000'0000'0000'0000, // An Edge edit.
+        priority     = 0b0000'0000'0000'1000'0000'0000'0000'0000, // An Edge edit.
+        error        = 0b0100'0000'0000'0000'0000'0000'0000'0000  // see how this is used in Node_advance_repeating()
     };
 protected:
     Edit_flags_type editflags;
@@ -362,6 +367,11 @@ public:
     void set_Edit_tdevery() { editflags |= Edit_flags::tdevery; }
     void set_Edit_tdspan() { editflags |= Edit_flags::tdspan; }
     void set_Edit_tcreated() { editflags |= Edit_flags::tcreated; }
+    void set_Edit_dependency() { editflags |= Edit_flags::dependency; }
+    void set_Edit_significance() { editflags |= Edit_flags::significance; }
+    void set_Edit_importance() { editflags |= Edit_flags::importance; }
+    void set_Edit_urgency() { editflags |= Edit_flags::urgency; }
+    void set_Edit_priority() { editflags |= Edit_flags::priority; }
     void set_Edit_error() { editflags |= Edit_flags::error; }
     bool Edit_topics() const { return editflags & Edit_flags::topics; }
     bool Edit_topicrels() const { return editflags & Edit_flags::topicrels; }
@@ -376,6 +386,11 @@ public:
     bool Edit_tdevery() const { return editflags & Edit_flags::tdevery; }
     bool Edit_tdspan() const { return editflags & Edit_flags::tdspan; }
     bool Edit_tcreated() const { return editflags & Edit_flags::tcreated; }
+    bool Edit_dependency() const { return editflags & Edit_flags::dependency; }
+    bool Edit_significance() const { return editflags & Edit_flags::significance; }
+    bool Edit_importance() const { return editflags & Edit_flags::importance; }
+    bool Edit_urgency() const { return editflags & Edit_flags::urgency; }
+    bool Edit_priority() const { return editflags & Edit_flags::priority; }
     bool Edit_error() const { return editflags & Edit_flags::error; }
     bool None() const { return editflags == 0; }
 };

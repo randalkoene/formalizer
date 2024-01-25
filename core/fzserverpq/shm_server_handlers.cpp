@@ -143,8 +143,19 @@ bool request_stack_valid(Graph_modifications & graphmod, std::string segname) {
             }
 
             case graphmod_edit_edge: {
-                prepare_error_response(segname, exit_bad_request_data, "Edge editing is not yet implemented");
-                return false;
+                // confirm that the Edge ID exists.
+                if (!gmoddata.edge_ptr) {
+                    prepare_error_response(segname, exit_missing_data, "Missing Edge data in edit edge request");
+                    return false;
+                }
+                if (!fzs.graph_ptr->Edge_by_id(gmoddata.edge_ptr->get_key())) {
+                    prepare_error_response(segname, exit_bad_request_data, "Edge ID ("+gmoddata.edge_ptr->get_id_str()+") for edit edge request not found");
+                    return false;
+                }
+                // *** does anything else need to be validated?
+
+                //prepare_error_response(segname, exit_bad_request_data, "Edge editing is not yet implemented");
+                //return false;
                 break;
             }
 
@@ -287,7 +298,8 @@ bool handle_request_stack(std::string segname) {
                 if (!edge_ptr)
                     ERRRETURNFALSE(__func__, "Graph modify edit edge failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
                 
-                results_ptr->results.emplace_back(graphmod_edit_edge, edge_ptr->get_id().key());
+                //results_ptr->results.emplace_back(graphmod_edit_edge, edge_ptr->get_key());
+                results_ptr->add(graphmod_edit_edge, edge_ptr->get_key());
                 break;
             }
 

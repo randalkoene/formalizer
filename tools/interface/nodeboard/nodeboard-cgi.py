@@ -102,7 +102,8 @@ def log(logstr):
     with open(logfile, 'w') as f:
         f.write(logstr)
 
-def try_command_call(thecmd, print_result=True)->str:
+# Returns (bool:success, str:result).
+def try_command_call(thecmd, print_result=True)->tuple:
     try:
         log(thecmd)
     except:
@@ -116,13 +117,14 @@ def try_command_call(thecmd, print_result=True)->str:
         error = child_stderr.read()
         child_stdout.close()
         child_stderr.close()
+        no_error = len(error)<1
+        if not no_error:
+            print(error)
         if print_result:
             print(result)
-            return ''
-        if len(error)>0:
-            print(error)
+            return (no_error, '')
         #print(result.replace('\n', '<BR>'))
-        return result
+        return (no_error, result)
 
     except Exception as ex:                
         print(ex)
@@ -131,7 +133,7 @@ def try_command_call(thecmd, print_result=True)->str:
         a = f.getvalue().splitlines()
         for line in a:
             print(line)
-        return ''
+        return (False, '')
 
 REDIRECT='''
 <html>
@@ -148,10 +150,19 @@ Click here: <a href="/formalizer/data%s">%s</a>
 </html>
 '''
 
+NODE_DEPENDENCIES_BOARD_ERROR='''<html>
+<body>
+<b>nodeboard command returned error</b>
+<P>
+Command was: %s
+</body>
+</html>
+'''
+
 def show_sysmet_board(sysmet_json_path:str, sysmet_output_path:str):
     thecmd = f"./nodeboard -f {sysmet_json_path} {include_filter_string} {include_show_completed} -q -o /var/www/webdata/formalizer{sysmet_output_path}"
     #thecmd = f"./nodeboard -f {sysmet_json_path} -o STDOUT"
-    res = try_command_call(thecmd, print_result=False)
+    success, res = try_command_call(thecmd, print_result=False)
     #print(res)
     print(REDIRECT % sysmet_output_path)
     #print(TEST % (res, sysmet_output_path, sysmet_output_path))
@@ -160,14 +171,27 @@ def show_main2023_board():
     show_sysmet_board(main2023categoriesfile, '/main2023categories-kanban.html')
 
 def show_node_dependencies_board():
+    # Note: We send the following to a static output page in case there are
+    #       uses where that is efficient. Nevertheless, we return the contents
+    #       on STDOUT for ease of regenerating by reloading.
+    outpath = '/var/www/webdata/formalizer/node_dependencies_kanban.html'
     if node_dependencies_tree:
-        thecmd = f"./nodeboard -G -n {node_dependencies} {include_filter_string} {include_show_completed} {include_threads} {include_progress_analysis} -q -o /var/www/webdata/formalizer/node_dependencies_kanban.html"
+        thecmd = f"./nodeboard -G -n {node_dependencies} {include_filter_string} {include_show_completed} {include_threads} {include_progress_analysis} -q -o {outpath}"
     elif node_superiors_tree:
-        thecmd = f"./nodeboard -g -n {node_dependencies} {include_filter_string} {include_show_completed} {include_threads} {include_progress_analysis} -q -o /var/www/webdata/formalizer/node_dependencies_kanban.html"
+        thecmd = f"./nodeboard -g -n {node_dependencies} {include_filter_string} {include_show_completed} {include_threads} {include_progress_analysis} -q -o {outpath}"
     else:
-        thecmd = f"./nodeboard -n {node_dependencies} {include_filter_string} {include_show_completed} -q -o /var/www/webdata/formalizer/node_dependencies_kanban.html"
-    res = try_command_call(thecmd, print_result=False)
-    print(REDIRECT % "/node_dependencies_kanban.html")
+        thecmd = f"./nodeboard -n {node_dependencies} {include_filter_string} {include_show_completed} -q -o {outpath}"
+    success, res = try_command_call(thecmd, print_result=False)
+    #print(REDIRECT % "/node_dependencies_kanban.html")
+    if success:
+        try:
+            with open(outpath, 'r') as f:
+                outcontent = f.read()
+            print(outcontent)
+        except Exception as e:
+            print(str(e))
+    else:
+        print(NODE_DEPENDENCIES_BOARD_ERROR % thecmd)
 
 ANALYSIS_PROGRESS_PAGE = '''
 <html>
@@ -184,12 +208,26 @@ progressloop();
 </html>
 '''
 
+SUBTREE_BOARD_ERROR='''<html>
+<body>
+<b>nodeboard command returned error</b>
+<P>
+Command was: %s
+</body>
+</html>
+'''
+
 # If I want this to show progress:
 # 1. Launch it in the background with >logfile 2>&1 &.
 # 2. Print the progress page (see test_progress_indicator FZ method).
 # 3. In nodeboard, use the -p /var/www/webdata/formalizer/nodeboard-progress.state option
 #    and have nodeboard update that file as it works through cards.
 # 4. The done-page will be  /formalizer/data/subtree_list_kanban.html.
+# Note: We send the following to a static output page in case there are
+#       uses where that is efficient. Nevertheless, we return the contents
+#       on STDOUT for ease of regenerating by reloading.
+#       *** Right now, we do this only for the simple subtree list, not yet
+#           for the progress analysis results.
 def show_subtree_board():
     nodeboard_logfile = '/var/www/webdata/formalizer/nodeboard.log'
     progress_state_file = 'nodeboard_progress.state'
@@ -199,13 +237,22 @@ def show_subtree_board():
     result_page_url = '/formalizer/data/%s' % result_file
     if progress_analysis:
         thecmd = f"./nodeboard -D {subtree_list} {include_threads} {include_progress_analysis} {include_show_completed} -p {progress_state_path} -q -o {result_page_path} >{nodeboard_logfile} 2>&1 &"
-        res = try_command_call(thecmd, print_result=False)
+        success, res = try_command_call(thecmd, print_result=False)
         embed_in_html, embed_in_script = make_background_progress_monitor(progress_state_file, result_page_url)
         print(ANALYSIS_PROGRESS_PAGE % (embed_in_html, embed_in_script))
     else:
         thecmd = f"./nodeboard -D {subtree_list} {include_threads} {include_show_completed} -q -o {result_page_path}"
-        res = try_command_call(thecmd, print_result=False)
-        print(REDIRECT % "/subtree_list_kanban.html")
+        success, res = try_command_call(thecmd, print_result=False)
+        #print(REDIRECT % "/subtree_list_kanban.html")
+        if success:
+            try:
+                with open(result_page_path, 'r') as f:
+                    outcontent = f.read()
+                print(outcontent)
+            except Exception as e:
+                print(str(e))
+        else:
+            print(SUBTREE_BOARD_ERROR % thecmd)
 
 def show_calendar_schedule_board():
     if vertical_multiplier:
@@ -215,7 +262,7 @@ def show_calendar_schedule_board():
     if header_arg:
         header_arg_str = " -H '%s'" % header_arg
     thecmd = f"./nodeboard -c '{calendar_file}'{header_arg_str}{vertical_multiplier_arg} -q -o STDOUT"
-    res = try_command_call(thecmd, print_result=True)
+    success, res = try_command_call(thecmd, print_result=True)
 
 HELP='''
 <html>

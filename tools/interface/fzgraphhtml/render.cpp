@@ -43,7 +43,8 @@ std::vector<std::string> template_ids = {
     "node_pars_in_list_card_template",
     "topic_pars_in_list_template",
     "Node_edit_template",
-    "Node_new_template"
+    "Node_new_template",
+    "node_pars_in_list_with_remove_template"
 };
 
 typedef std::map<template_id_enum,std::string> fzgraphhtml_templates;
@@ -254,7 +255,7 @@ struct line_render_parameters {
      * @param tdate Target date to show (e.g. effective target date or locally specified target date).
      * @param showdate Insert date and day of week if true.
      */
-    void render_Node(const Node & node, time_t tdate, bool showdate = true, int list_pos = -1) {
+    void render_Node(const Node & node, time_t tdate, bool showdate = true, int list_pos = -1, bool remove_button = false) {
         template_varvalues varvals;
         std::string nodestr(node.get_id_str());
         varvals.emplace("node_id",nodestr);
@@ -328,7 +329,11 @@ struct line_render_parameters {
             if (fzgh.no_javascript) {
                 rendered_page += env.render(templates[node_pars_in_list_nojs_temp], varvals);
             } else {
-                rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
+                if (remove_button) {
+                    rendered_page += env.render(templates[node_pars_in_list_with_remove_temp], varvals);
+                } else {
+                    rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
+                }
             }
         }
     }
@@ -499,7 +504,7 @@ bool render_named_node_list() {
         for (const auto & [tdate, node_ptr] : list_nodes) {
 
             if (node_ptr) {
-                lrp.render_Node(*node_ptr, tdate, false, list_pos);
+                lrp.render_Node(*node_ptr, tdate, false, list_pos, true);
                 list_pos++;
             }
 
@@ -514,7 +519,7 @@ bool render_named_node_list() {
 
             Node * node_ptr = lrp.graph().Node_by_id(nkey);
             if (node_ptr) {
-                lrp.render_Node(*node_ptr, node_ptr->effective_targetdate(), false, list_pos);
+                lrp.render_Node(*node_ptr, node_ptr->effective_targetdate(), false, list_pos, true);
                 list_pos++;
             } else {
                 standard_error("Node "+nkey.str()+" not found in Graph, skipping", __func__);
@@ -616,7 +621,7 @@ std::string render_Node_NNLs(Graph & graph, Node & node) {
     return nnls_str;
 }
 
-std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button = false) {
+std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button = false, bool edit_edges = false) {
     std::string sups_str;
     std::string graphserveraddr = graph.get_server_full_address();
     for (const auto & edge_ptr : node.sup_Edges()) {
@@ -624,7 +629,10 @@ std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button
             if (fzgh.config.outputformat == output_node) {
                 sups_str += edge_ptr->get_sup_str() + ' ';
             } else {
+                // Link to superior.
                 sups_str += "<li><a href=\"/cgi-bin/fzlink.py?id="+edge_ptr->get_sup_str()+"\">" + edge_ptr->get_sup_str() + "</a>: ";
+
+                // Excerpt of superior node description.
                 Node * sup_ptr = edge_ptr->get_sup();
                 if (!sup_ptr) {
                     ADDERROR(__func__, "Node "+node.get_id_str()+" has missing superior at Edge "+edge_ptr->get_id_str());
@@ -632,9 +640,33 @@ std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button
                     std::string htmltext(sup_ptr->get_text().c_str());
                     sups_str += remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length);
                 }
+
+                // Add a link to remove the superior.
                 if (remove_button) {
                     sups_str += "[<a href=\"http://"+graphserveraddr+"/fz/graph/nodes/" + node.get_id_str() + "/superiors/remove?" + edge_ptr->get_sup_str() + "=\">remove</a>]";
                 }
+
+                // Add Edge parameter data.
+                if (edit_edges) {
+                    std::string edgeidstr(edge_ptr->get_id_str());
+                    sups_str += "<br>dependency: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"dep_"+edgeidstr+"\" name=\"dep_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_dependency(), 2)+'>';
+                    sups_str += " significance: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"sig_"+edgeidstr+"\" name=\"sig_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_significance(), 2)+'>';
+                    sups_str += " importance: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"imp_"+edgeidstr+"\" name=\"imp_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_importance(), 2)+'>';
+                    sups_str += " urgency: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"urg_"+edgeidstr+"\" name=\"urg_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_urgency(), 2)+'>';
+                    sups_str += " priority: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"pri_"+edgeidstr+"\" name=\"pri_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_priority(), 2)+'>';
+                } else {
+                    sups_str += "<br>dependency: ";
+                    sups_str += to_precision_string(edge_ptr->get_dependency(), 2);
+                    sups_str += " significance: ";
+                    sups_str += to_precision_string(edge_ptr->get_significance(), 2);
+                    sups_str += " importance: ";
+                    sups_str += to_precision_string(edge_ptr->get_importance(), 2);
+                    sups_str += " urgency: ";
+                    sups_str += to_precision_string(edge_ptr->get_urgency(), 2);
+                    sups_str += " priority: ";
+                    sups_str += to_precision_string(edge_ptr->get_priority(), 2);
+                }
+
                 sups_str += "</li>\n";
             }
         }
@@ -642,7 +674,7 @@ std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button
     return sups_str;
 }
 
-std::string render_Node_dependencies(Graph & graph, Node & node, bool remove_button = false) {
+std::string render_Node_dependencies(Graph & graph, Node & node, bool remove_button = false, bool edit_edges = false) {
     std::string deps_str;
     std::string graphserveraddr = graph.get_server_full_address();
     for (const auto & edge_ptr : node.dep_Edges()) {
@@ -661,6 +693,28 @@ std::string render_Node_dependencies(Graph & graph, Node & node, bool remove_but
                 if (remove_button) {
                     deps_str += "[<a href=\"http://"+graphserveraddr+"/fz/graph/nodes/" + node.get_id_str() + "/superiors/remove?" + edge_ptr->get_dep_str() + "=\">remove</a>]";
                 }
+
+                // Add Edge parameter data.
+                if (edit_edges) {
+                    std::string edgeidstr(edge_ptr->get_id_str());
+                    deps_str += "<br>dependency: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"dep_"+edgeidstr+"\" name=\"dep_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_dependency(), 2)+'>';
+                    deps_str += " significance: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"sig_"+edgeidstr+"\" name=\"sig_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_significance(), 2)+'>';
+                    deps_str += " importance: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"imp_"+edgeidstr+"\" name=\"imp_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_importance(), 2)+'>';
+                    deps_str += " urgency: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"urg_"+edgeidstr+"\" name=\"urg_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_urgency(), 2)+'>';
+                    deps_str += " priority: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"pri_"+edgeidstr+"\" name=\"pri_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_priority(), 2)+'>';
+                } else {
+                    deps_str += "<br>dependency: ";
+                    deps_str += to_precision_string(edge_ptr->get_dependency(), 2);
+                    deps_str += " significance: ";
+                    deps_str += to_precision_string(edge_ptr->get_significance(), 2);
+                    deps_str += " importance: ";
+                    deps_str += to_precision_string(edge_ptr->get_importance(), 2);
+                    deps_str += " urgency: ";
+                    deps_str += to_precision_string(edge_ptr->get_urgency(), 2);
+                    deps_str += " priority: ";
+                    deps_str += to_precision_string(edge_ptr->get_priority(), 2);
+                }
+
                 deps_str += "</li>\n";
             }
         }
@@ -783,6 +837,7 @@ std::string render_Node_data(Graph & graph, Node & node) {
     nodevars.emplace("td_every", std::to_string(node.get_tdevery()));
     nodevars.emplace("td_span", std::to_string(node.get_tdspan()));
     nodevars.emplace("topics", render_Node_topics(graph, node));
+    nodevars.emplace("bflags", join(node.get_bflags().get_Boolean_Tag_flags_strvec(), ", "));
     nodevars.emplace("NNLs", render_Node_NNLs(graph, node));
     nodevars.emplace("superiors", render_Node_superiors(graph, node));
     nodevars.emplace("dependencies", render_Node_dependencies(graph, node));
@@ -998,8 +1053,8 @@ bool render_node_edit() {
     nodevars.emplace("fzserverpq", graph.get_server_full_address());
     nodevars.emplace("topics", render_Node_topics(graph, node, true));
     nodevars.emplace("NNLs", render_Node_NNLs(graph, node));
-    nodevars.emplace("superiors", render_Node_superiors(graph, node, true));
-    nodevars.emplace("dependencies", render_Node_dependencies(graph, node, true));
+    nodevars.emplace("superiors", render_Node_superiors(graph, node, true, true));
+    nodevars.emplace("dependencies", render_Node_dependencies(graph, node, true, true));
 
     std::string rendered_node_data = env.render(templates[node_edit_temp], nodevars);
 

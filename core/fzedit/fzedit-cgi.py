@@ -21,6 +21,8 @@ from io import StringIO
 from traceback import print_exc
 from subprocess import Popen, PIPE
 
+print('Content-type:text/html\n\n');
+
 textfile = '/var/www/webdata/formalizer/node-text.html'
 
 # The following should only show information that is safe to provide
@@ -99,9 +101,9 @@ Expects the following parameters:
 </html>
 '''
 
-testingoutputstart='''Content-type:text/html
-
-<html>
+#testingoutputstart='''Content-type:text/html
+#
+testingoutputstart='''<html>
 '''
 
 testingoutputend='''Testing
@@ -125,9 +127,13 @@ form = cgi.FieldStorage()
 
 help = form.getvalue('help')
 id = form.getvalue('id')
+edge = form.getvalue('edge')
+edgemod = form.getvalue('edgemod')
+modval = form.getvalue('modval')
 
-start_CGI_output = '''Content-type:text/html
-'''
+#start_CGI_output = '''Content-type:text/html
+#''
+start_CGI_output = ''
 
 edit_result_page_head = '''<html>
 <head>
@@ -410,6 +416,33 @@ def show_interface_options():
     print(interface_options_help)
 
 
+fzedit_arg = {
+    'dep': 'Y',
+    'sig': 'G',
+    'imp': 'I',
+    'urg': 'U',
+    'pri': 'P',
+}
+
+def modify_edge_parameters():
+    print(edit_result_page_head)
+
+    thecmd = f"./fzedit {verbosearg} -E STDOUT -M '{edge}' -{fzedit_arg[edgemod]} {float(modval):.5f}"
+
+    print(f'<!-- Call command: {thecmd} -->')
+
+    if try_call_command(thecmd):
+        print(edit_success_page_tail)
+    else:
+        print('<p class="fail"><b>Call to fzedit returned error. (Check state of Edges in database.)</b></p>')
+        print(edit_fail_page_tail)
+    #print('Content-type:text/html\n\n');
+    #print('<html><body>')
+    #print('Edge: '+str(edge))
+    #print('Modtype: '+str(edgemod))
+    #print('Value: '+str(modval))
+    #print('</body></html>')
+
 if __name__ == '__main__':
     if help:
         show_interface_options()
@@ -422,6 +455,10 @@ if __name__ == '__main__':
         verbosearg = '-V'
     else:
         verbosearg = '-q'
+
+    if edge:
+        modify_edge_parameters()
+        sys.exit(0)
 
     if (action=='modify') or (action=='create'):
         modify_node()

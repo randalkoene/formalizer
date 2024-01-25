@@ -254,6 +254,7 @@ bool fzs_configurable::set_parameter(const std::string & parlabel, const std::st
     CONFIG_TEST_AND_SET_PAR(www_file_root, "www_file_root", parlabel, parse_www_file_roots(parvalue));
     CONFIG_TEST_AND_SET_PAR(request_log, "request_log", parlabel, parvalue);
     CONFIG_TEST_AND_SET_PAR(predefined_CGIbg, "predefined_CGIbg", parlabel, split(parvalue,',')); // E.g. from "fzbackup-mirror-to-github.sh,fzinfo"
+    CONFIG_TEST_AND_SET_PAR(tzadjust_seconds, "timezone_offset_hours", parlabel, -3600*std::stoi(parvalue));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
@@ -339,7 +340,7 @@ void load_Graph_and_stay_resident() {
     }
 
     // Load the graph and make the pointer available for handlers to use.
-    fzs.graph_ptr = fzs.ga.request_Graph_copy(true, fzs.config.persistent_NNL);
+    fzs.graph_ptr = fzs.ga.request_Graph_copy(true, fzs.config.persistent_NNL, fzs.config.tzadjust_seconds);
     if (!fzs.graph_ptr) {
         standard_error("Unable to load Graph", __func__);
         RETURN_AFTER_UNLOCKING;

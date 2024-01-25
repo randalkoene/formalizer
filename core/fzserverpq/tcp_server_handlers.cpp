@@ -1428,6 +1428,7 @@ const node_dependencies_edit_map_t node_dependencies_edit_map = {
     {"add", handle_node_dependencies_add},
     {"remove", handle_node_dependencies_remove},
     {"addlist", handle_node_dependencies_addlist}
+    // *** Could add "edit" here for parameter edits...
 };
 
 /**
@@ -1641,6 +1642,9 @@ bool handle_node_direct_request(std::string nodereqstr, std::string & response_h
  *    /fz/graph/namedlists/threads?move=3&up=
  *    /fz/graph/namedlists/promises?move=2&down=
  *    /fz/graph/namedlists/challenges_open?move=3&to=5
+ *    /fz/graph/namedlists/_set?persistent=<true|false>
+ *    /fz/graph/namedlists/_select?id=<node-id>
+ *    /fz/graph/namedlists/_recent?id=<node-id>
  */
 // *** Note: This could be improved by putting the standardized handler functions into a const
 //     map with the command as a key and the function to be called. This would replace all of
@@ -1682,11 +1686,12 @@ bool handle_named_list_direct_request(std::string namedlistreqstr, std::string &
         return standard_error("Request has zero-length Named Node List name or special request identifier.", __func__);
     }
 
-    // handle requests with arguments
+    // get argments of requests with arguments
     std::string list_name(namedlistreqstr.substr(0,name_endpos));
     ++name_endpos;
-    auto token_value_vec = GET_token_values(namedlistreqstr.substr(name_endpos));
+    auto token_value_vec = GET_token_values(namedlistreqstr.substr(name_endpos)); // get pairs such as [(add,<node-id>), (unique,true)]
 
+    // handle underscore requests with arguments
     NNL_underscore_cmd underscore_cmd = static_cast<NNL_underscore_cmd>(find_in_command_map(list_name, NNL_underscore_commands));
     if (underscore_cmd != NNLuscrcmd_unknown) {
         switch (underscore_cmd) {

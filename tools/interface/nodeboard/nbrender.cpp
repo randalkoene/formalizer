@@ -67,10 +67,10 @@ nodeboard::nodeboard():
     output_path("/var/www/html/formalizer/test_node_card.html"),
     graph_ptr(nullptr) {
 
-    add_option_args += "RGgn:L:D:l:t:m:f:c:IF:H:TPb:M:p:o:";
+    add_option_args += "RGgn:L:D:l:t:m:f:c:IF:H:TPb:M:p:o:S:";
     add_usage_top += " [-R] [-G|-g] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
         " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-F <substring>]"
-        " [-H <board-header>] [-T] [-P] [-b <before>] [-M <multiplier>] [-p <progress-state-file>] [-o <output-file|STDOUT>]";
+        " [-H <board-header>] [-T] [-P] [-b <before>] [-M <multiplier>] [-p <progress-state-file>] [-S <size-list>] [-o <output-file|STDOUT>]";
 }
 
 void nodeboard::usage_hook() {
@@ -101,10 +101,23 @@ void nodeboard::usage_hook() {
         "    -b Before time stamp.\n"
         "    -M Vertical length multiplier.\n"
         "    -p Progress state file\n"
+        "    -S List of grid and card sizes:\n"
+        "       '<grid-column-width>,<column-container-width>,<card-width>,<card-height>'\n"
+        "       E.g. '260px,250px,240px,240px'\n"
         "    -o Output to file (or STDOUT).\n"
         "       Default: /var/www/html/formalizer/test_node_card.html\n"
         "\n"
     );
+}
+
+bool nodeboard::set_grid_and_card_sizes(const std::string & cargs) {
+    auto sizes_vec = split(cargs, ',');
+    if (sizes_vec.size()<4) return false;
+    grid_column_width = ' '+sizes_vec[0];
+    column_container_width = sizes_vec[1];
+    card_width = sizes_vec[2];
+    card_height = sizes_vec[3];
+    return true;
 }
 
 bool nodeboard::options_hook(char c, std::string cargs) {
@@ -218,6 +231,10 @@ bool nodeboard::options_hook(char c, std::string cargs) {
         case 'p': {
             progress_state_file = cargs;
             return true;
+        }
+
+        case 'S': {
+            return set_grid_and_card_sizes(cargs);
         }
 
         case 'o': {
@@ -893,7 +910,7 @@ std::string nodeboard::call_comment_string() {
     return call_comment;
 }
 
-bool nodeboard::make_multi_column_board(const std::string & rendered_columns, template_id_enum board_template, bool specify_rows, const std::string & col_width, const std::string & card_width) {
+bool nodeboard::make_multi_column_board(const std::string & rendered_columns, template_id_enum board_template, bool specify_rows, const std::string & col_width, const std::string & container_width, const std::string & card_width, const std::string & card_height) {
     template_varvalues board;
     // Insert the HTML for all the cards into the Kanban board.
     std::string column_widths;
@@ -903,8 +920,14 @@ bool nodeboard::make_multi_column_board(const std::string & rendered_columns, te
     board.emplace("board-header", board_title);
     board.emplace("board-extra", board_title_extra);
     board.emplace("column-widths", column_widths);
+    if (!container_width.empty()) {
+        board.emplace("container-width", container_width);
+    }
     if (!card_width.empty()) {
         board.emplace("card-width", card_width);
+    }
+    if (!card_height.empty()) {
+        board.emplace("card-height", card_height);
     }
     board.emplace("the-columns", rendered_columns);
     std::string specified_rows;
@@ -1273,7 +1296,7 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
 
     }
 
-    return nb.make_multi_column_board(rendered_columns, kanban_alt_board_temp);
+    return nb.make_multi_column_board(rendered_columns, kanban_alt_board_temp, false, nb.grid_column_width, nb.column_container_width, nb.card_width, nb.card_height);
 }
 
 struct Node_Grid_Element {
@@ -1596,5 +1619,7 @@ bool node_board_render_csv_schedule(nodeboard & nb) {
     nb.post_extra = make_button(nb.build_nodeboard_cgi_call(flow_csv_schedule, false, false, false, nb.vertical_multiplier-1.0), "smaller", true)
         + make_button(nb.build_nodeboard_cgi_call(flow_csv_schedule, false, false, false, nb.vertical_multiplier+1.0), "larger", true);
 
-    return nb.make_multi_column_board(rendered_days, schedule_board_temp, false, ' '+to_precision_string(col_width, 2)+"vw", to_precision_string(card_width, 2)+"vw");
+    std::string grid_column_width_str = ' '+to_precision_string(col_width, 2)+"vw";
+    std::string card_width_str = to_precision_string(card_width, 2)+"vw";
+    return nb.make_multi_column_board(rendered_days, schedule_board_temp, false, grid_column_width_str, card_width_str, card_width_str);
 }

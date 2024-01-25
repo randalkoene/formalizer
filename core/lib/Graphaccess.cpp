@@ -28,7 +28,7 @@ namespace fz {
  * @param persistent_cache Initial value for Graph::persistent_NNL and determines if the cache is also loaded.
  * @return Pointer to a valid Graph data structure in shared memory.
  */
-Graph * Graph_access::request_Graph_copy(bool remove_on_exit, bool persistent_cache) {
+Graph * Graph_access::request_Graph_copy(bool remove_on_exit, bool persistent_cache, long tzadjust_seconds) {
 //std::unique_ptr<Graph> Graph_access::request_Graph_copy() {
     if (!is_server) {
         VERBOSEOUT("\n*** This program is still using a temporary direct-load of Graph data.");
@@ -44,6 +44,7 @@ Graph * Graph_access::request_Graph_copy(bool remove_on_exit, bool persistent_ca
         return nullptr;
 
     graphptr->set_Lists_persistence(persistent_cache);
+    graphptr->set_tz_adjust(tzadjust_seconds);
 
     //std::unique_ptr<Graph> graphptr = std::make_unique<Graph>();
 
