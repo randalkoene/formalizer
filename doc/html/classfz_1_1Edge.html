@@ -82,23 +82,25 @@ Collaboration diagram for fz::Edge:</div>
 <div class="dyncontent">
 <div class="center"><img src="classfz_1_1Edge__coll__graph.png" border="0" usemap="#afz_1_1Edge_coll__map" alt="Collaboration graph"/></div>
 <map name="afz_1_1Edge_coll__map" id="afz_1_1Edge_coll__map">
-<area shape="rect" title=" " alt="" coords="207,392,282,419"/>
-<area shape="rect" href="classfz_1_1Edge__ID.html" title="Edge ID that caches its ID stamp for frequent use." alt="" coords="293,288,388,315"/>
-<area shape="rect" href="structfz_1_1Edge__ID__key.html" title="Standardized Formalizer Edge ID key." alt="" coords="362,199,487,225"/>
-<area shape="rect" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key." alt="" coords="275,95,401,121"/>
-<area shape="rect" href="classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use." alt="" coords="240,199,337,225"/>
-<area shape="rect" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs." alt="" coords="269,5,407,32"/>
-<area shape="rect" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph." alt="" coords="153,288,229,315"/>
+<area shape="rect" title=" " alt="" coords="246,392,321,419"/>
 <area shape="rect" href="classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="5,199,111,225"/>
+<area shape="rect" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph." alt="" coords="245,288,321,315"/>
+<area shape="rect" href="classfz_1_1Edge__ID.html" title="Edge ID that caches its ID stamp for frequent use." alt="" coords="443,288,537,315"/>
+<area shape="rect" href="structfz_1_1Edge__ID__key.html" title="Standardized Formalizer Edge ID key." alt="" coords="553,199,678,225"/>
+<area shape="rect" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key." alt="" coords="467,95,593,121"/>
+<area shape="rect" href="classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use." alt="" coords="431,199,528,225"/>
+<area shape="rect" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs." alt="" coords="461,5,599,32"/>
 <area shape="rect" href="classfz_1_1Graph.html" title=" " alt="" coords="135,199,216,225"/>
 <area shape="rect" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID." alt="" coords="120,95,231,121"/>
+<area shape="rect" href="classfz_1_1Boolean__Tag__Flags.html" title=" " alt="" coords="240,199,407,225"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:ae442407157b6d489406e78e0196b7394"><td class="memItemLeft" align="right" valign="top"><a id="ae442407157b6d489406e78e0196b7394"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Edge</b> (<a class="el" href="classfz_1_1Node.html">Node</a> &amp;_dep, <a class="el" href="classfz_1_1Node.html">Node</a> &amp;_sup)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Edge.html#ae442407157b6d489406e78e0196b7394">Edge</a> (<a class="el" href="classfz_1_1Node.html">Node</a> &amp;_dep, <a class="el" href="classfz_1_1Node.html">Node</a> &amp;_sup)</td></tr>
+<tr class="memdesc:ae442407157b6d489406e78e0196b7394"><td class="mdescLeft">&#160;</td><td class="mdescRight">flags used to indicate <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> data that has been modified (or should be modified, <a href="https://trello.com/c/eUjjF1yZ">https://trello.com/c/eUjjF1yZ</a>) <br /></td></tr>
 <tr class="separator:ae442407157b6d489406e78e0196b7394"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adaf45b440449d84a5fb0c9a0688fbedf"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Edge.html#adaf45b440449d84a5fb0c9a0688fbedf">Edge</a> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, std::string id_str)</td></tr>
 <tr class="memdesc:adaf45b440449d84a5fb0c9a0688fbedf"><td class="mdescLeft">&#160;</td><td class="mdescRight">An <a class="el" href="classfz_1_1Edge.html">Edge</a> can only exist between two Nodes.  <a href="classfz_1_1Edge.html#adaf45b440449d84a5fb0c9a0688fbedf">More...</a><br /></td></tr>
@@ -169,6 +171,21 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_priority</b> (flo
 <tr class="memitem:aa5d6a3df3a2dd10f3ae3c1ca2c8ced38"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Edge.html#aa5d6a3df3a2dd10f3ae3c1ca2c8ced38">copy_content</a> (<a class="el" href="classfz_1_1Edge.html">Edge</a> &amp;from_edge)</td></tr>
 <tr class="memdesc:aa5d6a3df3a2dd10f3ae3c1ca2c8ced38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy all the content from one <a class="el" href="classfz_1_1Edge.html">Edge</a> object to another.  <a href="classfz_1_1Edge.html#aa5d6a3df3a2dd10f3ae3c1ca2c8ced38">More...</a><br /></td></tr>
 <tr class="separator:aa5d6a3df3a2dd10f3ae3c1ca2c8ced38"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f92b8bef6c69ac0c8ea398b097d6390"><td class="memItemLeft" align="right" valign="top"><a id="a9f92b8bef6c69ac0c8ea398b097d6390"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Edge.html#a9f92b8bef6c69ac0c8ea398b097d6390">edit_content</a> (<a class="el" href="classfz_1_1Edge.html">Edge</a> &amp;from_edge, const <a class="el" href="classfz_1_1Edit__flags.html">Edit_flags</a> &amp;edit_flags)</td></tr>
+<tr class="memdesc:a9f92b8bef6c69ac0c8ea398b097d6390"><td class="mdescLeft">&#160;</td><td class="mdescRight">Edit <a class="el" href="classfz_1_1Edge.html">Edge</a> data in accordance with reference data in the <code>from_edge</code>, and edit only the data indicated by the <code>edit_flags</code>. <br /></td></tr>
+<tr class="separator:a9f92b8bef6c69ac0c8ea398b097d6390"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53fb293637b99fa4eb8a8a523a5ee632"><td class="memItemLeft" align="right" valign="top"><a id="a53fb293637b99fa4eb8a8a523a5ee632"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Edge.html#a53fb293637b99fa4eb8a8a523a5ee632">edit_content</a> (const <a class="el" href="structfz_1_1Edge__data.html">Edge_data</a> &amp;edgedata, const <a class="el" href="classfz_1_1Edit__flags.html">Edit_flags</a> &amp;edit_flags)</td></tr>
+<tr class="memdesc:a53fb293637b99fa4eb8a8a523a5ee632"><td class="mdescLeft">&#160;</td><td class="mdescRight">Edit <a class="el" href="classfz_1_1Edge.html">Edge</a> data in accordance with reference data in the edgedata object and edit only the data indicated by the <code>edit_flags</code>. <br /></td></tr>
+<tr class="separator:a53fb293637b99fa4eb8a8a523a5ee632"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae83a6a94ba58e83b10d417112930e9f8"><td class="memItemLeft" align="right" valign="top"><a id="ae83a6a94ba58e83b10d417112930e9f8"></a>
+const <a class="el" href="classfz_1_1Edit__flags.html">Edit_flags</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Edge.html#ae83a6a94ba58e83b10d417112930e9f8">get_editflags</a> ()</td></tr>
+<tr class="memdesc:ae83a6a94ba58e83b10d417112930e9f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">edit flags specify which <a class="el" href="classfz_1_1Edge.html">Edge</a> parameters have been modified from stored values <br /></td></tr>
+<tr class="separator:ae83a6a94ba58e83b10d417112930e9f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15a1e54c09cc313fedec32ee17e968dd"><td class="memItemLeft" align="right" valign="top"><a id="a15a1e54c09cc313fedec32ee17e968dd"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>clear_editflags</b> ()</td></tr>
+<tr class="separator:a15a1e54c09cc313fedec32ee17e968dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae442407157b6d489406e78e0196b7394"><td class="memItemLeft" align="right" valign="top"><a id="ae442407157b6d489406e78e0196b7394"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Edge</b> (<a class="el" href="classfz_1_1Node.html">Node</a> &amp;_dep, <a class="el" href="classfz_1_1Node.html">Node</a> &amp;_sup)</td></tr>
 <tr class="separator:ae442407157b6d489406e78e0196b7394"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -259,6 +276,9 @@ Graph_Node_ptr&#160;</td><td class="memItemRight" valign="bottom"><b>dep</b></td
 <tr class="memitem:ac2ab8815c83f81b05f53109d472811d2"><td class="memItemLeft" align="right" valign="top"><a id="ac2ab8815c83f81b05f53109d472811d2"></a>
 Graph_Node_ptr&#160;</td><td class="memItemRight" valign="bottom"><b>sup</b></td></tr>
 <tr class="separator:ac2ab8815c83f81b05f53109d472811d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae46ff022323a1ccc44b731ed3874bea1"><td class="memItemLeft" align="right" valign="top"><a id="ae46ff022323a1ccc44b731ed3874bea1"></a>
+<a class="el" href="classfz_1_1Edit__flags.html">Edit_flags</a>&#160;</td><td class="memItemRight" valign="bottom"><b>editflags</b></td></tr>
+<tr class="separator:ae46ff022323a1ccc44b731ed3874bea1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a75189c993bc75c8f46e8ef0791a1b95d"><td class="memItemLeft" align="right" valign="top"><a id="a75189c993bc75c8f46e8ef0791a1b95d"></a>
 <a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>dep</b></td></tr>
 <tr class="separator:a75189c993bc75c8f46e8ef0791a1b95d"><td class="memSeparator" colspan="2">&#160;</td></tr>

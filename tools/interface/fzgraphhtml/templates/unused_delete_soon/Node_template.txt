@@ -1,3 +1,0 @@
-Node ID: {{ node-id }}
-
-{{ node-text }}

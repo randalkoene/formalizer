@@ -10,8 +10,8 @@ var indexSectionsWithContent =
   7: "efprt",
   8: "efpr",
   9: "bcilm",
-  10: "_cdef",
-  11: "abcflmrs"
+  10: "_acdef",
+  11: "abcflmnrs"
 };
 
 var indexSectionNames =

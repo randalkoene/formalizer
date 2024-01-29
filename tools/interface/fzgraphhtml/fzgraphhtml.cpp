@@ -56,7 +56,24 @@ fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) {
         "   With -x, -n output removes HTML tags in the excerpt.\n"
         "5. The number of elements limit (-N) overrides the limits set\n"
         "   by -D and -M. To ensure that -D or -M can reach their limit\n"
-        "   set '-N all'.\n");
+        "   set '-N all'.\n"
+        "\n"
+        "Options settable through ./formalizer/config/fzgraphhtml/config.json:\n"
+        "  num_to_show (int or 'all'): Show data for that many elements.\n"
+        "  excerpt_length (int): Length of description excerpts.\n"
+        "  rendered_out_path (string or 'STDOUT'): Send output to this target.\n"
+        "  embeddable (bool): Embeddable within HTML content.\n"
+        "  outputformat ('txt','json','node','desc','html'): Format.\n"
+        "  t_max (time-stamp): Up to the specified date.\n"
+        "  num_days (int): Number of days from now.\n"
+        "  show_still_required (bool): Hours to complete vs. required time.\n"
+        "  interpret_text (comma separated list of strings):\n"
+        "    One or more of: 'raw','detect_links','emptyline_is_par','full_markdown'\n"
+        "  show_current_time (bool): Before/after current time differentiated.\n"
+        "  include_daysummary (bool): Show time totals per day.\n"
+        "  timezone_offset_hours (int): Local TZ is number of hours ahead.\n"
+        "  show_tzadjust (bool): Apply @TZADJUST@ in lists of Nodes.\n"
+        );
 }
 
 /**
@@ -316,6 +333,7 @@ bool fzgh_configurable::set_parameter(const std::string & parlabel, const std::s
     CONFIG_TEST_AND_SET_PAR(show_current_time, "show_current_time", parlabel, parvalue_to_bool(parvalue));
     CONFIG_TEST_AND_SET_PAR(include_daysummary, "include_daysummary", parlabel, parvalue_to_bool(parvalue));
     CONFIG_TEST_AND_SET_PAR(timezone_offset_hours, "timezone_offset_hours", parlabel, atoi(parvalue.c_str()));
+    CONFIG_TEST_AND_SET_PAR(show_tzadjust, "show_tzadjust", parlabel, parvalue_to_bool(parvalue));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }

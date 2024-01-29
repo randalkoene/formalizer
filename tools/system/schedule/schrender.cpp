@@ -143,9 +143,12 @@ std::string render_entry_html(schedule & sch, unsigned long start_minute, unsign
 }
 
 bool schedule_render_html(schedule & sch) {
+	sch.graph().set_tzadjust_active(sch.use_tzadjust);
 	if (!sch.generate_schedule()) {
+		sch.graph().set_tzadjust_active(false);  // One should only activate it temporarily.
 		return false;
 	}
+	sch.graph().set_tzadjust_active(false);  // One should only activate it temporarily.
 
 	sch.render_init();
 
@@ -194,9 +197,12 @@ std::string render_entry_csv(schedule & sch, unsigned long start_minute, unsigne
 }
 
 bool schedule_render_csv(schedule & sch) {
+	sch.graph().set_tzadjust_active(sch.use_tzadjust);
 	if (!sch.generate_schedule()) {
+		sch.graph().set_tzadjust_active(false);  // One should only activate it temporarily.
 		return false;
 	}
+	sch.graph().set_tzadjust_active(false);  // One should only activate it temporarily.
 
 	sch.t_today_start = today_start_time();
 

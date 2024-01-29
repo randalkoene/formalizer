@@ -113,6 +113,12 @@ bool load_templates(fzgraphhtml_templates & templates) {
     return true;
 }
 
+const std::map<Boolean_Tag_Flags::boolean_flag, std::string> category_tag_str = {
+    { Boolean_Tag_Flags::none, "" },
+    { Boolean_Tag_Flags::work, "<span class=\"bold-blue\">W</span>" },
+    { Boolean_Tag_Flags::self_work, "<span class=\"bold-green\">S</span>" },
+};
+
 struct line_render_parameters {
     Graph *graph_ptr;                ///< Pointer to the Graph in which the Node resides.
     const std::string srclist;       ///< The Named Node List being rendered (or "" when that is not the case).
@@ -123,6 +129,10 @@ struct line_render_parameters {
     size_t actual_num_render = 0;
     time_t t_render = 0; ///< The time when page rendering commenced.
     float day_total_hrs = 0.0;
+    std::map<Boolean_Tag_Flags::boolean_flag, float> day_category_hrs = {
+        {Boolean_Tag_Flags::work, 0.0},
+        {Boolean_Tag_Flags::self_work, 0.0},
+    };
     Map_of_Subtrees map_of_subtrees;
     std::string subtrees_list_tag;
 
@@ -201,11 +211,21 @@ struct line_render_parameters {
         varvals.emplace("node_id","");
         varvals.emplace("topic","");
         varvals.emplace("tdprop","");
-        varvals.emplace("excerpt", "");
+        if (map_of_subtrees.has_subtrees) {
+            std::string categories_hrs_str;
+            for (auto & [ btflag, hrs ]: day_category_hrs) {
+                categories_hrs_str += category_tag_str.at(btflag)+": "+to_precision_string(day_category_hrs.at(btflag),2)+' ';
+            }
+            varvals.emplace("excerpt", categories_hrs_str);
+        } else {
+            varvals.emplace("excerpt","");
+        }
         varvals.emplace("fzserverpq","");
         varvals.emplace("srclist","");
         rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
         day_total_hrs = 0.0;
+        day_category_hrs.at(Boolean_Tag_Flags::work) = 0.0;
+        day_category_hrs.at(Boolean_Tag_Flags::self_work) = 0.0;
     }
 
     void insert_day_start(time_t t) {
@@ -309,8 +329,12 @@ struct line_render_parameters {
 
         varvals.emplace("tdprop",render_tdproperty(node));
         std::string htmltext(node.get_text().c_str());
-        if (map_of_subtrees.node_in_heads_or_any_subtree(node.get_id().key())) {
-            varvals.emplace("excerpt",subtrees_list_tag+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
+        Boolean_Tag_Flags::boolean_flag boolean_tag;
+        if (map_of_subtrees.node_in_heads_or_any_subtree(node.get_id().key(), boolean_tag)) {
+            varvals.emplace("excerpt",category_tag_str.at(boolean_tag)+subtrees_list_tag+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
+            if (day_category_hrs.find(boolean_tag) != day_category_hrs.end()) {
+                day_category_hrs.at(boolean_tag) += hours_to_show;
+            }
         } else {
             varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
         }
@@ -411,6 +435,8 @@ bool render_incomplete_nodes() {
 
     line_render_parameters lrp("",__func__);
 
+    lrp.graph().set_tzadjust_active(fzgh.config.show_tzadjust);
+
     targetdate_sorted_Nodes incomplete_nodes = Nodes_incomplete_by_targetdate(lrp.graph()); // *** could grab a cache here
     unsigned int num_render = (fzgh.config.num_to_show > incomplete_nodes.size()) ? incomplete_nodes.size() : fzgh.config.num_to_show;
 
@@ -426,12 +452,16 @@ bool render_incomplete_nodes() {
             break;
     }
 
+    lrp.graph().set_tzadjust_active(false); // One should only activate it temporarily.
+
     return lrp.present();
 }
 
 bool render_incomplete_nodes_with_repeats() {
 
     line_render_parameters lrp("",__func__);
+
+    lrp.graph().set_tzadjust_active(fzgh.config.show_tzadjust);
 
     targetdate_sorted_Nodes incomplete_nodes = Nodes_incomplete_by_targetdate(lrp.graph()); // *** could grab a cache here
     targetdate_sorted_Nodes incnodes_with_repeats = Nodes_with_repeats_by_targetdate(incomplete_nodes, fzgh.config.t_max, fzgh.config.num_to_show);
@@ -450,6 +480,8 @@ bool render_incomplete_nodes_with_repeats() {
 
         fzgh.t_last_rendered = tdate;
     }
+
+    lrp.graph().set_tzadjust_active(false); // One should only activate it temporarily.
 
     return lrp.present();
 }
@@ -621,6 +653,11 @@ std::string render_Node_NNLs(Graph & graph, Node & node) {
     return nnls_str;
 }
 
+const std::map<bool, std::string> supdep_active_highlight = {
+    { false, "inactive-node"},
+    { true, "active-node"},
+};
+
 std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button = false, bool edit_edges = false) {
     std::string sups_str;
     std::string graphserveraddr = graph.get_server_full_address();
@@ -638,7 +675,7 @@ std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button
                     ADDERROR(__func__, "Node "+node.get_id_str()+" has missing superior at Edge "+edge_ptr->get_id_str());
                 } else {
                     std::string htmltext(sup_ptr->get_text().c_str());
-                    sups_str += remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length);
+                    sups_str += "<span class=\""+supdep_active_highlight.at(sup_ptr->is_active())+"\">"+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length)+"</span>";
                 }
 
                 // Add a link to remove the superior.
@@ -688,7 +725,7 @@ std::string render_Node_dependencies(Graph & graph, Node & node, bool remove_but
                     ADDERROR(__func__, "Node "+node.get_id_str()+" has missing dependency at Edge "+edge_ptr->get_id_str());
                 } else {
                     std::string htmltext(dep_ptr->get_text().c_str());
-                    deps_str += remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length);
+                    deps_str += "<span class=\""+supdep_active_highlight.at(dep_ptr->is_active())+"\">"+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length)+"</span>";
                 }
                 if (remove_button) {
                     deps_str += "[<a href=\"http://"+graphserveraddr+"/fz/graph/nodes/" + node.get_id_str() + "/superiors/remove?" + edge_ptr->get_dep_str() + "=\">remove</a>]";
@@ -1052,6 +1089,7 @@ bool render_node_edit() {
     nodevars.emplace("td_span", std::to_string(node.get_tdspan()));
     nodevars.emplace("fzserverpq", graph.get_server_full_address());
     nodevars.emplace("topics", render_Node_topics(graph, node, true));
+    nodevars.emplace("bflags", join(node.get_bflags().get_Boolean_Tag_flags_strvec(), ", "));
     nodevars.emplace("NNLs", render_Node_NNLs(graph, node));
     nodevars.emplace("superiors", render_Node_superiors(graph, node, true, true));
     nodevars.emplace("dependencies", render_Node_dependencies(graph, node, true, true));

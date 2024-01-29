@@ -158,7 +158,7 @@
             "window" : "_blank"
         },
         "Threads" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?D=threads&I=true&T=true",
+            "url" : "/cgi-bin/nodeboard-cgi.py?D=threads&T=true",
             "window" : "_blank"
         },
         "Milestone Categories" : {

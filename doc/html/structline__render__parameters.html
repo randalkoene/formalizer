@@ -111,9 +111,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>insert_day_start</b> 
 <tr class="memitem:a0c37965d75e6147b0114fcb9b7e99bd5"><td class="memItemLeft" align="right" valign="top"><a id="a0c37965d75e6147b0114fcb9b7e99bd5"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>render_tdproperty</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node)</td></tr>
 <tr class="separator:a0c37965d75e6147b0114fcb9b7e99bd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a20fb25c1239f7a6ff3e959870d19d8a3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structline__render__parameters.html#a20fb25c1239f7a6ff3e959870d19d8a3">render_Node</a> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node, time_t tdate, bool showdate=true, int list_pos=-1)</td></tr>
-<tr class="memdesc:a20fb25c1239f7a6ff3e959870d19d8a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call this to render parameters of a Node on a single line of a list of Nodes.  <a href="structline__render__parameters.html#a20fb25c1239f7a6ff3e959870d19d8a3">More...</a><br /></td></tr>
-<tr class="separator:a20fb25c1239f7a6ff3e959870d19d8a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acfc23c4e074edb9bd2e04e53c29fd165"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structline__render__parameters.html#acfc23c4e074edb9bd2e04e53c29fd165">render_Node</a> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node, time_t tdate, bool showdate=true, int list_pos=-1, bool remove_button=false)</td></tr>
+<tr class="memdesc:acfc23c4e074edb9bd2e04e53c29fd165"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call this to render parameters of a Node on a single line of a list of Nodes.  <a href="structline__render__parameters.html#acfc23c4e074edb9bd2e04e53c29fd165">More...</a><br /></td></tr>
+<tr class="separator:acfc23c4e074edb9bd2e04e53c29fd165"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaa59923064f36c085ea6444b0ab3bf87"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structline__render__parameters.html#aaa59923064f36c085ea6444b0ab3bf87">render_Topic</a> (const <a class="el" href="classfz_1_1Topic.html">Topic</a> &amp;topic)</td></tr>
 <tr class="memdesc:aaa59923064f36c085ea6444b0ab3bf87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call this to render parameters of a Topic on a single line of a list of Topics.  <a href="structline__render__parameters.html#aaa59923064f36c085ea6444b0ab3bf87">More...</a><br /></td></tr>
 <tr class="separator:aaa59923064f36c085ea6444b0ab3bf87"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -167,8 +167,8 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>subtrees_list_
 <tr class="separator:aba160186ccfefbadd3b60389395eddfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a20fb25c1239f7a6ff3e959870d19d8a3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a20fb25c1239f7a6ff3e959870d19d8a3">&#9670;&nbsp;</a></span>render_Node()</h2>
+<a id="acfc23c4e074edb9bd2e04e53c29fd165"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acfc23c4e074edb9bd2e04e53c29fd165">&#9670;&nbsp;</a></span>render_Node()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -198,7 +198,13 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>subtrees_list_
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>list_pos</em> = <code>-1</code>&#160;</td>
+          <td class="paramname"><em>list_pos</em> = <code>-1</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>remove_button</em> = <code>false</code>&#160;</td>
         </tr>
         <tr>
           <td></td>

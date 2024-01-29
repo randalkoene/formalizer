@@ -108,9 +108,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a9aefaa60dcbcce0775c209a19b965d1a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Graph__access.html#a9aefaa60dcbcce0775c209a19b965d1a">Graph_access</a> (<a class="el" href="classfz_1_1formalizer__standard__program.html">formalizer_standard_program</a> &amp;fps, std::string &amp;add_option_args_here, std::string &amp;add_usage_top_here, bool _isserver=false)</td></tr>
 <tr class="memdesc:a9aefaa60dcbcce0775c209a19b965d1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Carry out initializations needed to enable access to the <a class="el" href="classfz_1_1Graph.html">Graph</a> data structure.  <a href="structfz_1_1Graph__access.html#a9aefaa60dcbcce0775c209a19b965d1a">More...</a><br /></td></tr>
 <tr class="separator:a9aefaa60dcbcce0775c209a19b965d1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a52e476972d0b185a657ff78de8d8d468"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Graph.html">Graph</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Graph__access.html#a52e476972d0b185a657ff78de8d8d468">request_Graph_copy</a> (bool remove_on_exit=true, bool persistent_cache=true)</td></tr>
-<tr class="memdesc:a52e476972d0b185a657ff78de8d8d468"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfz_1_1Graph.html">Graph</a> access for server programs.  <a href="structfz_1_1Graph__access.html#a52e476972d0b185a657ff78de8d8d468">More...</a><br /></td></tr>
-<tr class="separator:a52e476972d0b185a657ff78de8d8d468"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5485f9ea9e90b351a2f538793c4b9932"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Graph.html">Graph</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Graph__access.html#a5485f9ea9e90b351a2f538793c4b9932">request_Graph_copy</a> (bool remove_on_exit=true, bool persistent_cache=true, long tzadjust_seconds=0)</td></tr>
+<tr class="memdesc:a5485f9ea9e90b351a2f538793c4b9932"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfz_1_1Graph.html">Graph</a> access for server programs.  <a href="structfz_1_1Graph__access.html#a5485f9ea9e90b351a2f538793c4b9932">More...</a><br /></td></tr>
+<tr class="separator:a5485f9ea9e90b351a2f538793c4b9932"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa44210bc55cd9f9f256b639881bd235b"><td class="memItemLeft" align="right" valign="top">std::unique_ptr&lt; <a class="el" href="classfz_1_1Log.html">Log</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Graph__access.html#aa44210bc55cd9f9f256b639881bd235b">request_Log_copy</a> ()</td></tr>
 <tr class="memdesc:aa44210bc55cd9f9f256b639881bd235b"><td class="mdescLeft">&#160;</td><td class="mdescRight">A temporary stand-in while access to <a class="el" href="classfz_1_1Log.html">Log</a> data through fzserverpq(-log) is not yet available.  <a href="structfz_1_1Graph__access.html#aa44210bc55cd9f9f256b639881bd235b">More...</a><br /></td></tr>
 <tr class="separator:aa44210bc55cd9f9f256b639881bd235b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -222,7 +222,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>schemaname_error</b> 
 <p>Carry out initializations needed to enable access to the <a class="el" href="classfz_1_1Graph.html">Graph</a> data structure. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">add_topion_args_here</td><td>receiving string where "d:" is appended to extend command line options recognized. </td></tr>
+    <tr><td class="paramname">add_option_args_here</td><td>receiving string where "d:" is appended to extend command line options recognized. </td></tr>
     <tr><td class="paramname">add_usage_top_here</td><td>receiving string where the option format is appended to extend the top line of usage output. </td></tr>
   </table>
   </dd>
@@ -269,8 +269,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>schemaname_error</b> 
 
 </div>
 </div>
-<a id="a52e476972d0b185a657ff78de8d8d468"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a52e476972d0b185a657ff78de8d8d468">&#9670;&nbsp;</a></span>request_Graph_copy()</h2>
+<a id="a5485f9ea9e90b351a2f538793c4b9932"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5485f9ea9e90b351a2f538793c4b9932">&#9670;&nbsp;</a></span>request_Graph_copy()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -285,7 +285,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>schemaname_error</b> 
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>persistent_cache</em> = <code>true</code>&#160;</td>
+          <td class="paramname"><em>persistent_cache</em> = <code>true</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>tzadjust_seconds</em> = <code>0</code>&#160;</td>
         </tr>
         <tr>
           <td></td>

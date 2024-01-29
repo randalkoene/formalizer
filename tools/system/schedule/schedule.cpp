@@ -45,8 +45,8 @@ schedule::schedule():
     flowcontrol(flow_unknown),
     graph_ptr(nullptr) {
 
-    add_option_args += "HwcWS:D:b:efxo:";
-    add_usage_top += " <-H|-w|-c|-W> [-S <strategy>] [-D <num_days>] [-b <min_minutes>] [-e] [-f] [-x] [-o <output-file|STDOUT>]";
+    add_option_args += "HwcWS:D:b:efxTto:";
+    add_usage_top += " <-H|-w|-c|-W> [-S <strategy>] [-D <num_days>] [-b <min_minutes>] [-e] [-f] [-x] [-T|-t] [-o <output-file|STDOUT>]";
 
     thisdatetime = ActualTime();
     thisdate = DateStampYmd(thisdatetime);
@@ -69,6 +69,8 @@ void schedule::usage_hook() {
         "    -e Exclude exact target date Nodes.\n"
         "    -f Exclude fixed target date Nodes.\n"
         "    -x Exclude variable target date Nodes.\n"
+        "    -T Use @TZADJUST@ (default).\n"
+        "    -t Do not use @TZADJUST@.\n"
         "    -o Output to file (or STDOUT).\n"
         "       (Default depends on output target.)\n"
         "\n"
@@ -140,6 +142,16 @@ bool schedule::options_hook(char c, std::string cargs) {
 
         case 'x': {
             inc_variable = false;
+            return true;
+        }
+
+        case 'T': {
+            use_tzadjust = true;
+            return true;
+        }
+
+        case 't': {
+            use_tzadjust = false;
             return true;
         }
 

@@ -112,7 +112,7 @@ $(function() {
 <li>The <code>Graph::create_and_add_Edge()</code> function is called to modify the graph by adding the new edge.</li>
 <li>Once the new Edge object has been created in the shared-memory Graph, its <code>copy_content()</code> member function is called to obtain its parameter settings from the data that was supplied.</li>
 </ol>
-<p>It is interesting to note how this differs from modification requests made directly to fzserverpq through the FZ TCP API. An FZ TCP request requires quite a bit of routing. First, it leads to <code>fzserverpq::handle_special_purpose_request()</code>. That leads to one of:</p>
+<p>It is interesting to note how this differs from modification requests made directly to fzserverpq through the FZ TCP API. An FZ TCP request requires quite a bit of routing. First, it leads to <code><a class="el" href="structfzserverpq.html#a7e2a368670997a2f5f38e01143568d7e" title="Examples: FZ NNLlen(superiors);NNLlen(dependencies) GET/PATCH /fz/graph/nodes/&lt;node-id&gt;/completion?...">fzserverpq::handle_special_purpose_request()</a></code>. That leads to one of:</p>
 <ul>
 <li><code>handle_serialized_data_request()</code></li>
 <li><code>handle_fz_vfs_request()</code></li>

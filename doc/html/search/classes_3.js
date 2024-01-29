@@ -1,17 +1,19 @@
 var searchData=
 [
-  ['datacell_871',['DataCell',['../structfz_1_1DataCell.html',1,'fz']]],
-  ['datacolumns_872',['DataColumns',['../structfz_1_1DataColumns.html',1,'fz']]],
-  ['datasheet_873',['DataSheet',['../structfz_1_1DataSheet.html',1,'fz']]],
-  ['daypage_874',['daypage',['../classdaywiz_1_1daypage.html',1,'daywiz']]],
-  ['daypage_5faccounts_875',['daypage_accounts',['../classdaywiz_1_1daypage__accounts.html',1,'daywiz']]],
-  ['daypage_5fcommunications_876',['daypage_communications',['../classdaywiz_1_1daypage__communications.html',1,'daywiz']]],
-  ['daypage_5fexercise_877',['daypage_exercise',['../classdaywiz_1_1daypage__exercise.html',1,'daywiz']]],
-  ['daypage_5fmilestones_878',['daypage_milestones',['../classdaywiz_1_1daypage__milestones.html',1,'daywiz']]],
-  ['daypage_5fnutritable_879',['daypage_nutritable',['../classdaywiz_1_1daypage__nutritable.html',1,'daywiz']]],
-  ['daypage_5ftables_880',['daypage_tables',['../classdaywiz_1_1daypage__tables.html',1,'daywiz']]],
-  ['daypage_5fwiztable_881',['daypage_wiztable',['../classdaywiz_1_1daypage__wiztable.html',1,'daywiz']]],
-  ['daysbycategory_882',['DaysByCategory',['../structDaysByCategory.html',1,'']]],
-  ['debug_5ftest_883',['debug_test',['../classdaywiz_1_1debug__test.html',1,'daywiz']]],
-  ['dil2graph_884',['dil2graph',['../classdil2graph.html',1,'']]]
+  ['datacell_893',['DataCell',['../structfz_1_1DataCell.html',1,'fz']]],
+  ['datacolumns_894',['DataColumns',['../structfz_1_1DataColumns.html',1,'fz']]],
+  ['datasheet_895',['DataSheet',['../structfz_1_1DataSheet.html',1,'fz']]],
+  ['day_5fentries_896',['Day_Entries',['../structDay__Entries.html',1,'']]],
+  ['daypage_897',['daypage',['../classdaywiz_1_1daypage.html',1,'daywiz']]],
+  ['daypage_5faccounts_898',['daypage_accounts',['../classdaywiz_1_1daypage__accounts.html',1,'daywiz']]],
+  ['daypage_5fcommunications_899',['daypage_communications',['../classdaywiz_1_1daypage__communications.html',1,'daywiz']]],
+  ['daypage_5fexercise_900',['daypage_exercise',['../classdaywiz_1_1daypage__exercise.html',1,'daywiz']]],
+  ['daypage_5fmilestones_901',['daypage_milestones',['../classdaywiz_1_1daypage__milestones.html',1,'daywiz']]],
+  ['daypage_5fnutritable_902',['daypage_nutritable',['../classdaywiz_1_1daypage__nutritable.html',1,'daywiz']]],
+  ['daypage_5ftables_903',['daypage_tables',['../classdaywiz_1_1daypage__tables.html',1,'daywiz']]],
+  ['daypage_5fwiztable_904',['daypage_wiztable',['../classdaywiz_1_1daypage__wiztable.html',1,'daywiz']]],
+  ['days_5fmap_905',['Days_Map',['../structDays__Map.html',1,'']]],
+  ['daysbycategory_906',['DaysByCategory',['../structDaysByCategory.html',1,'']]],
+  ['debug_5ftest_907',['debug_test',['../classdaywiz_1_1debug__test.html',1,'daywiz']]],
+  ['dil2graph_908',['dil2graph',['../classdil2graph.html',1,'']]]
 ];

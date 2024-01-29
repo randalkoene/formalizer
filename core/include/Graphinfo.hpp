@@ -65,8 +65,22 @@ struct Node_Filter {
     std::string str();
 };
 
+struct Node_Branch {
+    enum branch_strength {
+        minimum_importance,
+        none
+    };
+    Node * node;
+    float strength;
+    Node_Branch(Node * node_ptr, float _strength): node(node_ptr), strength(_strength) {}
+    Node_Branch(const Node_Branch & _branch): node(_branch.node), strength(_branch.strength) {}
+};
+
+typedef std::map<Node_ID_key, Node_Branch, std::less<Node_ID_key>> Subtree_Branch_Map;
+
 struct Node_Subtree {
-    base_Node_Set set_by_key;
+    //base_Node_Set set_by_key;
+    Subtree_Branch_Map map_by_key;
     targetdate_sorted_Nodes tdate_node_pointers;
 
     // For combined data collection (e.g. see nodeboard:nbrender.cpp).
@@ -88,7 +102,7 @@ typedef std::map<Node_ID_key, Node_Subtree, std::less<Node_ID_key>> map_of_subtr
  * @param fulldepth_dependencies A base_Node_Set container for the resulting set of dependencies.
  * @return True if successful.
  */
-bool Node_Dependencies_fulldepth(const Node* node_ptr, base_Node_Set & fulldepth_dependencies);
+bool Node_Dependencies_fulldepth(const Node* node_ptr, Subtree_Branch_Map & fulldepth_dependencies, const std::set<Node_ID_key> & do_not_follow, Node_Branch::branch_strength cmp_method = Node_Branch::none, float strength = -999.9);
 
 /**
  * Collect the subtrees that are the full dependencies of all Nodes in a
@@ -103,7 +117,11 @@ map_of_subtrees_t Threads_Subtrees(Graph & graph, const std::string & nnl_str, b
 /**
  * See how this is used in fzgraphhtml and nodeboard.
  */
-struct Map_of_Subtrees {
+class Map_of_Subtrees {
+protected:
+    Graph * graph_ptr = nullptr; // Populated during collect().
+
+public:
     map_of_subtrees_t map_of_subtrees;
     std::string subtrees_list_name;
     bool sort_by_targetdate = false;
@@ -123,7 +141,9 @@ struct Map_of_Subtrees {
 
     bool node_in_any_subtree(Node_ID_key node_key) const;
 
-    bool node_in_heads_or_any_subtree(Node_ID_key node_key) const;
+    void set_category_boolean_tag(Node_ID_key subtree_key, Boolean_Tag_Flags::boolean_flag & boolean_tag) const;
+
+    bool node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean_Tag_Flags::boolean_flag & boolean_tag) const;
 };
 
 /**

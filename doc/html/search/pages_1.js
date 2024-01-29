@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['boilerplate_20_2d_20quickly_20prepare_20standardized_20formalizer_20source_20code_1708',['boilerplate - Quickly prepare standardized Formalizer source code',['../md_tools_dev_boilerplate_README.html',1,'']]]
+  ['boilerplate_20_2d_20quickly_20prepare_20standardized_20formalizer_20source_20code_1748',['boilerplate - Quickly prepare standardized Formalizer source code',['../md_tools_dev_boilerplate_README.html',1,'']]]
 ];

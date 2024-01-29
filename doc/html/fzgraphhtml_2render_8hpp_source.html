@@ -93,28 +93,29 @@ $(function() {
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    topic_pars_in_list_temp,</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    node_edit_temp,</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    node_new_temp,</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    NUM_temp</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;};</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; </div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="keyword">extern</span> std::vector&lt;std::string&gt; template_ids;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keywordtype">bool</span> render_incomplete_nodes();</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keywordtype">bool</span> render_incomplete_nodes_with_repeats();</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; </div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="keywordtype">bool</span> render_named_node_list();</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="keywordtype">bool</span> render_topics();</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160; </div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="keywordtype">bool</span> render_topic_nodes();</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;std::string render_Node_data(<a class="code" href="classfz_1_1Graph.html">Graph</a> &amp; graph, <a class="code" href="classfz_1_1Node.html">Node</a> &amp; node);</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="keywordtype">bool</span> render_node_edit();</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// __RENDER_HPP</span></div>
-<div class="ttc" id="aclassfz_1_1Graph_html"><div class="ttname"><a href="classfz_1_1Graph.html">fz::Graph</a></div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:726</div></div>
-<div class="ttc" id="aclassfz_1_1Node_html"><div class="ttname"><a href="classfz_1_1Node.html">fz::Node</a></div><div class="ttdoc">The Node class is the principal object type within a Formalizer Graph.</div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:446</div></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    node_pars_in_list_with_remove_temp,</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    NUM_temp</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;};</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="keyword">extern</span> std::vector&lt;std::string&gt; template_ids;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160; </div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="keywordtype">bool</span> render_incomplete_nodes();</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="keywordtype">bool</span> render_incomplete_nodes_with_repeats();</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="keywordtype">bool</span> render_named_node_list();</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="keywordtype">bool</span> render_topics();</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="keywordtype">bool</span> render_topic_nodes();</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;std::string render_Node_data(<a class="code" href="classfz_1_1Graph.html">Graph</a> &amp; graph, <a class="code" href="classfz_1_1Node.html">Node</a> &amp; node);</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="keywordtype">bool</span> render_node_edit();</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160; </div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// __RENDER_HPP</span></div>
+<div class="ttc" id="aclassfz_1_1Graph_html"><div class="ttname"><a href="classfz_1_1Graph.html">fz::Graph</a></div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:787</div></div>
+<div class="ttc" id="aclassfz_1_1Node_html"><div class="ttname"><a href="classfz_1_1Node.html">fz::Node</a></div><div class="ttdoc">The Node class is the principal object type within a Formalizer Graph.</div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:480</div></div>
 <div class="ttc" id="anamespacefz_html"><div class="ttname"><a href="namespacefz.html">fz</a></div><div class="ttdoc">On Ubuntu, to install the libpq libraries, including the libpq-fe.h header file, do: sudo apt-get ins...</div><div class="ttdef"><b>Definition:</b> apiclient.hpp:26</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

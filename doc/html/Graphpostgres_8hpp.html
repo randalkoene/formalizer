@@ -156,6 +156,10 @@ Macros</h2></td></tr>
 <tr class="memitem:a12628c69dce8be87f074b845e6ec6169"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Graphpostgres_8hpp.html#a12628c69dce8be87f074b845e6ec6169">DOUBLE_CHECK_INHERIT</a></td></tr>
 <tr class="memdesc:a12628c69dce8be87f074b845e6ec6169"><td class="mdescLeft">&#160;</td><td class="mdescRight">On Ubuntu, to install the libpq libraries, including the libpq-fe.h header file, do: sudo apt-get install libpq-dev You may also have to add /usr/include or /usr/include/postgresql to the CPATH or to the includes in the Makefile, e.g.  <a href="Graphpostgres_8hpp.html#a12628c69dce8be87f074b845e6ec6169">More...</a><br /></td></tr>
 <tr class="separator:a12628c69dce8be87f074b845e6ec6169"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab278a8ab7b81245122b669b0bc9a2a45"><td class="memItemLeft" align="right" valign="top"><a id="ab278a8ab7b81245122b669b0bc9a2a45"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Graphpostgres_8hpp.html#ab278a8ab7b81245122b669b0bc9a2a45">ADD_TAG_FLAGS</a></td></tr>
+<tr class="memdesc:ab278a8ab7b81245122b669b0bc9a2a45"><td class="mdescLeft">&#160;</td><td class="mdescRight">define the following to set up flags based on tags in Node description text (added 2024-01-25) <br /></td></tr>
+<tr class="separator:ab278a8ab7b81245122b669b0bc9a2a45"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -279,6 +283,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>fz::add_Node_pq</b> (
 <tr class="memitem:ad481d21955c0be457141a73c619a3fbf"><td class="memItemLeft" align="right" valign="top"><a id="ad481d21955c0be457141a73c619a3fbf"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>fz::add_Edge_pq</b> (PGconn *conn, std::string schemaname, const Edge *edge)</td></tr>
 <tr class="separator:ad481d21955c0be457141a73c619a3fbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef06a1d65a953bbff2a991a3c7b4b098"><td class="memItemLeft" align="right" valign="top"><a id="aef06a1d65a953bbff2a991a3c7b4b098"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>fz::remove_Edge_pq</b> (PGconn *conn, std::string schemaname, const Edge_ID_key &amp;id)</td></tr>
+<tr class="separator:aef06a1d65a953bbff2a991a3c7b4b098"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1cb865200e35c530ff09a2a5c142c55a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a1cb865200e35c530ff09a2a5c142c55a">fz::store_Graph_pq</a> (const Graph &amp;graph, std::string dbname, std::string schemaname, void(*progress_func)(unsigned long, unsigned long))</td></tr>
 <tr class="memdesc:a1cb865200e35c530ff09a2a5c142c55a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store all the Nodes and Edges of the <a class="el" href="classfz_1_1Graph.html">Graph</a> in the PostgreSQL database.  <a href="namespacefz.html#a1cb865200e35c530ff09a2a5c142c55a">More...</a><br /></td></tr>
 <tr class="separator:a1cb865200e35c530ff09a2a5c142c55a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -291,6 +298,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>fz::update_Node_pq</b
 <tr class="memitem:a4c73d83a9556d9e2ff47d6aa53b24fd7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a4c73d83a9556d9e2ff47d6aa53b24fd7">fz::Update_Node_pq</a> (std::string dbname, std::string schemaname, const Node &amp;node, const Edit_flags &amp;_editflags)</td></tr>
 <tr class="memdesc:a4c73d83a9556d9e2ff47d6aa53b24fd7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Direct interface to the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> update function that sets up the database connection first.  <a href="namespacefz.html#a4c73d83a9556d9e2ff47d6aa53b24fd7">More...</a><br /></td></tr>
 <tr class="separator:a4c73d83a9556d9e2ff47d6aa53b24fd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a396de0aaa644d42a9cbcaf85cf20fc17"><td class="memItemLeft" align="right" valign="top"><a id="a396de0aaa644d42a9cbcaf85cf20fc17"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>fz::update_Edge_pq</b> (PGconn *conn, const std::string &amp;schemaname, const Edge &amp;edge, const Edit_flags &amp;_editflags)</td></tr>
+<tr class="separator:a396de0aaa644d42a9cbcaf85cf20fc17"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a3c94ac9998586f13c62fd0796c502e"><td class="memItemLeft" align="right" valign="top"><a id="a8a3c94ac9998586f13c62fd0796c502e"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a8a3c94ac9998586f13c62fd0796c502e">fz::update_batch_node_targetdates_pq</a> (PGconn *conn, std::string schemaname, Graph &amp;graph, const std::string NNL_name)</td></tr>
 <tr class="memdesc:a8a3c94ac9998586f13c62fd0796c502e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update targetdates of multiple Nodes. <br /></td></tr>
@@ -369,7 +379,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="name
 </div><div class="memdoc">
 
 <p>On Ubuntu, to install the libpq libraries, including the libpq-fe.h header file, do: sudo apt-get install libpq-dev You may also have to add /usr/include or /usr/include/postgresql to the CPATH or to the includes in the Makefile, e.g. </p>
-<p>-I/usr/include/postgresql. definte the following to confirm that any combination of fixed + unspecified target date becomes inherit </p>
+<p>-I/usr/include/postgresql. define the following to confirm that any combination of fixed + unspecified target date becomes inherit </p>
 
 </div>
 </div>

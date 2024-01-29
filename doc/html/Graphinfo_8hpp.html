@@ -129,9 +129,10 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="Graphinfo_8hpp__dep__incl.png" border="0" usemap="#acore_2include_2Graphinfo_8hppdep" alt=""/></div>
 <map name="acore_2include_2Graphinfo_8hppdep" id="acore_2include_2Graphinfo_8hppdep">
-<area shape="rect" title="This header file declares basic information gathering functions for use with Graph data structures." alt="" coords="101,5,299,32"/>
+<area shape="rect" title="This header file declares basic information gathering functions for use with Graph data structures." alt="" coords="207,5,404,32"/>
 <area shape="rect" href="fzlogmap_8hpp_source.html" title=" " alt="" coords="5,80,187,121"/>
 <area shape="rect" href="nbrender_8hpp_source.html" title=" " alt="" coords="211,80,400,121"/>
+<area shape="rect" href="schedule_8hpp_source.html" title=" " alt="" coords="424,80,592,121"/>
 </map>
 </div>
 </div>
@@ -143,6 +144,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Node__Filter.html">fz::Node_Filter</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filter class that helps construct filter specifications.  <a href="structfz_1_1Node__Filter.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Node__Branch.html">fz::Node_Branch</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Node__Subtree.html">fz::Node_Subtree</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -169,6 +172,9 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
+<tr class="memitem:a0df86d9f8829a5d15d973c8dbfa5d4e7"><td class="memItemLeft" align="right" valign="top"><a id="a0df86d9f8829a5d15d973c8dbfa5d4e7"></a>
+typedef std::map&lt; Node_ID_key, Node_Branch, std::less&lt; Node_ID_key &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>fz::Subtree_Branch_Map</b></td></tr>
+<tr class="separator:a0df86d9f8829a5d15d973c8dbfa5d4e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0e038512db99e651fa90ca9987a9204c"><td class="memItemLeft" align="right" valign="top"><a id="a0e038512db99e651fa90ca9987a9204c"></a>
 typedef std::map&lt; Node_ID_key, Node_Subtree, std::less&lt; Node_ID_key &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>fz::map_of_subtrees_t</b></td></tr>
 <tr class="separator:a0e038512db99e651fa90ca9987a9204c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -216,9 +222,9 @@ unsigned long&#160;</td><td class="memItemRight" valign="bottom"><b>fz::Edges_wi
 <tr class="memitem:a4f94c797bfe00822cb2905b11a9657b4"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a4f94c797bfe00822cb2905b11a9657b4">fz::Topic_IDs_to_Tags</a> (Graph &amp;graph, std::vector&lt; Topic_ID &gt; IDs_vec)</td></tr>
 <tr class="memdesc:a4f94c797bfe00822cb2905b11a9657b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a vector of <a class="el" href="classfz_1_1Topic.html">Topic</a> tag label strings for a specified vector of known <a class="el" href="classfz_1_1Topic.html">Topic</a> IDs from a specified <a class="el" href="classfz_1_1Graph.html">Graph</a>.  <a href="namespacefz.html#a4f94c797bfe00822cb2905b11a9657b4">More...</a><br /></td></tr>
 <tr class="separator:a4f94c797bfe00822cb2905b11a9657b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af504534ef4765402bbdb2493f95d0c6b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#af504534ef4765402bbdb2493f95d0c6b">fz::Node_Dependencies_fulldepth</a> (const Node *node_ptr, base_Node_Set &amp;fulldepth_dependencies)</td></tr>
-<tr class="memdesc:af504534ef4765402bbdb2493f95d0c6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collect all unique Nodes in the dependencies tree of a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a>.  <a href="namespacefz.html#af504534ef4765402bbdb2493f95d0c6b">More...</a><br /></td></tr>
-<tr class="separator:af504534ef4765402bbdb2493f95d0c6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af66cd8afb4cf2293ab9a17264d1c10a0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#af66cd8afb4cf2293ab9a17264d1c10a0">fz::Node_Dependencies_fulldepth</a> (const Node *node_ptr, Subtree_Branch_Map &amp;fulldepth_dependencies, Node_Branch::branch_strength cmp_method=Node_Branch::none, float strength=-999.9)</td></tr>
+<tr class="memdesc:af66cd8afb4cf2293ab9a17264d1c10a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collect all unique Nodes in the dependencies tree of a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a>.  <a href="namespacefz.html#af66cd8afb4cf2293ab9a17264d1c10a0">More...</a><br /></td></tr>
+<tr class="separator:af66cd8afb4cf2293ab9a17264d1c10a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92ddfa7d332e3e44f98382ef179c428d"><td class="memItemLeft" align="right" valign="top">map_of_subtrees_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a92ddfa7d332e3e44f98382ef179c428d">fz::Threads_Subtrees</a> (Graph &amp;graph, const std::string &amp;nnl_str, bool sort_by_targetdate=false)</td></tr>
 <tr class="memdesc:a92ddfa7d332e3e44f98382ef179c428d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collect the subtrees that are the full dependencies of all Nodes in a Named Nodes List.  <a href="namespacefz.html#a92ddfa7d332e3e44f98382ef179c428d">More...</a><br /></td></tr>
 <tr class="separator:a92ddfa7d332e3e44f98382ef179c428d"><td class="memSeparator" colspan="2">&#160;</td></tr>

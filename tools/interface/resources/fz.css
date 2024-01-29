@@ -157,3 +157,17 @@ a.nnl:hover {background:#55db50;}
     background-color: rgb(252, 161, 3);
     color: rgb(163, 49, 79);
 }
+.bold-blue {
+    color: blue;
+    font-weight: 900;
+}
+.bold-green {
+    color: crimson;
+    font-weight: 900;
+}
+.active-node {
+    color: blue;
+}
+.inactive-node {
+    color: black;
+}

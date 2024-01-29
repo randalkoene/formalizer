@@ -445,25 +445,33 @@ typedef std::uint32_t Boolean_Tag_Flags_type;
 class Boolean_Tag_Flags {
 public:
     enum boolean_flag : Boolean_Tag_Flags_type {
-        tzadjust     = 0b0000'0000'0000'0000'0000'0000'0000'0001,
-        error        = 0b0100'0000'0000'0000'0000'0000'0000'0000
+        none         = 0b0000'0000'0000'0000'0000'0000'0000'0000,
+        tzadjust     = 0b0000'0000'0000'0000'0000'0000'0000'0001, // @TZADJUST@
+        work         = 0b0000'0000'0000'0000'0000'0000'0000'0010, // @WORK@
+        self_work    = 0b0000'0000'0000'0000'0000'0000'0000'0100, // @SELFWORK@
+        error        = 0b0100'0000'0000'0000'0000'0000'0000'0000,
     };
 protected:
     Boolean_Tag_Flags_type bflags;
 public:
-    Boolean_Tag_Flags() : bflags(0) {}
+    Boolean_Tag_Flags() : bflags(Boolean_Tag_Flags::none) {}
     Boolean_Tag_Flags_type get_Boolean_Tag_flags() const { return bflags; }
     std::vector<Boolean_Tag_Flags::boolean_flag> get_Boolean_Tag_flags_vec() const;
     std::vector<std::string> get_Boolean_Tag_flags_strvec() const;
-    void clear() { bflags = 0; }
+    void clear() { bflags = Boolean_Tag_Flags::none; }
     void copy_Boolean_Tag_flags(Boolean_Tag_Flags_type _bflags) { bflags = _bflags; }
     void or_set(Boolean_Tag_Flags_type _bflags) { bflags |= _bflags; }
     //bool set_Boolean_Tag_flag_by_label(const std::string flaglabel);
     void set_TZadjust() { bflags |= Boolean_Tag_Flags::tzadjust; }
+    void set_Work() { bflags |= Boolean_Tag_Flags::work; }
+    void set_SelfWork() { bflags |= Boolean_Tag_Flags::self_work; }
     void set_Error() { bflags |= Boolean_Tag_Flags::error; }
+    bool has_Boolean_Tag_flag(Boolean_Tag_Flags::boolean_flag _bflag) const { return bflags & _bflag; }
     bool TZadjust() const { return bflags & Boolean_Tag_Flags::tzadjust; }
+    bool Work() const { return bflags & Boolean_Tag_Flags::work; }
+    bool SelfWork() const { return bflags & Boolean_Tag_Flags::self_work; } 
     bool Error() const { return bflags & Boolean_Tag_Flags::error; }
-    bool None() const { return bflags == 0; }
+    bool None() const { return bflags == Boolean_Tag_Flags::none; }
 };
 
 
@@ -804,6 +812,7 @@ protected:
     bool warn_loops = true;
 
     long t_tzadjust = 0; // (positive or negative) seconds to add for time-zone adjustment.
+    bool tzadjust_active = false; // This should only be turned on and off again for specific presentations of targetdates (e.g. see fzgraphhtml).
 
     void set_all_semaphores(int sval);
 
@@ -849,10 +858,10 @@ public:
     Edge * Edge_by_idstr(std::string idstr) const; // inlined below
 
     /// topics table: get topic
-    Topic * find_Topic_by_id(Topic_ID _id) { return topics.find_by_id(_id); }
-    Topic * find_Topic_by_tag(const std::string _tag) { return topics.find_by_tag(_tag); }
-    std::string find_Topic_Tag_by_id(Topic_ID _id);
-    bool topics_exist(const Topics_Set & topicsset); // See how fzserverpq uses this.
+    Topic * find_Topic_by_id(Topic_ID _id) const { return topics.find_by_id(_id); }
+    Topic * find_Topic_by_tag(const std::string _tag) const { return topics.find_by_tag(_tag); }
+    std::string find_Topic_Tag_by_id(Topic_ID _id) const;
+    bool topics_exist(const Topics_Set & topicsset) const; // See how fzserverpq uses this.
 
     /// namedlists
     std::vector<std::string> get_List_names() const;
@@ -889,14 +898,16 @@ public:
     std::set<std::string> find_all_NNLs_Node_is_in(const Node & node) const { return find_all_NNLs_Node_is_in(node.get_id().key()); }
 
     /// misc
-    std::string get_server_IPaddr() { return server_IP_str.c_str(); }
+    std::string get_server_IPaddr() const { return server_IP_str.c_str(); }
     void set_server_IPaddr(std::string _ipaddrstr) { server_IP_str = _ipaddrstr.c_str(); }
-    uint16_t get_server_port() { return port_number; }
+    uint16_t get_server_port() const { return port_number; }
     void set_server_port(uint16_t _portnumber) { port_number = _portnumber; }
-    std::string get_server_port_str() { return std::to_string(port_number); }
-    std::string get_server_full_address() { return get_server_IPaddr() + ':' + get_server_port_str(); }
+    std::string get_server_port_str() const { return std::to_string(port_number); }
+    std::string get_server_full_address() const { return get_server_IPaddr() + ':' + get_server_port_str(); }
     void set_tz_adjust(long tzadjust_seconds) { t_tzadjust = tzadjust_seconds; }
-    time_t tz_adjust(time_t t) { return t + t_tzadjust; }
+    void set_tzadjust_active(bool activated) { tzadjust_active = activated; }
+    time_t tz_adjust(time_t t) const { return tzadjust_active ? t + t_tzadjust : t; }
+    Boolean_Tag_Flags::boolean_flag find_category_tag(Node_ID_key nkey) const;
 
     /// friend (utility) functions
     friend bool identical_Graphs(Graph & graph1, Graph & graph2, std::string & trace);

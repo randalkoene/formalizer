@@ -57,8 +57,11 @@ Special codes: -1 = obsolete, -2 = replaced, -3 = done differently, -4 = no long
 </tr>
 </table>
 <hr>
-<textarea cols="80" rows="24" name="text">
-{{ node-text }}</textarea>
+<table><tr>
+<td><textarea cols="120" rows="24" name="text">
+{{ node-text }}</textarea></td>
+<td valign="top" width="30%">Tags legend:<p>@TZADJUST@: time-zone offset automatically applied, e.g. a targetdate at 4 pm in PST will appear as 4pm in CET in the Schedule.</td>
+</tr></table>
 </form>
 </td>
 </tr>
@@ -66,6 +69,11 @@ Special codes: -1 = obsolete, -2 = replaced, -3 = done differently, -4 = no long
 <td>
 <hr>
 Topics: {{ topics }} [<a href="/cgi-bin/fzgraphhtml-cgi.py?topics=?&to-node={{ node-id }}">add</a>]
+</td>
+</tr>
+<tr>
+<td>
+Boolean Flags: {{ bflags }}
 </td>
 </tr>
 <tr>

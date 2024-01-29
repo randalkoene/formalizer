@@ -89,6 +89,8 @@ struct schedule: public formalizer_standard_program {
     bool inc_fixed = true;
     bool inc_variable = true;
 
+    bool use_tzadjust = true; // Apply @TZADJUST@.
+
     time_t thisdatetime;
     std::string thisdate;
     time_of_day_t thistimeofday;

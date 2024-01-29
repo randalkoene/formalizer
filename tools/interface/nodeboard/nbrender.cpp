@@ -727,8 +727,13 @@ void nodeboard::progress_state_update() {
 }
 
 std::string nodeboard::tosup_todep_html_buttons(const Node_ID_key & column_key) {
-    return "<span><button class=\"tiny_button tiny_green\" onclick=\"window.open('http://"+graph().get_server_full_address()+"/fz/graph/namedlists/superiors?add="+column_key.str()+"');\">2sup</button>"
-           "<button class=\"tiny_button\" onclick=\"window.open('http://"+graph().get_server_full_address()+"/fz/graph/namedlists/dependencies?add="+column_key.str()+"');\">2dep</button></span>";
+    std::string column_key_str(column_key.str());
+    return "<span><button class=\"tiny_button tiny_green\" onclick=\"window.open('http://"
+        + graph().get_server_full_address()+"/fz/graph/namedlists/superiors?add="+column_key_str+"');\">2sup</button>"
+           "<button class=\"tiny_button\" onclick=\"window.open('http://"
+        + graph().get_server_full_address()+"/fz/graph/namedlists/dependencies?add="+column_key_str+"');\">2dep</button>"
+           "<button class=\"tiny_button tiny_green\" onclick=\"window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new&tosup="
+        + column_key_str+"');\">mkwsup</button></span>";
 }
 
 //bool nodeboard::get_fulldepth_dependencies_column(const std::string & column_header, const base_Node_Set & column_set, std::string & rendered_columns, const std::string extra_header = "") {
@@ -1235,7 +1240,6 @@ std::string prepare_headnode_description(nodeboard & nb, const Node & node) {
     return headnode_description;
 }
 
-//bool node_board_render_NNL_dependencies(Named_Node_List_ptr namedlist_ptr, nodeboard & nb) {
 bool node_board_render_NNL_dependencies(nodeboard & nb) {
     Named_Node_List_ptr namedlist_ptr = nb.graph().get_List(nb.list_name);
     if (!namedlist_ptr) {
@@ -1591,6 +1595,9 @@ bool node_board_render_superiors_tree(nodeboard & nb) {
     return nb.make_multi_column_board(rendered_grid, kanban_alt_board_temp, true);
 }
 
+// Note: @TZADJUST@ is not applied here, because times are already provided
+//       in the CSV data. To select @TZADJUST@ application, do so in the
+//       program that generates the CSV data, e.g. schedule.
 bool node_board_render_csv_schedule(nodeboard & nb) {
     std::string csv_str;
     if (!file_to_string(nb.source_file, csv_str)) {

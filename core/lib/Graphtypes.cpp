@@ -461,6 +461,8 @@ struct cmp_cstr
 };
 const std::map<const char *, Boolean_Tag_Flags::boolean_flag, cmp_cstr> boolean_flag_map = {
     { "TZADJUST", Boolean_Tag_Flags::tzadjust },
+    { "WORK", Boolean_Tag_Flags::work },
+    { "SELFWORK", Boolean_Tag_Flags::self_work },
 };
 
 /**
@@ -492,17 +494,20 @@ void Node::refresh_boolean_tag_flags() {
     }
 }
 
-std::vector<Boolean_Tag_Flags::boolean_flag> Boolean_Tag_Flags::get_Boolean_Tag_flags_vec() const {
-    std::vector<Boolean_Tag_Flags::boolean_flag> bvec;
-    if (TZadjust()) bvec.emplace_back(Boolean_Tag_Flags::tzadjust);
-    if (Error()) bvec.emplace_back(Boolean_Tag_Flags::error);
-    return bvec;
-}
-
 const std::map<Boolean_Tag_Flags::boolean_flag, const std::string> boolean_flag_str_map = {
     { Boolean_Tag_Flags::tzadjust, "TZADJUST" },
+    { Boolean_Tag_Flags::work, "WORK" },
+    { Boolean_Tag_Flags::self_work, "SELFWORK" },
     { Boolean_Tag_Flags::error,  "error" },
 };
+
+std::vector<Boolean_Tag_Flags::boolean_flag> Boolean_Tag_Flags::get_Boolean_Tag_flags_vec() const {
+    std::vector<Boolean_Tag_Flags::boolean_flag> bvec;
+    for (const auto & [ btflag, btflag_str ] : boolean_flag_str_map) {
+        if (has_Boolean_Tag_flag(btflag)) bvec.emplace_back(btflag);
+    }
+    return bvec;
+}
 
 std::vector<std::string> Boolean_Tag_Flags::get_Boolean_Tag_flags_strvec() const {
     std::vector<std::string> bstrvec;
@@ -743,6 +748,7 @@ void Node::copy_content(Node & from_node) {
     set_completion(from_node.get_completion());
     set_required(from_node.get_required());
     set_text_unchecked(from_node.get_text().c_str()); //*(const_cast<std::string *>(&from_node.get_text())));
+    refresh_boolean_tag_flags();
     set_targetdate(from_node.get_targetdate());
     set_tdproperty(from_node.get_tdproperty());
     set_repeats(from_node.get_repeats());
@@ -770,6 +776,7 @@ void Node::edit_content(Node & from_node, const Edit_flags & edit_flags) {
     }
     if (edit_flags.Edit_text()) {
         set_text(from_node.get_text().c_str());
+        refresh_boolean_tag_flags();
     }
     if (edit_flags.Edit_targetdate()) {
         set_targetdate(from_node.get_targetdate());
@@ -815,6 +822,7 @@ void Node::edit_content(const Node_data & nodedata, const Edit_flags & edit_flag
     }
     if (edit_flags.Edit_text()) {
         set_text(nodedata.utf8_text);
+        refresh_boolean_tag_flags();
     }
     if (edit_flags.Edit_targetdate()) {
         set_targetdate(nodedata.targetdate);
@@ -1556,7 +1564,7 @@ Node_Index Graph::get_Indexed_Nodes() const {
     return nodeindex;
 }
 
-std::string Graph::find_Topic_Tag_by_id(Topic_ID _id) {
+std::string Graph::find_Topic_Tag_by_id(Topic_ID _id) const {
     Topic * topic_ptr = topics.find_by_id(_id);
     if (topic_ptr) {
         return topic_ptr->get_tag().c_str();
@@ -1574,7 +1582,7 @@ std::string Graph::find_Topic_Tag_by_id(Topic_ID _id) {
  * @param topicsset A set of Topic-IDs (and relevance values).
  * @return True if they all exist.
  */
-bool Graph::topics_exist(const Topics_Set & topicsset) {
+bool Graph::topics_exist(const Topics_Set & topicsset) const {
     for (const auto & [topicid, topicrel] : topicsset) {
         if (!find_Topic_by_id(topicid))
             return false;
@@ -1599,6 +1607,20 @@ std::set<std::string> Graph::find_all_NNLs_Node_is_in(const Node_ID_key & nkey) 
         }
     }
     return nnls_set;
+}
+
+/**
+ * Note: So far, this is a very limited method that only looks for two
+ *       types of tags, namely 'work' and 'self_work'.
+ */
+Boolean_Tag_Flags::boolean_flag Graph::find_category_tag(Node_ID_key nkey) const {
+    Node * node_ptr = Node_by_id(nkey);
+    if (!node_ptr) return Boolean_Tag_Flags::none;
+
+    Boolean_Tag_Flags bflags = node_ptr->get_bflags();
+    if (bflags.Work()) return Boolean_Tag_Flags::work;
+    if (bflags.SelfWork()) return Boolean_Tag_Flags::self_work;
+    return Boolean_Tag_Flags::none;
 }
 
 // +----- begin: friend functions -----+

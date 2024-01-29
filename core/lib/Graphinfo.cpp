@@ -160,23 +160,53 @@ std::string Node_Filter::str() {
  * Collect all unique Nodes in the dependencies tree of a Node.
  * 
  * @param node_ptr A valid pointer to Node.
- * @param fulldepth_dependencies A Node_Set container for the resulting set of dependencies.
+ * @param fulldepth_dependencies A Subtree_Branch_Map container for the resulting set of dependencies.
+ * @param cmp_method The method to use to propagate branch strength.
+ * @param strength Incoming propagated branch strength. (The code -999.9 means that this is the first branch.)
  * @return True if successful.
  */
-bool Node_Dependencies_fulldepth(const Node* node_ptr, base_Node_Set & fulldepth_dependencies) {
+bool Node_Dependencies_fulldepth(const Node* node_ptr, Subtree_Branch_Map & fulldepth_dependencies, const std::set<Node_ID_key> & do_not_follow, Node_Branch::branch_strength cmp_method, float strength) {
     if (!node_ptr) return false;
 
     // Get dependencies edges.
     for (const auto & edge_ptr : node_ptr->dep_Edges()) {
         if (!edge_ptr) continue;
 
+        Node_ID_key nkey = edge_ptr->get_dep_key();
+        if (do_not_follow.find(nkey) != do_not_follow.end()) continue;
+
+        float branch_strength = strength; // default to incoming strength
+        switch (cmp_method) {
+            case Node_Branch::minimum_importance: { // strength along this branch becomes equal to the weakest link so far
+                float importance = edge_ptr->get_importance();
+                if ((importance < strength) || (strength < -999)) {
+                    branch_strength = importance;
+                }
+                break;
+            }
+            default: {
+                // do nothing, strength remains the same
+            }
+        }
+
         // Try to add dependency Node to set.
-        bool is_new;
-        std::tie (std::ignore, is_new) = fulldepth_dependencies.emplace(edge_ptr->get_dep_key());
+        // Check if it is already in the map and if so then use the strongest path strength.
+        // Otherwise add.
+        Node * dep_ptr = edge_ptr->get_dep();
+        auto it = fulldepth_dependencies.find(nkey);
+        bool is_new = (it == fulldepth_dependencies.end());
+        if (!is_new) {
+            if (branch_strength > it->second.strength) {
+                it->second.strength = branch_strength;
+            }
+        } else {
+            fulldepth_dependencies.emplace(nkey, Node_Branch(dep_ptr, branch_strength));
+        }
+        //std::tie (std::ignore, is_new) = fulldepth_dependencies.emplace(edge_ptr->get_dep_key());
 
         // If the Node is new to the set then seek its dependencies.
         if (is_new) {
-            if (!Node_Dependencies_fulldepth(edge_ptr->get_dep(), fulldepth_dependencies)) {
+            if (!Node_Dependencies_fulldepth(dep_ptr, fulldepth_dependencies, do_not_follow, cmp_method, branch_strength)) {
                 standard_error("Recursive dependencies collection failed, skipping", __func__);
                 continue;
             }
@@ -187,9 +217,8 @@ bool Node_Dependencies_fulldepth(const Node* node_ptr, base_Node_Set & fulldepth
 }
 
 void Node_Subtree::build_targetdate_sorted(Graph & graph) {
-    for (const auto & nkey : set_by_key) {
-        Node * node_ptr = graph.Node_by_id(nkey);
-        tdate_node_pointers.emplace(node_ptr->effective_targetdate(), node_ptr);
+    for (const auto & [ nkey, branch ] : map_by_key) {
+        tdate_node_pointers.emplace(branch.node->effective_targetdate(), branch.node);
     }
 };
 
@@ -210,29 +239,68 @@ map_of_subtrees_t Threads_Subtrees(Graph & graph, const std::string & nnl_str, b
         return map_of_subtrees;
     }
 
+    // Collect.
+    std::set<Node_ID_key> do_not_follow;
+    for (const auto & nkey : namedlist_ptr->list) {
+        do_not_follow.emplace(nkey);
+    }
     for (const auto & nkey : namedlist_ptr->list) {
 
         Node * node_ptr = graph.Node_by_id(nkey);
 
-        //base_Node_Set fulldepth_dependencies;
         Node_Subtree fulldepth_dependencies;
-        if (!Node_Dependencies_fulldepth(node_ptr, fulldepth_dependencies.set_by_key)) {
+        if (!Node_Dependencies_fulldepth(node_ptr, fulldepth_dependencies.map_by_key, do_not_follow, Node_Branch::minimum_importance)) {
             standard_error("Full depth dependencies collection failed for Node "+nkey.str()+", skipping", __func__);
             continue;
         }
 
-        if (sort_by_targetdate) {
-            fulldepth_dependencies.build_targetdate_sorted(graph);
-        }
+        // if (sort_by_targetdate) {
+        //     fulldepth_dependencies.build_targetdate_sorted(graph);
+        // }
 
         map_of_subtrees[nkey] = fulldepth_dependencies;
 
+    }
+
+    // Prune.
+    for (unsigned int i = 0; i < namedlist_ptr->list.size(); i++) {
+        Node_ID_key nkey = namedlist_ptr->list[i];
+        Node_Subtree & subtree = map_of_subtrees[nkey];
+        std::vector<Node_ID_key> erase_from_this_tree;
+        for (auto & [dkey, dbranch]: subtree.map_by_key) { // Check each Node collected in this subtree.
+            // Inspect remaining subtrees for instances of the same Node.
+            for (unsigned int j = i+1; j < namedlist_ptr->list.size(); j++) {
+                Node_ID_key ckey = namedlist_ptr->list[j];
+                Node_Subtree & c_subtree = map_of_subtrees[ckey];
+                auto it = c_subtree.map_by_key.find(dkey);
+                if (it != c_subtree.map_by_key.end()) {
+                    if (it->second.strength <= dbranch.strength) {
+                        c_subtree.map_by_key.erase(dkey);
+                    } else {
+                        erase_from_this_tree.emplace_back(dkey); // cache this to prevent breaking the map while iterating it
+                        break; // skip the rest of the inner loop
+                    }
+                }
+            }
+        }
+        // handle erasures in this subtree
+        for (auto & ekey : erase_from_this_tree) {
+            subtree.map_by_key.erase(ekey);
+        }
+    }
+
+    // Sort.
+    if (sort_by_targetdate) {
+        for (auto & [nkey, subtree] : map_of_subtrees) {
+            subtree.build_targetdate_sorted(graph);
+        }
     }
 
     return map_of_subtrees;
 }
 
 bool Map_of_Subtrees::collect(Graph & graph, const std::string & list_name) {
+    graph_ptr = &graph;
     if (list_name.empty()) return false;
     subtrees_list_name = list_name;
     map_of_subtrees = Threads_Subtrees(graph, subtrees_list_name, sort_by_targetdate);
@@ -261,7 +329,7 @@ bool Map_of_Subtrees::node_in_subtree(Node_ID_key subtree_key, Node_ID_key node_
     if (!has_subtrees) return false;
     auto subtree = map_of_subtrees.find(subtree_key);
     if (subtree == map_of_subtrees.end()) return false;
-    const base_Node_Set & subtree_ref = subtree->second.set_by_key;
+    const Subtree_Branch_Map & subtree_ref = subtree->second.map_by_key;
     if (subtree_ref.find(node_key) == subtree_ref.end()) return false;
     return true;
 }
@@ -269,16 +337,41 @@ bool Map_of_Subtrees::node_in_subtree(Node_ID_key subtree_key, Node_ID_key node_
 bool Map_of_Subtrees::node_in_any_subtree(Node_ID_key node_key) const {
     if (!has_subtrees) return false;
     for (const auto & [subtree_key, subtree_ref]: map_of_subtrees) {
-        if (subtree_ref.set_by_key.find(node_key) != subtree_ref.set_by_key.end()) return true;
+        if (subtree_ref.map_by_key.find(node_key) != subtree_ref.map_by_key.end()) return true;
     }
     return false;
 }
 
-bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key) const {
+void Map_of_Subtrees::set_category_boolean_tag(Node_ID_key subtree_key, Boolean_Tag_Flags::boolean_flag & boolean_tag) const {
+    if (graph_ptr) {
+        boolean_tag = graph_ptr->find_category_tag(subtree_key);
+    } else {
+        boolean_tag = Boolean_Tag_Flags::none;
+    }
+}
+
+/**
+ * Search the map of subtrees for an instance of a Node. If found then also check
+ * the subtree top-Node for a category Boolean Flag Tag that may be used in
+ * visualization.
+ * 
+ * The graph_ptr member variable must be valid, as set during collect().
+ * 
+ * @param node_key Identifies the Node to search for.
+ * @param boolean_tag Receives the category Boolean Flag Tag if one was found.
+ * @return True if found in the map of subtrees.
+ */
+bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean_Tag_Flags::boolean_flag & boolean_tag) const {
     if (!has_subtrees) return false;
     for (const auto & [subtree_key, subtree_ref]: map_of_subtrees) {
-        if (subtree_key == node_key) return true;
-        if (subtree_ref.set_by_key.find(node_key) != subtree_ref.set_by_key.end()) return true;
+        if (subtree_key == node_key) {
+            set_category_boolean_tag(subtree_key, boolean_tag);
+            return true;
+        }
+        if (subtree_ref.map_by_key.find(node_key) != subtree_ref.map_by_key.end()) {
+            set_category_boolean_tag(subtree_key, boolean_tag);
+            return true;
+        }
     }
     return false;
 }

@@ -1,5 +1,5 @@
 <map id="fz::formalizer_standard_program" name="fz::formalizer_standard_program">
-<area shape="rect" id="node1" title="This class provides a framework for standardized Formalizer programs." alt="" coords="5,479,179,521"/>
+<area shape="rect" id="node1" title="This class provides a framework for standardized Formalizer programs." alt="" coords="5,505,179,546"/>
 <area shape="rect" id="node2" href="$structboilerplate.html" title=" " alt="" coords="243,5,335,32"/>
 <area shape="rect" id="node3" href="$classdil2graph.html" title=" " alt="" coords="248,56,331,83"/>
 <area shape="rect" id="node4" href="$structfzdashboard.html" title=" " alt="" coords="238,107,341,133"/>
@@ -20,4 +20,5 @@
 <area shape="rect" id="node19" href="$structfzvismilestones.html" title=" " alt="" coords="227,867,352,893"/>
 <area shape="rect" id="node20" href="$structgraph2dil.html" title=" " alt="" coords="248,917,331,944"/>
 <area shape="rect" id="node21" href="$structnodeboard.html" title=" " alt="" coords="244,968,335,995"/>
+<area shape="rect" id="node22" href="$structschedule.html" title=" " alt="" coords="249,1019,329,1045"/>
 </map>

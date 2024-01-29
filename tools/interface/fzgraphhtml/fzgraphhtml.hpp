@@ -61,6 +61,7 @@ public:
     bool include_daysummary = true;
     bool sort_by_targetdate = false; // Note: Right now, this is used only by Named Node List output.
     int timezone_offset_hours = 0;
+    bool show_tzadjust = true; // Show effects of @TZADJUST@ in next Nodes lists generated.
 };
 
 
