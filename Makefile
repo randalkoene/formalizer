@@ -76,6 +76,7 @@ EXECUTABLES += $(COREPATH)/fzsetup/fzsetup.py
 EXECUTABLES += $(COREPATH)/fztask/fztask.py
 EXECUTABLES += $(COREPATH)/fztask-server/fztask-server.py
 EXECUTABLES += $(COREPATH)/fztask-server/fztask-serverd.sh
+EXECUTABLES += $(COREPATH)/fztimezone/fztimezone
 EXECUTABLES += $(COREPATH)/fzupdate/fzupdate
 
 # EXECUTABLES += $(TOOLSPATH)/addnode/addnode.py
@@ -175,6 +176,7 @@ SYMBIN += $(TOOLSPATH)/system/schedule/schedule
 #SYMBIN += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_a2c.json
 #SYMBIN += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_main2023.json
 SYMBIN += $(COREPATH)/fzguide.system/fzguide.system
+SYMBIN += $(COREPATH)/fztimezone/fztimezone
 SYMBIN += $(CONFIGEXPOSE)
 SYMBIN += $(LOCALBINSYM)
 
@@ -190,6 +192,7 @@ CGIEXE += $(COREPATH)/fzlog/fzlog-cgi.py
 CGIEXE += $(COREPATH)/fzquerypq/fzquerypq-cgi.py
 CGIEXE += $(COREPATH)/fztask/fztask-cgi.py
 CGIEXE += $(COREPATH)/fzupdate/fzupdate-cgi.py
+CGIEXE += $(COREPATH)/fztimezone/fztimezone-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/logentry-form/logentry-form.py
 CGIEXE += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-cgi.py

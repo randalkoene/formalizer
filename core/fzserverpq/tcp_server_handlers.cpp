@@ -1872,6 +1872,7 @@ bool handle_fz_vfs_graph_request(int new_socket, const std::string & fzrequestur
 const Command_Token_Map general_noargs_commands = {
     {"status", fznoargcmd_status},
     {"ipport", fznoargcmd_ipport},
+    {"tzadjust", fznoargcmd_tzadjust},
     {"ReqQ", fznoargcmd_reqq},
     {"ErrQ", fznoargcmd_errq},
     {"_stop", fznoargcmd_stop},
@@ -1888,6 +1889,11 @@ bool handle_status(int new_socket) {
 bool handle_ipport(int new_socket) {
     std::string ipport_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nServer address: "+fzs.ipaddrstr+"\n</body>\n</html>\n");
     return handle_request_response(new_socket, ipport_html, "IPPort reported");
+}
+
+bool handle_tzadjust(int new_socket) {
+    std::string tzadjust_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nServer time zone offset seconds: "+std::to_string(fzs.config.tzadjust_seconds)+"\n</body>\n</html>\n");
+    return handle_request_response(new_socket, tzadjust_html, "TZadjust reported");
 }
 
 bool handle_stop(int new_socket) {
@@ -1910,6 +1916,7 @@ bool handle_set_verbosity(int new_socket, std::string verbosity_str, bool veryve
  * Examples:
  *   /fz/status
  *   /fz/ipport
+ *   /fz/tzadjust
  *   /fz/ReqQ
  *   /fz/ErrQ
  *   /fz/_stop
@@ -1933,6 +1940,10 @@ bool handle_fz_vfs_request(int new_socket, const std::string & fzrequesturl) {
 
             case fznoargcmd_ipport: {
                 return handle_ipport(new_socket);
+            }
+
+            case fznoargcmd_tzadjust: {
+                return handle_tzadjust(new_socket);
             }
 
             case fznoargcmd_reqq: {

@@ -162,9 +162,11 @@ listpagehead = '''<html>
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/bluetable.css">
 <link rel="stylesheet" href="/fzuistate.css">
+<link rel="stylesheet" href="/clock.css">
 <title>fz:modify Named Node List</title>
 </head>
 <body>
+<button id="clock" class="button button2">_____</button>
 <h3>fz:modfy Named Node List</h3>
 <p>List element is Node {node_id} at list position {list_pos}.</p>
 
@@ -181,9 +183,11 @@ listpagehead_nomodif = '''<html>
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/bluetable.css">
 <link rel="stylesheet" href="/fzuistate.css">
+<link rel="stylesheet" href="/clock.css">
 <title>Named Node List: {list_name}</title>
 </head>
 <body>
+<button id="clock" class="button button2">_____</button>
 <h3>Named Node List: {list_name}</h3>
 
 <table class="blueTable"><tbody>
@@ -196,9 +200,11 @@ listpagehead_alllists = '''<html>
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/bluetable.css">
 <link rel="stylesheet" href="/fzuistate.css">
+<link rel="stylesheet" href="/clock.css">
 <title>Named Node Lists</title>
 </head>
 <body>
+<button id="clock" class="button button2">_____</button>
 <h3>Named Node Lists</h3>
 
 <table class="blueTable"><tbody>
@@ -212,6 +218,10 @@ listpagetail = '''</tbody></table>
 <p>[<a href="/index.html">fz: Top</a>]</p>
 
 <script type="text/javascript" src="/fzuistate.js"></script>
+<script type="text/javascript" src="/clock.js"></script>
+<script>
+    var clock = new floatClock('clock');
+</script>
 </body>
 </html>
 '''
@@ -225,6 +235,7 @@ editpagehead = '''<html>
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/bluetable.css">
 <link rel="stylesheet" href="/fzuistate.css">
+<link rel="stylesheet" href="/clock.css">
 <title>Formalizer: Edit Node</title>
 </head>
 <body>
@@ -237,6 +248,7 @@ td.paramtitle {
     background-color: #B0C4F5;
 }
 </style>
+<button id="clock" class="button button2">_____</button>
 <br>
 <table><tbody>
 '''
@@ -253,6 +265,10 @@ function edge_update(event) {
 }
 </script>
 <script type="text/javascript" src="/fzuistate.js"></script>
+<script type="text/javascript" src="/clock.js"></script>
+<script>
+    var clock = new floatClock('clock');
+</script>
 </body>
 </html>
 '''
@@ -285,6 +301,10 @@ topicspagetail = '''</tbody></table>
 <p>[<a href="/index.html">fz: Top</a>]</p>
 
 <script type="text/javascript" src="/fzuistate.js"></script>
+<script type="text/javascript" src="/clock.js"></script>
+<script>
+    var clock = new floatClock('clock');
+</script>
 </body>
 </html>
 '''

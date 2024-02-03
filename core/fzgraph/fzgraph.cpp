@@ -87,6 +87,7 @@ fzgraphedit::fzgraphedit() : formalizer_standard_program(false), graph_ptr(nullp
         "D. The -C option provides a way to utilize the Graph server's direct TCP\n"
         "   port API from the command line. This is particularly useful for\n"
         "   server requests that are only supported through that API.\n"
+        "   Note that the response is printed only if verbose.\n"
         "\n"
         "   Example a:\n"
         "   -C /fz/graph/namedlists/shortlist?copy=recent&to_max=10&maxsize=10&unique=true\n"

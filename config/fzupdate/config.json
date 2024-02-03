@@ -1,4 +1,5 @@
 {
     "dolater_endofday" : "23:20",
-    "doearlier_endofday" : "20:00"
+    "doearlier_endofday" : "20:00",
+    "timezone_offset_hours": "9"
 }

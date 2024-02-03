@@ -196,6 +196,16 @@ std::string render_entry_csv(schedule & sch, unsigned long start_minute, unsigne
 	return entry;
 }
 
+/**
+ * Note about time zone adjustment:
+ * The data generated for the schedule has had all the adjustments applied through
+ * @TZADJUST@ and through offsets applied when variable target dates were updated.
+ * The time distances between now and those times need to be preserved and used.
+ * Hence, further adjustment of the output generated can only be about presentation
+ * of the output, i.e. where days start and end and which minutes in a day are
+ * assigned. E.g. the "current time" means a different minute in the day, as does
+ * midnight.
+ */
 bool schedule_render_csv(schedule & sch) {
 	sch.graph().set_tzadjust_active(sch.use_tzadjust);
 	if (!sch.generate_schedule()) {
@@ -204,7 +214,7 @@ bool schedule_render_csv(schedule & sch) {
 	}
 	sch.graph().set_tzadjust_active(false);  // One should only activate it temporarily.
 
-	sch.t_today_start = today_start_time();
+	//sch.t_today_start = today_start_time() + sch.timezone_offset_seconds;
 
 	Node_ID_key nkey;
 	unsigned long start_minute = 0;

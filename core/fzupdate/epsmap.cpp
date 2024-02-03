@@ -274,6 +274,10 @@ time_t EPS_map::end_of_day_adjusted(time_t td_raw) {
     if (n_ptr->Urgency() >= 1.0)
         priorityendofday = fzu.config.doearlier_endofday;
     */
+    // *** TODO: What to do if the offset is such that it shifts before the start of day?
+    if (fzu.config.timezone_offset_hours != 0) {
+        priorityendofday -= (3600*fzu.config.timezone_offset_hours);
+    }
     if (priorityendofday > (23 * 3600 + 1800))
         priorityendofday -= 1800; // insure space for minute offsets to avoid auto-merging
 

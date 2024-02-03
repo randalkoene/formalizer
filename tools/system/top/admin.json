@@ -94,5 +94,11 @@
             "url" : "/cgi-bin/fzbackup-cgi.py?action=show",
             "window" : "_blank"
         }
+    },
+    "Environment: " : {
+        "Time Zone" : {
+            "url" : "/cgi-bin/fztimezone-cgi.py?show=true",
+            "window" : "_blank"
+        }
     }
 }

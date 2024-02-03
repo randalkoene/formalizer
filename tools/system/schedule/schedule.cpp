@@ -9,11 +9,14 @@
 
 #define FORMALIZER_MODULE_ID "Formalizer:Visualization:Nodes:schedule"
 
+#include <iostream>
+
 #include "error.hpp"
 #include "general.hpp"
 #include "Graphtypes.hpp"
 #include "Graphinfo.hpp"
 #include "stringio.hpp"
+#include "apiclient.hpp"
 #include "schedule.hpp"
 
 using namespace fz;
@@ -48,11 +51,6 @@ schedule::schedule():
     add_option_args += "HwcWS:D:b:efxTto:";
     add_usage_top += " <-H|-w|-c|-W> [-S <strategy>] [-D <num_days>] [-b <min_minutes>] [-e] [-f] [-x] [-T|-t] [-o <output-file|STDOUT>]";
 
-    thisdatetime = ActualTime();
-    thisdate = DateStampYmd(thisdatetime);
-    thistimeofday = time_of_day(thisdatetime);
-    thisminutes = thistimeofday.num_minutes();
-    t_today_start = today_start_time();
 }
 
 void schedule::usage_hook() {
@@ -169,11 +167,44 @@ Graph & schedule::graph() {
     if (graph_ptr) {
         return *graph_ptr;
     }
-    graph_ptr = graphmemman.find_Graph_in_shared_memory();
+    graph_ptr = graphmemman.find_Graph_in_shared_memory(); // Beware: You cannot call this until after init(), otherwise segfault.
     if (!graph_ptr) {
         standard_exit_error(exit_general_error, "Memory resident Graph not found.", __func__);
     }
     return *graph_ptr;
+}
+
+bool schedule::get_server_tzadjust() {
+    // Attempt a TCP call to the server to obtain tzadjust.
+    VERYVERBOSEOUT("Requesting time zone adjust from server.\n");
+    std::string response_str;
+    if (!http_GET(graph().get_server_IPaddr(), graph().get_server_port(), "/fz/tzadjust", response_str)) {
+        return standard_exit_error(exit_communication_error, "API request to Server port failed: /fz/tzadjust", __func__);
+    }
+    auto info_start = response_str.find("offset seconds:");
+    if (info_start != std::string::npos) {
+        info_start += 16;
+        auto info_end = response_str.find('\n', info_start);
+        if (info_end != std::string::npos) {
+            long server_tzadjust_seconds = atol(response_str.substr(info_start, info_end - info_start).c_str());
+            timezone_offset_seconds = -server_tzadjust_seconds; // Remember that the server's tzadjust is sign inverted.
+            timezone_offset_hours = timezone_offset_seconds/3600;
+            return true;
+        }
+    }
+    VERBOSEOUT("Warning: Time zone offset adjustment not found in server response.\n");
+    return false;
+}
+
+// See the note about time zone adjustment at the top of schedule_render_csv().
+bool schedule::init_times() {
+    get_server_tzadjust();
+    thisdatetime = ActualTime(); // +timezone_offset_seconds;
+    thisdate = DateStampYmd(thisdatetime);
+    thistimeofday = time_of_day(thisdatetime);
+    thisminutes = thistimeofday.num_minutes();
+    t_today_start = today_start_time(); // +timezone_offset_seconds;
+    return true;
 }
 
 bool schedule::to_output(const std::string & rendered_schedule) {
@@ -270,7 +301,7 @@ bool schedule::initialize_daymap() {
         passed_minutes = 0
         if passed_days > 0: passed_minutes = 60*24*passed_days
     */
-    passed_minutes += thisminutes;
+    passed_minutes += tzadjust_passedminutes(thisminutes);
     if (passed_minutes > 0) {
         VERBOSEOUT("Passed minutes: "+std::to_string(passed_minutes)+'\n');
     }
@@ -297,8 +328,8 @@ bool schedule::map_exact_target_date_entries() {
                     auto nkey = node_ptr->get_id().key();
                     unsigned int original_req_minutes = node_ptr->get_required_minutes();
                     unsigned int num_minutes = node_ptr->minutes_to_complete();
-                    time_of_day_t timeofday = node_ptr->get_targetdate_timeofday(); // *** May not work for unspecified/inherited.
-                    unsigned long td_minute_index = (mapped_day_count*60*24) + (timeofday.hour*60) + timeofday.minute;
+                    time_of_day_t timeofday = node_ptr->get_effective_targetdate_timeofday(); // *** May not work for unspecified/inherited.
+                    unsigned long td_minute_index = (mapped_day_count*60*24) + (tzhouradjust_mod24(timeofday.hour)*60) + timeofday.minute; // *** NOT YET TZADJUST TESTED!
                     unsigned long td_start_index = td_minute_index - num_minutes; // From end of exact time interval.
                     if (num_minutes < original_req_minutes) {
                         if (thisdatetime < (node_ptr->effective_targetdate()-(60*original_req_minutes))) {
@@ -322,25 +353,31 @@ bool schedule::map_exact_target_date_entries() {
 
 // *** TODO: This does may not work entirely correctly around daylight savings changes.
 unsigned int schedule::get_estimated_offset_day(time_t t) {
-    unsigned long seconds = t - t_today_start;
+    unsigned long seconds = t - tzadjust_daystart(t_today_start);
     return seconds / 86400;
 }
 
 // This uses the same strategy as above, but obtains data directly from
 // the incnode_with_repeats list.
+// Note: We compare time zone adjusted schedule times (tdate)
+//       with the actual current time to correctly know if it
+//       is still coming up.
 bool schedule::map_exact_target_date_entries_from_sorted() {
     exact_consumed = 0;
 
     unsigned int num_schedule = schedule_size;
     for (const auto & [tdate, node_ptr] : incnodes_with_repeats) {
         if (node_ptr->td_exact() && (tdate >= thisdatetime)) {
+            //FZOUT("DEBUG --> Node = "+node_ptr->get_id_str()+" tdate = "+TimeStampYmdHM(tdate)+" thisdatetime = "+TimeStampYmdHM(thisdatetime)+'\n');
 
             // Tag indexed map entries with Node key.
             auto nkey = node_ptr->get_id().key();
             unsigned int original_req_minutes = node_ptr->get_required_minutes();
             unsigned int num_minutes = node_ptr->minutes_to_complete(tdate); // This takes into account if this is the first instance or a repeat.
-            time_of_day_t timeofday = node_ptr->get_targetdate_timeofday(); // *** May not work for unspecified/inherited.
-            unsigned long td_minute_index = (get_estimated_offset_day(tdate)*60*24) + (timeofday.hour*60) + timeofday.minute;
+            time_of_day_t timeofday = node_ptr->get_effective_targetdate_timeofday(); // *** May not work for unspecified/inherited.
+            //FZOUT("DEBUG --> time of day: "+timeofday.str()+'\n');
+            unsigned long td_minute_index = (get_estimated_offset_day(tdate)*60*24) + (tzhouradjust_mod24(timeofday.hour)*60) + timeofday.minute;
+            //FZOUT("DEBUG --> minute index: "+std::to_string(td_minute_index)+'\n');
             unsigned long td_start_index = td_minute_index - num_minutes;
             if (num_minutes < original_req_minutes) {
                 if (thisdatetime < (node_ptr->effective_targetdate()-(60*original_req_minutes))) {
@@ -412,8 +449,8 @@ bool schedule::map_fixed_target_date_entries_late() {
                 if (include_in_fixed_td_step(*node_ptr)) {
                     auto nkey = node_ptr->get_id().key();
                     int num_minutes = node_ptr->minutes_to_complete(); // *** This does not seem to be able to discern first instance or repeat (as tdate is not available).
-                    time_of_day_t timeofday = node_ptr->get_targetdate_timeofday();
-                    unsigned long latest_td_minute_index = (mapped_day_count*60*24) + (timeofday.hour*60) + timeofday.minute;
+                    time_of_day_t timeofday = node_ptr->get_effective_targetdate_timeofday();
+                    unsigned long latest_td_minute_index = (mapped_day_count*60*24) + (tzhouradjust_mod24(timeofday.hour)*60) + timeofday.minute; // *** NOT YET TZADJUST TESTED!
                     // Find blocks starting at the latest possible index.
                     unsigned long idx = latest_td_minute_index;
                     while ((idx >= passed_minutes) && (num_minutes > 0)) {
@@ -444,8 +481,8 @@ bool schedule::map_fixed_target_date_entries_late_from_sorted() {
 
             auto nkey = node_ptr->get_id().key();
             int num_minutes = node_ptr->minutes_to_complete(tdate); // This takes into account if this is the first instance or a repeat.
-            time_of_day_t timeofday = node_ptr->get_targetdate_timeofday();
-            unsigned long latest_td_minute_index = (get_estimated_offset_day(tdate)*60*24) + (timeofday.hour*60) + timeofday.minute;
+            time_of_day_t timeofday = node_ptr->get_effective_targetdate_timeofday();
+            unsigned long latest_td_minute_index = (get_estimated_offset_day(tdate)*60*24) + (tzhouradjust_mod24(timeofday.hour)*60) + timeofday.minute;
             // Find blocks starting at the latest possible index.
             if (latest_td_minute_index < daysmap.size()) {
                 unsigned long idx = latest_td_minute_index;
@@ -708,6 +745,8 @@ bool schedule_csv_for_web() {
 
 int main(int argc, char *argv[]) {
     fzsch.init(argc,argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
+
+    fzsch.init_times();
 
     switch (fzsch.flowcontrol) {
 

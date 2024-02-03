@@ -61,6 +61,7 @@ public:
     bool include_daysummary = true;
     bool sort_by_targetdate = false; // Note: Right now, this is used only by Named Node List output.
     int timezone_offset_hours = 0;
+    bool tzadjust_day_separators = false;
     bool show_tzadjust = true; // Show effects of @TZADJUST@ in next Nodes lists generated.
 };
 
@@ -88,6 +89,8 @@ struct fzgraphhtml: public formalizer_standard_program {
     int num_days = 0; // used only as a cache to render in accordance with arguments received
 
     bool no_javascript = false;
+
+    bool with_repeats = false;
 
     time_t t_last_rendered = 0;
 

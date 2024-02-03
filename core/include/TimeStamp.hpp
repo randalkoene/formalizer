@@ -35,7 +35,8 @@ struct time_of_day_t {
     unsigned int hour;
     unsigned int minute;
     time_of_day_t(unsigned int hr = 0, unsigned int min = 0): hour(hr), minute(min) {}
-    unsigned int num_minutes() { return 60*hour + minute; }
+    unsigned int num_minutes() const { return 60*hour + minute; }
+    std::string str() const;
 };
 
 extern const std::string weekday_str[day_of_week::_num_dow];

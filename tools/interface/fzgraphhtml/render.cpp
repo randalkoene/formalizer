@@ -193,15 +193,20 @@ struct line_render_parameters {
     }
 
     void insert_previous_day_summary() {
+        // Note that datestamp was already TZ adjusted.
         template_varvalues varvals;
         time_t t_nextday = ymd_stamp_time(datestamp); // have to do this, because a Node's tdate is not indicative of the day start
         time_t t_daystart = t_nextday - seconds_per_day; // *** breaks slightly when switching to daylight savings time
         time_t seconds_available = seconds_per_day;
-        if ((t_daystart < t_render) && (t_nextday > t_render)) {
-            seconds_available = t_nextday - t_render;
+        time_t t_render_tzadjusted = t_render;
+        if ((fzgh.config.timezone_offset_hours > 0) && fzgh.config.tzadjust_day_separators) {
+            t_render_tzadjusted += (fzgh.config.timezone_offset_hours*3600);
+        }
+        if ((t_daystart < t_render_tzadjusted) && (t_nextday > t_render_tzadjusted)) {
+            seconds_available = t_nextday - t_render_tzadjusted;
         }
         float hours_available = ((float)seconds_available / 3600.0);
-        if ((t_nextday < t_render) || (day_total_hrs > hours_available)) {
+        if ((t_nextday < t_render_tzadjusted) || (day_total_hrs > hours_available)) {
             varvals.emplace("alertstyle", " class=\"high_req\"");
         } else {
             varvals.emplace("alertstyle", ""); // " class=\"fit_req\"");
@@ -229,6 +234,7 @@ struct line_render_parameters {
     }
 
     void insert_day_start(time_t t) {
+        // Note that datestamp was already TZ adjusted.
         if ((fzgh.config.outputformat == output_txt) || (fzgh.config.outputformat == output_html)) {
             if ((fzgh.config.include_daysummary) && (day_total_hrs > 0.0)) {
                 insert_previous_day_summary();
@@ -236,7 +242,11 @@ struct line_render_parameters {
             template_varvalues varvals;
             varvals.emplace("node_id","<b>ID</b>");
             varvals.emplace("topic","<b>main topic</b>");
-            varvals.emplace("targetdate","<b>"+datestamp+"</b>");
+            if ((fzgh.config.timezone_offset_hours > 0) && fzgh.config.tzadjust_day_separators) {
+                varvals.emplace("targetdate","<b>"+datestamp+"</b> (tzadj)");
+            } else {
+                varvals.emplace("targetdate","<b>"+datestamp+"</b>");
+            }
             varvals.emplace("alertstyle","");
             varvals.emplace("req_hrs","<b>hrs</b>");
             varvals.emplace("tdprop","");
@@ -287,26 +297,39 @@ struct line_render_parameters {
         }
         std::string tdstamp(TimeStampYmdHM(tdate));
         std::string vis_tdstamp_str;
+        time_t tdate_tzadjusted = tdate;
         if (fzgh.config.timezone_offset_hours==0) {
             vis_tdstamp_str = tdstamp;
         } else {
+            tdate_tzadjusted += (fzgh.config.timezone_offset_hours*3600);
             if (fzgh.config.timezone_offset_hours > 0) {
-                vis_tdstamp_str = TimeStampYmdHM(tdate + (fzgh.config.timezone_offset_hours*3600))+'-'+std::to_string(fzgh.config.timezone_offset_hours);
+                vis_tdstamp_str = TimeStampYmdHM(tdate_tzadjusted)+'-'+std::to_string(fzgh.config.timezone_offset_hours);
             } else {
-                vis_tdstamp_str = TimeStampYmdHM(tdate + (fzgh.config.timezone_offset_hours*3600))+'+'+std::to_string(-fzgh.config.timezone_offset_hours);
+                vis_tdstamp_str = TimeStampYmdHM(tdate_tzadjusted)+'+'+std::to_string(-fzgh.config.timezone_offset_hours);
             }
         }
-        if (showdate && (tdstamp.substr(0,8) != datestamp)) {
+        bool day_separator = false;
+        if (fzgh.config.tzadjust_day_separators) {
+            day_separator = (vis_tdstamp_str.substr(0,8) != datestamp);
+        } else {
+            day_separator = (tdstamp.substr(0,8) != datestamp);
+        }
+        if (showdate && day_separator) {
             // *** BEWARE: For very extensive Node time spans, tdate may more than a day out, thereby skipping days!
             //     You should probably actually just keep track of day starts from one day to the next and place
             //     an insert even if there was no targetdate of a Node on a particular day (if a full calendar is
             //     being created rather than a temporally ordered list of Nodes).
-            datestamp = tdstamp.substr(0,8);
-            insert_day_start(tdate);
+            if (fzgh.config.tzadjust_day_separators) {
+                datestamp = vis_tdstamp_str.substr(0,8);
+                insert_day_start(tdate_tzadjusted);
+            } else {
+                datestamp = tdstamp.substr(0,8);
+                insert_day_start(tdate);
+            }
         }
         std::string alertstyle;
         if (fzgh.config.show_current_time) {
-            if (tdate <= t_render) {
+            if (tdate <= t_render) { // *** This might still need TZADJUST attention.
                 alertstyle = " class=\"passed_td\"";
                 std::string tdstr = "<a href=\"/cgi-bin/fzlink.py?id="+nodestr+"\">"+vis_tdstamp_str+"</a>";
                 varvals.emplace("targetdate",tdstr);

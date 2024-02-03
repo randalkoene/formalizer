@@ -86,6 +86,8 @@ exercises = {
     'stamina': [ 'minutes', ],
     'weights': [ 'minutes', ],
     'wood splitting': [ 'minutes', ],
+    'crunches': [ 'crunches', ],
+    'squats': [ 'squats', ],
 }
 
 # ====================== Debug helpers:

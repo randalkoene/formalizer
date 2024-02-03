@@ -561,8 +561,8 @@ public:
     const Node_utf8_text & get_text() const { return text; }
 
     time_t get_targetdate() const { return targetdate; }
-    std::string get_targetdate_str() const { return TimeStampYmdHM(targetdate); }
-    time_of_day_t get_targetdate_timeofday() const { return time_of_day(targetdate); }
+    std::string get_targetdate_str() const { return TimeStampYmdHM(targetdate); } // Note: See get_effective_targetdate_str().
+    time_of_day_t get_targetdate_timeofday() const { return time_of_day(targetdate); } // Note: See get_effective_targetdate_timeofday().
     td_property get_tdproperty() const { return tdproperty; }
     std::string get_tdproperty_str() const { return td_property_str[tdproperty]; }
     bool td_unspecified() const { return tdproperty == td_property::unspecified; }
@@ -625,6 +625,8 @@ public:
 
     /// Graph relative operations
     time_t effective_targetdate(Node_ptr * origin = nullptr);
+    std::string get_effective_targetdate_str() const { return TimeStampYmdHM(const_cast<Node *>(this)->effective_targetdate()); }
+    time_of_day_t get_effective_targetdate_timeofday() const { return time_of_day(const_cast<Node *>(this)->effective_targetdate()); }
 
     /// helper functions
 

@@ -111,9 +111,12 @@ CORE_OBJS += $(CORELIBPATH)/obj/Graphbase.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphinfo.o
 CORE_OBJS += $(CORELIBPATH)/obj/GraphLogxmap.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphmodify.o
 CORE_OBJS += $(CORELIBPATH)/obj/fzpostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphaccess.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
+CORE_OBJS += $(CORELIBPATH)/obj/tcpclient.o
+CORE_OBJS += $(CORELIBPATH)/obj/apiclient.o
 
 # *** the following are not really needed here, but they have to be as long as Graphaccess.hpp also contains request_Log_Load()
 CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o

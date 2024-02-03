@@ -90,13 +90,15 @@ struct schedule: public formalizer_standard_program {
     bool inc_variable = true;
 
     bool use_tzadjust = true; // Apply @TZADJUST@.
+    time_t timezone_offset_seconds = 0;
+    int timezone_offset_hours = 0;
 
-    time_t thisdatetime;
+    time_t thisdatetime = 0;
     std::string thisdate;
     time_of_day_t thistimeofday;
-    unsigned long thisminutes;
+    unsigned long thisminutes = 0;
 
-    time_t t_today_start;
+    time_t t_today_start = 0;
 
     unsigned int num_days = 1;
     int min_block_size = 1;
@@ -131,6 +133,16 @@ struct schedule: public formalizer_standard_program {
     virtual bool options_hook(char c, std::string cargs);
 
     Graph & graph();
+
+    bool get_server_tzadjust();
+
+    bool init_times();
+
+    time_t tzadjust_daystart(time_t t) const { return t - timezone_offset_seconds; }
+
+    int tzhouradjust_mod24(int hour) const { return (hour + timezone_offset_hours) % 24; }
+
+    unsigned long tzadjust_passedminutes(unsigned long pmins) const { return pmins + (60*timezone_offset_hours); }
 
     bool to_output(const std::string & rendered_schedule);
 

@@ -68,6 +68,7 @@ The GET/PATCH port API includes the following:
 
   /fz/status
   /fz/ipport
+  /fz/tzadjust
   /fz/ErrQ
   /fz/ReqQ
   /fz/_stop
@@ -153,11 +154,11 @@ Recognized requests are:
   NNLedit_nodes(passed_fixed,tdproperty,variable)
     Edit the specified parameter (e.g. tdproperty) to the specified value
     (e.g. variable) on all Nodes in the specified List (e.g. passed_fixed).
-  CGIgb_run_as_user(cgiprog,uriargs,outfile)
+  CGIbg_run_as_user(cgiprog,uriargs,outfile)
     Run the cgiprog program as the same user as the one running fzserverpq
     in the background, using command line arguments obtained by parsing
     the string in uriargs that is given in URI argument format. The
-    specified cgiprog can only run if it was included in the comma
+    specified cgiprog can only run if it was included in the ampersand (&)
     delimited list of permitted programs in fzserverpq configuration
     variable 'predefined_CGIbg'.
 
@@ -239,6 +240,26 @@ root_path_map_type parse_www_file_roots(const std::string & www_file_roots) {
     return roots_paths_map;
 }
 
+std::vector<std::string> parse_predefined_CGIbg(const std::string & parvalue) {
+    ERRTRACE;
+
+    std::vector<std::string> CGIbg;
+    if (parvalue.empty())
+        return CGIbg;
+
+    CGIbg = split(parvalue, '&');
+    // for (auto & cgibg_str : cgibg_vec) {
+    //     trim(cgibg_str);
+    //     try {
+    //         CGIbg.emplace_back(cgibg_str);
+    //     } catch (ID_exception idexception) {
+    //         standard_exit_error(exit_bad_request_data, "invalid CGI name (" + cgibg_str + ")\n" + idexception.what(), __func__);
+    //     }
+    // }
+
+    return CGIbg;
+}
+
 /**
  * Configure configurable parameters.
  * 
@@ -253,7 +274,7 @@ bool fzs_configurable::set_parameter(const std::string & parlabel, const std::st
     CONFIG_TEST_AND_SET_PAR(persistent_NNL, "persistent_NNL", parlabel, (parvalue != "false"));
     CONFIG_TEST_AND_SET_PAR(www_file_root, "www_file_root", parlabel, parse_www_file_roots(parvalue));
     CONFIG_TEST_AND_SET_PAR(request_log, "request_log", parlabel, parvalue);
-    CONFIG_TEST_AND_SET_PAR(predefined_CGIbg, "predefined_CGIbg", parlabel, split(parvalue,',')); // E.g. from "fzbackup-mirror-to-github.sh,fzinfo"
+    CONFIG_TEST_AND_SET_PAR(predefined_CGIbg, "predefined_CGIbg", parlabel, parse_predefined_CGIbg(parvalue)); // E.g. from "fzbackup-mirror-to-github.sh,fzinfo"
     CONFIG_TEST_AND_SET_PAR(tzadjust_seconds, "timezone_offset_hours", parlabel, -3600*std::stoi(parvalue));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);

@@ -30,6 +30,82 @@ pagehead = '''Content-type:text/html
 
 print(pagehead)
 
+HELP='''
+<h1>fzupdate-cgi API</h1>
+
+<p>
+Main modes:
+<ul>
+<li><code>help=true</code>: This Help page.
+<li><code>update=breakeps</code>: Break up an EPS group with a specified target date. (The T_pass option is required for this mode.)
+<li><code>update=repeating</code>: Update repeating Nodes.
+<li><code>update=variable</code>: Update Nodes with variable or unspecified target dates.
+<li><code>update=both</code>: Update both repeating and variable/unspecified target date Nodes.
+<li><code>update=passedfixed</code>: Prepare an NNL with passed fixed/exact target date Nodes for conversion.
+<li><code>update=convert_passedfixed</code>: Convert Nodes in passed_fixed NNL to variable target date Nodes.
+</ul>
+</p>
+
+Options:
+<ul>
+<li><code>T_emulate=YYYYmmddHHMM</code>: Use emulated time instead of actual current time.
+<li><code>map_days=NUM</code>: Do updates with a map of size NUM days. Default: 14 days.
+<li><code>T_pass=YYYYmmddHHMM</code>: Update up to and including this date. This argument is also used as the specified target date when breaking up an EPS group.
+<li><code>verbose=true</code>: Be verbose.
+</ul>
+
+<h3>Breaking up an EPS group</h3>
+
+<p>
+The Earliest Possible Scheduling (EPS) method keeps groups of Nodes with identical variable target dates together, assuming that they are intended to be treated as a group.
+Breaking up an EPS group changes the variable target dates of the Nodes in such a group and converts them to successive target dates, so that
+updates will modify and allocate the time needed for the Nodes independently.
+</p>
+
+<p>
+A link to carry out EPS group breaking is included in the Edit page of each Node.
+</p>
+
+<h3>Updating repeating Nodes</h3>
+
+<p>
+If passed, the target dates of Nodes that have fixed or exact repeating target dates are updated to their next not-passed occurrence.
+</p>
+
+<h3>Updating Nodes with variable or unspecified target dates</h3>
+
+<p>
+Target dates are updated to indicate by when these Nodes can be completed by filling available time (not already filled by exact and
+fixed target date Nodes) starting at current or emulated time. The order of Nodes with variable or unspecified target dates is not
+changed. EPS groups are updated together so that they remain a group with identical target dates.
+</p>
+
+<p>
+<b>fzupdate/config.json dolater_endofday and doearlier_endofday</b>: These are two reference end-of-day times by which work on variable
+target date Nodes should be completed. Which reference time to use in adjusting proposed updated target dates should be determined by
+a Node parameter. In the Formalizer 1.x this was based on the 'urgency' parameter, which is now Edge specific, not Node specific.
+At present, only the dolater_endofday setting is used. (<b>This is an area of pending improvement, and using a boolean flag tag would
+make sense.</b>) These time of day limits are adjusted in accordance with the timezone_offset_hours configuration parameter.
+</p>
+
+<p>
+<b>fzupdate/config.json timezone_offset_hours</b>: Apply this offset to the update. This is in essence like applying an emulated time that
+is the current time plus the offset. This offset is shown and managed through fztimezone.
+</p>
+
+<h3>Preparing an NNL with passed fixed/exact target date Nodes for conversion</h3>
+
+<p>
+A NNL is filled with Nodes that have non-repeating fixed or exact target dates that have been passed according to the current or
+emulated time. This NNL is used for inspection and manual updates as well as automated conversion to variable target dates.
+</p>
+
+<p>
+A link to call this NNL preparation mode is in the DayWiz page.
+</p>
+
+'''
+
 # Import modules for CGI handling 
 try:
     import cgitb; cgitb.enable()
@@ -64,6 +140,7 @@ T_emulate = form.getvalue('T_emulate')
 map_days = form.getvalue('map_days')
 verbose = form.getvalue('verbose')
 T_pass = form.getvalue('T_pass')
+showhelp = form.getvalue('help')
 
 
 pagetail = '''<hr>
@@ -153,13 +230,20 @@ def convert_passed_fixed():
     if (num_fixed_converted > 0):
         print(f'<p><b>Converted {num_fixed_converted} Fixed or Exact Target Date Nodes to Variable Target Date Nodes.</b></p>')
 
+def show_help():
+    print(HELP)
+    print(pagetail)
 
 if __name__ == '__main__':
 
     thisscript = os.path.realpath(__file__)
     print(f'<!--(For dev reference, this script is at {thisscript}.) -->')
-
     print("<!-- [Formalizer: fzupdate handler]\n<p></p> -->")
+
+    if showhelp:
+        show_help()
+        exit(0)
+
     #print("<table>")
 
     add_to_cmd = ''

@@ -185,6 +185,11 @@ nutrition = {
 	'milk shake': [ 350, "regular shake", ],
 	'biscoff cookies': [ 150, "serving", ],
 	'kroket': [ 131, 'kroket', ],
+	'winegums': [ 11, 'winegum', ],
+	'liverwurst': [ 29, 'serving', ],
+	'bagette': [ 888, 'bagette', ],
+	'energy drink': [ 113, 'can',],
+	'vla': [ 133, 'serving',],
 }
 
 lowcal_filling_nutritious = [
@@ -306,7 +311,8 @@ drinks = [
 	'jagermeister',
 	'beer',
 	'rum',
-	'wine'
+	'wine',
+	'energy drink',
 ]
 
 breads = [
@@ -321,6 +327,7 @@ breads = [
 	'sourdough bread',
 	'whole rye german breads',
 	'egg white wraps',
+	'bagette',
 ]
 
 dairy = [
@@ -352,6 +359,7 @@ meat = [
 	'sausage',
 	'turkey',
 	'hot dog',
+	'liverwurst',
 ]
 
 deserts = [

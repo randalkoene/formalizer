@@ -196,11 +196,16 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
     }
 
     case 'I': {
-        flowcontrol = flow_incomplete;
+        if (with_repeats) {
+            flowcontrol = flow_incomplete_with_repeats;
+        } else {
+            flowcontrol = flow_incomplete;
+        }
         return true;
     }
 
     case 'r': {
+        with_repeats = true;
         if (flowcontrol == flow_incomplete) {
             flowcontrol = flow_incomplete_with_repeats;
         }
@@ -333,6 +338,7 @@ bool fzgh_configurable::set_parameter(const std::string & parlabel, const std::s
     CONFIG_TEST_AND_SET_PAR(show_current_time, "show_current_time", parlabel, parvalue_to_bool(parvalue));
     CONFIG_TEST_AND_SET_PAR(include_daysummary, "include_daysummary", parlabel, parvalue_to_bool(parvalue));
     CONFIG_TEST_AND_SET_PAR(timezone_offset_hours, "timezone_offset_hours", parlabel, atoi(parvalue.c_str()));
+    CONFIG_TEST_AND_SET_PAR(tzadjust_day_separators, "tzadjust_day_separators", parlabel, parvalue_to_bool(parvalue));
     CONFIG_TEST_AND_SET_PAR(show_tzadjust, "show_tzadjust", parlabel, parvalue_to_bool(parvalue));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);

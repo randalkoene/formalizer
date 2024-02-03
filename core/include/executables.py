@@ -63,5 +63,6 @@ executables = (
     'graph-resident.py',
     'graph-topics.sh',
     'fzvismilestones',
+    'fztimezone',
     )
     

@@ -45,6 +45,13 @@ constexpr const std::tm safe_undefined_localtime = {
     .tm_isdst = -1    
 };
 
+std::string time_of_day_t::str() const {
+    if (minute<10) {
+        return std::to_string(hour)+":0"+std::to_string(minute);
+    }
+    return std::to_string(hour)+':'+std::to_string(minute);
+}
+
 /**
  * A Formalizer standardized version of the localtime() function that always
  * returns a usable value, but which may log errors or warnings as needed.
