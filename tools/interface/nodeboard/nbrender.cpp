@@ -67,10 +67,11 @@ nodeboard::nodeboard():
     output_path("/var/www/html/formalizer/test_node_card.html"),
     graph_ptr(nullptr) {
 
-    add_option_args += "RGgn:L:D:l:t:m:f:c:IF:H:TPb:M:p:o:S:";
+    add_option_args += "RGgn:L:D:l:t:m:f:c:IF:H:TPb:M:p:C:o:S:";
     add_usage_top += " [-R] [-G|-g] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
         " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-F <substring>]"
-        " [-H <board-header>] [-T] [-P] [-b <before>] [-M <multiplier>] [-p <progress-state-file>] [-S <size-list>] [-o <output-file|STDOUT>]";
+        " [-H <board-header>] [-T] [-P] [-b <before>] [-M <multiplier>] [-p <progress-state-file>] [-S <size-list>]"
+        " [-C <max-columns>] [-r <max-rows>] [-o <output-file|STDOUT>]";
 }
 
 void nodeboard::usage_hook() {
@@ -104,6 +105,8 @@ void nodeboard::usage_hook() {
         "    -S List of grid and card sizes:\n"
         "       '<grid-column-width>,<column-container-width>,<card-width>,<card-height>'\n"
         "       E.g. '260px,250px,240px,240px'\n"
+        "    -C Max number of columns (default: 100)\n"
+        "    -r Max number of rows (default: 100)\n"
         "    -o Output to file (or STDOUT).\n"
         "       Default: /var/www/html/formalizer/test_node_card.html\n"
         "\n"
@@ -237,6 +240,16 @@ bool nodeboard::options_hook(char c, std::string cargs) {
             return set_grid_and_card_sizes(cargs);
         }
 
+        case 'C': {
+            max_columns = atoi(cargs.c_str());
+            return true;
+        }
+
+        case 'r': {
+            max_rows = atoi(cargs.c_str());
+            return true;
+        }
+
         case 'o': {
             output_path = cargs;
             return true;
@@ -334,9 +347,30 @@ Graph & nodeboard::graph() {
     return *graph_ptr;
 }
 
-std::string nodeboard::build_nodeboard_cgi_call(flow_options _floption, bool _threads, bool _showcompleted, bool _progressanalysis, float multiplier) {
+std::string nodeboard::build_nodeboard_cgi_call(flow_options _floption, bool _threads, bool _showcompleted, bool _progressanalysis, float multiplier, unsigned int maxcols, unsigned int maxrows) {
     std::string cgi_cmd("/cgi-bin/nodeboard-cgi.py?");
     switch (_floption) {
+        case flow_node: {
+            if (!node_ptr) {
+                return "";
+            }
+            cgi_cmd += "n="+node_ptr->get_id_str();
+            break;    
+        }
+        case flow_dependencies_tree: {
+            if (!node_ptr) {
+                return "";
+            }
+            cgi_cmd += "n="+node_ptr->get_id_str()+"&G=true";
+            break;
+        }
+        case flow_superiors_tree: {
+            if (!node_ptr) {
+                return "";
+            }
+            cgi_cmd += "n="+node_ptr->get_id_str()+"&g=true";
+            break;
+        }
         case flow_NNL_dependencies: {
             cgi_cmd += "D="+list_name;
             break;
@@ -361,6 +395,12 @@ std::string nodeboard::build_nodeboard_cgi_call(flow_options _floption, bool _th
     }
     if (_progressanalysis) {
         cgi_cmd += "&P=true";
+    }
+    if (maxrows != DEFAULTMAXROWS) {
+        cgi_cmd += "&r="+std::to_string(maxrows);
+    }
+    if (maxcols != DEFAULTMAXCOLS) {
+        cgi_cmd += "&C="+std::to_string(maxcols);
     }
     return cgi_cmd;
 }
@@ -1331,8 +1371,14 @@ struct Node_Grid {
     unsigned int row_total = 0;
     std::map<Node_ID_key, Node_Grid_Element> nodes;
     std::vector<Node_Grid_Row> rows;
+    unsigned int max_columns = 0;
+    unsigned int max_rows = 0;
+    bool columns_cropped = false;
+    bool rows_cropped = false;
 
-    Node_Grid(const Node & top_node, bool superiors = false) {
+    Node_Grid(const Node & top_node, unsigned int maxcolumns, unsigned int maxrows, bool superiors = false) {
+        max_columns = maxcolumns;
+        max_rows = maxrows;
         extend();
         add_to_row(0, 0, top_node, nullptr);
 
@@ -1372,6 +1418,10 @@ struct Node_Grid {
 
     unsigned int add_dependencies(const Node & node, unsigned int node_row, unsigned int node_col) {
         unsigned int dep_row = node_row + 1;
+        if (dep_row >= max_rows) {
+            rows_cropped = true;
+            return node_col;
+        }
         if (dep_row >= rows.size()) {
             extend();
         }
@@ -1384,13 +1434,17 @@ struct Node_Grid {
                 Node * dep_ptr = edge_ptr->get_dep();
                 if (dep_ptr) {
                     if (!is_in_grid(*dep_ptr)) { // Unique.
-                        // Add to row.
-                        add_to_row(dep_row, node_col, *dep_ptr, &node);
-                        if (node_col > col_total) {
-                            col_total = node_col;
+                        if (node_col < max_columns) {
+                            // Add to row.
+                            add_to_row(dep_row, node_col, *dep_ptr, &node);
+                            if (node_col > col_total) {
+                                col_total = node_col;
+                            }
+                            // Depth first search.
+                            node_col = add_dependencies(*dep_ptr, dep_row, node_col);
+                        } else {
+                            columns_cropped = true;
                         }
-                        // Depth first search.
-                        node_col = add_dependencies(*dep_ptr, dep_row, node_col);
                     }
                     rel_dep_idx++;
                     if (rel_dep_idx < dep_edges.size()) {
@@ -1404,6 +1458,10 @@ struct Node_Grid {
 
     unsigned int add_superiors(const Node & node, unsigned int node_row, unsigned int node_col) {
         unsigned int sup_row = node_row + 1;
+        if (sup_row >= max_rows) {
+            rows_cropped = true;
+            return node_col;
+        }
         if (sup_row >= rows.size()) {
             extend();
         }
@@ -1416,13 +1474,17 @@ struct Node_Grid {
                 Node * sup_ptr = edge_ptr->get_sup();
                 if (sup_ptr) {
                     if (!is_in_grid(*sup_ptr)) { // Unique.
-                        // Add to row.
-                        add_to_row(sup_row, node_col, *sup_ptr, &node);
-                        if (node_col > col_total) {
-                            col_total = node_col;
+                        if (node_col < max_columns) {
+                            // Add to row.
+                            add_to_row(sup_row, node_col, *sup_ptr, &node);
+                            if (node_col > col_total) {
+                                col_total = node_col;
+                            }
+                            // Depth first search.
+                            node_col = add_superiors(*sup_ptr, sup_row, node_col);
+                        } else {
+                            columns_cropped = true;
                         }
-                        // Depth first search.
-                        node_col = add_superiors(*sup_ptr, sup_row, node_col);
                     }
                     rel_sup_idx++;
                     if (rel_sup_idx < sup_edges.size()) {
@@ -1451,6 +1513,25 @@ struct Node_Grid {
 
 };
 
+// Show if the grid has been cropped in rows or columns.
+// Possibly also show buttons that allow extending of the grid.
+void show_grid_cropped_conditions(nodeboard & nb, Node_Grid & grid) {
+    if (grid.columns_cropped) {
+        nb.board_title_extra += "<b>Grid COLUMNS were cropped ("+std::to_string(nb.max_columns)+").</b> ";
+        std::string link = nb.build_nodeboard_cgi_call(
+            nb.flowcontrol, nb.threads, nb.show_completed,
+            nb.progress_analysis, nb.vertical_multiplier, nb.max_columns+50, nb.max_rows);
+        nb.board_title_extra += make_button(link, "Extend Columns (50)", false);
+    }
+    if (grid.rows_cropped) {
+        nb.board_title_extra += "<b>Grid ROWS were cropped ("+std::to_string(nb.max_rows)+").</b> ";
+        std::string link = nb.build_nodeboard_cgi_call(
+            nb.flowcontrol, nb.threads, nb.show_completed,
+            nb.progress_analysis, nb.vertical_multiplier, nb.max_columns, nb.max_rows+50);
+        nb.board_title_extra += make_button(link, "Extend Rows (50)", false);
+    }
+}
+
 std::string into_grid(unsigned int row_idx, unsigned int col_idx, unsigned int span, const std::string & content) {
     std::string to_grid = "<div style=\"grid-area: " // position: absolute; 
         + std::to_string(row_idx+1) + " / "
@@ -1468,7 +1549,7 @@ bool node_board_render_dependencies_tree(nodeboard & nb) {
         return false;
     }
 
-    Node_Grid grid(*nb.node_ptr);
+    Node_Grid grid(*nb.node_ptr, nb.max_columns, nb.max_rows);
 
     if (!nb.render_init()) {
         return false;
@@ -1490,6 +1571,8 @@ bool node_board_render_dependencies_tree(nodeboard & nb) {
     //         "Otherwise, an excerpt of Node content is shown as the thread header.<br>"
     //         "The Nodes in a thread should be a clear set of steps leading to the output.";
     // }
+
+    show_grid_cropped_conditions(nb, grid);
 
     std::string rendered_grid;
 
@@ -1534,7 +1617,7 @@ bool node_board_render_superiors_tree(nodeboard & nb) {
         return false;
     }
 
-    Node_Grid grid(*nb.node_ptr, true);
+    Node_Grid grid(*nb.node_ptr, nb.max_columns, nb.max_rows, true);
 
     if (!nb.render_init()) {
         return false;

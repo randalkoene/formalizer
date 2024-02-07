@@ -53,12 +53,12 @@ struct Graph_access: public Postgres_access {
 
 public:
     //std::unique_ptr<Graph> request_Graph_copy();
-    Graph * request_Graph_copy(bool remove_on_exit = true, bool persistent_cache = true, long tzadjust_seconds = 0); // *** switched to this, because Boost Interprocess has difficulty with smart pointers
+    Graph * request_Graph_copy(bool remove_on_exit = true, Graph_Config_Options * graph_config_ptr = nullptr); // *** switched to this, because Boost Interprocess has difficulty with smart pointers
     std::unique_ptr<Log> request_Log_copy();
     std::unique_ptr<Log> request_Log_excerpt(const Log_filter & filter);
     void rapid_access_init(Graph &graph, Log &log);                                                  ///< Once both Graph and Log instances have been loaded.
     //std::pair<std::unique_ptr<Graph>, std::unique_ptr<Log>> request_Graph_and_Log_copies_and_init(); ///< Combine the three functions above.
-    std::pair<Graph*, std::unique_ptr<Log>> request_Graph_and_Log_copies_and_init(bool remove_on_exit = true, bool persistent_cache = true); ///< Combine the three functions above.
+    std::pair<Graph*, std::unique_ptr<Log>> request_Graph_and_Log_copies_and_init(bool remove_on_exit = true, Graph_Config_Options * graph_config_ptr = nullptr); ///< Combine the three functions above.
     std::pair<Graph *, std::unique_ptr<Log>> access_shared_Graph_and_request_Log_copy_with_init();
 };
 

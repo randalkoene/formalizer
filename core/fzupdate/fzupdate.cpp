@@ -350,6 +350,9 @@ std::string show_shm_request(Batchmod_targetdates_ptr batchmodreq_ptr) {
  * This can be used by several update functions that change the target dates of a specified set of
  * Nodes.
  * 
+ * The actual updated of target dates of a batch of Nodes is carried out by fzserverpq using
+ * the Graphmodify.cpp/hpp:Graph_modify_batch_node_targetdates() function.
+ * 
  * @param update_nodes A map of new target dates and Node pointers.
  * @param editflags A valid Edit_flags bitmask (typically, targetdate is set).
  * @return True if the server request was successful.

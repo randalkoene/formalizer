@@ -86,7 +86,9 @@ void serve_request_Node_data() {
 
     ERRHERE(".loadGraph");
     //std::unique_ptr<Graph> graph = fzq.ga.request_Graph_copy();
-    Graph * graph = fzq.ga.request_Graph_copy(true, false);
+    Graph_Config_Options graphconfig;
+    graphconfig.persistent_NNL = false;
+    Graph * graph = fzq.ga.request_Graph_copy(true, &graphconfig);
     if (!graph) {
         ADDERROR(__func__,"unable to load Graph");
         return;

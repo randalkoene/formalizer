@@ -190,6 +190,7 @@ nutrition = {
 	'bagette': [ 888, 'bagette', ],
 	'energy drink': [ 113, 'can',],
 	'vla': [ 133, 'serving',],
+	'croissant': [ 231, 'croissant', ],
 }
 
 lowcal_filling_nutritious = [
@@ -328,6 +329,7 @@ breads = [
 	'whole rye german breads',
 	'egg white wraps',
 	'bagette',
+	'croissant',
 ]
 
 dairy = [

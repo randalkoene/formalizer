@@ -1892,7 +1892,7 @@ bool handle_ipport(int new_socket) {
 }
 
 bool handle_tzadjust(int new_socket) {
-    std::string tzadjust_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nServer time zone offset seconds: "+std::to_string(fzs.config.tzadjust_seconds)+"\n</body>\n</html>\n");
+    std::string tzadjust_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nServer time zone offset seconds: "+std::to_string(fzs.config.graphconfig.tzadjust_seconds)+"\n</body>\n</html>\n");
     return handle_request_response(new_socket, tzadjust_html, "TZadjust reported");
 }
 

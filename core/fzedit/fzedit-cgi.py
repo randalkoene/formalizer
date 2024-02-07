@@ -157,7 +157,7 @@ edit_success_page_tail = f'''<p class="success"><b>Node modified. To review or e
 </html>
 '''
 
-create_success_page_tail = f'''<p class="success"><b>Node created. To review or edit, find the new Node in the Graph.</b></p>
+create_success_page_tail = '''<p class="success"><b>Node created: <a href="/cgi-bin/fzlink.py?id=%s">%s</a></b></p>
 <hr>
 <button id="closing_countdown" class="button button1" onclick="Keep_or_Close_Page('closing_countdown');">Keep Page</button>
 <script type="text/javascript" src="/fzclosing_window.js"></script>
@@ -189,13 +189,15 @@ def convert_date_and_time_to_targetdate(alt2_targetdate: str, alt2_targettime: s
     return atd_YmdHM
 
 
-def try_call_command(thecmd: str):
+def try_call_command(thecmd: str, return_result=False):
     try:
         p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
         (child_stdin,child_stdout) = (p.stdin, p.stdout)
         child_stdin.close()
         result = child_stdout.read()
         child_stdout.close()
+        if return_result:
+            return result
         print('<!-- begin: call output --><pre>')
         print(result)
         print('<!-- end  : call output --></pre>')
@@ -228,6 +230,18 @@ def get_float_or_None(cgiarg: str):
         except:
             return None
     return None
+
+def get_node_id_from_result(result_str:str)->str:
+    identifier = 'New Node: '
+    id_start = result_str.find(identifier)
+    if id_start < 0:
+        return ''
+    id_len =  len(identifier)
+    id_start += id_len
+    id_end = result_str.find('\n',id_start)
+    if id_end < 0:
+        return ''
+    return result_str[id_start:id_end]
 
 def modify_node():
     print(start_CGI_output) # very useful, because CGI errors are printed from here on if they occur
@@ -346,23 +360,26 @@ def modify_node():
         # topics = form.getvalue('topics')
         # superiors = form.getvalue('superiors')
         # dependencies = form.getvalue('dependencies')
-        thecmd = f'./fzgraph {verbosearg} -E STDOUT -M node -f {textfile} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}'
+        #thecmd = f'./fzgraph {verbosearg} -E STDOUT -M node -f {textfile} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}'
+        thecmd = f'./fzgraph -E STDOUT -M node -f {textfile} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}'
         if topics:
             thecmd += " -g '"+topics+"'"
+        print(f'<!-- Call command: {thecmd} -->')
+        result_str = try_call_command(thecmd, return_result=True)
+        if isinstance(result_str, bool):
+            print('<p class="fail"><b>Call to fzgraph returned error. (Check state of Nodes in database.)</b></p>')
+            print(edit_fail_page_tail)
+        else:
+            node_id = get_node_id_from_result(result_str)
+            print(create_success_page_tail % (node_id, node_id))
     else:
         thecmd = f"./fzedit {verbosearg} -E STDOUT -M {id} -f {textfile} -c {comp:.5f} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}"
-
-    print(f'<!-- Call command: {thecmd} -->')
-
-    if try_call_command(thecmd):
-        if create_new:
-            print(create_success_page_tail)
-        else:
+        print(f'<!-- Call command: {thecmd} -->')
+        if try_call_command(thecmd):
             print(edit_success_page_tail)
-    else:
-        print('<p class="fail"><b>Call to fzedit or fzgraph returned error. (Check state of Nodes in database.)</b></p>')
-        print(edit_fail_page_tail)
-
+        else:
+            print('<p class="fail"><b>Call to fzedit returned error. (Check state of Nodes in database.)</b></p>')
+            print(edit_fail_page_tail)
 
 def update_node():
     print(start_CGI_output) # very useful, because CGI errors are printed from here on if they occur

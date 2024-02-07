@@ -794,6 +794,16 @@ struct Named_Node_List_Element {
 };
 typedef bi::offset_ptr<Named_Node_List_Element> Named_Node_List_Element_ptr; // this pointer can be used in shared memory (e.g. see Graphmod_data)
 
+// This struct is used in Graph_access::request_Graph_copy().
+struct Graph_Config_Options {
+    bool persistent_NNL = true; // Initial value for Graph::persistent_NNL and determines if the cache is also loaded.
+    long tzadjust_seconds = 0;
+    bool batchmode_constraints_active = true;
+    time_t T_suspiciously_large = 4102473600; // 2100-01-01 00:00:00 (Requires 64-bit Unix time_t.)
+
+    bool set_all(Graph * graph_ptr);
+};
+
 class Graph {
     friend class Node;
 public:
@@ -815,6 +825,9 @@ protected:
 
     long t_tzadjust = 0; // (positive or negative) seconds to add for time-zone adjustment.
     bool tzadjust_active = false; // This should only be turned on and off again for specific presentations of targetdates (e.g. see fzgraphhtml).
+
+    bool batchmode_constraints_active = true; // Apply safeguard constraints in Graphmodify.cpp/hpp:Graph_modify_batch_node_targetdates().
+    time_t T_suspiciously_large = 4102473600; // 2100-01-01 00:00:00 (Requires 64-bit Unix time_t.)
 
     void set_all_semaphores(int sval);
 
@@ -906,10 +919,17 @@ public:
     void set_server_port(uint16_t _portnumber) { port_number = _portnumber; }
     std::string get_server_port_str() const { return std::to_string(port_number); }
     std::string get_server_full_address() const { return get_server_IPaddr() + ':' + get_server_port_str(); }
+
     void set_tz_adjust(long tzadjust_seconds) { t_tzadjust = tzadjust_seconds; }
     void set_tzadjust_active(bool activated) { tzadjust_active = activated; }
     time_t tz_adjust(time_t t) const { return tzadjust_active ? t + t_tzadjust : t; }
+
     Boolean_Tag_Flags::boolean_flag find_category_tag(Node_ID_key nkey) const;
+
+    void set_batchmode_constraints_active(bool activated) { batchmode_constraints_active = activated; }
+    bool apply_batchmode_constraints() const { return batchmode_constraints_active; }
+    void set_T_suspiciously_large(time_t t_too_large) { T_suspiciously_large = t_too_large; }
+    bool t_suspiciously_large(time_t t) const { return t >= T_suspiciously_large; }
 
     /// friend (utility) functions
     friend bool identical_Graphs(Graph & graph1, Graph & graph2, std::string & trace);

@@ -25,10 +25,10 @@ namespace fz {
  *       also result in loading of the Named Node Lists cache.
  * 
  * @param remove_on_exit The shared memory is deleted when the calling program exits.
- * @param persistent_cache Initial value for Graph::persistent_NNL and determines if the cache is also loaded.
+ * @param graph_config_ptr Optional pointer to Graph configuration options (nullptr means use defaults).
  * @return Pointer to a valid Graph data structure in shared memory.
  */
-Graph * Graph_access::request_Graph_copy(bool remove_on_exit, bool persistent_cache, long tzadjust_seconds) {
+Graph * Graph_access::request_Graph_copy(bool remove_on_exit, Graph_Config_Options * graph_config_ptr) {
 //std::unique_ptr<Graph> Graph_access::request_Graph_copy() {
     if (!is_server) {
         VERBOSEOUT("\n*** This program is still using a temporary direct-load of Graph data.");
@@ -43,8 +43,9 @@ Graph * Graph_access::request_Graph_copy(bool remove_on_exit, bool persistent_ca
     if (!graphptr)
         return nullptr;
 
-    graphptr->set_Lists_persistence(persistent_cache);
-    graphptr->set_tz_adjust(tzadjust_seconds);
+    if (graph_config_ptr != nullptr) {
+        graph_config_ptr->set_all(graphptr);
+    }
 
     //std::unique_ptr<Graph> graphptr = std::make_unique<Graph>();
 
@@ -123,10 +124,10 @@ void Graph_access::rapid_access_init(Graph &graph, Log &log) {
     log.setup_Chunk_node_caches(graph);
 }
 
-std::pair<Graph*, std::unique_ptr<Log>> Graph_access::request_Graph_and_Log_copies_and_init(bool remove_on_exit, bool persistent_cache) {
+std::pair<Graph*, std::unique_ptr<Log>> Graph_access::request_Graph_and_Log_copies_and_init(bool remove_on_exit, Graph_Config_Options * graph_config_ptr) {
 //std::pair<std::unique_ptr<Graph>, std::unique_ptr<Log>> Graph_access::request_Graph_and_Log_copies_and_init() {
     //std::unique_ptr<Graph> graphptr = request_Graph_copy();
-    Graph * graphptr = request_Graph_copy(remove_on_exit, persistent_cache);
+    Graph * graphptr = request_Graph_copy(remove_on_exit, graph_config_ptr);
     std::unique_ptr<Log> logptr = request_Log_copy();
 
     if ((graphptr != nullptr) && (logptr != nullptr)) {

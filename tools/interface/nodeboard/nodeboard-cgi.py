@@ -76,6 +76,8 @@ progress_analysis = form.getvalue('P')
 calendar_file = form.getvalue('c')
 header_arg = form.getvalue('H')
 vertical_multiplier = form.getvalue('M')
+max_columns = form.getvalue('C')
+max_rows = form.getvalue('r')
 
 if filter_string:
     include_filter_string = ' -F %s' % filter_string
@@ -93,6 +95,14 @@ if progress_analysis:
     include_progress_analysis = ' -P'
 else:
     include_progress_analysis = ''
+if max_rows:
+    include_max_rows = ' -r %s' % max_rows
+else:
+    include_max_rows = ''
+if max_columns:
+    include_max_columns = ' -C %s' % max_columns
+else:
+    include_max_columns = ''
 
 # *** OBTAIN THIS SOMEHOW!
 #with open('./server_address','r') as f:
@@ -176,9 +186,9 @@ def show_node_dependencies_board():
     #       on STDOUT for ease of regenerating by reloading.
     outpath = '/var/www/webdata/formalizer/node_dependencies_kanban.html'
     if node_dependencies_tree:
-        thecmd = f"./nodeboard -G -n {node_dependencies} {include_filter_string} {include_show_completed} {include_threads} {include_progress_analysis} -q -o {outpath}"
+        thecmd = f"./nodeboard -G -n {node_dependencies} {include_filter_string} {include_show_completed} {include_threads} {include_progress_analysis} {include_max_columns} {include_max_rows} -q -o {outpath}"
     elif node_superiors_tree:
-        thecmd = f"./nodeboard -g -n {node_dependencies} {include_filter_string} {include_show_completed} {include_threads} {include_progress_analysis} -q -o {outpath}"
+        thecmd = f"./nodeboard -g -n {node_dependencies} {include_filter_string} {include_show_completed} {include_threads} {include_progress_analysis} {include_max_columns} {include_max_rows} -q -o {outpath}"
     else:
         thecmd = f"./nodeboard -n {node_dependencies} {include_filter_string} {include_show_completed} -q -o {outpath}"
     success, res = try_command_call(thecmd, print_result=False)

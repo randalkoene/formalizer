@@ -716,12 +716,28 @@ bool Graph_modify_batch_node_targetdates(Graph & graph, const std::string & grap
     //Batchmod_targetdates & batchmodtd = *(gmoddata.batchmodtd_ptr.get());
     //VERYVERBOSEOUT("Batch with "+std::to_string(batchmodtd.tdnkeys_num)+" Nodes and target dates received.\n");
     VERYVERBOSEOUT("Batch with "+std::to_string(gmoddata.batchmodtd_ptr->tdnkeys_num)+" Nodes and target dates received.\n");
+
+    time_t t_now = ActualTime();
+
     for (size_t i = 0; i < gmoddata.batchmodtd_ptr->tdnkeys_num; ++i) {
         Node_ptr node_ptr = graph.Node_by_id(gmoddata.batchmodtd_ptr->tdnkeys[i].nkey);
         if (!node_ptr) {
             ERRRETURNFALSE(__func__, "Node "+gmoddata.batchmodtd_ptr->tdnkeys[i].nkey.str()+" not found in Graph");
         }
-        node_ptr->set_targetdate(gmoddata.batchmodtd_ptr->tdnkeys[i].td);
+        time_t new_targetdate = gmoddata.batchmodtd_ptr->tdnkeys[i].td;
+        if (graph.apply_batchmode_constraints()) {
+            // Detect odd new targetdate values to prevent possible corruption of
+            // target dates of a large number of Nodes at once.
+            if ((new_targetdate < t_now) || (graph.t_suspiciously_large(new_targetdate))) {
+                ADDERROR(__func__, "Skipping modification of Node "+node_ptr->get_id_str()+" targetdate! The new targetdate proposed ("
+                    + std::to_string(new_targetdate) + ", i.e. " + TimeStampYmdHM(new_targetdate)
+                    + ") is either passed or suspiciously large.");
+            } else {
+                node_ptr->set_targetdate(new_targetdate);
+            }
+        } else {
+            node_ptr->set_targetdate(new_targetdate);
+        }
     }
     VERYVERBOSEOUT("Batch target dates updated.\n");
 

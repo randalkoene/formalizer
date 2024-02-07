@@ -17,6 +17,9 @@
 #include "Graphinfo.hpp"
 #include "templater.hpp"
 
+#define DEFAULTMAXCOLS 100
+#define DEFAULTMAXROWS 100
+
 using namespace fz;
 
 enum flow_options {
@@ -120,6 +123,9 @@ struct nodeboard: public formalizer_standard_program {
     std::string card_width = "240px";
     std::string card_height = "240px";
 
+    unsigned int max_columns = DEFAULTMAXCOLS;
+    unsigned int max_rows = DEFAULTMAXROWS;
+
     std::string output_path;
 
     std::vector<CSV_Data_Day> csv_data_vec;
@@ -152,7 +158,7 @@ struct nodeboard: public formalizer_standard_program {
 
     Graph & graph();
 
-    std::string build_nodeboard_cgi_call(flow_options _floption, bool _threads, bool _showcompleted, bool _progressanalysis, float multiplier = 1.0);
+    std::string build_nodeboard_cgi_call(flow_options _floption, bool _threads, bool _showcompleted, bool _progressanalysis, float multiplier = 1.0, unsigned int maxcols = DEFAULTMAXCOLS, unsigned int maxrows = DEFAULTMAXROWS);
 
     bool render_init();
 

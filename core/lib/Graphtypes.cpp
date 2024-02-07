@@ -1255,6 +1255,15 @@ bool Named_Node_List::move_to_position(unsigned int from_position, unsigned int 
     return true;
 }
 
+bool Graph_Config_Options::set_all(Graph * graph_ptr) {
+    if (!graph_ptr) return false;
+    graph_ptr->set_Lists_persistence(persistent_NNL);
+    graph_ptr->set_tz_adjust(tzadjust_seconds);
+    graph_ptr->set_T_suspiciously_large(T_suspiciously_large);
+    graph_ptr->set_batchmode_constraints_active(batchmode_constraints_active);
+    return true;
+}
+
 std::vector<std::string> Graph::get_List_names() const {
     std::vector<std::string> names_vec;
     for (const auto & [nls, nnl] : namedlists) {

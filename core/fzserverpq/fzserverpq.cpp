@@ -271,11 +271,13 @@ bool fzs_configurable::set_parameter(const std::string & parlabel, const std::st
     // *** You could also implement try-catch here to gracefully report problems with configuration files.
     CONFIG_TEST_AND_SET_PAR(default_to_localhost, "default_to_localhost", parlabel, (parvalue == "true"));
     CONFIG_TEST_AND_SET_PAR(port_number, "port_number", parlabel, std::stoi(parvalue));
-    CONFIG_TEST_AND_SET_PAR(persistent_NNL, "persistent_NNL", parlabel, (parvalue != "false"));
     CONFIG_TEST_AND_SET_PAR(www_file_root, "www_file_root", parlabel, parse_www_file_roots(parvalue));
     CONFIG_TEST_AND_SET_PAR(request_log, "request_log", parlabel, parvalue);
     CONFIG_TEST_AND_SET_PAR(predefined_CGIbg, "predefined_CGIbg", parlabel, parse_predefined_CGIbg(parvalue)); // E.g. from "fzbackup-mirror-to-github.sh,fzinfo"
-    CONFIG_TEST_AND_SET_PAR(tzadjust_seconds, "timezone_offset_hours", parlabel, -3600*std::stoi(parvalue));
+    CONFIG_TEST_AND_SET_PAR(graphconfig.persistent_NNL, "persistent_NNL", parlabel, (parvalue != "false"));    
+    CONFIG_TEST_AND_SET_PAR(graphconfig.tzadjust_seconds, "timezone_offset_hours", parlabel, -3600*std::stoi(parvalue));
+    CONFIG_TEST_AND_SET_PAR(graphconfig.batchmode_constraints_active, "batchmode_constraints_active", parlabel, (parvalue != "false"));
+    CONFIG_TEST_AND_SET_PAR(graphconfig.T_suspiciously_large, "T_suspiciously_large", parlabel, std::stol(parvalue));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
@@ -361,7 +363,7 @@ void load_Graph_and_stay_resident() {
     }
 
     // Load the graph and make the pointer available for handlers to use.
-    fzs.graph_ptr = fzs.ga.request_Graph_copy(true, fzs.config.persistent_NNL, fzs.config.tzadjust_seconds);
+    fzs.graph_ptr = fzs.ga.request_Graph_copy(true, &fzs.config.graphconfig);
     if (!fzs.graph_ptr) {
         standard_error("Unable to load Graph", __func__);
         RETURN_AFTER_UNLOCKING;
