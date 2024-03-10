@@ -129,6 +129,8 @@ struct nodeboard: public formalizer_standard_program {
     unsigned int max_columns = DEFAULTMAXCOLS;
     unsigned int max_rows = DEFAULTMAXROWS;
 
+    bool minimize_grid = true;
+
     std::string output_path;
 
     std::vector<CSV_Data_Day> csv_data_vec;
@@ -169,6 +171,8 @@ struct nodeboard: public formalizer_standard_program {
 
     bool to_output(const std::string & rendered_board);
 
+    bool filtered_out(const Node * node_ptr, std::string & node_text) const;
+
     bool get_Node_card(const Node * node_ptr, std::string & rendered_cards);
 
     Node_render_result get_Node_alt_card(const Node * node_ptr, std::time_t tdate, std::string & rendered_cards, Node_Subtree * subtree_ptr = nullptr);
@@ -204,6 +208,8 @@ struct nodeboard: public formalizer_standard_program {
     std::string call_comment_string();
 
     bool make_multi_column_board(const std::string & rendered_columns, template_id_enum board_template = kanban_board_temp, bool specify_rows = false, const std::string & col_width = " 240px", const std::string & container_width = "230px", const std::string & card_width = "220px", const std::string & card_height = "390px");
+
+    std::string with_and_without_inactive_Nodes_buttons();
 
 };
 

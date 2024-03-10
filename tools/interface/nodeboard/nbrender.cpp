@@ -67,11 +67,11 @@ nodeboard::nodeboard():
     output_path("/var/www/html/formalizer/test_node_card.html"),
     graph_ptr(nullptr) {
 
-    add_option_args += "RGgn:L:D:l:t:m:f:c:Ii:F:H:TPb:M:p:C:o:S:";
+    add_option_args += "RGgn:L:D:l:t:m:f:c:Ii:F:H:TPb:M:p:C:S:Xo:";
     add_usage_top += " [-R] [-G|-g] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
         " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-i <topic_id>,...] [-F <substring>]"
         " [-H <board-header>] [-T] [-P] [-b <before>] [-M <multiplier>] [-p <progress-state-file>] [-S <size-list>]"
-        " [-C <max-columns>] [-r <max-rows>] [-o <output-file|STDOUT>]";
+        " [-C <max-columns>] [-r <max-rows>] [-X] [-o <output-file|STDOUT>]";
 }
 
 void nodeboard::usage_hook() {
@@ -108,6 +108,7 @@ void nodeboard::usage_hook() {
         "       E.g. '260px,250px,240px,240px'\n"
         "    -C Max number of columns (default: 100)\n"
         "    -r Max number of rows (default: 100)\n"
+        "    -X Fully expanded grid (do not minimize rows and columns)\n"
         "    -o Output to file (or STDOUT).\n"
         "       Default: /var/www/html/formalizer/test_node_card.html\n"
         "\n"
@@ -253,6 +254,11 @@ bool nodeboard::options_hook(char c, std::string cargs) {
 
         case 'r': {
             max_rows = atoi(cargs.c_str());
+            return true;
+        }
+
+        case 'X': {
+            minimize_grid = false;
             return true;
         }
 
@@ -442,27 +448,37 @@ bool nodeboard::to_output(const std::string & rendered_board) {
     return true;
 }
 
-bool nodeboard::get_Node_card(const Node * node_ptr, std::string & rendered_cards) {
-    if (!node_ptr) {
-        return false;
-    }
-
+// Returns true if filtered out or the Node text content if not filtered out.
+bool nodeboard::filtered_out(const Node * node_ptr, std::string & node_text) const {
     if ((!show_completed) && (!node_ptr->is_active())) {
         return true;
     }
 
     if (!filter_topics.empty()) {
         if (!node_ptr->in_one_of_topics(filter_topics)) {
-            return node_not_rendered;
+            return true;
         }
     }
 
-    std::string node_text = node_ptr->get_text();
+    node_text = node_ptr->get_text();
     if (!filter_substring.empty()) {
         std::string excerpt = node_text.substr(0, filter_substring_excerpt_length);
-        if (excerpt.find(filter_substring)==std::string::npos) {
+        if (excerpt.find(filter_substring) == std::string::npos) {
             return true;
         }
+    }
+
+    return false;
+}
+
+bool nodeboard::get_Node_card(const Node * node_ptr, std::string & rendered_cards) {
+    if (!node_ptr) {
+        return false;
+    }
+
+    std::string node_text;
+    if (filtered_out(node_ptr, node_text)) {
+        return true;
     }
 
     // For each node: Set up a map of content to template position IDs.
@@ -493,22 +509,9 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
         return node_render_error;
     }
 
-    if ((!show_completed) && (!node_ptr->is_active())) {
+    std::string node_text;
+    if (filtered_out(node_ptr, node_text)) {
         return node_not_rendered;
-    }
-
-    if (!filter_topics.empty()) {
-        if (!node_ptr->in_one_of_topics(filter_topics)) {
-            return node_not_rendered;
-        }
-    }
-
-    std::string node_text = node_ptr->get_text();
-    if (!filter_substring.empty()) {
-        std::string excerpt = node_text.substr(0, filter_substring_excerpt_length);
-        if (excerpt.find(filter_substring)==std::string::npos) {
-            return node_not_rendered;
-        }
     }
 
     // For each node: Set up a map of content to template position IDs.
@@ -1043,6 +1046,21 @@ bool nodeboard::make_multi_column_board(const std::string & rendered_columns, te
     return false;
 }
 
+std::string nodeboard::with_and_without_inactive_Nodes_buttons() {
+    std::string no_inactive_url = build_nodeboard_cgi_call(flowcontrol, threads, false, progress_analysis, vertical_multiplier, max_columns, max_rows);
+    std::string with_inactive_url = build_nodeboard_cgi_call(flowcontrol, threads, true, progress_analysis, vertical_multiplier, max_columns, max_rows);
+    std::string refresh_button;
+    std::string alt_button;
+    if (show_completed) {
+        refresh_button = make_button(with_inactive_url, "Refresh", true);
+        alt_button = make_button(no_inactive_url, "Exclude Completed/Inactive", false);
+    } else {
+        refresh_button = make_button(no_inactive_url, "Refresh", true);
+        alt_button = make_button(with_inactive_url, "Include Completed/Inactive", false);
+    }
+    return refresh_button+alt_button;
+}
+
 bool node_board_render_random_test(nodeboard & nb) {
     if (!nb.render_init()) {
         return false;
@@ -1073,31 +1091,6 @@ bool node_board_render_random_test(nodeboard & nb) {
     }
 
     return nb.make_simple_grid_board(rendered_cards);
-}
-
-// *** TODO: Replace this with something that uses the make_button and build_nodeboard_cgi_call functions.
-std::string with_and_without_inactive_Nodes_buttons(const std::string & flow_request, const std::string & extra_options, bool current_page_shows_inactive) {
-    std::string with_inactive(
-        "<button class=\"button button1\" onclick=\"window.open('/cgi-bin/nodeboard-cgi.py?"
-        + flow_request
-        + extra_options
-        + "&I=true'");
-    std::string without_inactive(
-        "<button class=\"button button1\" onclick=\"window.open('/cgi-bin/nodeboard-cgi.py?"
-        + flow_request
-        + extra_options
-        + "'");
-    if (current_page_shows_inactive) {
-        with_inactive += ",'_self');\">Refresh</button>";
-        without_inactive += ");\">Exclude Completed/Inactive</button>";
-        with_inactive += without_inactive;
-        return with_inactive;
-    } else {
-        with_inactive += ");\">Include Completed/Inactive</button>";
-        without_inactive += ",'_self');\">Refresh</button>";
-        without_inactive += with_inactive;
-        return without_inactive;
-    }
 }
 
 bool node_board_render_dependencies(nodeboard & nb) {
@@ -1155,7 +1148,7 @@ bool node_board_render_dependencies(nodeboard & nb) {
         }
     }
 
-    nb.post_extra = with_and_without_inactive_Nodes_buttons("n="+nb.node_ptr->get_id_str(), include_filter_substr, nb.show_completed);
+    nb.post_extra = nb.with_and_without_inactive_Nodes_buttons();
 
     return nb.make_multi_column_board(rendered_columns);
 }
@@ -1343,7 +1336,8 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
     std::string threads_option;
     if (nb.threads) threads_option = "&T=true";
 
-    nb.board_title_extra = with_and_without_inactive_Nodes_buttons("D="+nb.list_name, threads_option, nb.show_completed);
+    //nb.board_title_extra = with_and_without_inactive_Nodes_buttons("D="+nb.list_name, threads_option, nb.show_completed);
+    nb.board_title_extra = nb.with_and_without_inactive_Nodes_buttons();
 
     if (nb.threads) {
         nb.board_title_extra += make_button(nb.build_nodeboard_cgi_call(flow_NNL_dependencies, nb.threads, true, true), "With Progress Analysis", false);
@@ -1412,36 +1406,113 @@ struct Node_Grid_Row {
     bool is_legit_row() const { return legit_row == 12345; }
 };
 
+struct Grid_Occupation {
+    unsigned int rows;
+    unsigned int columns;
+    std::unique_ptr<std::vector<bool>> occupied_ptr;
+    unsigned int max_col_used = 0;
+    unsigned int max_row_used = 0;
+    Grid_Occupation(unsigned int r, unsigned int c) {
+        init(r, c);
+    }
+    void init(unsigned int r, unsigned int c) {
+        occupied_ptr = std::make_unique<std::vector<bool>>(r*c, false);
+        rows = r;
+        columns = c;
+    }
+    void reset() {
+        init(rows, columns);
+    }
+    bool get(unsigned int r, unsigned int c) const {
+        if (r >= rows) return false;
+        if (c >= columns) return false;
+        return false;
+        return occupied_ptr->at((r*columns) + c);
+    }
+    bool set(unsigned int r, unsigned int c, bool val, bool allow_expand = true) {
+        if (r >= rows) {
+            if (!allow_expand) return false;
+            if (c >= columns) { // Expand both rows and columns
+                expand(rows*2, columns*2);
+                return set(r, c, val, allow_expand);
+            } else { // Expand rows
+                expand(rows*2, columns);
+                return set(r, c, val, allow_expand);
+            }
+        } else if (c >= columns) { // Possibly expand columns
+            if (!allow_expand) return false;
+            expand(rows, columns*2);
+            return set(r, c, val, allow_expand);
+        }
+        occupied_ptr->at((r*columns) + c) = val;
+        if (r > max_row_used) max_row_used = r;
+        if (c > max_col_used) max_col_used = c;
+        return true;
+    }
+    void copy(const std::unique_ptr<std::vector<bool>> & source, unsigned int r, unsigned int c) {
+        for (unsigned int j = 0; j < r; j++) {
+            for (unsigned int i = 0; i < c; i++) {
+                set(j, i, source->at((j*c) + i));
+            }
+        }
+    }
+    void expand(unsigned int r, unsigned int c) {
+        std::unique_ptr<std::vector<bool>> old_ptr(occupied_ptr.release());
+        unsigned int old_rows = rows;
+        unsigned int old_columns = columns;
+        init(r, c);
+        copy(old_ptr, old_rows, old_columns);
+    }
+    unsigned int columns_used() const {
+        return max_col_used+1;
+    }
+    unsigned int rows_used() const {
+        return max_row_used+1;
+    }
+};
+
 struct Node_Grid {
-    unsigned int col_total = 0;
-    unsigned int row_total = 0;
+    const nodeboard & nb;
+
     std::map<Node_ID_key, Node_Grid_Element> nodes;
     std::vector<Node_Grid_Row> rows;
+    Grid_Occupation occupied;
+
     unsigned int max_columns = 0;
     unsigned int max_rows = 0;
     bool columns_cropped = false;
     bool rows_cropped = false;
 
-    Node_Grid(const Node & top_node, unsigned int maxcolumns, unsigned int maxrows, bool superiors = false) {
-        max_columns = maxcolumns;
-        max_rows = maxrows;
+    std::vector<std::string> errors;
+
+    Node_Grid(const nodeboard & _nb, bool superiors = false): nb(_nb), occupied(16, 256), max_columns(nb.max_columns), max_rows(nb.max_rows) {
+        if (!nb.node_ptr) return;
+
         extend();
-        add_to_row(0, 0, top_node, nullptr);
+        add_to_row(0, 0, *nb.node_ptr, nullptr);
 
         if (superiors) {
-            add_superiors(top_node, 0, 0);
+            add_superiors(*nb.node_ptr, *nb.node_ptr, 0, 0);
         } else {
-            add_dependencies(top_node, 0, 0);
+            add_dependencies(*nb.node_ptr, *nb.node_ptr, 0, 0);
         }
         find_node_spans(rows.size()-1);
     }
 
-    unsigned int num_elements() { return nodes.size(); }
+    //unsigned int num_elements() { return nodes.size(); }
 
-    bool is_in_grid(const Node & node) const {
+    bool is_in_grid_or_seen_before(const Node & node) const {
         return nodes.find(node.get_id().key()) != nodes.end();
     }
 
+    bool is_filtered_out(const Node & node) const {
+        if (!nb.minimize_grid) return false;
+
+        std::string node_text;
+        return nb.filtered_out(&node, node_text);
+    }
+
+    // Placing in the 'nodes' map ensures each Node appears only once in the grid.
     Node_Grid_Element & add(const Node & node, const Node * above, unsigned int _colpos, unsigned int _rowpos) {
         Node_Grid_Element element(node, above, _colpos, _rowpos);
         auto it = nodes.emplace(node.get_id().key(), element).first;
@@ -1449,20 +1520,32 @@ struct Node_Grid {
         return placed_element;
     }
 
-    Node_Grid_Element & add_to_row(unsigned int row_idx, unsigned int col_idx, const Node & node, const Node * above) {
+    // Placing in the 'rows' vector of vectors ensures properly sorted HTML grid output.
+    Node_Grid_Element * add_to_row(unsigned int row_idx, unsigned int col_idx, const Node & node, const Node * above) {
+        if (occupied.get(row_idx, col_idx)) return nullptr; // Safety check!
+
+        if (row_idx >= rows.size()) return nullptr;
+
         Node_Grid_Element & element = add(node, above, col_idx, row_idx);
         rows[row_idx].elements.emplace_back(&element);
-        return element;
+        occupied.set(row_idx, col_idx, true);
+        return &element;
+    }
+
+    void mark_seen(const Node & node) {
+        Node_Grid_Element element(node, nullptr, 0, 0);
+        nodes.emplace(node.get_id().key(), element);
     }
 
     Node_Grid_Row & extend() {
-        Node_Grid_Row row(rows.size());
-        rows.emplace_back(row);
-        row_total = rows.size();
+        rows.emplace_back(rows.size());
         return rows.back();
     }
 
-    unsigned int add_dependencies(const Node & node, unsigned int node_row, unsigned int node_col) {
+    // NOTE: Sometimes, nodes are not placed (e.g. filtered out), in which case the last
+    //       placed node above and the node for which dependencies are parsed on the
+    //       next deeper dive into add_dependencies() are not the same.
+    unsigned int add_dependencies(const Node & node, const Node & placed_above, unsigned int node_row, unsigned int node_col) {
         unsigned int dep_row = node_row + 1;
         if (dep_row >= max_rows) {
             rows_cropped = true;
@@ -1479,22 +1562,28 @@ struct Node_Grid {
             if (edge_ptr) {
                 Node * dep_ptr = edge_ptr->get_dep();
                 if (dep_ptr) {
-                    if (!is_in_grid(*dep_ptr)) { // Unique.
+                    bool placed = false;
+                    if (!is_in_grid_or_seen_before(*dep_ptr)) { // Unique and avoiding infinite self-recursion.
                         if (node_col < max_columns) {
-                            // Add to row.
-                            add_to_row(dep_row, node_col, *dep_ptr, &node);
-                            if (node_col > col_total) {
-                                col_total = node_col;
+                            placed = !is_filtered_out(*dep_ptr);
+                            if (!placed) { // if minimize_grid leave no vacancy
+                                mark_seen(*dep_ptr);
+                                node_col = add_dependencies(*dep_ptr, placed_above, dep_row-1, node_col); // *** Should we do dep_row-1??
+                            } else {
+                                // Add to row.
+                                if (!add_to_row(dep_row, node_col, *dep_ptr, &placed_above)) {
+                                    errors.emplace_back("Failed to place "+dep_ptr->get_id_str());
+                                }
+                                // Depth first search.
+                                node_col = add_dependencies(*dep_ptr, *dep_ptr, dep_row, node_col);
                             }
-                            // Depth first search.
-                            node_col = add_dependencies(*dep_ptr, dep_row, node_col);
                         } else {
                             columns_cropped = true;
                         }
                     }
                     rel_dep_idx++;
                     if (rel_dep_idx < dep_edges.size()) {
-                        node_col++;
+                        if (placed) node_col++;
                     }
                 }
             }
@@ -1502,7 +1591,7 @@ struct Node_Grid {
         return node_col;
     }
 
-    unsigned int add_superiors(const Node & node, unsigned int node_row, unsigned int node_col) {
+    unsigned int add_superiors(const Node & node, const Node & placed_above, unsigned int node_row, unsigned int node_col) {
         unsigned int sup_row = node_row + 1;
         if (sup_row >= max_rows) {
             rows_cropped = true;
@@ -1519,22 +1608,28 @@ struct Node_Grid {
             if (edge_ptr) {
                 Node * sup_ptr = edge_ptr->get_sup();
                 if (sup_ptr) {
-                    if (!is_in_grid(*sup_ptr)) { // Unique.
+                    bool placed = false;
+                    if (!is_in_grid_or_seen_before(*sup_ptr)) { // Unique.
                         if (node_col < max_columns) {
-                            // Add to row.
-                            add_to_row(sup_row, node_col, *sup_ptr, &node);
-                            if (node_col > col_total) {
-                                col_total = node_col;
+                            placed = !is_filtered_out(*sup_ptr);
+                            if (!placed) { // if minimize_grid leave no vacancy
+                                mark_seen(*sup_ptr);
+                                node_col = add_superiors(*sup_ptr, placed_above, sup_row-1, node_col);
+                            } else {
+                                // Add to row.
+                                if (!add_to_row(sup_row, node_col, *sup_ptr, &node)) {
+                                    errors.emplace_back("Failed to place "+sup_ptr->get_id_str());
+                                }
+                                // Depth first search.
+                                node_col = add_superiors(*sup_ptr, *sup_ptr, sup_row, node_col);
                             }
-                            // Depth first search.
-                            node_col = add_superiors(*sup_ptr, sup_row, node_col);
                         } else {
                             columns_cropped = true;
                         }
                     }
                     rel_sup_idx++;
                     if (rel_sup_idx < sup_edges.size()) {
-                        node_col++;
+                        if (placed) node_col++;
                     }
                 }
             }
@@ -1555,6 +1650,14 @@ struct Node_Grid {
                 }
             }
         }
+    }
+
+    std::string errors_str() const {
+        std::string errors_list;
+        for (auto & err : errors) {
+            errors_list += err + '\n';
+        }
+        return errors_list;
     }
 
 };
@@ -1595,7 +1698,7 @@ bool node_board_render_dependencies_tree(nodeboard & nb) {
         return false;
     }
 
-    Node_Grid grid(*nb.node_ptr, nb.max_columns, nb.max_rows);
+    Node_Grid grid(nb);
 
     if (!nb.render_init()) {
         return false;
@@ -1605,10 +1708,11 @@ bool node_board_render_dependencies_tree(nodeboard & nb) {
         nb.board_title = "Dependencies tree of Node "+nb.node_ptr->get_id_str();
     }
 
-    std::string threads_option;
-    if (nb.threads) threads_option = "&T=true";
+    //std::string threads_option;
+    //if (nb.threads) threads_option = "&T=true";
 
-    nb.board_title_extra = with_and_without_inactive_Nodes_buttons("G=true&n="+nb.node_ptr->get_id_str(), threads_option, nb.show_completed);
+    //nb.board_title_extra = with_and_without_inactive_Nodes_buttons("G=true&n="+nb.node_ptr->get_id_str(), threads_option, nb.show_completed);
+    nb.board_title_extra = nb.with_and_without_inactive_Nodes_buttons();
 
     // if (nb.threads) {
     //     nb.board_title_extra +=
@@ -1617,6 +1721,10 @@ bool node_board_render_dependencies_tree(nodeboard & nb) {
     //         "Otherwise, an excerpt of Node content is shown as the thread header.<br>"
     //         "The Nodes in a thread should be a clear set of steps leading to the output.";
     // }
+
+    if (!grid.errors.empty()) {
+        nb.board_title_extra += grid.errors_str();
+    }
 
     show_grid_cropped_conditions(nb, grid);
 
@@ -1646,8 +1754,8 @@ bool node_board_render_dependencies_tree(nodeboard & nb) {
         }
     }
 
-    nb.num_columns = grid.col_total;
-    nb.num_rows = grid.row_total;
+    nb.num_columns = grid.occupied.columns_used(); //grid.col_total;
+    nb.num_rows = grid.occupied.rows_used(); //grid.row_total;
 
     // FZOUT("Number of rows: "+std::to_string(grid.row_total)+'\n');
     // FZOUT("Number of columns: "+std::to_string(grid.col_total)+'\n');
@@ -1663,7 +1771,7 @@ bool node_board_render_superiors_tree(nodeboard & nb) {
         return false;
     }
 
-    Node_Grid grid(*nb.node_ptr, nb.max_columns, nb.max_rows, true);
+    Node_Grid grid(nb, true);
 
     if (!nb.render_init()) {
         return false;
@@ -1673,10 +1781,11 @@ bool node_board_render_superiors_tree(nodeboard & nb) {
         nb.board_title = "Superiors tree of Node "+nb.node_ptr->get_id_str();
     }
 
-    std::string threads_option;
-    if (nb.threads) threads_option = "&T=true";
+    //std::string threads_option;
+    //if (nb.threads) threads_option = "&T=true";
 
-    nb.board_title_extra = with_and_without_inactive_Nodes_buttons("g=true&n="+nb.node_ptr->get_id_str(), threads_option, nb.show_completed);
+    //nb.board_title_extra = with_and_without_inactive_Nodes_buttons("g=true&n="+nb.node_ptr->get_id_str(), threads_option, nb.show_completed);
+    nb.board_title_extra = nb.with_and_without_inactive_Nodes_buttons();
 
     // if (nb.threads) {
     //     nb.board_title_extra +=
@@ -1685,6 +1794,10 @@ bool node_board_render_superiors_tree(nodeboard & nb) {
     //         "Otherwise, an excerpt of Node content is shown as the thread header.<br>"
     //         "The Nodes in a thread should be a clear set of steps leading to the output.";
     // }
+
+    if (!grid.errors.empty()) {
+        nb.board_title_extra += grid.errors_str();
+    }
 
     std::string rendered_grid;
 
@@ -1712,8 +1825,8 @@ bool node_board_render_superiors_tree(nodeboard & nb) {
         }
     }
 
-    nb.num_columns = grid.col_total;
-    nb.num_rows = grid.row_total;
+    nb.num_columns = grid.occupied.columns_used(); //grid.col_total;
+    nb.num_rows = grid.occupied.rows_used(); //grid.row_total;
 
     // FZOUT("Number of rows: "+std::to_string(grid.row_total)+'\n');
     // FZOUT("Number of columns: "+std::to_string(grid.col_total)+'\n');
