@@ -661,6 +661,15 @@ public:
     bool in_topic(const std::string topictag, float * topicrel = nullptr, Topic_Tags * topictags = nullptr);
 
     /**
+     * Reports if the Node is a member of at least one of the Topics that were specified
+     * by Topic ID.
+     * 
+     * @param topics_list A vector of Topic IDs.
+     * @return True if the Node is a member of at least one of the Topics.
+     */
+    bool in_one_of_topics(const std::vector<Topic_ID> topics_list) const;
+
+    /**
      * Returns a Node's Topics and Topic relevance values as a map of Topic tags and floats.
      * 
      * @param topictags Optional pointer to the Topic Tags set to use (uses internal graph reference if nullptr).

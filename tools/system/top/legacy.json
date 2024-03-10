@@ -1,0 +1,32 @@
+{
+    "Legacy System: " : {
+        "EarlyWiz" : {
+            "url" : "/formalizer/earlywiz.html",
+            "window" : "_blank"
+        },
+        "Morning Protocol" : {
+            "url" : "/cgi-bin/fzguide.system-cgi.py?submit=Read",
+            "window" : "_blank"
+        },
+        "Action Protocol" : {
+            "url" : "/cgi-bin/fzguide.system-cgi.py?submit=Read&chapter=ACT&spec_chapter=on",
+            "window" : "_blank"
+        },
+        "LateWiz" : {
+            "url" : "/formalizer/latewiz.html",
+            "window" : "_blank"
+        },
+        "Exercise" : {
+            "url" : "https://docs.google.com/spreadsheets/d/12SfaINJq2-axU9133aNfG8yERbckuBzUyhGdptTRzG4/edit#gid=0",
+            "window" : "_blank"
+        },
+        "DAF &amp; Comm" : {
+            "url" : "https://docs.google.com/spreadsheets/d/1p1lLpNOy6OeBQC_MNpzRqsLCPFEpnaF-ZfEAZ1KlRFc/edit#gid=1467656114",
+            "window" : "_blank"
+        },
+        "Accounting - Temp-New" : {
+            "url" : "https://docs.google.com/spreadsheets/d/1-be-haSP3cqnwinYokcg0x91e8f-_LBT9HQOy9QHhxs/edit#gid=0",
+            "window" : "_blank"
+        }
+    }
+}

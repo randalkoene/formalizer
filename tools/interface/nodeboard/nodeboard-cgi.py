@@ -69,6 +69,7 @@ node_dependencies = form.getvalue('n')
 node_dependencies_tree = form.getvalue('G')
 node_superiors_tree = form.getvalue('g')
 filter_string = form.getvalue('F')
+filter_topics = form.getvalue('i')
 show_completed = form.getvalue('I')
 subtree_list = form.getvalue('D')
 threads = form.getvalue('T')
@@ -83,6 +84,10 @@ if filter_string:
     include_filter_string = ' -F %s' % filter_string
 else:
     include_filter_string = ''
+if filter_topics:
+    include_filter_topics = ' -i %s' % filter_topics
+else:
+    include_filter_topics = ''
 if show_completed == 'true':
     include_show_completed = ' -I'
 else:
@@ -170,7 +175,7 @@ Command was: %s
 '''
 
 def show_sysmet_board(sysmet_json_path:str, sysmet_output_path:str):
-    thecmd = f"./nodeboard -f {sysmet_json_path} {include_filter_string} {include_show_completed} -q -o /var/www/webdata/formalizer{sysmet_output_path}"
+    thecmd = f"./nodeboard -f {sysmet_json_path} {include_filter_string} {include_filter_topics} {include_show_completed} -q -o /var/www/webdata/formalizer{sysmet_output_path}"
     #thecmd = f"./nodeboard -f {sysmet_json_path} -o STDOUT"
     success, res = try_command_call(thecmd, print_result=False)
     #print(res)
@@ -186,11 +191,11 @@ def show_node_dependencies_board():
     #       on STDOUT for ease of regenerating by reloading.
     outpath = '/var/www/webdata/formalizer/node_dependencies_kanban.html'
     if node_dependencies_tree:
-        thecmd = f"./nodeboard -G -n {node_dependencies} {include_filter_string} {include_show_completed} {include_threads} {include_progress_analysis} {include_max_columns} {include_max_rows} -q -o {outpath}"
+        thecmd = f"./nodeboard -G -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_progress_analysis} {include_max_columns} {include_max_rows} -q -o {outpath}"
     elif node_superiors_tree:
-        thecmd = f"./nodeboard -g -n {node_dependencies} {include_filter_string} {include_show_completed} {include_threads} {include_progress_analysis} {include_max_columns} {include_max_rows} -q -o {outpath}"
+        thecmd = f"./nodeboard -g -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_progress_analysis} {include_max_columns} {include_max_rows} -q -o {outpath}"
     else:
-        thecmd = f"./nodeboard -n {node_dependencies} {include_filter_string} {include_show_completed} -q -o {outpath}"
+        thecmd = f"./nodeboard -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} -q -o {outpath}"
     success, res = try_command_call(thecmd, print_result=False)
     #print(REDIRECT % "/node_dependencies_kanban.html")
     if success:

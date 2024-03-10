@@ -39,7 +39,7 @@ fzdashboard fzdsh;
  */
 fzdashboard::fzdashboard() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
     add_option_args += "D:f:o:";
-    add_usage_top += " [-D index|admin|custom:<template-dir>] [-f <json-file>] [-o <output-dir>]";
+    add_usage_top += " [-D index|admin|legacy|custom:<template-dir>] [-f <json-file>] [-o <output-dir>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     //usage_tail.push_back("Extra usage information.\n");
 }
@@ -55,7 +55,7 @@ void fzdashboard::usage_hook() {
           "    -f JSON dashboard definition file path\n"
           "    -o output directory or STDOUT (default in config or current dir)\n"
           "\n"
-          "    The path to JSON definitions for predefined index and admin dashboards\n"
+          "    The path to JSON definitions for predefined index, admin or legacy dashboards\n"
           "    is specified in the fzdashboard configuration file. It is presently\n"
           "    set to: "+fzdsh.config.json_path+'\n');
 }

@@ -27,6 +27,10 @@
             "url" : "/cgi-bin/fzgraphhtml-cgi.py?topics=?",
             "window" : "_blank"
         },
+        "Topic:Roadmap" : {
+            "url" : "/cgi-bin/fzgraphhtml-cgi.py?topic=79",
+            "window" : "_blank"
+        },
         "Calendar" : {
             "url" : "https://calendar.google.com/calendar/?authuser=randal.a.koene@gmail.com",
             "window" : "_blank"
@@ -35,38 +39,14 @@
             "url" : "/cgi-bin/daywiz.py",
             "window" : "_blank"
         },
-        "EarlyWiz" : {
-            "url" : "/formalizer/earlywiz.html",
-            "window" : "_blank"
-        },
-        "Morning Protocol" : {
-            "url" : "/cgi-bin/fzguide.system-cgi.py?submit=Read",
-            "window" : "_blank"
-        },
         "Day Nutrition" : {
             "url" : "/formalizer/day-nutrition.html",
-            "window" : "_blank"
-        },
-        "Action Protocol" : {
-            "url" : "/cgi-bin/fzguide.system-cgi.py?submit=Read&chapter=ACT&spec_chapter=on",
-            "window" : "_blank"
-        },
-        "LateWiz" : {
-            "url" : "/formalizer/latewiz.html",
             "window" : "_blank"
         }
     },
     "NOTITLE" : {
         "Metrics" : {
             "url" : "https://docs.google.com/spreadsheets/d/1_UX286LRCFbp5V1nnNIKMdggfELggocSXy80x-DZtM0/edit#gid=0",
-            "window" : "_blank"
-        },
-        "Exercise" : {
-            "url" : "https://docs.google.com/spreadsheets/d/12SfaINJq2-axU9133aNfG8yERbckuBzUyhGdptTRzG4/edit#gid=0",
-            "window" : "_blank"
-        },
-        "DAF &amp; Comm" : {
-            "url" : "https://docs.google.com/spreadsheets/d/1p1lLpNOy6OeBQC_MNpzRqsLCPFEpnaF-ZfEAZ1KlRFc/edit#gid=1467656114",
             "window" : "_blank"
         },
         "Reward &amp; Positive" : {
@@ -79,10 +59,6 @@
         },
         "Notes on Change" : {
             "url" : "https://docs.google.com/document/d/1lBYknyQHhlhlqYZ3gku7OFTuM5FpFXV62jE2ETOnjv4/edit#heading=h.6algess7d8zh",
-            "window" : "_blank"
-        },
-        "Accounting - Temp-New" : {
-            "url" : "https://docs.google.com/spreadsheets/d/1-be-haSP3cqnwinYokcg0x91e8f-_LBT9HQOy9QHhxs/edit#gid=0",
             "window" : "_blank"
         },
         "Intention Performance" : {
@@ -101,8 +77,122 @@
             "url" : "/integrity.html",
             "window" : "_blank"
         },
+        "Locations" : {
+            "url" : "/locations.html",
+            "window" : "_blank"
+        },
+        "Legacy": {
+            "url" : "/legacy.html",
+            "window" : "_blank"
+        },
         "Help" : {
             "url" : "/formalizer/system-help.html",
+            "window" : "_blank"
+        }
+    },
+    "Current Tracks: " : {
+        "Threads" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?D=threads&T=true",
+            "window" : "_blank"
+        },
+        "Deptree:Everything" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?G=true&n=20101230042609.1&I=true&T=true",
+            "window" : "_blank"
+        },
+        "Deptree:Everything Milestones" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?G=true&n=20101230042609.1&I=true&T=true&i=79",
+            "window" : "_blank"
+        },
+        "Categories:Milestones" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20101230042609.1&F=%5B",
+            "window" : "_blank"
+        },
+        "Board:Everything" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20101230042609.1",
+            "window" : "_blank"
+        },
+        "Board:Everything Milestones" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20101230042609.1&F=[",
+            "window" : "_blank"
+        },
+        "Categories:Active Main" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?f=main2023",
+            "window" : "_blank"
+        },
+        "Graph:Milestones" : {
+            "url" : "/cgi-bin/fzvismilestones-cgi.py?F=%5B&L=true",
+            "window" : "_blank"
+        },
+        "Graph" : {
+            "url" : "/cgi-bin/fzvismilestones-cgi.py",
+            "window" : "_blank"
+        },
+        "Fixing Personal Life" : {
+            "url" : "https://trello.com/b/zUiabFZx",
+            "window" : "_blank"
+        },
+        "FORMALIZER-NEWAL-METHOD" : {
+            "url" : "https://trello.com/b/PEfStDEN",
+            "window" : "_blank"
+        },
+        "Formalizer Tools" : {
+            "url" : "https://trello.com/b/uMW6fb4e",
+            "window" : "_blank"
+        }
+    },
+    "System Boards: " : {
+        "Main Categories" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?f=main2023",
+            "window" : "_blank"
+        },
+        "Promises and Challenges" : {
+            "url" : "https://trello.com/b/mnu1VKIn",
+            "window" : "_blank"
+        },
+        "NoC Pers. Roadmap" : {
+            "url" : "https://trello.com/b/cOCvAYh4",
+            "window" : "_blank"
+        },
+        "Metrics" : {
+            "url" : "https://trello.com/b/e3sHVgMT",
+            "window" : "_blank"
+        },
+        "Experiments" : {
+            "url" : "https://trello.com/b/tlgXjZBm",
+            "window" : "_blank"
+        },
+        "Concierge" : {
+            "url" : "https://trello.com/b/ptGdOpzW",
+            "window" : "_blank"
+        },
+        "CARBONCOPIES" : {
+            "url" : "https://trello.com/b/ABTA2xEA",
+            "window" : "_blank"
+        },
+        "Meditation, Mindstate & Flow" : {
+            "url" : "https://trello.com/b/6ZfhOnuN",
+            "window" : "_blank"
+        },
+        "Financials, Income & Capital" : {
+            "url" : "https://trello.com/b/n8YN7jwd",
+            "window" : "_blank"
+        }
+    },
+    "Track Collections: " : {
+        "Health" : {
+            "url" : "https://trello.com/b/uNGTL6aO",
+            "window" : "_blank"
+        },
+        "Solving Debt" : {
+            "url" : "https://trello.com/b/gPUx2CON",
+            "window" : "_blank"
+        },
+        "Writing Projects" : {
+            "url" : "https://trello.com/b/U81T3ycQ",
+            "window" : "_blank"
+        },
+        "Ongoing Opportunities Search" : {
+            "url" : "https://trello.com/b/asCOUeKD",
             "window" : "_blank"
         }
     },
@@ -144,105 +234,11 @@
             "window" : "_blank"
         }
     },
-    "System Boards: " : {
-        "Main Categories" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?f=main2023",
-            "window" : "_blank"
-        },
-        "Promises" : {
-            "url" : "https://trello.com/b/mnu1VKIn",
-            "window" : "_blank"
-        },
-        "Challenges" : {
-            "url" : "https://trello.com/b/mnu1VKIn",
-            "window" : "_blank"
-        },
-        "Threads" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?D=threads&T=true",
-            "window" : "_blank"
-        },
-        "Milestone Categories" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?n=20101230042609.1&F=%5B",
-            "window" : "_blank"
-        },
-        "Roadmap" : {
-            "url" : "https://trello.com/b/cOCvAYh4",
-            "window" : "_blank"
-        },
-        "Metrics" : {
-            "url" : "https://trello.com/b/e3sHVgMT",
-            "window" : "_blank"
-        },
-        "Experiments" : {
-            "url" : "https://trello.com/b/tlgXjZBm",
-            "window" : "_blank"
-        },
-        "Concierge" : {
-            "url" : "https://trello.com/b/ptGdOpzW",
-            "window" : "_blank"
-        },
-        "Meditation, Mindstate & Flow" : {
-            "url" : "https://trello.com/b/6ZfhOnuN",
-            "window" : "_blank"
-        },
-        "Financials, Income & Capital" : {
-            "url" : "https://trello.com/b/n8YN7jwd",
-            "window" : "_blank"
-        }
-    },
-    "Current Tracks: " : {
-        "Graph" : {
-            "url" : "/cgi-bin/fzvismilestones-cgi.py",
-            "window" : "_blank"
-        },
-        "Milestones" : {
-            "url" : "/cgi-bin/fzvismilestones-cgi.py?F=%5B&L=true",
-            "window" : "_blank"
-        },
-        "CARBONCOPIES" : {
-            "url" : "https://trello.com/b/ABTA2xEA",
-            "window" : "_blank"
-        },
-        "Fixing Personal Life" : {
-            "url" : "https://trello.com/b/zUiabFZx",
-            "window" : "_blank"
-        },
-        "FORMALIZER-NEWAL-METHOD" : {
-            "url" : "https://trello.com/b/PEfStDEN",
-            "window" : "_blank"
-        },
-        "Formalizer Tools" : {
-            "url" : "https://trello.com/b/uMW6fb4e",
-            "window" : "_blank"
-        }
-    },
-    "Track Collections: " : {
-        "Health" : {
-            "url" : "https://trello.com/b/uNGTL6aO",
-            "window" : "_blank"
-        },
-        "Financials, Income &amp; Capital" : {
-            "url" : "https://trello.com/b/n8YN7jwd",
-            "window" : "_blank"
-        },
-        "Solving Debt" : {
-            "url" : "https://trello.com/b/gPUx2CON",
-            "window" : "_blank"
-        },
-        "Writing Projects" : {
-            "url" : "https://trello.com/b/U81T3ycQ",
-            "window" : "_blank"
-        },
-        "Ongoing Opportunities Search" : {
-            "url" : "https://trello.com/b/asCOUeKD",
-            "window" : "_blank"
-        },
-        "Locations" : {
-            "url" : "/locations.html",
-            "window" : "_blank"
-        }
-    },
     "Information: " : {
+        "Ready Docs" : {
+            "url" : "/formalizer/ready-docs.html",
+            "window" : "_blank"
+        },
         "Sys:Doc" : {
             "url" : "/formalizer/doc.html",
             "window" : "_blank"
@@ -261,10 +257,6 @@
         },
         "NMA Data Science" : {
             "url" : "https://trello.com/b/aE1VCkGj",
-            "window" : "_blank"
-        },
-        "Ready Docs" : {
-            "url" : "/formalizer/ready-docs.html",
             "window" : "_blank"
         },
         "Weather Service (94122)" : {
@@ -293,8 +285,8 @@
             "url" : "/granular-controls.html",
             "window" : "_blank"
         },
-        "Add Node" : {
-            "url" : "/cgi-bin/fzgraphhtml-cgi.py?edit=new",
+        "Filter Log" : {
+            "url" : "/formalizer/fzloghtml-form.html",
             "window" : "_blank"
         },
         "Search Graph" : {
@@ -305,8 +297,8 @@
             "url" : "/select.html",
             "window" : "_blank"
         },
-        "Filter Log" : {
-            "url" : "/formalizer/fzloghtml-form.html",
+        "Add Node" : {
+            "url" : "/cgi-bin/fzgraphhtml-cgi.py?edit=new",
             "window" : "_blank"
         },
         "Filter &amp; Edit Guide" : {

@@ -191,6 +191,8 @@ nutrition = {
 	'energy drink': [ 113, 'can',],
 	'vla': [ 133, 'serving',],
 	'croissant': [ 231, 'croissant', ],
+	'krentenbol': [ 169, 'krentenbol', ],
+	'bacon': [ 43, 'piece', ],
 }
 
 lowcal_filling_nutritious = [
@@ -330,6 +332,7 @@ breads = [
 	'egg white wraps',
 	'bagette',
 	'croissant',
+	'krentenbol',
 ]
 
 dairy = [
@@ -362,6 +365,7 @@ meat = [
 	'turkey',
 	'hot dog',
 	'liverwurst',
+	'bacon',
 ]
 
 deserts = [

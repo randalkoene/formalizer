@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<HTML>
+
+<HEAD>
+<noscript><meta http-equiv="refresh" content="0; url=/admin-static.html" /></noscript>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="icon" href="/favicon-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<style>
+.mainpanel {
+    float: left;
+    width: 87.5%;
+    padding: 10px;
+}
+.rightpanel {
+    float: right;
+    width: 12.5%;
+    padding: 10px;
+}
+/* clear floats after columns */
+.bodyrow:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+#clock {
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    margin: 20px auto;
+    padding: 0;
+    background: #999;
+    text-align: center;
+    line-height: 40px;
+    color: #000;
+    font-size: 34px;
+    font-family: calibri;
+}
+#duplicate {
+    position: fixed;
+    top: 70px;
+    right: 0px;
+}
+#classical {
+    position: fixed;
+    bottom: 50px;
+    right: 0px;
+}
+#EBM {
+    position: fixed;
+    bottom: 100px;
+    right: 0px;
+}
+#industrial {
+    position: fixed;
+    bottom: 150px;
+    right: 0px;
+}
+#meditative {
+    position: fixed;
+    bottom: 200px;
+    right: 0px;
+}
+#darkmode {
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+}
+.container {
+    position: fixed;
+    top: 120px;
+    right: 0px;
+}
+
+.timerBar {
+  width: 100px;
+  height: 200px; /* in CSS 96px == 1 inch */
+  background-color: darkblue;
+  position: relative;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+
+.timerBarFill {
+  background-color: #196107;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  bottom: 0;
+  transition: 1s;
+}
+
+.timerBarText {
+  position: relative;
+  top: 10px;
+  width: 100%;
+  text-align: center;
+  color: #ffffff;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.5em;
+}
+</style>
+<TITLE>fz: Legacy</TITLE>
+</HEAD>
+<BODY>
+
+<button id="clock" class="button button2">_____</button>
+<button id="duplicate" class="button button2" onclick="window.open('/admin.html','_blank');">duplicate</button>
+
+<div class="bodyrow">
+<div class="mainpanel">
+<!-- <BODY onload="javascript:clockStart()"> -->
+<H1>Formalizer Environment v2.0a - Legacy</H1>
+
+<!-- <p id="clock"></p> -->
+{{ button-sections }}
+<button id="darkmode" class="button button2" onclick="switch_light_or_dark();">Light / Dark</button>
+
+<button id="classical" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPxdxF1BhIPpl6s08kllCLs5','_blank');">classical</button>
+<button id="EBM" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPzyg3_daMmuG79hZ56uHeCy','_blank');">EBM</button>
+<button id="industrial" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPwXtRPtB6dyUFg3CC0Fbreo','_blank');">industrial</button>
+<button id="meditative" class="button button3" onclick="window.open('https://www.youtube.com/playlist?list=PLL1hpR1qBIPypoHjDibsdYpTg606q8V1F','_blank');">meditative</button>
+
+<hr>
+
+<table><tbody><tr>
+<td>Last remote backup: ??</td><td>Last external drive backup: ??</td><td>Last sync of accounts: ??</td>
+</tr></tbody></table>
+
+<hr>
+
+<h3>Documentation &amp; Development</h3>
+
+<ul>
+<li><a href="/formalizer/doxygen-html/index.html">Doxygen Index</a></li>
+</ul>
+
+<ul>
+<li><a href="formalizer/development-tests-INDEX.html">Development Tests Index</a></li>
+</ul>
+
+<hr>
+
+<h3>Formalizer 1.x - dil2al</h3>
+
+<p>Irregularly updated copy of Formalizer 1.x data files: <a href="formalizer/lists.html">Task Log</a></p>
+
+<hr>
+
+<p>Ubuntu-Apache2 Default Page: <a href="ubuntu-apache2-index.html">ubuntu-apache2-index.html</a></p>
+
+<hr>
+</div> <!-- end of mainpanel -->
+
+<div class="rightpanel">
+<section class="container">
+    <div class="timerBar">
+        <div class="timerBarFill">
+        </div>
+        <div class="timerBarTextContainer">
+            <div class="timerBarText"></div>
+        </div>
+    </div>
+</section>
+</div> <!-- end of rightpanel -->
+</div> <!-- end of bodyrow -->
+
+<!-- clock script adapted from https://codepen.io/kase/pen/LxNzWj -->
+<script type="text/javascript">
+function updateClock() {
+    var currentTime = new Date();
+    // Operating System Clock Hours for 24h clock
+    var currentHours = currentTime.getHours();
+    // Operating System Clock Minutes
+    var currentMinutes = currentTime.getMinutes();
+    // Operating System Clock Seconds
+    //var currentSeconds = currentTime.getSeconds();
+    // Adding 0 if Minutes & Seconds is More or Less than 10
+    currentMinutes = (currentMinutes < 10 ? "0" : "") + currentMinutes;
+    //currentSeconds = (currentSeconds < 10 ? "0" : "") + currentSeconds;
+    // display first 24h clock and after line break 12h version
+    var currentTimeString = currentHours + ":" + currentMinutes; // + ":" + currentSeconds;
+    // print clock js in div #clock.
+    document.getElementById("clock").innerHTML = currentTimeString;
+    //var t = setTimeout(function(){ updateClock() }, 1000); /* setting timer */ // this actually blows up the stack!
+}
+// let's skip using jQuery $(document).ready(function () { setInterval(updateClock, 1000); } );
+//updateClock(); // initiate the process
+function clockStart() {
+    updateClock();
+    var idval = setInterval(updateClock, 60000); // update each minute, since we're not showing seconds here
+}
+// +---- start of part that is now actually in fzuistate.js
+var darkmode = 0;
+function set_darkmode() {
+    if (darkmode < 1) {
+        //document.body.style.background = "#ffffff";
+        document.body.removeAttribute('data-theme');
+    } else {
+        //document.body.style.background = "#7f7f7f";
+        document.body.setAttribute('data-theme', 'dark');
+    }
+}
+function switch_light_or_dark() {
+    darkmode = 1 - darkmode;
+    set_darkmode();
+}
+function init_darkmode() {
+    set_darkmode();
+}
+
+//init_darkmode(); // *** The uistate reading function at the bottom already takes care of this.
+
+// Let's make our state storable
+const darkmodebutton = document.getElementById('darkmode');
+function sendData( data ) {
+  const XHR = new XMLHttpRequest(),
+        FD  = new FormData();
+  // Push our data into our FormData object
+  for( name in data ) {
+    FD.append( name, data[ name ] );
+  }
+  // Define what happens on successful data submission
+  XHR.addEventListener( 'load', function( event ) {
+    console.log( 'Darkmode setting stored, response loaded.' );
+  } );
+  // Define what happens in case of error
+  XHR.addEventListener(' error', function( event ) {
+    console.error( 'Failed to communicate darkmode setting.' );
+  } );
+  // Set up our request
+  XHR.open( 'POST', '/cgi-bin/fzuistate.py' );
+  // Send our FormData object; HTTP headers are set automatically
+  XHR.send( FD );
+}
+darkmodebutton.addEventListener( 'click', function()
+    { sendData( { 'darkmode' : darkmode } );
+} )
+
+// Let's read state
+var uistate = new XMLHttpRequest();
+uistate.onreadystatechange = function() {
+    if (this.readyState == 4) {
+        if (this.status == 200) {
+            // Parse UI state
+            console.log(uistate.response);
+            var state_data = uistate.responseText;
+            var json_uistate = JSON.parse(state_data);
+            if (json_uistate.hasOwnProperty('darkmode')) {
+                darkmode = json_uistate['darkmode'];
+                set_darkmode();
+            }
+        } else {
+            console.error('State loading failed.');
+            // default init
+            init_darkmode();
+        }
+    }
+};
+uistate.open( 'GET', '/cgi-bin/fzuistate.py' );
+uistate.send(); // no form data presently means we're requesting state
+// +---- end of part that is now actually in fzuistate.js
+
+const fill = document.querySelector(".timerBarFill");
+const text = document.querySelector(".timerBarText");
+let chunk_seconds = 20*60;
+// a bit pointless, because CSS pixels are not real pixels, better to just redraw each second
+//let secondsperupdate = chunk_seconds / 600; // e.g. 20*60 / 600 = 2 seconds
+let secondsperupdate = 1;
+let secondsLeft = chunk_seconds;
+let heightPct = 100;
+
+// every hundred millisecond, but probably should only do when a line less
+//let countDown = setInterval(tick, secondsperupdate * 1000);
+let countDown = null;
+
+function tick() {
+    secondsLeft -= secondsperupdate;
+    var minsleft = Math.floor(secondsLeft / 60);
+    var secsleft = secondsLeft % 60;
+    var secstr = ("0" + secsleft).substr(-2);
+    text.textContent = `${minsleft}:${secstr}`;
+    if (secondsLeft === 0) {
+        clearInterval(countDown);
+        fill.style.height = 0;
+        return;
+    }
+    heightPct = 100 * secondsLeft / chunk_seconds;
+    //console.log(`${heightPct}%`);
+    fill.style.height = `${heightPct}%`;
+    if (heightPct < 50) {
+        fill.style.backgroundColor = '#f2ed6d';
+    }
+    if (heightPct < 25) {
+        fill.style.backgroundColor = '#ea7267';
+    }
+
+}
+
+window.onload = function() {
+    clockStart();
+
+    let taskserveraddr = 'http://morpheus.local:5000';
+    // subscribe to Task Chunk messages
+    var source = new EventSource(taskserveraddr+'/listen');
+
+    // handle messages
+    source.onmessage = function(event) {
+        // Do something with the data:
+        console.log(event.data);
+    };
+
+    source.addEventListener("TC_start", function(event) {
+        const t = JSON.parse(event.data).t
+        const mins = JSON.parse(event.data).mins
+        console.log('TC_start t = '+ t + ', mins = ' + mins)
+        chunk_seconds = mins * 60;
+        secondsLeft = chunk_seconds;
+        countDown = setInterval(tick, secondsperupdate * 1000);
+    });
+
+    source.addEventListener("TC_end", function(event) {
+        const t = JSON.parse(event.data).t
+        console.log('TC_end t = '+ t)
+        clearInterval(countDown);
+        secondsLeft = 0;
+    });
+
+    source.addEventListener("TC_state", function(event) {
+        const active = JSON.parse(event.data).active
+        console.log('TC_state state = ' + active)
+        const t = JSON.parse(event.data).t
+        if (active) {
+            const mins = JSON.parse(event.data).mins
+            console.log('TC_state ACTIVE t_open = '+ t + ', mins = ' + mins)
+            chunk_seconds = mins * 60;
+            var jststamp = t.substring(0,3) + '-' + t.substring(4,5) + '-' + t.substring(6,7) + 'T' + t.substring(8,9) + ':' + t.substring(10,11) + ':00';
+            var jschunk_start = new Date(jststamp);
+            var jstnow = new Date();
+            var secs_tdiff = (jstnow - jschunk_start) / 1000;
+            if (secs_tdiff >= chunk_seconds) {
+                secondsLeft = 0;
+            } else {
+                secondsLeft = chunk_seconds - secs_tdiff;
+            }
+            countDown = setInterval(tick, secondsperupdate * 1000);
+        } else {
+            console.log('TC_state INACTIVE t_close = '+ t)
+            clearInterval(countDown);
+            secondsLeft = 0;
+        }
+    });
+
+    function request_TCstate() {
+        const XHR = new XMLHttpRequest(),
+        FD  = new FormData();
+        // This needs no actual FormData
+        // Define what happens on successful data submission
+        XHR.addEventListener( 'load', function( event ) {
+            console.log( 'TC status request sent, response loaded.' );
+        } );
+        // Define what happens in case of error
+        XHR.addEventListener(' error', function( event ) {
+            console.error( 'Failed to communicate TC status request.' );
+        } );
+        // Set up our request
+        XHR.open( 'GET', taskserveraddr + '/state' ); // was POST
+        // Send our FormData object; HTTP headers are set automatically
+        XHR.send(); // was ( FD )
+    }
+    // Request the initial Task state.
+    request_TCstate();
+};
+// Could add connection stop detection as in https://medium.com/conectric-networks/a-look-at-server-sent-events-54a77f8d6ff7
+
+</script>
+</BODY>
+
+</HTML>

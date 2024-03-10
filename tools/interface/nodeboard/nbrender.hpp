@@ -109,6 +109,9 @@ struct nodeboard: public formalizer_standard_program {
     unsigned long progress_node_count = 0;
     int last_percentage_state = -1;
 
+    std::vector<Topic_ID> filter_topics;
+    std::string uri_encoded_filter_topics;
+
     std::string filter_substring;
     int filter_substring_excerpt_length = 80;
     std::string uri_encoded_filter_substring;
@@ -151,6 +154,8 @@ struct nodeboard: public formalizer_standard_program {
     virtual bool options_hook(char c, std::string cargs);
 
     bool parse_list_names(const std::string & arg);
+
+    bool parse_filter_topics(const std::string & arg);
 
     bool parse_header_identifier(const std::string & arg, std::string & header, std::string & identifier);
 

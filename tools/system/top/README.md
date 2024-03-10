@@ -5,6 +5,7 @@ generated pages.
 
 - `index.json`: Edit this file to change the main dashboard.
 - `admin.json`: Edit this file to change the admin dashboard.
+- `legacy.json`: Edit this file to change the legacy dashboard.
 - `granular-controls.html`: Edit this HTML document to change the granular controls dashboard.
 - `integrity.html`: TBD.
 - `select.html`: Edit this HTML document to change the standard Node selection page.
@@ -25,7 +26,11 @@ The two commands above will:
 
 For more information, see `fzdashboard -h`.
 
-#### Beware: Refresh the dashboard to use a new Formalizer server address
+## Updating non-standard dashboards defined by a JSON file
+
+(...more here...)
+
+## Beware: Refresh the dashboard to use a new Formalizer server address
 
 Some of the dashboard links include direct TCP calls to the server through
 the server port. The URLs for those links are generated based on the

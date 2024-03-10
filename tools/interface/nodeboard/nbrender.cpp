@@ -67,9 +67,9 @@ nodeboard::nodeboard():
     output_path("/var/www/html/formalizer/test_node_card.html"),
     graph_ptr(nullptr) {
 
-    add_option_args += "RGgn:L:D:l:t:m:f:c:IF:H:TPb:M:p:C:o:S:";
+    add_option_args += "RGgn:L:D:l:t:m:f:c:Ii:F:H:TPb:M:p:C:o:S:";
     add_usage_top += " [-R] [-G|-g] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
-        " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-F <substring>]"
+        " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-i <topic_id>,...] [-F <substring>]"
         " [-H <board-header>] [-T] [-P] [-b <before>] [-M <multiplier>] [-p <progress-state-file>] [-S <size-list>]"
         " [-C <max-columns>] [-r <max-rows>] [-o <output-file|STDOUT>]";
 }
@@ -94,6 +94,7 @@ void nodeboard::usage_hook() {
         "    -c Generate schedule based on CSV file.\n"
         "    -I Include completed Nodes.\n"
         "       This also includes Nodes with completion values < 0.\n"
+        "    -i Filter to show only Nodes in one of the listed topics (by ID)\n"
         "    -F Filter to show only Nodes where the first 80 characters contain the\n"
         "       substring.\n"
         "    -H Board header.\n"
@@ -196,6 +197,11 @@ bool nodeboard::options_hook(char c, std::string cargs) {
             return true;
         }
 
+        case 'i': {
+            uri_encoded_filter_topics = uri_encode(cargs);
+            return parse_filter_topics(cargs);
+        }
+
         case 'F': {
             filter_substring = cargs;
             uri_encoded_filter_substring = uri_encode(filter_substring);
@@ -277,6 +283,14 @@ bool nodeboard::parse_list_names(const std::string & arg) {
         }
     }
     return false;
+}
+
+bool nodeboard::parse_filter_topics(const std::string & arg) {
+    auto v = split(arg, ',');
+    for (auto & el : v) {
+        filter_topics.emplace_back(atoi(el.c_str()));
+    }
+    return filter_topics.size()>0;
 }
 
 bool nodeboard::parse_header_identifier(const std::string & arg, std::string & header, std::string & identifier) {
@@ -402,6 +416,12 @@ std::string nodeboard::build_nodeboard_cgi_call(flow_options _floption, bool _th
     if (maxcols != DEFAULTMAXCOLS) {
         cgi_cmd += "&C="+std::to_string(maxcols);
     }
+    if (!filter_substring.empty()) {
+        cgi_cmd += "&F="+uri_encoded_filter_substring;
+    }
+    if (!filter_topics.empty()) {
+        cgi_cmd += "&i="+uri_encoded_filter_topics;
+    }
     return cgi_cmd;
 }
 
@@ -431,6 +451,12 @@ bool nodeboard::get_Node_card(const Node * node_ptr, std::string & rendered_card
         return true;
     }
 
+    if (!filter_topics.empty()) {
+        if (!node_ptr->in_one_of_topics(filter_topics)) {
+            return node_not_rendered;
+        }
+    }
+
     std::string node_text = node_ptr->get_text();
     if (!filter_substring.empty()) {
         std::string excerpt = node_text.substr(0, filter_substring_excerpt_length);
@@ -449,6 +475,9 @@ bool nodeboard::get_Node_card(const Node * node_ptr, std::string & rendered_card
     if (!filter_substring.empty()) {
         include_filter_substr = "&F="+uri_encoded_filter_substring;
     }
+    if (!filter_topics.empty()) {
+        include_filter_substr += "&i="+uri_encoded_filter_topics;
+    }
     if (show_completed) {
         include_filter_substr += "&I=true";
     }
@@ -466,6 +495,12 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
 
     if ((!show_completed) && (!node_ptr->is_active())) {
         return node_not_rendered;
+    }
+
+    if (!filter_topics.empty()) {
+        if (!node_ptr->in_one_of_topics(filter_topics)) {
+            return node_not_rendered;
+        }
     }
 
     std::string node_text = node_ptr->get_text();
@@ -577,9 +612,14 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
     nodevars.emplace("node-prereqs", prereqs_str);
     nodevars.emplace("node-hrsapplied", hours_applied_str);
 
+    // Show if a Node is inactive, active exact/fixed, or active VTD.
     std::string node_color;
     if (node_ptr->is_active()) {
-        node_color = "w3-light-grey";
+        if (node_ptr->td_fixed() || node_ptr->td_exact()) {
+            node_color = "w3-aqua";
+        } else {
+            node_color = "w3-light-grey";
+        }
     } else {
         node_color = "w3-dark-grey";
     }
@@ -588,6 +628,9 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
     std::string include_filter_substr;
     if (!filter_substring.empty()) {
         include_filter_substr = "&F="+uri_encoded_filter_substring;
+    }
+    if (!filter_topics.empty()) {
+        include_filter_substr += "&i="+uri_encoded_filter_topics;
     }
     if (show_completed) {
         include_filter_substr += "&I=true";
@@ -1078,6 +1121,9 @@ bool node_board_render_dependencies(nodeboard & nb) {
     std::string rendered_columns;
 
     std::string include_filter_substr("&F="+nb.uri_encoded_filter_substring);
+    if (!nb.filter_topics.empty()) {
+        include_filter_substr += "&i="+nb.uri_encoded_filter_topics;
+    }
     if (nb.show_completed) {
         include_filter_substr += "&I=true";
     }

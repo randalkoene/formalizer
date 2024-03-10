@@ -126,6 +126,7 @@ EXECUTABLES += $(TOOLSPATH)/system/earlywiz/earlywiz.py
 # EXECUTABLES += $(TOOLSPATH)/system/metrics/sysmetrics/sysmetrics
 EXECUTABLES += $(TOOLSPATH)/system/metrics/sysmet-extract/sysmet-extract-show.sh
 EXECUTABLES += $(TOOLSPATH)/system/metrics/sysmet-extract/sysmet-extract-term.sh
+EXECUTABLES += $(TOOLSPATH)/system/metrics/dayreview/dayreview.py
 EXECUTABLES += $(TOOLSPATH)/system/requestmanual/requestmanual.py
 # EXECUTABLES += $(TOOLSPATH)/system/schedule/checkmissing/checkmissing
 # EXECUTABLES += $(TOOLSPATH)/system/schedule/checkrequired/checkrequired
