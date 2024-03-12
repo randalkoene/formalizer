@@ -7,6 +7,10 @@
 
 fzserverpq_error_log="/var/www/html/formalizer/formalizer.core.server.error.ErrQ.log"
 
+echo "Stopping a running fzserverpq daemon if one is present..."
+
+fzgraph -z
+
 echo "This looping script is designed to automatically restart a resident"
 echo "fzserverpq if it exited with an error status."
 echo ""
