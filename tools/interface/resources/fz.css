@@ -145,6 +145,7 @@ a.nnl:hover {background:#55db50;}
 .success { background-color: #84ec7a; }
 .fail { background-color: rgb(206, 70, 70);}
 .passed_td { color: red; }
+.inactive_td { color: magenta; }
 .high_req { color: red; }
 .fit_req { color: blue; }
 .col_right_separated td {

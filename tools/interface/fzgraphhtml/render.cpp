@@ -126,6 +126,7 @@ struct line_render_parameters {
     fzgraphhtml_templates templates; ///< Loaded rendering templates in use.
     std::string rendered_page;       ///< String to which the rendered line is appended.
     std::string datestamp;
+    std::string tdstamp;
     size_t actual_num_render = 0;
     time_t t_render = 0; ///< The time when page rendering commenced.
     float day_total_hrs = 0.0;
@@ -275,6 +276,29 @@ struct line_render_parameters {
         return tdpropstr;
     }
 
+    bool visible_time_and_date_with_tz_adjustments(const time_t tdate, time_t & tdate_tzadjusted, std::string & vis_tdstamp_str) {
+        // Prepare time and date stamp.
+        tdstamp = TimeStampYmdHM(tdate);
+        tdate_tzadjusted = tdate;
+        if (fzgh.config.timezone_offset_hours==0) {
+            vis_tdstamp_str = tdstamp;
+        } else {
+            // Time zone adjust.
+            tdate_tzadjusted += (fzgh.config.timezone_offset_hours*3600);
+            // Visible time zone offset.
+            if (fzgh.config.timezone_offset_hours > 0) {
+                vis_tdstamp_str = TimeStampYmdHM(tdate_tzadjusted)+'-'+std::to_string(fzgh.config.timezone_offset_hours);
+            } else {
+                vis_tdstamp_str = TimeStampYmdHM(tdate_tzadjusted)+'+'+std::to_string(-fzgh.config.timezone_offset_hours);
+            }
+        }
+        // Return dayseparator status.
+        if (fzgh.config.tzadjust_day_separators) {
+            return (vis_tdstamp_str.substr(0,8) != datestamp);
+        }
+        return (tdstamp.substr(0,8) != datestamp);
+    }
+
     /**
      * Call this to render parameters of a Node on a single line of a list of Nodes.
      * For example, this selection of data is shown when Nodes are listed in a schedule.
@@ -287,33 +311,21 @@ struct line_render_parameters {
      */
     void render_Node(const Node & node, time_t tdate, bool showdate = true, int list_pos = -1, bool remove_button = false) {
         template_varvalues varvals;
+        // -- Node ID
         std::string nodestr(node.get_id_str());
         varvals.emplace("node_id",nodestr);
+        // -- Topic
         Topic * topic_ptr = graph_ptr->main_Topic_of_Node(node);
         if (topic_ptr) {
             varvals.emplace("topic",topic_ptr->get_tag());
         } else {
             varvals.emplace("topic","MISSING TOPIC!");
         }
-        std::string tdstamp(TimeStampYmdHM(tdate));
+        // -- Prepare target date and time zone
+        time_t tdate_tzadjusted;
         std::string vis_tdstamp_str;
-        time_t tdate_tzadjusted = tdate;
-        if (fzgh.config.timezone_offset_hours==0) {
-            vis_tdstamp_str = tdstamp;
-        } else {
-            tdate_tzadjusted += (fzgh.config.timezone_offset_hours*3600);
-            if (fzgh.config.timezone_offset_hours > 0) {
-                vis_tdstamp_str = TimeStampYmdHM(tdate_tzadjusted)+'-'+std::to_string(fzgh.config.timezone_offset_hours);
-            } else {
-                vis_tdstamp_str = TimeStampYmdHM(tdate_tzadjusted)+'+'+std::to_string(-fzgh.config.timezone_offset_hours);
-            }
-        }
-        bool day_separator = false;
-        if (fzgh.config.tzadjust_day_separators) {
-            day_separator = (vis_tdstamp_str.substr(0,8) != datestamp);
-        } else {
-            day_separator = (tdstamp.substr(0,8) != datestamp);
-        }
+        bool day_separator = visible_time_and_date_with_tz_adjustments(tdate, tdate_tzadjusted, vis_tdstamp_str);
+        // -- Is this the first Node on the next day, and do we show that?
         if (showdate && day_separator) {
             // *** BEWARE: For very extensive Node time spans, tdate may more than a day out, thereby skipping days!
             //     You should probably actually just keep track of day starts from one day to the next and place
@@ -327,6 +339,7 @@ struct line_render_parameters {
                 insert_day_start(tdate);
             }
         }
+        // -- Target date (adjusted and raw) and alert style of required time
         std::string alertstyle;
         if (fzgh.config.show_current_time) {
             if (tdate <= t_render) { // *** This might still need TZADJUST attention.
@@ -334,6 +347,9 @@ struct line_render_parameters {
                 std::string tdstr = "<a href=\"/cgi-bin/fzlink.py?id="+nodestr+"\">"+vis_tdstamp_str+"</a>";
                 varvals.emplace("targetdate",tdstr);
             } else {
+                if (node.is_special_code()) {
+                    alertstyle = " class=\"inactive_td\"";
+                }
                 varvals.emplace("targetdate",vis_tdstamp_str);
             }
         } else {
@@ -341,6 +357,7 @@ struct line_render_parameters {
         }
         varvals.emplace("rawtd",tdstamp);
         varvals.emplace("alertstyle",alertstyle);
+        // -- Required time
         float hours_to_show;
         if (fzgh.config.show_still_required) {
             hours_to_show = node.hours_to_complete(tdate); // This checks if it is a repeat or first instance.
@@ -349,8 +366,9 @@ struct line_render_parameters {
         }
         varvals.emplace("req_hrs",to_precision_string(hours_to_show));
         day_total_hrs += hours_to_show;
-
+        // -- Target date property
         varvals.emplace("tdprop",render_tdproperty(node));
+        // -- Content excerpt
         std::string htmltext(node.get_text().c_str());
         Boolean_Tag_Flags::boolean_flag boolean_tag;
         if (map_of_subtrees.node_in_heads_or_any_subtree(node.get_id().key(), boolean_tag)) {
@@ -362,14 +380,18 @@ struct line_render_parameters {
             varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
         }
         //varvals.emplace("excerpt",remove_html(htmltext).substr(0,fzgh.config.excerpt_length));
+        // -- Server address
         varvals.emplace("fzserverpq",graph_ptr->get_server_full_address());
+        // -- (Possible) source NNL
         varvals.emplace("srclist",srclist);
+        // -- (Possible) position in NNL
         if (list_pos<0) {
             varvals.emplace("list_pos", "");
         } else {
             varvals.emplace("list_pos","&list_pos="+std::to_string(list_pos));
         }
 
+        // -- Render
         if (fzgh.test_cards) {
             rendered_page += env.render(templates[node_pars_in_list_card_temp], varvals);
         } else {
