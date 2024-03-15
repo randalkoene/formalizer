@@ -7,6 +7,8 @@
 
 // std
 #include <map>
+#include <vector>
+#include <cctype>
 
 // core
 #include "html.hpp"
@@ -41,6 +43,32 @@ text_interpretation config_parse_text_interpretation(std::string csflags) {
         }
     }
     return (text_interpretation) bitflags;
+}
+
+bool lowercase_equal(const std::string & lowermatch, const std::string & content, size_t start_at) {
+    size_t content_size = content.size() - start_at;
+    if (content_size < lowermatch.size()) return false;
+
+    for (size_t i = 0; i < lowermatch.size(); i++) {
+        if (tolower(content[i+start_at]) != lowermatch[i]) return false;
+    }
+    return true;
+}
+
+bool lowercase_match_skipping_spaces(const std::vector<std::string> & match_vec, const std::string & content, size_t start_at, size_t * url_start_ptr) {
+    for (size_t i = 0; i < match_vec.size(); i++) {
+        if (!lowercase_equal(match_vec.at(i), content, start_at)) return false;
+        // Note: This also skips spaces and tabs after the last match-part. We
+        //       could add an option not to do this where start_at would be set
+        //       to start_at + match_vec.at(i).size() instead if it's the last
+        //       part.
+        start_at = content.find_first_not_of(" \t", start_at + match_vec.at(i).size());
+        if (start_at == std::string::npos) return false;
+    }
+    if (url_start_ptr) {
+        (*url_start_ptr) = start_at; 
+    }
+    return true;
 }
 
 /**
@@ -252,6 +280,13 @@ std::string convert_special_data_html(const std::string & htmlstr, size_t frompo
     return converted; // it never actually gets here
 }
 
+const std::vector<std::string> href_match_vec = {
+    "a ",
+    "href",
+    "=",
+    "\""
+};
+
 /**
  * Efficiently and reliably filter snippets of HTML text such that they become
  * optimally embeddable within other HTML.
@@ -264,13 +299,15 @@ std::string convert_special_data_html(const std::string & htmlstr, size_t frompo
  * @param detect_links If true then convert recognized data into links.
  * @return A string of embeddable HTML.
  */
-std::string make_embeddable_html(const std::string & htmlstr, text_interpretation interpretation) {
+std::string make_embeddable_html(const std::string & htmlstr, text_interpretation interpretation, const std::vector<std::string> * special_urls, const std::vector<std::string> * replacements) {
     std::string txtstr;
     txtstr.reserve(htmlstr.size()+512);
     size_t pos = 0;
     while (true) {
+        // Is there still a possible HTML tag coming up?
         size_t next_ltpos = htmlstr.find('<',pos);
         if (next_ltpos == std::string::npos) {
+            // Process remaining content.
             if (interpretation & text_interpretation::detect_links) {
                 txtstr += convert_special_data_html(htmlstr, pos, next_ltpos);
             } else {
@@ -279,21 +316,41 @@ std::string make_embeddable_html(const std::string & htmlstr, text_interpretatio
             return txtstr;
         }
 
+        // Process content up to possible HTML tag.
         if (interpretation & text_interpretation::detect_links) {
             txtstr += convert_special_data_html(htmlstr, pos, next_ltpos);
         } else {
             txtstr += htmlstr.substr(pos,next_ltpos-pos);
         }
+        // Does the possible HTML tag close?
         size_t next_gtpos = htmlstr.find('>',next_ltpos);
         if (next_gtpos == std::string::npos) { // tag doesn't close by end of string
             // *** skipping that tag to prevent broken HTML, could try to close it instead
             return txtstr;
         }
+        // Identify significant HTML tags.
+        std::string tagcontent(htmlstr.substr(next_ltpos, (next_gtpos-next_ltpos)+1));
+        if (special_urls && replacements) {
+            if (special_urls->size() == replacements->size()) {
+                size_t url_start;
+                if (lowercase_match_skipping_spaces(href_match_vec, tagcontent, 1, &url_start)) {
+                    for (size_t i = 0; i < special_urls->size(); i++) {
+                        int cmpres = tagcontent.compare(url_start, special_urls->at(i).size(), special_urls->at(i));
+                        if (cmpres == 0) {
+                            tagcontent = tagcontent.substr(0, url_start) + "http://" + replacements->at(i) + tagcontent.substr(url_start+special_urls->at(i).size());
+                            break;
+                        }
+                    }
+                }
+            }
+        }
         // *** if there are problematic tags, this would be where to check for those
         // *** if you need to skip it then do not do the next line
-        txtstr += htmlstr.substr(next_ltpos, (next_gtpos-next_ltpos)+1);
-        pos = next_gtpos + 1;
+        // Process embeddable HTML tag.
+        txtstr += tagcontent;
+        //txtstr += htmlstr.substr(next_ltpos, (next_gtpos-next_ltpos)+1);
 
+        pos = next_gtpos + 1;
         if (pos>htmlstr.size())
             break;
     }

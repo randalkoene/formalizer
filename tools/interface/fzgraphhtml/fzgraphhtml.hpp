@@ -43,6 +43,11 @@ enum output_format {
     output_NUM
 };
 
+enum special_url_replacements: int {
+    fzserverpq_address = 0,
+    special_url_NUM
+};
+
 class fzgh_configurable: public configurable {
 public:
     fzgh_configurable(formalizer_standard_program & fsp): configurable("fzgraphhtml", fsp) {}
@@ -95,6 +100,8 @@ struct fzgraphhtml: public formalizer_standard_program {
     time_t t_last_rendered = 0;
 
     Graph * graph_ptr = nullptr;
+
+    std::vector<std::string> replacements;
 
     bool cache_it = false;
     std::string cache_str;

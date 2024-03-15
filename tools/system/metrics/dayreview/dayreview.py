@@ -14,7 +14,7 @@ endmin = int(endtimestr[-2:])
 endhr = int(endtimestr[:-2])
 
 if endhr < 12:
-	endhr = endhr + 24
+    endhr = endhr + 24
 
 starthours = float(starthr) + (float(startmin)/60.0)
 endhours = float(endhr) + (float(endmin)/60.0)
@@ -43,87 +43,134 @@ the current entry or if you have completed entries.
 print(INSTRUCTIONS)
 
 def get_data(inputstr:str)->tuple:
-	while True:
-		redo=False
-		done=False
-		datastr = input(inputstr)
-		if not datastr:
-			while not redo and not done:
-				redo_or_done = input('Do you wish to [r]edo, or are you [d]one? ')
-				if not redo_or_done:
-					redo=True
-				else:
-					if redo_or_done[0]=='r':
-						redo=True
-					elif redo_or_done[0]=='d':
-						done=True
-					else:
-						redo=True
-		if done:
-			return (False, '')
-		if not redo:
-			return (True, datastr)
+    while True:
+        redo=False
+        done=False
+        datastr = input(inputstr)
+        if not datastr:
+            while not redo and not done:
+                redo_or_done = input('Do you wish to [r]edo, or are you [d]one? ')
+                if not redo_or_done:
+                    redo=True
+                else:
+                    if redo_or_done[0]=='r':
+                        redo=True
+                    elif redo_or_done[0]=='d':
+                        done=True
+                    else:
+                        redo=True
+        if done:
+            return (False, '')
+        if not redo:
+            return (True, datastr)
 
 chunkdata = []
 while True:
 
-	validdata, data = get_data('Hours or minutes in Log Chunk: ')
-	if not validdata:
-		break
-	if '.' in data:
-		try:
-			chunkhours = float(data)
-		except:
-			print('Discarding entry (%s). Not interpretable as hours or minuntes.' % data)
-			continue
-	else:
-		try:
-			chunkhours = int(data)/60.0
-		except:
-			print('Discarding entry (%s). Not interpretable as hours or minuntes.' % data)
-			continue
-	if chunkhours == 0.0:
-		print('Discarding entry (%s), because interval hours are zero.' % str(data))
-		continue
+    validdata, data = get_data('Hours or minutes in Log Chunk: ')
+    if not validdata:
+        break
+    if '.' in data:
+        try:
+            chunkhours = float(data)
+        except:
+            print('Discarding entry (%s). Not interpretable as hours or minuntes.' % data)
+            continue
+    else:
+        try:
+            chunkhours = int(data)/60.0
+        except:
+            print('Discarding entry (%s). Not interpretable as hours or minuntes.' % data)
+            continue
+    if chunkhours == 0.0:
+        print('Discarding entry (%s), because interval hours are zero.' % str(data))
+        continue
 
-	validdata, data = get_data('Type of Chunk ([w]ork, [s]elf-work, [S]ystem/care, [n]ap): ')
-	if not validdata:
-		continue
-	if data[0] not in 'wsSn':
-		print('Discarding entry, because "%s" is an unknown type.' % str(data[0]))
-		continue
-	chunkdata.append( (chunkhours, data[0]) )
-	print('%s Chunks entered.\n' % str(len(chunkdata)))
+    validdata, data = get_data('Type of Chunk ([w]ork, [s]elf-work, [S]ystem/care, [n]ap): ')
+    if not validdata:
+        continue
+    if data[0] not in 'wsSn':
+        print('Discarding entry, because "%s" is an unknown type.' % str(data[0]))
+        continue
+    chunkdata.append( (chunkhours, data[0]) )
+    print('%s Chunks entered.\n' % str(len(chunkdata)))
 
 def sum_of_type(typeid:str)->float:
-	hours = 0.0
-	for i in range(len(chunkdata)):
-		if chunkdata[i][1] == typeid[0]:
-			hours += chunkdata[i][0]
-	return hours
+    hours = 0.0
+    for i in range(len(chunkdata)):
+        if chunkdata[i][1] == typeid[0]:
+            hours += chunkdata[i][0]
+    return hours
 
-selfworkhours = sum_of_type('s')
-workhours = sum_of_type('w')
-systemhours = sum_of_type('S')
-naphours = sum_of_type('n')
+hours_summary = {
+    'self-work': sum_of_type('s'),
+    'work': sum_of_type('w'),
+    'system/care': sum_of_type('S'),
+    'dayspan': wakinghours,
+    'nap': sum_of_type('n'),
+}
+hours_summary['awake'] = hours_summary['dayspan'] - hours_summary['nap']
+hours_summary['sleep'] = 24 - hours_summary['awake']
+hours_summary['other'] = hours_summary['awake'] - (hours_summary['self-work']+hours_summary['work']+hours_summary['system/care'])
 
-otherhours = (wakinghours - naphours) - (selfworkhours + workhours + systemhours)
+intended = { # target, min-lim, max-lim, penalize-above, max-score
+    'self-work': (6.0, 2.0, 8.0, False, 10.0),
+    'work': (6.0, 3.0, 9.0, False, 10.0),
+    'sleep': (7.0, 5.5, 8.5, True, 10.0),
+}
+# No review delivers an automatic score of 0.0,
+# i.e. missing out on 30 points.
 
-print('Self-work hours  : %.2f' % selfworkhours)
-print('Work hours       : %.2f' % workhours)
-print('System/care hours: %.2f' % systemhours)
-#print('Nap hours        : %.2f' % selfworkhours)
-print('\nOther hours      : %.2f' % otherhours)
+def get_intended(htype:str)->float:
+    if htype in intended:
+        return intended[htype][0]
+    return 0.0
+
+def get_minlim(htype:str)->float:
+    if htype in intended:
+        return intended[htype][1]
+    return 0.0
+
+def get_maxlim(htype:str)->float:
+    if htype in intended:
+        return intended[htype][2]
+    return 0.0
+
+print('Summary of hours:')
+print('actual | intended | min-lim | max-lim | type')
+for htype in hours_summary.keys():
+    print(' %5.2f   %5.2f      %5.2f     %5.2f     %s' % (hours_summary[htype], get_intended(htype), get_minlim(htype), get_maxlim(htype), str(htype)))
+
+def get_score(actual: float, scoring_data:tuple)->float:
+    target, minlim, maxlim, penalizeabove, maxscore = scoring_data
+    if actual < minlim: return 0.0
+    if penalizeabove:
+        if actual > maxlim: return 0.0
+    if actual > target:
+        if not penalizeabove: return maxscore
+        ratio_above = (actual - target) / (maxlim - target) # E.g. (8.0 - 6.0) / (9.0 - 6.0) = 2/3
+        reduce_by = ratio_above * (maxscore - 1.0)          # E.g. 2/3 * (10.0 - 1.0) = 6.0
+        return maxscore - reduce_by                         # E.g. 10.0 - 6.0 = 4.0
+    ratio_below = (target - actual) / (target - minlim)     # E.g. (6.0 - 4.0) / (6.0 - 3.0) = 2/3
+    reduce_by = ratio_below * (maxscore - 1.0)              # E.g. 2/3 * (10.0 - 1.0) = 6.0
+    return maxscore - reduce_by                             # E.g. 10.0 - 6.0 = 4.0
+
+totscore = 0.0
+for htype in intended.keys():
+    score = get_score(hours_summary[htype], intended[htype])
+    print('%s score = %.2f' % (str(htype), score))
+    totscore += score
+print('Total score: %.2f' % totscore)
 
 print('\nFormatted for addition to Log:\n\n')
 
 OUTPUTTEMPLATE='The waking day yesterday was from %s to %s, containing about %.2f waking (non-nap) hours. I did %.2f hours of self-work and %.2f hours of work. I did %.2f hours of System and self-care. Other therefore took %.2f hours.'
 
 print(OUTPUTTEMPLATE % (
-		str(starttimestr),
-		str(endtimestr),
-		(wakinghours - naphours),
-		selfworkhours,
-		workhours,
-		systemhours,
-		otherhours,))
+        str(starttimestr),
+        str(endtimestr),
+        hours_summary['awake'],
+        hours_summary['self-work'],
+        hours_summary['work'],
+        hours_summary['system/care'],
+        hours_summary['other'],))

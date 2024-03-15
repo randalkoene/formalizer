@@ -381,7 +381,7 @@ struct line_render_parameters {
         }
         //varvals.emplace("excerpt",remove_html(htmltext).substr(0,fzgh.config.excerpt_length));
         // -- Server address
-        varvals.emplace("fzserverpq",graph_ptr->get_server_full_address());
+        varvals.emplace("fzserverpq", fzgh.replacements[fzserverpq_address]); // graph_ptr->get_server_full_address()
         // -- (Possible) source NNL
         varvals.emplace("srclist",srclist);
         // -- (Possible) position in NNL
@@ -423,7 +423,8 @@ struct line_render_parameters {
             if (fzgh.node_idstr=="NEW") {
                 varvals.emplace("add_to_node","<td>[<a href=\"/cgi-bin/fzgraphhtml-cgi.py?edit=new&topics="+std::string(topic.get_tag().c_str())+"\">add to NEW</a>]</td>");
             } else {
-                varvals.emplace("add_to_node","<td>[<a href=\"http://"+fzgh.graph().get_server_full_address()+"/fz/graph/nodes/"+fzgh.node_idstr+"/topics/add?"+topic.get_tag().c_str()+"=1.0\">add to "+fzgh.node_idstr+"</a>]</td>");
+                // fzgh.graph().get_server_full_address()
+                varvals.emplace("add_to_node","<td>[<a href=\"http://"+fzgh.replacements[fzserverpq_address]+"/fz/graph/nodes/"+fzgh.node_idstr+"/topics/add?"+topic.get_tag().c_str()+"=1.0\">add to "+fzgh.node_idstr+"</a>]</td>");
             }
         } else {
             varvals.emplace("add_to_node","");
@@ -435,7 +436,7 @@ struct line_render_parameters {
     void render_List(const std::string & list_name) {
         template_varvalues varvals;
         varvals.emplace("list_name",list_name);
-        varvals.emplace("fzserverpq",graph_ptr->get_server_full_address());
+        varvals.emplace("fzserverpq", fzgh.replacements[fzserverpq_address]); // graph_ptr->get_server_full_address()
         Named_Node_List_ptr nnl_ptr = graph_ptr->get_List(list_name);
         if (nnl_ptr) {
             varvals.emplace("size",std::to_string(nnl_ptr->size()));
@@ -705,7 +706,7 @@ const std::map<bool, std::string> supdep_active_highlight = {
 
 std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button = false, bool edit_edges = false) {
     std::string sups_str;
-    std::string graphserveraddr = graph.get_server_full_address();
+    std::string graphserveraddr = fzgh.replacements[fzserverpq_address]; // graph.get_server_full_address();
     for (const auto & edge_ptr : node.sup_Edges()) {
         if (edge_ptr) {
             if (fzgh.config.outputformat == output_node) {
@@ -758,7 +759,7 @@ std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button
 
 std::string render_Node_dependencies(Graph & graph, Node & node, bool remove_button = false, bool edit_edges = false) {
     std::string deps_str;
-    std::string graphserveraddr = graph.get_server_full_address();
+    std::string graphserveraddr = fzgh.replacements[fzserverpq_address]; //graph.get_server_full_address();
     for (const auto & edge_ptr : node.dep_Edges()) {
         if (edge_ptr) {
             if (fzgh.config.outputformat == output_node) {
@@ -859,6 +860,10 @@ std::string render_Node_prerequisites_and_provides_capabilities(Node & node) {
     return render_str;
 }
 
+const std::vector<std::string> special_urls = {
+    "@FZSERVER@"
+};
+
 /**
  * Individual Node data rendering.
  * 
@@ -886,12 +891,18 @@ std::string render_Node_data(Graph & graph, Node & node) {
     td_pattern tdpatt = node.get_tdpattern();
 
     nodevars.emplace("node-id", node.get_id_str());
-    nodevars.emplace("fzserverpq",graph.get_server_full_address());
-    nodevars.emplace("T_context",TimeStampYmdHM(node.t_created() - RTt_oneday));
+    nodevars.emplace("fzserverpq", fzgh.replacements[fzserverpq_address]);
+    nodevars.emplace("T_context", TimeStampYmdHM(node.t_created() - RTt_oneday));
     if (fzgh.config.excerpt_requested) {
         nodevars.emplace("node-text", remove_html_tags(node.get_text()).substr(0,fzgh.config.excerpt_length)); // *** must this also have c_str()?
     } else {
-        nodevars.emplace("node-text", make_embeddable_html(node.get_text().c_str(),fzgh.config.interpret_text)); //node.get_text());
+        nodevars.emplace("node-text",
+            make_embeddable_html(
+                node.get_text().c_str(),
+                fzgh.config.interpret_text,
+                &special_urls,
+                &fzgh.replacements
+            ) ); //node.get_text());
     }
     
     nodevars.emplace("comp", to_precision_string(node.get_completion()));
@@ -954,7 +965,7 @@ static const char update_skip_template_B[] = R"USTEMP("> <input type="submit" na
 bool render_new_node_page() {
     ERRTRACE;
 
-    Graph & graph = fzgh.graph();
+    //Graph & graph = fzgh.graph();
     
     // this is where you do the same as in render_Node_data(), with a few extra bits
     render_environment env;
@@ -1019,7 +1030,7 @@ bool render_new_node_page() {
 
     nodevars.emplace("td_every", std::to_string(ndata.tdevery));
     nodevars.emplace("td_span", std::to_string(ndata.tdspan));
-    nodevars.emplace("fzserverpq", graph.get_server_full_address());
+    nodevars.emplace("fzserverpq", fzgh.replacements[fzserverpq_address]); // graph.get_server_full_address()
     nodevars.emplace("topics", fzgh.list_name);
 
     fzgh.config.embeddable = true;
@@ -1132,7 +1143,7 @@ bool render_node_edit() {
 
     nodevars.emplace("td_every", std::to_string(node.get_tdevery()));
     nodevars.emplace("td_span", std::to_string(node.get_tdspan()));
-    nodevars.emplace("fzserverpq", graph.get_server_full_address());
+    nodevars.emplace("fzserverpq", fzgh.replacements[fzserverpq_address]); // graph.get_server_full_address()
     nodevars.emplace("topics", render_Node_topics(graph, node, true));
     nodevars.emplace("bflags", join(node.get_bflags().get_Boolean_Tag_flags_strvec(), ", "));
     nodevars.emplace("NNLs", render_Node_NNLs(graph, node));

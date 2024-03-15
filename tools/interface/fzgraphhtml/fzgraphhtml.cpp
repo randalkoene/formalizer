@@ -463,6 +463,7 @@ int main(int argc, char *argv[]) {
     if (fzgh.update_shortlist) {
         NNLreq_update_shortlist(fzgh.graph().get_server_IPaddr(), fzgh.graph().get_server_port());
     }
+    fzgh.replacements.emplace_back(fzgh.graph().get_server_full_address()); // [fzserverpq_address]
 
     switch (fzgh.flowcontrol) {
 

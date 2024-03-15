@@ -35,6 +35,35 @@ enum text_interpretation: unsigned long {
 text_interpretation config_parse_text_interpretation(std::string csflags);
 
 /**
+ * Compare a lower case match string with part of a content string
+ * in any combination of lower and upper case characters. This is
+ * handy when checking for HTML tags.
+ * 
+ * @param lowermatch A lower case string that must be matched.
+ * @param content A string containing HTML text and tags.
+ * @param start_at Location within content string at which to start matching.
+ * @return True if there is a complete match.
+ */
+bool lowercase_equal(const std::string & lowermatch, const std::string & content, size_t start_at = 0);
+
+/**
+ * Compare a multi-part lower case match string with possible space or
+ * tab separated components with part of a content string in any
+ * combination of lower and upper case characters. For example, use
+ * this to check for a 'a href="' tag specialization.
+ * 
+ * Note: If the multi-part match must contain a space between two parts
+ *       then that space must be included in one of the specified parts,
+ *       e.g. "a " in the example above.
+ * 
+ * @param match_vec Vector of lower case strings that must be matched.
+ * @param content A string containing HTML text and tags.
+ * @param start_at Location within content string at which to start matching.
+ * @return True if there is a complete match.
+ */
+bool lowercase_match_skipping_spaces(const std::vector<std::string> & match_vec, const std::string & content, size_t start_at = 0, size_t * url_start_ptr = nullptr);
+
+/**
  * Remove all HTML tags to create raw text.
  * 
  * Note: At this time, this function does not yet remove text
@@ -70,9 +99,13 @@ std::string remove_html_tags(const std::string & htmlstr);
  * 
  * @param htmlstr A string in HTML format.
  * @param detect_links If true then convert recognized data into links.
+ * @param special_urls An optional pointer to a list of special URL
+ *                     indicators to look for (e.g. @FZSERVER@).
+ * @param replacements Pointer to list of replacement URLs to insert where
+ *                     a special URL occurs.
  * @return A string of embeddable HTML.
  */
-std::string make_embeddable_html(const std::string & htmlstr, text_interpretation interpretation = text_interpretation::raw);
+std::string make_embeddable_html(const std::string & htmlstr, text_interpretation interpretation = text_interpretation::raw, const std::vector<std::string> * special_urls = nullptr, const std::vector<std::string> * replacements = nullptr);
 
 /**
  * Convert a string into a URI-safe string.
