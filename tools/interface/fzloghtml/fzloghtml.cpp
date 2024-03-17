@@ -46,13 +46,14 @@ fzloghtml fzlh;
  */
 fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
                          iscale(interval_none), interval(0), noframe(false), recent_format(most_recent_html) {
-    add_option_args += "n:1:2:a:o:D:H:w:Nc:rRf:ACtF:T:";
-    add_usage_top += " [-n <node-ID>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-A] [-C] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
+    add_option_args += "n:e:1:2:a:o:D:H:w:Nc:rRf:ACtF:T:";
+    add_usage_top += " [-n <node-ID>] [-e <log-stamp>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-A] [-C] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
     usage_tail.push_back(
         "The <time-stamp1>, <time-stamp_2> and <time-stamp> arguments expect standardized\n"
         "Formalizer time stamps, e.g. 202009140614, but will also accept date stamps\n"
         "of analogous form, e.g. 20200914.\n"
+        "A <log-stamp> can be a 12 digit Log chunk ID or a 14+ digit Log entry ID.\n"
         "Without a Node specification, the default is:\n"
         "  start from 24 hours before end of interval\n"
         "  end at most recent Log entry\n"
@@ -74,6 +75,7 @@ fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flow
 void fzloghtml::usage_hook() {
     ga.usage_hook();
     FZOUT("    -n belongs to <node-ID>\n"
+          "    -e one Log entry or chunk with <log-stamp>\n"
           "    -1 start from <time-stamp-1>\n"
           "    -2 end at <time-stamp-2>\n"
           "    -a centered around <time-stamp>\n"
@@ -120,6 +122,29 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
 
     case 'n': {
         filter.nkey = Node_ID_key(cargs);
+        return true;
+    }
+
+    case 'e': {
+        auto dot_pos = cargs.find('.');
+        get_log_entry = (dot_pos != std::string::npos);
+        if (get_log_entry) {
+            chunk_id = ymd_stamp_time(cargs.substr(0, dot_pos));
+            if (chunk_id==RTt_invalid_time_stamp) {
+                VERBOSEERR("Invalid time or date stamp "+cargs.substr(0, dot_pos)+'\n');
+                break;
+            }
+            entry_id = std::atoi(cargs.substr(dot_pos+1).c_str());
+        } else {
+            chunk_id = ymd_stamp_time(cargs);
+            if (chunk_id==RTt_invalid_time_stamp) {
+                VERBOSEERR("Invalid time or date stamp "+cargs+'\n');
+                break;
+            }
+        }
+        filter.t_from = chunk_id;
+        filter.t_to = chunk_id;
+        filter.limit = 1;
         return true;
     }
 

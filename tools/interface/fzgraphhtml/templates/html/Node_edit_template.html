@@ -12,7 +12,7 @@
 <tr>
 <td class="paramtitle">Targetdate: </td><td><input type="number" name="targetdate" min="0", max="999912312359" step="1" value="{{ eff_td }}"> </td><td>(<code>YYYYmmddHHMM</code> format),
 or <input type="datetime-local" id="alt_targetdate" name="alt_targetdate" min="1990-01-01T00:00:00" value="{{ eff_td_date }}T{{ eff_td_time }}"> (local format),
-or <input type="date" id="alt2_targetdate" name="alt2_targetdate" min="1990-01-01" value="{{ eff_td_date }}"> <input type="time" id="alt2_targettime" name="alt2_targettime" value="{{ eff_td_time }}"><br>
+or <input type="date" id="alt2_targetdate" name="alt2_targetdate" min="1990-01-01" value="{{ eff_td_date }}"> <input type="time" id="alt2_targettime" name="alt2_targettime" value="{{ eff_td_time }}"> {{ earliest-superior }}<br>
 <input type="hidden" name="orig_td" value="{{ eff_td }}"></td>
 <!-- <script>
 document.getElementById('alt_targetdate').value = new Date().toISOString().substring(0, 10);
@@ -60,7 +60,7 @@ Special codes: -1 = obsolete, -2 = replaced, -3 = done differently, -4 = no long
 <table><tr>
 <td><textarea cols="120" rows="24" name="text">
 {{ node-text }}</textarea></td>
-<td valign="top" width="30%">Tags legend:<p>@TZADJUST@: time-zone offset automatically applied, e.g. a targetdate at 4 pm in PST will appear as 4pm in CET in the Schedule.</td>
+<td valign="top" width="30%">Tags legend:<p>@TZADJUST@: time-zone offset automatically applied, e.g. a targetdate at 4 pm in PST will appear as 4pm in CET in the Schedule.<p>@VISOUTPUT:...@: Excerpt of Node content that can be used as title in a Threads board.<p>@PREREQS:...@: Comma-separated list of prerequisites needed from Node dependencies to complete this Node.<p>@PROVIDES:...@: Comma-separated list of achievements (completed requirements) provided when this Node is completed.<p>@WORK@, @SELFWORK@: Tag used to set a Boolean Tag Flag on the Node.</td>
 </tr></table>
 </form>
 </td>

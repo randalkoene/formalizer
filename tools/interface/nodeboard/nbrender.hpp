@@ -97,8 +97,16 @@ struct nodeboard: public formalizer_standard_program {
     Topic_ID topic_id = 0;
 
     bool show_completed = false;
+    bool show_zero_required = false;
     bool threads = false;
     bool progress_analysis = false;
+
+    time_t t_now = 0;
+
+    bool detect_tdorder = false;
+    bool detect_tdfar = false;
+    bool detect_tdbad = false;
+
     bool show_dependencies_tree = false;
     bool show_superiors_tree = false;
 
@@ -108,6 +116,9 @@ struct nodeboard: public formalizer_standard_program {
     unsigned long node_total = 0;
     unsigned long progress_node_count = 0;
     int last_percentage_state = -1;
+
+    bool highlight_topic_and_valuation = false;
+    Topic_ID highlight_topic = 0;
 
     std::vector<Topic_ID> filter_topics;
     std::string uri_encoded_filter_topics;
@@ -152,6 +163,8 @@ struct nodeboard: public formalizer_standard_program {
     virtual void usage_hook();
 
     bool set_grid_and_card_sizes(const std::string & cargs);
+
+    bool parse_error_detection_list(const std::string & cargs);
 
     virtual bool options_hook(char c, std::string cargs);
 

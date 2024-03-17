@@ -76,10 +76,23 @@ threads = form.getvalue('T')
 progress_analysis = form.getvalue('P')
 calendar_file = form.getvalue('c')
 header_arg = form.getvalue('H')
+highlight_topic = form.getvalue('B')
 vertical_multiplier = form.getvalue('M')
 max_columns = form.getvalue('C')
 max_rows = form.getvalue('r')
+tdorder = form.getvalue('tdorder')
+tdbad = form.getvalue('tdbad')
+tdfar = form.getvalue('tdfar')
 
+include_td_detect = ''
+if tdorder:
+    include_td_detect += 'tdorder,'
+if tdbad:
+    include_td_detect += 'tdbad,'
+if tdfar:
+    include_td_detect += 'tdfar,'
+if include_td_detect != '':
+    include_td_detect = ' -e "'+include_td_detect[:-1]+'"'
 if filter_string:
     include_filter_string = ' -F %s' % filter_string
 else:
@@ -100,6 +113,10 @@ if progress_analysis:
     include_progress_analysis = ' -P'
 else:
     include_progress_analysis = ''
+if highlight_topic:
+    include_highlight_topic = ' -B %s' % highlight_topic
+else:
+    include_highlight_topic = ''
 if max_rows:
     include_max_rows = ' -r %s' % max_rows
 else:
@@ -191,9 +208,9 @@ def show_node_dependencies_board():
     #       on STDOUT for ease of regenerating by reloading.
     outpath = '/var/www/webdata/formalizer/node_dependencies_kanban.html'
     if node_dependencies_tree:
-        thecmd = f"./nodeboard -G -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_progress_analysis} {include_max_columns} {include_max_rows} -q -o {outpath}"
+        thecmd = f"./nodeboard -G -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_progress_analysis} {include_td_detect} {include_highlight_topic} {include_max_columns} {include_max_rows} -q -o {outpath}"
     elif node_superiors_tree:
-        thecmd = f"./nodeboard -g -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_progress_analysis} {include_max_columns} {include_max_rows} -q -o {outpath}"
+        thecmd = f"./nodeboard -g -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_progress_analysis} {include_td_detect} {include_highlight_topic} {include_max_columns} {include_max_rows} -q -o {outpath}"
     else:
         thecmd = f"./nodeboard -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} -q -o {outpath}"
     success, res = try_command_call(thecmd, print_result=False)

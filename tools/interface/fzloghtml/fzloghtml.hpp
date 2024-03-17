@@ -65,6 +65,10 @@ struct fzloghtml: public formalizer_standard_program {
 
     Log_filter filter;
 
+    bool get_log_entry = false; // default is chunk(s)
+    time_t chunk_id = 0;        // 0 means this is not set
+    unsigned int entry_id = 0;  // 0 means this is not set
+
     time_t t_center_around = RTt_unspecified;
 
     interval_scale iscale;

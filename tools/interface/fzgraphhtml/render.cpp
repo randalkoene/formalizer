@@ -1119,6 +1119,13 @@ bool render_node_edit() {
     nodevars.emplace("eff_td_date",TimeStamp("%Y-%m-%d", t_eff));
     nodevars.emplace("eff_td_time",TimeStamp("%H:%M", t_eff));
 
+    time_t t_earliest_superior = node.earliest_active_superior();
+    if (t_earliest_superior == RTt_maxtime) {
+        nodevars.emplace("earliest-superior", "");
+    } else {
+        nodevars.emplace("earliest-superior", "(earliest superior: "+TimeStampYmdHM(t_earliest_superior)+')');
+    }
+
     std::string prop_value[_tdprop_num] = {"", "", "", "", ""};
     if (tdprop<_tdprop_num) {
         prop_value[tdprop] = "checked";

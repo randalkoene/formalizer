@@ -67,11 +67,11 @@ nodeboard::nodeboard():
     output_path("/var/www/html/formalizer/test_node_card.html"),
     graph_ptr(nullptr) {
 
-    add_option_args += "RGgn:L:D:l:t:m:f:c:Ii:F:H:TPb:M:p:C:S:Xo:";
+    add_option_args += "RGgn:L:D:l:t:m:f:c:Ii:F:H:TPe:b:M:p:B:C:S:Xo:";
     add_usage_top += " [-R] [-G|-g] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
-        " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-i <topic_id>,...] [-F <substring>]"
-        " [-H <board-header>] [-T] [-P] [-b <before>] [-M <multiplier>] [-p <progress-state-file>] [-S <size-list>]"
-        " [-C <max-columns>] [-r <max-rows>] [-X] [-o <output-file|STDOUT>]";
+        " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-Z] [-i <topic_id>,...] [-F <substring>]"
+        " [-H <board-header>] [-T] [-P] [-e <errors-list>] [-b <before>] [-M <multiplier>] [-p <progress-state-file>]"
+        " [-S <size-list>] [-B <topic-id>] [-C <max-columns>] [-r <max-rows>] [-X] [-o <output-file|STDOUT>]";
 }
 
 void nodeboard::usage_hook() {
@@ -94,6 +94,7 @@ void nodeboard::usage_hook() {
         "    -c Generate schedule based on CSV file.\n"
         "    -I Include completed Nodes.\n"
         "       This also includes Nodes with completion values < 0.\n"
+        "    -Z Include zero required time Nodes.\n"
         "    -i Filter to show only Nodes in one of the listed topics (by ID)\n"
         "    -F Filter to show only Nodes where the first 80 characters contain the\n"
         "       substring.\n"
@@ -103,6 +104,10 @@ void nodeboard::usage_hook() {
         "    -b Before time stamp.\n"
         "    -M Vertical length multiplier.\n"
         "    -p Progress state file\n"
+        "    -e Detect and visualize errors specified in comma separated list.\n"
+        "       List can contain: tdorder,  tdfar, tdbad\n"
+        "    -B Background highlight Nodes in <topic-id> with elevated valuation\n"
+        "       highlight colors.\n"
         "    -S List of grid and card sizes:\n"
         "       '<grid-column-width>,<column-container-width>,<card-width>,<card-height>'\n"
         "       E.g. '260px,250px,240px,240px'\n"
@@ -122,6 +127,23 @@ bool nodeboard::set_grid_and_card_sizes(const std::string & cargs) {
     column_container_width = sizes_vec[1];
     card_width = sizes_vec[2];
     card_height = sizes_vec[3];
+    return true;
+}
+
+bool nodeboard::parse_error_detection_list(const std::string & cargs) {
+    auto list_vec = split(cargs, ',');
+    for (auto & errspec : list_vec) {
+        std::string & trimmed = trim(errspec);
+        if (trimmed == "tdorder") {
+            detect_tdorder = true;
+        } else if (trimmed == "tdfar") {
+            detect_tdfar = true;
+        } else if (trimmed == "tdbad") {
+            detect_tdbad = true;
+        } else {
+            return standard_error("Unrecognized error to detect: "+trimmed, __func__);
+        }
+    }
     return true;
 }
 
@@ -198,6 +220,11 @@ bool nodeboard::options_hook(char c, std::string cargs) {
             return true;
         }
 
+        case 'Z': {
+            show_zero_required = true;
+            return true;
+        }
+
         case 'i': {
             uri_encoded_filter_topics = uri_encode(cargs);
             return parse_filter_topics(cargs);
@@ -218,6 +245,10 @@ bool nodeboard::options_hook(char c, std::string cargs) {
         case 'T': {
             threads = true;
             return true;
+        }
+
+        case 'e': {
+            return parse_error_detection_list(cargs);
         }
 
         case 'P': {
@@ -245,6 +276,12 @@ bool nodeboard::options_hook(char c, std::string cargs) {
 
         case 'S': {
             return set_grid_and_card_sizes(cargs);
+        }
+
+        case 'B': {
+            highlight_topic_and_valuation = true;
+            highlight_topic = atoi(cargs.c_str());
+            return true;
         }
 
         case 'C': {
@@ -416,6 +453,9 @@ std::string nodeboard::build_nodeboard_cgi_call(flow_options _floption, bool _th
     if (_progressanalysis) {
         cgi_cmd += "&P=true";
     }
+    if (highlight_topic_and_valuation) {
+        cgi_cmd += "&B="+std::to_string(highlight_topic);
+    }
     if (maxrows != DEFAULTMAXROWS) {
         cgi_cmd += "&r="+std::to_string(maxrows);
     }
@@ -451,6 +491,10 @@ bool nodeboard::to_output(const std::string & rendered_board) {
 // Returns true if filtered out or the Node text content if not filtered out.
 bool nodeboard::filtered_out(const Node * node_ptr, std::string & node_text) const {
     if ((!show_completed) && (!node_ptr->is_active())) {
+        return true;
+    }
+
+    if ((!show_zero_required) && (node_ptr->get_required() <= 0.0)) {
         return true;
     }
 
@@ -618,15 +662,48 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
     // Show if a Node is inactive, active exact/fixed, or active VTD.
     std::string node_color;
     if (node_ptr->is_active()) {
-        if (node_ptr->td_fixed() || node_ptr->td_exact()) {
-            node_color = "w3-aqua";
+        bool tderror = false;
+        if (detect_tdfar) {
+            if (tdate > (t_now + (100L*365L*86400L))) { // Target dates more than a hundred years in the future are suspect.
+                tderror = true;
+            }
+        }
+        if (detect_tdbad) {
+            if (tdate <= 0) {
+                tderror = true;
+            }
+        }
+        if (detect_tdorder) {
+            if (const_cast<Node*>(node_ptr)->td_suspect_by_superiors()) {
+                tderror = true;
+            }
+        }
+        if (tderror) {
+            node_color = "w3-red";
         } else {
-            node_color = "w3-light-grey";
+            if (node_ptr->td_fixed() || node_ptr->td_exact()) {
+                node_color = "w3-aqua";
+            } else {
+                node_color = "w3-light-grey";
+            }
         }
     } else {
         node_color = "w3-dark-grey";
     }
     nodevars.emplace("node-color", node_color);
+
+    // Highlight Milestones and their valuation.
+    std::string card_bg_highlight;
+    if (highlight_topic_and_valuation) {
+        if (node_ptr->in_topic(highlight_topic)) {
+            if (node_ptr->get_valuation() > 3.0) { // elevated highlight
+                card_bg_highlight = "w3-orange";
+            } else { // highlight
+                card_bg_highlight = "w3-green";
+            }
+        }
+    }
+    nodevars.emplace("nodebg-color", card_bg_highlight);
 
     std::string include_filter_substr;
     if (!filter_substring.empty()) {

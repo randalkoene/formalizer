@@ -631,6 +631,29 @@ time_t Node::inherit_targetdate(Node_ptr * origin) {
     return earliest;
 }
 
+time_t Node::earliest_active_superior() {
+    time_t earliest = RTt_maxtime;
+    for (const auto & sup_edge : supedges) {
+        Node * sup = sup_edge->get_sup();
+        if (sup->is_active()) {
+            time_t t_sup = sup->effective_targetdate();
+            if (t_sup < earliest) {
+                earliest = t_sup;
+            }
+        }
+    }
+    return earliest;
+}
+
+bool Node::td_suspect_by_superiors() {
+    time_t td = effective_targetdate();
+    for (const auto & sup_edge : supedges) {
+        Node * sup = sup_edge->get_sup();
+        if ((sup->is_active()) && (sup->effective_targetdate() < td)) return true;
+    }
+    return false;
+} 
+
 /**
  * Applies a time-zone adjustment to a time (see its use in effective_targetdate())
  * if a) the TZADJUST flag is set, b) the Node::graph pointer is valid, and
@@ -908,6 +931,10 @@ Topic_ID Node::main_topic_id() {
     }
     return main_id;
 }
+
+bool Node::in_topic(Topic_ID topic_id) const {
+    return (topics.find(topic_id) != topics.end());
+};
 
 /**
  * Reports if the Node is a member of a specific Topic and optionally returns

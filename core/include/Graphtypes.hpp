@@ -649,6 +649,8 @@ public:
      */
     Topic_ID main_topic_id();
 
+    bool in_topic(Topic_ID topic_id) const;
+
     /**
      * Reports if the Node is a member of a specific Topic and optionally returns
      * the associted relevance value.
@@ -685,6 +687,12 @@ public:
 
     Edge * get_Edge_by_sup(const std::string & sup_idstr) const; // returns nullptr if not in sup_Edges()
     Edge * get_Edge_by_dep(const std::string & dep_idstr) const; // returns nullptr if not in dep_Edges()
+
+    // Target date of the earliest active superior of this Node or RTt_maxtime if there is none.
+    time_t earliest_active_superior();
+
+    // Detect if any active superior target dates are earlier than the effective target date of this Node.
+    bool td_suspect_by_superiors();
 
     /// friend (utility) functions
     friend Topic * main_topic(const Topic_Tags & topictags, const Node & node); // friend function to ensure search with available Topic_Tags

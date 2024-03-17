@@ -29,7 +29,7 @@ fi
 logentry_id=$1
 logchunk_id=${logentry_id%%.*}
 logentry_minor_id=${logentry_id##*.}
-logchunk_raw=$(${fzloghtmlpath} -1 $logchunk_id -2 $logchunk_id -c 1 -N -o STDOUT -F raw)
+logchunk_raw=$(${fzloghtmlpath} -e $logentry_id -N -o STDOUT -F raw -q)
 errcode=$?
 
 if [ $errcode -ne 0 ]; then
@@ -37,7 +37,8 @@ if [ $errcode -ne 0 ]; then
     exit $errcode
 fi
 
-logentrycontent=$(printf "$logchunk_raw" | sed -n "/ENTRY:${logentry_minor_id}:/,/__END__/ p")
+#logentrycontent=$(printf "$logchunk_raw" | sed -n "/ENTRY:${logentry_minor_id}:/,/__END__/ p")
+logentrycontent="$logchunk_raw"
 logentrynode=$(printf "$logentrycontent" | sed -n "s/^ENTRY:${logentry_minor_id}:\(.*\)$/\1/p")
 logentrytext=$(printf "$logentrycontent" | sed '1,/__BEGIN__/ d; /__END__/,$ d')
 

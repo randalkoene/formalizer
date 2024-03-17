@@ -415,16 +415,44 @@ def reopen_Log_chunk(verbosity = 1) -> bool:
         print(reopenpagetail_failure)
     return (retcode == 0)
 
+# def extract_node_and_text(getlogentryoutput: str) -> tuple:
+#     firstlineend = getlogentryoutput.find('\n')
+#     nodestr = getlogentryoutput[0:firstlineend]
+#     textstr = getlogentryoutput[firstlineend+1:]
+#     node = (nodestr[1:])[:-1]
+#     return (node, textstr)
+
 def extract_node_and_text(getlogentryoutput: str) -> tuple:
     firstlineend = getlogentryoutput.find('\n')
-    nodestr = getlogentryoutput[0:firstlineend]
-    textstr = getlogentryoutput[firstlineend+1:]
-    node = (nodestr[1:])[:-1]
+    topline = getlogentryoutput[0:firstlineend]
+    toppieces = topline.split(':')
+    nodestr = toppieces[2]
+    secondlineend = getlogentryoutput.find('\n', firstlineend+1)
+    lastlineend = getlogentryoutput.rfind('\n', 0, -1)
+    textstr = getlogentryoutput[secondlineend+1:lastlineend+1]
+    node = nodestr.strip()
     return (node, textstr)
+
+# def edit_Log_entry(id: str, verbosity = 0) -> bool:
+#     print(editentrypagehead)
+#     thecmd = './get_log_entry.sh '+id+' ./fzloghtml' # Note: get_log_entry.sh is in the fzloghtml directory.
+#     retcode = try_subprocess_check_output(thecmd, 'entry_text', verbosity)
+#     if (retcode == 0):
+#         entrynode, entrytext = extract_node_and_text(results['entry_text'].decode())
+#         print('<p>Editing Log entry: <b>'+id+'</b></p>')
+#         print(editentryform_start)
+#         print(entrytext, end='')
+#         print(editentryform_middle)
+#         print(entrynode, end='')
+#         print(editentryform_end)
+#         print(editentrypagetail_success)
+#     else:
+#         print(editentrypagetail_failure)
+#     return (retcode == 0)
 
 def edit_Log_entry(id: str, verbosity = 0) -> bool:
     print(editentrypagehead)
-    thecmd = './get_log_entry.sh '+id+' ./fzloghtml'
+    thecmd = './fzloghtml -e '+id+' -N -o STDOUT -F raw -q'
     retcode = try_subprocess_check_output(thecmd, 'entry_text', verbosity)
     if (retcode == 0):
         entrynode, entrytext = extract_node_and_text(results['entry_text'].decode())

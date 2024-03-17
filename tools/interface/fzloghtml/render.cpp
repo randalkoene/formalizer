@@ -372,6 +372,11 @@ bool render_Log_interval() {
             }
             std::string combined_entries;
             for (const auto& entryptr : chunkptr->get_entries()) {
+                if (fzlh.get_log_entry) {
+                    if (entryptr->get_minor_id() != fzlh.entry_id) {
+                        continue;
+                    }
+                }
                 if (entryptr) {
                     combined_entries += render_Log_entry(*entryptr, loc);
                 }
@@ -422,10 +427,14 @@ bool render_Log_interval() {
                 }
             }
             varvals.emplace("entries",combined_entries);
-            if (customtemplate.empty()) {
-                rendered_logcontent += env.render(*active_chunk_template, varvals);
+            if (fzlh.get_log_entry && fzlh.noframe && (fzlh.recent_format == most_recent_raw)) {
+                rendered_logcontent = combined_entries; // very minimal output
             } else {
-                rendered_logcontent += env.render(customtemplate, varvals);
+                if (customtemplate.empty()) {
+                    rendered_logcontent += env.render(*active_chunk_template, varvals);
+                } else {
+                    rendered_logcontent += env.render(customtemplate, varvals);
+                }
             }
         }
     }

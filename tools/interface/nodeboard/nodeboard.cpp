@@ -101,6 +101,8 @@ bool csv_schedule() {
 int main(int argc, char *argv[]) {
     nb.init(argc,argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
 
+    nb.t_now = ActualTime();
+
     switch (nb.flowcontrol) {
 
         case flow_node: {
