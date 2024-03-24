@@ -65,6 +65,7 @@ log_interval_head = '''<html>
 <link rel="icon" href="/favicon-logentry-32x32.png">
 <link rel="stylesheet" href="/fzuistate.css">
 <link rel="stylesheet" href="/clock.css">
+<link rel="stylesheet" href="/score.css">
 <meta http-equiv="cache-control" content="no-cache" />
 <title>fz: Log interval</title>
 </head>
@@ -76,6 +77,7 @@ log_interval_head = '''<html>
 table tr.chktop { background: #B0C4F5; }
 </style>
 <button id="clock" class="button button2">_____</button>
+<button id="score" class="button button2">_____</button>
 '''
 
 cgi_custom_tail = '''
@@ -113,8 +115,10 @@ or<br />
 
 <script type="text/javascript" src="/fzuistate.js"></script>
 <script type="text/javascript" src="/clock.js"></script>
+<script type="text/javascript" src="/score.js"></script>
 <script>
     var clock = new floatClock('clock');
+    var score = new loatScore('score');
 </script>
 '''
 

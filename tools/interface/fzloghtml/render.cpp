@@ -165,14 +165,26 @@ std::string add_search_highlighting(std::string & s, std::locale & loc) {
     return s_out;
 }
 
+const std::vector<std::string> special_urls = {
+    "@FZSERVER@"
+};
+
 std::string render_Log_entry(Log_entry & entry, std::locale & loc) {
     template_varvalues varvals;
     varvals.emplace("minor_id",std::to_string(entry.get_minor_id()));
     varvals.emplace("entry_id",entry.get_id_str());
     if (fzlh.search_strings.empty()) {
-        varvals.emplace("entry_text",make_embeddable_html(entry.get_entrytext(),fzlh.config.interpret_text));
+        varvals.emplace("entry_text",make_embeddable_html(
+            entry.get_entrytext(),
+            fzlh.config.interpret_text,
+            &special_urls,
+            &fzlh.replacements
+        ));
     } else {
-        std::string text_to_highlight = make_embeddable_html(entry.get_entrytext(),fzlh.config.interpret_text);
+        std::string text_to_highlight = make_embeddable_html(
+            entry.get_entrytext(),
+            fzlh.config.interpret_text
+        );
         varvals.emplace("entry_text",add_search_highlighting(text_to_highlight, loc));
     }
     if (entry.same_node_as_chunk()) {

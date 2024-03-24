@@ -1,0 +1,207 @@
+<html>
+<head>
+<!-- Loc: formalizer/system-documentation.html -->
+
+<title>System Documentation (v2.x)</title>
+
+<style>
+.wiztable {
+	border: 1px solid white;
+	border-collapse: collapse;
+  	background-color: #96D4D4;
+}
+</style>
+</head>
+
+<body>
+
+<h1>System Documentation (v2.x)</h1>
+
+by Randal A. Koene, 2024-
+
+<h3>Preamble</h3>
+
+This provides documentation about v2.x of the System, its aims, how to work with it, and about detail aspects of the System. Version 2.x of the System is associated directly with the v2.x implementation of the Formalizer. Formalizer tools will point to sections within this documentation.
+
+<h2>DayWiz</h2>
+
+<h3>Wiztable</h3>
+
+<table>
+<tbody>
+<tr class="wiztable">
+<td><a name="#wiztable-finalized">
+Daywiz of previous day was finalized.
+</td>
+<td>
+Daywiz content for the previous day was updated and finalized as much as possible.
+</td>
+</tr>
+
+<tr class="wiztable">
+<td><a name="#wiztable-timeuse">
+Review how I <b>used my time</b> (tool: dayreview).
+</td>
+<td>
+Use the <code>dayreview.py</code> Systemm tool to calculate a review of how time was allocated during the previous day. A performance score will be produced.
+<P>
+Note that an alternative visualization is offered by the <a href="/cgi-bin/sysmet-extract-cgi.py?categories=new2023" target="_blank">new2023 sysmet categories</a> automatic visualization.
+</td>
+</tr>
+
+<tr class="wiztable">
+<td><a name="#wiztable-calsync">
+Sync <a href="https://calendar.google.com/calendar/?authuser=randal.a.koene@gmail.com" target="_blank">Google Calendar</a> with Schedule.
+</td>
+<td>
+Look at the Google Calendar schedule and see if there are scheduled entries there that should have Node entry in today's schedule that do not yet have that. In those cases, make or find the appropriate Nodes and ensure they appear in the day's Schedule.
+</td>
+</tr>
+
+<tr class="wiztable">
+<td><a name="#wiztable-promises">
+Review <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=promises&sort_by=targetdate" target="_blank"><b>Promises</b></a>. Update, revise and re-prioritize as needed. Make sure Scheduling is correct.
+</td>
+<td>
+Review the list of promise-Nodes in the Promises NNL.
+<ul>
+	<li>Are there any that have been completed? If so, make sure they are moved to the promises_kept NNL.</li>
+	<li>Is the order of promises correct? Change target dates as needed.</li>
+</ul>
+<P>
+Note that there is also a <a href="https://trello.com/b/KsIljqx3/promises">Trello board about Promises</a>.
+</td>
+</tr>
+
+<tr class="wiztable">
+<td><a name="#wiztable-passedfixed">
+<a href="/cgi-bin/fzupdate-cgi.py?update=passedfixed" target="_blank">Confirm passed non-repeating Fixed Nodes to convert to Variable</a> - or - manually update them.
+</td>
+<td>
+Use the method provided in the link to generate a NNL of passed non-repeating FTD Nodes. Then:
+<ul>
+<li>Manually update the target dates of those Nodes. Or,</li>
+<li>Apply <a href="/cgi-bin/fzupdate-cgi.py?update=convert_passedfixed">automated conversion from FTD to VDT type</a>. This uses the NNL of passed non-repeating FTD Nodes in a fzserverpq API request, using a call implemented in <code>fzupdate-cgi.py</code></li>.
+</ul>
+</td>
+</tr>
+
+<tr class="wiztable">
+<td><a name="#wiztable-passedrepeat">
+Auto-update passed repeating Nodes to their next instances.
+</td>
+<td>
+Use the `both` or `repeating` options on the <a href="http://localhost/cgi-bin/fzgraphhtml-cgi.py" target="_blank">Incomplete Nodes</a> page to auto-update repeating Nodes as needed.
+</td>
+</tr>
+
+<tr class="wiztable">
+<td><a name="#wiztable-priority">
+Ensure that highest priority <a href="/cgi-bin/fzgraphhtml-cgi.py?subtrees=promises" target="_blank">Promises are represented in the Schedule</a>.
+</td>
+<td>
+Generate the <a href="/cgi-bin/fzgraphhtml-cgi.py?subtrees=promises" target="_blank">Upcoming Incomplete Nodes</a> page that highlights Nodes that are in the Promises NNL. Then:
+<ul>
+	<li>Are promise-Nodes scheduled to be addressed soon?</li>
+	<li>Are there additional Nodes in the near-term Schedule that clearly do address promises but are not yet marked as such? If so, then add them to the Promises NNL.</li>
+</ul>
+</td>
+</tr>
+
+<tr class="wiztable">
+<td><a name="#wiztable-milestones">
+Review progress on current <a href="/cgi-bin/nodeboard-cgi.py?D=threads&I=true&T=true" target="_blank"><b>Threads</b></a> and their <a href="/cgi-bin/fzgraphhtml-cgi.py?subtrees=threads" target="_blank">Scheduling</a>. Ensure there are Nodes to complete upcoming <a href="/cgi-bin/nodeboard-cgi.py?n=20101230042609.1" target="_blank"><b>Milestones</b></a>.
+</td>
+<td>
+Review Threads and Milestones:
+<Ol>
+<li>Check the Threads Kanban to review that progress is being made and is sensible. This means, determine if the order of operations makes sense and make sure that work on Nodes is producing output that provides the prerequisites of other Nodes. Do the order and timing of Nodes in the Threads Kanban make sense?</li>
+<li>Check the Schedule with Threads highlighting to confirm that Threads-associated Nodes are predominant and that the proposed allocation of time to categories such as work and self-work is as desired.</li>
+<li>Check the Milestones Kanban to ensure that the arrangement of Milestones makes sense, that all the Milestones needed are there, and that Nodes exist to accomplish near-term Milestones. <b>At present, this still needs a better visualization of the Milestones hierarchy for Milestones coming up!</b></li>
+<li>Create Nodes as needed, including Nodes that were suggested in the initial overview phase of the Schedule updating activity.</li>
+</Ol>
+<P>
+Note additional useful visualizations:
+<ul>
+<li><a href="/cgi-bin/nodeboard-cgi.py?f=main2023" target="_blank">Active Main Categories</a></li>
+<li><a href="/cgi-bin/nodeboard-cgi.py?n=20101230042609.1&F=%5B" target="_blank">Milestone Categories</a></li>
+<li>These are mapped to Milestones, Dependencies, Roadmap Path, Values and Urgency.</li>
+</ul>
+</td>
+</tr>
+
+<tr class="wiztable">
+<td><a name="#wiztable-decisions">
+Identify <a href="/cgi-bin/fzgraphhtml-cgi.py?subtrees=challenges_open" target="_blank"><b>Challenges and Decisions in the Schedule</b></a>, add to <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=challenges_open&sort_by=targetdate" target="_blank">NNL</a> as needed.
+</td>
+<td>
+<ol>
+<li>Check the Schedule to see if there are Nodes that should be marked as Challenges or challenging decisions that have not yet been marked as such. If so then add those Nodes to the NNL.</li>
+<li>Check the Challenges NNL to see if there are completed challenges that should be moved to the challenges_overcome NNL. These should also be reflected in the 'addressed at least 1 challenge' line of the previous day's wiztable.</li>
+</ol>
+</td>
+<P>
+Note that known Challenges and Decisions must be represented by at least one Node. There is a <a href="https://trello.com/b/mnu1VKIn" target="_blank">Trello Board about Challenges and Decisions</a>.
+</tr>
+
+<tr class="wiztable">
+<td><a name="#wiztable-schedfits">
+Ensure schedule is mathematically doable.
+</td>
+<td>
+This means, check that the displayed sum of required times fits into the available time. Modify Node target dates as needed to achieve a fit.
+</td>
+</tr>
+
+<tr class="wiztable">
+<td><a name="#wiztable-variable">
+Auto-update Variable Nodes.
+</td>
+<td>
+Use the 'variable' option (if 'both' was not already sufficient earlier) on the <a href="http://localhost/cgi-bin/fzgraphhtml-cgi.py" target="_blank">Incomplete Nodes</a> page to auto-update VTD Nodes.
+<P>
+<b>Note that this may be replaced with a different set of updates if undefined target date (UTD) Node type is repurposed as suggested.</b>
+</td>
+</tr>
+
+<tr class="wiztable">
+<td><a name="#wiztable-realistic">
+Ensure Schedule is realistic.
+</td>
+<td>
+Review the Nodes in the Schedule and consider if the day's Nodes as suggested are a realistic plan.
+<ul>
+<li>To get better insight into this, you can review the Schedule as it would be shown in a <a href="/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20" target="_blank">Week Calendar Schedule</a>.</li>
+<li>Try to consider and account for mini-days in a bi-phasic sleep schedule.</li>
+<li>Consider which types of Nodes are best addressed early in a (mini-)day or late in a (mini-)day.</li>
+</ul>
+</td>
+</tr>
+
+<tr class="wiztable">
+<td><a name="#wiztable-relations">
+Prepare the list of people that I already know I should communicate with this day.
+</td>
+<td>
+Add names to the Communications section of the DayWiz page. To find the names:
+<ul>
+<li>Consider names from the previous day where intended communication was not completed.</li>
+<li>Review the Nodes Scheduled for the day and consider possible associated communications needed.</li>
+</ul>	
+</td>
+</tr>
+
+<tr class="wiztable">
+<td><a name="#wiztable-backup">
+<button class="button button1" onclick="window.open(\'/cgi-bin/fzbackup-from-web-cgi.py\',\'_blank\');">Ensure backup of the Formalizer database</button>.
+</td>
+<td>
+Make sure that Formalizer database backups are mirrored to separate storage (USB drive, mirrored account, cloud storage). Running fzbackup-mirror-to-github.sh, as with the button provided, takes care of part of that.
+</td>
+</tr>
+
+</tbody>
+</table>
+
+</body>
+</html>

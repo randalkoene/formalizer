@@ -132,14 +132,16 @@ init: FORCE
 	@echo 'Includes: $(CPPFLAGS)'
 	@echo '-------------------------------------------------------------------'
 
+$(OBJ)/nbgrid.o: nbgrid.cpp nbgrid.hpp nbrender.hpp version.hpp
+	$(CCPP) $(CPPFLAGS) $(TEMPLATEDIR) -c nbgrid.cpp -o $(OBJ)/nbgrid.o
 
-$(OBJ)/nbrender.o: nbrender.cpp nbrender.hpp version.hpp
+$(OBJ)/nbrender.o: nbrender.cpp nbrender.hpp nbgrid.hpp version.hpp
 	$(CCPP) $(CPPFLAGS) $(TEMPLATEDIR) -c nbrender.cpp -o $(OBJ)/nbrender.o
 
 $(OBJ)/nodeboard.o: nodeboard.cpp $(COREINCLUDEPATH)/standard.hpp
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $(TEMPLATEDIR) -c nodeboard.cpp -o $(OBJ)/nodeboard.o
 
-nodeboard: $(OBJ)/nodeboard.o $(OBJ)/nbrender.o $(CORE_OBJS)
+nodeboard: $(OBJ)/nodeboard.o $(OBJ)/nbrender.o $(OBJ)/nbgrid.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $^ -o nodeboard $(LIB_PATH)
 
 clean:

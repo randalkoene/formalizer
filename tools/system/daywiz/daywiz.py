@@ -38,6 +38,8 @@ form = cgi.FieldStorage()
 
 t_run = datetime.now() # Use this to make sure that all auto-generated times on the page use the same time.
 
+webdata_path = "/var/www/webdata/formalizer"
+
 HREFBASE = 'http://localhost/'
 NODELINKCGI = 'cgi-bin/fzlink.py?id='
 
@@ -112,6 +114,24 @@ def gothere(mark: str):
         print(DEBUG_GOT_HERE % mark)
         exit(0)
 
+def update_total_scores(day: datetime, score: float, max_possible: float):
+    total_score_path = webdata_path + '/daywiz_total_scores.json'
+    try:
+        # Get existing scores stored.
+        if exists(total_score_path):
+            with open(total_score_path, 'r') as f:
+                total_score_dict = json.load(f)
+        else:
+            total_score_dict = {}
+        # Update current day score.
+        daystr = day.strftime('%Y.%m.%d')
+        total_score_dict[daystr] = (score, max_possible)
+        # Save updated day scores.
+        with open(total_score_path, 'w') as f:
+            json.dump(sorted(total_score_dict.items()), f)
+    except Exception as e:
+        pass
+
 # TODO: *** Remove this when no longer needed.
 class debug_test:
     def __init__(self, directives: dict, formfields: cgi.FieldStorage):
@@ -175,7 +195,7 @@ WIZTABLE_SUMMARY='''<tr><td></td><td></td><td><a href="/cgi-bin/score.py?cmd=sho
 
 # WIZLINE_FRAME='''<tr><td>%s</td><td><input type="time" id="%s" value="%s" %s></td><td>%s</td><td>%s</td><td>%s</td></tr>
 # '''
-WIZLINE_FRAME='''<tr><td>%s</td><td>%s</td><td %s>[%s, <a href="%s">node</a>] %s</td><td>%s</td><td>%s</td></tr>
+WIZLINE_FRAME='''<tr><td>%s</td><td>%s</td><td %s>[%s, <a href="%s">node</a>] %s [<a href="/formalizer/system-documentation.html#wiztable-%s">ref</a>]</td><td>%s</td><td>%s</td></tr>
 '''
 WIZLINE_VISIBLE_TOPBORDER='style="border-top: 1px solid black;"'
 WIZLINE_RECOMMENDED_FRAME='%s - %s'
@@ -391,7 +411,7 @@ class wiztable_line:
         else:
             top_border = ''
         last_line_node = self._node
-        return WIZLINE_FRAME % ( self.recommended_str(), self.time_html(), top_border, str(self._weight), self._nodelink, self._description, self.state_str(), self.extra_str() )
+        return WIZLINE_FRAME % ( self.recommended_str(), self.time_html(), top_border, str(self._weight), self._nodelink, self._description, self._id, self.state_str(), self.extra_str() )
         #return WIZLINE_FRAME % ( self.recommended_str(), self.id_str('wiz_t_'), self.time_str(), SUBMIT_ON_INPUT, self._description, self.state_str(), self.extra_str() )
 
     # === Produce data dictionary:
@@ -485,6 +505,7 @@ class daypage_wiztable:
             weight = wizline.weight()
             self.add_to_checkbox_metrics(wizline.checkbox_metrics, weight)
             self.add_to_number_metrics(wizline.number_metrics, weight)
+        update_total_scores(self.day, self.score, self.score_possible)
         table_str += WIZTABLE_SUMMARY % ( str(int(self.score)), str(int(self.score_possible)), str(self.checkbox_metrics[1]+self.number_metrics[1]), str(self.checkbox_metrics[0]+self.number_metrics[0]) )
         return table_str + '</table>\n'
 

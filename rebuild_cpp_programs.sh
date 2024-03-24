@@ -5,7 +5,7 @@
 # such as Node or Graph.
 
 topdir=`pwd`
-cpp_dirs="core/fzedit core/fzgraph core/fzgraphsearch core/fzlog core/fzquerypq core/fzserverpq core/fzupdate tools/interface/fzdashboard tools/interface/fzgraphhtml tools/interface/fzloghtml tools/interface/fzlogmap tools/interface/fzlogtime tools/interface/fzvismilestones tools/interface/nodeboard tools/system/schedule"
+cpp_dirs="core/fzedit core/fzgraph core/fzgraphsearch core/fzlog core/fzquerypq core/fzserverpq core/fzupdate tools/interface/fzdashboard tools/interface/fzgraphhtml tools/interface/fzloghtml tools/interface/fzlogmap tools/interface/fzlogtime tools/interface/fzserver-info tools/interface/fzvismilestones tools/interface/nodeboard tools/system/schedule"
 
 for cppdir in $cpp_dirs; do
 

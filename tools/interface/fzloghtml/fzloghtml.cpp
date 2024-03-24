@@ -468,6 +468,8 @@ int main(int argc, char *argv[]) {
 
     fzlh.init_top(argc, argv);
 
+    fzlh.replacements.emplace_back(fzlh.get_Graph_ptr()->get_server_full_address()); // [fzserverpq_address]
+
     // currently, flow_log_interval is the default
 
     switch (fzlh.flowcontrol) {

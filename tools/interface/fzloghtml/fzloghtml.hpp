@@ -90,6 +90,8 @@ struct fzloghtml: public formalizer_standard_program {
     bool show_total_time_applied = false;
     unsigned long total_minutes_applied = -1;
 
+    std::vector<std::string> replacements;
+
     fzloghtml();
 
     virtual void usage_hook();

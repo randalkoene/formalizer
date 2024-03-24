@@ -193,6 +193,10 @@ nutrition = {
 	'croissant': [ 231, 'croissant', ],
 	'krentenbol': [ 169, 'krentenbol', ],
 	'bacon': [ 43, 'piece', ],
+	'jam': [ 46, 'tblsp', ],
+	'tuna salad': [ 50, 'tblsp', ],
+	'borrelnoten': [ 131, 'serving', ],
+	'german brotchen': [ 150, 'roll', ],
 }
 
 lowcal_filling_nutritious = [
@@ -333,6 +337,7 @@ breads = [
 	'bagette',
 	'croissant',
 	'krentenbol',
+	'german brotchen',
 ]
 
 dairy = [
@@ -353,6 +358,7 @@ seafood = [
 	'sushi',
 	'tuna',
 	'crab salad',
+	'tuna salad',
 ]
 
 meat = [
@@ -383,6 +389,7 @@ nuts = [
 	'peanuts',
 	'pecans',
 	'walnut pieces',
+	'borrelnoten',
 ]
 
 spread = [
@@ -391,6 +398,9 @@ spread = [
 	'mayonaise',
 	'nutella',
 	'peanut butter',
+	'jam',
+	'liverwurst',
+	'tuna salad',
 ]
 
 nutrition_groups = {

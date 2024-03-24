@@ -83,6 +83,7 @@ max_rows = form.getvalue('r')
 tdorder = form.getvalue('tdorder')
 tdbad = form.getvalue('tdbad')
 tdfar = form.getvalue('tdfar')
+subtreesort = form.getvalue('K')
 
 include_td_detect = ''
 if tdorder:
@@ -125,6 +126,10 @@ if max_columns:
     include_max_columns = ' -C %s' % max_columns
 else:
     include_max_columns = ''
+if subtreesort:
+    include_subtree_sort = ' -K'
+else:
+    include_subtree_sort = ''
 
 # *** OBTAIN THIS SOMEHOW!
 #with open('./server_address','r') as f:
@@ -208,9 +213,9 @@ def show_node_dependencies_board():
     #       on STDOUT for ease of regenerating by reloading.
     outpath = '/var/www/webdata/formalizer/node_dependencies_kanban.html'
     if node_dependencies_tree:
-        thecmd = f"./nodeboard -G -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_progress_analysis} {include_td_detect} {include_highlight_topic} {include_max_columns} {include_max_rows} -q -o {outpath}"
+        thecmd = f"./nodeboard -G -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_progress_analysis} {include_td_detect} {include_subtree_sort} {include_highlight_topic} {include_max_columns} {include_max_rows} -q -o {outpath}"
     elif node_superiors_tree:
-        thecmd = f"./nodeboard -g -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_progress_analysis} {include_td_detect} {include_highlight_topic} {include_max_columns} {include_max_rows} -q -o {outpath}"
+        thecmd = f"./nodeboard -g -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_progress_analysis} {include_td_detect} {include_subtree_sort} {include_highlight_topic} {include_max_columns} {include_max_rows} -q -o {outpath}"
     else:
         thecmd = f"./nodeboard -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} -q -o {outpath}"
     success, res = try_command_call(thecmd, print_result=False)

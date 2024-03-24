@@ -127,18 +127,18 @@
             "url" : "/cgi-bin/fzvismilestones-cgi.py",
             "window" : "_blank"
         },
-        "Fixing Personal Life" : {
-            "url" : "https://trello.com/b/zUiabFZx",
+        "NEXTUP-OUTPUT" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20230624214603.1&G=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true",
             "window" : "_blank"
         },
-        "FORMALIZER-NEWAL-METHOD" : {
-            "url" : "https://trello.com/b/PEfStDEN",
+        "WBE-ROADMAP-UPDATE" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20200424210214.1&G=true&I=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true",
             "window" : "_blank"
         },
-        "Formalizer Tools" : {
-            "url" : "https://trello.com/b/uMW6fb4e",
+        "EU2024-PERS-ROADMAP-V2-ITERATION-A" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20240311114746.1&G=true&T=true&C=150&B=79&tdorder=true&tdbad=true&tdfar=true",
             "window" : "_blank"
-        }
+        },
     },
     "System Boards: " : {
         "Main Categories" : {
@@ -183,6 +183,10 @@
             "url" : "https://trello.com/b/uNGTL6aO",
             "window" : "_blank"
         },
+        "Fixing Personal Life" : {
+            "url" : "https://trello.com/b/zUiabFZx",
+            "window" : "_blank"
+        },
         "Solving Debt" : {
             "url" : "https://trello.com/b/gPUx2CON",
             "window" : "_blank"
@@ -193,6 +197,14 @@
         },
         "Ongoing Opportunities Search" : {
             "url" : "https://trello.com/b/asCOUeKD",
+            "window" : "_blank"
+        },
+        "FORMALIZER-NEWAL-METHOD" : {
+            "url" : "https://trello.com/b/PEfStDEN",
+            "window" : "_blank"
+        },
+        "Formalizer Tools" : {
+            "url" : "https://trello.com/b/uMW6fb4e",
             "window" : "_blank"
         }
     },
@@ -235,12 +247,12 @@
         }
     },
     "Information: " : {
-        "Ready Docs" : {
-            "url" : "/formalizer/ready-docs.html",
-            "window" : "_blank"
-        },
         "Sys:Doc" : {
             "url" : "/formalizer/doc.html",
+            "window" : "_blank"
+        },
+        "Ready Docs" : {
+            "url" : "/formalizer/ready-docs.html",
             "window" : "_blank"
         },
         "C++ / C" : {

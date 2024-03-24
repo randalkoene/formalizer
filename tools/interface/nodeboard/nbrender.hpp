@@ -110,6 +110,8 @@ struct nodeboard: public formalizer_standard_program {
     bool show_dependencies_tree = false;
     bool show_superiors_tree = false;
 
+    bool sort_by_subtree_times = false;
+
     time_t t_before = 0;
 
     std::string progress_state_file;
