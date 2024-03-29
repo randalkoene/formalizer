@@ -460,6 +460,10 @@ void check_prerequisites_provided_by_dependencies(const Node & node, std::vector
 /**
  * Finds all Nodes that match a specified Node_Filter.
  * 
+ * Notes:
+ * - Searching for Nodes within a target date range can be done with one or two active
+ *   bounds. If a bound is set to RTunspecified then it is not used and that end is open.
+ * 
  * @param graph A valid Graph data structure.
  * @param nodefilter A specified Node_Filter.
  * @return A map of pointers to nodes by effective targetdate that match the filter specifications.
@@ -502,12 +506,20 @@ targetdate_sorted_Nodes Nodes_subset(Graph & graph, const Node_Filter & nodefilt
             }
         }
         if (nodefilter.filtermask.Edit_targetdate()) {
-            if ((node_ptr->get_targetdate() < nodefilter.lowerbound.targetdate) || (node_ptr->get_targetdate() > nodefilter.upperbound.targetdate)) {
-                continue;
+            if (nodefilter.lowerbound.targetdate != RTt_unspecified) {
+                if (node_ptr->get_targetdate() < nodefilter.lowerbound.targetdate) continue;
+            }
+            if (nodefilter.upperbound.targetdate != RTt_unspecified) {
+                if (node_ptr->get_targetdate() > nodefilter.upperbound.targetdate) continue;
             }
         }
         if (nodefilter.filtermask.Edit_tdproperty()) {
             if ((node_ptr->get_tdproperty() != nodefilter.lowerbound.tdproperty) && (node_ptr->get_tdproperty() != nodefilter.upperbound.tdproperty)) {
+                continue;
+            }
+        }
+        if (nodefilter.filtermask.Edit_tdpropbinpat()) {
+            if (!nodefilter.tdpropbinpattern.in_pattern(node_ptr->get_tdproperty())) {
                 continue;
             }
         }

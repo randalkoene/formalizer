@@ -44,6 +44,12 @@ repeats = form.getvalue('repeats')
 tdpatt_lower = form.getvalue('tdpatt_lower')
 tdpatt_upper = form.getvalue('tdpatt_upper')
 
+tdbinpatt_unspecified = form.getvalue('tdbinpatt_unspecified')
+tdbinpatt_inherit = form.getvalue('tdbinpatt_inherit')
+tdbinpatt_variable = form.getvalue('tdbinpatt_variable')
+tdbinpatt_fixed = form.getvalue('tdbinpatt_fixed')
+tdbinpatt_exact = form.getvalue('tdbinpatt_exact')
+
 def append_to_str(strval: str) -> str:
     parval = eval(strval)
     if parval:
@@ -125,6 +131,21 @@ def clear_NNL(listname: str) -> bool:
 
 def Graph_search(searchstr: str, listname: str) -> bool:
     searchcmd = f"./fzgraphsearch -q -E STDOUT -l '{listname}'"
+    tdpropbinpatlist = ''
+    if tdbinpatt_unspecified:
+        tdpropbinpatlist += 'u,'
+    if tdbinpatt_inherit:
+        tdpropbinpatlist += 'i,'
+    if tdbinpatt_variable:
+        tdpropbinpatlist += 'v,'
+    if tdbinpatt_fixed:
+        tdpropbinpatlist += 'f,'
+    if tdbinpatt_exact:
+        tdpropbinpatlist += 'e,'
+    if len(tdpropbinpatlist)>0:
+        tdpropbinpatlist = tdpropbinpatlist[:-1]
+        searchcmd += f" -b '{tdpropbinpatlist}'"
+
     if searchstr:
         searchcmd += f" -s '{searchstr}'"
     if (case_sensitive != "on"):

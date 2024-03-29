@@ -9,9 +9,9 @@
       <button class="tiny_button tiny_green" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new&tosup={{ node-id }}');">mkwsup</button>
       <button class="tiny_button" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new&todep={{ node-id }}');">mkwdep</button>
       {{ node-hrsapplied }}
-      <p>Progress: {{ node-progress }}&#37;{{ node-targetdate }}</p>
+      <p {{ nodelink-bg-color }}><a href="/cgi-bin/fzlink.py?id={{ node-id-history }}">Progress: {{ node-progress }}</a>&#37;{{ node-targetdate }} (<a href="/cgi-bin/nodeboard-cgi.py?n={{ node-deps }}{{ filter-substr }}">DEP</a>)</p>
       <p class="w3-medium">{{ node-text }}</p>
-      <p><b><a href="/cgi-bin/fzlink.py?id={{ node-id }}">{{ node-id }}</a></b> (<a href="/cgi-bin/nodeboard-cgi.py?n={{ node-deps }}{{ filter-substr }}">DEP</a>)</p>
+      <p><b><a href="/cgi-bin/fzlink.py?id={{ node-id-history }}">{{ node-id }}</a></b></p>
     </div>
   </div>
 

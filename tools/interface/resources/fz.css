@@ -172,3 +172,6 @@ a.nnl:hover {background:#55db50;}
 .inactive-node {
     color: black;
 }
+.link-bg-color-yellow {
+    background-color: rgb(255,255,0);
+}

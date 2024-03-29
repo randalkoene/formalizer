@@ -36,10 +36,13 @@ class floatScore {
         var _content = '';
         if (window.scores_json) {
             for (const [key, value] of Object.entries(window.scores_json)) {
-                _content += ` ${value[0]/value[1]};`
+                //console.log(`Score ${key} and ${value}.`);
+                _content += ` ${value}`;
             }
+        } else {
+            //console.error('No scores available.')
         }
-        this.scoreelement.innerHTML = makeScoreString(_content);
+        this.scoreelement.innerHTML = this.makeScoreString(_content);
     }
 
     scoreStart() {
@@ -48,7 +51,7 @@ class floatScore {
             return;
         }
         this.updateScore();
-        this.intervaltask = setInterval(this.updateSCore.bind(this), 10000); // every ten seconds
+        this.intervaltask = setInterval(this.updateScore.bind(this), 10000); // every ten seconds
         console.log('floatScore started');
     }
 
@@ -58,9 +61,8 @@ class floatScore {
         scores.onreadystatechange = function() {
             if (this.readyState == 4) {
                 if (this.status == 200) {
-                    // Parse UI state
-                    //console.log(`score response: ${score.response}`);
                     var scores_data = scores.responseText;
+                    //console.log(`Score loaded: ${scores_data}`);
                     window.scores_json = JSON.parse(scores_data);
                 } else {
                     console.error('Scores loading failed.');

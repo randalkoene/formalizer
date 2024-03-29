@@ -8,6 +8,8 @@
 
 # full: [ node, weight, id, time.time(), type, hr_ideal_from, hr_ideal_to, description, state, ]
 #       weight is 1 to 5, weights are often given in accordance with discipline challenge or critical importance
+#       for number (rather than checkbox) lines, if the weight is negative then its absolute value is used
+#       when the vaue is non-empty, and if the weight is positive then it is multiplied with the number value
 # stored in JSON: [ id, time.time(), state, ]
 # NOTE: Horizontal lines are drawn using the WIZLINE_VISIBLE_TOPBORDER code, demarkating transitions
 #       to items with a different Node link.
@@ -33,7 +35,7 @@ WIZTABLE_LINES=[
 	[ '20091115180507.1', 5, 'relations', 0, 'checkbox', 6, 9, 'Prepare the list of people that I already know I should communicate with this day.', '' ],
 	[ '20091115180507.1', 5, 'backup', 0, 'checkbox', 6, 9, '<button class="button button1" onclick="window.open(\'/cgi-bin/fzbackup-from-web-cgi.py\',\'_blank\');">Ensure backup of the Formalizer database</button>.', '' ], # Automatable.
 
-	[ '20211017053846.1', 4, 'weight', 0, 'number', 6, 10, 'Measure <a href="/cgi-bin/metrics.py?cmd=show&selectors=wiztable" target="_blank">weight</a>.', '' ],
+	[ '20211017053846.1', -4, 'weight', 0, 'number', 6, 10, 'Measure <a href="/cgi-bin/metrics.py?cmd=show&selectors=wiztable" target="_blank">weight</a>.', '' ],
 	[ '20211017053846.1', 4, 'pushup1', 0, 'checkbox', 6, 10, 'First push-ups or weights (e.g. before/after shower).', '' ],
 	[ '20211017053846.1', 2, 'shower', 0, 'checkbox', 6, 10, 'Have a shower.', '' ],
 	[ '20211017053846.1', 3, 'lotion', 0, 'checkbox', 6, 10, 'Put on lotion.', '' ],
@@ -48,9 +50,9 @@ WIZTABLE_LINES=[
 
 	[ '20040402045825.1', 5, 'firstwork', 0, 'checkbox', 13, 16, 'Managed at least 4 hours of actual work progress in the first miniday.', ''],
 
-	[ '20081125102516.1', 5, 'emailparsed', 0, 'number', 8, 20, 'Emails parsed.', '' ],
+	[ '20081125102516.1', -5, 'emailparsed', 0, 'number', 8, 20, 'Emails parsed.', '' ],
 	[ '20081125102516.1', 5, 'emailurgent', 0, 'checkbox', 8, 20, 'Urgent emails identified.', '' ],
-	[ '20081125102516.1', 5, 'emailresp', 0, 'number', 8, 20, 'Emails responded to.', '' ],
+	[ '20081125102516.1', -5, 'emailresp', 0, 'number', 8, 20, 'Emails responded to.', '' ],
 
 	[ '20100403134619.1', 4, 'endurance', 0, 'checkbox', 9, 22, 'Endurance exercise (e.g rowing, dancing, rollerblading).', '' ],
 	[ '20100403134619.1', 4, 'pushup3', 0, 'checkbox', 20, 24, 'Third push-ups or weights (e.g. during dinner).', '' ],
@@ -62,12 +64,13 @@ WIZTABLE_LINES=[
 	[ '20230727204001.1', 5, 'lovedbody', 0, 'checkbox', 20, 24, 'Loved my body.', '' ],
 	[ '20230727204001.1', 5, 'lovedmind', 0, 'checkbox', 20, 24, 'Loved my mind.', '' ],
 
-	[ '20200601093905.1', 3, 'armodafinil', 0, 'number', 21, 24, 'Armodafinil taken (mg).', '' ],
-	[ '20200601093905.1', 3, 'alcohol', 0, 'number', 21, 24, 'Alcohol consumed (ml).', '' ],
+	[ '20200601093905.1', -3, 'armodafinil', 0, 'number', 21, 24, 'Armodafinil taken (mg).', '' ],
+	[ '20200601093905.1', -3, 'alcohol', 0, 'number', 21, 24, 'Alcohol consumed (ml).', '' ],
 	[ '20200601093905.1', 4, 'daynutri', 0, 'checkbox', 22, 24, 'Finalize day nutrition.', '' ],
 	[ '20200601093905.1', 4, 'fastafter8', 0, 'checkbox', 22, 24, 'Did not eat after 8pm.', '' ],
 	[ '20200601093905.1', 2, 'nextnutri', 0, 'checkbox', 22, 24, 'Plan nutrition for the next day.', '' ],
 	[ '20200601093905.1', 5, 'challenge', 0, 'checkbox', 22, 24, 'Addressed at least 1 challenge.', '' ],
+	[ '20200601093905.1', 30, 'reviewscore', 0, 'number', 22, 24, 'Day review score.', '' ],
 ]
 WIZTABLE_LINES_NODE=0
 WIZTABLE_LINES_WEIGHT=1

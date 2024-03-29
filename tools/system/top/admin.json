@@ -100,5 +100,11 @@
             "url" : "/cgi-bin/fztimezone-cgi.py?show=true",
             "window" : "_blank"
         }
+    },
+    "Graph Condition: " : {
+        "Problematic Target Dates" : {
+            "url" : "cgi-bin/fzgraphsearch-cgi.py?completion_lower=0.0&completion_upper=0.99&TD_lower=205001010000&tdbinpatt_variable=true&tdbinpatt_fixed=true&tdbinpatt_exact=true",
+            "window" : "_blank"
+        }
     }
 }

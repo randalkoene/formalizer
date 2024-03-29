@@ -50,7 +50,7 @@ struct fzlog: public formalizer_standard_program {
 
     Graph_access ga; // to include Graph or Log access support
 
-    ReferenceTime reftime; // enables emulated time
+    ReferenceTime reftime; // enables emulated time (automatically adds -t through options_hook())
 
     fzlog();
 

@@ -116,10 +116,10 @@ or<br />
 <script type="text/javascript" src="/fzuistate.js"></script>
 <script type="text/javascript" src="/clock.js"></script>
 <script type="text/javascript" src="/score.js"></script>
-<script>
+<!-- <script> -- These are already created within the clock.js and score.js scripts loaded. --
     var clock = new floatClock('clock');
-    var score = new loatScore('score');
-</script>
+    var score = new floatScore('score');
+</script> -->
 '''
 
 

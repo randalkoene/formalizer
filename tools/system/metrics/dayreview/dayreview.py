@@ -3,6 +3,22 @@
 # Copyright 2024 Randal A. Koene
 # License TBD
 
+from datetime import datetime
+import json
+
+def date_stamp(day:datetime)->str:
+    return day.strftime('%Y.%m.%d');
+
+date_str = input('Please specify the date to which this review applies in the format "2024.03.25": ')
+try:
+    date_object = datetime.strptime(date_str, '%Y.%m.%d').date()
+    print(type(date_object))
+    print(date_object)  # printed in default format
+    print('Date stamp: '+date_stamp(date_object))
+except:
+    print('Unrecognized date format.')
+    exit(1)
+
 print('Please answer the following questions about the preceding day.\n')
 
 starttimestr = input('What time did the day begin ("HHMM", e.g. "0920")? : ')
@@ -136,6 +152,12 @@ def get_maxlim(htype:str)->float:
         return intended[htype][2]
     return 0.0
 
+def get_totintended()->float:
+    tot = 0.0
+    for key_str in intended:
+        tot += intended[key_str][-1]
+    return tot
+
 print('Summary of hours:')
 print('actual | intended | min-lim | max-lim | type')
 for htype in hours_summary.keys():
@@ -162,9 +184,12 @@ for htype in intended.keys():
     totscore += score
 print('Total score: %.2f' % totscore)
 
+totintended = get_totintended()
+totscore_ratio = totscore / totintended
+
 print('\nFormatted for addition to Log:\n\n')
 
-OUTPUTTEMPLATE='The waking day yesterday was from %s to %s, containing about %.2f waking (non-nap) hours. I did %.2f hours of self-work and %.2f hours of work. I did %.2f hours of System and self-care. Other therefore took %.2f hours.'
+OUTPUTTEMPLATE='The waking day yesterday was from %s to %s, containing about %.2f waking (non-nap) hours. I did %.2f hours of self-work and %.2f hours of work. I did %.2f hours of System and self-care. Other therefore took %.2f hours. The ratio total performance score is %.2f / %.2f = %.2f.'
 
 print(OUTPUTTEMPLATE % (
         str(starttimestr),
@@ -173,4 +198,46 @@ print(OUTPUTTEMPLATE % (
         hours_summary['self-work'],
         hours_summary['work'],
         hours_summary['system/care'],
-        hours_summary['other'],))
+        hours_summary['other'],
+        totscore,
+        totintended,
+        totscore_ratio,
+        ))
+
+def score_data_summary_line(key_str:str, actual_data:dict, intended_data:dict)->tuple:
+    return (
+            actual_data[key_str],
+            intended_data[key_str][0],
+            get_score(actual_data[key_str], intended_data[key_str]),
+            intended_data[key_str][-1],
+        )
+
+score_data_summary = {}
+actual_hours_total = 0.0
+intended_hours_total = 0.0
+for key_str in intended:
+    actual_hours_total += hours_summary[key_str]
+    intended_hours_total += intended[key_str][0]
+    score_data_summary[key_str] = score_data_summary_line(key_str, hours_summary, intended)
+score_data_summary['totscore'] = ( actual_hours_total, intended_hours_total, totscore, totintended )
+
+def update_score_file(day:datetime, score_data:dict):
+    # Read existing data from file.
+    scorefile = '/var/www/webdata/formalizer/dayreview_scores.json'
+    try:
+        with open(scorefile, 'r') as f:
+            data = json.load(f)
+    except:
+        print('No dayreview_scores.json file found, starting a fresh one.')
+        data = {}
+    # Update data.
+    dstamp = date_stamp(day)
+    data[dstamp] = score_data
+    # Save data.
+    try:
+        with open(scorefile, 'w') as f:
+            json.dump(data, f)
+    except Exception as e:
+        print('Unable to save data: '+str(e))
+
+update_score_file(date_object, score_data_summary)

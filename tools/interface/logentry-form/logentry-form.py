@@ -82,7 +82,7 @@ Make Log entry for <input type="submit" name="makeentry" value="Selected Node" /
 selecttemplatehtml = """
 Choose one of these <b>templates</b>:
 <ul>
-<li>[<a href="/cgi-bin/logentry-form.py?makeentry=usetemplate&template=decisionRTT">select template</a>] Decision Making Template (System.Planning.Decisions.RTT).
+%s
 </ul>
 """
 
@@ -175,20 +175,25 @@ def select_Node():
     print(selectnodehtml)
     print(pagetail)
 
-
-def select_Template():
-    print(pagehead)
-    print(selecttemplatehtml)
-    print(pagetail)
-
-
 # A readable location for CGI scripts is probably /var/www/html/formalizer,
 # although the /var/www/webdata is another candidate.
 templatefiles = {
-    'decisionRTT' : cgireadabledir+'rttdecision-template.html'
+    'rttdecision' : ( cgireadabledir+'rttdecision-template.html', 'Decision Making Template (System.Planning.Decisions.RTT)' ),
+    'parsesources': ( cgireadabledir+'parsesources-template.html', 'A list of source material to parse' ),
 }
 
-def templated_entry(template):
+TEMPLATE_CHOICE_LINE = '''<li>[<a href="/cgi-bin/logentry-form.py?makeentry=usetemplate&template=%s">select template</a>] %s.</li>
+'''
+
+def select_Template():
+    print(pagehead)
+    templatechoices = ''
+    for template_key in templatefiles:
+        templatechoices += TEMPLATE_CHOICE_LINE % ( template_key, templatefiles[template_key][1] )
+    print(selecttemplatehtml % templatechoices)
+    print(pagetail)
+
+def templated_entry(template_key:str):
     print("Content-type:text/html\n")
     try:
         with open(authoritativelogentryform, "r") as f:
@@ -203,11 +208,11 @@ def templated_entry(template):
     # Note that the templates need to be available in a location that the CGI script can access and read.
     # I.e. the master Makefile needs to copy them to such a location.
     try:
-        templatepath = templatefiles[template]
+        templatepath = templatefiles[template_key][0]
         with open(templatepath, "r") as f:
             templatehtml = f.read()
     except:
-        print(f'<html><head><title>fz: Log Entry (fzlog) - Error</title></head><body><b>Error: Unable to read template file for {template}.</b></body></html>')
+        print(f'<html><head><title>fz: Log Entry (fzlog) - Error</title></head><body><b>Error: Unable to read template file for {template_key}.</b></body></html>')
         sys.exit(0)
     form_with_template_html = formhtml[0:textareapos] + templatehtml + formhtml[textareapos:]
     print(form_with_template_html)

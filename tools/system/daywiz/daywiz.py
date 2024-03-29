@@ -125,10 +125,11 @@ def update_total_scores(day: datetime, score: float, max_possible: float):
             total_score_dict = {}
         # Update current day score.
         daystr = day.strftime('%Y.%m.%d')
-        total_score_dict[daystr] = (score, max_possible)
+        #total_score_dict[daystr] = (score, max_possible)
+        total_score_dict[daystr] = int(10.0*score/max_possible)
         # Save updated day scores.
         with open(total_score_path, 'w') as f:
-            json.dump(sorted(total_score_dict.items()), f)
+            json.dump(dict(sorted(total_score_dict.items())[-7:]), f)
     except Exception as e:
         pass
 
@@ -358,7 +359,7 @@ class wiztable_line:
             self._state = str(data_list[WIZTABLE_LINES_STATE])
 
     def weight(self)->float:
-        return self._weight
+        return abs(self._weight)
 
     # === Produce HTML:
 
@@ -388,7 +389,10 @@ class wiztable_line:
         elif self._type == 'number':
             self.number_metrics[0] = 1
             if self._state != '':
-                self.number_metrics[1] = 1
+                if self._weight < 0:
+                    self.number_metrics[1] = 1
+                else:
+                    self.number_metrics[1] = float(self._state) # The value should be between 0.0 and 1.0.
             return WIZLINE_NUMBER_FRAME % ( self.id_str('wiz_state_'), str(self._state), SUBMIT_ON_INPUT )
         else:
             return ''
@@ -490,9 +494,10 @@ class daypage_wiztable:
 
     def add_to_number_metrics(self, nummetrics_pair: list, weight: float):
         self.number_metrics[0] += nummetrics_pair[0]
-        self.number_metrics[1] += nummetrics_pair[1]
+        if nummetrics_pair[1] > 0:
+            self.number_metrics[1] += 1
         self.score_possible += weight * nummetrics_pair[0]
-        self.score += weight * nummetrics_pair[1]
+        self.score += int(weight * nummetrics_pair[1])
 
     def generate_html_body(self) ->str:
         self.checkbox_metrics = [ 0, 0 ]

@@ -438,10 +438,7 @@ bool open_chunk() {
         standard.exit(exit_general_error); // error messages were already sent
     }
     
-    // *** NOTE: I'll just use actual time here for the moment, but we'll want to update
-    //     this to enable emulated time (as long as that time is greater than recent and
-    //     smaller than future).
-    time_t t = fzl.reftime.Time();
+    time_t t = fzl.reftime.Time(); // Emulated times are included via -t options_hook() of ReferenceTime.
 
     // Determine the state of the most recent Log chunk and close it if it was open.
     if (!close_chunk(t)) {

@@ -475,6 +475,42 @@ bool Node_completed_repeating(Node & node, Edit_flags & editflags, time_t t_ref 
 }
 
 /**
+ * For non-repeating Nodes, this corrects the specified required time to
+ * reflect the actual time taken to complete the Node, while also setting
+ * the Node completed.
+ * 
+ * This is a server function, e.g. called within `fzserverpq`, via the
+ * `Node_apply_minutes()` function below.
+ * 
+ * @param node Reference to a valid Node object.
+ * @param editflags Specifies the parameters modified. Used to update the database.
+ * @param seconds_applied The actual number of seconds that were applied to complete the Node.
+ */
+void Node_completed_non_repeating_more_required(Node & node, Edit_flags & editflags, time_t seconds_applied) {
+    node.set_required(seconds_applied);
+    editflags.set_Edit_required();
+
+    node.set_completion(1.0);
+    editflags.set_Edit_completion();
+}
+
+/**
+ * Updates Node completion ratio between 0.0 and 1.0.
+ * 
+ * This is a server function, e.g. called within `fzserverpq`, via the
+ * `Node_apply_minutes()` function below.
+ * 
+ * @param node Reference to a valid Node object.
+ * @param editflags Specifies the parameters modified. Used to update the database.
+ * @param seconds_applied The actual number of seconds applied to the Node so far.
+ * @param seconds_required The number of seconds predicted to be required to complete the Node.
+ */
+void Node_completion_update_within_required(Node & node, Edit_flags & editflags, float seconds_applied, float seconds_required) {
+    node.set_completion(seconds_applied / seconds_required);
+    editflags.set_Edit_completion();
+}
+
+/**
  * Updates a Node's completion ratio (and potentially updates required if
  * completion exceeds 1.0) in response to having logged a number of minutes
  * dedicated to the Node. For repeating Nodes, updates the targetdate if
@@ -482,14 +518,16 @@ bool Node_completed_repeating(Node & node, Edit_flags & editflags, time_t t_ref 
  * 
  * Notes:
  * 1. `add_minutes` is necessarily >= 0, which is different than directly
- * modifying parameters in ways that can increase or reduce. It only makes sense
- * to log positive time.
+ *    modifying parameters in ways that can increase or reduce. It only makes sense
+ *    to log positive time.
  * 2. Automatic correction of `required` when `completion > 1.0` is a point
- * where Formalizer 2.x behavior differs from that of Formalizer 1.x behavior.
- * 3. If an invalid circumstance is encountered then the special flag
- * Edit_flags::error is set. The calling function should still check for other
- * flags and synchronize modifications to the database, as some modifications can
- * take place before an error is encountered.
+ *    where Formalizer 2.x behavior differs from that of Formalizer 1.x behavior.
+ * 3. Special care if needed when a Node is repeating, because target date
+ *    updating must then happen for `completion >= 1.0`.
+ * 4. If an invalid circumstance is encountered then the special flag
+ *    Edit_flags::error is set. The calling function should still check for other
+ *    flags and synchronize modifications to the database, as some modifications can
+ *    take place before an error is encountered.
  * 
  * *** Future improvement notes:
  * A. While automatically correcting `required` when `completion > 1.0` is
@@ -517,18 +555,22 @@ Edit_flags Node_apply_minutes(Node & node, unsigned int add_minutes, time_t T_re
     auto seconds_applied = node.seconds_applied();
     seconds_applied += 60*add_minutes;
     auto required = node.get_required();
-    if (seconds_applied > required) {
-        if (node.get_repeats()) {
+
+    if (node.get_repeats()) { // Repeated Nodes are treated differently.
+        if (seconds_applied < required) {
+            Node_completion_update_within_required(node, editflags, seconds_applied, required);
+        } else { // Update target date as well.
             Node_completed_repeating(node, editflags, T_ref);
-        } else {
-            node.set_required(seconds_applied);
-            editflags.set_Edit_required();
-            node.set_completion(1.0);
         }
+
     } else {
-        node.set_completion(((float)seconds_applied)/((float)required));
+        if (seconds_applied <= required) {
+            Node_completion_update_within_required(node, editflags, seconds_applied, required);
+        } else { // Correct required as well and set completed to 1.0.
+            Node_completed_non_repeating_more_required(node, editflags, seconds_applied);
+        }
     }
-    editflags.set_Edit_completion();
+
     return editflags;
 }
 

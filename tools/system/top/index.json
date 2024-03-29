@@ -135,10 +135,18 @@
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20200424210214.1&G=true&I=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true",
             "window" : "_blank"
         },
+        "ETHICS-FRAMEWORK-1.0" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?G=true&n=20240109152013.1&I=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true",
+            "window" : "_blank"
+        },
         "EU2024-PERS-ROADMAP-V2-ITERATION-A" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20240311114746.1&G=true&T=true&C=150&B=79&tdorder=true&tdbad=true&tdfar=true",
             "window" : "_blank"
         },
+        "FORMALIZER" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20091119165134.1&G=true&T=true&C=300&B=79&tdorder=true&tdbad=true&tdfar=true",
+            "window" : "_blank"
+        }
     },
     "System Boards: " : {
         "Main Categories" : {

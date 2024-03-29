@@ -55,6 +55,7 @@ nutrition = {
 	'rice cake': [ 35, 'rice cake', ],
 	'seaweed': [ 48, 'serving', ],
 	'knackebrot': [ 20, 'slice', ],
+	'sesame knackebrot': [ 65, 'slice', ],
 	'baked vegetable snack': [ 130, '1ozsrv', ],
 	'ezekiel bread': [ 80, 'slice', ],
 	'falafel': [ 57, 'falafel', ],
@@ -194,9 +195,16 @@ nutrition = {
 	'krentenbol': [ 169, 'krentenbol', ],
 	'bacon': [ 43, 'piece', ],
 	'jam': [ 46, 'tblsp', ],
+	'light jam': [ 115, '100 g', ],
 	'tuna salad': [ 50, 'tblsp', ],
 	'borrelnoten': [ 131, 'serving', ],
 	'german brotchen': [ 150, 'roll', ],
+	'karnemelk': [ 29, '100 ml', ],
+	'stokbrood flute': [ 807, 'whole', ],
+	'boterhamworst': [ 251, '100g', ],
+	'greek yogurt': [ 59, '100 g', ],
+	'rookworst': [ 198, '100 g', ],
+	'cherries': [ 77, '100 g', ],
 }
 
 lowcal_filling_nutritious = [
@@ -208,6 +216,7 @@ lowcal_filling_nutritious = [
 	'falafel',
 	'feta olive mix',
 	'hummus',
+	'greek yogurt',
 ]
 
 lowcal_snack = [
@@ -239,6 +248,7 @@ fruit = [
 	'raspberries',
 	'strawberries',
 	'olives',
+	'cherries',
 ]
 
 vegetables = [
@@ -320,6 +330,7 @@ drinks = [
 	'rum',
 	'wine',
 	'energy drink',
+	'karnemelk',
 ]
 
 breads = [
@@ -338,6 +349,8 @@ breads = [
 	'croissant',
 	'krentenbol',
 	'german brotchen',
+	'stokbrood flute',
+	'sesame knackebrot',
 ]
 
 dairy = [
@@ -372,6 +385,8 @@ meat = [
 	'hot dog',
 	'liverwurst',
 	'bacon',
+	'boterhamworst',
+	'rookworst',
 ]
 
 deserts = [
@@ -401,6 +416,7 @@ spread = [
 	'jam',
 	'liverwurst',
 	'tuna salad',
+	'light jam',
 ]
 
 nutrition_groups = {

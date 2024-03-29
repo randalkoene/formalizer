@@ -321,6 +321,42 @@ bool Edit_flags::set_Edit_flag_by_label(const std::string flaglabel) {
     return true;
 }
 
+const std::map<std::string, Edit_flags_type> tdpropbylabel = {
+    {"unspecified", tdproperty_binary_pattern::unspecified},
+    {"inherit", tdproperty_binary_pattern::inherit},
+    {"variable", tdproperty_binary_pattern::variable},
+    {"fixed", tdproperty_binary_pattern::fixed},
+    {"exact", tdproperty_binary_pattern::exact},
+};
+
+bool tdproperty_binary_pattern::set_tdpropbinpat_flag_by_label(const std::string tdproplabel) {
+    auto it = tdpropbylabel.find(tdproplabel);
+    if (it == tdpropbylabel.end()) {
+        return false;
+    }
+    tdpropbinpattern |= it->second;
+    return true;
+}
+
+bool tdproperty_binary_pattern::in_pattern(td_property _tdprop) const {
+    if ((_tdprop == td_property::unspecified) && (unspecified_is_set())) {
+        return true;
+    }
+    if ((_tdprop == td_property::inherit) && (inherit_is_set())) {
+        return true;
+    }
+    if ((_tdprop == td_property::variable) && (variable_is_set())) {
+        return true;
+    }
+    if ((_tdprop == td_property::fixed) && (fixed_is_set())) {
+        return true;
+    }
+    if ((_tdprop == td_property::exact) && (exact_is_set())) {
+        return true;
+    }
+    return false;
+}
+
 /** 
  * Copies a complete set of Node data from a buffer on heap to shared memory Node object.
  * 

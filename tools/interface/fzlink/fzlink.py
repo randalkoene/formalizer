@@ -143,17 +143,17 @@ def build_command(id, alt):
     global addframe
     if id:
         idlen = len(id)
-        if (idlen==12):
+        if (idlen==12): # This refers to a Log Chunk!
             # Log chunk ID
             thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -D 1 -1 "+id
         else:
             if (idlen>12):
-                if (id[12]=='.'):
+                if (id[12]=='.'): # This refers to a Log Entry!
                     # Log entry ID (show the chunk)
                     chunkid = id[0:12]
                     thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -D 1 -1 "+chunkid
                 else:
-                    if (idlen==16):
+                    if (idlen==16): # This refers to a Node!
                         # Node ID
                         addframe = True
                         thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -n "+id

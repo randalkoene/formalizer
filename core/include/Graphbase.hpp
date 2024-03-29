@@ -344,6 +344,7 @@ public:
         importance   = 0b0000'0000'0000'0010'0000'0000'0000'0000, // An Edge edit.
         urgency      = 0b0000'0000'0000'0100'0000'0000'0000'0000, // An Edge edit.
         priority     = 0b0000'0000'0000'1000'0000'0000'0000'0000, // An Edge edit.
+        tdpropbinpat = 0b0000'0000'0001'0000'0000'0000'0000'0000, // A Node edit (or search).
         error        = 0b0100'0000'0000'0000'0000'0000'0000'0000  // see how this is used in Node_advance_repeating()
     };
 protected:
@@ -362,6 +363,7 @@ public:
     void set_Edit_text() { editflags |= Edit_flags::text; }
     void set_Edit_targetdate() { editflags |= Edit_flags::targetdate; }
     void set_Edit_tdproperty() { editflags |= Edit_flags::tdproperty; }
+    void set_Edit_tdpropbinpat() { editflags |= Edit_flags::tdpropbinpat; }
     void set_Edit_repeats() { editflags |= Edit_flags::repeats; }
     void set_Edit_tdpattern() { editflags |= Edit_flags::tdpattern; }
     void set_Edit_tdevery() { editflags |= Edit_flags::tdevery; }
@@ -381,6 +383,7 @@ public:
     bool Edit_text() const { return editflags & Edit_flags::text; }
     bool Edit_targetdate() const { return editflags & Edit_flags::targetdate; }
     bool Edit_tdproperty() const { return editflags & Edit_flags::tdproperty; }
+    bool Edit_tdpropbinpat() const { return editflags & Edit_flags::tdpropbinpat; }
     bool Edit_repeats() const { return editflags & Edit_flags::repeats; }
     bool Edit_tdpattern() const { return editflags & Edit_flags::tdpattern; }
     bool Edit_tdevery() const { return editflags & Edit_flags::tdevery; }
@@ -393,6 +396,37 @@ public:
     bool Edit_priority() const { return editflags & Edit_flags::priority; }
     bool Edit_error() const { return editflags & Edit_flags::error; }
     bool None() const { return editflags == 0; }
+};
+
+class tdproperty_binary_pattern {
+public:
+    enum tdpropertymask : Edit_flags_type {
+        unspecified  = 0b0000'0000'0000'0000'0000'0000'0000'0001,
+        inherit      = 0b0000'0000'0000'0000'0000'0000'0000'0010,
+        variable     = 0b0000'0000'0000'0000'0000'0000'0000'0100,
+        fixed        = 0b0000'0000'0000'0000'0000'0000'0000'1000,
+        exact        = 0b0000'0000'0000'0000'0000'0000'0001'0000
+    };
+protected:
+    Edit_flags_type tdpropbinpattern;
+public:
+    tdproperty_binary_pattern() : tdpropbinpattern(0) {}
+    Edit_flags_type get_tdpropbinpat_flags() const { return tdpropbinpattern; }
+    void clear() { tdpropbinpattern = 0; }
+    void set_tdpropbinpat_flags(Edit_flags_type _tdpropbinpattflags) { tdpropbinpattern = _tdpropbinpattflags; }
+    bool set_tdpropbinpat_flag_by_label(const std::string flaglabel);
+    void set_unspecified() { tdpropbinpattern |= tdproperty_binary_pattern::unspecified; }
+    void set_inherit() { tdpropbinpattern |= tdproperty_binary_pattern::inherit; }
+    void set_variable() { tdpropbinpattern |= tdproperty_binary_pattern::variable; }
+    void set_fixed() { tdpropbinpattern |= tdproperty_binary_pattern::fixed; }
+    void set_exact() { tdpropbinpattern |= tdproperty_binary_pattern::exact; }
+    bool unspecified_is_set() const { return tdpropbinpattern & tdproperty_binary_pattern::unspecified; }
+    bool inherit_is_set() const { return tdpropbinpattern & tdproperty_binary_pattern::inherit; }
+    bool variable_is_set() const { return tdpropbinpattern & tdproperty_binary_pattern::variable; }
+    bool fixed_is_set() const { return tdpropbinpattern & tdproperty_binary_pattern::fixed; }
+    bool exact_is_set() const { return tdpropbinpattern & tdproperty_binary_pattern::exact; }
+    bool None() const { return tdpropbinpattern == 0; }
+    bool in_pattern(td_property _tdprop) const;
 };
 
 /**

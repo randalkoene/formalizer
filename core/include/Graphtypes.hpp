@@ -558,6 +558,8 @@ public:
     bool is_incomplete() const { return completion < 1.0; }
     bool is_special_code() const { return completion < 0.0; }
 
+    bool probably_has_Log_history() const { return seconds_applied() > 0.0; }
+
     const Node_utf8_text & get_text() const { return text; }
 
     time_t get_targetdate() const { return targetdate; }

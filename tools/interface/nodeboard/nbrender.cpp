@@ -566,8 +566,16 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
 
     // For each node: Set up a map of content to template position IDs.
     template_varvalues nodevars;
-    nodevars.emplace("node-id", node_ptr->get_id_str());
-    nodevars.emplace("node-deps", node_ptr->get_id_str());
+    std::string node_id_str = node_ptr->get_id_str();
+    nodevars.emplace("node-id", node_id_str);
+    // Show a hint that this Node may  have some history worth seeing.
+    if (node_ptr->probably_has_Log_history()) {
+        nodevars.emplace("nodelink-bg-color", "class=\"link-bg-color-yellow\"");
+    } else {
+        nodevars.emplace("nodelink-bg-color", "");
+    }
+    nodevars.emplace("node-id-history", node_id_str+"&alt=histfull");
+    nodevars.emplace("node-deps", node_id_str);
     nodevars.emplace("node-text", node_text);
     float completion = node_ptr->get_completion();
     float progress = completion*100.0;
