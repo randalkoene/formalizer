@@ -446,9 +446,14 @@ class Boolean_Tag_Flags {
 public:
     enum boolean_flag : Boolean_Tag_Flags_type {
         none         = 0b0000'0000'0000'0000'0000'0000'0000'0000,
+
         tzadjust     = 0b0000'0000'0000'0000'0000'0000'0000'0001, // @TZADJUST@
+
         work         = 0b0000'0000'0000'0000'0000'0000'0000'0010, // @WORK@
         self_work    = 0b0000'0000'0000'0000'0000'0000'0000'0100, // @SELFWORK@
+        system       = 0b0000'0000'0000'0000'0000'0000'0000'1000, // @SYSTEM@
+        other        = 0b0000'0000'0000'0000'0000'0000'0001'0000, // @OTHER@ (explicitly note one of the above)
+
         error        = 0b0100'0000'0000'0000'0000'0000'0000'0000,
     };
 protected:
@@ -462,14 +467,34 @@ public:
     void copy_Boolean_Tag_flags(Boolean_Tag_Flags_type _bflags) { bflags = _bflags; }
     void or_set(Boolean_Tag_Flags_type _bflags) { bflags |= _bflags; }
     //bool set_Boolean_Tag_flag_by_label(const std::string flaglabel);
+
     void set_TZadjust() { bflags |= Boolean_Tag_Flags::tzadjust; }
+
     void set_Work() { bflags |= Boolean_Tag_Flags::work; }
     void set_SelfWork() { bflags |= Boolean_Tag_Flags::self_work; }
+    void set_System() { bflags |= Boolean_Tag_Flags::system; }
+    void set_Other() { bflags |= Boolean_Tag_Flags::other; }
+
     void set_Error() { bflags |= Boolean_Tag_Flags::error; }
+
     bool has_Boolean_Tag_flag(Boolean_Tag_Flags::boolean_flag _bflag) const { return bflags & _bflag; }
+
     bool TZadjust() const { return bflags & Boolean_Tag_Flags::tzadjust; }
+
     bool Work() const { return bflags & Boolean_Tag_Flags::work; }
-    bool SelfWork() const { return bflags & Boolean_Tag_Flags::self_work; } 
+    bool SelfWork() const { return bflags & Boolean_Tag_Flags::self_work; }
+    bool System() const { return bflags & Boolean_Tag_Flags::system; }
+    bool Other() const { return bflags & Boolean_Tag_Flags::other; }
+    Boolean_Tag_Flags_type get_AllCategories() const { return bflags & (
+            Boolean_Tag_Flags::work
+            | Boolean_Tag_Flags::self_work
+            | Boolean_Tag_Flags::system
+            | Boolean_Tag_Flags::other
+        ); }
+    Boolean_Tag_Flags::boolean_flag get_PriorityCategory() const;
+    bool InCategory() const { return get_AllCategories(); }
+
+
     bool Error() const { return bflags & Boolean_Tag_Flags::error; }
     bool None() const { return bflags == Boolean_Tag_Flags::none; }
 };

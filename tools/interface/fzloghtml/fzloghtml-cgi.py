@@ -115,15 +115,12 @@ or<br />
 
 <hr>
 
-<p>[<a href="/index.html">fz: Top</a>]</p>
+<p>[<a href="/index.html">fz: Top</a>] <span id="logautoupdate">_</span></p>
 
 <script type="text/javascript" src="/fzuistate.js"></script>
 <script type="text/javascript" src="/clock.js"></script>
 <script type="text/javascript" src="/score.js"></script>
-<!-- <script> -- These are already created within the clock.js and score.js scripts loaded. --
-    var clock = new floatClock('clock');
-    var score = new floatScore('score');
-</script> -->
+<script type="text/javascript" src="/logautoupdate.js"></script>
 '''
 
 

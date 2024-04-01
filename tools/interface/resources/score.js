@@ -7,7 +7,6 @@
  * - Load this before the closing </body> tag: <script type="text/javascript" src="/score.js">v</script>
  * - Load the necessary CSS in the <head> section (e.g. before <title>): <link rel="stylesheet" href="/score.css">
  * - Add a button to associate the score with, somewhere in the body: <button id="score" class="button button2">_____</button>
- * - Create an instance of floatScore within a <script> section or a Javascript component, e.g: <script>var score = new floatScore('score');</script>
  *
  * Adapted from the clock.js script.
  */

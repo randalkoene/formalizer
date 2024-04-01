@@ -19,6 +19,8 @@ import subprocess
 
 contentfilepath="/var/www/webdata/formalizer/fzlog-cgi.html"
 
+chunkopen_signal_path='/var/www/webdata/formalizer/chunkopen.signal'
+
 # Create instance of FieldStorage 
 form = cgi.FieldStorage()
 
@@ -303,6 +305,14 @@ replaceentrypagetail_failure = '''<p class="fail"><b>ERROR: Unable to replace Lo
 
 results = {}
 
+# Store a new time stamp to signal active Log chunk change.
+def update_chunk_signal():
+    try:
+        with open(chunkopen_signal_path, 'w') as f:
+            f.write(strftime("%Y%m%d%H%M%S"))
+    except Exception as e:
+        print('Failed to write to signal file: '+str(e), file=sys.stderr)
+
 def try_subprocess_check_output(thecmdstring: str, resstore: str, verbosity: 1) -> int:
     if verbosity > 1:
         print(f'Calling subprocess: `{thecmdstring}`', flush=True)
@@ -391,6 +401,7 @@ def open_new_Log_chunk(node: str, T_emulated: str, verbosity = 1) -> bool:
     if (retcode == 0):
         render_node_with_history(node)
         print(openpagetail_success)
+        update_chunk_signal()
     else:
         print(openpagetail_failure)
     return (retcode == 0)
@@ -401,6 +412,7 @@ def close_Log_chunk(T_emulated: str, verbosity = 1) -> bool:
     retcode = try_subprocess_check_output(thecmd, 'close_chunk', verbosity)
     if (retcode == 0):
         print(closepagetail_success)
+        update_chunk_signal()
     else:
         print(closepagetail_failure)
     return (retcode == 0)
@@ -411,6 +423,7 @@ def reopen_Log_chunk(verbosity = 1) -> bool:
     retcode = try_subprocess_check_output(thecmd, 'reopen_chunk', verbosity)
     if (retcode == 0):
         print(reopenpagetail_success)
+        update_chunk_signal()
     else:
         print(reopenpagetail_failure)
     return (retcode == 0)

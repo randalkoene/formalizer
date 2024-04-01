@@ -279,6 +279,7 @@ TOPLEVEL += $(TOOLSPATH)/interface/resources/clock.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/clock.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/score.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/score.js
+TOPLEVEL += $(TOOLSPATH)/interface/resources/logautoupdate.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/fz.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/fz-cards.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/fzclosing_window.js

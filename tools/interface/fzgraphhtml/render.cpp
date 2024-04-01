@@ -117,6 +117,7 @@ const std::map<Boolean_Tag_Flags::boolean_flag, std::string> category_tag_str = 
     { Boolean_Tag_Flags::none, "" },
     { Boolean_Tag_Flags::work, "<span class=\"bold-blue\">W</span>" },
     { Boolean_Tag_Flags::self_work, "<span class=\"bold-green\">S</span>" },
+    { Boolean_Tag_Flags::system, "<span class=\"bold-green\">C</span>" },
 };
 
 struct line_render_parameters {
@@ -133,6 +134,7 @@ struct line_render_parameters {
     std::map<Boolean_Tag_Flags::boolean_flag, float> day_category_hrs = {
         {Boolean_Tag_Flags::work, 0.0},
         {Boolean_Tag_Flags::self_work, 0.0},
+        {Boolean_Tag_Flags::system, 0.0},
     };
     Map_of_Subtrees map_of_subtrees;
     std::string subtrees_list_tag;
@@ -230,8 +232,9 @@ struct line_render_parameters {
         varvals.emplace("srclist","");
         rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
         day_total_hrs = 0.0;
-        day_category_hrs.at(Boolean_Tag_Flags::work) = 0.0;
-        day_category_hrs.at(Boolean_Tag_Flags::self_work) = 0.0;
+        for (auto & [ flag, hours ] : day_category_hrs) {
+            day_category_hrs[flag] = 0.0;
+        }
     }
 
     void insert_day_start(time_t t) {
@@ -372,7 +375,11 @@ struct line_render_parameters {
         std::string htmltext(node.get_text().c_str());
         Boolean_Tag_Flags::boolean_flag boolean_tag;
         if (map_of_subtrees.node_in_heads_or_any_subtree(node.get_id().key(), boolean_tag)) {
-            varvals.emplace("excerpt",category_tag_str.at(boolean_tag)+subtrees_list_tag+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
+            if (category_tag_str.find(boolean_tag) != category_tag_str.end()) {
+                varvals.emplace("excerpt",category_tag_str.at(boolean_tag)+subtrees_list_tag+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
+            } else {
+                varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
+            }
             if (day_category_hrs.find(boolean_tag) != day_category_hrs.end()) {
                 day_category_hrs.at(boolean_tag) += hours_to_show;
             }

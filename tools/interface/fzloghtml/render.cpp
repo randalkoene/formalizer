@@ -551,6 +551,8 @@ const std::map<Boolean_Tag_Flags::boolean_flag, char> category_character = {
     { Boolean_Tag_Flags::tzadjust, 't' },
     { Boolean_Tag_Flags::work, 'w' },
     { Boolean_Tag_Flags::self_work, 's' },
+    { Boolean_Tag_Flags::system, 'S' },
+    { Boolean_Tag_Flags::other, '?' },
     { Boolean_Tag_Flags::error,  'e' },
 };
 
@@ -558,6 +560,7 @@ const std::map<char, std::string> category_letter_to_string = {
     { 't', "tzadjust" },
     { 'w', "work" },
     { 's', "selfwork" },
+    { 'S', "system" },
     { 'e', "error" },
     { 'n', "nap" },
     { '?', "other" },
@@ -566,6 +569,8 @@ const std::map<char, std::string> category_letter_to_string = {
 const std::map<std::string, Boolean_Tag_Flags::boolean_flag> log_override_tags = {
     { "@WORK@", Boolean_Tag_Flags::work },
     { "@SELFWORK@", Boolean_Tag_Flags::self_work },
+    { "@SYSTEM@", Boolean_Tag_Flags::system },
+    { "@OTHER@", Boolean_Tag_Flags::other },
 };
 
 const std::map<most_recent_format, template_id_enum> review_format_to_template_map = {
@@ -596,16 +601,20 @@ struct review_element {
     std::string nodedesc;
     std::string logcontent;
 
-    review_element(time_t start, time_t seconds, const Boolean_Tag_Flags & boolean_tag, const std::string & _nodedesc, const std::string & _content):
+    review_element(time_t start, time_t seconds, const Boolean_Tag_Flags & boolean_tag, const std::string & _nodedesc, const std::string & _content, bool is_nap = false):
         t_begin(start), seconds_applied(seconds), nodedesc(remove_html(_nodedesc).substr(0, 256)), logcontent(remove_html(_content).substr(0, 256)) {
-        if (_content.empty()) {
+        if (is_nap) {
             category = 'n';
         } else if (boolean_tag.None()) {
-            category = '?';
+            category = category_character.at(Boolean_Tag_Flags::other);
         } else if (boolean_tag.Work()) {
             category = category_character.at(Boolean_Tag_Flags::work);
         } else if (boolean_tag.SelfWork()) {
             category = category_character.at(Boolean_Tag_Flags::self_work);
+        } else if (boolean_tag.System()) {
+            category = category_character.at(Boolean_Tag_Flags::system);
+        } else if (boolean_tag.Other()) {
+            category = category_character.at(Boolean_Tag_Flags::other);
         }
     }
 
@@ -806,17 +815,14 @@ bool render_Log_review() {
                         data.t_candidate_wakeup = t_chunkclose;
                         data.t_gosleep = t_chunkopen;
                     } else { // Chunk is a nap.
-                        data.elements.emplace_back(t_chunkopen, t_chunkclose - t_chunkopen, boolean_tag, node_ptr->get_text(), "");
+                        data.elements.emplace_back(t_chunkopen, t_chunkclose - t_chunkopen, boolean_tag, node_ptr->get_text(), chunkptr->get_combined_entries_text(), true);
                     }
                 } else {
                     // Identify category.
                     //   Look for category override tags in chunk content.
                     // *** Perhaps make this a service function reached through Graphinfo.
                     bool override = false;
-                    std::string combined_entries;
-                    for (const auto& entryptr : chunkptr->get_entries()) if (entryptr) {
-                        combined_entries += entryptr->get_entrytext();
-                    }
+                    std::string combined_entries(chunkptr->get_combined_entries_text());
                     for (const auto & [ tag, flag ] : log_override_tags) {
                         if (combined_entries.find(tag) != std::string::npos) {
                             boolean_tag.copy_Boolean_Tag_flags(flag);

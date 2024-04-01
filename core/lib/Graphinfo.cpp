@@ -342,18 +342,21 @@ bool Map_of_Subtrees::node_in_any_subtree(Node_ID_key node_key) const {
     return false;
 }
 
-void Map_of_Subtrees::set_category_boolean_tag(Node_ID_key subtree_key, Boolean_Tag_Flags::boolean_flag & boolean_tag) const {
-    if (graph_ptr) {
-        boolean_tag = graph_ptr->find_category_tag(subtree_key);
-    } else {
-        boolean_tag = Boolean_Tag_Flags::none;
-    }
+Boolean_Tag_Flags::boolean_flag Map_of_Subtrees::get_category_boolean_tag(Node_ID_key node_key, Node_ID_key subtree_key) const {
+    if (!graph_ptr) return Boolean_Tag_Flags::none;
+
+    Boolean_Tag_Flags::boolean_flag boolean_tag;
+    boolean_tag = graph_ptr->find_category_tag(node_key);
+    if (boolean_tag == Boolean_Tag_Flags::none) boolean_tag = graph_ptr->find_category_tag(subtree_key);
+    return boolean_tag;
 }
 
 /**
  * Search the map of subtrees for an instance of a Node. If found then also check
- * the subtree top-Node for a category Boolean Flag Tag that may be used in
- * visualization.
+ * the Node and the subtree top-Node for a category Boolean Flag Tag that may be
+ * used in visualization.
+ * 
+ * A Boolean Flag Tag set at the Node itself overrides that of the subtree top-Node.
  * 
  * The graph_ptr member variable must be valid, as set during collect().
  * 
@@ -365,11 +368,11 @@ bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean
     if (!has_subtrees) return false;
     for (const auto & [subtree_key, subtree_ref]: map_of_subtrees) {
         if (subtree_key == node_key) {
-            set_category_boolean_tag(subtree_key, boolean_tag);
+            boolean_tag = get_category_boolean_tag(node_key, subtree_key);
             return true;
         }
         if (subtree_ref.map_by_key.find(node_key) != subtree_ref.map_by_key.end()) {
-            set_category_boolean_tag(subtree_key, boolean_tag);
+            boolean_tag = get_category_boolean_tag(node_key, subtree_key);
             return true;
         }
     }

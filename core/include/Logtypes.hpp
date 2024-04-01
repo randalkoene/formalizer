@@ -241,6 +241,7 @@ public:
     // helper (utility) functions
     std::time_t duration_seconds() const; // inline below
     int duration_minutes() const; // inline below
+    std::string get_combined_entries_text() const; // inline below
 
     /// friend (utility) functions
     friend Topic * main_topic(Graph & _graph, Log_chunk & chunk);
@@ -661,6 +662,19 @@ inline int Log_chunk::duration_minutes() const {
         return -1;
 
     return duration_seconds() / 60;
+}
+
+/**
+ * Retrieve the concatenation of Log entries text content.
+ * 
+ * @return concatenated text content.
+ */
+inline std::string Log_chunk::get_combined_entries_text() const {
+    std::string combined_entries;
+    for (auto& entryptr : const_cast<Log_chunk*>(this)->get_entries()) if (entryptr) {
+        combined_entries += entryptr->get_entrytext();
+    }
+    return combined_entries;
 }
 
 /// Get a copy of the ID key of Log chunk by index, or null-key if out of range.

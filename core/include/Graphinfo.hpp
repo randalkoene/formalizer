@@ -142,7 +142,7 @@ public:
 
     bool node_in_any_subtree(Node_ID_key node_key) const;
 
-    void set_category_boolean_tag(Node_ID_key subtree_key, Boolean_Tag_Flags::boolean_flag & boolean_tag) const;
+    Boolean_Tag_Flags::boolean_flag get_category_boolean_tag(Node_ID_key node_key, Node_ID_key subtree_key) const;
 
     bool node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean_Tag_Flags::boolean_flag & boolean_tag) const;
 };

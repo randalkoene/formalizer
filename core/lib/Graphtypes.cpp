@@ -463,6 +463,8 @@ const std::map<const char *, Boolean_Tag_Flags::boolean_flag, cmp_cstr> boolean_
     { "TZADJUST", Boolean_Tag_Flags::tzadjust },
     { "WORK", Boolean_Tag_Flags::work },
     { "SELFWORK", Boolean_Tag_Flags::self_work },
+    { "SYSTEM", Boolean_Tag_Flags::system },
+    { "OTHER", Boolean_Tag_Flags::other },
 };
 
 /**
@@ -498,6 +500,8 @@ const std::map<Boolean_Tag_Flags::boolean_flag, const std::string> boolean_flag_
     { Boolean_Tag_Flags::tzadjust, "TZADJUST" },
     { Boolean_Tag_Flags::work, "WORK" },
     { Boolean_Tag_Flags::self_work, "SELFWORK" },
+    { Boolean_Tag_Flags::system, "SYSTEM" },
+    { Boolean_Tag_Flags::other, "OTHER" },
     { Boolean_Tag_Flags::error,  "error" },
 };
 
@@ -516,6 +520,14 @@ std::vector<std::string> Boolean_Tag_Flags::get_Boolean_Tag_flags_strvec() const
         bstrvec.emplace_back(boolean_flag_str_map.at(_bflag));
     }
     return bstrvec;
+}
+
+Boolean_Tag_Flags::boolean_flag Boolean_Tag_Flags::get_PriorityCategory() const {
+    if (Work()) return Boolean_Tag_Flags::work;
+    if (SelfWork()) return Boolean_Tag_Flags::self_work;
+    if (System()) return Boolean_Tag_Flags::system;
+    if (Other()) return Boolean_Tag_Flags::other;
+    return Boolean_Tag_Flags::none;
 }
 
 /**
@@ -1662,17 +1674,14 @@ std::set<std::string> Graph::find_all_NNLs_Node_is_in(const Node_ID_key & nkey) 
 }
 
 /**
- * Note: So far, this is a very limited method that only looks for two
- *       types of tags, namely 'work' and 'self_work'.
+ * Note: So far, this is a very limited method that only looks for three
+ *       types of tags, namely 'work', 'self_work' and 'system'.
  */
 Boolean_Tag_Flags::boolean_flag Graph::find_category_tag(Node_ID_key nkey) const {
     Node * node_ptr = Node_by_id(nkey);
     if (!node_ptr) return Boolean_Tag_Flags::none;
 
-    Boolean_Tag_Flags bflags = node_ptr->get_bflags();
-    if (bflags.Work()) return Boolean_Tag_Flags::work;
-    if (bflags.SelfWork()) return Boolean_Tag_Flags::self_work;
-    return Boolean_Tag_Flags::none;
+    return node_ptr->get_bflags().get_PriorityCategory();
 }
 
 // +----- begin: friend functions -----+
