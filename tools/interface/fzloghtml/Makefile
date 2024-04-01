@@ -110,6 +110,8 @@ CORE_OBJS += $(CORELIBPATH)/obj/html.o
 CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphbase.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
+CORE_OBJS += $(CORELIBPATH)/obj/Graphinfo.o
+CORE_OBJS += $(CORELIBPATH)/obj/GraphLogxmap.o
 CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
 CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
 CORE_OBJS += $(CORELIBPATH)/obj/fzpostgres.o
@@ -130,7 +132,7 @@ init: FORCE
 	@echo 'Includes: $(CPPFLAGS)'
 	@echo '-------------------------------------------------------------------'
 
-$(OBJ)/render.o: render.cpp render.hpp
+$(OBJ)/render.o: render.cpp render.hpp $(INC)/Graphinfo.hpp $(INC)/GraphLogxmap.hpp $(INC)/stringio.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(FORMALIZERROOT) $(TEMPLATEDIR) -DANOTHER_TEMPLATE_DIR=/home/randalk/src/formalizer/tools/interface/fzloghtml -c render.cpp -o $(OBJ)/render.o
 
 

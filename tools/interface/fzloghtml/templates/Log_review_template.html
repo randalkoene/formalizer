@@ -1,0 +1,43 @@
+<html>
+<head>
+<link rel="stylesheet" href="/fz.css">
+<link rel="icon" href="/favicon-logentry-32x32.png">
+<title>
+Log Review
+</title>
+</head>
+<body>
+<style type="text/css">
+.chktop { 
+    background-color: #B0C4F5;
+}
+table tr.chktop { background: #B0C4F5; }
+</style>
+<h1>
+Log Review
+</h1>
+
+<form action="/cgi-bin/dayreview-cgi.py" method="post">
+
+{{ top-info }}
+
+<table>
+<tbody>
+
+{{ table-entries }}
+
+</tbody>
+<hr>
+<a name="END">&nbsp;</a>
+</table>
+
+<input type="submit" value="Submit" />
+</form>
+
+<hr>
+
+<p>[<a href="/index.html">fz: Top</a>]</p>
+
+
+</body>
+</html>

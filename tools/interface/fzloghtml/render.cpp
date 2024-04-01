@@ -20,6 +20,7 @@
 #include "stringio.hpp"
 #include "templater.hpp"
 #include "html.hpp"
+#include "Graphinfo.hpp"
 
 // local
 #include "render.hpp"
@@ -38,7 +39,7 @@
 using namespace fz;
 
 
-enum template_id_enum {
+enum template_id_enum: unsigned int {
     LogHTML_head_temp,
     LogHTML_tail_temp,
     Log_chunk_RAW_temp,
@@ -50,6 +51,18 @@ enum template_id_enum {
     Log_most_recent_HTML_temp,
     Log_most_recent_TXT_temp,
     Log_most_recent_RAW_temp,
+    Log_review_RAW_temp,
+    Log_review_TXT_temp,
+    Log_review_HTML_temp,
+    Log_review_JSON_temp,
+    Log_review_topinfo_RAW_temp,
+    Log_review_topinfo_TXT_temp,
+    Log_review_topinfo_HTML_temp,
+    Log_review_topinfo_JSON_temp,
+    Log_review_chunk_RAW_temp,
+    Log_review_chunk_TXT_temp,
+    Log_review_chunk_HTML_temp,
+    Log_review_chunk_JSON_temp,
     NUM_temp
 };
 
@@ -64,24 +77,29 @@ const std::vector<std::string> template_ids = {
     "Log_entry_template.html",
     "Log_most_recent_template.html",
     "Log_most_recent_template.txt",
-    "Log_most_recent_template.raw"
+    "Log_most_recent_template.raw",
+    "Log_review_template.raw",
+    "Log_review_template.txt",
+    "Log_review_template.html",
+    "Log_review_template.html" // not used
+    "Log_review_topinfo_template.raw",
+    "Log_review_topinfo_template.txt",
+    "Log_review_topinfo_template.html",
+    "Log_review_topinfo_template.html", // not used
+    "Log_review_chunk_template.raw",
+    "Log_review_chunk_template.txt",
+    "Log_review_chunk_template.html",
+    "Log_review_chunk_template.html" // not used
 };
 
-typedef std::map<template_id_enum,std::string> fzloghtml_templates;
-
 render_environment env;
-fzloghtml_templates templates;
-std::string * active_entry_template = nullptr;
 
-bool load_templates(fzloghtml_templates & templates) {
-    templates.clear();
+std::string template_path_from_id(template_id_enum template_id) {
+    return template_dir+"/"+template_ids[template_id];
+}
 
-    for (int i = 0; i < NUM_temp; ++i) {
-        if (!file_to_string(template_dir + "/" + template_ids[i], templates[static_cast<template_id_enum>(i)]))
-            ERRRETURNFALSE(__func__, "unable to load " + template_ids[i]);
-    }
-
-    return true;
+std::string template_path_from_map(const std::map<most_recent_format, template_id_enum> & tmap) {
+    return template_dir+"/"+template_ids.at(static_cast<unsigned int>(tmap.at(fzlh.recent_format)));
 }
 
 const std::map<std::string, std::string> template_code_replacements = {
@@ -169,49 +187,56 @@ const std::vector<std::string> special_urls = {
     "@FZSERVER@"
 };
 
-std::string render_Log_entry(Log_entry & entry, std::locale & loc) {
-    template_varvalues varvals;
-    varvals.emplace("minor_id",std::to_string(entry.get_minor_id()));
-    varvals.emplace("entry_id",entry.get_id_str());
+std::string render_Log_entry(Log_entry & entry, std::locale & loc, const std::string & active_entry_template) {
+    std::map<std::string, std::string> log_entry_data = {
+        { "minor_id", std::to_string(entry.get_minor_id()) },
+        { "entry_id", entry.get_id_str() },
+    };
+
     if (fzlh.search_strings.empty()) {
-        varvals.emplace("entry_text",make_embeddable_html(
+        log_entry_data["entry_text"] = make_embeddable_html(
             entry.get_entrytext(),
             fzlh.config.interpret_text,
             &special_urls,
             &fzlh.replacements
-        ));
+        );
     } else {
         std::string text_to_highlight = make_embeddable_html(
             entry.get_entrytext(),
             fzlh.config.interpret_text
         );
-        varvals.emplace("entry_text",add_search_highlighting(text_to_highlight, loc));
+        log_entry_data["entry_text"] = add_search_highlighting(text_to_highlight, loc);
     }
+
     if (entry.same_node_as_chunk()) {
-        varvals.emplace("node_id","");
+        log_entry_data["node_id"] = ""; 
     } else {
         std::string nodestr(entry.get_nodeidkey().str());
         if (fzlh.recent_format == most_recent_html) {
-            varvals.emplace("node_id","[<a href=\"/cgi-bin/fzlink.py?id="+nodestr+"\">"+nodestr+"</a>]");
+            log_entry_data["node_id"] = "[<a href=\"/cgi-bin/fzlink.py?id="+nodestr+"\">"+nodestr+"</a>]";
         } else {
-            varvals.emplace("node_id",nodestr);
+            log_entry_data["node_id"] = nodestr;
         }
     }
-    return env.render(*active_entry_template,varvals);
+
+    std::string rendered_entry;
+    if (!env.fill_preloaded_template_from_map(active_entry_template, log_entry_data, rendered_entry)) {
+        return "";
+    }
+    return rendered_entry;
 }
 
 bool send_rendered_to_output(std::string & rendered_text) {
     if ((fzlh.config.dest.empty()) || (fzlh.config.dest == "STDOUT")) { // to STDOUT
-        //VERBOSEOUT("Log interval:\n\n");
         FZOUT(rendered_text);
         return true;
     }
     
-    VERBOSEOUT("Writing rendered content to "+fzlh.config.dest+".\n\n");
     if (!string_to_file(fzlh.config.dest,rendered_text)) {
         ADDERROR(__func__,"unable to write to "+fzlh.config.dest);
         standard.exit(exit_file_error);
     }
+    VERBOSEOUT("Rendered content written to "+fzlh.config.dest+".\n\n");
     return true;
 }
 
@@ -303,13 +328,9 @@ std::string make_around_button(const std::string & logchunk_id) {
 }
 
 /**
- * Convert Log content that was retrieved with filtering to HTML using
- * rending templates and send to designated output destination.
+ * Combine search strings and case insensitive options.
  */
-bool render_Log_interval() {
-    ERRTRACE;
-
-    std::locale loc;
+void apply_search_strings_case_insensitive(std::locale & loc) {
     if (!fzlh.search_strings.empty()) {
         if (fzlh.caseinsensitive) {
             for (unsigned int i = 0; i < fzlh.search_strings.size(); i++) {
@@ -317,30 +338,52 @@ bool render_Log_interval() {
             }
         }
     }
+}
+
+void report_interval() {
+    if (fzlh.filter.nkey.isnullkey()) {
+        VERYVERBOSEOUT("Finding Log chunks from "+TimeStampYmdHM(fzlh.filter.t_from)+" to "+TimeStampYmdHM(fzlh.filter.t_to)+'\n');
+    } else {
+        VERYVERBOSEOUT("Finding the Log history of Node "+fzlh.filter.nkey.str()+'\n');
+    }
+}
+
+const std::map<most_recent_format, template_id_enum> log_interval_chunk_tmap = {
+    { most_recent_raw, Log_chunk_RAW_temp },
+    { most_recent_txt, Log_chunk_TXT_temp },
+    { most_recent_html, Log_chunk_HTML_temp },
+    { most_recent_json, Log_chunk_HTML_temp }, // not used
+};
+
+const std::map<most_recent_format, template_id_enum> log_interval_entry_tmap = {
+    { most_recent_raw, Log_entry_RAW_temp },
+    { most_recent_txt, Log_entry_TXT_temp },
+    { most_recent_html, Log_entry_HTML_temp },
+    { most_recent_json, Log_entry_HTML_temp }, // not used
+};
+
+/**
+ * Convert Log content that was retrieved with filtering to HTML using
+ * rending templates and send to designated output destination.
+ */
+bool render_Log_interval() {
+    ERRTRACE;
+
+    std::locale loc;
+    apply_search_strings_case_insensitive(loc);
 
     std::string customtemplate;
-    if (fzlh.custom_template.empty() || (!fzlh.noframe)) {
-        load_templates(templates); // *** wait? doesn't this segfault further down on the other templates if skipped???
+    // if (fzlh.custom_template.empty() || (!fzlh.noframe)) {
+    //     load_templates(templates); // *** wait? doesn't this segfault further down on the other templates if skipped???
+    // }
+
+    std::string active_chunk_template;
+    if (!env.load_template(template_path_from_map(log_interval_chunk_tmap), active_chunk_template)) {
+        return false;
     }
-
-    std::string * active_chunk_template;
-    switch (fzlh.recent_format) {
-        case most_recent_raw: {
-            active_chunk_template = &templates[Log_chunk_RAW_temp];
-            active_entry_template = &templates[Log_entry_RAW_temp];
-            break;
-        }
-
-        case most_recent_txt: {
-            active_chunk_template = &templates[Log_chunk_TXT_temp];
-            active_entry_template = &templates[Log_entry_TXT_temp];
-            break;
-        }
-
-        default: {
-            active_chunk_template = &templates[Log_chunk_HTML_temp];
-            active_entry_template = &templates[Log_entry_HTML_temp];
-        }
+    std::string active_entry_template;
+    if (!env.load_template(template_path_from_map(log_interval_entry_tmap), active_entry_template)) {
+        return false;
     }
 
     if (!fzlh.custom_template.empty()) {
@@ -351,17 +394,17 @@ bool render_Log_interval() {
         }
     }
 
-    if (fzlh.filter.nkey.isnullkey()) {
-        VERYVERBOSEOUT("Finding Log chunks from "+TimeStampYmdHM(fzlh.filter.t_from)+" to "+TimeStampYmdHM(fzlh.filter.t_to)+'\n');
-    } else {
-        VERYVERBOSEOUT("Finding the Log history of Node "+fzlh.filter.nkey.str()+'\n');
-    }
+    report_interval();
 
     std::string rendered_logcontent;
     rendered_logcontent.reserve(128*1024);
 
     if (!fzlh.noframe) {
-        rendered_logcontent += templates[LogHTML_head_temp];
+        std::string head_template;
+        if (!env.load_template(template_path_from_id(LogHTML_head_temp), head_template)) {
+            return false;
+        }
+        rendered_logcontent += head_template;
     }
 
     if (fzlh.show_total_time_applied) {
@@ -390,7 +433,7 @@ bool render_Log_interval() {
                     }
                 }
                 if (entryptr) {
-                    combined_entries += render_Log_entry(*entryptr, loc);
+                    combined_entries += render_Log_entry(*entryptr, loc, active_entry_template);
                 }
             }
 
@@ -411,7 +454,7 @@ bool render_Log_interval() {
             //varvals.emplace("fzserverpq",graph.get_server_full_address()); *** so far, this is independent of whether the Graph is memory-resident
             std::string t_open_visible_str(t_open_str);
             if (fzlh.config.timezone_offset_hours != 0) {
-                t_open_visible_str = TimeStampYmdHM(t_chunkopen + (fzlh.config.timezone_offset_hours*3600));
+                t_open_visible_str = TimeStampYmdHM(fzlh.time_zone_adjusted(t_chunkopen));
             }
             if (fzlh.filter.nkey.isnullkey()) {
                 varvals.emplace("t_chunkopen", t_open_visible_str);
@@ -425,10 +468,7 @@ bool render_Log_interval() {
                 varvals.emplace("t_diff", "");
                 varvals.emplace("t_diff_mins", ""); // typically, only either t_diff or t_diff_mins appears in a template
             } else {
-                time_t _tchunkclose = t_chunkclose;
-                if (fzlh.config.timezone_offset_hours != 0) {
-                    _tchunkclose += (fzlh.config.timezone_offset_hours*3600);
-                }
+                time_t _tchunkclose = fzlh.time_zone_adjusted(t_chunkclose);
                 varvals.emplace("t_chunkclose", TimeStampYmdHM(_tchunkclose));
                 time_t t_diff = (t_chunkclose - t_chunkopen)/60; // mins
                 varvals.emplace("t_diff_mins", std::to_string(t_diff)); // particularly useful for cutom templates
@@ -443,7 +483,7 @@ bool render_Log_interval() {
                 rendered_logcontent = combined_entries; // very minimal output
             } else {
                 if (customtemplate.empty()) {
-                    rendered_logcontent += env.render(*active_chunk_template, varvals);
+                    rendered_logcontent += env.render(active_chunk_template, varvals);
                 } else {
                     rendered_logcontent += env.render(customtemplate, varvals);
                 }
@@ -452,15 +492,25 @@ bool render_Log_interval() {
     }
 
     if (!fzlh.noframe) {
-        rendered_logcontent += templates[LogHTML_tail_temp];
+        std::string tail_template;
+        if (!env.load_template(template_path_from_id(LogHTML_tail_temp), tail_template)) {
+            return false;
+        }
+        rendered_logcontent += tail_template;
     }
 
     return send_rendered_to_output(rendered_logcontent);
 }
 
+const std::map<most_recent_format, template_id_enum> log_most_recent_tmap = {
+    { most_recent_raw, Log_most_recent_RAW_temp },
+    { most_recent_txt, Log_most_recent_TXT_temp },
+    { most_recent_html, Log_most_recent_HTML_temp },
+    { most_recent_json, Log_most_recent_HTML_temp }, // not used
+};
+
 bool render_Log_most_recent() {
     ERRTRACE;
-    load_templates(templates);
 
     VERYVERBOSEOUT("Finding most recent Log entry.\n");
 
@@ -488,23 +538,338 @@ bool render_Log_most_recent() {
         varvals.emplace("entry_id", LOG_NULLKEY_STR);
     }
     
-    std::string * render_template = nullptr;
-    switch (fzlh.recent_format) {
-        case most_recent_raw: {
-            render_template = &templates[Log_most_recent_RAW_temp];
-            break;
-        }
-
-        case most_recent_txt: {
-            render_template = &templates[Log_most_recent_TXT_temp];
-            break;
-        }
-
-        default: {
-            render_template = &templates[Log_most_recent_HTML_temp];
-        }
+    std::string render_template;
+    if (!env.load_template(template_path_from_map(log_most_recent_tmap), render_template)) {
+        return false;
     }
-    std::string rendered_mostrecent = env.render(*render_template,varvals);
+    std::string rendered_mostrecent = env.render(render_template, varvals);
 
     return send_rendered_to_output(rendered_mostrecent);
+}
+
+const std::map<Boolean_Tag_Flags::boolean_flag, char> category_character = {
+    { Boolean_Tag_Flags::tzadjust, 't' },
+    { Boolean_Tag_Flags::work, 'w' },
+    { Boolean_Tag_Flags::self_work, 's' },
+    { Boolean_Tag_Flags::error,  'e' },
+};
+
+const std::map<char, std::string> category_letter_to_string = {
+    { 't', "tzadjust" },
+    { 'w', "work" },
+    { 's', "selfwork" },
+    { 'e', "error" },
+    { 'n', "nap" },
+    { '?', "other" },
+};
+
+const std::map<std::string, Boolean_Tag_Flags::boolean_flag> log_override_tags = {
+    { "@WORK@", Boolean_Tag_Flags::work },
+    { "@SELFWORK@", Boolean_Tag_Flags::self_work },
+};
+
+const std::map<most_recent_format, template_id_enum> review_format_to_template_map = {
+    { most_recent_raw, Log_review_RAW_temp },
+    { most_recent_txt, Log_review_TXT_temp },
+    { most_recent_html, Log_review_HTML_temp },
+    { most_recent_json, Log_review_JSON_temp },
+};
+
+const std::map<most_recent_format, template_id_enum> review_format_to_topinfo_template_map = {
+    { most_recent_raw, Log_review_topinfo_RAW_temp },
+    { most_recent_txt, Log_review_topinfo_TXT_temp },
+    { most_recent_html, Log_review_topinfo_HTML_temp },
+    { most_recent_json, Log_review_topinfo_JSON_temp },
+};
+
+const std::map<most_recent_format, template_id_enum> review_format_to_chunk_template_map = {
+    { most_recent_raw, Log_review_chunk_RAW_temp },
+    { most_recent_txt, Log_review_chunk_TXT_temp },
+    { most_recent_html, Log_review_chunk_HTML_temp },
+    { most_recent_json, Log_review_chunk_JSON_temp },
+};
+
+struct review_element {
+    time_t t_begin = 0;
+    time_t seconds_applied = 0;
+    char category = '?';
+    std::string nodedesc;
+    std::string logcontent;
+
+    review_element(time_t start, time_t seconds, const Boolean_Tag_Flags & boolean_tag, const std::string & _nodedesc, const std::string & _content):
+        t_begin(start), seconds_applied(seconds), nodedesc(remove_html(_nodedesc).substr(0, 256)), logcontent(remove_html(_content).substr(0, 256)) {
+        if (_content.empty()) {
+            category = 'n';
+        } else if (boolean_tag.None()) {
+            category = '?';
+        } else if (boolean_tag.Work()) {
+            category = category_character.at(Boolean_Tag_Flags::work);
+        } else if (boolean_tag.SelfWork()) {
+            category = category_character.at(Boolean_Tag_Flags::self_work);
+        }
+    }
+
+    void json_safe(std::string & s) {
+        for (size_t i = 0; i < s.size(); i++) {
+            if ((int(s[i]) > 122) || (int(s[i]) < 32)) {
+                s[i] = ' ';
+            } else if (s[i]=='"') {
+                s[i] = '`';
+            }
+        }
+    }
+
+    std::string json_str() {
+        std::string jsonstr;
+        jsonstr.reserve(3*1024);
+        jsonstr += "\t\t{\n";
+
+        jsonstr += "\t\t\"seconds\": "+std::to_string(seconds_applied)+",\n";
+        jsonstr += (std::string("\t\t\"category\": \"")+category)+"\",\n";
+        json_safe(nodedesc);
+        jsonstr += "\t\t\"node\": \""+nodedesc+"\",\n";
+        json_safe(logcontent);
+        jsonstr += "\t\t\"log\": \""+logcontent+"\"\n";
+
+        jsonstr += "\t\t}";
+        return jsonstr;
+    }
+
+    const std::map<char, std::string> category_to_key = {
+        { 'w', "work-checked" },
+        { 's', "selfwork-checked" },
+        { 'S', "system-checked" },
+        { 'n', "nap-checked" },
+        { '?', "other-checked" },
+    };
+
+    bool chunk_to_template(std::string & rendered_chunk) {
+        std::string chunk_id(TimeStampYmdHM(t_begin));
+        std::map<std::string, std::string> chunk_map = {
+            { "chunk-id", TimeStampYmdHM(fzlh.time_zone_adjusted(t_begin)) },
+            { "seconds-name", chunk_id+"seconds" },
+            { "seconds", std::to_string(seconds_applied) },
+            { "minutes", std::to_string(seconds_applied/60) },
+            { "category-name", chunk_id+"category" },
+            //{ "category", category_letter_to_string.at(category) },
+            { "work-checked", "" },
+            { "selfwork-checked", "" },
+            { "system-checked", "" },
+            { "nap-checked", "" },
+            { "other-checked", "" },
+            { "node", nodedesc },
+            { "log", logcontent },
+        };
+        chunk_map[category_to_key.at(category)] = "checked";
+        if (!env.fill_template_from_map(
+                template_path_from_map(review_format_to_chunk_template_map),
+                chunk_map,
+                rendered_chunk)) {
+            return false;
+        }
+        return true;
+    }
+};
+
+struct review_data {
+    time_t t_candidate_wakeup = 0;
+    time_t t_wakeup = 0;
+    time_t t_gosleep = 0;
+    std::vector<review_element> elements;
+
+    std::string json_str() {
+        std::string jsonstr;
+        jsonstr.reserve(128*1024);
+
+        jsonstr += "{\n";
+
+        jsonstr += "\t\"date\": \""+TimeStamp("%Y%m%d\",\n", fzlh.time_zone_adjusted(t_wakeup));
+        jsonstr += "\t\"wakeup\": \""+TimeStamp("%H%M\",\n", fzlh.time_zone_adjusted(t_wakeup));
+        jsonstr += "\t\"gosleep\": \""+TimeStamp("%H%M\",\n", fzlh.time_zone_adjusted(t_gosleep));
+
+        jsonstr += "\t\"chunks\": [\n";
+
+        // Only elements that occurred between t_wakeup and t_gosleep.
+        for (size_t i = 0; i < elements.size(); i++) {
+
+            if ((elements[i].t_begin >= t_wakeup) && (elements[i].t_begin <= t_gosleep)) {
+
+                jsonstr += elements[i].json_str();
+
+                if ((i+1) < elements.size()) {
+                    jsonstr += ",\n";
+                } else {
+                    jsonstr += '\n';
+                }
+            }
+
+        }
+
+        jsonstr += "\t]\n";
+
+        jsonstr += "}\n";
+
+        return jsonstr;
+    }
+
+    bool topinfo_to_template(std::string & rendered_topinfo) {
+        std::map<std::string, std::string> topinfo_map = {
+            { "date", DateStampYmd(fzlh.time_zone_adjusted(t_wakeup)) },
+            { "wakeup", TimeStamp("%H%M", fzlh.time_zone_adjusted(t_wakeup)) },
+            { "gosleep", TimeStamp("%H%M", fzlh.time_zone_adjusted(t_gosleep)) },
+        };
+        if (!env.fill_template_from_map(
+                template_path_from_map(review_format_to_topinfo_template_map),
+                topinfo_map,
+                rendered_topinfo)) {
+            return false;
+        }
+        return true;
+    }
+
+    bool table_to_template(std::string & rendered_table) {
+        for (size_t i = 0; i < elements.size(); i++) {
+            if ((elements[i].t_begin >= t_wakeup) && (elements[i].t_begin <= t_gosleep)) {
+                std::string rendered_chunk;
+                if (!elements[i].chunk_to_template(rendered_chunk)) {
+                    return false;
+                }
+                rendered_table += rendered_chunk;
+            }
+        }
+        return true;
+    }
+
+};
+
+/**
+ * Search the indicated Log interval for the start and end of day, then parse Log
+ * chunks to identify categories and time applied.
+ * This is used by tools such as the System tool `dayreview`.
+ */
+bool render_Log_review() {
+    ERRTRACE;
+
+    Named_Node_List_ptr sleepNNL_ptr = nullptr;
+    std::locale loc;
+    Node_ID_key nap_id;
+
+    auto prepare_sleep_node_identification = [&] () {
+        if (fzlh.config.sleepNNL.empty()) return standard_error("Missing sleepNNL specification in config file.", __func__);
+        sleepNNL_ptr = fzlh.get_Graph_ptr()->get_List(fzlh.config.sleepNNL);
+        if (!sleepNNL_ptr) return standard_error("Unable to retrieve NNL "+fzlh.config.sleepNNL, __func__);
+        for (const auto & node_key : sleepNNL_ptr->list) {
+            Node_ptr node_ptr = fzlh.get_Graph_ptr()->Node_by_id(node_key);
+            if (!node_ptr) {
+                ADDERROR(__func__,fzlh.config.sleepNNL+" NNL node with ID "+node_key.str()+" not found");
+            } else {
+                if (lowercase(node_ptr->get_text(), loc).find(" nap") != std::string::npos) {
+                    nap_id = node_key;
+                }
+            }
+        }
+        return true;
+    };
+
+    if (!fzlh.get_Graph_ptr()) {
+        standard_exit_error(exit_resident_graph_missing, "Resident Graph missing.",__func__);
+    }
+
+    apply_search_strings_case_insensitive(loc);
+
+    if (!prepare_sleep_node_identification()) {
+        return false;
+    }
+
+    report_interval();
+
+    review_data data;
+    Map_of_Subtrees map_of_subtrees;
+    map_of_subtrees.collect(*fzlh.get_Graph_ptr(), fzlh.config.subtrees_list_name);
+
+    for (const auto & [chunk_key, chunkptr] : fzlh.edata.log_ptr->get_Chunks()) if (chunkptr) {
+
+        time_t t_chunkclose = chunkptr->get_close_time();
+        time_t t_chunkopen = chunkptr->get_open_time();
+        if (t_chunkclose >= t_chunkopen) { // Only work with completed chunks.
+
+            Node_ID_key node_id = chunkptr->get_NodeID().key();
+            Node_ptr node_ptr = fzlh.get_Graph_ptr()->Node_by_id(node_id);
+            if (!node_ptr) {
+                ADDERROR(__func__,"node with ID "+node_id.str()+" not found");
+            } else {
+
+                Boolean_Tag_Flags boolean_tag;
+                if (sleepNNL_ptr->contains(node_id)) {
+                    if (node_id != nap_id) { // Does this chunk belong to a sleep Node?
+                        data.t_wakeup = data.t_candidate_wakeup;
+                        data.t_candidate_wakeup = t_chunkclose;
+                        data.t_gosleep = t_chunkopen;
+                    } else { // Chunk is a nap.
+                        data.elements.emplace_back(t_chunkopen, t_chunkclose - t_chunkopen, boolean_tag, node_ptr->get_text(), "");
+                    }
+                } else {
+                    // Identify category.
+                    //   Look for category override tags in chunk content.
+                    // *** Perhaps make this a service function reached through Graphinfo.
+                    bool override = false;
+                    std::string combined_entries;
+                    for (const auto& entryptr : chunkptr->get_entries()) if (entryptr) {
+                        combined_entries += entryptr->get_entrytext();
+                    }
+                    for (const auto & [ tag, flag ] : log_override_tags) {
+                        if (combined_entries.find(tag) != std::string::npos) {
+                            boolean_tag.copy_Boolean_Tag_flags(flag);
+                            override = true;
+                            break;
+                        }
+                    }
+                    if (!override) {
+                        //   Check if Node is in category subtree.
+                        if (map_of_subtrees.has_subtrees) {
+                            Boolean_Tag_Flags::boolean_flag booleanflag;
+                            if (map_of_subtrees.node_in_heads_or_any_subtree(node_id, booleanflag)) {
+                                boolean_tag.copy_Boolean_Tag_flags(booleanflag);
+                            }
+                        }
+                    }
+                    data.elements.emplace_back(t_chunkopen, t_chunkclose - t_chunkopen, boolean_tag, node_ptr->get_text(), combined_entries);
+                }
+            }
+        }
+
+    }
+
+    VERYVERBOSEOUT("Data collected. Rendering.\n");
+
+    std::string rendered_reviewcontent;
+    rendered_reviewcontent.reserve(128*1024);
+
+    if (fzlh.recent_format == most_recent_json) {
+        rendered_reviewcontent = data.json_str();
+    } else {
+        std::string rendered_topinfo;
+        if (!data.topinfo_to_template(rendered_topinfo)) {
+            return false;
+        }
+
+        std::string rendered_table;
+        rendered_table.reserve(128*1024);
+        if (!data.table_to_template(rendered_table)) {
+            return false;
+        }
+
+        std::map<std::string, std::string> overall_map = {
+            { "top-info", rendered_topinfo },
+            { "table-entries", rendered_table },
+        };
+        if (!env.fill_template_from_map(
+                template_path_from_map(review_format_to_template_map),
+                overall_map,
+                rendered_reviewcontent)) {
+            return false;
+        }
+    }
+
+    return send_rendered_to_output(rendered_reviewcontent);
 }

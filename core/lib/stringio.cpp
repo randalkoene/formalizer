@@ -93,7 +93,7 @@ bool string_to_file_with_backup(std::string path, std::string & s, std::string b
  * @param readstate returns the iostate flags when provided (default: nullptr)
  * @return true if the read into string was successful.
  */
-bool file_to_string(std::string path, std::string & s, std::ifstream::iostate * readstate) {
+bool file_to_string(const std::string & path, std::string & s, std::ifstream::iostate * readstate) {
     std::ifstream ifs(path, std::ifstream::in);
 
     if (readstate) (*readstate) = ifs.rdstate();

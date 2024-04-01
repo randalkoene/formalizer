@@ -46,26 +46,29 @@ fzloghtml fzlh;
  */
 fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
                          iscale(interval_none), interval(0), noframe(false), recent_format(most_recent_html) {
-    add_option_args += "n:e:1:2:a:o:D:H:w:Nc:rRf:ACtF:T:";
-    add_usage_top += " [-n <node-ID>] [-e <log-stamp>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-A] [-C] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
+    add_option_args += "n:e:1:2:a:o:D:H:w:Nc:rRf:ACitF:T:";
+    add_usage_top += " [-n <node-ID>] [-e <log-stamp>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-A] [-C] [-i] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
     usage_tail.push_back(
-        "The <time-stamp1>, <time-stamp_2> and <time-stamp> arguments expect standardized\n"
-        "Formalizer time stamps, e.g. 202009140614, but will also accept date stamps\n"
-        "of analogous form, e.g. 20200914.\n"
-        "A <log-stamp> can be a 12 digit Log chunk ID or a 14+ digit Log entry ID.\n"
-        "Without a Node specification, the default is:\n"
-        "  start from 24 hours before end of interval\n"
-        "  end at most recent Log entry\n"
-        "With a Node specification but no time stamps, the default is:\n"
-        "  complete Node history\n"
-        "Interval start or end specified by time-stamp or relative offset takes\n"
-        "precedence over number of chunks or reverse from most recent.\n"
-        "If '-a' is specified without an interval in days, hours or weeks, then the\n"
-        "default interval is from 3 days before to 3 days after the specified time\n"
-        "stamp.\n"
-        "An example of a custom template is:\n"
-        "  'STR:{{ t_chunkopen }} {{ t_diff_mins }} {{ node_id }}\\n'\n");
+        "Notes:\n"
+        "1. The <time-stamp1>, <time-stamp_2> and <time-stamp> arguments expect\n"
+        "   standardized Formalizer time stamps, e.g. 202009140614, but will also\n"
+        "   accept date stamps of analogous form, e.g. 20200914.\n"
+        "2. A <log-stamp> can be a 12 digit Log chunk ID or a 14+ digit Log entry ID.\n"
+        "3. Without a Node specification, the default is:\n"
+        "     start from 24 hours before end of interval\n"
+        "     end at most recent Log entry\n"
+        "4. With a Node specification but no time stamps, the default is:\n"
+        "     complete Node history\n"
+        "5. Interval start or end specified by time-stamp or relative offset takes\n"
+        "   precedence over number of chunks or reverse from most recent.\n"
+        "6. If '-a' is specified without an interval in days, hours or weeks, then the\n"
+        "   default interval is from 3 days before to 3 days after the specified time\n"
+        "   stamp.\n"
+        "7. An example of a custom template is:\n"
+        "     'STR:{{ t_chunkopen }} {{ t_diff_mins }} {{ node_id }}\\n'\n"
+        "8. The 'json' format is available only with the '-i' interpret for day review\n"
+        "   option.\n");
 }
 
 /**
@@ -88,9 +91,10 @@ void fzloghtml::usage_hook() {
           "    -f Filter by search text\n"
           "    -A All search terms must be in a Log chunk\n"
           "    -C Case insensitive search\n"
+          "    -i Interpret for day review\n"
           "    -t Show total time applied\n"
           "    -F format of most recent Log data:\n"
-          "       raw, txt, html (default)\n"
+          "       raw, txt, json, html (default)\n"
           "    -T use custom template from file or string (if 'STR:')\n"
           "    -o write HTML Log interval to <outputfile> (default=STDOUT)\n"
           "    -N no HTML page frame\n");
@@ -103,6 +107,13 @@ std::vector<std::string> parse_search_strings(const std::string & search_strings
     }
     return search_strings_vec;
 }
+
+const std::map<std::string, most_recent_format> format_keywords = {
+    { "raw", most_recent_raw },
+    { "txt", most_recent_txt },
+    { "json", most_recent_json },
+    { "html", most_recent_html },
+};
 
 /**
  * Handler for command line options that are defined in the derived class
@@ -239,20 +250,22 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'i': {
+        flowcontrol = flow_dayreview;
+        return true;
+    }
+
     case 't': {
         show_total_time_applied = true;
         return true;
     }
 
     case 'F': {
-        if (cargs == "raw") {
-            fzlh.recent_format = most_recent_raw;
+        auto it = format_keywords.find(cargs);
+        if (it == format_keywords.end()) {
+            fzlh.recent_format = most_recent_html;
         } else {
-            if (cargs == "txt") {
-                fzlh.recent_format = most_recent_txt;
-            } else {
-                fzlh.recent_format = most_recent_html;
-            }
+            fzlh.recent_format = it->second;
         }
         return true;
     }
@@ -273,6 +286,8 @@ bool fzlh_configurable::set_parameter(const std::string & parlabel, const std::s
     CONFIG_TEST_AND_SET_PAR(interpret_text, "interpret_text", parlabel, config_parse_text_interpretation(parvalue));
     CONFIG_TEST_AND_SET_PAR(node_excerpt_len, "node_excerpt_len", parlabel, std::atoi(parvalue.c_str()));
     CONFIG_TEST_AND_SET_PAR(timezone_offset_hours, "timezone_offset_hours", parlabel, std::atoi(parvalue.c_str()));
+    CONFIG_TEST_AND_SET_PAR(sleepNNL, "sleepNNL", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(subtrees_list_name, "subtrees", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
 
@@ -417,6 +432,11 @@ void fzloghtml::set_filter() {
 
 }
 
+time_t fzloghtml::time_zone_adjusted(time_t t) {
+    if (config.timezone_offset_hours == 0) return t;
+    return t + (config.timezone_offset_hours*3600);
+}
+
 bool fzloghtml::get_Log_interval() {
 
     edata.log_ptr = ga.request_Log_excerpt(filter);
@@ -463,6 +483,14 @@ bool most_recent_data() {
     return render_Log_most_recent();
 }
 
+bool interpret_for_dayreview() {
+    fzlh.set_filter();
+    if (!fzlh.get_Log_interval()) {
+        return false;
+    }
+    return render_Log_review();
+}
+
 int main(int argc, char *argv[]) {
     ERRTRACE;
 
@@ -480,6 +508,10 @@ int main(int argc, char *argv[]) {
 
     case flow_most_recent: {
         return standard_exit(most_recent_data(), "Most recent Log data obtained.\n", exit_file_error, "Unable to obtain most recent Log data", __func__);
+    }
+
+    case flow_dayreview: {
+        return standard_exit(interpret_for_dayreview(), "Log interval interpreted for day review.\n", exit_file_error, "Unable to interpret Log interval for day review.", __func__);
     }
 
     default: {

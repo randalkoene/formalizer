@@ -4,8 +4,6 @@
 #
 # This CGI handler provides a near-verbatim equivalent access to fzloghtml via web form.
 
-print("Content-type:text/html\n\n")
-
 # Import modules for CGI handling 
 try:
     import cgitb; cgitb.enable()
@@ -45,6 +43,12 @@ mostrecentdata = form.getvalue('mostrecentdata')
 searchtext = form.getvalue('searchtext')
 andall = form.getvalue('andall')
 caseinsensitive = form.getvalue('caseinsensitive')
+review = form.getvalue('review')
+review_date = form.getvalue('reviewdate')
+
+#if not review:
+#    print("Content-type:text/html\n\n")
+print("Content-type:text/html\n\n")
 
 if alloflog:
     startfrom = "199001010000"
@@ -304,12 +308,38 @@ def render_log_interval():
     print(cgi_custom_tail)
     print("</body>\n</html>")
 
+def render_Log_review():
+    if review_date:
+        date_specific = '-a %s' % reviewdate
+    else:
+        date_specific = ''
+    thecmd = f"./fzloghtml -q -d formalizer -s randalk {date_specific} -D 2 -i -F html -o STDOUT -E STDOUT"
+    try:
+        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
+        (child_stdin,child_stdout) = (p.stdin, p.stdout)
+        child_stdin.close()
+        result = child_stdout.read()
+        child_stdout.close()
+        print(result)
+        #print(result.replace('\n', '<BR>'))
+
+    except Exception as ex:                
+        print(ex)
+        f = StringIO()
+        print_exc(file=f)
+        a = f.getvalue().splitlines()
+        for line in a:
+            print(line)
+
 
 if __name__ == '__main__':
 
-    if mostrecentdata:
-        render_most_recent()
+    if review:
+        render_Log_review()
     else:
-        render_log_interval()
+        if mostrecentdata:
+            render_most_recent()
+        else:
+            render_log_interval()
 
     sys.exit(0)

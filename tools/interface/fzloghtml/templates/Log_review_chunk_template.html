@@ -1,0 +1,14 @@
+<tr class="chktop"><td>
+<p><b>Chunk start timestamp</b>: {{ chunk-id }}</p>
+<p><b>Node</b>: {{ node }}</p>
+<p><b>Log</b>: {{ log }}</p>
+<p>
+<input type="radio" name="{{ category-name }}" value="work" {{ work-checked }} /> Work
+<input type="radio" name="{{ category-name }}" value="selfwork" {{ selfwork-checked }} /> Self-Work
+<input type="radio" name="{{ category-name }}" value="system" {{ system-checked }} /> System/Care
+<input type="radio" name="{{ category-name }}" value="nap" {{ nap-checked }} /> Nap
+<input type="radio" name="{{ category-name }}" value="other" {{ other-checked }} /> Other
+</p>
+<p><input name="{{ seconds-name }}" type="hidden" value="{{ seconds }}"><b>Minutes</b>: {{ minutes }}</p>
+<p> </p>
+</td></tr>

@@ -2,5 +2,7 @@
     "outputfile" : "/var/www/html/formalizer/formalizer.tools.interfaces.fzloghtml.Output.html",
     "interpret_text" : "detect_links",
     "node_excerpt_len" : "40",
-    "timezone_offset_hours": "8"
+    "timezone_offset_hours": "9",
+    "sleepNNL": "group_sleep",
+    "subtrees": "threads"
 }

@@ -60,6 +60,8 @@ def get_time_zone_info()->str:
                 tzinfo_dict[fzprog] = tzdata
         except:
             pass
+        # except Exception as e:
+        #     print('Exception: '+str(e))
     return json.dumps(tzinfo_dict)
 
 def show_timezone():

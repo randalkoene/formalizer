@@ -12,6 +12,7 @@
 
 #include "error.hpp"
 #include "general.hpp"
+#include "stringio.hpp"
 #include "templater.hpp"
 
 namespace fz {
@@ -109,6 +110,66 @@ std::string render_environment::render(const std::string temp, template_varvalue
     }
 
     return rendered;
+}
+
+/**
+ * Load a template.
+ * 
+ * Example: See how this is used in fzloghtml.
+ * 
+ * @param template_path The path to the template file.
+ * @param render_template Reference to a string to hold template content.
+ * @return True if successfully loaded.
+ */
+bool render_environment::load_template(const std::string & template_path, std::string & render_template) {
+    if (!file_to_string(template_path, render_template)) {
+        ERRRETURNFALSE(__func__, "unable to load " + template_path);
+    }
+    return true;
+}
+
+/**
+ * Use a prepared map of template tags and template data to fill a template.
+ * 
+ * Example: See how this is used in fzloghtml.
+ * 
+ * @param template_path The path to the template file.
+ * @param tag_data_map A string:string map of tags and data.
+ * @param rendered Reference to a string to hold the filled template.
+ * @return True if successfully filled.
+ */
+bool render_environment::fill_template_from_map(const std::string & template_path, const std::map<std::string, std::string> & tag_data_map, std::string & rendered) {
+    // Collect variables.
+    template_varvalues varvals;
+    for (const auto & [ tag, data ] : tag_data_map) varvals.emplace(tag, data);
+
+    // Fill in template.
+    std::string render_template;
+    if (!load_template(template_path, render_template)) {
+        return false;
+    }
+    rendered = render(render_template, varvals);
+    return true;
+}
+
+/**
+ * Use a prepared map of template tags and template data to fill a preloaded template.
+ * 
+ * Example: See how this is used in fzloghtml.
+ * 
+ * @param template The preloaded template.
+ * @param tag_data_map A string:string map of tags and data.
+ * @param rendered Reference to a string to hold the filled template.
+ * @return True if successfully filled.
+ */
+bool render_environment::fill_preloaded_template_from_map(const std::string & preloaded_template, const std::map<std::string, std::string> & tag_data_map, std::string & rendered) {
+    // Collect variables.
+    template_varvalues varvals;
+    for (const auto & [ tag, data ] : tag_data_map) varvals.emplace(tag, data);
+
+    // Fill in template.
+    rendered = render(preloaded_template, varvals);
+    return true;
 }
 
 } // namespace fz

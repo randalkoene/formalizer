@@ -25,7 +25,7 @@ bool string_to_file(const std::string path, const std::string & s, std::ofstream
 
 bool string_to_file_with_backup(std::string path, std::string & s, std::string backupext, bool & backedup, std::ofstream::iostate * writestate = nullptr);
 
-bool file_to_string(std::string path, std::string & s, std::ifstream::iostate * readstate = nullptr);
+bool file_to_string(const std::string & path, std::string & s, std::ifstream::iostate * readstate = nullptr);
 
 inline std::string string_from_file(std::string path, std::ifstream::iostate * readstate = nullptr) {
     std::string s;

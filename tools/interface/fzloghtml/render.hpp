@@ -17,5 +17,6 @@ using namespace fz;
 
 bool render_Log_interval();
 bool render_Log_most_recent();
+bool render_Log_review();
 
 #endif // __RENDER_HPP

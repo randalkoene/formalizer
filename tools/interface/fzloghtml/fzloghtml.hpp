@@ -28,6 +28,7 @@ enum flow_options {
     flow_unknown = 0,      /// no recognized request
     flow_log_interval = 1, /// request: read and render Log interval
     flow_most_recent = 2,  /// request: data about most recent Log entry
+    flow_dayreview = 3,    /// request: interpret Log data for day review
     flow_NUMoptions
 };
 
@@ -41,7 +42,8 @@ enum interval_scale {
 enum most_recent_format {
     most_recent_raw,
     most_recent_txt,
-    most_recent_html
+    most_recent_html,
+    most_recent_json,
 };
 
 class fzlh_configurable: public configurable {
@@ -53,6 +55,8 @@ public:
     text_interpretation interpret_text = text_interpretation::raw;
     size_t node_excerpt_len = 0;
     int timezone_offset_hours = 0;
+    std::string sleepNNL;
+    std::string subtrees_list_name;
 };
 
 struct fzloghtml: public formalizer_standard_program {
@@ -87,6 +91,8 @@ struct fzloghtml: public formalizer_standard_program {
 
     most_recent_format recent_format;
 
+    bool interpret_for_dayreview = false;
+
     bool show_total_time_applied = false;
     unsigned long total_minutes_applied = -1;
 
@@ -101,6 +107,8 @@ struct fzloghtml: public formalizer_standard_program {
     void init_top(int argc, char *argv[]);
 
     void set_filter();
+
+    time_t time_zone_adjusted(time_t t);
 
     bool get_Log_interval();
 
