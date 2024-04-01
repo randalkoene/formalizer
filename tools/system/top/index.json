@@ -92,7 +92,7 @@
     },
     "Current Tracks: " : {
         "Threads" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?D=threads&T=true",
+            "url" : "/cgi-bin/nodeboard-cgi.py?D=threads&T=true&u=204512311159&r=100",
             "window" : "_blank"
         },
         "Deptree:Everything" : {

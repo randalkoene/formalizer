@@ -84,6 +84,7 @@ tdorder = form.getvalue('tdorder')
 tdbad = form.getvalue('tdbad')
 tdfar = form.getvalue('tdfar')
 subtreesort = form.getvalue('K')
+nnldepstotdate = form.getvalue('u')
 
 include_td_detect = ''
 if tdorder:
@@ -130,6 +131,10 @@ if subtreesort:
     include_subtree_sort = ' -K'
 else:
     include_subtree_sort = ''
+if nnldepstotdate:
+    include_nnldepstotdate = ' -u %s' % nnldepstotdate
+else:
+    include_nnldepstotdate = ''
 
 # *** OBTAIN THIS SOMEHOW!
 #with open('./server_address','r') as f:
@@ -273,12 +278,12 @@ def show_subtree_board():
     result_page_path = '/var/www/webdata/formalizer/%s' % result_file
     result_page_url = '/formalizer/data/%s' % result_file
     if progress_analysis:
-        thecmd = f"./nodeboard -D {subtree_list} {include_threads} {include_progress_analysis} {include_show_completed} -p {progress_state_path} -q -o {result_page_path} >{nodeboard_logfile} 2>&1 &"
+        thecmd = f"./nodeboard -D {subtree_list} {include_threads} {include_nnldepstotdate} {include_max_rows} {include_progress_analysis} {include_show_completed} -p {progress_state_path} -q -o {result_page_path} >{nodeboard_logfile} 2>&1 &"
         success, res = try_command_call(thecmd, print_result=False)
         embed_in_html, embed_in_script = make_background_progress_monitor(progress_state_file, result_page_url)
         print(ANALYSIS_PROGRESS_PAGE % (embed_in_html, embed_in_script))
     else:
-        thecmd = f"./nodeboard -D {subtree_list} {include_threads} {include_show_completed} -q -o {result_page_path}"
+        thecmd = f"./nodeboard -D {subtree_list} {include_threads} {include_nnldepstotdate} {include_max_rows} {include_show_completed} -q -o {result_page_path}"
         success, res = try_command_call(thecmd, print_result=False)
         #print(REDIRECT % "/subtree_list_kanban.html")
         if success:

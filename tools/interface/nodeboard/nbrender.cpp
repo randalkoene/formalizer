@@ -67,10 +67,11 @@ nodeboard::nodeboard():
     output_path("/var/www/html/formalizer/test_node_card.html"),
     graph_ptr(nullptr) {
 
-    add_option_args += "RGgn:L:D:l:t:m:f:c:Ii:F:H:TPe:b:M:Kp:B:C:S:Xo:";
+    // Still available: aejkNOpUwxyYzZ
+    add_option_args += "RGgn:L:D:l:t:m:f:c:Ii:F:u:H:TPe:b:M:Kp:B:C:r:S:Xo:";
     add_usage_top += " [-R] [-G|-g] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
         " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-Z] [-i <topic_id>,...] [-F <substring>]"
-        " [-H <board-header>] [-T] [-P] [-e <errors-list>] [-b <before>] [-M <multiplier>] [-p <progress-state-file>]"
+        " [-u <up-to>] [-H <board-header>] [-T] [-P] [-e <errors-list>] [-b <before>] [-M <multiplier>] [-p <progress-state-file>]"
         " [-K] [-S <size-list>] [-B <topic-id>] [-C <max-columns>] [-r <max-rows>] [-X] [-o <output-file|STDOUT>]";
 }
 
@@ -98,10 +99,11 @@ void nodeboard::usage_hook() {
         "    -i Filter to show only Nodes in one of the listed topics (by ID)\n"
         "    -F Filter to show only Nodes where the first 80 characters contain the\n"
         "       substring.\n"
+        "    -u In -D mode, show only Nodes with target dates up to including <up-to>.\n"
         "    -H Board header.\n"
         "    -T Threads.\n"
         "    -P Progress analaysis.\n"
-        "    -b Before time stamp.\n"
+        "    -b Before time stamp, used with -P.\n"
         "    -M Vertical length multiplier.\n"
         "    -p Progress state file\n"
         "    -K Sort by subtree times."
@@ -112,8 +114,8 @@ void nodeboard::usage_hook() {
         "    -S List of grid and card sizes:\n"
         "       '<grid-column-width>,<column-container-width>,<card-width>,<card-height>'\n"
         "       E.g. '260px,250px,240px,240px'\n"
-        "    -C Max number of columns (default: 100)\n"
-        "    -r Max number of rows (default: 100)\n"
+        "    -C Max number of columns (default: 100), only in -G/-g modes.\n"
+        "    -r Max number of rows (default: 100), in -G/-g or -D modes.\n"
         "    -X Fully expanded grid (do not minimize rows and columns)\n"
         "    -o Output to file (or STDOUT).\n"
         "       Default: /var/www/html/formalizer/test_node_card.html\n"
@@ -237,6 +239,11 @@ bool nodeboard::options_hook(char c, std::string cargs) {
             return true;
         }
 
+        case 'u': {
+            nnl_deps_to_tdate = ymd_stamp_time(cargs);
+            return true;
+        }
+
         case 'H': {
             board_title_specified = true;
             board_title = cargs;
@@ -297,6 +304,7 @@ bool nodeboard::options_hook(char c, std::string cargs) {
 
         case 'r': {
             max_rows = atoi(cargs.c_str());
+            nnl_deps_apply_maxrows = true; // Used in NNL dependencies mode.
             return true;
         }
 
@@ -913,7 +921,21 @@ std::string nodeboard::tosup_todep_html_buttons(const Node_ID_key & column_key) 
         + column_key_str+"');\">mkwsup</button></span>";
 }
 
-//bool nodeboard::get_fulldepth_dependencies_column(const std::string & column_header, const base_Node_Set & column_set, std::string & rendered_columns, const std::string extra_header = "") {
+/**
+ * This places the full dependencies tree into a single column according to
+ * specified constraints and without duplicating Nodes across different
+ * columns.
+ * 
+ * Notes:
+ * 1. Which column a Node is allocated to depends on the specifications
+ *    that were given to the collection process of Map_of_Subtrees.
+ *    Here, this defaults to using the branch strength propagation method
+ *    Node_Branch::minimum_importance and determines the strength of an
+ *    Edge based on the 'importance' parameter.
+ * 2. The full Map_of_Subtrees is collected for the NNL of header Nodes
+ *    before entering this function, and additional constraints are applied
+ *    here before actually placing Nodes into the column.
+ */
 bool nodeboard::get_fulldepth_dependencies_column(std::string & column_header, Node_ID_key column_key, std::string & rendered_columns, const std::string extra_header = "") {
     if (!map_of_subtrees.is_subtree_head(column_key)) {
         standard_error("Node "+column_key.str()+" is not a head Node in NNL '"+map_of_subtrees.subtrees_list_name+"', skipping", __func__);
@@ -925,22 +947,30 @@ bool nodeboard::get_fulldepth_dependencies_column(std::string & column_header, N
     float tot_required_hrs = 0;
     float tot_completed_hrs = 0;
     unsigned int active_rendered = 0;
+    unsigned int column_length = 0;
     // Add all dependencies found to the column as cards.
-    //for (const auto & depkey : map_of_subtrees.get_subtree_set(column_key)) {
     auto & subtree_set = map_of_subtrees.get_subtree_set(column_key);
     for (const auto & [tdate, depnode_ptr] : subtree_set.tdate_node_pointers) {
-        //Node_ptr depnode_ptr = graph().Node_by_id(depkey);
         if (!depnode_ptr) {
             standard_error("Dependency Node not found, skipping", __func__);
             continue;
         }
-        auto noderenderresult = get_Node_alt_card(depnode_ptr, tdate, rendered_cards, const_cast<Node_Subtree*>(&subtree_set));
-        if (noderenderresult==node_render_error) {
-            standard_error("Dependency Node not found in Graph, skipping", __func__);
-        } else if (noderenderresult==node_rendered_active) {
-            active_rendered++;
+        
+        if (tdate <= nnl_deps_to_tdate) { // Apply possible target date constraint.
+            if ((!nnl_deps_apply_maxrows) || (column_length < max_rows)) { // Apply max rows constraint.
+                auto noderenderresult = get_Node_alt_card(depnode_ptr, tdate, rendered_cards, const_cast<Node_Subtree*>(&subtree_set));
+                if (noderenderresult==node_render_error) {
+                    standard_error("Dependency Node not found in Graph, skipping", __func__);
+                } else if (noderenderresult==node_rendered_active) {
+                    active_rendered++;
+                }
+                if (noderenderresult > node_not_rendered) {
+                    column_length++;
+                }
+            }
         }
 
+        // Calculations below are carried out whether the Node is shown or not.
         if (!progress_state_file.empty()) {
             progress_node_count++;
             if (progress_node_count < node_total) { // Do not signal 100% until output is completely provided.

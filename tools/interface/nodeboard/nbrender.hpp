@@ -134,6 +134,9 @@ struct nodeboard: public formalizer_standard_program {
     std::string board_title_extra;
     std::string post_extra;
 
+    time_t nnl_deps_to_tdate = RTt_maxtime; // In NNL dependencies columns show Nodes with target dates up to and including this target date.
+    bool nnl_deps_apply_maxrows = false;    // If yes then apply the max_rows constraint.
+
     std::string grid_column_width = " 260px";
     std::string column_container_width = "250px";
     std::string card_width = "240px";

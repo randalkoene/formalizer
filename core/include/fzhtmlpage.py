@@ -16,6 +16,7 @@ SUBMIT_ON_INPUT=' onchange="formUpdate(this)"' # NOTE: For this to work the valu
 TEST_ON_INPUT=' onchange="testUpdate(this)"'
 
 HTML_STD_TOP='''<!DOCTYPE html>
+<html style="overflow-x:scroll;">
 <html>
 
 '''
