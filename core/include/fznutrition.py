@@ -205,6 +205,7 @@ nutrition = {
 	'greek yogurt': [ 59, '100 g', ],
 	'rookworst': [ 198, '100 g', ],
 	'cherries': [ 77, '100 g', ],
+	'saurkraut': [ 19, '100 g', ],
 }
 
 lowcal_filling_nutritious = [
@@ -217,6 +218,8 @@ lowcal_filling_nutritious = [
 	'feta olive mix',
 	'hummus',
 	'greek yogurt',
+	'saurkraut',
+	'tuna',
 ]
 
 lowcal_snack = [
@@ -226,6 +229,7 @@ lowcal_snack = [
 	'rice cake',
 	'seaweed',
 	'cashews',
+	'cherries',
 ]
 
 fruit = [
@@ -266,6 +270,7 @@ vegetables = [
 	'pinto beans',
 	'rice',
 	'baked beans',
+	'saurkraut',
 ]
 
 breakfast = [

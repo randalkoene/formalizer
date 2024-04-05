@@ -4,8 +4,6 @@
 #
 # This CGI handler provides a near-verbatim equivalent access to fzloghtml via web form.
 
-print("Content-type:text/html\n\n")
-
 # Import modules for CGI handling 
 try:
     import cgitb; cgitb.enable()
@@ -13,22 +11,78 @@ except:
     pass
 import sys, cgi, os
 sys.stderr = sys.stdout
-from time import strftime
 from datetime import datetime
 import traceback
 from io import StringIO
 from traceback import print_exc
 from subprocess import Popen, PIPE
-import json
-
-# cgitb.enable()
-# cgitb.disable()
-# cgitb.enable(display=0, logdir="/tmp/test_python_cgiformget.log")
 
 # Create instance of FieldStorage 
 form = cgi.FieldStorage()
 
 cgi_keys = list(form.keys())
+
+print("Content-type:text/html\n\n")
+
+# Uses './', because it is run as CGI script from /usr/lib/cgi-bin.
+try:
+    from dayreview_algorithm import dayreview_algorithm
+except Exception as e:
+    print('Exception while importing dayreview_algorithm: '+str(e))
+    exit(0)
+
+# cgitb.enable()
+# cgitb.disable()
+# cgitb.enable(display=0, logdir="/tmp/test_python_cgiformget.log")
+
+DAYREVIEW_SUMMARY = '''<html>
+<head>
+<title>DayReview Summary</title>
+</head>
+<body>
+<h1>DayReview Summary</h1>
+
+<p>
+Number of waking hours in previous day: %.2f
+</p>
+
+<h3>Summary of hours</h3>
+
+<pre>
+actual | intended | min-lim | max-lim | max-score | type
+
+%s
+</pre>
+
+<h3>Scores</h3>
+
+<pre>
+%s
+</pre>
+<p>
+Total score: %.2f
+</p>
+
+<h3>Formatted for addition to Log</h3>
+
+<table border="1"><tr><td>
+%s
+</td></tr></table>
+
+<p>
+<h3>Notes</h3
+<ol>
+<li>If a category is penalized below and the actual hours are below the minimum limit then 0 score is earned.</li>
+<li>If a category is penalized above and the actual hours are above the maximum limit then 0 score is earned.</li>
+<li>If the actual hours are on target or in a non-penalized range then the maximum score is earned.</li>
+<li>If within the penalized range, but not beyond the limit, then the ratio to the limit is used to penalize the score, earning 1.0 at the limit.</li>
+<li>No review delivers an automatic score of 0.0, i.e. missing out on %d points.</li>
+</ol>
+</p>
+
+</body>
+</html>
+'''
 
 #print(str(cgi_keys))
 
@@ -40,8 +94,6 @@ chunks = []
 for key_str in cgi_keys:
     if key_str[-8:] == 'category':
         chunks.append( key_str[:-8] )
-
-#print(str(chunks))
 
 category_to_char = {
     'work': 'w',
@@ -57,8 +109,6 @@ for chunk in chunks:
     category = form.getvalue(chunk+'category')
     chunkhours = float(seconds) / 3600.0
     chunkdata.append( (chunkhours, category_to_char[category]) )
-
-#print(str(chunkdata))
 
 date_object = datetime.strptime(review_date, '%Y%m%d').date()
 
@@ -76,187 +126,31 @@ endhours = float(endhr) + (float(endmin)/60.0)
 
 wakinghours = endhours - starthours
 
-def sum_of_type(typeid:str)->float:
-    hours = 0.0
-    for i in range(len(chunkdata)):
-        if chunkdata[i][1] == typeid[0]:
-            hours += chunkdata[i][0]
-    return hours
+review_algo = dayreview_algorithm(wakinghours, chunkdata)
 
-hours_summary = {
-    'self-work': sum_of_type('s'),
-    'work': sum_of_type('w'),
-    'system/care': sum_of_type('S'),
-    'dayspan': wakinghours,
-    'nap': sum_of_type('n'),
-}
-hours_summary['awake'] = hours_summary['dayspan'] - hours_summary['nap']
-hours_summary['sleep'] = 24 - hours_summary['awake']
-hours_summary['other'] = hours_summary['awake'] - (hours_summary['self-work']+hours_summary['work']+hours_summary['system/care'])
+score_data_summary = review_algo.calculate_scores()
 
-intended = { # target, min-lim, max-lim, penalize-above, max-score
-    'self-work': (6.0, 2.0, 8.0, False, 10.0),
-    'work': (6.0, 3.0, 9.0, False, 10.0),
-    'sleep': (7.0, 5.5, 8.5, True, 10.0),
-}
-# No review delivers an automatic score of 0.0,
-# i.e. missing out on 30 points.
+review_algo.update_score_file(date_object, score_data_summary)
 
-def date_stamp(day:datetime)->str:
-    return day.strftime('%Y.%m.%d');
+summary_table_dict = review_algo.summary_table()
 
-def get_intended(htype:str)->float:
-    if htype in intended:
-        return intended[htype][0]
-    return 0.0
+score_table_dict = review_algo.score_table()
 
-def get_minlim(htype:str)->float:
-    if htype in intended:
-        return intended[htype][1]
-    return 0.0
-
-def get_maxlim(htype:str)->float:
-    if htype in intended:
-        return intended[htype][2]
-    return 0.0
-
-def get_totintended()->float:
-    tot = 0.0
-    for key_str in intended:
-        tot += intended[key_str][-1]
-    return tot
-
-def get_score(actual: float, scoring_data:tuple)->float:
-    target, minlim, maxlim, penalizeabove, maxscore = scoring_data
-    if actual < minlim: return 0.0
-    if penalizeabove:
-        if actual > maxlim: return 0.0
-    if actual > target:
-        if not penalizeabove: return maxscore
-        ratio_above = (actual - target) / (maxlim - target) # E.g. (8.0 - 6.0) / (9.0 - 6.0) = 2/3
-        reduce_by = ratio_above * (maxscore - 1.0)          # E.g. 2/3 * (10.0 - 1.0) = 6.0
-        return maxscore - reduce_by                         # E.g. 10.0 - 6.0 = 4.0
-    ratio_below = (target - actual) / (target - minlim)     # E.g. (6.0 - 4.0) / (6.0 - 3.0) = 2/3
-    reduce_by = ratio_below * (maxscore - 1.0)              # E.g. 2/3 * (10.0 - 1.0) = 6.0
-    return maxscore - reduce_by                             # E.g. 10.0 - 6.0 = 4.0
-
-totscore = 0.0
-for htype in intended.keys():
-    score = get_score(hours_summary[htype], intended[htype])
-    #print('%s score = %.2f' % (str(htype), score))
-    totscore += score
-#print('Total score: %.2f' % totscore)
-
-totintended = get_totintended()
-totscore_ratio = totscore / totintended
-
-OUTPUTTEMPLATE='The waking day yesterday was from %s to %s, containing about %.2f waking (non-nap) hours. I did %.2f hours of self-work and %.2f hours of work. I did %.2f hours of System and self-care. Other therefore took %.2f hours. The ratio total performance score is %.2f / %.2f = %.2f.'
-
-def score_data_summary_line(key_str:str, actual_data:dict, intended_data:dict)->tuple:
-    return (
-            actual_data[key_str],
-            intended_data[key_str][0],
-            get_score(actual_data[key_str], intended_data[key_str]),
-            intended_data[key_str][-1],
-        )
-
-score_data_summary = {}
-actual_hours_total = 0.0
-intended_hours_total = 0.0
-for key_str in intended:
-    actual_hours_total += hours_summary[key_str]
-    intended_hours_total += intended[key_str][0]
-    score_data_summary[key_str] = score_data_summary_line(key_str, hours_summary, intended)
-score_data_summary['totscore'] = ( actual_hours_total, intended_hours_total, totscore, totintended )
-
-def update_score_file(day:datetime, score_data:dict):
-    # Read existing data from file.
-    scorefile = '/var/www/webdata/formalizer/dayreview_scores.json'
-    try:
-        with open(scorefile, 'r') as f:
-            data = json.load(f)
-    except:
-        print('No dayreview_scores.json file found, starting a fresh one.')
-        data = {}
-    # Update data.
-    dstamp = date_stamp(day)
-    data[dstamp] = score_data
-    # Save data.
-    try:
-        with open(scorefile, 'w') as f:
-            json.dump(data, f)
-    except Exception as e:
-        print('Unable to save data: '+str(e))
-
-update_score_file(date_object, score_data_summary)
-
-DAYREVIEW_SUMMARY = '''<html>
-<head>
-<title>DayReview Summary</title>
-</head>
-<body>
-<h1>DayReview Summary</h1>
-
-<p>
-Number of waking hours in previous day: %.2f
-</p>
-
-<p>
-Summary of hours:
-</p>
-<pre>
-actual | intended | min-lim | max-lim | type
-
-%s
-</pre>
-
-<p>
-Scores:
-</p>
-
-<pre>
-%s
-</pre>
-<p>
-Total score: %.2f
-</p>
-
-<p>
-Formatted for addition to Log:
-</p>
-
-%s
-
-</body>
-</html>
-'''
+hours_summary = review_algo.get_hours_summary()
 
 summary_table = ''
-for htype in hours_summary.keys():
-    summary_table += ' %5.2f   %5.2f      %5.2f     %5.2f     %s\n' % (hours_summary[htype], get_intended(htype), get_minlim(htype), get_maxlim(htype), str(htype))
+for htype in summary_table_dict:
+    summary_table += ' %5.2f   %s       %s      %s      %s        %s\n' % summary_table_dict[htype]
 
 score_table = ''
-for htype in intended.keys():
-    score = get_score(hours_summary[htype], intended[htype])
-    score_table += '%s score = %.2f\n' % (str(htype), score)
-
-formatted_for_log = OUTPUTTEMPLATE % (
-    str(review_wakeup),
-    str(review_gosleep),
-    hours_summary['awake'],
-    hours_summary['self-work'],
-    hours_summary['work'],
-    hours_summary['system/care'],
-    hours_summary['other'],
-    totscore,
-    totintended,
-    totscore_ratio,
-    )
+for htype in score_table_dict:
+    score_table += '%s score = %.2f\n' % ( str(htype), score_table_dict[htype] )
 
 print(DAYREVIEW_SUMMARY % (
         wakinghours,
         summary_table,
         score_table,
-        totscore,
-        formatted_for_log,
+        review_algo.totscore,
+        review_algo.string_for_log(review_wakeup, review_gosleep),
+        review_algo.totintended,
     ))

@@ -35,7 +35,29 @@ bool string_to_file(const std::string path, const std::string & s, std::ofstream
 
     ofs << s;
     ofs.close();
-    return true;
+    return ofs.good(); // was: true
+}
+
+/**
+ * Append the full contents of a string to a file.
+ * If the file does not exist then it will be created.
+ * 
+ * @param path Path of the file.
+ * @param s Reference to the string.
+ * @param writestate Optional return of the iostate flags.
+ * @return True if appending to the file was successful.
+ */
+bool append_string_to_file(const std::string path, const std::string & s, std::ofstream::iostate * writestate) {
+    std::ofstream ofs(path, std::ifstream::out | std::ifstream::app);
+
+    if (writestate) (*writestate) = ofs.rdstate();
+
+    if (ofs.fail())
+        ERRRETURNFALSE(__func__,"unable to append to or create file "+path);
+
+    ofs << s;
+    ofs.close();
+    return ofs.good();
 }
 
 /**

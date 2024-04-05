@@ -70,7 +70,7 @@ WIZTABLE_LINES=[
 	[ '20200601093905.1', 4, 'fastafter8', 0, 'checkbox', 22, 24, 'Did not eat after 8pm.', '' ],
 	[ '20200601093905.1', 2, 'nextnutri', 0, 'checkbox', 22, 24, 'Plan nutrition for the next day.', '' ],
 	[ '20200601093905.1', 5, 'challenge', 0, 'checkbox', 22, 24, 'Addressed at least 1 challenge.', '' ],
-	[ '20200601093905.1', 30, 'reviewscore', 0, 'number', 22, 24, '<button class="button button1" onclick="window.open(\'/cgi-bin/fzloghtml-cgi.py?review=true\',\'_blank\');">Day review score</button>.', '' ],
+	[ '20200601093905.1', 45, 'reviewscore', 0, 'number', 22, 24, '<button class="button button1" onclick="window.open(\'/cgi-bin/fzloghtml-cgi.py?review=true\',\'_blank\');">Day review score</button>.', '' ],
 ]
 WIZTABLE_LINES_NODE=0
 WIZTABLE_LINES_WEIGHT=1

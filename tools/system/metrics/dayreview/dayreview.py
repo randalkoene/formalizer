@@ -7,6 +7,8 @@ from datetime import datetime
 import json
 import subprocess
 
+from dayreview_algorithm import dayreview_algorithm
+
 results = {}
 def try_subprocess_check_output(thecmdstring: str, resstore: str, verbosity=1) -> int:
     if verbosity > 1:
@@ -172,133 +174,25 @@ while True:
 
 # === From here is shared between the command line and cgi approaches:
 
-def sum_of_type(typeid:str)->float:
-    hours = 0.0
-    for i in range(len(chunkdata)):
-        if chunkdata[i][1] == typeid[0]:
-            hours += chunkdata[i][0]
-    return hours
+review_algo = dayreview_algorithm(wakinghours, chunkdata)
 
-hours_summary = {
-    'self-work': sum_of_type('s'),
-    'work': sum_of_type('w'),
-    'system/care': sum_of_type('S'),
-    'dayspan': wakinghours,
-    'nap': sum_of_type('n'),
-}
-hours_summary['awake'] = hours_summary['dayspan'] - hours_summary['nap']
-hours_summary['sleep'] = 24 - hours_summary['awake']
-hours_summary['other'] = hours_summary['awake'] - (hours_summary['self-work']+hours_summary['work']+hours_summary['system/care'])
+score_data_summary = review_algo.calculate_scores()
 
-intended = { # target, min-lim, max-lim, penalize-above, max-score
-    'self-work': (6.0, 2.0, 8.0, False, 10.0),
-    'work': (6.0, 3.0, 9.0, False, 10.0),
-    'sleep': (7.0, 5.5, 8.5, True, 10.0),
-}
-# No review delivers an automatic score of 0.0,
-# i.e. missing out on 30 points.
+review_algo.update_score_file(date_object, score_data_summary)
 
-def get_intended(htype:str)->float:
-    if htype in intended:
-        return intended[htype][0]
-    return 0.0
+summary_table_dict = review_algo.summary_table()
 
-def get_minlim(htype:str)->float:
-    if htype in intended:
-        return intended[htype][1]
-    return 0.0
+score_table_dict = review_algo.score_table()
 
-def get_maxlim(htype:str)->float:
-    if htype in intended:
-        return intended[htype][2]
-    return 0.0
-
-def get_totintended()->float:
-    tot = 0.0
-    for key_str in intended:
-        tot += intended[key_str][-1]
-    return tot
+hours_summary = review_algo.get_hours_summary()
 
 print('Summary of hours:')
 print('actual | intended | min-lim | max-lim | type')
-for htype in hours_summary.keys():
-    print(' %5.2f   %5.2f      %5.2f     %5.2f     %s' % (hours_summary[htype], get_intended(htype), get_minlim(htype), get_maxlim(htype), str(htype)))
+for htype in summary_table_dict:
+    print(' %5.2f   %5.2f      %5.2f     %5.2f     %s' % summary_table_dict[htype])
 
-def get_score(actual: float, scoring_data:tuple)->float:
-    target, minlim, maxlim, penalizeabove, maxscore = scoring_data
-    if actual < minlim: return 0.0
-    if penalizeabove:
-        if actual > maxlim: return 0.0
-    if actual > target:
-        if not penalizeabove: return maxscore
-        ratio_above = (actual - target) / (maxlim - target) # E.g. (8.0 - 6.0) / (9.0 - 6.0) = 2/3
-        reduce_by = ratio_above * (maxscore - 1.0)          # E.g. 2/3 * (10.0 - 1.0) = 6.0
-        return maxscore - reduce_by                         # E.g. 10.0 - 6.0 = 4.0
-    ratio_below = (target - actual) / (target - minlim)     # E.g. (6.0 - 4.0) / (6.0 - 3.0) = 2/3
-    reduce_by = ratio_below * (maxscore - 1.0)              # E.g. 2/3 * (10.0 - 1.0) = 6.0
-    return maxscore - reduce_by                             # E.g. 10.0 - 6.0 = 4.0
-
-totscore = 0.0
-for htype in intended.keys():
-    score = get_score(hours_summary[htype], intended[htype])
-    print('%s score = %.2f' % (str(htype), score))
-    totscore += score
-print('Total score: %.2f' % totscore)
-
-totintended = get_totintended()
-totscore_ratio = totscore / totintended
+print('Total score: %.2f' % review_algo.totscore)
 
 print('\nFormatted for addition to Log:\n\n')
 
-OUTPUTTEMPLATE='The waking day yesterday was from %s to %s, containing about %.2f waking (non-nap) hours. I did %.2f hours of self-work and %.2f hours of work. I did %.2f hours of System and self-care. Other therefore took %.2f hours. The ratio total performance score is %.2f / %.2f = %.2f.'
-
-print(OUTPUTTEMPLATE % (
-        str(starttimestr),
-        str(endtimestr),
-        hours_summary['awake'],
-        hours_summary['self-work'],
-        hours_summary['work'],
-        hours_summary['system/care'],
-        hours_summary['other'],
-        totscore,
-        totintended,
-        totscore_ratio,
-        ))
-
-def score_data_summary_line(key_str:str, actual_data:dict, intended_data:dict)->tuple:
-    return (
-            actual_data[key_str],
-            intended_data[key_str][0],
-            get_score(actual_data[key_str], intended_data[key_str]),
-            intended_data[key_str][-1],
-        )
-
-score_data_summary = {}
-actual_hours_total = 0.0
-intended_hours_total = 0.0
-for key_str in intended:
-    actual_hours_total += hours_summary[key_str]
-    intended_hours_total += intended[key_str][0]
-    score_data_summary[key_str] = score_data_summary_line(key_str, hours_summary, intended)
-score_data_summary['totscore'] = ( actual_hours_total, intended_hours_total, totscore, totintended )
-
-def update_score_file(day:datetime, score_data:dict):
-    # Read existing data from file.
-    scorefile = '/var/www/webdata/formalizer/dayreview_scores.json'
-    try:
-        with open(scorefile, 'r') as f:
-            data = json.load(f)
-    except:
-        print('No dayreview_scores.json file found, starting a fresh one.')
-        data = {}
-    # Update data.
-    dstamp = date_stamp(day)
-    data[dstamp] = score_data
-    # Save data.
-    try:
-        with open(scorefile, 'w') as f:
-            json.dump(data, f)
-    except Exception as e:
-        print('Unable to save data: '+str(e))
-
-update_score_file(date_object, score_data_summary)
+print(review_algo.string_for_log(starttimestr, endtimestr))

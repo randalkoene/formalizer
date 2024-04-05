@@ -514,29 +514,29 @@ class Node {
     friend class Graph;
     friend class Edge;
 protected:
-    const Node_ID id;        /// unique Node identifier
-    Topics_Set topics;       /// a map of pairs of unique topic tag index and relevance value
-    Graphdecimal valuation;  /// presently only using values 0.0 and greater (typically [1.0,3.0])
-    Graphdecimal completion; /// 1.0 = done, -1.0 = obsolete, -2.0 = replaced, -3.0 = done differently, -4.0 = no longer possible / did not come to pass
-    time_t required;         /// seconds
-    Node_utf8_text text;     /// by default assumed to contain UTF8 HTML5
-    time_t targetdate;       /// when tdproperty=unspecified then targetdate should be set to -1
-    td_property tdproperty;  /// unspecified, inherit, variable, fixed, exact
-    Graphflag repeats;       /// must be false if tdproperty is unspecified or variable
-    td_pattern tdpattern;    /// can be used to remember an optional periodicity even if isperiodic=false
-    Graphsigned tdevery;     /// multiplier for pattern interval
-    Graphsigned tdspan;      /// count of number of repetitions (0 means unlimited)
+    const Node_ID id;                        /// unique Node identifier
+    Topics_Set topics;                       /// a map of pairs of unique topic tag index and relevance value
+    Graphdecimal valuation = 0.0;            /// presently only using values 0.0 and greater (typically [1.0,3.0])
+    Graphdecimal completion = 0.0;           /// 1.0 = done, -1.0 = obsolete, -2.0 = replaced, -3.0 = done differently, -4.0 = no longer possible / did not come to pass
+    time_t required = 0;                     /// seconds
+    Node_utf8_text text;                     /// by default assumed to contain UTF8 HTML5
+    time_t targetdate = RTt_unspecified;     /// when tdproperty=unspecified then targetdate should be set to -1
+    td_property tdproperty = unspecified;    /// unspecified, inherit, variable, fixed, exact
+    Graphflag repeats = false;               /// must be false if tdproperty is unspecified or variable
+    td_pattern tdpattern = patt_nonperiodic; /// can be used to remember an optional periodicity even if isperiodic=false
+    Graphsigned tdevery = 1;                 /// multiplier for pattern interval
+    Graphsigned tdspan = 1;                  /// count of number of repetitions (0 means unlimited)
 
-    Graph_Graph_ptr graph;   /// this is set when the Node is added to a Graph
-    Edges_Set supedges; /// this set maintained for rapid Edge access to superior Nodes
-    Edges_Set depedges; /// this set maintained for rapid Edge access to dependency Nodes
+    Graph_Graph_ptr graph;                   /// this is set when the Node is added to a Graph
+    Edges_Set supedges;                      /// this set maintained for rapid Edge access to superior Nodes
+    Edges_Set depedges;                      /// this set maintained for rapid Edge access to dependency Nodes
  
-    Edit_flags editflags;   /// flags used to indicate Node data that has been modified (or should be modified, https://trello.com/c/eUjjF1yZ)
+    Edit_flags editflags;                    /// flags used to indicate Node data that has been modified (or should be modified, https://trello.com/c/eUjjF1yZ)
 
-    Boolean_Tag_Flags bflags; /// flags representing boolean tags parsed from the Node description.
+    Boolean_Tag_Flags bflags;                /// flags representing boolean tags parsed from the Node description.
 
     #define SEM_TRAVERSED 1
-    mutable int semaphore; /// used to detect graph traversal etc.
+    mutable int semaphore;                   /// used to detect graph traversal etc.
 
     int get_semaphore() { return semaphore; }
     void set_semaphore(int sval) { semaphore = sval; }
@@ -733,11 +733,11 @@ class Edge {
     friend class Graph_modifications;
 protected:
     const Edge_ID id;
-    Graphdecimal dependency;
-    Graphdecimal significance; // (also known as unbounded importance)
-    Graphdecimal importance;   // (also known as bounded importance)
-    Graphdecimal urgency;      // (also known as computed urgency)
-    Graphdecimal priority;     // (also known as computed priority)
+    Graphdecimal dependency = 0.0;
+    Graphdecimal significance = 0.0; // (also known as unbounded importance)
+    Graphdecimal importance = 0.0;   // (also known as bounded importance)
+    Graphdecimal urgency = 0.0;      // (also known as computed urgency)
+    Graphdecimal priority = 0.0;     // (also known as computed priority)
 
     Graph_Node_ptr dep; // rapid access
     Graph_Node_ptr sup; // rapid access

@@ -119,8 +119,11 @@ init: FORCE
 	@echo 'Core objects built here: $(OBJECTS)'
 	@echo '-------------------------------------------------------------------'
 
-$(OBJ)/error.o: error.cpp $(INC)/error.hpp
+$(OBJ)/error.o: error.cpp $(INC)/error.hpp $(INC)/TimeStamp.hpp $(INC)/ReferenceTime.hpp $(INC)/config.hpp
 	$(CCPP) $(CPPFLAGS) -c error.cpp -o $(OBJ)/error.o
+
+$(OBJ)/debug.o: debug.cpp $(INC)/debug.hpp $(INC)/TimeStamp.hpp $(INC)/ReferenceTime.hpp $(INC)/stringio.hpp
+	$(CCPP) $(CPPFLAGS) -c debug.cpp -o $(OBJ)/debug.o
 
 $(OBJ)/standard.o: standard.cpp $(INC)/standard.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c standard.cpp -o $(OBJ)/standard.o

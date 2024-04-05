@@ -14,6 +14,7 @@
 #include <filesystem>
 
 // core
+#include "debug.hpp"
 #include "error.hpp"
 #include "standard.hpp"
 //#include "general.hpp"
@@ -30,6 +31,8 @@
 #include "fzserverpq.hpp"
 
 #define TEST_MORE_THAN_NODE_MODIFICATIONS
+
+Set_Debug_LogFile("/dev/shm/fzserverpq-debug.log");
 
 using namespace fz;
 
@@ -1301,6 +1304,7 @@ bool handle_node_superiors_addlist(Node & node, std::string superiorslist) {
         return standard_error("Named Node List "+superiorslist+" not found.", __func__);
     }
 #ifdef TEST_MORE_THAN_NODE_MODIFICATIONS
+    To_Debug_LogFile("Started processing superiors NNL to add to Node "+node.get_id_str());
     for (const auto & superior_idkey : superiorsNNL_ptr->list) {
         std::string edge_id_str = node.get_id_str()+'>'+superior_idkey.str();
         Edge_ptr edge_ptr = fzs.graph().create_and_add_Edge(edge_id_str);
@@ -1310,6 +1314,7 @@ bool handle_node_superiors_addlist(Node & node, std::string superiorslist) {
         // *** set the edit flag in the Edge (when it has those)
         fzs.modifications_ptr->add(graphmod_add_edge, edge_ptr->get_id().key());
     }
+    To_Debug_LogFile("Completed processing superiors NNL to add to Node "+node.get_id_str());
     return true;
 #else
     return standard_error("MISSING IMPLEMENTATION: addlist to superiors", __func__);
@@ -1581,16 +1586,19 @@ bool handle_node_direct_parameter(Node & node, std::string extension, std::strin
 #endif
 
 #ifdef TEST_MORE_THAN_NODE_MODIFICATIONS
+    To_Debug_LogFile("About to take modifications to databse.");
     // Note: In this call, where editflags are needed they are obtained from the modified Node.
     if (!handle_Graph_modifications_unshared_pq(fzs.graph(), fzs.ga.dbname(), fzs.ga.pq_schemaname(), *fzs.modifications_ptr.get())) {
         return standard_error("Synchronizing Graph update to database failed", __func__);
     }
+    To_Debug_LogFile("Returned normally after making modifications in databse.");
 #endif
 
     // post-modification validity test
     if (editflags.Edit_error()) { // check this AFTER synchronizing (see note in Graphmodify.hpp:Edit_flags)
         return standard_error("An invalid circumstance was encountered while attempting to edit a parameter of Node "+node.get_id_str(), __func__);
     }
+    To_Debug_LogFile("Passed Edit_flags::Edit_error() check.");
 
     // edit response_html
     response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n<p>Node parameter modified.</p>\n</body>\n</html>\n";

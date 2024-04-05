@@ -193,19 +193,25 @@ std::string render_Log_entry(Log_entry & entry, std::locale & loc, const std::st
         { "entry_id", entry.get_id_str() },
     };
 
-    if (fzlh.search_strings.empty()) {
-        log_entry_data["entry_text"] = make_embeddable_html(
-            entry.get_entrytext(),
-            fzlh.config.interpret_text,
-            &special_urls,
-            &fzlh.replacements
-        );
+    if (fzlh.recent_format != most_recent_html) {
+        log_entry_data["entry_text"] = entry.get_entrytext();
     } else {
-        std::string text_to_highlight = make_embeddable_html(
-            entry.get_entrytext(),
-            fzlh.config.interpret_text
-        );
-        log_entry_data["entry_text"] = add_search_highlighting(text_to_highlight, loc);
+        if (fzlh.search_strings.empty()) {
+            log_entry_data["entry_text"] = make_embeddable_html(
+                entry.get_entrytext(),
+                fzlh.config.interpret_text,
+                &special_urls,
+                &fzlh.replacements
+            );
+        } else {
+            std::string text_to_highlight = make_embeddable_html(
+                entry.get_entrytext(),
+                fzlh.config.interpret_text,
+                &special_urls,
+                &fzlh.replacements
+            );
+            log_entry_data["entry_text"] = add_search_highlighting(text_to_highlight, loc);
+        }
     }
 
     if (entry.same_node_as_chunk()) {
