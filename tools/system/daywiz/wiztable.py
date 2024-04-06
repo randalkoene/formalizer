@@ -51,8 +51,8 @@ WIZTABLE_LINES=[
 	[ '20040402045825.1', 5, 'firstwork', 0, 'checkbox', 13, 16, 'Managed at least 4 hours of actual work progress in the first miniday.', ''],
 
 	[ '20081125102516.1', -5, 'emailparsed', 0, 'number', 8, 20, 'Emails parsed.', '' ],
-	[ '20081125102516.1', 5, 'emailurgent', 0, 'checkbox', 8, 20, 'Urgent emails identified.', '' ],
-	[ '20081125102516.1', -5, 'emailresp', 0, 'number', 8, 20, 'Emails responded to.', '' ],
+	[ '20081125102516.1', 10, 'emailurgent', 0, 'checkbox', 8, 20, 'Urgent emails identified.', '' ],
+	[ '20081125102516.1', -10, 'emailresp', 0, 'number', 8, 20, 'Emails responded to.', '' ],
 
 	[ '20100403134619.1', 4, 'endurance', 0, 'checkbox', 9, 22, 'Endurance exercise (e.g rowing, dancing, rollerblading).', '' ],
 	[ '20100403134619.1', 4, 'pushup3', 0, 'checkbox', 20, 24, 'Third push-ups or weights (e.g. during dinner).', '' ],

@@ -90,11 +90,7 @@
             "window" : "_blank"
         }
     },
-    "Current Tracks: " : {
-        "Threads" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?D=threads&T=true&u=204512311159&r=100",
-            "window" : "_blank"
-        },
+    "Graph" : {
         "Deptree:Everything" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?G=true&n=20101230042609.1&I=true&T=true",
             "window" : "_blank"
@@ -126,6 +122,12 @@
         "Graph" : {
             "url" : "/cgi-bin/fzvismilestones-cgi.py",
             "window" : "_blank"
+        }
+    },
+    "Current Tracks: " : {
+        "Threads" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?D=threads&T=true&u=204512311159&r=100",
+            "window" : "_blank"
         },
         "NEXTUP-OUTPUT" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20230624214603.1&G=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true",
@@ -141,6 +143,10 @@
         },
         "EU2024-PERS-ROADMAP-V2-ITERATION-A" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20240311114746.1&G=true&T=true&C=150&B=79&tdorder=true&tdbad=true&tdfar=true",
+            "window" : "_blank"
+        },
+        "PERSFIN-FIXED" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20150103095831.1&G=true&T=true&C=150&B=79&tdorder=true&tdbad=true&tdfar=true",
             "window" : "_blank"
         },
         "FORMALIZER" : {

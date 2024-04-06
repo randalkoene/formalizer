@@ -1493,7 +1493,7 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
         // TODO: *** Should progress analysis also be applied to the header Node?
 
         std::string idtext(nkey.str());
-        std::string headnode_id_link = "<a href=\"/cgi-bin/fzlink.py?id="+idtext+"\">"+idtext+"</a>";
+        std::string headnode_id_link = "<a href=\"/cgi-bin/fzlink.py?id="+idtext+"\" target=\"_blank\">"+idtext+"</a>";
         headnode_id_link += "<button class=\"tiny_button tiny_wider\" onclick=\"window.open('/cgi-bin/nodeboard-cgi.py?n="+idtext+"&G=true&T=true&C=300&B=79&tdorder=true&tdbad=true&tdfar=true','_blank');\">DEP tree</button>";
 
         std::string headnode_description(prepare_headnode_description(nb, *node_ptr));
