@@ -164,11 +164,18 @@ create_success_page_tail = '''<p class="success"><b>Node created: <a href="/cgi-
 <script type="text/javascript" src="/fzclosing_window.js"></script>
 <script>
 function copyValueToClipboard() {
-  var copyValue = document.getElementById('node_id);
+  var copyValue = document.getElementById('node_id');
+  var value_content = '---';
+  if (copyValue == null) {
+    console.log('Did not find object with id node_id.');
+  } else {
+    value_content = copyValue.value;
+    console.log(`Value of node_id object is ${value_content}.`);
+  }
   copyValue.select();
-  copyValue.setSelectionRange(0, 99999); // For mobile devices
-  navigator.clipboard.writeText(copyValue.value);
-  alert("Copied: " + copyValue.value);
+  //copyValue.setSelectionRange(0, 99999); // For mobile devices
+  navigator.clipboard.writeText(value_content);
+  alert("Copied: " + value_content);
 }
 </script>
 </body>

@@ -90,7 +90,7 @@
             "window" : "_blank"
         }
     },
-    "Graph" : {
+    "Graph:" : {
         "Deptree:Everything" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?G=true&n=20101230042609.1&I=true&T=true",
             "window" : "_blank"
