@@ -513,4 +513,74 @@ std::string make_button(const std::string & link, const std::string & label, boo
     return button_str;
 }
 
+/**
+ * Generates HTML for a button that will copy contents from the innerHTML of
+ * a DOM object with a specific id to the clipboard.
+ * Use this with copy_html_from_id_js().
+ * 
+ * @param id The id of the object from which to copy.
+ * @param label The text to show on the button.
+ * @param button_class Optional extra button class CSS identifiers.
+ * @return The HTML to embed.
+ */
+std::string copy_from_id_button(const std::string & id, const std::string & label, const std::string & button_class) {
+    return "<button class=\"button "+button_class+"\" onclick=\"copyHtmlToClipboard('"+id+"');\">"+label+"</button>";
+}
+
+/**
+ * Like copy_from_id_button(), but copies the value of an input element.
+ * Note that the input element must have an id, not just a name field.
+ * Use this with copy_value_from_id_js().
+ */
+std::string copy_from_input_button(const std::string & id, const std::string & label, const std::string & button_class) {
+    return "<button class=\"button "+button_class+"\" onclick=\"copyValueToClipboard('"+id+"');\">"+label+"</button>";
+}
+
+const char *copyhtmljs_template_A = R""""(
+function copyHtmlToClipboard() {
+  var copyRef = document.getElementById(")"""";
+
+const char *copyhtmljs_template_B = R""""(");
+  const el = document.createElement("textarea");
+  var copyValue = copyRef.innerHTML;
+  el.value = copyValue
+  document.body.appendChild(el);
+  el.select();
+  navigator.clipboard.writeText(el.value);
+  //document.execCommand("copy");
+  document.body.removeChild(el);
+  alert("Copied: " + copyValue);
+}
+)"""";
+/**
+ * Generates Javascript for a function top copy contents from the innerHTML
+ * of a DOM object with a specific id to the clipboard.
+ * Use this with copy_from_id_button().
+ * 
+ * @param id The id of the object from which to copy.
+ * @return The Javascript function to include (between <script> tags or in a .js file).
+ */
+std::string copy_html_from_id_js(const std::string & id) {
+    return copyhtmljs_template_A+id+copyhtmljs_template_B;
+}
+
+const char *copyvaluejs_template_A = R""""(
+function copyValueToClipboard() {
+  var copyValue = document.getElementById(")"""";
+
+const char *copyvaluejs_template_B = R""""(");
+  copyValue.select();
+  copyValue.setSelectionRange(0, 99999); // For mobile devices
+  navigator.clipboard.writeText(copyValue.value);
+  //alert("Copied: " + copyValue.value);
+}
+)"""";
+/**
+ * Like copy_html_from_id_js(), but copies the value of an input element.
+ * Use this with copy_from_input_button().
+ */
+std::string copy_value_from_id_js(const std::string & id) {
+    return copyvaluejs_template_A+id+copyvaluejs_template_B;
+}
+
 } // namespace fz

@@ -410,6 +410,7 @@ nuts = [
 	'pecans',
 	'walnut pieces',
 	'borrelnoten',
+	'cashews',
 ]
 
 spread = [

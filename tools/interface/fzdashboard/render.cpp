@@ -17,6 +17,7 @@
 #include "stringio.hpp"
 #include "jsonlite.hpp"
 #include "templater.hpp"
+//#include "html.hpp"
 
 // local
 #include "render.hpp"
@@ -253,6 +254,14 @@ bool render(std::string & json_str, dynamic_or_static html_output) {
 
     template_varvalues varvals;
     varvals.emplace("button-sections",button_sections);
+
+// --- copy to clipboard tests
+    // varvals.emplace("copy-html-html", copy_from_id_button("htmlcopy", "HTML Copy Test", "button1"));
+    // varvals.emplace("copy-value-html", copy_from_input_button("valuecopy", "Input Copy Test", "button2"));
+    // varvals.emplace("copy-html-js", copy_html_from_id_js("htmlcopy"));
+    // varvals.emplace("copy-value-js", copy_value_from_id_js("valuecopy"));
+// ---
+
     std::string rendered_str = env.render(templates[index_temp], varvals);
 
     std::string embed_html_name;

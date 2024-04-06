@@ -157,10 +157,20 @@ edit_success_page_tail = f'''<p class="success"><b>Node modified. To review or e
 </html>
 '''
 
-create_success_page_tail = '''<p class="success"><b>Node created: <a href="/cgi-bin/fzlink.py?id=%s">%s</a></b></p>
+create_success_page_tail = '''<p class="success"><b>Node created: <a href="/cgi-bin/fzlink.py?id=%s">%s</a></b><button class="button" onclick="copyValueToClipboard();">copy</button></p>
 <hr>
+<input id="node_id" type="hidden" value="%s">
 <button id="closing_countdown" class="button button1" onclick="Keep_or_Close_Page('closing_countdown');">Keep Page</button>
 <script type="text/javascript" src="/fzclosing_window.js"></script>
+<script>
+function copyValueToClipboard() {
+  var copyValue = document.getElementById('node_id);
+  copyValue.select();
+  copyValue.setSelectionRange(0, 99999); // For mobile devices
+  navigator.clipboard.writeText(copyValue.value);
+  alert("Copied: " + copyValue.value);
+}
+</script>
 </body>
 </html>
 '''
@@ -371,7 +381,7 @@ def modify_node():
             print(edit_fail_page_tail)
         else:
             node_id = get_node_id_from_result(result_str)
-            print(create_success_page_tail % (node_id, node_id))
+            print(create_success_page_tail % (node_id, node_id, node_id))
     else:
         thecmd = f"./fzedit {verbosearg} -E STDOUT -M {id} -f {textfile} -c {comp:.5f} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}"
         print(f'<!-- Call command: {thecmd} -->')
