@@ -5,6 +5,8 @@
  * General collection of functions for working with HTML strings.
  */
 
+#include <iostream>
+
 // std
 #include <map>
 #include <vector>
@@ -370,6 +372,37 @@ std::string convert_special_data_html(
     return converted; // it never actually gets here
 }
 
+bool found_end_of_closing_href_tag(size_t pos, const std::string & htmlstr, size_t & pos_after_href_closing) {
+    while (pos < htmlstr.size()) {
+        // Find a complete closing tag.
+        auto closing_tag = htmlstr.find("</", pos);
+        if (closing_tag == std::string::npos) return false;
+        auto closing_tag_close = htmlstr.find('>', closing_tag+2);
+        if (closing_tag_close == std::string::npos) return false;
+
+        // Find out if the only content of the closing tag is 'a' or 'A'.
+        unsigned int As_counted = 0;
+        unsigned int other_counted = 0;
+        for (size_t i = closing_tag+2; i < closing_tag_close;  i++) {
+            if ((htmlstr.at(i)=='A') || (htmlstr.at(i)=='a')) {
+                As_counted++;
+            } else {
+                if ((htmlstr.at(i)!=' ') && (htmlstr.at(i)!='\t')) {
+                    other_counted++;
+                }
+            }
+        }
+        if ((As_counted==1) && (other_counted==0)) {
+            pos_after_href_closing = closing_tag_close+1;
+            return true;
+        }
+
+        // Skip other tag.
+        pos = closing_tag_close+1;
+    }
+    return false;
+}
+
 const std::vector<std::string> href_match_vec = {
     "a ",
     "href",
@@ -387,6 +420,8 @@ const std::vector<std::string> href_match_vec = {
  * 
  * See the comment above the convert_special_data_html() function for more
  * details and options.
+ * That type of conversion is not applied to content between <a href> and </a>
+ * tags, because that would lead to possible links within links.
  * 
  * WARNING: The 'full_markdown' text_interpretation option is not yet supported!
  * 
@@ -444,27 +479,62 @@ std::string make_embeddable_html(
         }
         // Identify significant HTML tags.
         std::string tagcontent(htmlstr.substr(next_ltpos, (next_gtpos-next_ltpos)+1));
-        if (special_urls && replacements) {
+
+        // if (special_urls && replacements) {
+        //     if (special_urls->size() == replacements->size()) {
+        //         size_t url_start;
+        //         if (lowercase_match_skipping_spaces(href_match_vec, tagcontent, 1, &url_start)) {
+        //             for (size_t i = 0; i < special_urls->size(); i++) {
+        //                 int cmpres = tagcontent.compare(url_start, special_urls->at(i).size(), special_urls->at(i));
+        //                 if (cmpres == 0) {
+        //                     tagcontent = tagcontent.substr(0, url_start) + "http://" + replacements->at(i) + tagcontent.substr(url_start+special_urls->at(i).size());
+        //                     break;
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+
+        size_t url_start;
+        bool is_href = lowercase_match_skipping_spaces(href_match_vec, tagcontent, 1, &url_start);
+
+        if (is_href && special_urls && replacements) {
             if (special_urls->size() == replacements->size()) {
-                size_t url_start;
-                if (lowercase_match_skipping_spaces(href_match_vec, tagcontent, 1, &url_start)) {
-                    for (size_t i = 0; i < special_urls->size(); i++) {
-                        int cmpres = tagcontent.compare(url_start, special_urls->at(i).size(), special_urls->at(i));
-                        if (cmpres == 0) {
-                            tagcontent = tagcontent.substr(0, url_start) + "http://" + replacements->at(i) + tagcontent.substr(url_start+special_urls->at(i).size());
-                            break;
-                        }
+                for (size_t i = 0; i < special_urls->size(); i++) {
+                    int cmpres = tagcontent.compare(url_start, special_urls->at(i).size(), special_urls->at(i));
+                    if (cmpres == 0) {
+                        tagcontent = tagcontent.substr(0, url_start) + "http://" + replacements->at(i) + tagcontent.substr(url_start+special_urls->at(i).size());
+                        break;
                     }
                 }
             }
         }
-        // *** if there are problematic tags, this would be where to check for those
-        // *** if you need to skip it then do not do the next line
-        // Process embeddable HTML tag.
-        txtstr += tagcontent;
-        //txtstr += htmlstr.substr(next_ltpos, (next_gtpos-next_ltpos)+1);
 
-        pos = next_gtpos + 1;
+        if (is_href) {
+            txtstr += tagcontent;
+            pos = next_gtpos + 1;
+            // Do not convert anything that is between the start and end tags of the visible link text.
+            size_t pos_after_href_closing;
+            if (found_end_of_closing_href_tag(pos, htmlstr, pos_after_href_closing)) {
+                // Copy link text contents and href closing tag.
+                txtstr += htmlstr.substr(pos, pos_after_href_closing-pos);
+                pos = pos_after_href_closing;
+            } else {
+                // Incomplete link, let's copy to end as link text and add closing tag.
+                txtstr += htmlstr.substr(pos);
+                txtstr += "</a>";
+                return txtstr;
+            }
+
+        } else {
+            // *** if there are problematic tags, this would be where to check for those
+            // *** if you need to skip it then do not do the next line
+            // Process embeddable HTML tag.
+            txtstr += tagcontent;
+
+            pos = next_gtpos + 1;
+        }
+
         if (pos>htmlstr.size())
             break;
     }

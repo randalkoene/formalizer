@@ -68,7 +68,14 @@ fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flow
         "7. An example of a custom template is:\n"
         "     'STR:{{ t_chunkopen }} {{ t_diff_mins }} {{ node_id }}\\n'\n"
         "8. The 'json' format is available only with the '-i' interpret for day review\n"
-        "   option.\n");
+        "   option.\n"
+        "9. Automatically translated components of URLs, such as @FZSERVER@ are\n"
+        "   recognized only within properly formatted HREF tags, not in text.\n"
+        "10. The @FZSERVER@ tag, when used within a URL in a HREF tag is replaced\n"
+        "    with the server address and port prepended with 'http://'. A URL using\n"
+        "    the tag should be formatted as in the following example:\n"
+        "      <a href=\"@FZSERVER@/doc/lists/lists.html\">\n"
+        );
 }
 
 /**
