@@ -991,10 +991,12 @@ bool render_new_node_page() {
     if (fzgh.list_name.empty()) {
         nodevars.emplace("is_disabled", " disabled");
         nodevars.emplace("notice_1", " <b>add a Topic to enable 'create'</b> ");
+        nodevars.emplace("select-template", "");
         nodevars.emplace("node-text", " (add a Topic to enable description entry) ");
     } else {
         nodevars.emplace("is_disabled", "");
         nodevars.emplace("notice_1", "<input type=\"hidden\" name=\"topics\" value=\""+fzgh.list_name+"\">");
+        nodevars.emplace("select-template", "<tr><td><button class=\"button button1\" onclick=\"window.open('/cgi-bin/addnode-template.py?topics="+fzgh.list_name+"','_self');\">Select Template</button></td></tr>");
         nodevars.emplace("node-text", ndata.utf8_text);
     }
 

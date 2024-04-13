@@ -131,6 +131,20 @@ bool close_Log_chunk_pq(const Log_chunk & chunk, Postgres_access & pa);
  */
 bool append_Log_chunk_pq(const Log_chunk & chunk, Postgres_access & pa);
 
+/**
+ * Change the Node to which the Chunk specified belongs. The chunk must
+ * already exist within a table in schema of PostgreSQL database.
+ * 
+ * Note:
+ * - After changing Chunk ownership the Node histories cache should
+ *   be refreshed.
+ * 
+ * @param chunk A valid Log chunk object with the updated node_id.
+ * @param pa Access object with database name and Formalizer schema name.
+ * @returns True if the Log chunk nid was successfully updated.
+ */
+bool modify_Log_chunk_nid_pq(const Log_chunk & chunk, Postgres_access & pa);
+
 bool load_Log_pq(Log & log, Postgres_access & pa);
 
 bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & filter);

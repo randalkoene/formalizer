@@ -297,6 +297,37 @@ bool append_Log_chunk_pq(const Log_chunk & chunk, Postgres_access & pa) {
     STORE_LOG_PQ_RETURN(true);
 }
 
+/**
+ * Change the Node to which the Chunk specified belongs. The chunk must
+ * already exist within a table in schema of PostgreSQL database.
+ * 
+ * Note:
+ * - After changing Chunk ownership the Node histories cache should
+ *   be refreshed.
+ * 
+ * @param chunk A valid Log chunk object with the updated node_id.
+ * @param pa Access object with database name and Formalizer schema name.
+ * @returns True if the Log chunk nid was successfully updated.
+ */
+bool modify_Log_chunk_nid_pq(const Log_chunk & chunk, Postgres_access & pa) {
+    ERRTRACE;
+    active_pq apq;
+    apq.conn = connection_setup_pq(pa.dbname());
+    if (!apq.conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define CLOSE_LOG_PQ_RETURN(r) { PQfinish(apq.conn); return r; }
+    apq.pq_schemaname = pa.pq_schemaname();
+
+    ERRHERE(".close");
+    Logchunk_pq chunk_pq(&chunk);
+    std::string modify_cmd_pq("UPDATE "+apq.pq_schemaname+".Logchunks SET nid = "+chunk_pq.nid_pqstr()+" WHERE id = "+chunk_pq.id_pqstr());
+    if (!simple_call_pq(apq.conn, modify_cmd_pq))
+        CLOSE_LOG_PQ_RETURN(false);
+
+    CLOSE_LOG_PQ_RETURN(true);
+}
+
 // ======================================
 // Definitions of class member functions:
 // ======================================

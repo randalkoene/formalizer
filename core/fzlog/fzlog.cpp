@@ -43,12 +43,14 @@ fzlog fzl;
  */
 fzlog::fzlog() : formalizer_standard_program(false), config(*this), ga(*this, add_option_args, add_usage_top),
                  reftime(add_option_args, add_usage_top) {
-    add_option_args += "er:n:T:CRc:f:";
-    add_usage_top += " -e|-r <entry-ID>|-C|-R|-c <node-ID>|-h [-n <node-ID>] [-T <text>] [-f <content-file>]";
+    add_option_args += "er:n:T:CRm:c:f:";
+    add_usage_top += " -e|-r <entry-ID>|-C|-R|-c <node-ID>|-m <chunk-ID>|-h [-n <node-ID>] [-T <text>] [-f <content-file>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "If [-c] is called when a Log chunk is still open then the Log chunk\n"
-        "is first closed, then a new Log chunk is opened.\n");
+        "is first closed, then a new Log chunk is opened.\n"
+        "The [-m] option requires a [-n] specification.\n"
+        );
 }
 
 /**
@@ -60,6 +62,7 @@ void fzlog::usage_hook() {
     reftime.usage_hook();
     FZOUT("    -e make Log entry\n"
           "    -r replace Log entry <entry-ID>\n"
+          "    -m modify Log chunk <chunk-ID> Node <node_ID>\n"
           "    -n entry belongs to Node with <node-ID>\n"
           "    -T entry <text> from the command line\n"
           "    -f entry text from <content-file> (\"STDIN\" for stdin until eof, CTRL+D)\n"
@@ -123,6 +126,12 @@ bool fzlog::options_hook(char c, std::string cargs) {
 
     case 'C': {
         flowcontrol = flow_close_chunk;
+        return true;
+    }
+
+    case 'm': {
+        flowcontrol = flow_replace_chunk_node;
+        chunk_id_str = cargs; // combine with '-n <node-id>'
         return true;
     }
 
@@ -405,6 +414,42 @@ bool reopen_chunk() {
 }
 
 /**
+ * Replace ownership of a Log chunk to the specified Node.
+ * 
+ * Note: After doing this, Node histories should be refreshed.
+ */
+bool replace_chunk_node(const std::string & chunk_id_str) {
+    ERRTRACE;
+
+    std::string replacement_node_id_str(fzl.edata.specific_node_id); // Cache this, as get_Log_data will replace it.
+
+    get_Log_data(fzl.ga, chunk_id_str, fzl.edata);
+
+    // Ensure that the Log chunk was found.
+    if (!fzl.edata.c_newest) {
+        standard_exit_error(exit_missing_data, "Unable to modify Node that owns Log chunk, because the Log chunk was not found.", __func__);
+    }
+
+    // Ensure that the Node ID is valid.
+    Node * node_ptr;
+    std::tie(node_ptr, fzl.edata.graph_ptr) = find_Node_by_idstr(replacement_node_id_str, nullptr);
+    if (!node_ptr) {
+        standard.exit(exit_general_error); // error messages were already sent
+    }
+
+    // Create a new Log chunk container for the update.
+    Log_chunk chunk(fzl.edata.c_newest->get_tbegin_idT(), *node_ptr, fzl.edata.c_newest->get_close_time());
+
+    if (!modify_Log_chunk_nid_pq(chunk, fzl.ga)) {
+        standard_exit_error(exit_database_error, "Unable to modify Log chunk "+chunk.get_tbegin_str(), __func__);
+    }
+
+    VERBOSEOUT("Log chunk "+chunk.get_tbegin_str()+" modified.\n");
+
+    return true;
+}
+
+/**
  * This pushes the new Node into the fifo 'recent' Named Node List.
  * 
  * The 'recent' List also has the 'unique' feature and 'maxsize=5'.
@@ -491,6 +536,12 @@ int main(int argc, char *argv[]) {
 
     case flow_reopen_chunk: {
         reopen_chunk();
+        break;
+    }
+
+    case flow_replace_chunk_node: {
+        Node_ID node_id(fzl.newchunk_node_id);
+        replace_chunk_node(fzl.chunk_id_str);
         break;
     }
 

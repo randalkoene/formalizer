@@ -26,6 +26,7 @@ enum flow_options {
     flow_open_chunk = 3,   /// request: open new Log chunk with associated Node
     flow_reopen_chunk = 4, /// request: undo close Log chunk
     flow_replace_entry = 5,/// request: modify Log entry
+    flow_replace_chunk_node = 6, /// reqest: modify Log chunk Node
     flow_NUMoptions
 };
 
@@ -47,6 +48,8 @@ struct fzlog: public formalizer_standard_program {
     entry_data edata;
 
     std::string newchunk_node_id;
+
+    std::string chunk_id_str;
 
     Graph_access ga; // to include Graph or Log access support
 

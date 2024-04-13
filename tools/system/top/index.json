@@ -137,8 +137,16 @@
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20200424210214.1&G=true&I=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true",
             "window" : "_blank"
         },
+        "CARBONCOPIES" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20100907053900.1&G=true&I=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true",
+            "window" : "_blank"
+        },
         "ETHICS-FRAMEWORK-1.0" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?G=true&n=20240109152013.1&I=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true",
+            "window" : "_blank"
+        },
+        "FUNDNET" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?G=true&n=20090223182241.1&I=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true",
             "window" : "_blank"
         },
         "EU2024-PERS-ROADMAP-V2-ITERATION-A" : {
@@ -187,7 +195,7 @@
             "url" : "https://trello.com/b/ptGdOpzW",
             "window" : "_blank"
         },
-        "CARBONCOPIES" : {
+        "Carboncopies" : {
             "url" : "https://trello.com/b/ABTA2xEA",
             "window" : "_blank"
         },
@@ -265,6 +273,10 @@
         },
         "call.carboncopies.org" : {
             "url" : "http://call.carboncopies.org",
+            "window" : "_blank"
+        },
+        "Contacts" : {
+            "url" : "http://contacts.google.com/?authuser=randal.a.koene@gmail.com",
             "window" : "_blank"
         }
     },

@@ -206,6 +206,9 @@ nutrition = {
 	'rookworst': [ 198, '100 g', ],
 	'cherries': [ 77, '100 g', ],
 	'saurkraut': [ 19, '100 g', ],
+	'plums': [ 30, 'plum', ],
+	'quarter pounder': [ 417, 'item', ],
+	'fruit smoothie': [ 90, 'serving', ],
 }
 
 lowcal_filling_nutritious = [
@@ -230,6 +233,7 @@ lowcal_snack = [
 	'seaweed',
 	'cashews',
 	'cherries',
+	'pluma',
 ]
 
 fruit = [
@@ -253,6 +257,7 @@ fruit = [
 	'strawberries',
 	'olives',
 	'cherries',
+	'plums',
 ]
 
 vegetables = [
@@ -320,6 +325,7 @@ meals = [
 	'tomato soup',
 	'double cheeseburger',
 	'kroket',
+	'quarter pounder',
 ]
 
 drinks = [
@@ -336,6 +342,7 @@ drinks = [
 	'wine',
 	'energy drink',
 	'karnemelk',
+	'fruit smoothie',
 ]
 
 breads = [

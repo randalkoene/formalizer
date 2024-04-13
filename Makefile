@@ -196,6 +196,7 @@ CGIEXE += $(COREPATH)/fzupdate/fzupdate-cgi.py
 CGIEXE += $(COREPATH)/fztimezone/fztimezone-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/logentry-form/logentry-form.py
 CGIEXE += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-cgi.py
+CGIEXE += $(TOOLSPATH)/interface/addnode/addnode-template.py
 CGIEXE += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzlink/fzlink.py
 CGIEXE += $(TOOLSPATH)/interface/fzlogtime/fzlogtime.cgi

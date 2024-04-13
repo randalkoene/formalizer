@@ -406,6 +406,7 @@ def generate_Node_edit_form_page():
             thecmd = f'./fzgraph -q -C "/fz/graph/namedlists/dependencies?add={todep}&unique=true"'
             try_command_call(thecmd, printhere=False)
 
+    # This is reached when fzgraphhtml-cgi.py?edit=new&topics=<something>
     thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -m "+edit
     if topics:
         thecmd += " -t '"+topics+"'"
