@@ -41,18 +41,18 @@ WIZTABLE_LINES=[
 	[ '20211017053846.1', 3, 'lotion', 0, 'checkbox', 6, 10, 'Put on lotion.', '' ],
 	[ '20211017053846.1', 4, 'teeth', 0, 'checkbox', 6, 10, 'Brush teeth and/or chew gum.', '' ],
 
-	[ '20140428114648.1', 2, 'neoprene', 0, 'checkbox', 6, 10, 'Wearing clothing where bloat/size is detectable (or neoprene).', '' ],
-	[ '20140428114648.1', 4, 'pushup2', 0, 'checkbox', 6, 10, 'Second push-ups or weights (e.g. during lunch).', '' ],
+	[ '20081125102516.1', -5, 'emailparsed', 0, 'number', 7, 12, 'Emails parsed.', '' ],
+	[ '20081125102516.1', 10, 'emailurgent', 0, 'checkbox', 7, 12, 'Urgent emails identified.', '' ],
+	[ '20081125102516.1', -10, 'emailresp', 0, 'number', 7, 12, 'Emails responded to.', '' ],
 
-	[ '20140921041431.1', 5, 'startedearly', 0, 'checkbox', 6, 10, 'Started early, at least an hour into priority intentions by 10 am.', ''],
-	[ '20140921041431.1', 4, 'lessthan300', 0, 'checkbox', 6, 12, 'Had less than 300 calories in the morning.', ''],
-	[ '20140921041431.1', 3, 'morningfast', 0, 'checkbox', 6, 12, 'Did not eat in the morning.', ''],
+	[ '20140428114648.1', 2, 'neoprene', 0, 'checkbox', 7, 13, 'Wearing clothing where bloat/size is detectable (or neoprene).', '' ],
+	[ '20140428114648.1', 4, 'pushup2', 0, 'checkbox', 7, 13, 'Second push-ups or weights (e.g. during lunch).', '' ],
+
+	[ '20140921041431.1', 5, 'startedearly', 0, 'checkbox', 8, 13, 'Started early, at least an hour into priority intentions by 10 am.', ''],
+	[ '20140921041431.1', 4, 'lessthan300', 0, 'checkbox', 8, 13, 'Had less than 300 calories in the morning.', ''],
+	[ '20140921041431.1', 3, 'morningfast', 0, 'checkbox', 8, 13, 'Did not eat in the morning.', ''],
 
 	[ '20040402045825.1', 5, 'firstwork', 0, 'checkbox', 13, 16, 'Managed at least 4 hours of actual work progress in the first miniday.', ''],
-
-	[ '20081125102516.1', -5, 'emailparsed', 0, 'number', 8, 20, 'Emails parsed.', '' ],
-	[ '20081125102516.1', 10, 'emailurgent', 0, 'checkbox', 8, 20, 'Urgent emails identified.', '' ],
-	[ '20081125102516.1', -10, 'emailresp', 0, 'number', 8, 20, 'Emails responded to.', '' ],
 
 	[ '20100403134619.1', 4, 'endurance', 0, 'checkbox', 9, 22, 'Endurance exercise (e.g rowing, dancing, rollerblading).', '' ],
 	[ '20100403134619.1', 4, 'pushup3', 0, 'checkbox', 20, 24, 'Third push-ups or weights (e.g. during dinner).', '' ],

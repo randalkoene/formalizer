@@ -82,6 +82,12 @@ templates = {
 @TZADJUST@
 @SELFWORK@
 ''',
+    "Check List": '''<ul>
+<li><input type="checkbox" > </li>
+<li><input type="checkbox" > </li>
+<li><input type="checkbox" > </li>
+</ul>
+'''
 }
 
 TEMPLATE_LINE='''<tr><td>

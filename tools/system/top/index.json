@@ -236,6 +236,10 @@
         "Formalizer Tools" : {
             "url" : "https://trello.com/b/uMW6fb4e",
             "window" : "_blank"
+        },
+        "Developnent Tests" : {
+            "url" : "/formalizer/development-tests-INDEX.html",
+            "window" : "_blank"
         }
     },
     "Communication: " : {
@@ -289,6 +293,14 @@
             "url" : "/formalizer/ready-docs.html",
             "window" : "_blank"
         },
+        "Formalizer Doxygen" : {
+            "url" : "/formalizer/doxygen-html/index.html",
+            "window" : "_blank"
+        },
+        "Formalizer v1.x (dil2al)" : {
+            "url" : "http://{{ fzserverpq }}/doc/html/lists.html",
+            "window" : "_blank"
+        },
         "C++ / C" : {
             "url" : "https://trello.com/b/BIRsdsnE",
             "window" : "_blank"
@@ -315,6 +327,14 @@
         },
         "World Time Zones" : {
             "url" : "https://www.worldtimebuddy.com/",
+            "window" : "_blank"
+        },
+        "G-Keep (@gmail)" : {
+            "url" : "http://keep.google.com/?authuser=randal.a.koene@gmail.com",
+            "window" : "_blank"
+        },
+        "G-Keep (@carboncopies)" : {
+            "url" : "http://keep.google.com/?authuser=rkoene@carboncopies.org",
             "window" : "_blank"
         }
     },

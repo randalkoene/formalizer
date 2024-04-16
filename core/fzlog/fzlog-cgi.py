@@ -243,7 +243,7 @@ editentryform_start = '''<form action="/cgi-bin/fzlog-cgi.py" method="post">
 editentryform_middle = '''</textarea><br>
 <p>Associated with Node: <input type="text" name="node" value="'''
 
-editentryform_end = f'''"></p>
+editentryform_end = f'''"> [<a href="/cgi-bin/logcopytemplates.py" target="_blank">Log Copy Templates</a>] </p>
 <input type="hidden" name="action" value="replaceentry">
 <input type="hidden" name="id" value="{id}">
 <p>

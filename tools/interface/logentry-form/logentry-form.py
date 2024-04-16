@@ -180,6 +180,7 @@ def select_Node():
 templatefiles = {
     'rttdecision' : ( cgireadabledir+'rttdecision-template.html', 'Decision Making Template (System.Planning.Decisions.RTT)' ),
     'parsesources': ( cgireadabledir+'parsesources-template.html', 'A list of source material to parse' ),
+    'checklist':    ( cgireadabledir+'checklist-template.html', 'A check list' ),
 }
 
 TEMPLATE_CHOICE_LINE = '''<li>[<a href="/cgi-bin/logentry-form.py?makeentry=usetemplate&template=%s">select template</a>] %s.</li>
