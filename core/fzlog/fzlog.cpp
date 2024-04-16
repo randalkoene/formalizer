@@ -43,13 +43,19 @@ fzlog fzl;
  */
 fzlog::fzlog() : formalizer_standard_program(false), config(*this), ga(*this, add_option_args, add_usage_top),
                  reftime(add_option_args, add_usage_top) {
-    add_option_args += "er:n:T:CRm:c:f:";
-    add_usage_top += " -e|-r <entry-ID>|-C|-R|-c <node-ID>|-m <chunk-ID>|-h [-n <node-ID>] [-T <text>] [-f <content-file>]";
+    add_option_args += "er:n:T:CRm:2:1:c:f:";
+    add_usage_top += " -e|-r <entry-ID>|-C|-R|-c <node-ID>|-m <chunk-ID>|-h [-n <node-ID>] [-T <text>]"
+                     " [-2 <close-time>] [-1 <open-time>] [-f <content-file>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "If [-c] is called when a Log chunk is still open then the Log chunk\n"
         "is first closed, then a new Log chunk is opened.\n"
-        "The [-m] option requires a [-n] specification.\n"
+        "The [-m] option requires a [-n], [-2] or [-1] specification.\n"
+        "Changing the open-time changes the ID of a Log chunk, which may\n"
+        "affect any links that use the Chunk ID as a target.\n"
+        "Chunk open and close time changes are constrained by preceding and\n"
+        "following Log chunk close and open times respectively, and by the\n"
+        "current time.\n"
         );
 }
 
@@ -62,8 +68,11 @@ void fzlog::usage_hook() {
     reftime.usage_hook();
     FZOUT("    -e make Log entry\n"
           "    -r replace Log entry <entry-ID>\n"
-          "    -m modify Log chunk <chunk-ID> Node <node_ID>\n"
+          "    -m modify Log chunk <chunk-ID>, Node (-n <node_ID>),\n"
+          "       close time (-2 <close-time>), or open time (-1 <open-time>)\n"
           "    -n entry belongs to Node with <node-ID>\n"
+          "    -1 modify to <open-time> (expressed as YYYYmmddHHMM)\n"
+          "    -2 modify to <close-time> (expressed as YYYYmmddHHMM)\n"
           "    -T entry <text> from the command line\n"
           "    -f entry text from <content-file> (\"STDIN\" for stdin until eof, CTRL+D)\n"
           "    -C close Log chunk (if open)\n"
@@ -130,9 +139,23 @@ bool fzlog::options_hook(char c, std::string cargs) {
     }
 
     case 'm': {
-        flowcontrol = flow_replace_chunk_node;
-        chunk_id_str = cargs; // combine with '-n <node-id>'
+        if ((flowcontrol != flow_replace_chunk_close) && (flowcontrol != flow_replace_chunk_open)) {
+            flowcontrol = flow_replace_chunk_node; // combine with '-n <node-id>'
+        }
+        chunk_id_str = cargs;
         return true;
+    }
+
+    case '2': {
+        flowcontrol = flow_replace_chunk_close;
+        t_modify = time_stamp_time(cargs); // combine with '-m <chunk-id>'
+        return (t_modify != RTt_invalid_time_stamp);
+    }
+
+    case '1': {
+        flowcontrol = flow_replace_chunk_open;
+        t_modify = time_stamp_time(cargs); // combine with '-m <chunk-id>'
+        return (t_modify != RTt_invalid_time_stamp);
     }
 
     case 'R': {
@@ -410,7 +433,171 @@ bool reopen_chunk() {
 
     VERBOSEOUT("Log chunk "+fzl.edata.c_newest->get_tbegin_str()+" reopened and Node completion reverted.\n");
 
-    return true;    
+    return true;
+}
+
+const std::map<bool, std::string> passfailstr = {
+    { false, " [fail]\n" },
+    { true, " [pass]\n" },
+};
+
+/**
+ * Change Log chunk close time.
+ * 
+ * Rules:
+ * - Close time can be moved earlier, but no earlier than a chunk's start time.
+ * - Close time can be moved forwards, but no later than the start time of the next Log chunk.
+ * - Close time can not be moved forwards further than current time. 
+ */
+bool replace_chunk_close(time_t t_close_new) {
+    ERRTRACE;
+
+    // We want to read the Log chunk and the one after it.
+    Log_chunk_ID_key key(fzl.chunk_id_str);
+    if (!fzl.edata.log_ptr) { // make an empty one if it does not exist yet
+        fzl.edata.log_ptr = std::make_unique<Log>();
+    }
+    Log & log = *(fzl.edata.log_ptr.get());
+    Log_filter filter;
+    filter.get_n_from(key.get_epoch_time(), 2);
+    if (!load_partial_Log_pq(log, fzl.ga, filter)) {
+        standard_exit_error(exit_database_error, "Unable to read the specified Log chunk", __func__);
+    }
+
+    // Get chunk and check time of chunk after and current time.
+    //auto [it_from, it_before] = flz.edata.log_ptr->get_Chunks_ID_n_interval(filter.t_from, 2);
+    auto it = log.find_chunk_by_key(key);
+    auto chunk_ptr = log.get_chunk(it);
+    if (!chunk_ptr) {
+        standard_exit_error(exit_bad_request_data, "Unable to find Log chunk with ID "+fzl.chunk_id_str, __func__);
+    }
+    auto chunk_after_ptr = log.get_chunk(std::next(it)); // if this is nullptr then it's the end of the Log
+    VERYVERBOSEOUT("\nModifying Log chunk close-time. Note these rules and data:\n");
+    VERYVERBOSEOUT("  Rule 1: New close-time must be >= open-time.\n");
+    VERYVERBOSEOUT("  Rule 2: New close-time must be <= next chunk open-time.\n");
+    VERYVERBOSEOUT("  Rule 3: New close-time must be <= current time.\n");
+    VERYVERBOSEOUT("All times are expressed in the Formalizer database time zone, i.e. no time-zone adjustment.\n\n");
+
+    time_t chunk_t_open = chunk_ptr->get_open_time();
+    time_t after_t_open = RTt_maxtime;
+    if (chunk_after_ptr) {
+        after_t_open = chunk_after_ptr->get_open_time();
+    }
+    time_t t_now = ActualTime();
+    bool atorafter_topen = t_close_new >= chunk_t_open;
+    bool notafter_tnextopen = t_close_new <= after_t_open;
+    bool notafter_tnow = t_close_new <= t_now;
+
+    VERYVERBOSEOUT("Chunk open-time              : "+TimeStampYmdHM(chunk_t_open)+passfailstr.at(atorafter_topen));
+    VERYVERBOSEOUT("Chunk close-time (unmodified): "+TimeStampYmdHM(chunk_ptr->get_close_time())+'\n');
+    if (chunk_after_ptr) {
+        VERYVERBOSEOUT("Next chunk open-time         : "+TimeStampYmdHM(after_t_open)+passfailstr.at(notafter_tnextopen));
+    } else {
+        VERYVERBOSEOUT("Next chunk open-time         : end of Log"+passfailstr.at(notafter_tnextopen));
+    }
+    VERYVERBOSEOUT("Current time                 : "+TimeStampYmdHM(t_now)+passfailstr.at(notafter_tnow));
+    VERYVERBOSEOUT("New close-time (specified)   : "+TimeStampYmdHM(t_close_new)+'\n');
+
+    if (!atorafter_topen) {
+        standard_exit_error(exit_bad_request_data, "Failed to modify. Specified close-time preceeds chunk open-time.", __func__);
+    }
+    if (!notafter_tnextopen) {
+        standard_exit_error(exit_bad_request_data, "Failed to modify. Specified close-time exceeds next chunk open-time.", __func__);
+    }
+    if (!notafter_tnow) {
+        standard_exit_error(exit_bad_request_data, "Failed to modify. Specified close-time exceeds current time.", __func__);
+    }
+
+    // Carry out modification in database, creating a new Log chunk container for the update.
+    Log_chunk chunk_container(chunk_ptr->get_tbegin_idT(), chunk_ptr->get_NodeID(), t_close_new);
+    if (!close_Log_chunk_pq(chunk_container, fzl.ga)) {
+        standard_exit_error(exit_database_error, "Unable to modify Log chunk "+fzl.chunk_id_str+" in database", __func__);
+    }
+
+    VERBOSEOUT("Log chunk "+fzl.chunk_id_str+" close-time modified to "+TimeStampYmdHM(t_close_new)+".\n");
+
+    return true;
+}
+
+/**
+ * Change Log chunk open time and therefore its ID.
+ * 
+ * Rules:
+ * - Start time can be moved forwards, but not further than the close time.
+ * - Start time can be moved forwards, but not further than the current time.
+ * - Start time can be moved earlier, but no earlier than the close time of the preceding chunk. 
+ */
+bool replace_chunk_open(time_t t_open_new) {
+    ERRTRACE;
+
+    // We want to read the Log chunk and the one before it.
+    Log_chunk_ID_key key(fzl.chunk_id_str);
+    if (!fzl.edata.log_ptr) { // make an empty one if it does not exist yet
+        fzl.edata.log_ptr = std::make_unique<Log>();
+    }
+    Log & log = *(fzl.edata.log_ptr.get());
+    Log_filter filter;
+    filter.get_n_earlier_to(key.get_epoch_time(), 2);
+    if (!load_partial_Log_pq(log, fzl.ga, filter)) {
+        standard_exit_error(exit_database_error, "Unable to read the specified Log chunk", __func__);
+    }
+
+    // FZOUT("DEBUG ==> Chunks loaded:");
+    // for (const auto & [key, chunk_ptr] : log.get_Chunks()) {
+    //     FZOUT("DEBUG ==> "+key.str()+'\n');
+    // }
+
+    // Get chunk and check time of chunk before and current time.
+    auto it = log.find_chunk_by_key(key);
+    auto chunk_ptr = log.get_chunk(it);
+    if (!chunk_ptr) {
+        standard_exit_error(exit_bad_request_data, "Unable to find Log chunk with ID "+fzl.chunk_id_str, __func__);
+    }
+    auto chunk_before_ptr = log.get_chunk(std::prev(it)); // if this is nullptr then it's the beginning of the Log
+    VERYVERBOSEOUT("\nModifying Log chunk open-time. Note these rules and data:\n");
+    VERYVERBOSEOUT("  Rule 1: New open-time must be <= close-time.\n");
+    VERYVERBOSEOUT("  Rule 2: New open-time must be >= previous chunk close-time.\n");
+    VERYVERBOSEOUT("  Rule 3: New open-time must be <= current time.\n");
+    VERYVERBOSEOUT("All times are expressed in the Formalizer database time zone, i.e. no time-zone adjustment.\n\n");
+
+    time_t chunk_t_close = chunk_ptr->get_close_time();
+    time_t before_t_close = 0;
+    if (chunk_before_ptr) {
+        before_t_close = chunk_before_ptr->get_close_time();
+    }
+    time_t t_now = ActualTime();
+    bool atorbefore_tclose = t_open_new <= chunk_t_close;
+    bool notbefore_tprevclose = t_open_new >= before_t_close;
+    bool notafter_tnow = t_open_new <= t_now;
+
+    VERYVERBOSEOUT("Chunk open-time (unmodified) : "+TimeStampYmdHM(chunk_ptr->get_open_time())+'\n');
+    VERYVERBOSEOUT("Chunk close-time             : "+TimeStampYmdHM(chunk_t_close)+passfailstr.at(atorbefore_tclose));
+    if (chunk_before_ptr) {
+        VERYVERBOSEOUT("Previous chunk close-time    : "+TimeStampYmdHM(before_t_close)+passfailstr.at(notbefore_tprevclose));
+    } else {
+        VERYVERBOSEOUT("Previous chunk close-time    : beginning of Log"+passfailstr.at(notbefore_tprevclose));
+    }
+    VERYVERBOSEOUT("Current time                 : "+TimeStampYmdHM(t_now)+passfailstr.at(notafter_tnow));
+    VERYVERBOSEOUT("New open-time (specified)    : "+TimeStampYmdHM(t_open_new)+'\n');
+
+    if (!atorbefore_tclose) {
+        standard_exit_error(exit_bad_request_data, "Failed to modify. Specified open-time exceeds chunk close-time.", __func__);
+    }
+    if (!notbefore_tprevclose) {
+        standard_exit_error(exit_bad_request_data, "Failed to modify. Specified open-time preceeds previous chunk close-time.", __func__);
+    }
+    if (!notafter_tnow) {
+        standard_exit_error(exit_bad_request_data, "Failed to modify. Specified open-time exceeds current time.", __func__);
+    }
+
+    // Carry out modification in database.
+    if (!modify_Log_chunk_id_pq(*chunk_ptr, t_open_new, fzl.ga)) {
+        standard_exit_error(exit_database_error, "Unable to modify Log chunk "+fzl.chunk_id_str+" in database", __func__);
+    }
+
+    VERBOSEOUT("Log chunk "+fzl.chunk_id_str+" open-time (ID) modified to "+TimeStampYmdHM(t_open_new)+".\n");
+
+    return true;
 }
 
 /**
@@ -423,6 +610,9 @@ bool replace_chunk_node(const std::string & chunk_id_str) {
 
     std::string replacement_node_id_str(fzl.edata.specific_node_id); // Cache this, as get_Log_data will replace it.
 
+    VERYVERBOSEOUT("\nReplacing Node of Log chunk "+chunk_id_str+" with Node "+replacement_node_id_str+".\n");
+    std::cout.flush();
+
     get_Log_data(fzl.ga, chunk_id_str, fzl.edata);
 
     // Ensure that the Log chunk was found.
@@ -430,12 +620,18 @@ bool replace_chunk_node(const std::string & chunk_id_str) {
         standard_exit_error(exit_missing_data, "Unable to modify Node that owns Log chunk, because the Log chunk was not found.", __func__);
     }
 
+    VERYVERBOSEOUT("Found Log chunk.\n");
+    std::cout.flush();
+
     // Ensure that the Node ID is valid.
     Node * node_ptr;
     std::tie(node_ptr, fzl.edata.graph_ptr) = find_Node_by_idstr(replacement_node_id_str, nullptr);
     if (!node_ptr) {
         standard.exit(exit_general_error); // error messages were already sent
     }
+
+    VERYVERBOSEOUT("Found Node.\n");
+    std::cout.flush();
 
     // Create a new Log chunk container for the update.
     Log_chunk chunk(fzl.edata.c_newest->get_tbegin_idT(), *node_ptr, fzl.edata.c_newest->get_close_time());
@@ -445,6 +641,7 @@ bool replace_chunk_node(const std::string & chunk_id_str) {
     }
 
     VERBOSEOUT("Log chunk "+chunk.get_tbegin_str()+" modified.\n");
+    std::cout.flush();
 
     return true;
 }
@@ -540,8 +737,19 @@ int main(int argc, char *argv[]) {
     }
 
     case flow_replace_chunk_node: {
-        Node_ID node_id(fzl.newchunk_node_id);
+        FZOUT("DEBUG ==> entered node replacement.\n"); std::cout.flush();
+        Node_ID node_id(fzl.edata.specific_node_id);
         replace_chunk_node(fzl.chunk_id_str);
+        break;
+    }
+
+    case flow_replace_chunk_close: {
+        replace_chunk_close(fzl.t_modify);
+        break;
+    }
+
+    case flow_replace_chunk_open: {
+        replace_chunk_open(fzl.t_modify);
         break;
     }
 

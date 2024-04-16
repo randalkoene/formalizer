@@ -145,6 +145,17 @@ bool append_Log_chunk_pq(const Log_chunk & chunk, Postgres_access & pa);
  */
 bool modify_Log_chunk_nid_pq(const Log_chunk & chunk, Postgres_access & pa);
 
+/**
+ * Change Chunk Open time, i.e. the Log chunk ID. The chunk must already
+ * exist within a table in schema of PostgreSQL database.
+ * 
+ * @param chunk A valid Log chunk object.
+ * @param new_id A new open time that will also be the new ID.
+ * @param pa Access object with database name and Formalizer schema name.
+ * @returns True if the Log chunk was successfully updated.
+ */
+bool modify_Log_chunk_id_pq(const Log_chunk & chunk, time_t new_id, Postgres_access & pa);
+
 bool load_Log_pq(Log & log, Postgres_access & pa);
 
 bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & filter);

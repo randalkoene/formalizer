@@ -20,6 +20,8 @@
 #define DEFAULTMAXCOLS 100
 #define DEFAULTMAXROWS 100
 
+#define ROADMAP_TOPIC 79
+
 using namespace fz;
 
 enum flow_options {
@@ -78,6 +80,17 @@ struct CSV_Data {
 struct CSV_Data_Day {
     std::vector<CSV_Data> day;
 
+};
+
+struct nodeboard_options {
+    flow_options _floption = flow_dependencies_tree;
+    bool _threads = false; // When true, prereqs/provides and possibly progress analysis may be included.
+    bool _showcompleted = false; // When true, include Nodes that are inactive.
+    bool _shownonmilestone = true; // When true, include Nodes that are not Milestones.
+    bool _progressanalysis = false; // When true (and _threads), include progress analysis.
+    float multiplier = 1.0; // Multiplier of vertical card height.
+    unsigned int maxcols = DEFAULTMAXCOLS; // Column limit for hierarchy board.
+    unsigned int maxrows = DEFAULTMAXROWS; // Row limit for hierarchy board and for NNL dependencies board.
 };
 
 struct nodeboard: public formalizer_standard_program {
@@ -183,7 +196,13 @@ struct nodeboard: public formalizer_standard_program {
 
     Graph & graph();
 
-    std::string build_nodeboard_cgi_call(flow_options _floption, bool _threads, bool _showcompleted, bool _progressanalysis, float multiplier = 1.0, unsigned int maxcols = DEFAULTMAXCOLS, unsigned int maxrows = DEFAULTMAXROWS);
+    nodeboard_options get_nodeboard_options() const;
+
+    std::string build_nodeboard_cgi_call(const nodeboard_options & options) const;
+
+    bool shows_non_milestone_nodes() const;
+
+    std::string encode_modified_topic_filters(bool _shownonmilestone) const;
 
     bool render_init();
 
@@ -227,7 +246,7 @@ struct nodeboard: public formalizer_standard_program {
 
     bool make_multi_column_board(const std::string & rendered_columns, template_id_enum board_template = kanban_board_temp, bool specify_rows = false, const std::string & col_width = " 240px", const std::string & container_width = "230px", const std::string & card_width = "220px", const std::string & card_height = "390px");
 
-    std::string with_and_without_inactive_Nodes_buttons();
+    std::string with_and_without_inactive_Nodes_buttons() const;
 
 };
 

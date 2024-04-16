@@ -328,6 +328,34 @@ bool modify_Log_chunk_nid_pq(const Log_chunk & chunk, Postgres_access & pa) {
     CLOSE_LOG_PQ_RETURN(true);
 }
 
+/**
+ * Change Chunk Open time, i.e. the Log chunk ID. The chunk must already
+ * exist within a table in schema of PostgreSQL database.
+ * 
+ * @param chunk A valid Log chunk object.
+ * @param new_id A new open time that will also be the new ID.
+ * @param pa Access object with database name and Formalizer schema name.
+ * @returns True if the Log chunk was successfully updated.
+ */
+bool modify_Log_chunk_id_pq(const Log_chunk & chunk, time_t new_id, Postgres_access & pa) {
+    ERRTRACE;
+    active_pq apq;
+    apq.conn = connection_setup_pq(pa.dbname());
+    if (!apq.conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define CLOSE_LOG_PQ_RETURN(r) { PQfinish(apq.conn); return r; }
+    apq.pq_schemaname = pa.pq_schemaname();
+
+    ERRHERE(".close");
+    Logchunk_pq chunk_pq(&chunk);
+    std::string close_cmd_pq("UPDATE "+apq.pq_schemaname+".Logchunks SET id = "+TimeStamp_pq(new_id)+" WHERE id = "+chunk_pq.id_pqstr());
+    if (!simple_call_pq(apq.conn, close_cmd_pq))
+        CLOSE_LOG_PQ_RETURN(false);
+
+    CLOSE_LOG_PQ_RETURN(true);
+}
+
 // ======================================
 // Definitions of class member functions:
 // ======================================
@@ -1113,6 +1141,14 @@ bool load_Node_history_pq(active_pq & apq, Log & log, const Log_filter & filter,
  * Note: Presently, using a limit or back-to-front does not (yet) work
  *       with a specified Node.
  * 
+ * Examples:
+ * - t_from is set, limit>0 : read n chunks from t_from
+ * - limit>0, back_to_front: read n chunks from end of Log
+ * - t_from and t_to are set: read all chunks in [t_from, t_to]
+ * - nkey is set: read onlny chunks belonging to Node
+ * - limit>0: read n chunks from beginning of Log
+ * - t_to is set, limit>0: read n chunks before and including t_to
+ * 
  * This can also be used by smart on-demand Log caching modes.
  * 
  * @param log A Log for the Chunks and Entries, can be empty or may be added to.
@@ -1137,6 +1173,9 @@ bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & fil
     bool back_to_front = filter.back_to_front;
     if (use_t_from || use_t_to) {
         back_to_front = false; // Loading direction is meaningless if t_from or t_to are specified.
+    }
+    if (use_t_to && (!use_t_from) && (limit > 0)) {
+        back_to_front = true; // Special case to get n before and including t_to.
     }
 
     PGconn* conn = connection_setup_pq(pa.dbname());
@@ -1173,8 +1212,7 @@ bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & fil
     if (back_to_front) {
         limitdirstr += " DESC";
     }
-    if (limit>0) {
-
+    if (limit > 0) {
         limitdirstr += " LIMIT "+std::to_string(limit);
     }
 

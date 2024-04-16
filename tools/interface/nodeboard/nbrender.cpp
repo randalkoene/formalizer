@@ -418,9 +418,22 @@ Graph & nodeboard::graph() {
     return *graph_ptr;
 }
 
-std::string nodeboard::build_nodeboard_cgi_call(flow_options _floption, bool _threads, bool _showcompleted, bool _progressanalysis, float multiplier, unsigned int maxcols, unsigned int maxrows) {
+nodeboard_options nodeboard::get_nodeboard_options() const {
+    nodeboard_options options;
+    options._floption = flowcontrol;
+    options._threads = threads;
+    options._showcompleted = show_completed;
+    options._shownonmilestone = shows_non_milestone_nodes();
+    options._progressanalysis = progress_analysis;
+    options.multiplier = vertical_multiplier;
+    options.maxcols = max_columns;
+    options.maxrows = max_rows;
+    return options;
+}
+
+std::string nodeboard::build_nodeboard_cgi_call(const nodeboard_options & options) const {
     std::string cgi_cmd("/cgi-bin/nodeboard-cgi.py?");
-    switch (_floption) {
+    switch (options._floption) {
         case flow_node: {
             if (!node_ptr) {
                 return "";
@@ -448,8 +461,8 @@ std::string nodeboard::build_nodeboard_cgi_call(flow_options _floption, bool _th
         }
         case flow_csv_schedule: {
             std::string multiplier_arg;
-            if (multiplier > 1.0) {
-                multiplier_arg = "&M="+to_precision_string(multiplier, 1);
+            if (options.multiplier > 1.0) {
+                multiplier_arg = "&M="+to_precision_string(options.multiplier, 1);
             }
             cgi_cmd += "c="+source_file+"&H=Proposed_Schedule"+multiplier_arg;
             return cgi_cmd;
@@ -458,31 +471,63 @@ std::string nodeboard::build_nodeboard_cgi_call(flow_options _floption, bool _th
             return "";
         }
     }
-    if (_showcompleted) {
+    if (options._showcompleted) {
         cgi_cmd += "&I=true";
     }
-    if (_threads) {
+    if (options._threads) {
         cgi_cmd += "&T=true";
     }
-    if (_progressanalysis) {
+    if (options._progressanalysis) {
         cgi_cmd += "&P=true";
     }
     if (highlight_topic_and_valuation) {
         cgi_cmd += "&B="+std::to_string(highlight_topic);
     }
-    if (maxrows != DEFAULTMAXROWS) {
-        cgi_cmd += "&r="+std::to_string(maxrows);
+    if (options.maxrows != DEFAULTMAXROWS) {
+        cgi_cmd += "&r="+std::to_string(options.maxrows);
     }
-    if (maxcols != DEFAULTMAXCOLS) {
-        cgi_cmd += "&C="+std::to_string(maxcols);
+    if (options.maxcols != DEFAULTMAXCOLS) {
+        cgi_cmd += "&C="+std::to_string(options.maxcols);
     }
     if (!filter_substring.empty()) {
         cgi_cmd += "&F="+uri_encoded_filter_substring;
     }
-    if (!filter_topics.empty()) {
-        cgi_cmd += "&i="+uri_encoded_filter_topics;
+    std::string uri_encoded_modifed_topic_filters = encode_modified_topic_filters(options._shownonmilestone);
+    if (!uri_encoded_modifed_topic_filters.empty()) {
+        cgi_cmd += "&i="+uri_encoded_modifed_topic_filters;
     }
     return cgi_cmd;
+}
+
+bool nodeboard::shows_non_milestone_nodes() const {
+    for (const auto & _topic : filter_topics) {
+        if (_topic == ROADMAP_TOPIC) return false;
+    }
+    return true;
+}
+
+std::string nodeboard::encode_modified_topic_filters(bool _shownonmilestone) const {
+    if (shows_non_milestone_nodes()) {
+        if (_shownonmilestone) {
+            return uri_encoded_filter_topics;
+        } else {
+            if (filter_topics.size()==0) {
+                return std::to_string(ROADMAP_TOPIC);
+            } else { // The filter is more selective, and we don't want to forget it so can't switch.
+                return uri_encoded_filter_topics;
+            }
+        }
+    } else { // ROADMAP_TOPIC is in the topic filters
+        if (_shownonmilestone) {
+            if (filter_topics.size()==1) {
+                return "";
+            } else { // The filter is more selective, can't show more.
+                return uri_encoded_filter_topics;
+            }
+        } else {
+            return uri_encoded_filter_topics;
+        }
+    }
 }
 
 bool nodeboard::render_init() {
@@ -1167,19 +1212,45 @@ bool nodeboard::make_multi_column_board(const std::string & rendered_columns, te
     return false;
 }
 
-std::string nodeboard::with_and_without_inactive_Nodes_buttons() {
-    std::string no_inactive_url = build_nodeboard_cgi_call(flowcontrol, threads, false, progress_analysis, vertical_multiplier, max_columns, max_rows);
-    std::string with_inactive_url = build_nodeboard_cgi_call(flowcontrol, threads, true, progress_analysis, vertical_multiplier, max_columns, max_rows);
-    std::string refresh_button;
-    std::string alt_button;
-    if (show_completed) {
-        refresh_button = make_button(with_inactive_url, "Refresh", true);
-        alt_button = make_button(no_inactive_url, "Exclude Completed/Inactive", false);
-    } else {
-        refresh_button = make_button(no_inactive_url, "Refresh", true);
-        alt_button = make_button(with_inactive_url, "Include Completed/Inactive", false);
-    }
-    return refresh_button+alt_button;
+const std::map<bool, std::string> alt_showcompleted_label = {
+    { false, "Include Completed/Inactive" },
+    { true, "Exclude Completed/Inactive" }
+};
+
+const std::map<bool, std::string> alt_shownonmilestone_label = {
+    { false, "Include Non-Milestone Nodes" },
+    { true, "Milestones Only" }
+};
+
+std::string nodeboard::with_and_without_inactive_Nodes_buttons() const {
+    // Prepare options for the buttons.
+    nodeboard_options refresh = get_nodeboard_options();
+    nodeboard_options alt_showcompleted = refresh;
+    alt_showcompleted._showcompleted = !refresh._showcompleted;
+    nodeboard_options alt_shownonmilestone = refresh;
+    alt_shownonmilestone._shownonmilestone = !refresh._shownonmilestone;
+    // Prepare the CGI arguments for the buttons.
+    std::string refresh_url = build_nodeboard_cgi_call(refresh);
+    std::string alt_showcompleted_url = build_nodeboard_cgi_call(alt_showcompleted);
+    std::string alt_shownonmilestone_url = build_nodeboard_cgi_call(alt_shownonmilestone);
+    // Generate HTML for the buttons.
+    std::string refresh_button = make_button(refresh_url, "Refresh", true); // On same page.
+    std::string alt_showcompleted_button = make_button(alt_showcompleted_url, alt_showcompleted_label.at(show_completed), false); // On new page.
+    std::string alt_shownonmilestone_button = make_button(alt_shownonmilestone_url, alt_shownonmilestone_label.at(refresh._shownonmilestone), false); // On new page.
+    return refresh_button + alt_showcompleted_button + alt_shownonmilestone_button;
+
+    // std::string no_inactive_url = build_nodeboard_cgi_call(flowcontrol, threads, false, progress_analysis, vertical_multiplier, max_columns, max_rows);
+    // std::string with_inactive_url = build_nodeboard_cgi_call(flowcontrol, threads, true, progress_analysis, vertical_multiplier, max_columns, max_rows);
+    // std::string refresh_button;
+    // std::string alt_button;
+    // if (show_completed) {
+    //     refresh_button = make_button(with_inactive_url, "Refresh", true);
+    //     alt_button = make_button(no_inactive_url, "Exclude Completed/Inactive", false);
+    // } else {
+    //     refresh_button = make_button(no_inactive_url, "Refresh", true);
+    //     alt_button = make_button(with_inactive_url, "Include Completed/Inactive", false);
+    // }
+    // return refresh_button+alt_button;
 }
 
 bool node_board_render_random_test(nodeboard & nb) {
@@ -1461,7 +1532,11 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
     nb.board_title_extra = nb.with_and_without_inactive_Nodes_buttons();
 
     if (nb.threads) {
-        nb.board_title_extra += make_button(nb.build_nodeboard_cgi_call(flow_NNL_dependencies, nb.threads, true, true), "With Progress Analysis", false);
+        nodeboard_options with_progress_analysis = nb.get_nodeboard_options();
+        with_progress_analysis._floption = flow_NNL_dependencies;
+        //with_progress_analysis._showcompleted = true;
+        with_progress_analysis._progressanalysis = true;
+        nb.board_title_extra += make_button(nb.build_nodeboard_cgi_call(with_progress_analysis), "With Progress Analysis", false);
         nb.board_title_extra +=
             "<button class=\"button button1\" onclick=\"window.open('/cgi-bin/fzquerypq-cgi.py','_blank');\">Update Node histories</button>"
             "<b>Threads</b>:<br>"
@@ -1510,17 +1585,15 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
 void show_grid_cropped_conditions(nodeboard & nb, Node_Grid & grid) {
     if (grid.columns_cropped) {
         nb.board_title_extra += "<b>Grid COLUMNS were cropped ("+std::to_string(nb.max_columns)+").</b> ";
-        std::string link = nb.build_nodeboard_cgi_call(
-            nb.flowcontrol, nb.threads, nb.show_completed,
-            nb.progress_analysis, nb.vertical_multiplier, nb.max_columns+50, nb.max_rows);
-        nb.board_title_extra += make_button(link, "Extend Columns (50)", false);
+        nodeboard_options extend_columns = nb.get_nodeboard_options();
+        extend_columns.maxcols += 50;
+        nb.board_title_extra += make_button(nb.build_nodeboard_cgi_call(extend_columns), "Extend Columns (50)", false);
     }
     if (grid.rows_cropped) {
         nb.board_title_extra += "<b>Grid ROWS were cropped ("+std::to_string(nb.max_rows)+").</b> ";
-        std::string link = nb.build_nodeboard_cgi_call(
-            nb.flowcontrol, nb.threads, nb.show_completed,
-            nb.progress_analysis, nb.vertical_multiplier, nb.max_columns, nb.max_rows+50);
-        nb.board_title_extra += make_button(link, "Extend Rows (50)", false);
+        nodeboard_options extend_rows = nb.get_nodeboard_options();
+        extend_rows.maxrows += 50;
+        nb.board_title_extra += make_button(nb.build_nodeboard_cgi_call(extend_rows), "Extend Rows (50)", false);
     }
 }
 
@@ -1708,8 +1781,12 @@ bool node_board_render_csv_schedule(nodeboard & nb) {
     float col_width = 95.0/float(nb.csv_data_vec.size());
     float card_width = 0.95*col_width;
 
-    nb.post_extra = make_button(nb.build_nodeboard_cgi_call(flow_csv_schedule, false, false, false, nb.vertical_multiplier-1.0), "smaller", true)
-        + make_button(nb.build_nodeboard_cgi_call(flow_csv_schedule, false, false, false, nb.vertical_multiplier+1.0), "larger", true);
+    nodeboard_options shorter = nb.get_nodeboard_options();
+    nodeboard_options longer = shorter;
+    shorter.multiplier = (shorter.multiplier > 1.0) ? shorter.multiplier-1.0 : shorter.multiplier/2.0;
+    longer.multiplier = (longer.multiplier >= 1.0) ? longer.multiplier+1.0 : longer.multiplier*2.0;
+    nb.post_extra = make_button(nb.build_nodeboard_cgi_call(shorter), "smaller", true)
+        + make_button(nb.build_nodeboard_cgi_call(longer), "larger", true);
 
     std::string grid_column_width_str = ' '+to_precision_string(col_width, 2)+"vw";
     std::string card_width_str = to_precision_string(card_width, 2)+"vw";

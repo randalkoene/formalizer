@@ -501,6 +501,18 @@ struct Log_filter {
     bool back_to_front; ///< Reverse the order of selection if not constrained by t_from or t_to.
     Log_filter(): t_from(RTt_unspecified), t_to(RTt_unspecified), limit(0), back_to_front(false) {}
 
+    // Load n from the chunk with ID _tfrom.
+    void get_n_from(time_t _tfrom, unsigned int n) { t_from = _tfrom; limit = n; }
+
+    // Load n earlier chunks before and including _tto.
+    void get_n_earlier_to(time_t _tto, unsigned int n) { t_to = _tto; limit = n; }
+
+    // Load n from beginning of Log.
+    void get_n(unsigned int n) { limit = n; }
+
+    // Load n preceding and including end of Log.
+    void get_n_to_end(unsigned int n) { limit = n; back_to_front = true; }
+
     std::string info_str() const;
 };
 
