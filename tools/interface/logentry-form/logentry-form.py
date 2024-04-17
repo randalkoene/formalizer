@@ -23,6 +23,7 @@ from subprocess import Popen, PIPE
 cgireadabledir = "/var/www/html/formalizer/"
 cgiwritabledir = "/var/www/webdata/formalizer/"
 authoritativelogentryform = cgireadabledir+"logentry-form_fullpage.template.html" # in a place that CGI can see
+authoritativeinsertentryform = cgireadabledir+"insertentry-form_fullpage.template.html"
 
 config = {}
 config['verbose'] = True
@@ -239,6 +240,41 @@ def entry_text_write_problem(logentrytextfile):
     print(pagetail)
     sys.exit(0)
 
+def insert_Log_entry(chunk_id:str):
+    print("Content-type:text/html\n")
+    try:
+        with open(authoritativeinsertentryform, "r") as f:
+            formhtml = f.read()
+    except:
+        print(f'<html><head><title>fz: Insert Log Entry (fzlog) - Error</title></head><body><b>Error: Unable to read file at {authoritativeinsertentryform}.</b></body></html>')
+        sys.exit(0)
+    print(formhtml % (chunk_id, chunk_id))
+    sys.exit(0)
+
+def send_insert_to_fzlog(chunk_id:str, logentrytmpfile:str):
+    try:
+        thecmd=f"./fzlog -i {chunk_id} -E STDOUT -d formalizer -s randalk -f {logentrytmpfile}"
+        print(pagehead)
+        retcode = try_subprocess_check_output(thecmd, 'fzlog_res')
+    except Exception as e:
+        print('Content-type:text/html\n\n<html><body>%s</body</html>' % str(e))
+        sys.exit(0)
+    if (retcode != 0):
+        print('<p class="fail"><b>Attempt to insert Log entry via fzlog failed.</b></p>')
+        try:
+            if 'fzlog_res' in results:
+                if isinstance(results['fzlog_res'], str):
+                    print('<pre>\n'+results['fzlog_res']+'\n</pre>')
+                else:
+                    print('<pre>\n'+results['fzlog_res'].decode()+'\n</pre>')
+        except Exception as e:
+            print('Exception: '+str(e))
+        print(keep_page)
+    else:
+        print('<p class="success"><b>Entry inserted into Log.</b></p>')
+        print(timed_close_page)
+    print(pagetail)
+    sys.exit(0)
 
 def unknown_option():
     print(pagehead)
@@ -267,11 +303,12 @@ def write_entrytext_to_file(entrytext, logentrytextfile):
 if __name__ == '__main__':
     form = cgi.FieldStorage()
     makeentry_option = form.getvalue("makeentry")
+    insertentry_option = form.getvalue("insertentry")
     showrecent = form.getvalue("showrecent")
     entrytext = form.getvalue("entrytext")
     template = form.getvalue("template")
 
-    if not makeentry_option:
+    if not makeentry_option and not insertentry_option:
         missing_option()
 
     logentrytextfile = cgiwritabledir+"logentry-text.html"
@@ -289,14 +326,21 @@ if __name__ == '__main__':
             if (makeentry_option == "usetemplate"):
                 templated_entry(template)
             else:
-                write_entrytext_to_file(entrytext, logentrytextfile)
-                # Option: Make Log entry for the Log Chunk Node
-                if (makeentry_option == "Log Chunk Node"):
-                    send_to_fzlog(logentrytextfile)
-                else:
+                if makeentry_option:
+                    write_entrytext_to_file(entrytext, logentrytextfile)
+                    # Option: Make Log entry for the Log Chunk Node
+                    if (makeentry_option == "Log Chunk Node"):
+                        send_to_fzlog(logentrytextfile)
                     # Option: Make Log entry for another Node (1st step)
-                    if (makeentry_option == "Other Node"):
+                    elif (makeentry_option == "Other Node"):
                         select_Node()
+                    elif (makeentry_option == "insert"): # This processes Insert Entry
+                        send_insert_to_fzlog(insertentry_option, logentrytextfile)
+                    else:
+                        unknown_option()
+                else:
+                    if insertentry_option:
+                        insert_Log_entry(insertentry_option) # This creates a page for Insert Entry
                     else:
                         unknown_option()
 

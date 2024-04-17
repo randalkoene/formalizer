@@ -191,12 +191,18 @@ std::string render_Log_entry(Log_entry & entry, std::locale & loc, const std::st
     std::map<std::string, std::string> log_entry_data = {
         { "minor_id", std::to_string(entry.get_minor_id()) },
         { "entry_id", entry.get_id_str() },
+        { "delete-entry", "" },
     };
 
     if (fzlh.recent_format != most_recent_html) {
         log_entry_data["entry_text"] = entry.get_entrytext();
     } else {
         if (fzlh.search_strings.empty()) {
+            if (entry.entrytext_size()<8) { // Quick precheck to avoid unnecessary processing time.
+                if (!entry.has_visible_content()) {
+                    log_entry_data["delete-entry"] = "<button class=\"tiny_button tiny_wider\" onclick=\"window.open('/cgi-bin/fzlog-cgi.py?action=delete&id="+entry.get_id_str()+"','_blank');\"><b>delete</b></button>";
+                }
+            }
             log_entry_data["entry_text"] = make_embeddable_html(
                 entry.get_entrytext(),
                 fzlh.config.interpret_text,
@@ -473,6 +479,7 @@ bool render_Log_interval() {
                 varvals.emplace("t_chunkclose", "OPEN");
                 varvals.emplace("t_diff", "");
                 varvals.emplace("t_diff_mins", ""); // typically, only either t_diff or t_diff_mins appears in a template
+                varvals.emplace("insert-entry", "");
             } else {
                 time_t _tchunkclose = fzlh.time_zone_adjusted(t_chunkclose);
                 varvals.emplace("t_chunkclose", TimeStampYmdHM(_tchunkclose));
@@ -483,6 +490,7 @@ bool render_Log_interval() {
                 } else {
                     varvals.emplace("t_diff", std::to_string(t_diff)+" mins");
                 }
+                varvals.emplace("insert-entry", "[<a href=\"/cgi-bin/logentry-form.py?insertentry="+t_open_str+"\" target=\"_blank\">add entry</a>]");
             }
             varvals.emplace("entries",combined_entries);
             if (fzlh.get_log_entry && fzlh.noframe && (fzlh.recent_format == most_recent_raw)) {
@@ -577,6 +585,11 @@ const std::map<std::string, Boolean_Tag_Flags::boolean_flag> log_override_tags =
     { "@SELFWORK@", Boolean_Tag_Flags::self_work },
     { "@SYSTEM@", Boolean_Tag_Flags::system },
     { "@OTHER@", Boolean_Tag_Flags::other },
+};
+
+const std::vector<std::string> metrictags = {
+    "@NMVIDSTART:",
+    "@NMVIDSTOP:"
 };
 
 const std::map<most_recent_format, template_id_enum> review_format_to_template_map = {
@@ -757,10 +770,19 @@ struct review_data {
 
 };
 
+struct metrictag_data {
+    std::string tag;
+    std::string data;
+    metrictag_data(const std::string & _tag, const std::string & _data): tag(_tag), data(_data) {}
+    std::string csv_str() const { return tag+','+data+'\n'; }
+};
+
 /**
  * Search the indicated Log interval for the start and end of day, then parse Log
  * chunks to identify categories and time applied.
  * This is used by tools such as the System tool `dayreview`.
+ * 
+ * This also finds and compiles additional data from metrictags in the Log entries.
  */
 bool render_Log_review() {
     ERRTRACE;
@@ -799,6 +821,7 @@ bool render_Log_review() {
     report_interval();
 
     review_data data;
+    std::vector<metrictag_data> metric_data;
     Map_of_Subtrees map_of_subtrees;
     map_of_subtrees.collect(*fzlh.get_Graph_ptr(), fzlh.config.subtrees_list_name);
 
@@ -846,10 +869,34 @@ bool render_Log_review() {
                         }
                     }
                     data.elements.emplace_back(t_chunkopen, t_chunkclose - t_chunkopen, boolean_tag, node_ptr->get_text(), combined_entries);
+                    // Also look for other metrictags in the entries.
+                    for (const auto & metrictag : metrictags) {
+                        size_t pos = 0; // There could be more than one of each in the combined content.
+                        while ((pos=combined_entries.find(metrictag, pos))!=std::string::npos) {
+                            // Extract it and put it into a list.
+                            pos += metrictag.size();
+                            size_t endpos = combined_entries.find('@', pos);
+                            if (endpos != std::string::npos) {
+                                metric_data.emplace_back(metrictag, combined_entries.substr(pos, endpos-pos));
+                            }
+                        }
+                    }
                 }
             }
         }
 
+    }
+
+    // *** The following is a temporary kludge for metrictag data:
+    if (metric_data.size()>0) {
+        const std::string metric_csv_path("/var/www/webdata/formalizer/metrictag_data.csv");
+        std::string metrictag_csv;
+        for (const auto & mdata : metric_data) {
+            metrictag_csv += mdata.csv_str();
+        }
+        if (!string_to_file(metric_csv_path, metrictag_csv)) {
+            ADDERROR(__func__,"Unable to write metric data CSV to "+metric_csv_path);
+        }
     }
 
     VERYVERBOSEOUT("Data collected. Rendering.\n");

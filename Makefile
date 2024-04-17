@@ -243,6 +243,7 @@ WEBINTERFACES += $(COREPATH)/fzgraphsearch/fzgraphsearch-form.html
 WEBINTERFACES += $(COREPATH)/fzguide.system/fzguide.system-form.html
 # WEBINTERFACES += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-form.html
 WEBINTERFACES += $(TOOLSPATH)/interface/logentry-form/templates/logentry-form_fullpage.template.html
+WEBINTERFACES += $(TOOLSPATH)/interface/logentry-form/templates/insertentry-form_fullpage.template.html
 WEBINTERFACES += $(TOOLSPATH)/interface/logentry-form/templates/parsesources-template.html
 WEBINTERFACES += $(TOOLSPATH)/interface/logentry-form/templates/checklist-template.html
 WEBINTERFACES += $(TOOLSPATH)/interface/fzloghtml/fzloghtml-form.html

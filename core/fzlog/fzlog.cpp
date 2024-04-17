@@ -288,7 +288,7 @@ void verbose_test_output(const entry_data & edata) {
 bool replace_entry(entry_data & edata) {
     ERRTRACE;
     auto [exit_code, errstr] = get_content(edata.utf8_text, fzl.config.content_file, "Log entry");
-    if (exit_code != exit_ok)
+    if ((exit_code != exit_ok) && (exit_code != exit_missing_data)) // Here, empty is allowed as a way to clear the entry.
         standard_exit_error(exit_code, errstr, __func__);
 
     check_specific_node(edata);

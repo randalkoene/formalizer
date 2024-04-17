@@ -126,16 +126,16 @@ public:
      * @param nextischunk Optional chaining flag that specifies the next in chain is a chunk (or not).
      * @param _next Optional valid Log chunk or entry ID statmp that specifies the next in chain.
      */
-    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, const Node_ID_key &_nodeidkey, const Log_chunk * _chunk = NULL): id(_id), node_idkey(_nodeidkey), node(nullptr), chunk(const_cast<Log_chunk *>(_chunk)) {
+    Log_entry(const Log_TimeStamp &_id, const std::string & _entrytext, const Node_ID_key &_nodeidkey, const Log_chunk * _chunk = NULL): id(_id), node_idkey(_nodeidkey), node(nullptr), chunk(const_cast<Log_chunk *>(_chunk)) {
         set_text(_entrytext); // utf8 safe
     }
-    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, const Log_chunk * _chunk = NULL): id(_id), node(nullptr), chunk(const_cast<Log_chunk *>(_chunk)) {
+    Log_entry(const Log_TimeStamp &_id, const std::string & _entrytext, const Log_chunk * _chunk = NULL): id(_id), node(nullptr), chunk(const_cast<Log_chunk *>(_chunk)) {
         set_text(_entrytext); // utf8 safe
     }
-    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, const Node_ID_key &_nodeidkey, bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next, const Log_chunk * _chunk = NULL) : id(_id), node_idkey(_nodeidkey), node(nullptr), chunk(const_cast<Log_chunk *>(_chunk)) {
+    Log_entry(const Log_TimeStamp &_id, const std::string & _entrytext, const Node_ID_key &_nodeidkey, bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next, const Log_chunk * _chunk = NULL) : id(_id), node_idkey(_nodeidkey), node(nullptr), chunk(const_cast<Log_chunk *>(_chunk)) {
         set_text(_entrytext); // utf8 safe
     }
-    Log_entry(const Log_TimeStamp &_id, std::string _entrytext, bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next, const Log_chunk * _chunk = NULL): Log_by_Node_chainable(previschunk,_prev,nextischunk,_next), id(_id), node(nullptr), chunk(const_cast<Log_chunk *>(_chunk)) {
+    Log_entry(const Log_TimeStamp &_id, const std::string & _entrytext, bool previschunk, const Log_TimeStamp & _prev, bool nextischunk, const Log_TimeStamp & _next, const Log_chunk * _chunk = NULL): Log_by_Node_chainable(previschunk,_prev,nextischunk,_next), id(_id), node(nullptr), chunk(const_cast<Log_chunk *>(_chunk)) {
         set_text(_entrytext); // utf8 safe
     }
 
@@ -147,7 +147,9 @@ public:
     uint8_t get_minor_id() const { return id.idkey.idT.minor_id; }
     const Node_ID_key & get_nodeidkey() const { return node_idkey; }
     bool same_node_as_chunk() const { return (node_idkey.isnullkey()); }
-    const std::string & get_entrytext() { return entrytext; }
+    const std::string & get_entrytext() const { return entrytext; }
+    size_t entrytext_size() const { return entrytext.size(); }
+    bool has_visible_content() const { return entrytext.find_first_not_of(" \t\n\r")!=std::string::npos; }
 
     /**
      * Set the Log_entry.entrytext parameter content and ensure that it contains

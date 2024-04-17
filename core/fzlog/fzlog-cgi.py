@@ -303,6 +303,43 @@ replaceentrypagetail_failure = '''<p class="fail"><b>ERROR: Unable to replace Lo
 </html>
 '''
 
+deleteentrypagehead = '''Content-type:text/html
+
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>fz: Delete Log entry</title>
+</head>
+<body>
+<h3>fz: Delete Log entry</h3>
+'''
+
+deleteentrypagetail_success = '''<p class="success"><b>Log entry deleted.</b></p>
+
+<hr>
+[<a href="/index.html">fz: Top</a>]
+
+<script type="text/javascript" src="/fzuistate.js"></script>
+</body>
+</html>
+'''
+
+deleteentrypagetail_failure = '''<p class="fail"><b>ERROR: Unable to delete Log entry content.</b></p>
+
+<pre>
+%s
+</ptr>
+
+<hr>
+[<a href="/index.html">fz: Top</a>]
+
+<script type="text/javascript" src="/fzuistate.js"></script>
+</body>
+</html>
+'''
+
 results = {}
 
 # Store a new time stamp to signal active Log chunk change.
@@ -446,23 +483,6 @@ def extract_node_and_text(getlogentryoutput: str) -> tuple:
     node = nodestr.strip()
     return (node, textstr)
 
-# def edit_Log_entry(id: str, verbosity = 0) -> bool:
-#     print(editentrypagehead)
-#     thecmd = './get_log_entry.sh '+id+' ./fzloghtml' # Note: get_log_entry.sh is in the fzloghtml directory.
-#     retcode = try_subprocess_check_output(thecmd, 'entry_text', verbosity)
-#     if (retcode == 0):
-#         entrynode, entrytext = extract_node_and_text(results['entry_text'].decode())
-#         print('<p>Editing Log entry: <b>'+id+'</b></p>')
-#         print(editentryform_start)
-#         print(entrytext, end='')
-#         print(editentryform_middle)
-#         print(entrynode, end='')
-#         print(editentryform_end)
-#         print(editentrypagetail_success)
-#     else:
-#         print(editentrypagetail_failure)
-#     return (retcode == 0)
-
 def edit_Log_entry(id: str, verbosity = 0) -> bool:
     print(editentrypagehead)
     thecmd = './fzloghtml -e '+id+' -N -o STDOUT -F raw -q'
@@ -500,6 +520,18 @@ def replace_Log_entry(id: str, text: str, verbosity = 0) -> bool:
     else:
         print(replaceentrypagetail_failure)
     return (retcode == 0)
+
+def delete_Log_entry(id: str, verbosity = 0)->bool:
+    print(deleteentrypagehead)
+    thecmd = './fzlog -E STDOUT -W STDOUT -D '+id+extra_cmd_args(T_emulated, verbosity)
+    retcode = try_subprocess_check_output(thecmd, 'delete_log', verbosity)
+    if (retcode == 0):
+        print(deleteentrypagetail_success)
+    else:
+        print(deleteentrypagetail_failure % results['delete_log'].decode())
+    return (retcode == 0)
+
+# Note that insert_Log_entry is handled through logentry-form.py.
 
 def show_interface_options():
     print("Content-type:text/html\n\n")
@@ -540,6 +572,14 @@ if __name__ == '__main__':
         if not verbositystr:
             verbosity = 0
         res = replace_Log_entry(id, replacement_text, verbosity)
+        if res:
+            sys.exit(0)
+        else:
+            sys.exit(1)
+    if (action == 'delete'):
+        if not verbositystr:
+            verbosity = 0
+        res = delete_Log_entry(id, verbosity)
         if res:
             sys.exit(0)
         else:
