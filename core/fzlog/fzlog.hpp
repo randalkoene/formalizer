@@ -29,6 +29,8 @@ enum flow_options {
     flow_replace_chunk_node = 6,  /// request: modify Log chunk Node
     flow_replace_chunk_close = 7, /// request: modify Log chunk close time
     flow_replace_chunk_open = 8,  /// request: modify Log chunk open time
+    flow_insert_entry = 9,        /// request: insert Log entry at end of any existing Log chunk
+    flow_delete_entry = 10,       /// request: delete Log entry
     flow_NUMoptions
 };
 

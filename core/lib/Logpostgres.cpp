@@ -130,6 +130,16 @@ bool modify_Logentry_pq(const active_pq & apq, const Log_entry & entry) {
     return simple_call_pq(apq.conn,tstr);
 }
 
+bool delete_Logentry_pq(const active_pq & apq, const Log_entry & entry) {
+    ERRTRACE;
+    if (!apq.conn)
+        return false;
+
+    Logentry_pq epq(&entry);
+    std::string tstr("DELETE FROM "+apq.pq_schemaname+".Logentries WHERE id = "+epq.id_pqstr());
+    return simple_call_pq(apq.conn, tstr);
+}
+
 /**
  * Store all the Chunks and Entries of the Log in the PostgreSQL database.
  * 
@@ -198,6 +208,13 @@ bool store_Log_pq(const Log & log, Postgres_access & pa, void (*progressfunc)(un
 /**
  * Append Entry to existing table in schema of PostgreSQL database.
  * 
+ * Note: Although this function is an 'append_' function it simply uses
+ *       the 'add_Logentry_pq()' call. There is nothing append-specific
+ *       about this call, and it can be used equally well to insert an
+ *       entry at any place in the Log.
+ *       To avoid any confusion, this library includes the function call
+ *       'insert_Log_entry_pq()', which calls this function.
+ * 
  * @param entry A valid Log entry object.
  * @param pa Access object with database name and Formalizer schema name.
  * @returns True if the Log entry was successfully stored in the database.
@@ -216,6 +233,11 @@ bool append_Log_entry_pq(const Log_entry & entry, Postgres_access & pa) {
     if (!add_Logentry_pq(apq, entry)) STORE_LOG_PQ_RETURN(false);
 
     STORE_LOG_PQ_RETURN(true);
+}
+
+// See the description of the append_Log_entry_pq() function.
+bool insert_Log_entry_pq(const Log_entry & entry, Postgres_access & pa) {
+    return append_Log_entry_pq(entry, pa);
 }
 
 /**
@@ -237,6 +259,29 @@ bool update_Log_entry_pq(const Log_entry & entry, Postgres_access & pa) {
 
     ERRHERE(".update");
     if (!modify_Logentry_pq(apq, entry)) STORE_LOG_PQ_RETURN(false);
+
+    STORE_LOG_PQ_RETURN(true);
+}
+
+/**
+ * Delete Entry from existing table in schema of PostgreSQL database.
+ * 
+ * @param entry A valid Log entry object.
+ * @param pa Access object with database name and Formalizer schema name.
+ * @returns True if the Log entry was successfully deleted from the database.
+ */
+bool delete_Log_entry_pq(const Log_entry & entry, Postgres_access & pa) {
+    ERRTRACE;
+    active_pq apq;
+    apq.conn = connection_setup_pq(pa.dbname());
+    if (!apq.conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define STORE_LOG_PQ_RETURN(r) { PQfinish(apq.conn); return r; }
+    apq.pq_schemaname = pa.pq_schemaname();
+
+    ERRHERE(".delete");
+    if (!delete_Logentry_pq(apq, entry)) STORE_LOG_PQ_RETURN(false);
 
     STORE_LOG_PQ_RETURN(true);
 }

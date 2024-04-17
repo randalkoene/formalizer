@@ -43,8 +43,8 @@ fzlog fzl;
  */
 fzlog::fzlog() : formalizer_standard_program(false), config(*this), ga(*this, add_option_args, add_usage_top),
                  reftime(add_option_args, add_usage_top) {
-    add_option_args += "er:n:T:CRm:2:1:c:f:";
-    add_usage_top += " -e|-r <entry-ID>|-C|-R|-c <node-ID>|-m <chunk-ID>|-h [-n <node-ID>] [-T <text>]"
+    add_option_args += "ei:r:D:n:T:CRm:2:1:c:f:";
+    add_usage_top += " -e|-i <chunk-ID>|-r <entry-ID>|-D <entry-ID>|-C|-R|-c <node-ID>|-m <chunk-ID>|-h [-n <node-ID>] [-T <text>]"
                      " [-2 <close-time>] [-1 <open-time>] [-f <content-file>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
@@ -66,8 +66,10 @@ fzlog::fzlog() : formalizer_standard_program(false), config(*this), ga(*this, ad
 void fzlog::usage_hook() {
     ga.usage_hook();
     reftime.usage_hook();
-    FZOUT("    -e make Log entry\n"
+    FZOUT("    -e make Log entry (appended to end of Log)\n"
+          "    -i insert Log entry at end of <chunk-ID>\n"
           "    -r replace Log entry <entry-ID>\n"
+          "    -D delete Log entry <entry-ID>\n"
           "    -m modify Log chunk <chunk-ID>, Node (-n <node_ID>),\n"
           "       close time (-2 <close-time>), or open time (-1 <open-time>)\n"
           "    -n entry belongs to Node with <node-ID>\n"
@@ -87,6 +89,15 @@ void get_entry_ID_and_chunk_ID(std::string & cargs) {
         standard_exit_error(exit_command_line_error, "Invalid Log Entry ID specification: "+formerror, __func__);
     }
     fzl.edata.newest_minor_id = logstamp.minor_id;
+    fzl.newchunk_node_id = cargs.substr(0,12);
+}
+
+void get_chunk_ID(std::string & cargs) {
+    std::string formerror;
+    Log_TimeStamp logstamp;
+    if (!valid_Log_chunk_ID(cargs, formerror, &logstamp)) {
+        standard_exit_error(exit_command_line_error, "Invalid Log Chunk ID specification: "+formerror, __func__);
+    }
     fzl.newchunk_node_id = cargs.substr(0,12);
 }
 
@@ -122,8 +133,20 @@ bool fzlog::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'i': {
+        flowcontrol = flow_insert_entry;
+        get_chunk_ID(cargs);
+        return true;
+    }
+
     case 'r': {
         flowcontrol = flow_replace_entry;
+        get_entry_ID_and_chunk_ID(cargs);
+        return true;
+    }
+
+    case 'D': {
+        flowcontrol = flow_delete_entry;
         get_entry_ID_and_chunk_ID(cargs);
         return true;
     }
@@ -274,7 +297,7 @@ bool replace_entry(entry_data & edata) {
     //verbose_test_output(edata);
 
     // *** maybe add a try-catch here
-    Log_TimeStamp log_stamp(edata.newest_chunk_t,true,edata.newest_minor_id); // do not add 1 here!
+    Log_TimeStamp log_stamp(edata.newest_chunk_t, true, edata.newest_minor_id); // do not add 1 here!
     Log_entry * new_entry;
     if (edata.node_ptr) {
         new_entry = new Log_entry(log_stamp, edata.utf8_text, edata.node_ptr->get_id().key(), edata.c_newest);
@@ -291,6 +314,36 @@ bool replace_entry(entry_data & edata) {
     return true;
 }
 
+/**
+ * Make a Log entry that is added to the end of the Log.
+ * The minor ID of the last entry (if there is one) in the last Log chunk
+ * is used to determine the minor ID of the new Log entry.
+ * 
+ * If 'edata.specific_node_id' contains a specified Node ID a check is
+ * performed to ensure that the Node exists. The 'edata.node_ptr' will then
+ * contain a pointer to the Node object.
+ * 
+ * The 'edata.log_ptr' receives a pointer to a valid Log object.
+ * The 'edata.newest_c' receives a pointer to the newest (last)
+ * Log chunk object in the retrieved Log (interval).
+ * The 'edata.newest_chunk_t' and 'edata.is_open' variables are set to the
+ * open-time (ID) and open or closed state of of that chunk.
+ * The 'edata.newest_c' receives a pointer to the newest (last) Log entry
+ * in that chunk (if there is an entry), and 'edata.newest_minor_id' receives
+ * the minor ID of that entry (or 0 if there is no entry).
+ * 
+ * Note that if there are no log chunks in the Log, this function will cause
+ * an ID exception.
+ * 
+ * The new Log entry object that is created is not explicitly cleaned up. It
+ * is expected that clean-up takes place when fzlog exits.
+ * 
+ * @param edata Structure that contains necessary Log entry data. It is also
+ *              used to hold the entry content that will be fetched. Only the
+ *              'specific_node_id' variable of edata needs to be prepared
+ *              before calling this function.
+ * @return True if successfully created and added to the database.
+ */
 bool make_entry(entry_data & edata) {
     ERRTRACE;
     auto [exit_code, errstr] = get_content(edata.utf8_text, fzl.config.content_file, "Log entry");
@@ -298,7 +351,7 @@ bool make_entry(entry_data & edata) {
         standard_exit_error(exit_code, errstr, __func__);
 
     check_specific_node(edata);
-    get_newest_Log_data(fzl.ga ,edata);
+    get_newest_Log_data(fzl.ga, edata);
 
     //verbose_test_output(edata);
 
@@ -316,6 +369,107 @@ bool make_entry(entry_data & edata) {
         standard_exit_error(exit_database_error, "Unable to append Log entry", __func__);
     }
     VERBOSEOUT("Log entry "+new_entry->get_id_str()+" appended.\n");
+
+    return true;
+}
+
+/**
+ * Insert a Log entry as the new last entry of an existing Log chunk.
+ * The Log chunk can be anywhere in the Log.
+ * 
+ * The string variable `fzl.newchunk_node_id` should already contain a
+ * reference to an existing Log chunk.
+ *
+ * Note that if the specified Log chunk is not in the Log then this function
+ * will cause an ID exception.
+ * 
+ * As explained in the description of 'get_Log_data()', the 'edata' object
+ * will be loaded with: log_ptr (to Log object), c_newest (to Log chunk),
+ * c_newest_chunk_t (with chunk ID), is_open (state of chunk),
+ * e_newest (to last Log entry in chunk), newest_minor_id (with minor ID
+ * of e_newest, or 0).
+ * 
+ * The new Log entry object that is created is not explicitly cleaned up. It
+ * is expected that clean-up takes place when fzlog exits.
+ * 
+ * @param edata Structure that contains necessary Log entry data. It is also
+ *              used to hold the entry content that will be fetched. Only the
+ *              'specific_node_id' variable of edata needs to be prepared
+ *              before calling this function.
+ * @return True if successfully created and inserted into the database.
+ */
+bool insert_entry(entry_data & edata) {
+    ERRTRACE;
+
+    // Get content of new Log entry.
+    auto [exit_code, errstr] = get_content(edata.utf8_text, fzl.config.content_file, "Log entry");
+    if (exit_code != exit_ok)
+        standard_exit_error(exit_code, errstr, __func__);
+
+    // Get Log chunk and its entries data.
+    check_specific_node(edata);
+    get_Log_data(fzl.ga, fzl.newchunk_node_id, edata);
+
+    // Create the new Log entry object.
+    // *** maybe add a try-catch here
+    Log_TimeStamp log_stamp(edata.newest_chunk_t, true, edata.newest_minor_id+1);
+    Log_entry * new_entry;
+    if (edata.node_ptr) {
+        new_entry = new Log_entry(log_stamp, edata.utf8_text, edata.node_ptr->get_id().key(), edata.c_newest);
+        //*** This should probably be able to cause an update of the Node history chain and the histories cache!
+    } else {
+        new_entry = new Log_entry(log_stamp, edata.utf8_text, edata.c_newest);
+    }
+
+    // Update the database.
+    if (!insert_Log_entry_pq(*new_entry, fzl.ga)) {
+        standard_exit_error(exit_database_error, "Unable to insert Log entry", __func__);
+    }
+    VERBOSEOUT("Log entry "+new_entry->get_id_str()+" inserted.\n");
+
+    return true;
+}
+
+/**
+ * Delete an empty Log entry from an existing Log chunk.
+ * 
+ * Rule: The Log entry must have empty text content to be deletable.
+ *       This is a safety precaution to ensure that deletion of that
+ *       specific entry is fully intentional.
+ *       The 'replace_entry()' function must be used to clear entry
+ *       content before this function can be called successfully.
+ *       (Node ownership of the empty Log entry is irrelevant.)
+ * 
+ * The string variable `fzl.newchunk_node_id` should already contain a
+ * reference to an existing Log chunk.
+ * The parameter `edata.newest_minor_id` should contain the enumerator of
+ * and existing Log entry within that chunk.
+ *
+ * Note that if the specified Log chunk is not in the Log then this function
+ * will cause an ID exception.
+ * 
+ * As explained in the description of 'get_Log_data()', the 'edata' object
+ * will be loaded with: log_ptr (to Log object), c_newest (to Log chunk),
+ * c_newest_chunk_t (with chunk ID), is_open (state of chunk),
+ * e_newest (to specified Log entry in chunk).
+ * 
+ * @param edata Structure that contains necessary Log entry data.
+ * @return True if successfully deleted from the database.
+ */
+bool delete_entry(entry_data & edata) {
+    ERRTRACE;
+
+    // Check the Log chunk, that the entry exists, and ensure that the entry is empty.
+    get_Log_data(fzl.ga, fzl.newchunk_node_id, edata);
+    if (edata.e_newest->get_entrytext().find_first_not_of(" \t\n\r")!=std::string::npos) {
+        std::string s = edata.e_newest->get_entrytext();
+        standard_exit_error(exit_general_error, "Entry must be empty to be deletable", __func__);
+    }
+
+    if (!delete_Log_entry_pq(*edata.e_newest, fzl.ga)) {
+        standard_exit_error(exit_database_error, "Unable to delete Log entry", __func__);
+    }
+    VERBOSEOUT("Log entry "+edata.e_newest->get_id_str()+" deleted.\n");
 
     return true;
 }
@@ -721,8 +875,18 @@ int main(int argc, char *argv[]) {
         break;
     }
 
+    case flow_insert_entry: {
+        insert_entry(fzl.edata);
+        break;
+    }
+
     case flow_replace_entry: {
         replace_entry(fzl.edata);
+        break;
+    }
+
+    case flow_delete_entry: {
+        delete_entry(fzl.edata);
         break;
     }
 
@@ -737,7 +901,6 @@ int main(int argc, char *argv[]) {
     }
 
     case flow_replace_chunk_node: {
-        FZOUT("DEBUG ==> entered node replacement.\n"); std::cout.flush();
         Node_ID node_id(fzl.edata.specific_node_id);
         replace_chunk_node(fzl.chunk_id_str);
         break;

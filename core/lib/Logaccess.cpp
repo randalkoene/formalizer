@@ -27,8 +27,8 @@ namespace fz {
  *   is_open           True if the corresponding Log chunk is open, false
  *                     otherwise.
  *   e_newest          Receives pointer to the specified Log_entry
- *                     object in the Log chunk.
- *   newest_minor_id   Set to the minor ID of the entry at e_newest.
+ *                     object in the Log chunk (as per pre-set 
+ *                     newest_minor_id).
  * 
  * Note that the behavior of the call to `Log::get_newest_Entry()` that
  * sets e_newest is different here than when called on other Log
@@ -40,6 +40,10 @@ namespace fz {
  * 
  * The `edata.newest_minor_id` must be set to the enumerator of the
  * Log entry within the Log chunk specified by `chunk_id_str`.
+ * 
+ * Special case: If 'edata.newest_minor_id==0' then the last entry in
+ * the Log chunk will be returned in 'e_newest' and 'newest_minor_id' (which
+ * is then modified by this function).
  * 
  * @param[in] pa A valid initialization object for database access.
  * @param[in] chunk_id_str The ID string of a Log chunk.
@@ -71,12 +75,23 @@ void get_Log_data(Postgres_access & pa, std::string chunk_id_str, entry_data & e
     }
 
     auto entryptr_vec = edata.c_newest->get_entries();
-    if (edata.newest_minor_id > entryptr_vec.size()) {
-        standard_exit_error(exit_missing_data, "Specified Log entry ID minor id enumerator exceeds number of entries in Log chunk.", __func__);
-    }
-    edata.e_newest = entryptr_vec[edata.newest_minor_id-1]; // counts from 1
-    if (!edata.e_newest) {
-        standard_exit_error(exit_missing_data, "Specified Log entry content returns null content.", __func__);
+    if (edata.newest_minor_id > 0) {
+        // Return the specified entry.
+        if (edata.newest_minor_id > entryptr_vec.size()) {
+            standard_exit_error(exit_missing_data, "Specified Log entry ID minor id enumerator exceeds number of entries in Log chunk.", __func__);
+        }
+        edata.e_newest = entryptr_vec[edata.newest_minor_id-1]; // counts from 1
+        if (!edata.e_newest) {
+            standard_exit_error(exit_missing_data, "Specified Log entry content returns null content.", __func__);
+        }
+    } else {
+        // Return the newest (last) entry or nullptr.
+        if (entryptr_vec.empty()) {
+            edata.e_newest = nullptr;
+        } else {
+            edata.e_newest = entryptr_vec.back();
+            edata.newest_minor_id = edata.e_newest->get_minor_id();
+        }
     }
 }
 

@@ -61,8 +61,8 @@ struct entry_data {
  *   is_open           True if the corresponding Log chunk is open, false
  *                     otherwise.
  *   e_newest          Receives pointer to the specified Log_entry
- *                     object in the Log chunk.
- *   newest_minor_id   Set to the minor ID of the entry at e_newest.
+ *                     object in the Log chunk (as per pre-set 
+ *                     newest_minor_id).
  * 
  * Note that the behavior of the call to `Log::get_newest_Entry()` that
  * sets e_newest is different here than when called on other Log
@@ -74,6 +74,10 @@ struct entry_data {
  * 
  * The `edata.newest_minor_id` must be set to the enumerator of the
  * Log entry within the Log chunk specified by `chunk_id_str`.
+ * 
+ * Special case: If 'edata.newest_minor_id==0' then the last entry in
+ * the Log chunk will be returned in 'e_newest' and 'newest_minor_id' (which
+ * is then modified by this function).
  * 
  * @param[in] pa A valid initialization object for database access.
  * @param[in] chunk_id_str The ID string of a Log chunk.
