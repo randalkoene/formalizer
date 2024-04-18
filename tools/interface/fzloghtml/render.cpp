@@ -771,9 +771,10 @@ struct review_data {
 };
 
 struct metrictag_data {
+    time_t from_chunk;
     std::string tag;
     std::string data;
-    metrictag_data(const std::string & _tag, const std::string & _data): tag(_tag), data(_data) {}
+    metrictag_data(time_t t_chunk, const std::string & _tag, const std::string & _data): from_chunk(t_chunk), tag(_tag), data(_data) {}
     std::string csv_str() const { return tag+','+data+'\n'; }
 };
 
@@ -877,7 +878,7 @@ bool render_Log_review() {
                             pos += metrictag.size();
                             size_t endpos = combined_entries.find('@', pos);
                             if (endpos != std::string::npos) {
-                                metric_data.emplace_back(metrictag, combined_entries.substr(pos, endpos-pos));
+                                metric_data.emplace_back(t_chunkopen, metrictag, combined_entries.substr(pos, endpos-pos));
                             }
                         }
                     }
@@ -892,7 +893,9 @@ bool render_Log_review() {
         const std::string metric_csv_path("/var/www/webdata/formalizer/metrictag_data.csv");
         std::string metrictag_csv;
         for (const auto & mdata : metric_data) {
-            metrictag_csv += mdata.csv_str();
+            if ((mdata.from_chunk >= data.t_wakeup) && (mdata.from_chunk <= data.t_gosleep)) {
+                metrictag_csv += mdata.csv_str();
+            }
         }
         if (!string_to_file(metric_csv_path, metrictag_csv)) {
             ADDERROR(__func__,"Unable to write metric data CSV to "+metric_csv_path);

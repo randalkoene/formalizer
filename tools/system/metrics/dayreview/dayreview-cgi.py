@@ -31,6 +31,8 @@ except Exception as e:
     print('Exception while importing dayreview_algorithm: '+str(e))
     exit(0)
 
+metrictag_csv_path="/var/www/webdata/formalizer/metrictag_data.csv"
+
 # cgitb.enable()
 # cgitb.disable()
 # cgitb.enable(display=0, logdir="/tmp/test_python_cgiformget.log")
@@ -80,20 +82,16 @@ Total score: %.2f
 </ol>
 </p>
 
+<h3>From extra metrictags</h3>
+<p>
+Hours with video/audio distraction: <b>%s</b>
+</p>
+
+%s
+
 </body>
 </html>
 '''
-
-#print(str(cgi_keys))
-
-review_date=form.getvalue('date')
-review_wakeup=form.getvalue('wakeup')
-review_gosleep=form.getvalue('gosleep')
-
-chunks = []
-for key_str in cgi_keys:
-    if key_str[-8:] == 'category':
-        chunks.append( key_str[:-8] )
 
 category_to_char = {
     'work': 'w',
@@ -103,54 +101,117 @@ category_to_char = {
     'other': 'o',
 }
 
-chunkdata = []
-for chunk in chunks:
-    seconds = form.getvalue(chunk+'seconds')
-    category = form.getvalue(chunk+'category')
-    chunkhours = float(seconds) / 3600.0
-    chunkdata.append( (chunkhours, category_to_char[category]) )
+#print(str(cgi_keys))
 
-date_object = datetime.strptime(review_date, '%Y%m%d').date()
+def process_metrictags()->dict:
+    res = {
+        'error': '',
+        'video_hours': 0.0,
+    }
+    try:
+        with open(metrictag_csv_path, 'r') as f:
+            csv_data_str = f.read()
+        csv_rows = csv_data_str.split('\n')
 
-startmin = int(review_wakeup[-2:])
-starthr = int(review_wakeup[:-2])
+        video_hours = 0.0
+        t_vidstart = None
+        t_vidend = None
+        for csv_row in csv_rows:
+            if csv_row.find(',')>=0:
+                tag, tstamp = csv_row.split(',')
+                if tag == '@NMVIDSTART:':
+                    t_vidstart = datetime.strptime(tstamp, '%Y%m%d%H%M')
+                if tag == '@NMVIDSTOP:' and t_vidstart is not None:
+                    t_vidend = datetime.strptime(tstamp, '%Y%m%d%H%M')
+                    delta = t_vidend - t_vidstart
+                    hours = delta.total_seconds()/3600.0
+                    video_hours += hours
+        res['video_hours'] = video_hours
+    except Exception as e:
+        res['error'] = 'Exception: %s' % str(e)
+    return res
 
-endmin = int(review_gosleep[-2:])
-endhr = int(review_gosleep[:-2])
+def process_dayreview(form:cgi.FieldStorage, cgi_keys:list)->dict:
+    review_date=form.getvalue('date')
+    review_wakeup=form.getvalue('wakeup')
+    review_gosleep=form.getvalue('gosleep')
 
-if endhr < 12:
-    endhr = endhr + 24
+    chunks = []
+    for key_str in cgi_keys:
+        if key_str[-8:] == 'category':
+            chunks.append( key_str[:-8] )
 
-starthours = float(starthr) + (float(startmin)/60.0)
-endhours = float(endhr) + (float(endmin)/60.0)
+    chunkdata = []
+    for chunk in chunks:
+        seconds = form.getvalue(chunk+'seconds')
+        category = form.getvalue(chunk+'category')
+        chunkhours = float(seconds) / 3600.0
+        chunkdata.append( (chunkhours, category_to_char[category]) )
 
-wakinghours = endhours - starthours
+    date_object = datetime.strptime(review_date, '%Y%m%d').date()
 
-review_algo = dayreview_algorithm(wakinghours, chunkdata)
+    startmin = int(review_wakeup[-2:])
+    starthr = int(review_wakeup[:-2])
 
-score_data_summary = review_algo.calculate_scores()
+    endmin = int(review_gosleep[-2:])
+    endhr = int(review_gosleep[:-2])
 
-review_algo.update_score_file(date_object, score_data_summary)
+    if endhr < 12:
+        endhr = endhr + 24
 
-summary_table_dict = review_algo.summary_table()
+    starthours = float(starthr) + (float(startmin)/60.0)
+    endhours = float(endhr) + (float(endmin)/60.0)
 
-score_table_dict = review_algo.score_table()
+    wakinghours = endhours - starthours
 
-hours_summary = review_algo.get_hours_summary()
+    review_algo = dayreview_algorithm(wakinghours, chunkdata)
 
-summary_table = ''
-for htype in summary_table_dict:
-    summary_table += ' %5.2f   %s       %s      %s      %s        %s\n' % summary_table_dict[htype]
+    score_data_summary = review_algo.calculate_scores()
 
-score_table = ''
-for htype in score_table_dict:
-    score_table += '%s score = %.2f\n' % ( str(htype), score_table_dict[htype] )
+    review_algo.update_score_file(date_object, score_data_summary)
 
-print(DAYREVIEW_SUMMARY % (
-        wakinghours,
-        summary_table,
-        score_table,
-        review_algo.totscore,
-        review_algo.string_for_log(review_wakeup, review_gosleep),
-        review_algo.totintended,
-    ))
+    summary_table_dict = review_algo.summary_table()
+
+    score_table_dict = review_algo.score_table()
+
+    hours_summary = review_algo.get_hours_summary()
+
+    return wakinghours, summary_table_dict, score_table_dict, review_algo, review_wakeup, review_gosleep
+
+def generate_summary_page(
+    wakinghours:float,
+    summary_table_dict:dict,
+    score_table_dict:dict,
+    review_algo:dayreview_algorithm,
+    review_wakeup:str,
+    review_gosleep:str,
+    extra_metrics_dict:dict):
+
+    summary_table = ''
+    for htype in summary_table_dict:
+        summary_table += ' %5.2f   %s       %s      %s      %s        %s\n' % summary_table_dict[htype]
+
+    score_table = ''
+    for htype in score_table_dict:
+        score_table += '%s score = %.2f\n' % ( str(htype), score_table_dict[htype] )
+
+    metrictag_error_html = ''
+    if extra_metrics_dict['error'] != '':
+        metrictag_error_html = '<p><b>Metrictag error: %s</b></p>' % extra_metrics_dict['error']
+
+    print(DAYREVIEW_SUMMARY % (
+            wakinghours,
+            summary_table,
+            score_table,
+            review_algo.totscore,
+            review_algo.string_for_log(review_wakeup, review_gosleep),
+            review_algo.totintended,
+            '%.2f' % extra_metrics_dict['video_hours'],
+            metrictag_error_html,
+        ))
+
+extra_metrics_dict = process_metrictags()
+
+wakinghours, summary_table_dict, score_table_dict, review_algo, review_wakeup, review_gosleep = process_dayreview(form, cgi_keys)
+
+generate_summary_page(wakinghours, summary_table_dict, score_table_dict, review_algo, review_wakeup, review_gosleep, extra_metrics_dict)
