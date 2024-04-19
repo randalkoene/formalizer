@@ -472,6 +472,7 @@ public:
     //std::time_t newest_chunk_t() { return (num_Chunks()>0) ? chunks.back()->get_open_time() : RTt_unspecified; }
     std::time_t oldest_chunk_t() { return (num_Chunks()>0) ? chunks.begin()->second->get_open_time() : RTt_unspecified; }
     std::time_t newest_chunk_t() { return (num_Chunks()>0) ? std::prev(chunks.end())->second->get_open_time() : RTt_unspecified; }
+    Log_chunk * get_oldest_Chunk();
     Log_chunk * get_newest_Chunk();
     Log_entry * get_newest_Entry();
     Log_chunk_ID_key_set chunk_key_list_from_entries();

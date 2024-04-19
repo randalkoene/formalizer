@@ -322,6 +322,13 @@ bool close_Log_chunk_pq(const Log_chunk & chunk, Postgres_access & pa) {
  * Note: Please make sure that you close any open Log chunk before appending
  *       a new one!
  * 
+ * Note: Although this function is an 'append_' function it simply uses
+ *       the 'add_Logchunk_pq()' call. There is nothing append-specific
+ *       about this call, and it can be used equally well to insert a
+ *       chunk at any place in the Log.
+ *       To avoid any confusion, this library includes the function call
+ *       'insert_Log_chunk_pq()', which calls this function.
+ * 
  * @param chunk A valid Log chunk object.
  * @param pa Access object with database name and Formalizer schema name.
  * @returns True if the Log chunk was successfully stored in the database.
@@ -340,6 +347,11 @@ bool append_Log_chunk_pq(const Log_chunk & chunk, Postgres_access & pa) {
     if (!add_Logchunk_pq(apq, chunk)) STORE_LOG_PQ_RETURN(false);
 
     STORE_LOG_PQ_RETURN(true);
+}
+
+// See the description of the append_Log_chunk_pq() function.
+bool insert_Log_chunk_pq(const Log_chunk & chunk, Postgres_access & pa) {
+    return append_Log_chunk_pq(chunk, pa);
 }
 
 /**

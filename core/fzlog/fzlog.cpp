@@ -43,8 +43,8 @@ fzlog fzl;
  */
 fzlog::fzlog() : formalizer_standard_program(false), config(*this), ga(*this, add_option_args, add_usage_top),
                  reftime(add_option_args, add_usage_top) {
-    add_option_args += "ei:r:D:n:T:CRm:2:1:c:f:";
-    add_usage_top += " -e|-i <chunk-ID>|-r <entry-ID>|-D <entry-ID>|-C|-R|-c <node-ID>|-m <chunk-ID>|-h [-n <node-ID>] [-T <text>]"
+    add_option_args += "ei:r:D:n:T:CRm:I:2:1:c:f:";
+    add_usage_top += " -e|-i <chunk-ID>|-r <entry-ID>|-D <entry-ID>|-C|-R|-c <node-ID>|-m <chunk-ID>|-I <chunk-ID>|-h [-n <node-ID>] [-T <text>]"
                      " [-2 <close-time>] [-1 <open-time>] [-f <content-file>]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
@@ -56,6 +56,7 @@ fzlog::fzlog() : formalizer_standard_program(false), config(*this), ga(*this, ad
         "Chunk open and close time changes are constrained by preceding and\n"
         "following Log chunk close and open times respectively, and by the\n"
         "current time.\n"
+        "To insert a Log chunk (-I) a gap must first be ensured.\n"
         );
 }
 
@@ -72,6 +73,8 @@ void fzlog::usage_hook() {
           "    -D delete Log entry <entry-ID>\n"
           "    -m modify Log chunk <chunk-ID>, Node (-n <node_ID>),\n"
           "       close time (-2 <close-time>), or open time (-1 <open-time>)\n"
+          "    -I insert Log chunk <chunk-ID>, requires Node (-n <node ID),\n"
+          "       (recommended) with optional -2 <close-time>\n"
           "    -n entry belongs to Node with <node-ID>\n"
           "    -1 modify to <open-time> (expressed as YYYYmmddHHMM)\n"
           "    -2 modify to <close-time> (expressed as YYYYmmddHHMM)\n"
@@ -170,7 +173,9 @@ bool fzlog::options_hook(char c, std::string cargs) {
     }
 
     case '2': {
-        flowcontrol = flow_replace_chunk_close;
+        if (flowcontrol != flow_insert_chunk) {
+            flowcontrol = flow_replace_chunk_close;
+        }
         t_modify = time_stamp_time(cargs); // combine with '-m <chunk-id>'
         return (t_modify != RTt_invalid_time_stamp);
     }
@@ -183,6 +188,12 @@ bool fzlog::options_hook(char c, std::string cargs) {
 
     case 'R': {
         flowcontrol = flow_reopen_chunk;
+        return true;
+    }
+
+    case 'I': {
+        flowcontrol = flow_insert_chunk;
+        newchunk_node_id = cargs;
         return true;
     }
 
@@ -801,6 +812,112 @@ bool replace_chunk_node(const std::string & chunk_id_str) {
 }
 
 /**
+ * Insert a Log chunk anywhere in the Log. A time interval should have been
+ * created first by changing closing and opening times of adjacent Log
+ * chunks as needed.
+ * 
+ * Rules:
+ * 1. The Log chunk ID cannot be a duplicate.
+ * 2. The close time of the preceding Log chunk must be <= the new Log chunk ID.
+ * 3. If the new Log chunk is closed then its close time must be <= the
+ *    open-time of the following Log chunk.
+ *    Note that not closing the Log chunk is considered a Log issue and
+ *    is reported by 'fzlogdata'.
+ * 
+ * The string variable `fzl.newchunk_node_id` should contain the proposed
+ * Log chunk ID.
+ * The variable fzl.t_modify should contain the proposed close-time or -1.
+ * 
+ * As explained in the description of 'get_Log_data()', the 'edata' object
+ * will be loaded with: log_ptr (to Log object), c_newest (to preceding Log chunk),
+ * c_newest_chunk_t (with that chunk ID), is_open (state of preceding chunk),
+ * e_newest (to last Log entry in chunk), newest_minor_id (with minor ID
+ * of e_newest, or 0).
+ * 
+ * The new Log chunk object that is created is not explicitly cleaned up. It
+ * is expected that clean-up takes place when fzlog exits.
+ * 
+ * @param edata Structure that is used for Log chunk data. Only the
+ *              'specific_node_id' variable of edata needs to be prepared
+ *              before calling this function.
+ * @return True if successfully created and inserted into the database.
+ */
+bool insert_chunk(entry_data & edata) {
+    ERRTRACE;
+
+    // We want to read the Log chunk (if it already exists) and the one before it.
+    Log_chunk_ID_key key(fzl.newchunk_node_id);
+    if (!fzl.edata.log_ptr) { // make an empty one if it does not exist yet
+        fzl.edata.log_ptr = std::make_unique<Log>();
+    }
+    Log & log = *(fzl.edata.log_ptr.get());
+    Log_filter filter;
+    filter.get_n_earlier_to(key.get_epoch_time(), 2);
+    if (!load_partial_Log_pq(log, fzl.ga, filter)) {
+        standard_exit_error(exit_database_error, "Unable to read the preceding Log chunk", __func__);
+    }
+
+    // Get chunk and check time of chunk before and current time.
+    auto it = log.find_chunk_by_key(key);
+    auto chunk_ptr = log.get_chunk(it);
+    if (chunk_ptr) { // Rule 1
+        standard_exit_error(exit_bad_request_data, "Cannot create Log chunk with ID "+fzl.chunk_id_str+" that already exists", __func__);
+    }
+    edata.c_newest = log.get_newest_Chunk(); // a pointer to the Log chunk preceding the proposed chunk
+    if (!edata.c_newest) {
+        standard_exit_error(exit_database_error, "No Log chunk found before the proposed chunk", __func__);
+    }
+    if (!edata.c_newest->is_open()) {
+        if (edata.c_newest->get_close_time() > key.get_epoch_time()) { // Rule 2
+            standard_exit_error(exit_bad_request_data, "Preceding Log chunk close time must leave room for the proposed Log chunk ID", __func__);
+        }
+    }
+
+    // Check Node of the new Log chunk.
+    if (edata.specific_node_id.empty()) {
+        standard_exit_error(exit_bad_request_data, "A Node must be specified for the proposed Log chunk", __func__);
+    }
+    check_specific_node(edata);
+    if (!edata.node_ptr) {
+        standard_exit_error(exit_database_error, "Specified Node for Log chunk not found", __func__);
+    }
+
+    // Check close-time.
+    if (fzl.t_modify >= 0) { // if closed
+        if (fzl.t_modify < key.get_epoch_time()) {
+            standard_exit_error(exit_bad_request_data, "Proposed chunk close-time must be >= its ID (open-time)", __func__);
+        }
+        fzl.edata.log_ptr = std::make_unique<Log>();
+        Log & log = *(fzl.edata.log_ptr.get());
+        Log_filter filter;
+        filter.get_n_from(key.get_epoch_time(), 1);
+        if (!load_partial_Log_pq(log, fzl.ga, filter)) {
+            standard_exit_error(exit_database_error, "Unable to read the following Log chunk", __func__);
+        }
+        auto logchunk_ptr = log.get_oldest_Chunk();
+        if (!logchunk_ptr) {
+             standard_exit_error(exit_database_error, "No Log chunk found after the proposed chunk", __func__);
+        }
+        if (fzl.t_modify > logchunk_ptr->get_open_time()) { // Rule 3
+            standard_exit_error(exit_bad_request_data, "Proposed chunk close-time must be <= the following chunk ID (open-time)", __func__);
+        }
+    }
+
+    // Create the new Log chunk object.
+    // *** maybe add a try-catch here   
+    Log_chunk * new_chunk = new Log_chunk(key.idT, *edata.node_ptr, fzl.t_modify);
+    // *** Perhaps this should cause an automatic update of Node histories.
+
+    // Update the database.
+    if (!insert_Log_chunk_pq(*new_chunk, fzl.ga)) {
+        standard_exit_error(exit_database_error, "Unable to insert Log chunk", __func__);
+    }
+    VERBOSEOUT("Log chunk "+new_chunk->get_tbegin_str()+" inserted.\n");
+
+    return true;
+}
+
+/**
  * This pushes the new Node into the fifo 'recent' Named Node List.
  * 
  * The 'recent' List also has the 'unique' feature and 'maxsize=5'.
@@ -913,6 +1030,11 @@ int main(int argc, char *argv[]) {
 
     case flow_replace_chunk_open: {
         replace_chunk_open(fzl.t_modify);
+        break;
+    }
+
+    case flow_insert_chunk: {
+        insert_chunk(fzl.edata);
         break;
     }
 

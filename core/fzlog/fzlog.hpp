@@ -31,6 +31,7 @@ enum flow_options {
     flow_replace_chunk_open = 8,  /// request: modify Log chunk open time
     flow_insert_entry = 9,        /// request: insert Log entry at end of any existing Log chunk
     flow_delete_entry = 10,       /// request: delete Log entry
+    flow_insert_chunk = 11,       /// request: insert Log chunk anywhere in the Log
     flow_NUMoptions
 };
 
@@ -55,7 +56,7 @@ struct fzlog: public formalizer_standard_program {
 
     std::string chunk_id_str;
 
-    time_t t_modify; // general cache for a new time stamp to modify to
+    time_t t_modify = -1; // general cache for a new time stamp to modify to (used as close-time for insert_chunk())
 
     Graph_access ga; // to include Graph or Log access support
 

@@ -1047,6 +1047,12 @@ Log_chunk_const_iterator_interval Log::get_Chunks_index_n_interval(std::time_t t
     return std::make_pair(from_idx,to_idx);
 }
 
+Log_chunk * Log::get_oldest_Chunk() {
+    if (chunks.empty()) return nullptr;
+
+    return chunks.begin()->second.get();
+}
+
 Log_chunk * Log::get_newest_Chunk() {
     if (chunks.empty())
         return nullptr;

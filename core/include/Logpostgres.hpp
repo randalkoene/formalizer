@@ -145,6 +145,9 @@ bool close_Log_chunk_pq(const Log_chunk & chunk, Postgres_access & pa);
  */
 bool append_Log_chunk_pq(const Log_chunk & chunk, Postgres_access & pa);
 
+// See the description of the append_Log_chunk_pq() function.
+bool insert_Log_chunk_pq(const Log_chunk & chunk, Postgres_access & pa);
+
 /**
  * Change the Node to which the Chunk specified belongs. The chunk must
  * already exist within a table in schema of PostgreSQL database.
