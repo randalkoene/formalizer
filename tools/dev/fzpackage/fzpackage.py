@@ -6,6 +6,9 @@
 #
 # Package builder for executable Formalizer environment.
 
+# *** WARNING: This is wildly out of date.
+#              Also, we should really aim to genereate a .deb.
+
 import os
 import sys
 import argparse

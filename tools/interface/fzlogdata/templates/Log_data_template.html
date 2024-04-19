@@ -1,0 +1,107 @@
+<html>
+<head>
+<link rel="stylesheet" href="/fz.css">
+<link rel="icon" href="/favicon-logentry-32x32.png">
+<title>
+Log Data
+</title>
+</head>
+<body>
+<style type="text/css">
+.chktop { 
+    background-color: #B0C4F5;
+}
+table tr.chktop { background: #B0C4F5; }
+</style>
+<h1>
+Log Data
+</h1>
+
+{{ top-info }}
+
+<h3>Unclosed Chunks</h3>
+<table>
+<tbody>
+
+{{ open-chunks }}
+
+</tbody>
+</table>
+<hr>
+
+<h3>Entries enumeration errors</h3>
+<table>
+<tbody>
+
+{{ enum-errors }}
+
+</tbody>
+</table>
+<hr>
+
+<h3>Invalid Nodes</h3>
+<table>
+<tbody>
+
+{{ invalid-nodes }}
+
+</tbody>
+</table>
+<hr>
+
+<h3>Long Chunks</h3>
+<table>
+<tbody>
+
+{{ long-chunks }}
+
+</tbody>
+</table>
+<hr>
+
+<h3>Tiny Chunks</h3>
+<table>
+<tbody>
+
+{{ tiny-chunks }}
+
+</tbody>
+</table>
+<hr>
+
+<h3>Chunks with long Entries</h3>
+<table>
+<tbody>
+
+{{ long-entries }}
+
+</tbody>
+</table>
+<hr>
+
+<h3>Overlaps</h3>
+<table>
+<tbody>
+
+{{ overlaps }}
+
+</tbody>
+</table>
+<hr>
+
+<h3>Gaps</h3>
+<table>
+<tbody>
+
+{{ gaps }}
+
+</tbody>
+</table>
+
+<hr>
+
+<p>[<a href="/index.html">fz: Top</a>]</p>
+
+
+</body>
+</html>

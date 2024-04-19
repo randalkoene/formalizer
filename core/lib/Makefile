@@ -203,6 +203,9 @@ $(OBJ)/LogtypesID.o: LogtypesID.cpp $(INC)/LogtypesID.hpp $(INC)/Graphtypes.hpp 
 $(OBJ)/Logtypes.o: Logtypes.cpp $(INC)/Logtypes.hpp $(INC)/Graphtypes.hpp $(INC)/LogtypesID.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c Logtypes.cpp -o $(OBJ)/Logtypes.o
 
+$(OBJ)/Loginfo.o: Loginfo.cpp $(INC)/Loginfo.hpp $(INC)/Logtypes.hpp $(INC)/LogtypesID.hpp
+	$(CCPP) $(CPPFLAGS) -c Loginfo.cpp -o $(OBJ)/Loginfo.o
+
 $(OBJ)/GraphLogxmap.o: GraphLogxmap.cpp $(INC)/GraphLogxmap.hpp $(INC)/Graphtypes.hpp
 	$(CCPP) $(CPPFLAGS) -c GraphLogxmap.cpp -o $(OBJ)/GraphLogxmap.o
 

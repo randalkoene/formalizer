@@ -105,6 +105,30 @@
         "Problematic Target Dates" : {
             "url" : "cgi-bin/fzgraphsearch-cgi.py?completion_lower=0.0&completion_upper=0.99&TD_lower=205001010000&tdbinpatt_variable=true&tdbinpatt_fixed=true&tdbinpatt_exact=true",
             "window" : "_blank"
+        },
+        "Integrity" : {
+            "url" : "/integrity.html",
+            "window" : "_blank"
+        }
+    },
+    "Log Condition: " : {
+        "Full Issues Inspection" : {
+            "url" : "cgi-bin/fzlogdata-cgi.py?full=true",
+            "window" : "_blank"
+        }
+    },
+    "Backups: " : {
+        "Making Backup Partition" : {
+            "url" : "/cgi-bin/fzlink.py?id=20240115220431.1&alt=histfull",
+            "window" : "_blank"
+        },
+        "Rsync to Backup Partition": {
+            "url" : "http://{{ fzserverpq }}/doc/txt/rsync-to-backup-partition.txt",
+            "window" : "_blank"
+        },
+        "Duplicate / Restore Account" : {
+            "url" : "http://{{ fzserverpq }}/doc/txt/Duplicating-or-Restoring-my-home-Account.pdf",
+            "window" : "_blank"
         }
     }
 }

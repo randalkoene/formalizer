@@ -73,10 +73,6 @@
             "url" : "/cgi-bin/sysmet-extract-cgi.py?categories=new2023",
             "window" : "_blank"
         },
-        "Integrity" : {
-            "url" : "/integrity.html",
-            "window" : "_blank"
-        },
         "Locations" : {
             "url" : "/locations.html",
             "window" : "_blank"

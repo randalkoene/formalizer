@@ -1,0 +1,23 @@
+<h3>Summary</h3>
+<table><tbody>
+<tr><td>Total number of chunks</td><td>{{ total-chunks }}</td></tr>
+<tr><td>Total number of entries</td><td>{{ total-entries }}</td></tr>
+<tr><td>Oldest chunk</td><td>{{ oldest-chunk }}</td></tr>
+<tr><td>Newest chunk</td><td>{{ newest-chunk }}</td></tr>
+<tr><td>Entries allocated to chunks</td><td>{{ chunks-allocated }}</td></tr>
+<tr><td>Total characters in entries</td><td>{{ entries-chars }}</td></tr>
+<tr><td>Approximate pages in entries</td><td>{{ entries-pages }}</td></tr>
+</tbody></table>
+<P>
+<h3>Possible issues</h3>
+<table><tbody>
+<tr><td>number of open chunks (other than newest)</td><td>{{ open-chunks }}</td></tr>
+<tr><td>number of gaps (after closed chunks)</td><td>{{ gaps }}</td></tr>
+<tr><td>number of overlaps</td><td>{{ overlaps }}</td></tr>
+<tr><td>number of order errors in the chunks map</td><td>{{ order-errors }}</td></tr>
+<tr><td>number of chunks with entry enumeration errors</td><td>{{ entry-enum-errors }}</td></tr>
+<tr><td>number of chunks with invalid Node IDs</td><td>{{ invalid-nodes }}</td></tr>
+<tr><td>number of chunks of excessive duration</td><td>{{ excessive-chunks }}</td></tr>
+<tr><td>number of chunks of tiny duration</td><td>{{ tiny-chunks }}</td></tr>
+<tr><td>number of chunks with long entries (5000+ chars.)</td><td>{{ long-entries }}</td></tr>
+</tbody></table>

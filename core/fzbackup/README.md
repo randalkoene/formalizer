@@ -1,5 +1,8 @@
 # fzbackup - Formalizer core utility to back up the Formalizer environment
 
+By default, the `fzbackup` core utility makes a backup of the database that contains
+the Graph, Log, Named Nodes Lists, and such.
+
 ### How to provide a button on an HTML page that runs fzbackup as the right user
 
 1. The button on the HTML page calls a CGI script in a new window (`target="_blank"`).

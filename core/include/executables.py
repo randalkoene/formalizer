@@ -41,6 +41,7 @@ executables = (
     'fzbuild.py',
     'fzdashboard',
     'fzgraphhtml',
+    'fzlogdata',
     'fzloghtml',
     'fzlogtime',
     'fzlogtime-term.sh',

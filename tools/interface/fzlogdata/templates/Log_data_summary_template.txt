@@ -1,0 +1,17 @@
+Total number of chunks     : {{ total-chunks }}
+Total number of entries    : {{ total-entries }}
+Oldest chunk               : {{ oldest-chunk }}
+Newest chunk               : {{ newest-chunk }}
+Entries allocated to chunks: {{ chunks-allocated }}
+Total characters in entries: {{ entries-chars }} (about {{ entries-pages }} pages)
+
+Possible issues:
+  number of open chunks (other than newest)     : {{ open-chunks }}
+  number of gaps (after closed chunks)          : {{ gaps }}
+  number of overlaps                            : {{ overlaps }}
+  number of order errors in the chunks map      : {{ order-errors }}
+  number of chunks with entry enumeration errors: {{ entry-enum-errors }}
+  number of chunks with invalid Node IDs        : {{ invalid-nodes }}
+  number of chunks of excessive duration        : {{ excessive-chunks }}
+  number of chunks of tiny duration             : {{ tiny-chunks }}
+  number of chunks with long entries (5000+chrs): {{ long-entries }}
