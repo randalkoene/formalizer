@@ -24,6 +24,14 @@ page_template = '''<html>
 
 %s
 
+<hr>
+
+<form action="/cgi-bin/fztimezone-cgi.py" method="get">
+Set all to: <input id="setto" name="setto" type="number"> <input type="submit" value="Set" />
+</form>
+
+<hr>
+
 <button id="darkmode" class="button button2" onclick="switch_light_or_dark();">Light / Dark</button>
 <script type="text/javascript" src="/fzuistate.js"></script>
 <script type="text/javascript" src="/clock.js"></script>
@@ -72,6 +80,7 @@ form = cgi.FieldStorage()
 # Get data from fields
 show = form.getvalue('show')
 verbose = form.getvalue('verbose')
+setto = form.getvalue('setto')
 
 # --- We run as the fzserverpq user in order to find the correct config files:
 
@@ -96,11 +105,7 @@ def show_result(cgioutfile:str)->dict:
         res['ERROR'] = "ERROR: Unable to read %s" % cgioutfile
     return res
 
-def get_tzinfo_as_server_user()->dict:
-    signalfile='/var/www/webdata/formalizer/fztimezone.signal'
-    cgiprog='fztimezone'
-    cgiargs='s=&q=&S=%s' % signalfile
-    cgioutfile='/var/www/webdata/formalizer/fztimezone.out'
+def run_as_server_user_and_await(cgiprog:str, cgiargs:str, cgioutfile:str, signalfile:str, timeout_s=600)->dict: # 1 minute default time-out
     startvalue=get_start_value()
 
     try:
@@ -108,7 +113,6 @@ def get_tzinfo_as_server_user()->dict:
     except Exception as e:
         return { "ERROR": "serial_API_request() failed: "+str(e) }
 
-    timeout_s=1*60*10 # 1 minute
     for i in range(timeout_s):
         sleep(0.1)
         signalvalue, error_str = get_signal_value(signalfile)
@@ -116,6 +120,39 @@ def get_tzinfo_as_server_user()->dict:
             return show_result(cgioutfile)
 
     return { "ERROR": FAILED % (signalfile, signalvalue, error_str) }
+
+def get_tzinfo_as_server_user()->dict:
+    signalfile='/var/www/webdata/formalizer/fztimezone.signal'
+    cgiprog='fztimezone'
+    cgiargs='s=&q=&S=%s' % signalfile
+    cgioutfile='/var/www/webdata/formalizer/fztimezone.out'
+
+    return run_as_server_user_and_await(cgiprog, cgiargs, cgioutfile, signalfile)
+
+REDIRECT='''
+<html>
+<meta http-equiv="Refresh" content="0; url='%s'" />
+</html>
+'''
+
+def set_tzinfo_as_server_user(setto):
+    try:
+        tzhours = int(setto)
+    except Exception as e:
+        print('<html><body>Exception: %s</body></html>' % str(e))
+        return
+
+    signalfile='/var/www/webdata/formalizer/fztimezone.signal'
+    cgiprog='fztimezone'
+    cgiargs='z=%d&q=&S=%s' % (tzhours, signalfile)
+    cgioutfile='/var/www/webdata/formalizer/fztimezone-set.out'
+    res_dict = run_as_server_user_and_await(cgiprog, cgiargs, cgioutfile, signalfile)
+    if 'ERROR' in res_dict:
+        print('<html><body>Error: %s</body></html>' % str(res_dict['ERROR']))
+        return
+
+    print(REDIRECT % '/cgi-bin/fztimezone-cgi.py?show=true')
+    
 
 # -----------------------------------------------------------------
 
@@ -149,6 +186,11 @@ if __name__ == '__main__':
             page_content += res_dict["ERROR"]+'\n'
         else:
             page_content += render_tz_dict(res_dict)
+
+    elif setto:
+        set_tzinfo_as_server_user(setto)
+        sys.exit(0)
+
     elif (len(thecmd)==0):
         page_content += '<p><b>Unrecognized time zone request.</b></p>'
 
