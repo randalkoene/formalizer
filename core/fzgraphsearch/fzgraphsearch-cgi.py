@@ -50,6 +50,10 @@ tdbinpatt_variable = form.getvalue('tdbinpatt_variable')
 tdbinpatt_fixed = form.getvalue('tdbinpatt_fixed')
 tdbinpatt_exact = form.getvalue('tdbinpatt_exact')
 
+sup_self = form.getvalue('sup_self')
+sup_none = form.getvalue('sup_none')
+sup_min = form.getvalue('sup_min')
+
 def append_to_str(strval: str) -> str:
     parval = eval(strval)
     if parval:
@@ -72,6 +76,9 @@ search_recreate_str += append_to_str('tdprop_upper')
 search_recreate_str += append_to_str('repeats')
 search_recreate_str += append_to_str('tdpatt_lower')
 search_recreate_str += append_to_str('tdpatt_upper')
+search_recreate_str += append_to_str('sup_self')
+search_recreate_str += append_to_str('sup_none')
+search_recreate_str += append_to_str('sup_min')
 if search_recreate_str[-1] == '&':
     search_recreate_str = search_recreate_str[:-1]
 
@@ -204,6 +211,15 @@ def Graph_search(searchstr: str, listname: str) -> bool:
         searchcmd += f' -D {tdpatt_upper}'
         if not tdpatt_lower:
             searchcmd += f' -d {tdpatt_upper}'
+
+    if sup_self:
+        searchcmd += ' -S self'
+    if sup_none:
+        searchcmd += ' -S 0'
+    if sup_min:
+        if int(sup_min)>0:
+            searchcmd += f' -S {sup_min}+'
+
     if verbose:
         searchcmd += ' -V'
 

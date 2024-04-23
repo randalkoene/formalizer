@@ -161,8 +161,8 @@
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20200421123004.1&G=true&T=true&C=300&B=79&tdorder=true&tdbad=true&tdfar=true",
             "window" : "_blank"
         },
-        "SYSTEM-INFRACONSTRAINED" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?n=20200604071027.1&G=true&T=true&C=300&B=79&tdorder=true&tdbad=true&tdfar=true",
+        "SYSTEM" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20240420032415.1&G=true&T=true&C=300&B=79&tdorder=true&tdbad=true&tdfar=true",
             "window" : "_blank"
         }
     },

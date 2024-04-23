@@ -53,6 +53,8 @@ struct fzgraphsearch: public formalizer_standard_program {
 
     bool parse_tdproperty_binary_pattern(const std::string & cargs);
 
+    bool get_superiors_specification(const std::string & cargs);
+
     virtual bool options_hook(char c, std::string cargs);
 
     void init_top(int argc, char *argv[]);

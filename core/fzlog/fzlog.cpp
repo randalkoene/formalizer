@@ -695,6 +695,8 @@ bool replace_chunk_close(time_t t_close_new) {
 bool replace_chunk_open(time_t t_open_new) {
     ERRTRACE;
 
+    FZOUT("WARNING! This is not yet properly implemented. It does not yet change the IDs of associated Entries! The Log Chunk must be empty of Entries.\n");
+
     // We want to read the Log chunk and the one before it.
     Log_chunk_ID_key key(fzl.chunk_id_str);
     if (!fzl.edata.log_ptr) { // make an empty one if it does not exist yet
@@ -725,13 +727,19 @@ bool replace_chunk_open(time_t t_open_new) {
     VERYVERBOSEOUT("  Rule 3: New open-time must be <= current time.\n");
     VERYVERBOSEOUT("All times are expressed in the Formalizer database time zone, i.e. no time-zone adjustment.\n\n");
 
+    // --- *** Temporary extra test:
+    if (const_cast<Log_chunk*>(chunk_ptr)->get_entries().size() > 0) {
+        standard_exit_error(exit_bad_request_data, "Sorry! For now, a Log chunk must be emptied to change its ID.", __func__);
+    }
+    // ---
+
     time_t chunk_t_close = chunk_ptr->get_close_time();
     time_t before_t_close = 0;
     if (chunk_before_ptr) {
         before_t_close = chunk_before_ptr->get_close_time();
     }
     time_t t_now = ActualTime();
-    bool atorbefore_tclose = t_open_new <= chunk_t_close;
+    bool atorbefore_tclose = chunk_ptr->is_open() || (t_open_new <= chunk_t_close);
     bool notbefore_tprevclose = t_open_new >= before_t_close;
     bool notafter_tnow = t_open_new <= t_now;
 

@@ -709,6 +709,9 @@ public:
     const Edges_Set & sup_Edges() const { return supedges; }
     const Edges_Set & dep_Edges() const { return depedges; }
 
+    size_t num_superiors() const { return supedges.size(); }
+    size_t num_dependencies() const { return depedges.size(); }
+
     Node * has_sup(const std::string & sup_idstr) const; // returns nullptr if not in sup_Edges()
     Node * has_dep(const std::string & sup_idstr) const; // returns nullptr if not in dep_Edges()
 

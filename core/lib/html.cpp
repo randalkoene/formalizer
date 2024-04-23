@@ -175,6 +175,15 @@ std::string remove_html_tags(const std::string & htmlstr) {
     return txtstr;
 }
 
+bool all_numbers(const std::string & s, size_t from, size_t before) {
+    for (size_t i = from; i < before; i++) {
+        if ((s[i]<'0') || (s[i]>'9')) {
+            return false;
+        }
+    }
+    return true;
+}
+
 /**
  * This analyzes a token to identify special data, which is converted
  * by adding a useful link.
@@ -212,14 +221,7 @@ std::string convert_special_data_word_html(const std::string & wstr, size_t from
 
     // 2. recognize Log chunk ID
     if ((bef-from)==12) {
-        bool islogid = true;
-        for (int i = 0; i<12; i++) {
-            if ((wstr[from+i]<'0') || (wstr[from+i]>'9')) {
-                islogid = false;
-                break;
-            }
-        }
-        if (islogid) {
+        if (all_numbers(wstr, from, from+12)) {
             std::string urlstr("<a href=\"/cgi-bin/fzlink.py?id="+wstr.substr(from, bef-from)+"\">"+wstr.substr(from, bef-from)+"</a>");
             return urlstr;
         }
@@ -230,47 +232,32 @@ std::string convert_special_data_word_html(const std::string & wstr, size_t from
 
         // 3.1 recognize Log entry ID
         if (wstr[from+12]=='.') {
-            bool islogid = true;
-            for (size_t i = 0; i<12; i++) {
-                if ((wstr[from+i]<'0') || (wstr[from+i]>'9')) {
-                    islogid = false;
-                    break;
-                }
-            }
-            if (islogid) {
-                for (size_t i = from+13; i<bef; i++) {
-                    if ((wstr[i]<'0') || (wstr[i]>'9')) {
-                        islogid = false;
-                        break;
-                    }
-                }
-                if (islogid) {
-                    std::string urlstr("<a href=\"/cgi-bin/fzlink.py?id="+wstr.substr(from, bef-from)+"\">"+wstr.substr(from, bef-from)+"</a>");
-                    return urlstr;
-                }
+            if (all_numbers(wstr, from, from+12) && all_numbers(wstr, from+13, bef)) {
+                std::string urlstr("<a href=\"/cgi-bin/fzlink.py?id="+wstr.substr(from, bef-from)+"\">"+wstr.substr(from, bef-from)+"</a>");
+                return urlstr;
             }
         }
 
         // 3.2 recognize Node ID
         if ((bef-from)>=16) {
             if (wstr[from+14]=='.') {
-                bool isnodeid = true;
-                for (size_t i = 0; i<14; i++) {
-                    if ((wstr[from+i]<'0') || (wstr[from+i]>'9')) {
-                        isnodeid = false;
-                        break;
-                    }
+                if (all_numbers(wstr, from, from+14) && all_numbers(wstr, from+15, bef)) {
+                    std::string urlstr("<a href=\"/cgi-bin/fzlink.py?id="+wstr.substr(from, bef-from)+"\">"+wstr.substr(from, bef-from)+"</a>");
+                    return urlstr;
                 }
-                if (isnodeid) {
-                    for (size_t i = from+15; i<bef; i++) {
-                        if ((wstr[i]<'0') || (wstr[i]>'9')) {
-                            isnodeid = false;
-                            break;
+            } else if ((wstr[from]=='[') && (wstr[from+15]=='.')) { // Labeled button code for Node ID "[<node-id>:<label>]"
+                if (all_numbers(wstr, from+1, from+15)) {
+                    size_t colon_pos = wstr.find(':', from+15);
+                    if (colon_pos != std::string::npos) {
+                        if (all_numbers(wstr, from+16, colon_pos)) {
+                            size_t label_start = colon_pos+1;
+                            size_t label_end = wstr.find(']', label_start);
+                            if (label_end != std::string::npos) {
+                                from++;
+                                std::string node_button_str("<button class=\"button button1\" onclick=\"window.open('/cgi-bin/fzlink.py?id="+wstr.substr(from, colon_pos-from)+"','_blank');\">"+wstr.substr(label_start, label_end-label_start)+"</button>");
+                                return node_button_str;
+                            }
                         }
-                    }
-                    if (isnodeid) {
-                        std::string urlstr("<a href=\"/cgi-bin/fzlink.py?id="+wstr.substr(from, bef-from)+"\">"+wstr.substr(from, bef-from)+"</a>");
-                        return urlstr;
                     }
                 }
             }

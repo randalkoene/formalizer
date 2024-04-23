@@ -73,6 +73,15 @@ nodeboard::nodeboard():
         " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-Z] [-i <topic_id>,...] [-F <substring>]"
         " [-u <up-to>] [-H <board-header>] [-T] [-P] [-e <errors-list>] [-b <before>] [-M <multiplier>] [-p <progress-state-file>]"
         " [-K] [-S <size-list>] [-B <topic-id>] [-C <max-columns>] [-r <max-rows>] [-X] [-o <output-file|STDOUT>]";
+
+    usage_head.push_back("Generate Kanban board representation of Nodes hierarchy.\n");
+    usage_tail.push_back(
+        "Notes:\n"
+        "1. Specifying potential errors to detect in the hierarchy [-e <errors-list>:\n"
+        "     tdorder: Highlight (red) if active superior Node(s) have earlier TD.\n"
+        "     tdfar: Highlight if Node TD is very far in the future.\n"
+        "     tdbad: Highlight if Node TD <= 0.\n"
+        );
 }
 
 void nodeboard::usage_hook() {
@@ -106,7 +115,7 @@ void nodeboard::usage_hook() {
         "    -b Before time stamp, used with -P.\n"
         "    -M Vertical length multiplier.\n"
         "    -p Progress state file\n"
-        "    -K Sort by subtree times."
+        "    -K Sort by subtree times.\n"
         "    -e Detect and visualize errors specified in comma separated list.\n"
         "       List can contain: tdorder,  tdfar, tdbad\n"
         "    -B Background highlight Nodes in <topic-id> with elevated valuation\n"
@@ -495,6 +504,15 @@ std::string nodeboard::build_nodeboard_cgi_call(const nodeboard_options & option
     std::string uri_encoded_modifed_topic_filters = encode_modified_topic_filters(options._shownonmilestone);
     if (!uri_encoded_modifed_topic_filters.empty()) {
         cgi_cmd += "&i="+uri_encoded_modifed_topic_filters;
+    }
+    if (detect_tdorder) {
+        cgi_cmd += "&tdorder=true";
+    }
+    if (detect_tdfar) {
+        cgi_cmd += "&tdfar=true";
+    }
+    if (detect_tdbad) {
+        cgi_cmd += "&tdbad=true";
     }
     return cgi_cmd;
 }
@@ -1238,19 +1256,6 @@ std::string nodeboard::with_and_without_inactive_Nodes_buttons() const {
     std::string alt_showcompleted_button = make_button(alt_showcompleted_url, alt_showcompleted_label.at(show_completed), false); // On new page.
     std::string alt_shownonmilestone_button = make_button(alt_shownonmilestone_url, alt_shownonmilestone_label.at(refresh._shownonmilestone), false); // On new page.
     return refresh_button + alt_showcompleted_button + alt_shownonmilestone_button;
-
-    // std::string no_inactive_url = build_nodeboard_cgi_call(flowcontrol, threads, false, progress_analysis, vertical_multiplier, max_columns, max_rows);
-    // std::string with_inactive_url = build_nodeboard_cgi_call(flowcontrol, threads, true, progress_analysis, vertical_multiplier, max_columns, max_rows);
-    // std::string refresh_button;
-    // std::string alt_button;
-    // if (show_completed) {
-    //     refresh_button = make_button(with_inactive_url, "Refresh", true);
-    //     alt_button = make_button(no_inactive_url, "Exclude Completed/Inactive", false);
-    // } else {
-    //     refresh_button = make_button(no_inactive_url, "Refresh", true);
-    //     alt_button = make_button(with_inactive_url, "Include Completed/Inactive", false);
-    // }
-    // return refresh_button+alt_button;
 }
 
 bool node_board_render_random_test(nodeboard & nb) {

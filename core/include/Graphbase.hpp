@@ -345,6 +345,7 @@ public:
         urgency      = 0b0000'0000'0000'0100'0000'0000'0000'0000, // An Edge edit.
         priority     = 0b0000'0000'0000'1000'0000'0000'0000'0000, // An Edge edit.
         tdpropbinpat = 0b0000'0000'0001'0000'0000'0000'0000'0000, // A Node edit (or search).
+        supspecmatch = 0b0000'0000'0010'0000'0000'0000'0000'0000, // A Node search with specified superiors match.
         error        = 0b0100'0000'0000'0000'0000'0000'0000'0000  // see how this is used in Node_advance_repeating()
     };
 protected:
@@ -374,6 +375,7 @@ public:
     void set_Edit_importance() { editflags |= Edit_flags::importance; }
     void set_Edit_urgency() { editflags |= Edit_flags::urgency; }
     void set_Edit_priority() { editflags |= Edit_flags::priority; }
+    void set_Edit_supspecmatch() { editflags |= Edit_flags::supspecmatch; }
     void set_Edit_error() { editflags |= Edit_flags::error; }
     bool Edit_topics() const { return editflags & Edit_flags::topics; }
     bool Edit_topicrels() const { return editflags & Edit_flags::topicrels; }
@@ -394,6 +396,7 @@ public:
     bool Edit_importance() const { return editflags & Edit_flags::importance; }
     bool Edit_urgency() const { return editflags & Edit_flags::urgency; }
     bool Edit_priority() const { return editflags & Edit_flags::priority; }
+    bool Edit_supspecmatch() const { return editflags & Edit_flags::supspecmatch; }
     bool Edit_error() const { return editflags & Edit_flags::error; }
     bool None() const { return editflags == 0; }
 };

@@ -103,11 +103,23 @@
     },
     "Graph Condition: " : {
         "Problematic Target Dates" : {
-            "url" : "cgi-bin/fzgraphsearch-cgi.py?completion_lower=0.0&completion_upper=0.99&TD_lower=205001010000&tdbinpatt_variable=true&tdbinpatt_fixed=true&tdbinpatt_exact=true",
+            "url" : "/cgi-bin/fzgraphsearch-cgi.py?completion_lower=0.0&completion_upper=0.99&TD_lower=205001010000&tdbinpatt_variable=true&tdbinpatt_fixed=true&tdbinpatt_exact=true",
+            "window" : "_blank"
+        },
+        "Nodes without Superiors" : {
+            "url" : "/cgi-bin/fzgraphsearch-cgi.py?sup_none=on",
+            "window" : "_blank"
+        },
+        "Self-Referential Nodes" : {
+            "url" : "/cgi-bin/fzgraphsearch-cgi.py?sup_self=on",
             "window" : "_blank"
         },
         "Integrity" : {
             "url" : "/integrity.html",
+            "window" : "_blank"
+        },
+        "Lost and Found" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20200820215834.1&G=true&T=true",
             "window" : "_blank"
         }
     },

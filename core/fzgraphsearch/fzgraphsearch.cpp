@@ -39,8 +39,8 @@ fzgraphsearch fzgs;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphsearch::fzgraphsearch() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "s:l:i:I:zc:C:m:M:t:T:rRp:P:b:d:D:";
-    add_usage_top += " [-s <search-string>] [-z] [-i <date-time>] [-I <date-time>] [-c <comp_min>] [-C <comp_max>] [-m <mins_min>] [-M <mins_max>] [-t <TD_min>] [-T <TD_max>] [-p <tdprop_1>] [-P <tdprop_2>] [-b <tdprop-list>] [-r|-R] [-d <tdpatt_1>] [-D <tdpatt_2>] -l <list-name>";
+    add_option_args += "s:l:i:I:zc:C:m:M:t:T:rRp:P:b:d:D:S:";
+    add_usage_top += " [-s <search-string>] [-z] [-i <date-time>] [-I <date-time>] [-c <comp_min>] [-C <comp_max>] [-m <mins_min>] [-M <mins_max>] [-t <TD_min>] [-T <TD_max>] [-p <tdprop_1>] [-P <tdprop_2>] [-b <tdprop-list>] [-r|-R] [-d <tdpatt_1>] [-D <tdpatt_2>] [-S <sup-spec>] -l <list-name>";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("Target date property options are: unspecified, variable, inherit, fixed, exact.\n"
                          "Repeat pattern options are: nonrepeating, weekly, biweekly, monthly,\n"
@@ -71,7 +71,9 @@ void fzgraphsearch::usage_hook() {
           "    -r Nodes that repeat.\n"
           "    -R Nodes that do not repeat.\n"
           "    -d Nodes with repeat pattern <tdpatt_1>.\n"
-          "    -D Nodes with repeat pattern <tdpatt_2>.\n");
+          "    -D Nodes with repeat pattern <tdpatt_2>.\n"
+          "    -S Nodes with superiors: self, 0, n+.\n"
+          );
 }
 
 /**
@@ -101,6 +103,24 @@ bool fzgraphsearch::parse_tdproperty_binary_pattern(const std::string & cargs) {
             return standard_error("Unrecognized TD property binary pattern specifier: "+trim(binpatspec), __func__);
         }
     }
+    return res;
+}
+
+bool fzgraphsearch::get_superiors_specification(const std::string & cargs) {
+    bool res = false;
+    if (cargs=="self") {
+        nodefilter.self_is_superior = true;
+        res = true;
+    } else if (cargs=="0") {
+        nodefilter.has_no_superiors = true;
+        res = true;
+    } else if (cargs.back()=='+') {
+        nodefilter.at_least_n_superiors = static_cast<unsigned int>(std::atoi(cargs.c_str()));
+        res = true;
+    } else {
+        return standard_error("Unrecognized Superior specification: "+cargs, __func__);
+    }
+    nodefilter.filtermask.set_Edit_supspecmatch();
     return res;
 }
 
@@ -224,6 +244,10 @@ bool fzgraphsearch::options_hook(char c, std::string cargs) {
         nodefilter.upperbound.tdpattern = interpret_config_tdpattern(cargs);
         nodefilter.filtermask.set_Edit_tdpattern();
         return true;
+    }
+
+    case 'S': {
+        return get_superiors_specification(cargs);
     }
 
     case 'l': {

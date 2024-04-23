@@ -544,6 +544,22 @@ targetdate_sorted_Nodes Nodes_subset(Graph & graph, const Node_Filter & nodefilt
                 continue;
             }            
         }
+        if (nodefilter.filtermask.Edit_supspecmatch()) { // Check superior specification matches
+            if (nodefilter.has_no_superiors) {
+                if (node_ptr->num_superiors() > 0) {
+                    continue;
+                }
+            } else {
+                if (nodefilter.at_least_n_superiors > node_ptr->num_superiors()) {
+                    continue;
+                }
+                if (nodefilter.self_is_superior) {
+                    if (!node_ptr->has_sup(node_ptr->get_id_str())) {
+                        continue;
+                    }
+                }
+            }
+        }
         // matched all filter requirements
         nodes.emplace(node_ptr->effective_targetdate(), node_ptr.get());
 

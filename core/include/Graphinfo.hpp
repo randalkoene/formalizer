@@ -62,6 +62,9 @@ struct Node_Filter {
     tdproperty_binary_pattern tdpropbinpattern;
     bool case_sensitive = true;
     Edit_flags filtermask;
+    bool self_is_superior = false; // supspec_match filter
+    bool has_no_superiors = false; // supspec_match filter
+    unsigned int at_least_n_superiors = 0;  // supspec_match filter
 
     std::string str();
 };
