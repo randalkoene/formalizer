@@ -125,6 +125,10 @@
             "url" : "/cgi-bin/nodeboard-cgi.py?D=threads&T=true&u=204512311159&r=100",
             "window" : "_blank"
         },
+        "IDEAL-SITUATION" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20190306192914.1&G=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true",
+            "window" : "_blank"
+        },
         "NEXTUP-OUTPUT" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20230624214603.1&G=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true",
             "window" : "_blank"
