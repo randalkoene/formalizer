@@ -6,18 +6,23 @@
 //       form data submitted while state requests are made by providing no form data.
 
 // --- Buttons added to the page:
-// add the addnode button
-var anbtnelement = document.createElement("div");
-anbtnelement.innerHTML = "<button id=\"addnode\" class=\"button button2\" onclick=\"window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new','_blank');\">Add Node</button>";
-document.body.prepend(anbtnelement);
+
 // add the logtime button
 var ltbtnelement = document.createElement("div");
 ltbtnelement.innerHTML = "<button id=\"logtime\" class=\"button button2\" onclick=\"window.open('/cgi-bin/fzlogtime.cgi?source=nonlocal&cgivar=wrap','_blank');\">Log Time</button>";
 document.body.prepend(ltbtnelement);
+// add the behavior tools button
+var btbtnelement = document.createElement("div");
+btbtnelement.innerHTML = "<button id=\"behtools\" class=\"button button1\" onclick=\"window.open('/formalizer/system-help.html','_blank');\">Behavior Tools</button>";
+document.body.prepend(btbtnelement);
 // add the logentry button
 var lebtnelement = document.createElement("div");
-lebtnelement.innerHTML = "<button id=\"logentry\" class=\"button button1\" onclick=\"window.open('/formalizer/logentry-form_fullpage.template.html','_blank');\">Add Log Entry</button>";
+lebtnelement.innerHTML = "<button id=\"logentry\" class=\"button button2\" onclick=\"window.open('/formalizer/logentry-form_fullpage.template.html','_blank');\">Add Log Entry</button>";
 document.body.prepend(lebtnelement);
+// add the addnode button
+var anbtnelement = document.createElement("div");
+anbtnelement.innerHTML = "<button id=\"addnode\" class=\"button button1\" onclick=\"window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new','_blank');\">Add Node</button>";
+document.body.prepend(anbtnelement);
 // add the darkmode button
 var dmbtnelement = document.createElement("div");
 dmbtnelement.innerHTML = "<button id=\"darkmode\" class=\"button button2\" onclick=\"switch_light_or_dark();\">Light / Dark</button>";

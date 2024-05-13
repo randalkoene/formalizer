@@ -1,5 +1,9 @@
 {
     "System: " : {
+        "Help" : {
+            "url" : "/formalizer/system-help.html",
+            "window" : "_blank"
+        },
         "Next Nodes" : {
             "url" : "/cgi-bin/fzgraphhtml-cgi.py",
             "window" : "_blank",
@@ -79,10 +83,6 @@
         },
         "Legacy": {
             "url" : "/legacy.html",
-            "window" : "_blank"
-        },
-        "Help" : {
-            "url" : "/formalizer/system-help.html",
             "window" : "_blank"
         }
     },
@@ -221,8 +221,16 @@
             "url" : "https://trello.com/b/gPUx2CON",
             "window" : "_blank"
         },
-        "Writing Projects" : {
-            "url" : "https://trello.com/b/U81T3ycQ",
+        "WRITING-PROJECTS" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20240421065622.1&G=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true",
+            "window" : "_blank"
+        },
+        "VIDEO-PROJECTS" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20240424070728.1&G=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true",
+            "window" : "_blank"
+        },
+        "SPECIFIC-FRIENDSHIPS" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20240425150114.1&G=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true",
             "window" : "_blank"
         },
         "Ongoing Opportunities Search" : {
