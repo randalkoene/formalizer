@@ -482,17 +482,20 @@ void Node::refresh_boolean_tag_flags() {
         if (start_tag == Node_utf8_text::npos) return;
         size_t end_tag = description.find('@', start_tag+1);
         if (end_tag == Node_utf8_text::npos) return;
-        search_pos = end_tag+1;
 
-        start_tag++;
-        if (start_tag == end_tag) continue;
-
+        start_tag++; // Point after the starting @
         auto tag = description.substr(start_tag, end_tag - start_tag);
         auto bflag_it = boolean_flag_map.find(tag.c_str());
-        if (bflag_it ==  boolean_flag_map.end()) continue; // Tag was not a known boolean flag tag.
 
-        Boolean_Tag_Flags::boolean_flag bflag = bflag_it->second;
-        bflags.or_set(bflag);
+        if (bflag_it == boolean_flag_map.end()) {
+            // Not a known boolean flag, could have been a lone dangling @
+            search_pos = start_tag; // continue parsing after the starting @
+
+        } else {
+            Boolean_Tag_Flags::boolean_flag bflag = bflag_it->second;
+            bflags.or_set(bflag);
+            search_pos = end_tag+1; // continue after the whole @<tag>@
+        }
     }
 }
 
