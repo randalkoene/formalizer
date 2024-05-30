@@ -637,11 +637,52 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
 
     // For each node: Set up a map of content to template position IDs.
     template_varvalues nodevars;
+
     std::string node_id_str = node_ptr->get_id_str();
     nodevars.emplace("node-id", node_id_str);
+
+    // Show if a Node is inactive, active exact/fixed, or active VTD.
+    std::string node_color;
+    bool text_is_dark = true;
+    if (node_ptr->is_active()) {
+        bool tderror = false;
+        if (detect_tdfar) {
+            if (tdate > (t_now + (100L*365L*86400L))) { // Target dates more than a hundred years in the future are suspect.
+                tderror = true;
+            }
+        }
+        if (detect_tdbad) {
+            if (tdate <= 0) {
+                tderror = true;
+            }
+        }
+        if (detect_tdorder) {
+            if (const_cast<Node*>(node_ptr)->td_suspect_by_superiors()) {
+                tderror = true;
+            }
+        }
+        if (tderror) {
+            node_color = "w3-red";
+            text_is_dark = false;
+        } else {
+            if (node_ptr->td_fixed() || node_ptr->td_exact()) {
+                node_color = "w3-aqua";
+            } else {
+                node_color = "w3-light-grey";
+            }
+        }
+    } else {
+        node_color = "w3-dark-grey";
+    }
+    nodevars.emplace("node-color", node_color);
+
     // Show a hint that this Node may  have some history worth seeing.
     if (node_ptr->probably_has_Log_history()) {
-        nodevars.emplace("nodelink-bg-color", "class=\"link-bg-color-yellow\"");
+        if (text_is_dark) {
+            nodevars.emplace("nodelink-bg-color", "class=\"link-bg-color-yellow\"");
+        } else {
+            nodevars.emplace("nodelink-bg-color", "class=\"link-bg-color-blue\"");
+        }
     } else {
         nodevars.emplace("nodelink-bg-color", "");
     }
@@ -743,39 +784,6 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
     }
     nodevars.emplace("node-prereqs", prereqs_str);
     nodevars.emplace("node-hrsapplied", hours_applied_str);
-
-    // Show if a Node is inactive, active exact/fixed, or active VTD.
-    std::string node_color;
-    if (node_ptr->is_active()) {
-        bool tderror = false;
-        if (detect_tdfar) {
-            if (tdate > (t_now + (100L*365L*86400L))) { // Target dates more than a hundred years in the future are suspect.
-                tderror = true;
-            }
-        }
-        if (detect_tdbad) {
-            if (tdate <= 0) {
-                tderror = true;
-            }
-        }
-        if (detect_tdorder) {
-            if (const_cast<Node*>(node_ptr)->td_suspect_by_superiors()) {
-                tderror = true;
-            }
-        }
-        if (tderror) {
-            node_color = "w3-red";
-        } else {
-            if (node_ptr->td_fixed() || node_ptr->td_exact()) {
-                node_color = "w3-aqua";
-            } else {
-                node_color = "w3-light-grey";
-            }
-        }
-    } else {
-        node_color = "w3-dark-grey";
-    }
-    nodevars.emplace("node-color", node_color);
 
     // Highlight Milestones and their valuation.
     std::string card_bg_highlight;

@@ -178,6 +178,9 @@ a.nnl:hover {background:#55db50;}
 .link-bg-color-yellow {
     background-color: rgb(255,255,0);
 }
+.link-bg-color-blue {
+    background-color: rgb(0,0,200);
+}
 .textbg-cyan {
     background-color: rgb(0,255,255);
 }
