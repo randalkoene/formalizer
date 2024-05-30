@@ -1,9 +1,9 @@
 {
-    "num_to_show" : "256",
-    "excerpt_length" : "120",
-    "rendered_out_path" : "STDOUT",
-    "interpret_text" : "detect_links",
-    "show_current_time" : "true",
-    "timezone_offset_hours": "9",
+    "num_to_show": "256",
+    "excerpt_length": "120",
+    "rendered_out_path": "STDOUT",
+    "interpret_text": "detect_links",
+    "show_current_time": "true",
+    "timezone_offset_hours": "0",
     "tzadjust_day_separators": "true"
 }

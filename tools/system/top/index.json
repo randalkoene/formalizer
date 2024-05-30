@@ -138,7 +138,7 @@
             "window" : "_blank"
         },
         "CARBONCOPIES" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?n=20100907053900.1&G=true&I=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true",
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20100907053900.1&G=true&T=true&B=79&C=200&tdorder=true&tdfar=true&tdbad=true",
             "window" : "_blank"
         },
         "ETHICS-FRAMEWORK-1.0" : {
@@ -146,7 +146,7 @@
             "window" : "_blank"
         },
         "FUNDNET" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?G=true&n=20090223182241.1&I=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true",
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20090223182241.1&G=true&T=true&B=79&C=300&i=79&tdorder=true&tdfar=true&tdbad=true",
             "window" : "_blank"
         },
         "EU2024-PERS-ROADMAP-V2-ITERATION-A" : {

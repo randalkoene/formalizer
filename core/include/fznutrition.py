@@ -209,6 +209,8 @@ nutrition = {
 	'plums': [ 30, 'plum', ],
 	'quarter pounder': [ 417, 'item', ],
 	'fruit smoothie': [ 90, 'serving', ],
+	'survival tabs': [ 240, 'tab', ],
+	'corn tortilla chips': [ 293, 'cup', ],
 }
 
 lowcal_filling_nutritious = [
