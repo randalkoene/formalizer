@@ -91,6 +91,7 @@ struct nodeboard_options {
     float multiplier = 1.0; // Multiplier of vertical card height.
     unsigned int maxcols = DEFAULTMAXCOLS; // Column limit for hierarchy board.
     unsigned int maxrows = DEFAULTMAXROWS; // Row limit for hierarchy board and for NNL dependencies board.
+    time_t seconds_near_highlight = 0; // If non-zero, then highlight Nodes for which the target date is closer than this threshold difference.
 };
 
 struct nodeboard: public formalizer_standard_program {
@@ -157,6 +158,8 @@ struct nodeboard: public formalizer_standard_program {
 
     unsigned int max_columns = DEFAULTMAXCOLS;
     unsigned int max_rows = DEFAULTMAXROWS;
+
+    time_t seconds_near_highlight = 0; // If non-zero, then highlight Nodes for which the target date is closer than this threshold difference.
 
     bool minimize_grid = true;
 

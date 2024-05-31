@@ -68,11 +68,11 @@ nodeboard::nodeboard():
     graph_ptr(nullptr) {
 
     // Still available: aejkNOpUwxyYzZ
-    add_option_args += "RGgn:L:D:l:t:m:f:c:Ii:F:u:H:TPe:b:M:Kp:B:C:r:S:Xo:";
+    add_option_args += "RGgn:L:D:l:t:m:f:c:Ii:F:u:H:TPe:b:M:Kp:B:N:C:r:S:Xo:";
     add_usage_top += " [-R] [-G|-g] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
         " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-Z] [-i <topic_id>,...] [-F <substring>]"
         " [-u <up-to>] [-H <board-header>] [-T] [-P] [-e <errors-list>] [-b <before>] [-M <multiplier>] [-p <progress-state-file>]"
-        " [-K] [-S <size-list>] [-B <topic-id>] [-C <max-columns>] [-r <max-rows>] [-X] [-o <output-file|STDOUT>]";
+        " [-K] [-S <size-list>] [-B <topic-id>] [-N <near-term-days>] [-C <max-columns>] [-r <max-rows>] [-X] [-o <output-file|STDOUT>]";
 
     usage_head.push_back("Generate Kanban board representation of Nodes hierarchy.\n");
     usage_tail.push_back(
@@ -120,6 +120,8 @@ void nodeboard::usage_hook() {
         "       List can contain: tdorder,  tdfar, tdbad\n"
         "    -B Background highlight Nodes in <topic-id> with elevated valuation\n"
         "       highlight colors.\n"
+        "    -N Highlight Nodes with 'near-term' target dates, within <near-term-days>\n"
+        "       of present time.\n"
         "    -S List of grid and card sizes:\n"
         "       '<grid-column-width>,<column-container-width>,<card-width>,<card-height>'\n"
         "       E.g. '260px,250px,240px,240px'\n"
@@ -306,6 +308,12 @@ bool nodeboard::options_hook(char c, std::string cargs) {
             return true;
         }
 
+        case 'N': {
+            float days_near_highlight = atof(cargs.c_str());
+            seconds_near_highlight = long(days_near_highlight*86400.0);
+            return true;
+        }
+
         case 'C': {
             max_columns = atoi(cargs.c_str());
             return true;
@@ -437,6 +445,7 @@ nodeboard_options nodeboard::get_nodeboard_options() const {
     options.multiplier = vertical_multiplier;
     options.maxcols = max_columns;
     options.maxrows = max_rows;
+    options.seconds_near_highlight = seconds_near_highlight;
     return options;
 }
 
@@ -497,6 +506,9 @@ std::string nodeboard::build_nodeboard_cgi_call(const nodeboard_options & option
     }
     if (options.maxcols != DEFAULTMAXCOLS) {
         cgi_cmd += "&C="+std::to_string(options.maxcols);
+    }
+    if (options.seconds_near_highlight != 0) {
+        cgi_cmd += "&N="+to_precision_string(float(options.seconds_near_highlight)/86400.0, 2); // expressed in days
     }
     if (!filter_substring.empty()) {
         cgi_cmd += "&F="+uri_encoded_filter_substring;
@@ -638,12 +650,23 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
     // For each node: Set up a map of content to template position IDs.
     template_varvalues nodevars;
 
-    std::string node_id_str = node_ptr->get_id_str();
-    nodevars.emplace("node-id", node_id_str);
+    // Highlight Milestones and their valuation.
+    std::string card_bg_highlight;
+    if (highlight_topic_and_valuation) {
+        if (node_ptr->in_topic(highlight_topic)) {
+            if (node_ptr->get_valuation() > 3.0) { // elevated highlight
+                card_bg_highlight = "w3-orange";
+            } else { // highlight
+                card_bg_highlight = "w3-green";
+            }
+        }
+    }
+    nodevars.emplace("nodebg-color", card_bg_highlight);
 
     // Show if a Node is inactive, active exact/fixed, or active VTD.
     std::string node_color;
     bool text_is_dark = true;
+    bool highlight_targetdate = false;
     if (node_ptr->is_active()) {
         bool tderror = false;
         if (detect_tdfar) {
@@ -665,6 +688,9 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
             node_color = "w3-red";
             text_is_dark = false;
         } else {
+            if ((seconds_near_highlight > 0) && (tdate <= (t_now + seconds_near_highlight))) { // within near-term threshold
+                highlight_targetdate = true;
+            }
             if (node_ptr->td_fixed() || node_ptr->td_exact()) {
                 node_color = "w3-aqua";
             } else {
@@ -675,6 +701,11 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
         node_color = "w3-dark-grey";
     }
     nodevars.emplace("node-color", node_color);
+
+    std::string node_id_str = node_ptr->get_id_str();
+    nodevars.emplace("node-id", node_id_str);
+
+    nodevars.emplace("fzserverpq", graph().get_server_full_address());
 
     // Show a hint that this Node may  have some history worth seeing.
     if (node_ptr->probably_has_Log_history()) {
@@ -687,15 +718,32 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
         nodevars.emplace("nodelink-bg-color", "");
     }
     nodevars.emplace("node-id-history", node_id_str+"&alt=histfull");
-    nodevars.emplace("node-deps", node_id_str);
-    nodevars.emplace("node-text", node_text);
     float completion = node_ptr->get_completion();
     float progress = completion*100.0;
     if (progress < 0.0) progress = 100.0;
     if (progress > 100.0) progress = 100.0;
     nodevars.emplace("node-progress", to_precision_string(progress, 1));
+
+    if (highlight_targetdate) {
+        nodevars.emplace("td-bg-color", "class=\"td-bg-color-green\"");
+    } else {
+        nodevars.emplace("td-bg-color", "");
+    }
     nodevars.emplace("node-targetdate", " ("+DateStampYmd(tdate)+')');
-    nodevars.emplace("fzserverpq", graph().get_server_full_address());
+
+    nodevars.emplace("node-deps", node_id_str);
+
+    std::string include_filter_substr;
+    if (!filter_substring.empty()) {
+        include_filter_substr = "&F="+uri_encoded_filter_substring;
+    }
+    if (!filter_topics.empty()) {
+        include_filter_substr += "&i="+uri_encoded_filter_topics;
+    }
+    if (show_completed) {
+        include_filter_substr += "&I=true";
+    }
+    nodevars.emplace("filter-substr", include_filter_substr);
 
     std::string prereqs_str;
     std::string hours_applied_str;
@@ -785,30 +833,7 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
     nodevars.emplace("node-prereqs", prereqs_str);
     nodevars.emplace("node-hrsapplied", hours_applied_str);
 
-    // Highlight Milestones and their valuation.
-    std::string card_bg_highlight;
-    if (highlight_topic_and_valuation) {
-        if (node_ptr->in_topic(highlight_topic)) {
-            if (node_ptr->get_valuation() > 3.0) { // elevated highlight
-                card_bg_highlight = "w3-orange";
-            } else { // highlight
-                card_bg_highlight = "w3-green";
-            }
-        }
-    }
-    nodevars.emplace("nodebg-color", card_bg_highlight);
-
-    std::string include_filter_substr;
-    if (!filter_substring.empty()) {
-        include_filter_substr = "&F="+uri_encoded_filter_substring;
-    }
-    if (!filter_topics.empty()) {
-        include_filter_substr += "&i="+uri_encoded_filter_topics;
-    }
-    if (show_completed) {
-        include_filter_substr += "&I=true";
-    }
-    nodevars.emplace("filter-substr", include_filter_substr);
+    nodevars.emplace("node-text", node_text);
 
     // For each node: Create a Kanban card and add it to the output HTML.
     if (progress_analysis) {

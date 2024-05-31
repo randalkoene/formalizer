@@ -9,7 +9,7 @@
       <button class="tiny_button tiny_green" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new&tosup={{ node-id }}');">mkwsup</button>
       <button class="tiny_button" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new&todep={{ node-id }}');">mkwdep</button>
       {{ node-hrsapplied }}
-      <p {{ nodelink-bg-color }}><a href="/cgi-bin/fzlink.py?id={{ node-id-history }}" target="_blank">Progress: {{ node-progress }}</a>&#37;{{ node-targetdate }} [<a href="/cgi-bin/nodeboard-cgi.py?n={{ node-deps }}&G=true&I=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true{{ filter-substr }}" target="_blank">DEP</a>] [<a href="/cgi-bin/fzgraphhtml-cgi.py?edit={{ node-id }}" target="_blank">edit</a>]</p>
+      <p><span {{ nodelink-bg-color }}><a href="/cgi-bin/fzlink.py?id={{ node-id-history }}" target="_blank">Progress: {{ node-progress }}</a>&#37;</span><span {{ td-bg-color }}>{{ node-targetdate }}</span> [<a href="/cgi-bin/nodeboard-cgi.py?n={{ node-deps }}&G=true&I=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true{{ filter-substr }}" target="_blank">DEP</a>] [<a href="/cgi-bin/fzgraphhtml-cgi.py?edit={{ node-id }}" target="_blank">edit</a>]</p>
       <p class="w3-medium">{{ node-text }}</p>
       <p><b><a href="/cgi-bin/fzlink.py?id={{ node-id-history }}" target="_blank">{{ node-id }}</a></b></p>
     </div>

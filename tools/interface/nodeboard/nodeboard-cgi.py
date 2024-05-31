@@ -80,6 +80,7 @@ highlight_topic = form.getvalue('B')
 vertical_multiplier = form.getvalue('M')
 max_columns = form.getvalue('C')
 max_rows = form.getvalue('r')
+days_near_highlight = form.getvalue('N')
 tdorder = form.getvalue('tdorder')
 tdbad = form.getvalue('tdbad')
 tdfar = form.getvalue('tdfar')
@@ -123,6 +124,10 @@ if max_rows:
     include_max_rows = ' -r %s' % max_rows
 else:
     include_max_rows = ''
+if days_near_highlight:
+    include_days_near_highlight = ' -N %s' % days_near_highlight
+else:
+    include_days_near_highlight = ''
 if max_columns:
     include_max_columns = ' -C %s' % max_columns
 else:
@@ -218,9 +223,9 @@ def show_node_dependencies_board():
     #       on STDOUT for ease of regenerating by reloading.
     outpath = '/var/www/webdata/formalizer/node_dependencies_kanban.html'
     if node_dependencies_tree:
-        thecmd = f"./nodeboard -G -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_progress_analysis} {include_td_detect} {include_subtree_sort} {include_highlight_topic} {include_max_columns} {include_max_rows} -q -o {outpath}"
+        thecmd = f"./nodeboard -G -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_progress_analysis} {include_td_detect} {include_subtree_sort} {include_highlight_topic} {include_max_columns} {include_max_rows} {include_days_near_highlight} -q -o {outpath}"
     elif node_superiors_tree:
-        thecmd = f"./nodeboard -g -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_progress_analysis} {include_td_detect} {include_subtree_sort} {include_highlight_topic} {include_max_columns} {include_max_rows} -q -o {outpath}"
+        thecmd = f"./nodeboard -g -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_progress_analysis} {include_td_detect} {include_subtree_sort} {include_highlight_topic} {include_max_columns} {include_max_rows} {include_days_near_highlight} -q -o {outpath}"
     else:
         thecmd = f"./nodeboard -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} -q -o {outpath}"
     success, res = try_command_call(thecmd, print_result=False)
@@ -278,12 +283,12 @@ def show_subtree_board():
     result_page_path = '/var/www/webdata/formalizer/%s' % result_file
     result_page_url = '/formalizer/data/%s' % result_file
     if progress_analysis:
-        thecmd = f"./nodeboard -D {subtree_list} {include_threads} {include_nnldepstotdate} {include_max_rows} {include_progress_analysis} {include_show_completed} -p {progress_state_path} -q -o {result_page_path} >{nodeboard_logfile} 2>&1 &"
+        thecmd = f"./nodeboard -D {subtree_list} {include_threads} {include_nnldepstotdate} {include_max_rows} {include_days_near_highlight} {include_progress_analysis} {include_show_completed} -p {progress_state_path} -q -o {result_page_path} >{nodeboard_logfile} 2>&1 &"
         success, res = try_command_call(thecmd, print_result=False)
         embed_in_html, embed_in_script = make_background_progress_monitor(progress_state_file, result_page_url)
         print(ANALYSIS_PROGRESS_PAGE % (embed_in_html, embed_in_script))
     else:
-        thecmd = f"./nodeboard -D {subtree_list} {include_threads} {include_nnldepstotdate} {include_max_rows} {include_show_completed} -q -o {result_page_path}"
+        thecmd = f"./nodeboard -D {subtree_list} {include_threads} {include_nnldepstotdate} {include_max_rows} {include_days_near_highlight} {include_show_completed} -q -o {result_page_path}"
         success, res = try_command_call(thecmd, print_result=False)
         #print(REDIRECT % "/subtree_list_kanban.html")
         if success:
