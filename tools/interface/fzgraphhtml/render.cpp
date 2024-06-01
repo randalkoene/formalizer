@@ -711,9 +711,15 @@ const std::map<bool, std::string> supdep_active_highlight = {
     { true, "active-node"},
 };
 
+const std::map<bool, std::string> supdep_td_highlight = {
+    { false, "passed_td"}, // used here to indicate incorrect TD order
+    { true, "active-node"},
+};
+
 std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button = false, bool edit_edges = false) {
     std::string sups_str;
     std::string graphserveraddr = fzgh.replacements[fzserverpq_address]; // graph.get_server_full_address();
+    time_t node_td = node.get_targetdate();
     for (const auto & edge_ptr : node.sup_Edges()) {
         if (edge_ptr) {
             if (fzgh.config.outputformat == output_node) {
@@ -728,7 +734,11 @@ std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button
                     ADDERROR(__func__, "Node "+node.get_id_str()+" has missing superior at Edge "+edge_ptr->get_id_str());
                 } else {
                     std::string htmltext(sup_ptr->get_text().c_str());
-                    sups_str += "<span class=\""+supdep_active_highlight.at(sup_ptr->is_active())+"\">"+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length)+"</span>";
+                    bool is_active = sup_ptr->is_active();
+                    if (is_active) {
+                        sups_str += "[<span class=\""+supdep_td_highlight.at(sup_ptr->get_targetdate()>=node_td)+"\">"+sup_ptr->get_targetdate_str()+"</span>] ";
+                    }
+                    sups_str += "<span class=\""+supdep_active_highlight.at(is_active)+"\">"+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length)+"</span>";
                 }
 
                 // Add a link to remove the superior.
@@ -767,6 +777,7 @@ std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button
 std::string render_Node_dependencies(Graph & graph, Node & node, bool remove_button = false, bool edit_edges = false) {
     std::string deps_str;
     std::string graphserveraddr = fzgh.replacements[fzserverpq_address]; //graph.get_server_full_address();
+    time_t node_td = node.get_targetdate();
     for (const auto & edge_ptr : node.dep_Edges()) {
         if (edge_ptr) {
             if (fzgh.config.outputformat == output_node) {
@@ -778,7 +789,11 @@ std::string render_Node_dependencies(Graph & graph, Node & node, bool remove_but
                     ADDERROR(__func__, "Node "+node.get_id_str()+" has missing dependency at Edge "+edge_ptr->get_id_str());
                 } else {
                     std::string htmltext(dep_ptr->get_text().c_str());
-                    deps_str += "<span class=\""+supdep_active_highlight.at(dep_ptr->is_active())+"\">"+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length)+"</span>";
+                    bool is_active = dep_ptr->is_active();
+                    if (is_active) {
+                        deps_str += "[<span class=\""+supdep_td_highlight.at(dep_ptr->get_targetdate()<=node_td)+"\">"+dep_ptr->get_targetdate_str()+"</span>] ";
+                    }
+                    deps_str += "<span class=\""+supdep_active_highlight.at(is_active)+"\">"+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length)+"</span>";
                 }
                 if (remove_button) {
                     deps_str += "[<a href=\"http://"+graphserveraddr+"/fz/graph/nodes/" + node.get_id_str() + "/superiors/remove?" + edge_ptr->get_dep_str() + "=\">remove</a>]";
