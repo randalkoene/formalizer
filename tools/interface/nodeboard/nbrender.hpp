@@ -24,6 +24,9 @@
 
 using namespace fz;
 
+#define BAD_TD(td) (td<=0)
+#define FAR_TD(td,tdnow) (td > (tdnow + (100L*365L*86400L)))
+
 enum flow_options {
     flow_unknown = 0,                 ///< no recognized request
     flow_node = 1,                    ///< request: show data for Node
@@ -172,6 +175,7 @@ struct nodeboard: public formalizer_standard_program {
     float vertical_multiplier = 1.0;
 
     bool propose_td_solutions = false;
+    bool prefer_earlier = true;
 
     bool do_development_test = false;
 

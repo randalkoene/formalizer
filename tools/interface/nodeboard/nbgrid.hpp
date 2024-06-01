@@ -96,6 +96,8 @@ struct Node_Tree {
 
     std::string get_td_changes_apply_url() const;
 
+    std::string get_vtd_changes_only_apply_url() const;
+
 };
 
 struct Grid_Occupation {
@@ -183,6 +185,8 @@ protected:
     void find_node_spans();
 
 public:
+    bool has_errors() const { return !((errors.empty()) && (tree.errors.empty())); }
+
     std::string errors_str() const;
 
     size_t number_of_proposed_td_changes() const { return tree.number_of_proposed_td_changes(); }
@@ -190,6 +194,8 @@ public:
     std::string list_of_proposed_td_changes_html() const { return tree.list_of_proposed_td_changes_html(); }
 
     std::string get_td_changes_apply_url() const { return tree.get_td_changes_apply_url(); }
+
+    std::string get_vtd_changes_only_apply_url() const { return tree.get_vtd_changes_only_apply_url(); }
 
 };
 

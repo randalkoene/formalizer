@@ -143,7 +143,7 @@ if nnldepstotdate:
 else:
     include_nnldepstotdate = ''
 if proposetdsolutions:
-    include_proposetdsolutions = ' -O'
+    include_proposetdsolutions = ' -O %s' % proposetdsolutions
 else:
     include_proposetdsolutions = ''
 if dodevelopmenttest:

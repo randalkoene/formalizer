@@ -68,10 +68,10 @@ nodeboard::nodeboard():
     graph_ptr(nullptr) {
 
     // Still available: aejkNOpUwxyYzZ
-    add_option_args += "RGgn:L:D:l:t:m:f:c:Ii:F:u:H:TPOe:b:M:Kp:B:N:C:r:S:Xo:";
+    add_option_args += "RGgn:L:D:l:t:m:f:c:Ii:F:u:H:TPO:e:b:M:Kp:B:N:C:r:S:Xo:";
     add_usage_top += " [-R] [-G|-g] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
         " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-Z] [-i <topic_id>,...] [-F <substring>]"
-        " [-u <up-to>] [-H <board-header>] [-T] [-P] [-O] [-e <errors-list>] [-b <before>] [-M <multiplier>] [-p <progress-state-file>]"
+        " [-u <up-to>] [-H <board-header>] [-T] [-P] [-O earlier|later] [-e <errors-list>] [-b <before>] [-M <multiplier>] [-p <progress-state-file>]"
         " [-K] [-S <size-list>] [-B <topic-id>] [-N <near-term-days>] [-C <max-columns>] [-r <max-rows>] [-X] [-o <output-file|STDOUT>]";
 
     usage_head.push_back("Generate Kanban board representation of Nodes hierarchy.\n");
@@ -111,7 +111,8 @@ void nodeboard::usage_hook() {
         "    -H Board header.\n"
         "    -T Threads.\n"
         "    -P Progress analaysis.\n"
-        "    -O Propose target date order error solutions.\n"
+        "    -O Propose target date order error solutions. Use a philosophy that\n"
+        "       prefers to push Nodes to 'earlier' or 'later' target dates.\n"
         "    -b Before time stamp, used with -P.\n"
         "    -M Vertical length multiplier.\n"
         "    -p Progress state file\n"
@@ -281,6 +282,9 @@ bool nodeboard::options_hook(char c, std::string cargs) {
 
         case 'O': {
             propose_td_solutions = true;
+            if (cargs=="later") {
+                prefer_earlier = false;
+            }
             return true;
         }
 
@@ -525,7 +529,11 @@ std::string nodeboard::build_nodeboard_cgi_call(const nodeboard_options & option
         cgi_cmd += "&R=true";
     }
     if (options.propose_td_solutions) {
-        cgi_cmd += "&O=true";
+        if (prefer_earlier) {
+            cgi_cmd += "&O=earlier";
+        } else {
+            cgi_cmd += "&O=later";
+        }
     }
     if (!filter_substring.empty()) {
         cgi_cmd += "&F="+uri_encoded_filter_substring;
@@ -687,12 +695,12 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
     if (node_ptr->is_active()) {
         bool tderror = false;
         if (detect_tdfar) {
-            if (tdate > (t_now + (100L*365L*86400L))) { // Target dates more than a hundred years in the future are suspect.
+            if FAR_TD(tdate,t_now) { // Target dates more than a hundred years in the future are suspect.
                 tderror = true;
             }
         }
         if (detect_tdbad) {
-            if (tdate <= 0) {
+            if BAD_TD(tdate) {
                 tderror = true;
             }
         }
@@ -1696,10 +1704,12 @@ bool node_board_render_dependencies_tree(nodeboard & nb) {
     if (grid.number_of_proposed_td_changes()>0) {
         nb.board_title_extra += "\n<br>Number of proposed TD changes = "+std::to_string(grid.number_of_proposed_td_changes());
         nb.board_title_extra += "\n<br>Proposed TD changes:"+grid.list_of_proposed_td_changes_html();
-        nb.board_title_extra += make_button(grid.get_td_changes_apply_url(),"Apply TD changes", false);
+        nb.board_title_extra += "\n<br>"+make_button(grid.get_td_changes_apply_url(),"Apply TD changes", false);
+        nb.board_title_extra += make_button(grid.get_vtd_changes_only_apply_url(),"Apply only VTD changes", false);
     }
 
-    if (!grid.errors.empty()) {
+    if (grid.has_errors()) {
+        nb.board_title_extra += "Errors: ";
         nb.board_title_extra += grid.errors_str();
     }
 
@@ -1776,9 +1786,11 @@ bool node_board_render_superiors_tree(nodeboard & nb) {
         nb.board_title_extra += "\n<br>Number of proposed TD changes = "+std::to_string(grid.number_of_proposed_td_changes());
         nb.board_title_extra += "\n<br>Proposed TD changes:"+grid.list_of_proposed_td_changes_html();
         nb.board_title_extra += make_button(grid.get_td_changes_apply_url(),"Apply TD changes", false);
+        nb.board_title_extra += make_button(grid.get_vtd_changes_only_apply_url(),"Apply only VTD changes", false);
     }
 
-    if (!grid.errors.empty()) {
+    if (grid.has_errors()) {
+        nb.board_title_extra += "Errors: ";
         nb.board_title_extra += grid.errors_str();
     }
 

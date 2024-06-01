@@ -214,17 +214,40 @@ bool Node_Tree::propose_td_solutions() {
         }
     }
     // Search the tree for order errors.
-    long limit = vertices.size()*2;
+    long limit = vertices.size()*10;
     for (long i = 0; i<limit; i++) {
         td_error_pair errorpair = find_next_td_order_error();
         if (!errorpair.specifies_error()) return true;
-        if (errorpair.sup->td_fixed() || errorpair.sup->td_exact()) {
+        //errors.emplace_back(errorpair.dep->get_id_str()+"->"+errorpair.sup->get_id_str());
+        if (nb.prefer_earlier) {
             // Philosophy 1, dependencies must change (see readme.md).
             propose_dependencies_td_change(errorpair);
         } else {
             // Philosophy 2, superior must change (see readme.md).
             propose_superior_td_change(errorpair);
         }
+
+/* Disabling this automatic switching of preference, because it easily leads to toggling
+   between the proposed updates of two pairs.
+
+        if (nb.prefer_earlier) { // Prefer to push the dependency to an earlier target date.
+            if (errorpair.dep->td_fixed() || errorpair.dep->td_exact()) {
+                // Philosophy 2, superior must change (see readme.md).
+                propose_superior_td_change(errorpair);
+            } else {
+                // Philosophy 1, dependencies must change (see readme.md).
+                propose_dependencies_td_change(errorpair);
+            }
+        } else { // Prefer to push the superior to a later target date.
+            if (errorpair.sup->td_fixed() || errorpair.sup->td_exact()) {
+                // Philosophy 1, dependencies must change (see readme.md).
+                propose_dependencies_td_change(errorpair);
+            } else {
+                // Philosophy 2, superior must change (see readme.md).
+                propose_superior_td_change(errorpair);
+            }
+        }
+*/
     }
     // If we got here then the limit was reached without solving all problems.
     return false;
@@ -243,8 +266,19 @@ std::string Node_Tree::list_of_proposed_td_changes_html() const {
     if (!nb.propose_td_solutions) return "";
     std::string changes_html;
     for (const auto& vertex : vertices) {
-        if (vertex.td != const_cast<Node*>(vertex.node_ptr)->effective_targetdate()) {
-            changes_html += "<br>(Solving "+vertex.tderror_node->get_id_str()+") Node "+vertex.node_ptr->get_id_str()+": "+vertex.node_ptr->get_effective_targetdate_str()+" --> "+TimeStampYmdHM(vertex.td);
+        time_t node_td = const_cast<Node*>(vertex.node_ptr)->effective_targetdate();
+        if (vertex.td != node_td) {
+            changes_html += "<br>(<a href=\"#"+vertex.tderror_node->get_id_str()+"\">Solving "+vertex.tderror_node->get_id_str()+"</a>) <a href=\"#"+vertex.node_ptr->get_id_str()+"\">Node "+vertex.node_ptr->get_id_str()+"</a>: "+vertex.node_ptr->get_effective_targetdate_str()+" --> "+TimeStampYmdHM(vertex.td);
+            if (vertex.node_ptr->td_fixed() || vertex.node_ptr->td_exact()) {
+                changes_html += " <b>Warning: Fixed or Exact TD!</b>";
+            }
+            if (BAD_TD(vertex.td) || FAR_TD(vertex.td,nb.t_now)) {
+                changes_html += " <b>WARNING: Problematic TD suggestion!</b>";
+            } else {
+                if ((vertex.td - node_td) > (30*86400)) {
+                    changes_html += " <b>BIG CHANGE!</b>";
+                }
+            }
         }
     }
     return changes_html;
@@ -264,6 +298,28 @@ std::string Node_Tree::get_td_changes_apply_url() const {
             nodes_valuestr += vertex.node_ptr->get_id_str();
             tds_valuestr += TimeStampYmdHM(vertex.td);
             count++;
+        }
+    }
+    std::string applychanges_url("/cgi-bin/fzeditbatch-cgi.py?action=targetdates&nodes="+nodes_valuestr+"&tds="+tds_valuestr);
+    return applychanges_url;
+}
+
+std::string Node_Tree::get_vtd_changes_only_apply_url() const {
+    if (!nb.propose_td_solutions) return "";
+    std::string nodes_valuestr;
+    std::string tds_valuestr;
+    size_t count = 0;
+    for (const auto& vertex : vertices) {
+        if (vertex.td != const_cast<Node*>(vertex.node_ptr)->effective_targetdate()) {
+            if ((!vertex.node_ptr->td_fixed()) && (!vertex.node_ptr->td_exact())) {
+                if (count!=0) {
+                    nodes_valuestr += ',';
+                    tds_valuestr += ',';
+                }
+                nodes_valuestr += vertex.node_ptr->get_id_str();
+                tds_valuestr += TimeStampYmdHM(vertex.td);
+                count++;
+            }
         }
     }
     std::string applychanges_url("/cgi-bin/fzeditbatch-cgi.py?action=targetdates&nodes="+nodes_valuestr+"&tds="+tds_valuestr);
