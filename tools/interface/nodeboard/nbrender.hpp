@@ -92,6 +92,8 @@ struct nodeboard_options {
     unsigned int maxcols = DEFAULTMAXCOLS; // Column limit for hierarchy board.
     unsigned int maxrows = DEFAULTMAXROWS; // Row limit for hierarchy board and for NNL dependencies board.
     time_t seconds_near_highlight = 0; // If non-zero, then highlight Nodes for which the target date is closer than this threshold difference.
+    bool propose_td_solutions = false;
+    bool do_development_test = false;
 };
 
 struct nodeboard: public formalizer_standard_program {
@@ -168,6 +170,10 @@ struct nodeboard: public formalizer_standard_program {
     std::vector<CSV_Data_Day> csv_data_vec;
 
     float vertical_multiplier = 1.0;
+
+    bool propose_td_solutions = false;
+
+    bool do_development_test = false;
 
     Graph *graph_ptr;
 

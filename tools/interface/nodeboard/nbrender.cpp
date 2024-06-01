@@ -68,10 +68,10 @@ nodeboard::nodeboard():
     graph_ptr(nullptr) {
 
     // Still available: aejkNOpUwxyYzZ
-    add_option_args += "RGgn:L:D:l:t:m:f:c:Ii:F:u:H:TPe:b:M:Kp:B:N:C:r:S:Xo:";
+    add_option_args += "RGgn:L:D:l:t:m:f:c:Ii:F:u:H:TPOe:b:M:Kp:B:N:C:r:S:Xo:";
     add_usage_top += " [-R] [-G|-g] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
         " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-Z] [-i <topic_id>,...] [-F <substring>]"
-        " [-u <up-to>] [-H <board-header>] [-T] [-P] [-e <errors-list>] [-b <before>] [-M <multiplier>] [-p <progress-state-file>]"
+        " [-u <up-to>] [-H <board-header>] [-T] [-P] [-O] [-e <errors-list>] [-b <before>] [-M <multiplier>] [-p <progress-state-file>]"
         " [-K] [-S <size-list>] [-B <topic-id>] [-N <near-term-days>] [-C <max-columns>] [-r <max-rows>] [-X] [-o <output-file|STDOUT>]";
 
     usage_head.push_back("Generate Kanban board representation of Nodes hierarchy.\n");
@@ -87,7 +87,6 @@ nodeboard::nodeboard():
 void nodeboard::usage_hook() {
     ga.usage_hook();
     FZOUT(
-        "    -R Test with random selection of Nodes.\n"
         "    -G Use grid to show dependencies tree.\n"
         "    -g Use grid to show superiors tree.\n"
         "    -n Node dependencies.\n"
@@ -112,6 +111,7 @@ void nodeboard::usage_hook() {
         "    -H Board header.\n"
         "    -T Threads.\n"
         "    -P Progress analaysis.\n"
+        "    -O Propose target date order error solutions.\n"
         "    -b Before time stamp, used with -P.\n"
         "    -M Vertical length multiplier.\n"
         "    -p Progress state file\n"
@@ -130,6 +130,7 @@ void nodeboard::usage_hook() {
         "    -X Fully expanded grid (do not minimize rows and columns)\n"
         "    -o Output to file (or STDOUT).\n"
         "       Default: /var/www/html/formalizer/test_node_card.html\n"
+        "    -R Development test.\n"
         "\n"
     );
 }
@@ -176,7 +177,10 @@ bool nodeboard::options_hook(char c, std::string cargs) {
         }
 
         case 'R': {
-            flowcontrol = flow_random_test;
+            // This has been repurposed to be a general flag for running development
+            // test code.
+            //flowcontrol = flow_random_test;
+            do_development_test = true;
             return true;
         }
 
@@ -272,6 +276,11 @@ bool nodeboard::options_hook(char c, std::string cargs) {
 
         case 'P': {
             progress_analysis = true;
+            return true;
+        }
+
+        case 'O': {
+            propose_td_solutions = true;
             return true;
         }
 
@@ -446,6 +455,8 @@ nodeboard_options nodeboard::get_nodeboard_options() const {
     options.maxcols = max_columns;
     options.maxrows = max_rows;
     options.seconds_near_highlight = seconds_near_highlight;
+    options.do_development_test = do_development_test;
+    options.propose_td_solutions = propose_td_solutions;
     return options;
 }
 
@@ -509,6 +520,12 @@ std::string nodeboard::build_nodeboard_cgi_call(const nodeboard_options & option
     }
     if (options.seconds_near_highlight != 0) {
         cgi_cmd += "&N="+to_precision_string(float(options.seconds_near_highlight)/86400.0, 2); // expressed in days
+    }
+    if (options.do_development_test) {
+        cgi_cmd += "&R=true";
+    }
+    if (options.propose_td_solutions) {
+        cgi_cmd += "&O=true";
     }
     if (!filter_substring.empty()) {
         cgi_cmd += "&F="+uri_encoded_filter_substring;
@@ -1676,6 +1693,12 @@ bool node_board_render_dependencies_tree(nodeboard & nb) {
     //         "The Nodes in a thread should be a clear set of steps leading to the output.";
     // }
 
+    if (grid.number_of_proposed_td_changes()>0) {
+        nb.board_title_extra += "\n<br>Number of proposed TD changes = "+std::to_string(grid.number_of_proposed_td_changes());
+        nb.board_title_extra += "\n<br>Proposed TD changes:"+grid.list_of_proposed_td_changes_html();
+        nb.board_title_extra += make_button(grid.get_td_changes_apply_url(),"Apply TD changes", false);
+    }
+
     if (!grid.errors.empty()) {
         nb.board_title_extra += grid.errors_str();
     }
@@ -1748,6 +1771,12 @@ bool node_board_render_superiors_tree(nodeboard & nb) {
     //         "Otherwise, an excerpt of Node content is shown as the thread header.<br>"
     //         "The Nodes in a thread should be a clear set of steps leading to the output.";
     // }
+
+    if (grid.number_of_proposed_td_changes()>0) {
+        nb.board_title_extra += "\n<br>Number of proposed TD changes = "+std::to_string(grid.number_of_proposed_td_changes());
+        nb.board_title_extra += "\n<br>Proposed TD changes:"+grid.list_of_proposed_td_changes_html();
+        nb.board_title_extra += make_button(grid.get_td_changes_apply_url(),"Apply TD changes", false);
+    }
 
     if (!grid.errors.empty()) {
         nb.board_title_extra += grid.errors_str();

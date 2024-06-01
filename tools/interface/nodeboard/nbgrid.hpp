@@ -12,6 +12,14 @@
 #include "version.hpp"
 #define __NBGRID_HPP (__VERSION_HPP)
 
+struct td_error_pair {
+    Node * sup = nullptr;
+    Node * dep = nullptr;
+    td_error_pair() {}
+    td_error_pair(Node* _sup, Node* _dep): sup(_sup), dep(_dep) {}
+    bool specifies_error() const { return (sup != nullptr) && (dep != nullptr); }
+};
+
 /**
  * Minimal information needed to construct the visualization tree.
  */
@@ -20,6 +28,10 @@ struct Node_Tree_Vertex {
     const Node * node_ptr;  // Node at this vertex.
     targetdate_sorted_Nodes below; // Target date sorted list of vertices below.
     unsigned int below_level;
+
+    // *** Used in td order solving test:
+    time_t td; // If different than effective target date then it proposes a solution to a td order error.
+    Node * tderror_node; // If a td order error solution is proposed then this indicates the Node with the problem for which it is proposed.
 
     Node_Tree_Vertex(const Node& node, const Node_Tree_Vertex * _above, unsigned int _blevel): above(_above), node_ptr(&node), below_level(_blevel) {}
 
@@ -32,9 +44,12 @@ struct Node_Tree_Vertex {
  */
 struct Node_Tree {
     const nodeboard & nb;
+    bool is_superiors_tree = false;
 
     std::deque<Node_Tree_Vertex> vertices;
     std::map<Node_ID_key, Node_Tree_Vertex*> processed_nodes;
+
+    std::vector<std::string> errors;
 
     Node_Tree(const nodeboard & _nb, bool superiors = false);
 
@@ -55,13 +70,31 @@ struct Node_Tree {
 
     void add_superior_vertices(const Node& from_node, Node_Tree_Vertex & from_vertex);
 
-    Node_Tree_Vertex * get_vertex_by_node(const Node& node);
+    Node_Tree_Vertex * get_vertex_by_nodekey(const Node_ID_key& nodekey) const;
+
+    Node_Tree_Vertex * get_vertex_by_node(const Node& node) const;
 
     unsigned int num_levels() const;
 
 	void propagate_up_earliest_td(Node_Tree_Vertex & vertex);
 
 	void branch_sort_by_earliest_td_in_subtree();
+
+    td_error_pair td_order_error(const Node_Tree_Vertex& vertex);
+
+    td_error_pair find_next_td_order_error();
+
+    void propose_dependencies_td_change(const td_error_pair& errorpair);
+
+    void propose_superior_td_change(const td_error_pair& errorpair);
+
+    bool propose_td_solutions();
+
+    size_t number_of_proposed_td_changes() const;
+
+    std::string list_of_proposed_td_changes_html() const;
+
+    std::string get_td_changes_apply_url() const;
 
 };
 
@@ -147,11 +180,16 @@ protected:
 
     unsigned int add_below(const Node & node_above, unsigned int node_row, unsigned int node_col);
 
-
     void find_node_spans();
 
 public:
     std::string errors_str() const;
+
+    size_t number_of_proposed_td_changes() const { return tree.number_of_proposed_td_changes(); }
+
+    std::string list_of_proposed_td_changes_html() const { return tree.list_of_proposed_td_changes_html(); }
+
+    std::string get_td_changes_apply_url() const { return tree.get_td_changes_apply_url(); }
 
 };
 

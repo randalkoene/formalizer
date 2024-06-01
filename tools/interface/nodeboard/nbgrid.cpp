@@ -26,7 +26,7 @@ void Node_Tree_Vertex::update_tdate_of_node_below(Node* below_ptr, time_t new_td
     below.emplace(new_tdate, below_ptr);
 }
 
-Node_Tree::Node_Tree(const nodeboard & _nb, bool superiors): nb(_nb) {
+Node_Tree::Node_Tree(const nodeboard & _nb, bool superiors): nb(_nb), is_superiors_tree(superiors) {
     if (!nb.node_ptr) return;
 
     if (superiors) {
@@ -36,6 +36,12 @@ Node_Tree::Node_Tree(const nodeboard & _nb, bool superiors): nb(_nb) {
     }
 
     if (nb.sort_by_subtree_times) branch_sort_by_earliest_td_in_subtree();
+
+    if (nb.propose_td_solutions) {
+        if (!propose_td_solutions()) {
+            errors.emplace_back("Reached TD order errors search limit before all order errors had proposed solutions!");
+        }
+    }
 }
 
 bool Node_Tree::is_processed_node(const Node& node) const {
@@ -110,10 +116,14 @@ void Node_Tree::add_superior_vertices(const Node& from_node, Node_Tree_Vertex & 
     }
 }
 
-Node_Tree_Vertex * Node_Tree::get_vertex_by_node(const Node& node) {
-    auto it = processed_nodes.find(node.get_id().key());
+Node_Tree_Vertex * Node_Tree::get_vertex_by_nodekey(const Node_ID_key& nodekey) const {
+    auto it = processed_nodes.find(nodekey);
     if (it == processed_nodes.end()) return nullptr;
     return it->second;
+}
+
+Node_Tree_Vertex * Node_Tree::get_vertex_by_node(const Node& node) const {
+    return get_vertex_by_nodekey(node.get_id().key());
 }
 
 unsigned int Node_Tree::num_levels() const {
@@ -144,6 +154,120 @@ void Node_Tree::branch_sort_by_earliest_td_in_subtree() {
     for (auto & vertex : vertices) if (vertex.below.empty()) {
         propagate_up_earliest_td(vertex);
     }
+}
+
+// This returns a pointer to the superior with which this vertex causes
+// a TD order error, or nullptr.
+td_error_pair Node_Tree::td_order_error(const Node_Tree_Vertex& vertex) {
+    if (!vertex.node_ptr->is_active()) return td_error_pair();
+    for (const auto & sup_edge : vertex.node_ptr->sup_Edges()) {
+        Node * sup = sup_edge->get_sup();
+        if (sup->is_active()) {
+            Node_Tree_Vertex * sup_vertex = get_vertex_by_nodekey(sup_edge->get_sup_key());
+            if (sup_vertex) {
+                if (sup_vertex->td < vertex.td) return td_error_pair(const_cast<Node*>(sup), const_cast<Node*>(vertex.node_ptr));
+            }
+        }
+    }
+    return td_error_pair();
+}
+
+// Note that this has to use the target dates in the 'td' variable
+// of each vertex, because that tracks proposed solutions.
+td_error_pair Node_Tree::find_next_td_order_error() {
+    for (auto & vertex: vertices) {
+        td_error_pair errorpair = td_order_error(vertex);
+        if (errorpair.specifies_error()) return errorpair;
+    }
+    return td_error_pair();
+}
+
+void Node_Tree::propose_dependencies_td_change(const td_error_pair& errorpair) {
+    // Propose a new dep vertex td that has correct order.
+    Node_Tree_Vertex * depvertex = get_vertex_by_node(*errorpair.dep);
+    Node_Tree_Vertex * supvertex = get_vertex_by_node(*errorpair.sup);
+    time_t t_diff = 3600+(33*60); // *** We could use some random dusting here.
+    depvertex->td = supvertex->td - t_diff;
+    depvertex->tderror_node = errorpair.dep;
+}
+
+void Node_Tree::propose_superior_td_change(const td_error_pair& errorpair) {
+    // Propose a new sup vertex td that has correct order.
+    Node_Tree_Vertex * depvertex = get_vertex_by_node(*errorpair.dep);
+    Node_Tree_Vertex * supvertex = get_vertex_by_node(*errorpair.sup);
+    time_t t_diff = 3600+(33*60); // *** We could use some random dusting here.
+    supvertex->td = depvertex->td + t_diff;
+    supvertex->tderror_node = errorpair.dep;
+}
+
+/**
+ * Steps to create a recommended solution for TD errors:
+ * 1. Create an original TD list that goes along with the Nodes in a subtree.
+ * 2. Search the subtree for order errors.
+ * 3. If an error is found, propose a solution for that error and adjust the list of TDs accordingly and go to 2.
+ */
+bool Node_Tree::propose_td_solutions() {
+    // Initialize target dates of vertices.
+    for (auto & vertex: vertices) {
+        if (vertex.node_ptr) {
+            vertex.td = const_cast<Node*>(vertex.node_ptr)->effective_targetdate();
+        }
+    }
+    // Search the tree for order errors.
+    long limit = vertices.size()*2;
+    for (long i = 0; i<limit; i++) {
+        td_error_pair errorpair = find_next_td_order_error();
+        if (!errorpair.specifies_error()) return true;
+        if (errorpair.sup->td_fixed() || errorpair.sup->td_exact()) {
+            // Philosophy 1, dependencies must change (see readme.md).
+            propose_dependencies_td_change(errorpair);
+        } else {
+            // Philosophy 2, superior must change (see readme.md).
+            propose_superior_td_change(errorpair);
+        }
+    }
+    // If we got here then the limit was reached without solving all problems.
+    return false;
+}
+
+size_t Node_Tree::number_of_proposed_td_changes() const {
+    if (!nb.propose_td_solutions) return 0;
+    size_t count = 0;
+    for (const auto& vertex : vertices) {
+        if (vertex.td != const_cast<Node*>(vertex.node_ptr)->effective_targetdate()) count++;
+    }
+    return count;
+}
+
+std::string Node_Tree::list_of_proposed_td_changes_html() const {
+    if (!nb.propose_td_solutions) return "";
+    std::string changes_html;
+    for (const auto& vertex : vertices) {
+        if (vertex.td != const_cast<Node*>(vertex.node_ptr)->effective_targetdate()) {
+            changes_html += "<br>(Solving "+vertex.tderror_node->get_id_str()+") Node "+vertex.node_ptr->get_id_str()+": "+vertex.node_ptr->get_effective_targetdate_str()+" --> "+TimeStampYmdHM(vertex.td);
+        }
+    }
+    return changes_html;
+}
+
+std::string Node_Tree::get_td_changes_apply_url() const {
+    if (!nb.propose_td_solutions) return "";
+    std::string nodes_valuestr;
+    std::string tds_valuestr;
+    size_t count = 0;
+    for (const auto& vertex : vertices) {
+        if (vertex.td != const_cast<Node*>(vertex.node_ptr)->effective_targetdate()) {
+            if (count!=0) {
+                nodes_valuestr += ',';
+                tds_valuestr += ',';
+            }
+            nodes_valuestr += vertex.node_ptr->get_id_str();
+            tds_valuestr += TimeStampYmdHM(vertex.td);
+            count++;
+        }
+    }
+    std::string applychanges_url("/cgi-bin/fzeditbatch-cgi.py?action=targetdates&nodes="+nodes_valuestr+"&tds="+tds_valuestr);
+    return applychanges_url;
 }
 
 void Grid_Occupation::init(unsigned int r, unsigned int c) {
@@ -296,6 +420,9 @@ void Node_Grid::find_node_spans() {
 
 std::string Node_Grid::errors_str() const {
     std::string errors_list;
+    for (auto & err : tree.errors) {
+        errors_list += err + '\n';
+    }
     for (auto & err : errors) {
         errors_list += err + '\n';
     }
