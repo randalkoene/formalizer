@@ -9,7 +9,7 @@
 # full: [ node, weight, id, time.time(), type, hr_ideal_from, hr_ideal_to, description, state, ]
 #       weight is 1 to 5, weights are often given in accordance with discipline challenge or critical importance
 #       for number (rather than checkbox) lines, if the weight is negative then its absolute value is used
-#       when the vaue is non-empty, and if the weight is positive then it is multiplied with the number value
+#       when the value is non-empty, and if the weight is positive then it is multiplied with the number value
 # stored in JSON: [ id, time.time(), state, ]
 # NOTE: Horizontal lines are drawn using the WIZLINE_VISIBLE_TOPBORDER code, demarkating transitions
 #       to items with a different Node link.
@@ -44,6 +44,10 @@ WIZTABLE_LINES=[
 	[ '20081125102516.1', -5, 'emailparsed', 0, 'number', 7, 12, 'Emails parsed.', '' ],
 	[ '20081125102516.1', 10, 'emailurgent', 0, 'checkbox', 7, 12, 'Urgent emails identified.', '' ],
 	[ '20081125102516.1', -10, 'emailresp', 0, 'number', 7, 12, 'Emails responded to.', '' ],
+	[ '20081125102516.1', 4, 'signalcheck', 0, 'checkbox', 7, 12, 'Signal messages caught up.', '' ],
+	[ '20081125102516.1', 4, 'whatsappcheck', 0, 'checkbox', 7, 12, 'Whatsapp messages caught up.', '' ],
+	[ '20081125102516.1', 4, 'fbcheck', 0, 'checkbox', 7, 12, 'Messenger messages and Facebook caught up.', '' ],
+	[ '20081125102516.1', 4, 'chatcheck', 0, 'checkbox', 7, 12, 'Google chat messages and spaces caught up.', '' ],
 
 	[ '20140428114648.1', 2, 'neoprene', 0, 'checkbox', 7, 13, 'Wearing clothing where bloat/size is detectable (or neoprene).', '' ],
 	[ '20140428114648.1', 4, 'pushup2', 0, 'checkbox', 7, 13, 'Second push-ups or weights (e.g. during lunch).', '' ],
