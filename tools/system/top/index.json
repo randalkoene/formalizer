@@ -122,7 +122,7 @@
     },
     "Current Tracks: " : {
         "Threads" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?D=threads&T=true&u=204512311159&r=100",
+            "url" : "/cgi-bin/nodeboard-cgi.py?D=threads&T=true&u=204512311159&r=100&U=true",
             "window" : "_blank"
         },
         "IDEAL-SITUATION" : {

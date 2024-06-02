@@ -67,10 +67,10 @@ nodeboard::nodeboard():
     output_path("/var/www/html/formalizer/test_node_card.html"),
     graph_ptr(nullptr) {
 
-    // Still available: aejkNOpUwxyYzZ
-    add_option_args += "RGgn:L:D:l:t:m:f:c:Ii:F:u:H:TPO:e:b:M:Kp:B:N:C:r:S:Xo:";
+    // Still available: ajkwxyYz
+    add_option_args += "RGgn:L:D:l:t:m:f:c:IZUi:F:u:H:TPO:e:b:M:Kp:B:N:C:r:S:Xo:";
     add_usage_top += " [-R] [-G|-g] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
-        " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-Z] [-i <topic_id>,...] [-F <substring>]"
+        " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-Z] [-U] [-i <topic_id>,...] [-F <substring>]"
         " [-u <up-to>] [-H <board-header>] [-T] [-P] [-O earlier|later] [-e <errors-list>] [-b <before>] [-M <multiplier>] [-p <progress-state-file>]"
         " [-K] [-S <size-list>] [-B <topic-id>] [-N <near-term-days>] [-C <max-columns>] [-r <max-rows>] [-X] [-o <output-file|STDOUT>]";
 
@@ -91,7 +91,7 @@ void nodeboard::usage_hook() {
         "    -g Use grid to show superiors tree.\n"
         "    -n Node dependencies.\n"
         "    -L Use Nodes data in Named Node List.\n"
-        "    -D Dependencies of Nodes in Named Node List.\n"
+        "    -D Dependencies of Nodes in Named Node List.\n" // Used for Threads Board
         "    -l List of Named Node Lists.\n"
         "    -t List of Topics.\n"
         "\n"
@@ -104,12 +104,13 @@ void nodeboard::usage_hook() {
         "    -I Include completed Nodes.\n"
         "       This also includes Nodes with completion values < 0.\n"
         "    -Z Include zero required time Nodes.\n"
+        "    -U Exclude Nodes with the 'repeated' property (in Threads).\n"
         "    -i Filter to show only Nodes in one of the listed topics (by ID)\n"
         "    -F Filter to show only Nodes where the first 80 characters contain the\n"
         "       substring.\n"
         "    -u In -D mode, show only Nodes with target dates up to including <up-to>.\n"
         "    -H Board header.\n"
-        "    -T Threads.\n"
+        "    -T Threads.\n" // Used for Threads Board
         "    -P Progress analaysis.\n"
         "    -O Propose target date order error solutions. Use a philosophy that\n"
         "       prefers to push Nodes to 'earlier' or 'later' target dates.\n"
@@ -202,7 +203,7 @@ bool nodeboard::options_hook(char c, std::string cargs) {
         }
 
         case 'D': {
-            flowcontrol = flow_NNL_dependencies;
+            flowcontrol = flow_NNL_dependencies; // Used for Threads Board
             list_name = cargs;
             return true;
         }
@@ -244,6 +245,11 @@ bool nodeboard::options_hook(char c, std::string cargs) {
             return true;
         }
 
+        case 'U': {
+            norepeated = true;
+            return true;
+        }
+
         case 'i': {
             uri_encoded_filter_topics = uri_encode(cargs);
             return parse_filter_topics(cargs);
@@ -267,7 +273,7 @@ bool nodeboard::options_hook(char c, std::string cargs) {
         }
 
         case 'T': {
-            threads = true;
+            threads = true; // Used for Threads Board
             return true;
         }
 
@@ -461,6 +467,7 @@ nodeboard_options nodeboard::get_nodeboard_options() const {
     options.seconds_near_highlight = seconds_near_highlight;
     options.do_development_test = do_development_test;
     options.propose_td_solutions = propose_td_solutions;
+    options.norepeated = norepeated;
     return options;
 }
 
@@ -534,6 +541,9 @@ std::string nodeboard::build_nodeboard_cgi_call(const nodeboard_options & option
         } else {
             cgi_cmd += "&O=later";
         }
+    }
+    if (options.norepeated) {
+        cgi_cmd += "&U=true";
     }
     if (!filter_substring.empty()) {
         cgi_cmd += "&F="+uri_encoded_filter_substring;
@@ -1056,6 +1066,7 @@ std::string nodeboard::tosup_todep_html_buttons(const Node_ID_key & column_key) 
  * 2. The full Map_of_Subtrees is collected for the NNL of header Nodes
  *    before entering this function, and additional constraints are applied
  *    here before actually placing Nodes into the column.
+ * 3. This applies pruning if the 'norepeated' flag is on.
  */
 bool nodeboard::get_fulldepth_dependencies_column(std::string & column_header, Node_ID_key column_key, std::string & rendered_columns, const std::string extra_header = "") {
     if (!map_of_subtrees.is_subtree_head(column_key)) {
@@ -1077,6 +1088,12 @@ bool nodeboard::get_fulldepth_dependencies_column(std::string & column_header, N
             continue;
         }
         
+        if (norepeated) {
+            if (depnode_ptr->get_repeats()) {
+                continue;
+            }
+        }
+
         if (tdate <= nnl_deps_to_tdate) { // Apply possible target date constraint.
             if ((!nnl_deps_apply_maxrows) || (column_length < max_rows)) { // Apply max rows constraint.
                 auto noderenderresult = get_Node_alt_card(depnode_ptr, tdate, rendered_cards, const_cast<Node_Subtree*>(&subtree_set));
@@ -1314,6 +1331,18 @@ std::string nodeboard::with_and_without_inactive_Nodes_buttons() const {
     std::string alt_showcompleted_button = make_button(alt_showcompleted_url, alt_showcompleted_label.at(show_completed), false); // On new page.
     std::string alt_shownonmilestone_button = make_button(alt_shownonmilestone_url, alt_shownonmilestone_label.at(refresh._shownonmilestone), false); // On new page.
     return refresh_button + alt_showcompleted_button + alt_shownonmilestone_button;
+}
+
+/**
+ * Call this to generate the URL for a button that calls fzgraphsearch-cgi.py to
+ * produce a list of near-term (1 week) active Nodes in the subtree of node_ptr.
+ */
+std::string nodeboard::get_list_nearterm_Nodes_url() const {
+    if (!node_ptr) return "";
+
+    time_t t_limit = t_now + (7*86400); // one week out
+    std::string nearterm_url("/cgi-bin/fzgraphsearch-cgi.py?completion_lower=0.0&completion_upper=0.99&hours_lower=0.01&hours_upper=999999.0&TD_upper="+TimeStampYmdHM(t_limit)+"&sup_min=0&subtree="+node_ptr->get_id_str());
+    return nearterm_url;
 }
 
 bool node_board_render_random_test(nodeboard & nb) {
@@ -1574,6 +1603,7 @@ std::string prepare_headnode_description(nodeboard & nb, const Node & node) {
     return headnode_description;
 }
 
+// This is used to generate a Threads Board (and similar boards).
 bool node_board_render_NNL_dependencies(nodeboard & nb) {
     Named_Node_List_ptr namedlist_ptr = nb.graph().get_List(nb.list_name);
     if (!namedlist_ptr) {
@@ -1610,6 +1640,7 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
     }
 
     nb.map_of_subtrees.sort_by_targetdate = true;
+    //nb.map_of_subtrees.norepeated = nb.norepeated; // *** Not using this right now, as it probably breaks Node_Branch connections! See how we do this below instead.
     nb.map_of_subtrees.collect(nb.graph(), nb.list_name);
     if (!nb.map_of_subtrees.has_subtrees) return false;
 
@@ -1687,19 +1718,9 @@ bool node_board_render_dependencies_tree(nodeboard & nb) {
         nb.board_title = "Dependencies tree of Node "+nb.node_ptr->get_id_str();
     }
 
-    //std::string threads_option;
-    //if (nb.threads) threads_option = "&T=true";
-
-    //nb.board_title_extra = with_and_without_inactive_Nodes_buttons("G=true&n="+nb.node_ptr->get_id_str(), threads_option, nb.show_completed);
     nb.board_title_extra = nb.with_and_without_inactive_Nodes_buttons();
 
-    // if (nb.threads) {
-    //     nb.board_title_extra +=
-    //         "<b>Tree</b>:<br>"
-    //         "Where @VISOUTPUT: ...@ is defined in Node content it is shown as the expected advantageous non-internal (visible) output of a thread.<br>"
-    //         "Otherwise, an excerpt of Node content is shown as the thread header.<br>"
-    //         "The Nodes in a thread should be a clear set of steps leading to the output.";
-    // }
+    nb.board_title_extra += make_button(nb.get_list_nearterm_Nodes_url(), "List near-term Nodes", false);
 
     if (grid.number_of_proposed_td_changes()>0) {
         nb.board_title_extra += "\n<br>Number of proposed TD changes = "+std::to_string(grid.number_of_proposed_td_changes());
@@ -1744,12 +1765,6 @@ bool node_board_render_dependencies_tree(nodeboard & nb) {
     nb.num_columns = grid.occupied.columns_used(); //grid.col_total;
     nb.num_rows = grid.occupied.rows_used(); //grid.row_total;
 
-    // FZOUT("Number of rows: "+std::to_string(grid.row_total)+'\n');
-    // FZOUT("Number of columns: "+std::to_string(grid.col_total)+'\n');
-    // FZOUT("Number of elements: "+std::to_string(grid.num_elements())+'\n');
-
-    // FZOUT("Drawing board...\n"); std::cout.flush();
-
     return nb.make_multi_column_board(rendered_grid, kanban_alt_board_temp, true);
 }
 
@@ -1768,19 +1783,9 @@ bool node_board_render_superiors_tree(nodeboard & nb) {
         nb.board_title = "Superiors tree of Node "+nb.node_ptr->get_id_str();
     }
 
-    //std::string threads_option;
-    //if (nb.threads) threads_option = "&T=true";
-
-    //nb.board_title_extra = with_and_without_inactive_Nodes_buttons("g=true&n="+nb.node_ptr->get_id_str(), threads_option, nb.show_completed);
     nb.board_title_extra = nb.with_and_without_inactive_Nodes_buttons();
 
-    // if (nb.threads) {
-    //     nb.board_title_extra +=
-    //         "<b>Tree</b>:<br>"
-    //         "Where @VISOUTPUT: ...@ is defined in Node content it is shown as the expected advantageous non-internal (visible) output of a thread.<br>"
-    //         "Otherwise, an excerpt of Node content is shown as the thread header.<br>"
-    //         "The Nodes in a thread should be a clear set of steps leading to the output.";
-    // }
+    nb.board_title_extra += make_button(nb.get_list_nearterm_Nodes_url(), "List near-term Nodes", false);
 
     if (grid.number_of_proposed_td_changes()>0) {
         nb.board_title_extra += "\n<br>Number of proposed TD changes = "+std::to_string(grid.number_of_proposed_td_changes());
@@ -1822,12 +1827,6 @@ bool node_board_render_superiors_tree(nodeboard & nb) {
 
     nb.num_columns = grid.occupied.columns_used(); //grid.col_total;
     nb.num_rows = grid.occupied.rows_used(); //grid.row_total;
-
-    // FZOUT("Number of rows: "+std::to_string(grid.row_total)+'\n');
-    // FZOUT("Number of columns: "+std::to_string(grid.col_total)+'\n');
-    // FZOUT("Number of elements: "+std::to_string(grid.num_elements())+'\n');
-
-    // FZOUT("Drawing board...\n"); std::cout.flush();
 
     return nb.make_multi_column_board(rendered_grid, kanban_alt_board_temp, true);
 }

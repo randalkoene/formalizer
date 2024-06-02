@@ -104,7 +104,7 @@ bool Node_Dependencies_fulldepth(const Node* node_ptr, Subtree_Branch_Map & full
  * @return A map in which the keys are the Node IDs of Nodes in the NNL and
  *         the values are each a set of unique Nodes that are the dependencies.
  */
-map_of_subtrees_t Threads_Subtrees(Graph & graph, const std::string & nnl_str, bool sort_by_targetdate = false);
+map_of_subtrees_t Threads_Subtrees(Graph & graph, const std::string & nnl_str, bool sort_by_targetdate = false, bool norepeated = false);
 
 /**
  * See how this is used in fzgraphhtml and nodeboard.
@@ -117,6 +117,7 @@ public:
     map_of_subtrees_t map_of_subtrees;
     std::string subtrees_list_name;
     bool sort_by_targetdate = false;
+    bool norepeated = false; // *** Not using this right now, as it probably breaks Node_Branch connections!
     bool has_subtrees = false;
 
     Map_of_Subtrees() {}

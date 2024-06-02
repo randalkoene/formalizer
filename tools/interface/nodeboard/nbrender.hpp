@@ -87,16 +87,17 @@ struct CSV_Data_Day {
 
 struct nodeboard_options {
     flow_options _floption = flow_dependencies_tree;
-    bool _threads = false; // When true, prereqs/provides and possibly progress analysis may be included.
-    bool _showcompleted = false; // When true, include Nodes that are inactive.
-    bool _shownonmilestone = true; // When true, include Nodes that are not Milestones.
-    bool _progressanalysis = false; // When true (and _threads), include progress analysis.
-    float multiplier = 1.0; // Multiplier of vertical card height.
-    unsigned int maxcols = DEFAULTMAXCOLS; // Column limit for hierarchy board.
-    unsigned int maxrows = DEFAULTMAXROWS; // Row limit for hierarchy board and for NNL dependencies board.
-    time_t seconds_near_highlight = 0; // If non-zero, then highlight Nodes for which the target date is closer than this threshold difference.
-    bool propose_td_solutions = false;
-    bool do_development_test = false;
+    bool _threads = false;                  // When true, prereqs/provides and possibly progress analysis may be included.
+    bool _showcompleted = false;            // When true, include Nodes that are inactive.
+    bool _shownonmilestone = true;          // When true, include Nodes that are not Milestones.
+    bool _progressanalysis = false;         // When true (and _threads), include progress analysis.
+    float multiplier = 1.0;                 // Multiplier of vertical card height.
+    unsigned int maxcols = DEFAULTMAXCOLS;  // Column limit for hierarchy board.
+    unsigned int maxrows = DEFAULTMAXROWS;  // Row limit for hierarchy board and for NNL dependencies board.
+    time_t seconds_near_highlight = 0;      // If non-zero, then highlight Nodes for which the target date is closer than this threshold difference.
+    bool propose_td_solutions = false;      // When true, offer solutions to apply to deal with target date order errors.
+    bool norepeated = false;                // When true then do not show repeated Nodes in a generated Threads board.
+    bool do_development_test = false;       // When true, activate anything that is being tested under development.
 };
 
 struct nodeboard: public formalizer_standard_program {
@@ -176,6 +177,8 @@ struct nodeboard: public formalizer_standard_program {
 
     bool propose_td_solutions = false;
     bool prefer_earlier = true;
+
+    bool norepeated = false;
 
     bool do_development_test = false;
 
@@ -260,6 +263,8 @@ struct nodeboard: public formalizer_standard_program {
     bool make_multi_column_board(const std::string & rendered_columns, template_id_enum board_template = kanban_board_temp, bool specify_rows = false, const std::string & col_width = " 240px", const std::string & container_width = "230px", const std::string & card_width = "220px", const std::string & card_height = "390px");
 
     std::string with_and_without_inactive_Nodes_buttons() const;
+
+    std::string get_list_nearterm_Nodes_url() const;
 
 };
 

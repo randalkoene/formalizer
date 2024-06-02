@@ -230,11 +230,18 @@ void Node_Subtree::build_targetdate_sorted(Graph & graph) {
  * Collect the subtrees that are the full dependencies of all Nodes in a
  * Named Nodes List.
  * 
+ * Note that the 'norepeated' option is applied to the board contents after
+ * full dependencies trees are collected. This is done so that excluding
+ * repeated Nodes does not halt collection of dependencies in subtrees of
+ * such Nodes.
+ * 
  * @param nnl_str Named Nodes List.
+ * @param sort_by_targetdate Option to sort columns by target date.
+ * @param norepeated Option to exclude Nodes with the 'repeat' property.
  * @return A map in which the keys are the Node IDs of Nodes in the NNL and
  *         the values are each a set of unique Nodes that are the dependencies.
  */
-map_of_subtrees_t Threads_Subtrees(Graph & graph, const std::string & nnl_str, bool sort_by_targetdate) {
+map_of_subtrees_t Threads_Subtrees(Graph & graph, const std::string & nnl_str, bool sort_by_targetdate, bool norepeated) {
     map_of_subtrees_t map_of_subtrees;
 
     Named_Node_List_ptr namedlist_ptr = graph.get_List(nnl_str);
@@ -270,23 +277,43 @@ map_of_subtrees_t Threads_Subtrees(Graph & graph, const std::string & nnl_str, b
     for (unsigned int i = 0; i < namedlist_ptr->list.size(); i++) {
         Node_ID_key nkey = namedlist_ptr->list[i];
         Node_Subtree & subtree = map_of_subtrees[nkey];
+
+        // Check each Node collected in this subtree.
         std::vector<Node_ID_key> erase_from_this_tree;
-        for (auto & [dkey, dbranch]: subtree.map_by_key) { // Check each Node collected in this subtree.
-            // Inspect remaining subtrees for instances of the same Node.
-            for (unsigned int j = i+1; j < namedlist_ptr->list.size(); j++) {
-                Node_ID_key ckey = namedlist_ptr->list[j];
-                Node_Subtree & c_subtree = map_of_subtrees[ckey];
-                auto it = c_subtree.map_by_key.find(dkey);
-                if (it != c_subtree.map_by_key.end()) {
-                    if (it->second.strength <= dbranch.strength) {
-                        c_subtree.map_by_key.erase(dkey);
-                    } else {
+        for (auto & [dkey, dbranch]: subtree.map_by_key) {
+            bool dkey_erased = false;
+
+            // Apply optional removal of repeated Nodes.
+            if (norepeated) { // *** Oh-oh, this probably breaks Node_Branch connections, so we don't use this right now! See how nodeboard function node_board_render_NNL_dependencies() does this instead!
+                Node * d_node_ptr = graph.Node_by_id(dkey);
+                if (d_node_ptr) {
+                    if (d_node_ptr->get_repeats()) {
                         erase_from_this_tree.emplace_back(dkey); // cache this to prevent breaking the map while iterating it
-                        break; // skip the rest of the inner loop
+                        dkey_erased = true;
+                    }
+                }
+            }
+
+            if (!dkey_erased) {
+                // Inspect remaining subtrees for instances of the same Node.
+                for (unsigned int j = i+1; j < namedlist_ptr->list.size(); j++) {
+                    Node_ID_key ckey = namedlist_ptr->list[j];
+                    Node_Subtree & c_subtree = map_of_subtrees[ckey];
+
+                    auto it = c_subtree.map_by_key.find(dkey);
+                    if (it != c_subtree.map_by_key.end()) {
+                        if (it->second.strength <= dbranch.strength) {
+                            c_subtree.map_by_key.erase(dkey);
+                        } else {
+                            erase_from_this_tree.emplace_back(dkey); // cache this to prevent breaking the map while iterating it
+                            dkey_erased = true;
+                            break; // skip the rest of the inner loop
+                        }
                     }
                 }
             }
         }
+        
         // handle erasures in this subtree
         for (auto & ekey : erase_from_this_tree) {
             subtree.map_by_key.erase(ekey);
