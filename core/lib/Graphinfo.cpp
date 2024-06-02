@@ -159,8 +159,12 @@ std::string Node_Filter::str() {
 /**
  * Collect all unique Nodes in the dependencies tree of a Node.
  * 
+ * Note that do_not_follow should contain at least the ID key of node_ptr to prevent
+ * recursive follows. Also see how do_not_follow is used in Threads_Subtrees().
+ * 
  * @param node_ptr A valid pointer to Node.
  * @param fulldepth_dependencies A Subtree_Branch_Map container for the resulting set of dependencies.
+ * @param do_not_follow A set of Node ID keys that will not be followed when building the dependencies subtree.
  * @param cmp_method The method to use to propagate branch strength.
  * @param strength Incoming propagated branch strength. (The code -999.9 means that this is the first branch.)
  * @return True if successful.
@@ -557,6 +561,21 @@ targetdate_sorted_Nodes Nodes_subset(Graph & graph, const Node_Filter & nodefilt
                     if (!node_ptr->has_sup(node_ptr->get_id_str())) {
                         continue;
                     }
+                }
+            }
+        }
+        if (nodefilter.filtermask.Edit_subtreematch()) {
+            if (nodefilter.subtree_uptr) {
+                Subtree_Branch_Map& subtreemap = *(nodefilter.subtree_uptr.get());
+                if (subtreemap.find(node_ptr->get_id().key())==subtreemap.end()) {
+                    continue;
+                }
+            }
+        }
+        if (nodefilter.filtermask.Edit_nnltreematch()) {
+            if (nodefilter.nnltree_uptr) {
+                if (!nodefilter.nnltree_uptr->node_in_any_subtree(node_ptr->get_id().key())) {
+                    continue;
                 }
             }
         }

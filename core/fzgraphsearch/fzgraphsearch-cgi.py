@@ -54,6 +54,9 @@ sup_self = form.getvalue('sup_self')
 sup_none = form.getvalue('sup_none')
 sup_min = form.getvalue('sup_min')
 
+subtree = form.getvalue('subtree')
+nnltree = form.getvalue('nnltree')
+
 def append_to_str(strval: str) -> str:
     parval = eval(strval)
     if parval:
@@ -79,6 +82,8 @@ search_recreate_str += append_to_str('tdpatt_upper')
 search_recreate_str += append_to_str('sup_self')
 search_recreate_str += append_to_str('sup_none')
 search_recreate_str += append_to_str('sup_min')
+search_recreate_str += append_to_str('subtree')
+search_recreate_str += append_to_str('nnltree')
 if search_recreate_str[-1] == '&':
     search_recreate_str = search_recreate_str[:-1]
 
@@ -175,13 +180,13 @@ def Graph_search(searchstr: str, listname: str) -> bool:
             return False
     if hours_lower:
         try:
-            searchcmd += f" -m {int(hours_lower * 60)}"
+            searchcmd += f" -m {int(float(hours_lower) * 60)}"
         except:
             print(f'Unable to convert hours_lower ({hours_lower}) to integer minutes.')
             return False
     if hours_upper:
         try:
-            searchcmd += f" -M {int(hours_upper * 60)}"
+            searchcmd += f" -M {int(float(hours_upper) * 60)}"
         except:
             print(f'Unable to convert hours_upper ({hours_upper}) to integer minutes.')
             return False
@@ -219,6 +224,11 @@ def Graph_search(searchstr: str, listname: str) -> bool:
     if sup_min:
         if int(sup_min)>0:
             searchcmd += f' -S {sup_min}+'
+
+    if subtree:
+        searchcmd += f' -B {subtree}'
+    if nnltree:
+        searchcmd += f' -N {nnltree}'
 
     if verbose:
         searchcmd += ' -V'

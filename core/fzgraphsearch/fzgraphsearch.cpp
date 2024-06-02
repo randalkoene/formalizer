@@ -39,8 +39,10 @@ fzgraphsearch fzgs;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphsearch::fzgraphsearch() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "s:l:i:I:zc:C:m:M:t:T:rRp:P:b:d:D:S:";
-    add_usage_top += " [-s <search-string>] [-z] [-i <date-time>] [-I <date-time>] [-c <comp_min>] [-C <comp_max>] [-m <mins_min>] [-M <mins_max>] [-t <TD_min>] [-T <TD_max>] [-p <tdprop_1>] [-P <tdprop_2>] [-b <tdprop-list>] [-r|-R] [-d <tdpatt_1>] [-D <tdpatt_2>] [-S <sup-spec>] -l <list-name>";
+    add_option_args += "s:l:i:I:zc:C:m:M:t:T:rRp:P:b:d:D:S:B:N:";
+    add_usage_top += " [-s <search-string>] [-z] [-i <date-time>] [-I <date-time>] [-c <comp_min>] [-C <comp_max>] [-m <mins_min>]"
+                     " [-M <mins_max>] [-t <TD_min>] [-T <TD_max>] [-p <tdprop_1>] [-P <tdprop_2>] [-b <tdprop-list>] [-r|-R]"
+                     " [-d <tdpatt_1>] [-D <tdpatt_2>] [-S <sup-spec>] [-B <top-node>] [-N <listname>] -l <list-name>";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("Target date property options are: unspecified, variable, inherit, fixed, exact.\n"
                          "Repeat pattern options are: nonrepeating, weekly, biweekly, monthly,\n"
@@ -73,6 +75,8 @@ void fzgraphsearch::usage_hook() {
           "    -d Nodes with repeat pattern <tdpatt_1>.\n"
           "    -D Nodes with repeat pattern <tdpatt_2>.\n"
           "    -S Nodes with superiors: self, 0, n+.\n"
+          "    -B Nodes belonging to the subtree of <top-node>.\n"
+          "    -N Nodes in the subtree map of NNL <listname>.\n"
           );
 }
 
@@ -122,6 +126,31 @@ bool fzgraphsearch::get_superiors_specification(const std::string & cargs) {
     }
     nodefilter.filtermask.set_Edit_supspecmatch();
     return res;
+}
+
+bool fzgraphsearch::get_subtree(const std::string & cargs) {
+    Node * node_ptr = graph().Node_by_idstr(cargs);
+    if (!node_ptr) {
+        return standard_error("Subtree top Node not found in Graph: "+cargs, __func__);
+    }
+    nodefilter.subtree_uptr = std::make_unique<Subtree_Branch_Map>();
+    Subtree_Branch_Map& subtree = *(nodefilter.subtree_uptr.get());
+    std::set<Node_ID_key> do_not_follow;
+    do_not_follow.emplace(node_ptr->get_id().key());
+    if (!Node_Dependencies_fulldepth(node_ptr, subtree, do_not_follow)) {
+        return standard_error("Full depth dependencies collection failed for Node "+cargs, __func__);
+    }
+    nodefilter.filtermask.set_Edit_subtreematch();
+    return true;
+}
+
+bool fzgraphsearch::get_nnltree(const std::string & cargs) {
+    nodefilter.nnltree_uptr = std::make_unique<Map_of_Subtrees>();
+    if (!nodefilter.nnltree_uptr->collect(graph(), cargs)) {
+        return standard_error("Unable to collect map of subtrees for NNL: "+cargs, __func__);
+    }
+    nodefilter.filtermask.set_Edit_nnltreematch();
+    return true;
 }
 
 /**
@@ -248,6 +277,14 @@ bool fzgraphsearch::options_hook(char c, std::string cargs) {
 
     case 'S': {
         return get_superiors_specification(cargs);
+    }
+
+    case 'B': {
+        return get_subtree(cargs);
+    }
+
+    case 'N': {
+        return get_nnltree(cargs);
     }
 
     case 'l': {

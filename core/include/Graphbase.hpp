@@ -346,6 +346,8 @@ public:
         priority     = 0b0000'0000'0000'1000'0000'0000'0000'0000, // An Edge edit.
         tdpropbinpat = 0b0000'0000'0001'0000'0000'0000'0000'0000, // A Node edit (or search).
         supspecmatch = 0b0000'0000'0010'0000'0000'0000'0000'0000, // A Node search with specified superiors match.
+        subtreematch = 0b0000'0000'0100'0000'0000'0000'0000'0000, // A Node search that requires belonging to a subtree.
+        nnltreematch = 0b0000'0000'1000'0000'0000'0000'0000'0000, // A Node search that requires belonging to a map of subtrees with top Nodes in a NNL.
         error        = 0b0100'0000'0000'0000'0000'0000'0000'0000  // see how this is used in Node_advance_repeating()
     };
 protected:
@@ -376,6 +378,8 @@ public:
     void set_Edit_urgency() { editflags |= Edit_flags::urgency; }
     void set_Edit_priority() { editflags |= Edit_flags::priority; }
     void set_Edit_supspecmatch() { editflags |= Edit_flags::supspecmatch; }
+    void set_Edit_subtreematch() { editflags |= Edit_flags::subtreematch; }
+    void set_Edit_nnltreematch() { editflags |= Edit_flags::nnltreematch; }
     void set_Edit_error() { editflags |= Edit_flags::error; }
     bool Edit_topics() const { return editflags & Edit_flags::topics; }
     bool Edit_topicrels() const { return editflags & Edit_flags::topicrels; }
@@ -397,6 +401,8 @@ public:
     bool Edit_urgency() const { return editflags & Edit_flags::urgency; }
     bool Edit_priority() const { return editflags & Edit_flags::priority; }
     bool Edit_supspecmatch() const { return editflags & Edit_flags::supspecmatch; }
+    bool Edit_subtreematch() const { return editflags & Edit_flags::subtreematch; }
+    bool Edit_nnltreematch() const { return editflags & Edit_flags::nnltreematch; }
     bool Edit_error() const { return editflags & Edit_flags::error; }
     bool None() const { return editflags == 0; }
 };

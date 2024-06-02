@@ -14,6 +14,7 @@
 #define __GRAPHINFO_HPP (__COREVERSION_HPP)
 
 // std
+#include <memory>
 
 // core
 #include "Graphtypes.hpp"
@@ -50,25 +51,6 @@ unsigned long Edges_with_data(Graph & graph);
  */
 std::vector<std::string> Topic_IDs_to_Tags(Graph & graph, std::vector<Topic_ID> IDs_vec);
 
-/**
- * Filter class that helps construct filter specifications. This can be
- * used to search for Node subsets, for example.
- */
-struct Node_Filter {
-    time_t t_created_lowerbound = RTt_unspecified;
-    time_t t_created_upperbound = RTt_unspecified;
-    Node_data lowerbound; // values must be >= to these thresholds (where it makes sense)
-    Node_data upperbound; // values must be <= to these thresholds (where it makes sense)
-    tdproperty_binary_pattern tdpropbinpattern;
-    bool case_sensitive = true;
-    Edit_flags filtermask;
-    bool self_is_superior = false; // supspec_match filter
-    bool has_no_superiors = false; // supspec_match filter
-    unsigned int at_least_n_superiors = 0;  // supspec_match filter
-
-    std::string str();
-};
-
 struct Node_Branch {
     enum branch_strength {
         minimum_importance,
@@ -102,8 +84,14 @@ typedef std::map<Node_ID_key, Node_Subtree, std::less<Node_ID_key>> map_of_subtr
 /**
  * Collect all unique Nodes in the dependencies tree of a Node.
  * 
+ * Note that do_not_follow should contain at least the ID key of node_ptr to prevent
+ * recursive follows. Also see how do_not_follow is used in Threads_Subtrees().
+ * 
  * @param node_ptr A valid pointer to Node.
- * @param fulldepth_dependencies A base_Node_Set container for the resulting set of dependencies.
+ * @param fulldepth_dependencies A Subtree_Branch_Map container for the resulting set of dependencies.
+ * @param do_not_follow A set of Node ID keys that will not be followed when building the dependencies subtree.
+ * @param cmp_method The method to use to propagate branch strength.
+ * @param strength Incoming propagated branch strength. (The code -999.9 means that this is the first branch.)
  * @return True if successful.
  */
 bool Node_Dependencies_fulldepth(const Node* node_ptr, Subtree_Branch_Map & fulldepth_dependencies, const std::set<Node_ID_key> & do_not_follow, Node_Branch::branch_strength cmp_method = Node_Branch::none, float strength = -999.9);
@@ -183,6 +171,27 @@ std::vector<Prerequisite> get_prerequisites(const Node & node, bool check_prereq
 std::vector<std::string> get_provides_capabilities(const Node & node);
 
 void check_prerequisites_provided_by_dependencies(const Node & node, std::vector<Prerequisite> & prereqs, int go_deeper = 10);
+
+/**
+ * Filter class that helps construct filter specifications. This can be
+ * used to search for Node subsets, for example.
+ */
+struct Node_Filter {
+    time_t t_created_lowerbound = RTt_unspecified;
+    time_t t_created_upperbound = RTt_unspecified;
+    Node_data lowerbound; // values must be >= to these thresholds (where it makes sense)
+    Node_data upperbound; // values must be <= to these thresholds (where it makes sense)
+    tdproperty_binary_pattern tdpropbinpattern;
+    bool case_sensitive = true;
+    Edit_flags filtermask;
+    bool self_is_superior = false; // supspec_match filter
+    bool has_no_superiors = false; // supspec_match filter
+    unsigned int at_least_n_superiors = 0;  // supspec_match filter
+    std::unique_ptr<Subtree_Branch_Map> subtree_uptr; // must be valid for Edit_subtreematch()
+    std::unique_ptr<Map_of_Subtrees> nnltree_uptr; // must be valid for Edit_nnltreematch()
+
+    std::string str();
+};
 
 /**
  * Finds all Nodes that match a specified Node_Filter.

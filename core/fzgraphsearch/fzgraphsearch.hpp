@@ -55,6 +55,10 @@ struct fzgraphsearch: public formalizer_standard_program {
 
     bool get_superiors_specification(const std::string & cargs);
 
+    bool get_subtree(const std::string & cargs);
+
+    bool get_nnltree(const std::string & cargs);
+
     virtual bool options_hook(char c, std::string cargs);
 
     void init_top(int argc, char *argv[]);
