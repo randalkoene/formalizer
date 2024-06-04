@@ -56,7 +56,7 @@ WIZTABLE_LINES=[
 	[ '20140921041431.1', 4, 'lessthan300', 0, 'checkbox', 8, 13, 'Had less than 300 calories in the morning.', ''],
 	[ '20140921041431.1', 3, 'morningfast', 0, 'checkbox', 8, 13, 'Did not eat in the morning.', ''],
 
-	[ '20040402045825.1', 5, 'firstwork', 0, 'checkbox', 13, 16, 'Managed at least 4 hours of actual work progress in the first miniday.', ''],
+	[ '20040402045825.1', 5, 'firstwork', 0, 'checkbox', 13, 16, 'Managed at least 4 hours of actual work progress in the first miniday (by 2pm).', ''],
 
 	[ '20100403134619.1', 4, 'endurance', 0, 'checkbox', 9, 22, 'Endurance exercise (e.g rowing, dancing, rollerblading).', '' ],
 	[ '20100403134619.1', 4, 'pushup3', 0, 'checkbox', 20, 24, 'Third push-ups or weights (e.g. during dinner).', '' ],
