@@ -30,6 +30,7 @@
     std::string template_dir("./templates");
 #endif
 
+#define INCLUDE_SKIP_BUTTON
 
 using namespace fz;
 
@@ -261,7 +262,11 @@ struct line_render_parameters {
         }
     }
 
+#ifndef INCLUDE_SKIP_BUTTON
     std::string render_tdproperty(const Node & node) {
+#else
+    std::string render_tdproperty(const Node & node, bool with_skip_button = false) {
+#endif
         std::string tdpropstr;
         tdpropstr.reserve(20);
         td_property tdprop = node.get_tdproperty();
@@ -272,7 +277,15 @@ struct line_render_parameters {
         tdpropstr += td_property_str[tdprop];
         if (boldit) {
             if (node.get_repeats()) {
+#ifndef INCLUDE_SKIP_BUTTON
                 tdpropstr += '*';
+#else
+                if (with_skip_button) {
+                    tdpropstr += " <button class=\"tiny_green\" onclick=\"window.open('/cgi-bin/fzedit-cgi.py?action=skip&num_skip=1&id="+node.get_id_str()+"','_blank');\">skip</button>";
+                } else {
+                    tdpropstr += '*';
+                }
+#endif
             }
             tdpropstr += "</b>";
         }
@@ -370,7 +383,15 @@ struct line_render_parameters {
         varvals.emplace("req_hrs",to_precision_string(hours_to_show));
         day_total_hrs += hours_to_show;
         // -- Target date property
+#ifdef INCLUDE_SKIP_BUTTON
+        if (node.get_repeats() && (tdate == const_cast<Node*>(&node)->effective_targetdate())) { // render tdproperty with skip button
+            varvals.emplace("tdprop",render_tdproperty(node, true));
+        } else {
+            varvals.emplace("tdprop",render_tdproperty(node));
+        }
+#else
         varvals.emplace("tdprop",render_tdproperty(node));
+#endif
         // -- Content excerpt
         std::string htmltext(node.get_text().c_str());
         Boolean_Tag_Flags::boolean_flag boolean_tag;

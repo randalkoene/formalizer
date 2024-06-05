@@ -266,7 +266,7 @@ def nonlocal_fztask_page():
         fztask_webpage += ("""<td class="stateinfo"></td>\n"""
         """</tr>\n"""
         """<tr>\n"""
-        """<td>4. <button class="button button2" onclick="window.open('/select.html','_blank');">Select Node for Next Log chunk</button></td>\n"""
+        """<td>4. <button class="button button2" onclick="window.open('/select.html','_blank');">Select Node for Next Log chunk</button><br>\n<button class="button button1" onclick="window.open('/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20','_blank');">Proposed Calendar Schedule</button></td>\n"""
         """<td class="stateinfo"><table><tbody>\n"""
         f'{selected_node_HTML}\n'
         f"""</tbody></table></td></tr>\n"""
