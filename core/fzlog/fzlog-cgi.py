@@ -4,6 +4,15 @@
 #
 # This CGI handler provides a web interface to fzlog.
 
+# Notes:
+# 1. When 'action=open' calls 'open_new_Log_chunk()', and all goes well,
+#    that function also updates the time stamp in the signal file.
+#    That signal file should be read by the logautoupdate.js script that
+#    is embedded in the Log page, which automatically refreshes the
+#    most recent Log shown there. Whether that script is working can be
+#    seen by checking the time stamps indicated at the bottom of the Log
+#    page.
+
 # Import modules for CGI handling 
 try:
     import cgitb; cgitb.enable()

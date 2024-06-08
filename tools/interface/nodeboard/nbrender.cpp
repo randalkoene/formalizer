@@ -1068,7 +1068,7 @@ std::string nodeboard::tosup_todep_html_buttons(const Node_ID_key & column_key) 
  *    here before actually placing Nodes into the column.
  * 3. This applies pruning if the 'norepeated' flag is on.
  */
-bool nodeboard::get_fulldepth_dependencies_column(std::string & column_header, Node_ID_key column_key, std::string & rendered_columns, const std::string extra_header = "") {
+bool nodeboard::get_fulldepth_dependencies_column(std::string & column_header, Node_ID_key column_key, Threads_Board_Data & board_data, const std::string extra_header) {
     if (!map_of_subtrees.is_subtree_head(column_key)) {
         standard_error("Node "+column_key.str()+" is not a head Node in NNL '"+map_of_subtrees.subtrees_list_name+"', skipping", __func__);
         return false;
@@ -1076,8 +1076,8 @@ bool nodeboard::get_fulldepth_dependencies_column(std::string & column_header, N
 
     std::string rendered_cards;
 
-    float tot_required_hrs = 0;
-    float tot_completed_hrs = 0;
+    float tot_required_s = 0;
+    float tot_completed_s = 0;
     unsigned int active_rendered = 0;
     unsigned int column_length = 0;
     // Add all dependencies found to the column as cards.
@@ -1128,13 +1128,13 @@ bool nodeboard::get_fulldepth_dependencies_column(std::string & column_header, N
                 completion = 1.0;
             }
         }
-        tot_required_hrs += required;
-        tot_completed_hrs += (required*completion);
+        tot_required_s += required;
+        tot_completed_s += (required*completion);
     }
 
     float thread_progress = 0;
-    if (tot_required_hrs > 0.0) {
-        thread_progress = 100.0 * tot_completed_hrs / tot_required_hrs;
+    if (tot_required_s > 0.0) {
+        thread_progress = 100.0 * tot_completed_s / tot_required_s;
     }
     std::string extra_header_with_progress = extra_header + "<br>Progress: " + to_precision_string(thread_progress, 1) + "&#37;";
     extra_header_with_progress += tosup_todep_html_buttons(column_key);
@@ -1159,7 +1159,10 @@ bool nodeboard::get_fulldepth_dependencies_column(std::string & column_header, N
         column_header = "<span style=\"color:red;\">"+column_header+"</span>";
     }
 
-    return get_column(column_header, rendered_cards, rendered_columns, extra_header_with_progress, kanban_alt_column_temp);
+    board_data.board_tot_required_s += tot_required_s;
+    board_data.board_tot_completed_s += tot_completed_s;
+
+    return get_column(column_header, rendered_cards, board_data.rendered_columns, extra_header_with_progress, kanban_alt_column_temp);
 }
 
 bool nodeboard::get_NNL_column(const std::string & nnl_str, std::string & rendered_columns) {
@@ -1603,6 +1606,18 @@ std::string prepare_headnode_description(nodeboard & nb, const Node & node) {
     return headnode_description;
 }
 
+std::string prepare_threads_board_topdata(const Threads_Board_Data& board_data) {
+    std::string boarddata_str;
+    boarddata_str.reserve(1024);
+
+    boarddata_str += "<br>Hours required: "+to_precision_string(board_data.board_tot_required_s/3600.0, 1);
+    boarddata_str += " (Hours completed: "+to_precision_string(board_data.board_tot_completed_s/3600.0, 1);
+    boarddata_str += ") Hours available: "+to_precision_string(float(board_data.board_seconds_to_targetdate)/3600.0, 1);
+    boarddata_str += " (to "+TimeStampYmdHM(board_data.board_max_top_nodes_targetdate)+')';
+
+    return boarddata_str;
+}
+
 // This is used to generate a Threads Board (and similar boards).
 bool node_board_render_NNL_dependencies(nodeboard & nb) {
     Named_Node_List_ptr namedlist_ptr = nb.graph().get_List(nb.list_name);
@@ -1648,7 +1663,7 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
         nb.node_total = nb.map_of_subtrees.total_node_count();
     }
 
-    std::string rendered_columns;
+    Threads_Board_Data data;
 
     for (const auto & nkey : namedlist_ptr->list) {
 
@@ -1659,19 +1674,28 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
             continue;
         }
 
+        time_t td_threadtop = node_ptr->effective_targetdate();
+        if (td_threadtop > data.board_max_top_nodes_targetdate) {
+            data.board_max_top_nodes_targetdate = td_threadtop;
+        }
+
         // TODO: *** Should progress analysis also be applied to the header Node?
 
         std::string idtext(nkey.str());
-        std::string headnode_id_link = "<a href=\"/cgi-bin/fzlink.py?id="+idtext+"\" target=\"_blank\">"+idtext+"</a>";
-        headnode_id_link += "<button class=\"tiny_button tiny_wider\" onclick=\"window.open('/cgi-bin/nodeboard-cgi.py?n="+idtext+"&G=true&T=true&C=300&B=79&tdorder=true&tdbad=true&tdfar=true','_blank');\">DEP tree</button>";
+        std::string headnode_data_and_links = "<a href=\"/cgi-bin/fzlink.py?id="+idtext+"\" target=\"_blank\">"+idtext+"</a>";
+        headnode_data_and_links += "<button class=\"tiny_button tiny_wider\" onclick=\"window.open('/cgi-bin/nodeboard-cgi.py?n="+idtext+"&G=true&T=true&C=300&B=79&tdorder=true&tdbad=true&tdfar=true','_blank');\">DEP tree</button>";
+        headnode_data_and_links += '('+node_ptr->get_effective_targetdate_str()+')';
 
         std::string headnode_description(prepare_headnode_description(nb, *node_ptr));
 
-        nb.get_fulldepth_dependencies_column(headnode_description, nkey, rendered_columns, headnode_id_link);
+        nb.get_fulldepth_dependencies_column(headnode_description, nkey, data, headnode_data_and_links);
 
     }
 
-    return nb.make_multi_column_board(rendered_columns, kanban_alt_board_temp, false, nb.grid_column_width, nb.column_container_width, nb.card_width, nb.card_height);
+    data.board_seconds_to_targetdate = data.board_max_top_nodes_targetdate - nb.t_now;
+    nb.board_title_extra += prepare_threads_board_topdata(data);
+
+    return nb.make_multi_column_board(data.rendered_columns, kanban_alt_board_temp, false, nb.grid_column_width, nb.column_container_width, nb.card_width, nb.card_height);
 }
 
 // Show if the grid has been cropped in rows or columns.

@@ -125,6 +125,10 @@
             "url" : "/cgi-bin/nodeboard-cgi.py?D=threads&T=true&u=204512311159&r=100&U=true",
             "window" : "_blank"
         },
+        "Week Goals" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?D=week_main_goals&T=true&u=204512311159&r=100&U=true",
+            "window" : "_blank"
+        },
         "IDEAL-SITUATION" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20190306192914.1&G=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
             "window" : "_blank"

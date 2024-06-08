@@ -85,6 +85,16 @@ struct CSV_Data_Day {
 
 };
 
+// This is used to collect information to render an NNL dependencies board
+// such as a Threads Board.
+struct Threads_Board_Data {
+    std::string rendered_columns;
+    float board_tot_required_s = 0;
+    float board_tot_completed_s = 0;
+    time_t board_max_top_nodes_targetdate = 0;
+    time_t board_seconds_to_targetdate = 0;
+};
+
 struct nodeboard_options {
     flow_options _floption = flow_dependencies_tree;
     bool _threads = false;                  // When true, prereqs/provides and possibly progress analysis may be included.
@@ -248,7 +258,7 @@ struct nodeboard: public formalizer_standard_program {
 
     std::string tosup_todep_html_buttons(const Node_ID_key & column_key);
 
-    bool get_fulldepth_dependencies_column(std::string & column_header, Node_ID_key column_key, std::string & rendered_columns, const std::string extra_header);
+    bool get_fulldepth_dependencies_column(std::string & column_header, Node_ID_key column_key, Threads_Board_Data & board_data, const std::string extra_header = "");
 
     bool get_NNL_column(const std::string & nnl_str, std::string & rendered_columns);
 
