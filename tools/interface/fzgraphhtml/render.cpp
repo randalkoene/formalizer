@@ -415,7 +415,7 @@ struct line_render_parameters {
         varvals.emplace("fzserverpq", fzgh.replacements[fzserverpq_address]); // graph_ptr->get_server_full_address()
         // -- Do-link
         if (not_a_repeat && ((fzgh.config.max_do_links==0) || (fzgh.do_links_rendered < fzgh.config.max_do_links))) {
-            varvals.emplace("do_link", " <a class=\"nnl\" href=\"/cgi-bin/fzlog-cgi.py?action=open&node="+nodestr+"\">[do]</a>");
+            varvals.emplace("do_link", " <a class=\"nnl\" href=\"/cgi-bin/fzlog-cgi.py?action=open&node="+nodestr+"\" target=\"_blank\">[do]</a>");
             fzgh.do_links_rendered++;
         } else {
             varvals.emplace("do_link", "");

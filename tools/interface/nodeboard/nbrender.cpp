@@ -1052,6 +1052,28 @@ std::string nodeboard::tosup_todep_html_buttons(const Node_ID_key & column_key) 
         + column_key_str+"');\">mkwsup</button></span>";
 }
 
+struct required_completed {
+    float required_s;
+    float completed_s;
+};
+
+required_completed get_required_completed(const Node& node) {
+    required_completed reqcomp;
+    float completion = node.get_completion();
+    reqcomp.required_s = node.get_required();
+    if (completion < 0.0) {
+        completion = 1.0;
+        reqcomp.required_s = 0.0;
+    } else {
+        if (completion > 1.0) {
+            reqcomp.required_s = reqcomp.required_s*completion;
+            completion = 1.0;
+        }
+    }
+    reqcomp.completed_s = reqcomp.required_s*completion;   
+    return reqcomp;
+}
+
 /**
  * This places the full dependencies tree into a single column according to
  * specified constraints and without duplicating Nodes across different
@@ -1117,19 +1139,9 @@ bool nodeboard::get_fulldepth_dependencies_column(std::string & column_header, N
         }
 
         // Obtain contributions to thread progress.
-        float completion = depnode_ptr->get_completion();
-        float required = depnode_ptr->get_required();
-        if (completion < 0.0) {
-            completion = 1.0;
-            required = 0.0;
-        } else {
-            if (completion > 1.0) {
-                required = required*completion;
-                completion = 1.0;
-            }
-        }
-        tot_required_s += required;
-        tot_completed_s += (required*completion);
+        auto reqcomp = get_required_completed(*depnode_ptr);
+        tot_required_s += reqcomp.required_s;
+        tot_completed_s += reqcomp.completed_s;
     }
 
     float thread_progress = 0;
@@ -1159,6 +1171,8 @@ bool nodeboard::get_fulldepth_dependencies_column(std::string & column_header, N
         column_header = "<span style=\"color:red;\">"+column_header+"</span>";
     }
 
+    board_data.invested_hrs.emplace_back(tot_completed_s/3600.0);
+    board_data.remaining_hrs.emplace_back((tot_required_s - tot_completed_s)/3600.0);
     board_data.board_tot_required_s += tot_required_s;
     board_data.board_tot_completed_s += tot_completed_s;
 
@@ -1610,10 +1624,35 @@ std::string prepare_threads_board_topdata(const Threads_Board_Data& board_data) 
     std::string boarddata_str;
     boarddata_str.reserve(1024);
 
+    std::string nodes_str;
+    for (size_t i = 0; i < board_data.topnodes.size(); i++) {
+        if (i>0) {
+            nodes_str += ',';
+        }
+        nodes_str += board_data.topnodes.at(i).str();
+    }
+
+    std::string remaining_str;
+    for (size_t i = 0; i < board_data.remaining_hrs.size(); i++) {
+        if (i>0) {
+            remaining_str += ',';
+        }
+        remaining_str += to_precision_string(board_data.remaining_hrs.at(i), 1);
+    }
+
+    std::string invested_str;
+    for (size_t i = 0; i < board_data.invested_hrs.size(); i++) {
+        if (i>0) {
+            invested_str += ',';
+        }
+        invested_str += to_precision_string(board_data.invested_hrs.at(i), 1);
+    }
+
     boarddata_str += "<br>Hours required: "+to_precision_string(board_data.board_tot_required_s/3600.0, 1);
     boarddata_str += " (Hours completed: "+to_precision_string(board_data.board_tot_completed_s/3600.0, 1);
     boarddata_str += ") Hours available: "+to_precision_string(float(board_data.board_seconds_to_targetdate)/3600.0, 1);
-    boarddata_str += " (to "+TimeStampYmdHM(board_data.board_max_top_nodes_targetdate)+')';
+    boarddata_str += " (to "+TimeStampYmdHM(board_data.board_max_top_nodes_targetdate);
+    boarddata_str += ") <button onclick=\"window.open('/cgi-bin/weekreview.py?nodes="+nodes_str+"&invested="+invested_str+"&remaining="+remaining_str+"','_blank');\">Plot</button>";
 
     return boarddata_str;
 }
@@ -1674,6 +1713,7 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
             continue;
         }
 
+        data.topnodes.emplace_back(nkey);
         time_t td_threadtop = node_ptr->effective_targetdate();
         if (td_threadtop > data.board_max_top_nodes_targetdate) {
             data.board_max_top_nodes_targetdate = td_threadtop;
@@ -1689,6 +1729,13 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
         std::string headnode_description(prepare_headnode_description(nb, *node_ptr));
 
         nb.get_fulldepth_dependencies_column(headnode_description, nkey, data, headnode_data_and_links);
+
+        // include data for top node
+        auto topnode_reqcomp = get_required_completed(*node_ptr);
+        data.board_tot_required_s += topnode_reqcomp.required_s;
+        data.board_tot_completed_s += topnode_reqcomp.completed_s;
+        data.invested_hrs.back() += (topnode_reqcomp.completed_s/3600.0);
+        data.remaining_hrs.back() += ((topnode_reqcomp.required_s - topnode_reqcomp.completed_s)/3600.0);
 
     }
 

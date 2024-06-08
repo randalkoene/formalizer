@@ -93,6 +93,9 @@ struct Threads_Board_Data {
     float board_tot_completed_s = 0;
     time_t board_max_top_nodes_targetdate = 0;
     time_t board_seconds_to_targetdate = 0;
+    std::vector<Node_ID_key> topnodes;
+    std::vector<float> invested_hrs;
+    std::vector<float> remaining_hrs;
 };
 
 struct nodeboard_options {
