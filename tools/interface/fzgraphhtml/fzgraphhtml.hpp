@@ -68,6 +68,7 @@ public:
     int timezone_offset_hours = 0;
     bool tzadjust_day_separators = false;
     bool show_tzadjust = true; // Show effects of @TZADJUST@ in next Nodes lists generated.
+    unsigned int max_do_links = 0; // 0 means no maximum.
 };
 
 
@@ -98,6 +99,8 @@ struct fzgraphhtml: public formalizer_standard_program {
     bool with_repeats = false;
 
     time_t t_last_rendered = 0;
+
+    unsigned int do_links_rendered = 0;
 
     Graph * graph_ptr = nullptr;
 

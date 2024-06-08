@@ -5,5 +5,6 @@
     "interpret_text": "detect_links",
     "show_current_time": "true",
     "timezone_offset_hours": "0",
-    "tzadjust_day_separators": "true"
+    "tzadjust_day_separators": "true",
+    "max_do_links": "64"
 }

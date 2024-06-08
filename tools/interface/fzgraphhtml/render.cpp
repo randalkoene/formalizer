@@ -231,6 +231,7 @@ struct line_render_parameters {
         }
         varvals.emplace("fzserverpq","");
         varvals.emplace("srclist","");
+        varvals.emplace("do_link", "");
         rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
         day_total_hrs = 0.0;
         for (auto & [ flag, hours ] : day_category_hrs) {
@@ -258,6 +259,7 @@ struct line_render_parameters {
             varvals.emplace("excerpt","<b>"+WeekDay(t)+"</b>");
             varvals.emplace("fzserverpq","");
             varvals.emplace("srclist","");
+            varvals.emplace("do_link", "");
             rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
         }
     }
@@ -384,7 +386,8 @@ struct line_render_parameters {
         day_total_hrs += hours_to_show;
         // -- Target date property
 #ifdef INCLUDE_SKIP_BUTTON
-        if (node.get_repeats() && (tdate == const_cast<Node*>(&node)->effective_targetdate())) { // render tdproperty with skip button
+        bool not_a_repeat = (!node.get_repeats()) || (tdate == const_cast<Node*>(&node)->effective_targetdate());
+        if (node.get_repeats() && not_a_repeat) { // render tdproperty with skip button
             varvals.emplace("tdprop",render_tdproperty(node, true));
         } else {
             varvals.emplace("tdprop",render_tdproperty(node));
@@ -410,6 +413,13 @@ struct line_render_parameters {
         //varvals.emplace("excerpt",remove_html(htmltext).substr(0,fzgh.config.excerpt_length));
         // -- Server address
         varvals.emplace("fzserverpq", fzgh.replacements[fzserverpq_address]); // graph_ptr->get_server_full_address()
+        // -- Do-link
+        if (not_a_repeat && ((fzgh.config.max_do_links==0) || (fzgh.do_links_rendered < fzgh.config.max_do_links))) {
+            varvals.emplace("do_link", " <a class=\"nnl\" href=\"/cgi-bin/fzlog-cgi.py?action=open&node="+nodestr+"\">[do]</a>");
+            fzgh.do_links_rendered++;
+        } else {
+            varvals.emplace("do_link", "");
+        }
         // -- (Possible) source NNL
         varvals.emplace("srclist",srclist);
         // -- (Possible) position in NNL
