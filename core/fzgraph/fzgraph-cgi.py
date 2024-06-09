@@ -5,6 +5,8 @@
 # This CGI handler provides processing of the fzgraphhtml generated Node Edit page web form when
 # the Node ID is "new" or "NEW" and calls fzgraph to add a new Node.
 #
+# Also note the 'action=generic' fzgraph call option.
+#
 # The handler is purposely as similar to the fzedit-cgi.py handler as possible. Note that
 # the fzedit-cgi.py handler is also currently able to handle new Node specification, and
 # will call fzgraph when the Node ID is "new" or "NEW".
@@ -29,6 +31,11 @@ from traceback import print_exc
 from subprocess import Popen, PIPE
 
 textfile = '/var/www/webdata/formalizer/node-text.html'
+
+resultdict = {
+    'stdout': '',
+    'stderr': '',
+}
 
 # The following should only show information that is safe to provide
 # to those who have permission to connect to this CGI handler.
@@ -229,26 +236,46 @@ def convert_date_and_time_to_targetdate(alt2_targetdate: str, alt2_targettime: s
     return atd_YmdHM
 
 
-def try_call_command(thecmd: str):
+def try_call_command(thecmd: str, print_result=True)->bool:
+    global resultdict
     try:
-        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
-        (child_stdin,child_stdout) = (p.stdin, p.stdout)
+        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,stderr=PIPE,close_fds=True, universal_newlines=True)
+        (child_stdin,child_stdout,child_stderr) = (p.stdin, p.stdout, p.stderr)
         child_stdin.close()
         result = child_stdout.read()
         child_stdout.close()
-        print('<!-- begin: call output --><pre>')
-        print(result)
-        print('<!-- end  : call output --></pre>')
+        err = child_stderr.read()
+        child_stderr.close()
+        try:
+            resultdict['stdout'] = result.decode()
+        except:
+            resultdict['stdout'] = '(failed to decode stdout)'
+        try:
+            resultdict['stderr'] = err.decode()
+        except:
+            resultdict['stderr'] = '(failed to decode stderr)'
+        if print_result:
+            print('<!-- begin: call output --><pre>')
+            print(result)
+            print('<!-- end  : call output --></pre>')
         #print(result.replace('\n', '<BR>'))
         return True
 
-    except Exception as ex:                
-        print(ex)
-        f = StringIO()
-        print_exc(file=f)
-        a = f.getvalue().splitlines()
-        for line in a:
-            print(line)
+    except Exception as ex:
+        if print_result:
+            print(ex)
+            f = StringIO()
+            print_exc(file=f)
+            a = f.getvalue().splitlines()
+            for line in a:
+                print(line)
+        else:
+            resultdict['stderr'] += str(ex)
+            f = StringIO()
+            print_exc(file=f)
+            a = f.getvalue().splitlines()
+            for line in a:
+                resultdict['stderr'] += str(line)
         return False
 
 def get_int_or_None(cgiarg: str):
@@ -429,6 +456,98 @@ def unrecognized_action_request(action: str):
     print(f'<p class="fail"><b>Unrecognized Node add action: {action}</b><p>')
     print(edit_fail_page_tail)
 
+GENERIC_ERROR_PAGE = '''<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<title>fz: Graph - Generic Call Failed</title>
+</head>
+<body>
+<style type="text/css">
+.chktop {
+    background-color: #B0C4F5;
+}
+</style>
+
+<b>Attempted command</b>:
+<p>
+<pre>
+%s
+</pre>
+
+<p>
+<b>Stdout</b>:
+<p>
+<pre>
+%s
+</pre>
+
+<p>
+<b>Stderr</b>:
+<p>
+<pre>
+%s
+</pre>
+
+<hr>
+</body>
+</html>
+'''
+
+GENERIC_SUCCESS_PAGE = '''<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<title>fz: Graph - Generic Call Succeeded</title>
+</head>
+<body>
+<style type="text/css">
+.chktop {
+    background-color: #B0C4F5;
+}
+</style>
+
+<b>Command</b>:
+<p>
+<pre>
+%s
+</pre>
+
+<p>
+<b>Stdout</b>:
+<p>
+<pre>
+%s
+</pre>
+
+<hr>
+</body>
+</html>
+'''
+
+def generic_fzgraph_call(form):
+    # 1. Collect all variables and their values and transform them to fzgraph arguments.
+    cgi_keys = list(form.keys())
+    argpairs = []
+    for key_str in cgi_keys:
+        argpairs.append( (key_str, form.getvalue(key_str)) )
+    argstr = ''
+    for argpair in argpairs:
+        arg, argval = argpair
+        if arg != 'action':
+            if argval=='true':
+                argstr += ' -%s' % arg
+            else:
+                argstr += " -%s '%s'" % (arg, argval)
+
+    # 2. Carry out an fzgraph call.
+    thecmd = './fzgraph '+argstr
+    if not try_call_command(thecmd, print_result=False):
+        print(GENERIC_ERROR_PAGE % (thecmd, resultdict['stdout'], resultdict['stderr']))
+        sys.exit(0)
+
+    # 3. Present the result.
+    print(GENERIC_SUCCESS_PAGE % (thecmd, resultdict['stdout']))
 
 if __name__ == '__main__':
     if help:
@@ -438,6 +557,10 @@ if __name__ == '__main__':
     action = form.getvalue('action')
     if not action:
         missing_action_request()
+        sys.exit(0)
+
+    if (action=='generic'):
+        generic_fzgraph_call(form)
         sys.exit(0)
 
     global verbosearg

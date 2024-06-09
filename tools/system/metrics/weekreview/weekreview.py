@@ -4,8 +4,10 @@
 #
 # This CGI handler displays Week Goal metrics.
 #
+# This is now also usable to display Threads metrics.
+#
 # Call this scrip as follows:
-#   /cgi-bin/weekreview.py?nodes=n1,n2,n3&invested=3.0,2.3,4.1&remaining=1.0,5.0,0.0
+#   /cgi-bin/weekreview.py?nnl=week_main_goals&invested=3.0,2.3,4.1&remaining=1.0,5.0,0.0
 
 # Do this immediately, so that any errors are visible:
 print("Content-type:text/html\n\n")
@@ -28,14 +30,12 @@ cgivars = [
     'nodes',
     'invested',
     'remaining',
+    'nnl',
 ]
 
 form = cgi.FieldStorage()
 
 cgivalues = {}
-
-for cgivar in cgivars:
-    cgivalues[cgivar] = form.getvalue(cgivar)
 
 results = {}
 
@@ -59,6 +59,19 @@ def try_subprocess_check_output(thecmdstring: str, resstore: str, verbosity=1) -
             print('Result of subprocess call:', flush=True)
             print(res.decode(), flush=True)
         return 0
+
+def get_nodes_from_nnl(nnlstr:str)->str:
+    retcode = try_subprocess_check_output(f"./fzgraphhtml -q -e -F node -o STDOUT -L "+nnlstr,'nodes')
+    if (retcode != 0):
+        return ''
+    nodes = (results['nodes']).decode()
+    nodes = nodes.split('\n')
+    nodesstr = ''
+    for i in range(len(nodes)-1):
+        if i!=0:
+            nodesstr += ','
+        nodesstr += nodes[i]
+    return nodesstr
 
 # Three bars each:
 # 1. Percentage progress.
@@ -202,7 +215,8 @@ HTML_HEAD='''<?xml version="1.0" encoding="UTF-8" ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="application/xml+xhtml; charset=UTF-8"/>
-<title>Week Goals Review</title>
+<link rel="stylesheet" href="/fz.css">
+<title>Plotting Progress on %s</title>
 </head>
 <body style="color:white; background-color:black">
 '''
@@ -229,7 +243,7 @@ WEEKGOALS='''
 '''
 
 def get_nodes_links(cgivalues:dict)->str:
-    retcode = try_subprocess_check_output(f"./fzgraphhtml -q -L week_main_goals -F desc -o STDOUT -e",'nodedesc')
+    retcode = try_subprocess_check_output("./fzgraphhtml -q -L "+cgivalues['nnl']+" -F desc -o STDOUT -e",'nodedesc')
     if (retcode != 0):
         return ''
     descriptions = (results['nodedesc']).decode()
@@ -252,10 +266,18 @@ def plot_week_goals_progress(cgivalues:dict):
     stackedpercentages = stacked_percentage_per_goal(cgivalues)
     stackedtotalpercentages = stacked_total_percentages(cgivalues)
 
-    print(HTML_HEAD)
+    print(HTML_HEAD % cgivalues['nnl'])
     print(WEEKGOALS % (stackedtotalpercentages, stackedpergoal, stackedpercentages, threebar_content, get_nodes_links(cgivalues)))
     print(HTML_TAIL)
 
 if __name__ == '__main__':
+    for cgivar in cgivars:
+        cgivalues[cgivar] = form.getvalue(cgivar)
+
+    if cgivalues['nnl']:
+        cgivalues['nodes'] = get_nodes_from_nnl(cgivalues['nnl'])
+    else:
+        cgivalues['nnl'] = 'week_main_goals'
+
     plot_week_goals_progress(cgivalues)
     sys.exit(0)

@@ -88,11 +88,15 @@ struct CSV_Data_Day {
 // This is used to collect information to render an NNL dependencies board
 // such as a Threads Board.
 struct Threads_Board_Data {
+    std::string nnl;
+
     std::string rendered_columns;
+
     float board_tot_required_s = 0;
     float board_tot_completed_s = 0;
     time_t board_max_top_nodes_targetdate = 0;
     time_t board_seconds_to_targetdate = 0;
+    
     std::vector<Node_ID_key> topnodes;
     std::vector<float> invested_hrs;
     std::vector<float> remaining_hrs;

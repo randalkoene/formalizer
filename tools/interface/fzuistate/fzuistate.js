@@ -15,17 +15,21 @@ document.body.prepend(ltbtnelement);
 var btbtnelement = document.createElement("div");
 btbtnelement.innerHTML = "<button id=\"behtools\" class=\"button button1\" onclick=\"window.open('/formalizer/system-help.html','_blank');\">Behavior Tools</button>";
 document.body.prepend(btbtnelement);
+// clear superiors NNL
+var scbtnelement = document.createElement("div");
+scbtnelement.innerHTML = "<button id=\"supclear\" class=\"button button2\" onclick=\"window.open('/cgi-bin/fzgraph-cgi.py?action=generic&q=true&L=delete&l=superiors&E=STDOUT&W=STDOUT','_blank');\">Clear SupNNL</button>";
+document.body.prepend(scbtnelement);
 // add the logentry button
 var lebtnelement = document.createElement("div");
-lebtnelement.innerHTML = "<button id=\"logentry\" class=\"button button2\" onclick=\"window.open('/formalizer/logentry-form_fullpage.template.html','_blank');\">Add Log Entry</button>";
+lebtnelement.innerHTML = "<button id=\"logentry\" class=\"button button1\" onclick=\"window.open('/formalizer/logentry-form_fullpage.template.html','_blank');\">Add Log Entry</button>";
 document.body.prepend(lebtnelement);
 // add the addnode button
 var anbtnelement = document.createElement("div");
-anbtnelement.innerHTML = "<button id=\"addnode\" class=\"button button1\" onclick=\"window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new','_blank');\">Add Node</button>";
+anbtnelement.innerHTML = "<button id=\"addnode\" class=\"button button2\" onclick=\"window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new','_blank');\">Add Node</button>";
 document.body.prepend(anbtnelement);
 // add the darkmode button
 var dmbtnelement = document.createElement("div");
-dmbtnelement.innerHTML = "<button id=\"darkmode\" class=\"button button2\" onclick=\"switch_light_or_dark();\">Light / Dark</button>";
+dmbtnelement.innerHTML = "<button id=\"darkmode\" class=\"button button1\" onclick=\"switch_light_or_dark();\">Light / Dark</button>";
 document.body.prepend(dmbtnelement);
 
 // Request server-side storage of data:

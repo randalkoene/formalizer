@@ -767,6 +767,12 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
     nodevars.emplace("node-targetdate", " ("+DateStampYmd(tdate)+')');
 
     nodevars.emplace("node-deps", node_id_str);
+    size_t depnum = node_ptr->num_dependencies();
+    if (depnum<1) {
+        nodevars.emplace("dep-num", "");
+    } else {
+        nodevars.emplace("dep-num", ",<b>"+std::to_string(depnum)+"</b>");
+    }
 
     std::string include_filter_substr;
     if (!filter_substring.empty()) {
@@ -1624,13 +1630,13 @@ std::string prepare_threads_board_topdata(const Threads_Board_Data& board_data) 
     std::string boarddata_str;
     boarddata_str.reserve(1024);
 
-    std::string nodes_str;
-    for (size_t i = 0; i < board_data.topnodes.size(); i++) {
-        if (i>0) {
-            nodes_str += ',';
-        }
-        nodes_str += board_data.topnodes.at(i).str();
-    }
+    // std::string nodes_str;
+    // for (size_t i = 0; i < board_data.topnodes.size(); i++) {
+    //     if (i>0) {
+    //         nodes_str += ',';
+    //     }
+    //     nodes_str += board_data.topnodes.at(i).str();
+    // }
 
     std::string remaining_str;
     for (size_t i = 0; i < board_data.remaining_hrs.size(); i++) {
@@ -1652,7 +1658,7 @@ std::string prepare_threads_board_topdata(const Threads_Board_Data& board_data) 
     boarddata_str += " (Hours completed: "+to_precision_string(board_data.board_tot_completed_s/3600.0, 1);
     boarddata_str += ") Hours available: "+to_precision_string(float(board_data.board_seconds_to_targetdate)/3600.0, 1);
     boarddata_str += " (to "+TimeStampYmdHM(board_data.board_max_top_nodes_targetdate);
-    boarddata_str += ") <button onclick=\"window.open('/cgi-bin/weekreview.py?nodes="+nodes_str+"&invested="+invested_str+"&remaining="+remaining_str+"','_blank');\">Plot</button>";
+    boarddata_str += ") <button onclick=\"window.open('/cgi-bin/weekreview.py?nnl="+board_data.nnl+"&invested="+invested_str+"&remaining="+remaining_str+"','_blank');\">Plot</button>";
 
     return boarddata_str;
 }
@@ -1703,6 +1709,7 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
     }
 
     Threads_Board_Data data;
+    data.nnl = nb.list_name;
 
     for (const auto & nkey : namedlist_ptr->list) {
 

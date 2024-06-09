@@ -13,13 +13,18 @@
     bottom: 0px;
     right: 233px;
 }
+#supclear {
+    position: fixed;
+    bottom: 0px;
+    right: 374px; 
+}
 #behtools {
     position: fixed;
     bottom: 0px;
-    right: 374px;
+    right: 511px;
 }
 #logtime {
     position: fixed;
     bottom: 0px;
-    right: 518px;
+    right: 655px;
 }
