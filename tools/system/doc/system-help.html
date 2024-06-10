@@ -25,15 +25,18 @@ style="background-color: rgba(200,200,200, 0.5);"
 
 <HEAD>
 <TITLE>Formalizer: System Help and Behavior Tools</TITLE>
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<link rel="stylesheet" href="/clock.css">
 <style>
-body
+/* body
 {
 font-family:arial, Helvetica, sans-serif;
 background-image:url(../../backgrounds/desert-background-1000x667.jpg);
 background-size:cover;
-}
+}*/
 .rowhighlight {
-background-color: rgba(200,200,200,0.7);
+background-color: rgba(200,255,200,0.7);
 }
 th, td {
 padding: 5px;
@@ -50,6 +53,12 @@ color: #0000ff;
 }
 a:visited {
 color: #0000af;
+}
+p.tzone-head {
+  color: rgba(50,180,200,1.0);
+}
+p.tzone {
+  color: rgba(30,170,190,1.0);
 }
 </style>
 
@@ -204,58 +213,60 @@ color: #0000af;
 <!-- time zones -->
 <TR>
 
-  <TD><p style="color:#6cd7f9;">PDT/PST</p></TD>
-  <TD><p style="color:#6cd7f9;">EDT/EST</p></TD>
-  <TD><p style="color:#6cd7f9;">UK</p></TD>
-  <TD><p style="color:#6cd7f9;">CET</p></TD>
+  <TD><p class="tzone-head">PDT/PST</p></TD>
+  <TD><p class="tzone-head">EDT/EST</p></TD>
+  <TD><p class="tzone-head">UK</p></TD>
+  <TD><p class="tzone-head">CET</p></TD>
   <TD rowspan=8><a href="file:///home/randalk/tmp/formalizer.metrics-days-categories.png"><img src="file:///home/randalk/tmp/formalizer.metrics-days-categories.png" width="100%"></a></TD>
   
 </TR>
 <TR>
-  <TD><p style="color:#4cb7e9;">00:00</p></TD>
-  <TD><p style="color:#4cb7e9;">03:00</p></TD>
-  <TD><p style="color:#4cb7e9;">08:00</p></TD>
-  <TD><p style="color:#4cb7e9;"><b>09:00</b></p></TD>
+  <TD><p class="tzone">00:00</p></TD>
+  <TD><p class="tzone">03:00</p></TD>
+  <TD><p class="tzone">08:00</p></TD>
+  <TD><p class="tzone"><b>09:00</b></p></TD>
 </TR>
 <TR>
-  <TD><p style="color:#4cb7e9;">01:00</p></TD>
-  <TD><p style="color:#4cb7e9;">04:00</p></TD>
-  <TD><p style="color:#4cb7e9;"><b>09:00</b></p></TD>
-  <TD><p style="color:#4cb7e9;">10:00</p></TD>
+  <TD><p class="tzone">01:00</p></TD>
+  <TD><p class="tzone">04:00</p></TD>
+  <TD><p class="tzone"><b>09:00</b></p></TD>
+  <TD><p class="tzone">10:00</p></TD>
 </TR>
 <TR>
-  <TD><p style="color:#4cb7e9;">06:00</p></TD>
-  <TD><p style="color:#4cb7e9;"><b>09:00</b></p></TD>
-  <TD><p style="color:#4cb7e9;">14:00</p></TD>
-  <TD><p style="color:#4cb7e9;">15:00</p></TD>
+  <TD><p class="tzone">06:00</p></TD>
+  <TD><p class="tzone"><b>09:00</b></p></TD>
+  <TD><p class="tzone">14:00</p></TD>
+  <TD><p class="tzone">15:00</p></TD>
 </TR>
 <TR>
-  <TD><p style="color:#4cb7e9;">08:00</p></TD>
-  <TD><p style="color:#4cb7e9;">11:00</p></TD>
-  <TD><p style="color:#4cb7e9;">16:00</p></TD>
-  <TD><p style="color:#4cb7e9;"><b>17:00</b></p></TD>
+  <TD><p class="tzone">08:00</p></TD>
+  <TD><p class="tzone">11:00</p></TD>
+  <TD><p class="tzone">16:00</p></TD>
+  <TD><p class="tzone"><b>17:00</b></p></TD>
 </TR>
 <TR>
-  <TD><p style="color:#4cb7e9;"><b>09:00</b></p></TD>
-  <TD><p style="color:#4cb7e9;">12:00</p></TD>
-  <TD><p style="color:#4cb7e9;"><b>17:00</b></p></TD>
-  <TD><p style="color:#4cb7e9;">18:00</p></TD>
+  <TD><p class="tzone"><b>09:00</b></p></TD>
+  <TD><p class="tzone">12:00</p></TD>
+  <TD><p class="tzone"><b>17:00</b></p></TD>
+  <TD><p class="tzone">18:00</p></TD>
 </TR>
 <TR>
-  <TD><p style="color:#4cb7e9;">14:00</p></TD>
-  <TD><p style="color:#4cb7e9;"><b>17:00</b></p></TD>
-  <TD><p style="color:#4cb7e9;">22:00</p></TD>
-  <TD><p style="color:#4cb7e9;">23:00</p></TD>
+  <TD><p class="tzone">14:00</p></TD>
+  <TD><p class="tzone"><b>17:00</b></p></TD>
+  <TD><p class="tzone">22:00</p></TD>
+  <TD><p class="tzone">23:00</p></TD>
 </TR>
 <TR>
-  <TD><p style="color:#4cb7e9;"><b>17:00</b></p></TD>
-  <TD><p style="color:#4cb7e9;">20:00</p></TD>
-  <TD><p style="color:#4cb7e9;">01:00</p></TD>
-  <TD><p style="color:#4cb7e9;">02:00</p></TD>
+  <TD><p class="tzone"><b>17:00</b></p></TD>
+  <TD><p class="tzone">20:00</p></TD>
+  <TD><p class="tzone">01:00</p></TD>
+  <TD><p class="tzone">02:00</p></TD>
 </TR>
 
 </TABLE>
 
+<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="text/javascript" src="/clock.js"></script>
 </BODY>
 
 </HTML>

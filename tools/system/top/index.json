@@ -165,8 +165,8 @@
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20091119165134.1&G=true&T=true&C=300&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
             "window" : "_blank"
         },
-        "METRICS-TRANSFORMED" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?n=20200421123004.1&G=true&T=true&C=300&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
+        "METRICS" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20240608190914.1&G=true&T=true&C=300&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
             "window" : "_blank"
         },
         "SYSTEM" : {
