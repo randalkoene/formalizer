@@ -46,13 +46,18 @@ const std::vector<std::string> template_ids = {
     "Schedule_board",
     "Schedule_column",
     "Node_analysis_card",
+    "Options_pane"
 };
+
+std::string template_path_from_id(template_id_enum template_id) {
+    return template_dir+"/"+template_ids[template_id]+".template.html";
+}
 
 bool load_templates(nodeboard_templates & templates) {
     templates.clear();
 
     for (int i = 0; i < NUM_temp; ++i) {
-        if (!file_to_string(template_dir + "/" + template_ids[i] + ".template.html", templates[static_cast<template_id_enum>(i)]))
+        if (!file_to_string(template_path_from_id(static_cast<template_id_enum>(i)), templates[static_cast<template_id_enum>(i)]))
             ERRRETURNFALSE(__func__, "unable to load " + template_ids[i]);
     }
 
@@ -469,6 +474,89 @@ nodeboard_options nodeboard::get_nodeboard_options() const {
     options.propose_td_solutions = propose_td_solutions;
     options.norepeated = norepeated;
     return options;
+}
+
+/*
+*** TODO: Implement a templated build of a pane that allows on-page
+          selection of the details of a nodeboard. This pane can be
+          popped up when some component is hovered over.
+          To do this:
+
+          1. Create a template for the pane, start with just a few bits
+             to test getting the approach right.
+          2. Use the template-filling-from-map method shown in
+             fzloghtml:render.cpp:chunk_to_template().
+          3. Use the information in build_nodeboard_cgi_call() to
+             fill the components of the template.
+          4. Add the rest of the variables.
+*/
+
+const std::map<bool, std::string> sup_or_dep = {
+    { false, "G" },
+    { true, "g"},
+};
+
+const std::map<bool, std::string> true_checked = {
+    { false, "" },
+    { true, "checked" },
+};
+
+bool nodeboard::make_options_pane(std::string & rendered_pane) {
+    std::map<std::string, std::string> pane_map = {
+        { "node-id", node_ptr->get_id_str() },
+        { "sup-or-dep", sup_or_dep.at(flowcontrol == flow_superiors_tree) },
+        { "show-completed", true_checked.at(show_completed) },
+        { "threads", true_checked.at(threads) },
+        { "progress-analysis", true_checked.at(progress_analysis) },
+        { "hide-repeated", true_checked.at(norepeated) },
+        { "detect-tdorder", true_checked.at(detect_tdorder) },
+        { "detect-tdfar", true_checked.at(detect_tdfar) },
+        { "detect-tdbad", true_checked.at(detect_tdbad) },
+        { "highlighted-topic", "" },
+        { "max-rows", std::to_string(max_rows) },
+        { "max-columns", std::to_string(max_columns) },
+        { "days-nearterm", "" },
+        { "none-checked", "" },
+        { "earlier-checked", "" },
+        { "later-checked", "" },
+        { "filter", "" },
+        { "topic-filters", "" },
+    };
+
+    if (highlight_topic_and_valuation) {
+        pane_map.at("highlighted-topic") = "value=\""+std::to_string(highlight_topic)+'"';
+    }
+
+    if (propose_td_solutions) {
+        if (prefer_earlier) {
+            pane_map.at("earlier-checked") = "checked";
+        } else {
+            pane_map.at("later-checked") = "checked";
+        }
+    } else {
+        pane_map.at("none-checked") = "checked";
+    }
+
+    if (seconds_near_highlight>0) {
+        pane_map.at("days-nearterm") = "value=\""+to_precision_string(float(seconds_near_highlight)/86400.0, 1)+'"';
+    }
+
+    if (!filter_substring.empty()) {
+        pane_map.at("filter") = uri_encoded_filter_substring;
+    }
+
+    std::string uri_encoded_modifed_topic_filters = encode_modified_topic_filters(shows_non_milestone_nodes());
+    if (!uri_encoded_modifed_topic_filters.empty()) {
+        pane_map.at("topic-filters") = uri_encoded_modifed_topic_filters;
+    }
+
+    if (!env.fill_template_from_map(
+            template_path_from_id(options_pane_temp),
+            pane_map,
+            rendered_pane)) {
+        return false;
+    }
+    return true;
 }
 
 std::string nodeboard::build_nodeboard_cgi_call(const nodeboard_options & options) const {
@@ -1796,7 +1884,11 @@ bool node_board_render_dependencies_tree(nodeboard & nb) {
         nb.board_title = "Dependencies tree of Node "+nb.node_ptr->get_id_str();
     }
 
-    nb.board_title_extra = nb.with_and_without_inactive_Nodes_buttons();
+    if (!nb.make_options_pane(nb.board_title_extra)) {
+        nb.board_title_extra = "Warning: Failed to render options pane.<br>";
+    }
+
+    nb.board_title_extra += nb.with_and_without_inactive_Nodes_buttons();
 
     nb.board_title_extra += make_button(nb.get_list_nearterm_Nodes_url(), "List near-term Nodes", false);
 
@@ -1861,7 +1953,11 @@ bool node_board_render_superiors_tree(nodeboard & nb) {
         nb.board_title = "Superiors tree of Node "+nb.node_ptr->get_id_str();
     }
 
-    nb.board_title_extra = nb.with_and_without_inactive_Nodes_buttons();
+    if (!nb.make_options_pane(nb.board_title_extra)) {
+        nb.board_title_extra = "Warning: Failed to render options pane.<br>";
+    }
+
+    nb.board_title_extra += nb.with_and_without_inactive_Nodes_buttons();
 
     nb.board_title_extra += make_button(nb.get_list_nearterm_Nodes_url(), "List near-term Nodes", false);
 

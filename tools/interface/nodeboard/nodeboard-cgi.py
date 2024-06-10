@@ -100,11 +100,17 @@ if tdfar:
 if include_td_detect != '':
     include_td_detect = ' -e "'+include_td_detect[:-1]+'"'
 if filter_string:
-    include_filter_string = ' -F %s' % filter_string
+    if filter_string != '':
+        include_filter_string = ' -F %s' % filter_string
+    else:
+        include_filter_string = ''
 else:
     include_filter_string = ''
 if filter_topics:
-    include_filter_topics = ' -i %s' % filter_topics
+    if filter_topics != '':
+        include_filter_topics = ' -i %s' % filter_topics
+    else:
+        include_filter_topics = ''
 else:
     include_filter_topics = ''
 if show_completed == 'true':
@@ -120,7 +126,10 @@ if progress_analysis:
 else:
     include_progress_analysis = ''
 if highlight_topic:
-    include_highlight_topic = ' -B %s' % highlight_topic
+    if highlight_topic != '':
+        include_highlight_topic = ' -B %s' % highlight_topic
+    else:
+        include_highlight_topic = ''
 else:
     include_highlight_topic = ''
 if max_rows:
@@ -128,7 +137,10 @@ if max_rows:
 else:
     include_max_rows = ''
 if days_near_highlight:
-    include_days_near_highlight = ' -N %s' % days_near_highlight
+    if days_near_highlight != '0.0':
+        include_days_near_highlight = ' -N %s' % days_near_highlight
+    else:
+        include_days_near_highlight = ''
 else:
     include_days_near_highlight = ''
 if max_columns:
@@ -144,7 +156,10 @@ if nnldepstotdate:
 else:
     include_nnldepstotdate = ''
 if proposetdsolutions:
-    include_proposetdsolutions = ' -O %s' % proposetdsolutions
+    if proposetdsolutions=='earlier' or proposetdsolutions=='later':
+        include_proposetdsolutions = ' -O %s' % proposetdsolutions
+    else:
+        include_proposetdsolutions = ''
 else:
     include_proposetdsolutions = ''
 if norepeated:

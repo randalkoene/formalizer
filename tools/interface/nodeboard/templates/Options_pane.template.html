@@ -1,0 +1,105 @@
+<style>
+.options {
+  margin: auto;
+  border: 3px solid #000000; /*#73AD21;*/
+  position: fixed;
+  right: 1em;
+  top: 0;
+  display: none;
+  z-index: 2;
+  background-color: #afafff;
+  opacity: 0.7;
+}
+.options-closed {
+  height: 20px;
+  position: fixed;
+  right: 1em;
+  top: 0;
+  z-index: 1;
+  color: #00007f;
+  background-color: #afffaf;
+}
+.options-close {
+  height: 20px;
+  position: fixed;
+  right: 1em;
+  top: 2em;
+  z-index: 3;
+  color: #000000;
+  background-color: #ef3f3f;
+  display: none;
+}
+</style>
+<div class="options-closed" id="options-closed">
+options
+</div>
+<div class="options" id="options">
+<div class="options-close" id="options-close">
+close
+</div>
+
+<form action="/cgi-bin/nodeboard-cgi.py">
+
+<input type="hidden" name="n" value="{{ node-id }}">
+<input type="hidden" name="{{ sup-or-dep }}" value="true">
+
+<input type="checkbox" name="I" value="true" {{ show-completed }}> show completed Nodes
+<br>
+<input type="checkbox" name="T" value="true" {{ threads }}> show as Threads
+<br>
+<input type="checkbox" name="P" value="true" {{ progress-analysis }}> include Progress Analysis
+<br>
+<input type="checkbox" name="U" value="true" {{ hide-repeated }}> hide repeated Nodes
+<br>
+<input type="checkbox" name="tdorder" value="true" {{ detect-tdorder }}> detect TD order errors
+<br>
+<input type="checkbox" name="tdfar" value="true" {{ detect-tdfar }}> detect distant TD errors
+<br>
+<input type="checkbox" name="tdbad" value="true" {{ detect-tdbad }}> detect bad TD errors
+<br>
+highlight topic and valuation: <input type="text" size=10 name="B" {{ highlighted-topic }}>
+<br>
+max. number of rows: <input type="text" size=10 name="r" value="{{ max-rows }}">
+<br>
+max. number of columns: <input type="text" size=10 name="C" value="{{ max-columns }}">
+<br>
+highlight near-term days: <input type="text" size=10 name="N" {{ days-nearterm }}>
+<br>
+solutions:
+<input type="radio" name="O" value="" {{ none-checked }}> none
+<input type="radio" name="O" value="earlier" {{ earlier-checked }}> earlier
+<input type="radio" name="O" value="later" {{ later-checked }}> later
+<br>
+filter: <input type="text" name="F" {{ filter }}>
+<br>
+topic filters: <input type="text" name="i" {{ topic-filters }}>
+<br>
+
+<input type="submit" value="Update" method="get" target="_blank">
+</form>
+<script>
+document.onclick = function() { document.getElementById("tooltip").style.display = 'none'; };
+const options = document.getElementById("options");
+const options_closed = document.getElementById("options-closed");
+const options_close = document.getElementById("options-close");
+options_closed.addEventListener(
+  "mouseenter",
+  (event) => {
+    options.style.display = 'block';
+    options_closed.style.display = 'none';
+    options_close.style.display = 'block';
+  },
+  false,
+);
+options_close.addEventListener(
+  "mouseenter",
+  (event) => {
+    options.style.display = 'none';
+    options_closed.style.display = 'block';
+    options_close.style.display = 'none';
+  },
+  false,
+);
+</script>
+
+</div>
