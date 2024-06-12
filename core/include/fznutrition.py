@@ -211,6 +211,11 @@ nutrition = {
 	'fruit smoothie': [ 90, 'serving', ],
 	'survival tabs': [ 240, 'tab', ],
 	'corn tortilla chips': [ 293, 'cup', ],
+	'canned pears': [ 140, '14.5oz can',],
+	'canned pineapple': [ 360, '20oz can', ],
+	'mixed nuts': [ 170, '1oz, 32 pieces', ],
+	'cranberry raisins': [ 130, '1/4 cup, 50 pieces', ],
+	'beef ravioli': [ 320, '15oz can', ],
 }
 
 lowcal_filling_nutritious = [
@@ -260,6 +265,9 @@ fruit = [
 	'olives',
 	'cherries',
 	'plums',
+	'canned pears',
+	'canned pineapple',
+	'cranberry raisins',
 ]
 
 vegetables = [
@@ -328,6 +336,7 @@ meals = [
 	'double cheeseburger',
 	'kroket',
 	'quarter pounder',
+	'beef ravioli',
 ]
 
 drinks = [
@@ -420,6 +429,7 @@ nuts = [
 	'walnut pieces',
 	'borrelnoten',
 	'cashews',
+	'mixed nuts',
 ]
 
 spread = [
