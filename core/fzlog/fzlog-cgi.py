@@ -69,6 +69,8 @@ Operations:
 <li><code>action=reopen</code>: Reopen Log chunk (if closed).
 <li><code>action=editentry</code>: Edit Log entry. (Leads to 'replaceentry'.)
 <li><code>action=replaceentry</code>: Replace Log entry. (Comes from 'editentry'.)
+<li><code>action=generic</code>: Make generic fzlog call.
+<li><code>action=modify</code>: Generate Chunk Modify Page.
 </ul>
 </p>
 
@@ -349,7 +351,10 @@ deleteentrypagetail_failure = '''<p class="fail"><b>ERROR: Unable to delete Log 
 </html>
 '''
 
-results = {}
+results = {
+    'stdout': '',
+    'stderr': '',
+}
 
 # Store a new time stamp to signal active Log chunk change.
 def update_chunk_signal():
@@ -359,23 +364,30 @@ def update_chunk_signal():
     except Exception as e:
         print('Failed to write to signal file: '+str(e), file=sys.stderr)
 
-def try_subprocess_check_output(thecmdstring: str, resstore: str, verbosity: 1) -> int:
-    if verbosity > 1:
+def try_subprocess_check_output(thecmdstring: str, resstore: str, verbosity=1, print_result=True) -> int:
+    if verbosity > 1 and print_result:
         print(f'Calling subprocess: `{thecmdstring}`', flush=True)
     try:
         res = subprocess.check_output(thecmdstring, shell=True)
     except subprocess.CalledProcessError as cpe:
         if verbosity > 0:
-            print('Subprocess call caused exception.')
-            print('Error output: ',cpe.output.decode())
-            print('Error code  : ',cpe.returncode)
+            errstr = 'Subprocess call caused exception.'
+            try:
+                errstr += 'Error output: ' + cpe.output.decode()
+            except:
+                pass
+            errstr += 'Error code  : ' + str(cpe.returncode)
             if (cpe.returncode>0):
-                print(f'Formalizer error return code: {cpe.returncode}')
+                errstr += f'Formalizer error return code: {cpe.returncode}'
+            if print_result:
+                print(errstr)
+            else:
+                result['stderr'] += errstr
         return cpe.returncode
     else:
         if resstore:
             results[resstore] = res
-        if verbosity > 1:
+        if verbosity > 1 and print_result:
             print('Result of subprocess call:', flush=True)
             print(res.decode(), flush=True)
         return 0
@@ -540,6 +552,166 @@ def delete_Log_entry(id: str, verbosity = 0)->bool:
         print(deleteentrypagetail_failure % results['delete_log'].decode())
     return (retcode == 0)
 
+CHUNK_MODIFY_PAGE = '''Content-type:text/html
+
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>fz: Log - Modify Chunk %s</title>
+</head>
+<body>
+<style type="text/css">
+.chktop {
+    background-color: #B0C4F5;
+}
+</style>
+
+<h1>fz: Log - Modify Chunk %s</h1>
+
+<form action="/cgi-bin/fzlog-cgi.py" method="GET">
+Change Node to:<br>
+<input type="hidden" name="action" value="generic">
+<input type="hidden" name="m" value="%s">
+<input type="hidden" name="E" value="STDOUT">
+<input type="hidden" name="W" value="STDOUT">
+<input type="text" name="n" size=20>
+<input type="submit" value="Modify">
+</form>
+<P>
+<form action="/cgi-bin/fzlog-cgi.py" method="GET">
+Change Open timestamp to:<br>
+<input type="hidden" name="action" value="generic">
+<input type="hidden" name="m" value="%s">
+<input type="hidden" name="E" value="STDOUT">
+<input type="hidden" name="W" value="STDOUT">
+<input type="text" name="1" size=20>
+<input type="submit" value="Modify">
+</form>
+<P>
+<form action="/cgi-bin/fzlog-cgi.py" method="GET">
+Change Close timestamp to:<br>
+<input type="hidden" name="action" value="generic">
+<input type="hidden" name="m" value="%s">
+<input type="hidden" name="E" value="STDOUT">
+<input type="hidden" name="W" value="STDOUT">
+<input type="text" name="2" size=20>
+<input type="submit" value="Modify">
+</form>
+
+<P>
+<b>Please note</b>: To change open or close time of a Log chunk, there must be room in the timeline. An adjacent Log chunk may need to be modified first.
+
+<hr>
+<script type="text/javascript" src="/fzuistate.js"></script>
+</body>
+</html>
+'''
+
+def generate_chunk_modify_page():
+    print(CHUNK_MODIFY_PAGE % (id, id, id, id, id))
+
+GENERIC_ERROR_PAGE = '''<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<title>fz: Log - Generic Call Failed</title>
+</head>
+<body>
+<style type="text/css">
+.chktop {
+    background-color: #B0C4F5;
+}
+</style>
+
+<b>Attempted command</b>:
+<p>
+<pre>
+%s
+</pre>
+
+<p>
+<b>Stdout</b>:
+<p>
+<pre>
+%s
+</pre>
+
+<p>
+<b>Stderr</b>:
+<p>
+<pre>
+%s
+</pre>
+
+<hr>
+</body>
+</html>
+'''
+
+GENERIC_SUCCESS_PAGE = '''<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<title>fz: Log - Generic Call Succeeded</title>
+</head>
+<body>
+<style type="text/css">
+.chktop {
+    background-color: #B0C4F5;
+}
+</style>
+
+<b>Command</b>:
+<p>
+<pre>
+%s
+</pre>
+
+<p>
+<b>Stdout</b>:
+<p>
+<pre>
+%s
+</pre>
+
+<hr>
+</body>
+</html>
+'''
+
+def generic_fzlog_call(form):
+    print("Content-type:text/html\n\n")
+
+    # 1. Collect all variables and their values and transform them to fzgraph arguments.
+    cgi_keys = list(form.keys())
+    argpairs = []
+    for key_str in cgi_keys:
+        argpairs.append( (key_str, form.getvalue(key_str)) )
+    argstr = ''
+    for argpair in argpairs:
+        arg, argval = argpair
+        if arg != 'action':
+            if argval=='true':
+                argstr += ' -%s' % arg
+            else:
+                argstr += " -%s '%s'" % (arg, argval)
+
+    # 2. Carry out an fzlog call.
+    thecmd = './fzlog '+argstr
+    retcode = try_subprocess_check_output(thecmd, 'stdout', print_result=False)
+    try:
+        decoded_result = result['stdout'].decode()
+    except:
+        decoded_result = str(result['stdout'])
+    if (retcode != 0):
+        print(GENERIC_ERROR_PAGE % (thecmd, decoded_result, resultdict['stderr']))
+        sys.exit(0)
+
+    # 3. Present the result.
+    print(GENERIC_SUCCESS_PAGE % (thecmd, decoded_result))
+
 # Note that insert_Log_entry is handled through logentry-form.py.
 
 def show_interface_options():
@@ -551,6 +723,15 @@ if __name__ == '__main__':
     if help:
         show_interface_options()
         sys.exit(0)
+
+    if not action:
+        show_interface_options()
+        sys.exit(0)
+
+    if (action == 'generic'):
+        generic_fzlog_call(form)
+        sys.exit(0)
+
     if (action == 'open'):
         res = open_new_Log_chunk(node, T_emulated, verbosity)
         if res:
@@ -593,6 +774,9 @@ if __name__ == '__main__':
             sys.exit(0)
         else:
             sys.exit(1)
+    if (action == 'modify'):
+        generate_chunk_modify_page()
+        sys.exit(0)
 
     show_interface_options()
     sys.exit(0)
