@@ -216,6 +216,7 @@ nutrition = {
 	'mixed nuts': [ 170, '1oz, 32 pieces', ],
 	'cranberry raisins': [ 130, '1/4 cup, 50 pieces', ],
 	'beef ravioli': [ 320, '15oz can', ],
+	'black bean burger': [ 480, '1 cup', ],
 }
 
 lowcal_filling_nutritious = [
@@ -337,6 +338,7 @@ meals = [
 	'kroket',
 	'quarter pounder',
 	'beef ravioli',
+	'black bean burger',
 ]
 
 drinks = [
