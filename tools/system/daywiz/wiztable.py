@@ -57,6 +57,7 @@ WIZTABLE_LINES=[
 	[ '20140921041431.1', 3, 'morningfast', 0, 'checkbox', 8, 13, 'Did not eat in the morning.', ''],
 
 	[ '20040402045825.1', 5, 'firstwork', 0, 'checkbox', 13, 16, 'Managed at least 4 hours of actual work progress in the first miniday (by 2pm).', ''],
+	[ '20040402045825.1', 4, 'progress', 0, 'checkbox', 13, 16, '<a class="nnl" href="/cgi-bin/nodeboard-cgi.py?D=week_main_goals&T=true&u=204512311159&r=100&U=true&N=7" target="_blank">Checked progress bars</a> for Weekly Goals (by 2pm).', ''],
 
 	[ '20100403134619.1', 4, 'endurance', 0, 'checkbox', 9, 22, 'Endurance exercise (e.g rowing, dancing, rollerblading).', '' ],
 	[ '20100403134619.1', 4, 'pushup3', 0, 'checkbox', 20, 24, 'Third push-ups or weights (e.g. during dinner).', '' ],
