@@ -1,5 +1,9 @@
 {
     "System: " : {
+        "System" : {
+            "url" : "/system.html",
+            "window" : "_blank"
+        },
         "Help" : {
             "url" : "/formalizer/system-help.html",
             "window" : "_blank"

@@ -90,6 +90,7 @@ exercises = {
     'wood splitting': [ 'minutes', ],
     'crunches': [ 'crunches', ],
     'squats': [ 'squats', ],
+    'climbing': [ 'minutes', ],
 }
 
 # ====================== Debug helpers:

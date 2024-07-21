@@ -276,6 +276,7 @@ SYMINCLUDE = $(COREPATH)/fztask-server/fztaskAPI.py
 # Web interface files and web resources to copy to the root web servable directory
 TOPLEVEL =
 # The following two are now done via fzdashboard
+TOPLEVEL += $(TOOLSPATH)/system/top/system.html
 #TOPLEVEL += $(TOOLSPATH)/system/top/index.html
 #TOPLEVEL += $(TOOLSPATH)/system/top/index-static.html
 TOPLEVEL += $(COREPATH)/fztask/fztask.css
