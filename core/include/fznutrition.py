@@ -209,7 +209,7 @@ nutrition = {
 	'plums': [ 30, 'plum', ],
 	'quarter pounder': [ 417, 'item', ],
 	'fruit smoothie': [ 90, 'serving', ],
-	'survival tabs': [ 240, 'tab', ],
+	'survival tabs': [ 20, 'tab', ],
 	'corn tortilla chips': [ 293, 'cup', ],
 	'canned pears': [ 140, '14.5oz can',],
 	'canned pineapple': [ 360, '20oz can', ],
