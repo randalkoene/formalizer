@@ -126,6 +126,8 @@ struct EPS_map {
     time_t previous_group_td = -1;
     time_t t_beyond; ///< Will be initialized to the time right after the last slot, then incremented by pack_interval_beyond if in back_moveable mode.
 
+    std::vector<Placer> placer_chain;
+
     targetdate_sorted_Nodes & nodelist;
     eps_data_vec_t & epsdata;
 
@@ -197,10 +199,33 @@ struct EPS_map {
      */
     void place_fixed();
 
-    void group_and_place_movable();
+    void group_and_place_movable(bool include_UTD = true);
 
     targetdate_sorted_Nodes get_eps_update_nodes();
 
+};
+
+/**
+ * Chainable objects defining Node placement rules.
+ */
+class Placer {
+protected:
+    EPS_map& updvar_map;
+public:
+    Placer(EPS_map& _updvar_map): updvar_map(_updvar_map) {}
+    virtual void place() = 0;
+};
+
+class VTD_Placer: public Placer {
+public:
+    VTD_Placer(EPS_map& _updvar_map): Placer(_updvar_map) {}
+    virtual void place();
+};
+
+class Uncategorized_UTD_Placer: public Placer {
+public:
+    Uncategorized_UTD_Placer(EPS_map& _updvar_map): Placer(_updvar_map) {}
+    virtual void place();
 };
 
 #endif // __EPSMAP_HPP

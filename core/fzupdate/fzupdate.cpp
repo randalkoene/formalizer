@@ -448,6 +448,13 @@ int update_variable(time_t t_pass) {
     EPS_map updvar_map(t_pass, constraints.days_in_map, incomplete_repeating, epsdata);
     updvar_map.place_exact();
     updvar_map.place_fixed();
+    // *** This is where, instead of just calling group_and_place_movable() there could
+    //     be the option to apply some chain of further mapping protocols, such as
+    //     protocols for UTD Nodes that appear in category-specific NNLs and other
+    //     uncategorized UTD Nodes.
+    // for (auto& placer : updvar_map.placer_chain) {
+    //     placer.place();
+    // }
     updvar_map.group_and_place_movable();
 
     targetdate_sorted_Nodes eps_update_nodes = updvar_map.get_eps_update_nodes();

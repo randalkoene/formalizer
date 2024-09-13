@@ -406,6 +406,14 @@ void EPS_map::place_fixed() {
     }
 }
 
+bool TD_type_test(Node* node_ptr, bool include_UTD) {
+    if (include_UTD) {
+        return (node_ptr->get_tdproperty() == variable) || (node_ptr->get_tdproperty() == unspecified);
+    } else {
+        return node_ptr->get_tdproperty() == variable;
+    }
+}
+
 /**
  * Setting updated times for movable target date Nodes. The EPS method uses grouping where Nodes
  * had the same target dates. The `group_first` iterator and index cache is updated whenever a
@@ -419,7 +427,7 @@ void EPS_map::place_fixed() {
  * updated when `fzu.t_limit` is passed or when `nodelist.end()` is reached. This is why
  * a final update call has to be made after the for-loop unless `group_td` remained `RT_unspecified`.
  */
-void EPS_map::group_and_place_movable() {
+void EPS_map::group_and_place_movable(bool include_UTD) {
 
     struct nodelist_itidx {
         ssize_t index;
@@ -501,7 +509,7 @@ void EPS_map::group_and_place_movable() {
             }
             eps_data & epsdataref = epsdata[it.index];
             if ((epsdataref.chunks_req > 0)
-                && ((node_ptr->get_tdproperty() == variable) || (node_ptr->get_tdproperty() == unspecified) || epsdataref.epsflags.EPS_treatgroupable())) {
+                && (TD_type_test(node_ptr, include_UTD) || epsdataref.epsflags.EPS_treatgroupable())) {
 
                 if (t != group.td) { // process EPS group and start new one
                     group.process_and_start_next(t, it, *this);
@@ -557,4 +565,46 @@ targetdate_sorted_Nodes EPS_map::get_eps_update_nodes() {
     VERBOSEOUT("\nNumber of Node target date updates requested: "+std::to_string(update_nodes.size())+'\n');
 
     return update_nodes;
+}
+
+/**
+ * Place VTD Nodes. The resulting map may require that the target dates
+ * of some VTD Nodes that cannot be achieved are modified.
+ * 
+ * EPS_map.group_and_place_movable() is called with include_UTD=false so
+ * that only VTD Nodes and Nodes inheriting target dates are placed.
+ */
+void VTD_Placer::place() {
+    updvar_map.group_and_place_movable(false);
+}
+
+/**
+ * Place UTD Nodes that do not appear in category specific NNLs.
+ * This places remaining UTD Nodes that have not already been placed.
+ * The target dates of these UTD Nodes are not interpreted as dates
+ * but rather as a sort-order.
+ */
+void Uncategorized_UTD_Placer::place() {
+    // Walk through unplaced Nodes and place UTD Nodes in order of appearance.
+    size_t i = 0;
+    for (auto& [t, node_ptr] : updvar_map.nodelist) {
+        if (!node_ptr) {
+            ADDERROR(__func__, "Received a null-node");
+        } else {
+
+            eps_data & epsdataref = epsdata[i];
+            if ((epsdataref.chunks_req>0) && (node_ptr->get_tdproperty() == unspecified)) {
+                if (updvar_map.reserve(node_ptr, epsdataref.chunks_req) < 0) {
+                    epsdataref.epsflags.set_insufficient();
+                }             
+            }
+
+        }
+        ++i;
+    }
+
+    VERYVERBOSEOUT("\nUncategorized Nodes with unspecified target dates mapped.\n");
+    if (fzu.config.showmaps) {
+        VERYVERBOSEOUT(show());
+    }
 }

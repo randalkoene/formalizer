@@ -217,6 +217,7 @@ nutrition = {
 	'cranberry raisins': [ 130, '1/4 cup, 50 pieces', ],
 	'beef ravioli': [ 320, '15oz can', ],
 	'black bean burger': [ 480, '1 cup', ],
+	'rice noodles': [ 192, '1 cup',],
 }
 
 lowcal_filling_nutritious = [
@@ -339,6 +340,7 @@ meals = [
 	'quarter pounder',
 	'beef ravioli',
 	'black bean burger',
+	'rice noodles',
 ]
 
 drinks = [
