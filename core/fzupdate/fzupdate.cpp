@@ -212,6 +212,7 @@ bool fzu_configurable::set_parameter(const std::string & parlabel, const std::st
     CONFIG_TEST_AND_SET_PAR(fetch_days_beyond_t_limit, "fetch_days_beyond_t_limit", parlabel, get_positive_integer(parvalue, "fetch_days_beyond_t_limit"));
     CONFIG_TEST_AND_SET_PAR(showmaps,"showmaps", parlabel, (parvalue != "false"));
     CONFIG_TEST_AND_SET_PAR(timezone_offset_hours, "timezone_offset_hours", parlabel, std::atoi(parvalue.c_str()));
+    CONFIG_TEST_AND_SET_PAR(chain, "chain", parlabel, parvalue);
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
@@ -391,6 +392,8 @@ bool request_batch_targetdates_modifications(const targetdate_sorted_Nodes & upd
  * Note: Much of this is a re-implementation of the Formalizer 1.x process carried out by dil2al when the
  *       function alcomp.cc:generate_AL_CRT() is called.
  * 
+ * Note: The first step is now to parse a possible "chain" specification.
+ * 
  * Outline of steps:
  * 1. Determine the time limit (fzu.t_limit) up to which mapping is to be done.
  * 2. Initialize constraints, including constraints.t_fetchlimit (which is beyond fzu.t_limit).
@@ -446,16 +449,16 @@ int update_variable(time_t t_pass) {
     VERBOSEOUT(constraints.str());
 
     EPS_map updvar_map(t_pass, constraints.days_in_map, incomplete_repeating, epsdata);
+    updvar_map.process_chain(fzu.config.chain);
     updvar_map.place_exact();
     updvar_map.place_fixed();
-    // *** This is where, instead of just calling group_and_place_movable() there could
-    //     be the option to apply some chain of further mapping protocols, such as
-    //     protocols for UTD Nodes that appear in category-specific NNLs and other
-    //     uncategorized UTD Nodes.
-    // for (auto& placer : updvar_map.placer_chain) {
-    //     placer.place();
-    // }
-    updvar_map.group_and_place_movable();
+    if (updvar_map.usechain) {
+        for (auto& placer : updvar_map.placer_chain) {
+            placer.place();
+        }
+    } else {
+        updvar_map.group_and_place_movable();
+    }
 
     targetdate_sorted_Nodes eps_update_nodes = updvar_map.get_eps_update_nodes();
 

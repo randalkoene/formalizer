@@ -1,5 +1,6 @@
 {
     "dolater_endofday": "19:40",
     "doearlier_endofday": "16:00",
-    "timezone_offset_hours": "0"
+    "timezone_offset_hours": "0",
+    "chain": "VTD,UTD"
 }

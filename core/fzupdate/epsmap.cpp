@@ -196,6 +196,29 @@ EPS_map::EPS_map(time_t _t, unsigned long days_in_map, targetdate_sorted_Nodes &
 }
 
 /**
+ * Parse a possible chain specification.
+ * 
+ * ***TODO: Add identification of NNLs from which to identify category
+ *          specific UTD Nodes.
+ */
+void EPS_map::process_chain(std::string& chain) {
+    if (chain.empty()) return;
+    auto chainvec = split(chain, ',');
+    for (auto& element : chainvec) {
+        std::string trimmed = trim(element);
+        if (trimmed == "VTD") {
+            usechain = true;
+            std::unique_ptr<VTD_Placer> VTDplacer = std::make_unique<VTD_Placer>(*this);
+            placer_chain.emplace_back(VTDplacer);
+        } else if (trimmed == "UTD") { // Uncategorized UTD
+            usechain = true;
+            std::unique_ptr<Uncategorized_UTD_Placer> UTDplacer = std::make_unique<Uncategorized_UTD_Placer>(*this);
+            placer_chain.emplace_back(UTDplacer);
+        }
+    }
+}
+
+/**
  * Reserve `chunks_req` in five minute granularity, immediately preceding
  * the exact target date.
  * @param n_ptr Pointer to Node for which to allocate time.

@@ -50,6 +50,7 @@ public:
     unsigned long fetch_days_beyond_t_limit = 30;
     bool showmaps = true;
     int timezone_offset_hours = 0;
+    std::string chain;
 };
 
 

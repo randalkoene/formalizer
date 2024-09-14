@@ -11,6 +11,8 @@
 #include "version.hpp"
 #define __EPSMAP_HPP (__VERSION_HPP)
 
+#include <memory>
+
 // core
 #include "config.hpp"
 #include "standard.hpp"
@@ -126,7 +128,8 @@ struct EPS_map {
     time_t previous_group_td = -1;
     time_t t_beyond; ///< Will be initialized to the time right after the last slot, then incremented by pack_interval_beyond if in back_moveable mode.
 
-    std::vector<Placer> placer_chain;
+    bool usechain = false;
+    std::vector<std::unique_ptr<Placer>> placer_chain;
 
     targetdate_sorted_Nodes & nodelist;
     eps_data_vec_t & epsdata;
@@ -140,6 +143,7 @@ struct EPS_map {
 
     EPS_map(time_t _t, unsigned long days_in_map, targetdate_sorted_Nodes & _incomplete_repeating, eps_data_vec_t & _epsdata);
 
+    void process_chain(std::string& chain);
     void prepare_day_separator();
     void add_map_code(time_t t, const char * code_cstr, std::vector<std::string> & maphtmlvec) const;
     std::vector<std::string> html(const Node_twochar_encoder & codebook);
