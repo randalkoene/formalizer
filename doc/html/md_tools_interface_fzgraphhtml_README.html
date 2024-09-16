@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Formalizer: fzgraphhtml - {{ brief_title }}}</title>
+<title>Formalizer: &lt;tt&gt;fzgraphhtml&lt;/tt&gt; - Generate formatted Graph data output</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -65,11 +65,30 @@ $(function() {
 </div><!-- top -->
 <div class="PageDoc"><div class="header">
   <div class="headertitle">
-<div class="title">fzgraphhtml - {{ brief_title }}} </div>  </div>
+<div class="title"><code>fzgraphhtml</code> - Generate formatted Graph data output </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>{{ readme_description }}</p>
-<p>Randal A. Koene, 2020 </p>
+<div class="textblock"><p>The <code>fzgraphhtml</code> tool is used to query the Graph and produce formatted output with the requested information.</p>
+<h1>(( ... add documentation about direct calls... ))</h1>
+<h1>The <code>fzgraphhtml-cgi.py</code> CGI script</h1>
+<p>Call modes are:</p>
+<ul>
+<li><b>help</b> (form variable <code>help=</code>): Shows information about the CGI script as an HTML page.</li>
+<li><b>id</b> (form variable <code>id=</code>): Generate an HTML embeddable list of NNLs.</li>
+<li><b>srclist</b> (form variable <code>srclist=&lt;list_name&gt;</code>): Generate an HTML page for the NNL <code>&lt;list_name&gt;</code>.</li>
+<li><b>edit</b> (form variable <code>edit=&lt;node-id&gt;|new</code>): Generate a Node Edit HTML page for Node <code>&lt;node-id&gt;</code> for a Node Create HTML page.</li>
+<li><b>topicslist</b> (form variable <code>topics=</code>): Generate an HTML page showing all defined <code>topics</code>.</li>
+<li><b>topics_alt</b> (form variable <code>topics_alt=</code>): Use a custom template to generate a page of <code>topics</code>.</li>
+<li><b>topic</b> (form variable <code>topic=&lt;topic&gt;</code>): Generate an HTML page showing the Nodes in <code>&lt;topic&gt;</code>.</li>
+<li><b>norepeats</b> (form variable <code>norepeats=</code>): Generate an HTML list of incomplete Nodes.</li>
+<li><b>default</b>: Generate an HTML page showing the Next Nodes Schedule.</li>
+</ul>
+<h2>Generating an HTML page for Node Editing</h2>
+<p>This uses <code>fzgraphhtml -m &lt;node-id&gt;</code>. This calls the <code>render_node_edit()</code> function in <code>fzgraphhtml/render.cpp</code>.</p>
+<h2>Generating an HTML page for Node Creation</h2>
+<p>This uses <code>fzgraph -q -C "/fz/graph/namedlists/superiors?add={tosup}&amp;unique=true"</code> with the <code>tosup</code> variable or <code>fzgraph -q -C "/fz/graph/namedlists/dependencies?add={todep}&amp;unique=true"</code> with the <code>todep</code> variable, and then uses <code>fzgraphhtml -m new</code>. This called the <code>render_new_node_page()</code> function in <code>fzgraphhtml/render.cpp</code>.</p>
+<hr  />
+<p> Randal A. Koene, 2020 </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 <!-- start footer part -->

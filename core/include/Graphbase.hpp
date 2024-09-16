@@ -19,6 +19,8 @@
  * 3. Although an 'unspecified' target date is now one of the four basic types of
  *    target dates enumerated (unspecified, variable, fixed, exact), the convention
  *    is still that the targetdate should be set to an invalid value if unspecified.
+ *    ***Note 20240914: This is changing now that we are intending to use UTD Nodes
+ *       differently.
  * 4. The targetdate does not yet include a time zone specification.
  * 5. There is one targetdate per Node. The multiple target dates possibility in DIL_entry
  *    was never sucessfully used and caused more extra work than it was worth.

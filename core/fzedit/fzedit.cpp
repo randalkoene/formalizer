@@ -288,7 +288,12 @@ void reduce_edits(Graph & graph) {
     if (fze.editflags.Edit_text() && (fze.nd.utf8_text != node_ptr->get_text().c_str())) {
         editflags.set_Edit_text();
     }
+    if (fze.editflags.Edit_targetdate()) {
+        VERYVERBOSEOUT("***"+TimeStampYmdHM(fze.nd.targetdate)+"\n");
+        VERYVERBOSEOUT("***"+TimeStampYmdHM(node_ptr->get_targetdate())+"\n");
+    }
     if (fze.editflags.Edit_targetdate() && (fze.nd.targetdate != node_ptr->get_targetdate())) {
+        VERYVERBOSEOUT("**Edit targetdate\n");
         editflags.set_Edit_targetdate();
     }
     if (fze.editflags.Edit_tdproperty() && (fze.nd.tdproperty != node_ptr->get_tdproperty())) {
@@ -311,6 +316,10 @@ void reduce_edits(Graph & graph) {
 
 int edit_node() {
     ERRTRACE;
+    VERYVERBOSEOUT("Initial Edit requests:\n");
+    VERYVERBOSEOUT(verbose_edit_node_info());
+    VERYVERBOSEOUT("\n");
+
     if (fze.editflags.Edit_text()) {
         auto [exit_code, errstr] = get_content(fze.nd.utf8_text, fze.config.content_file, "Node description");
         if (exit_code != exit_ok)
@@ -330,7 +339,7 @@ int edit_node() {
     }
 
     fze.graphmod().data.back().set_Edit_flags(fze.editflags.get_Edit_flags());
-    Graph_ptr graph_ptr = fze.graphmod().get_reference_Graph();
+    Graph_ptr graph_ptr = fze.graphmod().get_reference_Graph(); // points to the in-memory Graph
 
     reduce_edits(*graph_ptr);
     VERYVERBOSEOUT(verbose_edit_node_info());

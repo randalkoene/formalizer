@@ -138,6 +138,9 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="memitem:a209a761459818a1714512cf0e5c6d668"><td class="memItemLeft" align="right" valign="top"><a id="a209a761459818a1714512cf0e5c6d668"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_filter</b> ()</td></tr>
 <tr class="separator:a209a761459818a1714512cf0e5c6d668"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57111ace0f346954680d0c42e063e9fe"><td class="memItemLeft" align="right" valign="top"><a id="a57111ace0f346954680d0c42e063e9fe"></a>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>time_zone_adjusted</b> (time_t t)</td></tr>
+<tr class="separator:a57111ace0f346954680d0c42e063e9fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ed3cfe60003d33ca44510e2d50233bb"><td class="memItemLeft" align="right" valign="top"><a id="a3ed3cfe60003d33ca44510e2d50233bb"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>get_Log_interval</b> ()</td></tr>
 <tr class="separator:a3ed3cfe60003d33ca44510e2d50233bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -183,6 +186,15 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a8780dd5ffb474a43deeaefbff9855cef"><td class="memItemLeft" align="right" valign="top"><a id="a8780dd5ffb474a43deeaefbff9855cef"></a>
 <a class="el" href="structfz_1_1Log__filter.html">Log_filter</a>&#160;</td><td class="memItemRight" valign="bottom"><b>filter</b></td></tr>
 <tr class="separator:a8780dd5ffb474a43deeaefbff9855cef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a05ee72c122480f85e512c3ef05bb44c4"><td class="memItemLeft" align="right" valign="top"><a id="a05ee72c122480f85e512c3ef05bb44c4"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>get_log_entry</b> = false</td></tr>
+<tr class="separator:a05ee72c122480f85e512c3ef05bb44c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8234e59b52c4fdddc4d6a4ece4291266"><td class="memItemLeft" align="right" valign="top"><a id="a8234e59b52c4fdddc4d6a4ece4291266"></a>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>chunk_id</b> = 0</td></tr>
+<tr class="separator:a8234e59b52c4fdddc4d6a4ece4291266"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90c47f443251c4011de517c354bd8f9a"><td class="memItemLeft" align="right" valign="top"><a id="a90c47f443251c4011de517c354bd8f9a"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>entry_id</b> = 0</td></tr>
+<tr class="separator:a90c47f443251c4011de517c354bd8f9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a72896fa0ca1426b223a6434b7b51cf86"><td class="memItemLeft" align="right" valign="top"><a id="a72896fa0ca1426b223a6434b7b51cf86"></a>
 time_t&#160;</td><td class="memItemRight" valign="bottom"><b>t_center_around</b> = RTt_unspecified</td></tr>
 <tr class="separator:a72896fa0ca1426b223a6434b7b51cf86"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -216,12 +228,18 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>graph_attempted</b> =
 <tr class="memitem:ab2a9ce540c19722f3f48f1622cb2778c"><td class="memItemLeft" align="right" valign="top"><a id="ab2a9ce540c19722f3f48f1622cb2778c"></a>
 most_recent_format&#160;</td><td class="memItemRight" valign="bottom"><b>recent_format</b></td></tr>
 <tr class="separator:ab2a9ce540c19722f3f48f1622cb2778c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4b286ef9b1a1b3bf11f393e563f03c2"><td class="memItemLeft" align="right" valign="top"><a id="aa4b286ef9b1a1b3bf11f393e563f03c2"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>interpret_for_dayreview</b> = false</td></tr>
+<tr class="separator:aa4b286ef9b1a1b3bf11f393e563f03c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a119887cc66ef73afe9ac8a19bb6d33c4"><td class="memItemLeft" align="right" valign="top"><a id="a119887cc66ef73afe9ac8a19bb6d33c4"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>show_total_time_applied</b> = false</td></tr>
 <tr class="separator:a119887cc66ef73afe9ac8a19bb6d33c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8590fda5b50a92843e6607ed7d85e1fd"><td class="memItemLeft" align="right" valign="top"><a id="a8590fda5b50a92843e6607ed7d85e1fd"></a>
 unsigned long&#160;</td><td class="memItemRight" valign="bottom"><b>total_minutes_applied</b> = -1</td></tr>
 <tr class="separator:a8590fda5b50a92843e6607ed7d85e1fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a5da7978e5d752071e3acfde9744aff"><td class="memItemLeft" align="right" valign="top"><a id="a7a5da7978e5d752071e3acfde9744aff"></a>
+std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>replacements</b></td></tr>
+<tr class="separator:a7a5da7978e5d752071e3acfde9744aff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classfz_1_1formalizer__standard__program"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classfz_1_1formalizer__standard__program')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></td></tr>
 <tr class="memitem:ac70799cb4aa56195b9873aa96b4aa296 inherit pub_attribs_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top"><a id="ac70799cb4aa56195b9873aa96b4aa296"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1formalizer__standard__program.html#ac70799cb4aa56195b9873aa96b4aa296">add_option_args</a></td></tr>

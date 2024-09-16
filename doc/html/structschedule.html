@@ -115,6 +115,21 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="memitem:a4e4ef1c9a89b07e1171a7f092fcd211a"><td class="memItemLeft" align="right" valign="top"><a id="a4e4ef1c9a89b07e1171a7f092fcd211a"></a>
 <a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>graph</b> ()</td></tr>
 <tr class="separator:a4e4ef1c9a89b07e1171a7f092fcd211a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae2693f06897461d0c29d5650398c0bad"><td class="memItemLeft" align="right" valign="top"><a id="ae2693f06897461d0c29d5650398c0bad"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>get_server_tzadjust</b> ()</td></tr>
+<tr class="separator:ae2693f06897461d0c29d5650398c0bad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09696c9a7d5c60f2ae4aaac6b8eac6ae"><td class="memItemLeft" align="right" valign="top"><a id="a09696c9a7d5c60f2ae4aaac6b8eac6ae"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>init_times</b> ()</td></tr>
+<tr class="separator:a09696c9a7d5c60f2ae4aaac6b8eac6ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb2359f6c51421029da09f672d5ac234"><td class="memItemLeft" align="right" valign="top"><a id="abb2359f6c51421029da09f672d5ac234"></a>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>tzadjust_daystart</b> (time_t t) const</td></tr>
+<tr class="separator:abb2359f6c51421029da09f672d5ac234"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a170da0a85fedd3c4a5e923528fb12155"><td class="memItemLeft" align="right" valign="top"><a id="a170da0a85fedd3c4a5e923528fb12155"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>tzhouradjust_mod24</b> (int hour) const</td></tr>
+<tr class="separator:a170da0a85fedd3c4a5e923528fb12155"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe1719c92dc65e5dfb79de4894a9f173"><td class="memItemLeft" align="right" valign="top"><a id="abe1719c92dc65e5dfb79de4894a9f173"></a>
+unsigned long&#160;</td><td class="memItemRight" valign="bottom"><b>tzadjust_passedminutes</b> (unsigned long pmins) const</td></tr>
+<tr class="separator:abe1719c92dc65e5dfb79de4894a9f173"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a49be57cebcd0b4fb8b7834815226013d"><td class="memItemLeft" align="right" valign="top"><a id="a49be57cebcd0b4fb8b7834815226013d"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>to_output</b> (const std::string &amp;rendered_schedule)</td></tr>
 <tr class="separator:a49be57cebcd0b4fb8b7834815226013d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -213,8 +228,17 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>inc_fixed</b> = true<
 <tr class="memitem:af6d53b4b8b21564e70376e9cfc79796e"><td class="memItemLeft" align="right" valign="top"><a id="af6d53b4b8b21564e70376e9cfc79796e"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>inc_variable</b> = true</td></tr>
 <tr class="separator:af6d53b4b8b21564e70376e9cfc79796e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20eb87b7caa39fe0b73c72eec45abf8e"><td class="memItemLeft" align="right" valign="top"><a id="a20eb87b7caa39fe0b73c72eec45abf8e"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>use_tzadjust</b> = true</td></tr>
+<tr class="separator:a20eb87b7caa39fe0b73c72eec45abf8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a543a165334057040f96ba5f3bd712ee3"><td class="memItemLeft" align="right" valign="top"><a id="a543a165334057040f96ba5f3bd712ee3"></a>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>timezone_offset_seconds</b> = 0</td></tr>
+<tr class="separator:a543a165334057040f96ba5f3bd712ee3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23839f95b173284941259368343378d2"><td class="memItemLeft" align="right" valign="top"><a id="a23839f95b173284941259368343378d2"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>timezone_offset_hours</b> = 0</td></tr>
+<tr class="separator:a23839f95b173284941259368343378d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a53296eab73364ba6c7c1884d17934ec5"><td class="memItemLeft" align="right" valign="top"><a id="a53296eab73364ba6c7c1884d17934ec5"></a>
-time_t&#160;</td><td class="memItemRight" valign="bottom"><b>thisdatetime</b></td></tr>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>thisdatetime</b> = 0</td></tr>
 <tr class="separator:a53296eab73364ba6c7c1884d17934ec5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae7876ea08e4d24bb4bb3ea8642fa6f67"><td class="memItemLeft" align="right" valign="top"><a id="ae7876ea08e4d24bb4bb3ea8642fa6f67"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>thisdate</b></td></tr>
@@ -223,10 +247,10 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>thisdate</b></
 <a class="el" href="structfz_1_1time__of__day__t.html">time_of_day_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>thistimeofday</b></td></tr>
 <tr class="separator:a4152828f8ebab10cec62d9a7f536b9e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9e09fe0c2f0ad0f9b9eddfbc748f0e86"><td class="memItemLeft" align="right" valign="top"><a id="a9e09fe0c2f0ad0f9b9eddfbc748f0e86"></a>
-unsigned long&#160;</td><td class="memItemRight" valign="bottom"><b>thisminutes</b></td></tr>
+unsigned long&#160;</td><td class="memItemRight" valign="bottom"><b>thisminutes</b> = 0</td></tr>
 <tr class="separator:a9e09fe0c2f0ad0f9b9eddfbc748f0e86"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb0b583d46b2163d9041e450a8241b49"><td class="memItemLeft" align="right" valign="top"><a id="abb0b583d46b2163d9041e450a8241b49"></a>
-time_t&#160;</td><td class="memItemRight" valign="bottom"><b>t_today_start</b></td></tr>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>t_today_start</b> = 0</td></tr>
 <tr class="separator:abb0b583d46b2163d9041e450a8241b49"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af7b5cc19a4abffbbb410a53fdb154952"><td class="memItemLeft" align="right" valign="top"><a id="af7b5cc19a4abffbbb410a53fdb154952"></a>
 unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>num_days</b> = 1</td></tr>

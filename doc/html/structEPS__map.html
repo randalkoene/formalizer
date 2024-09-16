@@ -78,6 +78,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4cceafaba531e294b24675e30e0f3aeb"><td class="memItemLeft" align="right" valign="top"><a id="a4cceafaba531e294b24675e30e0f3aeb"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>EPS_map</b> (time_t _t, unsigned long days_in_map, <a class="el" href="namespacefz.html#ade8fd9836dfeac48419a3e0a89f0f8f2">targetdate_sorted_Nodes</a> &amp;_incomplete_repeating, eps_data_vec_t &amp;_epsdata)</td></tr>
 <tr class="separator:a4cceafaba531e294b24675e30e0f3aeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04c0701043cb60792f2d07111c552dd4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEPS__map.html#a04c0701043cb60792f2d07111c552dd4">process_chain</a> (std::string &amp;chain)</td></tr>
+<tr class="memdesc:a04c0701043cb60792f2d07111c552dd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse a possible chain specification.  <a href="structEPS__map.html#a04c0701043cb60792f2d07111c552dd4">More...</a><br /></td></tr>
+<tr class="separator:a04c0701043cb60792f2d07111c552dd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad879cfc1a5e0388b3eef541672654660"><td class="memItemLeft" align="right" valign="top"><a id="ad879cfc1a5e0388b3eef541672654660"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>prepare_day_separator</b> ()</td></tr>
 <tr class="separator:ad879cfc1a5e0388b3eef541672654660"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -108,12 +111,16 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>place_exact</b> ()</t
 <tr class="memitem:adbe35f9a0bbbbb70bc811c60a0260211"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEPS__map.html#adbe35f9a0bbbbb70bc811c60a0260211">place_fixed</a> ()</td></tr>
 <tr class="memdesc:adbe35f9a0bbbbb70bc811c60a0260211"><td class="mdescLeft">&#160;</td><td class="mdescRight">Note: In dil2al, this included collecting info about how a target date was obtained, and that info could be fairly diverse.  <a href="structEPS__map.html#adbe35f9a0bbbbb70bc811c60a0260211">More...</a><br /></td></tr>
 <tr class="separator:adbe35f9a0bbbbb70bc811c60a0260211"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afce1332aecc61be94e3cd1ffcc8c2486"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEPS__map.html#afce1332aecc61be94e3cd1ffcc8c2486">group_and_place_movable</a> ()</td></tr>
-<tr class="memdesc:afce1332aecc61be94e3cd1ffcc8c2486"><td class="mdescLeft">&#160;</td><td class="mdescRight">Setting updated times for movable target date Nodes.  <a href="structEPS__map.html#afce1332aecc61be94e3cd1ffcc8c2486">More...</a><br /></td></tr>
-<tr class="separator:afce1332aecc61be94e3cd1ffcc8c2486"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade89ae6d250e75585aa2affe72da232f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEPS__map.html#ade89ae6d250e75585aa2affe72da232f">group_and_place_movable</a> (bool include_UTD=true)</td></tr>
+<tr class="memdesc:ade89ae6d250e75585aa2affe72da232f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Setting updated times for movable target date Nodes.  <a href="structEPS__map.html#ade89ae6d250e75585aa2affe72da232f">More...</a><br /></td></tr>
+<tr class="separator:ade89ae6d250e75585aa2affe72da232f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acff8b615877edfa34b031a3198ab7d70"><td class="memItemLeft" align="right" valign="top"><a id="acff8b615877edfa34b031a3198ab7d70"></a>
 <a class="el" href="namespacefz.html#ade8fd9836dfeac48419a3e0a89f0f8f2">targetdate_sorted_Nodes</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_eps_update_nodes</b> ()</td></tr>
 <tr class="separator:acff8b615877edfa34b031a3198ab7d70"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b78446bde949fd7d74ab0a471d8ee0c"><td class="memItemLeft" align="right" valign="top"><a id="a3b78446bde949fd7d74ab0a471d8ee0c"></a>
+<a class="el" href="namespacefz.html#ade8fd9836dfeac48419a3e0a89f0f8f2">targetdate_sorted_Nodes</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEPS__map.html#a3b78446bde949fd7d74ab0a471d8ee0c">get_epsvtd_and_utd_update_nodes</a> ()</td></tr>
+<tr class="memdesc:a3b78446bde949fd7d74ab0a471d8ee0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Proposed updates of VTD and UTD Nodes need to be handled separately, because it is important to ensure that proposed updates of UTD Nodes do not change the priority order when UTD Nodes are used as a priority-order queue. <br /></td></tr>
+<tr class="separator:a3b78446bde949fd7d74ab0a471d8ee0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4cceafaba531e294b24675e30e0f3aeb"><td class="memItemLeft" align="right" valign="top"><a id="a4cceafaba531e294b24675e30e0f3aeb"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>EPS_map</b> (time_t _t, unsigned long days_in_map, <a class="el" href="namespacefz.html#ade8fd9836dfeac48419a3e0a89f0f8f2">targetdate_sorted_Nodes</a> &amp;_incomplete_repeating, eps_data_vec_t &amp;_epsdata)</td></tr>
 <tr class="separator:a4cceafaba531e294b24675e30e0f3aeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -179,6 +186,12 @@ time_t&#160;</td><td class="memItemRight" valign="bottom"><b>previous_group_td</
 time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEPS__map.html#a43f71566282f947cc6223846f5e795a0">t_beyond</a></td></tr>
 <tr class="memdesc:a43f71566282f947cc6223846f5e795a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Will be initialized to the time right after the last slot, then incremented by pack_interval_beyond if in back_moveable mode. <br /></td></tr>
 <tr class="separator:a43f71566282f947cc6223846f5e795a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03bca676d2ba326ec645171cf37270a7"><td class="memItemLeft" align="right" valign="top"><a id="a03bca676d2ba326ec645171cf37270a7"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>usechain</b> = false</td></tr>
+<tr class="separator:a03bca676d2ba326ec645171cf37270a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96ce3d9f5791197f318cc433589e3d25"><td class="memItemLeft" align="right" valign="top"><a id="a96ce3d9f5791197f318cc433589e3d25"></a>
+std::vector&lt; std::unique_ptr&lt; <a class="el" href="classPlacer.html">Placer</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>placer_chain</b></td></tr>
+<tr class="separator:a96ce3d9f5791197f318cc433589e3d25"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad424a9ab97e3152a51699561ff203723"><td class="memItemLeft" align="right" valign="top"><a id="ad424a9ab97e3152a51699561ff203723"></a>
 <a class="el" href="namespacefz.html#ade8fd9836dfeac48419a3e0a89f0f8f2">targetdate_sorted_Nodes</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>nodelist</b></td></tr>
 <tr class="separator:ad424a9ab97e3152a51699561ff203723"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -256,8 +269,8 @@ std::map&lt; time_t, <a class="el" href="classfz_1_1Node.html">Node_ptr</a> &gt;
 
 </div>
 </div>
-<a id="afce1332aecc61be94e3cd1ffcc8c2486"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afce1332aecc61be94e3cd1ffcc8c2486">&#9670;&nbsp;</a></span>group_and_place_movable()</h2>
+<a id="ade89ae6d250e75585aa2affe72da232f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ade89ae6d250e75585aa2affe72da232f">&#9670;&nbsp;</a></span>group_and_place_movable()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -265,7 +278,8 @@ std::map&lt; time_t, <a class="el" href="classfz_1_1Node.html">Node_ptr</a> &gt;
         <tr>
           <td class="memname">void EPS_map::group_and_place_movable </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>include_UTD</em> = <code>true</code></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -314,6 +328,27 @@ std::map&lt; time_t, <a class="el" href="classfz_1_1Node.html">Node_ptr</a> &gt;
 
 <p>Note: In dil2al, this included collecting info about how a target date was obtained, and that info could be fairly diverse. </p>
 <p>Now, in the Formalizer 2.x, target dates are set at the Node, so you only have two cases: Either the targetdate was specified at the Node, or it was inherited (propagated). It is now solidly the td_property that determines what is done, and the 'inherit' property forces inheritance (much as 'unspecified+fixed' used to). For more about this, see the documentation of target date properties in <a href="https://docs.google.com/document/d/1rYPFgzFgjkF1xGx3uABiXiaDR5sfmOzqYQRqSntcyyY/edit#heading=h.td3aptmw2f5">https://docs.google.com/document/d/1rYPFgzFgjkF1xGx3uABiXiaDR5sfmOzqYQRqSntcyyY/edit#heading=h.td3aptmw2f5</a>. </p>
+
+</div>
+</div>
+<a id="a04c0701043cb60792f2d07111c552dd4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a04c0701043cb60792f2d07111c552dd4">&#9670;&nbsp;</a></span>process_chain()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EPS_map::process_chain </td>
+          <td>(</td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>chain</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Parse a possible chain specification. </p>
+<p>***TODO: Add identification of NNLs from which to identify category specific UTD Nodes. </p>
 
 </div>
 </div>

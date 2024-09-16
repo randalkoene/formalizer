@@ -190,6 +190,7 @@ listpagehead_nomodif = '''<html>
 <button id="clock" class="button button2">_____</button>
 <h3>Named Node List: {list_name}</h3>
 
+{form_head}
 <table class="blueTable"><tbody>
 '''
 
@@ -212,6 +213,7 @@ listpagehead_alllists = '''<html>
 '''
 
 listpagetail = '''</tbody></table>
+{form_tail}
 
 <hr>
 
@@ -374,11 +376,26 @@ def generate_embeddable_list_of_NNLs_to_add_Node_to():
     print('Or, add to one of the Named Node Lists below:\n\n<table class="blueTable"><tbody>')
     try_command_call(thecmd)
 
-    print(listpagetail)
+    print(listpagetail.format(form_tail=""))
 
 
-def generate_NNL_page():
-    thecmd = "./fzgraphhtml -q -e -L '"+srclist+"' -o STDOUT -E STDOUT"
+NNLFORMHEAD='''
+<form action="/cgi-bin/fzedit-cgi.py" method="post">
+<input type="submit" name="action" value="batchmodify">
+Select All<input onclick="toggle(this);" type="checkbox" />
+filter <input type="checkbox" name="filter">
+'''
+
+def generate_NNL_page(include_checkboxes=True):
+    # NOTE: Switched to showing checkboxes as well, could make that optional.
+    if include_checkboxes:
+        thecmd = "./fzgraphhtml -q -e -L '"+srclist+"' -N all -c -o STDOUT -E STDOUT"
+        formhead=NNLFORMHEAD
+        formtail="</form>"
+    else:
+        thecmd = "./fzgraphhtml -q -e -L '"+srclist+"' -N all -o STDOUT -E STDOUT"
+        formhead=""
+        formtail=""
     if SPA:
         thecmd += ' -j' # no Javascript
     if sort_by == 'targetdate':
@@ -387,12 +404,12 @@ def generate_NNL_page():
     if srclist == '?':
         print(listpagehead_alllists)
     else:
-        print(listpagehead_nomodif.format(list_name=srclist))
+        print(listpagehead_nomodif.format(list_name=srclist, form_head=formhead))
     print(f'<!-- thecmd = {thecmd} -->')
 
     try_command_call(thecmd)
 
-    print(listpagetail)
+    print(listpagetail.format(form_tail=formtail))
 
 
 def generate_Node_edit_form_page():

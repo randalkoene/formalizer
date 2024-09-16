@@ -39,11 +39,11 @@ fzgraphhtml fzgh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:m:Irt:i:L:N:M:D:x:o:s:S:eT:F:uCj";
+    add_option_args += "n:m:Irt:i:L:N:M:D:x:o:s:S:eT:F:uCjc";
     add_usage_top += " [-n <node-ID>|-m <node-ID>|-I|-t <topic-ID|topic-tag|?>|-L <name|?>]"
         " [-r] [-N <num>] [-M <max-YYYYmmddHHMM>] [-D <num-days>] [-x <len>]"
         " [-o <output-path>] [-s <sortkeys>] [-S <NNL>] [-e] [-T <named|node|Node>=<path>]"
-        " [-F html|txt|node|desc] [-u] [-C] [-j]";    //usage_head.push_back("Description at the head of usage information.\n");
+        " [-F html|txt|node|desc] [-u] [-C] [-j] [-c]";    //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "Notes:\n"
         "1. When no [N <num>] is provided then the configured value is used.\n"
@@ -103,7 +103,8 @@ void fzgraphhtml::usage_hook() {
           "    -F Output format: html (default), txt, json, node, desc.\n"
           "    -u Update 'shortlist' Named Node List.\n"
           "    -C (TEST) card output format.\n"
-          "    -j no Javascript.\n");
+          "    -j no Javascript.\n"
+          "    -c include checkboxes.\n");
 }
 
 unsigned int parvalue_to_num_to_show(const std::string & parvalue) {
@@ -304,6 +305,11 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
         no_javascript = true;
         return true;
     }
+
+    case 'c': {
+        config.include_checkboxes = true;
+        return true;
+    }
    
     }
 
@@ -343,6 +349,7 @@ bool fzgh_configurable::set_parameter(const std::string & parlabel, const std::s
     CONFIG_TEST_AND_SET_PAR(tzadjust_day_separators, "tzadjust_day_separators", parlabel, parvalue_to_bool(parvalue));
     CONFIG_TEST_AND_SET_PAR(show_tzadjust, "show_tzadjust", parlabel, parvalue_to_bool(parvalue));
     CONFIG_TEST_AND_SET_PAR(max_do_links, "max_do_links", parlabel, atoi(parvalue.c_str()));
+    CONFIG_TEST_AND_SET_PAR(include_checkboxes, "include_checkboxes", parlabel, parvalue_to_bool(parvalue));
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }

@@ -193,119 +193,131 @@ Enumerations</h2></td></tr>
 &#160;&#160;<b>flow_open_chunk</b> = 3
 , <b>flow_reopen_chunk</b> = 4
 , <b>flow_replace_entry</b> = 5
-, <b>flow_NUMoptions</b>
+, <b>flow_replace_chunk_node</b> = 6
 , <br />
-&#160;&#160;<b>flow_unknown</b> = 0
+&#160;&#160;<b>flow_replace_chunk_close</b> = 7
+, <b>flow_replace_chunk_open</b> = 8
+, <b>flow_insert_entry</b> = 9
+, <b>flow_delete_entry</b> = 10
+, <br />
+&#160;&#160;<b>flow_insert_chunk</b> = 11
+, <b>flow_NUMoptions</b>
+, <b>flow_unknown</b> = 0
 , <b>flow_node</b> = 1
-, <b>flow_refresh_histories</b> = 2
+, <br />
+&#160;&#160;<b>flow_refresh_histories</b> = 2
 , <b>flow_refresh_namedlists</b> = 3
-, <br />
-&#160;&#160;<b>flow_serialized_request</b> = 4
+, <b>flow_serialized_request</b> = 4
 , <b>flow_formalizer_time</b> = 5
-, <b>flow_NUMoptions</b>
-, <b>flow_unknown</b> = 0
-, <br />
-&#160;&#160;<b>flow_resident_graph</b> = 1
-, <b>flow_NUMoptions</b>
-, <b>flow_unknown</b> = 0
-, <b>flow_resident_log</b> = 1
 , <br />
 &#160;&#160;<b>flow_NUMoptions</b>
 , <b>flow_unknown</b> = 0
-, <b>flow_update_repeating</b> = 1
-, <b>flow_update_variable</b> = 2
-, <br />
-&#160;&#160;<b>flow_break_eps_groups</b> = 3
-, <b>flow_required_repeated</b> = 4
-, <b>flow_required_nonrepeating</b> = 5
+, <b>flow_resident_graph</b> = 1
 , <b>flow_NUMoptions</b>
 , <br />
 &#160;&#160;<b>flow_unknown</b> = 0
-, <b>flow_everything</b> = 1
-, <b>flow_load_only</b> = 2
-, <b>flow_dil_only</b> = 3
-, <br />
-&#160;&#160;<b>flow_tl_only</b> = 4
-, <b>flow_all</b> = 0
-, <a class="el" href="graph2dil_8hpp.html#ae2f423a6ec032d0cde29d8e3dd70efa9aa311c93d331ff5a0577fa9f37b822c8e">flow_log2TL</a> = 1
-, <a class="el" href="graph2dil_8hpp.html#ae2f423a6ec032d0cde29d8e3dd70efa9a2234bfffc8b75485b3cfaf402b4763a7">flow_graph2DIL</a> = 2
-, <br />
-&#160;&#160;<a class="el" href="graph2dil_8hpp.html#ae2f423a6ec032d0cde29d8e3dd70efa9aaafcd972b9acb5a19b116a32cf8a2edc">flow_NUMoptions</a>
+, <b>flow_resident_log</b> = 1
+, <b>flow_NUMoptions</b>
 , <b>flow_unknown</b> = 0
-, <b>flow_cpp</b> = 1
+, <br />
+&#160;&#160;<b>flow_update_repeating</b> = 1
+, <b>flow_update_variable</b> = 2
+, <b>flow_break_eps_groups</b> = 3
+, <b>flow_required_repeated</b> = 4
+, <br />
+&#160;&#160;<b>flow_required_nonrepeating</b> = 5
+, <b>flow_NUMoptions</b>
+, <b>flow_unknown</b> = 0
+, <b>flow_everything</b> = 1
+, <br />
+&#160;&#160;<b>flow_load_only</b> = 2
+, <b>flow_dil_only</b> = 3
+, <b>flow_tl_only</b> = 4
+, <b>flow_all</b> = 0
+, <br />
+&#160;&#160;<a class="el" href="graph2dil_8hpp.html#ae2f423a6ec032d0cde29d8e3dd70efa9aa311c93d331ff5a0577fa9f37b822c8e">flow_log2TL</a> = 1
+, <a class="el" href="graph2dil_8hpp.html#ae2f423a6ec032d0cde29d8e3dd70efa9a2234bfffc8b75485b3cfaf402b4763a7">flow_graph2DIL</a> = 2
+, <a class="el" href="graph2dil_8hpp.html#ae2f423a6ec032d0cde29d8e3dd70efa9aaafcd972b9acb5a19b116a32cf8a2edc">flow_NUMoptions</a>
+, <b>flow_unknown</b> = 0
+, <br />
+&#160;&#160;<b>flow_cpp</b> = 1
 , <b>flow_python</b> = 2
+, <b>flow_NUMoptions</b>
+, <b>flow_unknown</b> = 0
 , <br />
 &#160;&#160;<b>flow_NUMoptions</b>
 , <b>flow_unknown</b> = 0
+, <b>flow_dashboard</b> = 1
 , <b>flow_NUMoptions</b>
-, <b>flow_unknown</b> = 0
 , <br />
-&#160;&#160;<b>flow_dashboard</b> = 1
-, <b>flow_NUMoptions</b>
-, <b>flow_unknown</b> = 0
+&#160;&#160;<b>flow_unknown</b> = 0
 , <b>flow_node</b> = 1
-, <br />
-&#160;&#160;<b>flow_incomplete</b> = 2
+, <b>flow_incomplete</b> = 2
 , <b>flow_incomplete_with_repeats</b> = 3
+, <br />
+&#160;&#160;<b>flow_named_list</b> = 4
+, <b>flow_topics</b> = 5
+, <b>flow_topic_nodes</b> = 6
+, <b>flow_node_edit</b> = 7
+, <br />
+&#160;&#160;<b>flow_NUMoptions</b>
+, <b>flow_unknown</b> = 0
+, <b>flow_integrity_issues</b> = 1
+, <b>flow_NUMoptions</b>
+, <br />
+&#160;&#160;<b>flow_unknown</b> = 0
+, <b>flow_log_interval</b> = 1
+, <b>flow_most_recent</b> = 2
+, <b>flow_dayreview</b> = 3
+, <br />
+&#160;&#160;<b>flow_NUMoptions</b>
+, <b>flow_unknown</b> = 0
+, <b>flow_log_interval</b> = 1
+, <b>flow_most_recent</b> = 2
+, <br />
+&#160;&#160;<b>flow_NUMoptions</b>
+, <b>flow_unknown</b> = 0
+, <b>flow_logtime_page</b> = 1
+, <b>flow_NUMoptions</b>
+, <br />
+&#160;&#160;<b>flow_unknown</b> = 0
+, <b>flow_graph_server</b> = 1
+, <b>flow_ping_server</b> = 2
+, <b>flow_shared_memory</b> = 3
+, <br />
+&#160;&#160;<b>flow_NUMoptions</b>
+, <b>flow_unknown</b> = 0
+, <b>flow_SIF</b> = 1
+, <b>flow_GraphML</b> = 2
+, <br />
+&#160;&#160;<b>flow_webapp</b> = 3
+, <b>flow_webview</b> = 4
+, <b>flow_NUMoptions</b>
+, <b>flow_unknown</b> = 0
+, <br />
+&#160;&#160;<b>flow_node</b> = 1
 , <b>flow_named_list</b> = 4
 , <b>flow_topics</b> = 5
-, <br />
-&#160;&#160;<b>flow_topic_nodes</b> = 6
-, <b>flow_node_edit</b> = 7
-, <b>flow_NUMoptions</b>
-, <b>flow_unknown</b> = 0
-, <br />
-&#160;&#160;<b>flow_log_interval</b> = 1
-, <b>flow_most_recent</b> = 2
-, <b>flow_NUMoptions</b>
-, <b>flow_unknown</b> = 0
-, <br />
-&#160;&#160;<b>flow_log_interval</b> = 1
-, <b>flow_most_recent</b> = 2
-, <b>flow_NUMoptions</b>
-, <b>flow_unknown</b> = 0
-, <br />
-&#160;&#160;<b>flow_logtime_page</b> = 1
-, <b>flow_NUMoptions</b>
-, <b>flow_unknown</b> = 0
-, <b>flow_graph_server</b> = 1
-, <br />
-&#160;&#160;<b>flow_ping_server</b> = 2
-, <b>flow_shared_memory</b> = 3
-, <b>flow_NUMoptions</b>
-, <b>flow_unknown</b> = 0
-, <br />
-&#160;&#160;<b>flow_SIF</b> = 1
-, <b>flow_GraphML</b> = 2
-, <b>flow_webapp</b> = 3
-, <b>flow_webview</b> = 4
-, <br />
-&#160;&#160;<b>flow_NUMoptions</b>
-, <b>flow_unknown</b> = 0
-, <b>flow_node</b> = 1
-, <b>flow_named_list</b> = 4
-, <br />
-&#160;&#160;<b>flow_topics</b> = 5
 , <b>flow_topic_nodes</b> = 6
-, <b>flow_random_test</b> = 8
+, <br />
+&#160;&#160;<b>flow_random_test</b> = 8
 , <b>flow_listof_NNL</b> = 9
-, <br />
-&#160;&#160;<b>flow_listof_topics</b> = 10
+, <b>flow_listof_topics</b> = 10
 , <b>flow_listof_mixed</b> = 11
-, <b>flow_sysmet_categories</b> = 12
+, <br />
+&#160;&#160;<b>flow_sysmet_categories</b> = 12
 , <b>flow_NNL_dependencies</b> = 13
-, <br />
-&#160;&#160;<b>flow_dependencies_tree</b> = 14
+, <b>flow_dependencies_tree</b> = 14
 , <b>flow_superiors_tree</b> = 15
-, <b>flow_csv_schedule</b> = 16
+, <br />
+&#160;&#160;<b>flow_csv_schedule</b> = 16
 , <b>flow_NUMoptions</b>
-, <br />
-&#160;&#160;<b>flow_unknown</b> = 0
+, <b>flow_unknown</b> = 0
 , <b>flow_html</b> = 2
-, <b>flow_html_for_web</b> = 3
-, <b>flow_csv</b> = 4
 , <br />
-&#160;&#160;<b>flow_csv_for_web</b> = 5
+&#160;&#160;<b>flow_html_for_web</b> = 3
+, <b>flow_csv</b> = 4
+, <b>flow_csv_for_web</b> = 5
 , <b>flow_NUMoptions</b>
 <br />
  }</td></tr>
@@ -376,59 +388,92 @@ Enumerations</h2></td></tr>
 , <b>node_pars_in_list_with_remove_temp</b>
 , <b>NUM_temp</b>
 , <br />
-&#160;&#160;<b>LogHTML_head_temp</b>
+&#160;&#160;<b>Log_data_RAW_temp</b>
+, <b>Log_data_TXT_temp</b>
+, <b>Log_data_HTML_temp</b>
+, <b>Log_data_JSON_temp</b>
+, <br />
+&#160;&#160;<b>Log_data_summary_RAW_temp</b>
+, <b>Log_data_summary_TXT_temp</b>
+, <b>Log_data_summary_HTML_temp</b>
+, <b>Log_data_summary_JSON_temp</b>
+, <br />
+&#160;&#160;<b>Log_data_chunk_RAW_temp</b>
+, <b>Log_data_chunk_TXT_temp</b>
+, <b>Log_data_chunk_HTML_temp</b>
+, <b>Log_data_chunk_JSON_temp</b>
+, <br />
+&#160;&#160;<b>NUM_temp</b>
+, <b>LogHTML_head_temp</b>
 , <b>LogHTML_tail_temp</b>
 , <b>Log_chunk_RAW_temp</b>
-, <b>Log_chunk_TXT_temp</b>
 , <br />
-&#160;&#160;<b>Log_chunk_HTML_temp</b>
+&#160;&#160;<b>Log_chunk_TXT_temp</b>
+, <b>Log_chunk_HTML_temp</b>
 , <b>Log_entry_RAW_temp</b>
 , <b>Log_entry_TXT_temp</b>
-, <b>Log_entry_HTML_temp</b>
 , <br />
-&#160;&#160;<b>Log_most_recent_HTML_temp</b>
+&#160;&#160;<b>Log_entry_HTML_temp</b>
+, <b>Log_most_recent_HTML_temp</b>
 , <b>Log_most_recent_TXT_temp</b>
 , <b>Log_most_recent_RAW_temp</b>
-, <b>NUM_temp</b>
 , <br />
-&#160;&#160;<b>LogHTML_head_temp</b>
+&#160;&#160;<b>Log_review_RAW_temp</b>
+, <b>Log_review_TXT_temp</b>
+, <b>Log_review_HTML_temp</b>
+, <b>Log_review_JSON_temp</b>
+, <br />
+&#160;&#160;<b>Log_review_topinfo_RAW_temp</b>
+, <b>Log_review_topinfo_TXT_temp</b>
+, <b>Log_review_topinfo_HTML_temp</b>
+, <b>Log_review_topinfo_JSON_temp</b>
+, <br />
+&#160;&#160;<b>Log_review_chunk_RAW_temp</b>
+, <b>Log_review_chunk_TXT_temp</b>
+, <b>Log_review_chunk_HTML_temp</b>
+, <b>Log_review_chunk_JSON_temp</b>
+, <br />
+&#160;&#160;<b>NUM_temp</b>
+, <b>LogHTML_head_temp</b>
 , <b>LogHTML_tail_temp</b>
 , <b>LogHTML_chunk_temp</b>
-, <b>LogHTML_entry_temp</b>
 , <br />
-&#160;&#160;<b>Log_most_recent_HTML_temp</b>
+&#160;&#160;<b>LogHTML_entry_temp</b>
+, <b>Log_most_recent_HTML_temp</b>
 , <b>Log_most_recent_TXT_temp</b>
 , <b>Log_most_recent_RAW_temp</b>
-, <b>NUM_temp</b>
 , <br />
-&#160;&#160;<b>logtime_head_temp</b>
+&#160;&#160;<b>NUM_temp</b>
+, <b>logtime_head_temp</b>
 , <b>logtime_tail_temp</b>
 , <b>NUM_temp</b>
-, <b>graph_server_status_txt_temp</b> = 0
 , <br />
-&#160;&#160;<b>graph_server_status_html_temp</b> = 1
+&#160;&#160;<b>graph_server_status_txt_temp</b> = 0
+, <b>graph_server_status_html_temp</b> = 1
 , <b>graph_server_status_json_temp</b> = 2
 , <b>graph_server_status_csv_temp</b> = 3
-, <b>graph_server_status_raw_temp</b> = 4
 , <br />
-&#160;&#160;<b>NUM_temp</b>
+&#160;&#160;<b>graph_server_status_raw_temp</b> = 4
+, <b>NUM_temp</b>
 , <b>node_board_temp</b>
 , <b>node_card_temp</b>
-, <b>kanban_board_temp</b>
 , <br />
-&#160;&#160;<b>kanban_column_temp</b>
+&#160;&#160;<b>kanban_board_temp</b>
+, <b>kanban_column_temp</b>
 , <b>kanban_alt_column_temp</b>
 , <b>kanban_alt_board_temp</b>
-, <b>node_alt_card_temp</b>
 , <br />
-&#160;&#160;<b>schedule_card_temp</b>
+&#160;&#160;<b>node_alt_card_temp</b>
+, <b>schedule_card_temp</b>
 , <b>schedule_board_temp</b>
 , <b>schedule_column_temp</b>
-, <b>node_analysis_card_temp</b>
+, <br />
+&#160;&#160;<b>node_analysis_card_temp</b>
+, <b>options_pane_temp</b>
+, <b>NUM_temp</b>
+, <b>html_entry_temp</b>
 , <br />
 &#160;&#160;<b>NUM_temp</b>
-, <b>html_entry_temp</b>
-, <b>NUM_temp</b>
 <br />
  }</td></tr>
 <tr class="separator:a2ebe7e34081280713d55d9a83e0a4556"><td class="memSeparator" colspan="2">&#160;</td></tr>

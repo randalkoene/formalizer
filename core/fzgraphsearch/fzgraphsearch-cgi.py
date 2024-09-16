@@ -244,6 +244,18 @@ def Call_Error(msg: str):
     sys.exit(0)   
 
 
+CHECKALLJS='''
+<script language="JavaScript">
+function toggle(source) {
+var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+for (var i = 0; i < checkboxes.length; i++) {
+if (checkboxes[i] != source)
+checkboxes[i].checked = source.checked;
+}
+}
+</script>
+'''
+
 def render_search_results():
     print(graphsearch_results_head)
 
@@ -263,10 +275,16 @@ def render_search_results():
         print('-->')
 
     print('<!-- Render search results Named Node List -->')
+    print('<form action="/cgi-bin/fzedit-cgi.py" method="post">')
+    print('<input type="submit" name="action" value="batchmodify">')
+    print('Select All<input onclick="toggle(this);" type="checkbox" />')
+    print('filter <input type="checkbox" name="filter">')
     print('<table class="blueTable"><tbody>')
-    rendercmd = f"./fzgraphhtml -q -e -L '{searchresultsNNL}' -N all -o STDOUT -E STDOUT"
+    rendercmd = f"./fzgraphhtml -q -e -L '{searchresultsNNL}' -N all -c -o STDOUT -E STDOUT"
     try_command_call(rendercmd)
     print('</tbody></table>')
+    print('</form>')
+    print(CHECKALLJS)
 
     print(graphsearch_results_tail)
 

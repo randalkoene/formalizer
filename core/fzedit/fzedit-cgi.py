@@ -477,6 +477,70 @@ def modify_edge_parameters():
     #print('Value: '+str(modval))
     #print('</body></html>')
 
+searchresultsNNL = 'fzgraphsearch_cgi'
+
+def clear_NNL(listname: str) -> bool:
+    clearcmd = f"./fzgraph -q -E STDOUT -L delete -l '{listname}'"
+    res = try_call_command(clearcmd, return_result=True)
+    if res == "":
+        return True
+    print('<!-- Result of '+clearcmd+':')
+    print(res)
+    print('-->')
+    return False
+
+def fill_NNL(listname:str, nodesstr:str) -> bool:
+    fillcmd = f"./fzgraph -q -E STDOUT -L add -l '{listname}' -S '{nodesstr}'"
+    res = try_call_command(fillcmd, return_result=True)
+    if res == "":
+        return True
+    print('<!-- Result of '+fillcmd+':')
+    print(res)
+    print('-->')
+    return False
+
+def Call_Error(msg: str):
+    #print('-->')
+    print(f'<b>Error: {msg} See page source view for call output.</b>')
+    print(edit_fail_page_tail)
+    sys.exit(0)
+
+REDIRECT='''
+<html>
+<meta http-equiv="Refresh" content="0; url='%s'" />
+</html>
+'''
+
+def batch_modify_nodes():
+    nodelist = []
+
+    for formarg in form:
+        if 'chkbx_' in formarg:
+            if form.getvalue(formarg) == 'on':
+                nodelist.append(formarg[6:])
+
+    do_filter = form.getvalue('filter') == 'on'
+
+    if do_filter:
+        if not clear_NNL(searchresultsNNL):
+            Call_Error('Unable to clear Named Node List.')
+        Scvs = ''
+        for node in nodelist:
+            Scvs += node + ','
+        Scvs = Scvs[0:len(Scvs)-1]
+        if not fill_NNL(searchresultsNNL, Scvs):
+            Call_Error('Unable to fill Named Node List.')
+        redirecturl = '/cgi-bin/fzgraphhtml-cgi.py?srclist='+searchresultsNNL
+        print(REDIRECT % redirecturl)
+        return
+
+    print(edit_result_page_head)
+
+    for node in nodelist:
+        print(node+'<br>')
+
+    print(edit_fail_page_tail)
+
 if __name__ == '__main__':
     if help:
         show_interface_options()
@@ -494,17 +558,20 @@ if __name__ == '__main__':
         modify_edge_parameters()
         sys.exit(0)
 
-    if (action=='modify') or (action=='create'):
-        modify_node()
+    if (action=='batchmodify'):
+        batch_modify_nodes()
     else:
-        if (action=='update'):
-            update_node()
+        if (action=='modify') or (action=='create'):
+            modify_node()
         else:
-            if (action=='skip'):
-                skip_node()
+            if (action=='update'):
+                update_node()
             else:
-                print(edit_result_page_head)
-                print(f'<p class="fail"><b>Unrecognized Node edit action: {action}</b><p>')
-                print(edit_fail_page_tail)
+                if (action=='skip'):
+                    skip_node()
+                else:
+                    print(edit_result_page_head)
+                    print(f'<p class="fail"><b>Unrecognized Node edit action: {action}</b><p>')
+                    print(edit_fail_page_tail)
 
     sys.exit(0)

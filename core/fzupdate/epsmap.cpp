@@ -192,7 +192,7 @@ EPS_map::EPS_map(time_t _t, unsigned long days_in_map, targetdate_sorted_Nodes &
         ++vector_index;
     }
 
-    VERYVERBOSEOUT("\nInitialized map with "+std::to_string(slots.size())+"slots with room for "+std::to_string(slots.size()/slots_per_chunk)+" Node chunks.\n");
+    VERYVERBOSEOUT("\nInitialized map with "+std::to_string(slots.size())+" slots with room for "+std::to_string(slots.size()/slots_per_chunk)+" Node chunks.\n");
 }
 
 /**
@@ -209,11 +209,13 @@ void EPS_map::process_chain(std::string& chain) {
         if (trimmed == "VTD") {
             usechain = true;
             std::unique_ptr<VTD_Placer> VTDplacer = std::make_unique<VTD_Placer>(*this);
-            placer_chain.emplace_back(VTDplacer);
+            placer_chain.emplace_back();
+            placer_chain.back().reset(VTDplacer.release());
         } else if (trimmed == "UTD") { // Uncategorized UTD
             usechain = true;
             std::unique_ptr<Uncategorized_UTD_Placer> UTDplacer = std::make_unique<Uncategorized_UTD_Placer>(*this);
-            placer_chain.emplace_back(UTDplacer);
+            placer_chain.emplace_back();
+            placer_chain.back().reset(UTDplacer.release());
         }
     }
 }
@@ -452,6 +454,7 @@ bool TD_type_test(Node* node_ptr, bool include_UTD) {
  */
 void EPS_map::group_and_place_movable(bool include_UTD) {
 
+    // This pairs indices with iterators.
     struct nodelist_itidx {
         ssize_t index;
         targetdate_sorted_Nodes::iterator it;
@@ -573,11 +576,19 @@ targetdate_sorted_Nodes EPS_map::get_eps_update_nodes() {
             }
             // FXD if !epsflags_vec[i].EPS_epsgroupmember() (in the dil2al version)
             // the group_td is now the new target date if unspecified or variable
-            if ((node_ptr->get_tdproperty() == variable) || (node_ptr->get_tdproperty() == unspecified)) {
+            auto tdprop = node_ptr->get_tdproperty();
+            if (tdprop == variable) {
                 if (fzu.config.update_to_earlier_allowed || (epsdataref.t_eps > group_td)) {
+                    if ((epsdataref.t_eps > RTt_unspecified) && (epsdataref.t_eps < RTt_maxtime)) {
+                        // THIS is a Node for which the target date should be updated to t_eps[i]
+                        VERYVERBOSEOUT('\t'+node_ptr->get_id_str()+": from "+TimeStampYmdHM(node_ptr->effective_targetdate())+" to t_eps["+std::to_string(i)+"]="+TimeStampYmdHM(epsdataref.t_eps)+'\n');
+                        update_nodes.emplace(epsdataref.t_eps, node_ptr);
+                    }
+                }
+            } else if (tdprop == unspecified) {
+                if ((epsdataref.t_eps > RTt_unspecified) && (epsdataref.t_eps < RTt_maxtime)) {
                     // THIS is a Node for which the target date should be updated to t_eps[i]
-                    VERYVERBOSEOUT('\t'+node_ptr->get_id_str()+": from "+TimeStampYmdHM(node_ptr->effective_targetdate())+
-                               " to t_eps["+std::to_string(i)+"]="+TimeStampYmdHM(epsdataref.t_eps)+'\n');
+                    VERYVERBOSEOUT('\t'+node_ptr->get_id_str()+": from "+TimeStampYmdHM(node_ptr->effective_targetdate())+" to t_eps["+std::to_string(i)+"]="+TimeStampYmdHM(epsdataref.t_eps)+'\n');
                     update_nodes.emplace(epsdataref.t_eps, node_ptr);
                 }
             }
@@ -585,6 +596,87 @@ targetdate_sorted_Nodes EPS_map::get_eps_update_nodes() {
 
         ++i;
     }
+    VERBOSEOUT("\nNumber of Node target date updates requested: "+std::to_string(update_nodes.size())+'\n');
+
+    return update_nodes;
+}
+
+/**
+ * Proposed updates of VTD and UTD Nodes need to be handled separately, because it is important
+ * to ensure that proposed updates of UTD Nodes do not change the priority order when UTD Nodes
+ * are used as a priority-order queue.
+ */
+targetdate_sorted_Nodes EPS_map::get_epsvtd_and_utd_update_nodes() {
+    targetdate_sorted_Nodes update_nodes;
+
+    // Handle VTD Nodes.
+    time_t group_td = RTt_unspecified;
+    size_t i = 0;
+    VERYVERBOSEOUT("\nThe set of target date updates that will be requested (out of "+std::to_string(nodelist.size())+"):\n");
+    VERYVERBOSEOUT("  VTD:\n");
+    for (const auto & [t, node_ptr] : nodelist) {
+        if (!node_ptr) {
+            standard_exit_error(exit_general_error, "Unexpected node_ptr == nullptr", __func__);
+        }
+        if ((!fzu.config.pack_moveable) && (node_ptr->effective_targetdate() > fzu.t_limit)) {
+            break;
+        }
+
+        eps_data & epsdataref = epsdata.at(i); // *** Beware! I assumed that i cannot be too large here.
+
+        if (epsdataref.chunks_req > 0) {
+            if (t != group_td) {
+                group_td = t;
+            }
+            // FXD if !epsflags_vec[i].EPS_epsgroupmember() (in the dil2al version)
+            // the group_td is now the new target date if unspecified or variable
+            auto tdprop = node_ptr->get_tdproperty();
+            if (tdprop == variable) {
+                if (fzu.config.update_to_earlier_allowed || (epsdataref.t_eps > group_td)) {
+                    if ((epsdataref.t_eps > RTt_unspecified) && (epsdataref.t_eps < RTt_maxtime)) {
+                        // THIS is a Node for which the target date should be updated to t_eps[i]
+                        VERYVERBOSEOUT('\t'+node_ptr->get_id_str()+": from "+TimeStampYmdHM(node_ptr->effective_targetdate())+" to t_eps["+std::to_string(i)+"]="+TimeStampYmdHM(epsdataref.t_eps)+'\n');
+                        update_nodes.emplace(epsdataref.t_eps, node_ptr);
+                    }
+                }
+            }
+        }
+
+        ++i;
+    }
+
+    // Handle UTD Nodes.
+    time_t t_lastupdated = RTt_unspecified;
+    i = 0;
+    VERYVERBOSEOUT("  UTD:\n");
+    for (const auto & [t, node_ptr] : nodelist) {
+        if (!node_ptr) {
+            standard_exit_error(exit_general_error, "Unexpected node_ptr == nullptr", __func__);
+        }
+
+        eps_data & epsdataref = epsdata.at(i); // *** Beware! I assumed that i cannot be too large here.
+
+        if (epsdataref.chunks_req > 0) {
+            auto tdprop = node_ptr->get_tdproperty();
+            if (tdprop == unspecified) {
+                if ((epsdataref.t_eps > RTt_unspecified) && (epsdataref.t_eps < RTt_maxtime)) {
+
+                    // Beyond dates to work with an order would be unaffected.
+                    if ((node_ptr->effective_targetdate() > fzu.t_limit) && (t_lastupdated < node_ptr->effective_targetdate())) {
+                        break;
+                    }
+
+                    t_lastupdated = epsdataref.t_eps;
+                    // THIS is a Node for which the target date should be updated to t_eps[i]
+                    VERYVERBOSEOUT('\t'+node_ptr->get_id_str()+": from "+TimeStampYmdHM(node_ptr->effective_targetdate())+" to t_eps["+std::to_string(i)+"]="+TimeStampYmdHM(epsdataref.t_eps)+'\n');
+                    update_nodes.emplace(epsdataref.t_eps, node_ptr);
+                }
+            }
+        }
+
+        ++i;
+    }
+
     VERBOSEOUT("\nNumber of Node target date updates requested: "+std::to_string(update_nodes.size())+'\n');
 
     return update_nodes;
@@ -615,11 +707,14 @@ void Uncategorized_UTD_Placer::place() {
             ADDERROR(__func__, "Received a null-node");
         } else {
 
-            eps_data & epsdataref = epsdata[i];
+            eps_data & epsdataref = updvar_map.epsdata[i];
             if ((epsdataref.chunks_req>0) && (node_ptr->get_tdproperty() == unspecified)) {
-                if (updvar_map.reserve(node_ptr, epsdataref.chunks_req) < 0) {
+                time_t t_suggested = updvar_map.reserve(node_ptr, epsdataref.chunks_req);
+                if (t_suggested < 0) {
                     epsdataref.epsflags.set_insufficient();
-                }             
+                } else {
+                    epsdataref.t_eps = t_suggested;
+                }
             }
 
         }
@@ -628,6 +723,6 @@ void Uncategorized_UTD_Placer::place() {
 
     VERYVERBOSEOUT("\nUncategorized Nodes with unspecified target dates mapped.\n");
     if (fzu.config.showmaps) {
-        VERYVERBOSEOUT(show());
+        VERYVERBOSEOUT(updvar_map.show());
     }
 }

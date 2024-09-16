@@ -77,11 +77,11 @@ Collaboration diagram for line_render_parameters:</div>
 <div class="dyncontent">
 <div class="center"><img src="structline__render__parameters__coll__graph.png" border="0" usemap="#aline__render__parameters_coll__map" alt="Collaboration graph"/></div>
 <map name="aline__render__parameters_coll__map" id="aline__render__parameters_coll__map">
-<area shape="rect" title=" " alt="" coords="124,184,301,211"/>
+<area shape="rect" title=" " alt="" coords="119,273,296,300"/>
 <area shape="rect" href="classfz_1_1Graph.html" title=" " alt="" coords="20,95,101,121"/>
+<area shape="rect" href="classfz_1_1Map__of__Subtrees.html" title="See how this is used in fzgraphhtml and nodeboard." alt="" coords="130,184,285,211"/>
 <area shape="rect" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID." alt="" coords="5,5,116,32"/>
-<area shape="rect" href="structfz_1_1render__environment.html" title="Configuration for a template rendering environment." alt="" coords="125,95,300,121"/>
-<area shape="rect" href="structfz_1_1Map__of__Subtrees.html" title="See how this is used in fzgraphhtml and nodeboard." alt="" coords="325,95,479,121"/>
+<area shape="rect" href="structfz_1_1render__environment.html" title="Configuration for a template rendering environment." alt="" coords="309,184,484,211"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -108,9 +108,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>insert_previous_day_s
 <tr class="memitem:a15a7d47c4d6cf773b1c09f4712faa160"><td class="memItemLeft" align="right" valign="top"><a id="a15a7d47c4d6cf773b1c09f4712faa160"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>insert_day_start</b> (time_t t)</td></tr>
 <tr class="separator:a15a7d47c4d6cf773b1c09f4712faa160"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0c37965d75e6147b0114fcb9b7e99bd5"><td class="memItemLeft" align="right" valign="top"><a id="a0c37965d75e6147b0114fcb9b7e99bd5"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>render_tdproperty</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node)</td></tr>
-<tr class="separator:a0c37965d75e6147b0114fcb9b7e99bd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f065960a714887ee121ce0eb42567af"><td class="memItemLeft" align="right" valign="top"><a id="a1f065960a714887ee121ce0eb42567af"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>render_tdproperty</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node, bool with_skip_button=false)</td></tr>
+<tr class="separator:a1f065960a714887ee121ce0eb42567af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a364ea2fccfe6882db2df047927836036"><td class="memItemLeft" align="right" valign="top"><a id="a364ea2fccfe6882db2df047927836036"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>visible_time_and_date_with_tz_adjustments</b> (const time_t tdate, time_t &amp;tdate_tzadjusted, std::string &amp;vis_tdstamp_str)</td></tr>
+<tr class="separator:a364ea2fccfe6882db2df047927836036"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acfc23c4e074edb9bd2e04e53c29fd165"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structline__render__parameters.html#acfc23c4e074edb9bd2e04e53c29fd165">render_Node</a> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node, time_t tdate, bool showdate=true, int list_pos=-1, bool remove_button=false)</td></tr>
 <tr class="memdesc:acfc23c4e074edb9bd2e04e53c29fd165"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call this to render parameters of a Node on a single line of a list of Nodes.  <a href="structline__render__parameters.html#acfc23c4e074edb9bd2e04e53c29fd165">More...</a><br /></td></tr>
 <tr class="separator:acfc23c4e074edb9bd2e04e53c29fd165"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -149,6 +152,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
 <tr class="memitem:a6583315ae49b9258b100a513493b98e8"><td class="memItemLeft" align="right" valign="top"><a id="a6583315ae49b9258b100a513493b98e8"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>datestamp</b></td></tr>
 <tr class="separator:a6583315ae49b9258b100a513493b98e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5aa1022a89031a13dc015b602b07b4a"><td class="memItemLeft" align="right" valign="top"><a id="ac5aa1022a89031a13dc015b602b07b4a"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>tdstamp</b></td></tr>
+<tr class="separator:ac5aa1022a89031a13dc015b602b07b4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a572ece2fab6b6d81c7d29cb1dd4aaee6"><td class="memItemLeft" align="right" valign="top"><a id="a572ece2fab6b6d81c7d29cb1dd4aaee6"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><b>actual_num_render</b> = 0</td></tr>
 <tr class="separator:a572ece2fab6b6d81c7d29cb1dd4aaee6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -159,8 +165,10 @@ time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 <tr class="memitem:aa4f7c7d6931cdf1071e4fb9419dd5b5b"><td class="memItemLeft" align="right" valign="top"><a id="aa4f7c7d6931cdf1071e4fb9419dd5b5b"></a>
 float&#160;</td><td class="memItemRight" valign="bottom"><b>day_total_hrs</b> = 0.0</td></tr>
 <tr class="separator:aa4f7c7d6931cdf1071e4fb9419dd5b5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8bb10ed37962654cceb8dbbd69da60c3"><td class="memItemLeft" align="right" valign="top">std::map&lt; Boolean_Tag_Flags::boolean_flag, float &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>day_category_hrs</b></td></tr>
+<tr class="separator:a8bb10ed37962654cceb8dbbd69da60c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f8dd2c06f0522f2fdefb17be2d6d67d"><td class="memItemLeft" align="right" valign="top"><a id="a4f8dd2c06f0522f2fdefb17be2d6d67d"></a>
-<a class="el" href="structfz_1_1Map__of__Subtrees.html">Map_of_Subtrees</a>&#160;</td><td class="memItemRight" valign="bottom"><b>map_of_subtrees</b></td></tr>
+<a class="el" href="classfz_1_1Map__of__Subtrees.html">Map_of_Subtrees</a>&#160;</td><td class="memItemRight" valign="bottom"><b>map_of_subtrees</b></td></tr>
 <tr class="separator:a4f8dd2c06f0522f2fdefb17be2d6d67d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba160186ccfefbadd3b60389395eddfe"><td class="memItemLeft" align="right" valign="top"><a id="aba160186ccfefbadd3b60389395eddfe"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>subtrees_list_tag</b></td></tr>
@@ -265,6 +273,26 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>subtrees_list_
   </dd>
 </dl>
 
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a8bb10ed37962654cceb8dbbd69da60c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8bb10ed37962654cceb8dbbd69da60c3">&#9670;&nbsp;</a></span>day_category_hrs</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::map&lt;Boolean_Tag_Flags::boolean_flag, float&gt; line_render_parameters::day_category_hrs</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">        {Boolean_Tag_Flags::work, 0.0},</div>
+<div class="line">        {Boolean_Tag_Flags::self_work, 0.0},</div>
+<div class="line">        {Boolean_Tag_Flags::system, 0.0},</div>
+<div class="line">    }</div>
+</div><!-- fragment -->
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>

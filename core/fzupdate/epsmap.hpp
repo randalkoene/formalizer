@@ -57,6 +57,7 @@ struct twochar_code {
 
 // forward declaration
 struct EPS_map;
+class Placer;
 
 typedef std::map<Node_ID_key, twochar_code> Node_twochar_map;
 
@@ -110,6 +111,10 @@ struct eps_data {
 
 typedef std::vector<eps_data> eps_data_vec_t; // *** alternatively, could index by Node_ID_key and get rid of node_vector_index.
 
+/**
+ * Initialized to one entry for each Node in the incomplete_repeating map.
+ * Initialized with the number of chunks required for each and RTt_maxtime.
+ */
 struct eps_data_vec: public eps_data_vec_t {
     eps_data_vec(const targetdate_sorted_Nodes & _incomplete_repeating);
     void updvar_chunks_required(const targetdate_sorted_Nodes & nodelist);
@@ -206,6 +211,7 @@ struct EPS_map {
     void group_and_place_movable(bool include_UTD = true);
 
     targetdate_sorted_Nodes get_eps_update_nodes();
+    targetdate_sorted_Nodes get_epsvtd_and_utd_update_nodes();
 
 };
 

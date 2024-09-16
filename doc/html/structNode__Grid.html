@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Formalizer: Node_Grid Struct Reference</title>
+<title>Formalizer: Node_Grid Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -67,59 +67,166 @@ $(function() {
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="structNode__Grid-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">Node_Grid Struct Reference</div>  </div>
+<div class="title">Node_Grid Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Builds a grid of Node elements that can be displayed as a grid on a nodeboard.  
+ <a href="structNode__Grid.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="nbgrid_8hpp_source.html">nbgrid.hpp</a>&gt;</code></p>
+<div class="dynheader">
+Collaboration diagram for Node_Grid:</div>
+<div class="dyncontent">
+<div class="center"><img src="structNode__Grid__coll__graph.png" border="0" usemap="#aNode__Grid_coll__map" alt="Collaboration graph"/></div>
+<map name="aNode__Grid_coll__map" id="aNode__Grid_coll__map">
+<area shape="rect" title="Builds a grid of Node elements that can be displayed as a grid on a nodeboard." alt="" coords="1733,195,1824,221"/>
+<area shape="rect" href="structGrid__Occupation.html" title=" " alt="" coords="1493,143,1623,169"/>
+<area shape="rect" href="structNode__Tree.html" title="Prepares a tree of Nodes that can subsequently be placed in a Node_Grid." alt="" coords="1513,256,1603,283"/>
+<area shape="rect" href="structnodeboard.html" title=" " alt="" coords="1333,225,1424,252"/>
+<area shape="rect" href="classfz_1_1formalizer__standard__program.html" title="This class provides a framework for standardized Formalizer programs." alt="" coords="994,25,1167,66"/>
+<area shape="rect" href="classfz_1_1Graph.html" title=" " alt="" coords="719,232,800,259"/>
+<area shape="rect" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph." alt="" coords="1043,153,1119,180"/>
+<area shape="rect" href="classfz_1_1Map__of__Subtrees.html" title="See how this is used in fzgraphhtml and nodeboard." alt="" coords="1003,287,1158,313"/>
+<area shape="rect" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID." alt="" coords="450,232,561,259"/>
+<area shape="rect" href="structfz_1_1render__environment.html" title="Configuration for a template rendering environment." alt="" coords="993,337,1168,364"/>
+<area shape="rect" href="structfz_1_1Log__filter.html" title="Filter structure used to set up selective Log reading." alt="" coords="867,5,969,32"/>
+<area shape="rect" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key." alt="" coords="442,19,569,45"/>
+<area shape="rect" href="classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use." alt="" coords="711,47,808,73"/>
+<area shape="rect" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs." alt="" coords="215,19,353,45"/>
+<area shape="rect" href="classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="707,97,812,124"/>
+<area shape="rect" href="classfz_1_1Boolean__Tag__Flags.html" title=" " alt="" coords="676,148,843,175"/>
+<area shape="rect" href="structfz_1_1Graph__access.html" title="A standardized way to access the Graph database." alt="" coords="1015,388,1147,415"/>
+<area shape="rect" href="structfz_1_1Postgres__access.html" title="A standardized way to access the Formalizer database." alt="" coords="685,388,834,415"/>
+<area shape="rect" href="classfz_1_1fzpq__configurable.html" title=" " alt="" coords="427,388,584,415"/>
+<area shape="rect" href="classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="223,388,345,415"/>
+<area shape="rect" href="classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="29,363,141,389"/>
+<area shape="rect" href="classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="5,413,165,440"/>
+</map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ae89030bd2dd22f8ffb602b63beb811b0"><td class="memItemLeft" align="right" valign="top"><a id="ae89030bd2dd22f8ffb602b63beb811b0"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Node_Grid</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;top_node, bool superiors=false)</td></tr>
-<tr class="separator:ae89030bd2dd22f8ffb602b63beb811b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a60c882a5a9e0dbf19642fe5c5abdfc4e"><td class="memItemLeft" align="right" valign="top"><a id="a60c882a5a9e0dbf19642fe5c5abdfc4e"></a>
-unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>num_elements</b> ()</td></tr>
-<tr class="separator:a60c882a5a9e0dbf19642fe5c5abdfc4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a40348aef732db8540f4d0665371bc7f2"><td class="memItemLeft" align="right" valign="top"><a id="a40348aef732db8540f4d0665371bc7f2"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_in_grid</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node) const</td></tr>
-<tr class="separator:a40348aef732db8540f4d0665371bc7f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a02cbf7b082666607571c050c1e12256b"><td class="memItemLeft" align="right" valign="top"><a id="a02cbf7b082666607571c050c1e12256b"></a>
+<tr class="memitem:a7317196495fac0319854a37fae1a491d"><td class="memItemLeft" align="right" valign="top"><a id="a7317196495fac0319854a37fae1a491d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Node_Grid</b> (const <a class="el" href="structnodeboard.html">nodeboard</a> &amp;_nb, bool superiors=false)</td></tr>
+<tr class="separator:a7317196495fac0319854a37fae1a491d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6fd63a40727a59feb8c75ec313dd995a"><td class="memItemLeft" align="right" valign="top"><a id="a6fd63a40727a59feb8c75ec313dd995a"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_in_grid_or_seen_before</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node) const</td></tr>
+<tr class="separator:a6fd63a40727a59feb8c75ec313dd995a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4f9534098447b008f48d5396c1b98eb"><td class="memItemLeft" align="right" valign="top"><a id="ac4f9534098447b008f48d5396c1b98eb"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_filtered_out</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node) const</td></tr>
+<tr class="separator:ac4f9534098447b008f48d5396c1b98eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f7b17062f0f8cd5d05f2aeb46098472"><td class="memItemLeft" align="right" valign="top"><a id="a0f7b17062f0f8cd5d05f2aeb46098472"></a>
 <a class="el" href="structNode__Grid__Element.html">Node_Grid_Element</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>add</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node, const <a class="el" href="classfz_1_1Node.html">Node</a> *above, unsigned int _colpos, unsigned int _rowpos)</td></tr>
-<tr class="separator:a02cbf7b082666607571c050c1e12256b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8540bf78d14bc25b62d880535743d04d"><td class="memItemLeft" align="right" valign="top"><a id="a8540bf78d14bc25b62d880535743d04d"></a>
-<a class="el" href="structNode__Grid__Element.html">Node_Grid_Element</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>add_to_row</b> (unsigned int row_idx, unsigned int col_idx, const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node, const <a class="el" href="classfz_1_1Node.html">Node</a> *above)</td></tr>
-<tr class="separator:a8540bf78d14bc25b62d880535743d04d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa561508fcc86fdac3c6f16f1e7e38fa4"><td class="memItemLeft" align="right" valign="top"><a id="aa561508fcc86fdac3c6f16f1e7e38fa4"></a>
+<tr class="separator:a0f7b17062f0f8cd5d05f2aeb46098472"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ad2107b276bb20878b8d3b43bef4912"><td class="memItemLeft" align="right" valign="top"><a id="a5ad2107b276bb20878b8d3b43bef4912"></a>
+<a class="el" href="structNode__Grid__Element.html">Node_Grid_Element</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>add_to_row</b> (unsigned int row_idx, unsigned int col_idx, const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node, const <a class="el" href="classfz_1_1Node.html">Node</a> *above)</td></tr>
+<tr class="separator:a5ad2107b276bb20878b8d3b43bef4912"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93d73ee2c6ed1fc2eae2926e6b5fc97b"><td class="memItemLeft" align="right" valign="top"><a id="a93d73ee2c6ed1fc2eae2926e6b5fc97b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>mark_seen</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node)</td></tr>
+<tr class="separator:a93d73ee2c6ed1fc2eae2926e6b5fc97b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ecc72ec23d2c0df55c2bb06308e4ab5"><td class="memItemLeft" align="right" valign="top"><a id="a8ecc72ec23d2c0df55c2bb06308e4ab5"></a>
 <a class="el" href="structNode__Grid__Row.html">Node_Grid_Row</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>extend</b> ()</td></tr>
-<tr class="separator:aa561508fcc86fdac3c6f16f1e7e38fa4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adccfebb1052d717e3d655f072a30651c"><td class="memItemLeft" align="right" valign="top"><a id="adccfebb1052d717e3d655f072a30651c"></a>
-unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>add_dependencies</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node, unsigned int node_row, unsigned int node_col)</td></tr>
-<tr class="separator:adccfebb1052d717e3d655f072a30651c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7a02e0fb2578dd1fc63375a25cd004e4"><td class="memItemLeft" align="right" valign="top"><a id="a7a02e0fb2578dd1fc63375a25cd004e4"></a>
-unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>add_superiors</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node, unsigned int node_row, unsigned int node_col)</td></tr>
-<tr class="separator:a7a02e0fb2578dd1fc63375a25cd004e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a8ecc72ec23d2c0df55c2bb06308e4ab5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad30d403454fc288b938063daa30d6301"><td class="memItemLeft" align="right" valign="top"><a id="ad30d403454fc288b938063daa30d6301"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>add_dependencies</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node, const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;placed_above, unsigned int node_row, unsigned int node_col)</td></tr>
+<tr class="separator:ad30d403454fc288b938063daa30d6301"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a68bc6d0d5795925b604297fc2b6c9c5f"><td class="memItemLeft" align="right" valign="top"><a id="a68bc6d0d5795925b604297fc2b6c9c5f"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>add_superiors</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node, const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;placed_above, unsigned int node_row, unsigned int node_col)</td></tr>
+<tr class="separator:a68bc6d0d5795925b604297fc2b6c9c5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9a6fb71ed763162045990abd321c8eb"><td class="memItemLeft" align="right" valign="top"><a id="ab9a6fb71ed763162045990abd321c8eb"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>find_node_spans</b> (unsigned int row_idx)</td></tr>
 <tr class="separator:ab9a6fb71ed763162045990abd321c8eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1d499224419f52479c05ffe3c97143a"><td class="memItemLeft" align="right" valign="top"><a id="aa1d499224419f52479c05ffe3c97143a"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>errors_str</b> () const</td></tr>
+<tr class="separator:aa1d499224419f52479c05ffe3c97143a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7317196495fac0319854a37fae1a491d"><td class="memItemLeft" align="right" valign="top"><a id="a7317196495fac0319854a37fae1a491d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Node_Grid</b> (const <a class="el" href="structnodeboard.html">nodeboard</a> &amp;_nb, bool superiors=false)</td></tr>
+<tr class="separator:a7317196495fac0319854a37fae1a491d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6ecbc010ee7302af915da8b650b098a"><td class="memItemLeft" align="right" valign="top"><a id="ad6ecbc010ee7302af915da8b650b098a"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>has_errors</b> () const</td></tr>
+<tr class="separator:ad6ecbc010ee7302af915da8b650b098a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1d499224419f52479c05ffe3c97143a"><td class="memItemLeft" align="right" valign="top"><a id="aa1d499224419f52479c05ffe3c97143a"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>errors_str</b> () const</td></tr>
+<tr class="separator:aa1d499224419f52479c05ffe3c97143a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac13f9f1cc08e070aac0c21d730ee20b"><td class="memItemLeft" align="right" valign="top"><a id="aac13f9f1cc08e070aac0c21d730ee20b"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>number_of_proposed_td_changes</b> () const</td></tr>
+<tr class="separator:aac13f9f1cc08e070aac0c21d730ee20b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb38e71fd3d9b49c2759c8344205b9f7"><td class="memItemLeft" align="right" valign="top"><a id="adb38e71fd3d9b49c2759c8344205b9f7"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>list_of_proposed_td_changes_html</b> () const</td></tr>
+<tr class="separator:adb38e71fd3d9b49c2759c8344205b9f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a693f0dd63d7a0d8cea96d19c65c6411f"><td class="memItemLeft" align="right" valign="top"><a id="a693f0dd63d7a0d8cea96d19c65c6411f"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_td_changes_apply_url</b> () const</td></tr>
+<tr class="separator:a693f0dd63d7a0d8cea96d19c65c6411f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82bfab7ad892a451211d51e8f0147d71"><td class="memItemLeft" align="right" valign="top"><a id="a82bfab7ad892a451211d51e8f0147d71"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_vtd_changes_only_apply_url</b> () const</td></tr>
+<tr class="separator:a82bfab7ad892a451211d51e8f0147d71"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a626839f22d4809f8ac3f14f84099f104"><td class="memItemLeft" align="right" valign="top"><a id="a626839f22d4809f8ac3f14f84099f104"></a>
-unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>col_total</b> = 0</td></tr>
-<tr class="separator:a626839f22d4809f8ac3f14f84099f104"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a435f8abea55611beade7f267d6a5ff6f"><td class="memItemLeft" align="right" valign="top"><a id="a435f8abea55611beade7f267d6a5ff6f"></a>
-unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>row_total</b> = 0</td></tr>
-<tr class="separator:a435f8abea55611beade7f267d6a5ff6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4cc223966d1a4861fbe559af69d59a82"><td class="memItemLeft" align="right" valign="top"><a id="a4cc223966d1a4861fbe559af69d59a82"></a>
+<tr class="memitem:ab67afdd08ac64fe711e1637d31af4c98"><td class="memItemLeft" align="right" valign="top"><a id="ab67afdd08ac64fe711e1637d31af4c98"></a>
+const <a class="el" href="structnodeboard.html">nodeboard</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>nb</b></td></tr>
+<tr class="separator:ab67afdd08ac64fe711e1637d31af4c98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff82de0a6eac20179351d1f68d1cac18"><td class="memItemLeft" align="right" valign="top"><a id="aff82de0a6eac20179351d1f68d1cac18"></a>
 std::map&lt; <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a>, <a class="el" href="structNode__Grid__Element.html">Node_Grid_Element</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>nodes</b></td></tr>
-<tr class="separator:a4cc223966d1a4861fbe559af69d59a82"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad617cfe63f691b728e6a09f19d573cc9"><td class="memItemLeft" align="right" valign="top"><a id="ad617cfe63f691b728e6a09f19d573cc9"></a>
+<tr class="separator:aff82de0a6eac20179351d1f68d1cac18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59912451b19fad40b243642bfc665ece"><td class="memItemLeft" align="right" valign="top"><a id="a59912451b19fad40b243642bfc665ece"></a>
 std::vector&lt; <a class="el" href="structNode__Grid__Row.html">Node_Grid_Row</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>rows</b></td></tr>
-<tr class="separator:ad617cfe63f691b728e6a09f19d573cc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a59912451b19fad40b243642bfc665ece"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1d2988b95f79f8519238fe4513d6ff0"><td class="memItemLeft" align="right" valign="top"><a id="ae1d2988b95f79f8519238fe4513d6ff0"></a>
+<a class="el" href="structGrid__Occupation.html">Grid_Occupation</a>&#160;</td><td class="memItemRight" valign="bottom"><b>occupied</b></td></tr>
+<tr class="separator:ae1d2988b95f79f8519238fe4513d6ff0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a049115644ef59039e3c2ac6e67b8a653"><td class="memItemLeft" align="right" valign="top"><a id="a049115644ef59039e3c2ac6e67b8a653"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>max_columns</b> = 0</td></tr>
+<tr class="separator:a049115644ef59039e3c2ac6e67b8a653"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a280ff5b2ba59fcf945aec01076f8af22"><td class="memItemLeft" align="right" valign="top"><a id="a280ff5b2ba59fcf945aec01076f8af22"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>max_rows</b> = 0</td></tr>
+<tr class="separator:a280ff5b2ba59fcf945aec01076f8af22"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55bcf716f70d912c4cd9c5cb9f5d8937"><td class="memItemLeft" align="right" valign="top"><a id="a55bcf716f70d912c4cd9c5cb9f5d8937"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>columns_cropped</b> = false</td></tr>
+<tr class="separator:a55bcf716f70d912c4cd9c5cb9f5d8937"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92fecde03c2b421f661b8619fff9cf21"><td class="memItemLeft" align="right" valign="top"><a id="a92fecde03c2b421f661b8619fff9cf21"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>rows_cropped</b> = false</td></tr>
+<tr class="separator:a92fecde03c2b421f661b8619fff9cf21"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a699b9423a23f6e1f5ffa90abbee03550"><td class="memItemLeft" align="right" valign="top"><a id="a699b9423a23f6e1f5ffa90abbee03550"></a>
+std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>errors</b></td></tr>
+<tr class="separator:a699b9423a23f6e1f5ffa90abbee03550"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:aa561508fcc86fdac3c6f16f1e7e38fa4"><td class="memItemLeft" align="right" valign="top"><a id="aa561508fcc86fdac3c6f16f1e7e38fa4"></a>
+<a class="el" href="structNode__Grid__Row.html">Node_Grid_Row</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>extend</b> ()</td></tr>
+<tr class="separator:aa561508fcc86fdac3c6f16f1e7e38fa4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02cbf7b082666607571c050c1e12256b"><td class="memItemLeft" align="right" valign="top"><a id="a02cbf7b082666607571c050c1e12256b"></a>
+<a class="el" href="structNode__Grid__Element.html">Node_Grid_Element</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>add</b> (const Node &amp;node, const Node *above, unsigned int _colpos, unsigned int _rowpos)</td></tr>
+<tr class="separator:a02cbf7b082666607571c050c1e12256b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64c56da0030c0f5b5cf2d892e7b968e6"><td class="memItemLeft" align="right" valign="top"><a id="a64c56da0030c0f5b5cf2d892e7b968e6"></a>
+<a class="el" href="structNode__Grid__Element.html">Node_Grid_Element</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>add_to_row</b> (unsigned int row_idx, unsigned int col_idx, const Node &amp;node, const Node *above)</td></tr>
+<tr class="separator:a64c56da0030c0f5b5cf2d892e7b968e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a003508a2d1714e974cb5e397167f9f"><td class="memItemLeft" align="right" valign="top"><a id="a5a003508a2d1714e974cb5e397167f9f"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>add_below</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node_above, unsigned int node_row, unsigned int node_col)</td></tr>
+<tr class="separator:a5a003508a2d1714e974cb5e397167f9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac3bfb302305b5d76bad01fc6bfbf5b5b"><td class="memItemLeft" align="right" valign="top"><a id="ac3bfb302305b5d76bad01fc6bfbf5b5b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>find_node_spans</b> ()</td></tr>
+<tr class="separator:ac3bfb302305b5d76bad01fc6bfbf5b5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:a023d39f15704a79b0f24c2e4f6cd6131"><td class="memItemLeft" align="right" valign="top"><a id="a023d39f15704a79b0f24c2e4f6cd6131"></a>
+<a class="el" href="structNode__Tree.html">Node_Tree</a>&#160;</td><td class="memItemRight" valign="bottom"><b>tree</b></td></tr>
+<tr class="separator:a023d39f15704a79b0f24c2e4f6cd6131"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this struct was generated from the following file:<ul>
-<li>tools/interface/nodeboard/nbrender.cpp</li>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Builds a grid of Node elements that can be displayed as a grid on a nodeboard. </p>
+<p>Elements are preprocessed into a tree using the <a class="el" href="structNode__Tree.html" title="Prepares a tree of Nodes that can subsequently be placed in a Node_Grid.">Node_Tree</a> class. </p>
+</div><hr/>The documentation for this class was generated from the following files:<ul>
+<li>tools/interface/nodeboard/legacy_nbgrid.cpp</li>
+<li>tools/interface/nodeboard/<a class="el" href="nbgrid_8hpp_source.html">nbgrid.hpp</a></li>
+<li>tools/interface/nodeboard/nbgrid.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

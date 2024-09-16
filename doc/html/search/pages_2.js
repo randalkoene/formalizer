@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['changes_1749',['CHANGES',['../md_CHANGES.html',1,'']]],
-  ['core_20_2d_20formalizer_20core_20components_1750',['core - Formalizer core components',['../md_core_README.html',1,'']]]
+  ['boilerplate_20_2d_20quickly_20prepare_20standardized_20formalizer_20source_20code_1881',['boilerplate - Quickly prepare standardized Formalizer source code',['../md_tools_dev_boilerplate_README.html',1,'']]]
 ];

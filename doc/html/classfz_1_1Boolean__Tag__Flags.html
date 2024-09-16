@@ -80,8 +80,16 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a716efe1fe0f1f654433bd951a565d13d"><td class="memItemLeft" align="right" valign="top"><a id="a716efe1fe0f1f654433bd951a565d13d"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>boolean_flag</b> : Boolean_Tag_Flags_type { <b>tzadjust</b> = 0b0000'0000'0000'0000'0000'0000'0000'0001
+<tr class="memitem:a716efe1fe0f1f654433bd951a565d13d"><td class="memItemLeft" align="right" valign="top"><a id="a716efe1fe0f1f654433bd951a565d13d"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>boolean_flag</b> : Boolean_Tag_Flags_type { <br />
+&#160;&#160;<b>none</b> = 0b0000'0000'0000'0000'0000'0000'0000'0000
+, <b>tzadjust</b> = 0b0000'0000'0000'0000'0000'0000'0000'0001
+, <b>work</b> = 0b0000'0000'0000'0000'0000'0000'0000'0010
+, <b>self_work</b> = 0b0000'0000'0000'0000'0000'0000'0000'0100
+, <br />
+&#160;&#160;<b>system</b> = 0b0000'0000'0000'0000'0000'0000'0000'1000
+, <b>other</b> = 0b0000'0000'0000'0000'0000'0000'0001'0000
 , <b>error</b> = 0b0100'0000'0000'0000'0000'0000'0000'0000
+<br />
  }</td></tr>
 <tr class="separator:a716efe1fe0f1f654433bd951a565d13d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -108,12 +116,48 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>or_set</b> (<a class=
 <tr class="memitem:a0b6ad05b4ceef063549f65c8e3d67c4d"><td class="memItemLeft" align="right" valign="top"><a id="a0b6ad05b4ceef063549f65c8e3d67c4d"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_TZadjust</b> ()</td></tr>
 <tr class="separator:a0b6ad05b4ceef063549f65c8e3d67c4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a645c88656289a7490f8871261797b9c8"><td class="memItemLeft" align="right" valign="top"><a id="a645c88656289a7490f8871261797b9c8"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Work</b> ()</td></tr>
+<tr class="separator:a645c88656289a7490f8871261797b9c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa72a02afad2a29804a93f293b47d95cf"><td class="memItemLeft" align="right" valign="top"><a id="aa72a02afad2a29804a93f293b47d95cf"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_SelfWork</b> ()</td></tr>
+<tr class="separator:aa72a02afad2a29804a93f293b47d95cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2482c1a23b49fa4295e8eaee2dfa1922"><td class="memItemLeft" align="right" valign="top"><a id="a2482c1a23b49fa4295e8eaee2dfa1922"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_System</b> ()</td></tr>
+<tr class="separator:a2482c1a23b49fa4295e8eaee2dfa1922"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b70ac45419ec2e4e9e030d53d15c62e"><td class="memItemLeft" align="right" valign="top"><a id="a5b70ac45419ec2e4e9e030d53d15c62e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Other</b> ()</td></tr>
+<tr class="separator:a5b70ac45419ec2e4e9e030d53d15c62e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeadefe4add393827904048a60ec22a44"><td class="memItemLeft" align="right" valign="top"><a id="aeadefe4add393827904048a60ec22a44"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Error</b> ()</td></tr>
 <tr class="separator:aeadefe4add393827904048a60ec22a44"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54801946130c3a9ffa2890f13bea1528"><td class="memItemLeft" align="right" valign="top"><a id="a54801946130c3a9ffa2890f13bea1528"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>has_Boolean_Tag_flag</b> (Boolean_Tag_Flags::boolean_flag _bflag) const</td></tr>
+<tr class="separator:a54801946130c3a9ffa2890f13bea1528"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a47d88aa8c60c5e7320be88ab00f2f8c9"><td class="memItemLeft" align="right" valign="top"><a id="a47d88aa8c60c5e7320be88ab00f2f8c9"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>TZadjust</b> () const</td></tr>
 <tr class="separator:a47d88aa8c60c5e7320be88ab00f2f8c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae903faf32c64a2f8524d3a1171960357"><td class="memItemLeft" align="right" valign="top"><a id="ae903faf32c64a2f8524d3a1171960357"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>Work</b> () const</td></tr>
+<tr class="separator:ae903faf32c64a2f8524d3a1171960357"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af35cd8cbb20a3a3e9471a6f47d8920f3"><td class="memItemLeft" align="right" valign="top"><a id="af35cd8cbb20a3a3e9471a6f47d8920f3"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>SelfWork</b> () const</td></tr>
+<tr class="separator:af35cd8cbb20a3a3e9471a6f47d8920f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb6170cd5a8417c20d2819d0e3021663"><td class="memItemLeft" align="right" valign="top"><a id="adb6170cd5a8417c20d2819d0e3021663"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>System</b> () const</td></tr>
+<tr class="separator:adb6170cd5a8417c20d2819d0e3021663"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64260a701ed32ea81451904955e4d79b"><td class="memItemLeft" align="right" valign="top"><a id="a64260a701ed32ea81451904955e4d79b"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>Other</b> () const</td></tr>
+<tr class="separator:a64260a701ed32ea81451904955e4d79b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afdc222356bc0cc254c5507d615e3521d"><td class="memItemLeft" align="right" valign="top"><a id="afdc222356bc0cc254c5507d615e3521d"></a>
+<a class="el" href="namespacefz.html#a619e9f686624f66e6323f7da1ae2a46c">Boolean_Tag_Flags_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_AllCategories</b> () const</td></tr>
+<tr class="separator:afdc222356bc0cc254c5507d615e3521d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4fc8d2eaa6de6e2febfddf5c65df0925"><td class="memItemLeft" align="right" valign="top"><a id="a4fc8d2eaa6de6e2febfddf5c65df0925"></a>
+Boolean_Tag_Flags::boolean_flag&#160;</td><td class="memItemRight" valign="bottom"><b>get_PriorityCategory</b> () const</td></tr>
+<tr class="separator:a4fc8d2eaa6de6e2febfddf5c65df0925"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ab73ead8424fa7ebb0146fd05f34bcc"><td class="memItemLeft" align="right" valign="top"><a id="a5ab73ead8424fa7ebb0146fd05f34bcc"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>InCategory</b> () const</td></tr>
+<tr class="separator:a5ab73ead8424fa7ebb0146fd05f34bcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a24403591f19a650d3f2c9f99c875f301"><td class="memItemLeft" align="right" valign="top"><a id="a24403591f19a650d3f2c9f99c875f301"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>Error</b> () const</td></tr>
 <tr class="separator:a24403591f19a650d3f2c9f99c875f301"><td class="memSeparator" colspan="2">&#160;</td></tr>

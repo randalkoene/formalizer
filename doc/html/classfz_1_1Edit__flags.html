@@ -120,6 +120,11 @@ Public Types</h2></td></tr>
 , <b>urgency</b> = 0b0000'0000'0000'0100'0000'0000'0000'0000
 , <b>priority</b> = 0b0000'0000'0000'1000'0000'0000'0000'0000
 , <br />
+&#160;&#160;<b>tdpropbinpat</b> = 0b0000'0000'0001'0000'0000'0000'0000'0000
+, <b>supspecmatch</b> = 0b0000'0000'0010'0000'0000'0000'0000'0000
+, <b>subtreematch</b> = 0b0000'0000'0100'0000'0000'0000'0000'0000
+, <b>nnltreematch</b> = 0b0000'0000'1000'0000'0000'0000'0000'0000
+, <br />
 &#160;&#160;<b>error</b> = 0b0100'0000'0000'0000'0000'0000'0000'0000
 <br />
  }</td></tr>
@@ -163,6 +168,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Edit_targetdate</
 <tr class="memitem:ac0b459ac1937ebee9d5a74bfa89bbeb1"><td class="memItemLeft" align="right" valign="top"><a id="ac0b459ac1937ebee9d5a74bfa89bbeb1"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Edit_tdproperty</b> ()</td></tr>
 <tr class="separator:ac0b459ac1937ebee9d5a74bfa89bbeb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab22f62076fcaf9cd6941d2991dc5c2bf"><td class="memItemLeft" align="right" valign="top"><a id="ab22f62076fcaf9cd6941d2991dc5c2bf"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Edit_tdpropbinpat</b> ()</td></tr>
+<tr class="separator:ab22f62076fcaf9cd6941d2991dc5c2bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b9c3531b5805e12dc51363e47e81f92"><td class="memItemLeft" align="right" valign="top"><a id="a6b9c3531b5805e12dc51363e47e81f92"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Edit_repeats</b> ()</td></tr>
 <tr class="separator:a6b9c3531b5805e12dc51363e47e81f92"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -193,6 +201,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Edit_urgency</b> 
 <tr class="memitem:ae2f54ebf93892fea7e0a72c924f9f202"><td class="memItemLeft" align="right" valign="top"><a id="ae2f54ebf93892fea7e0a72c924f9f202"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Edit_priority</b> ()</td></tr>
 <tr class="separator:ae2f54ebf93892fea7e0a72c924f9f202"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78b8fe24d2298abee5b445a1f1be8213"><td class="memItemLeft" align="right" valign="top"><a id="a78b8fe24d2298abee5b445a1f1be8213"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Edit_supspecmatch</b> ()</td></tr>
+<tr class="separator:a78b8fe24d2298abee5b445a1f1be8213"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb2b17cecb29ef439438c9e8c7a09112"><td class="memItemLeft" align="right" valign="top"><a id="adb2b17cecb29ef439438c9e8c7a09112"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Edit_subtreematch</b> ()</td></tr>
+<tr class="separator:adb2b17cecb29ef439438c9e8c7a09112"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a766bd951ee1077036ed0904ccc7cfff3"><td class="memItemLeft" align="right" valign="top"><a id="a766bd951ee1077036ed0904ccc7cfff3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Edit_nnltreematch</b> ()</td></tr>
+<tr class="separator:a766bd951ee1077036ed0904ccc7cfff3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6dcf857d23a67e0660cc504abd01f0bf"><td class="memItemLeft" align="right" valign="top"><a id="a6dcf857d23a67e0660cc504abd01f0bf"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_Edit_error</b> ()</td></tr>
 <tr class="separator:a6dcf857d23a67e0660cc504abd01f0bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -220,6 +237,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>Edit_targetdate</b> (
 <tr class="memitem:abc5c9bc8d9a71dc9329826ede3872881"><td class="memItemLeft" align="right" valign="top"><a id="abc5c9bc8d9a71dc9329826ede3872881"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>Edit_tdproperty</b> () const</td></tr>
 <tr class="separator:abc5c9bc8d9a71dc9329826ede3872881"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a79f0e3b81ddae32deb5de1729988fd"><td class="memItemLeft" align="right" valign="top"><a id="a8a79f0e3b81ddae32deb5de1729988fd"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>Edit_tdpropbinpat</b> () const</td></tr>
+<tr class="separator:a8a79f0e3b81ddae32deb5de1729988fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3fcbaed7de842571638871afd56af692"><td class="memItemLeft" align="right" valign="top"><a id="a3fcbaed7de842571638871afd56af692"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>Edit_repeats</b> () const</td></tr>
 <tr class="separator:a3fcbaed7de842571638871afd56af692"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -250,6 +270,15 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>Edit_urgency</b> () c
 <tr class="memitem:a8f9efb71e7da8edbb0116ad357d0ce7c"><td class="memItemLeft" align="right" valign="top"><a id="a8f9efb71e7da8edbb0116ad357d0ce7c"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>Edit_priority</b> () const</td></tr>
 <tr class="separator:a8f9efb71e7da8edbb0116ad357d0ce7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2653745eca4e540a9278787c55cda057"><td class="memItemLeft" align="right" valign="top"><a id="a2653745eca4e540a9278787c55cda057"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>Edit_supspecmatch</b> () const</td></tr>
+<tr class="separator:a2653745eca4e540a9278787c55cda057"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff99d5394fce8cef2517525ad63545ec"><td class="memItemLeft" align="right" valign="top"><a id="aff99d5394fce8cef2517525ad63545ec"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>Edit_subtreematch</b> () const</td></tr>
+<tr class="separator:aff99d5394fce8cef2517525ad63545ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3a20776216662be1c1ec21e07d98ee6"><td class="memItemLeft" align="right" valign="top"><a id="ae3a20776216662be1c1ec21e07d98ee6"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>Edit_nnltreematch</b> () const</td></tr>
+<tr class="separator:ae3a20776216662be1c1ec21e07d98ee6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae272a3feb94e519e863038f946e91d86"><td class="memItemLeft" align="right" valign="top"><a id="ae272a3feb94e519e863038f946e91d86"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>Edit_error</b> () const</td></tr>
 <tr class="separator:ae272a3feb94e519e863038f946e91d86"><td class="memSeparator" colspan="2">&#160;</td></tr>

@@ -332,6 +332,12 @@ struct line_render_parameters {
         // -- Node ID
         std::string nodestr(node.get_id_str());
         varvals.emplace("node_id",nodestr);
+        // -- Optional checkbox
+        if (fzgh.config.include_checkboxes) {
+            varvals.emplace("checkbox","<td><input type=\"checkbox\" id=\"chkbx_"+nodestr+"\" name=\"chkbx_"+nodestr+"\"></td>");
+        } else {
+            varvals.emplace("checkbox","");
+        }
         // -- Topic
         Topic * topic_ptr = graph_ptr->main_Topic_of_Node(node);
         if (topic_ptr) {

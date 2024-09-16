@@ -26,6 +26,7 @@
  * 3. Although an 'unspecified' target date is now one of the four basic types of
  *    target dates enumerated (unspecified, variable, fixed, exact), the convention
  *    is still that the targetdate should be set to an invalid value if unspecified.
+ *    *** Note 20240914: This is changing now that we intend to use UTD Nodes differently.
  * 4. The targetdate does not yet include a time zone specification.
  * 5. There is one targetdate per Node. The multiple target dates possibility in DIL_entry
  *    was never sucessfully used and caused more extra work than it was worth.
@@ -520,7 +521,7 @@ protected:
     Graphdecimal completion = 0.0;           /// 1.0 = done, -1.0 = obsolete, -2.0 = replaced, -3.0 = done differently, -4.0 = no longer possible / did not come to pass
     time_t required = 0;                     /// seconds
     Node_utf8_text text;                     /// by default assumed to contain UTF8 HTML5
-    time_t targetdate = RTt_unspecified;     /// when tdproperty=unspecified then targetdate should be set to -1
+    time_t targetdate = RTt_unspecified;     /// when tdproperty=unspecified then targetdate should be set to -1. NOTE 20240914: No longer true as we will use UTD Nodes differently.
     td_property tdproperty = unspecified;    /// unspecified, inherit, variable, fixed, exact
     Graphflag repeats = false;               /// must be false if tdproperty is unspecified or variable
     td_pattern tdpattern = patt_nonperiodic; /// can be used to remember an optional periodicity even if isperiodic=false

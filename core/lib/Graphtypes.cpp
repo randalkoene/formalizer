@@ -707,6 +707,8 @@ time_t Node::tz_adjusted_targetdate(time_t t) const {
  * target date hint (in case tdproperty is changed), but keep in mind that such
  * hints are not guaranteed to be preserved to earlier or later versions of the
  * data structure format.
+ * NOTE 20240914: This is changing now. We are no longer treating 'unspecified' as if
+ *                it designates 'inherit', because UTD Nodes are receiving a new purpose.
  * 
  * Historical: This is the Graph v2.x equivalent of the dil2al v1.x DIL_entry::Target_Date()
  * function that obtains a target date, propagated as needed from Superiors, while also
@@ -728,8 +730,11 @@ time_t Node::effective_targetdate(Node_ptr * origin) {
     if (origin) {
         *origin = this; // the default
     }
-    if ((tdproperty == td_property::unspecified) || (tdproperty == td_property::inherit))
+    // *** Rule prior to 20240914:
+    // if ((tdproperty == td_property::unspecified) || (tdproperty == td_property::inherit))
+    if (tdproperty == td_property::inherit) {
         return tz_adjusted_targetdate(inherit_targetdate(origin));
+    }
 
     if (targetdate >= 0) {
         return tz_adjusted_targetdate(targetdate);

@@ -41,8 +41,8 @@ fzupdate fzu;
  */
 fzupdate::fzupdate() : formalizer_standard_program(false), config(*this),
                  reftime(add_option_args, add_usage_top) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "rubRNT:D:P:d";
-    add_usage_top += " [-r|-u|-b|-R|-N] [-T <t_max|full>] [-D <days>] [-P <pack_interval>] [-d]";
+    add_option_args += "rubRNT:D:P:dc:";
+    add_usage_top += " [-r|-u|-b|-R|-N] [-T <t_max|full>] [-D <days>] [-P <pack_interval>] [-c <chain>] [-d]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "The -T limit overrides the 'map_days' configuration or default parameter.\n"
@@ -74,6 +74,7 @@ void fzupdate::usage_hook() {
           "    -T update up to and including <t_max> or 'full' update\n"
           "    -D number of days to map with -u (default in config, or 14)\n"
           "    -P interval seconds for moveable packing beyond map (or 'none')\n"
+          "    -c specify a chain of placers (VTD,UTD)\n"
           "    -d dry-run, do not modify Graph\n");
 }
 
@@ -148,6 +149,11 @@ bool fzupdate::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'c': {
+        config.chain = cargs;
+        return true;
+    }
+
     case 'd': {
         dryrun = true;
         return true;
@@ -206,6 +212,7 @@ bool fzu_configurable::set_parameter(const std::string & parlabel, const std::st
     CONFIG_TEST_AND_SET_PAR(dolater_endofday,"dolater_endofday", parlabel, get_time_of_day_seconds(parvalue));
     CONFIG_TEST_AND_SET_PAR(doearlier_endofday,"doearlier_endofday", parlabel, get_time_of_day_seconds(parvalue));
     CONFIG_TEST_AND_SET_PAR(eps_group_offset_mins,"eps_group_offset_mins", parlabel, get_positive_integer(parvalue, "eps_group_offset_mins"));
+    CONFIG_TEST_AND_SET_PAR(UTD_is_priority_queue,"UTD_is_priority_queue", parlabel, (parvalue != "false"));
     CONFIG_TEST_AND_SET_PAR(update_to_earlier_allowed,"update_to_earlier_allowed", parlabel, (parvalue != "false"));
     CONFIG_TEST_AND_SET_PAR(pack_moveable,"pack_moveable", parlabel, (parvalue != "false"));
     CONFIG_TEST_AND_SET_PAR(pack_interval_beyond, "pack_interval_beyond", parlabel, get_positive_integer(parvalue, "pack_interval_beyond"));
@@ -453,14 +460,16 @@ int update_variable(time_t t_pass) {
     updvar_map.place_exact();
     updvar_map.place_fixed();
     if (updvar_map.usechain) {
+        VERBOSEOUT("Using Placer chain.\n");
         for (auto& placer : updvar_map.placer_chain) {
-            placer.place();
+            placer->place();
         }
     } else {
+        VERBOSEOUT("Using default VTD and UTD placing.\n");
         updvar_map.group_and_place_movable();
     }
 
-    targetdate_sorted_Nodes eps_update_nodes = updvar_map.get_eps_update_nodes();
+    targetdate_sorted_Nodes eps_update_nodes = fzu.config.UTD_is_priority_queue ? updvar_map.get_epsvtd_and_utd_update_nodes() : updvar_map.get_eps_update_nodes();
 
     if (eps_update_nodes.empty()) {
         VERBOSEOUT("No variable target dates within examined range to update.\n");

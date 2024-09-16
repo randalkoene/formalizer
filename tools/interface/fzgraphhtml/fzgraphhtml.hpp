@@ -69,6 +69,7 @@ public:
     bool tzadjust_day_separators = false;
     bool show_tzadjust = true; // Show effects of @TZADJUST@ in next Nodes lists generated.
     unsigned int max_do_links = 0; // 0 means no maximum.
+    bool include_checkboxes = false;
 };
 
 

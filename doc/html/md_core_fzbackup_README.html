@@ -68,7 +68,8 @@ $(function() {
 <div class="title">fzbackup - Formalizer core utility to back up the Formalizer environment </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><h2>How to provide a button on an HTML page that runs fzbackup as the right user</h2>
+<div class="textblock"><p>By default, the <code>fzbackup</code> core utility makes a backup of the database that contains the Graph, Log, Named Nodes Lists, and such.</p>
+<h2>How to provide a button on an HTML page that runs fzbackup as the right user</h2>
 <ol type="1">
 <li>The button on the HTML page calls a CGI script in a new window (<code>target="_blank"</code>).</li>
 <li>The CGI script makes a FZ API call to <code>fzserverpq</code>, which is running as the right user.</li>

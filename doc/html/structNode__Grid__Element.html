@@ -72,27 +72,17 @@ $(function() {
 <div class="title">Node_Grid_Element Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="dynheader">
-Collaboration diagram for Node_Grid_Element:</div>
-<div class="dyncontent">
-<div class="center"><img src="structNode__Grid__Element__coll__graph.png" border="0" usemap="#aNode__Grid__Element_coll__map" alt="Collaboration graph"/></div>
-<map name="aNode__Grid__Element_coll__map" id="aNode__Grid__Element_coll__map">
-<area shape="rect" title=" " alt="" coords="177,377,327,404"/>
-<area shape="rect" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph." alt="" coords="214,273,290,300"/>
-<area shape="rect" href="classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use." alt="" coords="26,184,123,211"/>
-<area shape="rect" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key." alt="" coords="11,95,138,121"/>
-<area shape="rect" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs." alt="" coords="5,5,144,32"/>
-<area shape="rect" href="classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="147,184,253,211"/>
-<area shape="rect" href="classfz_1_1Graph.html" title=" " alt="" coords="277,184,358,211"/>
-<area shape="rect" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID." alt="" coords="262,95,373,121"/>
-<area shape="rect" href="classfz_1_1Boolean__Tag__Flags.html" title=" " alt="" coords="382,184,549,211"/>
-</map>
-<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
+
+<p>Node Board grid building.  
+ <a href="structNode__Grid__Element.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a482d026c82b19438dd1944ada329b05c"><td class="memItemLeft" align="right" valign="top"><a id="a482d026c82b19438dd1944ada329b05c"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Node_Grid_Element</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node, const <a class="el" href="classfz_1_1Node.html">Node</a> *_above, unsigned int _colpos, unsigned int _rowpos)</td></tr>
+<tr class="separator:a482d026c82b19438dd1944ada329b05c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a482d026c82b19438dd1944ada329b05c"><td class="memItemLeft" align="right" valign="top"><a id="a482d026c82b19438dd1944ada329b05c"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Node_Grid_Element</b> (const Node &amp;node, const Node *_above, unsigned int _colpos, unsigned int _rowpos)</td></tr>
 <tr class="separator:a482d026c82b19438dd1944ada329b05c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
@@ -106,15 +96,18 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>row_pos</b> =
 <tr class="memitem:a38f0f10887a3b00fce5b103821581235"><td class="memItemLeft" align="right" valign="top"><a id="a38f0f10887a3b00fce5b103821581235"></a>
 unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>span</b> = 1</td></tr>
 <tr class="separator:a38f0f10887a3b00fce5b103821581235"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a243ce4a52670d691929b887d9c94d2d0"><td class="memItemLeft" align="right" valign="top"><a id="a243ce4a52670d691929b887d9c94d2d0"></a>
+<tr class="memitem:a63970b98015ea270a4035902bcef0643"><td class="memItemLeft" align="right" valign="top"><a id="a63970b98015ea270a4035902bcef0643"></a>
 const <a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>node_ptr</b></td></tr>
-<tr class="separator:a243ce4a52670d691929b887d9c94d2d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a270ee44d7077ad0b0c3b18fed3398592"><td class="memItemLeft" align="right" valign="top"><a id="a270ee44d7077ad0b0c3b18fed3398592"></a>
+<tr class="separator:a63970b98015ea270a4035902bcef0643"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b96d42646553ef1ff2f986d6532a3d6"><td class="memItemLeft" align="right" valign="top"><a id="a5b96d42646553ef1ff2f986d6532a3d6"></a>
 const <a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>above</b></td></tr>
-<tr class="separator:a270ee44d7077ad0b0c3b18fed3398592"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a5b96d42646553ef1ff2f986d6532a3d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this struct was generated from the following file:<ul>
-<li>tools/interface/nodeboard/nbrender.cpp</li>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Node Board grid building. </p>
+</div><hr/>The documentation for this struct was generated from the following files:<ul>
+<li>tools/interface/nodeboard/legacy_nbgrid.cpp</li>
+<li>tools/interface/nodeboard/<a class="el" href="nbgrid_8hpp_source.html">nbgrid.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

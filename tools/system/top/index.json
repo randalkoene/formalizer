@@ -18,6 +18,11 @@
             "window" : "_blank",
             "SPAinfo" : "&SPA=no"
         },
+        "UTD Nodes" : {
+            "url" : "/cgi-bin/fzgraphsearch-cgi.py?completion_lower=0.0&completion_upper=0.99&tdprop_lower=unspecified&tdprop_upper=unspecified&hours_lower=0.1&hours_upper=1000.0",
+            "window" : "_blank",
+            "SPAinfo" : "&SPA=no"
+        },
         "Nodes and Threads" : {
             "url" : "/cgi-bin/fzgraphhtml-cgi.py?subtrees=threads",
             "window" : "_blank",

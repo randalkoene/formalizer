@@ -1,5 +1,6 @@
 <map id="fz::Node_Filter" name="fz::Node_Filter">
-<area shape="rect" id="node1" title="Filter class that helps construct filter specifications." alt="" coords="65,109,181,136"/>
-<area shape="rect" id="node2" href="$classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="5,5,111,32"/>
-<area shape="rect" id="node3" href="$structfz_1_1Node__data.html" title="On&#45;heap data structure used to specify values for data components of a Node." alt="" coords="134,5,246,32"/>
+<area shape="rect" id="node1" title="Filter class that helps construct filter specifications." alt="" coords="183,124,299,151"/>
+<area shape="rect" id="node2" href="$classfz_1_1tdproperty__binary__pattern.html" title=" " alt="" coords="5,5,164,47"/>
+<area shape="rect" id="node3" href="$classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="188,13,293,39"/>
+<area shape="rect" id="node4" href="$structfz_1_1Node__data.html" title="On&#45;heap data structure used to specify values for data components of a Node." alt="" coords="317,13,429,39"/>
 </map>

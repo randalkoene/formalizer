@@ -87,6 +87,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a289b5da56aeb2bd661644adf0b547a96"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1render__environment.html#a289b5da56aeb2bd661644adf0b547a96">render</a> (const std::string temp, <a class="el" href="structfz_1_1template__varvalues.html">template_varvalues</a> vars, bool proceed_if_emptyvars=true)</td></tr>
 <tr class="memdesc:a289b5da56aeb2bd661644adf0b547a96"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the variables in the template and replaces them with the values of those variables.  <a href="structfz_1_1render__environment.html#a289b5da56aeb2bd661644adf0b547a96">More...</a><br /></td></tr>
 <tr class="separator:a289b5da56aeb2bd661644adf0b547a96"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36cdf0aecf6c76ade8018e9da5c06d4b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1render__environment.html#a36cdf0aecf6c76ade8018e9da5c06d4b">load_template</a> (const std::string &amp;template_path, std::string &amp;render_template)</td></tr>
+<tr class="memdesc:a36cdf0aecf6c76ade8018e9da5c06d4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load a template.  <a href="structfz_1_1render__environment.html#a36cdf0aecf6c76ade8018e9da5c06d4b">More...</a><br /></td></tr>
+<tr class="separator:a36cdf0aecf6c76ade8018e9da5c06d4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b0c9ff59306338886cb19bf0cf50a02"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1render__environment.html#a5b0c9ff59306338886cb19bf0cf50a02">fill_template_from_map</a> (const std::string &amp;template_path, const std::map&lt; std::string, std::string &gt; &amp;tag_data_map, std::string &amp;rendered)</td></tr>
+<tr class="memdesc:a5b0c9ff59306338886cb19bf0cf50a02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Use a prepared map of template tags and template data to fill a template.  <a href="structfz_1_1render__environment.html#a5b0c9ff59306338886cb19bf0cf50a02">More...</a><br /></td></tr>
+<tr class="separator:a5b0c9ff59306338886cb19bf0cf50a02"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26dd78679e20359bc89bf5ba2b602d09"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1render__environment.html#a26dd78679e20359bc89bf5ba2b602d09">fill_preloaded_template_from_map</a> (const std::string &amp;preloaded_template, const std::map&lt; std::string, std::string &gt; &amp;tag_data_map, std::string &amp;rendered)</td></tr>
+<tr class="memdesc:a26dd78679e20359bc89bf5ba2b602d09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Use a prepared map of template tags and template data to fill a preloaded template.  <a href="structfz_1_1render__environment.html#a26dd78679e20359bc89bf5ba2b602d09">More...</a><br /></td></tr>
+<tr class="separator:a26dd78679e20359bc89bf5ba2b602d09"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -114,6 +123,137 @@ render_error_t&#160;</td><td class="memItemRight" valign="bottom"><b>render_erro
   </dd>
 </dl>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a26dd78679e20359bc89bf5ba2b602d09"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a26dd78679e20359bc89bf5ba2b602d09">&#9670;&nbsp;</a></span>fill_preloaded_template_from_map()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::render_environment::fill_preloaded_template_from_map </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>preloaded_template</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::map&lt; std::string, std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>tag_data_map</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>rendered</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Use a prepared map of template tags and template data to fill a preloaded template. </p>
+<p>Example: See how this is used in fzloghtml.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">template</td><td>The preloaded template. </td></tr>
+    <tr><td class="paramname">tag_data_map</td><td>A string:string map of tags and data. </td></tr>
+    <tr><td class="paramname">rendered</td><td>Reference to a string to hold the filled template. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if successfully filled. </dd></dl>
+
+</div>
+</div>
+<a id="a5b0c9ff59306338886cb19bf0cf50a02"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5b0c9ff59306338886cb19bf0cf50a02">&#9670;&nbsp;</a></span>fill_template_from_map()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::render_environment::fill_template_from_map </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>template_path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::map&lt; std::string, std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>tag_data_map</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>rendered</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Use a prepared map of template tags and template data to fill a template. </p>
+<p>Example: See how this is used in fzloghtml.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">template_path</td><td>The path to the template file. </td></tr>
+    <tr><td class="paramname">tag_data_map</td><td>A string:string map of tags and data. </td></tr>
+    <tr><td class="paramname">rendered</td><td>Reference to a string to hold the filled template. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if successfully filled. </dd></dl>
+
+</div>
+</div>
+<a id="a36cdf0aecf6c76ade8018e9da5c06d4b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a36cdf0aecf6c76ade8018e9da5c06d4b">&#9670;&nbsp;</a></span>load_template()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::render_environment::load_template </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>template_path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>render_template</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Load a template. </p>
+<p>Example: See how this is used in fzloghtml.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">template_path</td><td>The path to the template file. </td></tr>
+    <tr><td class="paramname">render_template</td><td>Reference to a string to hold template content. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if successfully loaded. </dd></dl>
+
+</div>
+</div>
 <a id="a289b5da56aeb2bd661644adf0b547a96"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a289b5da56aeb2bd661644adf0b547a96">&#9670;&nbsp;</a></span>render()</h2>
 

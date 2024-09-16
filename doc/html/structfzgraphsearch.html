@@ -86,17 +86,18 @@ Collaboration diagram for fzgraphsearch:</div>
 <div class="dyncontent">
 <div class="center"><img src="structfzgraphsearch__coll__graph.png" border="0" usemap="#afzgraphsearch_coll__map" alt="Collaboration graph"/></div>
 <map name="afzgraphsearch_coll__map" id="afzgraphsearch_coll__map">
-<area shape="rect" title=" " alt="" coords="253,289,368,316"/>
-<area shape="rect" href="classfz_1_1formalizer__standard__program.html" title="This class provides a framework for standardized Formalizer programs." alt="" coords="5,185,179,227"/>
-<area shape="rect" href="classfz_1_1Graph.html" title=" " alt="" coords="203,193,285,219"/>
-<area shape="rect" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID." alt="" coords="185,81,295,108"/>
-<area shape="rect" href="classfzgs__configurable.html" title=" " alt="" coords="309,193,445,219"/>
-<area shape="rect" href="classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="320,81,443,108"/>
-<area shape="rect" href="classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="245,5,357,32"/>
-<area shape="rect" href="classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="381,5,541,32"/>
-<area shape="rect" href="structfz_1_1Node__Filter.html" title="Filter class that helps construct filter specifications." alt="" coords="470,193,586,219"/>
-<area shape="rect" href="classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="473,81,578,108"/>
-<area shape="rect" href="structfz_1_1Node__data.html" title="On&#45;heap data structure used to specify values for data components of a Node." alt="" coords="601,81,713,108"/>
+<area shape="rect" title=" " alt="" coords="823,95,937,122"/>
+<area shape="rect" href="classfz_1_1formalizer__standard__program.html" title="This class provides a framework for standardized Formalizer programs." alt="" coords="535,5,708,47"/>
+<area shape="rect" href="classfz_1_1Graph.html" title=" " alt="" coords="581,71,662,98"/>
+<area shape="rect" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID." alt="" coords="239,71,349,98"/>
+<area shape="rect" href="classfzgs__configurable.html" title=" " alt="" coords="553,122,689,149"/>
+<area shape="rect" href="classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="233,122,355,149"/>
+<area shape="rect" href="classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="29,97,141,123"/>
+<area shape="rect" href="classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="5,147,165,174"/>
+<area shape="rect" href="structfz_1_1Node__Filter.html" title="Filter class that helps construct filter specifications." alt="" coords="563,207,679,234"/>
+<area shape="rect" href="classfz_1_1tdproperty__binary__pattern.html" title=" " alt="" coords="215,173,373,215"/>
+<area shape="rect" href="classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="241,239,347,266"/>
+<area shape="rect" href="structfz_1_1Node__data.html" title="On&#45;heap data structure used to specify values for data components of a Node." alt="" coords="238,294,350,321"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -109,6 +110,19 @@ Public Member Functions</h2></td></tr>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfzgraphsearch.html#addef5415247d67c9be10e6277ab19cfb">usage_hook</a> ()</td></tr>
 <tr class="memdesc:addef5415247d67c9be10e6277ab19cfb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add FZOUT statements for each line of the usage info to print as help for program specific command line options. <br /></td></tr>
 <tr class="separator:addef5415247d67c9be10e6277ab19cfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b5a98cf75c1c10607fd828ab4f2a9fe"><td class="memItemLeft" align="right" valign="top"><a id="a5b5a98cf75c1c10607fd828ab4f2a9fe"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfzgraphsearch.html#a5b5a98cf75c1c10607fd828ab4f2a9fe">parse_tdproperty_binary_pattern</a> (const std::string &amp;cargs)</td></tr>
+<tr class="memdesc:a5b5a98cf75c1c10607fd828ab4f2a9fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses a comma separated list of flags to set which TD properties to include in the search. <br /></td></tr>
+<tr class="separator:a5b5a98cf75c1c10607fd828ab4f2a9fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae874a4e519bc56ef5e1d11c62b0a8447"><td class="memItemLeft" align="right" valign="top"><a id="ae874a4e519bc56ef5e1d11c62b0a8447"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>get_superiors_specification</b> (const std::string &amp;cargs)</td></tr>
+<tr class="separator:ae874a4e519bc56ef5e1d11c62b0a8447"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90a0b1ed96f4133625ff5e7e7324e144"><td class="memItemLeft" align="right" valign="top"><a id="a90a0b1ed96f4133625ff5e7e7324e144"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>get_subtree</b> (const std::string &amp;cargs)</td></tr>
+<tr class="separator:a90a0b1ed96f4133625ff5e7e7324e144"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9973c424803c8ee432e5662b8e550a63"><td class="memItemLeft" align="right" valign="top"><a id="a9973c424803c8ee432e5662b8e550a63"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>get_nnltree</b> (const std::string &amp;cargs)</td></tr>
+<tr class="separator:a9973c424803c8ee432e5662b8e550a63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a516949160dc8667786b7509e9b3b0821"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfzgraphsearch.html#a516949160dc8667786b7509e9b3b0821">options_hook</a> (char c, std::string cargs)</td></tr>
 <tr class="memdesc:a516949160dc8667786b7509e9b3b0821"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handler for command line options that are defined in the derived class as options specific to the program.  <a href="structfzgraphsearch.html#a516949160dc8667786b7509e9b3b0821">More...</a><br /></td></tr>
 <tr class="separator:a516949160dc8667786b7509e9b3b0821"><td class="memSeparator" colspan="2">&#160;</td></tr>
