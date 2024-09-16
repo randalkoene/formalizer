@@ -256,6 +256,15 @@ checkboxes[i].checked = source.checked;
 </script>
 '''
 
+NNLFORMHEAD='''
+<form action="/cgi-bin/fzeditbatch-cgi.py" method="post">
+<input type="submit" name="action" value="batchmodify"><br>
+Select All<input onclick="toggle(this);" type="checkbox" /><br>
+filter <input type="checkbox" name="filter"><br>
+unspecified <input type="checkbox" name="unspecified"><br>
+unique target dates <input type="checkbox" name="uniqueTD"><br>
+'''
+
 def render_search_results():
     print(graphsearch_results_head)
 
@@ -275,10 +284,7 @@ def render_search_results():
         print('-->')
 
     print('<!-- Render search results Named Node List -->')
-    print('<form action="/cgi-bin/fzedit-cgi.py" method="post">')
-    print('<input type="submit" name="action" value="batchmodify">')
-    print('Select All<input onclick="toggle(this);" type="checkbox" />')
-    print('filter <input type="checkbox" name="filter">')
+    print(NNLFORMHEAD)
     print('<table class="blueTable"><tbody>')
     rendercmd = f"./fzgraphhtml -q -e -L '{searchresultsNNL}' -N all -c -o STDOUT -E STDOUT"
     try_command_call(rendercmd)

@@ -760,8 +760,9 @@ bool node_add_logged_time(const std::string & node_addstr) {
  *   /fz/graph/nodes/20200901061505.1.desc leads to fzgraphhtml -n 20200901061505.1 -F desc
  */
 bool handle_node_direct_show(Node & node, const std::string & extension, std::string & response_html) {
-    // *** Not yet implemented
-    return false;
+    response_html = shellcmd2str("fzgraphhtml -q -n "+node.get_id_str()+" -F "+extension.substr(1));
+    To_Debug_LogFile("Testing formatted node info: "+response_html);
+    return true;
 }
 
 /**
@@ -1089,6 +1090,7 @@ typedef bool node_parameter_show_func_t(Node &, std::string, std::string &);
 typedef std::map<std::string, node_parameter_show_func_t*> node_parameter_show_map_t;
 
 bool single_node_parameter_show(const std::string & show_type_extension, std::string parlabel, std::string parvalue, std::string & response_html) {
+    To_Debug_LogFile("Processing node data with format "+show_type_extension);
     if (show_type_extension.empty()) {
         return standard_error("Missing parameter show type extension", __func__);
     }
@@ -1514,6 +1516,7 @@ bool handle_node_direct_parameter(Node & node, std::string extension, std::strin
 
     // skip '/'
     extension.erase(0,1);
+    To_Debug_LogFile("Working with request extension "+extension);
     // identify the parameter
     auto seppos = extension.find_first_of("?./");
     if (seppos == std::string::npos) {
@@ -1553,7 +1556,8 @@ bool handle_node_direct_parameter(Node & node, std::string extension, std::strin
             }
             break;
         }
-        case '.': {
+        case '.': { // <node-id>.html/txt/node/desc, targetdate.txt, etc
+            To_Debug_LogFile("Started processing Node info request for node "+node.get_id_str()+" with route extension "+route_extension);
             auto it = node_parameter_show_map.find(route_extension);
             if (it == node_parameter_show_map.end()) {
                 return standard_error("Unsupported Node parameter show request: '" + route_extension + '\'', __func__);
@@ -1627,6 +1631,7 @@ bool handle_node_direct_request(std::string nodereqstr, std::string & response_h
         if (node_ptr) {
             switch (nodereqstr[NODE_ID_STR_NUMCHARS]) {
                 case '.': {
+                    To_Debug_LogFile("Received /fz/graph/nodes/<node-id>. request "+nodereqstr);
                     return handle_node_direct_show(*node_ptr, nodereqstr.substr(NODE_ID_STR_NUMCHARS), response_html);
                 }
                 case '?': {
@@ -1861,6 +1866,7 @@ bool handle_fz_vfs_graph_request(int new_socket, const std::string & fzrequestur
     }
 
     if (fzrequesturl.substr(10,6) == "nodes/") {
+        To_Debug_LogFile("Received /fz/graph/nodes/ request "+fzrequesturl);
         std::string response_html;
         if (handle_node_direct_request(fzrequesturl.substr(16), response_html)) {
             return handle_request_response(new_socket, response_html, "Node request successful");
@@ -1989,6 +1995,7 @@ bool handle_fz_vfs_request(int new_socket, const std::string & fzrequesturl) {
     } 
 
     if (fzrequesturl.substr(4,6) == "graph/") {
+        To_Debug_LogFile("Received /fz/graph/ request"+fzrequesturl);
         return handle_fz_vfs_graph_request(new_socket, fzrequesturl);
     }
 
@@ -2072,6 +2079,8 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
     // Instead, we're just using CGI FORM GET-method URL encoding to identify modification requests.
 
     if (requestvec[1].substr(0,4) == "/fz/") { // (one type of) recognized Formalizer special purpose request
+
+        To_Debug_LogFile("Received /fz/ request"+requestvec[1]);
 
         if (handle_fz_vfs_request(new_socket, requestvec[1])) {
             return;

@@ -50,8 +50,8 @@ fzgraphedit fzge;
  */
 fzgraphedit::fzgraphedit() : formalizer_standard_program(false), graph_ptr(nullptr), config(*this),
                              supdep_from_cmdline(false), nnl_supdep_used(false) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "M:L:C:T:f:H:a:S:D:t:g:p:r:e:s:Y:G:I:U:P:l:d:uz";
-    add_usage_top += " [-M node|edges] [-L add|remove|delete] [-C <api-string>] [-T <text>] [-f <content-file>] [-H <hours>] [-a <val>] [-S <sups>] [-D <deps>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>] [-l <name>] [-d <ask|keep|delete>] [-u] [-z]";
+    add_option_args += "M:L:C:T:f:H:a:S:D:t:g:p:r:e:s:Y:G:I:U:P:l:d:uzo:m";
+    add_usage_top += " [-M node|edges] [-L add|remove|delete] [-C <api-string>] [-T <text>] [-f <content-file>] [-H <hours>] [-a <val>] [-S <sups>] [-D <deps>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>] [-l <name>] [-d <ask|keep|delete>] [-u] [-z] [-o <outfile>] [-m]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "\n"
@@ -95,6 +95,15 @@ fzgraphedit::fzgraphedit() : formalizer_standard_program(false), graph_ptr(nullp
         "   Example b:\n"
         "   -C /fz/graph/namedlists/_reload\n"
         "\n"
+        "   Example c:\n"
+        "   -C /fz/graph/nodes/20090804075402.1.node -q -o STDOUT\n"
+        "\n"
+        "   Example d:\n"
+        "   -C /fz/graph/nodes/20090804075402.1/targetdate.raw -q -m -o STDOUT\n"
+        "\n"
+        "   For clean output of just the server API response use both the\n"
+        "   options -q and -o <outfile>, e.g. -q -o STDOUT.\n"
+        "\n"
         "   For more information about the API see fzserverpq.\n"
         );
 }
@@ -119,6 +128,8 @@ void fzgraphedit::usage_hook() {
     FZOUT("    -M make 'node' or 'edges'\n");
     FZOUT("    -L modify Named Node List: 'add' to, 'remove' from, or 'delete'\n");
     FZOUT("    -C send any <api-string> to the server port\n");
+    FZOUT("    -o send server API output to outfile (can set to STDOUT)\n");
+    FZOUT("    -m minimum server API output (empty means error/404)\n")
     FZOUT("    -T description <text> from the command line\n");
     FZOUT("    -f description text from <content-file> (\"STDIN\" for stdin until eof, CTRL+D)\n");
     FZOUT("    -H hours required (default: "+to_precision_string(config.nd.hours)+")\n");
@@ -359,6 +370,16 @@ bool fzgraphedit::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'o': {
+        outfile = cargs;
+        return true;
+    }
+
+    case 'm': {
+        minimum_API_output = true;
+        return true;
+    }
+
     case 'z': {
         flowcontrol = flow_stop_server;
         return true;
@@ -407,6 +428,44 @@ int port_API_request() {
     }
 
     VERYVERBOSEOUT("Server response:\n\n"+response_str);
+
+    if (fzge.minimum_API_output) {
+        // Detect success or failure
+        auto first_line_end = response_str.find('\n');
+        if (first_line_end == std::string::npos) {
+            VERYVERBOSEOUT("No line end found in server response.\n");
+            response_str = "";
+        } else {
+            if (response_str.substr(0, first_line_end).find("200 OK") == std::string::npos) {
+                VERYVERBOSEOUT("Server response was not OK.\n");
+                response_str = "";
+            } else {
+                // Handle both \r\n\r\n and \n\n empty line formats
+                auto empty_line_nn = response_str.find("\n\n");
+                auto empty_line_rnrn = empty_line_nn == std::string::npos ? response_str.find("\r\n\r\n") : empty_line_nn;
+                if (empty_line_rnrn == std::string::npos) {
+                    VERYVERBOSEOUT("No empty line found in server response.\n");
+                    response_str = "";
+                } else {
+                    if (empty_line_nn != std::string::npos) {
+                        response_str = response_str.substr(empty_line_nn+2);
+                    } else {
+                        response_str = response_str.substr(empty_line_rnrn+4);
+                    }
+                }
+            }
+        }
+    }
+
+    if (!fzge.outfile.empty()) {
+        if (fzge.outfile == "STDOUT") {
+            FZOUT(response_str);
+        } else {
+            if (!string_to_file(fzge.outfile, response_str)) {
+                return standard_exit_error(exit_file_error, "Failed to write API response to file at "+fzge.outfile, __func__);
+            }
+        }
+    }
 
     return standard.completed_ok();
 }

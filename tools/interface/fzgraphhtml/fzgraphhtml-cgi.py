@@ -380,10 +380,12 @@ def generate_embeddable_list_of_NNLs_to_add_Node_to():
 
 
 NNLFORMHEAD='''
-<form action="/cgi-bin/fzedit-cgi.py" method="post">
-<input type="submit" name="action" value="batchmodify">
-Select All<input onclick="toggle(this);" type="checkbox" />
-filter <input type="checkbox" name="filter">
+<form action="/cgi-bin/fzeditbatch-cgi.py" method="post">
+<input type="submit" name="action" value="batchmodify"><br>
+Select All<input onclick="toggle(this);" type="checkbox" /><br>
+filter <input type="checkbox" name="filter"><br>
+unspecified <input type="checkbox" name="unspecified"><br>
+unique target dates <input type="checkbox" name="uniqueTD"><br>
 '''
 
 def generate_NNL_page(include_checkboxes=True):

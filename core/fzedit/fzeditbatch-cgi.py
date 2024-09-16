@@ -92,11 +92,142 @@ def batch_modify_targetdates():
 
     print(RESULTPAGE % ('success', '<b>Modified %d target dates of %d Nodes.</b>' % (len(tds), len(nodes))))
 
+REDIRECT='''
+<html>
+<meta http-equiv="Refresh" content="0; url='%s'" />
+</html>
+'''
+searchresultsNNL = 'fzgraphsearch_cgi'
+
+def Call_Error(msg:str, details=""):
+    if details != "":
+        details = '<p><pre>'+details+'</pre>'
+    print(RESULTPAGE % ('fail', f'<b>Error: {msg}.'+details))
+    sys.exit(0)
+
+def show_updated_NNL(listname:str):
+    redirecturl = '/cgi-bin/fzgraphhtml-cgi.py?srclist='+listname
+    print(REDIRECT % redirecturl)
+    sys.exit(0)
+
+def clear_NNL(listname: str) -> bool:
+    clearcmd = f"./fzgraph -q -E STDOUT -L delete -l '{listname}'"
+    res = try_call_command(clearcmd, return_result=True)
+    if res == "":
+        return True
+    Call_Error('Result of '+clearcmd, res)
+    return False
+
+def fill_NNL(listname:str, nodesstr:str) -> bool:
+    fillcmd = f"./fzgraph -q -E STDOUT -L add -l '{listname}' -S '{nodesstr}'"
+    res = try_call_command(fillcmd, return_result=True)
+    if res == "":
+        return True
+    Call_Error('Result of '+clearcmd, res)
+    return False
+
+def get_node_data(nodestr:str, varname:str)->str:
+    datacmd = f"./fzgraph -q -m -o STDOUT -C /fz/graph/nodes/{nodestr}/{varname}.raw"
+    res = try_call_command(datacmd, return_result=True)
+    return res
+
+def get_nodes_CSV(nodelist:list)->str:
+    nodes_csv = ''
+    for node in nodelist:
+        nodes_csv += node + ','
+    nodes_csv = nodes_csv[0:len(nodes_csv)-1]
+    return nodes_csv
+
+def get_nodes_to_print(nodelist:list)->str:
+    nodes_str = ''
+    for node in nodelist:
+        nodes_str += node + '<br>'
+    return nodes_str
+
+def batch_modify_unspecified_internal(nodelist:list):
+    for node_id in nodelist:
+        thecmd = f"./fzedit -q -E STDOUT -M {node_id} -p unspecified"
+        if not try_call_command(thecmd):
+            Call_Error('During TD property modification, this command failed: '+thecmd)
+
+def batch_modify_unspecified():
+    nodes = form.getvalue('nodes')
+    nodes = nodes.split(',')
+
+    batch_modify_unspecified_internal(nodes)
+
+    print(RESULTPAGE % ('success', '<b>Modified %d TD properties of %d Nodes.</b>' % (len(nodes), len(nodes))))
+
+def batch_modify_uniqueTD_internal(nodelist:list):
+    # Collect target dates
+    node_td_pairs = []
+    for node in nodelist:
+        node_td = get_node_data(node, 'targetdate')
+        if node_td == '':
+            Call_Error('Failed to get target date of Node '+node)
+        node_td_pairs.append( (node, node_td) )
+
+    node_td_pairs = sorted(node_td_pairs, key=lambda node_td_pair: node_td_pair[1])
+
+    # Create unique target dates
+    from datetime import datetime, timedelta
+    earliest_td = datetime.strptime(node_td_pairs[0][1], "%Y%m%d%H%M")
+    node_new_td_pairs = []
+    for i in range(len(node_td_pairs)):
+        new_td = earliest_td + timedelta(0, 60*(10*i))
+        node_new_td_pairs.append( (node, new_td.strftime("%Y%m%d%H%M")) )
+
+    # Modify target dates
+
+    test_str = ''
+    for i in range(len(node_td_pairs)):
+        node, node_td = node_td_pairs[i]
+        new_td = node_new_td_pairs[i][1]
+        test_str += node+' '+node_td+' '+new_td+'<br>'
+    print(RESULTPAGE % ('success', test_str))
+    sys.exit(0)
+
+def batch_modify_nodes():
+    nodelist = []
+
+    for formarg in form:
+        if 'chkbx_' in formarg:
+            if form.getvalue(formarg) == 'on':
+                nodelist.append(formarg[6:])
+
+    do_filter = form.getvalue('filter') == 'on'
+    do_unspecified = form.getvalue('unspecified') == 'on'
+    do_uniqueTD = form.getvalue('uniqueTD') == 'on'
+
+    if do_filter:
+        clear_NNL(searchresultsNNL)
+        nodes_csv = get_nodes_CSV(nodelist)
+        fill_NNL(searchresultsNNL, nodes_csv)
+        show_updated_NNL(searchresultsNNL)
+
+    if do_unspecified:
+        batch_modify_unspecified_internal(nodelist)
+        show_updated_NNL(searchresultsNNL)
+
+    if do_uniqueTD:
+        batch_modify_uniqueTD_internal(nodelist)
+        show_updated_NNL(searchresultsNNL)
+
+    print(RESULTPAGE % ('fail', get_nodes_to_print(nodelist)))
+
 if __name__ == '__main__':
     action = form.getvalue('action')
 
+    if (action=='batchmodify'):
+        batch_modify_nodes()
+        sys.exit(0)
+
     if action == 'targetdates':
         batch_modify_targetdates()
+        sys.exit(0)
+
+    if action == 'td_unspecified':
+        batch_modify_unspecified()
         sys.exit(0)
 
     sys.exit(0)

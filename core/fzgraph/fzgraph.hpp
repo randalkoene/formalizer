@@ -82,6 +82,8 @@ public:
     bool update_shortlist = false;
 
     std::string api_string;
+    std::string outfile;
+    bool minimum_API_output = false;
 
     // Graph_access ga; // to include Graph or Log access support
 
