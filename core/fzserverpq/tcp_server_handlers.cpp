@@ -775,6 +775,7 @@ bool handle_node_direct_show(Node & node, const std::string & extension, std::st
  *   /fz/graph/nodes/20200901061505.1?required=+45m [NOT YET IMPLEMENTED]
  *   /fz/graph/nodes/20200901061505.1?skip=1
  *   /fz/graph/nodes/20200901061505.1?skip=toT&T=202101271631
+ *   /fz/graph/nodes/20200901061505.1?targetdate=202409162045
  */
 bool handle_node_direct_edit_multiple_pars(Node & node, const std::string & extension, std::string & response_html) {
     ERRTRACE;
@@ -805,6 +806,9 @@ bool handle_node_direct_edit_multiple_pars(Node & node, const std::string & exte
     for (const auto & GETel : token_value_vec) {
         // *** Note that if we have a lot of recognized tokens then we could opt to do this as in get_add_data() above,
         //     or as in tcp_serialized_data_handlers.cpp.
+        // *** To extend this, first, let's just build it as part of an if-then with the necessary Edit mapping,
+        //     then, once that works, switch to a map.
+        To_Debug_LogFile("Processing multiple parameter modification for node "+node.get_id_str()+" token="+GETel.token+" value="+GETel.value);
         if (GETel.token == "skip") {
             if (!node.get_repeats()) {
                 return standard_error("Unable to skip instances of non-repeating Node "+node.get_id_str(), __func__);
@@ -822,6 +826,18 @@ bool handle_node_direct_edit_multiple_pars(Node & node, const std::string & exte
                 unsigned int num_skip = std::atoi(GETel.value.c_str());
                 Node_skip_num(node, num_skip, editflags);
             }
+        } else if (GETel.token == "targetdate") {
+            time_t t = time_stamp_time(GETel.value);
+            if (t == RTt_invalid_time_stamp) {
+                return standard_error("Invalid time stamp "+GETel.value, __func__);
+            }
+            node.set_targetdate(t);
+            editflags.set_Edit_targetdate();
+        } else if (GETel.token == "required") {
+            float req = std::atof(GETel.value.c_str());
+            time_t req_seconds = req*3600.0;
+            node.set_required(req_seconds);
+            editflags.set_Edit_required();
         }
     }    
     // update database
@@ -1635,6 +1651,7 @@ bool handle_node_direct_request(std::string nodereqstr, std::string & response_h
                     return handle_node_direct_show(*node_ptr, nodereqstr.substr(NODE_ID_STR_NUMCHARS), response_html);
                 }
                 case '?': {
+                    To_Debug_LogFile("Received /fz/graph/nodes/<node-id>? modification request"+nodereqstr);
                     return handle_node_direct_edit_multiple_pars(*node_ptr, nodereqstr.substr(NODE_ID_STR_NUMCHARS), response_html);
                 }
                 case '/': {

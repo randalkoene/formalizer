@@ -82,6 +82,7 @@ The GET/PATCH port API includes the following:
   /fz/graph/nodes/logtime?<node-id>=<mins>[&T=<emulated-time>]
 
   /fz/graph/nodes/<node-id>?skip=<<num>|toT>[&T=<emulated-time>]
+  /fz/graph/nodes/<node-id>?targetdate=<YmdHM>&required=<hours>
   /fz/graph/nodes/<node-id>/completion?set=<ratio>
   /fz/graph/nodes/<node-id>/completion?add=[-]<ratio>|<minutes>m
   /fz/graph/nodes/<node-id>/required?set=<minutes>m|<hours>h

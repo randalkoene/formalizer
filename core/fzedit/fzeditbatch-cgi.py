@@ -131,6 +131,12 @@ def get_node_data(nodestr:str, varname:str)->str:
     res = try_call_command(datacmd, return_result=True)
     return res
 
+def set_node_targetdate(nodestr:str, new_td:str):
+    datacmd = f"./fzgraph -q -C /fz/graph/nodes/{nodestr}?targetdate={new_td}"
+    res = try_call_command(datacmd, return_result=False)
+    if not res:
+        Call_Error('Failed to modify target date for '+nodestr+' to '+new_td)
+
 def get_nodes_CSV(nodelist:list)->str:
     nodes_csv = ''
     for node in nodelist:
@@ -178,14 +184,16 @@ def batch_modify_uniqueTD_internal(nodelist:list):
         node_new_td_pairs.append( (node, new_td.strftime("%Y%m%d%H%M")) )
 
     # Modify target dates
+    for node, new_td in node_new_td_pairs:
+        set_node_targetdate(node, new_td)
 
-    test_str = ''
-    for i in range(len(node_td_pairs)):
-        node, node_td = node_td_pairs[i]
-        new_td = node_new_td_pairs[i][1]
-        test_str += node+' '+node_td+' '+new_td+'<br>'
-    print(RESULTPAGE % ('success', test_str))
-    sys.exit(0)
+    # test_str = ''
+    # for i in range(len(node_td_pairs)):
+    #     node, node_td = node_td_pairs[i]
+    #     new_td = node_new_td_pairs[i][1]
+    #     test_str += node+' '+node_td+' '+new_td+'<br>'
+    # print(RESULTPAGE % ('success', test_str))
+    # sys.exit(0)
 
 def batch_modify_nodes():
     nodelist = []
