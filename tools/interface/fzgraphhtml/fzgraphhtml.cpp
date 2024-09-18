@@ -39,11 +39,11 @@ fzgraphhtml fzgh;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:m:Irt:i:L:N:M:D:x:o:s:S:eT:F:uCjc";
+    add_option_args += "n:m:Irt:i:L:N:M:D:x:o:s:S:eT:F:uCjcY";
     add_usage_top += " [-n <node-ID>|-m <node-ID>|-I|-t <topic-ID|topic-tag|?>|-L <name|?>]"
         " [-r] [-N <num>] [-M <max-YYYYmmddHHMM>] [-D <num-days>] [-x <len>]"
         " [-o <output-path>] [-s <sortkeys>] [-S <NNL>] [-e] [-T <named|node|Node>=<path>]"
-        " [-F html|txt|node|desc] [-u] [-C] [-j] [-c]";    //usage_head.push_back("Description at the head of usage information.\n");
+        " [-F html|txt|node|desc] [-u] [-C] [-j] [-c] [-Y]";    //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "Notes:\n"
         "1. When no [N <num>] is provided then the configured value is used.\n"
@@ -104,7 +104,8 @@ void fzgraphhtml::usage_hook() {
           "    -u Update 'shortlist' Named Node List.\n"
           "    -C (TEST) card output format.\n"
           "    -j no Javascript.\n"
-          "    -c include checkboxes.\n");
+          "    -c include checkboxes.\n"
+          "    -Y include counter row when rendering NNL.\n");
 }
 
 unsigned int parvalue_to_num_to_show(const std::string & parvalue) {
@@ -308,6 +309,11 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
 
     case 'c': {
         config.include_checkboxes = true;
+        return true;
+    }
+
+    case 'Y': {
+        nnl_with_counter = true;
         return true;
     }
    

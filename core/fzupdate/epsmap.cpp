@@ -85,7 +85,7 @@ size_t eps_data_vec::updvar_total_chunks_required_nonperiodic(const targetdate_s
         if (!node_ptr) {
             ADDERROR(__func__, "Received a null-node");
         } else {
-            if (node_ptr->effective_targetdate()>fzu.t_limit) {
+            if (node_ptr->effective_targetdate() > fzu.t_limit) { // *** Could use t here to speed things up!
                 break;
             }
             if ((at(i).chunks_req > 0) && (!node_ptr->get_repeats())) { // *** It's actually not clear to me why we don't want to count the repeating Node chunks.
@@ -163,9 +163,9 @@ std::vector<std::string> EPS_map::html(const Node_twochar_encoder & codebook) {
     return maphtmlvec;
 }
 
-EPS_map::EPS_map(time_t _t, unsigned long days_in_map, targetdate_sorted_Nodes & _incomplete_repeating, eps_data_vec_t & _epsdata) :
-    num_days(days_in_map), starttime(_t), slots_per_chunk(fzu.config.chunk_minutes / minutes_per_slot), nodelist(_incomplete_repeating),
-    epsdata(_epsdata) {
+EPS_map::EPS_map(time_t _t, unsigned long days_in_map, targetdate_sorted_Nodes & _incomplete_repeating, eps_data_vec_t & _epsdata, bool _testfailfull) :
+    num_days(days_in_map), starttime(_t), slots_per_chunk(fzu.config.chunk_minutes / minutes_per_slot),
+    test_fail_full(_testfailfull), nodelist(_incomplete_repeating), epsdata(_epsdata) {
     if (days_in_map<1) {
         days_in_map = 1;
         num_days = 1;
@@ -182,7 +182,7 @@ EPS_map::EPS_map(time_t _t, unsigned long days_in_map, targetdate_sorted_Nodes &
     for (time_t t = first_slot_td; t < epochtime_aftermap; t += five_minutes_in_seconds) {
         slots.emplace_hint(slots.end(), t, nullptr);
     }
-    next_slot = slots.begin();
+    init_next_slot(); // This should be done at the start of any Placer function that uses next_slot.
 
     size_t vector_index = 0;
     for (const auto & [t, node_ptr] : nodelist) {
@@ -192,7 +192,14 @@ EPS_map::EPS_map(time_t _t, unsigned long days_in_map, targetdate_sorted_Nodes &
         ++vector_index;
     }
 
-    VERYVERBOSEOUT("\nInitialized map with "+std::to_string(slots.size())+" slots with room for "+std::to_string(slots.size()/slots_per_chunk)+" Node chunks.\n");
+    VERYVERBOSEOUT("\nInitialized (est. "+std::to_string(bytes_estimate()/1024)+" KBytes + overhead) map with "+std::to_string(slots.size())+" slots with room for "+std::to_string(slots.size()/slots_per_chunk)+" Node chunks.\n");
+}
+
+size_t EPS_map::bytes_estimate() {
+    size_t t_element_bytes = sizeof(time_t);
+    size_t nodeptr_element_bytes = sizeof(Node_ptr);
+    size_t est_bytes = (t_element_bytes + nodeptr_element_bytes) * slots.size();
+    return est_bytes;
 }
 
 /**
@@ -339,7 +346,7 @@ time_t EPS_map::reserve(Node_ptr n_ptr, int chunks_req) {
             next_slot->second = n_ptr;
             --slots_req;
             if (slots_req == 0) {
-                new_targetdate = next_slot->first;
+                new_targetdate = next_slot->first; // These are all unique target dates.
                 break;
             }
         }
@@ -349,13 +356,14 @@ time_t EPS_map::reserve(Node_ptr n_ptr, int chunks_req) {
     }
 
     if (fzu.config.endofday_priorities) {
-        return end_of_day_adjusted(new_targetdate);
+        return end_of_day_adjusted(new_targetdate); // This can end up making multiple target dates the same.
     }
 
     return new_targetdate;
 }
 
 void EPS_map::place_exact() {
+    size_t num_mapped = 0;
     size_t i = 0;
     for (const auto & [t, node_ptr] : nodelist) {
         if (!node_ptr) {
@@ -373,12 +381,13 @@ void EPS_map::place_exact() {
                 if ((node_ptr->get_tdpattern() < patt_yearly) && (node_ptr->get_tdspan() == 0)) {
                     epsdataref.epsflags.set_periodiclessthanyear();
                 }
+                num_mapped++;
             }
         }
         ++i;
     }
 
-    VERYVERBOSEOUT("\nNodes with exact target dates mapped.\n");
+    VERYVERBOSEOUT('\n'+std::to_string(num_mapped)+" Nodes with exact target dates mapped.\n");
     if (fzu.config.showmaps) {
         VERYVERBOSEOUT(show());
     }
@@ -393,6 +402,7 @@ void EPS_map::place_exact() {
  * properties in https://docs.google.com/document/d/1rYPFgzFgjkF1xGx3uABiXiaDR5sfmOzqYQRqSntcyyY/edit#heading=h.td3aptmw2f5.
  */
 void EPS_map::place_fixed() {
+    size_t num_mapped = 0;
     size_t i = 0;
     for (const auto & [t, node_ptr] : nodelist) {
         if (!node_ptr) {
@@ -414,6 +424,7 @@ void EPS_map::place_fixed() {
                     if (reserve_fixed(node_ptr, epsdataref.chunks_req, t)) {
                         epsdataref.epsflags.set_insufficient();
                     }
+                    num_mapped++;
                 } else {
                     epsdataref.epsflags.set_treatgroupable();
                 }
@@ -425,7 +436,7 @@ void EPS_map::place_fixed() {
         ++i;
     }
 
-    VERYVERBOSEOUT("\nNodes with fixed target dates mapped.\n");
+    VERYVERBOSEOUT('\n'+std::to_string(num_mapped)+" Nodes with fixed target dates mapped.\n");
     if (fzu.config.showmaps) {
         VERYVERBOSEOUT(show());
     }
@@ -453,6 +464,7 @@ bool TD_type_test(Node* node_ptr, bool include_UTD) {
  * a final update call has to be made after the for-loop unless `group_td` remained `RT_unspecified`.
  */
 void EPS_map::group_and_place_movable(bool include_UTD) {
+    size_t num_mapped = 0;
 
     // This pairs indices with iterators.
     struct nodelist_itidx {
@@ -479,11 +491,12 @@ void EPS_map::group_and_place_movable(bool include_UTD) {
         time_t td = RTt_unspecified;
         node_group(targetdate_sorted_Nodes::iterator end_iterator) : first((ssize_t)-1, end_iterator), last((ssize_t)-1, end_iterator) {}
         void next(time_t next_td, const nodelist_itidx & next_it) { td = next_td; first = next_it; }
-        time_t reserve_map_slots(time_t new_td, EPS_map & epsmap) {
+        time_t reserve_map_slots(time_t new_td, EPS_map & epsmap, size_t& num_mapped) {
             for (auto j = first; j <= last; j.advance()) {
                 eps_data & epsj = epsmap.epsdata[j.index];
                 if (epsj.epsflags.EPS_epsgroupmember()) {
                     new_td = epsmap.reserve(j.node_ptr(), epsj.chunks_req);
+                    num_mapped++;
                 }
             }
             return new_td;
@@ -498,10 +511,10 @@ void EPS_map::group_and_place_movable(bool include_UTD) {
                 epsmap.epsdata[j.index].t_eps = t;
             }
         }
-        void process_and_start_next(time_t t, const nodelist_itidx & it, EPS_map & epsmap) {
+        void process_and_start_next(time_t t, const nodelist_itidx & it, EPS_map & epsmap, size_t& num_mapped) {
             if (first.index >= 0) {
 
-                time_t epsgroup_newtd = reserve_map_slots(td, epsmap);
+                time_t epsgroup_newtd = reserve_map_slots(td, epsmap, num_mapped);
 
                 if (epsgroup_newtd < 0) { // mostly, for tasks with MAXTIME target dates that don't fit into the map
                     mark_insufficient_map_slots(epsmap);
@@ -519,10 +532,11 @@ void EPS_map::group_and_place_movable(bool include_UTD) {
 
             next(t, it);
         }
-        void process_last(EPS_map & epsmap) { process_and_start_next(RTt_maxtime, last, epsmap); }
+        void process_last(EPS_map & epsmap, size_t& num_mapped) { process_and_start_next(RTt_maxtime, last, epsmap, num_mapped); }
         void add(const nodelist_itidx & it) { last = it; }
     };
 
+    init_next_slot();
     node_group group(nodelist.end());
     for (nodelist_itidx it(0,nodelist.begin()); it.it != nodelist.end(); it.advance()) { 
         auto [t, node_ptr] = it.data();
@@ -538,7 +552,7 @@ void EPS_map::group_and_place_movable(bool include_UTD) {
                 && (TD_type_test(node_ptr, include_UTD) || epsdataref.epsflags.EPS_treatgroupable())) {
 
                 if (t != group.td) { // process EPS group and start new one
-                    group.process_and_start_next(t, it, *this);
+                    group.process_and_start_next(t, it, *this, num_mapped);
                 }
 
                 group.add(it);
@@ -546,9 +560,9 @@ void EPS_map::group_and_place_movable(bool include_UTD) {
             }
         }
     }
-    group.process_last(*this);
+    group.process_last(*this, num_mapped);
 
-    VERYVERBOSEOUT("\nNodes with movable target dates grouped and mapped.\n");
+    VERYVERBOSEOUT('\n'+std::to_string(num_mapped)+" Nodes with movable target dates grouped and mapped.\n");
     if (fzu.config.showmaps) {
         VERYVERBOSEOUT(show());
     }
@@ -701,6 +715,9 @@ void VTD_Placer::place() {
  */
 void Uncategorized_UTD_Placer::place() {
     // Walk through unplaced Nodes and place UTD Nodes in order of appearance.
+    updvar_map.init_next_slot();
+    size_t num_parsed = 0;
+    size_t num_mapped = 0;
     size_t i = 0;
     for (auto& [t, node_ptr] : updvar_map.nodelist) {
         if (!node_ptr) {
@@ -709,11 +726,14 @@ void Uncategorized_UTD_Placer::place() {
 
             eps_data & epsdataref = updvar_map.epsdata[i];
             if ((epsdataref.chunks_req>0) && (node_ptr->get_tdproperty() == unspecified)) {
+                num_parsed++;
                 time_t t_suggested = updvar_map.reserve(node_ptr, epsdataref.chunks_req);
                 if (t_suggested < 0) {
                     epsdataref.epsflags.set_insufficient();
                 } else {
                     epsdataref.t_eps = t_suggested;
+                    updvar_map.previous_group_td = t_suggested; // Every UTD Node must have a unique target date.
+                    num_mapped++;
                 }
             }
 
@@ -721,7 +741,8 @@ void Uncategorized_UTD_Placer::place() {
         ++i;
     }
 
-    VERYVERBOSEOUT("\nUncategorized Nodes with unspecified target dates mapped.\n");
+    updvar_map.utd_all_placed = num_mapped == num_parsed;
+    VERYVERBOSEOUT('\n'+std::to_string(num_mapped)+" of "+std::to_string(num_parsed)+" Uncategorized Nodes with unspecified target dates mapped.\n");
     if (fzu.config.showmaps) {
         VERYVERBOSEOUT(updvar_map.show());
     }

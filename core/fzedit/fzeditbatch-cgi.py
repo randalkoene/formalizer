@@ -106,7 +106,7 @@ def Call_Error(msg:str, details=""):
     sys.exit(0)
 
 def show_updated_NNL(listname:str):
-    redirecturl = '/cgi-bin/fzgraphhtml-cgi.py?srclist='+listname
+    redirecturl = '/cgi-bin/fzgraphhtml-cgi.py?srclist='+listname+'&sort_by=targetdate'
     print(REDIRECT % redirecturl)
     sys.exit(0)
 
@@ -180,6 +180,7 @@ def batch_modify_uniqueTD_internal(nodelist:list):
     earliest_td = datetime.strptime(node_td_pairs[0][1], "%Y%m%d%H%M")
     node_new_td_pairs = []
     for i in range(len(node_td_pairs)):
+        node = node_td_pairs[i][0]
         new_td = earliest_td + timedelta(0, 60*(10*i))
         node_new_td_pairs.append( (node, new_td.strftime("%Y%m%d%H%M")) )
 
@@ -189,9 +190,18 @@ def batch_modify_uniqueTD_internal(nodelist:list):
 
     # test_str = ''
     # for i in range(len(node_td_pairs)):
-    #     node, node_td = node_td_pairs[i]
+    #     node = node_new_td_pairs[i][0]
+    #     node_td = node_td_pairs[i][1]
     #     new_td = node_new_td_pairs[i][1]
     #     test_str += node+' '+node_td+' '+new_td+'<br>'
+
+    # test_str += '<p>'
+
+    # for node, new_td in node_new_td_pairs:
+    #     set_node_targetdate(node, new_td)
+    #     node_td = get_node_data(node, 'targetdate')
+    #     test_str += node+' '+node_td+'<br>'
+
     # print(RESULTPAGE % ('success', test_str))
     # sys.exit(0)
 

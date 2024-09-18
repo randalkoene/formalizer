@@ -598,6 +598,7 @@ public:
     bool td_variable() const { return tdproperty == td_property::variable; }
     bool td_fixed() const { return tdproperty == td_property::fixed; }
     bool td_exact() const { return tdproperty == td_property::exact; }
+    bool is_movable() const { return td_unspecified() || td_variable(); }
 
     bool get_repeats() const { return repeats; }
     bool is_first_instance(time_t tdate_compare) const;
@@ -978,6 +979,9 @@ public:
     bool apply_batchmode_constraints() const { return batchmode_constraints_active; }
     void set_T_suspiciously_large(time_t t_too_large) { T_suspiciously_large = t_too_large; }
     bool t_suspiciously_large(time_t t) const { return t >= T_suspiciously_large; }
+
+    Node* latest_active_with_required_time() const;
+    Node* latest_active_movable_with_required_time() const;
 
     /// friend (utility) functions
     friend bool identical_Graphs(Graph & graph1, Graph & graph2, std::string & trace);

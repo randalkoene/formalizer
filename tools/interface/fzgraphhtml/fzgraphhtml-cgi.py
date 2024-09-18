@@ -388,12 +388,24 @@ unspecified <input type="checkbox" name="unspecified"><br>
 unique target dates <input type="checkbox" name="uniqueTD"><br>
 '''
 
+CHECKALLJS='''
+<script language="JavaScript">
+function toggle(source) {
+var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+for (var i = 0; i < checkboxes.length; i++) {
+if (checkboxes[i] != source)
+checkboxes[i].checked = source.checked;
+}
+}
+</script>
+'''
+
 def generate_NNL_page(include_checkboxes=True):
     # NOTE: Switched to showing checkboxes as well, could make that optional.
     if include_checkboxes:
         thecmd = "./fzgraphhtml -q -e -L '"+srclist+"' -N all -c -o STDOUT -E STDOUT"
         formhead=NNLFORMHEAD
-        formtail="</form>"
+        formtail="</form>\n"+CHECKALLJS
     else:
         thecmd = "./fzgraphhtml -q -e -L '"+srclist+"' -N all -o STDOUT -E STDOUT"
         formhead=""

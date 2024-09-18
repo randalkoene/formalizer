@@ -135,6 +135,8 @@ struct EPS_map {
 
     bool usechain = false;
     std::vector<std::unique_ptr<Placer>> placer_chain;
+    bool test_fail_full = false;
+    bool utd_all_placed = false;
 
     targetdate_sorted_Nodes & nodelist;
     eps_data_vec_t & epsdata;
@@ -146,7 +148,11 @@ struct EPS_map {
 
     std::string day_separator;
 
-    EPS_map(time_t _t, unsigned long days_in_map, targetdate_sorted_Nodes & _incomplete_repeating, eps_data_vec_t & _epsdata);
+    EPS_map(time_t _t, unsigned long days_in_map, targetdate_sorted_Nodes & _incomplete_repeating, eps_data_vec_t & _epsdata, bool _testfailfull);
+
+    size_t bytes_estimate();
+
+    void init_next_slot() { next_slot = slots.begin(); }
 
     void process_chain(std::string& chain);
     void prepare_day_separator();

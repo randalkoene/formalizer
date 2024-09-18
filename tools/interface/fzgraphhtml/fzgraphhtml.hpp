@@ -99,6 +99,8 @@ struct fzgraphhtml: public formalizer_standard_program {
 
     bool with_repeats = false;
 
+    bool nnl_with_counter = false;
+
     time_t t_last_rendered = 0;
 
     unsigned int do_links_rendered = 0;

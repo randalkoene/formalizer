@@ -550,6 +550,10 @@ bool Node::set_all_semaphores(int sval) {
  * inherited target dates. Normally only call this function recursively or
  * from inherit_targetdate().
  * 
+ * NOTE 20240916: This now regards only ITD Nodes as those that do not specify
+ * a target date. UTD Nodes, while treated as a sorted queue without target
+ * dates to aspire to, are treated as inheritable, i.e as providing hierarchy.
+ * 
  * Like the effective_targetdate() function, this function attempts to correct
  * a situation where the local targetdate is unspecified while the local
  * tdproperty does not indicate that. For more information, see the comments
@@ -574,14 +578,14 @@ time_t Node::nested_inherit_targetdate(Node_ptr & origin) {
 
     set_semaphore(SEM_TRAVERSED);
 
-    if ((tdproperty == td_property::unspecified) || (tdproperty == td_property::inherit)) {
+    if (tdproperty == td_property::inherit) { // Modified on 20240926 (used to include (tdproperty == td_property::unspecified) ||)
         // continue the recursive search
         time_t earliest = RTt_maxtime;
         for (auto it = supedges.begin(); it != supedges.end(); ++it) {
             Node & supnode = *((*it)->sup);
             Node_ptr nested_origin = nullptr;
             time_t sup_targetdate = supnode.nested_inherit_targetdate(nested_origin);
-            if (sup_targetdate<earliest) {
+            if ((sup_targetdate<earliest) && (sup_targetdate >=0 )) { // Modified on 20240926 (used to allow < 0)
                 earliest = sup_targetdate;
                 origin = nested_origin;
             }
@@ -1504,6 +1508,37 @@ ssize_t Graph::edit_all_in_List(const std::string _name, const Edit_flags & edit
         node_ptr->edit_content(nodedata, editflags);
     }
     return nodelist_ptr->list.size();
+}
+
+Node* Graph::latest_active_with_required_time() const {
+    time_t t_latest = RTt_unspecified;
+    Node* node_latest = nullptr;
+    for (const auto & [nkey, node_ptr] : get_nodes()) {
+        if (node_ptr->is_active() && (node_ptr->get_required()>0.0)) {
+            time_t t = node_ptr->effective_targetdate();
+            if (t > t_latest) {
+                node_latest = node_ptr.get();
+                t_latest = t;
+            }
+        }
+    }
+    return node_latest;
+}
+
+// See how this is used in fzupdate.
+Node* Graph::latest_active_movable_with_required_time() const {
+    time_t t_latest = RTt_unspecified;
+    Node* node_latest = nullptr;
+    for (const auto & [nkey, node_ptr] : get_nodes()) {
+        if (node_ptr->is_active() && node_ptr->is_movable() && (node_ptr->get_required()>0.0)) {
+            time_t t = node_ptr->effective_targetdate();
+            if (t > t_latest) {
+                node_latest = node_ptr.get();
+                t_latest = t;
+            }
+        }
+    }
+    return node_latest;
 }
 
 /**

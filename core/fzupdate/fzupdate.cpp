@@ -15,6 +15,7 @@
 //#define DEBUG_SKIP
 
 // std
+#include <cmath>
 #include <iostream>
 
 // core
@@ -207,6 +208,7 @@ bool fzu_configurable::set_parameter(const std::string & parlabel, const std::st
     CONFIG_TEST_AND_SET_PAR(chunk_minutes, "chunk_minutes", parlabel, get_chunk_minutes(parvalue));
     CONFIG_TEST_AND_SET_PAR(map_multiplier, "map_multiplier", parlabel, get_positive_integer(parvalue, "map_multiplier"));
     CONFIG_TEST_AND_SET_PAR(map_days, "map_days", parlabel, get_positive_integer(parvalue, "map_days"));
+    CONFIG_TEST_AND_SET_PAR(full_overhead_multiplier, "full_overhead_multiplier", parlabel, std::atof(parvalue.c_str()));
     CONFIG_TEST_AND_SET_PAR(warn_repeating_too_tight,"warn_repeating_too_tight", parlabel, (parvalue != "false"));
     CONFIG_TEST_AND_SET_PAR(endofday_priorities,"endofday_priorities", parlabel, (parvalue != "false"));
     CONFIG_TEST_AND_SET_PAR(dolater_endofday,"dolater_endofday", parlabel, get_time_of_day_seconds(parvalue));
@@ -305,35 +307,184 @@ void updvar_set_t_limit(time_t t_pass) {
     fzu.t_limit = time_add_day(t_pass,fzu.config.map_days);
 }
 
+time_t get_t_limit_for_chunks(time_t t_pass, size_t numchunks) {
+    size_t seconds = numchunks * fzu.config.chunk_minutes * 60;
+    return t_pass + seconds;
+}
+
+/**
+ * Enough time to fit the required time for everything, including repeats up
+ * to the latest non-repeating incomplete Node.
+ * 
+ * Note that this does not try to find time up to the latest target date,
+ * just enough time to place everything, since later FTD and ETD target
+ * dates would not need to be modified anyway.
+ * 
+ * Also, note, if there is a non-repeating Node scheduled far into the future
+ * then this required time will include quite a few repeated sleep times, which
+ * does bloat the assumed total required time quite a bit. It's a safe limit,
+ * not a minimal safe limit.
+ */
+time_t get_t_limit_for_everything(time_t t_pass, targetdate_sorted_Nodes& incomplete_repeating) {
+    bool found_first_nonrepeating = false;
+    time_t seconds_req = 0;
+    size_t i = incomplete_repeating.size();
+    for (auto rit = incomplete_repeating.rbegin(); rit != incomplete_repeating.rend(); ++rit) {
+        --i;
+        Node_ptr nptr = rit->second;
+        if (!found_first_nonrepeating) {
+            if (!nptr->get_repeats()) found_first_nonrepeating = true;
+        }
+        if (found_first_nonrepeating) {
+            seconds_req += nptr->get_required();
+        }
+    }
+    return t_pass + time_t(float(seconds_req)*fzu.config.full_overhead_multiplier);
+}
+
 struct update_constraints {
+    time_t t_pass = RTt_unspecified;
     time_t t_fetchlimit = RTt_maxtime;
-    unsigned long chunks_per_week = seconds_per_week / (20*60);
     size_t num_nodes_with_repeating = 0;
     unsigned long chunks_req_total = 0;
+
+    unsigned long chunks_per_week = seconds_per_week / (20*60);
     unsigned long weeks_for_nonperiodic = 0;
     unsigned long days_in_map = 0;
-    update_constraints() {
+
+    targetdate_sorted_Nodes* incomplete_repeating_ptr = nullptr;
+    eps_data_vec* epsdata_ptr = nullptr;
+
+    update_constraints(time_t _tpass): t_pass(_tpass) {
         t_fetchlimit = fzu.t_limit + (fzu.config.fetch_days_beyond_t_limit*seconds_per_day);
         chunks_per_week = seconds_per_week / ((unsigned long)fzu.config.chunk_minutes * 60);
     }
-    void set(size_t num_nodes, unsigned long _chunks_req_total) {
-        num_nodes_with_repeating = num_nodes;
-        chunks_req_total = _chunks_req_total;
+
+    void set(targetdate_sorted_Nodes* _incompleterepeating, eps_data_vec* _epsdata) {
+        incomplete_repeating_ptr = _incompleterepeating;
+        epsdata_ptr = _epsdata;
+        num_nodes_with_repeating = _incompleterepeating->size();
+        chunks_req_total = epsdata_ptr->updvar_total_chunks_required_nonperiodic(*incomplete_repeating_ptr);
+
         weeks_for_nonperiodic = chunks_req_total / chunks_per_week;
         if (weeks_for_nonperiodic == 0) {
             weeks_for_nonperiodic = 1;
         }
         days_in_map = weeks_for_nonperiodic * 7 * fzu.config.map_multiplier;
+
+        // Compare with previously set limits
         if (fzu.config.map_days > days_in_map) {
             days_in_map = fzu.config.map_days;
         }
+        time_t t_maplimit = t_pass + days_in_map*seconds_per_day;
+        if (t_maplimit < fzu.t_limit) {
+            float seconds_needed = fzu.t_limit - t_pass;
+            days_in_map = ceil(seconds_needed / float(seconds_per_day));
+        }
     }
+
+    time_t find_farthest_ETD_FTD_VTD() {
+        for (auto rit = incomplete_repeating_ptr->rbegin(); rit != incomplete_repeating_ptr->rend(); ++rit) {
+            Node_ptr nptr = rit->second;
+            if ((nptr->td_exact() || nptr->td_fixed() || nptr->td_variable()) && (!nptr->get_repeats())) {
+                return rit->first;
+            }
+        }
+        return RTt_unspecified;
+    }
+
+    size_t get_chunks_UTD_plus_to_t_limit() {
+        size_t total = 0;
+        size_t i = 0;
+        for (const auto & [t, node_ptr] : *incomplete_repeating_ptr) {
+            if (!node_ptr) {
+                ADDERROR(__func__, "Received a null-node");
+            } else {
+                chunks_t chunks_req = epsdata_ptr->at(i).chunks_req;
+                if (chunks_req > 0) {
+                    if (node_ptr->td_unspecified() && (!node_ptr->get_repeats())) {
+                        total += chunks_req;
+                    } else {
+                        if (t <= fzu.t_limit) {
+                            total += chunks_req;
+                        }
+                    }                    
+                }
+            }
+            ++i;
+        }
+
+        return total;
+    }
+
+    size_t get_chunks_to_t_limit() {
+        size_t minutes = (fzu.t_limit - t_pass) / 60;
+        return minutes / fzu.config.chunk_minutes;
+    }
+
+    size_t get_num_UTD() {
+        size_t num = 0;
+        for (const auto & [t, node_ptr] : *incomplete_repeating_ptr) {
+            if (node_ptr->td_unspecified()) num++;
+        }
+        return num;
+    }
+
+    size_t get_num_VTD() {
+        size_t num = 0;
+        for (const auto & [t, node_ptr] : *incomplete_repeating_ptr) {
+            if (node_ptr->td_variable()) num++;
+        }
+        return num;
+    }
+
+    size_t get_num_FTD_without_repeats() {
+        size_t num = 0;
+        for (const auto & [t, node_ptr] : *incomplete_repeating_ptr) {
+            if (node_ptr->td_fixed()) {
+                if (node_ptr->is_first_instance(t)) num++;
+            }
+        }
+        return num;
+    }
+
+    size_t get_num_ETD_without_repeats() {
+        size_t num = 0;
+        for (const auto & [t, node_ptr] : *incomplete_repeating_ptr) {
+            if (node_ptr->td_exact()) {
+                if (node_ptr->is_first_instance(t)) num++;
+            }
+        }
+        return num;
+    }
+
+    size_t get_num_ITD() {
+        size_t num = 0;
+        for (const auto & [t, node_ptr] : *incomplete_repeating_ptr) {
+            if (node_ptr->td_inherit()) num++;
+        }
+        return num;
+    }
+
+    std::string numstr_in_col(size_t num) {
+        return "["+std::to_string(num)+"] ";
+    }
+
+    // This info is calculated and shown only when VERBOSEOUT.
     std::string str() {
         std::string s("Limits: t_limit ("+TimeStampYmdHM(fzu.t_limit)+") + fetch_days_beyond_t_limit ("+std::to_string(fzu.config.fetch_days_beyond_t_limit)+") = t_fetchlimit = "+TimeStampYmdHM(t_fetchlimit));
         s += "\nNumber of Nodes fetched to map (including repeats)     : "+std::to_string(num_nodes_with_repeating);
+        s += "\nNumber of UTD, VTD, FTD, ETD, ITD (without repeats)    : "+numstr_in_col(get_num_UTD())+numstr_in_col(get_num_VTD())+numstr_in_col(get_num_FTD_without_repeats())+numstr_in_col(get_num_ETD_without_repeats())+numstr_in_col(get_num_ITD());
         s += "\nChunks required for non-repeating Nodes (up to t_limit): "+std::to_string(chunks_req_total);
-        s += "\nNumber of chunks in a week: "+std::to_string(chunks_per_week);
-        s += "\nNumber of days in map     : "+std::to_string(days_in_map)+'\n';
+        s += "\nNumber of chunks in a week                             : "+std::to_string(chunks_per_week);
+        s += "\nNumber of days in map                                  : "+std::to_string(days_in_map);
+        s += "\nFarthest non-repeating ETD, FTD or VTD target date     : "+TimeStampYmdHM(find_farthest_ETD_FTD_VTD());
+        size_t chunks_all_UTD_plus = get_chunks_UTD_plus_to_t_limit();
+        s += "\nChunks for all UTDs + to t_limit ETD,FTD,VTD & repeats : "+std::to_string(chunks_all_UTD_plus);
+        s += "\nA t_limit that would fit all those chunks              : "+TimeStampYmdHM(get_t_limit_for_chunks(t_pass, chunks_all_UTD_plus));
+        s += "\nA t_limit fit for everything but infinite repeats      : "+TimeStampYmdHM(get_t_limit_for_everything(t_pass, *incomplete_repeating_ptr));
+        s += "\nChunks available to t_limit                            : "+std::to_string(get_chunks_to_t_limit());
+        s += "\n\nSetting the t_limit to the t_limit to fit everything would provide\na complete and safe update, because FTD/ETD target dates\nbeyond that would not be modified anyway.\n";
         return s;
     }
 };
@@ -395,6 +546,8 @@ bool request_batch_targetdates_modifications(const targetdate_sorted_Nodes & upd
     return true;
 }
 
+#define USE_NEW_MAX_T_LIMIT
+
 /**
  * Note: Much of this is a re-implementation of the Formalizer 1.x process carried out by dil2al when the
  *       function alcomp.cc:generate_AL_CRT() is called.
@@ -429,7 +582,22 @@ int update_variable(time_t t_pass) {
         VERBOSEOUT("Pack-moveable mode.\n");
     }
 
+    // Updated on 20240917, see notes in Log chunk 202409170932.
+    bool test_fail_full = false;
     if (fzu.t_limit == RTt_maxtime) {
+#ifdef USE_NEW_MAX_T_LIMIT
+        test_fail_full = true;
+        VERBOSEOUT("Calculating time limit to accommodate everything for `-T full`...\n");
+        // Find the latest non-repeating movable.
+        Node* node_latest = fzu.graph().latest_active_movable_with_required_time();
+        time_t t_latest = node_latest->effective_targetdate();
+        VERBOSEOUT("Latest non-repeating movable: "+TimeStampYmdHM(t_latest)+'\n');
+        // Get a list of incomplete Nodes up to that point.
+        targetdate_sorted_Nodes tmp_incomplete_repeating = Nodes_incomplete_with_repeating_by_targetdate(fzu.graph(), t_latest, 0, fzu.config.pack_moveable);
+        // Find the time required for everything in there and set the t_limit accordingly.
+        fzu.t_limit = get_t_limit_for_everything(t_pass, tmp_incomplete_repeating);
+        VERBOSEOUT("Updating to "+TimeStampYmdHM(fzu.t_limit)+".\n");
+#else
         // Let's keep this case from exploding: Set the limit to time needed to complete non-repeating Nodes.
         size_t annual_repeating_minutes = total_minutes_incomplete_repeating(fzu.graph(), t_pass, t_pass+(seconds_per_day*365), true);  
         float minutes_per_year = 60*24*365;
@@ -438,24 +606,27 @@ int update_variable(time_t t_pass) {
             return standard_exit_error(exit_general_error, "Unable to project time needed to complete Nodes.", __func__);
         }
         size_t available_minutes_per_year = (1.0-year_ratio)*minutes_per_year;
-        size_t minutes = total_minutes_incomplete_nonrepeating(fzu.graph(), t_pass, fzu.t_limit);
+        size_t minutes = total_minutes_incomplete_nonrepeating(fzu.graph(), t_pass, fzu.t_limit); // *** Insufficient, there's even a note about that in the function!
         size_t num_years = (minutes / available_minutes_per_year) + 1;
         VERBOSEOUT("Updating "+std::to_string(num_years)+" years.\n");
         minutes_per_year *= (60*num_years); // years int seconds
         fzu.t_limit = t_pass + (size_t)minutes_per_year;
+#endif
     }
 
-    update_constraints constraints;
+    update_constraints constraints(t_pass);
+    // *** Might be able to re-use tmp_incomplete_repeating where applicable to save time.
     targetdate_sorted_Nodes incomplete_repeating = Nodes_incomplete_with_repeating_by_targetdate(fzu.graph(), constraints.t_fetchlimit, 0, fzu.config.pack_moveable);
     Edit_flags editflags;
     editflags.set_Edit_targetdate();
 
     eps_data_vec epsdata(incomplete_repeating);
 
-    constraints.set(incomplete_repeating.size(), epsdata.updvar_total_chunks_required_nonperiodic(incomplete_repeating));  
+    constraints.set(&incomplete_repeating, &epsdata);
     VERBOSEOUT(constraints.str());
 
-    EPS_map updvar_map(t_pass, constraints.days_in_map, incomplete_repeating, epsdata);
+    // *** constraints.days_in_map was not set to the amount needed for fzu.t_limit determined above!
+    EPS_map updvar_map(t_pass, constraints.days_in_map, incomplete_repeating, epsdata, test_fail_full);
     updvar_map.process_chain(fzu.config.chain);
     updvar_map.place_exact();
     updvar_map.place_fixed();
@@ -470,6 +641,11 @@ int update_variable(time_t t_pass) {
     }
 
     targetdate_sorted_Nodes eps_update_nodes = fzu.config.UTD_is_priority_queue ? updvar_map.get_epsvtd_and_utd_update_nodes() : updvar_map.get_eps_update_nodes();
+
+    if (test_fail_full && (!updvar_map.utd_all_placed)) {
+        VERBOSEOUT("The `full_overhead_multiplier` was too small to achieve placement\nof all UTD Nodes in `-T full` mode.\n");
+        return standard_exit_error(exit_bad_config_value, "Larger `full_overhead_multiplier` needed for `-T full`.", __func__);
+    }
 
     if (eps_update_nodes.empty()) {
         VERBOSEOUT("No variable target dates within examined range to update.\n");
@@ -573,7 +749,7 @@ int required_time_for_nonrepeating_Nodes() {
 
     eps_data_vec epsdata(incomplete_repeating);
 
-    constraints.set(incomplete_repeating.size(), epsdata.updvar_total_chunks_required_nonperiodic(incomplete_repeating));  
+    constraints.set(incomplete_repeating, epsdata.updvar_total_chunks_required_nonperiodic(incomplete_repeating));  
     VERBOSEOUT(constraints.str());
 
     EPS_map updvar_map(t_pass, constraints.days_in_map, incomplete_repeating, epsdata);

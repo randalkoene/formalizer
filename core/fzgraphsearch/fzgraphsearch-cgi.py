@@ -243,6 +243,14 @@ def Call_Error(msg: str):
     print(graphsearch_results_tail)
     sys.exit(0)   
 
+NNLFORMHEAD='''
+<form action="/cgi-bin/fzeditbatch-cgi.py" method="post">
+<input type="submit" name="action" value="batchmodify"><br>
+Select All<input onclick="toggle(this);" type="checkbox" /><br>
+filter <input type="checkbox" name="filter"><br>
+unspecified <input type="checkbox" name="unspecified"><br>
+unique target dates <input type="checkbox" name="uniqueTD"><br>
+'''
 
 CHECKALLJS='''
 <script language="JavaScript">
@@ -254,15 +262,6 @@ checkboxes[i].checked = source.checked;
 }
 }
 </script>
-'''
-
-NNLFORMHEAD='''
-<form action="/cgi-bin/fzeditbatch-cgi.py" method="post">
-<input type="submit" name="action" value="batchmodify"><br>
-Select All<input onclick="toggle(this);" type="checkbox" /><br>
-filter <input type="checkbox" name="filter"><br>
-unspecified <input type="checkbox" name="unspecified"><br>
-unique target dates <input type="checkbox" name="uniqueTD"><br>
 '''
 
 def render_search_results():
@@ -284,7 +283,7 @@ def render_search_results():
         print('-->')
 
     print('<!-- Render search results Named Node List -->')
-    print(NNLFORMHEAD)
+    print(NNLFORMHEAD % str())
     print('<table class="blueTable"><tbody>')
     rendercmd = f"./fzgraphhtml -q -e -L '{searchresultsNNL}' -N all -c -o STDOUT -E STDOUT"
     try_command_call(rendercmd)

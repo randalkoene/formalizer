@@ -317,6 +317,52 @@ struct line_render_parameters {
         return (tdstamp.substr(0,8) != datestamp);
     }
 
+    // This is rendered into the top line of the list when included.
+    void render_counts(size_t num_rendered, size_t num_in_list, bool include_remove_button) {
+        template_varvalues varvals;
+        if (!fzgh.test_cards) {
+            // -- Node ID
+            varvals.emplace("node_id", "");
+            // -- Optional checkbox
+            if (fzgh.config.include_checkboxes) {
+                varvals.emplace("checkbox","<td> </td>");
+            } else {
+                varvals.emplace("checkbox","");
+            }
+            varvals.emplace("checkbox","");
+            // -- Topic
+            varvals.emplace("topic","");
+            // -- Target date and time zone
+            varvals.emplace("targetdate", "");
+            varvals.emplace("rawtd", "");
+            varvals.emplace("alertstyle", "");
+            // -- Required time
+            varvals.emplace("req_hrs", "");
+            // -- Target date property
+            varvals.emplace("tdprop", "");
+            // -- Content excerpt
+            varvals.emplace("excerpt", "<b>Rendered "+std::to_string(num_rendered)+" of "+std::to_string(num_in_list)+" in list.</b>");
+            // -- Server address
+            varvals.emplace("fzserverpq", "");
+            // -- Do-link
+            varvals.emplace("do_link", "");
+            // -- Possible source NNL
+            varvals.emplace("srclist", "");
+            // -- Possible position in NNL
+            varvals.emplace("list_pos", "");
+            // -- Render
+            if (fzgh.no_javascript) {
+                rendered_page += env.render(templates[node_pars_in_list_nojs_temp], varvals);
+            } else {
+                if (include_remove_button) {
+                    rendered_page += env.render(templates[node_pars_in_list_with_remove_temp], varvals);
+                } else {
+                    rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
+                }
+            }
+        }
+    }
+
     /**
      * Call this to render parameters of a Node on a single line of a list of Nodes.
      * For example, this selection of data is shown when Nodes are listed in a schedule.
@@ -617,6 +663,10 @@ bool render_named_node_list() {
     unsigned int num_render = (fzgh.config.num_to_show > namedlist_ptr->list.size()) ? namedlist_ptr->list.size() : fzgh.config.num_to_show;
 
     lrp.prep(num_render);
+
+    if (fzgh.nnl_with_counter) {
+        lrp.render_counts(num_render, namedlist_ptr->list.size(), true);
+    }
 
     if (fzgh.config.sort_by_targetdate) {
 

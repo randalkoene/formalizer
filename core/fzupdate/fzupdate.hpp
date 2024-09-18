@@ -39,6 +39,7 @@ public:
     time_t chunk_seconds = 20*60;
     unsigned int map_multiplier = 3;
     unsigned long map_days = 14;
+    float full_overhead_multiplier = 1.1; ///< Used with `-T full` to attempt to ensure that all UTD Nodes are placed.
     bool warn_repeating_too_tight = true;
     bool endofday_priorities = true;
     time_t dolater_endofday = 73800;
