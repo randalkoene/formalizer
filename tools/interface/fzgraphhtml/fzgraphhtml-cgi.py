@@ -221,9 +221,7 @@ listpagetail = '''</tbody></table>
 
 <script type="text/javascript" src="/fzuistate.js"></script>
 <script type="text/javascript" src="/clock.js"></script>
-<script>
-    var clock = new floatClock('clock');
-</script>
+
 </body>
 </html>
 '''
@@ -265,9 +263,7 @@ function edge_update(event) {
 </script>
 <script type="text/javascript" src="/fzuistate.js"></script>
 <script type="text/javascript" src="/clock.js"></script>
-<script>
-    var clock = new floatClock('clock');
-</script>
+
 </body>
 </html>
 '''
@@ -281,9 +277,11 @@ topicspagehead = '''<html>
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/fzuistate.css">
 <link rel="stylesheet" href="/bluetable.css">
+<link rel="stylesheet" href="/clock.css">
 <title>fz: Topics</title>
 </head>
 <body>
+<button id="clock" class="button button2">_____</button>
 <h1>fz: Topics</h1>
 <br>
 <table class="blueTable"><tbody>
@@ -296,9 +294,7 @@ topicspagetail = '''</tbody></table>
 
 <script type="text/javascript" src="/fzuistate.js"></script>
 <script type="text/javascript" src="/clock.js"></script>
-<script>
-    var clock = new floatClock('clock');
-</script>
+
 </body>
 </html>
 '''
