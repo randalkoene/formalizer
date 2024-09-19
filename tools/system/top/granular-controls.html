@@ -8,7 +8,9 @@
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
 <link rel="icon" href="/favicon-32x32.png">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/clock.css">
 <link rel="stylesheet" href="/fzuistate.css">
+<link rel="stylesheet" href="/fztask.css">
 <style>
 .mainpanel {
     float: left;
@@ -26,19 +28,6 @@
     display: table;
     clear: both;
 }
-#clock {
-    position: fixed;
-    top: 0px;
-    right: 0px;
-    margin: 20px auto;
-    padding: 0;
-    background: #999;
-    text-align: center;
-    line-height: 40px;
-    color: #000;
-    font-size: 34px;
-    font-family: calibri;
-}
 #duplicate {
     position: fixed;
     top: 70px;
@@ -46,22 +35,22 @@
 }
 #classical {
     position: fixed;
-    bottom: 0px;
+    bottom: 50px;
     right: 0px;
 }
 #EBM {
     position: fixed;
-    bottom: 50px;
+    bottom: 100px;
     right: 0px;
 }
 #industrial {
     position: fixed;
-    bottom: 100px;
+    bottom: 150px;
     right: 0px;
 }
 #meditative {
     position: fixed;
-    bottom: 150px;
+    bottom: 200px;
     right: 0px;
 }
 .container {
@@ -118,34 +107,9 @@ Granular Control:
 </div> <!-- end of rightpanel -->
 </div> <!-- end of bodyrow -->
 
-
-<!-- clock script adapted from https://codepen.io/kase/pen/LxNzWj -->
-<script type="text/javascript">
-function updateClock() {
-    var currentTime = new Date();
-    // Operating System Clock Hours for 24h clock
-    var currentHours = currentTime.getHours();
-    // Operating System Clock Minutes
-    var currentMinutes = currentTime.getMinutes();
-    // Operating System Clock Seconds
-    //var currentSeconds = currentTime.getSeconds();
-    // Adding 0 if Minutes & Seconds is More or Less than 10
-    currentMinutes = (currentMinutes < 10 ? "0" : "") + currentMinutes;
-    //currentSeconds = (currentSeconds < 10 ? "0" : "") + currentSeconds;
-    // display first 24h clock and after line break 12h version
-    var currentTimeString = currentHours + ":" + currentMinutes; // + ":" + currentSeconds;
-    // print clock js in div #clock.
-    document.getElementById("clock").innerHTML = currentTimeString;
-    //var t = setTimeout(function(){ updateClock() }, 1000); /* setting timer */ // this actually blows up the stack!
-}
-// let's skip using jQuery $(document).ready(function () { setInterval(updateClock, 1000); } );
-//updateClock(); // initiate the process
-function clockStart() {
-    updateClock();
-    var idval = setInterval(updateClock, 60000); // update each minute, since we're not showing seconds here
-}
-</script>
 <script type="text/javascript" src="/fzuistate.js"></script>
+<script type="text/javascript" src="/clock.js"></script>
+
 </BODY>
 
 </HTML>

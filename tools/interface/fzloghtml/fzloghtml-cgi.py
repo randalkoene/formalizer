@@ -74,12 +74,6 @@ log_interval_head = '''<html>
 <title>fz: Log interval</title>
 </head>
 <body>
-<style type="text/css">
-.chktop { 
-    background-color: #B0C4F5;
-}
-table tr.chktop { background: #B0C4F5; }
-</style>
 <button id="clock" class="button button2">_____</button>
 <button id="score" class="button button2">_____</button>
 '''

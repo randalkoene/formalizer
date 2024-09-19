@@ -56,7 +56,7 @@ function sendData( data ) {
 
 // --- Page color choice:
 // darkmode handling
-var nummodes = 4;
+var nummodes = 5;
 var darkmode = 0;
 function set_darkmode() {
     if (darkmode < 1) {
@@ -65,8 +65,10 @@ function set_darkmode() {
         document.body.setAttribute('data-theme', 'dark');
     } else if (darkmode == 2) {
         document.body.setAttribute('data-theme', 'dark_alt1');
-    } else {
+    } else if (darkmode == 3) {
         document.body.setAttribute('data-theme', 'dark_alt2');
+    } else {
+        document.body.setAttribute('data-theme', 'dark_alt3');
     }
 }
 function store_data() {

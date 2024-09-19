@@ -246,9 +246,6 @@ td.paramtitle {
     vertical-align: top;
     font-weight: bold;
 }
-.chktop {
-    background-color: #B0C4F5;
-}
 </style>
 <button id="clock" class="button button2">_____</button>
 <br>
@@ -287,11 +284,6 @@ topicspagehead = '''<html>
 <title>fz: Topics</title>
 </head>
 <body>
-<style type="text/css">
-.chktop {
-    background-color: #B0C4F5;
-}
-</style>
 <h1>fz: Topics</h1>
 <br>
 <table class="blueTable"><tbody>
