@@ -62,6 +62,8 @@ struct fzlog: public formalizer_standard_program {
 
     ReferenceTime reftime; // enables emulated time (automatically adds -t through options_hook())
 
+    bool override_precautions = false;
+
     fzlog();
 
     virtual void usage_hook();

@@ -49,6 +49,7 @@ if verbositystr:
         verbosity = 1
 else:
     verbosity = 1
+override_precautions = form.getvalue('override') == 'on' # Can be implemented as a checkbox.
 
 # The following should only show information that is safe to provide
 # to those who have permission to connect to this CGI handler.
@@ -392,7 +393,7 @@ def try_subprocess_check_output(thecmdstring: str, resstore: str, verbosity=1, p
             print(res.decode(), flush=True)
         return 0
 
-def extra_cmd_args(T_emulated: str, verbosity = 1) -> str:
+def extra_cmd_args(T_emulated:str, verbosity=1, override_precautions=False) -> str:
     extra = ''
     if T_emulated:
         extra += ' -t '+T_emulated
@@ -401,6 +402,9 @@ def extra_cmd_args(T_emulated: str, verbosity = 1) -> str:
     else:
         if verbosity > 1:
             extra += ' -V'
+    if override_precautions:
+        extra += ' -O'
+
     return extra
 
 def get_selected_Node(verbosity = 1) -> str:
@@ -447,14 +451,14 @@ def render_node_with_history(node: str, verbosity = 0):
     print(f'<noscript>\n<br>\n<p>\n[<a href="/cgi-bin/fzlink.py?id={node}&alt=histfull">full history</a>]\n</p>\n<br>\n</noscript>')
     print(f'\n<br>\n<p>\n<button class="button button2" onclick="location.href=\'/cgi-bin/fzlink.py?id={node}&alt=histfull\';">full history</button>\n</p>\n<br>\n')
 
-def open_new_Log_chunk(node: str, T_emulated: str, verbosity = 1) -> bool:
+def open_new_Log_chunk(node: str, T_emulated: str, verbosity = 1, override_precautions=False) -> bool:
     print(openpagehead)
     if not node:
         node = get_selected_Node(verbosity)
         if not node:
             print(openpagetail_failure)
             return False
-    thecmd = './fzlog -E STDOUT -W STDOUT -c ' + node + extra_cmd_args(T_emulated, verbosity)
+    thecmd = './fzlog -E STDOUT -W STDOUT -c ' + node + extra_cmd_args(T_emulated, verbosity, override_precautions)
     retcode = try_subprocess_check_output(thecmd, 'open_chunk', verbosity)
     if (retcode == 0):
         render_node_with_history(node)
@@ -464,9 +468,9 @@ def open_new_Log_chunk(node: str, T_emulated: str, verbosity = 1) -> bool:
         print(openpagetail_failure)
     return (retcode == 0)
 
-def close_Log_chunk(T_emulated: str, verbosity = 1) -> bool:
+def close_Log_chunk(T_emulated: str, verbosity = 1, override_precautions=False) -> bool:
     print(closepagehead)
-    thecmd = './fzlog -E STDOUT -W STDOUT -C' + extra_cmd_args(T_emulated, verbosity)
+    thecmd = './fzlog -E STDOUT -W STDOUT -C' + extra_cmd_args(T_emulated, verbosity, override_precautions)
     retcode = try_subprocess_check_output(thecmd, 'close_chunk', verbosity)
     if (retcode == 0):
         print(closepagetail_success)
@@ -733,13 +737,13 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if (action == 'open'):
-        res = open_new_Log_chunk(node, T_emulated, verbosity)
+        res = open_new_Log_chunk(node, T_emulated, verbosity, override_precautions)
         if res:
             sys.exit(0)
         else:
             sys.exit(1)
     if (action == 'close'):
-        res = close_Log_chunk(T_emulated, verbosity)
+        res = close_Log_chunk(T_emulated, verbosity, override_precautions)
         if res:
             sys.exit(0)
         else:

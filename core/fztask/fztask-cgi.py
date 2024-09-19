@@ -278,6 +278,7 @@ Log entries in this chunk: %s
 %s
 </td>
 <td class="stateinfo">
+%s
 </td>
 </tr>
 
@@ -312,6 +313,12 @@ ROW5CELL1_B = '''5. <button class="button button1" onclick="window.open('/cgi-bi
 
 ROW5CELL1_C = '''5. <button class="button button1">Open New Log chunk</button> (select Node to activate)'''
 
+ROW5CELL2_A = '''<button class="tiny_button tiny_red tiny_wider" onclick="window.open('/cgi-bin/fzlog-cgi.py?action=open%s&override=on','');">Override Precautions and Open New Log chunk</button>'''
+
+ROW5CELL2_B = '''<button class="tiny_button tiny_red tiny_wider" onclick="window.open('/cgi-bin/fzlog-cgi.py?action=open%s&override=on','');">Override Precautions and Open New Log chunk</button>'''
+
+ROW5CELL2_C = ''
+
 def get_row_5_cell_1(got_selected:bool, same_node:bool, fzlog_T:str)->str:
     if got_selected:
         if same_node:
@@ -319,6 +326,14 @@ def get_row_5_cell_1(got_selected:bool, same_node:bool, fzlog_T:str)->str:
         else:
             return ROW5CELL1_B % fzlog_T
     return ROW5CELL1_C
+
+def get_row_5_cell_2(got_selected:bool, same_node:bool, fzlog_T:str)->str:
+    if got_selected:
+        if same_node:
+            return ROW5CELL2_A % fzlog_T
+        else:
+            return ROW5CELL2_B % fzlog_T
+    return ROW5CELL2_C
 
 def render_dynamic_nonlocal_fztask_page(
     static_page_call:str,
@@ -344,6 +359,7 @@ def render_dynamic_nonlocal_fztask_page(
         row_3_cell_1[T_emulated is None],
         selected_node_HTML,
         get_row_5_cell_1(got_selected, same_node, fzlog_T),
+        get_row_5_cell_2(got_selected, same_node, fzlog_T),
         frequent_nodes_HTML,
         ))
 

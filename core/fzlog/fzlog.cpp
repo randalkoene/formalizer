@@ -43,9 +43,9 @@ fzlog fzl;
  */
 fzlog::fzlog() : formalizer_standard_program(false), config(*this), ga(*this, add_option_args, add_usage_top),
                  reftime(add_option_args, add_usage_top) {
-    add_option_args += "ei:r:D:n:T:CRm:I:2:1:c:f:";
+    add_option_args += "ei:r:D:n:T:CRm:I:2:1:c:f:O";
     add_usage_top += " -e|-i <chunk-ID>|-r <entry-ID>|-D <entry-ID>|-C|-R|-c <node-ID>|-m <chunk-ID>|-I <chunk-ID>|-h [-n <node-ID>] [-T <text>]"
-                     " [-2 <close-time>] [-1 <open-time>] [-f <content-file>]";
+                     " [-2 <close-time>] [-1 <open-time>] [-f <content-file>] [-O]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "If [-c] is called when a Log chunk is still open then the Log chunk\n"
@@ -82,7 +82,8 @@ void fzlog::usage_hook() {
           "    -f entry text from <content-file> (\"STDIN\" for stdin until eof, CTRL+D)\n"
           "    -C close Log chunk (if open)\n"
           "    -R reopen Log chunk (if closed)\n"
-          "    -c open new Log chunk for Node <node-ID>\n");
+          "    -c open new Log chunk for Node <node-ID>\n"
+          "    -O override safety precautions\n");
 }
 
 void get_entry_ID_and_chunk_ID(std::string & cargs) {
@@ -205,6 +206,11 @@ bool fzlog::options_hook(char c, std::string cargs) {
 
     case 'f': {
         config.content_file = cargs;
+        return true;
+    }
+
+    case 'O': {
+        override_precautions = true;
         return true;
     }
 
@@ -524,6 +530,14 @@ bool update_Node_completion(const std::string & node_idstr, time_t add_seconds) 
 bool close_chunk(time_t closing_time) {
     ERRTRACE;
     get_newest_Log_data(fzl.ga, fzl.edata);
+
+    // Detect times suspiciously far in the future.
+    if (!fzl.override_precautions) {
+        if ((closing_time - fzl.edata.newest_chunk_t) > RTt_oneday) {
+            standard_exit_error(exit_bad_request_data, "Canceled request. Time interval is greater than a day. To force anyway, rerun with the -O override precautions option.", __func__);
+        }
+    }
+
     if (!fzl.edata.is_open)
         return true;
 

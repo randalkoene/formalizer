@@ -133,8 +133,15 @@ border: 1px solid #4CAF50;
 .tiny_green:hover {
 background-color: #4CAF50;
 }
+.tiny_red {
+border: 1px solid #BA0000; 
+}
+.tiny_red:hover {
+background-color: #BA0000;
+color: white;
+}
 .tiny_wider {
-    width: max-content;
+width: max-content;
 }
 a.node:link {color: #000000; text-decoration:none;}
 a.node:visited {color: #000000; text-decoration:none;}
