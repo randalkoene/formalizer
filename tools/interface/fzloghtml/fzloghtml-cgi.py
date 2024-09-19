@@ -74,8 +74,9 @@ log_interval_head = '''<html>
 <title>fz: Log interval</title>
 </head>
 <body>
-<button id="clock" class="button button2">_____</button>
-<button id="score" class="button button2">_____</button>
+<script type="text/javascript" src="/clock.js"></script>
+<script type="text/javascript" src="/score.js"></script>
+<script type="text/javascript" src="/fzuistate.js"></script>
 '''
 
 cgi_custom_tail = '''
@@ -111,9 +112,6 @@ or<br />
 
 <p>[<a href="/index.html">fz: Top</a>] <span id="logautoupdate">_</span></p>
 
-<script type="text/javascript" src="/fzuistate.js"></script>
-<script type="text/javascript" src="/clock.js"></script>
-<script type="text/javascript" src="/score.js"></script>
 <script type="text/javascript" src="/logautoupdate.js"></script>
 '''
 

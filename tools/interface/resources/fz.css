@@ -68,6 +68,9 @@ cursor: pointer;
 --fgcolor-textarea: black;
 --active-node-color: blue;
 --inactive-node-color: black;
+--tr-bg-1: #EEEEEE;
+--tr-bg-2: #D0E4F5;
+--tr-fg: black;
 }
 [data-theme="dark"] {
 --color-bg: LightSteelBlue;
@@ -80,6 +83,9 @@ cursor: pointer;
 --fgcolor-textarea: black;
 --active-node-color: blue;
 --inactive-node-color: black;
+--tr-bg-1: #EEEEEE;
+--tr-bg-2: #D0E4F5;
+--tr-fg: black;
 }
 [data-theme="dark_alt1"] {
 --color-bg: rgb(79, 128, 192);
@@ -92,6 +98,9 @@ cursor: pointer;
 --fgcolor-textarea: black;
 --active-node-color: blue;
 --inactive-node-color: black;
+--tr-bg-1: #EEEEEE;
+--tr-bg-2: #D0E4F5;
+--tr-fg: black;
 }
 [data-theme="dark_alt2"] {
 --color-bg: rgb(2, 42, 94);
@@ -104,6 +113,9 @@ cursor: pointer;
 --fgcolor-textarea: white;
 --active-node-color: #6d6dfc;
 --inactive-node-color: #b3b3b3;
+--tr-bg-1: #3f3f3f;
+--tr-bg-2: #3f3f5f;
+--tr-fg: #c0c77d;
 }
 [data-theme="dark_alt3"] {
 --color-bg: rgb(0, 0, 0);
@@ -116,6 +128,9 @@ cursor: pointer;
 --fgcolor-textarea: white;
 --active-node-color: #6d6dfc;
 --inactive-node-color: #b3b3b3;
+--tr-bg-1: #3f3f3f;
+--tr-bg-2: #3f3f5f;
+--tr-fg: #c0c77d;
 }
 body {
 background-color: var(--color-bg);
@@ -215,14 +230,14 @@ width: max-content;
 background-color: var(--color-chktop);
 }
 table tr.chktop { background: var(--color-chktop); }
-a.node:link {color: #000000; text-decoration:none;}
-a.node:visited {color: #000000; text-decoration:none;}
-a.node:hover {color: #000000; text-decoration:underline; background:#55db50;}
+a.node:link {color: var(--tr-fg); text-decoration:none;}
+a.node:visited {color: var(--tr-fg); text-decoration:none;}
+a.node:hover {color: var(--tr-fg); text-decoration:underline; background-color:#55db50;}
 a.id:link {color: #000000; text-decoration:underline;}
 a.id:visited {color: #000000; text-decoration:underline;}
-a.id:hover {color: #000000; text-decoration:underline; background:#55db50;}
-.id_cell {color: #000000; text-decoration:underline; cursor: pointer;}
-.id_cell:hover {color: #000000; text-decoration:underline; background:#55db50;}
+a.id:hover {color: #000000; text-decoration:underline; background-color:#55db50;}
+.id_cell {color: var(--tr-fg); text-decoration:underline; cursor: pointer;}
+.id_cell:hover {color: var(--tr-fg); text-decoration:underline; background-color:#55db50;}
 a.nnl:hover {background:#55db50;}
 .success { background-color: #84ec7a; }
 .fail { background-color: rgb(206, 70, 70);}

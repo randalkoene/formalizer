@@ -19,11 +19,27 @@ class floatScore {
     constructor(score_id = 'score', autostart = true) {
         this.intervaltask = null;
         this.scoreContent = '??';
-        this.scoreelement = document.getElementById(score_id);
+        this.scoreelement = this.getScoreElement(score_id);
         console.log('floatScore instance created');
         if (autostart) {
             this.scoreStart();
         }
+    }
+
+    getScoreElement(score_id) {
+        var scorebtnelement = document.getElementById(score_id);
+        if (scorebtnelement == null) {
+            console.log('Making score element');
+            scorebtnelement = this.makeScoreElement(score_id);
+        }
+        return scorebtnelement;
+    }
+
+    makeScoreElement(score_id) {
+        var scorebtnelement = document.createElement("div");
+        scorebtnelement.innerHTML = `<button id="${score_id}" class="button button2">_____</button>`;
+        document.body.prepend(scorebtnelement);
+        return document.getElementById(score_id);
     }
 
     makeScoreString(_content ) {

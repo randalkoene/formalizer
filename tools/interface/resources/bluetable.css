@@ -4,7 +4,7 @@ th {
 }
 table.blueTable {
   border: 1px solid #1C6EA4;
-  background-color: #EEEEEE;
+  background-color: var(--tr-bg-1);
   width: 100%;
   text-align: left;
   border-collapse: collapse;
@@ -16,8 +16,17 @@ table.blueTable td, table.blueTable th {
 table.blueTable tbody td {
   font-size: 13px;
 }
-table.blueTable tr:nth-child(even) {
-  background: #D0E4F5;
+table.blueTable tr:nth-child(odd) td {
+  background-color: var(--tr-bg-1);
+}
+table.blueTable tr:nth-child(odd) td.id_cell:hover {
+  background-color:#55db50;
+}
+table.blueTable tr:nth-child(even) td {
+  background-color: var(--tr-bg-2);
+}
+table.blueTable tr:nth-child(even) td.id_cell:hover {
+  background-color:#55db50;
 }
 table.blueTable tfoot td {
   font-size: 14px;

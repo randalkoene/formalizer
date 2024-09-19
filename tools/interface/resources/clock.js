@@ -24,11 +24,27 @@ class floatClock {
         this.currentHours = '??';
         this.currentMinutes = '??';
         this.currentSeconds = '??';
-        this.clockelement = document.getElementById(clock_id);
+        this.clockelement = this.getClockElement(clock_id);
         console.log('floatClock instance created');
         if (autostart) {
             this.clockStart();
         }
+    }
+
+    getClockElement(clock_id) {
+        var clockbtnelement = document.getElementById(clock_id);
+        if (clockbtnelement == null) {
+            console.log('Making clock element');
+            clockbtnelement = this.makeClockElement(clock_id);
+        }
+        return clockbtnelement;
+    }
+
+    makeClockElement(clock_id) {
+        var clockbtnelement = document.createElement("div");
+        clockbtnelement.innerHTML = `<button id="${clock_id}" class="button button2">_____</button>`;
+        document.body.prepend(clockbtnelement);
+        return document.getElementById(clock_id);
     }
 
     makeClockString( hrs, mins, secs ) {
