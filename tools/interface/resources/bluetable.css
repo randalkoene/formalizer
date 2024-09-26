@@ -21,12 +21,14 @@ table.blueTable tr:nth-child(odd) td {
 }
 table.blueTable tr:nth-child(odd) td.id_cell:hover {
   background-color:#55db50;
+  color: black;
 }
 table.blueTable tr:nth-child(even) td {
   background-color: var(--tr-bg-2);
 }
 table.blueTable tr:nth-child(even) td.id_cell:hover {
   background-color:#55db50;
+  color: black;
 }
 table.blueTable tfoot td {
   font-size: 14px;

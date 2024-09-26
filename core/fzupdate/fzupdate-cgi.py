@@ -9,21 +9,21 @@ pagehead = '''Content-type:text/html
 <html>
 <head>
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Update</title>
 </head>
 <body>
+<script type="text/javascript" src="/fzuistate.js"></script>
 <style type="text/css">
-.chktop {
-    background-color: #B0C4F5;
-}
 .map {
     font-family: "Lucida Sans Typewriter";
-    font-size: 16px;
+    font-size: 12px;
     font-style: normal;
     font-variant: normal;
     font-weight: 400;
-    line-height: 17.6px;
-    background-color: #e6e6fa;
+    //line-height: 17.6px;
+    background-color: var(--bgcolor-textarea);
+    color: var(--fgcolor-textarea);
 }
 </style>
 '''
@@ -148,16 +148,17 @@ pagetail = '''<hr>
 </html>
 '''
 
-show_passedfixed_steps = """<p>(Actually, you should just list the NNL here with fzgraphhtml.)</p>
-<p>Manually update Nodes that should not be converted: <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=passed_fixed">passed_fixed NNL</a></p>
+show_passedfixed_steps = """<p>Manually update Nodes that should not be converted</p>
+<p>To see the list of Nodes in a separate page: <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=passed_fixed">passed_fixed NNL</a></p>
 <p><b>Reload</b> to see how many remain.</p>
 <p><a href="/cgi-bin/fzupdate-cgi.py?update=convert_passedfixed">Update the rest</a>.</p>
 """
 
 
-def try_command_call(thecmd):
+def try_command_call(thecmd:str, use_map_style=True):
     print(f'<!-- thecmd = {thecmd} -->')
-    print('<div class="map"><pre>')
+    if use_map_style:
+        print('<div class="map"><pre>')
     try:
         p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
         (child_stdin,child_stdout) = (p.stdin, p.stdout)
@@ -175,8 +176,8 @@ def try_command_call(thecmd):
         for line in a:
             print(line)
 
-    print('</pre></div>')
-
+    if use_map_style:
+        print('</pre></div>')
 
 def make_filter_passed_fixed():
     completionfilter = 'completion=[0.0-0.999]'
@@ -189,40 +190,67 @@ def make_filter_passed_fixed():
     return f'{completionfilter},{hoursfilter},{targetdatesfilter},{tdpropertiesfilter},repeats=false'
 
 
+def generate_NNL_page():
+    thecmd = "./fzgraphhtml -q -e -L 'passed_fixed' -s targetdate -N all -o STDOUT -E STDOUT"
+    try_command_call(thecmd, use_map_style=False)
+
 filterstr = ''
+# def get_passed_fixed() ->int:
+#     global filterstr
+#     config = {}
+#     config['verbose'] = True
+#     config['logcmdcalls'] = False
+#     config['logcmderrors'] = False
+#     # Note that Graphaccess uses the subprocess call in fzcmdcalls.py, which does not include a <pre> block.
+#     # Add this here if needed:
+#     if config['verbose']:
+#         print('<div class="map"><pre>')
+#     if not Graphaccess.clear_NNL('passed_fixed', config):
+#         if config['verbose']:
+#             print('</pre></div>')
+#         return -1
+#     if (filterstr == ''):
+#         filterstr = make_filter_passed_fixed()
+#     num = Graphaccess.select_to_NNL(filterstr,'passed_fixed')
+#     if (num < 0):
+#         if config['verbose']:
+#             print('</pre></div>')
+#         return -2
+#     if config['verbose']:
+#         print('</pre></div>')
+#     return num
+
 def get_passed_fixed() ->int:
     global filterstr
     config = {}
-    config['verbose'] = True
+    config['verbose'] = False
     config['logcmdcalls'] = False
     config['logcmderrors'] = False
     # Note that Graphaccess uses the subprocess call in fzcmdcalls.py, which does not include a <pre> block.
     # Add this here if needed:
-    if config['verbose']:
-        print('<div class="map"><pre>')
     if not Graphaccess.clear_NNL('passed_fixed', config):
-        if config['verbose']:
-            print('</pre></div>')
+        print('<div class="map"><pre>')
+        print(Graphaccess.results['clearlist'])
+        print('</pre></div>')
         return -1
     if (filterstr == ''):
         filterstr = make_filter_passed_fixed()
+    print('<div class="map"><pre>')
     num = Graphaccess.select_to_NNL(filterstr,'passed_fixed')
+    print('</pre></div>')
     if (num < 0):
-        if config['verbose']:
-            print('</pre></div>')
         return -2
-    if config['verbose']:
-        print('</pre></div>')
     return num
-
 
 # This is based on the process carred out in fztask.py:update_passed_fixed().
 def prepare_convert_passed_fixed():
     get_server_address('.')
     num = get_passed_fixed()
     print(f"<p>Number of passed Fixed or Exact Target Date Nodes: {num}</p>")
+    print('<table class="blueTable"><tbody>\n')
+    generate_NNL_page()
+    print('</tbody></table>\n')
     print(show_passedfixed_steps)
-
 
 def convert_passed_fixed():
     get_server_address('.')

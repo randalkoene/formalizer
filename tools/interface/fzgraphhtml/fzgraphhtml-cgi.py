@@ -95,9 +95,12 @@ interface_options_help = '''
 <head>
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/fzuistate.css">
+<link rel="stylesheet" href="/clock.css">
 <title>fzgraphhtml-cgi API</title>
 </head>
 <body>
+<script type="text/javascript" src="/clock.js"></script>
+<script type="text/javascript" src="/fzuistate.js"></script>
 <h1>fzgraphhtml-cgi API</h1>
 
 <p>
@@ -147,7 +150,6 @@ to these action links, for example, to add the specified Node to a Named Node Li
 (more info to come)
 </p>
 
-<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -166,7 +168,8 @@ listpagehead = '''<html>
 <title>fz:modify Named Node List</title>
 </head>
 <body>
-<button id="clock" class="button button2">_____</button>
+<script type="text/javascript" src="/clock.js"></script>
+<script type="text/javascript" src="/fzuistate.js"></script>
 <h3>fz:modfy Named Node List</h3>
 <p>List element is Node {node_id} at list position {list_pos}.</p>
 
@@ -187,7 +190,8 @@ listpagehead_nomodif = '''<html>
 <title>Named Node List: {list_name}</title>
 </head>
 <body>
-<button id="clock" class="button button2">_____</button>
+<script type="text/javascript" src="/clock.js"></script>
+<script type="text/javascript" src="/fzuistate.js"></script>
 <h3>Named Node List: {list_name}</h3>
 
 {form_head}
@@ -205,7 +209,8 @@ listpagehead_alllists = '''<html>
 <title>Named Node Lists</title>
 </head>
 <body>
-<button id="clock" class="button button2">_____</button>
+<script type="text/javascript" src="/clock.js"></script>
+<script type="text/javascript" src="/fzuistate.js"></script>
 <h3>Named Node Lists</h3>
 
 <table class="blueTable"><tbody>
@@ -218,9 +223,6 @@ listpagetail = '''</tbody></table>
 <hr>
 
 <p>[<a href="/index.html">fz: Top</a>]</p>
-
-<script type="text/javascript" src="/fzuistate.js"></script>
-<script type="text/javascript" src="/clock.js"></script>
 
 </body>
 </html>
@@ -239,13 +241,14 @@ editpagehead = '''<html>
 <title>Formalizer: Edit Node</title>
 </head>
 <body>
+<script type="text/javascript" src="/clock.js"></script>
+<script type="text/javascript" src="/fzuistate.js"></script>
 <style type="text/css">
 td.paramtitle {
     vertical-align: top;
     font-weight: bold;
 }
 </style>
-<button id="clock" class="button button2">_____</button>
 <br>
 <table><tbody>
 '''
@@ -261,8 +264,6 @@ function edge_update(event) {
     window.open('/cgi-bin/fzedit-cgi.py?edge='+edge_id+'&edgemod='+modtype+'&modval='+value);
 }
 </script>
-<script type="text/javascript" src="/fzuistate.js"></script>
-<script type="text/javascript" src="/clock.js"></script>
 
 </body>
 </html>
@@ -281,7 +282,8 @@ topicspagehead = '''<html>
 <title>fz: Topics</title>
 </head>
 <body>
-<button id="clock" class="button button2">_____</button>
+<script type="text/javascript" src="/clock.js"></script>
+<script type="text/javascript" src="/fzuistate.js"></script>
 <h1>fz: Topics</h1>
 <br>
 <table class="blueTable"><tbody>
@@ -291,9 +293,6 @@ topicspagetail = '''</tbody></table>
 <hr>
 
 <p>[<a href="/index.html">fz: Top</a>]</p>
-
-<script type="text/javascript" src="/fzuistate.js"></script>
-<script type="text/javascript" src="/clock.js"></script>
 
 </body>
 </html>

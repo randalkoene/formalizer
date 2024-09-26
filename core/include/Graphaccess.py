@@ -70,8 +70,8 @@ def clear_NNL(listname: str, config: dict):
 
 
 # See, for example, how this is used in fztask.py.
-def select_to_NNL(filter: str, listname: str):
-    num_str = serial_API_request(f'NNLadd_match({listname},{filter})')
+def select_to_NNL(filter: str, listname: str, error_exit_pause=False):
+    num_str = serial_API_request(f'NNLadd_match({listname},{filter})', error_exit_pause=error_exit_pause)
     return int(num_str)
 
 

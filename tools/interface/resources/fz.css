@@ -58,6 +58,21 @@ transition-duration: 0.4s;
 cursor: pointer;
 }
 :root {
+--color-bg: black;
+--color-text: black;
+--color-link: black;
+--color-visited: black;
+--color-active: black;
+--color-chktop: black;
+--bgcolor-textarea: black;
+--fgcolor-textarea: black;
+--active-node-color: black;
+--inactive-node-color: black;
+--tr-bg-1: black;
+--tr-bg-2: black;
+--tr-fg: black;
+}
+[data-theme="white"] {
 --color-bg: white;
 --color-text: black;
 --color-link: #0000EE;
@@ -72,7 +87,7 @@ cursor: pointer;
 --tr-bg-2: #D0E4F5;
 --tr-fg: black;
 }
-[data-theme="dark"] {
+[data-theme="lightblue"] {
 --color-bg: LightSteelBlue;
 --color-text: black;
 --color-link: #0000EE;
@@ -87,7 +102,7 @@ cursor: pointer;
 --tr-bg-2: #D0E4F5;
 --tr-fg: black;
 }
-[data-theme="dark_alt1"] {
+[data-theme="darkblue1"] {
 --color-bg: rgb(79, 128, 192);
 --color-text: black;
 --color-link: #0000EE;
@@ -102,7 +117,7 @@ cursor: pointer;
 --tr-bg-2: #D0E4F5;
 --tr-fg: black;
 }
-[data-theme="dark_alt2"] {
+[data-theme="darkblue2"] {
 --color-bg: rgb(2, 42, 94);
 --color-text: rgb(173, 173, 173);
 --color-link: #38d13d;
@@ -117,7 +132,7 @@ cursor: pointer;
 --tr-bg-2: #3f3f5f;
 --tr-fg: #c0c77d;
 }
-[data-theme="dark_alt3"] {
+[data-theme="black"] {
 --color-bg: rgb(0, 0, 0);
 --color-text: rgb(173, 173, 173);
 --color-link: #38d13d;
@@ -232,13 +247,13 @@ background-color: var(--color-chktop);
 table tr.chktop { background: var(--color-chktop); }
 a.node:link {color: var(--tr-fg); text-decoration:none;}
 a.node:visited {color: var(--tr-fg); text-decoration:none;}
-a.node:hover {color: var(--tr-fg); text-decoration:underline; background-color:#55db50;}
+a.node:hover {color: black; text-decoration:underline; background-color:#55db50;}
 a.id:link {color: #000000; text-decoration:underline;}
 a.id:visited {color: #000000; text-decoration:underline;}
 a.id:hover {color: #000000; text-decoration:underline; background-color:#55db50;}
 .id_cell {color: var(--tr-fg); text-decoration:underline; cursor: pointer;}
-.id_cell:hover {color: var(--tr-fg); text-decoration:underline; background-color:#55db50;}
-a.nnl:hover {background:#55db50;}
+.id_cell:hover {color: black; text-decoration:underline; background-color:#55db50;}
+a.nnl:hover {color: black; background:#55db50;}
 .success { background-color: #84ec7a; }
 .fail { background-color: rgb(206, 70, 70);}
 .passed_td { color: red; }

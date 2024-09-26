@@ -60,15 +60,16 @@ var nummodes = 5;
 var darkmode = 0;
 function set_darkmode() {
     if (darkmode < 1) {
-        document.body.removeAttribute('data-theme');
+        //document.body.removeAttribute('data-theme');
+        document.body.setAttribute('data-theme', 'white');
     } else if (darkmode == 1) {
-        document.body.setAttribute('data-theme', 'dark');
+        document.body.setAttribute('data-theme', 'lightblue');
     } else if (darkmode == 2) {
-        document.body.setAttribute('data-theme', 'dark_alt1');
+        document.body.setAttribute('data-theme', 'darkblue1');
     } else if (darkmode == 3) {
-        document.body.setAttribute('data-theme', 'dark_alt2');
+        document.body.setAttribute('data-theme', 'darkblue2');
     } else {
-        document.body.setAttribute('data-theme', 'dark_alt3');
+        document.body.setAttribute('data-theme', 'black');
     }
 }
 function store_data() {
