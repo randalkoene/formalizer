@@ -145,14 +145,15 @@ edit_result_page_head = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Edit</title>
 </head>
 <body onload="do_if_opened_by_script('Keep Page','Go to Topics','/cgi-bin/fzgraphhtml-cgi.py?topics=?');">
+<script type="text/javascript" src="/fzuistate.js"></script>
 '''
 
 edit_success_page_tail = f'''<p class="success"><b>Node modified. To review or edit more, follow this link: <a href="/cgi-bin/fzgraphhtml-cgi.py?edit={id}">{id}</a>.</b></p>
 <hr>
-<button id="closing_countdown" class="button button1" onclick="Keep_or_Close_Page('closing_countdown');">Keep Page</button>
 <script type="text/javascript" src="/fzclosing_window.js"></script>
 </body>
 </html>
@@ -161,7 +162,6 @@ edit_success_page_tail = f'''<p class="success"><b>Node modified. To review or e
 create_success_page_tail = '''<p class="success"><b>Node created: <a href="/cgi-bin/fzlink.py?id=%s">%s</a></b><button class="button" onclick="copyValueToClipboard();">copy</button></p>
 <hr>
 <input id="node_id" type="hidden" value="%s">
-<button id="closing_countdown" class="button button1" onclick="Keep_or_Close_Page('closing_countdown');">Keep Page</button>
 <script type="text/javascript" src="/fzclosing_window.js"></script>
 <script>
 function copyValueToClipboard() {

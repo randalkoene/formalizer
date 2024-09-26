@@ -244,7 +244,7 @@ width: max-content;
 .chktop { 
 background-color: var(--color-chktop);
 }
-table tr.chktop { background: var(--color-chktop); }
+table tr.chktop { background-color: var(--color-chktop); }
 a.node:link {color: var(--tr-fg); text-decoration:none;}
 a.node:visited {color: var(--tr-fg); text-decoration:none;}
 a.node:hover {color: black; text-decoration:underline; background-color:#55db50;}
@@ -254,8 +254,8 @@ a.id:hover {color: #000000; text-decoration:underline; background-color:#55db50;
 .id_cell {color: var(--tr-fg); text-decoration:underline; cursor: pointer;}
 .id_cell:hover {color: black; text-decoration:underline; background-color:#55db50;}
 a.nnl:hover {color: black; background:#55db50;}
-.success { background-color: #84ec7a; }
-.fail { background-color: rgb(206, 70, 70);}
+.success { color: black; background-color: #84ec7a; }
+.fail { color: black; background-color: rgb(206, 70, 70);}
 .passed_td { color: red; }
 .inactive_td { color: magenta; }
 .high_req { color: red; }

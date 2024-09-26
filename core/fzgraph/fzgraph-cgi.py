@@ -42,10 +42,12 @@ resultdict = {
 interface_options_help = '''
 <html>
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <head>
 <title>fzgraph-cgi API</title>
 </head>
 <body>
+<script type="text/javascript" src="/fzuistate.js"></script>
 <h1>fzgraph-cgi API</h1>
 
 <p>
@@ -119,14 +121,11 @@ edit_result_page_head = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Graph - Add Node</title>
 </head>
 <body>
-<style type="text/css">
-.chktop {
-    background-color: #B0C4F5;
-}
-</style>
+<script type="text/javascript" src="/fzuistate.js"></script>
 '''
 
 edit_success_page_tail = f'''<p class="success"><b>Node added. To review or edit more, follow this link: <a href="/cgi-bin/fzgraphhtml-cgi.py?edit={id}">{id}</a>.</b></p>
@@ -146,14 +145,11 @@ NNL_edit_result_page_head = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Graph - Add to Named Node List</title>
 </head>
 <body>
-<style type="text/css">
-.chktop {
-    background-color: #B0C4F5;
-}
-</style>
+<script type="text/javascript" src="/fzuistate.js"></script>
 '''
 
 NNL_edit_success_page_tail = f'''<hr>
@@ -167,14 +163,11 @@ missing_action_request_html = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Graph - Missing Graph Action Request</title>
 </head>
 <body>
-<style type="text/css">
-.chktop {
-    background-color: #B0C4F5;
-}
-</style>
+<script type="text/javascript" src="/fzuistate.js"></script>
 <p class="fail"><b>ERROR: Missing Graph action request.</b></p>
 <hr>
 [<a href="/index.html">fz: Top</a>]
@@ -187,28 +180,22 @@ unrecognized_action_request_page_head = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Graph - Unrecognized Graph Action Request</title>
 </head>
 <body>
-<style type="text/css">
-.chktop {
-    background-color: #B0C4F5;
-}
-</style>
+<script type="text/javascript" src="/fzuistate.js"></script>
 '''
 
 missing_addtoNNL_arguments = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Graph - Missing Arguments in Add to NNL Request</title>
 </head>
 <body>
-<style type="text/css">
-.chktop {
-    background-color: #B0C4F5;
-}
-</style>
+<script type="text/javascript" src="/fzuistate.js"></script>
 <p class="fail"><b>ERROR: Missing 'add_id' or 'namedlist' form arguments in 'addtoNNL' Graph action request.</b></p>
 <hr>
 [<a href="/index.html">fz: Top</a>]

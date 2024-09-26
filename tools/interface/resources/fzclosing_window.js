@@ -3,7 +3,7 @@
 // Note: Load this in a <script> tag at end of <body> section or within $("document").ready(function(){ ... }); as when in <head> section.
 // See, for example, how this is used in logentry-form.py:
 // 1. Make sure the page contains something like: <body onload="do_if_opened_by_script('Keep Page','Go to Log','/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END');">
-// 2. Make sure the page has a button or other event trigger such as: <button id="closing_countdown" class="button button1" onclick="Keep_or_Close_Page('closing_countdown');">Keep Page</button>
+// 2. A button with which to trigger keeping the page is automatically added to the page.
 // 3. Make sure the page loads this Javascript (e.g. at end of BODY section): <script type="text/javascript" src="/fzclosing_window.js"></script>
 // 4. Optionally, in the case where you generate a page with the same header but you don't wish to count down or close, then instead of
 //    2 and 3, generate a dummy function such as: <script>function do_if_opened_by_script(button_text, alt_text, alt_url) { /* do nothing */ }</script>
@@ -70,3 +70,11 @@ function Keep_or_Close_Page(id) {
         }
     }  
 }
+function makeclosing_countdownElement(id) {
+    var closingcountdownbtnelement = document.createElement("div");
+    closingcountdownbtnelement.innerHTML = `<button id="${id}" class="button button1" onclick="Keep_or_Close_Page('${id}');">Keep Page</button>`;
+    document.body.prepend(closingcountdownbtnelement);
+    return document.getElementById(id);
+}
+
+const closing_window_element_ref = makeclosing_countdownElement('closing_countdown');

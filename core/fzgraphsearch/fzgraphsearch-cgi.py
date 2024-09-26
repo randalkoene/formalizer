@@ -93,16 +93,12 @@ graphsearch_results_head = '''Content-type:text/html
 <html>
 <head>
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <link rel="stylesheet" href="/bluetable.css">
 <title>FZ: Graph Search - Results</title>
 </head>
 <body>
-<style type="text/css">
-.chktop { 
-    background-color: #B0C4F5;
-}
-table tr.chktop { background: #B0C4F5; }
-</style>
+<script type="text/javascript" src="/fzuistate.js"></script>
 '''
 
 graphsearch_results_tail = '''

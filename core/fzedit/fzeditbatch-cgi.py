@@ -30,17 +30,13 @@ RESULTPAGE = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Batch Edit</title>
 </head>
 <body onload="do_if_opened_by_script('Keep Page','Go to Topics','/cgi-bin/fzgraphhtml-cgi.py?topics=?');">
-<style type="text/css">
-.chktop {
-    background-color: #B0C4F5;
-}
-</style>
+<script type="text/javascript" src="/fzuistate.js"></script>
 <p class="%s">%s</p>
 <hr>
-<button id="closing_countdown" class="button button1" onclick="Keep_or_Close_Page('closing_countdown');">Keep Page</button>
 <script type="text/javascript" src="/fzclosing_window.js"></script>
 </body>
 </html>
