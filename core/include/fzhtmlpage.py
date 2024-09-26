@@ -122,14 +122,11 @@ class fz_html_uistate:
         return self.tail_content
 
 HTML_CLOCK_TAIL='''<script type="text/javascript" src="/clock.js"></script>
-<script>
-    var clock = new floatClock('clock');
-</script>
 '''
 class fz_html_clock:
     def __init__(self):
         self.head_content = '<link rel="stylesheet" href="/clock.css">\n'
-        self.body_content = '<button id="clock" class="button button2">_____</button>\n'
+        self.body_content = ''
         self.tail_content = HTML_CLOCK_TAIL
 
     def generate_html_head(self) ->str:

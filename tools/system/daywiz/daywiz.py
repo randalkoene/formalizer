@@ -199,7 +199,7 @@ WIZTABLE_SUMMARY='''<tr><td></td><td></td><td><a href="/cgi-bin/score.py?cmd=sho
 # '''
 WIZLINE_FRAME='''<tr><td>%s</td><td>%s</td><td %s>[%s, <a href="%s">node</a>] %s [<a href="/formalizer/system-documentation.html#wiztable-%s">ref</a>]</td><td>%s</td><td>%s</td></tr>
 '''
-WIZLINE_VISIBLE_TOPBORDER='style="border-top: 1px solid black;"'
+WIZLINE_VISIBLE_TOPBORDER='style="border-top: 1px solid var(--color-text);"'
 WIZLINE_RECOMMENDED_FRAME='%s - %s'
 WIZLINE_CHECKBOX_FRAME='<input id="%s" type="checkbox" %s %s>'
 WIZLINE_NUMBER_FRAME='<input id="%s" type="text" value="%s" style="width: 8em;" %s>'

@@ -283,7 +283,7 @@ def render_search_results():
         print('-->')
 
     print('<!-- Render search results Named Node List -->')
-    print(NNLFORMHEAD % str())
+    print(NNLFORMHEAD)
     print('<table class="blueTable"><tbody>')
     rendercmd = f"./fzgraphhtml -q -e -L '{searchresultsNNL}' -N all -c -o STDOUT -E STDOUT"
     try_command_call(rendercmd)

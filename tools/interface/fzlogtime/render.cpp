@@ -191,6 +191,8 @@ bool render_logtime_page() {
     if (!fzlt.embeddable) {
         template_varvalues varvals;
         varvals.emplace("prevday", DateStampYmd(fzlt.T_page_date - 1));
+        varvals.emplace("nextday", DateStampYmd(fzlt.T_page_date + RTt_oneday));
+        varvals.emplace("lastlogchunkday", DateStampYmd(fzlt.edata.newest_chunk_t));
         varvals.emplace("T_last_log_chunk", TimeStampYmdHM(fzlt.edata.newest_chunk_t));
         varvals.emplace("T_page_build", TimeStampYmdHM(fzlt.T_page_build));
         varvals.emplace("fzlogtime_call", get_logtime_call_format());

@@ -1,6 +1,6 @@
 <p><FORM METHOD="GET" ACTION="/cgi-bin/fztask-cgi.py">Emulate Time T = <INPUT type="datetime-local" name="T"> {{ hidden_nonlocal }}<INPUT type="submit" value="emulate"></FORM></p>
 
-<p>[<A HREF="/cgi-bin/{{ fzlogtime_call }}{{ cgi_variants }}D={{ prevday }}"><B>Previous Day Table</B></A>]</p>
+<p>[<A HREF="/cgi-bin/{{ fzlogtime_call }}{{ cgi_variants }}D={{ prevday }}"><B>Previous Day Table</B></A>] [<A HREF="/cgi-bin/{{ fzlogtime_call }}{{ cgi_variants }}D={{ lastlogchunkday }}"><B>Day of Last Log Chunk</B></A>] [<A HREF="/cgi-bin/{{ fzlogtime_call }}{{ cgi_variants }}D={{ nextday }}"><B>Next Day Table</B></A>]</p>
 
 <p><B>Shortcuts to recent days</B>: {{ recent_days }}</p>
 
