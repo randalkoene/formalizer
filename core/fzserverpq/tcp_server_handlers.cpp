@@ -36,6 +36,29 @@ Set_Debug_LogFile("/dev/shm/fzserverpq-debug.log");
 
 using namespace fz;
 
+std::string standard_HTML_header(const std::string& titlestr, const std::string& bodytag = "") {
+    std::string serverIPaddrstr(fzs.graph_ptr->get_server_IPaddr());
+    std::string htmlstr("<html>\n<head>\n<link rel=\"icon\" href=\"/favicon-32x32.png\">\n<link rel=\"stylesheet\" href=\"http://");
+    htmlstr += serverIPaddrstr;
+    htmlstr += "/fz.css\">\n<link rel=\"stylesheet\" href=\"http://";
+    htmlstr += serverIPaddrstr;
+    htmlstr += "/fzuistate.css\">\n<title>";
+    htmlstr += titlestr;
+    htmlstr += "</title>\n</head>\n";
+    if (bodytag.empty()) {
+        htmlstr += "<body>\n";
+    } else {
+        htmlstr += bodytag;
+    }
+    htmlstr += "<script type=\"text/javascript\" src=\"http://";
+    htmlstr += serverIPaddrstr;
+    htmlstr += "/fzuistate.js\"></script>";
+    htmlstr += "<h3>";
+    htmlstr += titlestr;
+    htmlstr += "</h3>\n";
+    return htmlstr;
+}
+
 bool handle_request_response(int socket, const std::string & text, std::string msg) {
     server_response_text srvtxt(text);
     fzs.log("TCP", msg);
@@ -56,7 +79,7 @@ bool handle_named_lists_reload(std::string & response_html) {
     if (!load_Named_Node_Lists_pq(*fzs.graph_ptr, fzs.ga.dbname(), fzs.ga.pq_schemaname())) {
         return false;
     }
-    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
+    response_html = standard_HTML_header("fz: NNL") + 
                     "<p>Reloaded Named Node Lists cache from database.</p>\n"
                     "</body>\n</html>\n";
     return true;
@@ -72,7 +95,7 @@ bool handle_update_shortlist(std::string & response_html) {
             return standard_error("Synchronizing 'shortlist' Named Node List update to database failed", __func__);
         }
     }
-    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
+    response_html = standard_HTML_header("fz: Shortlist NNL") + 
                     "<p>Named Node List 'shortlist' updated with "+std::to_string(copied)+" Nodes.</p>\n"
                     "</body>\n</html>\n";
 
@@ -82,7 +105,7 @@ bool handle_update_shortlist(std::string & response_html) {
 bool handle_named_list_parameters(const GET_token_value_vec & token_value_vec, std::string & response_html) {
     ERRTRACE;
 
-    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
+    response_html = standard_HTML_header("fz: NNL Parameters") +
                     "<p>Named Node List parameter set.</p>\n";
     for (const auto &GETel : token_value_vec) {
         if (GETel.token == "persistent") {
@@ -146,8 +169,7 @@ bool handle_selected_list(const GET_token_value_vec & token_value_vec, std::stri
             return standard_error("Synchronizing 'selected' update to database failed", __func__);
         }
     }
-    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n"
-                    AUTO_CLOSING_HTML_BODY_OPEN
+    response_html = standard_HTML_header("fz: NNL", AUTO_CLOSING_HTML_BODY_OPEN) + 
                     "<p>Named Node List modified.</p>\n"
                     "<p><b>Added</b> "+nkey.str()+" to List 'selected'.</p>\n"
                     AUTO_CLOSING_HTML_BODY_CLOSE
@@ -189,7 +211,7 @@ bool handle_recent_list(const GET_token_value_vec & token_value_vec, std::string
             return standard_error("Synchronizing 'recent' update to database failed", __func__);
         }
     }
-    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
+    response_html = standard_HTML_header("fz: Recent NNL") +
                     "<p>Named Node List modified.</p>\n"
                     "<p><b>Pushed</b> "+nkey.str()+" to fifo List 'recent'.</p>\n"
                     "</body>\n</html>\n";
@@ -347,7 +369,7 @@ bool handle_copy_to_list(const std::string & list_name, const GET_token_value_ve
         }
     }
 
-    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
+    response_html = standard_HTML_header("fz: Copy to NNL") +
                     "<p>Named Node List modified.</p>\n"
                     "<p><b>Copied</b> "+std::to_string(copied)+"Nodes from "+copydata.from_name+" to List "+list_name+".</p>\n"
                     "</body>\n</html>\n";
@@ -511,7 +533,7 @@ bool handle_add_to_list(const std::string & list_name, const GET_token_value_vec
         }
     }
 
-    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
+    response_html = standard_HTML_header("fz: Add to NNL") +
                     "<p>Named Node List modified.</p>\n"
                     "<p><b>Added</b> "+adddata.nkey.str()+" to List "+list_name+".</p>\n"
                     "</body>\n</html>\n";
@@ -541,7 +563,7 @@ bool handle_remove_from_list(const std::string & list_name, const GET_token_valu
         return standard_error("Unable to remove Node "+nkey.str()+" from Named Node List "+list_name, __func__);
     }
 
-    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
+    response_html = standard_HTML_header("fz: Remove from NNL") +
                     "<p>Named Node List modified.</p>\n";
 
     if (fzs.graph_ptr->persistent_Lists()) {
@@ -581,7 +603,7 @@ bool handle_delete_list(const std::string & list_name, const GET_token_value_vec
         }
     }
 
-    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
+    response_html = standard_HTML_header("fz: Delete NNL") +
                     "<p>Named Node List modified.</p>\n"
                     "<p><b>Deleted</b> List " + list_name + ".</p>\n"
                     "</body>\n</html>\n";
@@ -637,7 +659,7 @@ bool handle_move_within_list(const std::string & list_name, const GET_token_valu
         }
     }
 
-    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
+    response_html = standard_HTML_header("fz: Move within NNL") +
                     "<p>Named Node List modified.</p>\n"
                     "<p><b>Moved</b> within List "+list_name+".</p>\n"
                     "</body>\n</html>\n";
@@ -784,7 +806,7 @@ bool handle_node_direct_edit_multiple_pars(Node & node, const std::string & exte
         return false;
     }
 
-    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n<p>Node edit multi-parameters: "+extension.substr(1)+"</p>\n</body>\n</html>\n";
+    response_html = standard_HTML_header("fz: Node Edit Parameters") + "<p>Node edit multi-parameters: "+extension.substr(1)+"</p>\n</body>\n</html>\n";
     // skip '?' and separate in the token-value pairs
     auto token_value_vec = GET_token_values(extension.substr(1));
     // identify and set state variables (e.g. T=)
@@ -1008,8 +1030,8 @@ bool handle_node_parameter_show_txt(std::string parlabel, std::string parvalue, 
 }
 
 bool handle_node_parameter_show_html(std::string parlabel, std::string parvalue, std::string & response_html) {
-    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
-        + parlabel + " = " + parvalue
+    response_html = standard_HTML_header("fz: Node Show Parameter") +
+        parlabel + " = " + parvalue
         + "\n</body>\n</html>\n";
     return true;
 }
@@ -1039,8 +1061,8 @@ bool handle_node_strdata_show_txt(std::string parlabel, std::string parvalue, st
 }
 
 bool handle_node_strdata_show_html(std::string parlabel, std::string parvalue, std::string & response_html) {
-    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"
-        + parlabel + " = " + parvalue
+    response_html = standard_HTML_header("fz: Node Data Show") +
+        parlabel + " = " + parvalue
         + "\n</body>\n</html>\n";
     return true;
 }
@@ -1077,7 +1099,7 @@ bool handle_node_map_show_txt(std::string parlabel, const std::map<std::string, 
 }
 
 bool handle_node_map_show_html(std::string parlabel, const std::map<std::string, std::string> parmap, std::string & response_html) {
-    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n<table>\n";
+    response_html = standard_HTML_header("fz: Node Show Map") + "<table>\n";
     for (const auto & [pairlabel, pairvalue] : parmap) {
         response_html += "<tr><td>"+pairlabel + "</td><td>" + pairvalue + "</td></tr>\n";
     }
@@ -1621,7 +1643,7 @@ bool handle_node_direct_parameter(Node & node, std::string extension, std::strin
     To_Debug_LogFile("Passed Edit_flags::Edit_error() check.");
 
     // edit response_html
-    response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n<p>Node parameter modified.</p>\n</body>\n</html>\n";
+    response_html = standard_HTML_header("fz: Node Modify") + "<p>Node parameter modified.</p>\n</body>\n</html>\n";
     return true;
 }
 
@@ -1638,7 +1660,7 @@ bool handle_node_direct_request(std::string nodereqstr, std::string & response_h
     VERYVERBOSEOUT("Handling Node request.\n");
 
     if ((nodereqstr.substr(0,8) == "logtime?") && (nodereqstr.size()>25)) {
-        response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n<p>Node Logged time updated.</p>\n</body>\n</html>\n";
+        response_html = standard_HTML_header("fz: Node Request") + "<p>Node Logged time updated.</p>\n</body>\n</html>\n";
         return node_add_logged_time(nodereqstr.substr(8));
     }
 
@@ -1780,7 +1802,7 @@ bool handle_named_list_direct_request(std::string namedlistreqstr, std::string &
 
 void show_db_mode(int new_socket) {
     ERRTRACE;
-    std::string mode_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n<p>Database mode: "+SimPQ.PQChanges_Mode_str()+"</p>\n");
+    std::string mode_html(standard_HTML_header("fz: DB Mode") + "<p>Database mode: "+SimPQ.PQChanges_Mode_str()+"</p>\n");
     if (SimPQ.LoggingPQChanges()) {
         mode_html += "<p>Logging to: "+SimPQ.simPQfile+"</p>\n";
     }
@@ -1790,7 +1812,7 @@ void show_db_mode(int new_socket) {
 
 void show_db_log(int new_socket) {
     ERRTRACE;
-    std::string log_html("<html>\n<head>\n<link rel=\"stylesheet\" href=\"http://"+fzs.graph_ptr->get_server_IPaddr()+"/fz.css\">\n<title>fz: Database Call Log</title>\n</head>\n<body>\n<h3>fz: Database Call Log</h3>\n");
+    std::string log_html(standard_HTML_header("fz: Database Call Log"));
     log_html += "<p>When fzserverpq exits, the DB call log will be flushed to: "+SimPQ.simPQfile+"</p>\n\n";
     log_html += "<p>Current status of the DB call log:</p>\n<hr>\n<pre>\n" + SimPQ.GetLog() + "</pre>\n<hr>\n</body>\n</html>\n";
     handle_request_response(new_socket, log_html, "DB log request sucessful");
@@ -1798,7 +1820,7 @@ void show_db_log(int new_socket) {
 
 bool show_ReqQ(int new_socket) {
     ERRTRACE;
-    std::string reqq_html("<html>\n<head>\n<link rel=\"stylesheet\" href=\"http://"+fzs.graph_ptr->get_server_IPaddr()+"/fz.css\">\n<title>fz: ReqQ</title>\n</head>\n<body>\n<h3>fz: ReqQ</h3>\n");
+    std::string reqq_html(standard_HTML_header("fz: ReqQ"));
     reqq_html += "<p>When fzserverpq exits, ReqQ will be flushed to: "+fzs.ReqQ.get_errfilepath()+"</p>\n\n";
     reqq_html += "<p>Current status of ReqQ:</p>\n<hr>\n<pre>\n" + fzs.ReqQ.pretty_print() + "</pre>\n<hr>\n</body>\n</html>\n";
     return handle_request_response(new_socket, reqq_html, "ReqQ request sucessful");
@@ -1806,7 +1828,7 @@ bool show_ReqQ(int new_socket) {
 
 bool show_ErrQ(int new_socket) {
     ERRTRACE;
-    std::string errq_html("<html>\n<head>\n<link rel=\"stylesheet\" href=\"http://"+fzs.graph_ptr->get_server_IPaddr()+"/fz.css\">\n<title>fz: ErrQ</title>\n</head>\n<body>\n<h3>fz: ErrQ</h3>\n");
+    std::string errq_html(standard_HTML_header("fz: ErrQ"));
     errq_html += "<p>When fzserverpq exits, ErrQ will be flushed to: "+ErrQ.get_errfilepath()+"</p>\n\n";
     errq_html += "<p>Current status of ErrQ:</p>\n<hr>\n<pre>\n" + ErrQ.pretty_print() + "</pre>\n<hr>\n</body>\n</html>\n";
     return handle_request_response(new_socket, errq_html, "ErrQ request sucessful");
@@ -1876,7 +1898,7 @@ bool handle_fz_vfs_graph_request(int new_socket, const std::string & fzrequestur
 
         std::string response_html;
         if (node_add_logged_time(fzrequesturl.substr(18))) {
-            response_html = "<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nLogged time added to Node.\n</body>\n</html>\n";
+            response_html = standard_HTML_header("fz: Add Logged Time") + "Logged time added to Node.\n</body>\n</html>\n";
             return handle_request_response(new_socket, response_html, "Logtime request successful");
         }
 
@@ -1913,23 +1935,23 @@ const Command_Token_Map general_noargs_commands = {
 };
 
 bool handle_status(int new_socket) {
-    std::string status_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nServer status: LISTENING\n</body>\n</html>\n");
+    std::string status_html(standard_HTML_header("fz: Server Status") + "Server status: LISTENING\n</body>\n</html>\n");
     return handle_request_response(new_socket, status_html, "Status reported");
 }
 
 bool handle_ipport(int new_socket) {
-    std::string ipport_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nServer address: "+fzs.ipaddrstr+"\n</body>\n</html>\n");
+    std::string ipport_html(standard_HTML_header("fz: Server Address") + "Server address: "+fzs.ipaddrstr+"\n</body>\n</html>\n");
     return handle_request_response(new_socket, ipport_html, "IPPort reported");
 }
 
 bool handle_tzadjust(int new_socket) {
-    std::string tzadjust_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nServer time zone offset seconds: "+std::to_string(fzs.config.graphconfig.tzadjust_seconds)+"\n</body>\n</html>\n");
+    std::string tzadjust_html(standard_HTML_header("fz: TZ Offset") + "Server time zone offset seconds: "+std::to_string(fzs.config.graphconfig.tzadjust_seconds)+"\n</body>\n</html>\n");
     return handle_request_response(new_socket, tzadjust_html, "TZadjust reported");
 }
 
 bool handle_stop(int new_socket) {
     fzs.listen = false;
-    std::string status_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\nServer status: STOPPING\n</body>\n</html>\n");
+    std::string status_html(standard_HTML_header("fz: Server Stop") + "Server status: STOPPING\n</body>\n</html>\n");
     return handle_request_response(new_socket, status_html, "Stopping");
 }
 
@@ -1937,7 +1959,7 @@ bool handle_set_verbosity(int new_socket, std::string verbosity_str, bool veryve
     standard.veryverbose = veryverbose;
     standard.quiet = quiet;
     std::string success_msg("Setting verbosity: "+verbosity_str);
-    std::string status_html("<html>\n<head>" STANDARD_HTML_HEAD_LINKS "</head>\n<body>\n"+success_msg+"\n</body>\n</html>\n");
+    std::string status_html(standard_HTML_header("fz: Verbosity") + success_msg+"\n</body>\n</html>\n");
     return handle_request_response(new_socket, status_html, success_msg);
 }
 
