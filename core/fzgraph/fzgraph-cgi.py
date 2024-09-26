@@ -130,7 +130,6 @@ edit_result_page_head = '''<html>
 
 edit_success_page_tail = f'''<p class="success"><b>Node added. To review or edit more, follow this link: <a href="/cgi-bin/fzgraphhtml-cgi.py?edit={id}">{id}</a>.</b></p>
 <hr>
-<button id="closing_countdown" class="button button1" onclick="Keep_or_Close_Page('closing_countdown');">Keep Page</button>
 <script type="text/javascript" src="/fzclosing_window.js"></script>
 </body>
 </html>
@@ -153,7 +152,6 @@ NNL_edit_result_page_head = '''<html>
 '''
 
 NNL_edit_success_page_tail = f'''<hr>
-<button id="closing_countdown" class="button button1" onclick="Keep_or_Close_Page('closing_countdown');">Keep Page</button>
 <script type="text/javascript" src="/fzclosing_window.js"></script>
 </body>
 </html>
