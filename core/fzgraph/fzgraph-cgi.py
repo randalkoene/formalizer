@@ -445,14 +445,11 @@ GENERIC_ERROR_PAGE = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Graph - Generic Call Failed</title>
 </head>
 <body>
-<style type="text/css">
-.chktop {
-    background-color: #B0C4F5;
-}
-</style>
+<script type="text/javascript" src="/fzuistate.js"></script>
 
 <b>Attempted command</b>:
 <p>
@@ -483,14 +480,11 @@ GENERIC_SUCCESS_PAGE = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Graph - Generic Call Succeeded</title>
 </head>
 <body>
-<style type="text/css">
-.chktop {
-    background-color: #B0C4F5;
-}
-</style>
+<script type="text/javascript" src="/fzuistate.js"></script>
 
 <b>Command</b>:
 <p>
