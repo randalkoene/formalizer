@@ -130,6 +130,8 @@ Note D: Using the direct TCP-port API, absolute URLs are translated so that
         the root '/' is at the actual filesystem location specified by the
         configuration variable 'www_file_root'. See the 'FILE SERVING'
         section below for the configured mapping.
+Note E: URLs beginning with /cgi-bin are translated to server-side CGI
+        calls, the responses of which are returned.
 
 API USING 'FZ' REQUEST
 ----------------------
@@ -184,6 +186,15 @@ utility can be used to make FZ requests. Some examples:
   |>> s.send('NNLlen(dependencies);NNLlen(superiors)'.encode()) 
   |>> data = ''
   |>> data = s.recv(1024).decode()
+
+CGI FORWARDING
+--------------
+
+E.g. Calling 'http://<server-ip>:8090/cgi-bin/fzuistate.py' will
+forward the request (with any arguments) to the fzuistate.py CGI script
+and will return the result of that call.
+
+At present, only GET CGI calls are supported, not POST CGI calls.
 
 FILE SERVING
 ------------

@@ -10,6 +10,12 @@
 // std
 //#include <iostream>
 //#include <sys/types.h>
+#include <arpa/inet.h> 
+#include <netinet/in.h> 
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <string.h> 
+#include <unistd.h> 
 #include <sys/socket.h>
 #include <filesystem>
 
@@ -24,6 +30,8 @@
 #include "Graphpostgres.hpp"
 //#include "stringio.hpp"
 #include "binaryio.hpp"
+#include "apiclient.hpp"
+#include "tcpclient.hpp"
 
 // local
 #include "tcp_server_handlers.hpp"
@@ -2093,10 +2101,46 @@ void direct_tcpport_api_file_serving(int new_socket, const std::string & url) {
 }
 
 /**
+ * Treat the URL as a CGI call and act as a proxy for that call.
+ * 1. Make TCP GET request on localhost.
+ * 2. Return the result verbatim.
+ */
+void direct_tcpport_api_cgi_call(int new_socket, const std::string & url) {
+    std::string response_str;
+    To_Debug_LogFile("Received CGI call request: "+url);
+    http_GET_long httpget("127.0.0.1", 80, url);
+    if (!httpget.valid_response) {
+        handle_request_error(new_socket, http_bad_request, "API request to Server www port failed: "+url);
+        return;
+    }
+    To_Debug_LogFile("Received forwarded CGI call response:\n"+httpget.response_str);
+
+    ssize_t send_result;
+    if (httpget.html_content) {
+        server_response_text srvhtml(httpget.response_str);
+        send_result = srvhtml.respond(new_socket);
+    } else {
+        server_response_plaintext srvtxt(httpget.response_str);
+        send_result = srvtxt.respond(new_socket);
+    }
+
+    if (send_result < 0) {
+        handle_request_error(new_socket, http_bad_request, "Data response returned error code: "+std::to_string(send_result));
+        return;
+    }
+
+    VERYVERBOSEOUT("Forwarded response of CGI call "+url+'\n');
+}
+
+/**
  * Examples:
  *   FZ NNLlen(superiors);NNLlen(dependencies)
  *   GET/PATCH /fz/graph/nodes/<node-id>/completion?set=<ratio>
  *   /doc/txt/system.txt
+ *   GET /cgi-bin/fzuistate.py
+ * 
+ * Note:
+ *   POST is not yet supported.
  */
 void fzserverpq::handle_special_purpose_request(int new_socket, const std::string & request_str) {
     ERRTRACE;
@@ -2128,6 +2172,11 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
             return;         
         }
 
+    }
+
+    if (requestvec[1].substr(0,9) == "/cgi-bin/") { // Be a proxy to a CGI call.
+        direct_tcpport_api_cgi_call(new_socket, requestvec[1]);
+        return;
     }
 
     if (requestvec[1][0] == '/') { // translate to direct TCP-port API file serving root

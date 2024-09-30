@@ -57,6 +57,33 @@ bool client_socket_shmem_request(std::string request_str, std::string server_ip_
  */
 exit_status_code server_request_with_shared_data(std::string segname, uint16_t port_number);
 
+std::string strip_HTTP_header(const std::string& response_str);
+
+class http_GET_long {
+protected:
+    ssize_t data_start = -1;
+    size_t content_length = 99999999;
+
+public:
+    bool valid_response = false;
+    std::string response_str;
+
+    bool header_detected = false;
+    bool chunked_transfer = false;
+    bool html_content = false;
+
+public:
+    http_GET_long(const std::string& ipaddrstr, uint16_t port_number, const std::string url);
+
+    /**
+     * C sockets request function that can handle both Content-Length
+     * and Transfer-Encoding: chunked HTTP responses.
+     */
+    bool http_client_socket_request(const std::string& request_str, const std::string& server_ip_address, uint16_t port_number);
+
+    ssize_t http_find_header();
+};
+
 } // namespace fz
 
 #endif // __TCPCLIENT_HPP

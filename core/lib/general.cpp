@@ -185,4 +185,13 @@ void safecpy(std::string & str, char * buf, size_t bufsize) {
     memcpy(buf, str.data(), bufsize);
 }
 
+ssize_t find_in_char_array(char c, char* str, size_t maxlen) {
+    for (size_t i = 0; (str[i] != '\0') && (i < maxlen); ++i) {
+        if (str[i] == c) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 } // namespace fz

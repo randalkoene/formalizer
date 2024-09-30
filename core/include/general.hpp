@@ -86,6 +86,16 @@ std::string get_enclosed_substring(const std::string & s, char open_enclosure, c
  */
 void safecpy(std::string & str, char * buf, size_t bufsize);
 
+/**
+ * Find a character in a character array.
+ * Searches up to maxlen or until the '\0' character is encountered.
+ * 
+ * @param c The character to find.
+ * @param str The character array.
+ * @param maxlen The size of the array.
+ */
+ssize_t find_in_char_array(char c, char* str, size_t maxlen);
+
 } // namespace fz
 
 #endif // __GENERAL_HPP

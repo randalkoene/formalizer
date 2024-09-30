@@ -111,6 +111,17 @@ public:
 };
 
 /**
+ * A helpful class for server responses with plain text data.
+ * 
+ * See fzserverpq:tcp_server_handlers:direct_tcpport_api_file_serving() as an
+ * example where this is used.
+ */
+class server_response_plaintext: public server_response_text {
+public:
+    server_response_plaintext(const std::string & resp_str) : server_response_text(resp_str) { content_type = "text/plain"; header_str.clear(); str(); header_str += resp_str; }
+};
+
+/**
  * A helpful class for server responses with binary data.
  * 
  * See fzserverpq:tcp_server_handlers:direct_tcpport_api_file_serving() as an
