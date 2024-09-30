@@ -1,0 +1,31 @@
+/* systemhelp.css 0.1 Sep 2024 by Randal A. Koene */
+.rowhighlight {
+background-color: rgba(200,255,200,0.7);
+}
+th, td {
+padding: 5px;
+font-size: 14px;
+border: 1px solid;
+}
+td:hover {
+background-color: bisque;
+color: black;
+}
+a {
+text-decoration: none;
+}
+a {
+color: var(--color-link);
+}
+a:visited {
+color: var(--color-visited);
+}
+a:hover {
+color: black;
+}
+p.tzone-head {
+  color: rgba(50,180,200,1.0);
+}
+p.tzone {
+  color: rgba(30,170,190,1.0);
+}

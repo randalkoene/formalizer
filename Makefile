@@ -298,11 +298,17 @@ TOPLEVEL += $(TOOLSPATH)/interface/resources/fz-cards.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/fzclosing_window.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/w3.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/bluetable.css
+TOPLEVEL += $(TOOLSPATH)/interface/resources/systemhelp.css
 TOPLEVEL += $(MEDIAPATH)/favicon-192x192.png
 TOPLEVEL += $(MEDIAPATH)/favicon-32x32.png
 TOPLEVEL += $(MEDIAPATH)/favicon-16x16.png
 TOPLEVEL += $(MEDIAPATH)/favicon.ico
 TOPLEVEL += $(MEDIAPATH)/favicon-nodes-32x32.png
+TOPLEVEL += $(MEDIAPATH)/RTT-Momentary.png
+TOPLEVEL += $(MEDIAPATH)/dashboard.png
+TOPLEVEL += $(MEDIAPATH)/RTT-Summarized-HTML.png
+TOPLEVEL += $(MEDIAPATH)/System-Action-HTML.png
+TOPLEVEL += $(MEDIAPATH)/decisions-and-communication.png
 TOPLEVEL += $(FZCONFIGSRCPATH)/logentry.py/favicon-logentry-32x32.png
 
 
