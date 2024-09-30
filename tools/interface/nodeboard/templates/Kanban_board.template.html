@@ -12,14 +12,14 @@
   display: grid;
   grid-template-columns:{{ column-widths }};
   grid-gap: 5px;
-  background-color: #2196F3;
+  background-color: var(--grid-bg);
   padding: 5px;
   overflow-x: scroll;
   width: fit-content;
 }
 
 .grid-container > div {
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: var(--grid-bgoverlay);
   text-align: center;
   padding: 5px;
   font-size: 10px;
@@ -29,13 +29,13 @@
   display: grid;
   grid-template-columns: 250px;
   grid-gap: 5px;
-  background-color: #2196F3;
+  background-color: var(--grid-bg);
   padding: 5px;
   align-content: flex-start;
 }
 
 .column-container > div {
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: var(--grid-bgoverlay);
   text-align: center;
   padding: 5px;
   font-size: 10px;

@@ -71,6 +71,14 @@ cursor: pointer;
 --tr-bg-1: black;
 --tr-bg-2: black;
 --tr-fg: black;
+--grid-bg: black;
+--grid-options: black;
+--grid-bgoverlay: black;
+--w3-lightgrey: black;
+--w3-aqua: black;
+--header-card: black;
+--scroll-thumb: black;
+--scroll-track: black;
 }
 [data-theme="white"] {
 --color-bg: white;
@@ -86,6 +94,14 @@ cursor: pointer;
 --tr-bg-1: #EEEEEE;
 --tr-bg-2: #D0E4F5;
 --tr-fg: black;
+--grid-bg: #2196F3;
+--grid-options: #afafff;
+--grid-bgoverlay: rgba(255, 255, 255, 0.8);
+--w3-lightgrey: #f1f1f1;
+--w3-aqua: #00ffff;
+--header-card: rgba(255, 215, 0, 0.8);
+--scroll-thumb: auto;
+--scroll-track: auto;
 }
 [data-theme="lightblue"] {
 --color-bg: LightSteelBlue;
@@ -101,6 +117,14 @@ cursor: pointer;
 --tr-bg-1: #EEEEEE;
 --tr-bg-2: #D0E4F5;
 --tr-fg: black;
+--grid-bg: #2196F3;
+--grid-options: #afafff;
+--grid-bgoverlay: rgba(255, 255, 255, 0.8);
+--w3-lightgrey: #f1f1f1;
+--w3-aqua: #00ffff;
+--header-card: rgba(255, 215, 0, 0.8);
+--scroll-thumb: auto;
+--scroll-track: auto;
 }
 [data-theme="darkblue1"] {
 --color-bg: rgb(79, 128, 192);
@@ -116,6 +140,14 @@ cursor: pointer;
 --tr-bg-1: #EEEEEE;
 --tr-bg-2: #D0E4F5;
 --tr-fg: black;
+--grid-bg: #2196F3;
+--grid-options: #afafff;
+--grid-bgoverlay: rgba(255, 255, 255, 0.8);
+--w3-lightgrey: #f1f1f1;
+--w3-aqua: #00ffff;
+--header-card: rgba(255, 215, 0, 0.8);
+--scroll-thumb: auto;
+--scroll-track: auto;
 }
 [data-theme="darkblue2"] {
 --color-bg: rgb(2, 42, 94);
@@ -131,6 +163,14 @@ cursor: pointer;
 --tr-bg-1: #3f3f3f;
 --tr-bg-2: #3f3f5f;
 --tr-fg: #c0c77d;
+--grid-bg: #2196F3;
+--grid-options: #afafff;
+--grid-bgoverlay: rgba(255, 255, 255, 0.8);
+--w3-lightgrey: #f1f1f1;
+--w3-aqua: #00ffff;
+--header-card: rgba(255, 215, 0, 0.8);
+--scroll-thumb: auto;
+--scroll-track: auto;
 }
 [data-theme="black"] {
 --color-bg: rgb(0, 0, 0);
@@ -146,10 +186,19 @@ cursor: pointer;
 --tr-bg-1: #3f3f3f;
 --tr-bg-2: #3f3f5f;
 --tr-fg: #c0c77d;
+--grid-bg: #0a2d4a;
+--grid-options: #4a4a6b;
+--grid-bgoverlay: rgba(127, 127, 127, 0.8);
+--w3-lightgrey: #717171;
+--w3-aqua: #007f7f;
+--header-card: rgba(100, 100, 0, 0.8);
+--scroll-thumb: #3f3f3f;
+--scroll-track: #5f5f5f;
 }
 body {
 background-color: var(--color-bg);
 color: var(--color-text);
+scrollbar-color: var(--scroll-thumb) var(--scroll-track);
 }
 a:link {
 color: var(--color-link);
