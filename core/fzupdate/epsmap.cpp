@@ -207,10 +207,20 @@ size_t EPS_map::bytes_estimate() {
  * 
  * ***TODO: Add identification of NNLs from which to identify category
  *          specific UTD Nodes.
+ * 
+ * Note: The chain is allowed to be separated by commas or semicolons.
+ *       Use only one of the two. Use semicolons in the config.json file,
+ *       because the parsing function presently gets confused by
+ *       commas in arguments.
  */
 void EPS_map::process_chain(std::string& chain) {
+    VERYVERBOSEOUT("Placer chain configuration: "+chain+'\n');
     if (chain.empty()) return;
-    auto chainvec = split(chain, ',');
+    char separator = ';';
+    if (chain.find(',') != std::string::npos) {
+        separator = ',';
+    }
+    auto chainvec = split(chain, separator);
     for (auto& element : chainvec) {
         std::string trimmed = trim(element);
         if (trimmed == "VTD") {

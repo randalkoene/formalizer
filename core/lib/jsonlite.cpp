@@ -138,7 +138,7 @@ jsonlite_lines json_get_param_value_lines(std::string & configcontentstr) {
         configcontentstr.pop_back();
     }
     //rtrim(configcontentstr);
-    // split at the commas
+    // split at the commas *** THIS IS DANGEROUS IN CASE THERE IS A COMMA IN THE ARGUMENT
     return split(configcontentstr,',');
 }
 

@@ -138,9 +138,13 @@ form = cgi.FieldStorage()
 update = form.getvalue('update')
 T_emulate = form.getvalue('T_emulate')
 map_days = form.getvalue('map_days')
+T_max = form.getvalue('T_max')
+full_update = form.getvalue('full_update')
+ovmultiplier = form.getvalue('ovmultiplier')
 verbose = form.getvalue('verbose')
 T_pass = form.getvalue('T_pass')
 showhelp = form.getvalue('help')
+dryrun = form.getvalue('dryrun')
 
 
 pagetail = '''<hr>
@@ -155,18 +159,48 @@ show_passedfixed_steps = """<p>Manually update Nodes that should not be converte
 """
 
 
-def try_command_call(thecmd:str, use_map_style=True):
+# def try_command_call(thecmd:str, use_map_style=True)->int:
+#     print(f'<!-- thecmd = {thecmd} -->')
+#     if use_map_style:
+#         print('<div class="map"><pre>')
+#     try:
+#         p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,stderr=PIPE,close_fds=True, universal_newlines=True)
+#         (child_stdin,child_stdout) = (p.stdin, p.stdout)
+#         child_stdin.close()
+#         result = child_stdout.read()
+#         child_stdout.close()
+#         child_stderr.close()
+#         print(result)
+#         #print(result.replace('\n', '<BR>'))
+
+#     except Exception as ex:                
+#         print(ex)
+#         f = StringIO()
+#         print_exc(file=f)
+#         a = f.getvalue().splitlines()
+#         for line in a:
+#             print(line)
+
+#     if use_map_style:
+#         print('</pre></div>')
+
+results = {
+    'error': '',
+}
+
+def try_command_call(thecmd:str, use_map_style=True)->int:
+    global results
     print(f'<!-- thecmd = {thecmd} -->')
     if use_map_style:
         print('<div class="map"><pre>')
     try:
-        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
-        (child_stdin,child_stdout) = (p.stdin, p.stdout)
-        child_stdin.close()
-        result = child_stdout.read()
-        child_stdout.close()
-        print(result)
-        #print(result.replace('\n', '<BR>'))
+        p = Popen(thecmd,shell=True,stdout=PIPE,stderr=PIPE,close_fds=True, universal_newlines=True)
+        child_output, child_error = p.communicate()
+        results['error'] = child_error
+        exit_code = p.returncode
+        print('Output:\n'+child_output)
+        print('Error:\n'+child_error)
+        print('Exit code: '+str(exit_code))
 
     except Exception as ex:                
         print(ex)
@@ -178,6 +212,8 @@ def try_command_call(thecmd:str, use_map_style=True):
 
     if use_map_style:
         print('</pre></div>')
+
+    return exit_code
 
 def make_filter_passed_fixed():
     completionfilter = 'completion=[0.0-0.999]'
@@ -297,12 +333,28 @@ if __name__ == '__main__':
         print('<p><b>To see which Nodes were modified, see the <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=repeating_updated">repeating_updated</a> Named Node List.</b></p>')
 
     if ((update=='variable') or (update=='both')):
-        if map_days:
-            add_to_cmd += ' -D '+map_days
+        if full_update == 'on':
+            add_to_cmd += ' -T full'
+        else:
+            if T_max:
+                add_to_cmd += ' -T '+T_max
+            else:
+                if map_days:
+                    add_to_cmd += ' -D '+map_days
+        if ovmultiplier:
+            add_to_cmd += ' -m '+ovmultiplier
+        if dryrun == 'on':
+            add_to_cmd += ' -d'
         print('<p>Updating variable and unspecified target date Nodes.</p>')
         thecmd = "./fzupdate -E STDOUT -u"+add_to_cmd
-        try_command_call(thecmd)
-        print('<p><b>To see which Nodes were modified, see the <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=batch_updated">batch_updated</a> Named Node List.</b></p>')
+        exit_code = try_command_call(thecmd)
+        if exit_code != 0:
+            print('<p class="fail"><b>The moveables update was not carried out.</b></p>')
+            if exit_code == 12:
+                print('<p class="fail"><b>Exit code returned bad_config_value.</b></p>')
+            print('<p class="fail"><b>Error: '+results['error']+'</b></p>')
+        else:
+            print('<p class="success"><b>To see which Nodes were modified, see the <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=batch_updated">batch_updated</a> Named Node List.</b></p>')
 
     if (update=='passedfixed'):
         prepare_convert_passed_fixed()

@@ -42,8 +42,8 @@ fzupdate fzu;
  */
 fzupdate::fzupdate() : formalizer_standard_program(false), config(*this),
                  reftime(add_option_args, add_usage_top) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "rubRNT:D:P:dc:";
-    add_usage_top += " [-r|-u|-b|-R|-N] [-T <t_max|full>] [-D <days>] [-P <pack_interval>] [-c <chain>] [-d]";
+    add_option_args += "rubRNT:D:P:dc:m:";
+    add_usage_top += " [-r|-u|-b|-R|-N] [-T <t_max|full>] [-D <days>] [-P <pack_interval>] [-c <chain>] [-m <multiplier>] [-d]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "The -T limit overrides the 'map_days' configuration or default parameter.\n"
@@ -57,6 +57,13 @@ fzupdate::fzupdate() : formalizer_standard_program(false), config(*this),
         "  2. Corresponding projected annual ratio of available time.\n"
         "  3. Corresponding projected average weekly hours.\n"
         "  4. Corresponding projected average daily hours.\n"
+        "\n"
+        "About specifying a chain of placers:\n"
+        "  The placers can be separated by a comma (,) or by a\n"
+        "  semicolon (;). Use the semicolon format in the fzupdate\n"
+        "  config.json file, because the configuration JSON parsing\n"
+        "  function presently gets confused by commas within the\n"
+        "  arguments.\n"
     );
 }
 
@@ -76,6 +83,7 @@ void fzupdate::usage_hook() {
           "    -D number of days to map with -u (default in config, or 14)\n"
           "    -P interval seconds for moveable packing beyond map (or 'none')\n"
           "    -c specify a chain of placers (VTD,UTD)\n"
+          "    -m overhead multiplier to use with '-T full'\n"
           "    -d dry-run, do not modify Graph\n");
 }
 
@@ -152,6 +160,11 @@ bool fzupdate::options_hook(char c, std::string cargs) {
 
     case 'c': {
         config.chain = cargs;
+        return true;
+    }
+
+    case 'm': {
+        config.full_overhead_multiplier = std::atof(cargs.c_str());
         return true;
     }
 
@@ -644,7 +657,7 @@ int update_variable(time_t t_pass) {
 
     if (test_fail_full && (!updvar_map.utd_all_placed)) {
         VERBOSEOUT("The `full_overhead_multiplier` was too small to achieve placement\nof all UTD Nodes in `-T full` mode.\n");
-        return standard_exit_error(exit_bad_config_value, "Larger `full_overhead_multiplier` needed for `-T full`.", __func__);
+        return standard_exit_error(exit_bad_config_value, "Larger `full_overhead_multiplier` needed for `-T full`. Multiplier used was "+to_precision_string(fzu.config.full_overhead_multiplier)+'.', __func__);
     }
 
     if (eps_update_nodes.empty()) {
