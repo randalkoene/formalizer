@@ -40,8 +40,12 @@ metrictag_csv_path="/var/www/webdata/formalizer/metrictag_data.csv"
 DAYREVIEW_SUMMARY = '''<html>
 <head>
 <title>DayReview Summary</title>
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 </head>
 <body>
+<script type="text/javascript" src="/fzuistate.js"></script>
+
 <h1>DayReview Summary</h1>
 
 <p>
