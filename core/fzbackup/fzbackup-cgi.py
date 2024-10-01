@@ -42,11 +42,14 @@ else:
 # to those who have permission to connect to this CGI handler.
 interface_options_help = '''
 <html>
-<link rel="stylesheet" href="/fz.css">
 <head>
 <title>fzbackup-cgi API</title>
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 </head>
 <body>
+<script type="text/javascript" src="/fzuistate.js"></script>
+
 <h1>fzbackup-cgi API</h1>
 
 <p>

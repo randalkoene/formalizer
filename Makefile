@@ -222,6 +222,7 @@ CGIEXE += $(TOOLSPATH)/system/metrics/weekreview/weekreview.py
 CGIEXE += $(TOOLSPATH)/interface/nodeboard/nodeboard-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzvismilestones/fzvismilestones-cgi.py
 CGIEXE += $(TOOLSPATH)/system/schedule/schedule-cgi.py
+CGIEXE += $(TOOLSPATH)/system/doc/cgi_api_help.py
 
 # Data files that need to be symlinked into the WEBDATADIR directory
 SYMDATA = 

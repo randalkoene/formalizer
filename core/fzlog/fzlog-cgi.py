@@ -55,11 +55,14 @@ override_precautions = form.getvalue('override') == 'on' # Can be implemented as
 # to those who have permission to connect to this CGI handler.
 interface_options_help = '''
 <html>
-<link rel="stylesheet" href="/fz.css">
 <head>
 <title>fzlog-cgi API</title>
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 </head>
 <body>
+<script type="text/javascript" src="/fzuistate.js"></script>
+
 <h1>fzlog-cgi API</h1>
 
 <p>
