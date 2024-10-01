@@ -62,6 +62,11 @@ function testUpdate(test_ref) {
     console.log('TESTING');
     return false;
 }
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+  }
+});
 </script>
 </body>
 

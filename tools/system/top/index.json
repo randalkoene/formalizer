@@ -52,6 +52,10 @@
             "url" : "/cgi-bin/daywiz.py",
             "window" : "_blank"
         },
+        "OrderScore" : {
+            "url" : "/cgi-bin/orderscore-cgi.py",
+            "window" : "_blank"
+        },
         "Day Nutrition" : {
             "url" : "/formalizer/day-nutrition.html",
             "window" : "_blank"

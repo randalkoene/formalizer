@@ -217,6 +217,7 @@ CGIEXE += $(TOOLSPATH)/system/earlywiz/earlywiz.py
 CGIEXE += $(TOOLSPATH)/system/metrics/dayreview/dayreview_algorithm.py
 CGIEXE += $(TOOLSPATH)/system/metrics/dayreview/dayreview-cgi.py
 CGIEXE += $(TOOLSPATH)/system/metrics/metrictags/metrictags.py
+CGIEXE += $(TOOLSPATH)/system/metrics/orderscore/orderscore-cgi.py
 CGIEXE += $(TOOLSPATH)/system/metrics/sysmet-extract/sysmet-extract-cgi.py
 CGIEXE += $(TOOLSPATH)/system/metrics/weekreview/weekreview.py
 CGIEXE += $(TOOLSPATH)/interface/nodeboard/nodeboard-cgi.py
