@@ -30,6 +30,9 @@ table.blueTable tr:nth-child(even) td.id_cell:hover {
   background-color:#55db50;
   color: black;
 }
+table.blueTable tr:hover td {
+  background-color: var(--tr-hover);
+}
 table.blueTable tfoot td {
   font-size: 14px;
 }

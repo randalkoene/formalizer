@@ -176,6 +176,9 @@ DAYPAGE_WIZTABLE_STYLE='''<style>
 .secondcolfixedw td:nth-child(2) {
   width: 8em;
 }
+table.secondcolfixedw tr:hover td {
+background-color: var(--tr-hover);
+}
 </style>
 '''
 DAYPAGE_TABLES_FRAME='''<table class="col_right_separated">
