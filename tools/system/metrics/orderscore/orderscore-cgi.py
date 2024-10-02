@@ -120,7 +120,7 @@ Formatted to copy into the Log:
 
 <p>
 <button class="button button2" onclick="window.open('/cgi-bin/orderscore-cgi.py?videostart=on','_self');">Start (Non-Music) Video Viewing</button>
-<button class="button button2" onclick="window.open('/cgi-bin/orderscore-cgi.py?videostop=on','_self');">End (Non-Music) Video Viewing</button>
+<button class="button button2" onclick="window.open('/cgi-bin/orderscore-cgi.py?videoend=on','_self');">End (Non-Music) Video Viewing</button>
 <button class="button button2" onclick="window.open('/cgi-bin/orderscore-cgi.py?videoclear=on','_self');">Clear Tracking of Video Viewing</button>
 </p>
 <table><tbody>
@@ -304,7 +304,7 @@ def show_graph_of_record():
 
 def record_video_viewing_interval(minutes:int):
 	record = get_videoviewing_record()
-	date = datetime.now.strftime("%Y%m%d")
+	date = datetime.now().strftime("%Y%m%d")
 	if date in record:
 		record[date] += minutes
 	else:
@@ -339,7 +339,7 @@ def show_graph_of_video_tracking():
 
 	data = {
 		'Date': list(record.keys()),
-		'VideoHours': [ y for key, y in record.items()],
+		'VideoHours': [ float(y)/60.0 for key, y in record.items()],
 	}
 
 	df = pd.DataFrame(data)
