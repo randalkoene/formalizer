@@ -28,6 +28,7 @@ totalscorerecord = '/var/www/webdata/orderscore-record.json'
 doing_in_order = form.getvalue('inorder')
 timer_started = form.getvalue('timerstarted')
 clear = form.getvalue('clear')
+recordgraph = form.getvalue('recordgraph')
 
 FAILEDTOSAVETEMPLATE = '''<html>
 <head>
@@ -95,6 +96,10 @@ SHOWTEMPLATE = '''<html>
 <button class="button button1" onclick="window.open('/cgi-bin/orderscore-cgi.py?clear=on','_self');">Clear</button>
 </p>
 
+<p>
+<button class="button button1" onclick="window.open('/cgi-bin/orderscore-cgi.py?recordgraph=on','_blank');">Record Graph</button>
+</p>
+
 <hr>
 
 Formatted to copy into the Log:
@@ -103,6 +108,24 @@ Formatted to copy into the Log:
 </td></tr></tbody></table>
 
 <hr>
+
+</body>
+</html>
+'''
+
+RECORDGRAPHTEMPLATE='''<html>
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="/favicon-nodes-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>fz: Order Score Record</title>
+</head>
+<body>
+<script type="text/javascript" src="/fzuistate.js"></script>
+<h3>fz: Order Score Record</h3>
+
+%s
 
 </body>
 </html>
@@ -181,6 +204,33 @@ def today_orderscore():
 	data = get_today_orderscore()
 	show_today_orderscore(data)
 
+def show_graph_of_record():
+	import pandas as pd
+	import plotly.graph_objects as go
+	import plotly.io as pxio
+
+	record = get_orderscore_record()
+
+	data = {
+		'Date': list(record.keys()),
+		'InOrder': [ y_tuple[0] for key, y_tuple in record.items()],
+		'TimerStarted': [ y_tuple[1] for key, y_tuple in record.items()],
+	}
+
+	df = pd.DataFrame(data)
+
+	fig = go.Figure()
+	fig.add_trace(go.Bar(x=df['Date'], y=df['InOrder'], name='In Order', stackgroup='stack'))
+	fig.add_trace(go.Bar(x=df['Date'], y=df['TimerStarted'], name='Timer Started', stackgroup='stack'))
+
+	fig.update_layout(
+	    title='Order Score Record',
+	    xaxis_title='Date',
+	    yaxis_title='Scores'
+	)
+
+	print(RECORDGRAPHTEMPLATE % pxio.to_html(fig, full_html=False))
+
 if __name__ == '__main__':
 	if doing_in_order:
 		score_doing_in_order()
@@ -189,7 +239,10 @@ if __name__ == '__main__':
 		score_timer_started()
 		sys.exit(0)
 	if clear:
-		clear_today_orderscore();
+		clear_today_orderscore()
+		sys.exit(0)
+	if recordgraph:
+		show_graph_of_record()
 		sys.exit(0)
 
 	today_orderscore()
