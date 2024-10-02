@@ -73,11 +73,25 @@ log_interval_head = '''<html>
 <link rel="stylesheet" href="/score.css">
 <meta http-equiv="cache-control" content="no-cache" />
 <title>fz: Log interval</title>
+<style>
+.logstate {
+position: fixed;
+top: 120px;
+right: 0px;
+font-size: 34px;
+font-family: calibri;
+}
+</style>
 </head>
 <body>
 <script type="text/javascript" src="/clock.js"></script>
 <script type="text/javascript" src="/score.js"></script>
 <script type="text/javascript" src="/fzuistate.js"></script>
+<button id="timerBarText" class="button button2 logstate">_____</button>
+<script type="text/javascript" src="/stateoflog.js"></script>
+<script>
+const state_of_log = new logState(logstate_id="timerBarText");
+</script>
 '''
 
 cgi_custom_tail = '''

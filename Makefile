@@ -304,6 +304,7 @@ TOPLEVEL += $(TOOLSPATH)/interface/resources/bluetable.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/systemhelp.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/rightbar.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/rightbar.js
+TOPLEVEL += $(TOOLSPATH)/interface/resources/stateoflog.js
 TOPLEVEL += $(MEDIAPATH)/favicon-192x192.png
 TOPLEVEL += $(MEDIAPATH)/favicon-32x32.png
 TOPLEVEL += $(MEDIAPATH)/favicon-16x16.png
