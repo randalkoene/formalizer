@@ -40,6 +40,7 @@ numchunks = form.getvalue('numchunks')
 node = form.getvalue('node')
 frommostrecent = form.getvalue('frommostrecent')
 mostrecentdata = form.getvalue('mostrecentdata')
+mostrecentraw = form.getvalue('mostrecentraw')
 searchtext = form.getvalue('searchtext')
 andall = form.getvalue('andall')
 caseinsensitive = form.getvalue('caseinsensitive')
@@ -135,6 +136,28 @@ def render_most_recent():
         for line in a:
             print(line)
 
+RAWTEMPLATE='''<html><body>
+%s
+</body></html>'''
+
+def get_most_recent_raw():
+    thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -R -F raw"
+    try:
+        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
+        (child_stdin,child_stdout) = (p.stdin, p.stdout)
+        child_stdin.close()
+        result = child_stdout.read()
+        child_stdout.close()
+        print(RAWTEMPLATE % result)
+        #print(result.replace('\n', '<BR>'))
+
+    except Exception as ex:                
+        print(ex)
+        f = StringIO()
+        print_exc(file=f)
+        a = f.getvalue().splitlines()
+        for line in a:
+            print(line)
 
 def get_uri_arg_separator(arg_i:int)->str:
     if arg_i==0:
@@ -326,7 +349,9 @@ if __name__ == '__main__':
     if review:
         render_Log_review()
     else:
-        if mostrecentdata:
+        if mostrecentraw:
+            get_most_recent_raw()
+        elif mostrecentdata:
             render_most_recent()
         else:
             render_log_interval()
