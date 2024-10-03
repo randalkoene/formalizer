@@ -14,7 +14,7 @@ function parse_and_show_stateoflog(is_open, timestampstr) {
 		console.log(`Open stamp: ${date}, current stamp: ${currentdate}`)
 		const diffInMilliseconds = Math.abs(date - currentdate);
 		console.log(`Milliseconds: ${diffInMilliseconds}`)
-		const minutes = Math.floor((diffInMilliseconds / (1000 * 60)) % 60);
+		const minutes = Math.floor(diffInMilliseconds / (1000 * 60));
 		console.log(`Minutes: ${minutes}`)
 		if (is_open) {
 			stateoflog_elementref.innerHTML = `${minutes}`;
