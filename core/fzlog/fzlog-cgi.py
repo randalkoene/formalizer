@@ -21,10 +21,13 @@ except:
 import sys, cgi, os, stat
 sys.stderr = sys.stdout
 from time import strftime
+from datetime import datetime
 import traceback
 from io import StringIO
 from traceback import print_exc
 import subprocess
+
+print("Content-type:text/html\n")
 
 contentfilepath="/var/www/webdata/formalizer/fzlog-cgi.html"
 
@@ -50,6 +53,7 @@ if verbositystr:
 else:
     verbosity = 1
 override_precautions = form.getvalue('override') == 'on' # Can be implemented as a checkbox.
+override_zerochunk_precaution = form.getvalue('overridezero') == 'on'
 
 # The following should only show information that is safe to provide
 # to those who have permission to connect to this CGI handler.
@@ -137,9 +141,7 @@ is also provided then the Node associated with the Log entry is also set.
 </html>
 '''
 
-openpagehead = '''Content-type:text/html
-
-<html>
+openpagehead = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
@@ -170,9 +172,7 @@ openpagetail_failure = '''<p class="fail"><b>ERROR: Unable to open new Log chunk
 </html>
 '''
 
-closepagehead = '''Content-type:text/html
-
-<html>
+closepagehead = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
@@ -204,9 +204,7 @@ closepagetail_failure = '''<p class="fail"><b>ERROR: Unable to close Log chunk (
 </html>
 '''
 
-reopenpagehead = '''Content-type:text/html
-
-<html>
+reopenpagehead = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
@@ -238,9 +236,7 @@ reopenpagetail_failure = '''<p class="fail"><b>ERROR: Unable to reopen Log chunk
 </html>
 '''
 
-editentrypagehead = '''Content-type:text/html
-
-<html>
+editentrypagehead = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
@@ -285,9 +281,7 @@ editentrypagetail_failure = '''<p class="fail"><b>ERROR: Unable to edit Log entr
 </html>
 '''
 
-replaceentrypagehead = '''Content-type:text/html
-
-<html>
+replaceentrypagehead = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
@@ -318,9 +312,7 @@ replaceentrypagetail_failure = '''<p class="fail"><b>ERROR: Unable to replace Lo
 </html>
 '''
 
-deleteentrypagehead = '''Content-type:text/html
-
-<html>
+deleteentrypagehead = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
@@ -454,7 +446,98 @@ def render_node_with_history(node: str, verbosity = 0):
     print(f'<noscript>\n<br>\n<p>\n[<a href="/cgi-bin/fzlink.py?id={node}&alt=histfull">full history</a>]\n</p>\n<br>\n</noscript>')
     print(f'\n<br>\n<p>\n<button class="button button2" onclick="location.href=\'/cgi-bin/fzlink.py?id={node}&alt=histfull\';">full history</button>\n</p>\n<br>\n')
 
+PRECAUTIONFAIL = '''<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>fz: Zero Chunk Length Precaution Failed</title>
+</head>
+<body>
+<script type="text/javascript" src="/fzuistate.js"></script>
+
+<h3>fz: Zero Chunk Length Precaution Failed</h3>
+
+<p class="fail"><b>ERROR: Failed to carry out zero chunk length precaution check.</b></p>
+
+<hr>
+[<a href="/index.html">fz: Top</a>]
+
+</body>
+</html>
+'''
+
+PRECAUTIONPAGE = '''<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>fz: Zero Chunk Length Precaution</title>
+</head>
+<body>
+<script type="text/javascript" src="/fzuistate.js"></script>
+
+<h3>fz: Zero Chunk Length Precaution</h3>
+
+<p><b>Warning: Log chunk has zero-minutes length. Confirm to proceed:</b> <button class="button button1" onclick="window.open('%s', '_self');">Confirm</button></p>
+
+<hr>
+[<a href="/index.html">fz: Top</a>]
+
+</body>
+</html>
+'''
+
+def zero_time_Log_chunk_precaution(opennew:False, T_emulated:str, verbosity:int, override_precautions:bool, node:str):
+    # If overriden then just carry on (return)
+    if override_zerochunk_precaution:
+        return
+
+    # Check the number of minutes in the most recent Log chunk (if open)
+    thecmd = './fzloghtml -E STDOUT -o STDOUT -q -R -F raw'
+    retcode = try_subprocess_check_output(thecmd, 'recent_chunk_raw', verbosity)
+    if (retcode != 0):
+        print(PRECAUTIONFAIL)
+        sys.exit(0)
+    lines = results['recent_chunk_raw'].decode().split('\n')
+    for line in lines:
+        space_pos = line.find(' ')
+        try:
+            startstamp = line[:space_pos]
+            start_as_int = int(startstamp)
+            break;
+        except:
+            startstamp = ''
+    if startstamp == '':
+        print(PRECAUTIONFAIL)
+        sys.exit(0)
+    d_start = datetime.strptime(startstamp, "%Y%m%d%H%M")
+    d_now = datetime.now()
+    minutes = int((d_now - d_start).seconds/60)
+
+    # If not zero then just carry on (return)
+    if minutes > 0:
+        return
+
+    # If zero then create a confirmation page that reruns fzlog-cgi.py with an override if confirmed
+    cgiarguments = ''
+    if opennew:
+        if node:
+            cgiarguments += '&node='+node
+    if T_emulated:
+        cgiarguments += '&T='+T_emulated
+    cgiarguments += '&verbosity='+str(verbosity)
+    if override_precautions:
+        cgiarguments += '&override=on'
+    if opennew:
+        confirmedcall = '/cgi-bin/fzlog-cgi.py?action=open'+cgiarguments
+    else:
+        confirmedcall = '/cgi-bin/fzlog-cgi.py?action=close'+cgiarguments
+    print(PRECAUTIONPAGE % confirmedcall)
+    sys.exit(0)
+
 def open_new_Log_chunk(node: str, T_emulated: str, verbosity = 1, override_precautions=False) -> bool:
+    zero_time_Log_chunk_precaution(opennew=True, T_emulated=T_emulated, verbosity=verbosity, override_precautions=override_precautions, node=node)
     print(openpagehead)
     if not node:
         node = get_selected_Node(verbosity)
@@ -472,6 +555,7 @@ def open_new_Log_chunk(node: str, T_emulated: str, verbosity = 1, override_preca
     return (retcode == 0)
 
 def close_Log_chunk(T_emulated: str, verbosity = 1, override_precautions=False) -> bool:
+    zero_time_Log_chunk_precaution(opennew=False, T_emulated=T_emulated, verbosity=verbosity, override_precautions=override_precautions, node=None)
     print(closepagehead)
     thecmd = './fzlog -E STDOUT -W STDOUT -C' + extra_cmd_args(T_emulated, verbosity, override_precautions)
     retcode = try_subprocess_check_output(thecmd, 'close_chunk', verbosity)
@@ -559,9 +643,7 @@ def delete_Log_entry(id: str, verbosity = 0)->bool:
         print(deleteentrypagetail_failure % results['delete_log'].decode())
     return (retcode == 0)
 
-CHUNK_MODIFY_PAGE = '''Content-type:text/html
-
-<html>
+CHUNK_MODIFY_PAGE = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
@@ -689,8 +771,6 @@ GENERIC_SUCCESS_PAGE = '''<html>
 '''
 
 def generic_fzlog_call(form):
-    print("Content-type:text/html\n\n")
-
     # 1. Collect all variables and their values and transform them to fzgraph arguments.
     cgi_keys = list(form.keys())
     argpairs = []
@@ -722,7 +802,6 @@ def generic_fzlog_call(form):
 # Note that insert_Log_entry is handled through logentry-form.py.
 
 def show_interface_options():
-    print("Content-type:text/html\n\n")
     print(interface_options_help)
 
 
