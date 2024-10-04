@@ -30,6 +30,7 @@ executables = (
     'fzlog',
     'fzquerypq',
     'fzserverpq',
+    'fzmetricspq',
     'fzsetup.py',
     'fztask.py',
     'fzupdate',

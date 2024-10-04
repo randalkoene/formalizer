@@ -1132,6 +1132,17 @@ class daypage(fz_htmlpage):
             except:
                 self.daywiz_data = {}
 
+    # *** WHEN WE START USING THE DATABASE INSTEAD OF A FILE:
+    # We'd like to move away from loading the whole thing into self.daywiz_data.
+    # Instead, find where self.daywiz_data is referenced and try to replace those
+    # references with calls that are day-specific and that try to either
+    # a) Pull the data from the cache.
+    # b) Make a database call that retrieves the data for the specified day.
+    # That can still be put into the cache as well.
+    #
+    # It's probably a good idea to keep a copy of this version of daywiz.py
+    # while testing.
+
     # Store JSON in format: {'wiztable': {...days...}, 'nutrition': {...days...}, 'exercise': {...days...}, 'accounts': {...days...}}
     def save_daywiz_json(self, dryrun=False) ->bool:
         global global_debug_str
@@ -1156,6 +1167,13 @@ class daypage(fz_htmlpage):
         except Exception as e:
             global_debug_str += '<p><b>'+str(e)+'</b></p>'
             return False
+
+    # *** WHEN WE START USING THE DATABASE INSTEAD OF A FILE:
+    # 1. Use the tablekey for-loop to pick each database table in turn.
+    # 2. Find the corresponding data in day_dict.
+    # 3. Request update of the data in the self.day_str indexed entries of that database table.
+    # Still use the multiday cache as well.
+    # No longer store to .json file.
 
     # === Member functions for data parsing:
 
