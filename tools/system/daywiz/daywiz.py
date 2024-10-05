@@ -24,6 +24,8 @@ from time import time
 import json
 from os.path import exists
 import traceback
+from subprocess import Popen, PIPE
+from io import StringIO
 
 from wiztable import *
 from fzhtmlpage import *
@@ -40,6 +42,10 @@ t_run = datetime.now() # Use this to make sure that all auto-generated times on 
 
 webdata_path = "/var/www/webdata/formalizer"
 
+debugdatabase = webdata_path+'/daywiz_database.debug'
+
+error_file = webdata_path + '/daywiz_error.log'
+
 HREFBASE = 'http://localhost/'
 NODELINKCGI = 'cgi-bin/fzlink.py?id='
 
@@ -47,7 +53,7 @@ NODELINKCGI = 'cgi-bin/fzlink.py?id='
 
 # TODO: *** Switch to using the database.
 #JSON_DATA_PATH='/home/randalk/.formalizer/.daywiz_data.json' # Permission issues.
-JSON_DATA_PATH='/var/www/webdata/formalizer/.daywiz_data.json'
+#JSON_DATA_PATH='/var/www/webdata/formalizer/.daywiz_data.json'
 #NEW_JSON_DATA_PATH='/var/www/webdata/formalizer/.new_daywiz_data.json'
 
 # Collection of tables and their prefix abbreviations:
@@ -1068,69 +1074,56 @@ class daypage(fz_htmlpage):
         self.body_list = [ self.html_std, self.html_title, self.html_clock, self.date_picker, self.tables, ]
         self.tail_list = [ self.html_std, self.html_uistate, self.html_clock, ]
 
-    # def legacy_load_daywiz_json(self):
-    #   if exists(JSON_DATA_PATH):
-    #       try:
-    #           with open(JSON_DATA_PATH, 'r') as f:
-    #               self.daywiz_data = json.load(f)
-    #       except:
-    #           self.daywiz_data = {}
-
-    # Store JSON in format: {'YYYY.mm.dd': { 'wiztable': ..., 'nutrition': ..., 'exercise': ..., 'accounts': ...}, etc.}
-    # def legacy_save_daywiz_json(self) ->bool:
-    #   global global_debug_str
-    #   self.daywiz_data[self.day_str] = self.tables.get_dict()
-    #   try:
-    #       with open(JSON_DATA_PATH, 'w') as f:
-    #           json.dump(self.daywiz_data, f)
-    #       return True
-    #   except Exception as e:
-    #       global_debug_str += '<p><b>'+str(e)+'</b></p>'
-    #       return False
-
-    # The following can be used to convert from legacy format to new format:
-    # def convert_save_daywiz_json(self) ->bool:
-    #   global global_debug_str
-    #   self.daywiz_data[self.day_str] = self.tables.get_dict()
-    #   self.new_daywiz_data = {
-    #       'wiztable': {},
-    #       'nutrition': {},
-    #       'exercise': {},
-    #       'accounts': {},
-    #   }
-    #   for daystr in self.daywiz_data:
-    #       daydata = self.daywiz_data[daystr]
-    #       if 'wiztable' in daydata:
-    #           self.new_daywiz_data['wiztable'][daystr] = daydata['wiztable']
-    #       if 'nutrition' in daydata:
-    #           self.new_daywiz_data['nutrition'][daystr] = daydata['nutrition']
-    #       if 'exercise' in daydata:
-    #           self.new_daywiz_data['exercise'][daystr] = daydata['exercise']
-    #       if 'accounts' in daydata:
-    #           self.new_daywiz_data['accounts'][daystr] = daydata['accounts']
-    #   try:
-    #       with open(NEW_JSON_DATA_PATH, 'w') as f:
-    #           json.dump(self.new_daywiz_data, f)
-    #       return True
-    #   except Exception as e:
-    #       global_debug_str += '<p><b>'+str(e)+'</b></p>'
-    #       return False
-
-    # def legacy_get_day_data(self, daystr: str) ->dict:
-    #   if daystr in self.daywiz_data:
-    #       return self.daywiz_data[daystr]
-    #   else:
-    #       return {}
-
     # === Member functions for data dictionary storage and retrieval:
 
+    def database_call(self, thecmd:str):
+        try:
+            p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,stderr=PIPE,close_fds=True, universal_newlines=True)
+            (child_stdin,child_stdout,child_stderr) = (p.stdin, p.stdout, p.stderr)
+            child_stdin.close()
+            result = child_stdout.read()
+            # with open(debugdatabase, 'a') as f:
+            #     f.write('Call: '+thecmd+'\n\n')
+            #     f.write(result+'\n\n')
+            error = child_stderr.read()
+            child_stdout.close()
+            child_stderr.close()
+            if error:
+                with open(error_file, 'w') as f:
+                    f.write(error)
+                return None
+            return result
+
+        except Exception as ex:
+            with open(error_file, 'w') as e:              
+                e.write(str(ex))
+                f = StringIO()
+                traceback.print_exc(file=f)
+                a = f.getvalue().splitlines()
+                for line in a:
+                    e.write(line)
+            return None
+
+    def get_day_data_from_database(self, daydate:str)->dict:
+        thecmd = "./fzmetricspq -q -d formalizer -s randalk -E STDOUT -R -i "+daydate+" -F json -o STDOUT -w true -n true -e true -a true -m true -c true"
+        datastr = self.database_call(thecmd)
+        try:
+            data = json.loads(datastr)
+            if not isinstance(data, dict) or len(data)==0:
+                return {}
+            else:
+                return data
+        except:
+            return {}
+
     def load_daywiz_json(self):
-        if exists(JSON_DATA_PATH):
-            try:
-                with open(JSON_DATA_PATH, 'r') as f:
-                    self.daywiz_data = json.load(f)
-            except:
-                self.daywiz_data = {}
+        daytimestamp = self.day_str[0:4]+self.day_str[5:7]+self.day_str[8:10]+'0000'
+        data = self.get_day_data_from_database(daytimestamp)
+        if len(data)==0:
+            self.daywiz_data = {}
+        else:
+            for tablekey in data:
+                self.daywiz_data[tablekey] = { self.day_str: data[tablekey] }
 
     # *** WHEN WE START USING THE DATABASE INSTEAD OF A FILE:
     # We'd like to move away from loading the whole thing into self.daywiz_data.
@@ -1139,9 +1132,22 @@ class daypage(fz_htmlpage):
     # a) Pull the data from the cache.
     # b) Make a database call that retrieves the data for the specified day.
     # That can still be put into the cache as well.
-    #
-    # It's probably a good idea to keep a copy of this version of daywiz.py
-    # while testing.
+
+    def save_day_data_to_database(self):
+        daystosave = list(self.daywiz_data['wiztable'].keys())
+        for daytosave in daystosave:
+            daytimestamp = daytosave[0:4]+daytosave[5:7]+daytosave[8:10]+'0000'
+            # Put data into temporary files and build call arguments
+            addargs = ''
+            for tablekey in self.daywiz_data:
+                if daytosave in self.daywiz_data[tablekey]:
+                    jsonfilename = webdata_path+'/'+tablekey+'.json'
+                    addargs += ' -'+tablekey[0]+' file:'+jsonfilename
+                    with open(jsonfilename, 'w') as f:
+                        json.dump(self.daywiz_data[tablekey][daytosave] ,f)
+            # Call database write to multiple tables
+            thecmd = "./fzmetricspq -q -d formalizer -s randalk -E STDOUT -S -i "+daytimestamp+addargs
+            self.database_call(thecmd)
 
     # Store JSON in format: {'wiztable': {...days...}, 'nutrition': {...days...}, 'exercise': {...days...}, 'accounts': {...days...}}
     def save_daywiz_json(self, dryrun=False) ->bool:
@@ -1155,25 +1161,17 @@ class daypage(fz_htmlpage):
                 else: # First save to a newly added data table.
                     self.daywiz_data[tablekey] = { self.day_str: day_dict[tablekey], }
         # Replace multiday cache with updated cached data:
-        self.daywiz_data['cache'] = self.multiday_data
+        #self.daywiz_data['cache'] = self.multiday_data
         try:
             if dryrun:
                 with open('/dev/shm/daywiz_update_dryrun.json', 'w') as f:
                     json.dump(self.daywiz_data, f)
             else:
-                with open(JSON_DATA_PATH, 'w') as f:
-                    json.dump(self.daywiz_data, f)
+                self.save_day_data_to_database()
             return True
         except Exception as e:
             global_debug_str += '<p><b>'+str(e)+'</b></p>'
             return False
-
-    # *** WHEN WE START USING THE DATABASE INSTEAD OF A FILE:
-    # 1. Use the tablekey for-loop to pick each database table in turn.
-    # 2. Find the corresponding data in day_dict.
-    # 3. Request update of the data in the self.day_str indexed entries of that database table.
-    # Still use the multiday cache as well.
-    # No longer store to .json file.
 
     # === Member functions for data parsing:
 
@@ -1208,15 +1206,20 @@ class daypage(fz_htmlpage):
     # detection of undesired behavior.
     # An excess of the total subtracts from the normal threshold.
     def get_calorie_threshold(self) ->dict:
-        nutri = self.daywiz_data['nutrition']
-        nutridays = list(nutri.keys())
         nutri_multiday = {
             'caloriethreshold': WEIGHTLOSS_TARGET_CALORIES,
             'caloriestotal': 0,
             'dayscaloriesunknown': 0,
         }
+        if 'nutrition' in self.daywiz_data:
+            nutri = self.daywiz_data['nutrition']
+        else:
+            nutri = {}
+        nutridays = list(nutri.keys())
+
         if len(nutridays) <= 0:
             return nutri_multiday
+
         # Find the earliest in the data:
         nutridays.sort()
         start_idx = 0
@@ -1511,6 +1514,8 @@ if __name__ == '__main__':
     # Put this here to catch errors.
     # This should only be printed if this is not being imported as a module.
     print("Content-type:text/html\n\n")
+    # with open(debugdatabase, 'w') as f:
+    #     f.write('DEBUG START\n')
     if len(argv) > 2:
         if argv[2] == 'date':
             launch(directives={ 'cmd': argv[1], 'date': argv[2], 'args': argv[2:], })

@@ -1208,15 +1208,20 @@ class daypage(fz_htmlpage):
     # detection of undesired behavior.
     # An excess of the total subtracts from the normal threshold.
     def get_calorie_threshold(self) ->dict:
-        nutri = self.daywiz_data['nutrition']
-        nutridays = list(nutri.keys())
         nutri_multiday = {
             'caloriethreshold': WEIGHTLOSS_TARGET_CALORIES,
             'caloriestotal': 0,
             'dayscaloriesunknown': 0,
         }
+        if 'nutrition' in self.daywiz_data:
+            nutri = self.daywiz_data['nutrition']
+        else:
+            nutri = {}
+        nutridays = list(nutri.keys())
+
         if len(nutridays) <= 0:
             return nutri_multiday
+
         # Find the earliest in the data:
         nutridays.sort()
         start_idx = 0
