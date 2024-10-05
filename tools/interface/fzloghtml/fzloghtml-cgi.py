@@ -71,6 +71,7 @@ log_interval_head = '''<html>
 <link rel="stylesheet" href="/fzuistate.css">
 <link rel="stylesheet" href="/clock.css">
 <link rel="stylesheet" href="/score.css">
+<link rel="stylesheet" href="/htmltemplatestocopy.css">
 <meta http-equiv="cache-control" content="no-cache" />
 <title>fz: Log interval</title>
 <style>
@@ -101,6 +102,14 @@ cgi_custom_tail = '''
 Add entry for <input type="submit" name="makeentry" value="Log Chunk Node" /> or <input type="submit" name="makeentry" value="Other Node" /> | <input type="submit" name="makeentry" value="Templates" /> | [<a href="/cgi-bin/metrictags.py" target="_blank">Show Metric Tags</a>].
 </form>
 </p>
+
+<div id="after_cptplt"></div>
+<div id="templates_html" style="display:none;">
+<button class="button" onclick="copyInnerHTMLToClipboard('chkbx_tpl');">copy</button> <span id="chkbx_tpl"><input type="checkbox" ></span>
+</div>
+<script type="text/javascript" src="/htmltemplatestocopy.js"></script>
+<script>const htmltemplates = new htmlTemplates('after_cptplt', 'cptplt', 'templates', 'templates_html');</script>
+<script type="text/javascript" src="/copyinnerhtml.js"></script>
 
 <hr>
 
