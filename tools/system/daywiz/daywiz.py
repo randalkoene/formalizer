@@ -1227,6 +1227,8 @@ class daypage(fz_htmlpage):
         # Skip empties at the start:
         while len(nutri[nextdaystr]) < 1:
             start_idx += 1
+            if start_idx >= len(nutridays):
+                return nutri_multiday
             nextdaystr = nutridays[start_idx]
         # From the first non-empty, check every day until the current day:
         nextday = datestr2datetime(nextdaystr)
