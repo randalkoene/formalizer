@@ -38,6 +38,8 @@ bool create_Metrics_table(const active_pq& apq, const std::string& metricstable,
 /**
  * Store a new Metrics data in the PostgreSQL database. Creates the table if necessary.
  * 
+ * This version of the store function will update an entry if it exists.
+ * 
  * @param data metrics data.
  * @param pa a standard database access stucture with database name and schema name.
  * @returns true if the data was successfully stored in the database.
@@ -58,7 +60,7 @@ bool store_Metrics_data_pq(const Metrics_data & data, Postgres_access & pa) {
         STORE_DATA_PQ_RETURN(false);
     }
 
-    std::string insertdatastr("INSERT INTO "+pa.pq_schemaname() + "." + data.tablename + " VALUES (" + data.all_values_pqstr() + ')');
+    std::string insertdatastr("INSERT INTO "+pa.pq_schemaname() + "." + data.tablename + " VALUES (" + data.all_values_pqstr() + ") ON CONFLICT (id) DO UPDATE SET data = "+data.datastr());
     if (!simple_call_pq(conn, insertdatastr)) {
         STORE_DATA_PQ_RETURN(false);
     }
@@ -177,6 +179,56 @@ bool delete_Metrics_data_pq(const Metrics_data & data, Postgres_access & pa) {
     if (!delete_Metricsdata_pq(apq, data)) DELETE_DATA_PQ_RETURN(false);
 
     DELETE_DATA_PQ_RETURN(true);
+}
+
+bool delete_Metrics_table_pq(const std::string& tablename, Postgres_access & pa) {
+	ERRTRACE;
+    active_pq apq;
+    apq.conn = connection_setup_pq(pa.dbname());
+    if (!apq.conn) return false;
+
+    apq.pq_schemaname = pa.pq_schemaname();
+
+    std::string tstr("DROP TABLE IF EXISTS "+apq.pq_schemaname+"." + tablename);
+    bool r = simple_call_pq(apq.conn, tstr);
+
+    PQfinish(apq.conn);
+    return r;
+}
+
+bool count_Metrics_table_pq(Metrics_data & data, Postgres_access & pa) {
+	ERRTRACE;
+    pa.access_initialize();
+    PGconn* conn = connection_setup_pq(pa.dbname());
+    if (!conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define COUNT_DATA_PQ_RETURN(r) { PQfinish(conn); return r; }
+
+    std::string pqcmdstr = "SELECT count(*) AS exact_count FROM "+pa.pq_schemaname()+ "." + data.tablename;
+    if (!query_call_pq(conn, pqcmdstr, false)) COUNT_DATA_PQ_RETURN(false);
+  
+    PGresult *res;
+
+    while ((res = PQgetResult(conn))) { // It's good to use a loop for single row mode cases.
+
+        const int rows = PQntuples(res);
+        if (PQnfields(res) < 1) {
+            ADDERROR(__func__,"not enough fields in data result");
+            COUNT_DATA_PQ_RETURN(false);
+        }
+
+        data.data.clear();
+        for (int r = 0; r < rows; ++r) {
+
+            data.data.append(PQgetvalue(res, r, 0));
+
+        }
+
+        PQclear(res);
+    }
+
+    COUNT_DATA_PQ_RETURN(true);
 }
 
 } // namespace fz

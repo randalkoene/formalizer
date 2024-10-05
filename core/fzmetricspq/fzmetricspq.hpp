@@ -32,6 +32,7 @@ enum flow_options {
     flow_read = 1,    /// request: read from table
     flow_store = 2,   /// request: store in table
     flow_delete = 3,  /// request: delete from table
+    flow_count = 4,   /// request: count rows in table
     flow_NUMoptions
 };
 
@@ -90,6 +91,8 @@ struct Metrics_wiztable: public Metrics_data {
     virtual std::string layout() const;
 
     virtual std::string idstr() const;
+
+    virtual std::string datastr() const;
 
     virtual std::string all_values_pqstr() const;
 

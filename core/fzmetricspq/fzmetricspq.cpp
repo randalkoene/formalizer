@@ -48,6 +48,8 @@ const std::vector<std::string> default_tables = {
     "nutrition",
     "exercise",
     "accounts",
+    "milestones",
+    "comms",
 };
 
 /**
@@ -55,14 +57,19 @@ const std::vector<std::string> default_tables = {
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzmetricspq::fzmetricspq() : formalizer_standard_program(false), config(*this), pa(*this, add_option_args, add_usage_top, true) {
-    add_option_args += "RSDi:w:n:e:a:F:o:";
-    add_usage_top += " <-R|-S|-D> [-i index] [-w JSON] [-n JSON] [-e JSON] [-a JSON] [-F format] [-o outfile]";
+    add_option_args += "RSDCi:w:n:e:a:m:c:F:o:";
+    add_usage_top += " <-R|-S|-D|-C> [-i index] [-w JSON] [-n JSON] [-e JSON] [-a JSON] [-m JSON] [-c JSON] [-F format] [-o outfile]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "If JSON data begins with 'file:' then the actual data is\n"
         "obtained from the indicated file instead.\n"
         "Reading data from a file is safer if the data might contain\n"
         "characters that are difficult to include on the command line.\n"
+        "\n"
+        "If -D is given the index '-i all' the specified tables are deleted.\n"
+        "\n"
+        "If an index is requested for which there is no data then an empty\n"
+        "string is returned in -F raw mode or an empty dict in -F json mode.\n"
     );
 }
 
@@ -78,16 +85,29 @@ void fzmetricspq::usage_hook() {
           "       -n true: read nutrition data\n"
           "       -e true: read exercise data\n"
           "       -a true: read accounts data\n"
+          "       -m true: read milestones data\n"
+          "       -c true: read comms data\n"
           "    -S Store in table\n"
           "       -w JSON data to store in wiztable\n"
           "       -n JSON data to store in nutrition\n"
           "       -e JSON data to store in exercise\n"
           "       -a JSON data to store in accounts\n"
+          "       -m JSON data to store in milestones\n"
+          "       -c JSON data to store in comms\n"
           "    -D Delete from table\n"
           "       -w true: delete from wiztable\n"
           "       -n true: delete from nutrition data\n"
           "       -e true: delete from exercise data\n"
           "       -a true: delete from accounts data\n"
+          "       -a true: delete from milestones data\n"
+          "       -a true: delete from comms data\n"
+          "    -C Count rows in table\n"
+          "       -w true: count rows in wiztable\n"
+          "       -n true: count rows in nutrition data\n"
+          "       -e true: count rows in exercise data\n"
+          "       -a true: count rows in accounts data\n"
+          "       -a true: count rows in milestones data\n"
+          "       -a true: count rows in comms data\n"
           "    -F Output format: raw, json\n"
           "    -o Output file (default is STDOUT)\n"
     );
@@ -124,6 +144,11 @@ bool fzmetricspq::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'C': {
+        flowcontrol = flow_count;
+        return true;
+    }
+
     case 'i': {
         index = cargs;
         return true;
@@ -146,6 +171,16 @@ bool fzmetricspq::options_hook(char c, std::string cargs) {
 
     case 'a': {
         datajson[3] = cargs;
+        return true;
+    }
+
+    case 'm': {
+        datajson[4] = cargs;
+        return true;
+    }
+
+    case 'c': {
+        datajson[5] = cargs;
         return true;
     }
 
@@ -224,6 +259,10 @@ std::string Metrics_wiztable::idstr() const {
     return "'"+idxstr+"'";
 }
 
+std::string Metrics_wiztable::datastr() const {
+    return "$txt$"+data+"$txt$";
+}
+
 std::string Metrics_wiztable::all_values_pqstr() const {
     return idstr()+", $txt$"+data+"$txt$";
 }
@@ -265,7 +304,7 @@ int read_from_table() {
 
     std::string rendered_data;
     if (fzmet.format == "json") {
-        rendered_data = "{";
+        rendered_data = "{ ";
     }
 
     for (size_t i = 0; i < fzmet.datajson.size(); ++i) {
@@ -276,8 +315,10 @@ int read_from_table() {
                 return standard_error("Reading "+fzmet.config.tables.at(i)+" data failed.", __func__);
             }
 
-            if (!render_data(data, rendered_data)) {
-                return standard_error("Rendering "+fzmet.config.tables.at(i)+" data failed.", __func__);
+            if (!data.data.empty()) {
+                if (!render_data(data, rendered_data)) {
+                    return standard_error("Rendering "+fzmet.config.tables.at(i)+" data failed.", __func__);
+                }
             }
 
             VERYVERBOSEOUT("Read from "+fzmet.config.tables.at(i)+".\n");
@@ -327,15 +368,66 @@ int delete_from_table() {
 
     for (size_t i = 0; i < fzmet.datajson.size(); ++i) {
         if (!fzmet.datajson.at(i).empty()) {
-            Metrics_wiztable data(fzmet.config.tables.at(i), fzmet);
 
-            if (!delete_Metrics_data_pq(data, fzmet.pa)) {
-                return standard_error("Deleting from "+fzmet.config.tables.at(i)+" failed.", __func__);
+            if (fzmet.index == "all") {
+
+                if (!delete_Metrics_table_pq(fzmet.config.tables.at(i), fzmet.pa)) {
+                    return standard_error("Deleting table "+fzmet.config.tables.at(i)+" failed.", __func__);
+                }
+
+                VERYVERBOSEOUT("Deleted table "+fzmet.config.tables.at(i)+".\n");
+
+            } else {
+
+                Metrics_wiztable data(fzmet.config.tables.at(i), fzmet);
+
+                if (!delete_Metrics_data_pq(data, fzmet.pa)) {
+                    return standard_error("Deleting from "+fzmet.config.tables.at(i)+" failed.", __func__);
+                }
+
+                VERYVERBOSEOUT("Deleted from "+fzmet.config.tables.at(i)+".\n");
+
             }
 
-            VERYVERBOSEOUT("Deleted from "+fzmet.config.tables.at(i)+".\n");
         }
     }
+
+    standard.completed_ok();
+}
+
+/**
+ * This can count rows in one or more tables in one call.
+ */
+int count_rows_in_table() {
+    ERRTRACE;
+
+    std::string rendered_data;
+    if (fzmet.format == "json") {
+        rendered_data = "{";
+    }
+
+    for (size_t i = 0; i < fzmet.datajson.size(); ++i) {
+        if (!fzmet.datajson.at(i).empty()) {
+
+            Metrics_wiztable data(fzmet.config.tables.at(i), fzmet);
+
+            if (!count_Metrics_table_pq(data, fzmet.pa)) {
+                return standard_error("Counting rows in "+fzmet.config.tables.at(i)+" failed.", __func__);
+            }
+
+            if (!render_data(data, rendered_data)) {
+                return standard_error("Rendering "+fzmet.config.tables.at(i)+" data failed.", __func__);
+            }
+
+            VERYVERBOSEOUT("Number of rows in "+fzmet.config.tables.at(i)+": "+data.data+'\n');
+
+        }
+    }
+
+    if (fzmet.format == "json") {
+        rendered_data.back() = '}';
+    }
+    send_rendered_to_output(rendered_data);
 
     standard.completed_ok();
 }
@@ -357,6 +449,10 @@ int main(int argc, char *argv[]) {
 
     case flow_delete: {
         return delete_from_table();
+    }
+
+    case flow_count: {
+        return count_rows_in_table();
     }
 
     default: {
