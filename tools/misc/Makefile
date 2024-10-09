@@ -53,7 +53,8 @@ LOCALLIB = $(BOOSTINTERPROCESSLIB_REQS)
 INCLUDES := -I$(CPATH) -I$(COREINCLUDEPATH)
 INCLUDES += -I$(POSTGRESINC)
 INCLUDES += -I$(LOCALINC) -I/usr/include/python3.8
-LIB_PATH = $(POSTGRESLIB) $(LOCALLIB) -lpython3.8
+#LIB_PATH = $(POSTGRESLIB) $(LOCALLIB) -lpython3.8
+LIB_PATH = $(POSTGRESLIB) $(LOCALLIB)
 # +----- begin: Essential include and library paths for this program -----+
 
 # +----- begin: In case not included from CPATH -----+
@@ -100,15 +101,17 @@ CPPFLAGS = $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(INCLUDES)
 
 # +----- begin: Select Formalizer core library objects -----+
 CORE_OBJS = 
-# CORE_OBJS += $(CORELIBPATH)/obj/error.o
-# CORE_OBJS += $(CORELIBPATH)/obj/config.o
-# CORE_OBJS += $(CORELIBPATH)/obj/standard.o
-# CORE_OBJS += $(CORELIBPATH)/obj/general.o
+CORE_OBJS += $(CORELIBPATH)/obj/error.o
+CORE_OBJS += $(CORELIBPATH)/obj/config.o
+CORE_OBJS += $(CORELIBPATH)/obj/standard.o
+CORE_OBJS += $(CORELIBPATH)/obj/stringio.o
+CORE_OBJS += $(CORELIBPATH)/obj/jsonlite.o
+CORE_OBJS += $(CORELIBPATH)/obj/general.o
 # CORE_OBJS += $(CORELIBPATH)/obj/templater.o
 # CORE_OBJS += $(CORELIBPATH)/obj/fzpostgres.o
-# CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
+CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Graphaccess.o
-# CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
+CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Graphtypes.o
 # CORE_OBJS += $(CORELIBPATH)/obj/LogtypesID.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
@@ -121,7 +124,7 @@ CORE_OBJS =
 
 .PHONY: FORCE
 
-all: init test_shared_memory test_shared_memory_client test_cpppython
+all: init test_libfunction test_shared_memory test_shared_memory_client test_cpppython
 
 init: FORCE
 	@echo '-------------------------------------------------------------------'
@@ -139,6 +142,9 @@ $(OBJ)/test_shared_memory_client.o: test_shared_memory_client.cpp
 $(OBJ)/test_cpppython.o: test_cpppython.cpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c test_cpppython.cpp -o $(OBJ)/test_cpppython.o
 
+$(OBJ)/test_libfunction.o: test_libfunction.cpp $(CORE_OBJS)
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c test_libfunction.cpp -o $(OBJ)/test_libfunction.o
+
 test_shared_memory: $(OBJ)/test_shared_memory.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o test_shared_memory $(LIB_PATH)
 
@@ -147,6 +153,9 @@ test_shared_memory_client: $(OBJ)/test_shared_memory_client.o $(CORE_OBJS)
 
 test_cpppython: $(OBJ)/test_cpppython.o $(CORE_OBJS)
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o test_cpppython $(LIB_PATH)
+
+test_libfunction: $(OBJ)/test_libfunction.o $(CORE_OBJS)
+	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $^ -o test_libfunction $(LIB_PATH)
 
 clean:
 	rm -f $(OBJ)/*.o

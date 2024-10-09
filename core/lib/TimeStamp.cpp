@@ -295,6 +295,14 @@ time_of_day_t time_of_day(time_t t) {
     return time_of_day_t(tm_ptr->tm_hour, tm_ptr->tm_min);
 }
 
+time_t seconds_since_day_start(time_t t) {
+    return t - day_start_time(t);
+}
+
+time_t seconds_remaining_in_day(time_t t) {
+    return day_start_time(time_add_day(t, 1)) - t;
+}
+
 unsigned long date_as_ulong(time_t t) {
     const std::tm * tm_ptr;
     tm_ptr = safe_localtime(&t);
