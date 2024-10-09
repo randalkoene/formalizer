@@ -14,5 +14,6 @@ function copyInnerHTMLToClipboard(element_id) {
   document.execCommand("copy");
   document.body.removeChild(tempTextArea);
   //navigator.clipboard.writeText(value_content);
-  alert("Copied: " + value_content);
+  //alert("Copied: " + value_content);
+  copiedAlert_ref.showAlert(value_content);
 }

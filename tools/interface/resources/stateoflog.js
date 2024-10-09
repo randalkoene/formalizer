@@ -79,7 +79,7 @@ class logState {
 
     makeStateOfLogElement(logstate_id) {
         var stateoflogelement = document.createElement("div");
-        g.setAttribute("id", logstate_id);
+        stateoflogelement.setAttribute("id", logstate_id);
         document.body.prepend(stateoflogelement);
         return document.getElementById(logstate_id);
     }

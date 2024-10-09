@@ -1,0 +1,13 @@
+.copiedAlert {
+    position: fixed;
+    top: 15em;
+    right: 0px;
+    margin: 20px auto;
+    padding: 0;
+    background: rgba(202, 202, 0, 0.658);
+    text-align: left;
+    line-height: 40px;
+    color: #000;
+    font-size: 16px;
+    font-family: calibri;
+}
