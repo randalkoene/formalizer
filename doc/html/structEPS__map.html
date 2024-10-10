@@ -75,9 +75,15 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a4cceafaba531e294b24675e30e0f3aeb"><td class="memItemLeft" align="right" valign="top"><a id="a4cceafaba531e294b24675e30e0f3aeb"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>EPS_map</b> (time_t _t, unsigned long days_in_map, <a class="el" href="namespacefz.html#ade8fd9836dfeac48419a3e0a89f0f8f2">targetdate_sorted_Nodes</a> &amp;_incomplete_repeating, eps_data_vec_t &amp;_epsdata)</td></tr>
-<tr class="separator:a4cceafaba531e294b24675e30e0f3aeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5556a526587a5cda90edb2a1420f262c"><td class="memItemLeft" align="right" valign="top"><a id="a5556a526587a5cda90edb2a1420f262c"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>EPS_map</b> (time_t _t, unsigned long days_in_map, <a class="el" href="namespacefz.html#ade8fd9836dfeac48419a3e0a89f0f8f2">targetdate_sorted_Nodes</a> &amp;_incomplete_repeating, eps_data_vec_t &amp;_epsdata, bool _testfailfull)</td></tr>
+<tr class="separator:a5556a526587a5cda90edb2a1420f262c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5693f49e8fcf90b4f7a60e0fb97a50f"><td class="memItemLeft" align="right" valign="top"><a id="ad5693f49e8fcf90b4f7a60e0fb97a50f"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>bytes_estimate</b> ()</td></tr>
+<tr class="separator:ad5693f49e8fcf90b4f7a60e0fb97a50f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13bdbe89be503b3a4b5fca8fbf9a12b6"><td class="memItemLeft" align="right" valign="top"><a id="a13bdbe89be503b3a4b5fca8fbf9a12b6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>init_next_slot</b> ()</td></tr>
+<tr class="separator:a13bdbe89be503b3a4b5fca8fbf9a12b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a04c0701043cb60792f2d07111c552dd4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEPS__map.html#a04c0701043cb60792f2d07111c552dd4">process_chain</a> (std::string &amp;chain)</td></tr>
 <tr class="memdesc:a04c0701043cb60792f2d07111c552dd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse a possible chain specification.  <a href="structEPS__map.html#a04c0701043cb60792f2d07111c552dd4">More...</a><br /></td></tr>
 <tr class="separator:a04c0701043cb60792f2d07111c552dd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -192,6 +198,12 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>usechain</b> = false<
 <tr class="memitem:a96ce3d9f5791197f318cc433589e3d25"><td class="memItemLeft" align="right" valign="top"><a id="a96ce3d9f5791197f318cc433589e3d25"></a>
 std::vector&lt; std::unique_ptr&lt; <a class="el" href="classPlacer.html">Placer</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>placer_chain</b></td></tr>
 <tr class="separator:a96ce3d9f5791197f318cc433589e3d25"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac656b481d572e421ecbf74a26c72450c"><td class="memItemLeft" align="right" valign="top"><a id="ac656b481d572e421ecbf74a26c72450c"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>test_fail_full</b> = false</td></tr>
+<tr class="separator:ac656b481d572e421ecbf74a26c72450c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a396b790a8389a77b0ef0c876bdc3c233"><td class="memItemLeft" align="right" valign="top"><a id="a396b790a8389a77b0ef0c876bdc3c233"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>utd_all_placed</b> = false</td></tr>
+<tr class="separator:a396b790a8389a77b0ef0c876bdc3c233"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad424a9ab97e3152a51699561ff203723"><td class="memItemLeft" align="right" valign="top"><a id="ad424a9ab97e3152a51699561ff203723"></a>
 <a class="el" href="namespacefz.html#ade8fd9836dfeac48419a3e0a89f0f8f2">targetdate_sorted_Nodes</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>nodelist</b></td></tr>
 <tr class="separator:ad424a9ab97e3152a51699561ff203723"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -348,7 +360,8 @@ std::map&lt; time_t, <a class="el" href="classfz_1_1Node.html">Node_ptr</a> &gt;
 </div><div class="memdoc">
 
 <p>Parse a possible chain specification. </p>
-<p>***TODO: Add identification of NNLs from which to identify category specific UTD Nodes. </p>
+<p>***TODO: Add identification of NNLs from which to identify category specific UTD Nodes.</p>
+<p>Note: The chain is allowed to be separated by commas or semicolons. Use only one of the two. Use semicolons in the config.json file, because the parsing function presently gets confused by commas in arguments. </p>
 
 </div>
 </div>

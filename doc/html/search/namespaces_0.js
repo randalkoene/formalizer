@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['coreconfigurable_1190',['coreconfigurable',['../namespacecoreconfigurable.html',1,'']]]
+  ['coreconfigurable_1213',['coreconfigurable',['../namespacecoreconfigurable.html',1,'']]]
 ];

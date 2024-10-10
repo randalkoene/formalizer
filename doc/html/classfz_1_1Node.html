@@ -200,6 +200,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>td_fixed</b> () const
 <tr class="memitem:a0500ca9b182717367a285e0546a7b477"><td class="memItemLeft" align="right" valign="top"><a id="a0500ca9b182717367a285e0546a7b477"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>td_exact</b> () const</td></tr>
 <tr class="separator:a0500ca9b182717367a285e0546a7b477"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e4f833e7a6bf77d4af4914bf220c3dd"><td class="memItemLeft" align="right" valign="top"><a id="a1e4f833e7a6bf77d4af4914bf220c3dd"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_movable</b> () const</td></tr>
+<tr class="separator:a1e4f833e7a6bf77d4af4914bf220c3dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a438d90cfcabc7d38537dacd3404d5471"><td class="memItemLeft" align="right" valign="top"><a id="a438d90cfcabc7d38537dacd3404d5471"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>get_repeats</b> () const</td></tr>
 <tr class="separator:a438d90cfcabc7d38537dacd3404d5471"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1006,6 +1009,7 @@ Where this function is concerned, any value in the local targetdate parameter is
 
 <p>This is the nested recursive <a class="el" href="classfz_1_1Graph.html">Graph</a> traversal function used to search for inherited target dates. </p>
 <p>Normally only call this function recursively or from <a class="el" href="classfz_1_1Node.html#a3ff58c0cd01e3418955b7918a7fd26fd" title="This function attempt to determine an inherited target date from superior Nodes.">inherit_targetdate()</a>.</p>
+<p>NOTE 20240916: This now regards only ITD Nodes as those that do not specify a target date. UTD Nodes, while treated as a sorted queue without target dates to aspire to, are treated as inheritable, i.e as providing hierarchy.</p>
 <p>Like the <a class="el" href="classfz_1_1Node.html#a092cbf79c74338b1a2dead8ecf708eed" title="Graph relative operations.">effective_targetdate()</a> function, this function attempts to correct a situation where the local targetdate is unspecified while the local tdproperty does not indicate that. For more information, see the comments of the <a class="el" href="classfz_1_1Node.html#a092cbf79c74338b1a2dead8ecf708eed" title="Graph relative operations.">effective_targetdate()</a> function.</p>
 <p>This returns RTt_maxtime if: a) A loop condition was encountered. b) There were no Superiors.</p>
 <dl class="params"><dt>Parameters</dt><dd>

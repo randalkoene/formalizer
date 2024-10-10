@@ -20,6 +20,12 @@ struct td_error_pair {
     bool specifies_error() const { return (sup != nullptr) && (dep != nullptr); }
 };
 
+struct Node_Tree_Op {
+public:
+    Node_Tree_Op() {}
+    virtual void op(const Node& node) = 0;
+};
+
 /**
  * Minimal information needed to construct the visualization tree.
  */
@@ -36,6 +42,8 @@ struct Node_Tree_Vertex {
     Node_Tree_Vertex(const Node& node, const Node_Tree_Vertex * _above, unsigned int _blevel): above(_above), node_ptr(&node), below_level(_blevel) {}
 
     void update_tdate_of_node_below(Node* below_ptr, time_t new_tdate);
+
+    void op(Node_Tree_Op& _op) const;
 };
 
 /**
@@ -97,6 +105,8 @@ struct Node_Tree {
     std::string get_td_changes_apply_url() const;
 
     std::string get_vtd_changes_only_apply_url() const;
+
+    void op(Node_Tree_Op& _op) const;
 
 };
 
@@ -196,6 +206,8 @@ public:
     std::string get_td_changes_apply_url() const { return tree.get_td_changes_apply_url(); }
 
     std::string get_vtd_changes_only_apply_url() const { return tree.get_vtd_changes_only_apply_url(); }
+
+    void op(Node_Tree_Op& _op) const { tree.op(_op); }
 
 };
 

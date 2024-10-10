@@ -127,9 +127,8 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="memitem:ad0c732b84b3cca8c444366a5b812956c"><td class="memItemLeft" align="right" valign="top"><a id="ad0c732b84b3cca8c444366a5b812956c"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>handle_request_with_data_share</b> (int new_socket, const std::string &amp;segment_name)</td></tr>
 <tr class="separator:ad0c732b84b3cca8c444366a5b812956c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7e2a368670997a2f5f38e01143568d7e"><td class="memItemLeft" align="right" valign="top"><a id="a7e2a368670997a2f5f38e01143568d7e"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfzserverpq.html#a7e2a368670997a2f5f38e01143568d7e">handle_special_purpose_request</a> (int new_socket, const std::string &amp;request_str)</td></tr>
-<tr class="memdesc:a7e2a368670997a2f5f38e01143568d7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Examples: FZ NNLlen(superiors);NNLlen(dependencies) GET/PATCH /fz/graph/nodes/&lt;node-id&gt;/completion?set=&lt;ratio&gt; /doc/txt/system.txt. <br /></td></tr>
+<tr class="memitem:a7e2a368670997a2f5f38e01143568d7e"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfzserverpq.html#a7e2a368670997a2f5f38e01143568d7e">handle_special_purpose_request</a> (int new_socket, const std::string &amp;request_str)</td></tr>
+<tr class="memdesc:a7e2a368670997a2f5f38e01143568d7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Examples: FZ NNLlen(superiors);NNLlen(dependencies) GET/PATCH /fz/graph/nodes/&lt;node-id&gt;/completion?set=&lt;ratio&gt; /doc/txt/system.txt GET /cgi-bin/fzuistate.py.  <a href="structfzserverpq.html#a7e2a368670997a2f5f38e01143568d7e">More...</a><br /></td></tr>
 <tr class="separator:a7e2a368670997a2f5f38e01143568d7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0fb3ab37a6c6f45cb56711c4a463750a"><td class="memItemLeft" align="right" valign="top"><a id="a0fb3ab37a6c6f45cb56711c4a463750a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>log</b> (std::string request, std::string update)</td></tr>
@@ -250,6 +249,47 @@ std::deque&lt; <a class="el" href="classfz_1_1main__init__register.html">main_in
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a7e2a368670997a2f5f38e01143568d7e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e2a368670997a2f5f38e01143568d7e">&#9670;&nbsp;</a></span>handle_special_purpose_request()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fzserverpq::handle_special_purpose_request </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>new_socket</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>request_str</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Examples: FZ NNLlen(superiors);NNLlen(dependencies) GET/PATCH /fz/graph/nodes/&lt;node-id&gt;/completion?set=&lt;ratio&gt; /doc/txt/system.txt GET /cgi-bin/fzuistate.py. </p>
+<p>Note: POST is not yet supported. </p>
+
+<p>Implements <a class="el" href="structfz_1_1shared__memory__server.html">fz::shared_memory_server</a>.</p>
+
+</div>
+</div>
 <a id="aba5a85a6b903033d2036141cfd0d5c6c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aba5a85a6b903033d2036141cfd0d5c6c">&#9670;&nbsp;</a></span>init_top()</h2>
 

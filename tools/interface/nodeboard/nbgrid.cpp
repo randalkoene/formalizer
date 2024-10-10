@@ -26,6 +26,10 @@ void Node_Tree_Vertex::update_tdate_of_node_below(Node* below_ptr, time_t new_td
     below.emplace(new_tdate, below_ptr);
 }
 
+void Node_Tree_Vertex::op(Node_Tree_Op& _op) const {
+    if (node_ptr) _op.op(*node_ptr);
+}
+
 Node_Tree::Node_Tree(const nodeboard & _nb, bool superiors): nb(_nb), is_superiors_tree(superiors) {
     if (!nb.node_ptr) return;
 
@@ -324,6 +328,13 @@ std::string Node_Tree::get_vtd_changes_only_apply_url() const {
     }
     std::string applychanges_url("/cgi-bin/fzeditbatch-cgi.py?action=targetdates&nodes="+nodes_valuestr+"&tds="+tds_valuestr);
     return applychanges_url;
+}
+
+void Node_Tree::op(Node_Tree_Op& _op) const {
+    if (nb.node_ptr) _op.op(*nb.node_ptr);
+    for (const auto& vertex : vertices) {
+        vertex.op(_op);
+    }
 }
 
 void Grid_Occupation::init(unsigned int r, unsigned int c) {

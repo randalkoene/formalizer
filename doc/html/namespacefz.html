@@ -319,6 +319,9 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Log__chunk__ID.html">Log_chunk_ID</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1Metrics__data.html">Metrics_data</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A generic data structure for Metrics data.  <a href="structfz_1_1Metrics__data.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1ReferenceTime.html">ReferenceTime</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1formalizer__base__streams.html">formalizer_base_streams</a></td></tr>
@@ -333,6 +336,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1main__init__register.html">main_init_register</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Classes that need an initialization function to be called first-thing upon entering <code>main()</code> (but not before that in the hazardous global variables constructor calls phase) should inherit this class.  <a href="classfz_1_1main__init__register.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1http__GET__long.html">http_GET_long</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1shared__memory__server.html">shared_memory_server</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfz_1_1GET__token__value.html">GET_token_value</a></td></tr>
@@ -342,6 +347,9 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1server__response__text.html">server_response_text</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A helpful class for server responses with text data.  <a href="classfz_1_1server__response__text.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1server__response__plaintext.html">server_response_plaintext</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A helpful class for server responses with plain text data.  <a href="classfz_1_1server__response__plaintext.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1server__response__binary.html">server_response_binary</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A helpful class for server responses with binary data.  <a href="classfz_1_1server__response__binary.html#details">More...</a><br /></td></tr>
@@ -683,6 +691,9 @@ typedef std::tuple&lt; bool, <a class="el" href="structfz_1_1Log__chunk__ID__key
 <tr class="memitem:affa45880b9bbad1bcf026d98b71df765"><td class="memItemLeft" align="right" valign="top"><a id="affa45880b9bbad1bcf026d98b71df765"></a>
 typedef std::tuple&lt; bool, <a class="el" href="structfz_1_1Log__target.html">Log_chunk_target</a>, <a class="el" href="structfz_1_1Log__target.html">Log_entry_target</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Log_target_tuple</b></td></tr>
 <tr class="separator:affa45880b9bbad1bcf026d98b71df765"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b82e16e7b355a2a4365aa75861bce33"><td class="memItemLeft" align="right" valign="top"><a id="a9b82e16e7b355a2a4365aa75861bce33"></a>
+typedef std::unique_ptr&lt; <a class="el" href="structfz_1_1Metrics__data.html">Metrics_data</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Metrics_data_ptr</b></td></tr>
+<tr class="separator:a9b82e16e7b355a2a4365aa75861bce33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a582824ff87244112d191cd7698d14f79"><td class="memItemLeft" align="right" valign="top"><a id="a582824ff87244112d191cd7698d14f79"></a>
 typedef std::vector&lt; <a class="el" href="structfz_1_1GET__token__value.html">GET_token_value</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GET_token_value_vec</b></td></tr>
 <tr class="separator:a582824ff87244112d191cd7698d14f79"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1214,6 +1225,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>replace_char</
 <tr class="memitem:a3a73be79a425edc61347438db441c2c6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a3a73be79a425edc61347438db441c2c6">safecpy</a> (std::string &amp;str, char *buf, size_t bufsize)</td></tr>
 <tr class="memdesc:a3a73be79a425edc61347438db441c2c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Safely copy from a string (not null-terminated) to a char buffer of limited size.  <a href="namespacefz.html#a3a73be79a425edc61347438db441c2c6">More...</a><br /></td></tr>
 <tr class="separator:a3a73be79a425edc61347438db441c2c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7cff549db0eb8ab110389cdf5d7dee7"><td class="memItemLeft" align="right" valign="top">ssize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ad7cff549db0eb8ab110389cdf5d7dee7">find_in_char_array</a> (char c, char *str, size_t maxlen)</td></tr>
+<tr class="memdesc:ad7cff549db0eb8ab110389cdf5d7dee7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find a character in a character array.  <a href="namespacefz.html#ad7cff549db0eb8ab110389cdf5d7dee7">More...</a><br /></td></tr>
+<tr class="separator:ad7cff549db0eb8ab110389cdf5d7dee7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8824c8c3167d53cc6ac73ff691b1b680"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a8824c8c3167d53cc6ac73ff691b1b680">tdsorted_Nodes_to_csv</a> (const <a class="el" href="namespacefz.html#ade8fd9836dfeac48419a3e0a89f0f8f2">targetdate_sorted_Nodes</a> &amp;sorted_nodes, std::string &amp;csv_str)</td></tr>
 <tr class="memdesc:a8824c8c3167d53cc6ac73ff691b1b680"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a target date sorted multimap of <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> pointers into a string of <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> ID strings as comma separated values.  <a href="namespacefz.html#a8824c8c3167d53cc6ac73ff691b1b680">More...</a><br /></td></tr>
 <tr class="separator:a8824c8c3167d53cc6ac73ff691b1b680"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1663,6 +1677,27 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>Log_TimeStamp_
 <tr class="memitem:a957bdd835342852a8ef5ad94723e34cf"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a957bdd835342852a8ef5ad94723e34cf">valid_Log_chunk_ID</a> (std::string id_str, std::string &amp;formerror, <a class="el" href="structfz_1_1Log__TimeStamp.html">Log_TimeStamp</a> *id_timestamp)</td></tr>
 <tr class="memdesc:a957bdd835342852a8ef5ad94723e34cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Test if a string can be used to form a valid <a class="el" href="classfz_1_1Log__chunk__ID.html">Log_chunk_ID</a>.  <a href="namespacefz.html#a957bdd835342852a8ef5ad94723e34cf">More...</a><br /></td></tr>
 <tr class="separator:a957bdd835342852a8ef5ad94723e34cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a548e584f1cb9eb6e02e9ca8023249ba5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a548e584f1cb9eb6e02e9ca8023249ba5">create_Metrics_table</a> (const <a class="el" href="structfz_1_1active__pq.html">active_pq</a> &amp;apq, const std::string &amp;metricstable, const std::string &amp;metricstablelayout)</td></tr>
+<tr class="memdesc:a548e584f1cb9eb6e02e9ca8023249ba5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create the table for Metrics data if it does not already exist.  <a href="namespacefz.html#a548e584f1cb9eb6e02e9ca8023249ba5">More...</a><br /></td></tr>
+<tr class="separator:a548e584f1cb9eb6e02e9ca8023249ba5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:accd043443f92a889483a1ce23912b78f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#accd043443f92a889483a1ce23912b78f">store_Metrics_data_pq</a> (const <a class="el" href="structfz_1_1Metrics__data.html">Metrics_data</a> &amp;data, <a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;pa)</td></tr>
+<tr class="memdesc:accd043443f92a889483a1ce23912b78f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store a new Metrics data in the PostgreSQL database.  <a href="namespacefz.html#accd043443f92a889483a1ce23912b78f">More...</a><br /></td></tr>
+<tr class="separator:accd043443f92a889483a1ce23912b78f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a357abaffaecd7e5d032859a6279b26af"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a357abaffaecd7e5d032859a6279b26af">read_Metrics_data_pq</a> (<a class="el" href="structfz_1_1Metrics__data.html">Metrics_data</a> &amp;data, <a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;pa)</td></tr>
+<tr class="memdesc:a357abaffaecd7e5d032859a6279b26af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a single data entry from a Metrics table in the database.  <a href="namespacefz.html#a357abaffaecd7e5d032859a6279b26af">More...</a><br /></td></tr>
+<tr class="separator:a357abaffaecd7e5d032859a6279b26af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06dca48340d70794968f673924a07912"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a06dca48340d70794968f673924a07912">read_Metrics_IDs_pq</a> (<a class="el" href="structfz_1_1Metrics__data.html">Metrics_data</a> &amp;data, <a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;pa, std::vector&lt; std::string &gt; &amp;ids)</td></tr>
+<tr class="memdesc:a06dca48340d70794968f673924a07912"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read all IDs from Guide table in the database.  <a href="namespacefz.html#a06dca48340d70794968f673924a07912">More...</a><br /></td></tr>
+<tr class="separator:a06dca48340d70794968f673924a07912"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93fd469d7ddc27458412ef0eae4367cb"><td class="memItemLeft" align="right" valign="top"><a id="a93fd469d7ddc27458412ef0eae4367cb"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>delete_Metrics_data_pq</b> (const <a class="el" href="structfz_1_1Metrics__data.html">Metrics_data</a> &amp;data, <a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;pa)</td></tr>
+<tr class="separator:a93fd469d7ddc27458412ef0eae4367cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a960f595b06ad6a1dfb1251c243ea0d50"><td class="memItemLeft" align="right" valign="top"><a id="a960f595b06ad6a1dfb1251c243ea0d50"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>delete_Metrics_table_pq</b> (const std::string &amp;tablename, <a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;pa)</td></tr>
+<tr class="separator:a960f595b06ad6a1dfb1251c243ea0d50"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa379fb82f9d204fb29ea3b1318c872c1"><td class="memItemLeft" align="right" valign="top"><a id="aa379fb82f9d204fb29ea3b1318c872c1"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>count_Metrics_table_pq</b> (<a class="el" href="structfz_1_1Metrics__data.html">Metrics_data</a> &amp;data, <a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;pa)</td></tr>
+<tr class="separator:aa379fb82f9d204fb29ea3b1318c872c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac5d41a65ead33aea665b4ac04835c90a"><td class="memItemLeft" align="right" valign="top">pid_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ac5d41a65ead33aea665b4ac04835c90a">this_program_process_ID</a> ()</td></tr>
 <tr class="memdesc:ac5d41a65ead33aea665b4ac04835c90a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain the PID of this program.  <a href="namespacefz.html#ac5d41a65ead33aea665b4ac04835c90a">More...</a><br /></td></tr>
 <tr class="separator:ac5d41a65ead33aea665b4ac04835c90a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1745,6 +1780,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>string_from_fi
 <tr class="memitem:ae1f8fda024c1d778ea48ace049e6406d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefz.html#a95a7b508456ccb1691f487ed136d52d4">exit_status_code</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#ae1f8fda024c1d778ea48ace049e6406d">server_request_with_shared_data</a> (std::string segname, uint16_t port_number)</td></tr>
 <tr class="memdesc:ae1f8fda024c1d778ea48ace049e6406d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Contact the server with the unique label of shared memory containing data for a <a class="el" href="classfz_1_1Graph.html">Graph</a> modification request.  <a href="namespacefz.html#ae1f8fda024c1d778ea48ace049e6406d">More...</a><br /></td></tr>
 <tr class="separator:ae1f8fda024c1d778ea48ace049e6406d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af15fe0c480ab08e339bce936e26a1637"><td class="memItemLeft" align="right" valign="top"><a id="af15fe0c480ab08e339bce936e26a1637"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>strip_HTTP_header</b> (const std::string &amp;response_str)</td></tr>
+<tr class="separator:af15fe0c480ab08e339bce936e26a1637"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acb11c293fe75898f1b9643466b018e9f"><td class="memItemLeft" align="right" valign="top">GET_token_value_vec&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#acb11c293fe75898f1b9643466b018e9f">GET_token_values</a> (const std::string httpgetstr, const char argseparator='&amp;')</td></tr>
 <tr class="memdesc:acb11c293fe75898f1b9643466b018e9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert portion of a HTTP GET string into a vector of token-value pairs.  <a href="namespacefz.html#acb11c293fe75898f1b9643466b018e9f">More...</a><br /></td></tr>
 <tr class="separator:acb11c293fe75898f1b9643466b018e9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1818,6 +1856,12 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>time_minute</
 <tr class="memitem:aab071e1a9b08b9df7f1ad7fe0931f577"><td class="memItemLeft" align="right" valign="top"><a id="aab071e1a9b08b9df7f1ad7fe0931f577"></a>
 <a class="el" href="structfz_1_1time__of__day__t.html">time_of_day_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>time_of_day</b> (time_t t)</td></tr>
 <tr class="separator:aab071e1a9b08b9df7f1ad7fe0931f577"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a308bb8e7e3a8144373ae7b24d3edf534"><td class="memItemLeft" align="right" valign="top"><a id="a308bb8e7e3a8144373ae7b24d3edf534"></a>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>seconds_since_day_start</b> (time_t t)</td></tr>
+<tr class="separator:a308bb8e7e3a8144373ae7b24d3edf534"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5428a92a72778fd23462bc54e2f0d106"><td class="memItemLeft" align="right" valign="top"><a id="a5428a92a72778fd23462bc54e2f0d106"></a>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>seconds_remaining_in_day</b> (time_t t)</td></tr>
+<tr class="separator:a5428a92a72778fd23462bc54e2f0d106"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a10ada33761df37bd2083becbf9223caf"><td class="memItemLeft" align="right" valign="top"><a id="a10ada33761df37bd2083becbf9223caf"></a>
 unsigned long&#160;</td><td class="memItemRight" valign="bottom"><b>date_as_ulong</b> (time_t t)</td></tr>
 <tr class="separator:a10ada33761df37bd2083becbf9223caf"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2038,6 +2082,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>entry_key_list
 <tr class="memitem:a4f0d1276ea12c9ed4a27ba5cb0296d14"><td class="memItemLeft" align="right" valign="top">unsigned long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a4f0d1276ea12c9ed4a27ba5cb0296d14">Chunks_total_minutes</a> (<a class="el" href="structfz_1_1Log__chunks__Map.html">Log_chunks_Map</a> &amp;chunks)</td></tr>
 <tr class="memdesc:a4f0d1276ea12c9ed4a27ba5cb0296d14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate the total number of minutes logged for all <a class="el" href="classfz_1_1Log.html">Log</a> chunks in the specified deque.  <a href="namespacefz.html#a4f0d1276ea12c9ed4a27ba5cb0296d14">More...</a><br /></td></tr>
 <tr class="separator:a4f0d1276ea12c9ed4a27ba5cb0296d14"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a87e4f8062e023fef4d3cfbea0d4a5a63"><td class="memItemLeft" align="right" valign="top"><a id="a87e4f8062e023fef4d3cfbea0d4a5a63"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>delete_Metricsdata_pq</b> (const <a class="el" href="structfz_1_1active__pq.html">active_pq</a> &amp;apq, const <a class="el" href="structfz_1_1Metrics__data.html">Metrics_data</a> &amp;data)</td></tr>
+<tr class="separator:a87e4f8062e023fef4d3cfbea0d4a5a63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31c5acaefdebe1051c4ff921bc754e68"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefz.html#a31c5acaefdebe1051c4ff921bc754e68">TimeStamp</a> (const char *dateformat, time_t t)</td></tr>
 <tr class="memdesc:a31c5acaefdebe1051c4ff921bc754e68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate time stamp.  <a href="namespacefz.html#a31c5acaefdebe1051c4ff921bc754e68">More...</a><br /></td></tr>
 <tr class="separator:a31c5acaefdebe1051c4ff921bc754e68"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2198,6 +2245,7 @@ constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>TOPIC_TAG
 <p>A simmple set of templating functions.</p>
 <p>General collection of functions used for string I/O with files and streams.</p>
 <p>General collection of functions for process detection and lock files.</p>
+<p>This database access library needs to be able to:</p>
 <p>General collection of functions for reading and writing a JSON subset format.</p>
 <p>General collection of functions for working with HTML strings.</p>
 <p>This source file was separated out of Graphtypes.cpp in order to produce a separate compiled .obj file for <a class="el" href="classfz_1_1Graph.html">Graph</a> comparison (friend) helper utility functions.</p>
@@ -2205,6 +2253,11 @@ constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>TOPIC_TAG
 <p>General collection of functions used for binary I/O with files and streams.</p>
 <p>-I/usr/include/postgresql.</p>
 <p>Those functions will not be needed by every program that needs the <a class="el" href="classfz_1_1Graph.html">Graph</a> data type header.</p>
+<ul>
+<li>Create metrics tables used in DayWiz.</li>
+<li>Read data for a specific day from a metrics table.</li>
+<li>Write data for a specific day to a metrics table.</li>
+</ul>
 <p>In many cases, this can be a small fast replacement for a feature-rich templating library such as <code>inja</code>.</p>
 <p>See details in <a class="el" href="utf8_8hpp.html" title="This header serves as a core utility wrapper for the open source cpputf library.">utf8.hpp</a>. </p>
 </div><h2 class="groupheader">Typedef Documentation</h2>
@@ -3650,6 +3703,50 @@ constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>TOPIC_TAG
 
 </div>
 </div>
+<a id="a548e584f1cb9eb6e02e9ca8023249ba5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a548e584f1cb9eb6e02e9ca8023249ba5">&#9670;&nbsp;</a></span>create_Metrics_table()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::create_Metrics_table </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structfz_1_1active__pq.html">active_pq</a> &amp;&#160;</td>
+          <td class="paramname"><em>apq</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>metricstable</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>metricstablelayout</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Create the table for Metrics data if it does not already exist. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">conn</td><td>is an open database connection. </td></tr>
+    <tr><td class="paramname">schemaname</td><td>is the Formalizer schema name (usually Graph_access::pq_schemaname). </td></tr>
+    <tr><td class="paramname">metricstable</td><td>is the Metrics table name (e.g. "wiztable"). </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a75375e8fb94d22f2facb4085afe93de9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a75375e8fb94d22f2facb4085afe93de9">&#9670;&nbsp;</a></span>create_Nodes_table_pq()</h2>
 
@@ -4022,6 +4119,51 @@ constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>TOPIC_TAG
 
 <p>A <a class="el" href="classfz_1_1Graph.html">Graph</a> server program uses this function to find shared memory that contains a <code>Graph_modification</code> object. </p>
 <p>That object is parsed to respond to modification requests. </p>
+
+</div>
+</div>
+<a id="ad7cff549db0eb8ab110389cdf5d7dee7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7cff549db0eb8ab110389cdf5d7dee7">&#9670;&nbsp;</a></span>find_in_char_array()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ssize_t fz::find_in_char_array </td>
+          <td>(</td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>c</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>maxlen</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Find a character in a character array. </p>
+<p>Searches up to maxlen or until the '\0' character is encountered.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">c</td><td>The character to find. </td></tr>
+    <tr><td class="paramname">str</td><td>The character array. </td></tr>
+    <tr><td class="paramname">maxlen</td><td>The size of the array. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -7581,6 +7723,101 @@ constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>TOPIC_TAG
 
 </div>
 </div>
+<a id="a357abaffaecd7e5d032859a6279b26af"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a357abaffaecd7e5d032859a6279b26af">&#9670;&nbsp;</a></span>read_Metrics_data_pq()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::read_Metrics_data_pq </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfz_1_1Metrics__data.html">Metrics_data</a> &amp;&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;&#160;</td>
+          <td class="paramname"><em>pa</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Read a single data entry from a Metrics table in the database. </p>
+<p>The <code>data</code> should specify <code>data.tablename</code> and a working <code>idstr()</code> method.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Data structure that clearly identifies the data and receives the resulting text. </td></tr>
+    <tr><td class="paramname">pa</td><td>access data with database name and schema name. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a06dca48340d70794968f673924a07912"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a06dca48340d70794968f673924a07912">&#9670;&nbsp;</a></span>read_Metrics_IDs_pq()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::read_Metrics_IDs_pq </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfz_1_1Metrics__data.html">Metrics_data</a> &amp;&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;&#160;</td>
+          <td class="paramname"><em>pa</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>ids</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Read all IDs from Guide table in the database. </p>
+<p>Read all IDs from Metrics table in the database.</p>
+<p>The <code>snippet</code> should specify <code>snippet.tablename</code>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">snippet</td><td>Data structure that clearly identifies the table in <code>snippet.tablename</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">pa</td><td>Access data with database name and schema name. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">ids</td><td>Vector of ID strings, each of which can be parsed for its components. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if successful.</dd></dl>
+<p>The <code>data</code> should specify <code>data.tablename</code>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Data structure that clearly identifies the table in <code>data.tablename</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">pa</td><td>Access data with database name and schema name. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">ids</td><td>Vector of ID strings, each of which can be parsed for its components. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if successful. </dd></dl>
+
+</div>
+</div>
 <a id="a669984ccbebfe6dbd9a4d962aded0012"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a669984ccbebfe6dbd9a4d962aded0012">&#9670;&nbsp;</a></span>refresh_Node_history_cache_pq()</h2>
 
@@ -8402,6 +8639,46 @@ template&lt;typename Out &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the <a class="el" href="classfz_1_1Log.html">Log</a> was successfully stored in the database. </dd></dl>
+
+</div>
+</div>
+<a id="accd043443f92a889483a1ce23912b78f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#accd043443f92a889483a1ce23912b78f">&#9670;&nbsp;</a></span>store_Metrics_data_pq()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fz::store_Metrics_data_pq </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structfz_1_1Metrics__data.html">Metrics_data</a> &amp;&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfz_1_1Postgres__access.html">Postgres_access</a> &amp;&#160;</td>
+          <td class="paramname"><em>pa</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Store a new Metrics data in the PostgreSQL database. </p>
+<p>Creates the table if necessary.</p>
+<p>This version of the store function will update an entry if it exists.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>metrics data. </td></tr>
+    <tr><td class="paramname">pa</td><td>a standard database access stucture with database name and schema name. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the data was successfully stored in the database. </dd></dl>
 
 </div>
 </div>

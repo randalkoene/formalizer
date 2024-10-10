@@ -107,74 +107,75 @@ $(function() {
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    time_t chunk_seconds = 20*60;</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> map_multiplier = 3;</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> map_days = 14;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keywordtype">bool</span> warn_repeating_too_tight = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordtype">bool</span> endofday_priorities = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    time_t dolater_endofday = 73800;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    time_t doearlier_endofday = 68400;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> eps_group_offset_mins = 2;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordtype">bool</span> UTD_is_priority_queue = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00048"></a><span class="lineno"><a class="line" href="classfzu__configurable.html#ad7d7c6d2ca0f2cc13895296a3f7a574a">   48</a></span>&#160;    <span class="keywordtype">bool</span> update_to_earlier_allowed = <span class="keyword">false</span>;    </div>
-<div class="line"><a name="l00049"></a><span class="lineno"><a class="line" href="classfzu__configurable.html#a7f9aba1f2241ee0c7762fbe25a84c286">   49</a></span>&#160;    <span class="keywordtype">bool</span> pack_moveable = <span class="keyword">false</span>;               </div>
-<div class="line"><a name="l00050"></a><span class="lineno"><a class="line" href="classfzu__configurable.html#a919ee3bbc7d379759be3fe3c6433e060">   50</a></span>&#160;    time_t pack_interval_beyond = (24*60*60); </div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> fetch_days_beyond_t_limit = 30;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">bool</span> showmaps = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordtype">int</span> timezone_offset_hours = 0;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    std::string chain;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;};</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
+<div class="line"><a name="l00042"></a><span class="lineno"><a class="line" href="classfzu__configurable.html#a14ed94515d6972ef9417ebdbab640729">   42</a></span>&#160;    <span class="keywordtype">float</span> full_overhead_multiplier = 1.1; </div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordtype">bool</span> warn_repeating_too_tight = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordtype">bool</span> endofday_priorities = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    time_t dolater_endofday = 73800;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    time_t doearlier_endofday = 68400;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> eps_group_offset_mins = 2;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keywordtype">bool</span> UTD_is_priority_queue = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00049"></a><span class="lineno"><a class="line" href="classfzu__configurable.html#ad7d7c6d2ca0f2cc13895296a3f7a574a">   49</a></span>&#160;    <span class="keywordtype">bool</span> update_to_earlier_allowed = <span class="keyword">false</span>;    </div>
+<div class="line"><a name="l00050"></a><span class="lineno"><a class="line" href="classfzu__configurable.html#a7f9aba1f2241ee0c7762fbe25a84c286">   50</a></span>&#160;    <span class="keywordtype">bool</span> pack_moveable = <span class="keyword">false</span>;               </div>
+<div class="line"><a name="l00051"></a><span class="lineno"><a class="line" href="classfzu__configurable.html#a919ee3bbc7d379759be3fe3c6433e060">   51</a></span>&#160;    time_t pack_interval_beyond = (24*60*60); </div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> fetch_days_beyond_t_limit = 30;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordtype">bool</span> showmaps = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keywordtype">int</span> timezone_offset_hours = 0;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    std::string chain;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;};</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160; </div>
-<div class="line"><a name="l00058"></a><span class="lineno"><a class="line" href="structfzupdate.html">   58</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfzupdate.html">fzupdate</a>: <span class="keyword">public</span> <a class="code" href="classfz_1_1formalizer__standard__program.html">formalizer_standard_program</a> {</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    std::string segname;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> segsize = 0;</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <a class="code" href="classfz_1_1Graph__modifications.html">Graph_modifications</a> * graphmod_ptr = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160; </div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <a class="code" href="classfzu__configurable.html">fzu_configurable</a> config;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; </div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    flow_options flowcontrol;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <a class="code" href="classfz_1_1Graph.html">Graph</a> * graph_ptr = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160; </div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="comment">// Graph_access ga; // to include Graph or Log access support</span></div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160; </div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <a class="code" href="classfz_1_1ReferenceTime.html">ReferenceTime</a> reftime;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; </div>
-<div class="line"><a name="l00076"></a><span class="lineno"><a class="line" href="structfzupdate.html#a5c36bad0fda1c74ee0915fd39849b303">   76</a></span>&#160;    time_t t_limit = 0; </div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keywordtype">bool</span> dryrun = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160; </div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <a class="code" href="structfzupdate.html">fzupdate</a>();</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160; </div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> usage_hook();</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160; </div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> options_hook(<span class="keywordtype">char</span> c, std::string cargs);</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160; </div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordtype">void</span> init_top(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> *argv[]);</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160; </div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <a class="code" href="classfz_1_1Graph.html">Graph</a> &amp; graph();</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160; </div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keywordtype">void</span> prepare_Graphmod_shared_memory(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> _segsize);</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    </div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <a class="code" href="classfz_1_1Graph__modifications.html">Graph_modifications</a> &amp; graphmod();</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160; </div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    std::string get_segname() { <span class="keywordflow">return</span> segname; }</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160; </div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;};</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160; </div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="keyword">extern</span> <a class="code" href="structfzupdate.html">fzupdate</a> fzu;</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160; </div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="comment">//typedef time_t chunks_t;</span></div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">size_t</span> chunks_t;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160; </div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="keyword">inline</span> chunks_t seconds_to_chunks(time_t seconds) {</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    <span class="keywordflow">return</span> (seconds % fzu.config.chunk_seconds) ? (seconds/fzu.config.chunk_seconds) + 1 : seconds/fzu.config.chunk_seconds;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;}</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160; </div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// __FZUPDATE_HPP</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160; </div>
+<div class="line"><a name="l00059"></a><span class="lineno"><a class="line" href="structfzupdate.html">   59</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfzupdate.html">fzupdate</a>: <span class="keyword">public</span> <a class="code" href="classfz_1_1formalizer__standard__program.html">formalizer_standard_program</a> {</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    std::string segname;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> segsize = 0;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <a class="code" href="classfz_1_1Graph__modifications.html">Graph_modifications</a> * graphmod_ptr = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <a class="code" href="classfzu__configurable.html">fzu_configurable</a> config;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    flow_options flowcontrol;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <a class="code" href="classfz_1_1Graph.html">Graph</a> * graph_ptr = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160; </div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="comment">// Graph_access ga; // to include Graph or Log access support</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160; </div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <a class="code" href="classfz_1_1ReferenceTime.html">ReferenceTime</a> reftime;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
+<div class="line"><a name="l00077"></a><span class="lineno"><a class="line" href="structfzupdate.html#a5c36bad0fda1c74ee0915fd39849b303">   77</a></span>&#160;    time_t t_limit = 0; </div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="keywordtype">bool</span> dryrun = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160; </div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <a class="code" href="structfzupdate.html">fzupdate</a>();</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; </div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> usage_hook();</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160; </div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> options_hook(<span class="keywordtype">char</span> c, std::string cargs);</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160; </div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordtype">void</span> init_top(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> *argv[]);</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <a class="code" href="classfz_1_1Graph.html">Graph</a> &amp; graph();</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160; </div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keywordtype">void</span> prepare_Graphmod_shared_memory(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> _segsize);</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    </div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <a class="code" href="classfz_1_1Graph__modifications.html">Graph_modifications</a> &amp; graphmod();</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160; </div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    std::string get_segname() { <span class="keywordflow">return</span> segname; }</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160; </div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;};</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160; </div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="keyword">extern</span> <a class="code" href="structfzupdate.html">fzupdate</a> fzu;</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160; </div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="comment">//typedef time_t chunks_t;</span></div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">size_t</span> chunks_t;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160; </div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="keyword">inline</span> chunks_t seconds_to_chunks(time_t seconds) {</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="keywordflow">return</span> (seconds % fzu.config.chunk_seconds) ? (seconds/fzu.config.chunk_seconds) + 1 : seconds/fzu.config.chunk_seconds;</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;}</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160; </div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// __FZUPDATE_HPP</span></div>
 <div class="ttc" id="aclassfz_1_1Graph__modifications_html"><div class="ttname"><a href="classfz_1_1Graph__modifications.html">fz::Graph_modifications</a></div><div class="ttdoc">This data structure is the most efficient method to request a stack of Graph modifications.</div><div class="ttdef"><b>Definition:</b> Graphmodify.hpp:237</div></div>
-<div class="ttc" id="aclassfz_1_1Graph_html"><div class="ttname"><a href="classfz_1_1Graph.html">fz::Graph</a></div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:855</div></div>
+<div class="ttc" id="aclassfz_1_1Graph_html"><div class="ttname"><a href="classfz_1_1Graph.html">fz::Graph</a></div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:856</div></div>
 <div class="ttc" id="aclassfz_1_1ReferenceTime_html"><div class="ttname"><a href="classfz_1_1ReferenceTime.html">fz::ReferenceTime</a></div><div class="ttdef"><b>Definition:</b> ReferenceTime.hpp:41</div></div>
 <div class="ttc" id="aclassfz_1_1configurable_html"><div class="ttname"><a href="classfz_1_1configurable.html">fz::configurable</a></div><div class="ttdoc">Formalizer standard programs that can use configuration files should include a class that inherits co...</div><div class="ttdef"><b>Definition:</b> config.hpp:167</div></div>
 <div class="ttc" id="aclassfz_1_1formalizer__standard__program_html"><div class="ttname"><a href="classfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></div><div class="ttdoc">This class provides a framework for standardized Formalizer programs.</div><div class="ttdef"><b>Definition:</b> standard.hpp:155</div></div>
@@ -182,7 +183,7 @@ $(function() {
 <div class="ttc" id="agraph2dil_8hpp_html_ae2f423a6ec032d0cde29d8e3dd70efa9aaafcd972b9acb5a19b116a32cf8a2edc"><div class="ttname"><a href="graph2dil_8hpp.html#ae2f423a6ec032d0cde29d8e3dd70efa9aaafcd972b9acb5a19b116a32cf8a2edc">flow_NUMoptions</a></div><div class="ttdeci">@ flow_NUMoptions</div><div class="ttdoc">request: convert Graph to DIL files</div><div class="ttdef"><b>Definition:</b> graph2dil.hpp:42</div></div>
 <div class="ttc" id="anamespacefz_html"><div class="ttname"><a href="namespacefz.html">fz</a></div><div class="ttdoc">On Ubuntu, to install the libpq libraries, including the libpq-fe.h header file, do: sudo apt-get ins...</div><div class="ttdef"><b>Definition:</b> apiclient.hpp:26</div></div>
 <div class="ttc" id="astandard_8hpp_html"><div class="ttname"><a href="standard_8hpp.html">standard.hpp</a></div><div class="ttdoc">This header file declares standard structures and functions that should be used with any standardized...</div></div>
-<div class="ttc" id="astructfzupdate_html"><div class="ttname"><a href="structfzupdate.html">fzupdate</a></div><div class="ttdef"><b>Definition:</b> fzupdate.hpp:58</div></div>
+<div class="ttc" id="astructfzupdate_html"><div class="ttname"><a href="structfzupdate.html">fzupdate</a></div><div class="ttdef"><b>Definition:</b> fzupdate.hpp:59</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

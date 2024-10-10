@@ -1,5 +1,5 @@
 <map id="fz::configurable" name="fz::configurable">
-<area shape="rect" id="node1" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="213,411,336,437"/>
+<area shape="rect" id="node1" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="213,436,336,463"/>
 <area shape="rect" id="node4" href="$classbp__configurable.html" title=" " alt="" coords="400,5,525,32"/>
 <area shape="rect" id="node5" href="$classfz_1_1fzpq__configurable.html" title=" " alt="" coords="384,56,541,83"/>
 <area shape="rect" id="node6" href="$classfzdsh__configurable.html" title=" " alt="" coords="391,107,535,133"/>
@@ -12,11 +12,12 @@
 <area shape="rect" id="node13" href="$classfzlh__configurable.html" title=" " alt="" coords="396,461,529,488"/>
 <area shape="rect" id="node14" href="$classfzlm__configurable.html" title=" " alt="" coords="393,512,532,539"/>
 <area shape="rect" id="node15" href="$classfzlt__configurable.html" title=" " alt="" coords="397,563,528,589"/>
-<area shape="rect" id="node16" href="$classfzs__configurable.html" title=" " alt="" coords="399,613,527,640"/>
-<area shape="rect" id="node17" href="$classfzsi__configurable.html" title=" " alt="" coords="397,664,529,691"/>
-<area shape="rect" id="node18" href="$classfzsl__configurable.html" title=" " alt="" coords="397,715,529,741"/>
-<area shape="rect" id="node19" href="$classfzu__configurable.html" title=" " alt="" coords="398,765,527,792"/>
-<area shape="rect" id="node20" href="$classg2d__configurable.html" title=" " alt="" coords="396,816,529,843"/>
-<area shape="rect" id="node2" href="$classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="29,385,141,412"/>
-<area shape="rect" id="node3" href="$classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="5,436,165,463"/>
+<area shape="rect" id="node16" href="$classfzmet__configurable.html" title=" " alt="" coords="389,613,536,640"/>
+<area shape="rect" id="node17" href="$classfzs__configurable.html" title=" " alt="" coords="399,664,527,691"/>
+<area shape="rect" id="node18" href="$classfzsi__configurable.html" title=" " alt="" coords="397,715,529,741"/>
+<area shape="rect" id="node19" href="$classfzsl__configurable.html" title=" " alt="" coords="397,765,529,792"/>
+<area shape="rect" id="node20" href="$classfzu__configurable.html" title=" " alt="" coords="398,816,527,843"/>
+<area shape="rect" id="node21" href="$classg2d__configurable.html" title=" " alt="" coords="396,867,529,893"/>
+<area shape="rect" id="node2" href="$classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="29,411,141,437"/>
+<area shape="rect" id="node3" href="$classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="5,461,165,488"/>
 </map>

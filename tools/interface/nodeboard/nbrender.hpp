@@ -150,6 +150,11 @@ struct nodeboard: public formalizer_standard_program {
 
     bool sort_by_subtree_times = false;
 
+    bool timeline = false;
+    time_t timeline_min_td = RTt_maxtime;
+    float timeline_stretch = 1.0;
+    float timeline_last_vh = 0.0;
+
     time_t t_before = 0;
 
     std::string progress_state_file;
@@ -285,6 +290,8 @@ struct nodeboard: public formalizer_standard_program {
     std::string with_and_without_inactive_Nodes_buttons() const;
 
     std::string get_list_nearterm_Nodes_url() const;
+
+    std::string into_grid(unsigned int row_idx, unsigned int col_idx, unsigned int span, const std::string & content) const;
 
 };
 

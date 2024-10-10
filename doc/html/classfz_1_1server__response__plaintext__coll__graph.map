@@ -1,0 +1,5 @@
+<map id="fz::server_response_plaintext" name="fz::server_response_plaintext">
+<area shape="rect" id="node1" title="A helpful class for server responses with plain text data." alt="" coords="22,155,171,196"/>
+<area shape="rect" id="node2" href="$classfz_1_1server__response__text.html" title="A helpful class for server responses with text data." alt="" coords="5,80,188,107"/>
+<area shape="rect" id="node3" href="$structfz_1_1http__header__data.html" title="A structure to collect HTTP header data and generate HTTP header strings." alt="" coords="19,5,175,32"/>
+</map>

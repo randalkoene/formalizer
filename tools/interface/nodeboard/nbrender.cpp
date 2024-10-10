@@ -73,11 +73,11 @@ nodeboard::nodeboard():
     graph_ptr(nullptr) {
 
     // Still available: ajkwxyYz
-    add_option_args += "RGgn:L:D:l:t:m:f:c:IZUi:F:u:H:TPO:e:b:M:Kp:B:N:C:r:S:Xo:";
+    add_option_args += "RGgn:L:D:l:t:m:f:c:IZUi:F:u:H:TPO:e:b:M:Kp:B:N:C:r:S:Xo:z:";
     add_usage_top += " [-R] [-G|-g] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
         " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-Z] [-U] [-i <topic_id>,...] [-F <substring>]"
         " [-u <up-to>] [-H <board-header>] [-T] [-P] [-O earlier|later] [-e <errors-list>] [-b <before>] [-M <multiplier>] [-p <progress-state-file>]"
-        " [-K] [-S <size-list>] [-B <topic-id>] [-N <near-term-days>] [-C <max-columns>] [-r <max-rows>] [-X] [-o <output-file|STDOUT>]";
+        " [-K] [-S <size-list>] [-B <topic-id>] [-N <near-term-days>] [-C <max-columns>] [-r <max-rows>] [-X] [-z <stretch-factor>] [-o <output-file|STDOUT>]";
 
     usage_head.push_back("Generate Kanban board representation of Nodes hierarchy.\n");
     usage_tail.push_back(
@@ -135,6 +135,7 @@ void nodeboard::usage_hook() {
         "    -C Max number of columns (default: 100), only in -G/-g modes.\n"
         "    -r Max number of rows (default: 100), in -G/-g or -D modes.\n"
         "    -X Fully expanded grid (do not minimize rows and columns)\n"
+        "    -z Place on timeline with specified stretch factor\n"
         "    -o Output to file (or STDOUT).\n"
         "       Default: /var/www/html/formalizer/test_node_card.html\n"
         "    -R Development test.\n"
@@ -354,6 +355,13 @@ bool nodeboard::options_hook(char c, std::string cargs) {
             return true;
         }
 
+        case 'z': {
+            timeline = true;
+            timeline_stretch = atof(cargs.c_str());
+            if (timeline_stretch <= 0.0) timeline_stretch = 1.0;
+            return true;
+        }
+
         case 'o': {
             output_path = cargs;
             return true;
@@ -512,6 +520,8 @@ bool nodeboard::make_options_pane(std::string & rendered_pane) {
         { "detect-tdorder", true_checked.at(detect_tdorder) },
         { "detect-tdfar", true_checked.at(detect_tdfar) },
         { "detect-tdbad", true_checked.at(detect_tdbad) },
+        { "timeline", true_checked.at(timeline) },
+        { "timeline-stretch", to_precision_string(timeline_stretch, 2) },
         { "highlighted-topic", "" },
         { "max-rows", std::to_string(max_rows) },
         { "max-columns", std::to_string(max_columns) },
@@ -958,11 +968,25 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
                 prereqs_str += "<p style=\"color:coral;\">No provides specified.</p>";
             }
         }
+
     }
     nodevars.emplace("node-prereqs", prereqs_str);
     nodevars.emplace("node-hrsapplied", hours_applied_str);
 
     nodevars.emplace("node-text", node_text);
+
+    // Placement on timeline option
+    std::string extra_style_str;
+    if (timeline) {
+        // position relative to the card itself, i.e. relative to min target date in line?
+        // or absolute, which is relative to the line container?
+        // or fixed, which is relative to the viewport?
+        timeline_last_vh = float(tdate - timeline_min_td)/float(RTt_oneday);
+        timeline_last_vh *= timeline_stretch;
+        if (timeline_last_vh<0.0) timeline_last_vh = 0.0;
+        extra_style_str = " style=\"top:"+to_precision_string(timeline_last_vh, 2)+"vh;position:absolute;\"";
+    }
+    nodevars.emplace("extra-style", extra_style_str);
 
     // For each node: Create a Kanban card and add it to the output HTML.
     if (progress_analysis) {
@@ -1381,6 +1405,11 @@ bool nodeboard::make_multi_column_board(const std::string & rendered_columns, te
     board.emplace("board-header", board_title);
     board.emplace("board-extra", board_title_extra);
     board.emplace("column-widths", column_widths);
+    if (timeline) {
+        board.emplace("column-bgcolor", "rgba(0,0,0,0.0)");
+    } else {
+        board.emplace("column-bgcolor", "var(--grid-bgoverlay)");
+    }
     if (!container_width.empty()) {
         board.emplace("container-width", container_width);
     }
@@ -1454,6 +1483,28 @@ std::string nodeboard::get_list_nearterm_Nodes_url() const {
     time_t t_limit = t_now + (7*86400); // one week out
     std::string nearterm_url("/cgi-bin/fzgraphsearch-cgi.py?completion_lower=0.0&completion_upper=0.99&hours_lower=0.01&hours_upper=999999.0&TD_upper="+TimeStampYmdHM(t_limit)+"&sup_min=0&subtree="+node_ptr->get_id_str());
     return nearterm_url;
+}
+
+std::string nodeboard::into_grid(unsigned int row_idx, unsigned int col_idx, unsigned int span, const std::string & content) const {
+    std::string to_grid = "<div style=\"grid-area: " // position: absolute; 
+        + std::to_string(row_idx+1) + " / "
+        + std::to_string(col_idx+1);
+    if (span > 1) {
+        to_grid += " / " + std::to_string(row_idx+1) + " / span "
+            + std::to_string(span);
+    }
+    to_grid += ";\">" + content + "</div>\n";
+
+    if (timeline) {
+        // using total width of column-container in Kanban_board.template.html
+        const unsigned long colpx = (250-5);
+        unsigned long width = span * colpx;
+        to_grid += "<div style=\"background-color:var(--grid-bgoverlay);position:absolute;top:"+to_precision_string(timeline_last_vh, 2);
+        to_grid += "vh;left:"+std::to_string(col_idx*colpx);
+        to_grid += "px;height:100px;width:"+std::to_string(width)+"px;\"></div>\n";
+    }
+
+    return to_grid;
 }
 
 bool node_board_render_random_test(nodeboard & nb) {
@@ -1857,17 +1908,19 @@ void show_grid_cropped_conditions(nodeboard & nb, Node_Grid & grid) {
     }
 }
 
-std::string into_grid(unsigned int row_idx, unsigned int col_idx, unsigned int span, const std::string & content) {
-    std::string to_grid = "<div style=\"grid-area: " // position: absolute; 
-        + std::to_string(row_idx+1) + " / "
-        + std::to_string(col_idx+1);
-    if (span > 1) {
-        to_grid += " / " + std::to_string(row_idx+1) + " / span "
-            + std::to_string(span);
+struct Node_Tree_earliest_td: public Node_Tree_Op {
+public:
+    time_t earliest_td = RTt_maxtime;
+
+public:
+    Node_Tree_earliest_td() {}
+    virtual void op(const Node& node) {
+        time_t t = const_cast<Node&>(node).effective_targetdate();
+        if ((t > 0) && (t < earliest_td)) {
+            earliest_td = t;
+        }
     }
-    to_grid += ";\">" + content + "</div>\n";
-    return to_grid;
-}
+};
 
 bool node_board_render_dependencies_tree(nodeboard & nb) {
     if (!nb.node_ptr) {
@@ -1875,6 +1928,12 @@ bool node_board_render_dependencies_tree(nodeboard & nb) {
     }
 
     Node_Grid grid(nb);
+
+    if (nb.timeline) {
+        Node_Tree_earliest_td NTetd_op;
+        grid.op(NTetd_op);
+        nb.timeline_min_td = NTetd_op.earliest_td;
+    }
 
     if (!nb.render_init()) {
         return false;
@@ -1925,7 +1984,7 @@ bool node_board_render_dependencies_tree(nodeboard & nb) {
                         continue;
                     }
                     if (!rendered_card.empty()) {
-                        rendered_grid += into_grid(element_ptr->row_pos, element_ptr->col_pos, element_ptr->span, rendered_card);
+                        rendered_grid += nb.into_grid(element_ptr->row_pos, element_ptr->col_pos, element_ptr->span, rendered_card);
                     }
                 }
             }
@@ -1992,7 +2051,7 @@ bool node_board_render_superiors_tree(nodeboard & nb) {
                         continue;
                     }
                     if (!rendered_card.empty()) {
-                        rendered_grid += into_grid(element_ptr->row_pos, element_ptr->col_pos, element_ptr->span, rendered_card);
+                        rendered_grid += nb.into_grid(element_ptr->row_pos, element_ptr->col_pos, element_ptr->span, rendered_card);
                     }
                 }
             }

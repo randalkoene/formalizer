@@ -1,3 +1,4 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classfz_1_1Graph__modifications.html" title="This data structure is the most efficient method to request a stack of Graph modifications." alt="" coords="5,5,181,32"/>
+<area shape="rect" id="node1" href="$classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="5,5,111,32"/>
+<area shape="rect" id="node2" href="$structfz_1_1Graphmod__data.html" title="This is the data structure used for elements of the request stack for Graph modification." alt="" coords="159,5,305,32"/>
 </map>

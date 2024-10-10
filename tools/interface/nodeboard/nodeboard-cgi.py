@@ -89,6 +89,8 @@ nnldepstotdate = form.getvalue('u')
 proposetdsolutions = form.getvalue('O')
 norepeated = form.getvalue('U')
 dodevelopmenttest = form.getvalue('R')
+timeline = form.getvalue('z')
+timeline_stretch = form.getvalue('zstretch')
 
 include_td_detect = ''
 if tdorder:
@@ -125,6 +127,12 @@ if progress_analysis:
     include_progress_analysis = ' -P'
 else:
     include_progress_analysis = ''
+if timeline:
+    if not timeline_stretch:
+        timeline_stretch = '1.0'
+    include_timeline = ' -z '+timeline_stretch
+else:
+    include_timeline = ''
 if highlight_topic:
     if highlight_topic != '':
         include_highlight_topic = ' -B %s' % highlight_topic
@@ -253,9 +261,9 @@ def show_node_dependencies_board():
     #       on STDOUT for ease of regenerating by reloading.
     outpath = '/var/www/webdata/formalizer/node_dependencies_kanban.html'
     if node_dependencies_tree:
-        thecmd = f"./nodeboard -G -n {node_dependencies} {include_dodevelopmenttest} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_norepeated} {include_progress_analysis} {include_proposetdsolutions} {include_td_detect} {include_subtree_sort} {include_highlight_topic} {include_max_columns} {include_max_rows} {include_days_near_highlight} -q -o {outpath}"
+        thecmd = f"./nodeboard -G -n {node_dependencies} {include_dodevelopmenttest} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_norepeated} {include_progress_analysis} {include_proposetdsolutions} {include_td_detect} {include_subtree_sort} {include_highlight_topic} {include_max_columns} {include_max_rows} {include_days_near_highlight} {include_timeline} -q -o {outpath}"
     elif node_superiors_tree:
-        thecmd = f"./nodeboard -g -n {node_dependencies} {include_dodevelopmenttest} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_norepeated} {include_progress_analysis} {include_proposetdsolutions} {include_td_detect} {include_subtree_sort} {include_highlight_topic} {include_max_columns} {include_max_rows} {include_days_near_highlight} -q -o {outpath}"
+        thecmd = f"./nodeboard -g -n {node_dependencies} {include_dodevelopmenttest} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_norepeated} {include_progress_analysis} {include_proposetdsolutions} {include_td_detect} {include_subtree_sort} {include_highlight_topic} {include_max_columns} {include_max_rows} {include_days_near_highlight} {include_timeline} -q -o {outpath}"
     else:
         thecmd = f"./nodeboard -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} -q -o {outpath}"
     success, res = try_command_call(thecmd, print_result=False)
@@ -313,7 +321,7 @@ def show_subtree_board():
     result_page_path = '/var/www/webdata/formalizer/%s' % result_file
     result_page_url = '/formalizer/data/%s' % result_file
     if progress_analysis:
-        thecmd = f"./nodeboard -D {subtree_list} {include_dodevelopmenttest} {include_threads} {include_norepeated} {include_nnldepstotdate} {include_max_rows} {include_days_near_highlight} {include_progress_analysis} {include_proposetdsolutions} {include_show_completed} -p {progress_state_path} -q -o {result_page_path} >{nodeboard_logfile} 2>&1 &"
+        thecmd = f"./nodeboard -D {subtree_list} {include_dodevelopmenttest} {include_threads} {include_norepeated} {include_nnldepstotdate} {include_max_rows} {include_days_near_highlight} {include_progress_analysis} {include_proposetdsolutions} {include_show_completed} {include_timeline} -p {progress_state_path} -q -o {result_page_path} >{nodeboard_logfile} 2>&1 &"
         success, res = try_command_call(thecmd, print_result=False)
         embed_in_html, embed_in_script = make_background_progress_monitor(progress_state_file, result_page_url)
         print(ANALYSIS_PROGRESS_PAGE % (embed_in_html, embed_in_script))

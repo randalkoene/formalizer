@@ -1,7 +1,7 @@
 <map id="fz::configbase" name="fz::configbase">
-<area shape="rect" id="node1" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="5,436,117,463"/>
-<area shape="rect" id="node2" href="$classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="173,411,295,437"/>
-<area shape="rect" id="node20" href="$classfz_1_1err__configbase.html" title=" " alt="" coords="165,461,303,488"/>
+<area shape="rect" id="node1" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="5,461,117,488"/>
+<area shape="rect" id="node2" href="$classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="173,436,295,463"/>
+<area shape="rect" id="node21" href="$classfz_1_1err__configbase.html" title=" " alt="" coords="165,487,303,513"/>
 <area shape="rect" id="node3" href="$classbp__configurable.html" title=" " alt="" coords="367,5,492,32"/>
 <area shape="rect" id="node4" href="$classfz_1_1fzpq__configurable.html" title=" " alt="" coords="351,56,508,83"/>
 <area shape="rect" id="node5" href="$classfzdsh__configurable.html" title=" " alt="" coords="357,107,501,133"/>
@@ -14,9 +14,10 @@
 <area shape="rect" id="node12" href="$classfzlh__configurable.html" title=" " alt="" coords="363,461,496,488"/>
 <area shape="rect" id="node13" href="$classfzlm__configurable.html" title=" " alt="" coords="360,512,499,539"/>
 <area shape="rect" id="node14" href="$classfzlt__configurable.html" title=" " alt="" coords="364,563,495,589"/>
-<area shape="rect" id="node15" href="$classfzs__configurable.html" title=" " alt="" coords="365,613,493,640"/>
-<area shape="rect" id="node16" href="$classfzsi__configurable.html" title=" " alt="" coords="363,664,495,691"/>
-<area shape="rect" id="node17" href="$classfzsl__configurable.html" title=" " alt="" coords="363,715,495,741"/>
-<area shape="rect" id="node18" href="$classfzu__configurable.html" title=" " alt="" coords="365,765,494,792"/>
-<area shape="rect" id="node19" href="$classg2d__configurable.html" title=" " alt="" coords="363,816,496,843"/>
+<area shape="rect" id="node15" href="$classfzmet__configurable.html" title=" " alt="" coords="356,613,503,640"/>
+<area shape="rect" id="node16" href="$classfzs__configurable.html" title=" " alt="" coords="365,664,493,691"/>
+<area shape="rect" id="node17" href="$classfzsi__configurable.html" title=" " alt="" coords="363,715,495,741"/>
+<area shape="rect" id="node18" href="$classfzsl__configurable.html" title=" " alt="" coords="363,765,495,792"/>
+<area shape="rect" id="node19" href="$classfzu__configurable.html" title=" " alt="" coords="365,816,494,843"/>
+<area shape="rect" id="node20" href="$classg2d__configurable.html" title=" " alt="" coords="363,867,496,893"/>
 </map>

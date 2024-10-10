@@ -91,14 +91,39 @@ $(function() {
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<a class="code" href="namespacefz.html#a95a7b508456ccb1691f487ed136d52d4">exit_status_code</a> <a class="code" href="namespacefz.html#ae1f8fda024c1d778ea48ace049e6406d">server_request_with_shared_data</a>(std::string segname, uint16_t port_number);</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;} <span class="comment">// namespace fz</span></div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;std::string strip_HTTP_header(<span class="keyword">const</span> std::string&amp; response_str);</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// __TCPCLIENT_HPP</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno"><a class="line" href="classfz_1_1http__GET__long.html">   62</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfz_1_1http__GET__long.html">http_GET_long</a> {</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    ssize_t data_start = -1;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keywordtype">size_t</span> content_length = 99999999;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordtype">bool</span> valid_response = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    std::string response_str;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordtype">bool</span> header_detected = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keywordtype">bool</span> chunked_transfer = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordtype">bool</span> html_content = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160; </div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <a class="code" href="classfz_1_1http__GET__long.html">http_GET_long</a>(<span class="keyword">const</span> std::string&amp; ipaddrstr, uint16_t port_number, <span class="keyword">const</span> std::string url);</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classfz_1_1http__GET__long.html#a03fa8fca41f39070994ccf77eea6bbf9">http_client_socket_request</a>(<span class="keyword">const</span> std::string&amp; request_str, <span class="keyword">const</span> std::string&amp; server_ip_address, uint16_t port_number);</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160; </div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    ssize_t http_find_header();</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;};</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160; </div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;} <span class="comment">// namespace fz</span></div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// __TCPCLIENT_HPP</span></div>
+<div class="ttc" id="aclassfz_1_1http__GET__long_html"><div class="ttname"><a href="classfz_1_1http__GET__long.html">fz::http_GET_long</a></div><div class="ttdef"><b>Definition:</b> tcpclient.hpp:62</div></div>
+<div class="ttc" id="aclassfz_1_1http__GET__long_html_a03fa8fca41f39070994ccf77eea6bbf9"><div class="ttname"><a href="classfz_1_1http__GET__long.html#a03fa8fca41f39070994ccf77eea6bbf9">fz::http_GET_long::http_client_socket_request</a></div><div class="ttdeci">bool http_client_socket_request(const std::string &amp;request_str, const std::string &amp;server_ip_address, uint16_t port_number)</div><div class="ttdoc">C sockets request function that can handle both Content-Length and Transfer-Encoding: chunked HTTP re...</div><div class="ttdef"><b>Definition:</b> tcpclient.cpp:171</div></div>
 <div class="ttc" id="aerror_8hpp_html"><div class="ttname"><a href="error_8hpp.html">error.hpp</a></div><div class="ttdoc">This header file declares error handling classes and functions for use with core Formalizer C++ code.</div></div>
 <div class="ttc" id="anamespacefz_html"><div class="ttname"><a href="namespacefz.html">fz</a></div><div class="ttdoc">On Ubuntu, to install the libpq libraries, including the libpq-fe.h header file, do: sudo apt-get ins...</div><div class="ttdef"><b>Definition:</b> apiclient.hpp:26</div></div>
 <div class="ttc" id="anamespacefz_html_a95a7b508456ccb1691f487ed136d52d4"><div class="ttname"><a href="namespacefz.html#a95a7b508456ccb1691f487ed136d52d4">fz::exit_status_code</a></div><div class="ttdeci">exit_status_code</div><div class="ttdoc">Standardized exit codes for the Formalizer environment.</div><div class="ttdef"><b>Definition:</b> error.hpp:105</div></div>
-<div class="ttc" id="anamespacefz_html_ae1f8fda024c1d778ea48ace049e6406d"><div class="ttname"><a href="namespacefz.html#ae1f8fda024c1d778ea48ace049e6406d">fz::server_request_with_shared_data</a></div><div class="ttdeci">exit_status_code server_request_with_shared_data(std::string segname, uint16_t port_number)</div><div class="ttdoc">Contact the server with the unique label of shared memory containing data for a Graph modification re...</div><div class="ttdef"><b>Definition:</b> tcpclient.cpp:106</div></div>
-<div class="ttc" id="anamespacefz_html_aefadca0ccb3cfd802ca2f7648e9cac25"><div class="ttname"><a href="namespacefz.html#aefadca0ccb3cfd802ca2f7648e9cac25">fz::client_socket_shmem_request</a></div><div class="ttdeci">bool client_socket_shmem_request(std::string request_str, std::string server_ip_address, uint16_t port_number, std::string &amp;response_str)</div><div class="ttdoc">A minimal TCP client communication function used to make the server aware of a request specified by d...</div><div class="ttdef"><b>Definition:</b> tcpclient.cpp:41</div></div>
+<div class="ttc" id="anamespacefz_html_ae1f8fda024c1d778ea48ace049e6406d"><div class="ttname"><a href="namespacefz.html#ae1f8fda024c1d778ea48ace049e6406d">fz::server_request_with_shared_data</a></div><div class="ttdeci">exit_status_code server_request_with_shared_data(std::string segname, uint16_t port_number)</div><div class="ttdoc">Contact the server with the unique label of shared memory containing data for a Graph modification re...</div><div class="ttdef"><b>Definition:</b> tcpclient.cpp:107</div></div>
+<div class="ttc" id="anamespacefz_html_aefadca0ccb3cfd802ca2f7648e9cac25"><div class="ttname"><a href="namespacefz.html#aefadca0ccb3cfd802ca2f7648e9cac25">fz::client_socket_shmem_request</a></div><div class="ttdeci">bool client_socket_shmem_request(std::string request_str, std::string server_ip_address, uint16_t port_number, std::string &amp;response_str)</div><div class="ttdoc">A minimal TCP client communication function used to make the server aware of a request specified by d...</div><div class="ttdef"><b>Definition:</b> tcpclient.cpp:42</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

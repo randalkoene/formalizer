@@ -72,36 +72,85 @@ $(function() {
 <div class="title">update_constraints Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+<div class="dynheader">
+Collaboration diagram for update_constraints:</div>
+<div class="dyncontent">
+<div class="center"><img src="structupdate__constraints__coll__graph.png" border="0" usemap="#aupdate__constraints_coll__map" alt="Collaboration graph"/></div>
+<map name="aupdate__constraints_coll__map" id="aupdate__constraints_coll__map">
+<area shape="rect" title=" " alt="" coords="5,171,152,197"/>
+<area shape="rect" href="structeps__data__vec.html" title="Initialized to one entry for each Node in the incomplete_repeating map." alt="" coords="23,81,134,108"/>
+<area shape="rect" title=" " alt="" coords="17,5,140,32"/>
+</map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a5daa225ac64b91c80b2e2e167af1ac8b"><td class="memItemLeft" align="right" valign="top"><a id="a5daa225ac64b91c80b2e2e167af1ac8b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set</b> (size_t num_nodes, unsigned long _chunks_req_total)</td></tr>
-<tr class="separator:a5daa225ac64b91c80b2e2e167af1ac8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aebf0681ec67895fa312a5f5f380863ea"><td class="memItemLeft" align="right" valign="top"><a id="aebf0681ec67895fa312a5f5f380863ea"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>update_constraints</b> (time_t _tpass)</td></tr>
+<tr class="separator:aebf0681ec67895fa312a5f5f380863ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56e543b3db4bad596399455a1ef14af4"><td class="memItemLeft" align="right" valign="top"><a id="a56e543b3db4bad596399455a1ef14af4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set</b> (<a class="el" href="namespacefz.html#ade8fd9836dfeac48419a3e0a89f0f8f2">targetdate_sorted_Nodes</a> *_incompleterepeating, <a class="el" href="structeps__data__vec.html">eps_data_vec</a> *_epsdata)</td></tr>
+<tr class="separator:a56e543b3db4bad596399455a1ef14af4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3ff9c0f6343525b223447a12c6b3970"><td class="memItemLeft" align="right" valign="top"><a id="ae3ff9c0f6343525b223447a12c6b3970"></a>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>find_farthest_ETD_FTD_VTD</b> ()</td></tr>
+<tr class="separator:ae3ff9c0f6343525b223447a12c6b3970"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa3eebc2a371e9447d55383a4c943ed55"><td class="memItemLeft" align="right" valign="top"><a id="aa3eebc2a371e9447d55383a4c943ed55"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_chunks_UTD_plus_to_t_limit</b> ()</td></tr>
+<tr class="separator:aa3eebc2a371e9447d55383a4c943ed55"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af46c41c1226016272a883643012f64ac"><td class="memItemLeft" align="right" valign="top"><a id="af46c41c1226016272a883643012f64ac"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_chunks_to_t_limit</b> ()</td></tr>
+<tr class="separator:af46c41c1226016272a883643012f64ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa306fbdb5d132b67ebe4a5112468c40b"><td class="memItemLeft" align="right" valign="top"><a id="aa306fbdb5d132b67ebe4a5112468c40b"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_num_UTD</b> ()</td></tr>
+<tr class="separator:aa306fbdb5d132b67ebe4a5112468c40b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28f4c597736c989983a1c1c02a77980a"><td class="memItemLeft" align="right" valign="top"><a id="a28f4c597736c989983a1c1c02a77980a"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_num_VTD</b> ()</td></tr>
+<tr class="separator:a28f4c597736c989983a1c1c02a77980a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1903818e46468f2b302d344c7933b4c3"><td class="memItemLeft" align="right" valign="top"><a id="a1903818e46468f2b302d344c7933b4c3"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_num_FTD_without_repeats</b> ()</td></tr>
+<tr class="separator:a1903818e46468f2b302d344c7933b4c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf447b7a924b3125589feef866bd9a14"><td class="memItemLeft" align="right" valign="top"><a id="acf447b7a924b3125589feef866bd9a14"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_num_ETD_without_repeats</b> ()</td></tr>
+<tr class="separator:acf447b7a924b3125589feef866bd9a14"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a9e5fe5ff677d4c58e4b284570f78c1"><td class="memItemLeft" align="right" valign="top"><a id="a1a9e5fe5ff677d4c58e4b284570f78c1"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_num_ITD</b> ()</td></tr>
+<tr class="separator:a1a9e5fe5ff677d4c58e4b284570f78c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2772960d608c3db1bf68097db0acc089"><td class="memItemLeft" align="right" valign="top"><a id="a2772960d608c3db1bf68097db0acc089"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>numstr_in_col</b> (size_t num)</td></tr>
+<tr class="separator:a2772960d608c3db1bf68097db0acc089"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a09c960ab0bab92448da1ed0ad6e74eb1"><td class="memItemLeft" align="right" valign="top"><a id="a09c960ab0bab92448da1ed0ad6e74eb1"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>str</b> ()</td></tr>
 <tr class="separator:a09c960ab0bab92448da1ed0ad6e74eb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
+<tr class="memitem:a7f66977bb6a163efa316ef01e9dc0459"><td class="memItemLeft" align="right" valign="top"><a id="a7f66977bb6a163efa316ef01e9dc0459"></a>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>t_pass</b> = RTt_unspecified</td></tr>
+<tr class="separator:a7f66977bb6a163efa316ef01e9dc0459"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a895c7e4d3cdf779611e08026d59e04a5"><td class="memItemLeft" align="right" valign="top"><a id="a895c7e4d3cdf779611e08026d59e04a5"></a>
 time_t&#160;</td><td class="memItemRight" valign="bottom"><b>t_fetchlimit</b> = RTt_maxtime</td></tr>
 <tr class="separator:a895c7e4d3cdf779611e08026d59e04a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad7933011a74c1c2988c989046dcc3a04"><td class="memItemLeft" align="right" valign="top"><a id="ad7933011a74c1c2988c989046dcc3a04"></a>
-unsigned long&#160;</td><td class="memItemRight" valign="bottom"><b>chunks_per_week</b> = seconds_per_week / (20*60)</td></tr>
-<tr class="separator:ad7933011a74c1c2988c989046dcc3a04"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab4307fd5338825ce98fb5a7738d4bd73"><td class="memItemLeft" align="right" valign="top"><a id="ab4307fd5338825ce98fb5a7738d4bd73"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><b>num_nodes_with_repeating</b> = 0</td></tr>
 <tr class="separator:ab4307fd5338825ce98fb5a7738d4bd73"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abdc78deb406b4093ec92af2527d1b686"><td class="memItemLeft" align="right" valign="top"><a id="abdc78deb406b4093ec92af2527d1b686"></a>
 unsigned long&#160;</td><td class="memItemRight" valign="bottom"><b>chunks_req_total</b> = 0</td></tr>
 <tr class="separator:abdc78deb406b4093ec92af2527d1b686"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7933011a74c1c2988c989046dcc3a04"><td class="memItemLeft" align="right" valign="top"><a id="ad7933011a74c1c2988c989046dcc3a04"></a>
+unsigned long&#160;</td><td class="memItemRight" valign="bottom"><b>chunks_per_week</b> = seconds_per_week / (20*60)</td></tr>
+<tr class="separator:ad7933011a74c1c2988c989046dcc3a04"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab856bb5ac2474454ab2c6f06e633b2af"><td class="memItemLeft" align="right" valign="top"><a id="ab856bb5ac2474454ab2c6f06e633b2af"></a>
 unsigned long&#160;</td><td class="memItemRight" valign="bottom"><b>weeks_for_nonperiodic</b> = 0</td></tr>
 <tr class="separator:ab856bb5ac2474454ab2c6f06e633b2af"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7678a4d278f04ddc69ee4f602deb5a66"><td class="memItemLeft" align="right" valign="top"><a id="a7678a4d278f04ddc69ee4f602deb5a66"></a>
 unsigned long&#160;</td><td class="memItemRight" valign="bottom"><b>days_in_map</b> = 0</td></tr>
 <tr class="separator:a7678a4d278f04ddc69ee4f602deb5a66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f7f46bb007814c4edeb14fb26186c9e"><td class="memItemLeft" align="right" valign="top"><a id="a3f7f46bb007814c4edeb14fb26186c9e"></a>
+<a class="el" href="namespacefz.html#ade8fd9836dfeac48419a3e0a89f0f8f2">targetdate_sorted_Nodes</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>incomplete_repeating_ptr</b> = nullptr</td></tr>
+<tr class="separator:a3f7f46bb007814c4edeb14fb26186c9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf264413426fd52b0b6df91c4d135444"><td class="memItemLeft" align="right" valign="top"><a id="adf264413426fd52b0b6df91c4d135444"></a>
+<a class="el" href="structeps__data__vec.html">eps_data_vec</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>epsdata_ptr</b> = nullptr</td></tr>
+<tr class="separator:adf264413426fd52b0b6df91c4d135444"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li>core/fzupdate/fzupdate.cpp</li>
