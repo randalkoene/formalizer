@@ -299,7 +299,7 @@ width: max-content;
 .chktop { 
 background-color: var(--color-chktop);
 }
-table tr.chktop { background-color: var(--color-chktop); }
+table tr.chktop > td { background-color: var(--color-chktop); }
 a.node:link {color: var(--tr-fg); text-decoration:none;}
 a.node:visited {color: var(--tr-fg); text-decoration:none;}
 a.node:hover {color: black; text-decoration:underline; background-color:#55db50;}

@@ -98,6 +98,7 @@ exercises = {
     'squats': [ 'squats', ],
     'climbing': [ 'minutes', ],
     'balance board': [ 'minutes', ],
+    'leg elastic': [ 'minutes', ],
 }
 
 # ====================== Debug helpers:

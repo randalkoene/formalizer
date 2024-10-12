@@ -1,6 +1,14 @@
 <tr>
 <td>
-<h3>Node ID: <b>{{ node-id }}</b> [<a href="/cgi-bin/fzgraphhtml-cgi.py?edit={{ node-id }}">edit</a>] [<a href="http://{{ fzserverpq }}/fz/graph/namedlists/_select?id={{ node-id }}">select</a>] [<a href="/cgi-bin/fzgraphhtml-cgi.py?id={{ node-id }}&srclist=">list</a>] [<a href="/cgi-bin/fzloghtml-cgi.py?startfrom={{ T_context }}&daysinterval=3">temporal context</a>] [<a href="http://localhost/cgi-bin/nodeboard-cgi.py?n={{ node-id }}">dependencies</a>] [<a href="http://localhost/cgi-bin/nodeboard-cgi.py?G=true&n={{ node-id }}&I=true&T=true">dependencies tree</a>] [<a href="http://localhost/cgi-bin/nodeboard-cgi.py?g=true&n={{ node-id }}&I=true&T=true">superiors tree</a>]
+<h3>Node ID: <b>{{ node-id }}</b>
+	[<a class="nnl" href="/cgi-bin/fzgraphhtml-cgi.py?edit={{ node-id }}">edit</a>]
+	[<a class="nnl" href="http://{{ fzserverpq }}/fz/graph/namedlists/_select?id={{ node-id }}">select</a>]
+	[<a class="nnl" href="/cgi-bin/fzlog-cgi.py?action=open&node={{ node-id }}" target="_blank">do</a>]
+	[<a class="nnl" href="/cgi-bin/fzgraphhtml-cgi.py?id={{ node-id }}&srclist=">list</a>]
+	[<a class="nnl" href="/cgi-bin/fzloghtml-cgi.py?startfrom={{ T_context }}&daysinterval=3">temporal context</a>]
+	[<a class="nnl" href="http://localhost/cgi-bin/nodeboard-cgi.py?n={{ node-id }}">dependencies</a>]
+	[<a class="nnl" href="http://localhost/cgi-bin/nodeboard-cgi.py?G=true&n={{ node-id }}&I=true&T=true">dependencies tree</a>]
+	[<a class="nnl" href="http://localhost/cgi-bin/nodeboard-cgi.py?g=true&n={{ node-id }}&I=true&T=true">superiors tree</a>]
 <button class="button button1" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new&tosup={{ node-id }}');">mkwsup</button></h3>
 </td>
 </tr>
@@ -44,6 +52,6 @@ Dependencies:
 <tr>
 <td>
 <hr>
-[<a href="/cgi-bin/fzlink.py?id={{ node-id }}&alt=hist50">node history</a>]
+[<a class="nnl" href="/cgi-bin/fzlink.py?id={{ node-id }}&alt=hist50">node history</a>]
 </td>
 </tr>

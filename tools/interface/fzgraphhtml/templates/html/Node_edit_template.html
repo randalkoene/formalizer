@@ -1,6 +1,6 @@
 <tr>
 <td><form action="/cgi-bin/fzedit-cgi.py" method="post">
-<h3>Node ID: <b><a href="/cgi-bin/fzlink.py?id={{ node-id }}">{{ node-id }}</a></b></h3>
+<h3>Node ID: <b><a class="nnl" href="/cgi-bin/fzlink.py?id={{ node-id }}">{{ node-id }}</a></b></h3>
 <input type="submit" name="action" value="modify"><input type="hidden" name="id" value="{{ node-id }}">
 (verbose: <input type="checkbox" name="verbosity" value="verbose">) {{ td_update_skip }}
 </td>
@@ -43,7 +43,7 @@ Defs.: inherit = must inherit from superior; variable = auto-updateable; fixed =
 </tr>
 <tr>
 <td class="paramtitle">Every: </td><td><input type="number" name="every" min="1" step="1" value="{{ td_every }}"><br>&nbsp; </td><td class="paramtitle">Span: <input type="number" name="span" min="0" step="1" value="{{ td_span }}">
-| <small>[<a href="/cgi-bin/fzupdate-cgi.py?update=breakeps&T_pass={{ eff_td }}">break up {{ eff_td }} EPS group]</a></small><br>&nbsp;</td>
+| <small>[<a class="nnl" href="/cgi-bin/fzupdate-cgi.py?update=breakeps&T_pass={{ eff_td }}">break up {{ eff_td }} EPS group]</a></small><br>&nbsp;</td>
 </tr>
 <tr>
 <td class="paramtitle">Completion: </td><td><input type="number" name="comp" min="-4.0" max="1.0" step="0.01" value="{{ comp }}"><br>&nbsp; </td><td>Set completed: <input type="checkbox" name="set_complete"> | Hours required to complete: {{ hrs_to_complete }}<br>
@@ -68,7 +68,7 @@ Special codes: -1 = obsolete, -2 = replaced, -3 = done differently, -4 = no long
 <tr>
 <td>
 <hr>
-Topics: {{ topics }} [<a href="/cgi-bin/fzgraphhtml-cgi.py?topics=?&to-node={{ node-id }}">add</a>]
+Topics: {{ topics }} [<a class="nnl" href="/cgi-bin/fzgraphhtml-cgi.py?topics=?&to-node={{ node-id }}">add</a>]
 </td>
 </tr>
 <tr>
@@ -84,7 +84,7 @@ In NNLs: {{ NNLs }}
 <tr>
 <td>
 <hr>
-Superiors: [<a href="http://{{ fzserverpq }}/fz/graph/nodes/{{ node-id }}/superiors/addlist?superiors=">add from superiors NNL</a>] <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=superiors">superiors</a> (Importance parameter determines Threads column.)
+Superiors: [<a class="nnl" href="http://{{ fzserverpq }}/fz/graph/nodes/{{ node-id }}/superiors/addlist?superiors=">add from superiors NNL</a>] <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=superiors">superiors</a> (Importance parameter determines Threads column.)
 <ol>
 {{ superiors }}
 </ol>
@@ -92,7 +92,7 @@ Superiors: [<a href="http://{{ fzserverpq }}/fz/graph/nodes/{{ node-id }}/superi
 </tr>
 <tr>
 <td>
-Dependencies: [<a href="http://{{ fzserverpq }}/fz/graph/nodes/{{ node-id }}/dependencies/addlist?dependencies=">add from dependencies NNL</a>] <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=dependencies">dependencies</a>
+Dependencies: [<a class="nnl" href="http://{{ fzserverpq }}/fz/graph/nodes/{{ node-id }}/dependencies/addlist?dependencies=">add from dependencies NNL</a>] <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=dependencies">dependencies</a>
 <ol>
 {{ dependencies }}
 </ol>
@@ -101,6 +101,6 @@ Dependencies: [<a href="http://{{ fzserverpq }}/fz/graph/nodes/{{ node-id }}/dep
 <tr>
 <td>
 <hr>
-[<a href="/cgi-bin/fzlink.py?id={{ node-id }}&alt=hist50">node history</a>]
+[<a class="nnl" href="/cgi-bin/fzlink.py?id={{ node-id }}&alt=hist50">node history</a>]
 </td>
 </tr>
