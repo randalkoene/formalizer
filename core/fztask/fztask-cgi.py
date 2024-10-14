@@ -228,6 +228,12 @@ td.stateinfo {
 </style>
 </head>
 <body>
+<script type="text/javascript" src="/stateoflog.js"></script>
+<script type="text/javascript" src="/closeonlogstatechange.js"></script>
+<script>
+const close_on_log_state_change = new closeOnLogStateChange();
+</script>
+
 <h1>fz: Task</h1>
 
 <p>T = %s (%s minutes since Log chunk opening)</p>

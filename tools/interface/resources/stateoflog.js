@@ -57,7 +57,10 @@ logstate.onreadystatechange = function() {
 
 class logState {
 
-	constructor(logstate_id = 'logstate', autostart = true) {
+	constructor(logstate_id = 'logstate', autostart = true, make_state_element = true, check_interval_s = 60, run_func = null) {
+        this.make_state_element = make_state_element;
+        this.check_interval_s = check_interval_s;
+        this.run_func = run_func;
         this.intervaltask = null;
         this.stateoflog = [];
         this.stateoflogelement = this.getStateOfLogElement(logstate_id);
@@ -70,7 +73,7 @@ class logState {
 
     getStateOfLogElement(logstate_id) {
         var stateoflogelement = document.getElementById(logstate_id);
-        if (stateoflogelement == null) {
+        if ((stateoflogelement == null) && (this.make_state_element)) {
             console.log('Making stateoflog element');
             stateoflogelement = this.makeStateOfLogElement(logstate_id);
         }
@@ -92,6 +95,9 @@ class logState {
 		// because the call via logstate is asynchronous.
 		if (stateoflog.length >= 2) {
 			this.stateoflog = stateoflog;
+            if (this.run_func) {
+                this.run_func(this);
+            }
 		}
     }
 
@@ -101,8 +107,10 @@ class logState {
             return;
         }
         this.updateStateOfLog();
-        this.intervaltask = setInterval(this.updateStateOfLog.bind(this), 60000); // every minute
+        this.intervaltask = setInterval(this.updateStateOfLog.bind(this), this.check_interval_s*1000);
         console.log('logState started');
     }
 
 };
+
+//export { logState };
