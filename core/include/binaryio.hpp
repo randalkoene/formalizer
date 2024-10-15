@@ -15,6 +15,8 @@
 
 // std
 #include <fstream>
+#include <set>
+#include <tuple>
 
 // core (needed here for exit_status_code)
 #include "error.hpp"
@@ -41,6 +43,24 @@ public:
  * @return true if the read into buffer was successful.
  */
 bool file_to_buffer(std::string path, std::vector<char> & buf, std::ifstream::iostate * readstate = nullptr);
+
+enum path_test_result: int {
+  path_does_not_exist = -1,
+  path_is_file = 0,
+  path_is_directory = 1,
+  path_is_symlink = 2,
+  path_is_unknown_type = 3,
+};
+
+path_test_result path_test(const std::string& path);
+
+struct directory_content {
+  std::string filename;
+  path_test_result type = path_is_unknown_type;
+  directory_content(const std::string& _filename, path_test_result _type): filename(_filename), type(_type) {}
+};
+
+std::tuple<std::set<std::string>, std::set<std::string>, std::set<std::string>> get_directory_content(const std::string& path);
 
 } // namespace fz
 

@@ -12,6 +12,7 @@
 #include <cstring>
 #include <stdio.h>
 #include <stdlib.h>
+#include <tuple>
 
 // core
 #include "error.hpp"
@@ -113,6 +114,44 @@ bool file_to_buffer(std::string path, std::vector<char> & buf, std::ifstream::io
     memcpy(cbuf,buf.data(),ifs_size);
     FZOUT("CAME BACK FROM READ\n"); base.out->flush();
     return res; */
+}
+
+path_test_result path_test(const std::string& path) {
+    if (!std::filesystem::exists(path)) {
+        return path_does_not_exist;
+    }
+
+    if (std::filesystem::is_regular_file(path)) {
+        return path_is_file;
+    }
+
+    if (std::filesystem::is_symlink(path)) {
+        return path_is_symlink;
+    }
+
+    if (std::filesystem::is_directory(path)) {
+        return path_is_directory;
+    }
+
+    return path_is_unknown_type;
+}
+
+std::tuple<std::set<std::string>, std::set<std::string>, std::set<std::string>> get_directory_content(const std::string& path) {
+    std::set<std::string> files;
+    std::set<std::string> directories;
+    std::set<std::string> symlinks;
+
+    for (const auto & entry : std::filesystem::directory_iterator(path)) {
+        if (entry.is_regular_file()) {
+            files.insert(entry.path().filename().string());
+        } else if (entry.is_symlink()) {
+            symlinks.insert(entry.path().filename().string());
+        } else {
+            directories.insert(entry.path().filename().string());
+        }
+    }
+
+    return std::make_tuple(files, directories, symlinks);
 }
 
 } // namespace fz

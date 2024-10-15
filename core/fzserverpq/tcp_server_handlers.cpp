@@ -2049,6 +2049,18 @@ bool handle_fz_vfs_request(int new_socket, const std::string & fzrequesturl) {
     return false;
 }
 
+std::string add_to_path(const std::string& path, const std::string& add) {
+    if (path.empty()) {
+        return add;
+    }
+
+    if (path.back() == '/') {
+        return path + add;
+    }
+
+    return path + '/' + add;
+}
+
 /**
  * Translate a url into a file path by doing the following:
  * 1. Compare the first part of the path (up to the first '/') with defined roots.
@@ -2086,14 +2098,48 @@ void direct_tcpport_api_file_serving(int new_socket, const std::string & url) {
         }
     }
 
-    //uninitialized_buffer buf;
-    std::vector<char> buf;
-    if (file_to_buffer(file_path, buf)) {
+    auto path_type = path_test(file_path);
 
-        server_response_binary srvbin(file_path, buf.data(), buf.size());
-        if (srvbin.respond(new_socket)>0) {
-            return;
+    if (path_type == path_is_file) {
+
+        //uninitialized_buffer buf;
+        std::vector<char> buf;
+        if (file_to_buffer(file_path, buf)) {
+
+            server_response_binary srvbin(file_path, buf.data(), buf.size());
+            if (srvbin.respond(new_socket)>0) {
+                return;
+            }
+
         }
+
+    } else if (path_type == path_is_directory) {
+
+        auto [files, directories, symlinks] = get_directory_content(file_path);
+
+        std::string response_html = standard_HTML_header("fz: Directory: "+file_path);
+
+        for (auto& directory : directories) {
+            std::string newurl(add_to_path(url, directory));
+            response_html += "[dir] <a href=\""+newurl+"\" target=\"blank\">"+directory+"</a><br>";
+        }
+
+        for (auto& symlink : symlinks) {
+            std::error_code ec;
+            std::string targetpath = std::filesystem::read_symlink(symlink, ec).string();
+            if (!targetpath.empty()) {
+                response_html += "[symlink] <a href=\""+targetpath+"\" target=\"blank\">"+symlink+"</a><br>";
+            }
+        }
+
+        for (auto& file : files) {
+            std::string newurl(add_to_path(url, file));
+            response_html += "<a href=\""+newurl+"\" target=\"blank\">"+file+"</a><br>";
+        }
+
+        handle_request_response(new_socket, response_html, "Directory contents returned");
+
+        return;
 
     }
 
