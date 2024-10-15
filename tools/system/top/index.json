@@ -95,7 +95,7 @@
             "window" : "_blank"
         },
         "Bibliography": {
-            "url" : "http://{{ fzserverpq }}/download/papers/bibliography.html",
+            "url" : "http://{{ fzserverpq }}/doc/html/planning/bibliography.html",
             "window" : "_blank"
         },
         "Legacy": {
