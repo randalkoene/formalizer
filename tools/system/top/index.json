@@ -94,6 +94,10 @@
             "url" : "/locations.html",
             "window" : "_blank"
         },
+        "Bibliography": {
+            "url" : "http://{{ fzserverpq }}/download/papers/bibliography.html",
+            "window" : "_blank"
+        },
         "Legacy": {
             "url" : "/legacy.html",
             "window" : "_blank"
