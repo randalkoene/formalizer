@@ -1694,7 +1694,35 @@ bool handle_node_direct_request(std::string nodereqstr, std::string & response_h
     return standard_error("No known request token found: "+nodereqstr, __func__);
 }
 
+/**
+ * Turns a list of strings into a response in a specified format.
+ * E.g. see how this is used in handle_named_list_direct_request().
+ */
+bool handle_list_of_strings(const std::vector<std::string>& strings_in_list, const std::string& ext, std::string& response_html) {
+    if (ext == "json") {
+        if (strings_in_list.empty()) {
+            response_html += "[]";
+            return true;
+        }
+
+        response_html += '[';
+        for (const auto& s : strings_in_list) {
+            response_html += '"' + s + "\",";
+        }
+        response_html.back() = ']';
+        return true;
+    } else if (ext == "raw") {
+        for (const auto& s : strings_in_list) {
+            response_html += s + '\n';
+        }
+        return true;
+    }
+
+    return standard_error("Unknown NNL content extension "+ext, __func__);
+}
+
 /** Examples:
+ *    /fz/graph/namedlists/selected.<json|raw>
  *    /fz/graph/namedlists/threads?add=20230912080006.1
  *    /fz/graph/namedlists/threads?remove=20230912080006.1
  *    /fz/graph/namedlists/superiors?delete=
@@ -1737,6 +1765,30 @@ bool handle_named_list_direct_request(std::string namedlistreqstr, std::string &
                     // nothing to do here
                 }
             }
+        } else { // handle NNL content requests (e.g. /fz/graph/namedlists/selected.json)
+
+            size_t name_endpos = namedlistreqstr.find('.');
+            if (name_endpos != std::string::npos) {
+
+                if (name_endpos == 0) {
+                    return standard_error("Request has zero-length Named Node List name or special request identifier.", __func__);
+                }
+
+                std::string list_name(namedlistreqstr.substr(0,name_endpos));
+                std::string ext(namedlistreqstr.substr(name_endpos+1));
+
+                Named_Node_List_ptr namedlist_ptr = fzs.graph_ptr->get_List(list_name);
+                if (!namedlist_ptr) {
+                    return standard_error("Named Node List "+list_name+" not found.", __func__);
+                }
+                std::vector<std::string> nodes_in_list;
+                for (const auto & nkey: namedlist_ptr->list) {
+                    nodes_in_list.emplace_back(nkey.str());
+                }
+                return handle_list_of_strings(nodes_in_list, ext, response_html);
+
+            }
+
         }
 
         return standard_error("Unrecognized Named Node List special request identifier: "+namedlistreqstr, __func__);

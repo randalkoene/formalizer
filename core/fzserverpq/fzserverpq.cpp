@@ -106,6 +106,7 @@ The GET/PATCH port API includes the following:
   /fz/graph/nodes/<node-id>/dependencies/<add|remove>?<node-id>=
   /fz/graph/nodes/<node-id>/dependencies/addlist?<dependencies|<list-name>>=
 
+  /fz/graph/namedlists/<list-name>.<json|raw>
   /fz/graph/namedlists/<list-name>?add=<node-id>[&FEATURES/MAXSIZE]
   /fz/graph/namedlists/<list-name>?remove=<node-id>
   /fz/graph/namedlists/<list-name>?delete=
