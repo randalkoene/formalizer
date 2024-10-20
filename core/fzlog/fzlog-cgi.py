@@ -378,7 +378,7 @@ def try_subprocess_check_output(thecmdstring: str, resstore: str, verbosity=1, p
             if print_result:
                 print(errstr)
             else:
-                result['stderr'] += errstr
+                results['stderr'] += errstr
         return cpe.returncode
     else:
         if resstore:
@@ -651,11 +651,7 @@ CHUNK_MODIFY_PAGE = '''<html>
 <title>fz: Log - Modify Chunk %s</title>
 </head>
 <body>
-<style type="text/css">
-.chktop {
-    background-color: #B0C4F5;
-}
-</style>
+<script type="text/javascript" src="/fzuistate.js"></script>
 
 <h1>fz: Log - Modify Chunk %s</h1>
 
@@ -693,7 +689,6 @@ Change Close timestamp to:<br>
 <b>Please note</b>: To change open or close time of a Log chunk, there must be room in the timeline. An adjacent Log chunk may need to be modified first.
 
 <hr>
-<script type="text/javascript" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -705,14 +700,11 @@ GENERIC_ERROR_PAGE = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Log - Generic Call Failed</title>
 </head>
 <body>
-<style type="text/css">
-.chktop {
-    background-color: #B0C4F5;
-}
-</style>
+<script type="text/javascript" src="/fzuistate.js"></script>
 
 <b>Attempted command</b>:
 <p>
@@ -743,14 +735,11 @@ GENERIC_SUCCESS_PAGE = '''<html>
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Log - Generic Call Succeeded</title>
 </head>
 <body>
-<style type="text/css">
-.chktop {
-    background-color: #B0C4F5;
-}
-</style>
+<script type="text/javascript" src="/fzuistate.js"></script>
 
 <b>Command</b>:
 <p>
@@ -789,11 +778,11 @@ def generic_fzlog_call(form):
     thecmd = './fzlog '+argstr
     retcode = try_subprocess_check_output(thecmd, 'stdout', print_result=False)
     try:
-        decoded_result = result['stdout'].decode()
+        decoded_result = results['stdout'].decode()
     except:
-        decoded_result = str(result['stdout'])
+        decoded_result = str(results['stdout'])
     if (retcode != 0):
-        print(GENERIC_ERROR_PAGE % (thecmd, decoded_result, resultdict['stderr']))
+        print(GENERIC_ERROR_PAGE % (thecmd, decoded_result, results['stderr']))
         sys.exit(0)
 
     # 3. Present the result.

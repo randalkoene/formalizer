@@ -83,7 +83,9 @@
      </div>
   </section>
 
+<H1>Test: Get NNL Content</H1>
 
+<div id="nnldata"></div>
 
 <script>
 const fill = document.querySelector(".timerBarFill");
@@ -118,5 +120,51 @@ function calcHeight(time) {
   
 }
 </script>
+
+<script type="text/javascript">
+    // Testing retrieval of selected Node via fzserverpq TCP API.
+    fetch('http://127.0.0.1:8090/fz/graph/namedlist/promises.raw', {
+        mode: 'no-cors'
+    })
+    .then(response => {
+      console.log(`NNL content response: ${response}`);
+    })
+    .catch(error => console.error(error));
+    // var nnlcontent = new XMLHttpRequest();
+    // nnlcontent.onreadystatechange = function() {
+    //     if (this.readyState == 4) {
+    //         if (this.status == 200) {
+    //             console.log(`NNL content response: ${nnlcontent.response}`);
+    //             var content = nnlcontent.responseText;
+    //             const lines = content.split('\n');
+    //             var emptylines = 0;
+    //             var skiplines = 0;
+    //             for (let i = 0; i < lines.length; ++i) {
+    //                 if ((lines[i] == '\r') || (lines[i] == '')) {
+    //                     emptylines += 1;
+    //                     if (emptylines >= 2) {
+    //                         skiplines = i+1;
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //             if (emptylines < 2) {
+    //                 console.error('No data content.');
+    //             } else {
+    //                 nnldata_ref = document.getElementById("nnldata");
+    //                 nnldata_ref.innerHTML = '';
+    //                 for (let i = skiplines; i < lines.length; ++i) {
+    //                     nnldata_ref.innerHTML += lines[i]+'<br>';
+    //                 }
+    //             }
+    //         } else {
+    //             console.error('NNL content loading failed.');
+    //         }
+    //     }
+    // }
+    // nnlcontent.open('GET', 'http://127.0.0.1:8090/fz/graph/namedlist/promises.raw');
+    // nnlcontent.send();
+</script>
+
 </body>
 </html>
