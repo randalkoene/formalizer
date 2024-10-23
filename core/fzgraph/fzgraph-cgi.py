@@ -235,11 +235,17 @@ def try_call_command(thecmd: str, print_result=True)->bool:
         try:
             resultdict['stdout'] = result.decode()
         except:
-            resultdict['stdout'] = '(failed to decode stdout)'
+            try:
+                resultdict['stdout'] = str(result)
+            except Exception as e:
+                resultdict['stdout'] = '(failed to decode stdout) : '+str(e)
         try:
             resultdict['stderr'] = err.decode()
         except:
-            resultdict['stderr'] = '(failed to decode stderr)'
+            try:
+                resultdict['stderr'] = str(err)
+            except Exception as e:
+                resultdict['stderr'] = '(failed to decode stderr) : '+str(e)
         if print_result:
             print('<!-- begin: call output --><pre>')
             print(result)
@@ -506,6 +512,8 @@ GENERIC_SUCCESS_PAGE = '''<html>
 '''
 
 def generic_fzgraph_call(form):
+    # 0. Detect minimal output request
+    minimal = form.getvalue('minimal')
     # 1. Collect all variables and their values and transform them to fzgraph arguments.
     cgi_keys = list(form.keys())
     argpairs = []
@@ -514,7 +522,7 @@ def generic_fzgraph_call(form):
     argstr = ''
     for argpair in argpairs:
         arg, argval = argpair
-        if arg != 'action':
+        if arg != 'action' and arg != 'minimal':
             if argval=='true':
                 argstr += ' -%s' % arg
             else:
@@ -527,7 +535,10 @@ def generic_fzgraph_call(form):
         sys.exit(0)
 
     # 3. Present the result.
-    print(GENERIC_SUCCESS_PAGE % (thecmd, resultdict['stdout']))
+    if minimal:
+        print(resultdict['stdout'])
+    else:
+        print(GENERIC_SUCCESS_PAGE % (thecmd, resultdict['stdout']))
 
 if __name__ == '__main__':
     if help:

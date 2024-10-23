@@ -122,14 +122,22 @@ function calcHeight(time) {
 </script>
 
 <script type="text/javascript">
-    // Testing retrieval of selected Node via fzserverpq TCP API.
-    fetch('http://127.0.0.1:8090/fz/graph/namedlist/promises.raw', {
-        mode: 'no-cors'
+    fetch('/cgi-bin/fzgraph-cgi.py?action=generic&C=/fz/graph/namedlists/promises.json&o=STDOUT&q=true&minimal=true', {
+      mode: 'no-cors'
     })
-    .then(response => {
-      console.log(`NNL content response: ${response}`);
+    .then(response => response.text())
+    .then(data => {
+      console.log(`NNL content response: ${data}`);
+      nnldata_ref = document.getElementById("nnldata");
+      nnldata_ref.innerHTML = data;
     })
-    .catch(error => console.error(error));
+    // fetch('http://127.0.0.1:8090/fz/graph/namedlists/promises.json', {
+    //     mode: 'no-cors'
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //   console.log(`NNL content response: ${data}`);
+    // });
     // var nnlcontent = new XMLHttpRequest();
     // nnlcontent.onreadystatechange = function() {
     //     if (this.readyState == 4) {
@@ -162,7 +170,7 @@ function calcHeight(time) {
     //         }
     //     }
     // }
-    // nnlcontent.open('GET', 'http://127.0.0.1:8090/fz/graph/namedlist/promises.raw');
+    // nnlcontent.open('GET', 'http://127.0.0.1:8090/fz/graph/namedlists/promises.raw');
     // nnlcontent.send();
 </script>
 

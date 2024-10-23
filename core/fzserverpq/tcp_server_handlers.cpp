@@ -1698,20 +1698,22 @@ bool handle_node_direct_request(std::string nodereqstr, std::string & response_h
  * Turns a list of strings into a response in a specified format.
  * E.g. see how this is used in handle_named_list_direct_request().
  */
-bool handle_list_of_strings(const std::vector<std::string>& strings_in_list, const std::string& ext, std::string& response_html) {
+bool handle_list_of_strings(const std::string list_id, const std::vector<std::string>& strings_in_list, const std::string& ext, std::string& response_html) {
     if (ext == "json") {
         if (strings_in_list.empty()) {
-            response_html += "[]";
+            response_html += "{\""+list_id+"\":[]}";
             return true;
         }
 
-        response_html += '[';
+        response_html += "{\""+list_id+"\":[";
         for (const auto& s : strings_in_list) {
             response_html += '"' + s + "\",";
         }
         response_html.back() = ']';
+        response_html += "}";
         return true;
     } else if (ext == "raw") {
+        response_html += list_id + '\n';
         for (const auto& s : strings_in_list) {
             response_html += s + '\n';
         }
@@ -1785,7 +1787,7 @@ bool handle_named_list_direct_request(std::string namedlistreqstr, std::string &
                 for (const auto & nkey: namedlist_ptr->list) {
                     nodes_in_list.emplace_back(nkey.str());
                 }
-                return handle_list_of_strings(nodes_in_list, ext, response_html);
+                return handle_list_of_strings(list_name, nodes_in_list, ext, response_html);
 
             }
 
