@@ -233,6 +233,11 @@ td.stateinfo {
 <script>
 const close_on_log_state_change = new closeOnLogStateChange();
 </script>
+<script type="text/javascript" src="/getnnl.js"></script>
+<script>
+function do_when_new_selected(selected) { window.location.reload(); }
+var cmpwith = new compareSelected('%s', do_when_new_selected);
+</script>
 
 <h1>fz: Task</h1>
 
@@ -351,12 +356,14 @@ def render_dynamic_nonlocal_fztask_page(
     T_emulated:str,
     selected_node_HTML:str,
     got_selected:bool,
-    same_node:bool):
+    same_node:bool,
+    selected_id:str):
 
     frequent_nodes_HTML = get_frequent_Nodes_HTML()
 
     print(DYNAMIC_FZTASK_PAGE % (
         static_page_call,
+        selected_id,
         T_emulated_showhtml,
         diff_min_str,
         num_entries,
@@ -411,6 +418,7 @@ def nonlocal_fztask_page():
     same_node = False
     selected_node_HTML = get_selected_Node_HTML()
     # Check if same Node (needs confirmation)
+    selected_id = ''
     if selected_node_HTML:
         idstr_start = selected_node_HTML.find('?id=')
         if (idstr_start >= 0):
@@ -448,6 +456,7 @@ def nonlocal_fztask_page():
             selected_node_HTML,
             got_selected,
             same_node,
+            selected_id,
             )
 
 def local_fztask_page():
