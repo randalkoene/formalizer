@@ -16,6 +16,9 @@ except:
     pass
 import sys, cgi, os
 sys.stderr = sys.stdout
+from io import StringIO
+from subprocess import Popen, PIPE
+import traceback
 
 from datetime import datetime
 from time import time
@@ -40,6 +43,14 @@ t_run = datetime.now() # Use this to make sure that all auto-generated times on 
 # TODO: *** Switch to using the database.
 #JSON_DATA_PATH='/home/randalk/.formalizer/.daywiz_data.json' # Permission issues.
 JSON_DATA_PATH='/var/www/webdata/formalizer/.daywiz_data.json'
+
+webdata_path = "/var/www/webdata/formalizer"
+error_file = webdata_path + '/metrics_error.log'
+debugdatabase = webdata_path+'/metrics_database.debug'
+
+def DebugDatabase(msg:str):
+    with open(debugdatabase, 'w') as f:
+        f.write(msg)
 
 METRICPAGE_HEAD_STYLE='''
 '''
@@ -263,13 +274,57 @@ class metricspage(fz_htmlpage):
             self.body_list.append( self.tables )
             self.tail_list.append( self.tables )
 
+    def database_call(self, thecmd:str):
+        try:
+            p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,stderr=PIPE,close_fds=True, universal_newlines=True)
+            (child_stdin,child_stdout,child_stderr) = (p.stdin, p.stdout, p.stderr)
+            child_stdin.close()
+            result = child_stdout.read()
+            # with open(debugdatabase, 'a') as f:
+            #     f.write('Call: '+thecmd+'\n\n')
+            #     f.write(result+'\n\n')
+            error = child_stderr.read()
+            child_stdout.close()
+            child_stderr.close()
+            if error:
+                with open(error_file, 'w') as f:
+                    f.write(error)
+                return None
+            return result
+
+        except Exception as ex:
+            with open(error_file, 'w') as e:              
+                e.write(str(ex))
+                f = StringIO()
+                traceback.print_exc(file=f)
+                a = f.getvalue().splitlines()
+                for line in a:
+                    e.write(line)
+            return None
+
+    def get_data_from_database(self)->dict:
+        thecmd = "./fzmetricspq -q -d formalizer -s randalk -E STDOUT -R -i all -F json -o STDOUT -w true -n true -e true -a true -m true -c true"
+        datastr = self.database_call(thecmd)
+        try:
+            data = json.loads(datastr)
+            if not isinstance(data, dict) or len(data)==0:
+                return {}
+            else:
+                return data
+        except:
+            return {}
+
     def load_metrics_json(self):
-        if exists(JSON_DATA_PATH):
-            try:
-                with open(JSON_DATA_PATH, 'r') as f:
-                    self.metrics_data = json.load(f)
-            except:
-                self.metrics_data = {}
+        data = self.get_data_from_database()
+        if len(data)==0:
+            self.metrics_data = {}
+        else:
+            for tablekey in data:
+                self.metrics_data[tablekey] = {}
+                for dbdaykey in data[tablekey]:
+                    wizday = dbdaykey[0:4]+'.'+dbdaykey[4:6]+'.'+dbdaykey[6:8]
+                    self.metrics_data[tablekey][wizday] = data[tablekey][dbdaykey]
+            #DebugDatabase(json.dumps(self.metrics_data))
 
     def select_metric_data(self) ->tuple:
         entry_point = self.metrics_data
@@ -322,7 +377,8 @@ def launch_as_cgi():
     _page = metricspage(directives)
 
     if directives['cmd'] == 'update':
-        _page.update_from_form(form)
+        # Disabled on 2024-10-22, because it would need to work with the database now.
+        #_page.update_from_form(form)
         _page.show()
     else:
         _page.show()
@@ -332,7 +388,8 @@ def launch(directives: dict):
     _page = metricspage(directives)
 
     if directives['cmd'] == 'update':
-        _page.update_from_list(directives['args'])
+        # Disabled on 2024-10-22, because it would need to work with the database now.
+        #_page.update_from_list(directives['args'])
         _page.show()
     else:
         _page.show()
