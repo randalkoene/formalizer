@@ -156,6 +156,54 @@ bool read_Metrics_IDs_pq(Metrics_data & data, Postgres_access & pa, std::vector<
     LOAD_DATA_PQ_RETURN(true);
 }
 
+/**
+ * Read IDs and data from Metrics table in the database from a starting
+ * ID to an ending ID (inclusive).
+ * 
+ * The `data` should specify `data.tablename`.
+ * 
+ * @param[in] datalist Data structure that clearly identifies the table in `datalist.tablename`.
+ * @param[in] pa Access data with database name and schema name.
+ * @param[in] id_start First ID in interval.
+ * @param[in] id_end Last ID in interval.
+ * @return True if successful.
+ */
+bool read_Metrics_IDs_and_data_interval_pq(Metrics_data_list & datalist, Postgres_access & pa, const std::string& id_start, const std::string& id_end) {
+    ERRTRACE;
+    pa.access_initialize();
+    PGconn* conn = connection_setup_pq(pa.dbname());
+    if (!conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define LOAD_IDS_AND_DATA_PQ_RETURN(r) { PQfinish(conn); return r; }
+
+    std::string pqcmdstr = "SELECT id, data FROM "+pa.pq_schemaname()+ "." + datalist.tablename+" WHERE id>='"+id_start+"' AND id<='"+id_end+'\'';
+    if (!query_call_pq(conn, pqcmdstr, false)) LOAD_IDS_AND_DATA_PQ_RETURN(false);
+  
+    PGresult *res;
+
+    while ((res = PQgetResult(conn))) { // It's good to use a loop for single row mode cases.
+
+        const int rows = PQntuples(res);
+        if (PQnfields(res) < 2) {
+            ADDERROR(__func__,"not enough fields in data result");
+            LOAD_IDS_AND_DATA_PQ_RETURN(false);
+        }
+
+        for (int r = 0; r < rows; ++r) {
+
+            datalist.id_list.emplace_back(PQgetvalue(res, r, 0));
+            rtrim(datalist.id_list.back()); // as the returned values seems to be space padded
+            datalist.data_list.emplace_back(PQgetvalue(res, r, 1));
+
+        }
+
+        PQclear(res);
+    }
+
+    LOAD_IDS_AND_DATA_PQ_RETURN(true);
+}
+
 bool delete_Metricsdata_pq(const active_pq & apq, const Metrics_data & data) {
     ERRTRACE;
     if (!apq.conn)

@@ -18,4 +18,6 @@ using namespace fz;
 
 bool render_data(Metrics_data& data, std::string& rendered_data);
 
+bool render_data_list(Metrics_data_list& datalist, std::string& rendered_data);
+
 #endif // __RENDER_HPP

@@ -71,3 +71,30 @@ bool render_data(Metrics_data& data, std::string& rendered_data) {
     
     return true;
 }
+
+bool render_data_list(Metrics_data_list& datalist, std::string& rendered_data) {
+
+    if (fzmet.format == "json") {
+
+        rendered_data += '"'+datalist.tablename+"\":" + '{';
+        if (datalist.id_list.empty()) {
+            rendered_data += "},";
+        } else {
+            for (size_t i = 0; i < datalist.id_list.size(); ++i) {
+                rendered_data += '"'+datalist.id_list[i]+"\":"+datalist.data_list[i]+',';
+            }
+            rendered_data.back() = '}';
+            rendered_data += ',';
+        }
+
+    } else {
+
+        rendered_data += datalist.tablename + ":\n";
+        for (size_t i = 0; i < datalist.id_list.size(); ++i) {
+            rendered_data += datalist.id_list[i] + ':' + datalist.data_list[i] + '\n';
+        }
+
+    }
+
+    return true;
+}

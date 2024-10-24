@@ -52,6 +52,8 @@ struct fzmetricspq: public formalizer_standard_program {
     flow_options flowcontrol;
 
     std::string index;
+    std::string last_index;
+    bool interval_of_indices = false;
 
     std::vector<std::string> datajson;
 
@@ -64,6 +66,8 @@ struct fzmetricspq: public formalizer_standard_program {
     fzmetricspq();
 
     virtual void usage_hook();
+
+    bool get_index_or_interval(const std::string& cargs);
 
     virtual bool options_hook(char c, std::string cargs);
 
@@ -103,6 +107,14 @@ struct Metrics_wiztable: public Metrics_data {
     virtual bool multidata() const { return (idxstr=="(any)"); }
 
     void set_pq_wildcards();
+};
+
+struct Metrics_wiztable_list: public Metrics_data_list {
+
+    Metrics_wiztable_list(const std::string& _table): Metrics_data_list(_table) {}
+
+    virtual bool nulldata() const { return false; }
+
 };
 
 #endif // __FZMETRICSPQ_HPP

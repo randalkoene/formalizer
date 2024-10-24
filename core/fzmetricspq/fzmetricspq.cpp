@@ -70,6 +70,14 @@ fzmetricspq::fzmetricspq() : formalizer_standard_program(false), config(*this), 
         "\n"
         "If an index is requested for which there is no data then an empty\n"
         "string is returned in -F raw mode or an empty dict in -F json mode.\n"
+        "\n"
+        "If an index contains the character '-' then it is treated as an\n"
+        "interval in -R mode. Examples of valid intervals are:\n"
+        "  202409010000-202410200000\n"
+        "  -202410200000\n"
+        "  202409010000-\n"
+        "\n"
+        "Read mode -R also recognizes the '-i all' interval.\n"
     );
 }
 
@@ -113,6 +121,22 @@ void fzmetricspq::usage_hook() {
     );
 }
 
+bool fzmetricspq::get_index_or_interval(const std::string& cargs) {
+    if (cargs.empty()) return false;
+
+    auto dashpos = cargs.find('-');
+    if (dashpos == std::string::npos) {
+        index = cargs;
+        interval_of_indices = (index == "all");
+        return true;
+    }
+
+    interval_of_indices = true;
+    index = cargs.substr(0, dashpos);
+    last_index = cargs.substr(dashpos+1);
+    return true;
+}
+
 /**
  * Handler for command line options that are defined in the derived class
  * as options specific to the program.
@@ -150,8 +174,7 @@ bool fzmetricspq::options_hook(char c, std::string cargs) {
     }
 
     case 'i': {
-        index = cargs;
-        return true;
+        return get_index_or_interval(cargs);
     }
 
     case 'w': {
@@ -297,10 +320,59 @@ bool send_rendered_to_output(const std::string& rendered_text) {
 }
 
 /**
+ * This can read an interval from one or more tables in one call.
+ */
+int read_interval_from_table() {
+    ERRTRACE;
+
+    if (fzmet.index == "all") {
+        fzmet.last_index = "999912312359";
+        fzmet.index = "000101010000";
+    } else {
+        if (fzmet.index.empty()) {
+            fzmet.index = "000101010000";
+        }
+        if (fzmet.last_index.empty()) {
+            fzmet.last_index = "999912312359";
+        }
+    }
+
+    std::string rendered_data;
+    if (fzmet.format == "json") {
+        rendered_data = "{ ";
+    }
+
+    for (size_t i = 0; i < fzmet.datajson.size(); ++i) {
+        if (!fzmet.datajson.at(i).empty()) {
+            Metrics_wiztable_list datalist(fzmet.config.tables.at(i));
+
+            if (!read_Metrics_IDs_and_data_interval_pq(datalist, fzmet.pa, fzmet.index, fzmet.last_index)) {
+                return standard_error("Reading "+fzmet.config.tables.at(i)+" data failed.", __func__);
+            }
+
+            if (!render_data_list(datalist, rendered_data)) {
+                return standard_error("Rendering "+fzmet.config.tables.at(i)+" data failed.", __func__);
+            }
+
+            VERYVERBOSEOUT("Read from "+fzmet.config.tables.at(i)+".\n");
+        }
+    }
+
+    if (fzmet.format == "json") {
+        rendered_data.back() = '}';
+    }
+
+    send_rendered_to_output(rendered_data);
+    standard.completed_ok();
+}
+
+/**
  * This can read from one or more tables in one call.
  */
 int read_from_table() {
     ERRTRACE;
+
+    if (fzmet.interval_of_indices) return read_interval_from_table();
 
     std::string rendered_data;
     if (fzmet.format == "json") {

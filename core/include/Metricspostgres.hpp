@@ -18,6 +18,7 @@
 
 // std
 #include <memory>
+#include <vector>
 
 // core
 //#include "error.hpp"
@@ -54,6 +55,20 @@ struct Metrics_data {
 
 typedef std::unique_ptr<Metrics_data> Metrics_data_ptr;
 
+/**
+ * A generic data structure for lists of Metrics data.
+ */
+struct Metrics_data_list {
+    std::string tablename;
+    std::vector<std::string> id_list;
+    std::vector<std::string> data_list;
+
+    Metrics_data_list(const std::string& _tablename): tablename(_tablename) {}
+
+    virtual bool nulldata() const = 0;
+    bool empty() const { return (tablename.empty() || nulldata()); }
+};
+
 bool create_Metrics_table(const active_pq& apq, const std::string& metricstable, const std::string& metricstablelayout);
 
 bool store_Metrics_data_pq(const Metrics_data & data, Postgres_access & pa);
@@ -71,6 +86,20 @@ bool read_Metrics_data_pq(Metrics_data & data, Postgres_access & pa);
  * @return True if successful.
  */
 bool read_Metrics_IDs_pq(Metrics_data & data, Postgres_access & pa, std::vector<std::string> & ids);
+
+/**
+ * Read IDs and data from Metrics table in the database from a starting
+ * ID to an ending ID (inclusive).
+ * 
+ * The `data` should specify `data.tablename`.
+ * 
+ * @param[in] datalist Data structure that clearly identifies the table in `datalist.tablename`.
+ * @param[in] pa Access data with database name and schema name.
+ * @param[in] id_start First ID in interval.
+ * @param[in] id_end Last ID in interval.
+ * @return True if successful.
+ */
+bool read_Metrics_IDs_and_data_interval_pq(Metrics_data_list & datalist, Postgres_access & pa, const std::string& id_start, const std::string& id_end);
 
 bool delete_Metrics_data_pq(const Metrics_data & data, Postgres_access & pa);
 
