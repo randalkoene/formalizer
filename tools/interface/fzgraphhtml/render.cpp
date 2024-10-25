@@ -121,6 +121,12 @@ const std::map<Boolean_Tag_Flags::boolean_flag, std::string> category_tag_str = 
     { Boolean_Tag_Flags::system, "<span class=\"bold-green\">C</span>" },
 };
 
+/**
+ * Notes:
+ * 1. Rendering of the head of the page is done after collecting the rendered
+ *    Nodes, because some of the information in the head may require information
+ *    that is collected along the way, such as 'days_rendered'.
+ */
 struct line_render_parameters {
     Graph *graph_ptr;                ///< Pointer to the Graph in which the Node resides.
     const std::string srclist;       ///< The Named Node List being rendered (or "" when that is not the case).
@@ -130,6 +136,7 @@ struct line_render_parameters {
     std::string datestamp;
     std::string tdstamp;
     size_t actual_num_render = 0;
+    size_t days_rendered = 0;
     time_t t_render = 0; ///< The time when page rendering commenced.
     float day_total_hrs = 0.0;
     std::map<Boolean_Tag_Flags::boolean_flag, float> day_category_hrs = {
@@ -163,6 +170,7 @@ struct line_render_parameters {
             varvals.emplace("all_checked","");
         }
         varvals.emplace("actual_num_shown", std::to_string(actual_num_render));
+        varvals.emplace("days_shown", std::to_string(days_rendered));
         if (fzgh.num_days > 0) {
             varvals.emplace("num_days",std::to_string(fzgh.num_days));
             varvals.emplace("t_max","");
@@ -188,7 +196,6 @@ struct line_render_parameters {
             rendered_page.reserve(num_render * (2 * templates[node_pars_in_list_temp].size()) +
                             templates[node_pars_in_list_head_temp].size() +
                             templates[node_pars_in_list_tail_temp].size());
-            rendered_page += rendered_head(); //templates[node_pars_in_list_head_temp];
         }
         map_of_subtrees.collect(graph(), fzgh.subtrees_list_name);
         if (map_of_subtrees.has_subtrees) {
@@ -241,6 +248,7 @@ struct line_render_parameters {
 
     void insert_day_start(time_t t) {
         // Note that datestamp was already TZ adjusted.
+        days_rendered += 1;
         if ((fzgh.config.outputformat == output_txt) || (fzgh.config.outputformat == output_html)) {
             if ((fzgh.config.include_daysummary) && (day_total_hrs > 0.0)) {
                 insert_previous_day_summary();
@@ -551,18 +559,28 @@ struct line_render_parameters {
         rendered_page += env.render(templates[named_node_list_in_list_temp], varvals);
     }
 
-    bool present() {
-        if (!fzgh.config.embeddable) {
-            rendered_page += rendered_tail(); //templates[node_pars_in_list_tail_temp];
-        }
-
+    bool send_to_output(const std::string& rendered_output) {
         if (fzgh.config.rendered_out_path == "STDOUT") {
-            FZOUT(rendered_page);
+            FZOUT(rendered_output);
         } else {
-            if (!string_to_file(fzgh.config.rendered_out_path,rendered_page))
+            if (!string_to_file(fzgh.config.rendered_out_path, rendered_output))
                 ERRRETURNFALSE(__func__,"unable to write rendered page to file");
         }
         return true;
+    }
+
+    /**
+     * See Note 1 for the reason why the head is only generated here.
+     */
+    bool present() {
+        if (!fzgh.config.embeddable) {
+            std::string rendered_page_with_head_and_tail;
+            rendered_page_with_head_and_tail.reserve(3000 + rendered_page.size());
+            rendered_page_with_head_and_tail = rendered_head() + rendered_page + rendered_tail();
+            return send_to_output(rendered_page_with_head_and_tail);
+        } else {
+            return send_to_output(rendered_page);
+        }
     }
 
 };

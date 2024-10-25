@@ -155,7 +155,7 @@ to these action links, for example, to add the specified Node to a Named Node Li
 </html>
 '''
 
-modify_template = '''<tr><td>[<a href="/cgi-bin/fzgraphhtml-cgi.py?srclist={{{{ list_name }}}}">{{{{ list_name }}}}</a>]</td><td><a href="http://{fzserverpq}/fz/graph/namedlists/{{{{ list_name }}}}?add={node_id}">[add]</a></td></tr>
+modify_template = '''<tr><td style="width:10em;text-align:center;"><a href="http://{fzserverpq}/fz/graph/namedlists/{{{{ list_name }}}}?add={node_id}">[add]</a></td><td>[<a href="/cgi-bin/fzgraphhtml-cgi.py?srclist={{{{ list_name }}}}">{{{{ list_name }}}}</a>]</td></tr>
 '''
 
 listpagehead = '''<html>
