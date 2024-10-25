@@ -7,6 +7,7 @@
 <td{{ alertstyle }}>{{ req_hrs }}</td>
 <td class="id_cell" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit={{ node_id }}','_blank');">{{ node_id }}</td>
 <td><a class="node" href="/cgi-bin/fzlink.py?id={{ node_id }}">{{ excerpt }}</a></td>
+<td>[<a class="nnl" href="http://localhost/cgi-bin/nodeboard-cgi.py?g=true&n={{ node_id }}&I=true&T=true" target="_blank">SUP</a>] [<a class="nnl" href="/cgi-bin/nodeboard-cgi.py?G=true&n={{ node_id }}&I=true&T=true" target="_blank">DEP</a>]</td>
 <td><a href="/cgi-bin/fzgraphhtml-cgi.py?topic={{ topic }}">{{ topic }}</a></td>
 <td><button type="button" class="tiny_button" onclick="window.open('http://{{ fzserverpq }}/fz/graph/namedlists/{{ srclist }}?remove={{ node_id }}','_self');">remove</button></td>
 </tr>
