@@ -270,7 +270,7 @@ NUTRI_TABLE_TARGET='<tr><th>Unknown:</th><th>%s</th><th></th><th>Target:</th><th
 ENTRYLINE_TR_FRAME='''<tr><td><input type="time" id="nutri_add_time" value="%s" %s></td><td><input id="nutri_add_name" type="text" %s></td><td><input id="nutri_add_quantity" type="text" style="width: 8em;" %s></td><td>(units)</td><td>(calories)</td>
 '''
 
-EXERCISE_TABLE_HEAD='<table>\n<tr><th>approx. time</th><th>exercised</th><th>quantity</th><th>units</th></tr>\n'
+EXERCISE_TABLE_HEAD='<table>\n<tr><th>approx. time</th><th><span class="tooltip">exercised<span class="tooltiptext">%s</span></span></th><th>quantity</th><th>units</th></tr>\n'
 EXERCISED_TR_FRAME='''<tr><td>%s</td><td><input id="%s" type="text" value="%s" %s></td><td><input id="%s" type="text" value="%s" style="width: 8em;" %s></td><td>%s</td>
 '''
 EXERCISEENTRY_TR_FRAME='''<tr><td><input type="time" id="exerc_add_time" value="%s" %s></td><td><input id="exerc_add_name" type="text" %s></td><td><input id="exerc_add_quantity" type="text" style="width: 8em;" %s></td><td>(units)</td>
@@ -332,6 +332,13 @@ def day_calories(day_consumption: list) ->int:
     for nutri_data in day_consumption:
         calories += consumed_calories(nutri_data)
     return calories
+
+def make_tooltip(two_column_table:dict)->str:
+    tooltip_str = '<table><tbody>'
+    for key, val in two_column_table.items():
+        tooltip_str += '<tr><td>%s</td><td>%s</td></tr>' % (key, val)
+    tooltip_str += '</tbody></table>'
+    return tooltip_str
 
 # ====================== Classes that manage content in page areas:
 
@@ -714,7 +721,7 @@ class daypage_exercise:
         return EXERCISEENTRY_TR_FRAME % (datetime.now().strftime('%H:%M'), SUBMIT_ON_INPUT, SUBMIT_ON_INPUT, SUBMIT_ON_INPUT)
 
     def generate_html_body(self) ->str:
-        table_str = EXERCISE_TABLE_HEAD
+        table_str = EXERCISE_TABLE_HEAD % make_tooltip(exercises)
         for i in range(len(self.logged)):
             table_str += self.exercised_html(self.logged[i], i)
         table_str += self.entryline_html()
@@ -1060,6 +1067,7 @@ class daypage(fz_htmlpage):
         self.html_icon = fz_html_icon()
         self.html_style = fz_html_style(['fz', ])
         self.html_uistate = fz_html_uistate()
+        self.html_tooltip = fz_html_tooltip()
         self.html_clock = fz_html_clock()
         self.html_title = fz_html_title('DayWiz')
 
@@ -1071,7 +1079,7 @@ class daypage(fz_htmlpage):
         self.debug = debug_test(directives, form)
 
         # --- Components that have action-calls in head, body and tail groups.
-        self.head_list = [ self.html_std, self.html_icon, self.html_style, self.html_uistate, self.html_clock, self.tables, self.html_title, self.debug, ]
+        self.head_list = [ self.html_std, self.html_icon, self.html_style, self.html_uistate, self.html_tooltip, self.html_clock, self.tables, self.html_title, self.debug, ]
         self.body_list = [ self.html_std, self.html_title, self.html_clock, self.date_picker, self.tables, ]
         self.tail_list = [ self.html_std, self.html_uistate, self.html_clock, ]
 

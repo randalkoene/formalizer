@@ -126,6 +126,19 @@ class fz_html_uistate:
     def generate_html_tail(self) ->str:
         return self.tail_content
 
+class fz_html_tooltip:
+    def __init__(self):
+        self.head_content = '<link rel="stylesheet" href="/tooltip.css">\n'
+
+    def generate_html_head(self) ->str:
+        return self.head_content
+
+    def generate_html_body(self) ->str:
+        return ''
+
+    def generate_html_tail(self) ->str:
+        return ''
+
 HTML_CLOCK_TAIL='''<script type="text/javascript" src="/clock.js"></script>
 '''
 class fz_html_clock:
