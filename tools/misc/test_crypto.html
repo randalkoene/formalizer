@@ -47,6 +47,14 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla ante est, digniss
 <div id="decrypted">
 </div>
 
+<button id="openLoadFile">Load File</button> (e.g. http://localhost/integrity.html)
+
+<div id="LoadFileModal">
+<label for="filename">File:</label>
+<input type="text" id="filename">
+<button id="submitLoadFile">Submit</button>
+</div>
+
 <button id="openPasswordModal">Enter Password</button>
 
 <div id="passwordModal">
@@ -54,6 +62,10 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla ante est, digniss
 <input type="password" id="password">
 <button id="submitPassword">Submit</button>
 </div>
+
+<p>
+Save encrypted to file: <input type="text" id="savefile">
+</p>
 
 <script type="module">
 // for large strings, use this from https://stackoverflow.com/a/49124600
@@ -186,45 +198,76 @@ function requestPassword() {
 	});
 }
 
-//await example();
+async function openLoadFile() {
+	document.getElementById('LoadFileModal').style.display = 'block';
+}
+
+async function getFile(filename) {
+	fetch(filename)
+  	.then(response => response.text())
+  	.then((data) => {
+  		var body_idx = data.indexOf('<body');
+  		if (body_idx == -1) {
+  			body_idx = data.indexOf('<BODY');
+  		}
+  		var body_content_idx = data.indexOf('>', body_idx) + 1;
+  		var body_close_idx = data.indexOf('</body');
+  		if (body_close_idx == -1) {
+  			body_close_idx = data.indexOf('</BODY');
+  		}
+  		console.log(`Body content start: ${body_content_idx}, body content end: ${body_close_idx}`);
+  		data = data.substring(body_content_idx, body_close_idx);
+
+  		const unencrypted_ref = document.getElementById('unencrypted');
+  		unencrypted_ref.innerHTML = data;
+  	});
+}
+
+function loadFile() {
+	return new Promise(function (resolve, reject) {
+		document.getElementById('submitLoadFile').addEventListener('click', function() {
+        	// Handle password submission
+        	var filename = document.getElementById('filename').value;
+        	console.log("File requested:", filename);
+        	document.getElementById('LoadFileModal').style.display = 'none';
+        	getFile(filename);
+        	resolve();
+    	});
+	});
+}
+
+await openLoadFile();
+await loadFile();
 await openPasswordModal();
 await requestPassword();
-	// function do_page_decrypt() {
-	// 	//const crypto = import('crypto');
-	// 	const rawkey_ref = document.getElementById('rawkey');
-	// 	const hashable_ref = document.getElementById('hashable');
-	// 	const hashedkey_ref = document.getElementById('hashedkey');
-	// 	const unencrypted_ref = document.getElementById('unencrypted');
-	// 	const encrypted_ref = document.getElementById('encrypted');
-	// 	const decrypted_ref = document.getElementById('decrypted');
-	// 	try {
-	// 		let UUID = crypto.randomUUID();
-	// 		alert(`Generated ${UUID}.`);
+</script>
 
-	// 		let secret = '1234567';
-	// 		let hashable = 'somethinghashable';
-	// 		rawkey_ref.innerHTML = secret;
-	// 		hashable_ref.innerHTML = hashable;
-	// 		const hmac = window.crypto.createHash('sha256', secret);
-	// 		const hash = hmac.update(hashable).digest('hex');
-	// 		hashedkey_ref.innerHTML = hash;
+<script>
+function saveFile(url, filename) {
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename || "file-name";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+function save_to_file(filename) {
+	const encrypted_ref = document.getElementById('encrypted');
+	// Create blob object with file content
+	var blob = new Blob([encrypted_ref.innerHTML], {
+	   type: "text/plain;charset=utf-8",
+	});
 
-	// 		let iv = '1234567890123456';
-	// 		var cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
-	// 		cipher.update(unencrypted_ref.innerHTML);
-	// 		var encrypted = cipher.final("base64");
-	// 		encrypted_ref.innerHTML = encrypted;
-
-	// 		var decipher = crypto.createDecipheriv("aes-256-cbc", key, iv);
-	// 		decipher.update(encrypted, "base64");
-	// 		decrypted_ref.innerHTML = decipher.final('utf8');
-
-	// 	} catch (err) {
-	// 		alert(`Error: ${err}`);
-	// 	}
-	// }
-	// do_page_decrypt();
-	// export { do_page_decrypt };
+	const url = window.URL.createObjectURL(blob);
+	saveFile(url, filename);
+	window.URL.revokeObjectURL(url);
+}
+document.getElementById('savefile').addEventListener('change', function() {
+	// Handle password submission
+	var filename = document.getElementById('savefile').value;
+	console.log("Saving to file:", filename);
+	save_to_file(filename);
+});
 </script>
 
 </body>

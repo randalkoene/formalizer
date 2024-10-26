@@ -2,3 +2,4 @@
 # The setup stub for this file should be copied to: ~/.formalizer/fzdaily_do.source
 
 /home/randalk/.formalizer/bin/fzbackup
+/home/randalk/.formalizer/bin/fzquerypq -d formalizer -s randalk -E STDOUT -R histories -q

@@ -136,6 +136,10 @@ EXECUTABLES += $(TOOLSPATH)/system/requestmanual/requestmanual.py
 EXECUTABLES += $(TOOLSPATH)/system/top/index-term.sh
 EXECUTABLES += $(TOOLSPATH)/system/schedule/schedule
 
+# configuration files needed by local scripts
+LOCALCONFIG =
+LOCALCONFIG += $(TOOLSPATH)/glue/fzdaily_do.source
+
 # configuration files needed by CGI scripts
 CONFIGEXPOSE =
 CONFIGEXPOSE += $(FZCONFIGPATH)/server_address
@@ -376,6 +380,7 @@ $(TOOLSCOMPDIRS): $(LIBCOMPDIRS)
 executables: $(EXECUTABLES)
 	mkdir -p $(EXEDIR)
 	ln -f -s $(EXECUTABLES) $(EXEDIR)/
+	cp -r -f $(LOCALCONFIG) $(FZCONFIGPATH)/
 	sudo ln -f -s $(SYMBIN) $(CGIDIR)/
 	sudo ln -f -s $(SYMDATA) $(WEBDATADIR)/
 	sudo cp -f $(CGIEXE) $(CGIDIR)/
