@@ -338,6 +338,7 @@ TESTS += $(TOOLSPATH)/misc/test_add_node.html
 TESTS += $(TOOLSPATH)/misc/test_task_chunk_countdown_bar.html
 TESTS += $(TOOLSPATH)/misc/test_webfileread.html
 TESTS += $(TOOLSPATH)/misc/test_timed_close.html
+TESTS += $(TOOLSPATH)/misc/test_crypto.html
 
 # CGI processors that are used by test HTML pages
 TESTCGI =
