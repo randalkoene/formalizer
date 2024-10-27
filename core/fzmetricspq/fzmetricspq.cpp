@@ -57,8 +57,8 @@ const std::vector<std::string> default_tables = {
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzmetricspq::fzmetricspq() : formalizer_standard_program(false), config(*this), pa(*this, add_option_args, add_usage_top, true) {
-    add_option_args += "RSDCi:w:n:e:a:m:c:F:o:";
-    add_usage_top += " <-R|-S|-D|-C> [-i index] [-w JSON] [-n JSON] [-e JSON] [-a JSON] [-m JSON] [-c JSON] [-F format] [-o outfile]";
+    add_option_args += "RSDCi:w:n:e:a:m:c:F:o:G:g:";
+    add_usage_top += " <-R|-S|-D|-C> [-i index] [-w JSON] [-n JSON] [-e JSON] [-a JSON] [-m JSON] [-c JSON] [-G generic-table] [-g JSON] [-F format] [-o outfile]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "If JSON data begins with 'file:' then the actual data is\n"
@@ -116,6 +116,8 @@ void fzmetricspq::usage_hook() {
           "       -a true: count rows in accounts data\n"
           "       -a true: count rows in milestones data\n"
           "       -a true: count rows in comms data\n"
+          "    -G use generic table specified\n"
+          "    -g JSON data for generic table\n"
           "    -F Output format: raw, json\n"
           "    -o Output file (default is STDOUT)\n"
     );
@@ -204,6 +206,16 @@ bool fzmetricspq::options_hook(char c, std::string cargs) {
 
     case 'c': {
         datajson[5] = cargs;
+        return true;
+    }
+
+    case 'G': {
+        generic_table = cargs;
+        return true;
+    }
+
+    case 'g': {
+        datajson[0] = cargs;
         return true;
     }
 
@@ -366,11 +378,43 @@ int read_interval_from_table() {
     standard.completed_ok();
 }
 
+int read_from_generic_table() {
+    ERRTRACE;
+
+    std::string rendered_data;
+    if (fzmet.format == "json") {
+        rendered_data = "{ ";
+    }
+
+    Metrics_wiztable data(fzmet.generic_table, fzmet);
+
+    if (!read_Metrics_data_pq(data, fzmet.pa)) {
+        return standard_error("Reading "+fzmet.generic_table+" data failed.", __func__);
+    }
+
+    if (!data.data.empty()) {
+        if (!render_data(data, rendered_data)) {
+            return standard_error("Rendering "+fzmet.generic_table+" data failed.", __func__);
+        }
+    }
+
+    VERYVERBOSEOUT("Read from "+fzmet.generic_table+".\n");
+
+    if (fzmet.format == "json") {
+        rendered_data.back() = '}';
+    }
+
+    send_rendered_to_output(rendered_data);
+    standard.completed_ok();
+}
+
 /**
  * This can read from one or more tables in one call.
  */
 int read_from_table() {
     ERRTRACE;
+
+    if (!fzmet.generic_table.empty()) return read_from_generic_table();
 
     if (fzmet.interval_of_indices) return read_interval_from_table();
 
@@ -411,11 +455,29 @@ std::string get_data_content(const std::string& str) {
     } else return str;
 }
 
+int store_in_generic_table() {
+    ERRTRACE;
+
+    if (!fzmet.datajson.at(0).empty()) return standard_error("Storing "+fzmet.generic_table+" data failed.", __func__);
+
+    Metrics_wiztable data(fzmet.generic_table, fzmet.index, get_data_content(fzmet.datajson.at(0)));
+
+    if (!store_Metrics_data_pq(data, fzmet.pa)) {
+        return standard_error("Storing "+fzmet.generic_table+" data failed.", __func__);
+    }
+
+    VERYVERBOSEOUT("Stored to "+fzmet.generic_table+".\n");
+
+    standard.completed_ok();
+}
+
 /**
  * This can write to one or more tables in one call.
  */
 int store_in_table() {
     ERRTRACE;
+
+    if (!fzmet.generic_table.empty()) return store_in_generic_table();
 
     for (size_t i = 0; i < fzmet.datajson.size(); ++i) {
         if (!fzmet.datajson.at(i).empty()) {
@@ -432,11 +494,39 @@ int store_in_table() {
     standard.completed_ok();
 }
 
+int delete_from_generic_table() {
+    ERRTRACE;
+
+    if (fzmet.index == "all") {
+
+        if (!delete_Metrics_table_pq(fzmet.generic_table, fzmet.pa)) {
+            return standard_error("Deleting table "+fzmet.generic_table+" failed.", __func__);
+        }
+
+        VERYVERBOSEOUT("Deleted table "+fzmet.generic_table+".\n");
+
+    } else {
+
+        Metrics_wiztable data(fzmet.generic_table, fzmet);
+
+        if (!delete_Metrics_data_pq(data, fzmet.pa)) {
+            return standard_error("Deleting from "+fzmet.generic_table+" failed.", __func__);
+        }
+
+        VERYVERBOSEOUT("Deleted from "+fzmet.generic_table+".\n");
+
+    }
+
+    standard.completed_ok();
+}
+
 /**
  * This can delete from one or more tables in one call.
  */
 int delete_from_table() {
     ERRTRACE;
+
+    if (!fzmet.generic_table.empty()) return delete_from_generic_table();
 
     for (size_t i = 0; i < fzmet.datajson.size(); ++i) {
         if (!fzmet.datajson.at(i).empty()) {

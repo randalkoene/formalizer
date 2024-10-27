@@ -57,6 +57,8 @@ struct fzmetricspq: public formalizer_standard_program {
 
     std::vector<std::string> datajson;
 
+    std::string generic_table;
+
     std::string outfile;
 
     std::string format;
