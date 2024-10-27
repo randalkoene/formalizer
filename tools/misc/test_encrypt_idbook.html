@@ -236,8 +236,18 @@ function loadFile() {
 	});
 }
 
-await openLoadFile();
-await loadFile();
+async function getJSONdata() {
+	fetch('/cgi-bin/convert_idbook.py')
+	.then(response => response.text())
+	.then((data) => {
+		const unencrypted_ref = document.getElementById('unencrypted');
+		unencrypted_ref.innerHTML = data;
+	});
+}
+
+//await openLoadFile();
+//await loadFile();
+await getJSONdata();
 await openPasswordModal();
 await requestPassword();
 </script>

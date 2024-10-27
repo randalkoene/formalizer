@@ -343,6 +343,7 @@ TESTS += $(TOOLSPATH)/misc/test_task_chunk_countdown_bar.html
 TESTS += $(TOOLSPATH)/misc/test_webfileread.html
 TESTS += $(TOOLSPATH)/misc/test_timed_close.html
 TESTS += $(TOOLSPATH)/misc/test_crypto.html
+TESTS += $(TOOLSPATH)/misc/test_encrypt_idbook.html
 
 # CGI processors that are used by test HTML pages
 TESTCGI =
@@ -350,6 +351,7 @@ TESTCGI += $(TOOLSPATH)/misc/test_python_cgianalysis.py
 TESTCGI += $(TOOLSPATH)/misc/test_python_cgiformget.py
 TESTCGI += $(TOOLSPATH)/misc/test_progress_indicator.py
 TESTCGI += $(TOOLSPATH)/misc/test_background_process.py
+TESTCGI += $(TOOLSPATH)/misc/convert_idbook.py
 # +----- end  : Select Formalizer executables -----+
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html

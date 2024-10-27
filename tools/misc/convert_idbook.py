@@ -6,6 +6,9 @@
 # This is then used to put the information into the database and to
 # read and update it through a Formalizer page.
 
+import re
+import json
+
 idbookfile='/home/randalk/_private-info/doc/html/idbook-202006040905.html'
 
 def get_table_row(content:str, idx:int)->tuple:
@@ -40,6 +43,10 @@ def get_cell_content(content:str, idx:int)->tuple:
 def get_data(cell1:str, cell2:str, cell3:str, cell4:str)->list:
 	return [cell1, cell2, cell3, cell4]
 
+def remove_html_tags(content:str)->str:
+	raw_content = re.sub('[<][^>]*[>]','', content)
+	return raw_content
+
 def get_first_table(content:str)->list:
 	table_data = []
 	idx = content.find("<body")
@@ -51,6 +58,7 @@ def get_first_table(content:str)->list:
 			cell1_content, row_idx = get_cell_content(rowcontent, 0)
 			if row_idx < 0:
 				continue
+			cell1_content = remove_html_tags(cell1_content)
 			cell2_content, row_idx = get_cell_content(rowcontent, row_idx)
 			if row_idx < 0:
 				continue
@@ -61,7 +69,9 @@ def get_first_table(content:str)->list:
 			if row_idx < 0:
 				continue
 			data = get_data(cell1_content, cell2_content, cell3_content, cell4_content)
-			table_data.append(data)
+			# Drop empty rows
+			if cell1_content != '':
+				table_data.append(data)
 	return [ table_data, idx_end ]
 
 def get_par_content(content:str, idx:int)->tuple:
@@ -74,7 +84,7 @@ def get_par_content(content:str, idx:int)->tuple:
 	idx_end = content.find("</p>", idx)
 	if idx_end < 0:
 		return None, idx_end
-	parcontent = content[idx+1:idx_end]
+	parcontent = remove_html_tags(content[idx+1:idx_end]).strip()
 	return parcontent, idx_end
 
 def get_paragraphs(content:str, idx:int)->list:
@@ -82,7 +92,7 @@ def get_paragraphs(content:str, idx:int)->list:
 	idx = content.find("</p>\n<p ", idx)
 	idx_end = content.find("<p><br/>\n<br/>", idx)
 	while idx > 0 and idx_end > 0:
-		blockcontent = content[idx+8:idx_end]
+		blockcontent = content[idx+5:idx_end]
 		data = []
 		block_idx = 0
 		while True:
@@ -100,6 +110,7 @@ def get_second_table(content:str, idx:int)->list:
 	table_data = []
 	idx = content.find("<table", idx)
 	idx_end = content.find("</table", idx)
+	is_first_row = True
 	while idx > 0 and idx < idx_end:
 		rowcontent, idx = get_table_row(content, idx)
 		if idx >= 0:
@@ -117,7 +128,11 @@ def get_second_table(content:str, idx:int)->list:
 				continue
 			cell5_content, row_idx = get_cell_content(rowcontent, row_idx)
 			data = [ cell1_content, cell3_content, cell4_content, cell2_content, cell5_content ]
-			table_data.append(data)
+			# Drop the first row, because it's the table header
+			if is_first_row:
+				is_first_row = False
+			else:
+				table_data.append(data)
 	return [ table_data, idx_end ]
 
 def reduce_to_four(datalist:list)->list:
@@ -137,17 +152,30 @@ def parse_idbook(content:str)->list:
 	part2 = reduce_to_four(get_paragraphs(content, idx))
 	part3, idx = get_second_table(content, idx)
 	part3 = reduce_to_four(part3)
-	return [part1, part2, part3]
+	return part1 + part2 + part3
 
 def test_display_of_data(data:list):
-	for part in data:
-		for line in part:
-			print('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (line[0], line[1], line[2], line[3]))
+	for line in data:
+		print('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (line[0], line[1], line[2], line[3]))
 
 if __name__ == '__main__':
-	with open(idbookfile, 'r') as f:
-		idbookcontent = f.read()
-	data = parse_idbook(idbookcontent)
-	print('<html><body><table><tbody>')
-	test_display_of_data(data)
-	print('</tbody></table></body></html>')
+	is_cgi = True
+	if is_cgi:
+		print("Content-type: text/plain\n\n")
+
+		with open(idbookfile, 'r') as f:
+			idbookcontent = f.read()
+		data = parse_idbook(idbookcontent)
+		data.sort(key=lambda x: x[0].lower())
+
+		print(json.dumps(data))
+
+	else:
+		with open(idbookfile, 'r') as f:
+			idbookcontent = f.read()
+		data = parse_idbook(idbookcontent)
+		data.sort(key=lambda x: x[0].lower())
+		print('<html><body>Number of rows: %s<table><tbody>' % str(len(data)))
+		print('<style>table, th, td { border: 1px solid; }</style>')
+		test_display_of_data(data)
+		print('</tbody></table></body></html>')
