@@ -322,6 +322,7 @@ TOPLEVEL += $(TOOLSPATH)/interface/resources/copiedalert.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/getnnl.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/tooltip.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/dbjsondecrypt.js
+TOPLEVEL += $(TOOLSPATH)/interface/resources/delayedpopup.js
 TOPLEVEL += $(MEDIAPATH)/favicon-192x192.png
 TOPLEVEL += $(MEDIAPATH)/favicon-32x32.png
 TOPLEVEL += $(MEDIAPATH)/favicon-16x16.png
@@ -347,6 +348,7 @@ TESTS += $(TOOLSPATH)/misc/test_webfileread.html
 TESTS += $(TOOLSPATH)/misc/test_timed_close.html
 TESTS += $(TOOLSPATH)/misc/test_crypto.html
 TESTS += $(TOOLSPATH)/misc/test_encrypt_idbook.html
+TESTS += $(TOOLSPATH)/misc/test_delayed_hover.html
 
 # CGI processors that are used by test HTML pages
 TESTCGI =

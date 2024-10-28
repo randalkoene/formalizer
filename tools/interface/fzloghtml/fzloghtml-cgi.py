@@ -110,6 +110,7 @@ Add entry for <input type="submit" name="makeentry" value="Log Chunk Node" /> or
 <button class="button2" onclick="copyInnerHTMLToClipboard('lnkblank_tpl');">copy</button> <span id="lnkblank_tpl"><a href="URL" target="_blank">target</a></span>
 <button class="button2" onclick="copyInnerHTMLToClipboard('lnklocaldoc_tpl');">copy</button> <span id="lnklocaldoc_tpl"><a href="@FZSERVER@/doc/" target="_blank">~/doc/path</a></span>
 <button class="button2" onclick="copyInnerHTMLToClipboard('lnklocalwww_tpl');">copy</button> <span id="lnklocalwww_tpl"><a href="@FZSERVER@/" target="_blank">/var/www/html/path</a></span>
+<button class="button2" onclick="copyInnerHTMLToClipboard('img_tpl');">copy</button> <span id="img_tpl"><img class="hoverdelayfunc" src="/favicon.png" width=32px height=32px></span>
 <button class="button2" onclick="copyInnerHTMLToClipboard('acttype_tpl');">copy</button> <span id="acttype_tpl">@ACTTYPE=A100@</span>
 <p></p>
 </div>
@@ -143,6 +144,10 @@ or<br />
 
 <p>[<a href="/index.html">fz: Top</a>] <span id="logautoupdate">_</span></p>
 
+<script type="text/javascript" src="/delayedpopup.js"></script>
+<script>
+set_hover_delayed_function(enlargeImage, 1000);
+</script>
 <script type="text/javascript" src="/logautoupdate.js"></script>
 '''
 
