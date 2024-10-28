@@ -43,9 +43,19 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla ante est, digniss
 <div id="encrypted">
 </div>
 
+<h3>Retrieved encrypted</h3>
+
+<div id="retrieved">
+</div>
+
 <h3>Decrypted</h3>
 
 <div id="decrypted">
+</div>
+
+<h3>HTML table</h3>
+
+<div id="htmltable">
 </div>
 
 <!--
@@ -71,8 +81,45 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla ante est, digniss
 </p>
 
 <p>
-Save encrypted to file: <input type="text" id="savefile">
+Save decrypted to file: <input type="text" id="savefile">
 </p>
+
+<script>
+var unencrypted_str = '';
+var encrypted_str = '';
+var decrypted_str = '';
+var retrieved_str = '';
+
+function saveFile(url, filename) {
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename || "file-name";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+function save_to_file(filename) {
+	//const encrypted_ref = document.getElementById('encrypted');
+	// Create blob object with file content
+	// var blob = new Blob([encrypted_str], {
+	//    type: "text/plain;charset=utf-8",
+	// });
+	var blob = new Blob([decrypted_str], {
+	   type: "text/plain;charset=utf-8",
+	});
+
+	const url = window.URL.createObjectURL(blob);
+	saveFile(url, filename);
+	window.URL.revokeObjectURL(url);
+}
+document.getElementById('savefile').addEventListener('change', function() {
+	// Handle password submission
+	var filename = document.getElementById('savefile').value;
+	console.log("Saving to file:", filename);
+	save_to_file(filename);
+});
+
+</script>
 
 <script type="module">
 // for large strings, use this from https://stackoverflow.com/a/49124600
@@ -182,10 +229,10 @@ async function example(password) {
 	const encrypted_ref = document.getElementById('encrypted');
 	const decrypted_ref = document.getElementById('decrypted');
 	//let password = 'helloworld';
-	var encrypted = await encryptData(unencrypted_ref.innerHTML, password);
-	encrypted_ref.innerHTML = encrypted;
-	var decrypted = await decryptData(encrypted, password);
-	decrypted_ref.innerHTML = decrypted;
+	encrypted_str = await encryptData(unencrypted_str, password);
+	encrypted_ref.innerHTML = encrypted_str;
+	decrypted_str = await decryptData(encrypted_str, password);
+	decrypted_ref.innerHTML = decrypted_str;
 }
 
 async function openPasswordModal() {
@@ -226,7 +273,8 @@ async function getFile(filename) {
   		data = data.substring(body_content_idx, body_close_idx);
 
   		const unencrypted_ref = document.getElementById('unencrypted');
-  		unencrypted_ref.innerHTML = data;
+  		unencrypted_str = data;
+  		unencrypted_ref.innerHTML = unencrypted_str;
   	});
 }
 
@@ -247,8 +295,9 @@ async function getJSONdata() {
 	fetch('/cgi-bin/convert_idbook.py')
 	.then(response => response.text())
 	.then((data) => {
+		unencrypted_str = data;
 		const unencrypted_ref = document.getElementById('unencrypted');
-		unencrypted_ref.innerHTML = data;
+		unencrypted_ref.innerHTML = unencrypted_str;
 	});
 }
 
@@ -256,13 +305,13 @@ function sendData() {
 	return new Promise(function (resolve, reject) {
 		document.getElementById('sendToDatabase').addEventListener('click', function() {
 			// Send encrypted data to database writing script
-			var encrypted_data = document.getElementById('encrypted').innerHTML;
+			//var encrypted_data = document.getElementById('encrypted').innerHTML;
 			console.log("Sending to database.");
 			let formData = new FormData();
 			formData.append('action', 'store');
 			formData.append('tablename', 'idbook');
 			formData.append('index', 'idbook');
-			formData.append('data', encrypted_data);
+			formData.append('data', encrypted_str);
 			formData.append('type', 'text');
 			fetch("/cgi-bin/fzmetricspq-cgi.py", {
 			method: 'POST',
@@ -277,40 +326,68 @@ function sendData() {
 	});
 }
 
-//await openLoadFile();
-//await loadFile();
+async function getJSONfromDatabase() {
+	fetch('/cgi-bin/fzmetricspq-cgi.py?action=read&index=idbook&tablename=idbook')
+	.then(response => response.json())
+	.then((data) => {
+		retrieved_str = data['idbook'];
+		var retrieved_ref = document.getElementById('retrieved');
+		retrieved_ref.innerHTML = retrieved_str;
+	});
+}
+
+async function printHTMLtable(data_json_str) {
+	//const decrypted_ref = document.getElementById('decrypted');
+	const htmltable_ref = document.getElementById('htmltable');
+	const data_obj = JSON.parse(data_json_str); // JSON.parse(String.raw(data_json_str));
+
+	var htmltable_str = '<table></tbody>\n';
+	for (var row = 0; row < data_obj.length; ++row) {
+		htmltable_str += `<tr><td>${data_obj[row][0]}</td><td>${data_obj[row][1]}</td><td>${data_obj[row][2]}</td><td>${data_obj[row][3]}</td></tr>\n`;
+	}
+	htmltable_str += '</tbody></table>\n';
+
+	htmltable_ref.innerHTML = `<p>Number of elements: ${data_obj.length}</p>\n${htmltable_str}`;
+}
+
+async function decrypt_retrieved(password) {
+	const decrypted_ref = document.getElementById('decrypted');
+	decrypted_str = await decryptData(retrieved_str, password);
+	decrypted_ref.innerHTML = decrypted_str;
+	await printHTMLtable(decrypted_str);
+}
+
+function requestDecryptPassword() {
+	return new Promise(function (resolve, reject) {
+		document.getElementById('submitPassword').addEventListener('click', function() {
+        	// Handle password submission
+        	var password = document.getElementById('password').value;
+        	console.log("Password entered:", password);
+        	document.getElementById('passwordModal').style.display = 'none';
+        	decrypt_retrieved(password);
+        	resolve();
+    	});
+	});
+}
+
+/* The following code is used to get converted idbook data from the conversion
+   script, encrypt it and store it in the database. The same encryption and
+   storage process can be used to update the data.
+*/
+/*
 await getJSONdata();
 await openPasswordModal();
 await requestPassword();
 await sendData();
-</script>
+*/
 
-<script>
-function saveFile(url, filename) {
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename || "file-name";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-function save_to_file(filename) {
-	const encrypted_ref = document.getElementById('encrypted');
-	// Create blob object with file content
-	var blob = new Blob([encrypted_ref.innerHTML], {
-	   type: "text/plain;charset=utf-8",
-	});
+/* The following code is used to retrieve encrypted idbook data from the
+   database, decrypt it and present it in an HTMl table.
+*/
 
-	const url = window.URL.createObjectURL(blob);
-	saveFile(url, filename);
-	window.URL.revokeObjectURL(url);
-}
-document.getElementById('savefile').addEventListener('change', function() {
-	// Handle password submission
-	var filename = document.getElementById('savefile').value;
-	console.log("Saving to file:", filename);
-	save_to_file(filename);
-});
+await getJSONfromDatabase();
+await openPasswordModal();
+await requestDecryptPassword();
 
 </script>
 

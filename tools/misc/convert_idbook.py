@@ -54,6 +54,10 @@ def remove_html_tags(content:str)->str:
 	raw_content = re.sub('[<][^>]*[>]','', content)
 	return raw_content
 
+def replace_quotes(content:str)->str:
+	new_content = content.replace('"','`')
+	return new_content
+
 def get_first_table(content:str)->list:
 	table_data = []
 	idx = content.find("<body")
@@ -65,16 +69,19 @@ def get_first_table(content:str)->list:
 			cell1_content, row_idx = get_cell_content(rowcontent, 0)
 			if row_idx < 0:
 				continue
-			cell1_content = remove_html_tags(cell1_content)
+			cell1_content = replace_quotes(remove_html_tags(cell1_content))
 			cell2_content, row_idx = get_cell_content(rowcontent, row_idx)
 			if row_idx < 0:
 				continue
+			cell2_content = replace_quotes(cell2_content)
 			cell3_content, row_idx = get_cell_content(rowcontent, row_idx)
 			if row_idx < 0:
 				continue
+			cell3_content = replace_quotes(cell3_content)
 			cell4_content, row_idx = get_cell_content(rowcontent, row_idx)
 			if row_idx < 0:
 				continue
+			cell4_content = replace_quotes(cell4_content)
 			data = get_data(cell1_content, cell2_content, cell3_content, cell4_content)
 			# Drop empty rows
 			if cell1_content != '':
@@ -91,7 +98,7 @@ def get_par_content(content:str, idx:int)->tuple:
 	idx_end = content.find("</p>", idx)
 	if idx_end < 0:
 		return None, idx_end
-	parcontent = remove_html_tags(content[idx+1:idx_end]).strip()
+	parcontent = replace_quotes(remove_html_tags(content[idx+1:idx_end]).strip())
 	return parcontent, idx_end
 
 def get_paragraphs(content:str, idx:int)->list:
@@ -124,16 +131,23 @@ def get_second_table(content:str, idx:int)->list:
 			cell1_content, row_idx = get_cell_content(rowcontent, 0)
 			if row_idx < 0:
 				continue
+			cell1_content = replace_quotes(cell1_content)
 			cell2_content, row_idx = get_cell_content(rowcontent, row_idx)
 			if row_idx < 0:
 				continue
+			cell2_content = replace_quotes(cell2_content)
 			cell3_content, row_idx = get_cell_content(rowcontent, row_idx)
 			if row_idx < 0:
 				continue
+			cell3_content = replace_quotes(cell3_content)
 			cell4_content, row_idx = get_cell_content(rowcontent, row_idx)
 			if row_idx < 0:
 				continue
+			cell4_content = replace_quotes(cell4_content)
 			cell5_content, row_idx = get_cell_content(rowcontent, row_idx)
+			if row_idx < 0:
+				continue
+			cell5_content = replace_quotes(cell5_content)
 			data = [ cell1_content, cell3_content, cell4_content, cell2_content, cell5_content ]
 			# Drop the first row, because it's the table header
 			if is_first_row:

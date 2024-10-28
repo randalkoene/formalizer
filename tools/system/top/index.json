@@ -377,6 +377,10 @@
         "G-Keep (@carboncopies)" : {
             "url" : "http://keep.google.com/?authuser=rkoene@carboncopies.org",
             "window" : "_blank"
+        },
+        "ID Book" : {
+            "url" : "/idbook.html",
+            "window" : "_blank"
         }
     },
     "Action: " : {

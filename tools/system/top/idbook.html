@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<HTML>
+
+<HEAD>
+<link rel="icon" href="/favicon-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<style>
+th, td {
+    padding: 5px;
+    font-size: 14px;
+}
+td:hover {
+    background-color: bisque;
+}
+</style>
+<style>
+#passwordModal {
+display: none;
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+background-color: white;
+padding: 20px;
+border-radius: 5px;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+</style>
+<TITLE>fz: ID Book</TITLE>
+</HEAD>
+<BODY>
+    
+<H1>fz: ID Book</H1>
+
+<div id="htmltable">
+</div>
+
+<div id="passwordModal">
+<label for="password">Password:</label>
+<input type="password" id="password">
+<button id="submitPassword">Submit</button>
+</div>
+
+<hr>
+
+[<a href="/index.html">fz: Top</a>]
+
+<script type="text/javascript" src="/fzuistate.js"></script>
+
+<script>
+function printHTMLtable(data_json_str) {
+    const htmltable_ref = document.getElementById('htmltable');
+    const data_obj = JSON.parse(data_json_str);
+
+    var htmltable_str = '<table></tbody>\n';
+    for (var row = 0; row < data_obj.length; ++row) {
+        htmltable_str += `<tr><td>${data_obj[row][0]}</td><td>${data_obj[row][1]}</td><td>${data_obj[row][2]}</td><td>${data_obj[row][3]}</td></tr>\n`;
+    }
+    htmltable_str += '</tbody></table>\n';
+
+    htmltable_ref.innerHTML = `<p>Number of elements: ${data_obj.length}</p>\n${htmltable_str}`;
+}
+</script>
+
+<script type="module">
+import { getJSONfromDatabase, openPasswordModal, requestDecryptPassword } from './dbjsondecrypt.js';
+await getJSONfromDatabase('/cgi-bin/fzmetricspq-cgi.py?action=read&index=idbook&tablename=idbook', 'idbook');
+await openPasswordModal('passwordModal');
+await requestDecryptPassword('passwordModal', 'submitPassword', 'password', printHTMLtable);
+</script>
+
+</BODY>
+</HTML>
