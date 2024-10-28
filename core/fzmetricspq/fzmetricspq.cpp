@@ -458,12 +458,12 @@ std::string get_data_content(const std::string& str) {
 int store_in_generic_table() {
     ERRTRACE;
 
-    if (!fzmet.datajson.at(0).empty()) return standard_error("Storing "+fzmet.generic_table+" data failed.", __func__);
+    if (fzmet.datajson.at(0).empty()) return standard_error("Storing "+fzmet.generic_table+" data failed, no data provided.", __func__);
 
     Metrics_wiztable data(fzmet.generic_table, fzmet.index, get_data_content(fzmet.datajson.at(0)));
 
     if (!store_Metrics_data_pq(data, fzmet.pa)) {
-        return standard_error("Storing "+fzmet.generic_table+" data failed.", __func__);
+        return standard_error("Storing "+fzmet.generic_table+" data failed, database operation failed.", __func__);
     }
 
     VERYVERBOSEOUT("Stored to "+fzmet.generic_table+".\n");

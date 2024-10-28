@@ -6,8 +6,15 @@
 # This is then used to put the information into the database and to
 # read and update it through a Formalizer page.
 
+try:
+    import cgitb; cgitb.enable()
+except:
+    pass
+import sys, cgi, os
+sys.stderr = sys.stdout
 import re
 import json
+import traceback
 
 idbookfile='/home/randalk/_private-info/doc/html/idbook-202006040905.html'
 
@@ -162,7 +169,6 @@ if __name__ == '__main__':
 	is_cgi = True
 	if is_cgi:
 		print("Content-type: text/plain\n\n")
-
 		with open(idbookfile, 'r') as f:
 			idbookcontent = f.read()
 		data = parse_idbook(idbookcontent)

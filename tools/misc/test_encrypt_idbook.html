@@ -19,7 +19,8 @@ box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 </head>
 <body>
 
-<p>This is a standardized crypto test.</p>
+<h1>Encrypting converted idbook</h1>
+
 <p>Beware that it may only work on localhost when in HTTP (rather than HTTPS) mode.</p>
 
 <div id="rawkey">
@@ -47,6 +48,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla ante est, digniss
 <div id="decrypted">
 </div>
 
+<!--
 <button id="openLoadFile">Load File</button> (e.g. http://localhost/integrity.html)
 
 <div id="LoadFileModal">
@@ -54,6 +56,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla ante est, digniss
 <input type="text" id="filename">
 <button id="submitLoadFile">Submit</button>
 </div>
+-->
 
 <button id="openPasswordModal">Enter Password</button>
 
@@ -62,6 +65,10 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla ante est, digniss
 <input type="password" id="password">
 <button id="submitPassword">Submit</button>
 </div>
+
+<p>
+<button id="sendToDatabase">Send encrypted to database</button>
+</p>
 
 <p>
 Save encrypted to file: <input type="text" id="savefile">
@@ -245,11 +252,37 @@ async function getJSONdata() {
 	});
 }
 
+function sendData() {
+	return new Promise(function (resolve, reject) {
+		document.getElementById('sendToDatabase').addEventListener('click', function() {
+			// Send encrypted data to database writing script
+			var encrypted_data = document.getElementById('encrypted').innerHTML;
+			console.log("Sending to database.");
+			let formData = new FormData();
+			formData.append('action', 'store');
+			formData.append('tablename', 'idbook');
+			formData.append('index', 'idbook');
+			formData.append('data', encrypted_data);
+			formData.append('type', 'text');
+			fetch("/cgi-bin/fzmetricspq-cgi.py", {
+			method: 'POST',
+			body: formData
+			})
+			.then(response => response.text())
+			.then(data => {
+				console.log(JSON.stringify(data));
+			});
+			resolve();
+		});
+	});
+}
+
 //await openLoadFile();
 //await loadFile();
 await getJSONdata();
 await openPasswordModal();
 await requestPassword();
+await sendData();
 </script>
 
 <script>
@@ -278,6 +311,7 @@ document.getElementById('savefile').addEventListener('change', function() {
 	console.log("Saving to file:", filename);
 	save_to_file(filename);
 });
+
 </script>
 
 </body>

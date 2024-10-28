@@ -195,6 +195,7 @@ CGIEXE += $(COREPATH)/fzbackup/fzbackup-from-web-cgi.py
 CGIEXE += $(COREPATH)/fzedit/fzedit-cgi.py
 CGIEXE += $(COREPATH)/fzedit/fzeditbatch-cgi.py
 CGIEXE += $(COREPATH)/fzgraph/fzgraph-cgi.py
+CGIEXE += $(COREPATH)/fzmetricspq/fzmetricspq-cgi.py
 CGIEXE += $(COREPATH)/fzgraphsearch/fzgraphsearch-cgi.py
 CGIEXE += $(COREPATH)/fzguide.system/fzguide.system-cgi.py
 CGIEXE += $(COREPATH)/fzlog/fzlog-cgi.py
