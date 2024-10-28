@@ -39,6 +39,7 @@ function openPopup(a_ref) {
   newDiv.addEventListener('mouseout', () => {
     newDiv.remove();
   });
+  console.log("Preview generated.");
 }
 
 function enlargeImage(img_ref) {
@@ -60,5 +61,37 @@ function enlargeImage(img_ref) {
 
   newImg.addEventListener('mouseout', () => {
     newImg.remove();
+  });
+}
+
+function pastePopupLink(class_id, textarea_id) {
+  const textarea = document.getElementById(textarea_id);
+
+  textarea.addEventListener("paste", (event) => {
+
+    // Prevent the default paste behavior
+    event.preventDefault();
+
+    // Get the pasted text from the clipboard
+    var pastedText = event.clipboardData.getData('text/plain');
+
+    const http_regex = /^http:/;
+    const https_regex = /^https:/;
+
+    if (pastedText.match(http_regex) || pastedText.match(https_regex)) {
+      pastedText = `<a class="${class_id}" href="${pastedText}" target="_blank">${pastedText}</a>`;
+    }
+
+    // Get the current cursor position
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    // Insert the pasted text at the cursor position
+    const originalText = textarea.value;
+    textarea.value = originalText.slice(0, start) + pastedText + originalText.slice(end);
+
+    // Update the cursor position after pasting
+    textarea.setSelectionRange(start + pastedText.length, start + pastedText.length);
+
   });
 }

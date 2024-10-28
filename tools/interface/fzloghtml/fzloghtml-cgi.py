@@ -99,7 +99,7 @@ const state_of_log = new logState(logstate_id="timerBarText");
 cgi_custom_tail = '''
 <p>Enter HTML text here to append a Log Entry:
 <form action="/cgi-bin/logentry-form.py" method="post"><input type="hidden" name="showrecent" value="on">
-<textarea rows="10" cols="100" name="entrytext"></textarea><br>
+<textarea id="entrytext" rows="10" cols="100" name="entrytext"></textarea><br>
 Add entry for <input type="submit" name="makeentry" value="Log Chunk Node" /> or <input type="submit" name="makeentry" value="Other Node" /> | <input type="submit" name="makeentry" value="Templates" /> | [<a href="/cgi-bin/metrictags.py" target="_blank">Show Metric Tags</a>].
 </form>
 </p>
@@ -148,6 +148,7 @@ or<br />
 <script>
 set_hover_delayed_function('.hoverdelayfunc', enlargeImage, 1000);
 set_hover_delayed_function('.docpopupfunc', openPopup, 1000);
+pastePopupLink('docpopupfunc', 'entrytext');
 </script>
 <script type="text/javascript" src="/logautoupdate.js"></script>
 '''

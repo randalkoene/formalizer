@@ -32,11 +32,13 @@ echo ""
 todaydate=`date +%F`
 Ymddate=`date +%Y%m%d`
 
-daywizjsonpath="$HOME/.formalizer/archive/daywiz_data-$Ymddate.json"
-cp /var/www/webdata/formalizer/.daywiz_data.json $daywizjsonpath
+# 20241028 RK - The DayWiz data is now stored within the database,
+# so the following steps are now commented out.
+# daywizjsonpath="$HOME/.formalizer/archive/daywiz_data-$Ymddate.json"
+# cp /var/www/webdata/formalizer/.daywiz_data.json $daywizjsonpath
 
-echo "Copied DayWiz JSON data to $daywizjsonpath."
-echo ""
+# echo "Copied DayWiz JSON data to $daywizjsonpath."
+# echo ""
 
 fzdaily.sh
 

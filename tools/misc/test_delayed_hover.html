@@ -11,7 +11,43 @@
 <img class="hoverdelayfunc" src="https://upload.wikimedia.org/wikipedia/commons/d/dc/RCA_Indian_Head_test_pattern.png" width=150px height=150px>
 
 <script>
-	set_hover_delayed_function(enlargeImage, 1000);
+	set_hover_delayed_function('.hoverdelayfunc', enlargeImage, 1000);
+</script>
+
+<textarea id="modifiedpaste" name="modifiedpaste" rows="4" cols="50">
+Paste within this text while modifying links.
+</textarea>
+
+<script>
+const textarea = document.getElementById("modifiedpaste");
+
+textarea.addEventListener("paste", (event) => {
+
+  // Prevent the default paste behavior
+  event.preventDefault();
+
+  // Get the pasted text from the clipboard
+  var pastedText = event.clipboardData.getData('text/plain');
+
+  const http_regex = /^http:/;
+  const https_regex = /^https:/;
+
+  if (pastedText.match(http_regex) || pastedText.match(https_regex)) {
+  	pastedText = `<a class="docpopupfunc" href="${pastedText}" target="_blank">${pastedText}</a>`;
+  }
+
+  // Get the current cursor position
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+
+  // Insert the pasted text at the cursor position
+  const originalText = textarea.value;
+  textarea.value = originalText.slice(0, start) + pastedText + originalText.slice(end);
+
+  // Update the cursor position after pasting
+  textarea.setSelectionRange(start + pastedText.length, start + pastedText.length);
+
+});
 </script>
 
 </body>
