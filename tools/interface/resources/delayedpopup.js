@@ -79,7 +79,7 @@ function pastePopupLink(class_id, textarea_id) {
     const https_regex = /^https:/;
 
     if (pastedText.match(http_regex) || pastedText.match(https_regex)) {
-      pastedText = `<a class="${class_id}" href="${pastedText}" target="_blank">${pastedText}</a>`;
+      pastedText = `<a href="${pastedText}" class="${class_id}" target="_blank">${pastedText}</a>`;
     }
 
     // Get the current cursor position

@@ -57,6 +57,13 @@ bool lowercase_equal(const std::string & lowermatch, const std::string & content
     return true;
 }
 
+/**
+ * Note: This expects a very specific sequence of matches. For example,
+ *       in the case of a link, it expects that "href" will be the first
+ *       specifier that follows the "a" tag.
+ *       This is a bit unflexible and causes some difficulties if the link
+ *       is given a "class" and that appears before the "href".
+ */
 bool lowercase_match_skipping_spaces(const std::vector<std::string> & match_vec, const std::string & content, size_t start_at, size_t * url_start_ptr) {
     for (size_t i = 0; i < match_vec.size(); i++) {
         if (!lowercase_equal(match_vec.at(i), content, start_at)) return false;
