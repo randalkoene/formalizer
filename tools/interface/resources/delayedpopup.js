@@ -12,9 +12,9 @@ function hoverWithDelay(element, callback, delay) {
   });
 }
 
-function set_hover_delayed_function(func_ref, delay_ms) {
+function set_hover_delayed_function(class_dotid, func_ref, delay_ms) {
   // All elements on the page with the hoverdelayfunc class.
-  const elements = document.querySelectorAll(".hoverdelayfunc");
+  const elements = document.querySelectorAll(class_dotid);
   var prepared = 0;
   for (let i = 0; i < elements.length; i++) {
     hoverWithDelay(elements[i], func_ref, delay_ms);
@@ -23,12 +23,22 @@ function set_hover_delayed_function(func_ref, delay_ms) {
   console.log(`Prepared ${prepared} delayed hover elements.`);
 }
 
-function openPopup(url) {
-  const newWindow = window.open(url, '_blank', 'height=500,width=800');
-
-  if (window.focus) {
-    newWindow.focus();
-  }
+function openPopup(a_ref) {
+  const url = a_ref.href;
+  const newDiv = document.createElement("div");
+  newDiv.innerHTML = `<iframe src="${url}" width = "750px" height = "750px"></iframe>`;
+  document.body.appendChild(newDiv);
+  newDiv.style.zIndex = "999";
+  newDiv.style.position = "fixed";
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const elementWidth = newDiv.offsetWidth;
+  const elementHeight = newDiv.offsetHeight;
+  newDiv.style.left = (viewportWidth - elementWidth) / 2 + "px";
+  newDiv.style.top = (viewportHeight - elementHeight) / 2 + "px";
+  newDiv.addEventListener('mouseout', () => {
+    newDiv.remove();
+  });
 }
 
 function enlargeImage(img_ref) {
