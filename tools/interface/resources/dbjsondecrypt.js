@@ -7,6 +7,7 @@
 
 var retrieved_str = '';
 var decrypted_str = '';
+var cached_passwordKey = null;
 
 async function getJSONfromDatabase(url, index) {
     fetch(url)
@@ -19,6 +20,13 @@ async function getJSONfromDatabase(url, index) {
 async function openPasswordModal(pwblock_id) {
     document.getElementById(pwblock_id).style.display = 'block';
 }
+
+// for large strings, use this from https://stackoverflow.com/a/49124600
+const buff_to_base64 = (buff) => btoa(
+  new Uint8Array(buff).reduce(
+    (data, byte) => data + String.fromCharCode(byte), ''
+  )
+);
 
 const base64_to_buf = (b64) =>
   Uint8Array.from(atob(b64), (c) => c.charCodeAt(null));
@@ -52,6 +60,7 @@ async function decryptData(encryptedData, password) {
     const iv = encryptedDataBuff.slice(16, 16 + 12);
     const data = encryptedDataBuff.slice(16 + 12);
     const passwordKey = await getPasswordKey(password);
+    cached_passwordKey = passwordKey;
     const aesKey = await deriveKey(passwordKey, salt, ["decrypt"]);
     const decryptedContent = await window.crypto.subtle.decrypt(
       {
@@ -71,7 +80,7 @@ async function decryptData(encryptedData, password) {
 
 async function decrypt_retrieved(password, displayJSONstr_func) {
     decrypted_str = await decryptData(retrieved_str, password);
-    displayJSONstr_func(decrypted_str);
+    await displayJSONstr_func(decrypted_str);
 }
 
 function requestDecryptPassword(pwblock_id, pwsubmit_id, pwinput_id, displayJSONstr_func) {
@@ -87,4 +96,59 @@ function requestDecryptPassword(pwblock_id, pwsubmit_id, pwinput_id, displayJSON
     });
 }
 
-export { getJSONfromDatabase, openPasswordModal, requestDecryptPassword };
+async function encryptData(secretData) { //, password) {
+  try {
+    const salt = window.crypto.getRandomValues(new Uint8Array(16));
+    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+    //const passwordKey = await getPasswordKey(password);
+    const passwordKey = cached_passwordKey;
+    const aesKey = await deriveKey(passwordKey, salt, ["encrypt"]);
+    const encryptedContent = await window.crypto.subtle.encrypt(
+      {
+        name: "AES-GCM",
+        iv: iv,
+      },
+      aesKey,
+      enc.encode(secretData)
+    );
+
+    const encryptedContentArr = new Uint8Array(encryptedContent);
+    let buff = new Uint8Array(
+      salt.byteLength + iv.byteLength + encryptedContentArr.byteLength
+    );
+    buff.set(salt, 0);
+    buff.set(iv, salt.byteLength);
+    buff.set(encryptedContentArr, salt.byteLength + iv.byteLength);
+    const base64Buff = buff_to_base64(buff);
+    return base64Buff;
+  } catch (e) {
+    console.log(`Error - ${e}`);
+    return "";
+  }
+}
+
+function sendEncryptedJSONtoDatabase(encrypted_str, url, tablename, index) {
+  // Send encrypted data to database writing script
+  console.log("Sending to database.");
+  let formData = new FormData();
+  formData.append('action', 'store');
+  formData.append('tablename', tablename);
+  formData.append('index', index);
+  formData.append('data', encrypted_str);
+  formData.append('type', 'text');
+  fetch("/cgi-bin/fzmetricspq-cgi.py", {
+  method: 'POST',
+  body: formData
+  })
+  .then(response => response.text())
+  .then(data => {
+    console.log(JSON.stringify(data));
+  });
+}
+
+async function encryptJSONtoDatabase(unencrypted_str, url, tablename, index) {
+  var encrypted_str = await encryptData(unencrypted_str, password);
+  sendEncryptedJSONtoDatabase(encrypted_str, url, tablename, index);
+}
+
+export { getJSONfromDatabase, openPasswordModal, requestDecryptPassword, encryptJSONtoDatabase };

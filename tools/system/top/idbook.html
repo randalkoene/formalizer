@@ -23,12 +23,20 @@ padding: 20px;
 border-radius: 5px;
 box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
+#addButton {
+position: fixed;
+top: 5px;
+right: 5px;
+z-index: 10;
+}
 </style>
 <TITLE>fz: ID Book</TITLE>
 </HEAD>
 <BODY>
     
 <H1>fz: ID Book</H1>
+
+<button id="addButton" class="button button1">Add</button>
 
 <div id="htmltable">
 </div>
@@ -46,22 +54,166 @@ box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 <script type="text/javascript" src="/fzuistate.js"></script>
 
 <script>
-function printHTMLtable(data_json_str) {
-    const htmltable_ref = document.getElementById('htmltable');
-    const data_obj = JSON.parse(data_json_str);
 
-    var htmltable_str = '<table></tbody>\n';
+</script>
+
+<script type="module">
+import { getJSONfromDatabase, openPasswordModal, requestDecryptPassword, encryptJSONtoDatabase } from './dbjsondecrypt.js';
+
+// Insert at the index returned by this function.
+function findInsertionPoint(data_obj, values) {
+  let low = 0;
+  let high = data_obj.length - 1;
+  let firstCollowercase = values[0].toLowerCase();
+
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2);
+    const currentStr = data_obj[mid][0].toLowerCase();
+
+    if (firstCollowercase < currentStr) {
+      high = mid - 1;
+    } else if (firstCollowercase > currentStr) {
+      low = mid + 1;
+    } else {
+      return mid; // Found the same string
+    }
+  }
+
+  return low; // Insertion point
+}
+
+async function updateRow(data_obj, rowIndex, row_length, newDiv) {
+    console.log(`Update row ${rowIndex}.`);
+    // Get data from text areas
+    var values = [];
+    for (let i=0; i<row_length; ++i) {
+        values.push( document.getElementById(`col${i}`).value );
+    }
+    console.log(`Values: ${values}`);
+    if (rowIndex == data_obj.length) {
+        let insertIndex = findInsertionPoint(data_obj, values);
+        console.log(`New row index: ${insertIndex}`);
+        data_obj.splice(insertIndex, 0, values);
+    } else {
+        let firstCollowercase = values[0].toLowerCase();
+        let sameIndex = true;
+        if (rowIndex>0) {
+            if (firstCollowercase < data_obj[rowIndex-1][0].toLowerCase()) {
+                sameIndex = false;
+            }
+        }
+        if (rowIndex<(data_obj.length-1)) {
+            if (firstCollowercase > data_obj[rowIndex+1][0].toLowerCase()) {
+                sameIndex = false;
+            }
+        }
+        if (sameIndex) {
+            console.log(`Updating to same row index: ${rowIndex}`);
+            data_obj[rowIndex] = values;
+        } else {
+            data_obj.splice(rowIndex, 1);
+            let insertIndex = findInsertionPoint(data_obj, values);
+            console.log(`Updating to new row index: ${insertIndex}`);
+            data_obj.splice(insertIndex, 0, values);
+        }
+    }
+    // Encrypt and send to database
+    var unencrypted_str = JSON.stringify(data_obj);
+    await encryptJSONtoDatabase(unencrypted_str, '/cgi-bin/fzmetricspq-cgi.py?action=read&index=idbook&tablename=idbook', 'idbook', 'idbook');
+    // Update values displayed
+    printHTMLtable_JSON(data_obj);
+    newDiv.remove();
+}
+
+async function openRow(data_obj, rowIndex) {
+    const newDiv = document.createElement("div");
+    var row_data = data_obj[rowIndex];
+    var row_str = '';
+    for (let i = 0; i < row_data.length; ++i) {
+        row_str += `<textarea id="col${i}" rows="7" cols="30">${row_data[i]}</textarea>\n`;
+    }
+    row_str += `<br><button id="close">Close</button> <button id="update">Update</button>\n`;
+    newDiv.innerHTML = row_str;
+    document.body.appendChild(newDiv);
+    newDiv.style.zIndex = "999";
+    newDiv.style.position = "fixed";
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const elementWidth = newDiv.offsetWidth;
+    const elementHeight = newDiv.offsetHeight;
+    newDiv.style.left = (viewportWidth - elementWidth) / 2 + "px";
+    newDiv.style.top = (viewportHeight - elementHeight) / 2 + "px";
+    const close_ref = document.getElementById("close");
+    const update_ref = document.getElementById("update");
+    close_ref.addEventListener('click', () => {
+        newDiv.remove();
+    });
+    update_ref.addEventListener('click', async () => {
+        await updateRow(data_obj, rowIndex, row_data.length, newDiv);
+    });
+}
+
+async function addRow(data_obj) {
+    const newDiv = document.createElement("div");
+    var row_length = data_obj[0].length;
+    var row_str = '';
+    for (let i = 0; i < row_length; ++i) {
+        row_str += `<textarea id="col${i}" rows="7" cols="30"></textarea>\n`;
+    }
+    row_str += `<br><button id="close">Close</button> <button id="add">Add</button>\n`;
+    newDiv.innerHTML = row_str;
+    document.body.appendChild(newDiv);
+    newDiv.style.zIndex = "999";
+    newDiv.style.position = "fixed";
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const elementWidth = newDiv.offsetWidth;
+    const elementHeight = newDiv.offsetHeight;
+    newDiv.style.left = (viewportWidth - elementWidth) / 2 + "px";
+    newDiv.style.top = (viewportHeight - elementHeight) / 2 + "px";
+    const close_ref = document.getElementById("close");
+    const add_ref = document.getElementById("add");
+    close_ref.addEventListener('click', () => {
+        newDiv.remove();
+    });
+    add_ref.addEventListener('click', async () => {
+        await updateRow(data_obj, data_obj.length, row_length, newDiv);
+    });
+}
+
+async function printHTMLtable_JSON(data_obj) {
+    const htmltable_ref = document.getElementById('htmltable');
+    var htmltable_str = '<table id="idbook"></tbody>\n';
     for (var row = 0; row < data_obj.length; ++row) {
         htmltable_str += `<tr><td>${data_obj[row][0]}</td><td>${data_obj[row][1]}</td><td>${data_obj[row][2]}</td><td>${data_obj[row][3]}</td></tr>\n`;
     }
     htmltable_str += '</tbody></table>\n';
 
     htmltable_ref.innerHTML = `<p>Number of elements: ${data_obj.length}</p>\n${htmltable_str}`;
-}
-</script>
 
-<script type="module">
-import { getJSONfromDatabase, openPasswordModal, requestDecryptPassword } from './dbjsondecrypt.js';
+    const table = document.getElementById("idbook");
+    table.addEventListener("click", async (event) => {
+        //console.log(event);
+        if (event.target.tagName === "TD") {
+            const row = event.target.parentNode;
+            const rowIndex = Array.from(table.rows).indexOf(row);
+            //const cellIndex = Array.from(row.cells).indexOf(target);
+            await openRow(data_obj, rowIndex);
+        }
+    });
+}
+
+async function printHTMLtable(data_json_str) {
+    const data_obj = JSON.parse(data_json_str);
+
+    await printHTMLtable_JSON(data_obj);
+
+    const addButton_ref = document.getElementById("addButton");
+    addButton_ref.addEventListener('click', async () => {
+        await addRow(data_obj);
+    });
+}
+
 await getJSONfromDatabase('/cgi-bin/fzmetricspq-cgi.py?action=read&index=idbook&tablename=idbook', 'idbook');
 await openPasswordModal('passwordModal');
 await requestDecryptPassword('passwordModal', 'submitPassword', 'password', printHTMLtable);
