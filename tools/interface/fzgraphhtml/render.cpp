@@ -821,6 +821,11 @@ const std::map<bool, std::string> supdep_td_highlight = {
     { true, "active-node"},
 };
 
+const std::string importance_tooltip =
+R"(<div style="width:500px;">The importance parameter of a Node on an Edge in a hierarchy is used when displaying the hierarchy in a Nodes board.
+Minimum importance is propagated along branches to calculate the relative strength of an Edge
+and can be used to determine which column or branch a Node appears in.</div>)";
+
 std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button = false, bool edit_edges = false) {
     std::string sups_str;
     std::string graphserveraddr = fzgh.replacements[fzserverpq_address]; // graph.get_server_full_address();
@@ -856,7 +861,7 @@ std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button
                     std::string edgeidstr(edge_ptr->get_id_str());
                     sups_str += "<br>dependency: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"dep_"+edgeidstr+"\" name=\"dep_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_dependency(), 2)+'>';
                     sups_str += " significance: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"sig_"+edgeidstr+"\" name=\"sig_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_significance(), 2)+'>';
-                    sups_str += " importance: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"imp_"+edgeidstr+"\" name=\"imp_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_importance(), 2)+'>';
+                    sups_str += " "+make_tooltip("importance", importance_tooltip)+": <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"imp_"+edgeidstr+"\" name=\"imp_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_importance(), 2)+'>';
                     sups_str += " urgency: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"urg_"+edgeidstr+"\" name=\"urg_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_urgency(), 2)+'>';
                     sups_str += " priority: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"pri_"+edgeidstr+"\" name=\"pri_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_priority(), 2)+'>';
                 } else {
@@ -864,7 +869,7 @@ std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button
                     sups_str += to_precision_string(edge_ptr->get_dependency(), 2);
                     sups_str += " significance: ";
                     sups_str += to_precision_string(edge_ptr->get_significance(), 2);
-                    sups_str += " importance: ";
+                    sups_str += " "+make_tooltip("importance", importance_tooltip)+": ";
                     sups_str += to_precision_string(edge_ptr->get_importance(), 2);
                     sups_str += " urgency: ";
                     sups_str += to_precision_string(edge_ptr->get_urgency(), 2);
@@ -909,7 +914,7 @@ std::string render_Node_dependencies(Graph & graph, Node & node, bool remove_but
                     std::string edgeidstr(edge_ptr->get_id_str());
                     deps_str += "<br>dependency: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"dep_"+edgeidstr+"\" name=\"dep_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_dependency(), 2)+'>';
                     deps_str += " significance: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"sig_"+edgeidstr+"\" name=\"sig_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_significance(), 2)+'>';
-                    deps_str += " importance: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"imp_"+edgeidstr+"\" name=\"imp_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_importance(), 2)+'>';
+                    deps_str += " "+make_tooltip("importance", importance_tooltip)+": <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"imp_"+edgeidstr+"\" name=\"imp_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_importance(), 2)+'>';
                     deps_str += " urgency: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"urg_"+edgeidstr+"\" name=\"urg_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_urgency(), 2)+'>';
                     deps_str += " priority: <input onchange=\"edge_update(event);\" type=\"number\" size=5 id=\"pri_"+edgeidstr+"\" name=\"pri_"+edgeidstr+"\" value="+to_precision_string(edge_ptr->get_priority(), 2)+'>';
                 } else {
@@ -917,7 +922,7 @@ std::string render_Node_dependencies(Graph & graph, Node & node, bool remove_but
                     deps_str += to_precision_string(edge_ptr->get_dependency(), 2);
                     deps_str += " significance: ";
                     deps_str += to_precision_string(edge_ptr->get_significance(), 2);
-                    deps_str += " importance: ";
+                    deps_str += " "+make_tooltip("importance", importance_tooltip)+": ";
                     deps_str += to_precision_string(edge_ptr->get_importance(), 2);
                     deps_str += " urgency: ";
                     deps_str += to_precision_string(edge_ptr->get_urgency(), 2);

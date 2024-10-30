@@ -160,5 +160,11 @@ std::string copy_html_from_id_js(const std::string & id);
  */
 std::string copy_value_from_id_js(const std::string & id);
 
+/**
+ * To use this, make sure the page includes:
+ * <link rel="stylesheet" href="/tooltip.css">
+ */
+std::string make_tooltip(const std::string& text, const std::string& tooltip_text);
+
 } // namespace fz
 #endif // __HTML_HPP

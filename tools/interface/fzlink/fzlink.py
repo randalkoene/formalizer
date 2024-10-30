@@ -36,6 +36,7 @@ page_header = '''<html>
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/fzuistate.css">
 <link rel="stylesheet" href="/clock.css">
+<link rel="stylesheet" href="/tooltip.css">
 <title>Formalizer: fzlink handler</title>
 </head>
 <body>

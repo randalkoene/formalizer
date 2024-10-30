@@ -647,4 +647,12 @@ std::string copy_value_from_id_js(const std::string & id) {
     return copyvaluejs_template_A+id+copyvaluejs_template_B;
 }
 
+/**
+ * To use this, make sure the page includes:
+ * <link rel="stylesheet" href="/tooltip.css">
+ */
+std::string make_tooltip(const std::string& text, const std::string& tooltip_text) {
+    return "<span class=\"tooltip\">"+text+"<span class=\"tooltiptext\">"+tooltip_text+"</span></span>";
+}
+
 } // namespace fz

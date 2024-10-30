@@ -239,6 +239,7 @@ editpagehead = '''<html>
 <link rel="stylesheet" href="/bluetable.css">
 <link rel="stylesheet" href="/fzuistate.css">
 <link rel="stylesheet" href="/clock.css">
+<link rel="stylesheet" href="/tooltip.css">
 <title>Formalizer: Edit Node</title>
 </head>
 <body>
