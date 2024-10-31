@@ -998,8 +998,8 @@ bool Node::in_topic(const std::string topictag, float * topicrel, Topic_Tags * t
             if (topictag == t_ptr->get_tag().c_str()) {
                 if (topicrel) {
                     (*topicrel) = topic_rel;
-                    return true;
                 }
+                return true;
             }
         }   
     }
@@ -1711,6 +1711,13 @@ bool Graph::topics_exist(const Topics_Set & topicsset) const {
             return false;
     }
     return true;
+}
+
+bool Graph::Node_is_in_NNL(const Node_ID_key& nkey, const std::string& list_name) const {
+    Named_Node_List_ptr nnl_ptr = const_cast<Graph*>(this)->get_List(list_name);
+    if (!nnl_ptr) return false;
+
+    return nnl_ptr->contains(nkey);
 }
 
 bool Graph::Node_is_in_NNLs(const Node_ID_key & nkey) const {

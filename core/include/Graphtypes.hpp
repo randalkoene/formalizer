@@ -960,6 +960,7 @@ public:
     Topic * main_Topic_of_Node(const Node & node) const { return main_topic(topics,node); }
 
     /// crossref tables: namedlists x nodes
+    bool Node_is_in_NNL(const Node_ID_key& nkey, const std::string& list_name) const;
     bool Node_is_in_NNLs(const Node_ID_key & nkey) const;
     bool Node_is_in_NNLs(const Node & node) const { return Node_is_in_NNLs(node.get_id().key()); }
     std::set<std::string> find_all_NNLs_Node_is_in(const Node_ID_key & nkey) const;

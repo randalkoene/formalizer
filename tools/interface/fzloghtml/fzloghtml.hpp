@@ -69,6 +69,19 @@ struct fzloghtml: public formalizer_standard_program {
 
     Log_filter filter;
 
+    /**
+     * Note that topic_filter is separate from filter, because Log_filter and calling
+     * Graph_access::request_Log_excerpt(const Log_filter & filter) do not depent on
+     * a loaded Graph at all and can operate when the fzserverpq is not running.
+     * 
+     * The topic_filter is therefore applied separately, after retrieving a Log
+     * interval, during rendering.
+     */
+    std::string topic_filter;
+    //unsigned int filtered_out_reason;
+
+    std::string NNL_filter;
+
     bool get_log_entry = false; // default is chunk(s)
     time_t chunk_id = 0;        // 0 means this is not set
     unsigned int entry_id = 0;  // 0 means this is not set

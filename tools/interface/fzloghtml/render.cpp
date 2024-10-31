@@ -374,6 +374,26 @@ const std::map<most_recent_format, template_id_enum> log_interval_entry_tmap = {
     { most_recent_json, Log_entry_HTML_temp }, // not used
 };
 
+// Returns false if the Graph his absent or if the corresponding Node
+// belongs to the topic indicated by topic_filter.
+bool filtered_out_by_topic(const Node_ID_key& node_key) {
+    Graph_ptr graphptr = fzlh.get_Graph_ptr(); // only attempts to fetch it the first time
+    if (!graphptr) {
+        return false;
+    }
+    if (node_key.isnullkey()) {
+        //fzlh.filtered_out_reason = 3;
+        return true;
+    }
+    Node* nodeptr = graphptr->Node_by_id(node_key);
+    if (!nodeptr) {
+        //fzlh.filtered_out_reason = 2;
+        return true;
+    }
+    //fzlh.filtered_out_reason = 1;
+    return !(nodeptr->in_topic(fzlh.topic_filter));
+}
+
 /**
  * Convert Log content that was retrieved with filtering to HTML using
  * rending templates and send to designated output destination.
@@ -411,6 +431,8 @@ bool render_Log_interval() {
     std::string rendered_logcontent;
     rendered_logcontent.reserve(128*1024);
 
+    std::string render_notes;
+
     if (!fzlh.noframe) {
         std::string head_template;
         if (!env.load_template(template_path_from_id(LogHTML_head_temp), head_template)) {
@@ -437,6 +459,55 @@ bool render_Log_interval() {
                     continue;
                 }
             }
+
+            Node_ID node_id = chunkptr->get_NodeID();
+
+            /**
+             * If a topic filter is applied then we always show complete chunks for context.
+             * A chunk is included if:
+             * a) The chunk belongs to the right topic or the Graph absent.
+             * b) At least one entry belongs to the right topic.
+             */
+            if (!fzlh.topic_filter.empty()) {
+                if (filtered_out_by_topic(node_id.key())) {
+                    //render_notes += node_id.str() + "chunk filtered out cause "+std::to_string(fzlh.filtered_out_reason)+'\n';
+                    bool filtered_out = true;
+                    for (const auto& entryptr : chunkptr->get_entries()) {
+                        if (!filtered_out_by_topic(entryptr->get_nodeidkey())) {
+                            filtered_out = false;
+                            break;
+                        }
+                        // else {
+                        //     render_notes += "entry filtered out cause "+std::to_string(fzlh.filtered_out_reason)+'\n';
+                        // }
+                    }
+                    if (filtered_out) {
+                        continue;
+                    }
+                }
+            }
+
+            if (!fzlh.NNL_filter.empty()) {
+                Graph_ptr graph_ptr = fzlh.get_Graph_ptr();
+                if (graph_ptr) {
+                    if (!graph_ptr->Node_is_in_NNL(node_id.key(), fzlh.NNL_filter)) {
+                        bool filtered_out = true;
+                        for (const auto& entryptr : chunkptr->get_entries()) {
+                            Node_ID_key nkey = entryptr->get_nodeidkey();
+                            if (!nkey.isnullkey()) {
+                                if (graph_ptr->Node_is_in_NNL(nkey, fzlh.NNL_filter)) {
+                                    filtered_out = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (filtered_out) {
+                            continue;
+                        }
+                    }
+                }
+            }
+
             std::string combined_entries;
             for (const auto& entryptr : chunkptr->get_entries()) {
                 if (fzlh.get_log_entry) {
@@ -450,7 +521,7 @@ bool render_Log_interval() {
             }
 
             template_varvalues varvals;
-            Node_ID node_id = chunkptr->get_NodeID();
+
             t_open_str = chunkptr->get_tbegin_str();
             time_t t_chunkclose = chunkptr->get_close_time();
             time_t t_chunkopen = chunkptr->get_open_time();
@@ -503,6 +574,10 @@ bool render_Log_interval() {
                 }
             }
         }
+    }
+
+    if (!render_notes.empty()) {
+        rendered_logcontent += "<tr><td>Render notes:<pre>"+render_notes+"</pre></td></tr>\n";
     }
 
     if (!fzlh.noframe) {

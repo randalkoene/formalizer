@@ -38,6 +38,8 @@ weeksinterval  = form.getvalue('weeksinterval')
 hoursinterval  = form.getvalue('hoursinterval')
 numchunks = form.getvalue('numchunks')
 node = form.getvalue('node')
+topic = form.getvalue('topic')
+nnl = form.getvalue('nnl')
 frommostrecent = form.getvalue('frommostrecent')
 mostrecentdata = form.getvalue('mostrecentdata')
 mostrecentraw = form.getvalue('mostrecentraw')
@@ -132,6 +134,8 @@ Select another part of the Log:
 <input type="text" name="numchunks"> number of Log chunks (interval takes precedence)<br />
 <input type="checkbox" name="frommostrecent"> from most recent (interval takes precedence)<br />
 <input type="text" name="node"> belongs to node, node history<br />
+<input type="text" name="topic"> belongs to topic<br />
+<input type="text" name="nnl"> belongs to NNL<br />
 <input type="text" name="searchtext" size="48"> must contain search text
 <input type="checkbox" name="caseinsensitive"> case insensitive
 <input type="checkbox" name="andall"> must contain each<br />
@@ -262,6 +266,12 @@ def build_uri_options(diff_numchunks=0, diff_startfrom=0, diff_weeks_startfrom=0
     if node:
         urioptions += get_uri_arg_separator(arg_i)+'node='+node
         arg_i += 1
+    if topic:
+        urioptions += get_uri_arg_separator(arg_i)+'topic='+topic
+        arg_i += 1
+    if nnl:
+        urioptions += get_uri_arg_separator(arg_i)+'nnl='+nnl
+        arg_i += 1
     if searchtext:
         urioptions += get_uri_arg_separator(arg_i)+'searchtext='+uri_safe(searchtext)
     if andall:
@@ -294,6 +304,10 @@ def build_command_options()->str:
         cmdoptions += ' -r '
     if node:
         cmdoptions += ' -n '+node
+    if topic:
+        cmdoptions += ' -g '+topic
+    if nnl:
+        cmdoptions += ' -l '+nnl
     if searchtext:
         cmdoptions += ' -f "'+searchtext+'"'
     if andall:

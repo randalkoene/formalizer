@@ -46,8 +46,8 @@ fzloghtml fzlh;
  */
 fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
                          iscale(interval_none), interval(0), noframe(false), recent_format(most_recent_html) {
-    add_option_args += "n:e:1:2:a:o:D:H:w:Nc:rRf:ACitF:T:";
-    add_usage_top += " [-n <node-ID>] [-e <log-stamp>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-A] [-C] [-i] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
+    add_option_args += "e:n:g:l:1:2:a:o:D:H:w:Nc:rRf:ACitF:T:";
+    add_usage_top += " [-e <log-stamp>] [-n <node-ID>] [-g <topic>] [-l <list-name>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-A] [-C] [-i] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
     usage_tail.push_back(
         "Notes:\n"
@@ -84,8 +84,10 @@ fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flow
  */
 void fzloghtml::usage_hook() {
     ga.usage_hook();
-    FZOUT("    -n belongs to <node-ID>\n"
-          "    -e one Log entry or chunk with <log-stamp>\n"
+    FZOUT("    -e one Log entry or chunk with <log-stamp>\n"
+          "    -n belongs to <node-ID>\n"
+          "    -g belongs to <topic>\n"
+          "    -l belongs to Nodes in NNL <list-name>\n"
           "    -1 start from <time-stamp-1>\n"
           "    -2 end at <time-stamp-2>\n"
           "    -a centered around <time-stamp>\n"
@@ -138,11 +140,6 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
 
     switch (c) {
 
-    case 'n': {
-        filter.nkey = Node_ID_key(cargs);
-        return true;
-    }
-
     case 'e': {
         auto dot_pos = cargs.find('.');
         get_log_entry = (dot_pos != std::string::npos);
@@ -163,6 +160,21 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
         filter.t_from = chunk_id;
         filter.t_to = chunk_id;
         filter.limit = 1;
+        return true;
+    }
+
+    case 'n': {
+        filter.nkey = Node_ID_key(cargs);
+        return true;
+    }
+
+    case 'g': {
+        topic_filter = cargs;
+        return true;
+    }
+
+    case 'l': {
+        NNL_filter = cargs;
         return true;
     }
 
