@@ -72,11 +72,11 @@ nodeboard::nodeboard():
     output_path("/var/www/html/formalizer/test_node_card.html"),
     graph_ptr(nullptr) {
 
-    // Still available: ajkwxyYz
-    add_option_args += "RGgn:L:D:l:t:m:f:c:IZUi:F:u:H:TPO:e:b:M:Kp:B:N:C:r:S:Xo:z:";
+    // Still available: ajkxyYz
+    add_option_args += "RGgn:L:D:l:t:m:f:c:IZUi:F:u:H:TPO:e:b:M:Kp:B:N:C:r:S:Xo:z:w:";
     add_usage_top += " [-R] [-G|-g] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
         " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-Z] [-U] [-i <topic_id>,...] [-F <substring>]"
-        " [-u <up-to>] [-H <board-header>] [-T] [-P] [-O earlier|later] [-e <errors-list>] [-b <before>] [-M <multiplier>] [-p <progress-state-file>]"
+        " [-u <up-to>] [-w <importance-threshold>] [-H <board-header>] [-T] [-P] [-O earlier|later] [-e <errors-list>] [-b <before>] [-M <multiplier>] [-p <progress-state-file>]"
         " [-K] [-S <size-list>] [-B <topic-id>] [-N <near-term-days>] [-C <max-columns>] [-r <max-rows>] [-X] [-z <stretch-factor>] [-o <output-file|STDOUT>]";
 
     usage_head.push_back("Generate Kanban board representation of Nodes hierarchy.\n");
@@ -114,6 +114,7 @@ void nodeboard::usage_hook() {
         "    -F Filter to show only Nodes where the first 80 characters contain the\n"
         "       substring.\n"
         "    -u In -D mode, show only Nodes with target dates up to including <up-to>.\n"
+        "    -w Show only Nodes with maximum importance connection above threshold.\n"
         "    -H Board header.\n"
         "    -T Threads.\n" // Used for Threads Board
         "    -P Progress analaysis.\n"
@@ -269,6 +270,11 @@ bool nodeboard::options_hook(char c, std::string cargs) {
 
         case 'u': {
             nnl_deps_to_tdate = ymd_stamp_time(cargs);
+            return true;
+        }
+
+        case 'w': {
+            importance_threshold = atof(cargs.c_str());
             return true;
         }
 
@@ -472,6 +478,7 @@ nodeboard_options nodeboard::get_nodeboard_options() const {
     options._floption = flowcontrol;
     options._threads = threads;
     options._showcompleted = show_completed;
+    options._importancethreshold = importance_threshold;
     options._shownonmilestone = shows_non_milestone_nodes();
     options._progressanalysis = progress_analysis;
     options.multiplier = vertical_multiplier;
@@ -514,6 +521,7 @@ bool nodeboard::make_options_pane(std::string & rendered_pane) {
         { "node-id", node_ptr->get_id_str() },
         { "sup-or-dep", sup_or_dep.at(flowcontrol == flow_superiors_tree) },
         { "show-completed", true_checked.at(show_completed) },
+        { "importance-threshold", to_precision_string(importance_threshold, 2) },
         { "threads", true_checked.at(threads) },
         { "progress-analysis", true_checked.at(progress_analysis) },
         { "hide-repeated", true_checked.at(norepeated) },
@@ -611,6 +619,9 @@ std::string nodeboard::build_nodeboard_cgi_call(const nodeboard_options & option
     }
     if (options._showcompleted) {
         cgi_cmd += "&I=true";
+    }
+    if (options._importancethreshold > 0.0) {
+        cgi_cmd += "&w="+to_precision_string(options._importancethreshold, 2);
     }
     if (options._threads) {
         cgi_cmd += "&T=true";
@@ -718,6 +729,17 @@ bool nodeboard::filtered_out(const Node * node_ptr, std::string & node_text) con
 
     if ((!show_zero_required) && (node_ptr->get_required() <= 0.0)) {
         return true;
+    }
+
+    if (show_dependencies_tree) {
+        if ((importance_threshold > 0.0) && (node_ptr->superiors_max_importance() < importance_threshold)) {
+            return true;
+        }
+    }
+    if (show_superiors_tree) {
+        if ((importance_threshold > 0.0) && (node_ptr->dependencies_max_importance() < importance_threshold)) {
+            return true;
+        }
     }
 
     if (!filter_topics.empty()) {
@@ -881,6 +903,9 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
     }
     if (show_completed) {
         include_filter_substr += "&I=true";
+    }
+    if (importance_threshold > 0.0) {
+        include_filter_substr += "&w="+to_precision_string(importance_threshold, 2);
     }
     nodevars.emplace("filter-substr", include_filter_substr);
 

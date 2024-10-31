@@ -726,6 +726,10 @@ public:
     // Detect if any active superior target dates are earlier than the effective target date of this Node.
     bool td_suspect_by_superiors();
 
+    // Find maximum importance of Edges with superiors or dependencies.
+    float superiors_max_importance() const;
+    float dependencies_max_importance() const;
+
     /// friend (utility) functions
     friend Topic * main_topic(const Topic_Tags & topictags, const Node & node); // friend function to ensure search with available Topic_Tags
     friend Topic * main_topic(Graph & _graph, Node & node);

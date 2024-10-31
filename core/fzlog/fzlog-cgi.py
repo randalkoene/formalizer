@@ -146,6 +146,7 @@ openpagehead = '''<html>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/fzuistate.css">
+<link rel="stylesheet" href="/tooltip.css">
 <title>fz: open Log chunk</title>
 </head>
 <body>

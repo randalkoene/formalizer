@@ -673,6 +673,22 @@ bool Node::td_suspect_by_superiors() {
     return false;
 } 
 
+float Node::superiors_max_importance() const {
+    float max_importance = 0.0;
+    for (const auto & sup_edge : supedges) {
+        if (sup_edge->get_importance() > max_importance) max_importance = sup_edge->get_importance();
+    }
+    return max_importance;
+}
+
+float Node::dependencies_max_importance() const {
+    float max_importance = 0.0;
+    for (const auto & sup_edge : supedges) {
+        if (sup_edge->get_importance() > max_importance) max_importance = sup_edge->get_importance();
+    }
+    return max_importance;
+}
+
 /**
  * Applies a time-zone adjustment to a time (see its use in effective_targetdate())
  * if a) the TZADJUST flag is set, b) the Node::graph pointer is valid, and

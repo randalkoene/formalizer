@@ -38,3 +38,46 @@ def lock_it(lockfile: str):
         print(f'\n{ANSI_alert}Unable to write lock file {lockfile}.{ANSI_nrm}\n')
         exitenter = input('\nEnter any string to exit...')
         sys.exit(1)
+
+def called_as_cgi()->bool:
+    return 'GATEWAY_INTERFACE' in list(os.environ.keys())
+
+def make_runstamp()->str:
+    from time import strftime
+    return strftime("%Y%m%d%H%M%S")
+
+# Use this to prevent a CGI script from being rerun if its output
+# page is reloaded.
+# @param form the cgi.FormStorage object.
+# @param runstampfile Something like '/tmp/.thisscript.stamp'.
+# @param blocked_func The function to run if the gate is blocked.
+class ReloadGate:
+    def __init__(self, form, runstampfile:str, blocked_func):
+        from sys import exit
+        self.gate_passed = False
+        # Get the stored previous runstamp (if there is one) for this script.
+        self.stamperror = ''
+        try:
+            with open(runstampfile, 'r') as f:
+                self.storedstamp = f.read()
+        except Exception as e:
+            self.stamperror += 'Unable to load stored stamp: %s\n' % str(e)
+            self.storedstamp = ''
+
+        # Get the runstamp for this script as provided when called.
+        self.runstamp = form.getvalue("runstamp")
+
+        # Compare runstamps to see if the one provided is newer.
+        if self.storedstamp != '':
+            if int(self.storedstamp) >= int(self.runstamp):
+                blocked_func(self)
+                exit(0)
+
+        # Store runstamp.
+        try:
+            with open(runstampfile, 'w') as f:
+                f.write(self.runstamp)
+        except Exception as e:
+            self.stamperror += 'Unable to store stamp: %s\n' % str(e)
+
+        self.gate_passed = True

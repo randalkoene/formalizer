@@ -91,6 +91,7 @@ norepeated = form.getvalue('U')
 dodevelopmenttest = form.getvalue('R')
 timeline = form.getvalue('z')
 timeline_stretch = form.getvalue('zstretch')
+importance_threshold = form.getvalue('w')
 
 include_td_detect = ''
 if tdorder:
@@ -119,6 +120,10 @@ if show_completed == 'true':
     include_show_completed = ' -I'
 else:
     include_show_completed = ''
+if importance_threshold:
+    include_importance_threshold = ' -w %s' % importance_threshold
+else:
+    include_importance_threshold = ''
 if threads:
     include_threads = ' -T'
 else:
@@ -261,9 +266,9 @@ def show_node_dependencies_board():
     #       on STDOUT for ease of regenerating by reloading.
     outpath = '/var/www/webdata/formalizer/node_dependencies_kanban.html'
     if node_dependencies_tree:
-        thecmd = f"./nodeboard -G -n {node_dependencies} {include_dodevelopmenttest} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_norepeated} {include_progress_analysis} {include_proposetdsolutions} {include_td_detect} {include_subtree_sort} {include_highlight_topic} {include_max_columns} {include_max_rows} {include_days_near_highlight} {include_timeline} -q -o {outpath}"
+        thecmd = f"./nodeboard -G -n {node_dependencies} {include_dodevelopmenttest} {include_filter_string} {include_filter_topics} {include_show_completed} {include_importance_threshold} {include_threads} {include_norepeated} {include_progress_analysis} {include_proposetdsolutions} {include_td_detect} {include_subtree_sort} {include_highlight_topic} {include_max_columns} {include_max_rows} {include_days_near_highlight} {include_timeline} -q -o {outpath}"
     elif node_superiors_tree:
-        thecmd = f"./nodeboard -g -n {node_dependencies} {include_dodevelopmenttest} {include_filter_string} {include_filter_topics} {include_show_completed} {include_threads} {include_norepeated} {include_progress_analysis} {include_proposetdsolutions} {include_td_detect} {include_subtree_sort} {include_highlight_topic} {include_max_columns} {include_max_rows} {include_days_near_highlight} {include_timeline} -q -o {outpath}"
+        thecmd = f"./nodeboard -g -n {node_dependencies} {include_dodevelopmenttest} {include_filter_string} {include_filter_topics} {include_show_completed} {include_importance_threshold} {include_threads} {include_norepeated} {include_progress_analysis} {include_proposetdsolutions} {include_td_detect} {include_subtree_sort} {include_highlight_topic} {include_max_columns} {include_max_rows} {include_days_near_highlight} {include_timeline} -q -o {outpath}"
     else:
         thecmd = f"./nodeboard -n {node_dependencies} {include_filter_string} {include_filter_topics} {include_show_completed} -q -o {outpath}"
     success, res = try_command_call(thecmd, print_result=False)

@@ -108,6 +108,7 @@ struct nodeboard_options {
     bool _threads = false;                  // When true, prereqs/provides and possibly progress analysis may be included.
     bool _showcompleted = false;            // When true, include Nodes that are inactive.
     bool _shownonmilestone = true;          // When true, include Nodes that are not Milestones.
+    float _importancethreshold = 0.0;       // If greater than 0.0, include Nodes with maximum importance connection above that threshold.
     bool _progressanalysis = false;         // When true (and _threads), include progress analysis.
     float multiplier = 1.0;                 // Multiplier of vertical card height.
     unsigned int maxcols = DEFAULTMAXCOLS;  // Column limit for hierarchy board.
@@ -138,6 +139,8 @@ struct nodeboard: public formalizer_standard_program {
     bool show_zero_required = false;
     bool threads = false;
     bool progress_analysis = false;
+
+    float importance_threshold = 0.0;
 
     time_t t_now = 0;
 
