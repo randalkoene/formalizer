@@ -20,11 +20,11 @@ document.getElementById('alt_targetdate').value = new Date().toISOString().subst
 </tr>
 <tr>
 <td class="paramtitle">TD Property:</td><td colspan=2>
-<input type="radio" name="prop" value="unspecified" {{ prop_unspecified }}> unspecified |
-<input type="radio" name="prop" value="inherit" {{ prop_inherit }}> inherit |
-<input type="radio" name="prop" value="variable" {{ prop_variable }}> variable |
-<input type="radio" name="prop" value="fixed" {{ prop_fixed }}> fixed |
-<input type="radio" name="prop" value="exact" {{ prop_exact }}> exact</td>
+<input type="radio" name="prop" value="unspecified" {{ prop_unspecified }}> <span class="tooltip">unspecified<span class="tooltiptext"><div style="width:500px;">The list of UTD Nodes should be a simple order of priority. Ideally, automatic rescheduling of UTD Nodes should take into account the dependency structure. Even more ideally, automatic rescheduling of UTD Nodes should take into account categories (such as work and self-work) and, while testing that method, a selection of days to dedicate to one category or another in a given week.</div></span></span> |
+<input type="radio" name="prop" value="inherit" {{ prop_inherit }}> <span class="tooltip">inherit<span class="tooltiptext"><div style="width:500px;">ITD Nodes are those that are requirements for their superior Node(s) to be accomplished and where scheduling can be determined completely by the dependency hierarchy.</div></span></span> |
+<input type="radio" name="prop" value="variable" {{ prop_variable }}> <span class="tooltip">variable<span class="tooltiptext"><div style="width:500px;">The list of active VTD Nodes should be fairly small. It is meant for Nodes where there is a clear reason to have a specific intended due date, even though it is under my control. And it is difficult to set those far in advance, so they should be mainly about near-term objectives and Milestones. Additionally, having too many VTD Nodes messes with the to-do-list-like automatic rescheduling of UTD Nodes and is unrealistic.</div></span></span> |
+<input type="radio" name="prop" value="fixed" {{ prop_fixed }}> <span class="tooltip">fixed<span class="tooltiptext"><div style="width:500px;">FTD Nodes should be about things where the due date is to a large degree outside of my control and that are largely non-optional.</div></span></span> |
+<input type="radio" name="prop" value="exact" {{ prop_exact }}> <span class="tooltip">exact<span class="tooltiptext"><div style="width:500px;">ETD Nodes should be about things that are scheduled to take place at a specific time.</div></span></span></td>
 </tr>
 <tr><td colspan=3>
 Defs.: inherit = must inherit from superior; variable = auto-updateable; fixed = must be done by; exact = appointed time interval.

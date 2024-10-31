@@ -25,7 +25,13 @@ Completion: {{ comp }} (special codes: -1 obsolete, -2 replaced, -3 done differe
 Required: {{ req_hrs }} hrs ({{ req_mins}} mins)<br>
 Valuation: {{ val }}<br>
 Targetdate: {{ eff_td }}<br>
-TD Property: {{ td_prop }}<br>
+<span class="tooltip">TD Property<span class="tooltiptext"><div style="width:1000px;">
+<p><b>Unspecified</b>: The list of UTD Nodes should be a simple order of priority. Ideally, automatic rescheduling of UTD Nodes should take into account the dependency structure. Even more ideally, automatic rescheduling of UTD Nodes should take into account categories (such as work and self-work) and, while testing that method, a selection of days to dedicate to one category or another in a given week.</p>
+<p><b>Inherit</b>: ITD Nodes are those that are requirements for their superior Node(s) to be accomplished and where scheduling can be determined completely by the dependency hierarchy.</p>
+<p><b>Variable</b>: The list of active VTD Nodes should be fairly small. It is meant for Nodes where there is a clear reason to have a specific intended due date, even though it is under my control. And it is difficult to set those far in advance, so they should be mainly about near-term objectives and Milestones. Additionally, having too many VTD Nodes messes with the to-do-list-like automatic rescheduling of UTD Nodes and is unrealistic.</p>
+<p><b>Fixed</b>: FTD Nodes should be about things where the due date is to a large degree outside of my control and that are largely non-optional.</p>
+<p><b>Exact</b>: ETD Nodes should be about things that are scheduled to take place at a specific time.</p>
+</div></span></span>: {{ td_prop }}<br>
 Repeats: <b>{{ repeats }}</b> TD Pattern: {{ td_patt }} every: {{ td_every }} span: {{ td_span }}<br>
 Topics: {{ topics }}<br>
 Boolean Flags: {{ bflags }}<br>
