@@ -143,6 +143,8 @@ bool handle_named_list_parameters(const GET_token_value_vec & token_value_vec, s
 //       You can add code here to show a nice counter, as in the other script.
 #define AUTO_CLOSING_HTML_BODY_OPEN "<body onload=\"setTimeout(function() { window.close(); }, 3000);\">\n"
 #define AUTO_CLOSING_HTML_BODY_CLOSE "(This window closes automatically in 3 seconds.)\n</body>\n"
+#define AUTO_CLOSING_JS "<script type=\"text/javascript\" src=\"/fzclosing_window.js\"></script>"
+#define AUTO_CLOSING_JS_BODY_TAG "<body onload=\"do_if_opened_by_script('Keep Page','Go to Log','/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END');\">"
 
 /// For convenience, this recognizes a shorthand for adding a Node to the 'selected" Named Node List.
 bool handle_selected_list(const GET_token_value_vec & token_value_vec, std::string & response_html) {
@@ -541,9 +543,10 @@ bool handle_add_to_list(const std::string & list_name, const GET_token_value_vec
         }
     }
 
-    response_html = standard_HTML_header("fz: Add to NNL") +
+    response_html = standard_HTML_header("fz: Add to NNL", AUTO_CLOSING_JS_BODY_TAG) +
                     "<p>Named Node List modified.</p>\n"
                     "<p><b>Added</b> "+adddata.nkey.str()+" to List "+list_name+".</p>\n"
+                    AUTO_CLOSING_JS
                     "</body>\n</html>\n";
 
     return true;

@@ -490,8 +490,9 @@ GENERIC_SUCCESS_PAGE = '''<html>
 <link rel="stylesheet" href="/fzuistate.css">
 <title>fz: Graph - Generic Call Succeeded</title>
 </head>
-<body>
+<body onload="do_if_opened_by_script('Keep Page','Go to Log','/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END');">
 <script type="text/javascript" src="/fzuistate.js"></script>
+<script type="text/javascript" src="/fzclosing_window.js"></script>
 
 <b>Command</b>:
 <p>

@@ -371,6 +371,16 @@ struct line_render_parameters {
         }
     }
 
+    std::string td_property_styling(const std::string& excerpt, const Node& node) {
+        if (node.td_exact()) {
+            return "<b>"+excerpt+"</b>";
+        }
+        if (node.get_repeats()) {
+            return "<i>"+excerpt+"</i>";
+        }
+        return excerpt;
+    }
+
     /**
      * Call this to render parameters of a Node on a single line of a list of Nodes.
      * For example, this selection of data is shown when Nodes are listed in a schedule.
@@ -460,15 +470,15 @@ struct line_render_parameters {
         Boolean_Tag_Flags::boolean_flag boolean_tag;
         if (map_of_subtrees.node_in_heads_or_any_subtree(node.get_id().key(), boolean_tag)) {
             if (category_tag_str.find(boolean_tag) != category_tag_str.end()) {
-                varvals.emplace("excerpt",category_tag_str.at(boolean_tag)+subtrees_list_tag+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
+                varvals.emplace("excerpt",category_tag_str.at(boolean_tag)+subtrees_list_tag+td_property_styling(remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length), node));
             } else {
-                varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
+                varvals.emplace("excerpt",td_property_styling(remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length), node));
             }
             if (day_category_hrs.find(boolean_tag) != day_category_hrs.end()) {
                 day_category_hrs.at(boolean_tag) += hours_to_show;
             }
         } else {
-            varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
+            varvals.emplace("excerpt",td_property_styling(remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length), node));
         }
         //varvals.emplace("excerpt",remove_html(htmltext).substr(0,fzgh.config.excerpt_length));
         // -- Server address
