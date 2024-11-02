@@ -6,7 +6,7 @@
  * 
  */
 
-#define USE_COMPILEDPING
+//#define USE_COMPILEDPING
 #ifdef USE_COMPILEDPING
     #include <iostream>
 #endif
@@ -20,7 +20,7 @@
 
 // local
 #include "render.hpp"
-#include "fzloghtml.hpp"
+#include "fzlogmap.hpp"
 
 
 /// The Makefile attempts to provide this at compile time based on the source
@@ -36,59 +36,82 @@ using namespace fz;
 
 
 enum template_id_enum {
-    LogHTML_head_temp,
-    LogHTML_tail_temp,
-    LogHTML_chunk_temp,
-    LogHTML_entry_temp,
-    Log_most_recent_HTML_temp,
-    Log_most_recent_TXT_temp,
-    Log_most_recent_RAW_temp,
+    node_log_temp,
+    node_chunk_temp,
     NUM_temp
 };
 
 const std::vector<std::string> template_ids = {
-    "LogHTML_head_template.html",
-    "LogHTML_tail_template.html",
-    "LogHTML_chunk_template.html",
-    "LogHTML_entry_template.html",
-    "Log_most_recent_template.html",
-    "Log_most_recent_template.txt",
-    "Log_most_recent_template.raw"
+    "Node_Log",
+    "Node_Chunk"
 };
 
-typedef std::map<template_id_enum,std::string> fzloghtml_templates;
+const std::vector<std::string> template_subdirs = {
+    "/raw/",
+    "/txt/",
+    "/html/",
+    "/json/"
+};
+
+const std::vector<std::string> template_ext = {
+    ".raw",
+    ".txt",
+    ".html",
+    ".json"
+};
+
+//typedef std::map<template_id_enum,std::string> fzlogmap_templates;
 
 render_environment env;
-fzloghtml_templates templates;
+//fzlogmap_templates templates;
 
-bool load_templates(fzloghtml_templates & templates) {
-    templates.clear();
+std::string template_path_from_id(template_id_enum template_id) {
+    return template_dir+template_subdirs[fzlm.recent_format]+template_ids[template_id]+".template"+template_ext[fzlm.recent_format];
+}
 
-    for (int i = 0; i < NUM_temp; ++i) {
-        if (!file_to_string(template_dir + "/" + template_ids[i], templates[static_cast<template_id_enum>(i)]))
-            ERRRETURNFALSE(__func__, "unable to load " + template_ids[i]);
+// bool load_templates(fzlogmap_templates & templates) {
+//     templates.clear();
+
+//     for (int i = 0; i < NUM_temp; ++i) {
+//         if (!file_to_string(template_dir + "/" + template_ids[i], templates[static_cast<template_id_enum>(i)]))
+//             ERRRETURNFALSE(__func__, "unable to load " + template_ids[i]);
+//     }
+
+//     return true;
+// }
+
+// const std::map<std::string, std::string> template_code_replacements = {
+//     {"\\n", "\n"}
+// };
+
+// void prepare_custom_template(std::string & customtemplate) {
+//     customtemplate = fzlm.custom_template.substr(4);
+//     for (const auto& [codestr, repstr] : template_code_replacements) {
+//         size_t codepos = 0;
+//         while (true) {
+//             codepos = customtemplate.find(codestr, codepos);
+//             if (codepos == std::string::npos) break;
+//             customtemplate.replace(codepos, codestr.size(), repstr);
+//             codepos += repstr.size();
+//         }
+//     }
+// }
+
+bool send_rendered_to_output(std::string & rendered_text) {
+    if ((fzlm.config.dest.empty()) || (fzlm.config.dest == "STDOUT")) { // to STDOUT
+        FZOUT(rendered_text);
+        return true;
     }
-
+    
+    VERBOSEOUT("Writing rendered content to "+fzlm.config.dest+".\n\n");
+    if (!string_to_file(fzlm.config.dest,rendered_text)) {
+        ADDERROR(__func__,"unable to write to "+fzlm.config.dest);
+        standard.exit(exit_file_error);
+    }
     return true;
 }
 
-const std::map<std::string, std::string> template_code_replacements = {
-    {"\\n", "\n"}
-};
-
-void prepare_custom_template(std::string & customtemplate) {
-    customtemplate = fzlh.custom_template.substr(4);
-    for (const auto [codestr, repstr] : template_code_replacements) {
-        size_t codepos = 0;
-        while (true) {
-            codepos = customtemplate.find(codestr, codepos);
-            if (codepos == std::string::npos) break;
-            customtemplate.replace(codepos, codestr.size(), repstr);
-            codepos += repstr.size();
-        }
-    }
-}
-
+/*
 std::string render_Log_entry(Log_entry & entry) {
     template_varvalues varvals;
     varvals.emplace("minor_id",std::to_string(entry.get_minor_id()));
@@ -101,26 +124,12 @@ std::string render_Log_entry(Log_entry & entry) {
     }
     return env.render(templates[LogHTML_entry_temp],varvals);
 }
-
-bool send_rendered_to_output(std::string & rendered_text) {
-    if ((fzlh.config.dest.empty()) || (fzlh.config.dest == "STDOUT")) { // to STDOUT
-        //VERBOSEOUT("Log interval:\n\n");
-        FZOUT(rendered_text);
-        return true;
-    }
-    
-    VERBOSEOUT("Writing rendered content to "+fzlh.config.dest+".\n\n");
-    if (!string_to_file(fzlh.config.dest,rendered_text)) {
-        ADDERROR(__func__,"unable to write to "+fzlh.config.dest);
-        standard.exit(exit_file_error);
-    }
-    return true;
-}
-
+*/
 /**
  * Convert Log content that was retrieved with filtering to HTML using
  * rending templates and send to designated output destination.
  */
+/*
 bool render_Log_interval() {
     ERRTRACE;
     std::string customtemplate;
@@ -250,4 +259,62 @@ bool render_Log_most_recent() {
     std::string rendered_mostrecent = env.render(*render_template,varvals);
 
     return send_rendered_to_output(rendered_mostrecent);
+}
+*/
+
+bool render_Node_chunk_data() {
+    std::string rendered_node_chunks;
+    time_t total_seconds = 0;
+    for (const auto & [chunk_key, chunkptr] : fzlm.edata.log_ptr->get_Chunks()) {
+        time_t t_open = chunkptr->get_open_time();
+        std::string t_open_str = TimeStampYmdHM(t_open);
+        time_t t_close = chunkptr->get_close_time();
+        std::string t_close_str;
+        time_t seconds = 0;
+        if (t_close != FZ_TCHUNK_OPEN) {
+            t_close_str = TimeStampYmdHM(t_close);
+            seconds = t_close - t_open;
+        } else {
+            t_close_str = "OPEN";
+
+        }
+        total_seconds += seconds;
+
+        std::map<std::string, std::string> node_chunk_map = {
+            { "t-open", t_open_str},
+            { "t-close", t_close_str},
+            { "mins", std::to_string(seconds / 60)},
+        };
+
+        std::string rendered_node_chunk;
+        if (!env.fill_template_from_map(
+                template_path_from_id(node_chunk_temp),
+                node_chunk_map,
+                rendered_node_chunk)) {
+            return false;
+        }
+
+        rendered_node_chunks += rendered_node_chunk;
+    }
+
+    std::map<std::string, std::string> node_log_map = {
+        { "node-id", fzlm.edata.specific_node_id },
+        { "num-chunks", std::to_string(fzlm.edata.log_ptr->num_Chunks()) },
+        { "total-hrs", to_precision_string(float(total_seconds) / 3600.0, 2) },
+        { "chunks-data", "" },
+    };
+
+    if (fzlm.recent_format == most_recent_json) rendered_node_chunks.pop_back();
+
+    node_log_map.at("chunks-data") = rendered_node_chunks;
+
+    std::string rendered_node_log;
+    if (!env.fill_template_from_map(
+            template_path_from_id(node_log_temp),
+            node_log_map,
+            rendered_node_log)) {
+        return false;
+    }
+
+    return send_rendered_to_output(rendered_node_log);
 }

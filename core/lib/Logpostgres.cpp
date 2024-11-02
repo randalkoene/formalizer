@@ -1430,5 +1430,31 @@ bool refresh_Node_history_cache_pq(Postgres_access & pa) {
     return true;
 }
 
+/**
+ * Load all chunk data of Node.
+ * 
+ * Use this to load only the chunk data, not entries, for all chunks in the Log
+ * that belong to a Node.
+ * 
+ * @param[in] pa Access object with valid database and schema identifiers.
+ * @param[in] nkey Node ID key.
+ * @param[out] nodelog Log object containing list of associated chunk data.
+ */
+bool load_Node_chunk_data_pq(Postgres_access& pa, const Node_ID_key& nkey, Log & nodelog) {
+    ERRTRACE;
+
+    PGconn* conn = connection_setup_pq(pa.dbname());
+    if (!conn) return false;
+
+    // Define a clean return that closes the connection to the database and cleans up.
+    #define LOAD_NODELOG_PQ_RETURN(r) { PQfinish(conn); return r; }
+    active_pq apq(conn,pa.pq_schemaname());
+
+    // Create Postgres WHERE statement.
+    std::string chunkwherestr = " WHERE nid = '"+nkey.str()+"'";
+
+    bool res = read_Chunks_pq(apq, nodelog, chunkwherestr);
+    LOAD_NODELOG_PQ_RETURN(res);
+}
 
 } // namespace fz

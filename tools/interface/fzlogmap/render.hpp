@@ -15,7 +15,8 @@
 
 using namespace fz;
 
-bool render_Log_interval();
-bool render_Log_most_recent();
+/*bool render_Log_interval();
+bool render_Log_most_recent();*/
+bool render_Node_chunk_data();
 
 #endif // __RENDER_HPP

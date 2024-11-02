@@ -26,9 +26,10 @@ using namespace fz;
 struct fzlogmap;
 
 enum flow_options {
-    flow_unknown = 0,      /// no recognized request
-    flow_log_interval = 1, /// request: read and map Log interval
-    flow_most_recent = 2,  /// request: data about most recent Log entry
+    flow_unknown = 0,       /// no recognized request
+    flow_log_interval = 1,  /// request: read and map Log interval
+    flow_most_recent = 2,   /// request: data about most recent Log entry
+    flow_node_log_data = 3, /// request: chunk data of Node
     flow_NUMoptions
 };
 

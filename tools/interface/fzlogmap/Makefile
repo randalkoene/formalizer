@@ -131,14 +131,13 @@ init: FORCE
 	@echo 'Includes: $(CPPFLAGS)'
 	@echo '-------------------------------------------------------------------'
 
-#$(OBJ)/render.o: render.cpp render.hpp
-#	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(FORMALIZERROOT) $(TEMPLATEDIR) -DANOTHER_TEMPLATE_DIR=/home/randalk/src/formalizer/tools/interface/fzloghtml -c render.cpp -o $(OBJ)/render.o
-
+$(OBJ)/render.o: render.cpp render.hpp
+	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(FORMALIZERROOT) $(TEMPLATEDIR) -c render.cpp -o $(OBJ)/render.o
 
 $(OBJ)/fzlogmap.o: fzlogmap.cpp fzlogmap.hpp version.hpp $(INC)/Graphaccess.hpp $(INC)/Logtypes.hpp 
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(TEMPLATEDIR) -c fzlogmap.cpp -o $(OBJ)/fzlogmap.o
 
-fzlogmap: $(OBJ)/fzlogmap.o $(CORE_OBJS) #$(OBJ)/render.o 
+fzlogmap: $(OBJ)/fzlogmap.o $(CORE_OBJS) $(OBJ)/render.o 
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS)  $(TEMPLATEDIR) $^ -o fzlogmap $(LIB_PATH)
 
 clean:

@@ -226,6 +226,18 @@ bool load_Node_history_cache_entry_pq(active_pq & apq, const Node_ID_key & nkey,
 bool load_Node_history_cache_table_pq(Postgres_access & pa, Node_histories & nodehistories);
 
 /**
+ * Load all chunk data of Node.
+ * 
+ * Use this to load only the chunk data, not entries, for all chunks in the Log
+ * that belong to a Node.
+ * 
+ * @param[in] pa Access object with valid database and schema identifiers.
+ * @param[in] nkey Node ID key.
+ * @param[out] nodelog Log object containing list of associated chunk data.
+ */
+bool load_Node_chunk_data_pq(Postgres_access& pa, const Node_ID_key& nkey, Log & nodelog);
+
+/**
  * A data types conversion helper class that can deliver the Postgres Breakpoints table
  * equivalent INSERT value expression for all data content in a Breakpoints.
  * 

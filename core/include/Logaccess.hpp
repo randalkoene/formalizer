@@ -122,6 +122,22 @@ void get_Log_data(Postgres_access & pa, std::string chunk_id_str, entry_data & e
  */
 void get_newest_Log_data(Postgres_access & pa, entry_data & edata);
 
+/**
+ * Query the Log to find all chunk data belonging to a Node.
+ * 
+ * The Node is specified in `entry_data.specific_node_id`.
+ * 
+ * The results are returned in an `entry_data` structure.
+ * The relevant data will be contained in the list of chunks in
+ * the Log object at `entry_data.log_ptr`.
+ * 
+ * Only chunk data is obtained, not entries contents.
+ * 
+ * @param[in] pa A valid initialization object for database access.
+ * @param[out] edata A convenient structure for the related data.
+ */
+void get_Node_Log_chunk_data(Postgres_access & pa, entry_data & edata);
+
 }
 
 #endif // __LOGACCESS_HPP

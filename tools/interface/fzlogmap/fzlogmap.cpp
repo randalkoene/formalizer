@@ -33,7 +33,7 @@
 // local
 #include "version.hpp"
 #include "fzlogmap.hpp"
-//#include "render.hpp"
+#include "render.hpp"
 
 
 
@@ -50,8 +50,8 @@ fzlogmap::fzlogmap() : formalizer_standard_program(false), config(*this), flowco
                         ga(*this, add_option_args, add_usage_top), iscale(interval_none), interval(0),
                         noframe(false), calendar(false), interpret_open_as_tcurrent(false),
                         minute_map(true), by_category(false), recent_format(most_recent_html) {
-    add_option_args += "1:2:o:D:H:w:Nc:rRtnGF:T:f:C";
-    add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-t] [-n] [-F <raw|txt|html>] [-G] [-T <file|'STR:string'>] [-f <groupsfile>] [-C]";
+    add_option_args += "m:1:2:o:D:H:w:Nc:rRtnGF:T:f:C";
+    add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-m <node>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-t] [-n] [-F <raw|txt|html>] [-G] [-T <file|'STR:string'>] [-f <groupsfile>] [-C]";
     usage_head.push_back("Generate Mapping of requested Log records.\n");
     usage_tail.push_back(
         "The <time-stamp1> and <time-stamp_2> arguments expect standardized\n"
@@ -74,6 +74,7 @@ void fzlogmap::usage_hook() {
     ga.usage_hook();
     FZOUT("    -1 start from <time-stamp-1>\n"
           "    -2 end at <time-stamp-2>\n"
+          "    -m filter by Node\n"
           "    -D interval size of <days>\n"
           "    -H interval size of <hours>\n"
           "    -w interval size of <weeks>\n"
@@ -84,7 +85,7 @@ void fzlogmap::usage_hook() {
           "    -n no minute map (totals only, unless in -C mode)\n"
           "    -F format of mapped Log data:\n"
           "       json, raw, txt, html (default)\n"
-          "    -G by cagegory group (not days) if JSON\n"
+          "    -G by category group (not days) if JSON\n"
           "    -T use custom template from file or string (if 'STR:')\n"
           "    -f read category group specifications from <groupsfile>\n"
           "    -C present in calendar format\n"
@@ -127,6 +128,12 @@ bool fzlogmap::options_hook(char c, std::string cargs) {
         } else {
             filter.t_to = t;
         }
+        return true;
+    }
+
+    case 'm': {
+        filter.nkey = Node_ID_key(cargs);
+        flowcontrol = flow_node_log_data;
         return true;
     }
 
@@ -1106,6 +1113,17 @@ bool make_map() {
     return true;
 }
 
+bool node_chunk_info() {
+    //fzlm.set_filter();
+    fzlm.edata.specific_node_id = fzlm.filter.nkey.str();
+    get_Node_Log_chunk_data(fzlm.ga, fzlm.edata);
+    if (!fzlm.edata.log_ptr) {
+        return false;
+    }
+
+    return render_Node_chunk_data();
+}
+
 int main(int argc, char *argv[]) {
     ERRTRACE;
 
@@ -1117,6 +1135,10 @@ int main(int argc, char *argv[]) {
 
     case flow_log_interval: {
         return standard_exit(make_map(), "Log interval mapped.\n", exit_file_error, "Unable to map interval", __func__);
+    }
+
+    case flow_node_log_data: {
+        return standard_exit(node_chunk_info(), "Node Log data retrieved.\n", exit_file_error, "Unable to retrieve Node Log data", __func__);
     }
 
     //case flow_most_recent: {

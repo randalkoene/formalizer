@@ -157,4 +157,28 @@ void get_newest_Log_data(Postgres_access & pa, entry_data & edata) {
     }
 }
 
+/**
+ * Query the Log to find all chunk data belonging to a Node.
+ * 
+ * The Node is specified in `entry_data.specific_node_id`.
+ * 
+ * The results are returned in an `entry_data` structure.
+ * The relevant data will be contained in the list of chunks in
+ * the Log object at `entry_data.log_ptr`.
+ * 
+ * Only chunk data is obtained, not entries contents.
+ * 
+ * @param[in] pa A valid initialization object for database access.
+ * @param[out] edata A convenient structure for the related data.
+ */
+void get_Node_Log_chunk_data(Postgres_access & pa, entry_data & edata) {
+    if (!edata.log_ptr) { // make an empty one if it does not exist yet
+        edata.log_ptr = std::make_unique<Log>();
+    }
+
+    if (!load_Node_chunk_data_pq(pa, Node_ID_key(edata.specific_node_id), *(edata.log_ptr.get()))) {
+        standard_exit_error(exit_database_error, "Unable to read the Log chunk data for Node "+edata.specific_node_id, __func__);
+    }
+}
+
 } // namespace fz
