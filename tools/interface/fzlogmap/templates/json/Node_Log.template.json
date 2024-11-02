@@ -3,4 +3,4 @@
 	"num_chunks": {{ num-chunks }},
 	"total_hrs": {{ total-hrs }},
 	"chunks_data": [ {{ chunks-data }} ]
-}
+}}
