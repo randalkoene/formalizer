@@ -80,6 +80,11 @@ cursor: pointer;
 --header-card: black;
 --scroll-thumb: black;
 --scroll-track: black;
+--tdp-U: black;
+--tdp-I: black;
+--tdp-V: black;
+--tdp-F: black;
+--tdp-E: black;
 }
 [data-theme="white"] {
 --color-bg: white;
@@ -104,6 +109,11 @@ cursor: pointer;
 --header-card: rgba(255, 215, 0, 0.8);
 --scroll-thumb: auto;
 --scroll-track: auto;
+--tdp-U: black;
+--tdp-I: black;
+--tdp-V: black;
+--tdp-F: black;
+--tdp-E: #5b0385;
 }
 [data-theme="lightblue"] {
 --color-bg: LightSteelBlue;
@@ -128,6 +138,11 @@ cursor: pointer;
 --header-card: rgba(255, 215, 0, 0.8);
 --scroll-thumb: auto;
 --scroll-track: auto;
+--tdp-U: black;
+--tdp-I: black;
+--tdp-V: black;
+--tdp-F: black;
+--tdp-E: #5b0385;
 }
 [data-theme="darkblue1"] {
 --color-bg: rgb(79, 128, 192);
@@ -152,6 +167,11 @@ cursor: pointer;
 --header-card: rgba(255, 215, 0, 0.8);
 --scroll-thumb: auto;
 --scroll-track: auto;
+--tdp-U: black;
+--tdp-I: black;
+--tdp-V: black;
+--tdp-F: black;
+--tdp-E: #5b0385;
 }
 [data-theme="darkblue2"] {
 --color-bg: rgb(2, 42, 94);
@@ -176,6 +196,11 @@ cursor: pointer;
 --header-card: rgba(255, 215, 0, 0.8);
 --scroll-thumb: auto;
 --scroll-track: auto;
+--tdp-U: #c0c77d;
+--tdp-I: #c0c77d;
+--tdp-V: #c0c77d;
+--tdp-F: #c0c77d;
+--tdp-E: #c893ed;
 }
 [data-theme="black"] {
 --color-bg: rgb(0, 0, 0);
@@ -200,6 +225,11 @@ cursor: pointer;
 --header-card: rgba(100, 100, 0, 0.8);
 --scroll-thumb: #3f3f3f;
 --scroll-track: #5f5f5f;
+--tdp-U: #c0c77d;
+--tdp-I: #c0c77d;
+--tdp-V: #c0c77d;
+--tdp-F: #c0c77d;
+--tdp-E: #c893ed;
 }
 body {
 background-color: var(--color-bg);
@@ -303,6 +333,13 @@ table tr.chktop > td { background-color: var(--color-chktop); }
 a.node:link {color: var(--tr-fg); text-decoration:none;}
 a.node:visited {color: var(--tr-fg); text-decoration:none;}
 a.node:hover {color: black; text-decoration:underline; background-color:#55db50;}
+a.node.tdp_U { color: var(--tdp-U); }
+a.node.tdp_I { color: var(--tdp-I); }
+a.node.tdp_V { color: var(--tdp-V); }
+a.node.tdp_F { color: var(--tdp-F); }
+a.node.tdp_E { color: var(--tdp-E); }
+a.node.tdp_R { font-style: italic; }
+a.node.tdp_rEF { font-weight: bold; }
 a.id:link {color: #000000; text-decoration:underline;}
 a.id:visited {color: #000000; text-decoration:underline;}
 a.id:hover {color: #000000; text-decoration:underline; background-color:#55db50;}

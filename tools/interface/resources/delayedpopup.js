@@ -1,3 +1,20 @@
+/*
+To use this:
+1. Include in body: <script type="text/javascript" src="/delayedpopup.js"></script>
+2. After that, in body, something like:
+   <script>
+   set_hover_delayed_function('.docpopupfunc', openPopup, 1000);
+   </script>
+3. Add the popup function if it is not one already included in this JS file.
+4. Give some content the requisite class, e.g.:
+   <a href="somehere.html" class="docpopupfunc">some link</a> 
+Note that the openHiddenPopup() function is specifically designed to work
+with a <span> of that class that has a "data-value" attribute. While openPopup()
+is specific to <a> tags and enlargeImage() is specific to <img> tags, this
+can be used with almost any page content.
+There, you can also provide a preferred popup width and height through
+"data-width" and "data-height" attributes.
+*/
 function hoverWithDelay(element, callback, delay) {
   let timeoutId;
 
@@ -32,6 +49,44 @@ function openPopup(a_ref) {
   newDiv.style.position = "fixed";
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
+  const elementWidth = newDiv.offsetWidth;
+  const elementHeight = newDiv.offsetHeight;
+  newDiv.style.left = (viewportWidth - elementWidth) / 2 + "px";
+  newDiv.style.top = (viewportHeight - elementHeight) / 2 + "px";
+  newDiv.addEventListener('mouseout', () => {
+    newDiv.remove();
+  });
+  console.log("Preview generated.");
+}
+
+function openHiddenPopup(data_ref) {
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const url = data_ref.dataset.value;
+  var width = data_ref.dataset.width;
+  var height = data_ref.dataset.height;
+  if (!width) {
+    width = "750px";
+  } else {
+    if (width.slice(-1)=="%") {
+      let width_px = Number(width.slice(0,-1))*viewportWidth/100;
+      width = `${width_px}px`;
+    }
+  }
+  if (!height) {
+    height = "750px";
+  } else {
+    if (height.slice(-1)=="%") {
+      let height_px = Number(height.slice(0,-1))*viewportHeight/100;
+      height = `${height_px}px`;
+    }
+  }
+  console.log(`Using width=${width} and height=${height} for popup.`);
+  const newDiv = document.createElement("div");
+  newDiv.innerHTML = `<iframe src="${url}" width="${width}" height="${height}"></iframe>`;
+  document.body.appendChild(newDiv);
+  newDiv.style.zIndex = "999";
+  newDiv.style.position = "fixed";
   const elementWidth = newDiv.offsetWidth;
   const elementHeight = newDiv.offsetHeight;
   newDiv.style.left = (viewportWidth - elementWidth) / 2 + "px";

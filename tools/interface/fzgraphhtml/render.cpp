@@ -121,6 +121,14 @@ const std::map<Boolean_Tag_Flags::boolean_flag, std::string> category_tag_str = 
     { Boolean_Tag_Flags::system, "<span class=\"bold-green\">C</span>" },
 };
 
+const std::map<td_property, std::string> td_property_class_map = {
+    { unspecified, " tdp_U" },
+    { inherit, " tdp_I" },
+    { variable, " tdp_V" },
+    { fixed, " tdp_F" },
+    { exact, " tdp_E" },
+};
+
 /**
  * Notes:
  * 1. Rendering of the head of the page is done after collecting the rendered
@@ -371,14 +379,27 @@ struct line_render_parameters {
         }
     }
 
-    std::string td_property_styling(const std::string& excerpt, const Node& node) {
-        if (node.td_exact()) {
-            return "<b>"+excerpt+"</b>";
-        }
+    // std::string td_property_styling(const std::string& excerpt, const Node& node) {
+    //     if (node.td_exact()) {
+    //         return "<b>"+excerpt+"</b>";
+    //     }
+    //     if (node.get_repeats()) {
+    //         return "<i>"+excerpt+"</i>";
+    //     }
+    //     return excerpt;
+    // }
+
+    std::string td_property_classes(const Node& node) {
+        std::string tdpropclasses;
         if (node.get_repeats()) {
-            return "<i>"+excerpt+"</i>";
+            tdpropclasses += " tdp_R";
+        } else {
+            if (node.td_fixed() || node.td_exact()) {
+                tdpropclasses += " tdp_rEF";
+            }
         }
-        return excerpt;
+        tdpropclasses += td_property_class_map.at(node.get_tdproperty());
+        return tdpropclasses;
     }
 
     /**
@@ -470,16 +491,17 @@ struct line_render_parameters {
         Boolean_Tag_Flags::boolean_flag boolean_tag;
         if (map_of_subtrees.node_in_heads_or_any_subtree(node.get_id().key(), boolean_tag)) {
             if (category_tag_str.find(boolean_tag) != category_tag_str.end()) {
-                varvals.emplace("excerpt",category_tag_str.at(boolean_tag)+subtrees_list_tag+td_property_styling(remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length), node));
+                varvals.emplace("excerpt",category_tag_str.at(boolean_tag)+subtrees_list_tag+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
             } else {
-                varvals.emplace("excerpt",td_property_styling(remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length), node));
+                varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
             }
             if (day_category_hrs.find(boolean_tag) != day_category_hrs.end()) {
                 day_category_hrs.at(boolean_tag) += hours_to_show;
             }
         } else {
-            varvals.emplace("excerpt",td_property_styling(remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length), node));
+            varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
         }
+        varvals.emplace("tdprop-style", td_property_classes(node));
         //varvals.emplace("excerpt",remove_html(htmltext).substr(0,fzgh.config.excerpt_length));
         // -- Server address
         varvals.emplace("fzserverpq", fzgh.replacements[fzserverpq_address]); // graph_ptr->get_server_full_address()

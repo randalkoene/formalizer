@@ -273,7 +273,7 @@ Log entries in this chunk: %s
 <tr>
 <td>
 4. <button class="button button2" onclick="window.open('/select.html','_blank');">Select Node for Next Log chunk</button><br>
-<button class="button button1" onclick="window.open('/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20','_blank');">Proposed Calendar Schedule</button>
+<button class="button button1" onclick="window.open('/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20','_blank');"><span class="buttonpopupfunc" data-value="/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20" data-width="80%%" data-height="80%%">Proposed Calendar Schedule</span></button>
 </td>
 <td class="stateinfo">
 
@@ -308,6 +308,10 @@ Log entries in this chunk: %s
 [<a href="/index.html">fz: Top</a>]
 
 <script type="text/javascript" src="/fzuistate.js"></script>
+<script type="text/javascript" src="/delayedpopup.js"></script>
+<script>
+set_hover_delayed_function('.buttonpopupfunc', openHiddenPopup, 1000);
+</script>
 </body>
 
 </html>
