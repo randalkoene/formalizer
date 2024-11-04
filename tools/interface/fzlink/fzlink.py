@@ -30,6 +30,7 @@ alt = form.getvalue('alt')
 
 http_response = 'Content-type:text/html\n\n'
 
+# This page header is used when showing Nodes.
 page_header = '''<html>
 <head>
 <link rel="icon" href="/favicon-32x32.png">
@@ -40,6 +41,24 @@ page_header = '''<html>
 <title>Formalizer: fzlink handler</title>
 </head>
 <body>
+'''
+
+page_tail = '''<hr>
+<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="text/javascript" src="/clock.js"></script>
+<script type="text/javascript" src="/delayedpopup.js"></script>
+<script>
+set_hover_delayed_function('.docpopupfunc', openPopup, 1000);
+</script>
+</body>
+</html>
+'''
+
+thecmd = ""
+altcmd = ""
+addframe = False
+
+cut_from_page_header = '''
 <style type="text/css">
 .chktop { 
     background-color: #B0C4F5;
@@ -52,18 +71,6 @@ right: 0px;
 </style>
 <button id="darkmode" class="button button2" onclick="switch_light_or_dark();">Light / Dark</button>
 '''
-
-page_tail = '''<hr>
-<script type="text/javascript" src="/fzuistate.js"></script>
-<script type="text/javascript" src="/clock.js"></script>
-</body>
-</html>
-'''
-
-thecmd = ""
-altcmd = ""
-addframe = False
-
 
 def try_the_command(thecommand: str):
     try:

@@ -266,6 +266,10 @@ function edge_update(event) {
     window.open('/cgi-bin/fzedit-cgi.py?edge='+edge_id+'&edgemod='+modtype+'&modval='+value);
 }
 </script>
+<script type="text/javascript" src="/delayedpopup.js"></script>
+<script>
+pastePopupLink('docpopupfunc', 'text');
+</script>
 
 </body>
 </html>

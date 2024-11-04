@@ -14,6 +14,15 @@ is specific to <a> tags and enlargeImage() is specific to <img> tags, this
 can be used with almost any page content.
 There, you can also provide a preferred popup width and height through
 "data-width" and "data-height" attributes.
+
+To use automated conversion of copied links into popup links, include the
+following in the body:
+<script>
+pastePopupLink('docpopupfunc', 'entrytext');
+</script>
+Where 'docpopupfunc' refers to the class identifier to give to popup links
+and 'entrytext' refers to the ID of the <textarea> element that should be
+listening for paste actions.
 */
 function hoverWithDelay(element, callback, delay) {
   let timeoutId;
