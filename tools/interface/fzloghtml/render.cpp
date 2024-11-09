@@ -831,8 +831,12 @@ struct review_data {
     }
 
     bool table_to_template(std::string & rendered_table) {
+        //FZOUT("DEBUG --> Wakeup: "+TimeStampYmdHM(t_wakeup)+'\n');
+        //FZOUT("DEBUG --> Gosleep: "+TimeStampYmdHM(t_gosleep)+'\n');
         for (size_t i = 0; i < elements.size(); i++) {
+            //FZOUT("DEBUG --> checking chunk\n")
             if ((elements[i].t_begin >= t_wakeup) && (elements[i].t_begin <= t_gosleep)) {
+                //FZOUT("DEBUG --> rendering chunk\n")
                 std::string rendered_chunk;
                 if (!elements[i].chunk_to_template(rendered_chunk)) {
                     return false;
@@ -903,6 +907,8 @@ bool render_Log_review() {
 
     for (const auto & [chunk_key, chunkptr] : fzlh.edata.log_ptr->get_Chunks()) if (chunkptr) {
 
+        //FZOUT("DEBUG --> Chunk "+chunkptr->get_tbegin_str()+'\n');
+
         time_t t_chunkclose = chunkptr->get_close_time();
         time_t t_chunkopen = chunkptr->get_open_time();
         if (t_chunkclose >= t_chunkopen) { // Only work with completed chunks.
@@ -916,11 +922,17 @@ bool render_Log_review() {
                 Boolean_Tag_Flags boolean_tag;
                 if (sleepNNL_ptr->contains(node_id)) {
                     if (node_id != nap_id) { // Does this chunk belong to a sleep Node?
-                        data.t_wakeup = data.t_candidate_wakeup;
-                        data.t_candidate_wakeup = t_chunkclose;
-                        data.t_gosleep = t_chunkopen;
+                        // The following test is a safety in case of multiple sleep Nodes in close proximity.
+                        if ((t_chunkclose - data.t_candidate_wakeup) > (4*3600)) {
+                            data.t_wakeup = data.t_candidate_wakeup;
+                            data.t_candidate_wakeup = t_chunkclose;
+                            //FZOUT("DEBUG --> t_wakeup = "+TimeStampYmdHM(data.t_wakeup)+'\n');
+                            //FZOUT("DEBUG --> t_candidate_wakeup = "+TimeStampYmdHM(data.t_candidate_wakeup)+'\n');
+                            data.t_gosleep = t_chunkopen;
+                        }
                     } else { // Chunk is a nap.
                         data.elements.emplace_back(t_chunkopen, t_chunkclose - t_chunkopen, boolean_tag, node_ptr->get_text(), chunkptr->get_combined_entries_text(), true);
+                        //FZOUT("DEBUG --> Collected data element.\n");
                     }
                 } else {
                     // Identify category.
@@ -945,6 +957,7 @@ bool render_Log_review() {
                         }
                     }
                     data.elements.emplace_back(t_chunkopen, t_chunkclose - t_chunkopen, boolean_tag, node_ptr->get_text(), combined_entries);
+                    //FZOUT("DEBUG --> Collected data element.\n");
                     // Also look for other metrictags in the entries.
                     for (const auto & metrictag : metrictags) {
                         size_t pos = 0; // There could be more than one of each in the combined content.
