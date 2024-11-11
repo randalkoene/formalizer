@@ -1276,6 +1276,12 @@ bool render_node_edit() {
     } else {
         nodevars.emplace("hrs_to_complete", "0.00");
     }
+    if (completion >= 0.0) {
+        float comp_hrs = required_hrs*completion;
+        nodevars.emplace("comp_hrs", to_precision_string(comp_hrs));
+    } else {
+        nodevars.emplace("comp_hrs", "inactive");
+    }
     nodevars.emplace("req_hrs", to_precision_string(required_hrs));
     nodevars.emplace("req_mins", std::to_string(required_mins));
     nodevars.emplace("val", to_precision_string(node.get_valuation()));
