@@ -2106,6 +2106,14 @@ bool handle_fz_vfs_request(int new_socket, const std::string & fzrequesturl) {
     return false;
 }
 
+/**
+ * Redirects local Markdown file through md2html.
+ */
+bool handle_markdown(const std::string& mdfilepath, std::string& response_html) {
+    response_html = shellcmd2str("md2html "+mdfilepath);
+    return true;
+}
+
 std::string add_to_path(const std::string& path, const std::string& add) {
     if (path.empty()) {
         return add;
@@ -2116,6 +2124,14 @@ std::string add_to_path(const std::string& path, const std::string& add) {
     }
 
     return path + '/' + add;
+}
+
+std::string basename_from_path(const std::string& path) {
+    auto slash_pos = path.rfind('/');
+    if (slash_pos == std::string::npos) {
+        return path;
+    }
+    return path.substr(slash_pos+1);
 }
 
 /**
@@ -2159,15 +2175,27 @@ void direct_tcpport_api_file_serving(int new_socket, const std::string & url) {
 
     if (path_type == path_is_file) {
 
-        //uninitialized_buffer buf;
-        std::vector<char> buf;
-        if (file_to_buffer(file_path, buf)) {
+        // Test if it has the .md Markdown extension
+        if (file_path.substr(file_path.length()-3) == ".md") {
 
-            server_response_binary srvbin(file_path, buf.data(), buf.size());
-            if (srvbin.respond(new_socket)>0) {
+            std::string response_html;
+            if (handle_markdown(file_path, response_html)) {
+                handle_request_response(new_socket, standard_HTML_header("fz: Markdown: "+basename_from_path(file_path)) + response_html + "</body>\n</html>\n", "Markdown converted");
                 return;
             }
 
+        } else {
+
+            //uninitialized_buffer buf;
+            std::vector<char> buf;
+            if (file_to_buffer(file_path, buf)) {
+
+                server_response_binary srvbin(file_path, buf.data(), buf.size());
+                if (srvbin.respond(new_socket)>0) {
+                    return;
+                }
+
+            }
         }
 
     } else if (path_type == path_is_directory) {

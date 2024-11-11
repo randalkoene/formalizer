@@ -15,6 +15,7 @@ FORMALIZERPATH_THIS=$(FORMALIZERPATH)
 FZCONFIGSRCPATH=$(FORMALIZERPATH)/config
 FZCONFIGPATH=$(HOME)/.formalizer
 LOCALBINDIR=$(HOME)/local/bin
+THIRDPARTYBASE=$(HOME)/src
 
 #TEMPLATEDIR = -DDEFAULT_TEMPLATE_DIR=\"$(FORMALIZERPATH_THIS)\" 
 
@@ -336,6 +337,9 @@ TOPLEVEL += $(MEDIAPATH)/System-Action-HTML.png
 TOPLEVEL += $(MEDIAPATH)/decisions-and-communication.png
 TOPLEVEL += $(FZCONFIGSRCPATH)/logentry.py/favicon-logentry-32x32.png
 
+# Third party tools
+THIRDPARTY =
+THIRDPARTY += $(THIRDPARTYBASE)/md4c/build/md2html/md2html
 
 # Test files to copy to web servable Formalizer directory
 TESTS = 
@@ -400,6 +404,7 @@ executables: $(EXECUTABLES)
 	ln -f -s $(SYMINCLUDE) $(COREINCLUDEPATH)/
 	sudo cp -f $(TOPLEVEL) $(WEBBASEDIR)/
 	./pycmdlinks.sh $(EXEDIR)
+	sudo ./thirdparty.py $(EXEDIR) $(CGIDIR) $(THIRDPARTY)
 	@echo '--- NOTE: You may still need to update browser caches, e.g. shift+reload in firefox.'
 
 # call `make tests` to make test files available
