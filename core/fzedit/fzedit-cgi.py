@@ -162,26 +162,11 @@ edit_success_page_tail = f'''<p class="success"><b>Node modified. To review or e
 </html>
 '''
 
-create_success_page_tail = '''<p class="success"><b>Node created: <a href="/cgi-bin/fzlink.py?id=%s">%s</a></b><button class="button" onclick="copyValueToClipboard();">copy</button></p>
+create_success_page_tail = '''<p class="success"><b>Node created: <a href="/cgi-bin/fzlink.py?id=%s">%s</a></b><button class="button" onclick="copyInputValueToClipboard('node_id');">copy</button></p>
 <hr>
 <input id="node_id" type="hidden" value="%s">
 <script type="text/javascript" src="/fzclosing_window.js"></script>
-<script>
-function copyValueToClipboard() {
-  var copyValue = document.getElementById('node_id');
-  var value_content = '---';
-  if (copyValue == null) {
-    console.log('Did not find object with id node_id.');
-  } else {
-    value_content = copyValue.value;
-    console.log(`Value of node_id object is ${value_content}.`);
-  }
-  copyValue.select();
-  //copyValue.setSelectionRange(0, 99999); // For mobile devices
-  navigator.clipboard.writeText(value_content);
-  alert("Copied: " + value_content);
-}
-</script>
+<script type="text/javascript" src="/copyinputvalue.js"></script>
 </body>
 </html>
 '''

@@ -656,6 +656,11 @@ CHUNK_MODIFY_PAGE = '''<html>
 
 <h1>fz: Log - Modify Chunk %s</h1>
 
+<button class="button button2" onclick="copyInputValueToClipboard('chunk_id');">copy Chunk ID</button>
+<input id="chunk_id" type="hidden" value="%s">
+<script type="text/javascript" src="/copyinputvalue.js"></script>
+<P>
+
 <form action="/cgi-bin/fzlog-cgi.py" method="GET">
 Change Node to:<br>
 <input type="hidden" name="action" value="generic">
@@ -695,7 +700,7 @@ Change Close timestamp to:<br>
 '''
 
 def generate_chunk_modify_page():
-    print(CHUNK_MODIFY_PAGE % (id, id, id, id, id))
+    print(CHUNK_MODIFY_PAGE % (id, id, id, id, id, id))
 
 GENERIC_ERROR_PAGE = '''<html>
 <head>

@@ -10,7 +10,11 @@
 	[<a class="nnl" href="http://localhost/cgi-bin/nodemetrics.py?node={{ node-id }}">metrics</a>]
 	[<a class="nnl" href="http://localhost/cgi-bin/nodeboard-cgi.py?G=true&n={{ node-id }}&I=true&T=true">dependencies tree</a>]
 	[<a class="nnl" href="http://localhost/cgi-bin/nodeboard-cgi.py?g=true&n={{ node-id }}&I=true&T=true">superiors tree</a>]
-<button class="button button1" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new&tosup={{ node-id }}');">mkwsup</button></h3>
+<button class="button button1" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new&tosup={{ node-id }}');">mkwsup</button>
+<button class="button button2" onclick="copyInputValueToClipboard('node_id');">copy ID</button>
+<input id="node_id" type="hidden" value="{{ node-id }}">
+<script type="text/javascript" src="/copyinputvalue.js"></script>
+</h3>
 </td>
 </tr>
 <tr>
