@@ -10,16 +10,23 @@
 
 from sys import argv
 from os.path import exists, basename
-from os import symlink
+from os import symlink, remove
 
 def found_tool(thirdparty:str)->bool:
 	return exists(thirdparty)
 
+def force_symlink(src, dst):
+    try:
+        symlink(src, dst)
+    except FileExistsError:
+        remove(dst)
+        symlink(src, dst)
+
 def make_links(exedir:str, cgidir:str, thirdparty:str):
 	toolname = basename(thirdparty)
 	print('Making symlinks for %s...' % toolname)
-	symlink(thirdparty, exedir+'/'+toolname)
-	symlink(thirdparty, cgidir+'/'+toolname)
+	force_symlink(thirdparty, exedir+'/'+toolname)
+	force_symlink(thirdparty, cgidir+'/'+toolname)
 
 def check_and_link(exedir:str, cgidir:str, args:list):
 	for thirdparty in args:

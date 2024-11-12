@@ -378,6 +378,14 @@
             "url" : "http://keep.google.com/?authuser=rkoene@carboncopies.org",
             "window" : "_blank"
         },
+        "G-Drive (@gmail)" : {
+            "url" : "http://drive.google.com/?authuser=randal.a.koene@gmail.com",
+            "window" : "_blank"
+        },
+        "G-Drive (@carboncopies)" : {
+            "url" : "http://drive.google.com/?authuser=rkoene@carboncopies.org",
+            "window" : "_blank"
+        },
         "ID Book" : {
             "url" : "/idbook.html",
             "window" : "_blank"
