@@ -250,7 +250,7 @@ editentrypagehead = '''<html>
 
 editentryform_start = '''<form action="/cgi-bin/fzlog-cgi.py" method="post">
 <br>
-<textarea rows="15" cols="100" name="text">'''
+<textarea id="entrytext" rows="15" cols="100" name="text">'''
 
 editentryform_middle = '''</textarea><br>
 <p>Associated with Node: <input type="text" name="node" value="'''
@@ -268,6 +268,10 @@ editentrypagetail_success = '''<hr>
 [<a href="/index.html">fz: Top</a>]
 
 <script type="text/javascript" src="/fzuistate.js"></script>
+<script type="text/javascript" src="/delayedpopup.js"></script>
+<script>
+pastePopupLink('docpopupfunc', 'entrytext');
+</script>
 </body>
 </html>
 '''
