@@ -21,10 +21,15 @@
 #behtools {
     position: fixed;
     bottom: 0px;
-    right: 511px;
+    right: 515px;
+}
+#calsched {
+    position: fixed;
+    bottom: 0px;
+    right: 659px;
 }
 #logtime {
     position: fixed;
     bottom: 0px;
-    right: 655px;
+    right: 833px;
 }
