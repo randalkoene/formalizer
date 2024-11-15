@@ -20,6 +20,16 @@
 
 using namespace fz;
 
+const char * histories_refresh_note = R"NOTE(
+Done.
+
+Note:
+  To enable web based access to Node histories, you may need to
+  re-establish ownership/permissions by running
+  `fzsetup -1 fzuser`.
+
+)NOTE";
+
 void refresh_Node_histories_cache_table() {
     ERRTRACE;
     VERBOSEOUT("Refreshing Node histories cache table...\n");
@@ -27,8 +37,18 @@ void refresh_Node_histories_cache_table() {
         standard_error("Unable to refresh Node histories cache table." , __func__);
         return;
     }
-    VERBOSEOUT("Done.\n\nNote: To enable web based access to Node histories, you may need to\nre-establish ownership/permissions by running `fzsetup -1 fzuser`.\n");
+    VERBOSEOUT(histories_refresh_note);
 }
+
+const char * nnl_refresh_note = R"NOTE(
+Done.
+
+Note:
+  To enable web based access to Node histories, you may need to
+  re-establish ownership/permissions by running
+  `fzsetup -1 fzuser`.
+
+)NOTE";
 
 void refresh_Named_Node_Lists_cache_table() {
     ERRTRACE;
@@ -37,6 +57,5 @@ void refresh_Named_Node_Lists_cache_table() {
         standard_error("Unable to refresh Named Node Lists cache table." , __func__);
         return;
     }
-    VERBOSEOUT("Done.\n\nNote: To enable web based access to Node histories, you may need to\nre-establish ownership/permissions by running `fzsetup -1 fzuser`.\n");
+    VERBOSEOUT(nnl_refresh_note);
 }
-
