@@ -84,7 +84,7 @@ void fzupdate::usage_hook() {
           "    -P interval seconds for moveable packing beyond map (or 'none')\n"
           "    -c specify a chain of placers (VTD,UTD)\n"
           "    -m overhead multiplier to use with '-T full'\n"
-          "    -B day map such as 'SELFWORK:WED,SAT;WORK:MON,TUE,THU,SUN'\n"
+          "    -B day map such as 'SELFWORK:WED,SAT_WORK:MON,TUE,THU,SUN'\n"
           "    -S use categories within dependency subtrees of Nodes in NNL.\n"
           "    -d dry-run, do not modify Graph\n");
 }
@@ -675,7 +675,7 @@ int update_variable(time_t t_pass) {
     }
 
     if (eps_update_nodes.empty()) {
-        VERBOSEOUT("No variable target dates within examined range to update.\n");
+        VERBOSEOUT("No movable target dates within examined range to update.\n");
     } else {
         request_batch_targetdates_modifications(eps_update_nodes, editflags);
     }

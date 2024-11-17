@@ -778,7 +778,7 @@ void Uncategorized_UTD_Placer::place() {
         } else {
 
             eps_data & epsdataref = updvar_map.epsdata[i];
-            if ((epsdataref.chunks_req>0) && (node_ptr->get_tdproperty() == unspecified)) {
+            if ((!epsdataref.placed()) && (epsdataref.chunks_req>0) && (node_ptr->get_tdproperty() == unspecified)) {
                 num_parsed++;
                 time_t t_suggested = updvar_map.reserve(node_ptr, epsdataref.chunks_req);
                 if (t_suggested < 0) {
@@ -817,10 +817,10 @@ const std::map<std::string, int> weekday_shortstr = {
 
 /**
  * Accepts specifications such as:
- * "SELFWORK:WED,SAT;WORK:MON,TUE,THU,SUN"
+ * "SELFWORK:WED,SAT_WORK:MON,TUE,THU,SUN"
  */
 void BooleanTagFlag_UTD_Placer::set_tag_days(const std::string& configstr) {
-    auto btf_configstr_vec = split(configstr, ';');
+    auto btf_configstr_vec = split(configstr, '_');
     for (const auto& btf_configstr : btf_configstr_vec) {
         auto btf_configstr_pair = split(btf_configstr, ':');
         if (btf_configstr_pair.size() == 2) {
@@ -859,6 +859,7 @@ void BooleanTagFlag_UTD_Placer::place() {
     }
 
     // Walk through unplaced Nodes and place UTD Nodes in order of appearance.
+    time_t t_btf_limit = updvar_map.firstdaystart + (60*60*24*14); // 2 week limit
     updvar_map.init_next_slot();
     size_t num_parsed = 0;
     size_t num_mapped = 0;
@@ -869,14 +870,20 @@ void BooleanTagFlag_UTD_Placer::place() {
         } else {
 
             eps_data & epsdataref = updvar_map.epsdata[i];
-            if ((epsdataref.chunks_req>0) && (node_ptr->get_tdproperty() == unspecified)) {
-                num_parsed++;
+            if ((!epsdataref.placed()) && (epsdataref.chunks_req>0) && (node_ptr->get_tdproperty() == unspecified)) {
 
                 Boolean_Tag_Flags::boolean_flag boolean_tag;
-                map_of_subtrees.node_in_heads_or_any_subtree(node_ptr->get_id().key(), boolean_tag);
+                if (!map_of_subtrees.node_in_heads_or_any_subtree(node_ptr->get_id().key(), boolean_tag)) { // This uses get_PriorityCategory() on Node or Subtree header.
+                    boolean_tag = Boolean_Tag_Flags::none;
+                }
 
                 if (boolean_tag != Boolean_Tag_Flags::none) {
+
                     if (tag_to_day_map.find(boolean_tag) != tag_to_day_map.end()) {
+
+                        num_parsed++;
+                        VERYVERBOSEOUT("Found a BTF Node: "+node_ptr->get_id_str()+'\n');
+
                         if (!tag_to_day_map[boolean_tag].empty()) {
 
                             time_t t_suggested = updvar_map.reserve_specific_days(node_ptr, epsdataref.chunks_req, tag_to_day_map[boolean_tag]);
@@ -886,6 +893,10 @@ void BooleanTagFlag_UTD_Placer::place() {
                                 epsdataref.t_eps = t_suggested;
                                 updvar_map.previous_group_td = t_suggested; // Every UTD Node must have a unique target date.
                                 num_mapped++;
+                            }
+
+                            if (t_suggested >= t_btf_limit) {
+                                break;
                             }
 
                         }
@@ -898,7 +909,7 @@ void BooleanTagFlag_UTD_Placer::place() {
         ++i;
     }
 
-    updvar_map.utd_all_placed = num_mapped == num_parsed;
+    //updvar_map.utd_all_placed = num_mapped == num_parsed;
     VERYVERBOSEOUT('\n'+std::to_string(num_mapped)+" of "+std::to_string(num_parsed)+" Boolean Tag Flags Nodes as per NNL "+list_name+" with unspecified target dates mapped.\n");
     if (fzu.config.showmaps) {
         VERYVERBOSEOUT(updvar_map.show());

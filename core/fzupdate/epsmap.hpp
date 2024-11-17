@@ -107,6 +107,8 @@ struct eps_data {
     chunks_t chunks_req = 0;
     EPS_flags epsflags;
     time_t t_eps = RTt_maxtime;
+
+    bool placed() { return t_eps != RTt_maxtime; }
 };
 
 typedef std::vector<eps_data> eps_data_vec_t; // *** alternatively, could index by Node_ID_key and get rid of node_vector_index.

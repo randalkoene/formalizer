@@ -509,6 +509,8 @@ struct bfm_cmp_cstr
 };
 extern const std::map<const char *, Boolean_Tag_Flags::boolean_flag, bfm_cmp_cstr> boolean_flag_map;
 
+extern const std::map<Boolean_Tag_Flags::boolean_flag, const std::string> boolean_flag_str_map;
+
 /**
  * The Node class is the principal object type within a Formalizer Graph.
  * 
