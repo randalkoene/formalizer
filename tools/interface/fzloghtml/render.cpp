@@ -863,6 +863,8 @@ struct metrictag_data {
  * This is used by tools such as the System tool `dayreview`.
  * 
  * This also finds and compiles additional data from metrictags in the Log entries.
+ * 
+ * See the README.md file for a detailed description of the steps in this function.
  */
 bool render_Log_review() {
     ERRTRACE;
@@ -958,6 +960,7 @@ bool render_Log_review() {
                     }
                     data.elements.emplace_back(t_chunkopen, t_chunkclose - t_chunkopen, boolean_tag, node_ptr->get_text(), combined_entries);
                     //FZOUT("DEBUG --> Collected data element.\n");
+                    
                     // Also look for other metrictags in the entries.
                     for (const auto & metrictag : metrictags) {
                         size_t pos = 0; // There could be more than one of each in the combined content.

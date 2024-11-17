@@ -452,14 +452,7 @@ bool Node::remove_topic(std::string tag) {
     return remove_topic(topic->get_id());
 }
 
-struct cmp_cstr
-{
-   bool operator()(const char *a, const char *b) const
-   {
-      return std::strcmp(a, b) < 0;
-   }
-};
-const std::map<const char *, Boolean_Tag_Flags::boolean_flag, cmp_cstr> boolean_flag_map = {
+const std::map<const char *, Boolean_Tag_Flags::boolean_flag, bfm_cmp_cstr> boolean_flag_map = {
     { "TZADJUST", Boolean_Tag_Flags::tzadjust },
     { "WORK", Boolean_Tag_Flags::work },
     { "SELFWORK", Boolean_Tag_Flags::self_work },

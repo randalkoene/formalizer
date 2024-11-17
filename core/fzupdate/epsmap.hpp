@@ -202,6 +202,18 @@ struct EPS_map {
      */
     time_t reserve(Node_ptr n_ptr, int chunks_req);
 
+    /**
+     * Reserve `chunks_req` in five minute granularity from the earliest
+     * available slot onward, but only on days specified by the map
+     * provided in fzu.config.btf_days.
+     * @param n_ptr Pointer to Node for which to allocate time.
+     * @param chunks_req Number of chunks required.
+     * @param dayindices Vector with days of the week to use in the interval (0,6).
+     * @return Corresponding suggested target date taking into account TD preferences,
+     *         or -1 if there are insufficient slots available.
+     */
+    time_t reserve_specific_days(Node_ptr n_ptr, int chunks_req, const std::vector<int> dayindices);
+
     void place_exact();
 
     /**
@@ -241,6 +253,19 @@ public:
 class Uncategorized_UTD_Placer: public Placer {
 public:
     Uncategorized_UTD_Placer(EPS_map& _updvar_map): Placer(_updvar_map) {}
+    virtual void place();
+};
+
+class BooleanTagFlag_UTD_Placer: public Placer {
+public:
+    std::map<Boolean_Tag_Flags::boolean_flag, std::vector<int>> tag_to_day_map;
+    std::string list_name;
+
+protected:
+    void set_tag_days(const std::string& configstr);
+
+public:
+    BooleanTagFlag_UTD_Placer(EPS_map& _updvar_map);
     virtual void place();
 };
 

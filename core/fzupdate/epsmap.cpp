@@ -233,6 +233,11 @@ void EPS_map::process_chain(std::string& chain) {
             std::unique_ptr<Uncategorized_UTD_Placer> UTDplacer = std::make_unique<Uncategorized_UTD_Placer>(*this);
             placer_chain.emplace_back();
             placer_chain.back().reset(UTDplacer.release());
+        } else if (trimmed == "BTF") { // Boolean Tag Flag categorized UTD
+            usechain = true;
+            std::unique_ptr<BooleanTagFlag_UTD_Placer> BTFplacer = std::make_unique<BooleanTagFlag_UTD_Placer>(*this);
+            placer_chain.emplace_back();
+            placer_chain.back().reset(BTFplacer.release());
         }
     }
 }
@@ -358,6 +363,44 @@ time_t EPS_map::reserve(Node_ptr n_ptr, int chunks_req) {
             if (slots_req == 0) {
                 new_targetdate = next_slot->first; // These are all unique target dates.
                 break;
+            }
+        }
+    }
+    if (new_targetdate == RTt_unspecified) {
+        return new_targetdate; // slots needed do not fit into map
+    }
+
+    if (fzu.config.endofday_priorities) {
+        return end_of_day_adjusted(new_targetdate); // This can end up making multiple target dates the same.
+    }
+
+    return new_targetdate;
+}
+
+/**
+ * Reserve `chunks_req` in five minute granularity from the earliest
+ * available slot onward, but only on days specified by the map
+ * provided in fzu.config.btf_days.
+ * @param n_ptr Pointer to Node for which to allocate time.
+ * @param chunks_req Number of chunks required.
+ * @param dayindices Vector with days of the week to use in the interval (0,6).
+ * @return Corresponding suggested target date taking into account TD preferences,
+ *         or -1 if there are insufficient slots available.
+ */
+time_t EPS_map::reserve_specific_days(Node_ptr n_ptr, int chunks_req, const std::vector<int> dayindices) {
+    size_t slots_req = chunks_req * slots_per_chunk;
+    time_t new_targetdate = RTt_unspecified;
+    for (; next_slot != slots.end(); ++next_slot) {
+        if (!next_slot->second) {
+            auto day_of_week = time_day_of_week(next_slot->first);
+            auto it = std::find(dayindices.begin(), dayindices.end(), day_of_week);
+            if (it != dayindices.end()) { // only apply slots on the right days
+                next_slot->second = n_ptr;
+                --slots_req;
+                if (slots_req == 0) {
+                    new_targetdate = next_slot->first; // These are all unique target dates.
+                    break;
+                }
             }
         }
     }
@@ -757,3 +800,111 @@ void Uncategorized_UTD_Placer::place() {
         VERYVERBOSEOUT(updvar_map.show());
     }
 }
+
+BooleanTagFlag_UTD_Placer::BooleanTagFlag_UTD_Placer(EPS_map& _updvar_map): Placer(_updvar_map), list_name(fzu.config.NNL_name) {
+    set_tag_days(fzu.config.btf_days);
+}
+
+const std::map<std::string, int> weekday_shortstr = {
+    { "SUN", 0 },
+    { "MON", 1 },
+    { "TUE", 2 },
+    { "WED", 3 },
+    { "THU", 4 },
+    { "FRI", 5 },
+    { "SAT", 6 },
+};
+
+/**
+ * Accepts specifications such as:
+ * "SELFWORK:WED,SAT;WORK:MON,TUE,THU,SUN"
+ */
+void BooleanTagFlag_UTD_Placer::set_tag_days(const std::string& configstr) {
+    auto btf_configstr_vec = split(configstr, ';');
+    for (const auto& btf_configstr : btf_configstr_vec) {
+        auto btf_configstr_pair = split(btf_configstr, ':');
+        if (btf_configstr_pair.size() == 2) {
+            auto btf_it = boolean_flag_map.find(btf_configstr_pair.at(0).c_str());
+            if (btf_it != boolean_flag_map.end()) {
+                Boolean_Tag_Flags::boolean_flag btf = btf_it->second;
+                auto weekdaystr_vec = split(btf_configstr_pair.at(1), ',');
+                for (const auto& weekdaystr : weekdaystr_vec) {
+                    auto weekday_it = weekday_shortstr.find(weekdaystr);
+                    if (weekday_it != weekday_shortstr.end()) {
+                        tag_to_day_map[btf].emplace_back(weekday_it->second);
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Place UTD Nodes in accordance with Boolean Tag Flag categorization.
+ * Normally, this would appear before the uncategorized UTD placer in
+ * the processing chain.
+ */
+void BooleanTagFlag_UTD_Placer::place() {
+    // Prepare to use Boolean Tag Flags.
+    Map_of_Subtrees map_of_subtrees;
+    if (list_name.empty()) {
+        VERYVERBOSEOUT("Missing list name to use for Boolean Tag Flag categorized mapping.\n");
+        return;
+    }
+
+    map_of_subtrees.collect(fzu.graph(), list_name);
+    if (!map_of_subtrees.has_subtrees) {
+        VERYVERBOSEOUT("No subtrees of "+list_name+" to use for Boolean Tag Flag categorized mapping.\n");
+        return;
+    }
+
+    // Walk through unplaced Nodes and place UTD Nodes in order of appearance.
+    updvar_map.init_next_slot();
+    size_t num_parsed = 0;
+    size_t num_mapped = 0;
+    size_t i = 0;
+    for (auto& [t, node_ptr] : updvar_map.nodelist) {
+        if (!node_ptr) {
+            ADDERROR(__func__, "Received a null-node");
+        } else {
+
+            eps_data & epsdataref = updvar_map.epsdata[i];
+            if ((epsdataref.chunks_req>0) && (node_ptr->get_tdproperty() == unspecified)) {
+                num_parsed++;
+
+                Boolean_Tag_Flags::boolean_flag boolean_tag;
+                map_of_subtrees.node_in_heads_or_any_subtree(node_ptr->get_id().key(), boolean_tag);
+
+                if (boolean_tag != Boolean_Tag_Flags::none) {
+                    if (tag_to_day_map.find(boolean_tag) != tag_to_day_map.end()) {
+                        if (!tag_to_day_map[boolean_tag].empty()) {
+
+                            time_t t_suggested = updvar_map.reserve_specific_days(node_ptr, epsdataref.chunks_req, tag_to_day_map[boolean_tag]);
+                            if (t_suggested < 0) {
+                                epsdataref.epsflags.set_insufficient();
+                            } else {
+                                epsdataref.t_eps = t_suggested;
+                                updvar_map.previous_group_td = t_suggested; // Every UTD Node must have a unique target date.
+                                num_mapped++;
+                            }
+
+                        }
+                    }
+                }
+
+            }
+
+        }
+        ++i;
+    }
+
+    updvar_map.utd_all_placed = num_mapped == num_parsed;
+    VERYVERBOSEOUT('\n'+std::to_string(num_mapped)+" of "+std::to_string(num_parsed)+" Boolean Tag Flags Nodes as per NNL "+list_name+" with unspecified target dates mapped.\n");
+    if (fzu.config.showmaps) {
+        VERYVERBOSEOUT(updvar_map.show());
+    }
+}
+
+/**
+ * *** An explicit NNL_Grouped_UTD_Place can also be created for the processing chain.
+ */

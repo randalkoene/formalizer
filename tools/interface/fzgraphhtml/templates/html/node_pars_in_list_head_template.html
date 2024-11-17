@@ -14,10 +14,34 @@
 <h2>Formalizer: Incomplete Nodes by Effective Target Date</h2>
 
 <p>
-<form action="/cgi-bin/fzupdate-cgi.py" method="GET"><input type="submit" value="Update Schedule"> <input type="radio" name="update" value="repeating"> repeating <input type="radio" name="update" value="variable"> variable <input type="radio" name="update" value="both" checked> both | verbose <input type="checkbox" name="verbose"> | dry-run <input type="checkbox" name="dryrun"> | Emulate time: <input type="number" name="T_emulate"> | Full update <input type="checkbox" name="full_update" checked> | Up to T_max: <input type="number" name="T_max"> | Days to map: <input type="number" name="map_days"> (default: see config or 14) [See <a href="/cgi-bin/fzupdate-cgi.py?help=true">fzupdate-cgi.py Help info</a>.] | Overhead multiplier: <input type="text" name="ovmultiplier"></form>
-<form action="/cgi-bin/fzgraphhtml-cgi.py" method="GET"><input type="submit" value="Show"> <input type="number" name="num_elements" value="{{ num_to_show }}" style="width: 7em"> or <input type="checkbox" name="all" {{ all_checked }}> unlimited Nodes | within interval from today to <input type="number" name="max_td" value="{{ t_max }}" style="width: 12em"> or <input type="number" name="num_days" value="{{ num_days }}" style="width: 7em"> days | <input type="checkbox" name="norepeats"> no repeats</form>
+
+<form action="/cgi-bin/fzupdate-cgi.py" method="GET">
+<input type="submit" value="Update Schedule">
+<input type="radio" name="update" value="repeating"> repeating
+<input type="radio" name="update" value="variable"> variable
+<input type="radio" name="update" value="both" checked> both |
+verbose <input type="checkbox" name="verbose"> |
+dry-run <input type="checkbox" name="dryrun"> |
+Emulate time: <input type="number" name="T_emulate" size=15> |
+Full update <input type="checkbox" name="full_update" checked> |
+Up to T_max: <input type="number" name="T_max" size=15> |
+Days to map: <input type="number" name="map_days" size=8> (default: see config or 14)
+[See <a href="/cgi-bin/fzupdate-cgi.py?help=true">fzupdate-cgi.py Help info</a>.] |
+Overhead multiplier: <input type="text" name="ovmultiplier"> (default: 2.0, see config) |
+Category days: <input type="text" name="btf_days" value="SELFWORK:WED,SAT;WORK:MON,TUE,THU,SUN" size=40>
+</form>
+
+<form action="/cgi-bin/fzgraphhtml-cgi.py" method="GET">
+<input type="submit" value="Show">
+<input type="number" name="num_elements" value="{{ num_to_show }}" style="width: 7em"> or <input type="checkbox" name="all" {{ all_checked }}> unlimited Nodes |
+within interval from today to <input type="number" name="max_td" value="{{ t_max }}" style="width: 12em"> or <input type="number" name="num_days" value="{{ num_days }}" style="width: 7em"> days |
+<input type="checkbox" name="norepeats"> no repeats
+</form>
+
 Showing <code>{{ actual_num_shown }}</code> Nodes in <code>{{ days_shown }}</code> days. Enter date-time stamps in <code>YYYYmmdd[HHMM]</code> format (time optional).
+
 </p>
+
 <button id="darkmode" class="button button2" onclick="switch_light_or_dark();">Light / Dark</button>
 
 <table class="blueTable">

@@ -42,8 +42,8 @@ fzupdate fzu;
  */
 fzupdate::fzupdate() : formalizer_standard_program(false), config(*this),
                  reftime(add_option_args, add_usage_top) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "rubRNT:D:P:dc:m:";
-    add_usage_top += " [-r|-u|-b|-R|-N] [-T <t_max|full>] [-D <days>] [-P <pack_interval>] [-c <chain>] [-m <multiplier>] [-d]";
+    add_option_args += "rubRNT:D:P:dc:m:B:S:";
+    add_usage_top += " [-r|-u|-b|-R|-N] [-T <t_max|full>] [-D <days>] [-P <pack_interval>] [-c <chain>] [-m <multiplier>] [-B <btf_days>] [-S <NNL_name>] [-d]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "The -T limit overrides the 'map_days' configuration or default parameter.\n"
@@ -84,6 +84,8 @@ void fzupdate::usage_hook() {
           "    -P interval seconds for moveable packing beyond map (or 'none')\n"
           "    -c specify a chain of placers (VTD,UTD)\n"
           "    -m overhead multiplier to use with '-T full'\n"
+          "    -B day map such as 'SELFWORK:WED,SAT;WORK:MON,TUE,THU,SUN'\n"
+          "    -S use categories within dependency subtrees of Nodes in NNL.\n"
           "    -d dry-run, do not modify Graph\n");
 }
 
@@ -168,6 +170,16 @@ bool fzupdate::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'B': {
+        config.btf_days = cargs;
+        return true;
+    }
+
+    case 'S': {
+        config.NNL_name = cargs;
+        return true;
+    }
+
     case 'd': {
         dryrun = true;
         return true;
@@ -235,6 +247,8 @@ bool fzu_configurable::set_parameter(const std::string & parlabel, const std::st
     CONFIG_TEST_AND_SET_PAR(showmaps,"showmaps", parlabel, (parvalue != "false"));
     CONFIG_TEST_AND_SET_PAR(timezone_offset_hours, "timezone_offset_hours", parlabel, std::atoi(parvalue.c_str()));
     CONFIG_TEST_AND_SET_PAR(chain, "chain", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(btf_days, "btf_days", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(NNL_name, "NNL_name", parlabel, parvalue);
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }

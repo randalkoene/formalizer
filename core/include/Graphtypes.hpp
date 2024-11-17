@@ -500,6 +500,14 @@ public:
     bool None() const { return bflags == Boolean_Tag_Flags::none; }
 };
 
+struct bfm_cmp_cstr
+{
+   bool operator()(const char *a, const char *b) const
+   {
+      return std::strcmp(a, b) < 0;
+   }
+};
+extern const std::map<const char *, Boolean_Tag_Flags::boolean_flag, bfm_cmp_cstr> boolean_flag_map;
 
 /**
  * The Node class is the principal object type within a Formalizer Graph.

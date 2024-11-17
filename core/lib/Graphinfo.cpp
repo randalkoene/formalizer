@@ -373,6 +373,10 @@ bool Map_of_Subtrees::node_in_any_subtree(Node_ID_key node_key) const {
     return false;
 }
 
+/**
+ * Deliver the Boolean Tag Flag of the Node itself, and if that is 'none'
+ * then instead deliver the Boolean Tag Flag of the Subtree head provided.
+ */
 Boolean_Tag_Flags::boolean_flag Map_of_Subtrees::get_category_boolean_tag(Node_ID_key node_key, Node_ID_key subtree_key) const {
     if (!graph_ptr) return Boolean_Tag_Flags::none;
 
@@ -399,10 +403,17 @@ bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean
     if (!has_subtrees) return false;
     for (const auto & [subtree_key, subtree_ref]: map_of_subtrees) {
         if (subtree_key == node_key) {
+            /**
+             * If this Node is the head of this Subtree then use its Boolean Tag Flag.
+             */
             boolean_tag = get_category_boolean_tag(node_key, subtree_key);
             return true;
         }
         if (subtree_ref.map_by_key.find(node_key) != subtree_ref.map_by_key.end()) {
+            /**
+             * If this Node is within the Subtree then use either, a) its own explicitly
+             * specified Boolean Tag Flag, or b) the Boolean Tag Flag of the Subtree head.
+             */
             boolean_tag = get_category_boolean_tag(node_key, subtree_key);
             return true;
         }

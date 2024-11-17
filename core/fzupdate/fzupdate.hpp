@@ -53,6 +53,8 @@ public:
     bool showmaps = true;
     int timezone_offset_hours = 0;
     std::string chain;
+    std::string btf_days; // Something like "SELFWORK:WED,SAT;WORK:MON,TUE,THU,SUN".
+    std::string NNL_name; // E.g. "threads".
 };
 
 

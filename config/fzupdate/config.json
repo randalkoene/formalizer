@@ -6,5 +6,6 @@
     "UTD_is_priority_queue": "true",
     "full_overhead_multiplier": "2.0",
     "showmaps": "false",
-    "chain": "VTD;UTD"
+    "chain": "VTD;BTF,UTD",
+    "NNL_name": "threads"
 }
