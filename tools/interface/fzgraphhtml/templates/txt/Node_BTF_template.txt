@@ -1,0 +1,4 @@
+Node ID: {{ node-id }}
+Category flag: {{ btf-category }}
+Time-zone adjustment flag: {{ btf-tzadjust }}
+Error flag: {{ btf-error }}

@@ -74,6 +74,7 @@ topics_alt = form.getvalue('topics_alt') # uses a custome template
 topic = form.getvalue('topic')
 tonode = form.getvalue('to-node')
 norepeats = form.getvalue('norepeats')
+btf = form.getvalue('btf')
 
 # extra arguments for generating Next Nodes Schedule
 num_elements = form.getvalue('num_elements')
@@ -171,7 +172,7 @@ listpagehead = '''<html>
 <body>
 <script type="text/javascript" src="/clock.js"></script>
 <script type="text/javascript" src="/fzuistate.js"></script>
-<h3>fz:modfy Named Node List</h3>
+<h3>fz:modify Named Node List</h3>
 <p>List element is Node {node_id} at list position {list_pos}.</p>
 
 <form action="/cgi-bin/fzgraph-cgi.py" method="post"><input type="hidden" name="action" value="addtoNNL"><input type="hidden" name="add" value="{node_id}">
@@ -344,6 +345,37 @@ def try_command_call(thecmd, printhere = True) -> str:
         return ''
 
 
+NODEBTF_HTML_TEMPLATE = '''<html>
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="/favicon-nodes-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+
+<title>fz: Node Inferred Boolean Tag Flags</title>
+</head>
+<body>
+<script type="text/javascript" src="/fzuistate.js"></script>
+
+<h3>fz: Node Inferred Boolean Tag Flags</h3>
+
+<table><tbody>
+%s
+</tbody></table>
+
+<hr>
+
+<p>[<a href="/index.html">fz: Top</a>]</p>
+
+</body>
+</html>
+'''
+
+# Calling this requires the CGI arguments id=<node-id>&btf=<anything>.
+def generate_Node_inferred_BTF_page():
+    thecmd = "./fzgraphhtml -q -o STDOUT -E STDOUT -n %s -B -S threads" % id
+    htmlcontent = try_command_call(thecmd, printhere=False)
+    print(NODEBTF_HTML_TEMPLATE % htmlcontent)
 
 def generate_embeddable_list_of_NNLs_to_add_Node_to():
     # Make the command for fzgraphhtml with custom template file instead of named_node_list_in_list_template.html
@@ -556,6 +588,10 @@ def show_interface_options():
 if __name__ == '__main__':
     if help:
         show_interface_options()
+        sys.exit(0)
+
+    if btf:
+        generate_Node_inferred_BTF_page()
         sys.exit(0)
 
     if id:

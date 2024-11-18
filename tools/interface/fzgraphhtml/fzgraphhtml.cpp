@@ -37,13 +37,16 @@ fzgraphhtml fzgh;
 /**
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
+ * 
+ * Command line arguments already assigned: CDEFILMNSTVWYcehjmnoqrstuvx
+ * Command line arguments still available: ABGHJKOPQRUXZabdfgiklpwyz
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:m:Irt:i:L:N:M:D:x:o:s:S:eT:F:uCjcY";
-    add_usage_top += " [-n <node-ID>|-m <node-ID>|-I|-t <topic-ID|topic-tag|?>|-L <name|?>]"
+    add_option_args += "n:m:Irt:uBi:L:N:M:D:x:o:s:S:eT:F:CjcY";
+    add_usage_top += " [-n <node-ID>|-m <node-ID>|-I|-t <topic-ID|topic-tag|?>|-L <name|?>] [-u] [-B]"
         " [-r] [-N <num>] [-M <max-YYYYmmddHHMM>] [-D <num-days>] [-x <len>]"
         " [-o <output-path>] [-s <sortkeys>] [-S <NNL>] [-e] [-T <named|node|Node>=<path>]"
-        " [-F html|txt|node|desc] [-u] [-C] [-j] [-c] [-Y]";    //usage_head.push_back("Description at the head of usage information.\n");
+        " [-F html|txt|node|desc] [-C] [-j] [-c] [-Y]";    //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "Notes:\n"
         "1. When no [N <num>] is provided then the configured value is used.\n"
@@ -90,6 +93,9 @@ void fzgraphhtml::usage_hook() {
           "    -r Show with repeats of repeating Nodes.\n"
           "    -L Show data for Nodes in Named Node List, or show Names if '?'.\n"
           "    -t Show data for Nodes with Topic, or show Topics if '?'.\n"
+          "    -u Update 'shortlist' Named Node List.\n"
+          "    -B Detect Boolean Tag Flags of Node.\n"
+          "\n"
           "    -i Include 'add-to-node' for <node-id>.\n"
           "    -N Show data for <num> elements (all=no limit), see note 5.\n"
           "    -M Show data up to and including <max-YYYYmmddHHMM>, see note 5.\n"
@@ -98,14 +104,15 @@ void fzgraphhtml::usage_hook() {
           "    -o Rendered output to <output-path> (\"STDOUT\" is default).\n"
           "    -s Sort by: targetdate.\n"
           "    -S Highlight Nodes within dependency subtrees of Nodes in NNL.\n"
+          "\n"
           "    -e Embeddable, no head and tail templates.\n"
           "    -T Use custom template instead of topics, named, node or single Node.\n"
           "    -F Output format: html (default), txt, json, node, desc.\n"
-          "    -u Update 'shortlist' Named Node List.\n"
-          "    -C (TEST) card output format.\n"
           "    -j no Javascript.\n"
           "    -c include checkboxes.\n"
-          "    -Y include counter row when rendering NNL.\n");
+          "    -Y include counter row when rendering NNL.\n"
+          "\n"
+          "    -C (TEST) card output format.\n");
 }
 
 unsigned int parvalue_to_num_to_show(const std::string & parvalue) {
@@ -221,6 +228,11 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
             flowcontrol = flow_topics;
         }
         list_name = cargs;
+        return true;
+    }
+
+    case 'B': {
+        detect_BTF = true;
         return true;
     }
 
@@ -398,8 +410,39 @@ void test_other_graph_info(Graph & graph) {
 
 }
 
+void output_rendered_Node(const std::string& rendered_node_data) {
+    if (fzgh.config.rendered_out_path == "STDOUT") {
+        FZOUT(rendered_node_data);
+    } else {
+        if (!string_to_file(fzgh.config.rendered_out_path, rendered_node_data))
+            standard_exit_error(exit_file_error, "Unable to write rendered page to file.", __func__);
+    }
+}
+
+void get_node_BTF() {
+    ERRTRACE;
+
+    auto [node_ptr, graph_ptr] = find_Node_by_idstr(fzgh.node_idstr, fzgh.graph_ptr);
+
+    if (!graph_ptr) {
+        standard_exit_error(exit_resident_graph_missing, "Unable to access memory-resident Graph.", __func__);
+    }
+    if (!node_ptr) {
+        standard_exit_error(exit_bad_request_data, "Invalid Node ID: "+fzgh.node_idstr, __func__);
+    }
+
+    std::string rendered_BTF_data(render_Node_BTF(*graph_ptr, *node_ptr));
+
+    output_rendered_Node(rendered_BTF_data);
+}
+
 void get_node_info() {
     ERRTRACE;
+
+    if (fzgh.detect_BTF) {
+        get_node_BTF();
+        return;
+    }
 
     auto [node_ptr, graph_ptr] = find_Node_by_idstr(fzgh.node_idstr, fzgh.graph_ptr);
 
@@ -418,12 +461,7 @@ void get_node_info() {
 
         std::string rendered_node_data(render_Node_data(*graph_ptr, *node_ptr));
 
-        if (fzgh.config.rendered_out_path == "STDOUT") {
-            FZOUT(rendered_node_data);
-        } else {
-            if (!string_to_file(fzgh.config.rendered_out_path, rendered_node_data))
-                standard_exit_error(exit_file_error, "Unable to write rendered page to file.", __func__);
-        }
+        output_rendered_Node(rendered_node_data);
 
     } else {
         standard_exit_error(exit_bad_request_data, "Invalid Node ID: "+fzgh.node_idstr, __func__);

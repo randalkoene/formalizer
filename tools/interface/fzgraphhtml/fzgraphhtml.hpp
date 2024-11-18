@@ -85,6 +85,8 @@ struct fzgraphhtml: public formalizer_standard_program {
 
     std::string subtrees_list_name;
 
+    bool detect_BTF = false;
+
     bool test_cards = false;
 
     bool update_shortlist = false;

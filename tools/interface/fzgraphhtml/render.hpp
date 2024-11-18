@@ -27,6 +27,7 @@ enum template_id_enum {
     node_edit_temp,
     node_new_temp,
     node_pars_in_list_with_remove_temp,
+    node_BTF_temp,
     NUM_temp
 };
 
@@ -41,6 +42,17 @@ bool render_named_node_list();
 bool render_topics();
 
 bool render_topic_nodes();
+
+/**
+ * Render the Boolean Tag Flag data found for the Node,
+ * either as directly and explicitly specified, or as
+ * inferred.
+ * 
+ * @param graph A valid Graph.
+ * @param node A valid Node object.
+ * @return A string with rendered Node data according to the chosen format.
+ */
+std::string render_Node_BTF(Graph & graph, Node & node);
 
 /**
  * Individual Node data rendering.

@@ -45,7 +45,8 @@ std::vector<std::string> template_ids = {
     "topic_pars_in_list_template",
     "Node_edit_template",
     "Node_new_template",
-    "node_pars_in_list_with_remove_template"
+    "node_pars_in_list_with_remove_template",
+    "Node_BTF_template"
 };
 
 typedef std::map<template_id_enum,std::string> fzgraphhtml_templates;
@@ -1027,6 +1028,53 @@ std::string render_Node_prerequisites_and_provides_capabilities(Node & node) {
 const std::vector<std::string> special_urls = {
     "@FZSERVER@"
 };
+
+const std::map<bool, std::string> flag_set_map = {
+    { false, "none" },
+    { true, "SET" },
+};
+
+/**
+ * Render the Boolean Tag Flag data found for the Node,
+ * either as directly and explicitly specified, or as
+ * inferred.
+ * 
+ * To use this, call fzgraphhtml with the -n, -B and -S arguments.
+ * 
+ * @param graph A valid Graph.
+ * @param node A valid Node object.
+ * @return A string with rendered Node data according to the chosen format.
+ */
+std::string render_Node_BTF(Graph & graph, Node & node) {
+    Map_of_Subtrees map_of_subtrees;
+    map_of_subtrees.collect(graph, fzgh.subtrees_list_name);
+
+    if (!map_of_subtrees.has_subtrees) {
+        standard_exit_error(exit_bad_request_data, "Missing subtrees list: "+fzgh.subtrees_list_name, __func__);
+    }
+
+    Boolean_Tag_Flags::boolean_flag boolean_tag;
+    if (!map_of_subtrees.node_in_heads_or_any_subtree(node.get_id().key(), boolean_tag)) {
+        boolean_tag = Boolean_Tag_Flags::none;
+    }
+
+    render_environment env;
+    fzgraphhtml_templates templates;
+    load_templates(templates);
+    template_varvalues nodevars;
+
+    nodevars.emplace("node-id", node.get_id_str());
+    if (boolean_tag != Boolean_Tag_Flags::none) {
+        nodevars.emplace("btf-category", boolean_flag_str_map.at(boolean_tag));
+    } else {
+        nodevars.emplace("btf-category", "none");
+    }
+    
+    nodevars.emplace("btf-tzadjust", flag_set_map.at(node.get_bflags().TZadjust()));
+    nodevars.emplace("btf-error", flag_set_map.at(node.get_bflags().Error()));
+
+    return env.render(templates[node_BTF_temp], nodevars);
+}
 
 /**
  * Individual Node data rendering.
