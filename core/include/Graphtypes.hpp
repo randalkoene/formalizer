@@ -511,6 +511,33 @@ extern const std::map<const char *, Boolean_Tag_Flags::boolean_flag, bfm_cmp_cst
 
 extern const std::map<Boolean_Tag_Flags::boolean_flag, const std::string> boolean_flag_str_map;
 
+class Graph_Op {
+protected:
+    bool _to_sup = false;
+    Node_ID_key nkey;
+
+public:
+    std::string error_str;
+
+    bool stop_traverse = false;
+
+public:
+    Graph_Op(bool _tosup, const Node_ID_key _nkey = Node_ID_key()): _to_sup(_tosup), nkey(_nkey) {}
+    virtual void op(const Node& node) = 0;
+    bool to_sup() const { return _to_sup; }
+    Node_ID_key idkey() const { return nkey; }
+};
+
+class Node_hierarchy_inferred_BTF: public Graph_Op {
+public:
+    Boolean_Tag_Flags::boolean_flag btf_strongest = Boolean_Tag_Flags::none;
+    float btf_strength = 0.0;
+
+public:
+    Node_hierarchy_inferred_BTF(const Node_ID_key _nkey): Graph_Op(true, _nkey) {}
+    virtual void op(const Node& node);
+};
+
 /**
  * The Node class is the principal object type within a Formalizer Graph.
  * 
@@ -739,6 +766,8 @@ public:
     // Find maximum importance of Edges with superiors or dependencies.
     float superiors_max_importance() const;
     float dependencies_max_importance() const;
+
+    void op(Graph_Op& _op) const;
 
     /// friend (utility) functions
     friend Topic * main_topic(const Topic_Tags & topictags, const Node & node); // friend function to ensure search with available Topic_Tags
@@ -997,6 +1026,8 @@ public:
 
     Node* latest_active_with_required_time() const;
     Node* latest_active_movable_with_required_time() const;
+
+    void op(Graph_Op& _op) const;
 
     /// friend (utility) functions
     friend bool identical_Graphs(Graph & graph1, Graph & graph2, std::string & trace);

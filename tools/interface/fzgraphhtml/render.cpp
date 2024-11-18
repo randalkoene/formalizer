@@ -1054,7 +1054,7 @@ std::string render_Node_BTF(Graph & graph, Node & node) {
     }
 
     Boolean_Tag_Flags::boolean_flag boolean_tag;
-    if (!map_of_subtrees.node_in_heads_or_any_subtree(node.get_id().key(), boolean_tag)) {
+    if (!map_of_subtrees.node_in_heads_or_any_subtree(node.get_id().key(), boolean_tag, true)) { // includes searching of superiors as needed
         boolean_tag = Boolean_Tag_Flags::none;
     }
 

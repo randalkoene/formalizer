@@ -1082,6 +1082,59 @@ Edge * Node::get_Edge_by_dep(const std::string & dep_idstr) const {
     return nullptr;
 }
 
+/**
+ * Recursive operation carried out through the Graph structure.
+ * 
+ * If the result of the _op should imply no further searching through
+ * superior or dependency hierarchy then set _op's stop_traverse flag,
+ * which will be obeyed at this Node but cleared to be used at others
+ * that might still be searched.
+ */
+void Node::op(Graph_Op& _op) const {
+    if (semaphore != 0) return; // Already traversed.
+
+    semaphore = SEM_TRAVERSED;
+    _op.op(*this);
+
+    if (_op.stop_traverse) {
+        _op.stop_traverse = false;
+        return;
+    }
+
+    if (_op.to_sup()) {
+        auto sup_edges_set = sup_Edges();
+        for (const auto & edge_ptr : sup_edges_set) {
+            Node* sup_ptr = edge_ptr->get_sup();
+            if (!sup_ptr) {
+                _op.error_str += "Missing superior "+edge_ptr->get_sup_key().str()+'.';
+            } else {
+                sup_ptr->op(_op);
+            }
+        }
+    } else {
+        auto dep_edges_set = dep_Edges();
+        for (const auto & edge_ptr : dep_edges_set) {
+            Node* dep_ptr = edge_ptr->get_dep();
+            if (!dep_ptr) {
+                _op.error_str += "Missing dependency "+edge_ptr->get_dep_key().str()+'.';
+            } else {
+                dep_ptr->op(_op);
+            }
+        }
+    }
+}
+
+void Node_hierarchy_inferred_BTF::op(const Node& node) {
+    Boolean_Tag_Flags::boolean_flag btf = node.get_bflags().get_PriorityCategory();
+    if (btf != Boolean_Tag_Flags::none) {
+        if (node.get_valuation() > btf_strength) {
+            btf_strongest = btf;
+            btf_strength = node.get_valuation();
+        }
+        stop_traverse = true;
+    }
+}
+
 Edge_ID::Edge_ID(Edge_ID_key _idkey): idkey(_idkey), idS_cache("") { //, graphmemman.get_allocator()) {
     std::string formerror;
     if (!valid_Node_ID(idkey.dep.idT,formerror)) throw(ID_exception(formerror));
@@ -1741,6 +1794,26 @@ Boolean_Tag_Flags::boolean_flag Graph::find_category_tag(Node_ID_key nkey) const
     if (!node_ptr) return Boolean_Tag_Flags::none;
 
     return node_ptr->get_bflags().get_PriorityCategory();
+}
+
+/**
+ * Recursive operation carried out through the Graph structure.
+ */
+void Graph::op(Graph_Op& _op) const {
+    const_cast<Graph*>(this)->set_all_semaphores(0);
+
+    if (_op.idkey().isnullkey()) {
+        for (const auto & [_nkey, node_ptr] : get_nodes()) {
+            node_ptr->op(_op);
+        }
+    } else {
+        Node* node_ptr = Node_by_id(_op.idkey());
+        if (!node_ptr) {
+            _op.error_str = "Node "+_op.idkey().str()+" not found.";
+        } else {
+            node_ptr->op(_op);
+        }
+    }
 }
 
 // +----- begin: friend functions -----+

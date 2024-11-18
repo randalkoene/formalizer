@@ -395,11 +395,20 @@ Boolean_Tag_Flags::boolean_flag Map_of_Subtrees::get_category_boolean_tag(Node_I
  * 
  * The graph_ptr member variable must be valid, as set during collect().
  * 
+ * Note 1: If has_subtrees is false then boolean_tag is not modified.
+ * Note 2: Even with the search_superiors option, it is still possible that
+ *         Boolean_Tag_Flags::none is returned without searching
+ *         superiors if a) the Node is found in a subtree, and
+ *         b) the Node has no explicit BTF, and c) the subtree
+ *         head has no explicit BTF.
+ * 
  * @param node_key Identifies the Node to search for.
  * @param boolean_tag Receives the category Boolean Flag Tag if one was found.
+ * @param search_superiors If set then searches for Boolean Flag Tag in superiors if
+ *                         not already found in subtrees.
  * @return True if found in the map of subtrees.
  */
-bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean_Tag_Flags::boolean_flag & boolean_tag) const {
+bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean_Tag_Flags::boolean_flag & boolean_tag, bool search_superiors) const {
     if (!has_subtrees) return false;
     for (const auto & [subtree_key, subtree_ref]: map_of_subtrees) {
         if (subtree_key == node_key) {
@@ -418,6 +427,22 @@ bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean
             return true;
         }
     }
+
+    if (search_superiors) {
+        if (graph_ptr) {
+            Node_hierarchy_inferred_BTF btf_op(node_key);
+            graph_ptr->op(btf_op);
+
+            if (!btf_op.error_str.empty()) {
+                standard_error("Node_hierarchy_inferred_BTF errors: "+btf_op.error_str, __func__);
+                return false;
+            }
+
+            boolean_tag = btf_op.btf_strongest;
+            return true;
+        }
+    }
+
     return false;
 }
 
