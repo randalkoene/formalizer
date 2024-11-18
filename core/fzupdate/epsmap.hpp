@@ -125,6 +125,14 @@ struct eps_data_vec: public eps_data_vec_t {
 
 typedef std::map<time_t, Node_ptr> eps_slots_map_t;
 
+struct btf_results {
+    Boolean_Tag_Flags::boolean_flag btf;
+    Node* node_ptr;
+    time_t t_suggested;
+
+    btf_results(Boolean_Tag_Flags::boolean_flag _btf, Node* _node_ptr, time_t _t_suggested): btf(_btf), node_ptr(_node_ptr), t_suggested(_t_suggested) {}
+};
+
 struct EPS_map {
     unsigned long num_days;
     time_t starttime;
@@ -147,8 +155,11 @@ struct EPS_map {
 
     eps_slots_map_t slots;
     eps_slots_map_t::iterator next_slot;
+    bool slots_past_t_btf_limit = false;
+    time_t t_previous_adjusted = RTt_unspecified;
 
     std::string day_separator;
+    unsigned int showmap_day = 0;
 
     EPS_map(time_t _t, unsigned long days_in_map, targetdate_sorted_Nodes & _incomplete_repeating, eps_data_vec_t & _epsdata, bool _testfailfull);
 
@@ -161,6 +172,7 @@ struct EPS_map {
     void add_map_code(time_t t, const char * code_cstr, std::vector<std::string> & maphtmlvec) const;
     std::vector<std::string> html(const Node_twochar_encoder & codebook);
     std::string show();
+    std::string show_btfresults(const std::vector<btf_results>& btfresults);
 
     /**
      * Reserve `chunks_req` in five minute granularity, immediately preceding
@@ -195,6 +207,16 @@ struct EPS_map {
     time_t end_of_day_adjusted(time_t td_raw);
 
     /**
+     * Adjust the new target date of a UTD Node to take into account regular end of day
+     * target times for prioritized activities.
+     * 
+     * @param td_raw The new target date that was obtained, without adjustments.
+     * @return A target date that may be shifted to align with a time of day
+     *         specified for activities with a particular priority type.
+     */
+    time_t UTD_end_of_day_adjusted(time_t td_raw);
+
+    /**
      * Reserve `chunks_req` in five minute granularity from the earliest
      * available slot onward.
      * @param n_ptr Pointer to Node for which to allocate time.
@@ -202,7 +224,7 @@ struct EPS_map {
      * @return Corresponding suggested target date taking into account TD preferences,
      *         or -1 if there are insufficient slots available.
      */
-    time_t reserve(Node_ptr n_ptr, int chunks_req);
+    time_t reserve(Node_ptr n_ptr, int chunks_req, bool is_UTD = false);
 
     /**
      * Reserve `chunks_req` in five minute granularity from the earliest
@@ -211,10 +233,11 @@ struct EPS_map {
      * @param n_ptr Pointer to Node for which to allocate time.
      * @param chunks_req Number of chunks required.
      * @param dayindices Vector with days of the week to use in the interval (0,6).
+     * @param t_btf_limit Up to when to carry out BTF placements.
      * @return Corresponding suggested target date taking into account TD preferences,
      *         or -1 if there are insufficient slots available.
      */
-    time_t reserve_specific_days(Node_ptr n_ptr, int chunks_req, const std::vector<int> dayindices);
+    time_t reserve_specific_days(Node_ptr n_ptr, int chunks_req, const std::vector<int> dayindices, time_t t_btf_limit);
 
     void place_exact();
 
@@ -262,6 +285,7 @@ class BooleanTagFlag_UTD_Placer: public Placer {
 public:
     std::map<Boolean_Tag_Flags::boolean_flag, std::vector<int>> tag_to_day_map;
     std::string list_name;
+    std::vector<Boolean_Tag_Flags::boolean_flag> btf_tags;
 
 protected:
     void set_tag_days(const std::string& configstr);

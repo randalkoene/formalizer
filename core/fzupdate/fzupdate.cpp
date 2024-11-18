@@ -42,8 +42,8 @@ fzupdate fzu;
  */
 fzupdate::fzupdate() : formalizer_standard_program(false), config(*this),
                  reftime(add_option_args, add_usage_top) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "rubRNT:D:P:dc:m:B:S:";
-    add_usage_top += " [-r|-u|-b|-R|-N] [-T <t_max|full>] [-D <days>] [-P <pack_interval>] [-c <chain>] [-m <multiplier>] [-B <btf_days>] [-S <NNL_name>] [-d]";
+    add_option_args += "rubRNT:D:P:dc:m:B:S:M:e";
+    add_usage_top += " [-r|-u|-b|-R|-N] [-T <t_max|full>] [-D <days>] [-P <pack_interval>] [-c <chain>] [-m <multiplier>] [-B <btf_days>] [-S <NNL_name>] [-M <days>] [-e] [-d]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "The -T limit overrides the 'map_days' configuration or default parameter.\n"
@@ -86,6 +86,8 @@ void fzupdate::usage_hook() {
           "    -m overhead multiplier to use with '-T full'\n"
           "    -B day map such as 'SELFWORK:WED,SAT_WORK:MON,TUE,THU,SUN'\n"
           "    -S use categories within dependency subtrees of Nodes in NNL.\n"
+          "    -M show maps for number of <days> (when -V).\n"
+          "    -e No end of day priorities.\n"
           "    -d dry-run, do not modify Graph\n");
 }
 
@@ -177,6 +179,17 @@ bool fzupdate::options_hook(char c, std::string cargs) {
 
     case 'S': {
         config.NNL_name = cargs;
+        return true;
+    }
+
+    case 'M': {
+        config.showmaps = true;
+        config.showmaps_days = std::atoi(cargs.c_str());
+        return true;
+    }
+
+    case 'e': {
+        config.endofday_priorities = false;
         return true;
     }
 
@@ -651,6 +664,10 @@ int update_variable(time_t t_pass) {
 
     constraints.set(&incomplete_repeating, &epsdata);
     VERBOSEOUT(constraints.str());
+
+    if (fzu.config.showmaps) {
+        VERYVERBOSEOUT("Showing maps with up to "+std::to_string(fzu.config.showmaps_days)+" days.\n");
+    }
 
     // *** constraints.days_in_map was not set to the amount needed for fzu.t_limit determined above!
     EPS_map updvar_map(t_pass, constraints.days_in_map, incomplete_repeating, epsdata, test_fail_full);

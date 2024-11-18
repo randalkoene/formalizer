@@ -143,6 +143,8 @@ full_update = form.getvalue('full_update')
 ovmultiplier = form.getvalue('ovmultiplier')
 btf_days = form.getvalue('btf_days')
 verbose = form.getvalue('verbose')
+showmaps = form.getvalue('showmaps')
+noEOD = form.getvalue('noEOD')
 T_pass = form.getvalue('T_pass')
 showhelp = form.getvalue('help')
 dryrun = form.getvalue('dryrun')
@@ -346,6 +348,10 @@ if __name__ == '__main__':
             add_to_cmd += ' -m '+ovmultiplier
         if btf_days:
             add_to_cmd += ' -B '+btf_days
+        if showmaps:
+            add_to_cmd += ' -M 30'
+        if noEOD:
+            add_to_cmd += ' -e'
         if dryrun == 'on':
             add_to_cmd += ' -d'
         print('<p>Updating variable and unspecified target date Nodes.</p>')

@@ -39,17 +39,39 @@ void Node_twochar_encoder::build_codebook(const targetdate_sorted_Nodes & nodeli
     }
 }
 
+const std::map<td_property, std::string> tdproperty_CSS_class_map = {
+    { unspecified, "tdp_U" },
+    { inherit, "tdp_I" },
+    { variable, "tdp_V" },
+    { fixed, "tdp_F" },
+    { exact, "tdp_E" },
+};
+
+std::string html_tdproperty_classes(const Node& node) {
+    // tdp_F, tdp_R, tdp_U, tdp_I, tdp_V, tdp_E, tdp_rEF
+    td_property tdp = node.get_tdproperty();
+    std::string htmlstr(tdproperty_CSS_class_map.at(tdp));
+    if ((tdp==fixed) || (tdp==exact)) {
+        if (node.get_repeats()) {
+            htmlstr += " tdp_R";
+        } else {
+            htmlstr += " tdp_rEF";
+        }
+    }
+    return htmlstr;
+}
+
 std::string Node_twochar_encoder::html_link_str(const Node & node, const EPS_map & epsmap) const {
     std::string htmlstr("<a href=\"/cgi-bin/fzlink.py?id=");
-    htmlstr += node.get_id_str()+"\">";
-    bool movable = epsmap.epsdata[epsmap.node_vector_index.at(node.get_id().key())].t_eps != RTt_maxtime;
-    if (movable) {
-        htmlstr += "<b>";
-    } 
+    htmlstr += node.get_id_str()+"\" class=\"node "+html_tdproperty_classes(node)+"\">";
+    // bool movable = epsmap.epsdata[epsmap.node_vector_index.at(node.get_id().key())].t_eps != RTt_maxtime;
+    // if (movable) {
+    //     htmlstr += "<b>";
+    // } 
     htmlstr += at(node.get_id().key());
-    if (movable) {
-        htmlstr += "</b>";
-    }
+    // if (movable) {
+    //     htmlstr += "</b>";
+    // }
     htmlstr += "</a>";
     return htmlstr;
 }
@@ -117,8 +139,16 @@ std::string EPS_map::show() {
     return showstr;
 }
 
+std::string EPS_map::show_btfresults(const std::vector<btf_results>& btfresults) {
+    std::string htmlstr;
+    for (const auto& btfres : btfresults) {
+        htmlstr += boolean_flag_str_map.at(btfres.btf)+' '+btfres.node_ptr->get_id_str()+' '+TimeStampYmdHM(btfres.t_suggested)+'\n';
+    }
+    return htmlstr;
+}
+
 void EPS_map::prepare_day_separator() {
-    constexpr unsigned int space_for_date = 8;
+    constexpr unsigned int space_for_date = 8+6;
     day_separator.assign((slots_per_line*2) - space_for_date,' ');
     for (unsigned int hour = 1; hour < hours_per_line; ++hour) {
         unsigned int i = hour*chars_per_hour - space_for_date;
@@ -133,6 +163,21 @@ void EPS_map::prepare_day_separator() {
     }
 }
 
+const std::vector<std::string> dayofweek_shortstr = {
+    "SUN",
+    "MON",
+    "TUE",
+    "WED",
+    "THU",
+    "FRI",
+    "SAT"
+};
+
+std::string html_short_day_of_week(time_t t) {
+    auto dayofweekindex = time_day_of_week(t);
+    return dayofweek_shortstr.at(dayofweekindex);
+}
+
 void EPS_map::add_map_code(time_t t, const char * code_cstr, std::vector<std::string> & maphtmlvec) const {
     time_t t_diff = t - firstdaystart;
     bool is_linestart = (t_diff % seconds_per_line) == 0;
@@ -141,7 +186,8 @@ void EPS_map::add_map_code(time_t t, const char * code_cstr, std::vector<std::st
     } else {
         bool is_daystart = (t_diff % seconds_per_day) == 0; // *** this breaks on daylight savings change!
         if (is_daystart) {
-            maphtmlvec.emplace_back(DateStampYmd(t)+day_separator);
+            maphtmlvec.emplace_back(DateStampYmd(t)+" ("+html_short_day_of_week(t)+')'+day_separator);
+            (*(const_cast<unsigned int*>(&showmap_day)))++;
         }
         maphtmlvec.emplace_back(code_cstr);
         maphtmlvec.back().reserve(slots_per_line*2);
@@ -150,6 +196,7 @@ void EPS_map::add_map_code(time_t t, const char * code_cstr, std::vector<std::st
 
 std::vector<std::string> EPS_map::html(const Node_twochar_encoder & codebook) {
     std::vector<std::string> maphtmlvec;
+    showmap_day = 0;
     prepare_day_separator();
 
     for (time_t t = firstdaystart; t < first_slot_td; t += five_minutes_in_seconds) {
@@ -158,6 +205,9 @@ std::vector<std::string> EPS_map::html(const Node_twochar_encoder & codebook) {
 
     for (const auto & [t, node_ptr] : slots) {
         add_map_code(t, codebook.html_link_str(node_ptr, *this).c_str(), maphtmlvec);
+        if ((fzu.config.showmaps_days>0) && (showmap_day >= fzu.config.showmaps_days)) {
+            break;
+        }
     }
 
     return maphtmlvec;
@@ -342,6 +392,44 @@ time_t EPS_map::end_of_day_adjusted(time_t td_raw) {
 }
 
 /**
+ * Adjust the new target date of a UTD Node to take into account regular end of day
+ * target times for prioritized activities.
+ * 
+ * @param td_raw The new target date that was obtained, without adjustments.
+ * @return A target date that may be shifted to align with a time of day
+ *         specified for activities with a particular priority type.
+ */
+time_t EPS_map::UTD_end_of_day_adjusted(time_t td_raw) {
+    // which end-of-day to use is indicated by the urgency parameter
+    time_t priorityendofday = fzu.config.dolater_endofday;
+    /* *** There is no equivalent of this urgency parameter in the Node (yet)!
+    if (n_ptr->Urgency() >= 1.0)
+        priorityendofday = fzu.config.doearlier_endofday;
+    */
+    // *** TODO: What to do if the offset is such that it shifts before the start of day?
+    if (fzu.config.timezone_offset_hours != 0) {
+        priorityendofday -= (3600*fzu.config.timezone_offset_hours);
+    }
+    if (priorityendofday > (23 * 3600 + 1800))
+        priorityendofday -= 1800; // insure space for minute offsets to avoid auto-merging
+
+    // compare that with the proposed target date time of day
+    time_t td_new = day_start_time(td_raw) + priorityendofday;
+    if (td_raw > td_new) {
+        td_new = time_add_day(td_new);
+    }
+
+    // check if a previous group already has the target date, if so offset slightly to preserve grouping and group order
+    if (td_new <= t_previous_adjusted) {
+        td_new = t_previous_adjusted + (fzu.config.eps_group_offset_mins*60); // one or a few minutes offset
+    }
+
+    t_previous_adjusted = td_new;
+
+    return td_new;
+}
+
+/**
  * Reserve `chunks_req` in five minute granularity from the earliest
  * available slot onward.
  * 
@@ -350,10 +438,11 @@ time_t EPS_map::end_of_day_adjusted(time_t td_raw) {
  * 
  * @param n_ptr Pointer to Node for which to allocate time.
  * @param chunks_req Number of chunks required.
+ * @param is_UTD use UTD adjustments.
  * @return Corresponding suggested target date taking into account TD preferences,
  *         or -1 if there are insufficient slots available.
  */
-time_t EPS_map::reserve(Node_ptr n_ptr, int chunks_req) {
+time_t EPS_map::reserve(Node_ptr n_ptr, int chunks_req, bool is_UTD) {
     size_t slots_req = chunks_req * slots_per_chunk;
     time_t new_targetdate = RTt_unspecified;
     for (; next_slot != slots.end(); ++next_slot) {
@@ -371,7 +460,11 @@ time_t EPS_map::reserve(Node_ptr n_ptr, int chunks_req) {
     }
 
     if (fzu.config.endofday_priorities) {
-        return end_of_day_adjusted(new_targetdate); // This can end up making multiple target dates the same.
+        if (is_UTD) {
+            return UTD_end_of_day_adjusted(new_targetdate);
+        } else {
+            return end_of_day_adjusted(new_targetdate); // This can end up making multiple target dates the same.
+        }
     }
 
     return new_targetdate;
@@ -387,14 +480,24 @@ time_t EPS_map::reserve(Node_ptr n_ptr, int chunks_req) {
  * @return Corresponding suggested target date taking into account TD preferences,
  *         or -1 if there are insufficient slots available.
  */
-time_t EPS_map::reserve_specific_days(Node_ptr n_ptr, int chunks_req, const std::vector<int> dayindices) {
+time_t EPS_map::reserve_specific_days(Node_ptr n_ptr, int chunks_req, const std::vector<int> dayindices, time_t t_btf_limit) {
     size_t slots_req = chunks_req * slots_per_chunk;
     time_t new_targetdate = RTt_unspecified;
+
+    // VERYVERBOSEOUT("  Search from "+TimeStampYmdHM(next_slot->first)+'\n');
+    // bool slots_started = false;
+
     for (; next_slot != slots.end(); ++next_slot) {
         if (!next_slot->second) {
             auto day_of_week = time_day_of_week(next_slot->first);
             auto it = std::find(dayindices.begin(), dayindices.end(), day_of_week);
             if (it != dayindices.end()) { // only apply slots on the right days
+
+                // if (!slots_started) {
+                //     VERYVERBOSEOUT("  First slot "+TimeStampYmdHM(next_slot->first)+'\n');
+                //     slots_started = true;
+                // }
+
                 next_slot->second = n_ptr;
                 --slots_req;
                 if (slots_req == 0) {
@@ -408,8 +511,12 @@ time_t EPS_map::reserve_specific_days(Node_ptr n_ptr, int chunks_req, const std:
         return new_targetdate; // slots needed do not fit into map
     }
 
+    if (new_targetdate >= t_btf_limit) {
+        slots_past_t_btf_limit = true;
+    }
+
     if (fzu.config.endofday_priorities) {
-        return end_of_day_adjusted(new_targetdate); // This can end up making multiple target dates the same.
+        return UTD_end_of_day_adjusted(new_targetdate); // This can end up making multiple target dates the same.
     }
 
     return new_targetdate;
@@ -757,6 +864,7 @@ targetdate_sorted_Nodes EPS_map::get_epsvtd_and_utd_update_nodes() {
  * that only VTD Nodes and Nodes inheriting target dates are placed.
  */
 void VTD_Placer::place() {
+    updvar_map.init_next_slot();
     updvar_map.group_and_place_movable(false);
 }
 
@@ -769,6 +877,7 @@ void VTD_Placer::place() {
 void Uncategorized_UTD_Placer::place() {
     // Walk through unplaced Nodes and place UTD Nodes in order of appearance.
     updvar_map.init_next_slot();
+    updvar_map.t_previous_adjusted = RTt_unspecified;
     size_t num_parsed = 0;
     size_t num_mapped = 0;
     size_t i = 0;
@@ -780,7 +889,7 @@ void Uncategorized_UTD_Placer::place() {
             eps_data & epsdataref = updvar_map.epsdata[i];
             if ((!epsdataref.placed()) && (epsdataref.chunks_req>0) && (node_ptr->get_tdproperty() == unspecified)) {
                 num_parsed++;
-                time_t t_suggested = updvar_map.reserve(node_ptr, epsdataref.chunks_req);
+                time_t t_suggested = updvar_map.reserve(node_ptr, epsdataref.chunks_req, true);
                 if (t_suggested < 0) {
                     epsdataref.epsflags.set_insufficient();
                 } else {
@@ -827,12 +936,17 @@ void BooleanTagFlag_UTD_Placer::set_tag_days(const std::string& configstr) {
             auto btf_it = boolean_flag_map.find(btf_configstr_pair.at(0).c_str());
             if (btf_it != boolean_flag_map.end()) {
                 Boolean_Tag_Flags::boolean_flag btf = btf_it->second;
+                unsigned int btf_num_days = 0;
                 auto weekdaystr_vec = split(btf_configstr_pair.at(1), ',');
                 for (const auto& weekdaystr : weekdaystr_vec) {
                     auto weekday_it = weekday_shortstr.find(weekdaystr);
                     if (weekday_it != weekday_shortstr.end()) {
                         tag_to_day_map[btf].emplace_back(weekday_it->second);
+                        btf_num_days++;
                     }
+                }
+                if (btf_num_days > 0) {
+                    btf_tags.emplace_back(btf);
                 }
             }
         }
@@ -859,60 +973,74 @@ void BooleanTagFlag_UTD_Placer::place() {
     }
 
     // Walk through unplaced Nodes and place UTD Nodes in order of appearance.
+    std::vector<btf_results> btfresults;
     time_t t_btf_limit = updvar_map.firstdaystart + (60*60*24*14); // 2 week limit
-    updvar_map.init_next_slot();
     size_t num_parsed = 0;
     size_t num_mapped = 0;
-    size_t i = 0;
-    for (auto& [t, node_ptr] : updvar_map.nodelist) {
-        if (!node_ptr) {
-            ADDERROR(__func__, "Received a null-node");
-        } else {
 
-            eps_data & epsdataref = updvar_map.epsdata[i];
-            if ((!epsdataref.placed()) && (epsdataref.chunks_req>0) && (node_ptr->get_tdproperty() == unspecified)) {
+    for (const auto& btf_tag : btf_tags) {
 
-                Boolean_Tag_Flags::boolean_flag boolean_tag;
-                if (!map_of_subtrees.node_in_heads_or_any_subtree(node_ptr->get_id().key(), boolean_tag)) { // This uses get_PriorityCategory() on Node or Subtree header.
-                    boolean_tag = Boolean_Tag_Flags::none;
-                }
+        //VERYVERBOSEOUT("BTF "+boolean_flag_str_map.at(btf_tag)+'\n');
 
-                if (boolean_tag != Boolean_Tag_Flags::none) {
+        updvar_map.init_next_slot();
+        updvar_map.slots_past_t_btf_limit = false;
+        updvar_map.t_previous_adjusted = RTt_unspecified;
+        size_t i = 0;
+        for (auto& [t, node_ptr] : updvar_map.nodelist) {
+            if (!node_ptr) {
+                ADDERROR(__func__, "Received a null-node");
+            } else {
 
-                    if (tag_to_day_map.find(boolean_tag) != tag_to_day_map.end()) {
+                eps_data & epsdataref = updvar_map.epsdata[i];
+                if ((!epsdataref.placed()) && (epsdataref.chunks_req>0) && (node_ptr->get_tdproperty() == unspecified)) {
+
+                    Boolean_Tag_Flags::boolean_flag boolean_tag;
+                    if (!map_of_subtrees.node_in_heads_or_any_subtree(node_ptr->get_id().key(), boolean_tag)) { // This uses get_PriorityCategory() on Node or Subtree header.
+                        boolean_tag = Boolean_Tag_Flags::none;
+                    }
+
+                    if (boolean_tag == btf_tag) {
 
                         num_parsed++;
-                        VERYVERBOSEOUT("Found a BTF Node: "+node_ptr->get_id_str()+'\n');
+                        //VERYVERBOSEOUT("Found a BTF Node: "+node_ptr->get_id_str()+'\n');
 
                         if (!tag_to_day_map[boolean_tag].empty()) {
 
-                            time_t t_suggested = updvar_map.reserve_specific_days(node_ptr, epsdataref.chunks_req, tag_to_day_map[boolean_tag]);
+                            time_t t_suggested = updvar_map.reserve_specific_days(node_ptr, epsdataref.chunks_req, tag_to_day_map[boolean_tag], t_btf_limit);
                             if (t_suggested < 0) {
                                 epsdataref.epsflags.set_insufficient();
                             } else {
                                 epsdataref.t_eps = t_suggested;
                                 updvar_map.previous_group_td = t_suggested; // Every UTD Node must have a unique target date.
                                 num_mapped++;
+
+                                if (fzu.config.showmaps) {
+                                    btfresults.emplace_back(btf_tag, node_ptr, t_suggested); // Only for verification purposes.
+                                }
                             }
 
-                            if (t_suggested >= t_btf_limit) {
+                            //VERYVERBOSEOUT("  -> "+TimeStampYmdHM(t_suggested)+'\n');
+
+                            if (updvar_map.slots_past_t_btf_limit) {
                                 break;
                             }
 
                         }
                     }
+
                 }
 
             }
-
+            ++i;
         }
-        ++i;
+
     }
 
     //updvar_map.utd_all_placed = num_mapped == num_parsed;
     VERYVERBOSEOUT('\n'+std::to_string(num_mapped)+" of "+std::to_string(num_parsed)+" Boolean Tag Flags Nodes as per NNL "+list_name+" with unspecified target dates mapped.\n");
     if (fzu.config.showmaps) {
         VERYVERBOSEOUT(updvar_map.show());
+        VERYVERBOSEOUT(updvar_map.show_btfresults(btfresults));
     }
 }
 

@@ -196,9 +196,9 @@ cursor: pointer;
 --header-card: rgba(255, 215, 0, 0.8);
 --scroll-thumb: auto;
 --scroll-track: auto;
---tdp-U: #c0c77d;
---tdp-I: #c0c77d;
---tdp-V: #c0c77d;
+--tdp-U: #57bcc9;
+--tdp-I: #c957c5;
+--tdp-V: #6ec957;
 --tdp-F: #c0c77d;
 --tdp-E: #c893ed;
 }
@@ -225,9 +225,9 @@ cursor: pointer;
 --header-card: rgba(100, 100, 0, 0.8);
 --scroll-thumb: #3f3f3f;
 --scroll-track: #5f5f5f;
---tdp-U: #c0c77d;
---tdp-I: #c0c77d;
---tdp-V: #c0c77d;
+--tdp-U: #57bcc9;
+--tdp-I: #c957c5;
+--tdp-V: #6ec957;
 --tdp-F: #c0c77d;
 --tdp-E: #c893ed;
 }

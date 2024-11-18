@@ -51,6 +51,7 @@ public:
     time_t pack_interval_beyond = (24*60*60); ///< In pack_moveable mode, interval to use for packing beyond the map.
     unsigned long fetch_days_beyond_t_limit = 30;
     bool showmaps = true;
+    unsigned int showmaps_days = 30;
     int timezone_offset_hours = 0;
     std::string chain;
     std::string btf_days; // Something like "SELFWORK:WED,SAT_WORK:MON,TUE,THU,SUN".
