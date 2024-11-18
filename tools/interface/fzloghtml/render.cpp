@@ -692,11 +692,12 @@ struct review_element {
     time_t t_begin = 0;
     time_t seconds_applied = 0;
     char category = '?';
+    const Node* node_ptr;
     std::string nodedesc;
     std::string logcontent;
 
-    review_element(time_t start, time_t seconds, const Boolean_Tag_Flags & boolean_tag, const std::string & _nodedesc, const std::string & _content, bool is_nap = false):
-        t_begin(start), seconds_applied(seconds), nodedesc(remove_html(_nodedesc).substr(0, 256)), logcontent(remove_html(_content).substr(0, 256)) {
+    review_element(time_t start, time_t seconds, const Boolean_Tag_Flags & boolean_tag, const Node* _nodeptr, const std::string & _nodedesc, const std::string & _content, bool is_nap = false):
+        t_begin(start), seconds_applied(seconds), node_ptr(_nodeptr), nodedesc(remove_html(_nodedesc).substr(0, 256)), logcontent(remove_html(_content).substr(0, 256)) {
         if (is_nap) {
             category = 'n';
         } else if (boolean_tag.None()) {
@@ -760,6 +761,7 @@ struct review_element {
             { "system-checked", "" },
             { "nap-checked", "" },
             { "other-checked", "" },
+            { "node_id", node_ptr->get_id_str() },
             { "node", nodedesc },
             { "log", logcontent },
         };
@@ -933,7 +935,7 @@ bool render_Log_review() {
                             data.t_gosleep = t_chunkopen;
                         }
                     } else { // Chunk is a nap.
-                        data.elements.emplace_back(t_chunkopen, t_chunkclose - t_chunkopen, boolean_tag, node_ptr->get_text(), chunkptr->get_combined_entries_text(), true);
+                        data.elements.emplace_back(t_chunkopen, t_chunkclose - t_chunkopen, boolean_tag, node_ptr, node_ptr->get_text(), chunkptr->get_combined_entries_text(), true);
                         //FZOUT("DEBUG --> Collected data element.\n");
                     }
                 } else {
@@ -953,12 +955,12 @@ bool render_Log_review() {
                         //   Check if Node is in category subtree.
                         if (map_of_subtrees.has_subtrees) {
                             Boolean_Tag_Flags::boolean_flag booleanflag;
-                            if (map_of_subtrees.node_in_heads_or_any_subtree(node_id, booleanflag)) {
+                            if (map_of_subtrees.node_in_heads_or_any_subtree(node_id, booleanflag, true)) { // includes searching superiors hierarchy as needed
                                 boolean_tag.copy_Boolean_Tag_flags(booleanflag);
                             }
                         }
                     }
-                    data.elements.emplace_back(t_chunkopen, t_chunkclose - t_chunkopen, boolean_tag, node_ptr->get_text(), combined_entries);
+                    data.elements.emplace_back(t_chunkopen, t_chunkclose - t_chunkopen, boolean_tag, node_ptr, node_ptr->get_text(), combined_entries);
                     //FZOUT("DEBUG --> Collected data element.\n");
                     
                     // Also look for other metrictags in the entries.

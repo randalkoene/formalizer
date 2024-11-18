@@ -1,14 +1,15 @@
-<tr class="chktop review"><td>
-<p><b>Chunk start timestamp</b>: {{ chunk-id }}</p>
-<p><b>Node</b>: {{ node }}</p>
-<p><b>Log</b>: {{ log }}</p>
-<p>
-<input type="radio" name="{{ category-name }}" value="work" {{ work-checked }} /> Work
-<input type="radio" name="{{ category-name }}" value="selfwork" {{ selfwork-checked }} /> Self-Work
-<input type="radio" name="{{ category-name }}" value="system" {{ system-checked }} /> System/Care
-<input type="radio" name="{{ category-name }}" value="nap" {{ nap-checked }} /> Nap
+<tr class="chktop review">
+<td>
+<input type="radio" name="{{ category-name }}" value="work" {{ work-checked }} /> Work<br>
+<input type="radio" name="{{ category-name }}" value="selfwork" {{ selfwork-checked }} /> Self-Work<br>
+<input type="radio" name="{{ category-name }}" value="system" {{ system-checked }} /> System/Care<br>
+<input type="radio" name="{{ category-name }}" value="nap" {{ nap-checked }} /> Nap<br>
 <input type="radio" name="{{ category-name }}" value="other" {{ other-checked }} /> Other
-</p>
-<p><input name="{{ seconds-name }}" type="hidden" value="{{ seconds }}"><b>Minutes</b>: {{ minutes }}</p>
+</td>
+<td>
+<p><b>Chunk start timestamp</b>: {{ chunk-id }} <input name="{{ seconds-name }}" type="hidden" value="{{ seconds }}"><b>Minutes</b>: {{ minutes }}</p>
+<p><b>Node</b>: <a class="node" href="/cgi-bin/fzlink.py?id={{ node_id }}" target="_blank">{{ node }}</a></p>
+<p><b>Log</b>: {{ log }}</p>
 <p> </p>
-</td></tr>
+</td>
+</tr>
