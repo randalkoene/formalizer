@@ -1,35 +1,54 @@
-#darkmode {
+#bottombar {
     position: fixed;
     bottom: 0px;
     right: 0px;
+    z-index: 1000;
+}
+#darkmode {
+    position: fixed;
+    bottom: 0px;
+    right: 45px;
+    z-index: 1000;
 }
 #addnode {
     position: fixed;
     bottom: 0px;
-    right: 123px;
+    right: 168px;
+    z-index: 1000;
 }
 #logentry {
     position: fixed;
     bottom: 0px;
-    right: 233px;
+    right: 278px;
+    z-index: 1000;
 }
 #supclear {
     position: fixed;
     bottom: 0px;
-    right: 374px; 
+    right: 419px;
+    z-index: 1000;
 }
 #behtools {
     position: fixed;
     bottom: 0px;
-    right: 515px;
+    right: 560px;
+    z-index: 1000;
 }
 #calsched {
     position: fixed;
     bottom: 0px;
-    right: 659px;
+    right: 704px;
+    z-index: 1000;
 }
 #logtime {
     position: fixed;
     bottom: 0px;
-    right: 833px;
+    right: 878px;
+    z-index: 1000;
+}
+#fztop {
+    position: fixed;
+    bottom: 40px;
+    right: 0px;
+    z-index: 1000;
 }

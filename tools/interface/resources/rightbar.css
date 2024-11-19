@@ -5,21 +5,21 @@
 }
 #classical {
     position: fixed;
-    bottom: 50px;
+    bottom: 90px;
     right: 0px;
 }
 #EBM {
     position: fixed;
-    bottom: 100px;
+    bottom: 140px;
     right: 0px;
 }
 #industrial {
     position: fixed;
-    bottom: 150px;
+    bottom: 190px;
     right: 0px;
 }
 #meditative {
     position: fixed;
-    bottom: 200px;
+    bottom: 240px;
     right: 0px;
 }

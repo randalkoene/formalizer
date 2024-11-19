@@ -8,33 +8,74 @@
 // --- Buttons added to the page:
 
 // add the logtime button
-var ltbtnelement = document.createElement("div");
-ltbtnelement.innerHTML = "<button id=\"logtime\" class=\"button button2\" onclick=\"window.open('/cgi-bin/fzlogtime.cgi?source=nonlocal&cgivar=wrap','_blank');\">Log Time</button>";
-document.body.prepend(ltbtnelement);
-// add the calendar schedule button
-var csbtnelement = document.createElement("div");
-csbtnelement.innerHTML = "<button id=\"calsched\" class=\"button button1\" onclick=\"window.open('/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20','_blank');\">Calendar Schedule</button>";
-document.body.prepend(csbtnelement);
-// add the behavior tools button
-var btbtnelement = document.createElement("div");
-btbtnelement.innerHTML = "<button id=\"behtools\" class=\"button button2\" onclick=\"window.open('/formalizer/system-help.html','_blank');\">Behavior Tools</button>";
-document.body.prepend(btbtnelement);
-// clear superiors NNL
-var scbtnelement = document.createElement("div");
-scbtnelement.innerHTML = "<button id=\"supclear\" class=\"button button1\" onclick=\"window.open('/cgi-bin/fzgraph-cgi.py?action=generic&q=true&L=delete&l=superiors&E=STDOUT&W=STDOUT','_blank');\">Clear SupNNL</button>";
-document.body.prepend(scbtnelement);
-// add the logentry button
-var lebtnelement = document.createElement("div");
-lebtnelement.innerHTML = "<button id=\"logentry\" class=\"button button2\" onclick=\"window.open('/formalizer/logentry-form_fullpage.template.html','_blank');\">Add Log Entry</button>";
-document.body.prepend(lebtnelement);
-// add the addnode button
-var anbtnelement = document.createElement("div");
-anbtnelement.innerHTML = "<button id=\"addnode\" class=\"button button1\" onclick=\"window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new','_blank');\">Add Node</button>";
-document.body.prepend(anbtnelement);
-// add the darkmode button
-var dmbtnelement = document.createElement("div");
-dmbtnelement.innerHTML = "<button id=\"darkmode\" class=\"button button2\" onclick=\"switch_light_or_dark();\">Light / Dark</button>";
-document.body.prepend(dmbtnelement);
+// var ltbtnelement = document.createElement("div");
+// ltbtnelement.innerHTML = "<button id=\"logtime\" class=\"button button2\" onclick=\"window.open('/cgi-bin/fzlogtime.cgi?source=nonlocal&cgivar=wrap','_blank');\">Log Time</button>";
+// document.body.prepend(ltbtnelement);
+// // add the calendar schedule button
+// var csbtnelement = document.createElement("div");
+// csbtnelement.innerHTML = "<button id=\"calsched\" class=\"button button1\" onclick=\"window.open('/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20','_blank');\">Calendar Schedule</button>";
+// document.body.prepend(csbtnelement);
+// // add the behavior tools button
+// var btbtnelement = document.createElement("div");
+// btbtnelement.innerHTML = "<button id=\"behtools\" class=\"button button2\" onclick=\"window.open('/formalizer/system-help.html','_blank');\">Behavior Tools</button>";
+// document.body.prepend(btbtnelement);
+// // clear superiors NNL
+// var scbtnelement = document.createElement("div");
+// scbtnelement.innerHTML = "<button id=\"supclear\" class=\"button button1\" onclick=\"window.open('/cgi-bin/fzgraph-cgi.py?action=generic&q=true&L=delete&l=superiors&E=STDOUT&W=STDOUT','_blank');\">Clear SupNNL</button>";
+// document.body.prepend(scbtnelement);
+// // add the logentry button
+// var lebtnelement = document.createElement("div");
+// lebtnelement.innerHTML = "<button id=\"logentry\" class=\"button button2\" onclick=\"window.open('/formalizer/logentry-form_fullpage.template.html','_blank');\">Add Log Entry</button>";
+// document.body.prepend(lebtnelement);
+// // add the addnode button
+// var anbtnelement = document.createElement("div");
+// anbtnelement.innerHTML = "<button id=\"addnode\" class=\"button button1\" onclick=\"window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new','_blank');\">Add Node</button>";
+// document.body.prepend(anbtnelement);
+// // add the darkmode button
+// var dmbtnelement = document.createElement("div");
+// dmbtnelement.innerHTML = "<button id=\"darkmode\" class=\"button button2\" onclick=\"switch_light_or_dark();\">Light / Dark</button>";
+// document.body.prepend(dmbtnelement);
+// // add the fztop button
+// var topbtnelement = document.createElement("div");
+// topbtnelement.innerHTML = "<button id=\"fztop\" class=\"button button2\" onclick=\"window.open('/','_blank');\">Top</button>";
+// document.body.prepend(topbtnelement);
+
+const bottombar_data = [
+    [ 'logtime', "window.open('/cgi-bin/fzlogtime.cgi?source=nonlocal&cgivar=wrap','_blank');", 'Log Time' ],
+    [ 'calsched', "window.open('/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20','_blank');", 'Calendar Schedule' ],
+    [ 'behtools', "window.open('/formalizer/system-help.html','_blank');", 'Behavior Tools' ],
+    [ 'supclear', "window.open('/cgi-bin/fzgraph-cgi.py?action=generic&q=true&L=delete&l=superiors&E=STDOUT&W=STDOUT','_blank');", 'Clear SupNNL' ],
+    [ 'logentry', "window.open('/formalizer/logentry-form_fullpage.template.html','_blank');", 'Add Log Entry' ],
+    [ 'addnode', "window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new','_blank');", 'Add Node' ],
+    [ 'darkmode', "switch_light_or_dark();", 'Light / Dark' ],
+    [ 'fztop', "window.open('/','_blank');", 'Top' ],
+];
+const bottombar_div = document.createElement("div");
+document.body.prepend(bottombar_div);
+
+var bottombar_open = true;
+function bottombar_toggle() {
+    if (bottombar_open) {
+        bottombar_div.style.display = 'none';
+    } else {
+        bottombar_div.style.display = 'block';
+    }
+    bottombar_open = !bottombar_open;
+}
+
+var buttontype = 2;
+for (let i = 0; i < bottombar_data.length; ++i) {
+    var btnelement = document.createElement("div");
+    btnelement.innerHTML = `<button id="${bottombar_data[i][0]}" class="button button${buttontype}" onclick="${bottombar_data[i][1]}">${bottombar_data[i][2]}</button>`;
+    buttontype -= 1;
+    if (buttontype == 0) {
+        buttontype = 2;
+    }
+    bottombar_div.appendChild(btnelement);
+}
+const bottombar_togglediv = document.createElement("div");
+bottombar_togglediv.innerHTML = `<button id="bottombar" class="button button3" onclick="bottombar_toggle();">::</button>`;
+document.body.prepend(bottombar_togglediv);
 
 // Request server-side storage of data:
 function sendData( data ) {
