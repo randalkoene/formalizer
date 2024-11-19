@@ -57,6 +57,8 @@ sup_min = form.getvalue('sup_min')
 subtree = form.getvalue('subtree')
 nnltree = form.getvalue('nnltree')
 
+draggable = form.getvalue('draggable')
+
 def append_to_str(strval: str) -> str:
     parval = eval(strval)
     if parval:
@@ -260,6 +262,9 @@ checkboxes[i].checked = source.checked;
 </script>
 '''
 
+DRAGGABLEJS='''<script type="text/javascript" src="/draggable_rows.js"></script>
+'''
+
 def render_search_results():
     print(graphsearch_results_head)
 
@@ -280,12 +285,15 @@ def render_search_results():
 
     print('<!-- Render search results Named Node List -->')
     print(NNLFORMHEAD)
-    print('<table class="blueTable"><tbody>')
+    print('<table id="nodedata" class="blueTable"><tbody>')
     rendercmd = f"./fzgraphhtml -q -e -L '{searchresultsNNL}' -N all -c -o STDOUT -E STDOUT"
     try_command_call(rendercmd)
     print('</tbody></table>')
     print('</form>')
     print(CHECKALLJS)
+
+    if draggable:
+        print(DRAGGABLEJS)
 
     print(graphsearch_results_tail)
 
