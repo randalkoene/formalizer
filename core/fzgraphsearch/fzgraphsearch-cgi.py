@@ -265,6 +265,10 @@ checkboxes[i].checked = source.checked;
 DRAGGABLEJS='''<script type="text/javascript" src="/draggable_rows.js"></script>
 '''
 
+TDUPDATEBUTTON='''
+<button id="tdupdatebtn" class="button button1" onclick="apply_td_updates();">Apply TD Updates</button>
+'''
+
 def render_search_results():
     print(graphsearch_results_head)
 
@@ -284,6 +288,8 @@ def render_search_results():
         print('-->')
 
     print('<!-- Render search results Named Node List -->')
+    if draggable:
+        print(TDUPDATEBUTTON)
     print(NNLFORMHEAD)
     print('<table id="nodedata" class="blueTable"><tbody>')
     rendercmd = f"./fzgraphhtml -q -e -L '{searchresultsNNL}' -N all -c -o STDOUT -E STDOUT"

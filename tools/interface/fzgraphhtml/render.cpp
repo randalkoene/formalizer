@@ -21,6 +21,7 @@
 #include "render.hpp"
 #include "fzgraphhtml.hpp"
 
+const std::string btf_days_savefile("/var/www/webdata/formalizer/btf_days.txt");
 
 /// The Makefile attempts to provide this at compile time based on the source
 /// file directory.
@@ -187,6 +188,14 @@ struct line_render_parameters {
             varvals.emplace("num_days","");
             varvals.emplace("t_max",TimeStampYmdHM(fzgh.config.t_max));            
         }
+
+        // Try to retrieve specified BTF category week days.
+        std::string btf_days_retrieved;
+        if (!file_to_string(btf_days_savefile, btf_days_retrieved)) {
+            btf_days_retrieved = "WORK:MON,TUE,THU,SUN_SELFWORK:WED,SAT";
+        }
+        varvals.emplace("btf_days", btf_days_retrieved);
+
         return env.render(templates[node_pars_in_list_head_temp], varvals);
     }
 
