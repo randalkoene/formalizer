@@ -65,11 +65,42 @@ def try_call_command(thecmd: str, return_result=False):
         #    print(line)
         return False
 
+TESTFROMJSONDATA='''<html>
+<head>
+<meta charset="utf-8">
+<title>Test From JSON Data</title>
+</head>
+<body>
+<pre>
+Nodes:
+%s
+Target dates:
+%s
+</pre>
+</body>
+</html>
+'''
+
+def get_from_jsondata(jsondata:str)->tuple:
+    from json import loads
+    data = loads(jsondata)
+    nodes = []
+    tds = []
+    for dataitem in data:
+        tds.append(dataitem[0])
+        nodes.append(dataitem[1])
+    #print(TESTFROMJSONDATA % (str(nodes), str(tds)))
+    return (nodes, tds)
+
 def batch_modify_targetdates():
-    nodes = form.getvalue('nodes')
-    tds = form.getvalue('tds')
-    nodes = nodes.split(',')
-    tds = tds.split(',')
+    jsondata = form.getvalue('jsondata')
+    if jsondata:
+        nodes, tds = get_from_jsondata(jsondata)
+    else:
+        nodes = form.getvalue('nodes')
+        tds = form.getvalue('tds')
+        nodes = nodes.split(',')
+        tds = tds.split(',')
     commands = '<!--\n'
 
     if len(nodes) != len(tds):

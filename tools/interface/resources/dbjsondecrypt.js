@@ -133,10 +133,10 @@ function sendEncryptedJSONtoDatabase(encrypted_str, url, tablename, index) {
   let formData = new FormData();
   formData.append('action', 'store');
   formData.append('tablename', tablename);
-  formData.append('index', index);
+  formData.append('index', index); // *** Looks like these replace url arguments previously used.
   formData.append('data', encrypted_str);
   formData.append('type', 'text');
-  fetch("/cgi-bin/fzmetricspq-cgi.py", {
+  fetch("/cgi-bin/fzmetricspq-cgi.py", { // *** How can this work? The url parameter is never propagated.
   method: 'POST',
   body: formData
   })

@@ -83,6 +83,29 @@ table.addEventListener("drop", (event) => {
 
 });
 
+function openNewTabWithContent(content) {
+  const blob = new Blob([content], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+
+  window.open(url, '_blank');
+}
+
+function sendModifiedTargetDates(tdmodifications_json) {
+  console.log("Sending to fzeditbatch-cgi.py.");
+  let formData = new FormData();
+  formData.append('action', 'targetdates');
+  formData.append('jsondata', tdmodifications_json);
+  fetch("/cgi-bin/fzeditbatch-cgi.py", {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.text())
+  .then(data => {
+    const htmlContent = data;
+    openNewTabWithContent(htmlContent);
+  });
+}
+
 function apply_td_updates() {
   alert('Confirm update?');
   var modified_data = [];
@@ -94,5 +117,7 @@ function apply_td_updates() {
     rowref = rowref.nextElementSibling;
   }
   console.log(`Number of Nodes to update: ${modified_data.length}`);
-  console.log(modified_data);
+  //console.log(modified_data);
+  var modified_data_json = JSON.stringify(modified_data);
+  sendModifiedTargetDates(modified_data_json);
 }
