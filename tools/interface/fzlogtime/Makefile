@@ -120,6 +120,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/Logpostgres.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Guidepostgres.o
+CORE_OBJS += $(CORELIBPATH)/obj/html.o
 CORE_OBJS += $(CORELIBPATH)/obj/utf8.o
 CORE_OBJS += $(CORELIBPATH)/obj/cgihandler.o
 # CORE_OBJS += $(CORELIBPATH)/obj/dilaccess.o

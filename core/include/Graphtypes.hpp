@@ -624,6 +624,7 @@ public:
     bool probably_has_Log_history() const { return seconds_applied() > 0.0; }
 
     const Node_utf8_text & get_text() const { return text; }
+    std::string get_excerpt(size_t excerpt_length = 0) const;
 
     time_t get_targetdate() const { return targetdate; }
     std::string get_targetdate_str() const { return TimeStampYmdHM(targetdate); } // Note: See get_effective_targetdate_str().
@@ -973,6 +974,7 @@ public:
     /// namedlists
     std::vector<std::string> get_List_names() const;
     Named_Node_List_ptr get_List(const std::string _name);
+    Node_Index get_List_Nodes(const std::string _name);
     Named_Node_List_ptr add_to_List(const std::string _name, const Node & node, int16_t _features = 0, int32_t _maxsize = 0);
     bool add_to_List(Named_Node_List & nnl, const Node & node) { return nnl.add(node.get_id().key()); }
     bool remove_from_List(const std::string _name, const Node_ID_key & nkey);

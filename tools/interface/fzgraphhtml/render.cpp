@@ -497,22 +497,20 @@ struct line_render_parameters {
         varvals.emplace("tdprop",render_tdproperty(node));
 #endif
         // -- Content excerpt
-        std::string htmltext(node.get_text().c_str());
         Boolean_Tag_Flags::boolean_flag boolean_tag;
         if (map_of_subtrees.node_in_heads_or_any_subtree(node.get_id().key(), boolean_tag)) {
             if (category_tag_str.find(boolean_tag) != category_tag_str.end()) {
-                varvals.emplace("excerpt",category_tag_str.at(boolean_tag)+subtrees_list_tag+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
+                varvals.emplace("excerpt", category_tag_str.at(boolean_tag)+subtrees_list_tag+node.get_excerpt(fzgh.config.excerpt_length));
             } else {
-                varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
+                varvals.emplace("excerpt", node.get_excerpt(fzgh.config.excerpt_length));
             }
             if (day_category_hrs.find(boolean_tag) != day_category_hrs.end()) {
                 day_category_hrs.at(boolean_tag) += hours_to_show;
             }
         } else {
-            varvals.emplace("excerpt",remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length));
+            varvals.emplace("excerpt", node.get_excerpt(fzgh.config.excerpt_length));
         }
         varvals.emplace("tdprop-style", td_property_classes(node));
-        //varvals.emplace("excerpt",remove_html(htmltext).substr(0,fzgh.config.excerpt_length));
         // -- Server address
         varvals.emplace("fzserverpq", fzgh.replacements[fzserverpq_address]); // graph_ptr->get_server_full_address()
         // -- Do-link
@@ -1383,6 +1381,15 @@ bool render_node_edit() {
     nodevars.emplace("topics", render_Node_topics(graph, node, true));
     nodevars.emplace("bflags", join(node.get_bflags().get_Boolean_Tag_flags_strvec(), ", "));
     nodevars.emplace("NNLs", render_Node_NNLs(graph, node));
+
+    // Check potential superiors to add from the superiors NNL.
+    std::string nnl_superiors;
+    auto nlist = graph_ptr->get_List_Nodes("superiors");
+    for (const auto& nptr : nlist) {
+        nnl_superiors += nptr->get_id_str()+": "+nptr->get_excerpt(60)+"<br>\n";
+    }
+    nodevars.emplace("nnl_superiors", nnl_superiors);
+
     nodevars.emplace("superiors", render_Node_superiors(graph, node, true, true));
     nodevars.emplace("dependencies", render_Node_dependencies(graph, node, true, true));
 

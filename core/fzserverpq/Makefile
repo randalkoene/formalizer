@@ -126,6 +126,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/fzpostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphaccess.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/Logpostgres.o
+CORE_OBJS += $(CORELIBPATH)/obj/html.o
 CORE_OBJS += $(CORELIBPATH)/obj/utf8.o
 CORE_OBJS += $(CORELIBPATH)/obj/tcpserver.o
 CORE_OBJS += $(CORELIBPATH)/obj/tcpclient.o

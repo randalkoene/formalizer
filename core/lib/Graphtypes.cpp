@@ -14,6 +14,7 @@
 // core
 #include "general.hpp"
 #include "utf8.hpp"
+#include "html.hpp"
 #include "Graphtypes.hpp"
 
 // Boost libraries need the following.
@@ -432,6 +433,11 @@ long Node::minutes_to_complete(time_t tdate_compare) const {
         return minutes_to_complete();
     }
     return get_required_minutes();
+}
+
+std::string Node::get_excerpt(size_t excerpt_length) const {
+    if (excerpt_length == 0) return remove_html_tags(get_text().c_str());
+    return remove_html_tags(get_text().c_str()).substr(0, excerpt_length);
 }
 
 bool Node::is_first_instance(time_t tdate_compare) const {
@@ -1411,6 +1417,18 @@ Named_Node_List_ptr Graph::get_List(const std::string _name) {
         return nullptr;
     }
     return &(it->second);
+}
+
+Node_Index Graph::get_List_Nodes(const std::string _name) {
+    Node_Index nlist;
+    auto nnl_ptr = get_List("superiors");
+    if (!nnl_ptr) return nlist;
+    if (nnl_ptr->list.empty()) return nlist;
+    for (const auto& nkey : nnl_ptr->list) {
+        Node* nptr = Node_by_id(nkey);
+        if (nptr) nlist.emplace_back(nptr);
+    }
+    return nlist;
 }
 
 /**

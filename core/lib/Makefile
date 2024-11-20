@@ -182,7 +182,7 @@ $(OBJ)/Graphcompare.o: Graphcompare.cpp $(INC)/Graphtypes.hpp
 $(OBJ)/Graphbase.o: Graphbase.cpp $(INC)/Graphbase.hpp $(INC)/error.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c Graphbase.cpp -o $(OBJ)/Graphbase.o
 
-$(OBJ)/Graphtypes.o: Graphtypes.cpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
+$(OBJ)/Graphtypes.o: Graphtypes.cpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/html.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c Graphtypes.cpp -o $(OBJ)/Graphtypes.o
 
 $(OBJ)/Graphinfo.o: Graphinfo.cpp $(INC)/Graphinfo.hpp $(INC)/Graphtypes.hpp $(INC)/error.hpp
