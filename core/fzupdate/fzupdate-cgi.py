@@ -150,11 +150,12 @@ showhelp = form.getvalue('help')
 dryrun = form.getvalue('dryrun')
 
 btf_days_savefile = '/var/www/webdata/formalizer/btf_days.txt'
-try:
-    with open(btf_days_savefile, 'w') as f:
-        f.write(btf_days)
-except:
-    pass
+if btf_days:
+    try:
+        with open(btf_days_savefile, 'w') as f:
+            f.write(btf_days)
+    except:
+        pass
 
 pagetail = '''<hr>
 </body>

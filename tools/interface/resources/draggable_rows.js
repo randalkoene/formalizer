@@ -103,6 +103,9 @@ function sendModifiedTargetDates(tdmodifications_json) {
   .then(data => {
     const htmlContent = data;
     openNewTabWithContent(htmlContent);
+  })
+  .catch(error => {
+    console.error(error);
   });
 }
 

@@ -81,6 +81,13 @@ Target dates:
 </html>
 '''
 
+def debug_mark(mark:str):
+    try:
+        with open('/tmp/fzeditbatch-cgi.debug', 'w') as f:
+            f.write(mark)
+    except:
+        pass
+
 def get_from_jsondata(jsondata:str)->tuple:
     from json import loads
     data = loads(jsondata)
@@ -103,6 +110,8 @@ def batch_modify_targetdates():
         tds = tds.split(',')
     commands = '<!--\n'
 
+    debug_mark('entry')
+
     if len(nodes) != len(tds):
         print(RESULTPAGE % ('fail', '<b>Number of nodes must equal number of target dates for batch target dates modification.</b>'))
         return
@@ -117,7 +126,11 @@ def batch_modify_targetdates():
             return
     commands += '-->\n'
 
+    debug_mark('processed')
+
     print(RESULTPAGE % ('success', '<b>Modified %d target dates of %d Nodes.</b>' % (len(tds), len(nodes))))
+
+    debug_mark('responded')
 
 REDIRECT='''
 <html>
