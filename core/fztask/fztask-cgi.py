@@ -146,6 +146,13 @@ def render_static_nonlocal_fztask_page(
     got_selected:bool,
     same_node:bool):
 
+    if T_emulated:
+        T_em_status_text = "Emulated Time"
+        T_em_style = "background-color: #FFFF00; color: #000000;"
+    else:
+        T_em_status_text = "Actual Current Time"
+        T_em_style = "background-color: #00FF00; color: #000000;"
+
     fztask_webpage = ("<html>\n"
     "<head>\n"
     """<meta charset="utf-8" />\n"""
@@ -163,7 +170,10 @@ def render_static_nonlocal_fztask_page(
     "<!-- STATIC version -->"
     "<h1>fz: Task</h1>\n"
     "\n"
+    f"""<div style="{T_em_style}">\n"""
+    f"<p>{T_em_status_text}</p>\n"
     f"<p>T = {T_emulated_showhtml} ({diff_min_str} minutes since Log chunk opening)</p>\n"
+    "</div>\n"
     "\n"
     "<table><tbody>\n"
     "<tr>\n"
@@ -241,7 +251,10 @@ var cmpwith = new compareSelected('%s', do_when_new_selected);
 
 <h1>fz: Task</h1>
 
+<div style="%s">
+<p>%s</p>
 <p>T = %s (%s minutes since Log chunk opening)</p>
+</div>
 
 <table><tbody>
 
@@ -365,9 +378,18 @@ def render_dynamic_nonlocal_fztask_page(
 
     frequent_nodes_HTML = get_frequent_Nodes_HTML()
 
+    if T_emulated:
+        T_em_status_text = "Emulated Time"
+        T_em_style = "background-color: #FFFF00; color: #000000;"
+    else:
+        T_em_status_text = "Actual Current Time"
+        T_em_style = "background-color: #00FF00; color: #000000;"
+
     print(DYNAMIC_FZTASK_PAGE % (
         static_page_call,
         selected_id,
+        T_em_style,
+        T_em_status_text,
         T_emulated_showhtml,
         diff_min_str,
         num_entries,
