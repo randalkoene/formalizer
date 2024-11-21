@@ -48,6 +48,7 @@ andall = form.getvalue('andall')
 caseinsensitive = form.getvalue('caseinsensitive')
 review = form.getvalue('review')
 review_date = form.getvalue('reviewdate')
+regen_index = form.getvalue('index')
 
 #if not review:
 #    print("Content-type:text/html\n\n")
@@ -394,11 +395,50 @@ def render_Log_review():
         for line in a:
             print(line)
 
+INDEXMISSINGARGS='''<html>
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="/fz.css">
+<link rel="icon" href="/favicon-logentry-32x32.png">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>fz: Log Index</title>
+</head>
+<body>
+<script type="text/javascript" src="/fzuistate.js"></script>
+%s
+</body>
+</html>
+'''
+
+def render_Log_index():
+    cmdoptions = build_command_options()
+
+    if cmdoptions:
+        thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -I "+cmdoptions
+        try:
+            p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
+            (child_stdin,child_stdout) = (p.stdin, p.stdout)
+            child_stdin.close()
+            result = child_stdout.read()
+            child_stdout.close()
+            print(result)
+
+        except Exception as ex:                
+            print(ex)
+            f = StringIO()
+            print_exc(file=f)
+            a = f.getvalue().splitlines()
+            for line in a:
+                print(line)
+    else:
+        print(INDEXMISSINGARGS % '<b>Missing request arguments.</b>')
 
 if __name__ == '__main__':
 
     if review:
         render_Log_review()
+    elif regen_index:
+        render_Log_index()
     else:
         if mostrecentraw:
             get_most_recent_raw()

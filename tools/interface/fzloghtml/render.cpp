@@ -63,6 +63,10 @@ enum template_id_enum: unsigned int {
     Log_review_chunk_TXT_temp,
     Log_review_chunk_HTML_temp,
     Log_review_chunk_JSON_temp,
+    Log_index_RAW_temp,
+    Log_index_TXT_temp,
+    Log_index_HTML_temp,
+    Log_index_JSON_temp,
     NUM_temp
 };
 
@@ -89,7 +93,11 @@ const std::vector<std::string> template_ids = {
     "Log_review_chunk_template.raw",
     "Log_review_chunk_template.txt",
     "Log_review_chunk_template.html",
-    "Log_review_chunk_template.html" // not used
+    "Log_review_chunk_template.html", // not used
+    "Log_index_template.raw", // not used
+    "Log_index_template.txt", // not used
+    "Log_index_template.html",
+    "Log_index_template.html" // not used
 };
 
 render_environment env;
@@ -1027,4 +1035,41 @@ bool render_Log_review() {
     }
 
     return send_rendered_to_output(rendered_reviewcontent);
+}
+
+const std::map<most_recent_format, template_id_enum> index_format_to_template_map = {
+    { most_recent_raw, Log_index_RAW_temp },
+    { most_recent_txt, Log_index_TXT_temp },
+    { most_recent_html, Log_index_HTML_temp },
+    { most_recent_json, Log_index_JSON_temp },
+};
+
+bool render_Log_index() {
+    std::string rendered_entries;
+
+    for (const auto & [chunk_key, chunkptr] : fzlh.edata.log_ptr->get_Chunks()) if (chunkptr) {
+        std::string combined_entries(chunkptr->get_combined_entries_text());
+
+        // As a test, let's make the super-simple assumption that lengthy content
+        // indicates significant output that I might want to refer to more often.
+        if (combined_entries.size() > 2000) {
+            std::string chunk_id_str = chunkptr->get_tbegin_str();
+            rendered_entries += "<li>[<a class=\"nnl\" href=\"/cgi-bin/fzloghtml-cgi.py?around="+chunk_id_str+"&daysinterval="+chunk_id_str+"\" target=\"blank\">"+chunk_id_str+"</a>]: </li>\n";
+        }
+
+    }
+
+    std::map<std::string, std::string> overall_map = {
+        { "index-entries", rendered_entries },
+    };
+    std::string rendered_indexcontent;
+
+    if (!env.fill_template_from_map(
+            template_path_from_map(index_format_to_template_map),
+            overall_map,
+            rendered_indexcontent)) {
+        return false;
+    }
+
+    return send_rendered_to_output(rendered_indexcontent);
 }

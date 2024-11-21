@@ -101,6 +101,10 @@
         "Legacy": {
             "url" : "/legacy.html",
             "window" : "_blank"
+        },
+        "Log Index": {
+            "url" : "/cgi-bin/fzloghtml-cgi.py?index=on&alloflog=on",
+            "window" : "_blank"
         }
     },
     "Graph:" : {

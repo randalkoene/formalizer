@@ -43,11 +43,14 @@ fzloghtml fzlh;
 /**
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
+ * 
+ * Command line arguments used: 12ACDEFHNQRTVWacdefghilnoqrstvw
+ * Command line arguments still available: 03456789BGIJKLMOPSUXYZbjkmpuxyz
  */
 fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
                          iscale(interval_none), interval(0), noframe(false), recent_format(most_recent_html) {
-    add_option_args += "e:n:g:l:1:2:a:o:D:H:w:Nc:rRf:ACitF:T:";
-    add_usage_top += " [-e <log-stamp>] [-n <node-ID>] [-g <topic>] [-l <list-name>] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-A] [-C] [-i] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
+    add_option_args += "e:n:g:l:1:2:a:o:D:H:w:Nc:rRf:ACitF:T:I";
+    add_usage_top += " [-e <log-stamp>] [-n <node-ID>] [-g <topic>] [-l <list-name>] [-I] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-A] [-C] [-i] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
     usage_tail.push_back(
         "Notes:\n"
@@ -88,6 +91,7 @@ void fzloghtml::usage_hook() {
           "    -n belongs to <node-ID>\n"
           "    -g belongs to <topic>\n"
           "    -l belongs to Nodes in NNL <list-name>\n"
+          "    -I regenerate index to significant Log content\n"
           "    -1 start from <time-stamp-1>\n"
           "    -2 end at <time-stamp-2>\n"
           "    -a centered around <time-stamp>\n"
@@ -175,6 +179,11 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
 
     case 'l': {
         NNL_filter = cargs;
+        return true;
+    }
+
+    case 'I': {
+        flowcontrol = flow_regenerate_index;
         return true;
     }
 
@@ -510,6 +519,14 @@ bool interpret_for_dayreview() {
     return render_Log_review();
 }
 
+bool regenerate_index() {
+    fzlh.set_filter();
+    if (!fzlh.get_Log_interval()) {
+        return false;
+    }
+    return render_Log_index();
+}
+
 int main(int argc, char *argv[]) {
     ERRTRACE;
 
@@ -531,6 +548,10 @@ int main(int argc, char *argv[]) {
 
     case flow_dayreview: {
         return standard_exit(interpret_for_dayreview(), "Log interval interpreted for day review.\n", exit_file_error, "Unable to interpret Log interval for day review.", __func__);
+    }
+
+    case flow_regenerate_index: {
+        return standard_exit(regenerate_index(), "Index to significant Log content regenerated.\n", exit_file_error, "Unable to regenerate index to significant Log content", __func__);
     }
 
     default: {
