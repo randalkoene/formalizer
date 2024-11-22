@@ -85,6 +85,8 @@ public:
 
     virtual void usage_hook();
 
+    bool EOD_time(const std::string& cargs);
+
     virtual bool options_hook(char c, std::string cargs);
 
     void init_top(int argc, char *argv[]);

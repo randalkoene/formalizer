@@ -42,8 +42,8 @@ fzupdate fzu;
  */
 fzupdate::fzupdate() : formalizer_standard_program(false), config(*this),
                  reftime(add_option_args, add_usage_top) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "rubRNT:D:P:dc:m:B:S:M:e";
-    add_usage_top += " [-r|-u|-b|-R|-N] [-T <t_max|full>] [-D <days>] [-P <pack_interval>] [-c <chain>] [-m <multiplier>] [-B <btf_days>] [-S <NNL_name>] [-M <days>] [-e] [-d]";
+    add_option_args += "rubRNT:D:P:dc:m:B:S:M:eZ:";
+    add_usage_top += " [-r|-u|-b|-R|-N] [-T <t_max|full>] [-D <days>] [-P <pack_interval>] [-c <chain>] [-m <multiplier>] [-B <btf_days>] [-S <NNL_name>] [-M <days>] [-e] [-Z <EOD>] [-d]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "The -T limit overrides the 'map_days' configuration or default parameter.\n"
@@ -88,7 +88,18 @@ void fzupdate::usage_hook() {
           "    -S use categories within dependency subtrees of Nodes in NNL.\n"
           "    -M show maps for number of <days> (when -V).\n"
           "    -e No end of day priorities.\n"
+          "    -Z End-of-Day time (e.g. 1940).\n"
           "    -d dry-run, do not modify Graph\n");
+}
+
+bool fzupdate::EOD_time(const std::string& cargs) {
+    if (cargs.size() != 4) return false;
+    int hours = std::atoi(cargs.substr(0, 2).c_str());
+    if ((hours <= 0) || (hours>23)) return false;
+    int minutes = std::atoi(cargs.substr(2, 2).c_str());
+    if ((minutes < 0) || (minutes>59)) return false;
+    config.dolater_endofday = (hours*3600) + (minutes*60);
+    return true;
 }
 
 /**
@@ -191,6 +202,10 @@ bool fzupdate::options_hook(char c, std::string cargs) {
     case 'e': {
         config.endofday_priorities = false;
         return true;
+    }
+
+    case 'Z': {
+        return EOD_time(cargs);
     }
 
     case 'd': {

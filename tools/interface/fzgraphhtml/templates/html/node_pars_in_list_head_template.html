@@ -24,13 +24,14 @@ verbose <input type="checkbox" name="verbose"> |
 show maps <input type="checkbox" name="showmaps"> |
 dry-run <input type="checkbox" name="dryrun"> |
 no EOD <input type="checkbox" name="noEOD"> |
-Emulate time: <input type="number" name="T_emulate" size=15> |
+Emulate time: <input type="number" name="T_emulate" style="width: 15em;"> |
 Full update <input type="checkbox" name="full_update" checked> |
-Up to T_max: <input type="number" name="T_max" size=15> |
-Days to map: <input type="number" name="map_days" size=8> (default: see config or 14)
+Up to T_max: <input type="number" name="T_max" style="width: 15em;"> |
+Days to map: <input type="number" name="map_days" style="width: 8em;"> (default: see config or 14)
 [See <a href="/cgi-bin/fzupdate-cgi.py?help=true">fzupdate-cgi.py Help info</a>.] |
-Overhead multiplier: <input type="text" name="ovmultiplier"> (default: 2.0, see config) |
-Category days: <input type="text" name="btf_days" value="{{ btf_days }}" size=40>
+Overhead multiplier: <input type="text" name="ovmultiplier" style="width: 8em;"> (default: 2.0, see config) |
+Category days: <input type="text" name="btf_days" value="{{ btf_days }}" size=40> |
+EOD time: <input type="text" name="EOD_time" style="width: 15em;"> (default: 1940, see config)
 </form>
 
 <form action="/cgi-bin/fzgraphhtml-cgi.py" method="GET">
