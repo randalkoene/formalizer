@@ -52,42 +52,12 @@
             "url" : "/cgi-bin/daywiz.py",
             "window" : "_blank"
         },
-        "OrderScore" : {
-            "url" : "/cgi-bin/orderscore-cgi.py",
-            "window" : "_blank"
-        },
         "Day Nutrition" : {
             "url" : "/formalizer/day-nutrition.html",
-            "window" : "_blank"
-        }
-    },
-    "NOTITLE" : {
-        "Metrics" : {
-            "url" : "https://docs.google.com/spreadsheets/d/1_UX286LRCFbp5V1nnNIKMdggfELggocSXy80x-DZtM0/edit#gid=0",
-            "window" : "_blank"
-        },
-        "Reward &amp; Positive" : {
-            "url" : "https://docs.google.com/spreadsheets/d/1oDD4moypes9qII1olFaLWhydOPCWFa7f_u6hWXTZVP4/edit#gid=1180724961",
-            "window" : "_blank"
-        },
-        "LVL4 Day Plan" : {
-            "url" : "https://docs.google.com/spreadsheets/d/1mNAYcHlFjXHzSFHHli-_cOfeEjxwcRizJlwbWYPIZA8/edit#gid=0",
             "window" : "_blank"
         },
         "Notes on Change" : {
             "url" : "https://docs.google.com/document/d/1lBYknyQHhlhlqYZ3gku7OFTuM5FpFXV62jE2ETOnjv4/edit#heading=h.6algess7d8zh",
-            "window" : "_blank"
-        },
-        "Intention Performance" : {
-            "url" : "/cgi-bin/sysmet-extract-cgi.py?categories=intentions",
-            "window" : "_blank"
-        },
-        "Work Performance" : {
-            "url" : "/cgi-bin/sysmet-extract-cgi.py?categories=work",
-            "window" : "_blank"
-        },
-        "New Main Performance" : {
-            "url" : "/cgi-bin/sysmet-extract-cgi.py?categories=new2023",
             "window" : "_blank"
         },
         "Locations" : {
@@ -104,6 +74,40 @@
         },
         "Log Index": {
             "url" : "/cgi-bin/fzloghtml-cgi.py?index=on&alloflog=on",
+            "window" : "_blank"
+        }
+    },
+    "Metrics:" : {
+        "OrderScore" : {
+            "url" : "/cgi-bin/orderscore-cgi.py",
+            "window" : "_blank"
+        },
+        "Metrics Sheets" : {
+            "url" : "https://docs.google.com/spreadsheets/d/1_UX286LRCFbp5V1nnNIKMdggfELggocSXy80x-DZtM0/edit#gid=0",
+            "window" : "_blank"
+        },
+        "Reward &amp; Positive" : {
+            "url" : "https://docs.google.com/spreadsheets/d/1oDD4moypes9qII1olFaLWhydOPCWFa7f_u6hWXTZVP4/edit#gid=1180724961",
+            "window" : "_blank"
+        },
+        "LVL4 Day Plan" : {
+            "url" : "https://docs.google.com/spreadsheets/d/1mNAYcHlFjXHzSFHHli-_cOfeEjxwcRizJlwbWYPIZA8/edit#gid=0",
+            "window" : "_blank"
+        },
+        "Intention Performance" : {
+            "url" : "/cgi-bin/sysmet-extract-cgi.py?categories=intentions",
+            "window" : "_blank"
+        },
+        "Work Performance" : {
+            "url" : "/cgi-bin/sysmet-extract-cgi.py?categories=work",
+            "window" : "_blank"
+        },
+        "New Main Performance" : {
+            "url" : "/cgi-bin/sysmet-extract-cgi.py?categories=new2023",
+            "window" : "_blank"
+        },
+        "Nodes Metrics" : {
+            "url" : "/cgi-bin/nodemetrics.py?subset=on&norepeats=on&completed=on",
             "window" : "_blank"
         }
     },

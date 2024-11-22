@@ -55,6 +55,10 @@ void fzdashboard::usage_hook() {
           "    -f JSON dashboard definition file path\n"
           "    -o output directory or STDOUT (default in config or current dir)\n"
           "\n"
+          "    Note that using the NOTITLE title for a buttons subset in the JSON\n"
+          "    file continues the same subset category on another line before\n"
+          "    automated wrapping of lines.\n"
+          "\n"
           "    The path to JSON definitions for predefined index, admin or legacy dashboards\n"
           "    is specified in the fzdashboard configuration file. It is presently\n"
           "    set to: "+fzdsh.config.json_path+'\n');

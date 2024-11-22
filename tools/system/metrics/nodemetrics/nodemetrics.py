@@ -25,6 +25,8 @@ import plotly.io as pxio
 form = cgi.FieldStorage()
 
 node = form.getvalue("node")
+subset = form.getvalue("subset")
+help = form.getvalue("help")
 
 print("Content-type: text/html\n")
 
@@ -59,7 +61,7 @@ NODE_METRICS_PAGE='''<html>
 <head>
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/fzuistate.css">
-<title>fzgraphhtml-cgi API</title>
+<title>Node Metric</title>
 </head>
 <body>
 <script type="text/javascript" src="/fzuistate.js"></script>
@@ -92,6 +94,84 @@ def show_node_metrics(node:str):
     plot_content = pxio.to_html(fig, full_html=False)
     print(NODE_METRICS_PAGE % (node, str(num_chunks), str(total_hrs), plot_content))
 
+NOTYETIMPLEMENTED='''<html>
+<head>
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>Node Metrics</title>
+</head>
+<body>
+<script type="text/javascript" src="/fzuistate.js"></script>
+
+Nodes subset metrics not yet fully implemented.
+
+</body>
+</html>
+'''
+
+def show_nodes_subset_metrics():
+    norepeats = form.getvalue("norepeats")
+    completed = form.getvalue("completed")
+
+    if norepeats:
+        norepeats_arg = " -A"
+    else:
+        norepeats_arg = ""
+    if completed:
+        completed_arg = " -b 1.0 -B 999.0"
+    else:
+        completed_arg = ""
+
+    thecmd = f"./fzlogmap -F json -q -o STDOUT{norepeats_arg}{completed_arg}"
+    json_data = try_command_call(thecmd, printhere=False)
+    data = json.loads(json_data)
+    print(NOTYETIMPLEMENTED)
+
+
+UNRECOGNIZEDARGS='''<h1>Error</h1>
+<p>
+<b>Unrecognized CGI arguments.</b>
+</p>
+'''
+
+HELP='''<html>
+<head>
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>Node Metrics</title>
+</head>
+<body>
+<script type="text/javascript" src="/fzuistate.js"></script>
+
+%s
+
+<h1>nodemetrics.py API</h1>
+
+<p>
+Main modes:
+<ul>
+<li><code>node</code>: Collect and show metrics for one Node
+<li><code>subset</code>: Collect and show stats and metrics for a subset of Nodes
+<li><code>norepeats</code>: Non-repeated Nodes only
+<li><code>completed</code>: Completed Nodes only
+<li>By default: Show this help
+</ul>
+</p>
+
+</body>
+</html>
+'''
+
 if __name__ == '__main__':
-    show_node_metrics(node)
-    sys.exit(0)
+    if node:
+        show_node_metrics(node)
+        sys.exit(0)
+    if subset:
+        show_nodes_subset_metrics()
+        sys.exit(0)
+
+    if help:
+        print(HELP % "")
+    else:
+        print(HELP % UNRECOGNIZEDARGS)
+sys.exit(0)

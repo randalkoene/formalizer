@@ -53,7 +53,7 @@ fzlogmap::fzlogmap() : formalizer_standard_program(false), config(*this), flowco
                         ga(*this, add_option_args, add_usage_top), iscale(interval_none), interval(0),
                         noframe(false), calendar(false), interpret_open_as_tcurrent(false),
                         minute_map(true), by_category(false), recent_format(most_recent_html) {
-    add_option_args += "m:1:2:o:D:H:w:Nc:rRtnGF:T:f:Cb:B:";
+    add_option_args += "m:1:2:o:D:H:w:Nc:rRtnGF:T:f:Cb:B:aA";
     add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-m <node>] [-D <days>|-H <hours>|-w <weeks>] [-b <comp_min>] [-B <comp_max>] [-a|-A] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-t] [-n] [-F <raw|txt|html>] [-G] [-T <file|'STR:string'>] [-f <groupsfile>] [-C]";
     usage_head.push_back("Generate Mapping of requested Log records.\n");
     usage_tail.push_back(
@@ -1177,6 +1177,9 @@ bool nodes_subset_chunk_info() {
         VERBOSEOUT("0 matching Nodes found.\n");
         return standard_exit_success(""); // We need verbose output, not very verbose.
     }
+
+    VERYVERBOSEOUT("Number of Nodes to inspect: "+std::to_string(matched_nodes.size())+'\n');
+    return true;
 
     std::map<Node_ID_key, Node_Day_Seconds> node_day_seconds;
     for (const auto & [t_match, match_ptr] : matched_nodes) {
