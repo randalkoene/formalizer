@@ -12,11 +12,13 @@
 #include "version.hpp"
 #define __RENDER_HPP (__VERSION_HPP)
 
+#include "fzlogmap.hpp"
 
 using namespace fz;
 
 /*bool render_Log_interval();
 bool render_Log_most_recent();*/
 bool render_Node_chunk_data();
+bool render_Nodes_subset_chunk_data(const std::map<Node_ID_key, Node_Day_Seconds>& node_day_seconds);
 
 #endif // __RENDER_HPP

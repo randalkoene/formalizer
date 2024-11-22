@@ -38,12 +38,16 @@ using namespace fz;
 enum template_id_enum {
     node_log_temp,
     node_chunk_temp,
+    nodes_subset_nodedata_temp,
+    nodes_subset_temp,
     NUM_temp
 };
 
 const std::vector<std::string> template_ids = {
     "Node_Log",
-    "Node_Chunk"
+    "Node_Chunk",
+    "Nodes_Subset_Nodedata",
+    "Nodes_Subset"
 };
 
 const std::vector<std::string> template_subdirs = {
@@ -317,4 +321,38 @@ bool render_Node_chunk_data() {
     }
 
     return send_rendered_to_output(rendered_node_log);
+}
+
+bool render_Nodes_subset_chunk_data(const std::map<Node_ID_key, Node_Day_Seconds>& node_day_seconds) {
+    // *** Let's start by just rendering the total seconds for each Node.
+    std::string rendered_nodes_subset_data;
+    for (const auto& [nkey, ndata] : node_day_seconds) {
+        std::map<std::string, std::string> node_data_map = {
+            { "node_id", nkey.str() },
+            { "tot_sec", std::to_string(ndata.total_seconds) },
+        };
+        std::string rendered_node_data;
+        if (!env.fill_template_from_map(
+                template_path_from_id(nodes_subset_nodedata_temp),
+                node_data_map,
+                rendered_node_data)) {
+            return false;
+        }
+        rendered_nodes_subset_data += rendered_node_data;
+    }
+
+    if (fzlm.recent_format == most_recent_json) rendered_nodes_subset_data.pop_back();
+
+    std::map<std::string, std::string> nodes_subset_map = {
+        { "nodes_subset", rendered_nodes_subset_data },
+    };
+    std::string rendered_nodes_subset;
+    if (!env.fill_template_from_map(
+            template_path_from_id(nodes_subset_temp),
+            nodes_subset_map,
+            rendered_nodes_subset)) {
+        return false;
+    }
+
+    return send_rendered_to_output(rendered_nodes_subset);
 }

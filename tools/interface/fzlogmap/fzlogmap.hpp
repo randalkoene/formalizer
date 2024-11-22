@@ -26,10 +26,11 @@ using namespace fz;
 struct fzlogmap;
 
 enum flow_options {
-    flow_unknown = 0,       /// no recognized request
-    flow_log_interval = 1,  /// request: read and map Log interval
-    flow_most_recent = 2,   /// request: data about most recent Log entry
-    flow_node_log_data = 3, /// request: chunk data of Node
+    flow_unknown = 0,               /// no recognized request
+    flow_log_interval = 1,          /// request: read and map Log interval
+    flow_most_recent = 2,           /// request: data about most recent Log entry
+    flow_node_log_data = 3,         /// request: chunk data of Node
+    flow_nodes_subset_log_data = 4, /// request: data about Nodes subset
     flow_NUMoptions
 };
 
@@ -66,6 +67,8 @@ struct fzlogmap: public formalizer_standard_program {
     Graph_access ga;
 
     Log_filter filter;
+
+    Node_Filter nodefilter;
 
     Set_builder_data categories;
 
@@ -104,6 +107,18 @@ struct fzlogmap: public formalizer_standard_program {
 
     time_t Log_interval_t_end();
 
+};
+
+struct Day_Seconds {
+    time_t t_day;
+    time_t seconds;
+
+    Day_Seconds(time_t _t_day, time_t _seconds): t_day(_t_day), seconds(_seconds) {}
+};
+
+struct Node_Day_Seconds {
+    time_t total_seconds = 0;
+    std::vector<Day_Seconds> day_seconds;
 };
 
 extern fzlogmap fzlm;

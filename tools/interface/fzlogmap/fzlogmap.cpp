@@ -45,13 +45,16 @@ fzlogmap fzlm;
 /**
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
+ * 
+ * Command line arguments: 12ABCDEFGHNQRTVWabcdfhmnoqrstvw
+ * Command line arguments available: 03456789IJKLMOPSUXYZegijklpuxyz
  */
 fzlogmap::fzlogmap() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), 
                         ga(*this, add_option_args, add_usage_top), iscale(interval_none), interval(0),
                         noframe(false), calendar(false), interpret_open_as_tcurrent(false),
                         minute_map(true), by_category(false), recent_format(most_recent_html) {
-    add_option_args += "m:1:2:o:D:H:w:Nc:rRtnGF:T:f:C";
-    add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-m <node>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-t] [-n] [-F <raw|txt|html>] [-G] [-T <file|'STR:string'>] [-f <groupsfile>] [-C]";
+    add_option_args += "m:1:2:o:D:H:w:Nc:rRtnGF:T:f:Cb:B:";
+    add_usage_top += " [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-m <node>] [-D <days>|-H <hours>|-w <weeks>] [-b <comp_min>] [-B <comp_max>] [-a|-A] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-t] [-n] [-F <raw|txt|html>] [-G] [-T <file|'STR:string'>] [-f <groupsfile>] [-C]";
     usage_head.push_back("Generate Mapping of requested Log records.\n");
     usage_tail.push_back(
         "The <time-stamp1> and <time-stamp_2> arguments expect standardized\n"
@@ -81,6 +84,10 @@ void fzlogmap::usage_hook() {
           "    -c interval size of <num> Log chunks\n"
           "    -r interval from most recent\n"
           "    -R most recent Log data\n"
+          "    -b Nodes with completion ratio greater than or equal to <comp_min>.\n"
+          "    -B Nodes with completion ratio smaller than or equal to <comp_max>.\n"
+          "    -a Nodes that repeat.\n"
+          "    -A Nodes that do not repeat.\n"
           "    -t interpret open Log chunk as to the current time\n"
           "    -n no minute map (totals only, unless in -C mode)\n"
           "    -F format of mapped Log data:\n"
@@ -230,6 +237,36 @@ bool fzlogmap::options_hook(char c, std::string cargs) {
 
     case 'C': {
         fzlm.calendar = true;
+        return true;
+    }
+
+    case 'b': {
+        flowcontrol = flow_nodes_subset_log_data;
+        nodefilter.lowerbound.completion = std::atof(cargs.c_str());
+        nodefilter.filtermask.set_Edit_completion();
+        return true;
+    }
+
+    case 'B': {
+        flowcontrol = flow_nodes_subset_log_data;
+        nodefilter.upperbound.completion = std::atof(cargs.c_str());
+        nodefilter.filtermask.set_Edit_completion();
+        return true;
+    }
+
+    case 'a': {
+        flowcontrol = flow_nodes_subset_log_data;
+        nodefilter.lowerbound.repeats = true;
+        nodefilter.upperbound.repeats = true;
+        nodefilter.filtermask.set_Edit_repeats();
+        return true;
+    }
+
+    case 'A': {
+        flowcontrol = flow_nodes_subset_log_data;
+        nodefilter.lowerbound.repeats = false;
+        nodefilter.upperbound.repeats = false;
+        nodefilter.filtermask.set_Edit_repeats();
         return true;
     }
 
@@ -1124,6 +1161,52 @@ bool node_chunk_info() {
     return render_Node_chunk_data();
 }
 
+bool nodes_subset_chunk_info() {
+    ERRTRACE;
+    //fzlm.set_filter(); // *** Could add Log filtering as well if that is useful.
+
+    // set up filter
+    // *** Already done during command line parameter parsing.
+    VERYVERBOSEOUT("Node filter:\n"+fzlm.nodefilter.str());
+
+    // find subset of Nodes
+    targetdate_sorted_Nodes matched_nodes = Nodes_subset(fzlm.graph(), fzlm.nodefilter);
+
+    size_t total_found = matched_nodes.size();
+    if (total_found < 1) {
+        VERBOSEOUT("0 matching Nodes found.\n");
+        return standard_exit_success(""); // We need verbose output, not very verbose.
+    }
+
+    std::map<Node_ID_key, Node_Day_Seconds> node_day_seconds;
+    for (const auto & [t_match, match_ptr] : matched_nodes) {
+
+        fzlm.filter.nkey = match_ptr->get_id().key();
+        fzlm.edata.specific_node_id = fzlm.filter.nkey.str();
+        fzlm.edata.log_ptr.reset();
+        get_Node_Log_chunk_data(fzlm.ga, fzlm.edata);
+        if (!fzlm.edata.log_ptr) {
+            return false;
+        }
+
+        time_t total_seconds = 0;
+        node_day_seconds.emplace(fzlm.filter.nkey, Node_Day_Seconds());
+        for (const auto & [chunk_key, chunkptr] : fzlm.edata.log_ptr->get_Chunks()) {
+            time_t t_open = chunkptr->get_open_time();
+            time_t t_close = chunkptr->get_close_time();
+            if (t_close != FZ_TCHUNK_OPEN) {
+                time_t seconds = t_close - t_open;
+                node_day_seconds.at(fzlm.filter.nkey).day_seconds.emplace_back(day_start_time(t_open), seconds);
+                total_seconds += seconds;
+            }
+        }
+        node_day_seconds.at(fzlm.filter.nkey).total_seconds = total_seconds;
+
+    }
+
+    return render_Nodes_subset_chunk_data(node_day_seconds);
+}
+
 int main(int argc, char *argv[]) {
     ERRTRACE;
 
@@ -1139,6 +1222,10 @@ int main(int argc, char *argv[]) {
 
     case flow_node_log_data: {
         return standard_exit(node_chunk_info(), "Node Log data retrieved.\n", exit_file_error, "Unable to retrieve Node Log data", __func__);
+    }
+
+    case flow_nodes_subset_log_data: {
+        return standard_exit(nodes_subset_chunk_info(), "Nodes subset Log data retrieved.\n", exit_file_error, "Unable to retrieve Nodes subset Log data", __func__);
     }
 
     //case flow_most_recent: {
