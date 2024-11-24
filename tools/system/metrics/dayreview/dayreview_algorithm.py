@@ -20,16 +20,62 @@ intended = {
     'system/care':  (2.0, 0.0, 3.0, True, False,  5.0),
     'other':        (3.0, 0.0, 4.0, True, False, 10.0),
 }
+unmodifiable = ['sleep','system/care','other']
+
+btf2intended = {
+    'WORK': 'work',
+    'SELFWORK': 'self-work',
+    'SYSTEM': 'system/care',
+    'OTHER': 'other',
+}
+
+def date2weekday()->str:
+    pass
+
+def btfdays2dayfocus(btf_days:str)->dict:
+    if btf_days is None:
+        return {}
+    if btf_days == '':
+        return {}
+    focus_vec = btf_days.split('_')
+    dayfocus = {}
+    for focus in focus_vec:
+        btf_focus = focus.split(':')
+        btf = btf_focus[0]
+        days = btf_focus[1].split(',')
+        for focus_day in days:
+            dayfocus[focus_day] = btf
+    return dayfocus
+
+
+# If btf_days is '' (empty) then use the intended matrix as above.
+# Otherwise, modify it to focus on the category of the week day.
 
 class dayreview_algorithm:
-    def __init__(self, wakinghours:float, chunkdata:list):
+    def __init__(self, wakinghours:float, chunkdata:list, btf_days:str='', datestamp:str=''):
         self.wakinghours = wakinghours
         self.chunkdata = chunkdata
+        self.dayfocus = btfdays2dayfocus(btf_days)
+        if len(self.dayfocus) > 0:
+            self.modify_intended(datestamp)
 
         self.hours_summary = None
         self.totscore = None
         self.totintended = None
         self.totscore_ratio = None
+
+    def modify_intended(self, datestamp:str):
+        date_object = datetime.strptime(datestamp, '%Y%m%d').date()
+        weekday = date_object.strftime("%a").upper()
+        focus = self.dayfocus[weekday]
+        intendedfocus = btf2intended[focus]
+        for key in intended:
+            if key in unmodifiable:
+                continue
+            if key == intendedfocus:
+                intended[key] = (8.0, 4.0, 0.0, False, True, 10.0)
+            else:
+                intended[key] = (4.0, 0.0, 0.0, False, True, 10.0)
 
     def sum_of_type(self, typeid:str)->float:
         hours = 0.0

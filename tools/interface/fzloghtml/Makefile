@@ -119,6 +119,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/Graphaccess.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/Logpostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/Logaccess.o
+CORE_OBJS += $(CORELIBPATH)/obj/btfdays.o
 # CORE_OBJS += $(CORELIBPATH)/obj/dilaccess.o
 # +----- end  : Select Formalizer core library objects -----+
 

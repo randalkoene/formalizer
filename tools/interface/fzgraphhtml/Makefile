@@ -126,6 +126,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/Graphmodify.o
 CORE_OBJS += $(CORELIBPATH)/obj/utf8.o
 CORE_OBJS += $(CORELIBPATH)/obj/tcpclient.o
 CORE_OBJS += $(CORELIBPATH)/obj/apiclient.o
+CORE_OBJS += $(CORELIBPATH)/obj/btfdays.o
 # CORE_OBJS += $(CORELIBPATH)/obj/dilaccess.o
 # +----- end  : Select Formalizer core library objects -----+
 

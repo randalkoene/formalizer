@@ -20,9 +20,13 @@ from subprocess import Popen, PIPE
 # Create instance of FieldStorage 
 form = cgi.FieldStorage()
 
+btf_days = form.getvalue('btf_days')
+if not btf_days:
+    btf_days = 'WORK:SUN,MON,TUE,THU,FRI_SELFWORK:SAT,WED'
+
 cgi_keys = list(form.keys())
 
-print("Content-type:text/html\n\n")
+print("Content-type:text/html\n")
 
 # Uses './', because it is run as CGI script from /usr/lib/cgi-bin.
 try:
@@ -47,6 +51,10 @@ DAYREVIEW_SUMMARY = '''<html>
 <script type="text/javascript" src="/fzuistate.js"></script>
 
 <h1>DayReview Summary</h1>
+
+<p>
+Using days of the week categorization: %s
+</p>
 
 <p>
 Number of waking hours in previous day: %.2f
@@ -168,7 +176,7 @@ def process_dayreview(form:cgi.FieldStorage, cgi_keys:list)->dict:
 
     wakinghours = endhours - starthours
 
-    review_algo = dayreview_algorithm(wakinghours, chunkdata)
+    review_algo = dayreview_algorithm(wakinghours, chunkdata, btf_days, review_date)
 
     score_data_summary = review_algo.calculate_scores()
 
@@ -204,6 +212,7 @@ def generate_summary_page(
         metrictag_error_html = '<p><b>Metrictag error: %s</b></p>' % extra_metrics_dict['error']
 
     print(DAYREVIEW_SUMMARY % (
+            btf_days,
             wakinghours,
             summary_table,
             score_table,

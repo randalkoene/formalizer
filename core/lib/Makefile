@@ -239,6 +239,9 @@ $(OBJ)/DataSheet.o: DataSheet.cpp $(INC)/DataSheet.hpp \
 						$(INC)/general.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) $(DEFAULTDBNAME) $(DEFAULTSCHEMA) -c DataSheet.cpp -o $(OBJ)/DataSheet.o
 
+$(OBJ)/btfdays.o: btfdays.cpp $(INC)/btfdays.hpp $(INC)/stringio.hpp $(INC)/Graphtypes.hpp
+	$(CCPP) $(CPPFLAGS) -c btfdays.cpp -o $(OBJ)/btfdays.o
+
 clean:
 	rm -f $(OBJ)/*.o $(TEST)/*.o
 

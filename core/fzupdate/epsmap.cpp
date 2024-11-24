@@ -22,6 +22,7 @@
 #include "Graphinfo.hpp"
 #include "Graphmodify.hpp"
 #include "tcpclient.hpp"
+#include "btfdays.hpp"
 
 // local
 #include "fzupdate.hpp"
@@ -911,46 +912,7 @@ void Uncategorized_UTD_Placer::place() {
 }
 
 BooleanTagFlag_UTD_Placer::BooleanTagFlag_UTD_Placer(EPS_map& _updvar_map): Placer(_updvar_map), list_name(fzu.config.NNL_name) {
-    set_tag_days(fzu.config.btf_days);
-}
-
-const std::map<std::string, int> weekday_shortstr = {
-    { "SUN", 0 },
-    { "MON", 1 },
-    { "TUE", 2 },
-    { "WED", 3 },
-    { "THU", 4 },
-    { "FRI", 5 },
-    { "SAT", 6 },
-};
-
-/**
- * Accepts specifications such as:
- * "SELFWORK:WED,SAT_WORK:MON,TUE,THU,SUN"
- */
-void BooleanTagFlag_UTD_Placer::set_tag_days(const std::string& configstr) {
-    auto btf_configstr_vec = split(configstr, '_');
-    for (const auto& btf_configstr : btf_configstr_vec) {
-        auto btf_configstr_pair = split(btf_configstr, ':');
-        if (btf_configstr_pair.size() == 2) {
-            auto btf_it = boolean_flag_map.find(btf_configstr_pair.at(0).c_str());
-            if (btf_it != boolean_flag_map.end()) {
-                Boolean_Tag_Flags::boolean_flag btf = btf_it->second;
-                unsigned int btf_num_days = 0;
-                auto weekdaystr_vec = split(btf_configstr_pair.at(1), ',');
-                for (const auto& weekdaystr : weekdaystr_vec) {
-                    auto weekday_it = weekday_shortstr.find(weekdaystr);
-                    if (weekday_it != weekday_shortstr.end()) {
-                        tag_to_day_map[btf].emplace_back(weekday_it->second);
-                        btf_num_days++;
-                    }
-                }
-                if (btf_num_days > 0) {
-                    btf_tags.emplace_back(btf);
-                }
-            }
-        }
-    }
+    set_btf_tag_days(fzu.config.btf_days, tag_to_day_map, btf_tags);
 }
 
 /**

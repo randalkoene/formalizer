@@ -284,11 +284,8 @@ public:
 class BooleanTagFlag_UTD_Placer: public Placer {
 public:
     std::map<Boolean_Tag_Flags::boolean_flag, std::vector<int>> tag_to_day_map;
-    std::string list_name;
     std::vector<Boolean_Tag_Flags::boolean_flag> btf_tags;
-
-protected:
-    void set_tag_days(const std::string& configstr);
+    std::string list_name;
 
 public:
     BooleanTagFlag_UTD_Placer(EPS_map& _updvar_map);

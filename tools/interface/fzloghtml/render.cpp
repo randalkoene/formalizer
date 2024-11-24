@@ -21,11 +21,11 @@
 #include "templater.hpp"
 #include "html.hpp"
 #include "Graphinfo.hpp"
+#include "btfdays.hpp"
 
 // local
 #include "render.hpp"
 #include "fzloghtml.hpp"
-
 
 /// The Makefile attempts to provide this at compile time based on the source
 /// file directory.
@@ -830,6 +830,7 @@ struct review_data {
             { "date", DateStampYmd(fzlh.time_zone_adjusted(t_wakeup)) },
             { "wakeup", TimeStamp("%H%M", fzlh.time_zone_adjusted(t_wakeup)) },
             { "gosleep", TimeStamp("%H%M", fzlh.time_zone_adjusted(t_gosleep)) },
+            { "btf_days", get_btf_days() },
         };
         if (!env.fill_template_from_map(
                 template_path_from_map(review_format_to_topinfo_template_map),
