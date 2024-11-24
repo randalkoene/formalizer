@@ -149,6 +149,7 @@ public:
     bool same_node_as_chunk() const { return (node_idkey.isnullkey()); }
     const std::string & get_entrytext() const { return entrytext; }
     size_t entrytext_size() const { return entrytext.size(); }
+    std::string get_excerpt(size_t excerpt_length) const;
     bool has_visible_content() const { return entrytext.find_first_not_of(" \t\n\r")!=std::string::npos; }
 
     /**

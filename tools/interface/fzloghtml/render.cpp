@@ -1046,16 +1046,49 @@ const std::map<most_recent_format, template_id_enum> index_format_to_template_ma
 };
 
 bool render_Log_index() {
+    const size_t long_entry = 3000;
     std::string rendered_entries;
 
     for (const auto & [chunk_key, chunkptr] : fzlh.edata.log_ptr->get_Chunks()) if (chunkptr) {
-        std::string combined_entries(chunkptr->get_combined_entries_text());
+        size_t chunk_totsize = 0;
+        size_t entry_maxsize = 0;
+        bool has_header = false;
+        const Log_entry* reference_entry = nullptr;
+        for (const auto& entryptr : chunkptr->get_entries()) if (entryptr) {
+            const std::string & entrytextref = entryptr->get_entrytext();
+            size_t entrysize = entrytextref.size();
+            if (entrysize > entry_maxsize) entry_maxsize = entrysize;
+            chunk_totsize += entrysize;
+            auto it = entrytextref.find("<h");
+            if (it == std::string::npos) {
+                it = entrytextref.find("<H");
+            }
+            if (it != std::string::npos) {
+                if ((it+2) < entrytextref.size()) {
+                    char header_level = entrytextref.at(it+2);
+                    if ((header_level >= '1') && (header_level <= '5')) {
+                        has_header = true;
+                    }
+                }
+            }
+            if (has_header || (entry_maxsize >= long_entry)) {
+                reference_entry = entryptr;
+                break;
+            }
+        }
 
-        // As a test, let's make the super-simple assumption that lengthy content
+        // As a test, let's make the super-simple assumption that lengthy entry content
         // indicates significant output that I might want to refer to more often.
-        if (combined_entries.size() > 2000) {
+        if (has_header || (entry_maxsize >= long_entry)) {
             std::string chunk_id_str = chunkptr->get_tbegin_str();
-            rendered_entries += "<li>[<a class=\"nnl\" href=\"/cgi-bin/fzloghtml-cgi.py?around="+chunk_id_str+"&daysinterval="+chunk_id_str+"\" target=\"blank\">"+chunk_id_str+"</a>]: </li>\n";
+            std::string entry_excerpt;
+            entry_excerpt.reserve(300);
+            if (has_header) {
+                entry_excerpt = "<b>"+reference_entry->get_excerpt(160)+"</b>";
+            } else {
+                entry_excerpt = reference_entry->get_excerpt(160);
+            }
+            rendered_entries += "<li>[<a class=\"nnl\" href=\"/cgi-bin/fzloghtml-cgi.py?around="+chunk_id_str+"&daysinterval="+chunk_id_str+"\" target=\"blank\">"+chunk_id_str+"</a>]: "+entry_excerpt+"</li>\n";
         }
 
     }

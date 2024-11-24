@@ -14,6 +14,7 @@
 #define __HTML_HPP (__COREVERSION_HPP)
 
 // std
+#include <vector>
 
 namespace fz {
 

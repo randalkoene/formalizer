@@ -8,6 +8,7 @@
 
 // core
 #include "utf8.hpp"
+#include "html.hpp"
 #include "LogtypesID.hpp"
 #include "Logtypes.hpp"
 
@@ -72,6 +73,11 @@ void Log_by_Node_chainable::set_Node_next_ptr(Log_entry * nextptr) { // give nul
             node_next.entry.key = Log_entry_ID_key();
         }
     }
+}
+
+std::string Log_entry::get_excerpt(size_t excerpt_length) const {
+    if (excerpt_length == 0) return remove_html_tags(get_entrytext().c_str());
+    return remove_html_tags(get_entrytext().c_str()).substr(0, excerpt_length);
 }
 
 /**

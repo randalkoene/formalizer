@@ -200,7 +200,7 @@ $(OBJ)/Graphtoken.o: Graphtoken.cpp $(INC)/Graphtoken.hpp $(INC)/Graphbase.hpp $
 $(OBJ)/LogtypesID.o: LogtypesID.cpp $(INC)/LogtypesID.hpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c LogtypesID.cpp -o $(OBJ)/LogtypesID.o
 
-$(OBJ)/Logtypes.o: Logtypes.cpp $(INC)/Logtypes.hpp $(INC)/Graphtypes.hpp $(INC)/LogtypesID.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp
+$(OBJ)/Logtypes.o: Logtypes.cpp $(INC)/Logtypes.hpp $(INC)/Graphtypes.hpp $(INC)/LogtypesID.hpp $(INC)/general.hpp $(INC)/TimeStamp.hpp $(INC)/html.hpp
 	$(CCPP) $(CPPFLAGS) -c Logtypes.cpp -o $(OBJ)/Logtypes.o
 
 $(OBJ)/Loginfo.o: Loginfo.cpp $(INC)/Loginfo.hpp $(INC)/Logtypes.hpp $(INC)/LogtypesID.hpp
