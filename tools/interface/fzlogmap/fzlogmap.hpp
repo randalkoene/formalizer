@@ -11,6 +11,8 @@
 #include "version.hpp"
 #define __FZLOGMAP_HPP (__VERSION_HPP)
 
+#include <map>
+
 // core
 #include "standard.hpp"
 #include "config.hpp"
@@ -80,6 +82,8 @@ struct fzlogmap: public formalizer_standard_program {
     bool minute_map;
     bool by_category;
 
+    bool nonzero_only = false;
+
     std::string custom_template;
 
     entry_data edata;
@@ -109,16 +113,18 @@ struct fzlogmap: public formalizer_standard_program {
 
 };
 
-struct Day_Seconds {
-    time_t t_day;
-    time_t seconds;
+// struct Day_Seconds {
+//     time_t t_day;
+//     time_t seconds;
 
-    Day_Seconds(time_t _t_day, time_t _seconds): t_day(_t_day), seconds(_seconds) {}
-};
+//     Day_Seconds(time_t _t_day, time_t _seconds): t_day(_t_day), seconds(_seconds) {}
+// };
 
 struct Node_Day_Seconds {
     time_t total_seconds = 0;
-    std::vector<Day_Seconds> day_seconds;
+    //std::vector<Day_Seconds> day_seconds;
+    // Map of <day-start time, seconds>
+    std::map<time_t, time_t> day_seconds;
 };
 
 extern fzlogmap fzlm;

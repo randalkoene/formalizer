@@ -1276,6 +1276,10 @@ bool load_partial_Log_pq(Log & log, Postgres_access & pa, const Log_filter & fil
     ERRHERE(".chunks");
     if (!read_Chunks_pq(apq, log, chunkwherestr, limitdirstr)) LOAD_LOG_PQ_RETURN(false);
 
+    if (filter.chunks_only) {
+        LOAD_LOG_PQ_RETURN(true);
+    }
+
     // If loading was constrained by a filter then always read the entries that belong
     // to the chunks that were read.
     if (use_t_from || use_t_to || (limit>0)) {

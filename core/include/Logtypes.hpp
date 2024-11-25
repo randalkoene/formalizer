@@ -503,7 +503,9 @@ struct Log_filter {
     // *** maybe add a specifier here to use or not use parts of a chunk that don't belong to the Node (if some entries do)
     unsigned long limit; ///< Limit to specific number of Log chunks (can be used with t_from or t_to, or neither), 0 means unlimited.
     bool back_to_front; ///< Reverse the order of selection if not constrained by t_from or t_to.
-    Log_filter(): t_from(RTt_unspecified), t_to(RTt_unspecified), limit(0), back_to_front(false) {}
+    bool chunks_only; ///< If true then retrieve chunks data only, not entries data.
+
+    Log_filter(): t_from(RTt_unspecified), t_to(RTt_unspecified), limit(0), back_to_front(false), chunks_only(false) {}
 
     // Load n from the chunk with ID _tfrom.
     void get_n_from(time_t _tfrom, unsigned int n) { t_from = _tfrom; limit = n; }

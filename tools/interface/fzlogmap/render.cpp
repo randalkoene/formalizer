@@ -38,6 +38,7 @@ using namespace fz;
 enum template_id_enum {
     node_log_temp,
     node_chunk_temp,
+    nodes_subset_daydata_temp,
     nodes_subset_nodedata_temp,
     nodes_subset_temp,
     NUM_temp
@@ -46,8 +47,9 @@ enum template_id_enum {
 const std::vector<std::string> template_ids = {
     "Node_Log",
     "Node_Chunk",
+    "Nodes_Subset_Daydata",
     "Nodes_Subset_Nodedata",
-    "Nodes_Subset"
+    "Nodes_Subset",
 };
 
 const std::vector<std::string> template_subdirs = {
@@ -327,9 +329,34 @@ bool render_Nodes_subset_chunk_data(const std::map<Node_ID_key, Node_Day_Seconds
     // *** Let's start by just rendering the total seconds for each Node.
     std::string rendered_nodes_subset_data;
     for (const auto& [nkey, ndata] : node_day_seconds) {
+
+        if ((fzlm.nonzero_only) && (ndata.total_seconds == 0)) continue;
+
+        std::string rendered_days_data("[");
+        for (const auto& [t_day, seconds] : ndata.day_seconds) {
+            std::map<std::string, std::string> day_data_map = {
+                { "day", DateStampYmd(t_day) },
+                { "sec", std::to_string(seconds) },
+            };
+            std::string rendered_day_data;
+            if (!env.fill_template_from_map(
+                    template_path_from_id(nodes_subset_daydata_temp),
+                    day_data_map,
+                    rendered_day_data)) {
+                return false;
+            }
+            rendered_days_data += rendered_day_data;
+        }
+        if (rendered_days_data.size() > 1) {
+            rendered_days_data.back() = ']';
+        } else {
+            rendered_days_data += ']';
+        }
+
         std::map<std::string, std::string> node_data_map = {
             { "node_id", nkey.str() },
             { "tot_sec", std::to_string(ndata.total_seconds) },
+            { "days_sec", rendered_days_data },
         };
         std::string rendered_node_data;
         if (!env.fill_template_from_map(

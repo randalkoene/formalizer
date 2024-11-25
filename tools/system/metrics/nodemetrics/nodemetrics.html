@@ -1,0 +1,26 @@
+<HTML>
+<HEAD>
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<TITLE>fz: Nodes Subset Metrics</TITLE>
+</HEAD>
+
+<BODY>
+<script type="text/javascript" src="/fzuistate.js"></script>
+
+<h1>fz: Nodes Subset Metrics</h1>
+
+<form action="/cgi-bin/nodemetrics.py" method="post">
+<input type="hidden" name="subset" value="on">
+<input type="checkbox" name="norepeats" checked> No repeats<br />
+<input type="checkbox" name="completed" checked> Completed<br />
+<input type="checkbox" name="nonzero" checked> Non-zero applied-time Nodes only<br />
+<input type="text" name="startfrom" value="199001010000"> start at this YYYYmmddHHMM time stamp (empty means 24 hours before end of interval)<br />
+<input type="text" name="endbefore"> end before this YYYYmmddHHMM time stamp (default: 1 second after most recent Log entry)<br />
+<input type="checkbox" name="alloflog" checked> All of Log<br />
+
+<input type="submit" value="Submit" />
+</form>
+
+</BODY>
+</HTML>

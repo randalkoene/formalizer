@@ -273,6 +273,7 @@ WEBINTERFACES += $(TOOLSPATH)/system/doc/ready-docs.html
 WEBINTERFACES += $(TOOLSPATH)/system/earlywiz/earlywiz.html
 WEBINTERFACES += $(TOOLSPATH)/system/latewiz/latewiz.html
 WEBINTERFACES += $(TOOLSPATH)/system/latewiz/templates/prep-morning-exercise.html
+WEBINTERFACES += $(TOOLSPATH)/system/metrics/nodemetrics/nodemetrics.html
 WEBINTERFACES += $(TOOLSPATH)/system/metrics/sysmet-add/sysmet-add-form.html
 WEBINTERFACES += $(TOOLSPATH)/system/nutrition/day-nutrition.html
 WEBINTERFACES += $(TOOLSPATH)/system/planning/decisions/rttdecision/rttdecision-template.html

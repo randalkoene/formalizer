@@ -107,7 +107,7 @@
             "window" : "_blank"
         },
         "Nodes Metrics" : {
-            "url" : "/cgi-bin/nodemetrics.py?subset=on&norepeats=on&completed=on",
+            "url" : "/formalizer/nodemetrics.html",
             "window" : "_blank"
         }
     },

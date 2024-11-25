@@ -1,5 +1,4 @@
-{
-	"{{ node_id }}": {
-		"tot_sec": {{ tot_sec }}
-	}
+"{{ node_id }}": {
+	"tot_sec": {{ tot_sec }},
+	"days_sec": {{ days_sec }}
 },
