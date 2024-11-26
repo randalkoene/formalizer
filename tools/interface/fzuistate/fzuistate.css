@@ -46,6 +46,12 @@
     right: 878px;
     z-index: 1000;
 }
+#system {
+    position: fixed;
+    bottom: 0px;
+    right: 982px;
+    z-index: 1000;
+}
 #fztop {
     position: fixed;
     bottom: 40px;
