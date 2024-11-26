@@ -107,6 +107,8 @@ struct fzgraphhtml: public formalizer_standard_program {
 
     unsigned int do_links_rendered = 0;
 
+    float req_suggested = 0.0;
+
     Graph * graph_ptr = nullptr;
 
     std::vector<std::string> replacements;

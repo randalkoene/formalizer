@@ -1190,6 +1190,9 @@ bool render_new_node_page() {
     Node_data ndata;
     long required_mins = (ndata.hours * 60.0);
     double required_hrs = ndata.hours;
+    if (fzgh.req_suggested != 0.0) {
+        required_hrs = fzgh.req_suggested;
+    }
     td_property tdprop = ndata.tdproperty;
     td_pattern tdpatt = ndata.tdpattern;
 
@@ -1208,7 +1211,11 @@ bool render_new_node_page() {
 
     nodevars.emplace("comp", to_precision_string(0.0));
     nodevars.emplace("hrs_to_complete", to_precision_string(required_hrs));
-    nodevars.emplace("req_hrs", to_precision_string(required_hrs));
+    if (fzgh.req_suggested != 0.0) {
+        nodevars.emplace("req_hrs", to_precision_string(required_hrs));
+    } else {
+        nodevars.emplace("req_hrs", "");
+    }
     nodevars.emplace("req_mins", std::to_string(required_mins));
     nodevars.emplace("val", to_precision_string(ndata.valuation));
 

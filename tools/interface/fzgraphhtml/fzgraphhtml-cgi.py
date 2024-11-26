@@ -33,6 +33,7 @@ from tcpclient import get_server_address
 # *** THESE SHOULD BE SET BY SETUP CONFIGURATION
 # *** Perhaps read the following from ~/.formalizer/webdata_path
 webdata_path = "/var/www/webdata/formalizer"
+TOPICSTATSFILE='/var/www/webdata/formalizer/topic_stats.json'
 
 logfile = webdata_path+'/fzgraphhtml-cgi.log'
 
@@ -466,6 +467,18 @@ def generate_Node_edit_form_page():
     thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -m "+edit
     if topics:
         thecmd += " -t '"+topics+"'"
+
+        # Try to find recommended required time based on median in topic statistics
+        try:
+            import json
+            with open(TOPICSTATSFILE, "r") as f:
+                topicstats = json.load(f)
+        except:
+            topicstats = {}
+        if topics in topicstats:
+            req_median = topicstats[topics]['median']
+            thecmd += " -R "+str(req_median)
+
     if SPA:
         thecmd += ' -j' # no Javascript
     print(editpagehead)

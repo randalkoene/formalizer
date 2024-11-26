@@ -38,15 +38,15 @@ fzgraphhtml fzgh;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  * 
- * Command line arguments already assigned: CDEFILMNSTVWYcehjmnoqrstuvx
- * Command line arguments still available: ABGHJKOPQRUXZabdfgiklpwyz
+ * Command line arguments already assigned: CDEFILMNRSTVWYcehjmnoqrstuvx
+ * Command line arguments still available: ABGHJKOPQUXZabdfgiklpwyz
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:m:Irt:uBi:L:N:M:D:x:o:s:S:eT:F:CjcY";
+    add_option_args += "n:m:Irt:uBi:L:N:M:D:x:o:s:S:eT:F:CjcYR:";
     add_usage_top += " [-n <node-ID>|-m <node-ID>|-I|-t <topic-ID|topic-tag|?>|-L <name|?>] [-u] [-B]"
         " [-r] [-N <num>] [-M <max-YYYYmmddHHMM>] [-D <num-days>] [-x <len>]"
         " [-o <output-path>] [-s <sortkeys>] [-S <NNL>] [-e] [-T <named|node|Node>=<path>]"
-        " [-F html|txt|node|desc] [-C] [-j] [-c] [-Y]";    //usage_head.push_back("Description at the head of usage information.\n");
+        " [-F html|txt|node|desc] [-C] [-j] [-c] [-Y] [-R <req-suggested>]";    //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "Notes:\n"
         "1. When no [N <num>] is provided then the configured value is used.\n"
@@ -111,6 +111,7 @@ void fzgraphhtml::usage_hook() {
           "    -j no Javascript.\n"
           "    -c include checkboxes.\n"
           "    -Y include counter row when rendering NNL.\n"
+          "    -R include suggested required time in new Node template\n"
           "\n"
           "    -C (TEST) card output format.\n");
 }
@@ -326,6 +327,11 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
 
     case 'Y': {
         nnl_with_counter = true;
+        return true;
+    }
+
+    case 'R': {
+        req_suggested = atof(cargs.c_str());
         return true;
     }
    
