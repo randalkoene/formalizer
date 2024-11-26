@@ -24,6 +24,10 @@ import plotly.io as pxio
 
 from fzmodbase import *
 from TimeStamp import NowTimeStamp
+from datetime import datetime
+import statistics
+
+TOPICSTATSFILE='/var/www/webdata/formalizer/topic_stats.json'
 
 form = cgi.FieldStorage()
 
@@ -106,17 +110,25 @@ NODES_SUBSET_METRICS_PAGE='''<html>
 <body>
 <script type="text/javascript" src="/fzuistate.js"></script>
 
+<h1>Nodes Subset Metrics</h1>
+
 <p>
-Not yet displaying, graphing or using the day_sec data of collected Nodes metrics.
-Doing so would be needed to identify Nodes that used to be repeated and that should
-also be excluded when using the Nodes metrics to improve required time predictions.
+Data collected from Log from %s to %s, %s days.
 </p>
+
+Statistics by Topic:
+<table><tbody>
+%s
+</tbody></table>
+
+<p></p>
 
 <p>
 Number of Nodes shown: %s
 </p>
 
-<table></tbody>
+Data by Node:
+<table><tbody>
 %s
 </tbody></table>
 
@@ -124,7 +136,10 @@ Number of Nodes shown: %s
 </html>
 '''
 
-NODE_DATA_HTML='''<tr><td>ID: %s</td><td>Hours: %.2f</td></tr>
+NODE_DATA_HTML='''<tr><td>ID: <a class="nnl" href="/cgi-bin/fzlink.py?id=%s" target="_blank">%s</a></td><td>%s</td><td>Hours: %s</td><td>Diff Days: %s</td></tr>
+'''
+
+TOPIC_DATA_HTML='''<tr><td>%s</td><td>Mean: %.2f</td><td>Median: %.2f</td></tr>
 '''
 
 def show_nodes_subset_metrics():
@@ -166,12 +181,79 @@ def show_nodes_subset_metrics():
 
     num_nodes_shown = len(data)
 
+    topics = {}
+
     nodes_subset_html = ''
     for node in data:
         totsec = float(data[node]['tot_sec'])
-        nodes_subset_html += NODE_DATA_HTML % (node, float(totsec/3600))
+        topic = data[node]['topic']
 
-    print(NODES_SUBSET_METRICS_PAGE % (str(num_nodes_shown), nodes_subset_html))
+        diff_days_str = ''
+        daysref = data[node]['days_sec']
+        numdays = len(daysref)
+        data[node]['days_diff'] = []
+        probably_repeating_diffs = False
+        for i in range(1, len(daysref)):
+            datetime_object1 = datetime.strptime(daysref[i-1][0], '%Y%m%d')
+            datetime_object2 = datetime.strptime(daysref[i][0], '%Y%m%d')
+            diff_days = int((datetime_object2 - datetime_object1).total_seconds()/86400)
+            if diff_days >= 7:
+                probably_repeating_diffs = True
+            data[node]['days_diff'].append(diff_days)
+            diff_days_str += str(diff_days)+' '
+        if len(data[node]['days_diff']) >= 5:
+            probably_repeating_diffs = True
+
+        t_smallest = 999999
+        t_largest = 0
+        probably_repeating_tdiff = False
+        for i in range(len(daysref)):
+            if daysref[i][1] < t_smallest:
+                t_smallest = daysref[i][1]
+            if daysref[i][1] > t_largest:
+                t_largest = daysref[i][1]
+        if (t_largest - t_smallest) < 1800 and numdays > 1:
+            probably_repeating_tdiff = True
+
+        if probably_repeating_diffs:
+            diff_days_str += "[probably was repeating (diffs)]"
+        if probably_repeating_tdiff:
+            diff_days_str += "[probably was repeating (tdiff)]"
+        if t_smallest != t_largest:
+            diff_days_str += "(%.2f %.2f)" % (t_smallest, t_largest)
+
+        hours = float(totsec/3600)
+        if not probably_repeating_diffs and not probably_repeating_tdiff:
+            hours_str = '<b>%.2f</b>' % hours
+        else:
+            hours_str = '%.2f' % hours
+        if topic in topics:
+            topics[topic].append(hours)
+        else:
+            topics[topic] = [ hours ]
+
+        nodes_subset_html += NODE_DATA_HTML % (node, node, topic, hours_str, diff_days_str)
+
+    topicstats = {}
+    topics_str = ''
+    for topic in topics:
+        median = statistics.median(topics[topic])
+        mean = statistics.mean(topics[topic])
+        topicstats[topic] = { 'mean': mean, 'median': median }
+        topics_str += TOPIC_DATA_HTML % (topic, median, mean)
+
+    datetime_object1 = datetime.strptime(startfrom, '%Y%m%d%H%M')
+    datetime_object2 = datetime.strptime(endbefore, '%Y%m%d%H%M')
+    log_seconds = (datetime_object2 - datetime_object1).total_seconds()
+    log_days = int(log_seconds/86400)
+
+    try:
+        with open(TOPICSTATSFILE, "w") as f:
+            json.dump(topicstats, f)
+    except:
+        pass
+
+    print(NODES_SUBSET_METRICS_PAGE % (startfrom, endbefore, str(log_days), topics_str, str(num_nodes_shown), nodes_subset_html))
 
 
 UNRECOGNIZEDARGS='''<h1>Error</h1>

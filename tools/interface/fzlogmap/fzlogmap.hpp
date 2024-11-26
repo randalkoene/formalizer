@@ -125,6 +125,9 @@ struct Node_Day_Seconds {
     //std::vector<Day_Seconds> day_seconds;
     // Map of <day-start time, seconds>
     std::map<time_t, time_t> day_seconds;
+    std::string main_topic;
+
+    Node_Day_Seconds(const std::string& mtopic): main_topic(mtopic) {}
 };
 
 extern fzlogmap fzlm;

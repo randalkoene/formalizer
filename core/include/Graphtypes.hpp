@@ -715,6 +715,7 @@ public:
      * @return Topic_ID of main Topic.
      */
     Topic_ID main_topic_id();
+    std::string main_topic_str();
 
     bool in_topic(Topic_ID topic_id) const;
 

@@ -971,6 +971,11 @@ Topic_ID Node::main_topic_id() {
     return main_id;
 }
 
+std::string Node::main_topic_str() {
+    if (!graph) return "";
+    return graph->find_Topic_Tag_by_id(main_topic_id());
+}
+
 bool Node::in_topic(Topic_ID topic_id) const {
     return (topics.find(topic_id) != topics.end());
 };

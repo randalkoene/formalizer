@@ -357,6 +357,7 @@ bool render_Nodes_subset_chunk_data(const std::map<Node_ID_key, Node_Day_Seconds
             { "node_id", nkey.str() },
             { "tot_sec", std::to_string(ndata.total_seconds) },
             { "days_sec", rendered_days_data },
+            { "topic", ndata.main_topic },
         };
         std::string rendered_node_data;
         if (!env.fill_template_from_map(

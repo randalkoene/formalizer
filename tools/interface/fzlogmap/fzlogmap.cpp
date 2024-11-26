@@ -1193,7 +1193,7 @@ bool nodes_subset_chunk_info() {
     // Initialize data map.
     std::map<Node_ID_key, Node_Day_Seconds> node_day_seconds;
     for (const auto & [t_match, match_ptr] : matched_nodes) {
-        node_day_seconds.emplace(match_ptr->get_id().key(), Node_Day_Seconds());
+        node_day_seconds.emplace(match_ptr->get_id().key(), Node_Day_Seconds(match_ptr->main_topic_str()));
     }
 
     // Use chunks data to inspect the subset of Nodes.
