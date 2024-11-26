@@ -301,13 +301,15 @@ def modify_node():
         orig_mins = 0
 
     if create_new: # *** currently, we use a different interpretation in the two cases
-        if req_hrs or req_mins:
-            # if a specific value was entered that takes precedence
-            if create_new: 
+        if (req_mins_typical == None) or (req_mins_typical == ''):
+            if req_hrs or req_mins:
+                # if a specific value was entered that takes precedence
                 if not req_mins:
                     req_mins = 0
                 if req_hrs:
                     req_mins += int(60*req_hrs)
+            else:
+                req_mins = req_mins_typical
         else:
             req_mins = req_mins_typical
     else:

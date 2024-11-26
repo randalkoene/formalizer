@@ -240,7 +240,7 @@ def show_nodes_subset_metrics():
     for topic in topic_keys:
         median = statistics.median(topics[topic])
         mean = statistics.mean(topics[topic])
-        topicstats[topic] = { 'mean': mean, 'median': median }
+        topicstats[topic] = { 'mean': round(mean*2)/2, 'median': round(median*2)/2 }
         topics_str += TOPIC_DATA_HTML % (topic, mean, median)
 
     datetime_object1 = datetime.strptime(startfrom, '%Y%m%d%H%M')

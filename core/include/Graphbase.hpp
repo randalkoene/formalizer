@@ -454,7 +454,7 @@ struct Node_data {
     std::vector<std::string> topics;
     time_t targetdate = RTt_unspecified;
     bool repeats = false; // currently only used when building a filter
-    td_property tdproperty = variable;
+    td_property tdproperty = unspecified; // was before 20241126: variable;
     td_pattern tdpattern = patt_nonperiodic;
     Graphsigned tdevery = 1;
     Graphsigned tdspan = 0;
