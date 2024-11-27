@@ -329,18 +329,6 @@ def modify_node():
 
     text = form.getvalue('text')
 
-    comp = get_float_or_None('comp')
-    comp_hrs = get_float_or_None('comp_hrs')
-    orig_comp = get_float_or_None('orig_comp')
-    if orig_comp == comp:
-        if comp_hrs: # used to set a completion ratio by specifying hours done
-            if comp_hrs > (comp*req_hrs):
-                comp = comp_hrs / req_hrs
-    comp_code = get_float_or_None('comp_code')
-    if comp_code:
-        comp = comp_code # precedence
-    set_complete = form.getvalue('set_complete')
-
     req_mins_typical = get_int_or_None('req_mins_typical')
     req_hrs = get_float_or_None('req_hrs')
     req_mins = get_int_or_None('req_mins')
@@ -356,6 +344,18 @@ def modify_node():
                 req_hrs = req_mins / 60.0
             if req_mins == None:
                 req_mins = int(60*req_hrs)
+
+    comp = get_float_or_None('comp')
+    comp_hrs = get_float_or_None('comp_hrs')
+    orig_comp = get_float_or_None('orig_comp')
+    if orig_comp == comp:
+        if comp_hrs: # used to set a completion ratio by specifying hours done
+            if comp_hrs > (comp*req_hrs): # Note: this needs req_hrs
+                comp = comp_hrs / req_hrs
+    comp_code = get_float_or_None('comp_code')
+    if comp_code:
+        comp = comp_code # precedence
+    set_complete = form.getvalue('set_complete')
 
     add_hrs = get_float_or_None('add_hrs')
     add_mins = get_int_or_None('add_mins')
