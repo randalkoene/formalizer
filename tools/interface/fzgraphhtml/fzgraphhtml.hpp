@@ -109,6 +109,8 @@ struct fzgraphhtml: public formalizer_standard_program {
 
     float req_suggested = 0.0;
 
+    td_property init_tdprop = _tdprop_num;
+
     Graph * graph_ptr = nullptr;
 
     std::vector<std::string> replacements;

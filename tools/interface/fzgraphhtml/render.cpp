@@ -1194,6 +1194,9 @@ bool render_new_node_page() {
         required_hrs = fzgh.req_suggested;
     }
     td_property tdprop = ndata.tdproperty;
+    if (fzgh.init_tdprop != _tdprop_num) {
+        tdprop = fzgh.init_tdprop;
+    }
     td_pattern tdpatt = ndata.tdpattern;
 
     nodevars.emplace("node-id", "NEW");

@@ -38,12 +38,12 @@ fzgraphhtml fzgh;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  * 
- * Command line arguments already assigned: CDEFILMNRSTVWYcehjmnoqrstuvx
- * Command line arguments still available: ABGHJKOPQUXZabdfgiklpwyz
+ * Command line arguments already assigned: CDEFILMNRSTVWYcehjmnopqrstuvx
+ * Command line arguments still available: ABGHJKOPQUXZabdfgiklwyz
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:m:Irt:uBi:L:N:M:D:x:o:s:S:eT:F:CjcYR:";
-    add_usage_top += " [-n <node-ID>|-m <node-ID>|-I|-t <topic-ID|topic-tag|?>|-L <name|?>] [-u] [-B]"
+    add_option_args += "n:m:Irt:uBi:L:N:M:D:x:o:s:S:eT:F:CjcYR:p:";
+    add_usage_top += " [-n <node-ID>|-m <node-ID>|-I|-t <topic-ID|topic-tag|?>|-L <name|?>] [-u] [-B] [-i] [-p <tdprop>]"
         " [-r] [-N <num>] [-M <max-YYYYmmddHHMM>] [-D <num-days>] [-x <len>]"
         " [-o <output-path>] [-s <sortkeys>] [-S <NNL>] [-e] [-T <named|node|Node>=<path>]"
         " [-F html|txt|node|desc] [-C] [-j] [-c] [-Y] [-R <req-suggested>]";    //usage_head.push_back("Description at the head of usage information.\n");
@@ -97,6 +97,7 @@ void fzgraphhtml::usage_hook() {
           "    -B Detect Boolean Tag Flags of Node.\n"
           "\n"
           "    -i Include 'add-to-node' for <node-id>.\n"
+          "    -p Initialize New Node template with TD property.\n"
           "    -N Show data for <num> elements (all=no limit), see note 5.\n"
           "    -M Show data up to and including <max-YYYYmmddHHMM>, see note 5.\n"
           "    -D Show data for <num-days> days, see note 5.\n"
@@ -114,6 +115,13 @@ void fzgraphhtml::usage_hook() {
           "    -R include suggested required time in new Node template\n"
           "\n"
           "    -C (TEST) card output format.\n");
+}
+
+td_property parvalue_to_tdprop(const std::string& parvalue) {
+    if (td_property_map.find(parvalue) == td_property_map.end()) {
+        return _tdprop_num;
+    }
+    return td_property_map.at(parvalue);
 }
 
 unsigned int parvalue_to_num_to_show(const std::string & parvalue) {
@@ -240,6 +248,11 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
     case 'i': {
         node_idstr = cargs;
         add_to_node = true;
+        return true;
+    }
+
+    case 'p': {
+        init_tdprop = parvalue_to_tdprop(cargs);
         return true;
     }
 

@@ -45,7 +45,7 @@ logfile = webdata_path+'/fzgraphhtml-cgi.log'
 form = cgi.FieldStorage() 
 
 # Print this early to catch errors:
-print("Content-type:text/html\n\n")
+print("Content-type:text/html\n")
 
 # Get data from fields
 #startfrom = form.getvalue('startfrom')
@@ -70,6 +70,7 @@ srclist = form.getvalue('srclist')
 list_pos = form.getvalue('list_pos')
 edit = form.getvalue('edit')
 topics = form.getvalue('topics') # this is used with edit=new
+prop = form.getvalue('prop') # this is used with edit=new
 topicslist = form.getvalue('topics')
 topics_alt = form.getvalue('topics_alt') # uses a custome template
 topic = form.getvalue('topic')
@@ -306,7 +307,7 @@ topicspagetail = '''</tbody></table>
 </html>
 '''
 
-custom_topics_template = r'''<a href="/cgi-bin/fzgraphhtml-cgi.py?topic={{ topic_id }}">{{ tag }}</a> [<a href="/cgi-bin/fzgraphhtml-cgi.py?edit=new&topics={{ tag }}">add to NEW</a>] _SPLIT_'''
+CUSTOM_TOPICS_TEMPLATE='''<a href="/cgi-bin/fzgraphhtml-cgi.py?topic={{ topic_id }}">{{ tag }}</a> [<a href="/cgi-bin/fzgraphhtml-cgi.py?edit=new&topics={{ tag }}&prop=%s">add to NEW</a>] _SPLIT_'''
 
 # *** OBTAIN THIS SOMEHOW!
 #with open(dotformalizer_path+'/server_address','r') as f:
@@ -452,7 +453,34 @@ def generate_NNL_page(include_checkboxes=True):
     print(listpagetail.format(form_tail=formtail))
 
 
+NEW_NODE_INIT_PAGE='''<html>
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="/favicon-nodes-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<link rel="stylesheet" href="/clock.css">
+<link rel="stylesheet" href="/tooltip.css">
+<title>fz: New Node - Init Page</title>
+</head>
+<body>
+<script type="text/javascript" src="/clock.js"></script>
+<script type="text/javascript" src="/fzuistate.js"></script>
+<h3>New Node - Init Page</h3>
+<button class="button button1" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?topics_alt=?&to-node=NEW&VTDdefault=on', '_self');">Today VTD defaulting Node - Topic</button>
+<button class="button button2" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?topics_alt=?&to-node=NEW&UTDdefault=on', '_self');">Other Day UTD defaulting Node - Topic</button>
+</body>
+</html>
+'''
+
+def generate_New_Node_init_page():
+    print(NEW_NODE_INIT_PAGE)
+
 def generate_Node_edit_form_page():
+    if edit=='new' and not topics:
+        generate_New_Node_init_page()
+        return
+
     if edit=='new':
         if tosup:
             #thecmd = "./fzgraph -q -L add -l superiors -S "+tosup
@@ -479,6 +507,9 @@ def generate_Node_edit_form_page():
             req_median = topicstats[topics]['median']
             thecmd += " -R "+str(req_median)
 
+        if prop:
+            thecmd += " -p "+prop
+
     if SPA:
         thecmd += ' -j' # no Javascript
     print(editpagehead)
@@ -492,19 +523,23 @@ def generate_topics_page():
         thecmd += " -i " + tonode
     if SPA:
         thecmd += ' -j' # no Javascript
-    #print("Content-type:text/html\n\n")
-    #print(topicspagehead)
     try_command_call(thecmd)
-    #print(topicspagetail)
 
 def generate_alternative_topics_page():
+    VTDdefault = form.getvalue('VTDdefault')
+    UTDdefault = form.getvalue('UTDdefault')
+    if VTDdefault:
+        TDdefault = 'variable'
+    else:
+        TDdefault = 'unspecified'
+
     thecmd = "./fzgraphhtml -q -e -t '?' -E STDOUT -o STDOUT"
     if tonode:
         thecmd += " -i " + tonode
+    custom_topics_template = CUSTOM_TOPICS_TEMPLATE % TDdefault
     thecmd += f" -T 'topics=STRING:{custom_topics_template}'"
     if SPA:
         thecmd += ' -j' # no Javascript
-    #print("Content-type:text/html\n\n")
     print(topicspagehead)
     print('<tr>')
     resstr = try_command_call(thecmd, False)
