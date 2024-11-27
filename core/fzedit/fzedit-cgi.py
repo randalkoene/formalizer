@@ -126,7 +126,6 @@ def cgi_testing_end():
     print(testingoutputend)
     sys.exit(0)
 
-
 # cgitb.enable()
 # cgitb.disable()
 # cgitb.enable(display=0, logdir="/tmp/test_python_cgiformget.log")
@@ -185,7 +184,6 @@ def convert_to_targetdate(alttargetdate: str):
     atd_YmdHM = f'{atd_date[0]}{atd_date[1]}{atd_date[2]}{atd_time[0]}{atd_time[1]}'
     return atd_YmdHM
 
-
 def convert_date_and_time_to_targetdate(alt2_targetdate: str, alt2_targettime: str):
     if ((len(alt2_targetdate)<10) or (len(alt2_targettime)<5)):
         return ''
@@ -193,7 +191,6 @@ def convert_date_and_time_to_targetdate(alt2_targetdate: str, alt2_targettime: s
     atd_time = alt2_targettime.split(':')
     atd_YmdHM = f'{atd_date[0]}{atd_date[1]}{atd_date[2]}{atd_time[0]}{atd_time[1]}'
     return atd_YmdHM
-
 
 def try_call_command(thecmd: str, return_result=False):
     try:
@@ -249,29 +246,25 @@ def get_node_id_from_result(result_str:str)->str:
         return ''
     return result_str[id_start:id_end]
 
-def modify_node():
-    print(start_CGI_output) # very useful, because CGI errors are printed from here on if they occur
-
-    create_new = ((id == 'NEW') or (id == 'new'))
-
+def create_node():
     text = form.getvalue('text')
+
+    comp = get_float_or_None('comp')
 
     req_mins_typical = get_int_or_None('req_mins_typical')
     req_hrs = get_float_or_None('req_hrs')
     req_mins = get_int_or_None('req_mins')
-
-    comp = get_float_or_None('comp')
-    comp_hrs = get_float_or_None('comp_hrs')
-    if comp_hrs: # used to set a completion ratio by specifying hours done
-        if comp_hrs > (comp*req_hrs):
-            comp = comp_hrs / req_hrs
-    comp_code = get_float_or_None('comp_code')
-    if comp_code:
-        comp = comp_code # precedence
-    set_complete = form.getvalue('set_complete')
-
-    add_hrs = get_float_or_None('add_hrs')
-    add_mins = get_int_or_None('add_mins')
+    if (req_mins_typical == None) or (req_mins_typical == ''):
+        if req_hrs or req_mins:
+            # if a specific value was entered that takes precedence
+            if not req_mins:
+                req_mins = 0
+            if req_hrs:
+                req_mins += int(60*req_hrs)
+        else:
+            req_mins = req_mins_typical
+    else:
+        req_mins = req_mins_typical
 
     val_typical = get_float_or_None('val_typical')
     val = get_float_or_None('val')
@@ -282,6 +275,15 @@ def modify_node():
     alt_targetdate = form.getvalue('alt_targetdate')
     alt2_targetdate = form.getvalue('alt2_targetdate')
     alt2_targettime = form.getvalue('alt2_targettime')
+    orig_td = form.getvalue('orig_td')
+    atd_YmdHM = convert_to_targetdate(alt_targetdate)
+    if (atd_YmdHM != orig_td):
+        # if the value changed then we assume that atd_YmdHM is being used to set targetdate
+        targetdate = atd_YmdHM
+    atd_YmdHM = convert_date_and_time_to_targetdate(alt2_targetdate,alt2_targettime)
+    if (atd_YmdHM != orig_td):
+        # if the value changed then we assume that atd_YmdHM is being used to set targetdate
+        targetdate = atd_YmdHM
 
     prop = form.getvalue('prop')
 
@@ -296,43 +298,69 @@ def modify_node():
 
     topics=form.getvalue('topics')
 
+    print(edit_result_page_head)
+    thisscript = os.path.realpath(__file__)
+    print(f'<!--(For dev reference, this script is at {thisscript}.) -->')
+    print('<!-- [Formalizer: fzedit handler]\n<p></p> -->')
+
+    with open(textfile,'w') as f:
+        f.write(text)
+
+    #thecmd = f'./fzgraph {verbosearg} -E STDOUT -M node -f {textfile} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}'
+    thecmd = f'./fzgraph -E STDOUT -M node -f {textfile} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}'
+    if topics:
+        thecmd += " -g '"+topics+"'"
+    print(f'<!-- Call command: {thecmd} -->')
+    result_str = try_call_command(thecmd, return_result=True)
+    if isinstance(result_str, bool):
+        print('<p class="fail"><b>Call to fzgraph returned error. (Check state of Nodes in database.)</b></p>')
+        print(edit_fail_page_tail)
+    else:
+        node_id = get_node_id_from_result(result_str)
+        print(create_success_page_tail % (node_id, node_id, node_id))
+
+def modify_node():
+    print(start_CGI_output) # very useful, because CGI errors are printed from here on if they occur
+
+    create_new = ((id == 'NEW') or (id == 'new'))
+    if create_new:
+        create_node()
+        return
+
+    text = form.getvalue('text')
+
+    comp = get_float_or_None('comp')
+    comp_hrs = get_float_or_None('comp_hrs')
+    orig_comp = get_float_or_None('orig_comp')
+    if orig_comp == comp:
+        if comp_hrs: # used to set a completion ratio by specifying hours done
+            if comp_hrs > (comp*req_hrs):
+                comp = comp_hrs / req_hrs
+    comp_code = get_float_or_None('comp_code')
+    if comp_code:
+        comp = comp_code # precedence
+    set_complete = form.getvalue('set_complete')
+
+    req_mins_typical = get_int_or_None('req_mins_typical')
+    req_hrs = get_float_or_None('req_hrs')
+    req_mins = get_int_or_None('req_mins')
     orig_mins = get_int_or_None('orig_mins')
     if not orig_mins:
         orig_mins = 0
-
-    if create_new: # *** currently, we use a different interpretation in the two cases
-        if (req_mins_typical == None) or (req_mins_typical == ''):
-            if req_hrs or req_mins:
-                # if a specific value was entered that takes precedence
-                if not req_mins:
-                    req_mins = 0
-                if req_hrs:
-                    req_mins += int(60*req_hrs)
-            else:
-                req_mins = req_mins_typical
+    if (req_mins_typical == None) or (req_mins_typical == ''):
+        if (req_mins == None) and (req_hrs == None):
+            req_mins = orig_mins
+            req_hrs = orig_mins / 60.0
         else:
-            req_mins = req_mins_typical
-    else:
-        if (req_mins_typical == None) or (req_mins_typical == ''):
-            if (req_mins == None) and (req_hrs == None):
-                req_mins = orig_mins
-                req_hrs = orig_mins / 60.0
-            else:
-                if req_hrs == None:
-                    req_hrs = req_mins / 60.0
-                if req_mins == None:
-                    req_mins = int(60*req_hrs)
+            if req_hrs == None:
+                req_hrs = req_mins / 60.0
+            if req_mins == None:
+                req_mins = int(60*req_hrs)
 
-    orig_td = form.getvalue('orig_td')
-
-    if (set_complete=='on'):
-        req_mins = int(float(orig_mins)*comp)
-        comp = 1.0
-
-    # add_hrs and add_mins are combined
-    if add_hrs:
+    add_hrs = get_float_or_None('add_hrs')
+    add_mins = get_int_or_None('add_mins')
+    if add_hrs: # hours and minutes to add are summed
         add_mins += int(add_hrs*60.0)
-
     if add_mins:
         if (comp >= 0.0):
             completed_mins = int(float(orig_mins)*comp)
@@ -344,12 +372,25 @@ def modify_node():
                 comp = 1.0
             else:
                 comp = float(completed_mins)/float(req_mins)
-        
+
+    if (set_complete=='on'):
+        req_mins = int(float(orig_mins)*comp)
+        comp = 1.0
+
     if (orig_mins != req_mins):
         # if the value changed then we assume that req_mins is being used to set required
         req_hrs = float(req_mins)/60.0
-        #req_hrs = '{:.5f}'.format(req_hrs_float)
 
+    val_typical = get_float_or_None('val_typical')
+    val = get_float_or_None('val')
+    if not val:
+        val = val_typical
+
+    targetdate = form.getvalue('targetdate')
+    alt_targetdate = form.getvalue('alt_targetdate')
+    alt2_targetdate = form.getvalue('alt2_targetdate')
+    alt2_targettime = form.getvalue('alt2_targettime')
+    orig_td = form.getvalue('orig_td')
     atd_YmdHM = convert_to_targetdate(alt_targetdate)
     if (atd_YmdHM != orig_td):
         # if the value changed then we assume that atd_YmdHM is being used to set targetdate
@@ -359,39 +400,34 @@ def modify_node():
         # if the value changed then we assume that atd_YmdHM is being used to set targetdate
         targetdate = atd_YmdHM
 
+    prop = form.getvalue('prop')
+
+    repeats = form.getvalue('repeats')
+    if repeats:
+        repeats = True
+    else:
+        repeats = False
+    patt = form.getvalue('patt')
+    every = get_int_or_None('every')
+    span = get_int_or_None('span')
+
+    topics=form.getvalue('topics')
+
     print(edit_result_page_head)
     thisscript = os.path.realpath(__file__)
     print(f'<!--(For dev reference, this script is at {thisscript}.) -->')
     print('<!-- [Formalizer: fzedit handler]\n<p></p> -->')
-    #print("<table>")
 
     with open(textfile,'w') as f:
         f.write(text)
 
-    if create_new:
-        # topics = form.getvalue('topics')
-        # superiors = form.getvalue('superiors')
-        # dependencies = form.getvalue('dependencies')
-        #thecmd = f'./fzgraph {verbosearg} -E STDOUT -M node -f {textfile} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}'
-        thecmd = f'./fzgraph -E STDOUT -M node -f {textfile} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}'
-        if topics:
-            thecmd += " -g '"+topics+"'"
-        print(f'<!-- Call command: {thecmd} -->')
-        result_str = try_call_command(thecmd, return_result=True)
-        if isinstance(result_str, bool):
-            print('<p class="fail"><b>Call to fzgraph returned error. (Check state of Nodes in database.)</b></p>')
-            print(edit_fail_page_tail)
-        else:
-            node_id = get_node_id_from_result(result_str)
-            print(create_success_page_tail % (node_id, node_id, node_id))
+    thecmd = f"./fzedit {verbosearg} -E STDOUT -M {id} -f {textfile} -c {comp:.5f} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}"
+    print(f'<!-- Call command: {thecmd} -->')
+    if try_call_command(thecmd):
+        print(edit_success_page_tail)
     else:
-        thecmd = f"./fzedit {verbosearg} -E STDOUT -M {id} -f {textfile} -c {comp:.5f} -H {req_hrs:.5f} -a {val:.5f} -t {targetdate} -p {prop} -r {patt} -e {every} -s {span}"
-        print(f'<!-- Call command: {thecmd} -->')
-        if try_call_command(thecmd):
-            print(edit_success_page_tail)
-        else:
-            print('<p class="fail"><b>Call to fzedit returned error. (Check state of Nodes in database.)</b></p>')
-            print(edit_fail_page_tail)
+        print('<p class="fail"><b>Call to fzedit returned error. (Check state of Nodes in database.)</b></p>')
+        print(edit_fail_page_tail)
 
 def update_node():
     print(start_CGI_output) # very useful, because CGI errors are printed from here on if they occur
@@ -413,7 +449,6 @@ def update_node():
     else:
         print(f'<p class="fail">Call to `fzgraph -C` returned an error.</p>')
         print(edit_fail_page_tail)
-
 
 def skip_node():
     print(start_CGI_output) # very useful, because CGI errors are printed from here on if they occur
@@ -439,11 +474,9 @@ def skip_node():
         print(f'<p class="fail">Call to `fzgraph -C` returned an error.</p>')
         print(edit_fail_page_tail)
 
-
 def show_interface_options():
     print(start_CGI_output) # very useful, because CGI errors are printed from here on if they occur
     print(interface_options_help)
-
 
 fzedit_arg = {
     'dep': 'Y',

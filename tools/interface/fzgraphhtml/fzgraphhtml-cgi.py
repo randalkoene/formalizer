@@ -477,10 +477,7 @@ def generate_New_Node_init_page():
     print(NEW_NODE_INIT_PAGE)
 
 def generate_Node_edit_form_page():
-    if edit=='new' and not topics:
-        generate_New_Node_init_page()
-        return
-
+    # Ensure that the 'mkwsup' buttons work:
     if edit=='new':
         if tosup:
             #thecmd = "./fzgraph -q -L add -l superiors -S "+tosup
@@ -490,6 +487,10 @@ def generate_Node_edit_form_page():
             #thecmd = "./fzgraph -q -L add -l dependencies -D "+todep
             thecmd = f'./fzgraph -q -C "/fz/graph/namedlists/dependencies?add={todep}&unique=true"'
             try_command_call(thecmd, printhere=False)
+
+    if edit=='new' and not topics:
+        generate_New_Node_init_page()
+        return
 
     # This is reached when fzgraphhtml-cgi.py?edit=new&topics=<something>
     thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -m "+edit
