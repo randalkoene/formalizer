@@ -37,22 +37,31 @@ public:
 
     unsigned int chunk_minutes = 20;
     time_t chunk_seconds = 20*60;
+
     unsigned int map_multiplier = 3;
     unsigned long map_days = 14;
     float full_overhead_multiplier = 1.1; ///< Used with `-T full` to attempt to ensure that all UTD Nodes are placed.
+
     bool warn_repeating_too_tight = true;
+
     bool endofday_priorities = true;
     time_t dolater_endofday = 73800;
     time_t doearlier_endofday = 68400;
+
     unsigned int eps_group_offset_mins = 2;
-    bool UTD_is_priority_queue = true;
-    bool update_to_earlier_allowed = false;    ///< 20240915 - When using UTD Nodes as a priority order queue, VTD Nodes should not be updated to earlier.
+
+    bool UTD_is_priority_queue = true;        ///< Ensure that UTD sort order (priority) is maintained.
+    bool update_to_earlier_allowed = false;   ///< 20240915 - When using UTD Nodes as a priority order queue, VTD Nodes should not be updated to earlier.
     bool pack_moveable = false;               ///< This activates and alternative 'full' processing of variable target date Nodes.
     time_t pack_interval_beyond = (24*60*60); ///< In pack_moveable mode, interval to use for packing beyond the map.
+
     unsigned long fetch_days_beyond_t_limit = 30;
+
     bool showmaps = true;
     unsigned int showmaps_days = 30;
+
     int timezone_offset_hours = 0;
+    
     std::string chain;
     std::string btf_days; // Something like "SELFWORK:WED,SAT_WORK:MON,TUE,THU,SUN".
     std::string NNL_name; // E.g. "threads".

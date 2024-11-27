@@ -574,21 +574,26 @@ void EPS_map::place_fixed() {
             if (node_ptr->effective_targetdate(&origin)>fzu.t_limit) {
                 break;
             }
+
             eps_data & epsdataref = epsdata[i];
             bool effectively_fixed = false;
             if (origin) {
                 effectively_fixed = (origin->get_tdproperty() == fixed);
             }
+
             if ((epsdataref.chunks_req>0) && effectively_fixed) {
                 if (node_ptr == origin) {
+
                     epsdataref.epsflags.set_fixed();
                     if (reserve_fixed(node_ptr, epsdataref.chunks_req, t)) {
                         epsdataref.epsflags.set_insufficient();
                     }
                     num_mapped++;
+                    
                 } else {
                     epsdataref.epsflags.set_treatgroupable();
                 }
+
                 if ((node_ptr->get_tdpattern() < patt_yearly) && (node_ptr->get_tdspan() == 0)) {
                     epsdataref.epsflags.set_periodiclessthanyear();
                 }                
@@ -694,6 +699,216 @@ void EPS_map::group_and_place_movable(bool include_UTD) {
             next(t, it);
         }
         void process_last(EPS_map & epsmap, size_t& num_mapped) { process_and_start_next(RTt_maxtime, last, epsmap, num_mapped); }
+        bool reserve_map_slots_like_FTD(time_t td, EPS_map & epsmap, size_t& num_mapped) {
+            bool insufficient = false;
+            for (auto j = first; j <= last; j.advance()) {
+                eps_data & epsj = epsmap.epsdata[j.index];
+                if (epsj.epsflags.EPS_epsgroupmember()) {
+                    if (epsmap.reserve_fixed(j.node_ptr(), epsj.chunks_req, td)) {
+                        insufficient = true;
+                    }
+                    num_mapped++;
+                }
+            }
+            return insufficient;
+        }
+        void process_and_start_next_like_FTD(time_t t, const nodelist_itidx & it, EPS_map & epsmap, size_t& num_mapped) {
+            if (first.index >= 0) {
+
+                bool epsgroup_insufficient = reserve_map_slots_like_FTD(td, epsmap, num_mapped);
+
+                if (epsgroup_insufficient) { // mostly, for tasks with MAXTIME target dates that don't fit into the map
+                    mark_insufficient_map_slots(epsmap);
+                }
+                // else {
+                //     propose_updated_targetdates(epsgroup_newtd, epsmap);
+                //     epsmap.previous_group_td = epsgroup_newtd; // used in end_of_day_adjusted() to maintain spacing between groups
+                // }
+            }
+
+            next(t, it);
+        }
+        void process_last_like_FTD(EPS_map & epsmap, size_t& num_mapped) { process_and_start_next_like_FTD(RTt_maxtime, last, epsmap, num_mapped); }
+        void add(const nodelist_itidx & it) { last = it; }
+    };
+
+    if ((include_UTD) || (fzu.config.update_to_earlier_allowed)) {
+
+        // Use earliest slots available for all movable Nodes (EPS Groups) to place.
+        init_next_slot();
+        node_group group(nodelist.end());
+        for (nodelist_itidx it(0,nodelist.begin()); it.it != nodelist.end(); it.advance()) { 
+            auto [t, node_ptr] = it.data();
+            if (!node_ptr) {
+                ADDERROR(__func__, "Received a null-node");
+            } else {
+                // With the `pack_moveable` option, keep trying to pack more moveables into the map.
+                if ((!fzu.config.pack_moveable) &&(node_ptr->effective_targetdate() > fzu.t_limit)) {
+                    break;
+                }
+                eps_data & epsdataref = epsdata[it.index];
+                if ((epsdataref.chunks_req > 0)
+                    && (TD_type_test(node_ptr, include_UTD) || epsdataref.epsflags.EPS_treatgroupable())) {
+
+                    if (t != group.td) { // process EPS group and start new one
+                        group.process_and_start_next(t, it, *this, num_mapped);
+                    }
+
+                    group.add(it);
+                    epsdataref.epsflags.set_epsgroupmember();
+                }
+            }
+        }
+        group.process_last(*this, num_mapped);
+
+    } else {
+
+        /* Note:
+           Treating passed and non-passed VTD Nodes separately may affect how well
+           epsmap.previous_group_td can track and ensure full continued separation
+           of EPS groups.
+        */
+
+        {
+            // First, use latest slots available for VTD Nodes (EPS Groups) where target dates do not need to be changed.
+            init_next_slot();
+            node_group group(nodelist.end());
+            for (nodelist_itidx it(0,nodelist.begin()); it.it != nodelist.end(); it.advance()) { 
+                auto [t, node_ptr] = it.data();
+                if (!node_ptr) {
+                    ADDERROR(__func__, "Received a null-node");
+                } else {
+                    if (t <= starttime) continue;
+
+                    // With the `pack_moveable` option, keep trying to pack more moveables into the map.
+                    if ((!fzu.config.pack_moveable) &&(node_ptr->effective_targetdate() > fzu.t_limit)) {
+                        break;
+                    }
+                    eps_data & epsdataref = epsdata[it.index];
+                    if ((epsdataref.chunks_req > 0)
+                        && (TD_type_test(node_ptr, include_UTD) || epsdataref.epsflags.EPS_treatgroupable())) {
+
+                        if (t != group.td) { // process EPS group and start new one
+                            group.process_and_start_next_like_FTD(t, it, *this, num_mapped);
+                        }
+
+                        group.add(it);
+                        epsdataref.epsflags.set_epsgroupmember();
+                    }
+                }
+            }
+            group.process_last_like_FTD(*this, num_mapped);
+        }
+
+        {
+            // Then, use earliest slots available for VTD Nodes (EPS Groups) where target dates do need to be changed.
+            init_next_slot();
+            node_group group(nodelist.end());
+            for (nodelist_itidx it(0,nodelist.begin()); it.it != nodelist.end(); it.advance()) { 
+                auto [t, node_ptr] = it.data();
+                if (!node_ptr) {
+                    ADDERROR(__func__, "Received a null-node");
+                } else {
+                    if (t > starttime) continue;
+
+                    // With the `pack_moveable` option, keep trying to pack more moveables into the map.
+                    if ((!fzu.config.pack_moveable) &&(node_ptr->effective_targetdate() > fzu.t_limit)) {
+                        break;
+                    }
+                    eps_data & epsdataref = epsdata[it.index];
+                    if ((epsdataref.chunks_req > 0)
+                        && (TD_type_test(node_ptr, include_UTD) || epsdataref.epsflags.EPS_treatgroupable())) {
+
+                        if (t != group.td) { // process EPS group and start new one
+                            group.process_and_start_next(t, it, *this, num_mapped);
+                        }
+
+                        group.add(it);
+                        epsdataref.epsflags.set_epsgroupmember();
+                    }
+                }
+            }
+            group.process_last(*this, num_mapped);
+        }
+
+    }
+
+    VERYVERBOSEOUT('\n'+std::to_string(num_mapped)+" Nodes with movable target dates grouped and mapped.\n");
+    if (fzu.config.showmaps) {
+        VERYVERBOSEOUT(show());
+    }
+}
+/*
+void EPS_map::group_and_place_movable(bool include_UTD) {
+    size_t num_mapped = 0;
+
+    // This pairs indices with iterators.
+    struct nodelist_itidx {
+        ssize_t index;
+        targetdate_sorted_Nodes::iterator it;
+        nodelist_itidx(ssize_t _i, targetdate_sorted_Nodes::iterator _it) : index(_i), it(_it) {}
+        void set(ssize_t _i, targetdate_sorted_Nodes::iterator _it) {
+            index = _i;
+            it = _it;
+        }
+        void advance() {
+            ++index;
+            ++it;
+        }
+        time_t t() const { return it->first; }
+        Node_ptr node_ptr() const { return it->second; }
+        std::pair<time_t, Node_ptr> data() const { return std::make_pair(it->first, it->second); }
+        bool operator<=(const nodelist_itidx & nl_itidx) const { return index <= nl_itidx.index; }
+    };
+
+    struct node_group {
+        nodelist_itidx first;
+        nodelist_itidx last;
+        time_t td = RTt_unspecified;
+        node_group(targetdate_sorted_Nodes::iterator end_iterator) : first((ssize_t)-1, end_iterator), last((ssize_t)-1, end_iterator) {}
+        void next(time_t next_td, const nodelist_itidx & next_it) { td = next_td; first = next_it; }
+        time_t reserve_map_slots(time_t new_td, EPS_map & epsmap, size_t& num_mapped) {
+            for (auto j = first; j <= last; j.advance()) {
+                eps_data & epsj = epsmap.epsdata[j.index];
+                if (epsj.epsflags.EPS_epsgroupmember()) {
+                    new_td = epsmap.reserve(j.node_ptr(), epsj.chunks_req);
+                    num_mapped++;
+                }
+            }
+            return new_td;
+        }
+        void mark_insufficient_map_slots(EPS_map & epsmap) {
+            for (auto j = first; j <= last; j.advance()) {
+                epsmap.epsdata[j.index].epsflags.set_insufficient();
+            }
+        }
+        void propose_updated_targetdates(time_t t, EPS_map & epsmap) {
+            for (auto j = first; j <= last; j.advance()) {
+                epsmap.epsdata[j.index].t_eps = t;
+            }
+        }
+        void process_and_start_next(time_t t, const nodelist_itidx & it, EPS_map & epsmap, size_t& num_mapped) {
+            if (first.index >= 0) {
+
+                time_t epsgroup_newtd = reserve_map_slots(td, epsmap, num_mapped);
+
+                if (epsgroup_newtd < 0) { // mostly, for tasks with MAXTIME target dates that don't fit into the map
+                    mark_insufficient_map_slots(epsmap);
+                    if (fzu.config.pack_moveable) {
+                        // Keep going and update variable target date Nodes beyond the map at intervals.
+                        epsmap.t_beyond += fzu.config.pack_interval_beyond;
+                        propose_updated_targetdates(epsmap.t_beyond, epsmap);
+                    }
+
+                } else {
+                    propose_updated_targetdates(epsgroup_newtd, epsmap);
+                    epsmap.previous_group_td = epsgroup_newtd; // used in end_of_day_adjusted() to maintain spacing between groups
+                }
+            }
+
+            next(t, it);
+        }
+        void process_last(EPS_map & epsmap, size_t& num_mapped) { process_and_start_next(RTt_maxtime, last, epsmap, num_mapped); }
         void add(const nodelist_itidx & it) { last = it; }
     };
 
@@ -728,6 +943,7 @@ void EPS_map::group_and_place_movable(bool include_UTD) {
         VERYVERBOSEOUT(show());
     }
 }
+*/
 
 targetdate_sorted_Nodes EPS_map::get_eps_update_nodes() {
     targetdate_sorted_Nodes update_nodes;
