@@ -39,10 +39,10 @@ fzgraphsearch fzgs;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphsearch::fzgraphsearch() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "s:l:i:I:zc:C:m:M:t:T:rRp:P:b:d:D:S:B:N:";
+    add_option_args += "s:l:i:I:zc:C:m:M:t:T:rRp:P:b:d:D:S:B:N:F:f:";
     add_usage_top += " [-s <search-string>] [-z] [-i <date-time>] [-I <date-time>] [-c <comp_min>] [-C <comp_max>] [-m <mins_min>]"
                      " [-M <mins_max>] [-t <TD_min>] [-T <TD_max>] [-p <tdprop_1>] [-P <tdprop_2>] [-b <tdprop-list>] [-r|-R]"
-                     " [-d <tdpatt_1>] [-D <tdpatt_2>] [-S <sup-spec>] [-B <top-node>] [-N <listname>] -l <list-name>";
+                     " [-d <tdpatt_1>] [-D <tdpatt_2>] [-S <sup-spec>] [-B <top-node>] [-N <listname>] [-F <BTF-category>] [-f <BTF-NNL>] -l <list-name>";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("Target date property options are: unspecified, variable, inherit, fixed, exact.\n"
                          "Repeat pattern options are: nonrepeating, weekly, biweekly, monthly,\n"
@@ -77,6 +77,8 @@ void fzgraphsearch::usage_hook() {
           "    -S Nodes with superiors: self, 0, n+.\n"
           "    -B Nodes belonging to the subtree of <top-node>.\n"
           "    -N Nodes in the subtree map of NNL <listname>.\n"
+          "    -F Nodes belonging to <BTF-category>, requires -f.\n"
+          "    -f NNL to use for BTF mapping.\n"
           );
 }
 
@@ -150,6 +152,16 @@ bool fzgraphsearch::get_nnltree(const std::string & cargs) {
         return standard_error("Unable to collect map of subtrees for NNL: "+cargs, __func__);
     }
     nodefilter.filtermask.set_Edit_nnltreematch();
+    return true;
+}
+
+bool fzgraphsearch::get_btf(const std::string& cargs) {
+    auto it = boolean_flag_map.find(cargs.c_str());
+    if (it == boolean_flag_map.end()) {
+        btf = Boolean_Tag_Flags::none;
+        return false;
+    }
+    btf = it->second;
     return true;
 }
 
@@ -287,6 +299,15 @@ bool fzgraphsearch::options_hook(char c, std::string cargs) {
         return get_nnltree(cargs);
     }
 
+    case 'F': {
+        return get_btf(cargs);
+    }
+
+    case 'f': {
+        btf_nnl = cargs;
+        return true;
+    }
+
     case 'l': {
         listname = cargs;
         flowcontrol = flow_find_nodes;
@@ -340,6 +361,20 @@ int find_nodes() {
     // *** Already done during command line parameter parsing.
     VERYVERBOSEOUT("Node filter:\n"+fzgs.nodefilter.str());
 
+    // Possible BTF filter
+    Map_of_Subtrees map_of_subtrees;
+    if (fzgs.btf != Boolean_Tag_Flags::none) {
+        if (fzgs.btf_nnl.empty()) {
+            VERBOSEOUT("Missing list name to use for Boolean Tag Flag categorized mapping.\n");
+            return standard_exit_success(""); // We need verbose output, not very verbose.
+        }
+        map_of_subtrees.collect(fzgs.graph(), fzgs.btf_nnl);
+        if (!map_of_subtrees.has_subtrees) {
+            VERBOSEOUT("No subtrees of "+fzgs.btf_nnl+" to use for Boolean Tag Flag categorized mapping.\n");
+            return standard_exit_success(""); // We need verbose output, not very verbose.
+        }
+    }
+
     // find subset of Nodes
     targetdate_sorted_Nodes matched_nodes = Nodes_subset(fzgs.graph(), fzgs.nodefilter);
 
@@ -359,6 +394,15 @@ int find_nodes() {
 
     VERYVERBOSEOUT(graphmemman.info_str());
     for (const auto & [t_match, match_ptr] : matched_nodes) {
+
+        if (fzgs.btf != Boolean_Tag_Flags::none) {
+            Boolean_Tag_Flags::boolean_flag boolean_tag;
+            if (!map_of_subtrees.node_in_heads_or_any_subtree(match_ptr->get_id().key(), boolean_tag, true)) { // This uses get_PriorityCategory() on Node or Subtree header.
+                boolean_tag = Boolean_Tag_Flags::none;
+            }
+            if (boolean_tag != fzgs.btf) continue;
+        }
+
         Named_Node_List_Element * listelement_ptr = graphmod_ptr->request_Named_Node_List_Element(namedlist_add, fzgs.listname, match_ptr->get_id().key());
         if (!listelement_ptr)
             standard_exit_error(exit_general_error, "Unable to create new Named Node List Element in shared segment ("+graphmemman.get_active_name()+')', __func__);

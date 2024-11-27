@@ -57,6 +57,9 @@ sup_min = form.getvalue('sup_min')
 subtree = form.getvalue('subtree')
 nnltree = form.getvalue('nnltree')
 
+btf = form.getvalue('btf')
+btf_nnl = form.getvalue('btf_nnl')
+
 draggable = form.getvalue('draggable')
 
 def append_to_str(strval: str) -> str:
@@ -86,6 +89,8 @@ search_recreate_str += append_to_str('sup_none')
 search_recreate_str += append_to_str('sup_min')
 search_recreate_str += append_to_str('subtree')
 search_recreate_str += append_to_str('nnltree')
+search_recreate_str += append_to_str('btf')
+search_recreate_str += append_to_str('btf_nnl')
 if search_recreate_str[-1] == '&':
     search_recreate_str = search_recreate_str[:-1]
 
@@ -227,6 +232,11 @@ def Graph_search(searchstr: str, listname: str) -> bool:
         searchcmd += f' -B {subtree}'
     if nnltree:
         searchcmd += f' -N {nnltree}'
+
+    if btf:
+        searchcmd += f' -F {btf}'
+    if btf_nnl:
+        searchcmd += f' -f {btf_nnl}'
 
     if verbose:
         searchcmd += ' -V'

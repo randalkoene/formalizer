@@ -44,6 +44,8 @@ struct fzgraphsearch: public formalizer_standard_program {
 
     Node_Filter nodefilter;
     std::string listname;
+    Boolean_Tag_Flags::boolean_flag btf = Boolean_Tag_Flags::none;
+    std::string btf_nnl;
 
     Graph_ptr graph_ptr = nullptr;
 
@@ -58,6 +60,8 @@ struct fzgraphsearch: public formalizer_standard_program {
     bool get_subtree(const std::string & cargs);
 
     bool get_nnltree(const std::string & cargs);
+
+    bool get_btf(const std::string& cargs);
 
     virtual bool options_hook(char c, std::string cargs);
 
