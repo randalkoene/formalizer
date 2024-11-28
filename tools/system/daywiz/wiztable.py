@@ -4,6 +4,18 @@
 #
 # WIZTABLE data.
 
+from datetime import datetime, timedelta
+
+from fzhtmlpage import *
+
+HREFBASE = 'http://localhost/'
+NODELINKCGI = 'cgi-bin/fzlink.py?id='
+
+global last_line_node
+last_line_node=''
+
+t_run = datetime.now() # Use this to make sure that all auto-generated times on the page use the same time.
+
 # ====================== Table row content template(s):
 
 # full: [ node, weight, id, time.time(), type, hr_ideal_from, hr_ideal_to, description, state, ]
@@ -13,6 +25,8 @@
 # stored in JSON: [ id, time.time(), state, ]
 # NOTE: Horizontal lines are drawn using the WIZLINE_VISIBLE_TOPBORDER code, demarkating transitions
 #       to items with a different Node link.
+# >>> For more informaiton, see the description of the score calculation and the requirements for weight
+# >>> settings in the comments above 'class wiztable_line' below!
 WIZTABLE_LINES=[
 	[ '20060914084328.1', 5, 'log', 0, 'checkbox', 6, 8, 'Update (or catch up) the Log.', '' ], # Log autodetectable.
 	[ '20060914084328.1', 1, 'ritual', 0, 'checkbox', 6, 8, 'Ritual: Meditate and/or do yoga (preferably outside).', '' ],
@@ -89,3 +103,204 @@ WIZTABLE_LINES_DESC=7
 WIZTABLE_LINES_STATE=8
 
 WIZTABLE_LINE_LENGTH=len(WIZTABLE_LINES[0])
+
+WIZLINE_VISIBLE_TOPBORDER='style="border-top: 1px solid var(--color-text);"'
+
+# WIZLINE_FRAME='''<tr><td>%s</td><td><input type="time" id="%s" value="%s" %s></td><td>%s</td><td>%s</td><td>%s</td></tr>
+# '''
+WIZLINE_FRAME='''<tr><td>%s</td><td>%s</td><td %s>[%s, <a href="%s">node</a>] %s [<a href="/formalizer/system-documentation.html#wiztable-%s">ref</a>]</td><td>%s</td><td>%s</td></tr>
+'''
+
+WIZLINE_RECOMMENDED_FRAME='%s - %s'
+
+WIZLINE_CHECKBOX_FRAME='<input id="%s" type="checkbox" %s %s>'
+WIZLINE_NUMBER_FRAME='<input id="%s" type="text" value="%s" style="width: 8em;" %s>'
+
+TIME_FRAME='<input type="number" min=0 max=23 id="%s" value="%s" style="width: 3em;" %s>:<input type="number" min=0 max=59 id="%s" value="%s" style="width: 3em;" %s>'
+
+# How Scores are calculated and the importance of careful positive or
+# negative weight setting in wiztable.py:
+# -------------------------------------------------------------------
+#
+# wizline._state: str 'checked' or new data value (not that this is not normalized to [0,1])
+# wizline._weight: pos or neg weight as listed in wiztable
+# wizline._checkbox_metrics[0]: 1 if checkbox, 0 otherwise -- CHECKBOX flag
+# wizline._checkbox_metrics[1]: 1 if checked, 0 otherwise -- value used for CHECKBOX
+# wizline._number_metrics[0]: 1 if number, 0 otherwise -- NUMBER flag
+# wizline._number_metrics[1]: -- value used for NUMBER
+#   0 if _state is '', or
+#     1 if _weight is negative
+#     float(_state) if _weight >=0, should be between 0 and 1 ***
+
+# For each line:
+
+# weight=abs(wizline._weight)
+
+# checkbox_metrics_0 += CHECKBOX flag -- count number of checkboxes
+# checkbox_metrics_1 += CHECKBOX value -- count number of checked checkboxes
+# score_possible += weight*CHECKBOX flag -- add weighting if CHECKBOX
+# score += weight*CHECKBOX value -- add weighting if checked
+
+# number_metrics_0 += NUMBER flag -- count number of numbers
+# number_metrics_1 += 1 if (NUMBER value>0) -- count number of filled-in numbers
+# score_possible += weight*NUMBER flag -- add weighting if NUMBER
+# score += int(weight*NUMBER value) -- weighted normalized value ***
+
+# It's very important that only [0.0,1.0] number values have positive _weight
+# and that all number values that can have any number have negative _weight.
+#
+# The calculations shown above take place in the function update_total_scores().
+class wiztable_line:
+    # data_list is a line of WIZTABLE_LINES.
+    def __init__(self, day: datetime, data_list: list, idx: int):
+        self.day = day
+        self._idx = idx
+        self._node = ''
+        self._nodelink = ''
+        self._weight = 0
+        self._id = ''
+        self._t = None # Beware! Remains None if t_logged <= 0.
+        self._hr_ideal_from = 0
+        self._hr_ideal_to = 0
+        self._type = ''
+        self._description = ''
+        self._state = ''
+        self.checkbox_metrics = [0, 0] # Number of checkboxes on this line, number that are checked.
+        self.number_metrics = [0, 0]   # Number of number inputs on this line, number that are filled.
+        self.parse_from_list(data_list)
+
+    # data_list is a line of WIZTABLE_LINES.
+    def parse_from_list(self, data_list: list):
+        if len(data_list) >= WIZTABLE_LINE_LENGTH:
+            self._node = str(data_list[WIZTABLE_LINES_NODE])
+            self._nodelink = HREFBASE+NODELINKCGI+self._node
+            self._weight = data_list[WIZTABLE_LINES_WEIGHT]
+            self._id = str(data_list[WIZTABLE_LINES_ITEM])
+            t_logged = float(data_list[WIZTABLE_LINES_TIME])
+            if t_logged > 0:
+                self._t = datetime.fromtimestamp(t_logged)
+            self._type = str(data_list[WIZTABLE_LINES_TYPE])
+            self._hr_ideal_from = int(data_list[WIZTABLE_LINES_HRFROM])
+            self._hr_ideal_to = int(data_list[WIZTABLE_LINES_HRTO])
+            self._description = str(data_list[WIZTABLE_LINES_DESC])
+            self._state = str(data_list[WIZTABLE_LINES_STATE])
+
+    def weight(self)->float:
+        return abs(self._weight)
+
+    # === Produce HTML:
+
+    def id_str(self, pre='') ->str:
+        return pre+self._id
+        #return pre+str(self._idx)
+
+    def zpadded_time(self, hr: int, mins: int) ->str:
+        if hr > 23:
+            hr = 23
+            mins = 59
+        return str(hr).zfill(2)+':'+str(mins).zfill(2)
+
+    def time_str(self) ->str:
+        dtime = t_run if self._t is None else self._t
+        return dtime.strftime('%H:%M')
+
+    def recommended_str(self) ->str:
+        return WIZLINE_RECOMMENDED_FRAME % (self.zpadded_time(self._hr_ideal_from, 0), self.zpadded_time(self._hr_ideal_to, 0))
+
+    def state_tuple(self)->tuple:
+        if self._type == 'checkbox':
+            self.checkbox_metrics[0] = 1
+            if self._state == 'checked':
+                self.checkbox_metrics[1] = 1
+            return (self.checkbox_metrics[0], self.checkbox_metrics[1])
+        elif self._type == 'number':
+            self.number_metrics[0] = 1
+            if self._state != '':
+                if self._weight < 0:
+                    self.number_metrics[1] = 1
+                else:
+                    self.number_metrics[1] = float(self._state) # The value should be between 0.0 and 1.0.
+            return (self.number_metrics[0], self.number_metrics[1])
+        else:
+            return (0, 0)
+
+    def state_str(self) ->str:
+        self.state_tuple() # update metrics
+        if self._type == 'checkbox':
+            return WIZLINE_CHECKBOX_FRAME % ( self.id_str('wiz_state_'), self._state, SUBMIT_ON_CHANGE )
+        elif self._type == 'number':
+            return WIZLINE_NUMBER_FRAME % ( self.id_str('wiz_state_'), str(self._state), SUBMIT_ON_INPUT )
+        else:
+            return ''
+
+    def add_to_checkbox_metrics(self, checkbox_metrics_ref)->tuple:
+        checkbox_metrics_ref[0] += self.checkbox_metrics[0]
+        checkbox_metrics_ref[1] += self.checkbox_metrics[1]
+        addpossible = self.weight() * self.checkbox_metrics[0]
+        addscore = self.weight() * self.checkbox_metrics[1]
+        return addpossible, addscore
+
+    def add_to_number_metrics(self, number_metrics_ref)->tuple:
+        number_metrics_ref[0] += self.number_metrics[0]
+        if self.number_metrics[1] > 0:
+            number_metrics_ref[1] += 1
+        addpossible = self.weight() * self.number_metrics[0]
+        addscore = int(self.weight() * self.number_metrics[1])
+        return addpossible, addscore
+
+    def extra_str(self) ->str:
+        return '' # TODO: *** Determine if we need this for something.
+
+    def time_tuple(self) ->tuple:
+        dtime = t_run if self._t is None else self._t
+        return ( dtime.hour, dtime.minute )
+
+    def time_html(self) ->str:
+        h, m = self.time_tuple()
+        return TIME_FRAME % ( self.id_str('wiz_th_'), str(h), SUBMIT_ON_INPUT, self.id_str('wiz_tm_'), str(m), SUBMIT_ON_INPUT )
+
+    def generate_html_tr(self) ->str:
+        global last_line_node
+        if last_line_node != self._node:
+            top_border = WIZLINE_VISIBLE_TOPBORDER
+        else:
+            top_border = ''
+        last_line_node = self._node
+        return WIZLINE_FRAME % ( self.recommended_str(), self.time_html(), top_border, str(self._weight), self._nodelink, self._description, self._id, self.state_str(), self.extra_str() )
+        #return WIZLINE_FRAME % ( self.recommended_str(), self.id_str('wiz_t_'), self.time_str(), SUBMIT_ON_INPUT, self._description, self.state_str(), self.extra_str() )
+
+    # === Produce data dictionary:
+
+    def get_data(self) ->list:
+        t = 0 if self._t is None else datetime.timestamp(self._t)
+        return [ self._id, t, self._state, ]
+
+    # === Member functions for data updates:
+
+    def update_time(self, t_new: str) ->bool:
+        t_list = t_new.split(':')
+        if self._t is None:
+            self._t = self.day
+        self._t = self._t.replace(hour=int(t_list[0]), minute=int(t_list[1]))
+        return True
+
+    def update_hour(self, hr_new: str) ->bool:
+        if self._t is None:
+            self._t = self.day
+        self._t = self._t.replace(hour=int(hr_new))
+        return True
+
+    def update_minute(self, min_new: str) ->bool:
+        if self._t is None:
+            self._t = self.day
+        self._t = self._t.replace(minute=int(min_new))
+        return True
+
+    def update_state(self, new_state: str) ->bool:
+        if self._type == 'checkbox':
+            self._state = 'checked' if new_state=='true' else ''
+        else:
+            self._state = str(new_state)
+        if self._t is None:
+            return self.update_time(datetime.now().strftime('%H:%M'))
+        return True

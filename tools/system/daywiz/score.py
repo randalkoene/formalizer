@@ -61,87 +61,6 @@ SCORE_DAY_FRAME='''<tr><td>%s</td></tr>
 # SCORE_LINE_FRAME='''<tr><td>%s</td><td>%s</td><td>%s</td></tr>
 # '''
 
-class score_wiztable_line:
-    # data_list is a line of WIZTABLE_LINES.
-    def __init__(self, day: datetime, data_list: list, idx: int):
-        self.day = day
-        self._idx = idx
-        self._node = ''
-        self._nodelink = ''
-        self._weight = 0
-        self._id = ''
-        self._t = None # Beware! Remains None if t_logged <= 0.
-        self._hr_ideal_from = 0
-        self._hr_ideal_to = 0
-        self._type = ''
-        self._description = ''
-        self._state = ''
-        self.checkbox_metrics = [0, 0] # Number of checkboxes on this line, number that are checked.
-        self.number_metrics = [0, 0]   # Number of number inputs on this line, number that are filled.
-        self.parse_from_list(data_list)
-
-    # data_list is a line of WIZTABLE_LINES.
-    def parse_from_list(self, data_list: list):
-        if len(data_list) >= WIZTABLE_LINE_LENGTH:
-            self._node = str(data_list[WIZTABLE_LINES_NODE])
-            self._nodelink = HREFBASE+NODELINKCGI+self._node
-            self._weight = data_list[WIZTABLE_LINES_WEIGHT]
-            self._id = str(data_list[WIZTABLE_LINES_ITEM])
-            t_logged = float(data_list[WIZTABLE_LINES_TIME])
-            if t_logged > 0:
-                self._t = datetime.fromtimestamp(t_logged)
-            self._type = str(data_list[WIZTABLE_LINES_TYPE])
-            self._hr_ideal_from = int(data_list[WIZTABLE_LINES_HRFROM])
-            self._hr_ideal_to = int(data_list[WIZTABLE_LINES_HRTO])
-            self._description = str(data_list[WIZTABLE_LINES_DESC])
-            self._state = str(data_list[WIZTABLE_LINES_STATE])
-
-    def weight(self)->float:
-        return self._weight
-
-    def id_str(self, pre='') ->str:
-        return pre+self._id
-        #return pre+str(self._idx)
-
-    def zpadded_time(self, hr: int, mins: int) ->str:
-        if hr > 23:
-            hr = 23
-            mins = 59
-        return str(hr).zfill(2)+':'+str(mins).zfill(2)
-
-    def state_tuple(self) ->tuple:
-        if self._type == 'checkbox':
-            self.checkbox_metrics[0] = 1
-            if self._state == 'checked':
-                self.checkbox_metrics[1] = 1
-            return (self.checkbox_metrics[0], self.checkbox_metrics[1])
-        elif self._type == 'number':
-            self.number_metrics[0] = 1
-            if self._state != '':
-                self.number_metrics[1] = 1
-            return (self.number_metrics[0], self.number_metrics[1])
-        else:
-            return (0, 0)
-
-    def time_str(self) ->str:
-        dtime = t_run if self._t is None else self._t
-        return dtime.strftime('%H:%M')
-
-    def time_tuple(self) ->tuple:
-        dtime = t_run if self._t is None else self._t
-        return ( dtime.hour, dtime.minute )
-
-    def get_data(self) ->list:
-        t = 0 if self._t is None else datetime.timestamp(self._t)
-        return [ self._id, t, self._state, ]
-
-    # def generate_html_body(self) ->str:
-    #     return SCORE_LINE_FRAME % (
-    #         self.time_str(),
-    #         self._description,
-    #         str(self._quantity),
-    #     )
-
 class score_daypage_wiztable:
     def __init__(self, day_key: str, day_data: dict, is_new: bool):
         self.day_key = day_key
@@ -153,25 +72,12 @@ class score_daypage_wiztable:
         #     if 'wiztable' in self.day_data:
         #         self.merge_data(self.day_data['wiztable'])
         self.merge_data(self.day_data)
-        self.lines = [ score_wiztable_line(self.day, self.lines_list[i], i) for i in range(len(self.lines_list)) ]
+        self.lines = [ wiztable_line(self.day, self.lines_list[i], i) for i in range(len(self.lines_list)) ]
         self.checkbox_metrics = [ 0, 0 ] # Number of checkboxes in table, number of checked checkboxes.
         self.number_metrics = [0, 0 ]    # Number of number inputs in table, number of filled number inputs.
         self.score = 0.0
         self.score_possible = 0.0
         self.lines_parsed = 0
-
-    def add_to_checkbox_metrics(self, chkmetrics_pair: list, weight: float):
-        self.checkbox_metrics[0] += chkmetrics_pair[0]
-        self.checkbox_metrics[1] += chkmetrics_pair[1]
-        self.score_possible += weight * chkmetrics_pair[0]
-        self.score += weight * chkmetrics_pair[1]
-        self.lines_parsed += 1
-
-    def add_to_number_metrics(self, nummetrics_pair: list, weight: float):
-        self.number_metrics[0] += nummetrics_pair[0]
-        self.number_metrics[1] += nummetrics_pair[1]
-        self.score_possible += weight * nummetrics_pair[0]
-        self.score += weight * nummetrics_pair[1]
 
     def generate_dayscore(self) ->tuple:
         self.checkbox_metrics = [ 0, 0 ]
@@ -180,9 +86,13 @@ class score_daypage_wiztable:
         self.score_possible = 0.0
         for wizline in self.lines:
             wizline.state_tuple()
-            weight = wizline.weight()
-            self.add_to_checkbox_metrics(wizline.checkbox_metrics, weight)
-            self.add_to_number_metrics(wizline.number_metrics, weight)
+            addpossible, addscore = wizline.add_to_checkbox_metrics(self.checkbox_metrics)
+            self.score_possible += addpossible
+            self.score += addscore
+            addpossible, addscore = wizline.add_to_number_metrics(self.number_metrics)
+            self.score_possible += addpossible
+            self.score += addscore
+            self.lines_parsed += 1
         return self.score, self.score_possible
 
     def make_wiztable_index(self) ->dict:
