@@ -44,13 +44,13 @@ fzloghtml fzlh;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  * 
- * Command line arguments used: 12ACDEFHNQRTVWacdefghilnoqrstvw
- * Command line arguments still available: 03456789BGIJKLMOPSUXYZbjkmpuxyz
+ * Command line arguments used: 12ACDEFHNQRTVWacdefghijlnoqrstvw
+ * Command line arguments still available: 03456789BGIJKLMOPSUXYZbkmpuxyz
  */
 fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
                          iscale(interval_none), interval(0), noframe(false), recent_format(most_recent_html) {
-    add_option_args += "e:n:g:l:1:2:a:o:D:H:w:Nc:rRf:ACitF:T:I";
-    add_usage_top += " [-e <log-stamp>] [-n <node-ID>] [-g <topic>] [-l <list-name>] [-I] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-A] [-C] [-i] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
+    add_option_args += "e:n:g:l:1:2:a:o:D:H:w:Nc:rRf:ACijtF:T:I";
+    add_usage_top += " [-e <log-stamp>] [-n <node-ID>] [-g <topic>] [-l <list-name>] [-I] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-A] [-C] [-i] [-j] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
     usage_tail.push_back(
         "Notes:\n"
@@ -105,6 +105,7 @@ void fzloghtml::usage_hook() {
           "    -A All search terms must be in a Log chunk\n"
           "    -C Case insensitive search\n"
           "    -i Interpret for day review\n"
+          "    -j Interpret current day for review\n"
           "    -t Show total time applied\n"
           "    -F format of most recent Log data:\n"
           "       raw, txt, json, html (default)\n"
@@ -280,6 +281,11 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
 
     case 'i': {
         flowcontrol = flow_dayreview;
+        return true;
+    }
+
+    case 'j': {
+        flowcontrol = flow_dayreview_today;
         return true;
     }
 
@@ -519,6 +525,16 @@ bool interpret_for_dayreview() {
     return render_Log_review();
 }
 
+bool interpret_for_dayreview_today() {
+    fzlh.filter.t_to = ActualTime();
+    fzlh.filter.t_from = fzlh.filter.t_to - RTt_oneday;
+    fzlh.set_filter();
+    if (!fzlh.get_Log_interval()) {
+        return false;
+    }
+    return render_Log_review_today();
+}
+
 bool regenerate_index() {
     fzlh.set_filter();
     if (!fzlh.get_Log_interval()) {
@@ -548,6 +564,10 @@ int main(int argc, char *argv[]) {
 
     case flow_dayreview: {
         return standard_exit(interpret_for_dayreview(), "Log interval interpreted for day review.\n", exit_file_error, "Unable to interpret Log interval for day review.", __func__);
+    }
+
+    case flow_dayreview_today: {
+        return standard_exit(interpret_for_dayreview_today(), "Today's Log interval interpreted for day review.\n", exit_file_error, "Unable to interpret Today's Log interval for day review.", __func__);
     }
 
     case flow_regenerate_index: {

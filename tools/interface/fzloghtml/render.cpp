@@ -1038,6 +1038,171 @@ bool render_Log_review() {
     return send_rendered_to_output(rendered_reviewcontent);
 }
 
+bool render_Log_review_today() {
+    ERRTRACE;
+
+    Named_Node_List_ptr sleepNNL_ptr = nullptr;
+    std::locale loc;
+    Node_ID_key nap_id;
+
+    auto prepare_sleep_node_identification = [&] () {
+        if (fzlh.config.sleepNNL.empty()) return standard_error("Missing sleepNNL specification in config file.", __func__);
+        sleepNNL_ptr = fzlh.get_Graph_ptr()->get_List(fzlh.config.sleepNNL);
+        if (!sleepNNL_ptr) return standard_error("Unable to retrieve NNL "+fzlh.config.sleepNNL, __func__);
+        for (const auto & node_key : sleepNNL_ptr->list) {
+            Node_ptr node_ptr = fzlh.get_Graph_ptr()->Node_by_id(node_key);
+            if (!node_ptr) {
+                ADDERROR(__func__,fzlh.config.sleepNNL+" NNL node with ID "+node_key.str()+" not found");
+            } else {
+                if (lowercase(node_ptr->get_text(), loc).find(" nap") != std::string::npos) {
+                    nap_id = node_key;
+                }
+            }
+        }
+        return true;
+    };
+
+    if (!fzlh.get_Graph_ptr()) {
+        standard_exit_error(exit_resident_graph_missing, "Resident Graph missing.",__func__);
+    }
+
+    apply_search_strings_case_insensitive(loc);
+
+    if (!prepare_sleep_node_identification()) {
+        return false;
+    }
+
+    report_interval();
+
+    review_data data;
+    std::vector<metrictag_data> metric_data;
+    Map_of_Subtrees map_of_subtrees;
+    map_of_subtrees.collect(*fzlh.get_Graph_ptr(), fzlh.config.subtrees_list_name);
+
+    for (const auto & [chunk_key, chunkptr] : fzlh.edata.log_ptr->get_Chunks()) if (chunkptr) {
+
+        //FZOUT("DEBUG --> Chunk "+chunkptr->get_tbegin_str()+'\n');
+
+        time_t t_chunkclose = chunkptr->get_close_time();
+        time_t t_chunkopen = chunkptr->get_open_time();
+        if (t_chunkclose >= t_chunkopen) { // Only work with completed chunks.
+
+            Node_ID_key node_id = chunkptr->get_NodeID().key();
+            Node_ptr node_ptr = fzlh.get_Graph_ptr()->Node_by_id(node_id);
+            if (!node_ptr) {
+                ADDERROR(__func__,"node with ID "+node_id.str()+" not found");
+            } else {
+
+                Boolean_Tag_Flags boolean_tag;
+                if (sleepNNL_ptr->contains(node_id)) {
+                    if (node_id != nap_id) { // Does this chunk belong to a sleep Node?
+                        // The following test is a safety in case of multiple sleep Nodes in close proximity.
+                        if ((t_chunkclose - data.t_candidate_wakeup) > (4*3600)) {
+                            data.t_wakeup = data.t_candidate_wakeup;
+                            data.t_candidate_wakeup = t_chunkclose;
+                            //FZOUT("DEBUG --> t_wakeup = "+TimeStampYmdHM(data.t_wakeup)+'\n');
+                            //FZOUT("DEBUG --> t_candidate_wakeup = "+TimeStampYmdHM(data.t_candidate_wakeup)+'\n');
+                            //data.t_gosleep = t_chunkopen; // *** DIFF 1
+                        }
+                    } else { // Chunk is a nap.
+                        data.elements.emplace_back(t_chunkopen, t_chunkclose - t_chunkopen, boolean_tag, node_ptr, node_ptr->get_text(), chunkptr->get_combined_entries_text(), true);
+                        //FZOUT("DEBUG --> Collected data element.\n");
+                    }
+                } else {
+                    // Identify category.
+                    //   Look for category override tags in chunk content.
+                    // *** Perhaps make this a service function reached through Graphinfo.
+                    bool override = false;
+                    std::string combined_entries(chunkptr->get_combined_entries_text());
+                    for (const auto & [ tag, flag ] : log_override_tags) {
+                        if (combined_entries.find(tag) != std::string::npos) {
+                            boolean_tag.copy_Boolean_Tag_flags(flag);
+                            override = true;
+                            break;
+                        }
+                    }
+                    if (!override) {
+                        //   Check if Node is in category subtree.
+                        if (map_of_subtrees.has_subtrees) {
+                            Boolean_Tag_Flags::boolean_flag booleanflag;
+                            if (map_of_subtrees.node_in_heads_or_any_subtree(node_id, booleanflag, true)) { // includes searching superiors hierarchy as needed
+                                boolean_tag.copy_Boolean_Tag_flags(booleanflag);
+                            }
+                        }
+                    }
+                    data.elements.emplace_back(t_chunkopen, t_chunkclose - t_chunkopen, boolean_tag, node_ptr, node_ptr->get_text(), combined_entries);
+                    //FZOUT("DEBUG --> Collected data element.\n");
+                    
+                    // Also look for other metrictags in the entries.
+                    for (const auto & metrictag : metrictags) {
+                        size_t pos = 0; // There could be more than one of each in the combined content.
+                        while ((pos=combined_entries.find(metrictag, pos))!=std::string::npos) {
+                            // Extract it and put it into a list.
+                            pos += metrictag.size();
+                            size_t endpos = combined_entries.find('@', pos);
+                            if (endpos != std::string::npos) {
+                                metric_data.emplace_back(t_chunkopen, metrictag, combined_entries.substr(pos, endpos-pos));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    data.t_wakeup = data.t_candidate_wakeup; // *** DIFF 2
+    data.t_gosleep = fzlh.filter.t_to; // *** DIFF 3
+
+    // *** The following is a temporary kludge for metrictag data:
+    if (metric_data.size()>0) {
+        const std::string metric_csv_path("/var/www/webdata/formalizer/metrictag_data.csv");
+        std::string metrictag_csv;
+        for (const auto & mdata : metric_data) {
+            if ((mdata.from_chunk >= data.t_wakeup) && (mdata.from_chunk <= data.t_gosleep)) {
+                metrictag_csv += mdata.csv_str();
+            }
+        }
+        if (!string_to_file(metric_csv_path, metrictag_csv)) {
+            ADDERROR(__func__,"Unable to write metric data CSV to "+metric_csv_path);
+        }
+    }
+
+    VERYVERBOSEOUT("Data collected. Rendering.\n");
+
+    std::string rendered_reviewcontent;
+    rendered_reviewcontent.reserve(128*1024);
+
+    if (fzlh.recent_format == most_recent_json) {
+        rendered_reviewcontent = data.json_str();
+    } else {
+        std::string rendered_topinfo;
+        if (!data.topinfo_to_template(rendered_topinfo)) {
+            return false;
+        }
+
+        std::string rendered_table;
+        rendered_table.reserve(128*1024);
+        if (!data.table_to_template(rendered_table)) {
+            return false;
+        }
+
+        std::map<std::string, std::string> overall_map = {
+            { "top-info", rendered_topinfo },
+            { "table-entries", rendered_table },
+        };
+        if (!env.fill_template_from_map(
+                template_path_from_map(review_format_to_template_map),
+                overall_map,
+                rendered_reviewcontent)) {
+            return false;
+        }
+    }
+
+    return send_rendered_to_output(rendered_reviewcontent);
+}
+
+
 const std::map<most_recent_format, template_id_enum> index_format_to_template_map = {
     { most_recent_raw, Log_index_RAW_temp },
     { most_recent_txt, Log_index_TXT_temp },

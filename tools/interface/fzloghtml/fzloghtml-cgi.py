@@ -86,16 +86,51 @@ right: 0px;
 font-size: 34px;
 font-family: calibri;
 }
+#protocol_tab {
+position: fixed;
+top: 185px;
+right: 0px;
+width: 200px;
+height: 200px;
+display: block;
+text-align: right;
+}
 </style>
 </head>
 <body>
 <script type="text/javascript" src="/clock.js"></script>
 <script type="text/javascript" src="/score.js"></script>
 <script type="text/javascript" src="/fzuistate.js"></script>
-<button id="timerBarText" class="button button2 logstate">_____</button>
+<button id="timerBarText" class="button button2 logstate" onclick="toggle_protocol_tab();">_____</button>
+<div id="protocol_tab">
+<button class="button button1" onclick="window.open('/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20', '_blank');">Calendar Schedule</button><br>
+<button class="button button2" onclick="window.open('/cgi-bin/orderscore-cgi.py', '_blank');">OrderScore</button><br>
+<button class="button button1" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?review=today', '_blank');">Today Review</button>
+</div>
 <script type="text/javascript" src="/stateoflog.js"></script>
 <script>
 const state_of_log = new logState(logstate_id="timerBarText");
+const protocol_tab_open_ref = document.getElementById('timerBarText');
+const protocol_tab_ref = document.getElementById('protocol_tab');
+var protocol_tab_open = true;
+function toggle_protocol_tab() {
+    if (protocol_tab_open) {
+        protocol_tab_ref.style.display = 'none';
+        protocol_tab_open = false;
+        console.log('Protocol tab close.');
+    } else {
+        protocol_tab_ref.style.display = 'block';
+        protocol_tab_open = true;
+        console.log('Protocol tab open.');
+    }
+}
+protocol_tab_open_ref.addEventListener('mouseover', () => {
+    if (!protocol_tab_open) {
+        protocol_tab_ref.style.display = 'block';
+        protocol_tab_open = true;
+        console.log('Protocol tab open.');
+    }
+});
 </script>
 '''
 
@@ -373,11 +408,15 @@ def render_log_interval():
     print("</body>\n</html>")
 
 def render_Log_review():
+    if review=='today':
+        review_arg = '-j'
+    else:
+        review_arg = '-i -D 2'
     if review_date:
-        date_specific = '-a %s' % reviewdate
+        date_specific = '-a %s' % review_date
     else:
         date_specific = ''
-    thecmd = f"./fzloghtml -q -d formalizer -s randalk {date_specific} -D 2 -i -F html -o STDOUT -E STDOUT"
+    thecmd = f"./fzloghtml -q -d formalizer -s randalk {date_specific} {review_arg} -F html -o STDOUT -E STDOUT"
     try:
         p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
         (child_stdin,child_stdout) = (p.stdin, p.stdout)

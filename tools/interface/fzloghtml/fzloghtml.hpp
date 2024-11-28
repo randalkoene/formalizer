@@ -30,6 +30,7 @@ enum flow_options {
     flow_most_recent = 2,      /// request: data about most recent Log entry
     flow_dayreview = 3,        /// request: interpret Log data for day review
     flow_regenerate_index = 4, /// request: regenerate index to significant Log content
+    flow_dayreview_today = 5,  /// request: interpret today's Log data for day review
     flow_NUMoptions
 };
 
