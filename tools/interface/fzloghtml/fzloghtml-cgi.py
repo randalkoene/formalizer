@@ -76,6 +76,7 @@ log_interval_head = '''<html>
 <link rel="stylesheet" href="/score.css">
 <link rel="stylesheet" href="/copiedalert.css">
 <link rel="stylesheet" href="/htmltemplatestocopy.css">
+<link rel="stylesheet" href="/tooltip.css">
 <meta http-equiv="cache-control" content="no-cache" />
 <title>fz: Log interval</title>
 <style>
@@ -90,10 +91,13 @@ font-family: calibri;
 position: fixed;
 top: 185px;
 right: 0px;
-width: 200px;
-height: 200px;
+width: 300px;
+height: 500px;
 display: block;
 text-align: right;
+}
+.prot_tip {
+width: 300px;
 }
 </style>
 </head>
@@ -101,36 +105,28 @@ text-align: right;
 <script type="text/javascript" src="/clock.js"></script>
 <script type="text/javascript" src="/score.js"></script>
 <script type="text/javascript" src="/fzuistate.js"></script>
-<button id="timerBarText" class="button button2 logstate" onclick="toggle_protocol_tab();">_____</button>
+<button id="timerBarText" class="button button2 logstate">_____</button>
+
 <div id="protocol_tab">
 <button class="button button1" onclick="window.open('/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20', '_blank');">Calendar Schedule</button><br>
+<span class="tooltip">Distractions off <input type="checkbox">
+<span class="tooltiptext"><div class="prot_tip">Turn off video distractions.</div></span>
+</span><br>
+<span class="tooltip">Brush away emotion <input type="checkbox">
+<span class="tooltiptext"><div class="prot_tip">Literally, brush away emotions, especially anxiety.</div></span>
+</span><br>
+<span class="tooltip">Just get started <input type="checkbox">
+<span class="tooltiptext"><div class="prot_tip">Just get started on a Node, you don't need to complete it right away, you just need to figure out what to do and take notes about that to get started.</div></span>
+</span><br>
 <button class="button button2" onclick="window.open('/cgi-bin/orderscore-cgi.py', '_blank');">OrderScore</button><br>
 <button class="button button1" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?review=today', '_blank');">Today Review</button>
 </div>
+
 <script type="text/javascript" src="/stateoflog.js"></script>
+<script type="text/javascript" src="/hoveropentab.js"></script>
 <script>
 const state_of_log = new logState(logstate_id="timerBarText");
-const protocol_tab_open_ref = document.getElementById('timerBarText');
-const protocol_tab_ref = document.getElementById('protocol_tab');
-var protocol_tab_open = true;
-function toggle_protocol_tab() {
-    if (protocol_tab_open) {
-        protocol_tab_ref.style.display = 'none';
-        protocol_tab_open = false;
-        console.log('Protocol tab close.');
-    } else {
-        protocol_tab_ref.style.display = 'block';
-        protocol_tab_open = true;
-        console.log('Protocol tab open.');
-    }
-}
-protocol_tab_open_ref.addEventListener('mouseover', () => {
-    if (!protocol_tab_open) {
-        protocol_tab_ref.style.display = 'block';
-        protocol_tab_open = true;
-        console.log('Protocol tab open.');
-    }
-});
+const protocol_tab = new HoverOpenTab('timerBarText', 'protocol_tab');
 </script>
 '''
 

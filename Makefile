@@ -328,6 +328,7 @@ TOPLEVEL += $(TOOLSPATH)/interface/resources/tooltip.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/dbjsondecrypt.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/delayedpopup.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/draggable_rows.js
+TOPLEVEL += $(TOOLSPATH)/interface/resources/hoveropentab.js
 TOPLEVEL += $(MEDIAPATH)/favicon-192x192.png
 TOPLEVEL += $(MEDIAPATH)/favicon-32x32.png
 TOPLEVEL += $(MEDIAPATH)/favicon-16x16.png
