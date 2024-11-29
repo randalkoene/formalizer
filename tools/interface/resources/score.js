@@ -11,7 +11,7 @@
  * Adapted from the clock.js script.
  */
 
-const SCORE_TOOLTIP='<span class="tooltiptext"><div class="prot_tip">The score shown is the rounded 10x DayWiz score / max. score possible for the last 7 days. A 10 would be a perfect score.</div></span>';
+const SCORE_TOOLTIP='<span class="alt_tooltiptext" style="bottom: 100%;"><div style="width: 300;">The score shown is the rounded 10x DayWiz score / max. score possible for the last 7 days. A 10 would be a perfect score.</div></span>';
 
 class floatScore {
     /**
@@ -39,13 +39,13 @@ class floatScore {
 
     makeScoreElement(score_id) {
         var scorebtnelement = document.createElement("div");
-        scorebtnelement.innerHTML = `<span class="tooltip"><button id="${score_id}" class="button button2" onclick="window.open('/cgi-bin/score.py?cmd=show&selectors=wiztable', '_blank');">_____</button>${SCORE_TOOLTIP}</span>`;
+        scorebtnelement.innerHTML = `<button id="${score_id}" class="button button2 alt_tooltip" onclick="window.open('/cgi-bin/score.py?cmd=show&selectors=wiztable', '_blank');">_____</button>`;
         document.body.prepend(scorebtnelement);
         return document.getElementById(score_id);
     }
 
     makeScoreString(_content ) {
-        return _content;
+        return `${_content}${SCORE_TOOLTIP}`;
     }
 
     updateScore() {

@@ -98,6 +98,8 @@ text-align: right;
 }
 .prot_tip {
 width: 300px;
+top: 100%;
+right: 50%;
 }
 </style>
 </head>
@@ -109,14 +111,14 @@ width: 300px;
 
 <div id="protocol_tab">
 <button class="button button1" onclick="window.open('/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20', '_blank');">Calendar Schedule</button><br>
-<span class="tooltip">Distractions off <input type="checkbox">
-<span class="tooltiptext"><div class="prot_tip">Turn off video distractions.</div></span>
+<span class="alt_tooltip">Distractions off <input type="checkbox">
+<span class="alt_tooltiptext prot_tip"><div>Turn off video distractions.</div></span>
 </span><br>
-<span class="tooltip">Brush away emotion <input type="checkbox">
-<span class="tooltiptext"><div class="prot_tip">Literally, brush away emotions, especially anxiety.</div></span>
+<span class="alt_tooltip">Brush away emotion <input type="checkbox">
+<span class="alt_tooltiptext prot_tip"><div>Literally, brush away emotions, especially anxiety.</div></span>
 </span><br>
-<span class="tooltip">Just get started <input type="checkbox">
-<span class="tooltiptext"><div class="prot_tip">Just get started on a Node, you don't need to complete it right away, you just need to figure out what to do and take notes about that to get started.</div></span>
+<span class="alt_tooltip">Just get started <input type="checkbox">
+<span class="alt_tooltiptext prot_tip"><div>Just get started on a Node, you don't need to complete it right away, you just need to figure out what to do and take notes about that to get started.</div></span>
 </span><br>
 <button class="button button2" onclick="window.open('/cgi-bin/orderscore-cgi.py', '_blank');">OrderScore</button><br>
 <button class="button button1" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?review=today', '_blank');">Today Review</button>

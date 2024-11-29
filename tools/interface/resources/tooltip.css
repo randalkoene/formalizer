@@ -15,7 +15,7 @@ padding: 5px 0;
 position: absolute;
 z-index: 1;
 /*bottom: 125%; /* tooltip above */
-top: 100%; /* tooltip below  */
+top: 100%; /* tooltip below */
 left: 50%;
 margin-left: 0px; /*-60px;*/
 opacity: 0;
@@ -36,4 +36,68 @@ border-color: #555 transparent transparent transparent;
 .tooltip:hover .tooltiptext {
 visibility: visible;
 opacity: 1;
+}
+
+/* This version allows setting the relative position of the tooltip
+   by using a style keyword in the alt_tooltiptext <span>. For example,
+   see how this is done in score.js and in fzloghtml-cgi.py (at
+   protocol tab tooltips).  */
+.alt_tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.alt_tooltip .alt_tooltiptext {
+  visibility: hidden;
+  background-color: #555;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  /*top: 100%; /* tooltip below */
+  /*bottom: 100%;*/
+  /*left: 50%;*/
+  /*transform: translateX(50%); /* Center the tooltip */
+  margin-left: 0px;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  /*white-space: nowrap; /* Prevent wrapping */
+}
+
+.alt_tooltip .alt_tooltiptext::after {
+  content: "";
+  position: absolute;
+  /*top: 100%;*/
+  /*bottom: 100%;*/
+  /*left: 50%;*/
+  /*transform: translateX(50%);*/
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.alt_tooltip:hover .alt_tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Keep tooltip visible within screen boundaries */
+@media (max-width: 768px) {
+  .alt_tooltip .alt_tooltiptext {
+    right: 10%; /* Align slightly from the left for smaller screens */
+    transform: translateX(0); /* Avoid clipping off-screen */
+  }
+}
+
+@media (max-width: 480px) {
+  .alt_tooltip .alt_tooltiptext {
+    left: 0;
+    right: 0;
+    margin: 0 auto; /* Center tooltip in narrow views */
+    transform: none; /* Remove unnecessary translation */
+  }
 }

@@ -40,16 +40,16 @@
     right: 704px;
     z-index: 1000;
 }
-#logtime {
+#system {
     position: fixed;
     bottom: 0px;
     right: 878px;
     z-index: 1000;
 }
-#system {
+#logtime {
     position: fixed;
     bottom: 0px;
-    right: 982px;
+    right: 970px;
     z-index: 1000;
 }
 #fztop {
