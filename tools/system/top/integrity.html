@@ -6,57 +6,20 @@
 <noscript><meta http-equiv="refresh" content="0; url=/integrity-static.html" /></noscript>
 <link rel="icon" href="/favicon-32x32.png">
 <link rel="stylesheet" href="/fz.css">
-<style>
-    #clock {
-        position: fixed;
-        top: 0px;
-        right: 0px;
-        margin: 20px auto;
-        padding: 0;
-        background: #999;
-        text-align: center;
-        line-height: 40px;
-        color: #000;
-        font-size: 34px;
-        font-family: calibri;
-    }
-    #duplicate {
-        position: fixed;
-        top: 70px;
-        right: 0px;
-    }
-    #classical {
-        position: fixed;
-        bottom: 0px;
-        right: 0px;
-    }
-    #EBM {
-        position: fixed;
-        bottom: 50px;
-        right: 0px;
-    }
-    #industrial {
-        position: fixed;
-        bottom: 100px;
-        right: 0px;
-    }
-    #meditative {
-        position: fixed;
-        bottom: 150px;
-        right: 0px;
-    }
-</style>
+<link rel="stylesheet" href="/fzuistate.css">
+<link rel="stylesheet" href="/clock.css">
 <TITLE>Formalizer Environment v2.0a - Integrity</TITLE>
 </HEAD>
-<BODY onload="javascript:clockStart()">
+<BODY>
+<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="text/javascript" src="/clock.js"></script>
+
 <H1>Formalizer Environment v2.0a - Integrity</H1>
 
-<!-- <p id="clock"></p> -->
-<button id="clock" class="button button2">_____</button>
 <button id="duplicate" class="button button2" onclick="window.open('/integrity.html','_blank');">duplicate</button>
 
-<button class="button button1" onclick="window.open('/cgi-bin/fzintegrity-cgi.py?list=unspecifiedTD','_blank');">Unspecified Target Dates</button>
-<button class="button button2" onclick="window.open('/cgi-bin/fzintegrity-cgi.py?list=distantTD','_blank');">Distant Target Dates</button>
+<button class="button button1" onclick="window.open('/cgi-bin/fzgraphsearch-cgi.py?completion_lower=0.0&completion_upper=0.99&hours_lower=0.1&hours_upper=1000.0&TD_lower=invalid','_blank');">Invalid Target Dates</button>
+<button class="button button2" onclick="window.open('/cgi-bin/fzgraphsearch-cgi.py?completion_lower=0.0&completion_upper=0.99&TD_lower=205001010000&tdbinpatt_variable=true&tdbinpatt_fixed=true&tdbinpatt_exact=true','_blank');">Distant Target Dates</button>
 <button class="button button1" onclick="window.open('/cgi-bin/fzintegrity-cgi.py?list=inverted-dependencies','_blank');">Inverted Dependencies</button>
 <br>
 Action: <button class="button button1" onclick="light_or_dark();">Light / Dark</button>
@@ -66,44 +29,6 @@ Action: <button class="button button1" onclick="light_or_dark();">Light / Dark</
 
 <hr>
 
-
-<!-- clock script adapted from https://codepen.io/kase/pen/LxNzWj -->
-<script type="text/javascript">
-function updateClock() {
-    var currentTime = new Date();
-    // Operating System Clock Hours for 24h clock
-    var currentHours = currentTime.getHours();
-    // Operating System Clock Minutes
-    var currentMinutes = currentTime.getMinutes();
-    // Operating System Clock Seconds
-    //var currentSeconds = currentTime.getSeconds();
-    // Adding 0 if Minutes & Seconds is More or Less than 10
-    currentMinutes = (currentMinutes < 10 ? "0" : "") + currentMinutes;
-    //currentSeconds = (currentSeconds < 10 ? "0" : "") + currentSeconds;
-    // display first 24h clock and after line break 12h version
-    var currentTimeString = currentHours + ":" + currentMinutes; // + ":" + currentSeconds;
-    // print clock js in div #clock.
-    document.getElementById("clock").innerHTML = currentTimeString;
-    //var t = setTimeout(function(){ updateClock() }, 1000); /* setting timer */ // this actually blows up the stack!
-}
-// let's skip using jQuery $(document).ready(function () { setInterval(updateClock, 1000); } );
-//updateClock(); // initiate the process
-function clockStart() {
-    updateClock();
-    var idval = setInterval(updateClock, 60000); // update each minute, since we're not showing seconds here
-}
-var lightdark = 0;
-function light_or_dark() {
-    if (lightdark > 0) {
-        //document.body.style.background = "#ffffff";
-        document.body.removeAttribute('data-theme');
-    } else {
-        //document.body.style.background = "#7f7f7f";
-        document.body.setAttribute('data-theme', 'dark');
-    }
-    lightdark = 1 - lightdark;
-}
-</script>
 </BODY>
 
 </HTML>

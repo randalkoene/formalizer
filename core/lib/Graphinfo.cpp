@@ -576,11 +576,15 @@ targetdate_sorted_Nodes Nodes_subset(Graph & graph, const Node_Filter & nodefilt
             }
         }
         if (nodefilter.filtermask.Edit_targetdate()) {
-            if (nodefilter.lowerbound.targetdate != RTt_unspecified) {
-                if (node_ptr->get_targetdate() < nodefilter.lowerbound.targetdate) continue;
-            }
-            if (nodefilter.upperbound.targetdate != RTt_unspecified) {
-                if (node_ptr->get_targetdate() > nodefilter.upperbound.targetdate) continue;
+            if (nodefilter.has_invalid_targetdate) {
+                if (node_ptr->get_targetdate() >= 0) continue;
+            } else {
+                if (nodefilter.lowerbound.targetdate != RTt_unspecified) {
+                    if (node_ptr->get_targetdate() < nodefilter.lowerbound.targetdate) continue;
+                }
+                if (nodefilter.upperbound.targetdate != RTt_unspecified) {
+                    if (node_ptr->get_targetdate() > nodefilter.upperbound.targetdate) continue;
+                }
             }
         }
         if (nodefilter.filtermask.Edit_tdproperty()) {

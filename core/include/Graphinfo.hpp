@@ -182,6 +182,7 @@ struct Node_Filter {
     time_t t_created_upperbound = RTt_unspecified;
     Node_data lowerbound; // values must be >= to these thresholds (where it makes sense)
     Node_data upperbound; // values must be <= to these thresholds (where it makes sense)
+    bool has_invalid_targetdate = false;
     tdproperty_binary_pattern tdpropbinpattern;
     bool case_sensitive = true;
     Edit_flags filtermask;

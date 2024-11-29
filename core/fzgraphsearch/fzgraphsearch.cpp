@@ -64,8 +64,8 @@ void fzgraphsearch::usage_hook() {
           "    -C Nodes with completion ratio smaller than or equal to <comp_max>.\n"
           "    -m Nodes with required minutes greater than or equal to <mins_min>.\n"
           "    -M Nodes with required minutes greater than or equal to <mins_min>.\n"
-          "    -t Nodes with effective target date at or after <TD_min>.\n"
-          "    -T Nodes with effective target date at or before <TD_min>.\n"
+          "    -t Nodes with effective target date at or after <TD_min>, or 'invalid'.\n"
+          "    -T Nodes with effective target date at or before <TD_max>, or 'invalid'.\n"
           "    -p Nodes with target date property <tdprop_1>.\n"
           "    -P Nodes with target date property <tdprop_2>.\n"
           "    -b Nodes with TD property one of comma separated <tdprop-list>.\n"
@@ -229,15 +229,27 @@ bool fzgraphsearch::options_hook(char c, std::string cargs) {
     }
 
     case 't': {
-        nodefilter.lowerbound.targetdate = time_stamp_time(cargs);
-        nodefilter.filtermask.set_Edit_targetdate();
-        return true;
+        if (cargs == "invalid") {
+            nodefilter.has_invalid_targetdate = true;
+            nodefilter.filtermask.set_Edit_targetdate();
+            return true;
+        } else {
+            nodefilter.lowerbound.targetdate = time_stamp_time(cargs);
+            nodefilter.filtermask.set_Edit_targetdate();
+            return true;
+        }
     }
 
     case 'T': {
-        nodefilter.upperbound.targetdate = time_stamp_time(cargs);
-        nodefilter.filtermask.set_Edit_targetdate();
-        return true;
+        if (cargs == "invalid") {
+            nodefilter.has_invalid_targetdate = true;
+            nodefilter.filtermask.set_Edit_targetdate();
+            return true;
+        } else {
+            nodefilter.upperbound.targetdate = time_stamp_time(cargs);
+            nodefilter.filtermask.set_Edit_targetdate();
+            return true;
+        }
     }
 
     case 'p': {
