@@ -24,6 +24,22 @@ from subprocess import Popen, PIPE
 # Print this early to enable seeing errors.
 print("Content-type:text/html\n\n")
 
+form = cgi.FieldStorage()
+topics = form.getvalue("topics")
+selection = form.getvalue('selection')
+
+# optional extra arguments for edit=new
+extra_args=''
+# tosup = form.getvalue('tosup') # By the time it gets here Superiors was already updated.
+# if tosup:
+#     extra_args += '&tosup='+tosup
+# todep = form.getvalue('todep')
+# if todep:
+#     extra_args += '&todep='+todep
+prop = form.getvalue('prop')
+if prop:
+    extra_args += '&prop='+prop
+
 config = {
     'verbose': False,
     'logcmdcalls': False,
@@ -90,8 +106,17 @@ templates = {
 '''
 }
 
+# TEMPLATE_LINE='''<tr><td>
+# <button class="button button1" onclick="window.open('/cgi-bin/addnode-template.py?topics=%s&selection=%s','_self');">%s</button>
+# <P>
+# %s
+# <hr>
+# </td>
+# </tr>
+# '''
+
 TEMPLATE_LINE='''<tr><td>
-<button class="button button1" onclick="window.open('/cgi-bin/addnode-template.py?topics=%s&selection=%s','_self');">%s</button>
+<button class="button button1" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new&topics=%s&template=%s%s','_self');">%s</button>
 <P>
 %s
 <hr>
@@ -121,100 +146,98 @@ SELECT_TEMPLATE_PAGE='''<html>
 </html>
 '''
 
-editpagehead = '''<html>
-<head>
-<meta charset="utf-8">
-<link rel="icon" href="/favicon-nodes-32x32.png">
-<link rel="stylesheet" href="/fz.css">
-<link rel="stylesheet" href="/bluetable.css">
-<link rel="stylesheet" href="/fzuistate.css">
-<link rel="stylesheet" href="/clock.css">
-<title>Formalizer: Edit Node</title>
-</head>
-<body>
-<style type="text/css">
-td.paramtitle {
-    vertical-align: top;
-    font-weight: bold;
-}
-.chktop {
-    background-color: #B0C4F5;
-}
-</style>
-<button id="clock" class="button button2">_____</button>
-<br>
-<table><tbody>
-'''
+# editpagehead = '''<html>
+# <head>
+# <meta charset="utf-8">
+# <link rel="icon" href="/favicon-nodes-32x32.png">
+# <link rel="stylesheet" href="/fz.css">
+# <link rel="stylesheet" href="/bluetable.css">
+# <link rel="stylesheet" href="/fzuistate.css">
+# <link rel="stylesheet" href="/clock.css">
+# <title>Formalizer: Edit Node</title>
+# </head>
+# <body>
+# <style type="text/css">
+# td.paramtitle {
+#     vertical-align: top;
+#     font-weight: bold;
+# }
+# .chktop {
+#     background-color: #B0C4F5;
+# }
+# </style>
+# <button id="clock" class="button button2">_____</button>
+# <br>
+# <table><tbody>
+# '''
 
-editpagetail = '''</tbody></table>
-<hr>
-<script>
-function edge_update(event) {
-    var edge_id = event.target.id.substring(4);
-    var modtype = event.target.id.substring(0,3);
-    var value = event.target.value;
-    //window.open('http://%s/fz/);
-    window.open('/cgi-bin/fzedit-cgi.py?edge='+edge_id+'&edgemod='+modtype+'&modval='+value);
-}
-</script>
-<script type="text/javascript" src="/fzuistate.js"></script>
-<script type="text/javascript" src="/clock.js"></script>
-<script>
-    var clock = new floatClock('clock');
-</script>
-</body>
-</html>
-'''
+# editpagetail = '''</tbody></table>
+# <hr>
+# <script>
+# function edge_update(event) {
+#     var edge_id = event.target.id.substring(4);
+#     var modtype = event.target.id.substring(0,3);
+#     var value = event.target.value;
+#     //window.open('http://%s/fz/);
+#     window.open('/cgi-bin/fzedit-cgi.py?edge='+edge_id+'&edgemod='+modtype+'&modval='+value);
+# }
+# </script>
+# <script type="text/javascript" src="/fzuistate.js"></script>
+# <script type="text/javascript" src="/clock.js"></script>
+# <script>
+#     var clock = new floatClock('clock');
+# </script>
+# </body>
+# </html>
+# '''
 
-def template_selected(topics:str, selection:str):
-    try:
-        # # Save the selected template to a file.
-        # with open(template_out_path, 'w') as f:
-        #     f.write(templates[selection])
+# def template_selected(topics:str, selection:str):
+#     try:
+#         # # Save the selected template to a file.
+#         # with open(template_out_path, 'w') as f:
+#         #     f.write(templates[selection])
 
-        # Generate New Node page with template content.
-        thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -m new -t '"+topics+"'"
-        retval = try_subprocess_check_output(thecmd, resstore='newnodepage')
-        if retval == 0:
-            textarea_pos = results['newnodepage'].find('<textarea')
-            if textarea_pos < 0:
-                print('<html><body>No textarea in fzgraphhtml output.</body></html>')
-            else:
-                textarea_start = results['newnodepage'].find('>', textarea_pos+9)
-                if textarea_start < 0:
-                    print('<html><body>Textarea in fzgraphhtml output has incomplete tag.</body></html>')
-                else:
-                    textarea_end = results['newnodepage'].find('</textarea>', textarea_start+1)
-                    if textarea_end < 0:
-                        print('<html><body>Textarea is missing closing tag.</body></html>')
-                    else:
-                        print(editpagehead)
-                        print(results['newnodepage'][:textarea_start+1])
-                        print(templates[selection])
-                        print(results['newnodepage'][textarea_end:])
-                        print(editpagetail % fzserverpq_addrport)
+#         # Generate New Node page with template content.
+#         thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -m new -t '"+topics+"'"
+#         retval = try_subprocess_check_output(thecmd, resstore='newnodepage')
+#         if retval == 0:
+#             textarea_pos = results['newnodepage'].find('<textarea')
+#             if textarea_pos < 0:
+#                 print('<html><body>No textarea in fzgraphhtml output.</body></html>')
+#             else:
+#                 textarea_start = results['newnodepage'].find('>', textarea_pos+9)
+#                 if textarea_start < 0:
+#                     print('<html><body>Textarea in fzgraphhtml output has incomplete tag.</body></html>')
+#                 else:
+#                     textarea_end = results['newnodepage'].find('</textarea>', textarea_start+1)
+#                     if textarea_end < 0:
+#                         print('<html><body>Textarea is missing closing tag.</body></html>')
+#                     else:
+#                         print(editpagehead)
+#                         print(results['newnodepage'][:textarea_start+1])
+#                         print(templates[selection])
+#                         print(results['newnodepage'][textarea_end:])
+#                         print(editpagetail % fzserverpq_addrport)
 
 
-    except Exception as e:
-        print('<html><body>Failed to save selected template. Exception: %s</body></html>' % str(e))
+#     except Exception as e:
+#         print('<html><body>Failed to save selected template. Exception: %s</body></html>' % str(e))
 
 def make_select_template_page(topics:str):
 
     templates_list_str = ""
 
     for template_key, template_content in templates.items():
-        templates_list_str += TEMPLATE_LINE % (topics, template_key, template_key, template_content)
+        templates_list_str += TEMPLATE_LINE % (topics, template_key, extra_args, template_key, template_content)
 
     print(SELECT_TEMPLATE_PAGE % templates_list_str)
 
 if __name__ == '__main__':
-    form = cgi.FieldStorage()
-    topics = form.getvalue("topics")
-    selection = form.getvalue('selection')
+    # if selection:
+    #     template_selected(topics, selection)
+    # else:
+    #     make_select_template_page(topics)
 
-    if selection:
-        template_selected(topics, selection)
-    else:
-        make_select_template_page(topics)
+    make_select_template_page(topics)
 
     sys.exit(0)

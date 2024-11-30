@@ -181,11 +181,11 @@
             "window" : "_blank"
         },
         "CARBONCOPIES" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?n=20100907053900.1&G=true&T=true&B=79&C=200&tdorder=true&tdfar=true&tdbad=true&N=7.0&O=later",
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20100907053900.1&G=true&T=true&B=79&i=79&C=200&tdorder=true&tdfar=true&tdbad=true&N=7.0&O=later",
             "window" : "_blank"
         },
         "WBE-ROADMAP-UPDATE" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?n=20200424210214.1&G=true&I=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20200424210214.1&G=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
             "window" : "_blank"
         },
         "NEXTUP-OUTPUT" : {

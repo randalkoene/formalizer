@@ -88,6 +88,7 @@ sort_by = form.getvalue('sort_by')
 # optional extra arguments for edit=new
 tosup = form.getvalue('tosup')
 todep = form.getvalue('todep')
+template = form.getvalue('template')
 
 subtrees_list = form.getvalue('subtrees')
 
@@ -277,6 +278,33 @@ pastePopupLink('docpopupfunc', 'text');
 </body>
 </html>
 '''
+
+new_node_templates = {
+    "Milestone": '''MILESTONE: <b>[(label)]</b> (description of achievement)
+<P>
+@PREREQS:(prereqs)@
+@PROVIDES:(provides)@
+''',
+    "Contact": '''<b>(name)</b>. https://contacts.google.com/u/1/person/(link-code)
+<P>
+<b>Description</b>:
+<P>
+(description)
+<P>
+<b>Next interaction</b>:
+<P>
+(next)
+<P>
+@TZADJUST@
+@SELFWORK@
+''',
+    "Check List": '''<ul>
+<li><input type="checkbox" > </li>
+<li><input type="checkbox" > </li>
+<li><input type="checkbox" > </li>
+</ul>
+'''
+}
 
 #topicspagehead = '''Content-type:text/html
 #
@@ -473,6 +501,24 @@ NEW_NODE_INIT_PAGE='''<html>
 </html>
 '''
 
+def embed_in_textarea(html_content, textarea_content)->str:
+    textarea_pos = html_content.find('<textarea')
+    if textarea_pos < 0:
+        return '<B>No textarea in fzgraphhtml output.</B>'
+    else:
+        textarea_start = html_content.find('>', textarea_pos+9)
+        if textarea_start < 0:
+            return '<B>Textarea in fzgraphhtml output has incomplete tag.</B>'
+        else:
+            textarea_end = html_content.find('</textarea>', textarea_start+1)
+            if textarea_end < 0:
+                return '<B>Textarea is missing closing tag.</B>'
+            else:
+                retstr = html_content[:textarea_start+1]
+                retstr += textarea_content
+                retstr += html_content[textarea_end:]
+                return retstr
+
 def generate_New_Node_init_page():
     print(NEW_NODE_INIT_PAGE)
 
@@ -491,6 +537,10 @@ def generate_Node_edit_form_page():
     if edit=='new' and not topics:
         generate_New_Node_init_page()
         return
+
+    template_content = None
+    if edit=='new' and template:
+        template_content = new_node_templates[template]
 
     # This is reached when fzgraphhtml-cgi.py?edit=new&topics=<something>
     thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -m "+edit
@@ -514,7 +564,11 @@ def generate_Node_edit_form_page():
     if SPA:
         thecmd += ' -j' # no Javascript
     print(editpagehead)
-    try_command_call(thecmd)
+    embeddable_html = try_command_call(thecmd, printhere=False)
+    if not template_content:
+        print(embeddable_html)
+    else:
+        print(embed_in_textarea(embeddable_html, template_content))
     print(editpagetail % fzserverpq_addrport)
 
 

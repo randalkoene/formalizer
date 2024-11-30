@@ -1175,6 +1175,12 @@ const std::string patt_token[_patt_num] = {
 static const char update_skip_template_A[] = R"USTEMP( | <input type="submit" name="action" value="update"> to <input type="datetime-local" id="tpass" name="tpass" min="1990-01-01T00:00:00" value=")USTEMP";
 static const char update_skip_template_B[] = R"USTEMP("> <input type="submit" name="action" value="skip"> <input type="number" name="num_skip" min="1" max="100" step="1" value=1>)USTEMP";
 
+std::string prop_argument(td_property tdprop) {
+    if (tdprop == _tdprop_num) return "";
+
+    return "&prop="+td_property_str[tdprop];
+}
+
 bool render_new_node_page() {
     ERRTRACE;
 
@@ -1208,7 +1214,7 @@ bool render_new_node_page() {
     } else {
         nodevars.emplace("is_disabled", "");
         nodevars.emplace("notice_1", "<input type=\"hidden\" name=\"topics\" value=\""+fzgh.list_name+"\">");
-        nodevars.emplace("select-template", "<tr><td><button class=\"button button1\" onclick=\"window.open('/cgi-bin/addnode-template.py?topics="+fzgh.list_name+"','_self');\">Select Template</button></td></tr>");
+        nodevars.emplace("select-template", "<tr><td><button class=\"button button1\" onclick=\"window.open('/cgi-bin/addnode-template.py?topics="+fzgh.list_name+prop_argument(fzgh.init_tdprop)+"','_self');\">Select Template</button></td></tr>");
         nodevars.emplace("node-text", ndata.utf8_text);
     }
 
