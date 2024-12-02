@@ -19,20 +19,96 @@
 <input type="submit" value="Update Schedule">
 <input type="radio" name="update" value="repeating"> repeating
 <input type="radio" name="update" value="variable"> variable
-<input type="radio" name="update" value="both" checked> both |
-verbose <input type="checkbox" name="verbose"> |
-show maps <input type="checkbox" name="showmaps"> |
-dry-run <input type="checkbox" name="dryrun"> |
-no EOD <input type="checkbox" name="noEOD"> |
-Emulate time: <input type="number" name="T_emulate" style="width: 15em;"> |
-Full update <input type="checkbox" name="full_update" checked> |
-Up to T_max: <input type="number" name="T_max" style="width: 15em;"> |
-Days to map: <input type="number" name="map_days" style="width: 8em;"> (default: see config or 14)
-[See <a href="/cgi-bin/fzupdate-cgi.py?help=true">fzupdate-cgi.py Help info</a>.] |
-Overhead multiplier: <input type="text" name="ovmultiplier" style="width: 8em;"> (default: 2.0, see config) |
-Category days: <input type="text" name="btf_days" value="{{ btf_days }}" size=40> |
-EOD time: <input type="text" name="EOD_time" style="width: 15em;"> (default: 1940, see config)
+<input type="radio" name="update" value="both" checked> both
+| verbose <input type="checkbox" name="verbose">
+| show maps <input type="checkbox" name="showmaps">
+| dry-run <input type="checkbox" name="dryrun">
+| no EOD <input type="checkbox" name="noEOD">
+| Emulate time: <input type="number" name="T_emulate" style="width: 15em;">
+| Full update <input type="checkbox" name="full_update" checked>
+| Up to T_max: <input type="number" name="T_max" style="width: 15em;">
+| Days to map: <input type="number" name="map_days" style="width: 8em;"> (default: see config or 14)
+[See <a href="/cgi-bin/fzupdate-cgi.py?help=true">fzupdate-cgi.py Help info</a>.]
+| Overhead multiplier: <input type="text" name="ovmultiplier" style="width: 8em;"> (default: 2.0, see config)
+| Category days: <input id="btf_days" type="text" name="btf_days" value="{{ btf_days }}" size=40>
+| EOD time: <input type="text" name="EOD_time" style="width: 15em;"> (default: 1940, see config)
 </form>
+<style>
+#btf_radios {
+display:none;
+background-color:var(--color-bg);
+z-index:1;
+position:fixed;
+border-style:solid;
+}
+</style>
+<div id="btf_radios">
+<table><tbody>
+<tr>
+<td></td><td>SUN</td><td>MON</td><td>TUE</td><td>WED</td><td>THU</td><td>FRI</td><td>SAT</td>
+</tr>
+<tr>
+<td>WORK</td>
+<td><input id="btf_WORK_SUN" name="btf_SUN" type="radio" value="WORK"></td>
+<td><input id="btf_WORK_MON" name="btf_MON" type="radio" value="WORK"></td>
+<td><input id="btf_WORK_TUE" name="btf_TUE" type="radio" value="WORK"></td>
+<td><input id="btf_WORK_WED" name="btf_WED" type="radio" value="WORK"></td>
+<td><input id="btf_WORK_THU" name="btf_THU" type="radio" value="WORK"></td>
+<td><input id="btf_WORK_FRI" name="btf_FRI" type="radio" value="WORK"></td>
+<td><input id="btf_WORK_SAT" name="btf_SAT" type="radio" value="WORK"></td>
+</tr>
+<tr>
+<td>SELFWORK</td>
+<td><input id="btf_SELFWORK_SUN" name="btf_SUN" type="radio" value="SELFWORK"></td>
+<td><input id="btf_SELFWORK_MON" name="btf_MON" type="radio" value="SELFWORK"></td>
+<td><input id="btf_SELFWORK_TUE" name="btf_TUE" type="radio" value="SELFWORK"></td>
+<td><input id="btf_SELFWORK_WED" name="btf_WED" type="radio" value="SELFWORK"></td>
+<td><input id="btf_SELFWORK_THU" name="btf_THU" type="radio" value="SELFWORK"></td>
+<td><input id="btf_SELFWORK_FRI" name="btf_FRI" type="radio" value="SELFWORK"></td>
+<td><input id="btf_SELFWORK_SAT" name="btf_SAT" type="radio" value="SELFWORK"></td>
+</tr>
+</tbody></table>
+<button id="btf_apply" class="button button1">Apply</button>
+</div>
+<script type="text/javascript" src="/hoveropentab.js"></script>
+<script>
+const BTF_CATEGORIES = ['WORK', 'SELFWORK'];
+const DAYS_SHORT = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+function open_btf_selection() {
+	const btf_str = document.getElementById("btf_days").value;
+	const btf_vec = btf_str.split('_');
+	for (let i=0; i<btf_vec.length; ++i) {
+		const btf_catvec = btf_vec[i].split(':');
+		if (BTF_CATEGORIES.includes(btf_catvec[0])) {
+			const btf_days = btf_catvec[1].split(',');
+			for (let j=0; j<btf_days.length; ++j) {
+				const btf_id = `btf_${btf_catvec[0]}_${btf_days[j]}`;
+				document.getElementById(btf_id).checked = true;
+			}
+		}
+	}
+}
+function apply_btf_selections() {
+	console.log('Apply BTF selections detected.');
+	var btf_str = '';
+	for (let i=0; i<BTF_CATEGORIES.length; ++i) {
+		var days_str = '';
+		for (let j=0; j<DAYS_SHORT.length; ++j) {
+			const btf_id = `btf_${BTF_CATEGORIES[i]}_${DAYS_SHORT[j]}`;
+			if (document.getElementById(btf_id).checked) {
+				if (days_str != '') days_str += ',';
+				days_str += DAYS_SHORT[j];
+			}
+		}
+		if (days_str != '') {
+			if (btf_str != '') btf_str += '_';
+			btf_str += BTF_CATEGORIES[i]+':'+days_str;
+		}
+	}
+	document.getElementById("btf_days").value = btf_str;
+}
+const btf_tab = new HoverOpenTab('btf_days', 'btf_radios', false, 'btf_apply', apply_btf_selections, open_btf_selection);
+</script>
 
 <form action="/cgi-bin/fzgraphhtml-cgi.py" method="GET">
 <input type="submit" value="Show">
