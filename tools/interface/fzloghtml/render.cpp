@@ -769,11 +769,15 @@ struct review_element {
             { "system-checked", "" },
             { "nap-checked", "" },
             { "other-checked", "" },
+            { "other-hl", "" },
             { "node_id", node_ptr->get_id_str() },
             { "node", nodedesc },
             { "log", logcontent },
         };
         chunk_map[category_to_key.at(category)] = "checked";
+        if (category == '?') { // Highlight "other" for easier flagging during review.
+            chunk_map["other-hl"] = " class=\"fail\"";
+        }
         if (!env.fill_template_from_map(
                 template_path_from_map(review_format_to_chunk_template_map),
                 chunk_map,
