@@ -798,7 +798,132 @@ def generic_fzlog_call(form):
     # 3. Present the result.
     print(GENERIC_SUCCESS_PAGE % (thecmd, decoded_result))
 
+INSERT_LOG_CHUNK_ERROR='''<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>fz: Insert Log chunk error</title>
+</head>
+<body>
+<script type="text/javascript" src="/fzuistate.js"></script>
+
+<h3>fz: Insert Log chunk error</h3>
+
+<p class="fail"><b>ERROR: Failed to insert Log chunk.</b></p>
+
+<hr>
+[<a href="/index.html">fz: Top</a>]
+
+</body>
+</html>
+'''
+
+def insert_Log_chunk_error():
+    print(INSERT_LOG_CHUNK_ERROR)
+    sys.exit(1)
+
+INSERT_LOG_CHUNK='''<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>fz: Insert Log chunk</title>
+</head>
+<body>
+<script type="text/javascript" src="/fzuistate.js"></script>
+
+<h3>fz: Insert Log chunk</h3>
+
+<p class="success"><b>Log chunk inserted at %s for Node %s with close time stamp %s.</b></p>
+
+<hr>
+[<a href="/index.html">fz: Top</a>]
+
+</body>
+</html>
+'''
+
+def get_t_chunkclose(chunk_id:str)->str:
+    thecmd = f"./fzloghtml -1 {chunk_id} -2 {chunk_id} -T 'STR:{{{{ t_chunkopen }}}} {{{{ t_chunkclose }}}}\n' -o STDOUT -N -q -E STDOUT"
+    retcode = try_subprocess_check_output(thecmd, 'stdout', print_result=False)
+    if (retcode != 0):
+        insert_Log_chunk_error()
+    try:
+        logdatavec = results['stdout'].decode().split('\n')
+    except:
+        insert_Log_chunk_error()
+    if len(logdatavec) < 1:
+        insert_Log_chunk_error()
+    logline_datavec = logdatavec[0].split(' ')
+    if len(logline_datavec) < 2:
+        insert_Log_chunk_error()
+    if logline_datavec[0] != chunk_id:
+        insert_Log_chunk_error()
+    return logline_datavec[1]
+
 # Note that insert_Log_entry is handled through logentry-form.py.
+# This is used to automatically create a gap and then use the fzlog '-I' option.
+# Parameters:
+# chunk_id: The Log chunk after which to insert the new one.
+# t_newchunk: The start time stamp for the new Log chunk.
+# node_id: The Node for the new Log chunk.
+def insert_Log_chunk(chunk_id:str, t_newchunk:str, node_id:str):
+    if node_id == 'selected':
+        node_id = get_selected_Node(verbosity)
+        if not node_id:
+            insert_Log_chunk_error()
+    # 1. Determine the Log chunk close time that needs to be shifted earlier to make a gap.
+    t_chunkclose = get_t_chunkclose(chunk_id)
+
+    # # 2. Shift earlier the close time of the existing Log chunk.
+    if int(t_newchunk) > int(t_chunkclose):
+        insert_Log_chunk_error()
+    if int(t_newchunk) <= int(chunk_id):
+        insert_Log_chunk_error()
+
+    thecmd = './fzlog -m %s -2 %s -E STDOUT -W STDOUT' % (chunk_id, t_newchunk)
+    retcode = try_subprocess_check_output(thecmd, 'stdout', print_result=False)
+    if (retcode != 0):
+        insert_Log_chunk_error()
+    # 3. Insert the new Log chunk.
+    thecmd = './fzlog -I %s -n %s -2 %s -E STDOUT -W STDOUT' % (t_newchunk, node_id, t_chunkclose)
+    retcode = try_subprocess_check_output(thecmd, 'stdout', print_result=False)
+    if (retcode != 0):
+        insert_Log_chunk_error()
+    print(INSERT_LOG_CHUNK % (t_newchunk, node_id, t_chunkclose))
+
+INSERT_LOG_CHUNK_PAGE='''<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>fz: Insert Log chunk</title>
+</head>
+<body>
+<script type="text/javascript" src="/fzuistate.js"></script>
+
+<h3>fz: Insert Log chunk</h3>
+
+After Log chunk %s:
+
+<form action="/cgi-bin/fzlog-cgi.py" method="GET">
+<input type="hidden" name="action" value="insert">
+<input type="hidden" name="id" value="%s">
+At time stamp: <input type="text" name="T"><br>
+For Node: <input type="text" name="node" value="selected"><br>
+<input type="submit" value="Insert">
+</form>
+
+<hr>
+[<a href="/index.html">fz: Top</a>]
+
+</body>
+</html>
+'''
+
+def insert_Log_chunk_page(chunk_id:str):
+    print(INSERT_LOG_CHUNK_PAGE % (chunk_id, chunk_id))
 
 def show_interface_options():
     print(interface_options_help)
@@ -861,6 +986,12 @@ if __name__ == '__main__':
             sys.exit(1)
     if (action == 'modify'):
         generate_chunk_modify_page()
+        sys.exit(0)
+    if (action == 'insert'):
+        insert_Log_chunk(id, T_emulated, node)
+        sys.exit(0)
+    if (action == 'insertchunkpage'):
+        insert_Log_chunk_page(id)
         sys.exit(0)
 
     show_interface_options()

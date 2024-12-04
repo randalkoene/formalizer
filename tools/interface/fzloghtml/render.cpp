@@ -559,6 +559,7 @@ bool render_Log_interval() {
                 varvals.emplace("t_diff", "");
                 varvals.emplace("t_diff_mins", ""); // typically, only either t_diff or t_diff_mins appears in a template
                 varvals.emplace("insert-entry", "");
+                varvals.emplace("insert-chunk", "");
             } else {
                 time_t _tchunkclose = fzlh.time_zone_adjusted(t_chunkclose);
                 varvals.emplace("t_chunkclose", TimeStampYmdHM(_tchunkclose));
@@ -570,6 +571,7 @@ bool render_Log_interval() {
                     varvals.emplace("t_diff", std::to_string(t_diff)+" mins");
                 }
                 varvals.emplace("insert-entry", "[<a href=\"/cgi-bin/logentry-form.py?insertentry="+t_open_str+"\" target=\"_blank\">add entry</a>]");
+                varvals.emplace("insert-chunk", "[<a href=\"/cgi-bin/fzlog-cgi.py?action=insertchunkpage&id="+t_open_str+"\" target=\"_blank\">insert chunk</a>]");
             }
             varvals.emplace("entries",combined_entries);
             if (fzlh.get_log_entry && fzlh.noframe && (fzlh.recent_format == most_recent_raw)) {
