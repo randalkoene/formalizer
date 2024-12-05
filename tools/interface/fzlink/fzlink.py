@@ -3,6 +3,8 @@
 # Randal A. Koene, 20200921
 #
 # CGI script to forward Node, Log chunk and Log entry ID references to a handler.
+# This handler can also forward fzserverpq API file serving requests from
+# any HTML page.
 
 # Import modules for CGI handling 
 try:
@@ -17,6 +19,9 @@ from io import StringIO
 from traceback import print_exc
 from subprocess import Popen, PIPE
 
+from fzmodbase import *
+from tcpclient import client_socket_request
+
 # cgitb.enable()
 # cgitb.disable()
 # cgitb.enable(display=0, logdir="/tmp/test_python_cgiformget.log")
@@ -27,8 +32,9 @@ form = cgi.FieldStorage()
 # Get data from fields
 id = form.getvalue('id')
 alt = form.getvalue('alt')
+fz = form.getvalue('FZSERVER')
 
-http_response = 'Content-type:text/html\n\n'
+http_response = 'Content-type:text/html\n'
 
 # This page header is used when showing Nodes.
 page_header = '''<html>
@@ -151,7 +157,17 @@ def render_output():
     if addframe:
         print(page_tail)
 
+def forward_file_serving():
+    print(http_response)
+    data = client_socket_request('GET %s' % fz, running_on_server=True, expect_http=True)
+    print(data)
+
+
 if __name__ == '__main__':
+
+    if fz:
+        forward_file_serving()
+        sys.exit(0)
 
     build_command(id, alt)
 

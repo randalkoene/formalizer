@@ -180,9 +180,7 @@ background-color: var(--tr-hover);
 </style>
 '''
 DAYPAGE_TABLES_FRAME='''<table class="col_right_separated">
-<tr><th>Wizard Record</th><th><a href="https://trello.com/b/t2RmUmlN/milestones-prioritization-experimental-visualization">Milestones</a> <a href="https://trello.com/b/tlgXjZBm/system-experiments">In-Rotation</a><br>
-[List of links to in-rotation milestone Nodes belongs here with progress indication.]<br>
-[A link to milestone planning should be here, something like a tree.]</th></tr>
+<tr><th>Wizard Record</th><th>Additional Day Records</th></tr>
 <tr valign="top">
 <td width="50%%">%s</td>
 <td>%s</td>

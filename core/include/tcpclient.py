@@ -29,7 +29,7 @@ def get_server_address(fzuserbase: str):
     return serverIPport
 
 
-def client_socket_request(request_str: str, running_on_server=False):
+def client_socket_request(request_str: str, running_on_server=False, expect_http=False):
     global serverIPport
     if running_on_server:
         serverIPport = "127.0.0.1:8090"
@@ -41,6 +41,20 @@ def client_socket_request(request_str: str, running_on_server=False):
     s.send(request_str.encode())
     data = ''
     data = s.recv(1024).decode()
+    if expect_http:
+        http_header = data.split('\n')
+        if 'HTTP' in http_header[0]:
+            if '200' in http_header[0]:
+                # Find expected length
+                for http_line in http_header:
+                    if 'Content-Length:' in http_line:
+                        expected_length = int(http_line[15:])
+                        # Find HTML start
+                        for i in range(len(http_header)):
+                            if http_header[i][0:5] == '<html' or http_header[i][0:5] == '<HTML':
+                                data_top = '\n'.join(http_header[i:])
+                                data = s.recv(expected_length).decode()
+                                data = data_top + data
     return data
 
 
