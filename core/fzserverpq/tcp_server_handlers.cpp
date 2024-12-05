@@ -1357,17 +1357,14 @@ bool handle_node_superiors_addlist(Node & node, std::string superiorslist) {
 #ifdef TEST_MORE_THAN_NODE_MODIFICATIONS
     To_Debug_LogFile("Started processing superiors NNL to add to Node "+node.get_id_str());
     for (const auto & superior_idkey : superiorsNNL_ptr->list) {
-        To_Debug_LogFile("Processing new superior "+superior_idkey.str());
         std::string edge_id_str = node.get_id_str()+'>'+superior_idkey.str();
         To_Debug_LogFile("New Edge to add: "+edge_id_str);
         Edge_ptr edge_ptr = fzs.graph().create_and_add_Edge(edge_id_str);
         if (!edge_ptr) {
             return standard_error("Creating edge failed for "+edge_id_str, __func__);
         }
-        To_Debug_LogFile("Edge added to in-memory Graph.");
         // *** set the edit flag in the Edge (when it has those)
         fzs.modifications_ptr->add(graphmod_add_edge, edge_ptr->get_id().key());
-        To_Debug_LogFile("Modification data added to modifications list.");
     }
     To_Debug_LogFile("Completed processing superiors NNL to add to Node "+node.get_id_str());
     return true;
