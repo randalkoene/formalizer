@@ -327,3 +327,5 @@ function copyNodeStyle(sourceNode, targetNode) {
   targetNode.style.opacity = computedStyle.opacity;
   targetNode.style.border = computedStyle.border;
 }
+
+export { htmlToSvg };

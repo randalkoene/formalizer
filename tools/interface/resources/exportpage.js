@@ -14,6 +14,16 @@ class ExportPage {
 
   // Open an input box for the filename.
   ExportHTML() {
+    this.makeFileNameBox();
+    this.exportname_input.addEventListener('change', this.startExportHTML.bind(this));
+  }
+
+  ExportSVG() {
+    this.makeFileNameBox();
+    this.exportname_input.addEventListener('change', this.startExportSVG.bind(this));
+  }
+
+  makeFileNameBox() {
     this.exportname_div = document.createElement('div');
     this.exportname_div.innerHTML = `Export file name:<br><input id="exportname" type="text"><button id="exportcancel">cancel</button>`;
     this.exportname_div.style.position = 'fixed';
@@ -25,7 +35,6 @@ class ExportPage {
     this.exportname_div.style.justifyContent = 'center';
     document.body.appendChild(this.exportname_div);
     this.exportname_input = document.getElementById('exportname');
-    this.exportname_input.addEventListener('change', this.startExportHTML.bind(this));
     document.getElementById('exportcancel').onclick = this.cancelExportHTML.bind(this);
   }
 
@@ -52,6 +61,15 @@ class ExportPage {
     a.download = this.filename;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  startExportSVG() {
+    // Get the export file name.
+    this.filename = this.exportname_input.value;
+    // Close the input box.
+    this.exportname_div.remove();
+    // Export.
+    // This is handled outside of this class, see the example in Options_pane.template.html.
   }
 
   ExportScreenshot() {
