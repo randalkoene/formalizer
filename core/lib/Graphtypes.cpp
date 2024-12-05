@@ -1185,7 +1185,7 @@ Edge::Edge(Graph & graph, std::string id_str): id(id_str.c_str()) {
         throw(ID_exception(formerror));
     }
     if (!graph.add_Edge(this)) {
-        formerror = "unable to add to Graph";
+        formerror = "unable to add to Graph, "+graph.get_error();
         throw(ID_exception(formerror));
     }
 }
@@ -1402,6 +1402,20 @@ bool Graph_Config_Options::set_all(Graph * graph_ptr) {
     graph_ptr->set_T_suspiciously_large(T_suspiciously_large);
     graph_ptr->set_batchmode_constraints_active(batchmode_constraints_active);
     return true;
+}
+
+std::string Graph::get_error() const {
+    const std::map<errcodes, std::string> errcodes_map = {
+        { g_noerrors, "no error" },
+        { g_addnullnode, "added null Node" },
+        { g_adddupnode, "added duplicate Node" },
+        { g_addnulledge, "added null Edge" },
+        { g_adddupedge, "added duplicate Edge" },
+        { g_removenulledge, "removed null Edge" },
+        { g_removeunknownedge, "removed unknown Edge" },
+    };
+    if (error >= NUM_errcodes) return "unrecognized error";
+    return errcodes_map.at(error);
 }
 
 std::vector<std::string> Graph::get_List_names() const {
@@ -1711,7 +1725,16 @@ Edge * Graph::create_and_add_Edge(std::string id_str) {
     if (!smem)
         return nullptr;
 
-    return smem->construct<Edge>(bi::anonymous_instance)(*this,id_str); // this does adding to Graph as well
+    try {
+        Edge * new_edge = smem->construct<Edge>(bi::anonymous_instance)(*this,id_str); // this does adding to Graph as well
+        return new_edge;
+    } catch (const ID_exception& e) {
+        ADDERROR(__func__, e.what());
+        VERBOSEERR(e.what()+'\n');
+        return nullptr;
+    }
+
+    //return smem->construct<Edge>(bi::anonymous_instance)(*this,id_str); // this does adding to Graph as well
 }
 
 bool Graph::remove_Edge(Edge &edge) {

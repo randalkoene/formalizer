@@ -901,7 +901,7 @@ struct Graph_Config_Options {
 class Graph {
     friend class Node;
 public:
-    enum errcodes { g_noerrors, g_addnullnode, g_adddupnode, g_addnulledge, g_adddupedge, g_removenulledge, g_removeunknownedge };
+    enum errcodes { g_noerrors, g_addnullnode, g_adddupnode, g_addnulledge, g_adddupedge, g_removenulledge, g_removeunknownedge, NUM_errcodes };
     errcodes error = g_noerrors; /// Stores a code for the most recent error encountered.
 protected:
     // keeping nodes protected here purely as a precaution against accidental map modification
@@ -927,6 +927,8 @@ protected:
 
 public:
     Graph(): nodes(graphmemman.get_allocator()), edges(graphmemman.get_allocator()), namedlists(graphmemman.get_allocator()), server_IP_str(graphmemman.get_allocator()) {}
+
+    std::string get_error() const;
 
     /// tables references
     const Topic_Tags & get_topics() const { return topics; }

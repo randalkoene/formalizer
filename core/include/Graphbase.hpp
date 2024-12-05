@@ -154,7 +154,7 @@ public:
     ID_exception(std::string _idexceptioncase) : idexceptioncase(_idexceptioncase) {
         ADDERROR("Node_ID::Node_ID",node_exception_stub+idexceptioncase);
     }
-    std::string what() { return std::string(node_exception_stub) + idexceptioncase; }
+    std::string what() const { return std::string(node_exception_stub) + idexceptioncase; }
 };
 
 /**
