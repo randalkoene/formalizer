@@ -13,7 +13,7 @@
 #       of the www-data group.
 
 # Do this immediately, so that any errors are visible:
-print("Content-type:text/html\n\n")
+print("Content-type:text/html\n")
 
 # Import modules for CGI handling 
 try:

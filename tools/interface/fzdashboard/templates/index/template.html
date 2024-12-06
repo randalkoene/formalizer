@@ -53,7 +53,7 @@
 <hr>
 
 <table><tbody><tr>
-<td>Last remote backup: ??</td><td>Last external drive backup: ??</td><td>Last sync of accounts: ??</td>
+<td>Last remote backup: <span id="backupstate">??</span></td><td>Last external drive backup: ??</td><td>Last sync of accounts: ??</td>
 </tr></tbody></table>
 
 <hr>
@@ -77,8 +77,10 @@
 </div> <!-- end of bodyrow -->
 
 <script type="text/javascript" src="/stateoflog.js"></script>
+<script type="text/javascript" src="/stateofbackup.js"></script>
 <script>
 const state_of_log = new logState(logstate_id="timerBarText");
+const state_of_backup = new backupState('backupstate');
 </script>
 </BODY>
 

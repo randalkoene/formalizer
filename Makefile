@@ -316,6 +316,7 @@ TOPLEVEL += $(TOOLSPATH)/interface/resources/systemhelp.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/rightbar.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/rightbar.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/stateoflog.js
+TOPLEVEL += $(TOOLSPATH)/interface/resources/stateofbackup.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/closeonlogstatechange.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/copyinputvalue.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/copyinnerhtml.js
