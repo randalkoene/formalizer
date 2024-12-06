@@ -10,7 +10,7 @@ from json import load, dump
 
 scorefile = '/var/www/webdata/formalizer/dayreview_scores.json'
 
-OUTPUTTEMPLATE='The waking day yesterday was from %s to %s, containing about %.2f waking (non-nap) hours. I did %.2f hours of self-work and %.2f hours of work. I did %.2f hours of System and self-care. Other therefore took %.2f hours. The ratio total performance score is %.2f / %.2f = %.2f.'
+OUTPUTTEMPLATE='The waking day yesterday was from %s to %s, containing about %.2f waking (non-nap) hours. I did %.2f hours of self-work and %.2f hours of work. I did %.2f hours of System and self-care. Other therefore took %.2f hours. This was meant to be a %s day, and the ratio total performance score is %.2f / %.2f = %.2f.'
 
 # target, min-lim, max-lim, penalize-above, penalize-below, max-score
 intended = {
@@ -55,7 +55,9 @@ class dayreview_algorithm:
     def __init__(self, wakinghours:float, chunkdata:list, btf_days:str='', datestamp:str=''):
         self.wakinghours = wakinghours
         self.chunkdata = chunkdata
+        self.btf_days = btf_days
         self.dayfocus = btfdays2dayfocus(btf_days)
+        self.focus = None
         if len(self.dayfocus) > 0:
             self.modify_intended(datestamp)
 
@@ -67,8 +69,8 @@ class dayreview_algorithm:
     def modify_intended(self, datestamp:str):
         date_object = datetime.strptime(datestamp, '%Y%m%d').date()
         weekday = date_object.strftime("%a").upper()
-        focus = self.dayfocus[weekday]
-        intendedfocus = btf2intended[focus]
+        self.focus = self.dayfocus[weekday]
+        intendedfocus = btf2intended[self.focus]
         for key in intended:
             if key in unmodifiable:
                 continue
@@ -232,6 +234,7 @@ class dayreview_algorithm:
             self.hours_summary['work'],
             self.hours_summary['system/care'],
             self.hours_summary['other'],
+            self.focus,
             self.totscore,
             self.totintended,
             self.totscore_ratio,

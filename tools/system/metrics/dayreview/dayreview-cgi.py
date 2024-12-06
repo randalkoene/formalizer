@@ -57,6 +57,10 @@ Using days of the week categorization: %s
 </p>
 
 <p>
+Focus day: %s
+</p>
+
+<p>
 Number of waking hours in previous day: %.2f
 </p>
 
@@ -212,7 +216,8 @@ def generate_summary_page(
         metrictag_error_html = '<p><b>Metrictag error: %s</b></p>' % extra_metrics_dict['error']
 
     print(DAYREVIEW_SUMMARY % (
-            btf_days,
+            review_algo.btf_days,
+            review_algo.focus,
             wakinghours,
             summary_table,
             score_table,
