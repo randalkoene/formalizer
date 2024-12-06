@@ -20,7 +20,8 @@ from traceback import print_exc
 from subprocess import Popen, PIPE
 
 from fzmodbase import *
-from tcpclient import client_socket_request
+#from tcpclient import client_socket_request
+from tcpclient import get_server_address
 
 # cgitb.enable()
 # cgitb.disable()
@@ -35,6 +36,11 @@ alt = form.getvalue('alt')
 fz = form.getvalue('FZSERVER')
 
 http_response = 'Content-type:text/html\n'
+
+REDIRECT='''<html>
+<meta http-equiv="Refresh" content="0; URL=%s" />
+</html>
+'''
 
 # This page header is used when showing Nodes.
 page_header = '''<html>
@@ -157,11 +163,16 @@ def render_output():
     if addframe:
         print(page_tail)
 
+# def forward_file_serving():
+#     print(http_response)
+#     data = client_socket_request('GET %s' % fz, running_on_server=True, expect_http=True)
+#     print(data)
+
 def forward_file_serving():
     print(http_response)
-    data = client_socket_request('GET %s' % fz, running_on_server=True, expect_http=True)
-    print(data)
-
+    server_address = get_server_address('.')
+    url = 'http://%s%s' % (server_address, fz)
+    print(REDIRECT % url)
 
 if __name__ == '__main__':
 
