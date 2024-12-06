@@ -2111,7 +2111,7 @@ bool handle_fz_vfs_request(int new_socket, const std::string & fzrequesturl) {
  * Redirects local Markdown file through md2html.
  */
 bool handle_markdown(const std::string& mdfilepath, std::string& response_html) {
-    response_html = shellcmd2str("md2html "+mdfilepath);
+    response_html = shellcmd2str("md2html --github "+mdfilepath);
     return true;
 }
 
