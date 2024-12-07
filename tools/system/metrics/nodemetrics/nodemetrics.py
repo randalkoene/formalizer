@@ -24,7 +24,7 @@ import plotly.io as pxio
 
 from fzmodbase import *
 from TimeStamp import NowTimeStamp
-from datetime import datetime
+from datetime import datetime, timedelta
 import statistics
 
 TOPICSTATSFILE='/var/www/webdata/formalizer/topic_stats.json'
@@ -142,18 +142,45 @@ NODE_DATA_HTML='''<tr><td>ID: <a class="nnl" href="/cgi-bin/fzlink.py?id=%s" tar
 TOPIC_DATA_HTML='''<tr><td>%s</td><td>Mean: %.2f</td><td>Median: %.2f</td></tr>
 '''
 
-def show_nodes_subset_metrics():
-    norepeats = form.getvalue("norepeats")
-    completed = form.getvalue("completed")
-    nonzero = form.getvalue("nonzero")
+THREESAMPLES_TOPIC_HEADER_HTML='''<tr><th></th><th colspan="2">%s</th><th colspan="2">%s</th><th colspan="2">%s</th><th>Nonlinear Mean</th><th>Nonlinear Median</th></tr>
+'''
 
-    alloflog = form.getvalue('alloflog')
-    startfrom = form.getvalue('startfrom')
-    endbefore  = form.getvalue('endbefore')
-    if alloflog:
-        startfrom = "199001010000"
-        endbefore = NowTimeStamp()
+THREESAMPLES_TOPIC_DATA_HTML='''<tr><td%s>%s</td><td>Mean: %.2f</td><td%s>Median: %.2f</td><td>Mean: %.2f</td><td%s>Median: %.2f</td><td>Mean: %.2f</td><td%s>Median: %.2f</td><td>Mean: %.2f</td><td%s>Median: %.2f</td></tr>
+'''
 
+THREESAMPLES_NODES_SUBSET_METRICS_PAGE='''<html>
+<head>
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>Nodes Three Sample Subsets Metrics</title>
+</head>
+<body>
+<script type="text/javascript" src="/fzuistate.js"></script>
+
+<h1>Nodes Three Sample Subsets Metrics</h1>
+
+<p>
+Legend:<br>
+Yellow means missing data.<br>
+Red means significant differences between medians.
+Magenta means extremely large median.
+</p>
+
+<p>
+Note that extremely large medians point to Log data that needs fixing.
+</p>
+
+Statistics by Topic:
+<table><tbody>
+%s
+%s
+</tbody></table>
+
+</body>
+</html>
+'''
+
+def collect_subset_Log_sample(norepeats, completed, nonzero, startfrom, endbefore, make_nodes_subset_html=True)->tuple:
     if startfrom:
         startfrom_arg = " -1 "+startfrom
     else:
@@ -232,29 +259,172 @@ def show_nodes_subset_metrics():
         else:
             topics[topic] = [ hours ]
 
-        nodes_subset_html += NODE_DATA_HTML % (node, node, topic, hours_str, diff_days_str)
+        if make_nodes_subset_html:
+            nodes_subset_html += NODE_DATA_HTML % (node, node, topic, hours_str, diff_days_str)
 
-    topicstats = {}
-    topics_str = ''
+    topicstats = {
+        'LOGMAP': { 'startfrom': startfrom, 'endbefore': endbefore, 'norepeats': str(norepeats), 'completed': str(completed), 'nonzero': str(nonzero) },
+    }
     topic_keys = sorted(list(topics.keys()))
     for topic in topic_keys:
         median = statistics.median(topics[topic])
         mean = statistics.mean(topics[topic])
         topicstats[topic] = { 'mean': round(mean*2)/2, 'median': round(median*2)/2 }
-        topics_str += TOPIC_DATA_HTML % (topic, mean, median)
 
-    datetime_object1 = datetime.strptime(startfrom, '%Y%m%d%H%M')
-    datetime_object2 = datetime.strptime(endbefore, '%Y%m%d%H%M')
-    log_seconds = (datetime_object2 - datetime_object1).total_seconds()
-    log_days = int(log_seconds/86400)
+    return topics, nodes_subset_html, num_nodes_shown, topicstats
 
+def sample_mean_median(topic:str, topicstats:dict)->list:
+    if topic in topicstats:
+        return [ topicstats[topic]['mean'], topicstats[topic]['median'] ]
+    else:
+        return [ -1, -1 ]
+
+def sample_header(sample_interval:dict, num_nodes:int)->str:
+    return sample_interval['d_startfrom'].strftime("%Y%m%d%H%M")+'->'+sample_interval['d_endbefore'].strftime("%Y%m%d%H%M")+' (%d Nodes)' % num_nodes
+
+def display_topic_data_with_styles(topic_data:list)->list:
+    display_with_style = [ topic_data[0] ]
+    for i in range(3):
+        offset = (i*2)+1
+        display_with_style.append(topic_data[offset+0]) # mean
+        if topic_data[offset+1]<0:
+            display_with_style.append(' style="background-color:#3f3f3f"') # negative median style
+        else:
+            display_with_style.append('') # valid median style
+        display_with_style.append(topic_data[offset+1]) # median
+    return display_with_style
+
+def samples_topic_style(topic_data:list)->str:
+    # Style for significant median differences
+    if topic_data[2]>=0 or topic_data[4]>=0 or topic_data[6]>=0:
+        medians = []
+        for median in [ topic_data[2], topic_data[4], topic_data[6] ]:
+            if median>=0:
+                medians.append(median)
+        if len(medians)>=2:
+            if statistics.stdev(medians)>0.75:
+                return ' style="color:#ff0000"'
+    # Style for missing data
+    if topic_data[2]<0 or topic_data[4]<0 or topic_data[6]<0:
+        return ' style="color:#ffff00"'
+    # Default style
+    return ""
+
+def nonlinear_samples_mean(topic_data:list)->float:
+    weights = [ 1.0, 0.5, 0.25 ]
+    means = [ topic_data[1], topic_data[3], topic_data[5] ]
+    weighted = [ means[i]*weights[i] for i in range(len(means)) ]
+    totweights = 0.0
+    nonlinear_mean = 0.0
+    for i in range(len(means)):
+        if means[i]>0:
+            totweights += weights[i]
+            nonlinear_mean += weighted[i]
+    if totweights <= 0.0:
+        return -1.0
+    return nonlinear_mean / totweights
+
+def nonlinear_samples_median(topic_data:list)->float:
+    weights = [ 1.0, 0.5, 0.25 ]
+    medians = [ topic_data[2], topic_data[4], topic_data[6] ]
+    weighted = [ medians[i]*weights[i] for i in range(len(medians)) ]
+    totweights = 0.0
+    nonlinear_median = 0.0
+    for i in range(len(medians)):
+        if medians[i]>0:
+            totweights += weights[i]
+            nonlinear_median += weighted[i]
+    if totweights <= 0.0:
+        return -1.0
+    return nonlinear_median / totweights
+
+def nonlinear_median_style(nonlinear_median:float)->str:
+    if nonlinear_median < 0.0:
+        return ' style="color:#ffff00"'
+    if nonlinear_median > 24.0:
+        return ' style="color:#ff00ff"'
+    else:
+        return ""
+
+def save_subset_stats(topicstats:dict):
     try:
         with open(TOPICSTATSFILE, "w") as f:
             json.dump(topicstats, f)
     except:
         pass
 
-    print(NODES_SUBSET_METRICS_PAGE % (startfrom, endbefore, str(log_days), topics_str, str(num_nodes_shown), nodes_subset_html))
+def show_nodes_subset_metrics():
+    norepeats = form.getvalue("norepeats")
+    completed = form.getvalue("completed")
+    nonzero = form.getvalue("nonzero")
+
+    threesamples = form.getvalue("threesamples")
+    alloflog = form.getvalue('alloflog')
+    startfrom = form.getvalue('startfrom')
+    endbefore  = form.getvalue('endbefore')
+    if alloflog:
+        startfrom = "199001010000"
+        endbefore = NowTimeStamp()
+
+    if threesamples:
+        now = datetime.now()
+        start_one_year_ago = now - timedelta(days=365)
+        start_date2020 = datetime(2020, 1, 1)
+        start_alloflog = datetime(1990, 1, 1)
+
+        sample_intervals = [
+            { 'd_startfrom': start_one_year_ago, 'd_endbefore': now },
+            { 'd_startfrom': start_date2020, 'd_endbefore': now },
+            { 'd_startfrom': start_alloflog, 'd_endbefore': now },
+        ]
+
+        sample_num_nodes = []
+        sample_topics = []
+        sample_topicstats = []
+        for sample_interval in sample_intervals:
+            startfrom = sample_interval['d_startfrom'].strftime("%Y%m%d%H%M")
+            endbefore = sample_interval['d_endbefore'].strftime("%Y%m%d%H%M")
+            topics, nodes_subset_html, num_nodes_shown, topicstats = collect_subset_Log_sample(norepeats, completed, nonzero, startfrom, endbefore, make_nodes_subset_html=False)
+
+            sample_num_nodes.append(num_nodes_shown)
+            sample_topics.append(topics)
+            sample_topicstats.append(topicstats)
+
+        topics_str = ''
+        suggestions_topicstats = {}
+        all_topic_keys = sorted(list(sample_topics[-1]))
+        for topic in all_topic_keys:
+            topic_data = [topic]+sample_mean_median(topic, sample_topicstats[0])+sample_mean_median(topic, sample_topicstats[1])+sample_mean_median(topic, sample_topicstats[2])
+            display_topic_data = display_topic_data_with_styles(topic_data)
+            topic_style = samples_topic_style(topic_data)
+            nonlinear_mean = nonlinear_samples_mean(topic_data)
+            nonlinear_median = nonlinear_samples_median(topic_data)
+            nlmedian_style = nonlinear_median_style(nonlinear_median)
+            topic_data_tuple = tuple([topic_style]+display_topic_data+[nonlinear_mean]+[nlmedian_style]+[nonlinear_median]) # (s sfsffsffsf f s f)
+            topics_str += THREESAMPLES_TOPIC_DATA_HTML % topic_data_tuple
+            suggestions_topicstats[topic] = { 'mean': nonlinear_mean, 'median': nonlinear_median }
+
+        save_subset_stats(suggestions_topicstats)
+
+        topics_head_str = THREESAMPLES_TOPIC_HEADER_HTML % (sample_header(sample_intervals[0], sample_num_nodes[0]), sample_header(sample_intervals[1], sample_num_nodes[1]), sample_header(sample_intervals[2], sample_num_nodes[2]))
+        print(THREESAMPLES_NODES_SUBSET_METRICS_PAGE % (topics_head_str, topics_str))
+
+    else:
+        topics, nodes_subset_html, num_nodes_shown, topicstats = collect_subset_Log_sample(norepeats, completed, nonzero, startfrom, endbefore)
+
+        topics_str = ''
+        topic_keys = sorted(list(topics.keys()))
+        for topic in topic_keys:
+            topics_str += TOPIC_DATA_HTML % (topic, topicstats[topic]['mean'], topicstats[topic]['median'])
+
+        datetime_object1 = datetime.strptime(startfrom, '%Y%m%d%H%M')
+        datetime_object2 = datetime.strptime(endbefore, '%Y%m%d%H%M')
+        log_seconds = (datetime_object2 - datetime_object1).total_seconds()
+        log_days = int(log_seconds/86400)
+
+        save_subset_stats(topicstats)
+
+        print(NODES_SUBSET_METRICS_PAGE % (startfrom, endbefore, str(log_days), topics_str, str(num_nodes_shown), nodes_subset_html))
 
 
 UNRECOGNIZEDARGS='''<h1>Error</h1>

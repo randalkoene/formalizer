@@ -17,10 +17,16 @@
 <input type="checkbox" name="nonzero" checked> Non-zero applied-time Nodes only<br />
 <input type="text" name="startfrom" value="199001010000"> start at this YYYYmmddHHMM time stamp (empty means 24 hours before end of interval)<br />
 <input type="text" name="endbefore"> end before this YYYYmmddHHMM time stamp (default: 1 second after most recent Log entry)<br />
-<input type="checkbox" name="alloflog" checked> All of Log<br />
+<input type="checkbox" name="alloflog"> All of Log<br />
+<input type="checkbox" name="threesamples" checked> Three Samples [most recent year, since 2020, all of log] (overrides other time options)<br />
 
 <input type="submit" value="Submit" />
 </form>
+
+<p>
+Note that running with "Three Samples" will show only Topic statistics, but will include comparative statistics for the three samples.
+Otherwise, Topics statistics and data for each Node will be listed.
+</p>
 
 </BODY>
 </HTML>

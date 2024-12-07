@@ -55,7 +55,7 @@
             "window" : "_blank"
         },
         "Calendar" : {
-            "url" : "https://calendar.google.com/calendar/?authuser=randal.a.koene@gmail.com",
+            "url" : "https://calendar.google.com/calendar/?authuser=rkoene@carboncopies.org",
             "window" : "_blank"
         },
         "DayWiz" : {
@@ -260,11 +260,11 @@
             "url" : "https://trello.com/b/uNGTL6aO",
             "window" : "_blank"
         },
-        "Fixing Personal Life" : {
+        "Personal Life" : {
             "url" : "https://trello.com/b/zUiabFZx",
             "window" : "_blank"
         },
-        "Solving Debt" : {
+        "Finances" : {
             "url" : "https://trello.com/b/gPUx2CON",
             "window" : "_blank"
         },
