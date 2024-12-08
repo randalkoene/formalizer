@@ -1333,6 +1333,8 @@ bool render_node_edit() {
         nodevars.emplace("td_update_skip", "");
     }
 
+    //nodevars.emplace("select-template", "<tr><td><button class=\"button button1\" onclick=\"window.open('/cgi-bin/addnode-template.py?topics="+fzgh.list_name+prop_argument(fzgh.init_tdprop)+"','_self');\">Overwrite with Template</button></td></tr>");
+
     nodevars.emplace("node-text", node.get_text());
     float completion = node.get_completion();
     nodevars.emplace("comp", to_precision_string(completion));

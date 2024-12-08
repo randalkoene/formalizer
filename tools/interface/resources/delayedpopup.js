@@ -23,6 +23,7 @@ pastePopupLink('docpopupfunc', 'entrytext');
 Where 'docpopupfunc' refers to the class identifier to give to popup links
 and 'entrytext' refers to the ID of the <textarea> element that should be
 listening for paste actions.
+See, for example, how this is included in the Edit page through fzgraphhtml-cgi.py.
 */
 function hoverWithDelay(element, callback, delay) {
   let timeoutId;
