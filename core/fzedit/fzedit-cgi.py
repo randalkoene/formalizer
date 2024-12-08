@@ -265,6 +265,7 @@ def create_node():
             req_mins = req_mins_typical
     else:
         req_mins = req_mins_typical
+    req_hrs = float(req_mins)/60.0
 
     val_typical = get_float_or_None('val_typical')
     val = get_float_or_None('val')
