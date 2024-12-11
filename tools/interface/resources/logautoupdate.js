@@ -25,7 +25,7 @@ class autoLogUpdate {
 			this.preventupdate_ref.addEventListener('focus', () => {
 				this.isEditing = true;
 			});
-			textarea.addEventListener('blur', () => {
+			this.preventupdate_ref.addEventListener('blur', () => {
 				this.isEditing = false;
 			});
     	}
@@ -47,11 +47,11 @@ class autoLogUpdate {
     	// Check if auto-update should be suppressed while working with an element on the page.
     	if (this.preventupdate_ref) {
     		if (this.isEditing) {
-    			console.log('Auto-reload suppressed, editing.');
+    			//console.log('Auto-reload suppressed, editing.');
     			return;
     		}
     		if (this.preventupdate_ref.value != '') {
-    			console.log('Auto-reload suppressed, has unprocessed edited data.');
+    			//console.log('Auto-reload suppressed, has unprocessed edited data.');
     			return;
     		}
     	}
