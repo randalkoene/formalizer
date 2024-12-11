@@ -29,6 +29,9 @@ import statistics
 
 TOPICSTATSFILE='/var/www/webdata/formalizer/topic_stats.json'
 
+CHUNKMINS=20
+CHUNKSPERHOUR=60/CHUNKMINS
+
 form = cgi.FieldStorage()
 
 node = form.getvalue("node")
@@ -269,7 +272,7 @@ def collect_subset_Log_sample(norepeats, completed, nonzero, startfrom, endbefor
     for topic in topic_keys:
         median = statistics.median(topics[topic])
         mean = statistics.mean(topics[topic])
-        topicstats[topic] = { 'mean': round(mean*2)/2, 'median': round(median*2)/2 }
+        topicstats[topic] = { 'mean': mean, 'median': median }
 
     return topics, nodes_subset_html, num_nodes_shown, topicstats
 
@@ -346,7 +349,21 @@ def nonlinear_median_style(nonlinear_median:float)->str:
     else:
         return ""
 
+def round_to_nearest_chunks_multiple(hrs:float)->float:
+    return int(100*round(hrs*CHUNKSPERHOUR)/CHUNKSPERHOUR)/100
+
+def round_stats_to_nearest_chunks_multiple(topicstats:dict)->dict:
+    rounded_topicstats = {}
+    for topic in topicstats:
+        rounded_topicstats[topic] = topicstats[topic]
+        if 'mean' in rounded_topicstats[topic]:
+            rounded_topicstats[topic]['mean'] = round_to_nearest_chunks_multiple(rounded_topicstats[topic]['mean'])
+        if 'median' in rounded_topicstats[topic]:
+            rounded_topicstats[topic]['median'] = round_to_nearest_chunks_multiple(rounded_topicstats[topic]['median'])
+    return rounded_topicstats
+
 def save_subset_stats(topicstats:dict):
+    rounded_topicstats = round_stats_to_nearest_chunks_multiple(topicstats)
     try:
         with open(TOPICSTATSFILE, "w") as f:
             json.dump(topicstats, f)
