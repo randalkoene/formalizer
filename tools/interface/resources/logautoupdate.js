@@ -14,8 +14,21 @@ class autoLogUpdate {
     /**
      * @param logautoupdate_id The DOM `id` of the element that displays update info.
      * @param autostart If true then call `this.logupdateStart()` in object constructor.
+     * @param preventupdate_id Optional DOM 'id' of an element that prevents page update if in focus
+     *        or if it has content that has not yet been processed (e.g. a textarea being edited).
      */
-    constructor(logautoupdate_id = 'logautoupdate', autostart = true) {
+    constructor(logautoupdate_id = 'logautoupdate', autostart = true, preventupdate_id = null) {
+    	this.preventupdate_ref = null;
+    	this.isEditing = false;
+    	if (preventupdate_id) {
+    		this.preventupdate_ref = document.getElementById(preventupdate_id);
+			this.preventupdate_ref.addEventListener('focus', () => {
+				this.isEditing = true;
+			});
+			textarea.addEventListener('blur', () => {
+				this.isEditing = false;
+			});
+    	}
         this.intervaltask = null;
         this.logupdateContent = '??';
         this.logupdateelement = document.getElementById(logautoupdate_id);
@@ -31,6 +44,18 @@ class autoLogUpdate {
     }
 
     updateLogUpdate() {
+    	// Check if auto-update should be suppressed while working with an element on the page.
+    	if (this.preventupdate_ref) {
+    		if (this.isEditing) {
+    			console.log('Auto-reload suppressed, editing.');
+    			return;
+    		}
+    		if (this.preventupdate_ref.value != '') {
+    			console.log('Auto-reload suppressed, has unprocessed edited data.');
+    			return;
+    		}
+    	}
+    	// Check if the page should be auto-updated.
         this.readSignalFile();
         var _content = '??';
         if (window.logautoupdate_signaldata) {
@@ -39,7 +64,7 @@ class autoLogUpdate {
         		_content = parseInt(_content);
         		if (_content > this.logpage_loadstamp) {
         			// Needs update.
-        			window.location.reload();
+        			window.location.reload(); // *** This is risky if the textarea in the page is being written in.
         		}
         	}
         } else {
@@ -189,4 +214,4 @@ class autoLogUpdate {
 
 };
 
-window.global_autologupdate = new autoLogUpdate('logautoupdate');
+//window.global_autologupdate = new autoLogUpdate('logautoupdate');

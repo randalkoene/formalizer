@@ -189,6 +189,9 @@ set_hover_delayed_function('.docpopupfunc', openPopup, 1000);
 pastePopupLink('docpopupfunc', 'entrytext');
 </script>
 <script type="text/javascript" src="/logautoupdate.js"></script>
+<script>
+const global_autologupdate = new autoLogUpdate('logautoupdate', true, 'entrytext');
+</script>
 '''
 
 
