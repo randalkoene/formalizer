@@ -147,6 +147,8 @@ struct line_render_parameters {
     size_t actual_num_render = 0;
     size_t days_rendered = 0;
     time_t t_render = 0; ///< The time when page rendering commenced.
+    const Node* prev_ETD_node = nullptr;
+    time_t prev_ETD_node_t_endbefore = RTt_unspecified;
     float day_total_hrs = 0.0;
     std::map<Boolean_Tag_Flags::boolean_flag, float> day_category_hrs = {
         {Boolean_Tag_Flags::work, 0.0},
@@ -406,6 +408,15 @@ struct line_render_parameters {
         return tdpropclasses;
     }
 
+    void add_class_to_alertstyle(const std::string& class_str, std::string& alertstyle) {
+        if (alertstyle.empty()) {
+            alertstyle = " class=\""+class_str+'"';
+        } else {
+            alertstyle.pop_back();
+            alertstyle += ' '+class_str+'"';
+        }
+    }
+
     /**
      * Call this to render parameters of a Node on a single line of a list of Nodes.
      * For example, this selection of data is shown when Nodes are listed in a schedule.
@@ -452,16 +463,29 @@ struct line_render_parameters {
                 insert_day_start(tdate);
             }
         }
-        // -- Target date (adjusted and raw) and alert style of required time
+        // -- Detect overlap between ETD Nodes
         std::string alertstyle;
+        if (node.td_exact()) {
+            if (prev_ETD_node) {
+                if ((prev_ETD_node_t_endbefore+node.get_required()) >= tdate) {
+                    //add_class_to_alertstyle("textbg-cyan", alertstyle);
+                    vis_tdstamp_str = "<span class=\"high_req\">"+vis_tdstamp_str+"</span>";
+                }
+            }
+            prev_ETD_node = &node;
+            prev_ETD_node_t_endbefore = tdate;
+        }
+        // -- Target date (adjusted and raw) and alert style of required time
         if (fzgh.config.show_current_time) {
             if (tdate <= t_render) { // *** This might still need TZADJUST attention.
-                alertstyle = " class=\"passed_td\"";
+                //alertstyle = " class=\"passed_td\"";
+                add_class_to_alertstyle("passed_td", alertstyle);
                 std::string tdstr = "<a href=\"/cgi-bin/fzlink.py?id="+nodestr+"\">"+vis_tdstamp_str+"</a>";
                 varvals.emplace("targetdate",tdstr);
             } else {
                 if (node.is_special_code()) {
-                    alertstyle = " class=\"inactive_td\"";
+                    //alertstyle = " class=\"inactive_td\"";
+                    add_class_to_alertstyle("inactive_td", alertstyle);
                 }
                 varvals.emplace("targetdate",vis_tdstamp_str);
             }
