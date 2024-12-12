@@ -244,6 +244,8 @@ editpagehead = '''<html>
 <link rel="stylesheet" href="/fzuistate.css">
 <link rel="stylesheet" href="/clock.css">
 <link rel="stylesheet" href="/tooltip.css">
+<link rel="stylesheet" href="/htmltemplatestocopy.css">
+<link rel="stylesheet" href="/copiedalert.css">
 <title>Formalizer: Edit Node</title>
 </head>
 <body>
@@ -259,7 +261,20 @@ td.paramtitle {
 <table><tbody>
 '''
 
+COPYTOCLIPBOARDENTRY='''<td><button class="button2" onclick="copyInnerHTMLToClipboard('%s');">copy</button> <span id="%s">%s</span></td>
+'''
+
 editpagetail = '''</tbody></table>
+<div id="after_cptplt"></div>
+<div id="templates_html" style="display:none;">
+<table><tbody>
+<tr>%s</tr>
+</table></tbody>
+</div>
+<script type="text/javascript" src="/htmltemplatestocopy.js"></script>
+<script>const htmltemplates = new htmlTemplates('after_cptplt', 'cptplt', 'templates', 'templates_html');</script>
+<script type="text/javascript" src="/copiedalert.js"></script>
+<script type="text/javascript" src="/copyinnerhtml.js"></script>
 <hr>
 <script>
 function edge_update(event) {
@@ -569,7 +584,12 @@ def generate_Node_edit_form_page():
         print(embeddable_html)
     else:
         print(embed_in_textarea(embeddable_html, template_content))
-    print(editpagetail % fzserverpq_addrport)
+    copy_templates = COPYTOCLIPBOARDENTRY % ('chkbx_tpl', 'chkbx_tpl', '<input type="checkbox" >')
+    for templatekey in new_node_templates:
+        template_id = templatekey+'_tpl'
+        template_html = new_node_templates[templatekey]
+        copy_templates += COPYTOCLIPBOARDENTRY % (template_id, template_id, template_html)
+    print(editpagetail % (copy_templates, fzserverpq_addrport))
 
 
 def generate_topics_page():
