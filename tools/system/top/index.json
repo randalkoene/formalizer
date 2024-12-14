@@ -377,7 +377,7 @@
             "window" : "_blank"
         },
         "Weather Service (95959)" : {
-            "url" : "https://forecast.weather.gov/MapClick.php?CityName=Nevada+City&state=CA&site=STO&lat=39.3496&lon=-120.877",
+            "url" : "https://forecast.weather.gov/MapClick.php?CityName=Nevada+City&state=CA&site=STO&lat=39.319697704249556&lon=-120.86384044260548",
             "window" : "_blank"
         },
         "Time and Date" : {

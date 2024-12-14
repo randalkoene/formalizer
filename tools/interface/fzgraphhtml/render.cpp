@@ -39,6 +39,7 @@ std::vector<std::string> template_ids = {
     "node_pars_in_list_nojs_template",
     "node_pars_in_list_head_template",
     "node_pars_in_list_tail_template",
+    "node_pars_in_list_sep_template",
     "named_node_list_in_list_template",
     "Node_template",
     "node_pars_in_list_card_template",
@@ -240,7 +241,7 @@ struct line_render_parameters {
         varvals.emplace("targetdate", to_precision_string(hours_available,2));
         varvals.emplace("node_id","");
         varvals.emplace("topic","");
-        varvals.emplace("tdprop","");
+        //varvals.emplace("tdprop","");
         if (map_of_subtrees.has_subtrees) {
             std::string categories_hrs_str;
             for (auto & [ btflag, hrs ]: day_category_hrs) {
@@ -251,9 +252,9 @@ struct line_render_parameters {
             varvals.emplace("excerpt","");
         }
         varvals.emplace("fzserverpq","");
-        varvals.emplace("srclist","");
+        //varvals.emplace("srclist","");
         varvals.emplace("do_link", "");
-        rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
+        rendered_page += env.render(templates[node_pars_in_list_sep_temp], varvals);
         day_total_hrs = 0.0;
         for (auto & [ flag, hours ] : day_category_hrs) {
             day_category_hrs[flag] = 0.0;
@@ -277,12 +278,12 @@ struct line_render_parameters {
             }
             varvals.emplace("alertstyle","");
             varvals.emplace("req_hrs","<b>hrs</b>");
-            varvals.emplace("tdprop","");
+            //varvals.emplace("tdprop","");
             varvals.emplace("excerpt","<b>"+WeekDay(t)+"</b>");
             varvals.emplace("fzserverpq","");
-            varvals.emplace("srclist","");
+            //varvals.emplace("srclist","");
             varvals.emplace("do_link", "");
-            rendered_page += env.render(templates[node_pars_in_list_temp], varvals);
+            rendered_page += env.render(templates[node_pars_in_list_sep_temp], varvals);
         }
     }
 
@@ -531,7 +532,8 @@ struct line_render_parameters {
         varvals.emplace("tdprop-style", td_property_classes(node));
         // -- Server address
         varvals.emplace("fzserverpq", fzgh.replacements[fzserverpq_address]); // graph_ptr->get_server_full_address()
-        // -- Do-link
+        // -- Select-Do-link
+        //std::string select_link = "<a class=\"nnl\" href=\"http://"+fzgh.replacements[fzserverpq_address]+"/fz/graph/namedlists/_select?id="+nodestr+"\" target=\"_blank\">[select]</a>";
         if (not_a_repeat && ((fzgh.config.max_do_links==0) || (fzgh.do_links_rendered < fzgh.config.max_do_links))) {
             varvals.emplace("do_link", " <a class=\"nnl\" href=\"/cgi-bin/fzlog-cgi.py?action=open&node="+nodestr+"\" target=\"_blank\">[do]</a>");
             fzgh.do_links_rendered++;
