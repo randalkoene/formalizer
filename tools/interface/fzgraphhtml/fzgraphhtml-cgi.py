@@ -450,6 +450,10 @@ def generate_embeddable_list_of_NNLs_to_add_Node_to():
 
 
 NNLFORMHEAD='''
+<p>
+<b>To change the order of items in the NNL:</b> Follow the [list] link for that item and use the process described on the resulting page.
+</p>
+
 <form action="/cgi-bin/fzeditbatch-cgi.py" method="post">
 <input type="submit" name="action" value="batchmodify"><br>
 Select All<input onclick="toggle(this);" type="checkbox" /><br>
