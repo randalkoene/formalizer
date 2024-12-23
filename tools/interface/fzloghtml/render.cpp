@@ -342,6 +342,17 @@ bool search_text_not_included(Log_chunk * chunkptr, std::locale & loc) {
     return true;
 }
 
+bool regex_pattern_not_included(Log_chunk * chunkptr, std::locale & loc) {
+    for (const auto& entryptr : chunkptr->get_entries()) {
+        if (entryptr) {
+            const auto & entrytextref = entryptr->get_entrytext();
+            std::smatch match;
+            if (std::regex_search(entrytextref, match, *(fzlh.pattern.get()))) return false;
+        }
+    }
+    return true;
+}
+
 std::string make_around_button(const std::string & logchunk_id) {
     return "<button class=\"button button1\" onclick=\"window.open('/cgi-bin/fzloghtml-cgi.py?around="+
             logchunk_id+"#"+logchunk_id+"','_blank');\">context</button>";
@@ -464,6 +475,12 @@ bool render_Log_interval() {
         if (chunkptr) {
             if (!fzlh.search_strings.empty()) {
                 if (search_text_not_included(chunkptr.get(), loc)) {
+                    continue;
+                }
+            }
+
+            if (fzlh.pattern) {
+                if (regex_pattern_not_included(chunkptr.get(), loc)) {
                     continue;
                 }
             }

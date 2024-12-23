@@ -332,6 +332,7 @@ TOPLEVEL += $(TOOLSPATH)/interface/resources/draggable_rows.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/hoveropentab.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/exportpage.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/htmlsvg.js
+TOPLEVEL += $(TOOLSPATH)/interface/resources/logcheckbox.js
 TOPLEVEL += $(MEDIAPATH)/favicon-192x192.png
 TOPLEVEL += $(MEDIAPATH)/favicon-32x32.png
 TOPLEVEL += $(MEDIAPATH)/favicon-16x16.png

@@ -27,6 +27,7 @@
 #include "standard.hpp"
 #include "general.hpp"
 #include "TimeStamp.hpp"
+#include "stringio.hpp"
 
 // local
 #include "version.hpp"
@@ -44,13 +45,13 @@ fzloghtml fzlh;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  * 
- * Command line arguments used: 12ACDEFHNQRTVWacdefghijlnoqrstvw
- * Command line arguments still available: 03456789BGIJKLMOPSUXYZbkmpuxyz
+ * Command line arguments used: 12ACDEFHNQRTVWacdefghijlnoqrstvwx
+ * Command line arguments still available: 03456789BGIJKLMOPSUXYZbkmpuyz
  */
 fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
                          iscale(interval_none), interval(0), noframe(false), recent_format(most_recent_html) {
-    add_option_args += "e:n:g:l:1:2:a:o:D:H:w:Nc:rRf:ACijtF:T:I";
-    add_usage_top += " [-e <log-stamp>] [-n <node-ID>] [-g <topic>] [-l <list-name>] [-I] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-A] [-C] [-i] [-j] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
+    add_option_args += "e:n:g:l:1:2:a:o:D:H:w:Nc:rRf:x:ACijtF:T:I";
+    add_usage_top += " [-e <log-stamp>] [-n <node-ID>] [-g <topic>] [-l <list-name>] [-I] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-x <regex-pattern>|FILE:<file-path>] [-A] [-C] [-i] [-j] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
     usage_tail.push_back(
         "Notes:\n"
@@ -78,6 +79,8 @@ fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flow
         "    with the server address and port prepended with 'http://'. A URL using\n"
         "    the tag should be formatted as in the following example:\n"
         "      <a href=\"@FZSERVER@/doc/lists/lists.html\">\n"
+        "11. If the FILE: tag is encountered wiht the '-x' option then the RegEx\n"
+        "    pattern is obtained from the specified file.\n"
         );
 }
 
@@ -102,6 +105,7 @@ void fzloghtml::usage_hook() {
           "    -r interval from most recent\n"
           "    -R most recent Log data\n"
           "    -f Filter by search text\n"
+          "    -x Use RegEx to filter by search text\n"
           "    -A All search terms must be in a Log chunk\n"
           "    -C Case insensitive search\n"
           "    -i Interpret for day review\n"
@@ -120,6 +124,14 @@ std::vector<std::string> parse_search_strings(const std::string & search_strings
         search_strings_vec[i] = trim(search_strings_vec[i]);
     }
     return search_strings_vec;
+}
+
+std::string parse_regex_pattern(const std::string& cargs) {
+    if (cargs.substr(0, 5)=="FILE:") {
+        return string_from_file(cargs.substr(5));
+    } else {
+        return cargs;
+    }
 }
 
 const std::map<std::string, most_recent_format> format_keywords = {
@@ -266,6 +278,13 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
 
     case 'f': {
         search_strings = parse_search_strings(cargs);
+        return true;
+    }
+
+    case 'x': {
+        regex_pattern = parse_regex_pattern(cargs);
+        if (regex_pattern.empty()) return false;
+        pattern = std::make_unique<std::regex>(regex_pattern);
         return true;
     }
 

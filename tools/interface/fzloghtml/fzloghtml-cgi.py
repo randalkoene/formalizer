@@ -44,6 +44,7 @@ frommostrecent = form.getvalue('frommostrecent')
 mostrecentdata = form.getvalue('mostrecentdata')
 mostrecentraw = form.getvalue('mostrecentraw')
 searchtext = form.getvalue('searchtext')
+regexpattern = form.getvalue('regex')
 andall = form.getvalue('andall')
 caseinsensitive = form.getvalue('caseinsensitive')
 review = form.getvalue('review')
@@ -173,6 +174,7 @@ Select another part of the Log:
 <input type="text" name="searchtext" size="48"> must contain search text
 <input type="checkbox" name="caseinsensitive"> case insensitive
 <input type="checkbox" name="andall"> must contain each<br />
+<input type="text" name="regex" size="48"> must contain RegEx<br />
 or<br />
 <input type="checkbox" name="mostrecentdata"> show most recent Log data summary<br />
 
@@ -192,6 +194,7 @@ pastePopupLink('docpopupfunc', 'entrytext');
 <script>
 const global_autologupdate = new autoLogUpdate('logautoupdate', true, 'entrytext');
 </script>
+<!-- <script type="text/javascript" src="/logcheckbox.js"></script> -->
 '''
 
 
@@ -311,6 +314,8 @@ def build_uri_options(diff_numchunks=0, diff_startfrom=0, diff_weeks_startfrom=0
         arg_i += 1
     if searchtext:
         urioptions += get_uri_arg_separator(arg_i)+'searchtext='+uri_safe(searchtext)
+    if regexpattern:
+        urioptions += get_uri_arg_separator(arg_i)+'regex='+uri_safe(regexpattern)
     if andall:
         urioptions += get_uri_arg_separator(arg_i)+'andall=on'
         arg_i += 1
@@ -347,6 +352,8 @@ def build_command_options()->str:
         cmdoptions += ' -l '+nnl
     if searchtext:
         cmdoptions += ' -f "'+searchtext+'"'
+    if regexpattern:
+        cmdoptions += " -x '"+regexpattern+"'"
     if andall:
         cmdoptions += ' -A '
     if caseinsensitive:
@@ -358,7 +365,7 @@ def render_log_interval():
     print(log_interval_head)
     thisscript = os.path.realpath(__file__)
     print(f'<!-- (For dev reference, this script is at {thisscript}.) -->')
-    print('<h1>Formalizer: HTML FORM interface to fzloghtml</h1>\n<p></p>\n<table><tbody>')
+    print('<h1>Formalizer: HTML FORM interface to fzloghtml</h1>\n<p></p>\n<table id="LogInterval"><tbody>')
     if numchunks:
         earlier_uri = build_uri_options(diff_numchunks=50)
         print(f"<button class=\"button button1\" onclick=\"window.open('/cgi-bin/fzloghtml-cgi.py{earlier_uri}','_self');\">Earlier (50 Chunks)</button>")

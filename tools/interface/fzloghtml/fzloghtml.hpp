@@ -11,6 +11,9 @@
 #include "version.hpp"
 #define __FZLOGHTML_HPP (__VERSION_HPP)
 
+// std
+#include <regex>
+
 // core
 #include "standard.hpp"
 #include "config.hpp"
@@ -97,6 +100,9 @@ struct fzloghtml: public formalizer_standard_program {
     std::vector<std::string> search_strings;
     bool mustcontainall = false;
     bool caseinsensitive = false;
+
+    std::string regex_pattern;
+    std::unique_ptr<std::regex> pattern;
 
     std::string custom_template;
 
