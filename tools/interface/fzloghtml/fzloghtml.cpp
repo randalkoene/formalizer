@@ -372,12 +372,15 @@ void fzloghtml::set_filter() {
         switch (iscale) {
         case interval_weeks: {
             filter.t_from = t_center_around - half_interval*(7*24*60*60);
+            break;
         }
         case interval_hours: {
             filter.t_from = t_center_around - half_interval*(60*60);
+            break;
         }
         default: { // days
             filter.t_from = t_center_around - half_interval*(24*60*60);
+            break;
         }
         }
         filter.t_to = RTt_unspecified;
@@ -392,24 +395,30 @@ void fzloghtml::set_filter() {
                 switch (iscale) { // relative interval from a specified time
                 case interval_weeks: {
                     filter.t_to = filter.t_from + interval*(7*24*60*60);
+                    break;
                 }
                 case interval_hours: {
                     filter.t_to = filter.t_from + interval*(60*60);
+                    break;
                 }
                 default: { // days
                     filter.t_to = filter.t_from + interval*(24*60*60);
+                    break;
                 }
                 }
             } else {
                 switch (iscale) { // relative interval to a specified time
                 case interval_weeks: {
                     filter.t_from = filter.t_to - interval * (7 * 24 * 60 * 60);
+                    break;
                 }
                 case interval_hours: {
                     filter.t_from = filter.t_to - interval * (60 * 60);
+                    break;
                 }
                 default: { // days
                     filter.t_from = filter.t_to - interval * (24 * 60 * 60);
+                    break;
                 }
                 }
             }

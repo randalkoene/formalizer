@@ -326,24 +326,30 @@ void fzlogmap::set_filter() {
                 switch (iscale) { // relative interval from a specified time
                 case interval_weeks: {
                     filter.t_to = filter.t_from + interval*(7*24*60*60);
+                    break;
                 }
                 case interval_hours: {
                     filter.t_to = filter.t_from + interval*(60*60);
+                    break;
                 }
                 default: { // days
                     filter.t_to = filter.t_from + interval*(24*60*60);
+                    break;
                 }
                 }
             } else {
                 switch (iscale) { // relative interval to a specified time
                 case interval_weeks: {
                     filter.t_from = filter.t_to - interval * (7 * 24 * 60 * 60);
+                    break;
                 }
                 case interval_hours: {
                     filter.t_from = filter.t_to - interval * (60 * 60);
+                    break;
                 }
                 default: { // days
                     filter.t_from = filter.t_to - interval * (24 * 60 * 60);
+                    break;
                 }
                 }
             }
