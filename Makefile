@@ -117,6 +117,7 @@ EXECUTABLES += $(TOOLSPATH)/interface/fzvismilestones/fzvismilestones
 EXECUTABLES += $(TOOLSPATH)/interface/logentry/logentry.py
 EXECUTABLES += $(TOOLSPATH)/interface/nodeboard/nodeboard
 EXECUTABLES += $(TOOLSPATH)/interface/panes/panes-term.sh
+EXECUTABLES += $(TOOLSPATH)/misc/mp4-combine-video-audio.sh
 EXECUTABLES += $(TOOLSPATH)/system/daywiz/daywiz.py
 EXECUTABLES += $(TOOLSPATH)/system/daywiz/metrics.py
 EXECUTABLES += $(TOOLSPATH)/system/daywiz/score.py
