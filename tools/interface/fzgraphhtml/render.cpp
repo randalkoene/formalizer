@@ -468,7 +468,7 @@ struct line_render_parameters {
         std::string alertstyle;
         if (node.td_exact()) {
             if (prev_ETD_node) {
-                if ((prev_ETD_node_t_endbefore+node.get_required()) >= tdate) {
+                if ((prev_ETD_node_t_endbefore+node.get_required()) > tdate) {
                     //add_class_to_alertstyle("textbg-cyan", alertstyle);
                     vis_tdstamp_str = "<span class=\"high_req\">"+vis_tdstamp_str+"</span>";
                 }
