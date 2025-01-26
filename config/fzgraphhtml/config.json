@@ -4,7 +4,7 @@
     "rendered_out_path": "STDOUT",
     "interpret_text": "detect_links",
     "show_current_time": "true",
-    "timezone_offset_hours": "0",
+    "timezone_offset_hours": "9",
     "tzadjust_day_separators": "true",
     "max_do_links": "64"
 }

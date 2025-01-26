@@ -5,6 +5,10 @@
 # Randal A. Koene, 20210308
 #
 # {{ brief_title }}. See Readme.md for more information.
+#
+# NOTE:
+# - This script is called as the www-data user.
+# - This script is called by fzuistate.js.
 
 # std
 import os
@@ -13,6 +17,7 @@ import json
 import argparse
 import subprocess
 import re
+#from shutil import chown
 # Import modules for CGI handling 
 try:
     import cgitb; cgitb.enable()
@@ -181,6 +186,8 @@ def attempt_write_ui_state(uistate: dict) -> bool:
     try:
         with open(uistatefile, 'w') as f:
             json.dump(uistate, f)
+        #chown(uistatefile, 'www-data', 'www-data')
+        os.chmod(uistatefile, 0o666) # So that fztimezone can handle this as well.
         return True
     except:
         return False

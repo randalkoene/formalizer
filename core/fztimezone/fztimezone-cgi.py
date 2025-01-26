@@ -29,6 +29,9 @@ page_template = '''<html>
 <form action="/cgi-bin/fztimezone-cgi.py" method="get">
 Set all to: <input id="setto" name="setto" type="number"> <input type="submit" value="Set" />
 </form>
+<p>
+<b>Remember: </b> After changing the time zone offset, <b>stop</b> fzserverpq and <b>restart</b> it so that it will reread its configuration file.
+</p>
 
 <hr>
 
@@ -39,7 +42,7 @@ Set all to: <input id="setto" name="setto" type="number"> <input type="submit" v
 </html>
 '''
 
-FAILED='''
+FAILED_SIGNAL='''
 The fztimezone call failed to produce a signal.
 <P>
 Last signal time stamp read from %s was: %s
@@ -48,6 +51,16 @@ Error string was: %s
 <P>
 Does the user running fzserverpq have write permission in the directory?<BR>
 Are they a member of the group that has write permission there?<BR>
+Does the group have write permission in the directory?
+'''
+
+FAILED_DATA='''
+The fztimezone call failed to return valid data.
+<P>
+Error string was: %s
+<P>
+Does the user running fzserverpq have write permission in the director?<BR>
+Are they a member of the group that has write permissions there?<BR>
 Does the group have write permission in the directory?
 '''
 
@@ -95,17 +108,25 @@ def get_signal_value(signalfile:str)->tuple:
     except Exception as e:
         return ("0", str(e))
 
-def show_result(cgioutfile:str)->dict:
+# Note:
+# As fztimezone is called in 'quiet' mode, the output will
+# contained either pure JSON or an error string.
+def show_result(cgioutfile:str, expect_json=True)->dict:
     res = {}
     try:
         with open(cgioutfile,'r') as f:
-            cgioutstr=f.read()
-            res = json.loads(cgioutstr)
+            cgioutstr = f.read()
     except:
-        res['ERROR'] = "ERROR: Unable to read %s" % cgioutfile
+        filereaderror = "ERROR: Unable to read %s" % cgioutfile
+        res['ERROR'] = FAILED_DATA % filereaderror
+    if expect_json:
+        try:
+            res = json.loads(cgioutstr)
+        except:
+            res['ERROR'] = FAILED_DATA % cgioutstr
     return res
 
-def run_as_server_user_and_await(cgiprog:str, cgiargs:str, cgioutfile:str, signalfile:str, timeout_s=600)->dict: # 1 minute default time-out
+def run_as_server_user_and_await(cgiprog:str, cgiargs:str, cgioutfile:str, signalfile:str, expect_json=True, timeout_s=600)->dict: # 1 minute default time-out
     startvalue=get_start_value()
 
     try:
@@ -117,9 +138,9 @@ def run_as_server_user_and_await(cgiprog:str, cgiargs:str, cgioutfile:str, signa
         sleep(0.1)
         signalvalue, error_str = get_signal_value(signalfile)
         if int(signalvalue) >= int(startvalue):
-            return show_result(cgioutfile)
+            return show_result(cgioutfile, expect_json)
 
-    return { "ERROR": FAILED % (signalfile, signalvalue, error_str) }
+    return { "ERROR": FAILED_SIGNAL % (signalfile, signalvalue, error_str) }
 
 def get_tzinfo_as_server_user()->dict:
     signalfile='/var/www/webdata/formalizer/fztimezone.signal'
@@ -146,7 +167,7 @@ def set_tzinfo_as_server_user(setto):
     cgiprog='fztimezone'
     cgiargs='z=%d&q=&S=%s' % (tzhours, signalfile)
     cgioutfile='/var/www/webdata/formalizer/fztimezone-set.out'
-    res_dict = run_as_server_user_and_await(cgiprog, cgiargs, cgioutfile, signalfile)
+    res_dict = run_as_server_user_and_await(cgiprog, cgiargs, cgioutfile, signalfile, expect_json=False)
     if 'ERROR' in res_dict:
         print('<html><body>Error: %s</body></html>' % str(res_dict['ERROR']))
         return
