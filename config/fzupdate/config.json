@@ -1,7 +1,7 @@
 {
     "dolater_endofday": "19:40",
     "doearlier_endofday": "16:00",
-    "timezone_offset_hours": "9",
+    "timezone_offset_hours": "0",
     "update_to_earlier_allowed": "false",
     "UTD_is_priority_queue": "true",
     "full_overhead_multiplier": "2.0",
