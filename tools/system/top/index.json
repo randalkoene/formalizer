@@ -87,7 +87,7 @@
             "window" : "_blank"
         },
         "Checkboxes": {
-            "url" : "/cgi-bin/fzloghtml-cgi.py?weeksinterval=4&regex=%5B%3C%5Dinput%20type%3D%22checkbox%22%5B%20%5D%2A%5B%3E%5D",
+            "url" : "/cgi-bin/fzloghtml-cgi.py?weeksinterval=24&regex=%5B%3C%5Dinput%20type%3D%22checkbox%22%5B%20%5D%2A%5B%3E%5D",
             "window" : "_blank"
         }
     },
