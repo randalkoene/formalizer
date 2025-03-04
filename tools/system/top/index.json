@@ -123,6 +123,14 @@
         "Nodes Metrics" : {
             "url" : "/formalizer/nodemetrics.html",
             "window" : "_blank"
+        },
+        "DayReview Plot" : {
+            "url" : "/cgi-bin/dayreview-plot-cgi.py",
+            "window" : "_blank"
+        },
+        "Work and Self-Work" : {
+            "url" : "/cgi-bin/dayreview-plot-cgi.py?workweeks=2",
+            "window" : "_blank"
         }
     },
     "Graph:" : {
@@ -344,6 +352,10 @@
         },
         "Contacts" : {
             "url" : "http://contacts.google.com/?authuser=randal.a.koene@gmail.com",
+            "window" : "_blank"
+        }
+        "Cal.com" : {
+            "url" : "https://cal.com/randal-koene",
             "window" : "_blank"
         }
     },

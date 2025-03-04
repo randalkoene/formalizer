@@ -8,13 +8,53 @@ scorefile = '/var/www/webdata/formalizer/dayreview_scores.json'
 
 out_path = '/var/www/webdata/formalizer/dayreview_scores.html'
 
+# Import modules for CGI handling 
+try:
+    import cgitb; cgitb.enable()
+except:
+    pass
+import sys, cgi, os
+sys.stderr = sys.stdout
+from datetime import datetime
+import traceback
+from io import StringIO
+from traceback import print_exc
+#from subprocess import Popen, PIPE
+
 import json
+import plotly.express as px
+import plotly.io as pxio
+import pandas as pd
+import argparse
+
+form = cgi.FieldStorage()
+
+cgioutput = form.getvalue('cgioutput')
+earliest = form.getvalue('earliest')
+latest = form.getvalue('latest')
+workselfwork = form.getvalue('workselfwork')
+
+if not cgioutput:
+    parser = argparse.ArgumentParser(description="Plot DayReview Scores.")
+    parser.add_argument("-c", "--cgioutput", type=str, help="Operate at CGI script")
+    parser.add_argument("-e", "--earliest", type=str, help="Earliest date in format 2025.02.20")
+    parser.add_argument("-l", "--latest", type=str, help="Latest date in format 2025.03.04")
+    parser.add_argument("-w", "--workselfwork", type=str, help="Show WORK and SELFWORK only")
+    args = parser.parse_args()
+
+    if args.cgioutput:
+        cgioutput = args.cgioutput
+    if args.earliest:
+        earliest = args.earliest
+    if args.latest:
+        latest = args.latest
+    if args.workselfwork:
+        workselfwork = args.workselfwork
+
+if cgioutput:
+    print("Content-type:text/html\n")
 
 def make_dayreview_plot(figtitle:str, dates:list, values:list, value_axis_name:str, out_format:str='show', width=None, height=None):
-    import plotly.express as px
-    import plotly.io as pxio
-    import pandas as pd
-
     data_dict = {
         'date': dates,
         value_axis_name: values,
@@ -63,6 +103,13 @@ def reformulate_total_scores(data:dict, date_keys:list)->list:
 with open(scorefile, 'r') as f:
     data = json.load(f)
 
+if earliest and latest:
+    new_data = {}
+    for k in data:
+        if k >= earliest and k <= latest:
+            new_data[k] = data[k]
+    data = new_data
+
 dates_str_list = list(data.keys())
 
 categories_list = list(data[dates_str_list[-1]].keys())
@@ -86,7 +133,8 @@ We create independent data arrays for those dates for each
 category and for the total score.
 '''
 
-print(info)
+if not cgioutput:
+    print(info)
 
 reformulated = {}
 for category in categories_list:
@@ -136,41 +184,74 @@ TABLE_TEMPLATE='''<table><tbody>
 </tbody></table>
 '''
 
-table_rows_html = ''
+def all_data_plots()->str:
+    table_rows_html = ''
 
-svg_plot = make_dayreview_plot('Day Review Score', dates_str_list, total_score_ratios, 'score ratio', 'svg')
-svg_html = SVG_TEMPLATE % ( 400, 400, svg_plot )
-table_cell_html = TABLE_CELL_TEMPLATE % svg_html
-table_rows_html += TABLE_ROW_TEMPLATE % table_cell_html
+    svg_plot = make_dayreview_plot('Day Review Score', dates_str_list, total_score_ratios, 'score ratio', 'svg')
+    svg_html = SVG_TEMPLATE % ( 400, 400, svg_plot )
+    table_cell_html = TABLE_CELL_TEMPLATE % svg_html
+    table_rows_html += TABLE_ROW_TEMPLATE % table_cell_html
 
-for category in categories_list:
-    if category != 'totscore':
-        is_a_main_category = category == 'self-work' or category == 'work' or category == 'sleep'
-        cells_html = ''
+    for category in categories_list:
+        if category != 'totscore':
+            is_a_main_category = category == 'self-work' or category == 'work' or category == 'sleep'
+            cells_html = ''
 
-        svg_plot = make_dayreview_plot(category+' review actual hours', dates_str_list, reformulated[category][0], 'actual hours', 'svg')
-        svg_html = SVG_TEMPLATE % ( 400, 400, svg_plot )
-        cells_html += TABLE_CELL_TEMPLATE % svg_html
-
-        if is_a_main_category:
-            svg_plot = make_dayreview_plot(category+' review percent hours', dates_str_list, reformulated[category][1], 'pct hours', 'svg')
+            svg_plot = make_dayreview_plot(category+' review actual hours', dates_str_list, reformulated[category][0], 'actual hours', 'svg')
             svg_html = SVG_TEMPLATE % ( 400, 400, svg_plot )
             cells_html += TABLE_CELL_TEMPLATE % svg_html
 
-        if is_a_main_category:
-            svg_plot = make_dayreview_plot(category+' review score ratio', dates_str_list, reformulated[category][2], 'score ratio', 'svg')
+            if is_a_main_category:
+                svg_plot = make_dayreview_plot(category+' review percent hours', dates_str_list, reformulated[category][1], 'pct hours', 'svg')
+                svg_html = SVG_TEMPLATE % ( 400, 400, svg_plot )
+                cells_html += TABLE_CELL_TEMPLATE % svg_html
+
+            if is_a_main_category:
+                svg_plot = make_dayreview_plot(category+' review score ratio', dates_str_list, reformulated[category][2], 'score ratio', 'svg')
+                svg_html = SVG_TEMPLATE % ( 400, 400, svg_plot )
+                cells_html += TABLE_CELL_TEMPLATE % svg_html
+
+            table_rows_html += TABLE_ROW_TEMPLATE % cells_html
+
+    table_html = TABLE_TEMPLATE % table_rows_html
+
+    html_doc = HTML_TEMPLATE % table_html
+
+    return html_doc
+
+def work_and_selfwork_only()->str:
+    table_rows_html = ''
+
+    cells_html = ''
+    for category in categories_list:
+        if category == 'work':
+            svg_plot = make_dayreview_plot('work hours', dates_str_list, reformulated[category][0], 'actual hours', 'svg')
             svg_html = SVG_TEMPLATE % ( 400, 400, svg_plot )
             cells_html += TABLE_CELL_TEMPLATE % svg_html
 
-        table_rows_html += TABLE_ROW_TEMPLATE % cells_html
+        if category == 'self-work':
+            svg_plot = make_dayreview_plot('self-work hours', dates_str_list, reformulated[category][0], 'actual hours', 'svg')
+            svg_html = SVG_TEMPLATE % ( 400, 400, svg_plot )
+            cells_html += TABLE_CELL_TEMPLATE % svg_html
 
-table_html = TABLE_TEMPLATE % table_rows_html
+    table_rows_html += TABLE_ROW_TEMPLATE % cells_html
 
-html_doc = HTML_TEMPLATE % table_html
+    table_html = TABLE_TEMPLATE % table_rows_html
 
-print('Sending html doc (%d bytes) to %s' % (len(html_doc), out_path))
+    html_doc = HTML_TEMPLATE % table_html
+
+    return html_doc
+
+if workselfwork:
+    html_doc = work_and_selfwork_only()
+else:
+    html_doc = all_data_plots()
+
+if not cgioutput:
+    print('Sending html doc (%d bytes) to %s' % (len(html_doc), out_path))
 
 with open(out_path, 'w') as f:
     f.write(html_doc)
 
-print('Done.')
+if not cgioutput:
+    print('Done.')

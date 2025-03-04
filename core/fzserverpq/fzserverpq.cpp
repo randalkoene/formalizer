@@ -164,7 +164,10 @@ Recognized requests are:
     the string in uriargs that is given in URI argument format. The
     specified cgiprog can only run if it was included in the ampersand (&)
     delimited list of permitted programs in fzserverpq configuration
-    variable 'predefined_CGIbg'.
+    variable 'predefined_CGIbg'. Note that the URI arguments are
+    converted into shell arguments, and the program being called needs
+    to be able to handle that. E.g. "cgioutput=on&earliest=2025.02.20"
+    becomes "-cgioutput on -earliest 2025.02.20".
 
 FZ serialized data requests can be batched via simple concatenation, e.g.:
 

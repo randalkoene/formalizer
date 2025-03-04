@@ -63,6 +63,7 @@ WIZTABLE_LINES=[
 	[ '20081125102516.1', 4, 'whatsappcheck', 0, 'checkbox', 7, 12, 'Whatsapp messages caught up.', '' ],
 	[ '20081125102516.1', 4, 'fbcheck', 0, 'checkbox', 7, 12, 'Messenger messages and Facebook caught up.', '' ],
 	[ '20081125102516.1', 4, 'chatcheck', 0, 'checkbox', 7, 12, 'Google chat messages and spaces caught up.', '' ],
+    [ '20081125102516.1', 4, 'discord', 0, 'checkbox', 7, 12, 'Discord caught up.', '' ],
     [ '20081125102516.1', 4, 'taigacheck', 0, 'checkbox', 7, 12, 'Taiga notifications caught up.', '' ],
 
 	[ '20140428114648.1', 2, 'neoprene', 0, 'checkbox', 7, 13, 'Wearing clothing where bloat/size is detectable (or neoprene).', '' ],

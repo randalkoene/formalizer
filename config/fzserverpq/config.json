@@ -3,7 +3,7 @@
     "port_number": "8090",
     "www_file_root": "=/var/www/html&doc=/home/randalk/doc&download=/home/randalk/download&fzdoc=/home/randalk/src/formalizer/doc",
     "request_log": "/var/www/html/formalizer/formalizer.core.server.requests.log",
-    "predefined_CGIbg": "fzbackup-mirror-to-github.sh&fztimezone",
+    "predefined_CGIbg": "fzbackup-mirror-to-github.sh&fztimezone&dayreview-plot.py",
     "persistent_NNL": "true",
     "timezone_offset_hours": "0",
     "batchmode_constraints_active": "true",
