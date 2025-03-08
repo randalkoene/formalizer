@@ -493,38 +493,28 @@ PRECAUTIONPAGE = '''<html>
 </html>
 '''
 
-def zero_time_Log_chunk_precaution(opennew:False, T_emulated:str, verbosity:int, override_precautions:bool, node:str):
-    # If overriden then just carry on (return)
-    if override_zerochunk_precaution:
-        return
+NODEPRECAUTIONPAGE = '''<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>fz: Same Node Precaution</title>
+</head>
+<body>
+<script type="text/javascript" src="/fzuistate.js"></script>
 
-    # Check the number of minutes in the most recent Log chunk (if open)
-    thecmd = './fzloghtml -E STDOUT -o STDOUT -q -R -F raw'
-    retcode = try_subprocess_check_output(thecmd, 'recent_chunk_raw', verbosity)
-    if (retcode != 0):
-        print(PRECAUTIONFAIL)
-        sys.exit(0)
-    lines = results['recent_chunk_raw'].decode().split('\n')
-    for line in lines:
-        space_pos = line.find(' ')
-        try:
-            startstamp = line[:space_pos]
-            start_as_int = int(startstamp)
-            break;
-        except:
-            startstamp = ''
-    if startstamp == '':
-        print(PRECAUTIONFAIL)
-        sys.exit(0)
-    d_start = datetime.strptime(startstamp, "%Y%m%d%H%M")
-    d_now = datetime.now()
-    minutes = int((d_now - d_start).seconds/60)
+<h3>fz: Same Node Precaution</h3>
 
-    # If not zero then just carry on (return)
-    if minutes > 0:
-        return
+<p><b>Warning: Log chunk has same Node as requested. Confirm to proceed:</b> <button class="button button1" onclick="window.open('%s', '_self');">Confirm</button></p>
 
-    # If zero then create a confirmation page that reruns fzlog-cgi.py with an override if confirmed
+<hr>
+[<a href="/index.html">fz: Top</a>]
+
+</body>
+</html>
+'''
+
+def make_rerun_arguments(opennew:bool, node:str, T_emulated:str, verbosity:int, override_precautions:bool)->str:
     cgiarguments = ''
     if opennew:
         if node:
@@ -538,9 +528,48 @@ def zero_time_Log_chunk_precaution(opennew:False, T_emulated:str, verbosity:int,
         confirmedcall = '/cgi-bin/fzlog-cgi.py?action=open'+cgiarguments
     else:
         confirmedcall = '/cgi-bin/fzlog-cgi.py?action=close'+cgiarguments
-    print(PRECAUTIONPAGE % confirmedcall)
-    sys.exit(0)
+    return confirmedcall
 
+def zero_time_Log_chunk_precaution(opennew:bool, T_emulated:str, verbosity:int, override_precautions:bool, node:str):
+    # If overriden then just carry on (return)
+    if override_zerochunk_precaution:
+        return
+
+    # Check the number of minutes in the most recent Log chunk (if open)
+    thecmd = './fzloghtml -E STDOUT -o STDOUT -q -R -F raw'
+    retcode = try_subprocess_check_output(thecmd, 'recent_chunk_raw', verbosity)
+    if (retcode != 0):
+        print(PRECAUTIONFAIL)
+        sys.exit(0)
+    lines = results['recent_chunk_raw'].decode().split('\n')
+    components = lines[0].split(' ')
+    startstamp = components[0]
+    nodestr = components[2]
+    nodelen = len(nodestr)
+    try:
+        start_as_int = int(startstamp)
+    except:
+        startstamp = ''
+    if startstamp == '' or nodelen != 16:
+        print(PRECAUTIONFAIL)
+        sys.exit(0)
+    d_start = datetime.strptime(startstamp, "%Y%m%d%H%M")
+    d_now = datetime.now()
+    minutes = int((d_now - d_start).seconds/60)
+
+    if minutes <= 0:
+        # If zero then create a confirmation page that reruns fzlog-cgi.py with an override if confirmed
+        confirmedcall = make_rerun_arguments(opennew, node, T_emulated, verbosity, override_precautions)
+        print(PRECAUTIONPAGE % confirmedcall)
+        sys.exit(0)
+
+    if nodestr == node:
+        # If the same Node then create a confirmation page that reruns fzlog-cgi.py with an override if confirmed
+        confirmedcall = make_rerun_arguments(opennew, node, T_emulated, verbosity, override_precautions)
+        print(NODEPRECAUTIONPAGE % confirmedcall)
+        sys.exit(0)
+
+# This should open a new Log chunk, unless the current Log chunk already belongs to the same Node.
 def open_new_Log_chunk(node: str, T_emulated: str, verbosity = 1, override_precautions=False) -> bool:
     zero_time_Log_chunk_precaution(opennew=True, T_emulated=T_emulated, verbosity=verbosity, override_precautions=override_precautions, node=node)
     print(openpagehead)
