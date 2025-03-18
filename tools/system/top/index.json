@@ -26,7 +26,7 @@
             "window" : "_blank"
         },
         "VTD Nodes" : {
-            "url" : "/cgi-bin/fzgraphsearch-cgi.py?completion_lower=0.0&completion_upper=0.99&tdprop_lower=variable&tdprop_upper=variable&repeats=false",
+            "url" : "/cgi-bin/fzgraphsearch-cgi.py?completion_lower=0.0&completion_upper=0.99&tdprop_lower=variable&tdprop_upper=variable&repeats=false&draggable=on",
             "window" : "_blank",
             "SPAinfo" : "&SPA=no"
         },
