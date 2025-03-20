@@ -3,6 +3,14 @@
 # Randal A. Koene, 20200921
 #
 # This CGI handler provides a near-verbatim equivalent access to fzloghtml via web form.
+#
+# Notes:
+#
+# 1. Checkboxes processing is now done through a pipe from fzloghtml to the checkboxes.py
+#    script. To use the previous call via this script, call this script in the browser
+#    with a URI such as: /cgi-bin/fzloghtml-cgi.py?weeksinterval=24&regex=%5B%3C%5Dinput%20type%3D%22checkbox%22%5B%20%5D%2A%5B%3E%5D
+#    decoded, that URI is the equivalent of calling fzloghtml with weeksinterval=24&regex=[<]input type="checkbox"[ ]*[>]
+#    and that is the equivalent of calling fzloghtml with -w 24 -x '[<]input type="checkbox"[ ]*[>]'.
 
 # Import modules for CGI handling 
 try:
