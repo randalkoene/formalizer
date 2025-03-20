@@ -24,6 +24,7 @@ import traceback
 from io import StringIO
 from traceback import print_exc
 from subprocess import Popen, PIPE
+from urllib.parse import quote, unquote
 from pathlib import Path
 home = str(Path.home())
 
@@ -91,6 +92,9 @@ todep = form.getvalue('todep')
 template = form.getvalue('template')
 
 subtrees_list = form.getvalue('subtrees')
+
+# When receiving data from checkboxes.py:
+data = form.getvalue('data')
 
 # The following should only show information that is safe to provide
 # to those who have permission to connect to this CGI handler.
@@ -350,7 +354,7 @@ topicspagetail = '''</tbody></table>
 </html>
 '''
 
-CUSTOM_TOPICS_TEMPLATE='''<a href="/cgi-bin/fzgraphhtml-cgi.py?topic={{ topic_id }}">{{ tag }}</a> [<a href="/cgi-bin/fzgraphhtml-cgi.py?edit=new&topics={{ tag }}&prop=%s">add to NEW</a>] _SPLIT_'''
+CUSTOM_TOPICS_TEMPLATE='''<a href="/cgi-bin/fzgraphhtml-cgi.py?topic={{ topic_id }}">{{ tag }}</a> [<a href="/cgi-bin/fzgraphhtml-cgi.py?edit=new&topics={{ tag }}&prop=%s%s">add to NEW</a>] _SPLIT_'''
 
 # *** OBTAIN THIS SOMEHOW!
 #with open(dotformalizer_path+'/server_address','r') as f:
@@ -553,13 +557,19 @@ def generate_Node_edit_form_page():
             thecmd = f'./fzgraph -q -C "/fz/graph/namedlists/dependencies?add={todep}&unique=true"'
             try_command_call(thecmd, printhere=False)
 
-    if edit=='new' and not topics:
+    # If topics have not been chosen yet and if not called from checkboxes.py
+    # then generate the topics selection page after picking VTD or UTD.
+    if edit=='new' and not topics and not data:
         generate_New_Node_init_page()
         return
 
     template_content = None
     if edit=='new' and template:
         template_content = new_node_templates[template]
+
+    # If called from checkboxes.py:
+    if edit=='new' and data:
+        template_content = unquote(data)
 
     # This is reached when fzgraphhtml-cgi.py?edit=new&topics=<something>
     thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -m "+edit
@@ -579,6 +589,9 @@ def generate_Node_edit_form_page():
 
         if prop:
             thecmd += " -p "+prop
+
+    if data:
+        thecmd += " -d '"+data+"'"
 
     if SPA:
         thecmd += ' -j' # no Javascript
@@ -615,7 +628,11 @@ def generate_alternative_topics_page():
     thecmd = "./fzgraphhtml -q -e -t '?' -E STDOUT -o STDOUT"
     if tonode:
         thecmd += " -i " + tonode
-    custom_topics_template = CUSTOM_TOPICS_TEMPLATE % TDdefault
+    if data:
+        data_arg = '&data=' + quote(data)
+    else:
+        data_arg = ''
+    custom_topics_template = CUSTOM_TOPICS_TEMPLATE % (TDdefault, data_arg)
     thecmd += f" -T 'topics=STRING:{custom_topics_template}'"
     if SPA:
         thecmd += ' -j' # no Javascript

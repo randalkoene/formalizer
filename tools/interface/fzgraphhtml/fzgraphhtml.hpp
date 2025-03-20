@@ -111,6 +111,8 @@ struct fzgraphhtml: public formalizer_standard_program {
 
     td_property init_tdprop = _tdprop_num;
 
+    std::string data; // optional pre-seeded data for a new Node (URI encoded)
+
     Graph * graph_ptr = nullptr;
 
     std::vector<std::string> replacements;

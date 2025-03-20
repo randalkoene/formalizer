@@ -38,13 +38,13 @@ fzgraphhtml fzgh;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  * 
- * Command line arguments already assigned: CDEFILMNRSTVWYcehjmnopqrstuvx
- * Command line arguments still available: ABGHJKOPQUXZabdfgiklwyz
+ * Command line arguments already assigned: CDEFILMNRSTVWYcdehjmnopqrstuvx
+ * Command line arguments still available: ABGHJKOPQUXZabfgiklwyz
  */
 fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "n:m:Irt:uBi:L:N:M:D:x:o:s:S:eT:F:CjcYR:p:";
+    add_option_args += "n:m:Irt:uBi:L:N:M:D:x:o:s:S:eT:F:CjcYR:p:d:";
     add_usage_top += " [-n <node-ID>|-m <node-ID>|-I|-t <topic-ID|topic-tag|?>|-L <name|?>] [-u] [-B] [-i] [-p <tdprop>]"
-        " [-r] [-N <num>] [-M <max-YYYYmmddHHMM>] [-D <num-days>] [-x <len>]"
+        " [-d <data>] [-r] [-N <num>] [-M <max-YYYYmmddHHMM>] [-D <num-days>] [-x <len>]"
         " [-o <output-path>] [-s <sortkeys>] [-S <NNL>] [-e] [-T <named|node|Node>=<path>]"
         " [-F html|txt|node|desc] [-C] [-j] [-c] [-Y] [-R <req-suggested>]";    //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
@@ -60,6 +60,7 @@ fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) {
         "5. The number of elements limit (-N) overrides the limits set\n"
         "   by -D and -M. To ensure that -D or -M can reach their limit\n"
         "   set '-N all'.\n"
+        "6. The data in <data> needs to be URI encoded.\n"
         "\n"
         "Options settable through ./formalizer/config/fzgraphhtml/config.json:\n"
         "  num_to_show (int or 'all'): Show data for that many elements.\n"
@@ -98,6 +99,7 @@ void fzgraphhtml::usage_hook() {
           "\n"
           "    -i Include 'add-to-node' for <node-id>.\n"
           "    -p Initialize New Node template with TD property.\n"
+          "    -d Include URI encoded data to seed Node content (with -t).\n"
           "    -N Show data for <num> elements (all=no limit), see note 5.\n"
           "    -M Show data up to and including <max-YYYYmmddHHMM>, see note 5.\n"
           "    -D Show data for <num-days> days, see note 5.\n"
@@ -253,6 +255,11 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
 
     case 'p': {
         init_tdprop = parvalue_to_tdprop(cargs);
+        return true;
+    }
+
+    case 'd': {
+        data = cargs;
         return true;
     }
 

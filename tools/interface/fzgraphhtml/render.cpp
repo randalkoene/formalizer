@@ -1290,6 +1290,12 @@ bool render_new_node_page() {
     nodevars.emplace("fzserverpq", fzgh.replacements[fzserverpq_address]); // graph.get_server_full_address()
     nodevars.emplace("topics", fzgh.list_name);
 
+    if (!fzgh.data.empty()) {
+        nodevars.emplace("data_arg", "&data="+fzgh.data);
+    } else {
+        nodevars.emplace("data_arg", "");
+    }
+
     fzgh.config.embeddable = true;
     fzgh.cache_it = true;
     standard_mute();

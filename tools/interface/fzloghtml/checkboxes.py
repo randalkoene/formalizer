@@ -200,82 +200,6 @@ class CheckboxParser(HTMLParser):
     def get_modified_html(self):
         return ''.join(self.modified_html)
 
-# class CheckboxParser(HTMLParser):
-#     def __init__(self):
-#         super().__init__()
-#         self.modified_html = []
-#         self.current_checkbox = False
-#         self.captured_content = []
-#         self.stop_tags = {'li', 'p'}  # Tags that stop content capture
-
-#     def handle_starttag(self, tag, attrs):
-#         if tag == 'input':
-#             attrs_dict = dict(attrs)
-#             if attrs_dict.get('type') == 'checkbox':
-#                 # Check if the checkbox is NOT checked
-#                 if 'checked' not in attrs_dict:
-#                     self.current_checkbox = True
-#                     # Add a button before the checkbox
-#                     self.modified_html.append(f'<button onclick="sendData(\'\')">Send</button>')
-#                 # Append the checkbox tag to the modified HTML (but don't capture it)
-#                 attrs_str = ' '.join(f'{k}="{v}"' for k, v in attrs)
-#                 self.modified_html.append(f'<{tag} {attrs_str}>')
-#                 return  # Skip further processing for the checkbox tag
-        
-#         # If we're capturing content, append the start tag and its attributes
-#         if self.current_checkbox:
-#             attrs_str = ' '.join(f'{k}="{v}"' for k, v in attrs)
-#             self.captured_content.append(f'<{tag} {attrs_str}>')
-        
-#         # If we're capturing content and encounter a stop tag, stop capturing
-#         if self.current_checkbox and tag in self.stop_tags:
-#             self.current_checkbox = False
-#             # Update the button's onclick event with the captured content
-#             content = ''.join(self.captured_content).strip()
-#             if content:
-#                 self.modified_html = [
-#                     line.replace('sendData(\'\')', f'sendData(\'{html.escape(content)}\')')
-#                     if 'sendData(\'\')' in line else line
-#                     for line in self.modified_html
-#                 ]
-#             self.captured_content = []
-        
-#         # Append the current tag to the modified HTML
-#         attrs_str = ' '.join(f'{k}="{v}"' for k, v in attrs)
-#         self.modified_html.append(f'<{tag} {attrs_str}>')
-
-#     def handle_data(self, data):
-#         if self.current_checkbox:
-#             # Capture the visible content after the checkbox
-#             self.captured_content.append(data)
-        
-#         # Append the data to the modified HTML
-#         self.modified_html.append(data)
-
-#     def handle_endtag(self, tag):
-#         if self.current_checkbox:
-#             # Capture the end tag
-#             self.captured_content.append(f'</{tag}>')
-        
-#         # If we're capturing content and encounter a stop tag, stop capturing
-#         if self.current_checkbox and tag in self.stop_tags:
-#             self.current_checkbox = False
-#             # Update the button's onclick event with the captured content
-#             content = ''.join(self.captured_content).strip()
-#             if content:
-#                 self.modified_html = [
-#                     line.replace('sendData(\'\')', f'sendData(\'{html.escape(content)}\')')
-#                     if 'sendData(\'\')' in line else line
-#                     for line in self.modified_html
-#                 ]
-#             self.captured_content = []
-        
-#         # Append the end tag to the modified HTML
-#         self.modified_html.append(f'</{tag}>')
-
-#     def get_modified_html(self):
-#         return ''.join(self.modified_html)
-
 def add_buttons_to_unchecked_checkboxes(html_content):
     parser = CheckboxParser()
     parser.feed(html_content)
@@ -286,7 +210,7 @@ JS_SCRIPT='''
 <script>
 function sendData(data) {
     // Open a new browser window with the CGI script's URL and pass the data as a query parameter
-    var cgiScriptUrl = "/cgi-bin/checkbox_to_node.py?data=" + encodeURIComponent(data);
+    var cgiScriptUrl = "/cgi-bin/fzgraphhtml-cgi.py?edit=new&data=" + encodeURIComponent(data);
     window.open(cgiScriptUrl, '_blank');
 }
 </script>

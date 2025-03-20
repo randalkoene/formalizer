@@ -4,6 +4,9 @@
 #
 # This script receives the content of a checkbox line and uses that as the content
 # for a new Node.
+#
+# UPDATE: This was just a test script to see which data checkboxes.py sent.
+#         The actual task is now carried out by fzgraphhtml-cgi.py.
 
 try:
     import cgitb; cgitb.enable()
