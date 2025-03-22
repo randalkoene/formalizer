@@ -20,7 +20,7 @@ from traceback import print_exc
 import subprocess
 import html
 from html.parser import HTMLParser
-from urllib.parse import quote
+import base64
 
 # Create instance of FieldStorage 
 form = cgi.FieldStorage()
@@ -136,7 +136,7 @@ class CheckboxParser(HTMLParser):
                 if 'checked' not in attrs_dict:
                     self.current_checkbox = True
                     # Add a button before the checkbox
-                    self.modified_html.append(f'<button onclick="sendData(\'\')">Send</button>')
+                    self.modified_html.append(f'<button onclick="sendData(\'\')">MkNode</button>')
                 # Append the checkbox tag to the modified HTML (but don't capture it)
                 attrs_str = ' '.join(f'{k}="{v}"' for k, v in attrs)
                 self.modified_html.append(f'<{tag} {attrs_str}>')
@@ -153,8 +153,8 @@ class CheckboxParser(HTMLParser):
             # Update the button's onclick event with the captured content
             content = ''.join(self.captured_content).strip()
             if content:
-                # Properly URI-encode the content
-                encoded_content = quote(content)
+                # Properly URL-safe-base64-encode the content
+                encoded_content = base64.urlsafe_b64encode(content.encode()).decode()
                 self.modified_html = [
                     line.replace('sendData(\'\')', f'sendData(\'{encoded_content}\')')
                     if 'sendData(\'\')' in line else line
@@ -182,8 +182,8 @@ class CheckboxParser(HTMLParser):
                 # Update the button's onclick event with the captured content
                 content = ''.join(self.captured_content).strip()
                 if content:
-                    # Properly URI-encode the content
-                    encoded_content = quote(content)
+                    # Properly URL-safe-base64-encode the content
+                    encoded_content = base64.urlsafe_b64encode(content.encode()).decode()
                     self.modified_html = [
                         line.replace('sendData(\'\')', f'sendData(\'{encoded_content}\')')
                         if 'sendData(\'\')' in line else line

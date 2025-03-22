@@ -24,7 +24,7 @@ import traceback
 from io import StringIO
 from traceback import print_exc
 from subprocess import Popen, PIPE
-from urllib.parse import quote, unquote
+import base64
 from pathlib import Path
 home = str(Path.home())
 
@@ -569,7 +569,7 @@ def generate_Node_edit_form_page():
 
     # If called from checkboxes.py:
     if edit=='new' and data:
-        template_content = unquote(data)
+        template_content = base64.urlsafe_b64decode(data).decode()
 
     # This is reached when fzgraphhtml-cgi.py?edit=new&topics=<something>
     thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -m "+edit
@@ -629,7 +629,7 @@ def generate_alternative_topics_page():
     if tonode:
         thecmd += " -i " + tonode
     if data:
-        data_arg = '&data=' + quote(data)
+        data_arg = '&data=' + data
     else:
         data_arg = ''
     custom_topics_template = CUSTOM_TOPICS_TEMPLATE % (TDdefault, data_arg)
