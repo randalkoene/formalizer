@@ -360,6 +360,10 @@
         }
     },
     "Information: " : {
+        "Team Overview" : {
+            "url" : "https://docs.google.com/spreadsheets/d/1x1ea0yCaAeJVE_eJ0pJmEjIqpKjdWR9wmp2a1_M2aNI/edit?usp=drive_link",
+            "window" : "_blank"
+        },
         "Sys:Doc" : {
             "url" : "/formalizer/doc.html",
             "window" : "_blank"
