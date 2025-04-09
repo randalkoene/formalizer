@@ -752,6 +752,8 @@ public:
 
     size_t num_superiors() const { return supedges.size(); }
     size_t num_dependencies() const { return depedges.size(); }
+    size_t num_active_superiors() const;
+    size_t num_active_dependencies() const;
 
     Node * has_sup(const std::string & sup_idstr) const; // returns nullptr if not in sup_Edges()
     Node * has_dep(const std::string & sup_idstr) const; // returns nullptr if not in dep_Edges()

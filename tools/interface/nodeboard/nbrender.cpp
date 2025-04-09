@@ -891,7 +891,7 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
     if (depnum<1) {
         nodevars.emplace("dep-num", "");
     } else {
-        nodevars.emplace("dep-num", ",<b>"+std::to_string(depnum)+"</b>");
+        nodevars.emplace("dep-num", ",<b>"+std::to_string(node_ptr->num_active_dependencies())+'/'+std::to_string(depnum)+"</b>");
     }
 
     std::string include_filter_substr;

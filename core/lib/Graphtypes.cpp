@@ -649,6 +649,24 @@ time_t Node::inherit_targetdate(Node_ptr * origin) {
     return earliest;
 }
 
+size_t Node::num_active_superiors() const {
+    size_t num_active = 0;
+    for (const auto & sup_edge : supedges) {
+        Node * sup = sup_edge->get_sup();
+        if (sup->is_active()) num_active++;
+    }
+    return num_active;
+}
+
+size_t Node::num_active_dependencies() const {
+    size_t num_active = 0;
+    for (const auto & dep_edge : depedges) {
+        Node * dep = dep_edge->get_dep();
+        if (dep->is_active()) num_active++;
+    }
+    return num_active;
+}
+
 time_t Node::earliest_active_superior() {
     time_t earliest = RTt_maxtime;
     for (const auto & sup_edge : supedges) {
@@ -682,8 +700,8 @@ float Node::superiors_max_importance() const {
 
 float Node::dependencies_max_importance() const {
     float max_importance = 0.0;
-    for (const auto & sup_edge : supedges) {
-        if (sup_edge->get_importance() > max_importance) max_importance = sup_edge->get_importance();
+    for (const auto & dep_edge : depedges) {
+        if (dep_edge->get_importance() > max_importance) max_importance = dep_edge->get_importance();
     }
     return max_importance;
 }
