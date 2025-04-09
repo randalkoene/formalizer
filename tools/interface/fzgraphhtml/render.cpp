@@ -907,6 +907,12 @@ std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button
                     bool is_active = sup_ptr->is_active();
                     if (is_active) {
                         sups_str += "[<span class=\""+supdep_td_highlight.at(sup_ptr->get_targetdate()>=node_td)+"\">"+sup_ptr->get_targetdate_str()+"</span>] ";
+                    } else {
+                        if (sup_ptr->is_complete()) {
+                            sups_str += "&#x2705;";
+                        } else {
+                            sups_str += "&#x274C;";
+                        }
                     }
                     sups_str += "<span class=\""+supdep_active_highlight.at(is_active)+"\">"+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length)+"</span>";
                 }
@@ -962,6 +968,12 @@ std::string render_Node_dependencies(Graph & graph, Node & node, bool remove_but
                     bool is_active = dep_ptr->is_active();
                     if (is_active) {
                         deps_str += "[<span class=\""+supdep_td_highlight.at(dep_ptr->get_targetdate()<=node_td)+"\">"+dep_ptr->get_targetdate_str()+"</span>] ";
+                    } else {
+                        if (dep_ptr->is_complete()) {
+                            deps_str += "&#x2705;";
+                        } else {
+                            deps_str += "&#x274C;";
+                        }
                     }
                     deps_str += "<span class=\""+supdep_active_highlight.at(is_active)+"\">"+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length)+"</span>";
                 }

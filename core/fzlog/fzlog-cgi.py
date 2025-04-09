@@ -20,7 +20,7 @@ except:
     pass
 import sys, cgi, os, stat
 sys.stderr = sys.stdout
-from time import strftime
+from time import strftime, time
 from datetime import datetime
 import traceback
 from io import StringIO
@@ -569,23 +569,45 @@ def zero_time_Log_chunk_precaution(opennew:bool, T_emulated:str, verbosity:int, 
         print(NODEPRECAUTIONPAGE % confirmedcall)
         sys.exit(0)
 
+DEBUG_LONG_DELAY_INSTANCES_FILE='/var/www/webdata/formalizer/fzlog.debug'
+def DEBUG_LONG_DELAY_INSTANCES(mark:str):
+    t = int(time()*10)
+    if mark == 'mark-0':
+        try:
+            with open(DEBUG_LONG_DELAY_INSTANCES_FILE, 'w') as f:
+                f.write(str(t)+'\n')
+        except:
+            pass
+    else:
+        try:
+            with open(DEBUG_LONG_DELAY_INSTANCES_FILE, 'a') as f:
+                f.write(str(t)+'\n')
+        except:
+            pass
+
 # This should open a new Log chunk, unless the current Log chunk already belongs to the same Node.
 def open_new_Log_chunk(node: str, T_emulated: str, verbosity = 1, override_precautions=False) -> bool:
+    DEBUG_LONG_DELAY_INSTANCES('mark-0')
     zero_time_Log_chunk_precaution(opennew=True, T_emulated=T_emulated, verbosity=verbosity, override_precautions=override_precautions, node=node)
+    DEBUG_LONG_DELAY_INSTANCES('mark-1')
     print(openpagehead)
     if not node:
+        DEBUG_LONG_DELAY_INSTANCES('mark-2')
         node = get_selected_Node(verbosity)
         if not node:
             print(openpagetail_failure)
             return False
+    DEBUG_LONG_DELAY_INSTANCES('mark-3')
     thecmd = './fzlog -E STDOUT -W STDOUT -c ' + node + extra_cmd_args(T_emulated, verbosity, override_precautions)
     retcode = try_subprocess_check_output(thecmd, 'open_chunk', verbosity)
+    DEBUG_LONG_DELAY_INSTANCES('mark-4')
     if (retcode == 0):
         render_node_with_history(node)
         print(openpagetail_success)
         update_chunk_signal()
     else:
         print(openpagetail_failure)
+    DEBUG_LONG_DELAY_INSTANCES('mark-5')
     return (retcode == 0)
 
 def close_Log_chunk(T_emulated: str, verbosity = 1, override_precautions=False) -> bool:
