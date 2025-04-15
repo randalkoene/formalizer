@@ -172,6 +172,9 @@ def debugmark(mark:str, err=None):
 # ====================== String templates used to generate content for page areas:
 
 DAYPAGE_WIZTABLE_STYLE='''<style>
+th {
+font-weight: 700;
+}
 .secondcolfixedw td:nth-child(2) {
   width: 8em;
 }
