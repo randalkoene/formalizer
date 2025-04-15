@@ -15,7 +15,8 @@ Debug_LogFile::Debug_LogFile(const std::string & _logpath): logpath(_logpath) {
 }
 
 std::string Debug_LogFile::make_entry_str(const std::string & message) const {
-	return TimeStampYmdHM(ActualTime())+": "+message+'\n';
+	//return TimeStampYmdHM(ActualTime())+": "+message+'\n';
+	return TimeStamp("%Y%m%d%H%M%S",ActualTime())+": "+message+'\n';
 }
 
 /**

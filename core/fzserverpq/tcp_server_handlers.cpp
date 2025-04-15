@@ -18,6 +18,7 @@
 #include <unistd.h> 
 #include <sys/socket.h>
 #include <filesystem>
+#include <chrono> // FOR PROFILING AND DEBUGGING (remove this)
 
 // core
 #include "debug.hpp"
@@ -770,13 +771,26 @@ bool node_add_logged_time(const std::string & node_addstr) {
         return standard_error("Missing Node ID token", __func__);
     }
     
+    To_Debug_LogFile("Add "+std::to_string(add_minutes)+" mins to "+node_ptr->get_id_str());
+    std::vector<long> profiling_us; // PROFILING (remove this)
+    auto t1 = std::chrono::high_resolution_clock::now(); // PROFILING (remove this)
+
     // carry out modification
     Edit_flags editflags = Node_apply_minutes(*node_ptr, add_minutes, T_ref);
+    auto t2 = std::chrono::high_resolution_clock::now(); // PROFILING (remove this)
+    profiling_us.emplace_back(std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count()); // PROFILING (remove this)
     
     // update database
     if (!Update_Node_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), *node_ptr, editflags)) {
         return standard_error("Synchronizing Node update to database failed", __func__);
     }
+    auto t3 = std::chrono::high_resolution_clock::now(); // PROFILING (remove this)
+    profiling_us.emplace_back(std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count()); // PROFILING (remove this)
+    std::string profiling_str; // PROFILING (remove this)
+    for (auto& us : profiling_us) { // PROFILING (remove this)
+        profiling_str += std::to_string(us/1000000)+' '; // PROFILING (remove this)
+    } // PROFILING (remove this)
+    To_Debug_LogFile("Seconds taken by steps: "+profiling_str);
 
     // post-modification validity test
     if (editflags.Edit_error()) { // check this AFTER synchronizing (see note in Graphmodify.hpp:Edit_flags)

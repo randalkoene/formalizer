@@ -8,3 +8,5 @@ other topics, see the Documentation entry point on the top dashboard.
 
 The [manual](./manual/manual.md) that is in this directory is also linked from there. This manual
 may be converted into an mkdocs site.
+
+Also see [installation notes](./installation.md).

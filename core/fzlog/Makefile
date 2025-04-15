@@ -85,8 +85,10 @@ OPTSTR = optimized
 # +----- end  : Optimization options -----+
 
 # +----- begin: Compile-time Macro definitions -----+
+USE_DEBUGFILE = -DFZACTIVATE_DEBUGLOG
+#USE_DEBUGFILE = 
 SPECIFYDEFAULTHOMEDIRDEF = -DDEFAULTHOMEDIR=\"$(HOME)\" 
-COMPILETIMEMACRODEFS += $(SPECIFYDEFAULTHOMEDIRDEF)
+COMPILETIMEMACRODEFS += $(SPECIFYDEFAULTHOMEDIRDEF) $(USE_DEBUGFILE)
 CPPXTRA += $(COMPILETIMEMACRODEFS)
 # +----- end  : Compile-time Macro definitions -----+
 
@@ -101,6 +103,7 @@ CPPFLAGS = $(COMPOPT) $(CPPOPT) $(MACHSPEC) $(CPPXTRA) $(INCLUDES)
 
 # +----- begin: Select Formalizer core library objects -----+
 CORE_OBJS = 
+CORE_OBJS += $(CORELIBPATH)/obj/debug.o
 CORE_OBJS += $(CORELIBPATH)/obj/error.o
 CORE_OBJS += $(CORELIBPATH)/obj/config.o
 CORE_OBJS += $(CORELIBPATH)/obj/standard.o

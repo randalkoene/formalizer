@@ -14,8 +14,10 @@
 
 // std
 #include <iostream>
+#include <chrono> // FOR PROFILING AND DEBUGGING (remove this)
 
 // core
+#include "debug.hpp"
 #include "error.hpp"
 #include "standard.hpp"
 #include "stringio.hpp"
@@ -30,7 +32,7 @@
 #include "version.hpp"
 #include "fzlog.hpp"
 
-
+Set_Debug_LogFile("/var/www/webdata/formalizer/fzlog.debug");
 
 using namespace fz;
 
@@ -498,6 +500,7 @@ bool port_API_request(const std::string api_url) {
     if (!graphmemman.get_Graph(graph_ptr)) {
         return false;
     }
+    //To_Debug_LogFile("port_API_request(): "+graph_ptr->get_server_IPaddr()+':'+std::to_string(graph_ptr->get_server_port())+api_url);
     if (!http_GET(graph_ptr->get_server_IPaddr(), graph_ptr->get_server_port(), api_url, response_str)) {
         return standard_exit_error(exit_communication_error, "API request to Server port failed: "+api_url, __func__);
     }
@@ -554,9 +557,11 @@ bool close_chunk(time_t closing_time) {
         standard_exit_error(exit_missing_data, "Unable to obtain Node of closed Log chunk, because Log chunk pointer is null pointer.", __func__);
     }
     std::string node_idstr(fzl.edata.c_newest->get_NodeID().str());
+    To_Debug_LogFile("close_chunk(): calling update_Node_completion("+node_idstr+", ...)");
     if (!update_Node_completion(node_idstr, closing_time - fzl.edata.newest_chunk_t)) {
         standard_exit_error(exit_communication_error, "Server request to update completion ratio of Node "+node_idstr+" failed.", __func__);
     }
+    To_Debug_LogFile("close_chunk(): chunk closed");
 
     VERBOSEOUT("Log chunk "+fzl.edata.c_newest->get_tbegin_str()+" closed.\n");   
 
@@ -966,19 +971,25 @@ bool add_to_recent_Nodes_FIFO(const Node & node) {
  * the opening time of the new Log chunk by 1 minute.
  */
 bool open_chunk() {
+    // std::vector<long> profiling_us; // PROFILING (remove this)
+    // auto t1 = std::chrono::high_resolution_clock::now(); // PROFILING (remove this)
     // Ensure a valid Node for the requested new Log chunk.
     Node * newchunk_node_ptr;
     std::tie(newchunk_node_ptr, fzl.edata.graph_ptr) = find_Node_by_idstr(fzl.newchunk_node_id, nullptr);
     if (!newchunk_node_ptr) {
         standard.exit(exit_general_error); // error messages were already sent
     }
-    
+    // auto t2 = std::chrono::high_resolution_clock::now(); // PROFILING (remove this)
+    // profiling_us.emplace_back(std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count()); // PROFILING (remove this)
+
     time_t t = fzl.reftime.Time(); // Emulated times are included via -t options_hook() of ReferenceTime.
 
     // Determine the state of the most recent Log chunk and close it if it was open.
     if (!close_chunk(t)) {
         standard_exit_error(exit_database_error, "Unable to close most recent Log chunk", __func__);
     }
+    // auto t3 = std::chrono::high_resolution_clock::now(); // PROFILING (remove this)
+    // profiling_us.emplace_back(std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count()); // PROFILING (remove this)
 
     // Create a new Log chunk and appended it to the Log.
     // *** maybe add a try-catch here
@@ -992,10 +1003,19 @@ bool open_chunk() {
         standard_exit_error(exit_database_error, "Unable to append Log chunk", __func__);
     }
     VERBOSEOUT("Log chunk "+new_chunk.get_tbegin_str()+" appended.\n");
+    // auto t4 = std::chrono::high_resolution_clock::now(); // PROFILING (remove this)
+    // profiling_us.emplace_back(std::chrono::duration_cast<std::chrono::microseconds>(t4 - t3).count()); // PROFILING (remove this)
 
     if (!add_to_recent_Nodes_FIFO(*newchunk_node_ptr)) {
         standard_warning("Unable to push new Log chunk Node to fifo 'recent' Named Node List.", __func__);
     }
+    // auto t5 = std::chrono::high_resolution_clock::now(); // PROFILING (remove this)
+    // profiling_us.emplace_back(std::chrono::duration_cast<std::chrono::microseconds>(t5 - t4).count()); // PROFILING (remove this)
+    // std::string profiling_str; // PROFILING (remove this)
+    // for (auto& us : profiling_us) { // PROFILING (remove this)
+    //     profiling_str += std::to_string(us)+' '; // PROFILING (remove this)
+    // } // PROFILING (remove this)
+    // string_to_file("/var/www/webdata/formalizer/fzlog.profiling", profiling_str); // PROFILING (remove this)
 
     //*** This should probably be able to cause an update of the Node history chain and the histories cache!
 
