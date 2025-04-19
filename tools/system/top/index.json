@@ -396,6 +396,10 @@
             "url" : "https://trello.com/b/aE1VCkGj",
             "window" : "_blank"
         },
+        "Paper Writing" : {
+            "url" : "https://www.biorxiv.org/content/10.1101/088278v5",
+            "window" : "_blank"
+        },
         "Weather Service (95959)" : {
             "url" : "https://forecast.weather.gov/MapClick.php?CityName=Nevada+City&state=CA&site=STO&lat=39.319697704249556&lon=-120.86384044260548",
             "window" : "_blank"
@@ -422,6 +426,10 @@
         },
         "G-Drive (@carboncopies)" : {
             "url" : "http://drive.google.com/?authuser=rkoene@carboncopies.org",
+            "window" : "_blank"
+        },
+        "DeepSeek" : {
+            "url" : "https://chat.deepseek.com/",
             "window" : "_blank"
         },
         "ID Book" : {
