@@ -353,7 +353,7 @@
         "Contacts" : {
             "url" : "http://contacts.google.com/?authuser=randal.a.koene@gmail.com",
             "window" : "_blank"
-        }
+        },
         "Cal.com" : {
             "url" : "https://cal.com/randal-koene",
             "window" : "_blank"
