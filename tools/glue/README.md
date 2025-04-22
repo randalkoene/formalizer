@@ -25,5 +25,9 @@ These include tasks such as:
 - Backing up the database with `fzbackup`.
 - Refreshing the Node histories with `fzquerypq`.
 
+## Proposed additional regularly scheduled tasks
+
+- Refreshing the Node Metrics by calling `nodemetrics.py` using default settings.
+
 ---
 Randal A. Koene, 20241026
