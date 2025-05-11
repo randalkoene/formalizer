@@ -32,6 +32,7 @@ WIZTABLE_LINES=[
 	[ '20060914084328.1', 1, 'ritual', 0, 'checkbox', 6, 8, 'Ritual: Meditate and/or do yoga (preferably outside).', '' ],
 	[ '20060914084328.1', 1, 'coffee', 0, 'checkbox', 6, 8, 'Start timer and make coffee.', '' ],
 	[ '20060914084328.1', 2, 'vitamins', 0, 'checkbox', 6, 8, 'Take vitamins and supplements.', '' ],
+    [ '20060914084328.1', 2, 'vasodilator', 0, 'checkbox', 6, 8, 'Take a vasodilator.', '' ],
 	[ '20060914084328.1', 3, 'news', 0, 'checkbox', 6, 8, 'Use <a href="/formalizer/test_maketimer.html" target="_blank">a timer or skip news reading.', '' ],
 
 	[ '20091115180507.1', 3, 'finalized', 0, 'checkbox', 6, 9, 'Daywiz of previous day was finalized.', '' ], # Daywiz autodetectable.
@@ -51,6 +52,7 @@ WIZTABLE_LINES=[
 	[ '20091115180507.1', 5, 'backup', 0, 'checkbox', 6, 9, '<button class="button button1" onclick="window.open(\'/cgi-bin/fzbackup-from-web-cgi.py\',\'_blank\');">Ensure backup of the Formalizer database</button>.', '' ], # Automatable.
 
 	[ '20211017053846.1', -4, 'weight', 0, 'number', 6, 10, 'Measure <a href="/cgi-bin/metrics.py?cmd=show&selectors=wiztable" target="_blank">weight</a>.', '' ],
+    [ '20211017053846.1', -4, 'bloodpressure', 0, 'number', 6, 10, 'Measure blood pressure.', '' ],
 	[ '20211017053846.1', 4, 'pushup1', 0, 'checkbox', 6, 10, 'First push-ups or weights (e.g. before/after shower).', '' ],
 	[ '20211017053846.1', 2, 'shower', 0, 'checkbox', 6, 10, 'Have a shower.', '' ],
 	[ '20211017053846.1', 3, 'lotion', 0, 'checkbox', 6, 10, 'Put on lotion.', '' ],
@@ -75,6 +77,7 @@ WIZTABLE_LINES=[
 
 	[ '20040402045825.1', 5, 'firstwork', 0, 'checkbox', 13, 16, 'Managed at least 4 hours of actual work progress in the first miniday (by 2pm).', ''],
 	[ '20040402045825.1', 4, 'progress', 0, 'checkbox', 13, 16, '<a class="nnl" href="/cgi-bin/nodeboard-cgi.py?D=week_main_goals&T=true&u=204512311159&r=100&U=true&N=7" target="_blank">Checked progress bars</a> for Weekly Goals (by 2pm).', ''],
+    [ '20040402045825.1', 5, 'standing', 0, 'checkbox', 13, 16, 'I stood rather than sat for desk work.', ''],
 
 	[ '20100403134619.1', 4, 'endurance', 0, 'checkbox', 9, 22, 'Endurance exercise (e.g rowing, dancing, rollerblading).', '' ],
 	[ '20100403134619.1', 4, 'pushup3', 0, 'checkbox', 20, 24, 'Third push-ups or weights (e.g. during dinner).', '' ],
@@ -88,6 +91,8 @@ WIZTABLE_LINES=[
 
 	[ '20200601093905.1', -3, 'armodafinil', 0, 'number', 21, 24, 'Armodafinil taken (mg).', '' ],
 	[ '20200601093905.1', -3, 'alcohol', 0, 'number', 21, 24, 'Alcohol consumed (ml).', '' ],
+    [ '20200601093905.1', -3, 'nicotine', 0, 'number', 21, 24, 'Nicotine consumed (mg).', '' ],
+    [ '20200601093905.1', -3, 'caffeine', 0, 'number', 21, 24, 'Caffeine consumed (cups).', '' ],
 	[ '20200601093905.1', 4, 'daynutri', 0, 'checkbox', 22, 24, 'Finalize day nutrition.', '' ],
 	[ '20200601093905.1', 4, 'fastafter8', 0, 'checkbox', 22, 24, 'Did not eat after 8pm.', '' ],
 	[ '20200601093905.1', 2, 'nextnutri', 0, 'checkbox', 22, 24, 'Plan nutrition for the next day.', '' ],
