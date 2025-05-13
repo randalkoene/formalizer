@@ -1,4 +1,4 @@
-# fzloghtml - {{ brief_title }}}
+# fzloghtml - Generate HTML representation of requested Log records.
 
 ## To create a special URL that tells rendering to make a link to local files
 
@@ -36,6 +36,21 @@ Note that the categories search, as implemented in `fzloghtml`, does not search 
 overrides in the Node description, nor does it search for category specification by
 superior if not found for a Node. This means that many Nodes that are not covered
 by the map of subtrees for the specified NNL receive the `none` Boolean_Tag_Flag.
+
+## Examples of scripts that use this
+
+- fzlog-cgi.py
+- fztask-cgi.py
+- fztask.py
+- fzcatchup.py
+- fzlink.py
+- checkboxes.py
+- fzlog-mostrecent.sh
+- fzloghtml-cgi.py
+- fzloghtml-term-1920.sh
+- fzloghtml-term.sh
+- get_log_entry.sh
+- dayreview.py
 
 ---
 Randal A. Koene, 2020

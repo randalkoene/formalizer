@@ -3,4 +3,10 @@
 This tool is used to parse the Log to gather information within
 it, to inspect its integrity, and to analyze data.
 
+This is used by:
+
+- fzlogdata-cgi.py
+
+---
+
 Randal A. Koene, 20240418

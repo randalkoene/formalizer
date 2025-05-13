@@ -119,6 +119,8 @@ struct fzloghtml: public formalizer_standard_program {
 
     std::vector<std::string> replacements;
 
+    std::string selection_processor;
+
     fzloghtml();
 
     virtual void usage_hook();

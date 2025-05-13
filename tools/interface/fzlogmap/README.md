@@ -1,5 +1,11 @@
-# fzlogmap - {{ brief_title }}}
+# fzlogmap - Generate Mapping of requested Log records
 
-{{ readme_description }}
+For example, this is used by:
+
+- nodemetrics.py
+- sysmet-extract-cgi.py
+- sysmet-extract-show.sh
+
+---
 
 Randal A. Koene, 2021

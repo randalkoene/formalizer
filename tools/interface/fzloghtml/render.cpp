@@ -448,7 +448,7 @@ bool render_Log_interval() {
     report_interval();
 
     std::string rendered_logcontent;
-    rendered_logcontent.reserve(128*1024);
+    rendered_logcontent.reserve(256*1024);
 
     std::string render_notes;
 
@@ -463,6 +463,10 @@ bool render_Log_interval() {
     if (fzlh.show_total_time_applied) {
         std::string time_applied_str = std::to_string(fzlh.total_minutes_applied/60) + ':' + std::to_string(fzlh.total_minutes_applied % 60);
         rendered_logcontent += "<tr><td><p><b>Actual time applied to Log Chunks: "+time_applied_str+"<b></p></td></tr>\n";
+    }
+
+    if ((!fzlh.noframe) && (!fzlh.selection_processor.empty())) {
+        rendered_logcontent += "<form action=\"/cgi-bin/"+fzlh.selection_processor+"\" method=\"post\">\n";
     }
 
     COMPILEDPING(std::cout,"PING: got templates\n");
@@ -548,6 +552,11 @@ bool render_Log_interval() {
             template_varvalues varvals;
 
             t_open_str = chunkptr->get_tbegin_str();
+            if (!fzlh.selection_processor.empty()) {
+                varvals.emplace("select", "SELECT <input type=\"checkbox\" name=\"select\" value=\""+t_open_str+"\"> ");
+            } else {
+                varvals.emplace("select", "");
+            }
             time_t t_chunkclose = chunkptr->get_close_time();
             time_t t_chunkopen = chunkptr->get_open_time();
             varvals.emplace("chunk_id", t_open_str);
@@ -601,6 +610,10 @@ bool render_Log_interval() {
                 }
             }
         }
+    }
+
+    if ((!fzlh.noframe) && (!fzlh.selection_processor.empty())) {
+        rendered_logcontent += "Send selected Log chunks to <input type=\"submit\" name=\""+fzlh.selection_processor+"\" value=\""+fzlh.selection_processor+"\" /></form>\n";
     }
 
     if (!render_notes.empty()) {

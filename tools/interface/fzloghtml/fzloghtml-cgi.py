@@ -58,6 +58,7 @@ caseinsensitive = form.getvalue('caseinsensitive')
 review = form.getvalue('review')
 review_date = form.getvalue('reviewdate')
 regen_index = form.getvalue('index')
+selectchunks = form.getvalue('selectchunks')
 
 #if not review:
 #    print("Content-type:text/html\n\n")
@@ -186,6 +187,7 @@ Select another part of the Log:
 <input type="text" name="regex" size="48"> must contain RegEx<br />
 or<br />
 <input type="checkbox" name="mostrecentdata"> show most recent Log data summary<br />
+<input type="checkbox" name="selectchunks"> enable selecting of Log chunks<br />
 
 <input type="submit" value="Submit" />
 
@@ -331,6 +333,8 @@ def build_uri_options(diff_numchunks=0, diff_startfrom=0, diff_weeks_startfrom=0
     if caseinsensitive:
         urioptions += get_uri_arg_separator(arg_i)+'caseinsensitive=on'
         arg_i += 1
+    if selectchunks:
+        urioptions += get_uri_arg_separator(arg_i)+'selectchunks='+uri_safe(selectchunks)
 
     return urioptions
 
@@ -367,11 +371,15 @@ def build_command_options()->str:
         cmdoptions += ' -A '
     if caseinsensitive:
         cmdoptions += ' -C '
+    if selectchunks:
+        cmdoptions += ' -S selectchunks.py'
 
     return cmdoptions
 
 def render_log_interval():
     print(log_interval_head)
+    if selectchunks:
+        print('<form action="/cgi-bin/selectchunks.py" method="post">')
     thisscript = os.path.realpath(__file__)
     print(f'<!-- (For dev reference, this script is at {thisscript}.) -->')
     print('<h1>Formalizer: HTML FORM interface to fzloghtml</h1>\n<p></p>\n<table id="LogInterval"><tbody>')
@@ -412,6 +420,8 @@ def render_log_interval():
         print('<tr><td><b>Missing request arguments.</b></td></tr>')
 
     print('</tbody></table>')
+    if selectchunks:
+        print('Send selected Log chunks to <input type="submit" name="selectchunks.py" value="selectchunks.py" /></form>')
 
     if endbefore:
         if is_before_now(endbefore):

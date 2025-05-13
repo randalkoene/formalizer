@@ -6,7 +6,7 @@
 # export their content to another script for further processing, e.g. to
 # convert it into a Node.
 #
-# This script was made with the help of DeekSeek.
+# This script was made with the help of DeepSeek.
 
 try:
     import cgitb; cgitb.enable()

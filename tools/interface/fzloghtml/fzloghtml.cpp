@@ -46,12 +46,12 @@ fzloghtml fzlh;
  * For `add_usage_top`, add command line option usage format specifiers.
  * 
  * Command line arguments used: 12ACDEFHNQRTVWacdefghijlnoqrstvwx
- * Command line arguments still available: 03456789BGIJKLMOPSUXYZbkmpuyz
+ * Command line arguments still available: 03456789BGIJKLMOPUXYZbkmpuyz
  */
 fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
                          iscale(interval_none), interval(0), noframe(false), recent_format(most_recent_html) {
-    add_option_args += "e:n:g:l:1:2:a:o:D:H:w:Nc:rRf:x:ACijtF:T:I";
-    add_usage_top += " [-e <log-stamp>] [-n <node-ID>] [-g <topic>] [-l <list-name>] [-I] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-x <regex-pattern>|FILE:<file-path>] [-A] [-C] [-i] [-j] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>]";
+    add_option_args += "e:n:g:l:1:2:a:o:D:H:w:Nc:rRf:x:ACijtF:T:IS:";
+    add_usage_top += " [-e <log-stamp>] [-n <node-ID>] [-g <topic>] [-l <list-name>] [-I] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-x <regex-pattern>|FILE:<file-path>] [-A] [-C] [-i] [-j] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>] [-S <selections-processor>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
     usage_tail.push_back(
         "Notes:\n"
@@ -111,6 +111,8 @@ void fzloghtml::usage_hook() {
           "    -i Interpret for day review\n"
           "    -j Interpret current day for review\n"
           "    -t Show total time applied\n"
+          "    -S Add Log chunk selection boxes for post-processing via\n"
+          "       <selection-processor> (do not prepend /cgi-bin/)\n"
           "    -F format of most recent Log data:\n"
           "       raw, txt, json, html (default)\n"
           "    -T use custom template from file or string (if 'STR:')\n"
@@ -310,6 +312,11 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
 
     case 't': {
         show_total_time_applied = true;
+        return true;
+    }
+
+    case 'S': {
+        selection_processor = cargs;
         return true;
     }
 
