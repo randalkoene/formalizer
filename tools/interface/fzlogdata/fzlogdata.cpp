@@ -18,6 +18,7 @@
 // core
 #include "error.hpp"
 #include "standard.hpp"
+#include "general.hpp"
 /* (uncomment to communicate with Graph server)
 #include "tcpclient.hpp"
 */
@@ -40,8 +41,8 @@ fzlogdata fzld;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzlogdata::fzlogdata() : formalizer_standard_program(false), config(*this), ga(*this, add_option_args, add_usage_top) {
-    add_option_args += "IF:o:";
-    add_usage_top += " [-I] [-F <raw|txt|html|json>] [-o <outputfile>]";
+    add_option_args += "IF:o:C:";
+    add_usage_top += " [-I] [-C <csv-log-chunks-list>] [-F <raw|txt|html|json>] [-o <outputfile>]";
     usage_head.push_back(
         "Log data gathering, inspection, analysis tool.\n"
         "This tool is used to parse the Log to gather information within\n"
@@ -57,6 +58,7 @@ fzlogdata::fzlogdata() : formalizer_standard_program(false), config(*this), ga(*
 void fzlogdata::usage_hook() {
     ga.usage_hook();
     FZOUT("    -I collect possible integrity issues in Log.\n"
+          "    -C get time data for every Log chunk in the list.\n"
           "    -F format of most recent Log data:\n"
           "       raw, txt, json, html (default)\n"
           "    -o write rendered Log data to <outputfile> (default=STDOUT)\n"
@@ -69,6 +71,16 @@ const std::map<std::string, data_format> format_keywords = {
     { "json", data_format_json },
     { "html", data_format_html },
 };
+
+// This will create a sorted set of Log chunk IDs.
+std::set<Log_chunk_ID_key> get_chunk_keys(std::string& csv_list) {
+    std::vector<std::string> key_strings = split(csv_list, ',');
+    std::set<Log_chunk_ID_key> keys;
+    for (auto& keystr : key_strings) if (!keystr.empty()) {
+        keys.insert(Log_chunk_ID_key(keystr));
+    }
+    return keys;
+}
 
 /**
  * Handler for command line options that are defined in the derived class
@@ -87,6 +99,12 @@ bool fzlogdata::options_hook(char c, std::string cargs) {
 
     case 'I': {
         flowcontrol = flow_integrity_issues;
+        return true;
+    }
+
+    case 'C': {
+        chunk_keys = get_chunk_keys(cargs);
+        flowcontrol = flow_chunk_time_data;
         return true;
     }
 
@@ -144,6 +162,28 @@ Graph & fzlogdata::graph() {
     return *graph_ptr;
 }
 
+bool fzlogdata::get_Log_interval() {
+
+    edata.log_ptr = ga.request_Log_excerpt(filter);
+
+    if (!edata.log_ptr) {
+        standard_error("Missing Log excerpt.", __func__);
+        return false;
+    }
+
+    VERYVERBOSEOUT("\nfound:\n");
+    VERYVERBOSEOUT("  chunks : "+std::to_string(edata.log_ptr->num_Chunks())+'\n');
+    VERYVERBOSEOUT("  entries: "+std::to_string(edata.log_ptr->num_Entries())+"\n\n");
+
+    // *** Should we call log.setup_Chain_nodeprevnext() ?
+
+    // if (show_total_time_applied) {
+    //     total_minutes_applied = Chunks_total_minutes(edata.log_ptr->get_Chunks());
+    // }
+
+    return true;
+}
+
 /**
  * Use the LogIssues class (in Loginfo.hpp) to collect
  * information about possible issues in the Log.
@@ -171,6 +211,19 @@ bool integrity_issues() {
     return true;
 }
 
+bool log_chunks_time_data() {
+    // Make a filter and get the Log interval between smallest and largest.
+    fzld.filter.t_from = fzld.chunk_keys.begin()->get_epoch_time();
+    auto last = fzld.chunk_keys.end();
+    last--;
+    fzld.filter.t_to = last->get_epoch_time();
+    if (!fzld.get_Log_interval()) {
+        return false;
+    }
+    // Render data for only those requested.
+    return render_Log_time_data();
+}
+
 int main(int argc, char *argv[]) {
     ERRTRACE;
 
@@ -180,6 +233,10 @@ int main(int argc, char *argv[]) {
 
     case flow_integrity_issues: {
         return standard_exit(integrity_issues(), "Log integrity issues collected.\n", exit_file_error, "Unable to collect Log integrity issues", __func__);
+    }
+
+    case flow_chunk_time_data: {
+        return standard_exit(log_chunks_time_data(), "Time data of log chunks collected.\n", exit_file_error, "Unable to collect time data of log chunks", __func__);
     }
 
     default: {

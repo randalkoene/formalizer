@@ -6,6 +6,7 @@ it, to inspect its integrity, and to analyze data.
 This is used by:
 
 - fzlogdata-cgi.py
+- selectchunks.py
 
 ---
 

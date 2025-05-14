@@ -19,4 +19,6 @@ using namespace fz;
 
 bool render_integrity_issues(LogIssues & logissues);
 
+bool render_Log_time_data();
+
 #endif // __RENDER_HPP

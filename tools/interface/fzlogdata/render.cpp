@@ -188,3 +188,13 @@ bool render_integrity_issues(LogIssues & logissues) {
 
     return send_rendered_to_output(rendered_issues);
 }
+
+bool render_Log_time_data() {
+    for (auto& chunk_key : fzld.chunk_keys) {
+        const Log_chunk * chunk = fzld.edata.log_ptr->get_chunk(chunk_key);
+        if (!chunk) continue;
+
+        FZOUT(chunk->get_tbegin_str()+": "+std::to_string(chunk->duration_minutes())+'\n');
+    }
+    return true;
+}

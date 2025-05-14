@@ -109,6 +109,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/standard.o
 CORE_OBJS += $(CORELIBPATH)/obj/general.o
 CORE_OBJS += $(CORELIBPATH)/obj/templater.o
 CORE_OBJS += $(CORELIBPATH)/obj/fzpostgres.o
+CORE_OBJS += $(CORELIBPATH)/obj/html.o
 CORE_OBJS += $(CORELIBPATH)/obj/TimeStamp.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphaccess.o
 # CORE_OBJS += $(CORELIBPATH)/obj/ReferenceTime.o
@@ -119,6 +120,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/Logtypes.o
 CORE_OBJS += $(CORELIBPATH)/obj/Loginfo.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/Logpostgres.o
+CORE_OBJS += $(CORELIBPATH)/obj/Logaccess.o
 # CORE_OBJS += $(CORELIBPATH)/obj/Guidepostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/utf8.o
 # CORE_OBJS += $(CORELIBPATH)/obj/dilaccess.o
@@ -137,7 +139,7 @@ init: FORCE
 $(OBJ)/render.o: render.cpp render.hpp $(INC)/Graphinfo.hpp $(INC)/GraphLogxmap.hpp $(INC)/stringio.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) $(FORMALIZERROOT) $(TEMPLATEDIR) -DANOTHER_TEMPLATE_DIR=/home/randalk/src/formalizer/tools/interface/fzlogdata -c render.cpp -o $(OBJ)/render.o
 
-$(OBJ)/fzlogdata.o: fzlogdata.cpp fzlogdata.hpp render.hpp version.hpp
+$(OBJ)/fzlogdata.o: fzlogdata.cpp fzlogdata.hpp render.hpp version.hpp $(INC)/Graphaccess.hpp $(INC)/Graphtypes.hpp $(INC)/Logtypes.hpp $(INC)/Logaccess.hpp
 	$(CCPP) $(CPPFLAGS) $(COLORS) $(STANDARD_STREAMS) -c fzlogdata.cpp -o $(OBJ)/fzlogdata.o
 
 fzlogdata: $(OBJ)/fzlogdata.o $(OBJ)/render.o $(CORE_OBJS)

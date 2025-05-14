@@ -11,17 +11,23 @@
 #include "version.hpp"
 #define __FZLOGDATA_HPP (__VERSION_HPP)
 
+// std
+#include <set>
+
 // core
 #include "config.hpp"
 #include "standard.hpp"
 #include "Graphaccess.hpp"
 #include "Graphtypes.hpp"
+#include "Logtypes.hpp"
+#include "Logaccess.hpp"
 
 using namespace fz;
 
 enum flow_options {
     flow_unknown = 0, /// no recognized request
     flow_integrity_issues = 1,     /// request: collect possible Log integrity issues
+    flow_chunk_time_data = 2,      /// request: get time data for list of Log chunks
     flow_NUMoptions
 };
 
@@ -52,6 +58,12 @@ struct fzlogdata: public formalizer_standard_program {
 
     data_format format = data_format_html;
 
+    Log_filter filter;
+
+    std::set<Log_chunk_ID_key> chunk_keys;
+
+    entry_data edata;
+
     Graph_access ga; // to include Graph or Log access support
 
     fzlogdata();
@@ -61,6 +73,8 @@ struct fzlogdata: public formalizer_standard_program {
     virtual bool options_hook(char c, std::string cargs);
 
     void init_top(int argc, char *argv[]);
+
+    bool get_Log_interval();
 
     Graph_ptr graph_ptr = nullptr;
     Graph & graph();
