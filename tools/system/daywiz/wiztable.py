@@ -91,8 +91,8 @@ WIZTABLE_LINES=[
 
 	[ '20200601093905.1', -3, 'armodafinil', 0, 'number', 21, 24, 'Armodafinil taken (mg).', '' ],
 	[ '20200601093905.1', -3, 'alcohol', 0, 'number', 21, 24, 'Alcohol consumed (ml).', '' ],
-    [ '20200601093905.1', -3, 'nicotine', 0, 'number', 21, 24, 'Nicotine consumed (mg).', '' ],
-    [ '20200601093905.1', -3, 'caffeine', 0, 'number', 21, 24, 'Caffeine consumed (cups).', '' ],
+    [ '20200601093905.1', -3, 'nicotine', 0, 'number', 21, 24, 'Nicotine consumed (mg). (Target: up to 24 mg.)', '' ],
+    [ '20200601093905.1', -3, 'caffeine', 0, 'number', 21, 24, 'Caffeine consumed (cups). (Target: up to 12 cups.)', '' ],
 	[ '20200601093905.1', 4, 'daynutri', 0, 'checkbox', 22, 24, 'Finalize day nutrition.', '' ],
 	[ '20200601093905.1', 4, 'fastafter8', 0, 'checkbox', 22, 24, 'Did not eat after 8pm.', '' ],
 	[ '20200601093905.1', 2, 'nextnutri', 0, 'checkbox', 22, 24, 'Plan nutrition for the next day.', '' ],
