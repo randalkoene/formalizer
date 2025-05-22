@@ -192,6 +192,7 @@ or<br />
 <input type="checkbox" name="selectchunks"> enable selecting of Log chunks<br />
 
 <input type="submit" value="Submit" />
+</form>
 
 <hr>
 
@@ -428,7 +429,9 @@ def render_log_interval():
 
     print('</tbody></table>')
     if selectchunks:
-        print('Send selected Log chunks to <input type="submit" name="selectchunks.py" value="selectchunks.py" /></form>')
+        print('Send selected Log chunks to <input type="submit" name="time_reporting" value="Time Reporting" />')
+        print('or to <input type="submit" name="selected_display" value="Selected Log chunks display" />.')
+        print('</form>')
 
     if endbefore:
         if is_before_now(endbefore):
