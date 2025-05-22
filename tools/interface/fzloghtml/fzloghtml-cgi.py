@@ -55,6 +55,7 @@ searchtext = form.getvalue('searchtext')
 regexpattern = form.getvalue('regex')
 andall = form.getvalue('andall')
 caseinsensitive = form.getvalue('caseinsensitive')
+btf = form.getvalue('btf')
 review = form.getvalue('review')
 review_date = form.getvalue('reviewdate')
 regen_index = form.getvalue('index')
@@ -185,6 +186,7 @@ Select another part of the Log:
 <input type="checkbox" name="caseinsensitive"> case insensitive
 <input type="checkbox" name="andall"> must contain each<br />
 <input type="text" name="regex" size="48"> must contain RegEx<br />
+<input type="text" name="btf"> must belong to BTF category<br />
 or<br />
 <input type="checkbox" name="mostrecentdata"> show most recent Log data summary<br />
 <input type="checkbox" name="selectchunks"> enable selecting of Log chunks<br />
@@ -333,6 +335,9 @@ def build_uri_options(diff_numchunks=0, diff_startfrom=0, diff_weeks_startfrom=0
     if caseinsensitive:
         urioptions += get_uri_arg_separator(arg_i)+'caseinsensitive=on'
         arg_i += 1
+    if btf:
+        urioptions += get_uri_arg_separator(arg_i)+'btf='+uri_safe(btf)
+        arg_i += 1
     if selectchunks:
         urioptions += get_uri_arg_separator(arg_i)+'selectchunks='+uri_safe(selectchunks)
 
@@ -371,6 +376,8 @@ def build_command_options()->str:
         cmdoptions += ' -A '
     if caseinsensitive:
         cmdoptions += ' -C '
+    if btf:
+        cmdoptions += " -B '"+btf+"'"
     if selectchunks:
         cmdoptions += ' -S selectchunks.py'
 

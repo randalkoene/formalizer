@@ -45,13 +45,13 @@ fzloghtml fzlh;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  * 
- * Command line arguments used: 12ACDEFHNQRTVWacdefghijlnoqrstvwx
- * Command line arguments still available: 03456789BGIJKLMOPUXYZbkmpuyz
+ * Command line arguments used: 12ABCDEFHNQRTVWacdefghijlnoqrstvwx
+ * Command line arguments still available: 03456789GIJKLMOPUXYZbkmpuyz
  */
 fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
                          iscale(interval_none), interval(0), noframe(false), recent_format(most_recent_html) {
-    add_option_args += "e:n:g:l:1:2:a:o:D:H:w:Nc:rRf:x:ACijtF:T:IS:";
-    add_usage_top += " [-e <log-stamp>] [-n <node-ID>] [-g <topic>] [-l <list-name>] [-I] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-x <regex-pattern>|FILE:<file-path>] [-A] [-C] [-i] [-j] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>] [-S <selections-processor>]";
+    add_option_args += "e:n:g:l:1:2:a:o:D:H:w:Nc:rRf:x:ACijtF:T:IS:B:";
+    add_usage_top += " [-e <log-stamp>] [-n <node-ID>] [-g <topic>] [-l <list-name>] [-I] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-x <regex-pattern>|FILE:<file-path>] [-A] [-C] [-B <BTF-flag>] [-i] [-j] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>] [-S <selections-processor>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
     usage_tail.push_back(
         "Notes:\n"
@@ -108,6 +108,7 @@ void fzloghtml::usage_hook() {
           "    -x Use RegEx to filter by search text\n"
           "    -A All search terms must be in a Log chunk\n"
           "    -C Case insensitive search\n"
+          "    -B Filter by BTF flag\n"
           "    -i Interpret for day review\n"
           "    -j Interpret current day for review\n"
           "    -t Show total time applied\n"
@@ -298,6 +299,11 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
     case 'C': {
         caseinsensitive = true;
         return true;
+    }
+
+    case 'B': {
+        btf = get_btf(cargs);
+        return btf != Boolean_Tag_Flags::none;
     }
 
     case 'i': {

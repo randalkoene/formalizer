@@ -101,6 +101,8 @@ struct fzloghtml: public formalizer_standard_program {
     bool mustcontainall = false;
     bool caseinsensitive = false;
 
+    Boolean_Tag_Flags::boolean_flag btf = Boolean_Tag_Flags::none;
+
     std::string regex_pattern;
     std::unique_ptr<std::regex> pattern;
 

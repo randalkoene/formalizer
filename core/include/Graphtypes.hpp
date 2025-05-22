@@ -500,6 +500,9 @@ public:
     bool None() const { return bflags == Boolean_Tag_Flags::none; }
 };
 
+// Get the Boolean Tag Flag corresponding to the mapped string or return Boolean_Tag_Flags::none.
+Boolean_Tag_Flags::boolean_flag get_btf(const std::string& cargs);
+
 struct bfm_cmp_cstr
 {
    bool operator()(const char *a, const char *b) const

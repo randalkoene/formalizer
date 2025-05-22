@@ -532,6 +532,14 @@ Boolean_Tag_Flags::boolean_flag Boolean_Tag_Flags::get_PriorityCategory() const 
     return Boolean_Tag_Flags::none;
 }
 
+Boolean_Tag_Flags::boolean_flag get_btf(const std::string& cargs) {
+    auto it = boolean_flag_map.find(cargs.c_str());
+    if (it == boolean_flag_map.end()) {
+        return Boolean_Tag_Flags::none;
+    }
+    return it->second;
+}
+
 /**
  * Attempt to set the semaphore variables of all Nodes in the graph to a specified
  * value.

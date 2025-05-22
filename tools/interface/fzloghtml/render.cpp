@@ -413,6 +413,13 @@ bool filtered_out_by_topic(const Node_ID_key& node_key) {
     return !(nodeptr->in_topic(fzlh.topic_filter));
 }
 
+const std::map<std::string, Boolean_Tag_Flags::boolean_flag> log_override_tags = {
+    { "@WORK@", Boolean_Tag_Flags::work },
+    { "@SELFWORK@", Boolean_Tag_Flags::self_work },
+    { "@SYSTEM@", Boolean_Tag_Flags::system },
+    { "@OTHER@", Boolean_Tag_Flags::other },
+};
+
 /**
  * Convert Log content that was retrieved with filtering to HTML using
  * rending templates and send to designated output destination.
@@ -447,6 +454,8 @@ bool render_Log_interval() {
 
     report_interval();
 
+    // Prepare rendering head
+
     std::string rendered_logcontent;
     rendered_logcontent.reserve(256*1024);
 
@@ -471,146 +480,188 @@ bool render_Log_interval() {
 
     COMPILEDPING(std::cout,"PING: got templates\n");
 
+    // Parse Log chunks
+
+    Map_of_Subtrees map_of_subtrees;
+    if (fzlh.btf != Boolean_Tag_Flags::none) {
+        // *** Why did I have to do the collect() call and prepare a map_of_subtrees
+        //     to be able to do BTF detection and inference?
+        map_of_subtrees.collect(*fzlh.get_Graph_ptr(), fzlh.config.subtrees_list_name);
+    }
     std::string temporalcontextstr, t_open_str;
     for (const auto & [chunk_key, chunkptr] : fzlh.edata.log_ptr->get_Chunks()) {
 
         //COMPILEDPING(std::cout,"PING: commencing chunk idx#"+std::to_string(chunk_idx)+'\n');
 
-        if (chunkptr) {
-            if (!fzlh.search_strings.empty()) {
-                if (search_text_not_included(chunkptr.get(), loc)) {
+        if (!chunkptr) continue;
+
+        // Apply filters
+
+        if (!fzlh.search_strings.empty()) {
+            if (search_text_not_included(chunkptr.get(), loc)) {
+                continue;
+            }
+        }
+
+        if (fzlh.pattern) {
+            if (regex_pattern_not_included(chunkptr.get(), loc)) {
+                continue;
+            }
+        }
+
+        Node_ID node_id = chunkptr->get_NodeID();
+
+        /**
+         * If a topic filter is applied then we always show complete chunks for context.
+         * A chunk is included if:
+         * a) The chunk belongs to the right topic or the Graph absent.
+         * b) At least one entry belongs to the right topic.
+         */
+        if (!fzlh.topic_filter.empty()) {
+            if (filtered_out_by_topic(node_id.key())) {
+                //render_notes += node_id.str() + "chunk filtered out cause "+std::to_string(fzlh.filtered_out_reason)+'\n';
+                bool filtered_out = true;
+                for (const auto& entryptr : chunkptr->get_entries()) {
+                    if (!filtered_out_by_topic(entryptr->get_nodeidkey())) {
+                        filtered_out = false;
+                        break;
+                    }
+                    // else {
+                    //     render_notes += "entry filtered out cause "+std::to_string(fzlh.filtered_out_reason)+'\n';
+                    // }
+                }
+                if (filtered_out) {
                     continue;
                 }
             }
+        }
 
-            if (fzlh.pattern) {
-                if (regex_pattern_not_included(chunkptr.get(), loc)) {
-                    continue;
-                }
-            }
-
-            Node_ID node_id = chunkptr->get_NodeID();
-
-            /**
-             * If a topic filter is applied then we always show complete chunks for context.
-             * A chunk is included if:
-             * a) The chunk belongs to the right topic or the Graph absent.
-             * b) At least one entry belongs to the right topic.
-             */
-            if (!fzlh.topic_filter.empty()) {
-                if (filtered_out_by_topic(node_id.key())) {
-                    //render_notes += node_id.str() + "chunk filtered out cause "+std::to_string(fzlh.filtered_out_reason)+'\n';
+        if (!fzlh.NNL_filter.empty()) {
+            Graph_ptr graph_ptr = fzlh.get_Graph_ptr();
+            if (graph_ptr) {
+                if (!graph_ptr->Node_is_in_NNL(node_id.key(), fzlh.NNL_filter)) {
                     bool filtered_out = true;
                     for (const auto& entryptr : chunkptr->get_entries()) {
-                        if (!filtered_out_by_topic(entryptr->get_nodeidkey())) {
-                            filtered_out = false;
-                            break;
+                        Node_ID_key nkey = entryptr->get_nodeidkey();
+                        if (!nkey.isnullkey()) {
+                            if (graph_ptr->Node_is_in_NNL(nkey, fzlh.NNL_filter)) {
+                                filtered_out = false;
+                                break;
+                            }
                         }
-                        // else {
-                        //     render_notes += "entry filtered out cause "+std::to_string(fzlh.filtered_out_reason)+'\n';
-                        // }
                     }
                     if (filtered_out) {
                         continue;
                     }
                 }
             }
+        }
 
-            if (!fzlh.NNL_filter.empty()) {
-                Graph_ptr graph_ptr = fzlh.get_Graph_ptr();
-                if (graph_ptr) {
-                    if (!graph_ptr->Node_is_in_NNL(node_id.key(), fzlh.NNL_filter)) {
-                        bool filtered_out = true;
-                        for (const auto& entryptr : chunkptr->get_entries()) {
-                            Node_ID_key nkey = entryptr->get_nodeidkey();
-                            if (!nkey.isnullkey()) {
-                                if (graph_ptr->Node_is_in_NNL(nkey, fzlh.NNL_filter)) {
-                                    filtered_out = false;
-                                    break;
-                                }
+        // Get and render entries (or single entry only)
+
+        //Boolean_Tag_Flags boolean_tag;
+        Boolean_Tag_Flags::boolean_flag booleanflag = Boolean_Tag_Flags::none;
+        bool override = false; // Only true if btf is set and an override BTF is found.
+        std::string combined_entries;
+        for (const auto& entryptr : chunkptr->get_entries()) {
+            if (fzlh.get_log_entry) {
+                if (entryptr->get_minor_id() != fzlh.entry_id) {
+                    continue;
+                }
+            }
+            if (entryptr) {
+                if (fzlh.btf != Boolean_Tag_Flags::none) {
+                    for (const auto & [ tag, flag ] : log_override_tags) {
+                        if (entryptr->get_entrytext().find(tag) != std::string::npos) {
+                            if (booleanflag != fzlh.btf) {
+                                booleanflag = flag;
+                                override = true;
                             }
-                        }
-                        if (filtered_out) {
-                            continue;
+                            break;
                         }
                     }
                 }
-            }
-
-            std::string combined_entries;
-            for (const auto& entryptr : chunkptr->get_entries()) {
-                if (fzlh.get_log_entry) {
-                    if (entryptr->get_minor_id() != fzlh.entry_id) {
-                        continue;
-                    }
-                }
-                if (entryptr) {
-                    combined_entries += render_Log_entry(*entryptr, loc, active_entry_template);
-                }
-            }
-
-            template_varvalues varvals;
-
-            t_open_str = chunkptr->get_tbegin_str();
-            if (!fzlh.selection_processor.empty()) {
-                varvals.emplace("select", "SELECT <input type=\"checkbox\" name=\"select\" value=\""+t_open_str+"\"> ");
-            } else {
-                varvals.emplace("select", "");
-            }
-            time_t t_chunkclose = chunkptr->get_close_time();
-            time_t t_chunkopen = chunkptr->get_open_time();
-            varvals.emplace("chunk_id", t_open_str);
-            varvals.emplace("node_id", node_id.str());
-            if (fzlh.search_strings.empty()) {
-                varvals.emplace("node_info", include_Node_info(node_id));
-            } else {
-                std::string around_button = make_around_button(t_open_str);
-                varvals.emplace("node_info", include_Node_info(node_id)+around_button);
-            }
-            varvals.emplace("node_link", "/cgi-bin/fzlink.py?id="+node_id.str());
-            //varvals.emplace("fzserverpq",graph.get_server_full_address()); *** so far, this is independent of whether the Graph is memory-resident
-            std::string t_open_visible_str(t_open_str);
-            if (fzlh.config.timezone_offset_hours != 0) {
-                t_open_visible_str = TimeStampYmdHM(fzlh.time_zone_adjusted(t_chunkopen));
-            }
-            if (fzlh.filter.nkey.isnullkey()) {
-                varvals.emplace("t_chunkopen", t_open_visible_str);
-            } else { // In Node Histories, add links for temporal context.
-                temporalcontextstr = "<a href=\"/cgi-bin/fzloghtml-cgi.py?around="+t_open_str+"&daysinterval=3#"+t_open_str+"\" target=\"_blank\">"+t_open_visible_str+"</a>";
-                varvals.emplace("t_chunkopen", temporalcontextstr);
-            }
-            varvals.emplace("temp_context", temporalcontextstr);
-            if (t_chunkclose < t_chunkopen) {
-                varvals.emplace("t_chunkclose", "OPEN");
-                varvals.emplace("t_diff", "");
-                varvals.emplace("t_diff_mins", ""); // typically, only either t_diff or t_diff_mins appears in a template
-                varvals.emplace("insert-entry", "");
-                varvals.emplace("insert-chunk", "");
-            } else {
-                time_t _tchunkclose = fzlh.time_zone_adjusted(t_chunkclose);
-                varvals.emplace("t_chunkclose", TimeStampYmdHM(_tchunkclose));
-                time_t t_diff = (t_chunkclose - t_chunkopen)/60; // mins
-                varvals.emplace("t_diff_mins", std::to_string(t_diff)); // particularly useful for cutom templates
-                if (t_diff >= 120) {
-                    varvals.emplace("t_diff", to_precision_string(((double) t_diff)/60.0, 2, ' ', 5)+" hrs");
-                } else {
-                    varvals.emplace("t_diff", std::to_string(t_diff)+" mins");
-                }
-                varvals.emplace("insert-entry", "[<a href=\"/cgi-bin/logentry-form.py?insertentry="+t_open_str+"\" target=\"_blank\">add entry</a>]");
-                varvals.emplace("insert-chunk", "[<a href=\"/cgi-bin/fzlog-cgi.py?action=insertchunkpage&id="+t_open_str+"\" target=\"_blank\">insert chunk</a>]");
-            }
-            varvals.emplace("entries",combined_entries);
-            if (fzlh.get_log_entry && fzlh.noframe && (fzlh.recent_format == most_recent_raw)) {
-                rendered_logcontent = combined_entries; // very minimal output
-            } else {
-                if (customtemplate.empty()) {
-                    rendered_logcontent += env.render(active_chunk_template, varvals);
-                } else {
-                    rendered_logcontent += env.render(customtemplate, varvals);
-                }
+                combined_entries += render_Log_entry(*entryptr, loc, active_entry_template);
             }
         }
+        if ((override) && (booleanflag != fzlh.btf)) {
+            continue;
+        }
+
+        // Possible BTF filter
+        if ((fzlh.btf != Boolean_Tag_Flags::none) && (!override)) {
+            // Check if Node is in category subtree.
+            if (!map_of_subtrees.has_subtrees) continue;
+            if (!map_of_subtrees.node_in_heads_or_any_subtree(node_id.key(), booleanflag, true)) continue; // includes searching superiors hierarchy as needed
+            if (booleanflag != fzlh.btf) continue;
+        }
+
+        // Render chunk(s) for output
+
+        template_varvalues varvals;
+
+        t_open_str = chunkptr->get_tbegin_str();
+        if (!fzlh.selection_processor.empty()) {
+            varvals.emplace("select", "SELECT <input type=\"checkbox\" name=\"select\" value=\""+t_open_str+"\"> ");
+        } else {
+            varvals.emplace("select", "");
+        }
+        time_t t_chunkclose = chunkptr->get_close_time();
+        time_t t_chunkopen = chunkptr->get_open_time();
+        varvals.emplace("chunk_id", t_open_str);
+        varvals.emplace("node_id", node_id.str());
+        if (fzlh.search_strings.empty()) {
+            varvals.emplace("node_info", include_Node_info(node_id));
+        } else {
+            std::string around_button = make_around_button(t_open_str);
+            varvals.emplace("node_info", include_Node_info(node_id)+around_button);
+        }
+        varvals.emplace("node_link", "/cgi-bin/fzlink.py?id="+node_id.str());
+        //varvals.emplace("fzserverpq",graph.get_server_full_address()); *** so far, this is independent of whether the Graph is memory-resident
+        std::string t_open_visible_str(t_open_str);
+        if (fzlh.config.timezone_offset_hours != 0) {
+            t_open_visible_str = TimeStampYmdHM(fzlh.time_zone_adjusted(t_chunkopen));
+        }
+        if (fzlh.filter.nkey.isnullkey()) {
+            varvals.emplace("t_chunkopen", t_open_visible_str);
+        } else { // In Node Histories, add links for temporal context.
+            temporalcontextstr = "<a href=\"/cgi-bin/fzloghtml-cgi.py?around="+t_open_str+"&daysinterval=3#"+t_open_str+"\" target=\"_blank\">"+t_open_visible_str+"</a>";
+            varvals.emplace("t_chunkopen", temporalcontextstr);
+        }
+        varvals.emplace("temp_context", temporalcontextstr);
+        if (t_chunkclose < t_chunkopen) {
+            varvals.emplace("t_chunkclose", "OPEN");
+            varvals.emplace("t_diff", "");
+            varvals.emplace("t_diff_mins", ""); // typically, only either t_diff or t_diff_mins appears in a template
+            varvals.emplace("insert-entry", "");
+            varvals.emplace("insert-chunk", "");
+        } else {
+            time_t _tchunkclose = fzlh.time_zone_adjusted(t_chunkclose);
+            varvals.emplace("t_chunkclose", TimeStampYmdHM(_tchunkclose));
+            time_t t_diff = (t_chunkclose - t_chunkopen)/60; // mins
+            varvals.emplace("t_diff_mins", std::to_string(t_diff)); // particularly useful for cutom templates
+            if (t_diff >= 120) {
+                varvals.emplace("t_diff", to_precision_string(((double) t_diff)/60.0, 2, ' ', 5)+" hrs");
+            } else {
+                varvals.emplace("t_diff", std::to_string(t_diff)+" mins");
+            }
+            varvals.emplace("insert-entry", "[<a href=\"/cgi-bin/logentry-form.py?insertentry="+t_open_str+"\" target=\"_blank\">add entry</a>]");
+            varvals.emplace("insert-chunk", "[<a href=\"/cgi-bin/fzlog-cgi.py?action=insertchunkpage&id="+t_open_str+"\" target=\"_blank\">insert chunk</a>]");
+        }
+        varvals.emplace("entries",combined_entries);
+        if (fzlh.get_log_entry && fzlh.noframe && (fzlh.recent_format == most_recent_raw)) {
+            rendered_logcontent = combined_entries; // very minimal output
+        } else {
+            if (customtemplate.empty()) {
+                rendered_logcontent += env.render(active_chunk_template, varvals);
+            } else {
+                rendered_logcontent += env.render(customtemplate, varvals);
+            }
+        }
+
     }
+
+    // Prepare rendering tail and generate output
 
     if ((!fzlh.noframe) && (!fzlh.selection_processor.empty())) {
         rendered_logcontent += "Send selected Log chunks to <input type=\"submit\" name=\""+fzlh.selection_processor+"\" value=\""+fzlh.selection_processor+"\" /></form>\n";
@@ -693,13 +744,6 @@ const std::map<char, std::string> category_letter_to_string = {
     { 'e', "error" },
     { 'n', "nap" },
     { '?', "other" },
-};
-
-const std::map<std::string, Boolean_Tag_Flags::boolean_flag> log_override_tags = {
-    { "@WORK@", Boolean_Tag_Flags::work },
-    { "@SELFWORK@", Boolean_Tag_Flags::self_work },
-    { "@SYSTEM@", Boolean_Tag_Flags::system },
-    { "@OTHER@", Boolean_Tag_Flags::other },
 };
 
 const std::vector<std::string> metrictags = {
@@ -997,7 +1041,7 @@ bool render_Log_review() {
                         }
                     }
                     if (!override) {
-                        //   Check if Node is in category subtree.
+                        // Check if Node is in category subtree.
                         if (map_of_subtrees.has_subtrees) {
                             Boolean_Tag_Flags::boolean_flag booleanflag;
                             if (map_of_subtrees.node_in_heads_or_any_subtree(node_id, booleanflag, true)) { // includes searching superiors hierarchy as needed

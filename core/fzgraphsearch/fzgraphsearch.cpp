@@ -155,16 +155,6 @@ bool fzgraphsearch::get_nnltree(const std::string & cargs) {
     return true;
 }
 
-bool fzgraphsearch::get_btf(const std::string& cargs) {
-    auto it = boolean_flag_map.find(cargs.c_str());
-    if (it == boolean_flag_map.end()) {
-        btf = Boolean_Tag_Flags::none;
-        return false;
-    }
-    btf = it->second;
-    return true;
-}
-
 /**
  * Handler for command line options that are defined in the derived class
  * as options specific to the program.
@@ -312,7 +302,8 @@ bool fzgraphsearch::options_hook(char c, std::string cargs) {
     }
 
     case 'F': {
-        return get_btf(cargs);
+        btf = get_btf(cargs);
+        return btf != Boolean_Tag_Flags::none;
     }
 
     case 'f': {
