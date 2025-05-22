@@ -183,7 +183,8 @@ Add entry for <input type="submit" name="makeentry" value="Log Chunk Node" /> or
 
 Select another part of the Log:
 <form action="/cgi-bin/fzloghtml-cgi.py" method="post">
-<input type="checkbox" name="alloflog"> all of the Log<br />
+Specify interval:<br />
+<input type="checkbox" name="alloflog"> all of the Log (overrides interval start/end)<br />
 <!-- value="2025-05-22T20:00" -->
 <input type="text" name="startfrom"> <input type="datetime-local" id="alt_startfrom" name="alt_startfrom" min="1990-01-01T00:00:00"> start at this YYYYmmddHHMM time stamp (default: 24 hours before end of interval)<br />
 <input type="text" name="endbefore"> <input type="datetime-local" id="alt_endbefore" name="alt_endbefore" min="1990-01-01T00:00:00"> end before this YYYYmmddHHMM time stamp (default: 1 second after most recent Log entry)<br />
@@ -192,6 +193,7 @@ Select another part of the Log:
 <input type="text" name="hoursinterval"> interval size in hours<br />
 <input type="text" name="numchunks"> number of Log chunks (interval takes precedence)<br />
 <input type="checkbox" name="frommostrecent"> from most recent (interval takes precedence)<br />
+Specify filters:<br />
 <input type="text" name="node"> belongs to node, node history<br />
 <input type="text" name="topic"> belongs to topic<br />
 <input type="text" name="nnl"> belongs to NNL<br />
@@ -200,11 +202,11 @@ Select another part of the Log:
 <input type="checkbox" name="andall"> must contain each<br />
 <input type="text" name="regex" size="48"> must contain RegEx<br />
 <input type="text" name="btf"> must belong to BTF category<br />
-or<br />
-<input type="checkbox" name="mostrecentdata"> show most recent Log data summary<br />
 <input type="checkbox" name="selectchunks"> enable selecting of Log chunks<br />
+Or:<br />
+<input type="checkbox" name="mostrecentdata"> show most recent Log data summary<br />
 
-<input type="submit" value="Submit" />
+<input type="submit" value="Apply" />
 </form>
 
 <hr>
