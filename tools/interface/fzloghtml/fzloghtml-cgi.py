@@ -33,13 +33,25 @@ from TimeStamp import add_days_to_TimeStamp, add_weeks_to_TimeStamp, NowTimeStam
 # cgitb.disable()
 # cgitb.enable(display=0, logdir="/tmp/test_python_cgiformget.log")
 
+def convert_datetime_format(datetime_str):
+    date_part, time_part = datetime_str.split('T')
+    date_numeric = date_part.replace('-', '')
+    time_numeric = time_part.replace(':', '')
+    return date_numeric + time_numeric
+
 # Create instance of FieldStorage 
 form = cgi.FieldStorage() 
 
 # Get data from fields
 alloflog = form.getvalue('alloflog')
 startfrom = form.getvalue('startfrom')
+alt_startfrom = form.getvalue('alt_startfrom')
+if alt_startfrom:
+    startfrom = convert_datetime_format(alt_startfrom)
 endbefore  = form.getvalue('endbefore')
+alt_endbefore = form.getvalue('alt_endbefore')
+if alt_endbefore:
+    endbefore = convert_datetime_format(alt_endbefore)
 around = form.getvalue('around')
 daysinterval  = form.getvalue('daysinterval')
 weeksinterval  = form.getvalue('weeksinterval')
@@ -172,8 +184,9 @@ Add entry for <input type="submit" name="makeentry" value="Log Chunk Node" /> or
 Select another part of the Log:
 <form action="/cgi-bin/fzloghtml-cgi.py" method="post">
 <input type="checkbox" name="alloflog"> all of the Log<br />
-<input type="text" name="startfrom"> start at this YYYYmmddHHMM time stamp (default: 24 hours before end of interval)<br />
-<input type="text" name="endbefore"> end before this YYYYmmddHHMM time stamp (default: 1 second after most recent Log entry)<br />
+<!-- value="2025-05-22T20:00" -->
+<input type="text" name="startfrom"> <input type="datetime-local" id="alt_startfrom" name="alt_startfrom" min="1990-01-01T00:00:00"> start at this YYYYmmddHHMM time stamp (default: 24 hours before end of interval)<br />
+<input type="text" name="endbefore"> <input type="datetime-local" id="alt_endbefore" name="alt_endbefore" min="1990-01-01T00:00:00"> end before this YYYYmmddHHMM time stamp (default: 1 second after most recent Log entry)<br />
 <input type="text" name="daysinterval"> interval size in days<br />
 <input type="text" name="weeksinterval"> interval size in weeks<br />
 <input type="text" name="hoursinterval"> interval size in hours<br />
