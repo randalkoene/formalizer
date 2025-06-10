@@ -95,6 +95,13 @@ class fz_html_standard:
     def generate_html_bottom(self) ->str:
         return self.bottom_content
 
+class fz_html_verbatim:
+    def __init__(self, verbatim_html:str):
+        self.content = verbatim_html
+
+    def generate_html_body(self) ->str:
+        return self.content
+
 class fz_html_icon:
     def __init__(self):
         self.icon = '/favicon-32x32.png'

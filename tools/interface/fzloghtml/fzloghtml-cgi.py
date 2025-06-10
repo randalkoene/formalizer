@@ -145,7 +145,8 @@ right: 50%;
 </span><br>
 <button class="button button2" onclick="window.open('/cgi-bin/orderscore-cgi.py', '_blank');">OrderScore</button><br>
 <button class="button button1" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?review=today', '_blank');">Today Review</button><br>
-<button class="button button2" onclick="window.open('/cgi-bin/nodeboard-cgi.py?D=week_main_goals&T=true&u=204512311159&r=100&U=true', '_blank');">Week Goals</button>
+<button class="button button2" onclick="window.open('/cgi-bin/nodeboard-cgi.py?D=week_main_goals&T=true&u=204512311159&r=100&U=true', '_blank');">Week Goals</button><br>
+<button class="button button1" onclick="window.open('/cgi-bin/daywiz.py', '_blank');">DayWiz</button>
 </div>
 
 <script type="text/javascript" src="/stateoflog.js"></script>

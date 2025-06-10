@@ -192,6 +192,9 @@ DAYPAGE_TABLES_FRAME='''<table class="col_right_separated">
 </table>
 '''
 
+DAYPAGE_HTML_TOP_EXTRA='''<button class="button button1" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?startfrom=%s0000&daysinterval=1','_blank');">Visit corresponding Log interval</button>
+'''
+
 WIZTABLE_TOP='''<table class="secondcolfixedw">
 <tr><th>t recommended</th><th>t actual</th><th>description</th><th>state</th><th>extra</th></tr>
 '''
@@ -913,6 +916,7 @@ class daypage(fz_htmlpage):
         self.html_tooltip = fz_html_tooltip()
         self.html_clock = fz_html_clock()
         self.html_title = fz_html_title('DayWiz')
+        self.html_top_extra = fz_html_verbatim(DAYPAGE_HTML_TOP_EXTRA % self.day.strftime("%Y%m%d"))
 
         #     Components with main actions in body content:
         self.date_picker = fz_html_datepicker(self.day)
@@ -923,7 +927,7 @@ class daypage(fz_htmlpage):
 
         # --- Components that have action-calls in head, body and tail groups.
         self.head_list = [ self.html_std, self.html_icon, self.html_style, self.html_uistate, self.html_tooltip, self.html_clock, self.tables, self.html_title, self.debug, ]
-        self.body_list = [ self.html_std, self.html_title, self.html_clock, self.date_picker, self.tables, ]
+        self.body_list = [ self.html_std, self.html_title, self.html_clock, self.date_picker, self.html_top_extra, self.tables, ]
         self.tail_list = [ self.html_std, self.html_uistate, self.html_clock, ]
 
     # === Member functions for data dictionary storage and retrieval:
