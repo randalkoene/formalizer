@@ -103,6 +103,17 @@ graphsearch_results_head = '''Content-type:text/html
 <link rel="stylesheet" href="/fzuistate.css">
 <link rel="stylesheet" href="/bluetable.css">
 <title>FZ: Graph Search - Results</title>
+<style>
+table.batchmodify {
+  border-collapse: collapse;
+  border: 1px solid #AAAAAA;
+}
+
+table.batchmodify th, table.batchmodify td {
+  border: 1px solid #AAAAAA;
+  padding: 8px;
+}
+</style>
 </head>
 <body>
 <script type="text/javascript" src="/fzuistate.js"></script>
@@ -251,13 +262,23 @@ def Call_Error(msg: str):
     print(graphsearch_results_tail)
     sys.exit(0)   
 
+# TODO: Perhaps filter, unspecified and unique target date should be radio buttons
+#       for clarity. As it is, filter is prioritized, and once it is handled
+#       in fzeditbatch-cgi.py, the other two are ignored. The unspecified
+#       checkbox is prioritized over unique target dates, and once it is handled
+#       in fzeditbatch-cgi.py, the rest is ignored. Therefore, only one checkbox
+#       request is carried out.
+#       All of these apply only to the "batchmodify" button, while the
+#       "Apply TD Updates" button ignores all three.
 NNLFORMHEAD='''
 <form action="/cgi-bin/fzeditbatch-cgi.py" method="post">
-<input type="submit" name="action" value="batchmodify"><br>
+<table class="batchmodify"><tbody><tr><td>
 Select All<input onclick="toggle(this);" type="checkbox" /><br>
-filter <input type="checkbox" name="filter"><br>
-unspecified <input type="checkbox" name="unspecified"><br>
-unique target dates <input type="checkbox" name="uniqueTD"><br>
+filter <input type="checkbox" name="filter"> - show selected as filtered list<br>
+unspecified <input type="checkbox" name="unspecified"> - convert selected to unspecified target date Nodes<br>
+unique target dates <input type="checkbox" name="uniqueTD"> - modify selected to ensure unique target dates<br>
+<input type="submit" name="action" value="batchmodify"><br>
+</td></tr></tbody></table>
 '''
 
 CHECKALLJS='''
@@ -275,8 +296,12 @@ checkboxes[i].checked = source.checked;
 DRAGGABLEJS='''<script type="text/javascript" src="/draggable_rows.js"></script>
 '''
 
+# Note: The apply_td_updates() function is in draggable_rows.js. There,
+#       after confirmation, it calls fzeditbatch-cgi.py with the
+#       action 'targetdates'.
 TDUPDATEBUTTON='''
 <button id="tdupdatebtn" class="button button1" onclick="apply_td_updates();">Apply TD Updates</button>
+Drag up and down within Node description column to update target date order.
 '''
 
 def render_search_results():
