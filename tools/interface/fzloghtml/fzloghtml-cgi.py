@@ -140,6 +140,7 @@ right: 50%;
 <span class="alt_tooltip">Brush away emotion <input type="checkbox">
 <span class="alt_tooltiptext prot_tip"><div>Literally, brush away emotions, especially anxiety.</div></span>
 </span><br>
+<span class="alt_tooltip">Can an RA do this or help? <input type="checkbox">
 <span class="alt_tooltip">Just get started <input type="checkbox">
 <span class="alt_tooltiptext prot_tip"><div>Just get started on a Node, you don't need to complete it right away, you just need to figure out what to do and take notes about that to get started.</div></span>
 </span><br>
