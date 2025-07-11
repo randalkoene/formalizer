@@ -32,6 +32,12 @@ searchstring = form.getvalue('searchstring')
 case_sensitive = form.getvalue('case_sensitive')
 t_created_from = form.getvalue('t_created_from')
 t_created_through = form.getvalue('t_created_through')
+created_today = form.getvalue('today')
+if created_today:
+    from datetime import date
+    t_created_from = date.today().strftime('%Y%m%d')
+    t_created_through = t_created_from
+
 completion_lower = form.getvalue('completion_lower')
 completion_upper = form.getvalue('completion_upper')
 hours_lower = form.getvalue('hours_lower')
