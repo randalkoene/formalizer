@@ -52,5 +52,92 @@ by the map of subtrees for the specified NNL receive the `none` Boolean_Tag_Flag
 - get_log_entry.sh
 - dayreview.py
 
+## Prepared code that will probably be added to the Log page
+
+The following is some Javascript code that will help to collect necessary information
+to automate an 'edit' call that can update a clicked checkbox:
+
+```
+document.addEventListener('click', function(event) {
+    if (event.target.type === 'checkbox') {
+        let nearestLink = null;
+        let textUntilNewline = '';
+        let currentNode = event.target;
+        
+        // Part 1: Find nearest preceding link
+        let linkSearchNode = event.target.previousSibling;
+        while (linkSearchNode) {
+            if (linkSearchNode.nodeType === Node.ELEMENT_NODE) {
+                const links = linkSearchNode.querySelectorAll('a[href*="/cgi-bin/fzlog-cgi.py"]');
+                if (links.length > 0) {
+                    nearestLink = links[links.length - 1].href;
+                    break;
+                }
+                
+                if (linkSearchNode.tagName === 'A' && linkSearchNode.href.includes('/cgi-bin/fzlog-cgi.py')) {
+                    nearestLink = linkSearchNode.href;
+                    break;
+                }
+            }
+            linkSearchNode = linkSearchNode.previousSibling;
+            
+            if (!linkSearchNode) {
+                linkSearchNode = event.target.parentNode;
+                event.target = linkSearchNode;
+                if (linkSearchNode) {
+                    linkSearchNode = linkSearchNode.previousSibling;
+                }
+            }
+        }
+        
+        // Part 2: Capture text until next newline
+        const treeWalker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_TEXT,
+            { acceptNode: function(node) { 
+                return NodeFilter.FILTER_ACCEPT; 
+            }},
+            false
+        );
+        
+        let foundCheckbox = false;
+        while (treeWalker.nextNode()) {
+            const textNode = treeWalker.currentNode;
+            
+            if (textNode.parentNode === currentNode || textNode.parentNode.contains(currentNode)) {
+                foundCheckbox = true;
+                continue;
+            }
+            
+            if (foundCheckbox) {
+                const textContent = textNode.nodeValue;
+                const newlineIndex = textContent.indexOf('\n');
+                
+                if (newlineIndex >= 0) {
+                    textUntilNewline += textContent.substring(0, newlineIndex);
+                    break;
+                } else {
+                    textUntilNewline += textContent;
+                }
+            }
+        }
+        
+        // Trim whitespace from the captured text
+        textUntilNewline = textUntilNewline.trim();
+        
+        // Now you have both variables available:
+        // nearestLink - contains the URL or null if not found
+        // textUntilNewline - contains all text until the next newline after the checkbox
+        
+        console.log('Nearest link:', nearestLink);
+        console.log('Text until newline:', textUntilNewline);
+        
+        // Example usage:
+        // const targetLink = nearestLink;
+        // const checkboxContextText = textUntilNewline;
+    }
+});
+```
+
 ---
 Randal A. Koene, 2020
