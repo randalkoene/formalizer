@@ -1058,7 +1058,12 @@ const std::map<char, std::string> schedule_entry_color = {
     {'i', "#c4f0a2"}, // mixed khaki and pale-green using https://www.w3schools.com/colors/colors_mixer.asp
 };
 
-std::string get_schedule_card_color(const CSV_Data & entry_data) {
+// *** NOTE: Hard-coded for the moment. Should come from a config file or command line argument.
+const std::string sleepNNL = "group_sleep";
+
+std::string nodeboard::get_schedule_card_color(const CSV_Data & entry_data) {
+    if (sleepNNL_ptr->contains(entry_data.node_ptr->get_id().key())) return "#339afc";
+
     if (entry_data.node_ptr->get_repeats()) {
         if (entry_data.tdprop == 'e') {
             return schedule_entry_color.at('E');
@@ -2101,6 +2106,9 @@ bool node_board_render_csv_schedule(nodeboard & nb) {
     if (!nb.parse_csv(csv_str)) {
         return standard_exit_error(exit_file_error, "Unparsable CSV file "+nb.source_file, __func__);
     }
+
+    nb.sleepNNL_ptr = nb.graph().get_List(sleepNNL);
+    if (!nb.sleepNNL_ptr) return standard_error("Unable to retrieve NNL "+sleepNNL, __func__);
 
     if (!nb.render_init()) {
         return false;
