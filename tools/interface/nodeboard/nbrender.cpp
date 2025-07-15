@@ -1048,6 +1048,15 @@ float nodeboard::get_card_height(unsigned int minutes) {
     return (float(minutes))*0.0583*vertical_multiplier;
 }
 
+// *** TESTING: Explicit passed-time overlay.
+bool nodeboard::get_Passed_Time_overlay(unsigned int passed_minutes, std::string & rendered_cards) {
+    std::string vpos_daystart = to_precision_string(get_card_vertical_position("00:00"), 2);
+    std::string vheight_passed = to_precision_string(get_card_height(passed_minutes));
+    std::string overlay = "<div class=\"passed_overlay\" style=\"top:"+vpos_daystart+"vh;height:"+vheight_passed+"vh;\"></div>\n";
+    rendered_cards += overlay;
+    return true;
+}
+
 const std::map<char, std::string> schedule_entry_color = {
     {'e', "#ffc0cb"}, // pink
     {'E', "#dda0dd"}, // exact with repeats, plum
@@ -1381,6 +1390,15 @@ bool nodeboard::get_day_column(unsigned int day_idx, std::string & rendered_colu
     header = "<h4>"+WeekDay(t_day)+' '+DateStampYmd(t_day)+"</h4>";
 
     std::string rendered_cards;
+
+    // *** NOTE: Here, can add optional explicit visualization of passed time with semi-transparent overlay.
+    if (explicit_passed_time && (day_idx == 0)) {
+        std::string & first_start = csv_data_vec[day_idx].day.front().start_time;
+        int hours = atoi(first_start.substr(0,2).c_str());
+        int mins = atoi(first_start.substr(3,2).c_str());
+        unsigned int passed_minutes = (hours*60)+mins;
+        get_Passed_Time_overlay(passed_minutes, rendered_cards);
+    }
 
     for (const auto & entry_data : csv_data_vec[day_idx].day) {
 

@@ -385,8 +385,14 @@ bool schedule::map_exact_target_date_entries_from_sorted() {
                     td_minute_index = td_start_index + num_minutes;
                 }
             }
-            if (td_start_index < passed_minutes) {
-                td_start_index = passed_minutes;
+            if (!include_passed) {
+                if (td_start_index < passed_minutes) {
+                    td_start_index = passed_minutes;
+                }
+            } else {
+                if ((td_minute_index > passed_minutes) && (td_start_index < passed_minutes)) {
+                    td_start_index = passed_minutes;
+                }
             }
             exact_consumed += daysmap.fill(td_start_index, td_minute_index, nkey);
 
@@ -410,7 +416,7 @@ bool schedule::min_block_available_backwards(unsigned long idx, int next_grab) {
         if (next_grab < 1) {
             return true;
         }
-        idx--;
+        idx--; // BUG? What happens if passed_minutes was 0?
     }
     return false;
 }
@@ -453,14 +459,14 @@ bool schedule::map_fixed_target_date_entries_late() {
                     unsigned long latest_td_minute_index = (mapped_day_count*60*24) + (tzhouradjust_mod24(timeofday.hour)*60) + timeofday.minute; // *** NOT YET TZADJUST TESTED!
                     // Find blocks starting at the latest possible index.
                     unsigned long idx = latest_td_minute_index;
-                    while ((idx >= passed_minutes) && (num_minutes > 0)) {
+                    while ((include_passed || (idx >= passed_minutes)) && (num_minutes > 0)) {
                         int next_grab = (num_minutes < min_block_size) ? num_minutes : min_block_size;
                         if (min_block_available_backwards(idx, next_grab)) {
                             idx = set_block_to_node_backwards(idx, next_grab, nkey);
                             num_minutes -= next_grab;
                             fixed_consumed += next_grab;
                         } else {
-                            idx--;
+                            idx--; // *** BUG? What happens here if idx was at 0 and it wraps?
                         }
                     }
                 }

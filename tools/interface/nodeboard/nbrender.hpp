@@ -203,6 +203,8 @@ struct nodeboard: public formalizer_standard_program {
 
     Named_Node_List_ptr sleepNNL_ptr = nullptr;
 
+    bool explicit_passed_time = true;
+
     bool propose_td_solutions = false;
     bool prefer_earlier = true;
 
@@ -263,6 +265,8 @@ struct nodeboard: public formalizer_standard_program {
     float get_card_vertical_position(const std::string & start_time, float v_offset = 4.0);
 
     float get_card_height(unsigned int minutes);
+
+    bool get_Passed_Time_overlay(unsigned int passed_minutes, std::string & rendered_cards);
 
     std::string get_schedule_card_color(const CSV_Data & entry_data);
 

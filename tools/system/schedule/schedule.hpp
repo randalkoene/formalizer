@@ -89,6 +89,8 @@ struct schedule: public formalizer_standard_program {
     bool inc_fixed = true;
     bool inc_variable = true;
 
+    bool include_passed = true; // *** TESTING THIS.
+
     bool use_tzadjust = true; // Apply @TZADJUST@.
     time_t timezone_offset_seconds = 0;
     int timezone_offset_hours = 0;
