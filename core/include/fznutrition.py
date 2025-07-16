@@ -218,6 +218,11 @@ nutrition = {
 	'beef ravioli': [ 320, '15oz can', ],
 	'black bean burger': [ 480, '1 cup', ],
 	'rice noodles': [ 192, '1 cup',],
+	'rice krispies treats': [ 90, '1 piece', ],
+	'cliff bar': [ 250, '1 bar', ],
+	'fruit cup': [ 70, '1 cup', ],
+	'pot roast': [ 260, '1 can', ],
+	'rotini noodles': [ 315, '1 cup', ],
 }
 
 lowcal_filling_nutritious = [
@@ -270,6 +275,7 @@ fruit = [
 	'canned pears',
 	'canned pineapple',
 	'cranberry raisins',
+	'fruit cup',
 ]
 
 vegetables = [
@@ -341,6 +347,8 @@ meals = [
 	'beef ravioli',
 	'black bean burger',
 	'rice noodles',
+	'pot roast',
+	'rotini noodles',
 ]
 
 drinks = [
