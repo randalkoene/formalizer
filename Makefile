@@ -276,6 +276,7 @@ WEBINTERFACES += $(TOOLSPATH)/system/doc/system-documentation.html
 WEBINTERFACES += $(TOOLSPATH)/system/doc/help
 WEBINTERFACES += $(TOOLSPATH)/system/doc/system-help.html
 WEBINTERFACES += $(TOOLSPATH)/system/doc/ready-docs.html
+WEBINTERFACES += $(TOOLSPATH)/system/doc/gemini.html
 WEBINTERFACES += $(TOOLSPATH)/system/earlywiz/earlywiz.html
 WEBINTERFACES += $(TOOLSPATH)/system/latewiz/latewiz.html
 WEBINTERFACES += $(TOOLSPATH)/system/latewiz/templates/prep-morning-exercise.html

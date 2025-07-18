@@ -432,12 +432,18 @@
             "url" : "http://drive.google.com/?authuser=rkoene@carboncopies.org",
             "window" : "_blank"
         },
-        "DeepSeek" : {
-            "url" : "https://chat.deepseek.com/",
-            "window" : "_blank"
-        },
         "ID Book" : {
             "url" : "/idbook.html",
+            "window" : "_blank"
+        }
+    },
+    "Research Tools: " : {
+        "Gemini for Research" : {
+            "url" : "/formalizer/gemini.html",
+            "window" : "_blank"
+        },
+        "DeepSeek" : {
+            "url" : "https://chat.deepseek.com/",
             "window" : "_blank"
         }
     },
