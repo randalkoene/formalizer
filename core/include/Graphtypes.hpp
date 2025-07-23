@@ -514,6 +514,10 @@ extern const std::map<const char *, Boolean_Tag_Flags::boolean_flag, bfm_cmp_cst
 
 extern const std::map<Boolean_Tag_Flags::boolean_flag, const std::string> boolean_flag_str_map;
 
+/**
+ * Pass a class derived from this one to Graph::op().
+ * Note that semaphores are reset at the onset of Graph::op().
+ */
 class Graph_Op {
 protected:
     bool _to_sup = false;
@@ -531,6 +535,9 @@ public:
     Node_ID_key idkey() const { return nkey; }
 };
 
+/**
+ * Infer a BTF category by traversing a Node's superiors hierarchy.
+ */
 class Node_hierarchy_inferred_BTF: public Graph_Op {
 public:
     Boolean_Tag_Flags::boolean_flag btf_strongest = Boolean_Tag_Flags::none;
@@ -538,6 +545,47 @@ public:
 
 public:
     Node_hierarchy_inferred_BTF(const Node_ID_key _nkey): Graph_Op(true, _nkey) {}
+    virtual void op(const Node& node);
+};
+
+/**
+ * NOTE: The following is not currently implemented, because it's
+ *       probably never needed, i.e. a waste of code and time.
+ * 
+ *       In most cases, if you want to carry out some operation in
+ *       the shape of the Node hierarchy, e.g. display Node history
+ *       or other data in that manner, it is more efficient to create
+ *       a new Graph_Op derived class that carries that out immediately
+ *       than to use this one to extract another abstract representation
+ *       of the tree first.
+ */
+// // This is used to collect a hierarchy tree in its simplest form.
+// struct Node_branch {
+//     Node_ptr nodeptr;
+//     std::vector<Node_branch> branches;
+// };
+
+// /**
+//  * Collect a Node dependencies or superiors hierarchy into a
+//  * tree structure.
+//  */
+// class Node_hierarchy_to_tree: public Graph_Op {
+// public:
+//     Node_branch nodes_tree;
+// public:
+//     Node_hierarchy_to_tree(bool _tosup, const Node_ID_key _nkey): Graph_Op(_tosup, _nkey) {}
+//     virtual void op(const Node& node);
+// };
+
+/**
+ * Collect a Node dependencies or superiors hierarchy into an
+ * unsorted list.
+ */
+class Node_hierarchy_to_list: public Graph_Op {
+public:
+    std::vector<Node_ptr> nodes_list;
+public:
+    Node_hierarchy_to_list(bool _tosup, const Node_ID_key _nkey): Graph_Op(_tosup, _nkey) {}
     virtual void op(const Node& node);
 };
 

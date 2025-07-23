@@ -1126,6 +1126,8 @@ Edge * Node::get_Edge_by_dep(const std::string & dep_idstr) const {
  * superior or dependency hierarchy then set _op's stop_traverse flag,
  * which will be obeyed at this Node but cleared to be used at others
  * that might still be searched.
+ * 
+ * Note that this is a depth-first search.
  */
 void Node::op(Graph_Op& _op) const {
     if (semaphore != 0) return; // Already traversed.
@@ -1170,6 +1172,10 @@ void Node_hierarchy_inferred_BTF::op(const Node& node) {
         }
         stop_traverse = true;
     }
+}
+
+void Node_hierarchy_to_list::op(const Node& node) {
+    nodes_list.emplace_back(&node);
 }
 
 Edge_ID::Edge_ID(Edge_ID_key _idkey): idkey(_idkey), idS_cache("") { //, graphmemman.get_allocator()) {
