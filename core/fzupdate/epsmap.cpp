@@ -1173,7 +1173,7 @@ void BooleanTagFlag_UTD_Placer::place() {
                 if ((!epsdataref.placed()) && (epsdataref.chunks_req>0) && (node_ptr->get_tdproperty() == unspecified)) {
 
                     Boolean_Tag_Flags::boolean_flag boolean_tag;
-                    if (!map_of_subtrees.node_in_heads_or_any_subtree(node_ptr->get_id().key(), boolean_tag)) { // This uses get_PriorityCategory() on Node or Subtree header.
+                    if (!map_of_subtrees.node_in_heads_or_any_subtree(node_ptr->get_id().key(), boolean_tag, true)) { // This uses get_PriorityCategory() on Node or Subtree header.
                         boolean_tag = Boolean_Tag_Flags::none;
                     }
 
