@@ -583,7 +583,7 @@ public:
  */
 class Node_hierarchy_to_list: public Graph_Op {
 public:
-    std::vector<Node_ptr> nodes_list;
+    std::vector<const Node*> nodes_list;
 public:
     Node_hierarchy_to_list(bool _tosup, const Node_ID_key _nkey): Graph_Op(_tosup, _nkey) {}
     virtual void op(const Node& node);
