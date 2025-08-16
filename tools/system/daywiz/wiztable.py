@@ -98,7 +98,7 @@ WIZTABLE_LINES=[
 	[ '20200601093905.1', 2, 'nextnutri', 0, 'checkbox', 22, 24, 'Plan nutrition for the next day.', '' ],
 	[ '20200601093905.1', 5, 'challenge', 0, 'checkbox', 22, 24, 'Addressed at least 1 challenge.', '' ],
 	[ '20200601093905.1', 10, 'visible', 0, 'checkbox', 22, 24, 'Did something externally visible (<b>add NNL here!</b>) today.', '' ],
-	[ '20200601093905.1', 45, 'reviewscore', 0, 'number', 22, 24, '<button class="button button1" onclick="window.open(\'/cgi-bin/fzloghtml-cgi.py?review=true\',\'_blank\');">Day review score</button>.', '' ],
+	[ '20200601093905.1', 45, 'reviewscore', 0, 'number', 22, 24, '<button class="button button1" onclick="window.open(\'/cgi-bin/fzloghtml-cgi.py?review=true&reviewdate=@Ymd@\',\'_blank\');">Day review score</button>.', '' ],
 ]
 WIZTABLE_LINES_NODE=0
 WIZTABLE_LINES_WEIGHT=1
@@ -177,6 +177,13 @@ class wiztable_line:
         self.number_metrics = [0, 0]   # Number of number inputs on this line, number that are filled.
         self.parse_from_list(data_list)
 
+    def apply_replacements(self, srcstr:str)->str:
+        # Replace @Ymd@ with datestamp of wiztable day.
+        if srcstr.find('@Ymd@') >= 0:
+            srcstr = srcstr.replace('@Ymd@', self.day.strftime('%Y%m%d'))
+        # (Add more replacements as needed.)
+        return srcstr
+
     # data_list is a line of WIZTABLE_LINES.
     def parse_from_list(self, data_list: list):
         if len(data_list) >= WIZTABLE_LINE_LENGTH:
@@ -190,7 +197,7 @@ class wiztable_line:
             self._type = str(data_list[WIZTABLE_LINES_TYPE])
             self._hr_ideal_from = int(data_list[WIZTABLE_LINES_HRFROM])
             self._hr_ideal_to = int(data_list[WIZTABLE_LINES_HRTO])
-            self._description = str(data_list[WIZTABLE_LINES_DESC])
+            self._description = self.apply_replacements(str(data_list[WIZTABLE_LINES_DESC]))
             self._state = str(data_list[WIZTABLE_LINES_STATE])
 
     def weight(self)->float:
