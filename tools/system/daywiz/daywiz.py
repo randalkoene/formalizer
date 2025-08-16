@@ -44,9 +44,20 @@ debugdatabase = webdata_path+'/daywiz_database.debug'
 
 error_file = webdata_path + '/daywiz_error.log'
 
+# ====================== Time zone adjustments:
+global tzday_adjusted, tz_hours
+tzday_adjusted = False
+tz_hours = 0
+
+# Used to make a time zone day adjustment visible on the page.
+def tzadjusted()->str:
+    if not tzday_adjusted:
+        return ''
+    return '<button class="button button2" >TZ adjusted %s hours</button>' % str(-tz_hours)
+
 # ====================== Data store:
 
-# TODO: *** Switch to using the database.
+# Note that the Formalizer database is now used to store and retrieve DayWiz data.
 #JSON_DATA_PATH='/home/randalk/.formalizer/.daywiz_data.json' # Permission issues.
 #JSON_DATA_PATH='/var/www/webdata/formalizer/.daywiz_data.json'
 #NEW_JSON_DATA_PATH='/var/www/webdata/formalizer/.new_daywiz_data.json'
@@ -192,7 +203,7 @@ DAYPAGE_TABLES_FRAME='''<table class="col_right_separated">
 </table>
 '''
 
-DAYPAGE_HTML_TOP_EXTRA='''<button class="button button1" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?startfrom=%s0000&daysinterval=1','_blank');">Visit corresponding Log interval</button>
+DAYPAGE_HTML_TOP_EXTRA='''%s <button class="button button1" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?startfrom=%s0000&daysinterval=1','_blank');">Visit corresponding Log interval</button>
 '''
 
 WIZTABLE_TOP='''<table class="secondcolfixedw">
@@ -916,7 +927,7 @@ class daypage(fz_htmlpage):
         self.html_tooltip = fz_html_tooltip()
         self.html_clock = fz_html_clock()
         self.html_title = fz_html_title('DayWiz')
-        self.html_top_extra = fz_html_verbatim(DAYPAGE_HTML_TOP_EXTRA % self.day.strftime("%Y%m%d"))
+        self.html_top_extra = fz_html_verbatim(DAYPAGE_HTML_TOP_EXTRA % (tzadjusted(), self.day.strftime("%Y%m%d")))
 
         #     Components with main actions in body content:
         self.date_picker = fz_html_datepicker(self.day)
@@ -1310,6 +1321,54 @@ class daypage(fz_htmlpage):
 
 # ====================== Entry parsers:
 
+# As needed, adjust 'today' to the active Formalizer time-zone setting.
+def today_tzadjusted()->datetime:
+    # Ask the fzserverpq for time zone information.
+    thecmd='./fzgraph -q -o STDOUT -C /fz/tzadjust'
+    try:
+        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,stderr=PIPE,close_fds=True, universal_newlines=True)
+        (child_stdin,child_stdout,child_stderr) = (p.stdin, p.stdout, p.stderr)
+        child_stdin.close()
+        result = child_stdout.read()
+        error = child_stderr.read()
+        child_stdout.close()
+        child_stderr.close()
+        if error:
+            with open(error_file, 'w') as f:
+                f.write(error)
+            return datetime.now()
+
+    except Exception as ex:
+        with open(error_file, 'w') as e:              
+            e.write(str(ex))
+            f = StringIO()
+            traceback.print_exc(file=f)
+            a = f.getvalue().splitlines()
+            for line in a:
+                e.write(line)
+        return datetime.now()
+    # As needed, adjust 'today'.
+    INFOSTR='Server time zone offset seconds:'
+    info_idx = result.find(INFOSTR)
+    if info_idx < 0:
+        return datetime.now()
+    info_idx += len(INFOSTR)
+    info_end = result.find('\n', info_idx)
+    if info_end < 0:
+        return datetime.now()
+    tz_seconds = int(result[info_idx:info_end])
+    if tz_seconds == 0:
+        return datetime.now()
+    global tz_hours
+    tz_hours = tz_seconds / 3600 # Note that tzserverpq returns -9 for CET (locall time -9 = Formalizer PDT time).
+    td = datetime.now()
+    tdhour = td.timetuple().tm_hour
+    if tdhour - tz_hours >= 24:
+        td = td + timedelta(hours=int(-tz_hours))
+        global tzday_adjusted
+        tzday_adjusted = True
+    return td
+
 def get_directives(formfields: cgi.FieldStorage) ->dict:
     directives = {
         'cmd': formfields.getvalue('cmd'),
@@ -1321,7 +1380,7 @@ def check_directives(directives: dict) ->dict:
     if not directives['cmd']:
         directives['cmd'] = 'show'
     if not directives['date']:
-        directives['date'] = datetime.today().strftime('%Y.%m.%d')
+        directives['date'] = today_tzadjusted().strftime('%Y.%m.%d')
     else:
         try:
             _date = datetime.strptime(directives['date'], '%Y.%m.%d')
@@ -1329,7 +1388,7 @@ def check_directives(directives: dict) ->dict:
             try:
                 _date = datetime.strptime(directives['date'], '%Y-%m-%d')
             except:
-                _date = datetime.today()
+                _date = today_tzadjusted()
         date_str = _date.strftime('%Y.%m.%d')
         directives['date'] = date_str
     return directives
@@ -1371,13 +1430,13 @@ if __name__ == '__main__':
     from sys import argv
     # Put this here to catch errors.
     # This should only be printed if this is not being imported as a module.
-    print("Content-type:text/html\n\n")
+    print("Content-type:text/html\n")
     # with open(debugdatabase, 'w') as f:
     #     f.write('DEBUG START\n')
     if len(argv) > 2:
         if argv[2] == 'date':
             launch(directives={ 'cmd': argv[1], 'date': argv[2], 'args': argv[2:], })
         else:
-            launch(directives={ 'cmd': argv[1], 'date': datetime.today().strftime('%Y.%m.%d'), 'args': argv[2:], })
+            launch(directives={ 'cmd': argv[1], 'date': today_tzadjusted().strftime('%Y.%m.%d'), 'args': argv[2:], })
     else:
         launch_as_cgi()
