@@ -17,6 +17,7 @@
 #include "Graphtypes.hpp"
 #include "Graphinfo.hpp"
 #include "btfdays.hpp"
+#include "ReferenceTime.hpp"
 
 // local
 #include "render.hpp"
@@ -1116,6 +1117,20 @@ std::string render_Node_BTF(Graph & graph, Node & node) {
 }
 
 /**
+ * This calculation uses effective target date, because
+ * the number of hours is different if a Node's target date
+ * is effectively shifted in accordance with a time zone specification.
+ */
+std::string Hours_to_TD(time_t td_eff) {
+    time_t t_now = ActualTime();
+    if (t_now > td_eff) {
+        return "<b>passed</b>";
+    }
+    int hours2td = (td_eff - t_now)/3600;
+    return "<b>"+std::to_string(hours2td)+"</b> hours to TD";
+}
+
+/**
  * Individual Node data rendering.
  * 
  * Note: We will probably be unifying this with the Node
@@ -1160,7 +1175,9 @@ std::string render_Node_data(Graph & graph, Node & node) {
     nodevars.emplace("req_hrs", to_precision_string(required_hrs));
     nodevars.emplace("req_mins", std::to_string(required_mins));
     nodevars.emplace("val", to_precision_string(node.get_valuation()));
-    nodevars.emplace("eff_td", TimeStampYmdHM(node.effective_targetdate()));
+    time_t td_eff = node.effective_targetdate();
+    nodevars.emplace("eff_td", TimeStampYmdHM(td_eff));
+    nodevars.emplace("hrs2td", Hours_to_TD(td_eff));
     if (tdprop<_tdprop_num) {
         nodevars.emplace("td_prop", td_property_str[tdprop]);
     } else {

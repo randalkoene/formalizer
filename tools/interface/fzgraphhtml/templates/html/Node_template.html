@@ -31,7 +31,7 @@
 <tr><td>Completion:</td><td>{{ comp }}</td><td colspan="3">(special codes: -1 obsolete, -2 replaced, -3 done differently, -4 no longer possible / did not come to pass)</td></tr>
 <tr><td>Required:</td><td>{{ req_hrs }} hrs</td><td>({{ req_mins}} mins)</td><td></td><td></td></tr>
 <tr><td>Valuation:</td><td>{{ val }}</td><td></td><td></td><td></td></tr>
-<tr><td>Targetdate:</td><td>{{ eff_td }}</td><td></td><td></td><td></td></tr>
+<tr><td>Targetdate:</td><td>{{ eff_td }}</td><td>{{ hrs2td }}</td><td></td><td></td></tr>
 <tr><td><span class="tooltip">TD Property<span class="tooltiptext"><div style="width:1000px;">
 <p><b>Unspecified</b>: The list of UTD Nodes should be a simple order of priority. Ideally, automatic rescheduling of UTD Nodes should take into account the dependency structure. Even more ideally, automatic rescheduling of UTD Nodes should take into account categories (such as work and self-work) and, while testing that method, a selection of days to dedicate to one category or another in a given week.</p>
 <p><b>Inherit</b>: ITD Nodes are those that are requirements for their superior Node(s) to be accomplished and where scheduling can be determined completely by the dependency hierarchy.</p>
