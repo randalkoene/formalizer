@@ -524,6 +524,20 @@ std::string make_embeddable_html(
             // *** if there are problematic tags, this would be where to check for those
             // *** if you need to skip it then do not do the next line
             // Process embeddable HTML tag.
+
+            // Attend to possible replacements in 'src=', window.open() and similar tag parameters.
+            if (special_urls && replacements) {
+                if (special_urls->size() == replacements->size()) {
+                    for (size_t i = 0; i < special_urls->size(); i++) {
+                        auto foundpos = tagcontent.find(special_urls->at(i));
+                        if (foundpos != std::string::npos) {
+                            tagcontent = tagcontent.substr(0, foundpos) + "http://" + replacements->at(i) + tagcontent.substr(foundpos+special_urls->at(i).size());
+                            break;
+                        }
+                    }
+                }
+            }
+
             txtstr += tagcontent;
 
             pos = next_gtpos + 1;
