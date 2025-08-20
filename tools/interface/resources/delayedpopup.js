@@ -119,8 +119,17 @@ function enlargeImage(img_ref) {
 
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
-  const elementWidth = newImg.offsetWidth;
-  const elementHeight = newImg.offsetHeight;
+  var elementWidth = newImg.offsetWidth;
+  var elementHeight = newImg.offsetHeight;
+
+  if (elementHeight > viewportHeight) {
+    var newelementHeight = viewportHeight*0.8;
+    newImg.style.height = `${newelementHeight}px`;
+    newImg.style.width = 'auto';
+    elementWidth = newImg.offsetWidth;
+    elementHeight = newImg.offsetHeight;
+  }
+
   newImg.style.left = (viewportWidth - elementWidth) / 2 + "px";
   newImg.style.top = (viewportHeight - elementHeight) / 2 + "px";
 
