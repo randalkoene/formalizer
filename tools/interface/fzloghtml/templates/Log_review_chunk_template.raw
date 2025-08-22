@@ -1,0 +1,5 @@
+{{ category-name }}
+{{ work-checked }}, {{ selfwork-checked }}, {{ system-checked }}, {{ nap-checked }}, {{ other-checked }}
+{{ chunk-id }}, {{ minutes }}
+{{ node_id }}
+

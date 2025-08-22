@@ -8,6 +8,11 @@ In the URL part of a HTML link, put something like:
 
 ## The `day review` option
 
+Note that the fzloghtml `day review` option obtains the Log data needed for a
+DayReview, typically in either `json` or `html` format. The further processing
+of that data is done by `dayreview.py` or `dayreview-cgi.py` (see
+formalizer/tools/system/metrics/dayreview).
+
 The `GraphTypes.hpp:Boolean_Tag_Flags` are used to specify Node category.
 Currently, those are (aside from `tzadjust` and `error`):
 `work`, `self_work`, `system`, `other`, or `none`.

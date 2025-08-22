@@ -1,0 +1,4 @@
+Date: {{ date }}
+Wakeup: {{ wakeup }}
+Gosleep: {{ gosleep }}
+Category days: {{ btf_days }}

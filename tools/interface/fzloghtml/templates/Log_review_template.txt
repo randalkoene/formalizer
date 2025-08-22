@@ -1,0 +1,5 @@
+Info:
+{{ top-info }}
+
+Entries:
+{{ table-entries }}

@@ -1,0 +1,5 @@
+Category: {{ category-name }} work {{ work-checked }}, selfwork {{ selfwork-checked }}, system {{ system-checked }}, nap {{ nap-checked }}, other {{ other-checked }}
+Start: {{ chunk-id }} Minutes: {{ minutes }}
+Node: {{ node_id }} {{ node }}
+Log: {{ log }}
+

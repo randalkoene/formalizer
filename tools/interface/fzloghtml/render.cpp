@@ -55,7 +55,7 @@ enum template_id_enum: unsigned int {
     Log_review_TXT_temp,
     Log_review_HTML_temp,
     Log_review_JSON_temp,
-    Log_review_topinfo_RAW_temp,
+    Log_review_topinfo_RAW_temp, // 15
     Log_review_topinfo_TXT_temp,
     Log_review_topinfo_HTML_temp,
     Log_review_topinfo_JSON_temp,
@@ -85,8 +85,8 @@ const std::vector<std::string> template_ids = {
     "Log_review_template.raw",
     "Log_review_template.txt",
     "Log_review_template.html",
-    "Log_review_template.html" // not used
-    "Log_review_topinfo_template.raw",
+    "Log_review_template.html", // not used
+    "Log_review_topinfo_template.raw", 
     "Log_review_topinfo_template.txt",
     "Log_review_topinfo_template.html",
     "Log_review_topinfo_template.html", // not used
