@@ -298,6 +298,7 @@ pastePopupLink('docpopupfunc', 'text');
 </html>
 '''
 
+# NOTE: This needs to be identical to templates in addnode-template.py!
 new_node_templates = {
     "Milestone": '''MILESTONE: <b>[(label)]</b> (description of achievement)
 <P>
@@ -322,6 +323,52 @@ new_node_templates = {
 <li><input type="checkbox" > </li>
 <li><input type="checkbox" > </li>
 </ul>
+''',
+    "Team Member": '''<h3>(name)</h3>
+
+<h4>CCF career path</h4>
+
+<b>Onboarded for role</b>: (role) (opt: until [internship end-date])
+<P>
+<b>Coordination notes</b>:
+<P>
+(notes)
+<P>
+
+<h4>Immediate activity</h4>
+
+<b>Current activities</b>:
+<UL>
+<LI>
+</UL>
+<P>
+
+<b>Randal action required</b>:
+<UL>
+<LI>
+</UL>
+<P>
+
+@WORK@
+''',
+    "Team Activities Cluster": '''<h3>(cluster)</h3>
+<P>
+
+<b>Strategic purpose of cluster</b>:
+<P>
+(notes)
+<P>
+
+<h4>Strategic focus info</h4>
+<UL>
+<LI>
+</UL>
+<P>
+
+<b>Next milestone</b>: (milestone)
+<P>
+
+@WORK@
 '''
 }
 

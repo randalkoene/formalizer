@@ -9,6 +9,12 @@ For the web interface to fzgraph, see `fzaddnode-CGI.py` or `addnode-form`.
 
 Note: This is the Formalizer 2.x successor to the Formalizer 1.x `dilentry` tool.
 
+# addnode-template - select a template for a new Node
+
+This script is used to present a selection of possible templates
+with which to initialize the content of a new Node from the
+Node creation page.
+
 ---
 
 Randal A. Koene, 20201126

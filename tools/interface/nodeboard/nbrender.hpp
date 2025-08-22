@@ -107,6 +107,7 @@ struct nodeboard_options {
     flow_options _floption = flow_dependencies_tree;
     bool _threads = false;                  // When true, prereqs/provides and possibly progress analysis may be included.
     bool _showcompleted = false;            // When true, include Nodes that are inactive.
+    bool _showzerorequired = false;         // When true, include Nodes with required time <= 0.
     bool _shownonmilestone = true;          // When true, include Nodes that are not Milestones.
     float _importancethreshold = 0.0;       // If greater than 0.0, include Nodes with maximum importance connection above that threshold.
     bool _progressanalysis = false;         // When true (and _threads), include progress analysis.

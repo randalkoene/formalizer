@@ -478,6 +478,7 @@ nodeboard_options nodeboard::get_nodeboard_options() const {
     options._floption = flowcontrol;
     options._threads = threads;
     options._showcompleted = show_completed;
+    options._showzerorequired = show_zero_required;
     options._importancethreshold = importance_threshold;
     options._shownonmilestone = shows_non_milestone_nodes();
     options._progressanalysis = progress_analysis;
@@ -521,6 +522,7 @@ bool nodeboard::make_options_pane(std::string & rendered_pane) {
         { "node-id", node_ptr->get_id_str() },
         { "sup-or-dep", sup_or_dep.at(flowcontrol == flow_superiors_tree) },
         { "show-completed", true_checked.at(show_completed) },
+        { "show-zero-required", true_checked.at(show_zero_required) },
         { "importance-threshold", to_precision_string(importance_threshold, 2) },
         { "threads", true_checked.at(threads) },
         { "progress-analysis", true_checked.at(progress_analysis) },
@@ -785,6 +787,9 @@ bool nodeboard::get_Node_card(const Node * node_ptr, std::string & rendered_card
     if (show_completed) {
         include_filter_substr += "&I=true";
     }
+    if (show_zero_required) {
+        include_filter_substr += "&Z=true";
+    }
     nodevars.emplace("filter-substr", include_filter_substr);
 
     // For each node: Create a Kanban card and add it to the output HTML.
@@ -903,6 +908,9 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
     }
     if (show_completed) {
         include_filter_substr += "&I=true";
+    }
+    if (show_zero_required) {
+        include_filter_substr += "&Z=true";
     }
     if (importance_threshold > 0.0) {
         include_filter_substr += "&w="+to_precision_string(importance_threshold, 2);
@@ -1440,6 +1448,11 @@ std::string nodeboard::call_comment_string() {
     } else {
         call_comment += " show_completed=false";
     }
+    if (show_zero_required) {
+        call_comment += " show_zero_required=true";
+    } else {
+        call_comment += " show_zero_required=false";
+    }
     return call_comment;
 }
 
@@ -1613,6 +1626,9 @@ bool node_board_render_dependencies(nodeboard & nb) {
     }
     if (nb.show_completed) {
         include_filter_substr += "&I=true";
+    }
+    if (nb.show_zero_required) {
+        include_filter_substr += "&Z=true";
     }
 
     for (const auto & edge_ptr : nb.node_ptr->dep_Edges()) {
