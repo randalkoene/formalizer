@@ -865,6 +865,7 @@ struct review_element {
 };
 
 struct review_data {
+    Node_ID_key prevnight_id;
     time_t t_candidate_wakeup = 0;
     time_t t_wakeup = 0;
     time_t t_gosleep = 0;
@@ -964,6 +965,8 @@ bool render_Log_review() {
     std::locale loc;
     Node_ID_key nap_id;
 
+    // This gets the sleep/nap Nodes from sleepNNL, checks that the Nodes exist and
+    // marks which one is a 'nap'.
     auto prepare_sleep_node_identification = [&] () {
         if (fzlh.config.sleepNNL.empty()) return standard_error("Missing sleepNNL specification in config file.", __func__);
         sleepNNL_ptr = fzlh.get_Graph_ptr()->get_List(fzlh.config.sleepNNL);
@@ -993,6 +996,7 @@ bool render_Log_review() {
 
     report_interval();
 
+    // Next, find wake-up and go-to-sleep times, identify categories.
     review_data data;
     std::vector<metrictag_data> metric_data;
     Map_of_Subtrees map_of_subtrees;
@@ -1016,9 +1020,26 @@ bool render_Log_review() {
                 if (sleepNNL_ptr->contains(node_id)) {
                     if (node_id != nap_id) { // Does this chunk belong to a sleep Node?
                         // The following test is a safety in case of multiple sleep Nodes in close proximity.
-                        if ((t_chunkclose - data.t_candidate_wakeup) > (4*3600)) {
+                        // Notes 20250822:
+                        // - If there are two instances of sleep close together with the same sleep Node (same night)
+                        //   then the intervening wakeful time is considered to belong to the next day (we had to go
+                        //   back to bed for a bit).
+                        // - The Node ID (night of the week) is used to determine if two proximate sleeps belong
+                        //   together.
+                        // normal:
+                        // - First entry: id != prevnight_id => wakeup=0, candidate=close, sleep=open, prevnight_id=id
+                        // - Next entry: id != prevnight_id => wakeup=close_candidate, candidate=close, sleep=open
+                        // unusual:
+                        // - First entry: id != prevnight_id => wakeup=0, candidate=close, sleep=open, prevnight_id=id
+                        // - Next entry: id == prevnight_id & close < candidate+5days => keep candidate as is
+                        // - Later entry: id != prevnight_id => wakeup=close_candidate, candidate=close, sleep=open
+                        // The 5*4*3600 test is there just in case logging is missing data and the same night came
+                        // around again a week or more later.
+                        // was: if ((t_chunkclose - data.t_candidate_wakeup) > (4*3600)) { // day length at least 4 hours
+                        if ((node_id != data.prevnight_id) || ((t_chunkclose - data.t_candidate_wakeup) > (5*24*3600))) {
                             data.t_wakeup = data.t_candidate_wakeup;
                             data.t_candidate_wakeup = t_chunkclose;
+                            data.prevnight_id = node_id;
                             //FZOUT("DEBUG --> t_wakeup = "+TimeStampYmdHM(data.t_wakeup)+'\n');
                             //FZOUT("DEBUG --> t_candidate_wakeup = "+TimeStampYmdHM(data.t_candidate_wakeup)+'\n');
                             data.t_gosleep = t_chunkopen;
