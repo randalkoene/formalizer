@@ -135,6 +135,8 @@ templates = {
 ''',
     "Team Activities Cluster": '''<h3>(cluster)</h3>
 <P>
+<b>Lead</b>: (lead)
+<P>
 
 <b>Strategic purpose of cluster</b>:
 <P>
