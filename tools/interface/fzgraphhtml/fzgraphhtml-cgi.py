@@ -370,6 +370,9 @@ new_node_templates = {
 <b>Next milestone</b>: (milestone)
 <P>
 
+<b>Group activity</b>: (activity)
+<P>
+
 @WORK@
 '''
 }
