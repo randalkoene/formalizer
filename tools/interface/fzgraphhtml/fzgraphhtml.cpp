@@ -20,6 +20,8 @@
 #include "error.hpp"
 #include "standard.hpp"
 #include "stringio.hpp"
+#include "html.hpp"
+#include "jsonutil.hpp"
 #include "Graphtypes.hpp"
 #include "Graphinfo.hpp"
 #include "apiclient.hpp"
@@ -425,6 +427,33 @@ Graph & fzgraphhtml::graph() {
     return *graph_ptr;
 }
 
+const std::vector<std::string> special_urls = {
+    "@FZSERVER@"
+};
+
+
+/**
+ * Apply any necessary excerpting, tag removal, or output format
+ * specific escaping of a text string.
+ */
+std::string fzgraphhtml::output_prep_text(const std::string& text, bool do_excerpt) {
+    if (do_excerpt) {
+        if (config.outputformat == output_json) {
+            return escape_for_json(remove_html_tags(text).substr(0, config.excerpt_length));
+        }
+        return remove_html_tags(text).substr(0, config.excerpt_length);
+    }
+
+    if (config.outputformat == output_json) {
+        return escape_for_json(text);
+    }
+    return make_embeddable_html(
+        text,
+        config.interpret_text,
+        &special_urls,
+        &replacements
+    );
+}
 
 void test_other_graph_info(Graph & graph) {
 

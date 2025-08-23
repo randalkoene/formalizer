@@ -132,6 +132,8 @@ struct fzgraphhtml: public formalizer_standard_program {
 
     Graph & graph();
 
+    std::string output_prep_text(const std::string& text, bool do_excerpt = false);
+
 };
 
 extern fzgraphhtml fzgh;

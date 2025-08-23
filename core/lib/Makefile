@@ -164,6 +164,9 @@ $(OBJ)/html.o: html.cpp $(INC)/html.hpp
 $(OBJ)/jsonlite.o: jsonlite.cpp $(INC)/jsonlite.hpp $(INC)/general.hpp
 	$(CCPP) $(CPPFLAGS) -c jsonlite.cpp -o $(OBJ)/jsonlite.o
 
+$(OBJ)/jsonutil.o: jsonutil.cpp $(INC)/jsonutil.hpp
+	$(CCPP) $(CPPFLAGS) -c jsonutil.cpp -o $(OBJ)/jsonutil.o
+
 $(OBJ)/templater.o: templater.cpp $(INC)/templater.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c templater.cpp -o $(OBJ)/templater.o
 

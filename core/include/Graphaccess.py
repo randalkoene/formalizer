@@ -85,20 +85,38 @@ def edit_nodes_in_NNL(listname: str, param_label: str, valstr: str):
     return int(num_str)
 
 
-def get_node_data(node: str, param_labels: str, config: dict):
-    # *** not yet implemented, decide if you use GET or FZ method
-    # *** here's a less efficient, temporary version
-    thecmd = f'{fzmodulebasedir}fzgraphhtml -n {node} -o STDOUT -F node -e -q'
-    retcode = try_subprocess_check_output(thecmd, 'nodedata', config)
-    exit_error(retcode, f'Attempt to get Node data for Node {node} failed.', True)
-    if (retcode != 0):
-        return 'unknown', '20'
+def get_node_data(node: str, param_labels:str=None, config:dict=None):
+    if config is None:
+        config= {
+            'verbose': False,
+            'logcmdcalls': False,
+            'cmdlog': '',
+            'logcmderrors': False,
+            'cmderrlog': '',
+        }
+    if param_labels is not None:
+        # *** not yet implemented, decide if you use GET or FZ method
+        # *** here's a less efficient, temporary version
+        thecmd = f'{fzmodulebasedir}fzgraphhtml -n {node} -o STDOUT -F node -e -q'
+        retcode = try_subprocess_check_output(thecmd, 'nodedata', config)
+        exit_error(retcode, f'Attempt to get Node data for Node {node} failed.', True)
+        if (retcode != 0):
+            return 'unknown', '20'
+        else:
+            # *** temporary version only works for 'tdproperty, required'
+            nodedata = results['nodedata'].split(b'\n')
+            required_mins = nodedata[2].decode()
+            tdproperty = nodedata[5].decode()
+            return tdproperty, required_mins
     else:
-        # *** temporary version only works for 'tdproperty, required'
-        nodedata = results['nodedata'].split(b'\n')
-        required_mins = nodedata[2].decode()
-        tdproperty = nodedata[5].decode()
-        return tdproperty, required_mins
+        thecmd = f'{fzmodulebasedir}fzgraphhtml -n {node} -o STDOUT -F json -e -q'
+        retcode = try_subprocess_check_output(thecmd, 'nodedata', config)
+        exit_error(retcode, f'Attempt to get Node data for Node {node} failed.', True)
+        if (retcode != 0):
+            return None
+        else:
+            from json import loads
+            return loads(results['nodedata'])
 
 
 def get_main_topic(node: str, config: dict):

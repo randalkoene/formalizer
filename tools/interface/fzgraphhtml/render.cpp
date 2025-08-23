@@ -893,7 +893,7 @@ std::string render_Node_superiors(Graph & graph, Node & node, bool remove_button
     time_t node_td = node.get_targetdate();
     for (const auto & edge_ptr : node.sup_Edges()) {
         if (edge_ptr) {
-            if (fzgh.config.outputformat == output_node) {
+            if ((fzgh.config.outputformat == output_node) || (fzgh.config.outputformat == output_json)) {
                 sups_str += edge_ptr->get_sup_str() + ' ';
             } else {
                 // Link to superior.
@@ -957,7 +957,7 @@ std::string render_Node_dependencies(Graph & graph, Node & node, bool remove_but
     time_t node_td = node.get_targetdate();
     for (const auto & edge_ptr : node.dep_Edges()) {
         if (edge_ptr) {
-            if (fzgh.config.outputformat == output_node) {
+            if ((fzgh.config.outputformat == output_node) || (fzgh.config.outputformat == output_json)) {
                 deps_str += edge_ptr->get_dep_str() + ' ';
             } else {
                 deps_str += "<li><a href=\"/cgi-bin/fzlink.py?id="+edge_ptr->get_dep_str()+"\">" + edge_ptr->get_dep_str() + "</a>: ";
@@ -1065,10 +1065,6 @@ std::string render_Node_prerequisites_and_provides_capabilities(Node & node) {
     return render_str;
 }
 
-const std::vector<std::string> special_urls = {
-    "@FZSERVER@"
-};
-
 const std::map<bool, std::string> flag_set_map = {
     { false, "none" },
     { true, "SET" },
@@ -1159,17 +1155,18 @@ std::string render_Node_data(Graph & graph, Node & node) {
     nodevars.emplace("node-id", node.get_id_str());
     nodevars.emplace("fzserverpq", fzgh.replacements[fzserverpq_address]);
     nodevars.emplace("T_context", TimeStampYmdHM(node.t_created() - RTt_oneday));
-    if (fzgh.config.excerpt_requested) {
-        nodevars.emplace("node-text", remove_html_tags(node.get_text()).substr(0,fzgh.config.excerpt_length)); // *** must this also have c_str()?
-    } else {
-        nodevars.emplace("node-text",
-            make_embeddable_html(
-                node.get_text().c_str(),
-                fzgh.config.interpret_text,
-                &special_urls,
-                &fzgh.replacements
-            ) ); //node.get_text());
-    }
+    // if (fzgh.config.excerpt_requested) {
+    //     nodevars.emplace("node-text", remove_html_tags(node.get_text()).substr(0,fzgh.config.excerpt_length)); // *** must this also have c_str()?
+    // } else {
+    //     nodevars.emplace("node-text",
+    //         make_embeddable_html(
+    //             node.get_text().c_str(),
+    //             fzgh.config.interpret_text,
+    //             &special_urls,
+    //             &fzgh.replacements
+    //         ) ); //node.get_text());
+    // }
+    nodevars.emplace("node-text", fzgh.output_prep_text(node.get_text(), fzgh.config.excerpt_requested));
     
     nodevars.emplace("comp", to_precision_string(node.get_completion()));
     nodevars.emplace("req_hrs", to_precision_string(required_hrs));
