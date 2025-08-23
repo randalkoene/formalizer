@@ -1,4 +1,16 @@
 {
 	"Node ID": "{{ node-id }}",
-	"node-text": "{{ node-text }}"
+	"node-text": "{{ node-text }}",
+	"completion": "{{ comp }}",
+	"required": "{{ req_mins}}",
+	"valuation": "{{ val }}",
+	"targetdate": "{{ eff_td }}",
+	"tdproperty": "{{ td_prop }}",
+	"repeats": "{{ repeats }}",
+	"tdpattern": "{{ td_patt }}",
+	"tdevery": "{{ td_every }}",
+	"tdspan": "{{ td_span }}",
+	"NNLs": "{{ NNLs }}",
+	"superiors": "{{ superiors }}",
+	"dependencies": "{{ dependencies }}"
 }

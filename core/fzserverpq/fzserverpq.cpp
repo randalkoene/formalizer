@@ -81,6 +81,8 @@ The GET/PATCH port API includes the following:
 
   /fz/graph/nodes/logtime?<node-id>=<mins>[&T=<emulated-time>]
 
+  /fz/graph/nodes/<node-id>.<html|txt|json|node|desc> (*)
+
   /fz/graph/nodes/<node-id>?skip=<<num>|toT>[&T=<emulated-time>]
   /fz/graph/nodes/<node-id>?targetdate=<YmdHM>&required=<hours>
   /fz/graph/nodes/<node-id>/completion?set=<ratio>
@@ -117,6 +119,9 @@ The GET/PATCH port API includes the following:
   /fz/graph/namedlists/_shortlist
   /fz/graph/namedlists/_set?persistent=
   /fz/graph/namedlists/_reload
+
+(*) The Node information request is delegated by fzserverpq to fzgraphhtml
+    to ensure that the same output format standards are used.
 
 Note A: The 'persistent' switch is only available through port requests and
         through the configuration file. There is no command line option.

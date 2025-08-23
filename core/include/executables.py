@@ -2,6 +2,8 @@
 This is a list of all of the defined Formalizer components that can be called as
 executables.
 
+WARNING: This is out of date and in need of updating!
+
 For general information about the Formalizer environment, use the fzinfo tool.
 For information specific to a particular component, call the executable with
 the "-h" option or see the Formalizer documentation.
