@@ -1,10 +1,15 @@
-<div class="Node1">
+<div class="Node1 {{ nodebg-color }}">
 
-  <div class="w3-card-4 w3-blue">
+  <div class="w3-card-4 {{ nodebg-color }}">
     <!-- <img src="img_avatar.png" alt="Avatar" style="width:100%"> -->
     <div class="container w3-light-grey">
+      <p>
+        <button class="tiny_button tiny_green" onclick="window.open('/cgi-bin/fzlink.py?id={{ node-id }}', '_blank');">{{ node-id }}</button>
+        <button class="tiny_button tiny_green" onclick="window.open('/cgi-bin/nodeboard-cgi.py?n={{ node-deps }}&G=true&I=true{{ filter-substr }}', '_blank');">DEP</button>
+        <button class="tiny_button tiny_green" onclick="window.open('/cgi-bin/nodeboard-cgi.py?n={{ node-deps }}&g=true&I=true{{ filter-substr }}', '_blank');">SUP</button>
+        <button class="tiny_button tiny_green" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit={{ node-id }}', '_blank');">edit</button>
+      </p>
       <p class="w3-medium">{{ node-text }}</p>
-      <p><b><a href="/cgi-bin/fzlink.py?id={{ node-id }}">{{ node-id }}</a></b> (<a href="/cgi-bin/nodeboard-cgi.py?n={{ node-deps }}{{ filter-substr }}">DEP</a>)</p>
     </div>
   </div>
 

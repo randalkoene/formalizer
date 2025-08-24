@@ -176,6 +176,14 @@
             "url" : "/cgi-bin/nodeboard-cgi.py?D=week_main_goals&T=true&u=204512311159&r=100&U=true",
             "window" : "_blank"
         },
+        "CCF Clusters" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20250822225247.1&Z=true",
+            "window" : "_blank"
+        },
+        "CCF Team" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20250822084723.1&G=true&I=true&Z=true&T=true&B=79",
+            "window" : "_blank"
+        },
         "IDEAL-SITUATION" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20190306192914.1&G=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
             "window" : "_blank"

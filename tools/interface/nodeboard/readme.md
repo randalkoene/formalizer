@@ -1,6 +1,59 @@
 # `nodeboard` - Kanban board tool with Node hierarchy support
 
-(( ...this would be a good place for general documentation of the tool... ))
+## Programs and scripts
+
+- `nodeboard`: Generate Kanban board representations of Node hierarchies and Named
+  Nodes Lists in a variety of useful ways.
+- `nodeboard-cgi.py`: Web interface CGI scripted access to `nodeboard`.
+
+## Examples
+
+The following examples demonstrate some of the principal ways to use
+nodeboard. Note that many of the options available on the command line
+can also be modified from the `options` pane in the top-right corner
+of many generated boards.
+
+### `nodeboard -g -n <node-id>`
+
+Generate a grid-constrained board that presents the Node specified by
+`<node-id>` and its hierarchy of superiors.
+
+### `nodeboard -G -n <node-id>`
+
+Generate a grid-constrained board that presents the Node specified by
+`<node-id>` and its hierarchy of dependencies.
+
+### `nodeboard -f <sysmet-json-file>`
+
+Generate a board from data indicated in a special system/metrics format.
+
+### `nodeboard -n <node-id>`
+
+Generate a columns-constrained board that presents the Node specified
+by `<node-id>`, its direct dependencies as column headers, and further
+dependencies within the columns.
+
+### `nodeboard -D <name>`
+
+Generate a board where the column headers are the Nodes in the NNL specified
+by `<name>` and their dependencies fill the columns.
+
+### `nodeboard -c <csv-path>`
+
+Generate a schedule based on information in a CSV file indicated by
+`<csv-path>`.
+
+### `nodeboard -l "{milestones_formalizer,procrastination,group_sleep}"`
+
+Generate a board from the specified list of NNLs.
+
+### `nodeboard -t "{carboncopies,cc-research,cc-operations}"`
+
+Generate a board from the specified list of Topic keys.
+
+### `nodeboard -m "{carboncopies,NNL:milestones_formalizer}"`
+
+Generate a board from the specified mixed list of topics and NNLs.
 
 ## Detection and auto-solving of target date order problems
 

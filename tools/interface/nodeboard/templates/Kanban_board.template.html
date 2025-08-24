@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html style="overflow-x:scroll;">
 <head>
+<meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
+<link rel="icon" href="/favicon-32x32.png">
+<link rel="stylesheet" href="/fz.css">
 <!-- https://www.w3schools.com/w3css/4/w3.css -->
 <link rel="stylesheet" href="/w3.css">
+<link rel="stylesheet" href="/fzuistate.css">
 <style>
 .grid-container {
   display: grid;
   grid-template-columns:{{ column-widths }};
+  {{ row-heights  }}
   grid-gap: 5px;
   background-color: var(--grid-bg);
   padding: 5px;
@@ -19,15 +24,15 @@
 }
 
 .grid-container > div {
-  background-color: var(--grid-bgoverlay);
-  text-align: center;
+  background-color: {{ column-bgcolor }};
+  text-align: left;
   padding: 5px;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .column-container {
   display: grid;
-  grid-template-columns: 250px;
+  grid-template-columns: {{ container-width }};
   grid-gap: 5px;
   background-color: var(--grid-bg);
   padding: 5px;
@@ -35,19 +40,30 @@
 }
 
 .column-container > div {
-  background-color: var(--grid-bgoverlay);
+  background-color: {{ column-bgcolor }};
   text-align: center;
   padding: 5px;
   font-size: 10px;
+}
+
+.header-card {
+  background-color: var(--header-card) !important;
+  width: {{ container-width  }}; /* W3 */
+  height: 220px; /* H1 */
+  text-align: left !important;
+  overflow: scroll;
+  font-size: 12px !important;
 }
 
 .w3-card-4 {
   border-radius: 20px;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
   transition: 0.3s;
-  width: 230px;
+  width: {{ card-width  }};
+  height: {{ card-height  }};
   /* height: 400px; */
   text-align: left;
+  overflow: scroll;
 }
 
 .w3-card-4:hover {
@@ -57,11 +73,68 @@
 .container {
   padding: 2px 16px;
 }
+
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.4);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* make sure it’s above everything */
+}
+
+.overlay-content {
+  position: relative;
+  background: #9f9f9f;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 80%;
+  max-height: 80%;
+  overflow: auto;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  font-size: 16px;
+}
+
+.overlay-close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #500;
+  cursor: pointer;
+}
+.overlay-close:hover {
+  color: red;
+}
+
+.w3-card-4-overlay {
+  border-radius: 20px;
+  box-shadow: 0 8px 20px 0 rgba(0,0,0,0.4);
+  transition: 0.3s;
+  width: 60vw;
+  height: 75vh;
+  text-align: left;
+  overflow: auto; /* keep scrollable if content is too big */
+}
 </style>
+<title>Dependencies board</title>
 </head>
 <body>
+<script type="text/javascript" src="/fzuistate.js"></script>
 
-<h2>{{ board-header }}</h2>
+<div id="overlay" class="overlay">
+  <div id="overlay-content" class="overlay-content">
+    <span id="overlay-close" class="overlay-close">&times;</span>
+  </div>
+</div>
+
+
+<h3>{{ board-header }}</h3>
 
 <!-- call comment: {{ call-comment }} -->
 
@@ -75,5 +148,44 @@
 
 {{ post-extra }}
 
+<script>
+document.querySelectorAll(".Node1").forEach(node => {
+  let hoverTimer;
+
+  node.addEventListener("mouseenter", function() {
+    hoverTimer = setTimeout(() => {
+      const overlay = document.getElementById("overlay");
+      const overlayContent = document.getElementById("overlay-content");
+
+      // Keep the close button intact
+      const closeBtn = document.getElementById("overlay-close");
+
+      // Clone the node content
+      const clone = node.cloneNode(true);
+      const card = clone.querySelector(".w3-card-4");
+      if (card) {
+        card.classList.remove("w3-card-4");
+        card.classList.add("w3-card-4-overlay");
+      }
+
+      // Clear old content, re-add close button, then add clone
+      overlayContent.innerHTML = "";
+      overlayContent.appendChild(closeBtn);
+      overlayContent.appendChild(clone);
+
+      overlay.style.display = "flex";
+    }, 1000); // 1 sec delay
+  });
+
+  node.addEventListener("mouseleave", function() {
+    clearTimeout(hoverTimer); // only cancels timer, no auto-close
+  });
+});
+
+// Close overlay when ❌ is clicked
+document.getElementById("overlay-close").addEventListener("click", function(e) {
+  document.getElementById("overlay").style.display = "none";
+});
+</script>
 </body>
 </html> 

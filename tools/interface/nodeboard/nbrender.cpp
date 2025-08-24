@@ -776,6 +776,10 @@ bool nodeboard::get_Node_card(const Node * node_ptr, std::string & rendered_card
     nodevars.emplace("node-id", node_ptr->get_id_str());
     nodevars.emplace("node-deps", node_ptr->get_id_str());
     nodevars.emplace("node-text", node_text);
+    nodevars.emplace("nodebg-color", "w3-green");
+    nodevars.emplace("node-color", "w3-light-grey");
+
+    nodevars.emplace("fzserverpq", graph().get_server_full_address());
 
     std::string include_filter_substr;
     if (!filter_substring.empty()) {
@@ -1600,6 +1604,13 @@ bool node_board_render_random_test(nodeboard & nb) {
     return nb.make_simple_grid_board(rendered_cards);
 }
 
+std::string nbdep_column_header_content(const std::string& node_id, const std::string& more_args) {
+    return "<button class=\"tiny_button tiny_green\" onclick=\"window.open('/cgi-bin/fzlink.py?id="+node_id+"', '_blank');\">"+node_id+"</button>"
+           "<button class=\"tiny_button tiny_green\" onclick=\"window.open('/cgi-bin/nodeboard-cgi.py?n="+node_id+more_args+"&G=true', '_blank');\">DEP</button>"
+           "<button class=\"tiny_button tiny_green\" onclick=\"window.open('/cgi-bin/nodeboard-cgi.py?n="+node_id+more_args+"&g=true', '_blank');\">SUP</button>"
+           "<button class=\"tiny_button tiny_green\" onclick=\"window.open('/cgi-bin/fzgraphhtml-cgi.py?edit="+node_id+"', '_blank');\">edit</button>";
+}
+
 bool node_board_render_dependencies(nodeboard & nb) {
     if (!nb.node_ptr) {
         return false;
@@ -1609,13 +1620,17 @@ bool node_board_render_dependencies(nodeboard & nb) {
         return false;
     }
 
+    if (!nb.make_options_pane(nb.board_title_extra)) {
+        nb.board_title_extra = "Warning: Failed to render options pane.<br>";
+    }
+
     if (!nb.board_title_specified) {
         nb.board_title = nb.node_ptr->get_id_str();
         std::string idtext(nb.node_ptr->get_id_str());
         nb.board_title = "<a href=\"/cgi-bin/fzlink.py?id="+idtext+"\">"+idtext+"</a>";
 
         std::string htmltext(nb.node_ptr->get_text().c_str());
-        nb.board_title_extra = remove_html_tags(htmltext).substr(0,nb.excerpt_length);
+        nb.board_title_extra += remove_html_tags(htmltext).substr(0,nb.excerpt_length);
     }
 
     std::string rendered_columns;
@@ -1640,8 +1655,9 @@ bool node_board_render_dependencies(nodeboard & nb) {
                 continue;
             }
 
-            std::string htmltext(dep_ptr->get_text().c_str());
-            std::string tagless(remove_html_tags(htmltext));
+            //std::string htmltext(dep_ptr->get_text().c_str());
+            //std::string tagless(remove_html_tags(htmltext));
+            std::string tagless(dep_ptr->get_text().c_str()); // 20250823
 
             if (!nb.filter_substring.empty()) {
                 std::string excerpt = tagless.substr(0, nb.filter_substring_excerpt_length);
@@ -1650,17 +1666,24 @@ bool node_board_render_dependencies(nodeboard & nb) {
                 }
             }
 
-            std::string idtext(edge_ptr->get_dep_str());
-            std::string column_header_with_link = "<a href=\"/cgi-bin/fzlink.py?id="+idtext+"\">"+idtext+"</a> (<a href=\"/cgi-bin/nodeboard-cgi.py?n="+idtext+include_filter_substr+"\">DEP</a>)";
+            // std::string idtext(edge_ptr->get_dep_str());
+            // std::string column_header_with_link =
+            //     "<a href=\"/cgi-bin/fzlink.py?id=" + idtext+"\">"+idtext+"</a>"
+            //     " (<a href=\"/cgi-bin/nodeboard-cgi.py?n="+idtext+include_filter_substr+"\">DEP</a>)";
 
-            nb.get_dependencies_column(column_header_with_link, edge_ptr->get_dep(), rendered_columns, tagless.substr(0,nb.excerpt_length));
+            nb.get_dependencies_column(
+                nbdep_column_header_content(edge_ptr->get_dep_str(), include_filter_substr),
+                edge_ptr->get_dep(),
+                rendered_columns,
+                tagless); // 20250823, was: tagless.substr(0,nb.excerpt_length));
 
         }
     }
 
     nb.post_extra = nb.with_and_without_inactive_Nodes_buttons();
 
-    return nb.make_multi_column_board(rendered_columns);
+    //return nb.make_multi_column_board(rendered_columns);
+    return nb.make_multi_column_board(rendered_columns, kanban_board_temp, false, nb.grid_column_width, nb.column_container_width, nb.card_width, nb.card_height);
 }
 
 bool node_board_render_named_list(Named_Node_List_ptr namedlist_ptr, nodeboard & nb) {
