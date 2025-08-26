@@ -222,6 +222,7 @@ CGIEXE += $(TOOLSPATH)/interface/fzlogtime/fzlogtime.cgi
 CGIEXE += $(TOOLSPATH)/interface/fzserver-info/fzserver-info-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzuistate/fzuistate.py
 CGIEXE += $(TOOLSPATH)/misc/lists_from_dependencies.py
+CGIEXE += $(TOOLSPATH)/misc/selected_to_nth.py
 CGIEXE += $(TOOLSPATH)/system/daywiz/daywiz.py
 CGIEXE += $(TOOLSPATH)/system/daywiz/metrics.py
 CGIEXE += $(TOOLSPATH)/system/daywiz/score.py

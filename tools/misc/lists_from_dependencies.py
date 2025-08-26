@@ -152,6 +152,7 @@ HTML_HEAD='''<html>
 table, th, td {
   border: 1px solid gray;
   border-collapse: collapse;
+  padding: 15px;
 }
 </style>
 </head>
@@ -162,9 +163,49 @@ table, th, td {
 
 HTML_TAIL='''
 </ul>
+<script>
+// Sends a data argument from a button to a server-side CGI script and reloads the page.
+function sendArgumentToCGI(buttonElement) {
+    const argument = buttonElement.getAttribute('data-argument');
+    const cgiUrl = '/cgi-bin/selected_to_nth.py?data=' + encodeURIComponent(argument);
+    fetch(cgiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text(); // or .json() if your script returns JSON
+        })
+        .then(data => {
+            console.log('Server response:', data);
+            console.log('Reloading page...');
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+            alert('An error occurred. Please check the console for details.');
+        });
+}
+</script>
 </body>
 </html>
 '''
+
+SECTION='''<li>%s <a href="/cgi-bin/fzlink.py?id=%s" target="_blank">%s</a><br>
+<table><tbody>
+%s
+</tbody></table>
+<p>
+'''
+
+LINE='''<tr><td><button onclick="sendArgumentToCGI(this)" data-argument="%s:%s">Associate selected node</button></td><td>%s</td></tr>
+'''
+
+def list_section_to_html(node_id:str, name:str, lines:list)->str:
+    linesstr = ''
+    for i in range(len(lines)):
+        linesstr += LINE % (i, node_id, lines[i])
+    htmlstr = SECTION % (name, node_id, node_id, linesstr)
+    return htmlstr
 
 def to_html(collection:list):
     htmlstr = HTML_HEAD
@@ -174,11 +215,7 @@ def to_html(collection:list):
         else:
             name = ''
             node_id, lines = list_data
-        htmlstr += '<li>%s <a href="/cgi-bin/fzlink.py?id=%s" target="_blank">%s</a><br>\n' % (name, node_id, node_id)
-        htmlstr += '<table><tbody>\n'
-        for line in lines:
-            htmlstr += '<tr><td>%s</td></tr>\n' % line
-        htmlstr += '</tbody></table>\n<p>\n'
+        htmlstr += list_section_to_html(node_id, name, lines)
     htmlstr += HTML_TAIL
     print(htmlstr)
 
