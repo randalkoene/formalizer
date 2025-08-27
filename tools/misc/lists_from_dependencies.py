@@ -167,7 +167,8 @@ HTML_TAIL='''
 // Sends a data argument from a button to a server-side CGI script and reloads the page.
 function sendArgumentToCGI(buttonElement) {
     const argument = buttonElement.getAttribute('data-argument');
-    const cgiUrl = '/cgi-bin/selected_to_nth.py?data=' + encodeURIComponent(argument);
+    const cgiscript = buttonElement.getAttribute('cgi-arg');
+    const cgiUrl = '/cgi-bin/'+cgiscript+'?data=' + encodeURIComponent(argument);
     fetch(cgiUrl)
         .then(response => {
             if (!response.ok) {
@@ -190,20 +191,25 @@ function sendArgumentToCGI(buttonElement) {
 </html>
 '''
 
-SECTION='''<li>%s <a href="/cgi-bin/fzlink.py?id=%s" target="_blank">%s</a><br>
+SECTION='''<li><b>%s</b> <a href="/cgi-bin/fzlink.py?id=%s" target="_blank">%s</a><br>
 <table><tbody>
 %s
 </tbody></table>
 <p>
 '''
 
-LINE='''<tr><td><button onclick="sendArgumentToCGI(this)" data-argument="%s:%s">Associate selected node</button></td><td>%s</td></tr>
+LINE='''<tr>
+<td><button onclick="sendArgumentToCGI(this)" cgi-arg="selected_to_nth.py" data-argument="%s:%s">Associate selected node</button></td>
+<td><button onclick="sendArgumentToCGI(this)" cgi-arg="done_nth.py" data-argument="%s:%s">Done</button></td>
+<td><button onclick="sendArgumentToCGI(this)" cgi-arg="delete_nth.py" data-argument="%s:%s">Delete</button></td>
+<td>%s</td>
+</tr>
 '''
 
 def list_section_to_html(node_id:str, name:str, lines:list)->str:
     linesstr = ''
     for i in range(len(lines)):
-        linesstr += LINE % (i, node_id, lines[i])
+        linesstr += LINE % (i, node_id, i, node_id, i, node_id, lines[i])
     htmlstr = SECTION % (name, node_id, node_id, linesstr)
     return htmlstr
 

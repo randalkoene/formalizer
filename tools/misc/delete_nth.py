@@ -1,11 +1,10 @@
 #!/usr/bin/python3
 #
-# selected_to_nth.py
+# delete_nth.py
 #
-# Randal A. Koene, 20250826
+# Randal A. Koene, 20250827
 #
-# Add a Node reference as per the selected Node to the nth
-# list item under the Randal actions header within a Node.
+# Remove a list item that is no longer relevant.
 
 try:
     import cgitb; cgitb.enable()
@@ -60,11 +59,6 @@ def try_subprocess_check_output(thecmdstring, resstore, config: dict):
             print(res.decode(), flush=True)
         return 0
 
-def chars2str(buf, maxlen:int)->str:
-    if isinstance(buf, str):
-        return buf[:maxlen]
-    return buf.decode()[:maxlen]
-
 # Copied from Graphaccess.py to simplify using this as CGI script.
 def get_node_data(node: str, config:dict=None, running_as_cgi=True):
     if config is None:
@@ -111,29 +105,6 @@ def clean_list(list_data:list):
     for i in range(len(list_data)):
         list_data[i] = list_data[i].strip()
 
-def has_node(line:str)->tuple:
-    closing_pos = line.find(']')
-    if closing_pos < 0:
-        return False, closing_pos
-    line_pre = line[:closing_pos]
-    opening_pos = line_pre.find('[')
-    if opening_pos < 0:
-        return False, closing_pos
-    node_id = line_pre[opening_pos+1:].strip()
-    if len(node_id) != 16:
-        return False, closing_pos
-    if node_id[-2]=='.' and node_id[-1].isdigit() and node_id[:-2].isdigit():
-        return True, closing_pos
-    return False, closing_pos
-
-def change_node(selected:str, list_data:list, idx:int, closing_pos:int):
-    new_line = '[ '+selected+' ]'+list_data[idx][closing_pos+1:]
-    list_data[idx] = new_line
-
-def add_node(selected, list_data, idx):
-    new_line = '[ '+selected+' ] '+list_data[idx]
-    list_data[idx] = new_line
-
 def replace_list_data(header:str, content:str, list_data:list)->str:
     h_pos = content.find(header)
     if h_pos < 0:
@@ -149,6 +120,7 @@ def replace_list_data(header:str, content:str, list_data:list)->str:
     return new_content
 
 textfile = '/var/www/webdata/formalizer/node-text.html'
+logentrytextfile = "/var/www/webdata/formalizer/logentry-text.html"
 
 config= {
         'verbose': False,
@@ -160,42 +132,27 @@ config= {
 
 header = 'Randal action'
 
-thecmd = "./fzgraphhtml -L 'selected' -F node -e -q"
-retcode = 0
-try:
-    retcode = try_subprocess_check_output(thecmd,'selected_node', config)
-    if (retcode == 0):
-        selected = chars2str(results['selected_node'], 16)
-        idx, node_id = data.split(':')
-        idx = int(idx)
-        # Get Node content
-        node_data = get_node_data(node_id)
-        # Get list lines
-        list_data = extract_list_data(header, node_data['node-text'])
-        # Detect node-link at line
-        if idx >= len(list_data):
-            print('Index is beyond list length')
-        else:
-            clean_list(list_data)
-            # Modify or add
-            hasnode, closing_pos = has_node(list_data[idx])
-            if hasnode:
-                change_node(selected, list_data, idx, closing_pos)
-            else:
-                add_node(selected, list_data, idx)
-            new_content = replace_list_data(header, node_data['node-text'], list_data)
-            # Request modification of Node content
-            with open(textfile,'w') as f:
-                f.write(new_content)
-            thecmd = f"./fzedit -q -E STDOUT -M {node_id} -f {textfile}"
-            retcode = try_subprocess_check_output(thecmd,'edit_node', config)
-            # Report
-            if retcode == 0:
-                print('Associated Node %s' % selected)
-            else:
-                print(f'Attempt to edit Node failed.{config["cmderrorreviewstr"]}')
+# 1. Get the node content
+idx, node_id = data.split(':')
+idx = int(idx)
+node_data = get_node_data(node_id)
 
+# 2. Find the nth list line
+list_data = extract_list_data(header, node_data['node-text'])
+if idx >= len(list_data):
+    print('Index is beyond list length')
+else:
+    clean_list(list_data)
+    line_at_idx = list_data[idx]
+
+    # 3. Update node content without that line
+    list_data.pop(idx)
+    new_content = replace_list_data(header, node_data['node-text'], list_data)
+    with open(textfile,'w') as f:
+        f.write(new_content)
+    thecmd = f"./fzedit -q -E STDOUT -M {node_id} -f {textfile}"
+    retcode = try_subprocess_check_output(thecmd,'edit_node', config)
+    if retcode == 0:
+        print('Deleted "%s".' % line_at_idx)
     else:
-        print(f'Attempt to get description of selected Node failed.{config["cmderrorreviewstr"]}')
-except Exception as e:
-    print('Exception: '+str(e))
+        print(f'Attempt to edit Node failed.{config["cmderrorreviewstr"]}')
