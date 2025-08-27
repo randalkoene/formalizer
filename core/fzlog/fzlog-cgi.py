@@ -262,6 +262,7 @@ editentryform_end = f'''"> [<a href="/cgi-bin/logcopytemplates.py" target="_blan
 Replace entry <input type="submit" name="replaceentry" value="Text" /> or <input type="submit" name="replaceentry" value="Text and Node" />.
 </p>
 </form>
+<button onclick="markdown2HTML()">Markdown2HTML</button>
 '''
 
 editentrypagetail_success = '''<hr>
@@ -271,6 +272,34 @@ editentrypagetail_success = '''<hr>
 <script type="text/javascript" src="/delayedpopup.js"></script>
 <script>
 pastePopupLink('docpopupfunc', 'entrytext');
+// Sends content through md2html.
+function markdown2HTML() {
+    const content_ref = document.getElementById("entrytext");
+    const content = content_ref.value;
+    const cgiUrl = '/cgi-bin/md2html-cgi.py';
+    const formData = new URLSearchParams();
+    formData.append('markdown_text', content);
+    fetch(cgiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData,
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text(); // or .json() if your script returns JSON
+    }).then(data => {
+        content_ref.value = data;
+        // console.log('Server response:', data);
+        // console.log('Reloading page...');
+        // window.location.reload();
+    }).catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+        alert('An error occurred. Please check the console for details.');
+    });
+}
 </script>
 </body>
 </html>
