@@ -50,6 +50,8 @@ DAYREVIEW_SUMMARY = '''<html>
 <body>
 <script type="text/javascript" src="/fzuistate.js"></script>
 
+%s
+
 <h1>DayReview Summary</h1>
 
 <p>
@@ -151,6 +153,11 @@ def process_dayreview(form:cgi.FieldStorage, cgi_keys:list)->dict:
     review_date=form.getvalue('date')
     review_wakeup=form.getvalue('wakeup')
     review_gosleep=form.getvalue('gosleep')
+    verbose=form.getvalue('verbose')
+
+    verbose_calculations=''
+    if verbose:
+        verbose_calculations += '<pre>\nVerbose calculations:\n'
 
     chunks = []
     for key_str in cgi_keys:
@@ -164,6 +171,11 @@ def process_dayreview(form:cgi.FieldStorage, cgi_keys:list)->dict:
         chunkhours = float(seconds) / 3600.0
         chunkdata.append( (chunkhours, category_to_char[category]) )
 
+    if verbose:
+        verbose_calculations += 'chunkdata = \n'
+        for data in chunkdata:
+            verbose_calculations += '  %s\n' % str(data)
+
     date_object = datetime.strptime(review_date, '%Y%m%d').date()
 
     startmin = int(review_wakeup[-2:])
@@ -175,10 +187,18 @@ def process_dayreview(form:cgi.FieldStorage, cgi_keys:list)->dict:
     if endhr < 12:
         endhr = endhr + 24
 
+    if verbose:
+        verbose_calculations += '\nstart: %s:%s, end: %s:%s\n' % (str(starthr), str(startmin), str(endhr), str(endmin))
+
     starthours = float(starthr) + (float(startmin)/60.0)
     endhours = float(endhr) + (float(endmin)/60.0)
 
     wakinghours = endhours - starthours
+
+    if verbose:
+        verbose_calculations += 'starthours  = %s\n' % str(starthours)
+        verbose_calculations += 'endhours    = %s\n' % str(endhours)
+        verbose_calculations += 'wakinghours = %s\n' % str(wakinghours)
 
     review_algo = dayreview_algorithm(wakinghours, chunkdata, btf_days, review_date)
 
@@ -192,9 +212,13 @@ def process_dayreview(form:cgi.FieldStorage, cgi_keys:list)->dict:
 
     hours_summary = review_algo.get_hours_summary()
 
-    return wakinghours, summary_table_dict, score_table_dict, review_algo, review_wakeup, review_gosleep
+    if verbose:
+        verbose_calculations += '</pre>\n'
+
+    return verbose_calculations, wakinghours, summary_table_dict, score_table_dict, review_algo, review_wakeup, review_gosleep
 
 def generate_summary_page(
+    verbose_calculations:str,
     wakinghours:float,
     summary_table_dict:dict,
     score_table_dict:dict,
@@ -216,6 +240,7 @@ def generate_summary_page(
         metrictag_error_html = '<p><b>Metrictag error: %s</b></p>' % extra_metrics_dict['error']
 
     print(DAYREVIEW_SUMMARY % (
+            verbose_calculations,
             review_algo.btf_days,
             review_algo.focus,
             wakinghours,
@@ -230,6 +255,6 @@ def generate_summary_page(
 
 extra_metrics_dict = process_metrictags()
 
-wakinghours, summary_table_dict, score_table_dict, review_algo, review_wakeup, review_gosleep = process_dayreview(form, cgi_keys)
+verbose_calculations, wakinghours, summary_table_dict, score_table_dict, review_algo, review_wakeup, review_gosleep = process_dayreview(form, cgi_keys)
 
-generate_summary_page(wakinghours, summary_table_dict, score_table_dict, review_algo, review_wakeup, review_gosleep, extra_metrics_dict)
+generate_summary_page(verbose_calculations, wakinghours, summary_table_dict, score_table_dict, review_algo, review_wakeup, review_gosleep, extra_metrics_dict)
