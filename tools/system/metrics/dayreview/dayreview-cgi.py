@@ -193,6 +193,10 @@ def process_dayreview(form:cgi.FieldStorage, cgi_keys:list)->dict:
     starthours = float(starthr) + (float(startmin)/60.0)
     endhours = float(endhr) + (float(endmin)/60.0)
 
+    if starthours > endhours:
+        # I started the new waking day before 00:00.
+        starthours -= 24.0
+
     wakinghours = endhours - starthours
 
     if verbose:
