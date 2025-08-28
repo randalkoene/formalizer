@@ -10,9 +10,9 @@ try:
     import cgitb; cgitb.enable()
 except:
     pass
-import sys, cgi, os
+import sys, cgi, os, stat
 sys.stderr = sys.stdout
-#import traceback
+import traceback
 #from io import StringIO
 #from traceback import print_exc
 import subprocess
@@ -120,7 +120,7 @@ def replace_list_data(header:str, content:str, list_data:list)->str:
     return new_content
 
 textfile = '/var/www/webdata/formalizer/node-text.html'
-logentrytextfile = "/var/www/webdata/formalizer/logentry-text.html"
+donetextfile = "/var/www/webdata/formalizer/done-text.html"
 
 config= {
         'verbose': False,
@@ -147,21 +147,30 @@ else:
 
     # 3. Make a Log entry containing that line content
     try:
-        os.remove(logentrytextfile)
+        os.remove(donetextfile)
     except OSError:
+        #print('Remove failed')
         pass
+
+    donecontent = header+' done: '+line_at_idx
     try:
         # making sure the files are group writable
-        with open(os.open(logentrytextfile, os.O_CREAT | os.O_WRONLY, 0o664),"w") as f:
+        with open(os.open(donetextfile, os.O_CREAT | os.O_WRONLY, 0o664),"w") as f:
             f.write(header+' done: '+line_at_idx)
-        os.chmod(logentrytextfile,stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH )
-    except:
-        print('Failed to cache Log entry for %s.' line_at_idx)
+        os.chmod(donetextfile,stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH )
+    except Exception as e:
+        traceback.print_exc(file=sys.stdout)
+        print('Failed to cache Log entry for %s.' % line_at_idx)
         sys.exit(0)
-    thecmd = f"./fzlog -e -E STDOUT -d formalizer -s randalk -f {logentrytextfile}"
-    retcode = try_subprocess_check_output(thecmd,'make_log_entry', config)
-    if retcode != 0:
-        print('Failed to create Log entry for %s.' line_at_idx)
+    try:
+        thecmd = f"./fzlog -e -E STDOUT -d formalizer -s randalk -n {node_id} -f {donetextfile}"
+        retcode = 0
+        retcode = try_subprocess_check_output(thecmd, 'make_log_entry', config)
+        if retcode != 0:
+            print('Failed to create Log entry for %s.' % line_at_idx)
+            sys.exit(0)
+    except Exception as e:
+        print('Failed to create Log entry for %s: %s' % (line_at_idx, str(e)))
         sys.exit(0)
 
     # 4. Update node content without that line
@@ -170,7 +179,7 @@ else:
     with open(textfile,'w') as f:
         f.write(new_content)
     thecmd = f"./fzedit -q -E STDOUT -M {node_id} -f {textfile}"
-    retcode = try_subprocess_check_output(thecmd,'edit_node', config)
+    retcode = try_subprocess_check_output(thecmd, 'edit_node', config)
     if retcode == 0:
         print('Moved "%s" to Log entry.' % line_at_idx)
     else:
