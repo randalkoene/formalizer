@@ -101,7 +101,7 @@ search_recreate_str += append_to_str('nnltree')
 search_recreate_str += append_to_str('btf')
 search_recreate_str += append_to_str('btf_nnl')
 search_recreate_str += append_to_str('excerpt_size')
-search_recreate_str += append_to_str('excerpt_counting_by')
+search_recreate_str += append_to_str('countby')
 if search_recreate_str[-1] == '&':
     search_recreate_str = search_recreate_str[:-1]
 
@@ -263,7 +263,7 @@ def Graph_search(searchstr: str, listname: str) -> bool:
     if excerpt_size:
         searchcmd += f' -X {excerpt_size}'
         if countby:
-            searchmd += f':{countby}'
+            searchcmd += f':{countby}'
 
     if verbose:
         searchcmd += ' -V'

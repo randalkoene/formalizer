@@ -125,6 +125,10 @@
         "Active Repeated" : {
             "url" : "/cgi-bin/fzgraphsearch-cgi.py?completion_lower=0&completion_upper=0.99&repeats=true",
             "window" : "_blank"
+        },
+        "Oldest Active Non-repeated" : {
+            "url" : "/cgi-bin/fzgraphsearch-cgi.py?completion_lower=0&completion_upper=0.99&repeats=false&excerpt_size=50&countby=oldest",
+            "window" : "_blank"
         }
     },
     "Log Condition: " : {

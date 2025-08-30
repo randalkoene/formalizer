@@ -426,7 +426,11 @@ int find_nodes() {
     }
 
     // find subset of Nodes
-    targetdate_sorted_Nodes matched_nodes = Nodes_subset(fzgs.graph(), fzgs.nodefilter, fzgs.excerpt_size, fzgs.excerpt_counting_by == newest);
+    targetdate_sorted_Nodes matched_nodes = Nodes_subset(
+        fzgs.graph(),
+        fzgs.nodefilter,
+        (fzgs.excerpt_counting_by == oldest) || (fzgs.excerpt_counting_by == newest) ? fzgs.excerpt_size : 0,
+        fzgs.excerpt_counting_by == newest);
 
     size_t total_found = matched_nodes.size();
     if (total_found < 1) {
