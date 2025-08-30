@@ -66,6 +66,9 @@ nnltree = form.getvalue('nnltree')
 btf = form.getvalue('btf')
 btf_nnl = form.getvalue('btf_nnl')
 
+excerpt_size = form.getvalue('excerpt_size')
+countby = form.getvalue('countby')
+
 draggable = form.getvalue('draggable')
 
 def append_to_str(strval: str) -> str:
@@ -97,6 +100,8 @@ search_recreate_str += append_to_str('subtree')
 search_recreate_str += append_to_str('nnltree')
 search_recreate_str += append_to_str('btf')
 search_recreate_str += append_to_str('btf_nnl')
+search_recreate_str += append_to_str('excerpt_size')
+search_recreate_str += append_to_str('excerpt_counting_by')
 if search_recreate_str[-1] == '&':
     search_recreate_str = search_recreate_str[:-1]
 
@@ -254,6 +259,11 @@ def Graph_search(searchstr: str, listname: str) -> bool:
         searchcmd += f' -F {btf}'
     if btf_nnl:
         searchcmd += f' -f {btf_nnl}'
+
+    if excerpt_size:
+        searchcmd += f' -X {excerpt_size}'
+        if countby:
+            searchmd += f':{countby}'
 
     if verbose:
         searchcmd += ' -V'

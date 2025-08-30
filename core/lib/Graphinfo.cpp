@@ -4,6 +4,7 @@
 //#define USE_COMPILEDPING
 
 // std
+#include <ranges>
 
 // core
 #include "error.hpp"
@@ -536,9 +537,10 @@ void check_prerequisites_provided_by_dependencies(const Node & node, std::vector
  * 
  * @param graph A valid Graph data structure.
  * @param nodefilter A specified Node_Filter.
+ * @param excerpt size limit, 0 means unlimited.
  * @return A map of pointers to nodes by effective targetdate that match the filter specifications.
  */
-targetdate_sorted_Nodes Nodes_subset(Graph & graph, const Node_Filter & nodefilter) {
+targetdate_sorted_Nodes Nodes_subset(Graph & graph, const Node_Filter & nodefilter, size_t excerpt_size, bool newest_first) {
     targetdate_sorted_Nodes nodes;
     if (nodefilter.filtermask.None()) {
         return nodes;
@@ -550,83 +552,83 @@ targetdate_sorted_Nodes Nodes_subset(Graph & graph, const Node_Filter & nodefilt
         std::transform (uppersearchtext.begin(), uppersearchtext.end(), uppersearchtext.begin(), ::toupper);
     }
 
-    for (const auto & [nkey, node_ptr] : graph.get_nodes()) {
-
+    // Lambda function to apply filter tests.
+    auto apply_filters = [&] (auto node_ptr) {
         if (nodefilter.filtermask.Edit_text()) {
             if (!nodefilter.case_sensitive) {
                 std::string uppertext(node_ptr->get_text().c_str());
                 std::transform (uppertext.begin(), uppertext.end(), uppertext.begin(), ::toupper);
                 if (uppertext.find(uppersearchtext) == std::string::npos) {
-                    continue;
+                    return false;
                 }
             } else {
                 if (node_ptr->get_text().find(nodefilter.lowerbound.utf8_text.c_str()) == Node_utf8_text::npos) {
-                    continue;
+                    return false;
                 }
             }
         }
         if (nodefilter.filtermask.Edit_completion()) {
             if ((node_ptr->get_completion() < nodefilter.lowerbound.completion) || (node_ptr->get_completion() > nodefilter.upperbound.completion)) {
-                continue;
+                return false;
             }
         }
         if (nodefilter.filtermask.Edit_required()) {
             if ((node_ptr->get_required_hours() < nodefilter.lowerbound.hours) || (node_ptr->get_required_hours() > nodefilter.upperbound.hours)) {
-                continue;
+                return false;
             }
         }
         if (nodefilter.filtermask.Edit_targetdate()) {
             if (nodefilter.has_invalid_targetdate) {
-                if (node_ptr->get_targetdate() >= 0) continue;
+                if (node_ptr->get_targetdate() >= 0) return false;
             } else {
                 if (nodefilter.lowerbound.targetdate != RTt_unspecified) {
-                    if (node_ptr->get_targetdate() < nodefilter.lowerbound.targetdate) continue;
+                    if (node_ptr->get_targetdate() < nodefilter.lowerbound.targetdate) return false;
                 }
                 if (nodefilter.upperbound.targetdate != RTt_unspecified) {
-                    if (node_ptr->get_targetdate() > nodefilter.upperbound.targetdate) continue;
+                    if (node_ptr->get_targetdate() > nodefilter.upperbound.targetdate) return false;
                 }
             }
         }
         if (nodefilter.filtermask.Edit_tdproperty()) {
             if ((node_ptr->get_tdproperty() != nodefilter.lowerbound.tdproperty) && (node_ptr->get_tdproperty() != nodefilter.upperbound.tdproperty)) {
-                continue;
+                return false;
             }
         }
         if (nodefilter.filtermask.Edit_tdpropbinpat()) {
             if (!nodefilter.tdpropbinpattern.in_pattern(node_ptr->get_tdproperty())) {
-                continue;
+                return false;
             }
         }
         if (nodefilter.filtermask.Edit_repeats()) {
             if ((node_ptr->get_repeats() != nodefilter.lowerbound.repeats) && (node_ptr->get_repeats() != nodefilter.upperbound.repeats)) {
-                continue;
+                return false;
             }
         }
         if (nodefilter.filtermask.Edit_tdpattern()) {
             if ((node_ptr->get_tdpattern() != nodefilter.lowerbound.tdpattern) && (node_ptr->get_tdpattern() != nodefilter.upperbound.tdpattern)) {
-                continue;
+                return false;
             }
         }
         if (nodefilter.filtermask.Edit_tcreated()) {
             if ((nodefilter.t_created_lowerbound > RTt_unspecified) && (node_ptr->t_created() < nodefilter.t_created_lowerbound)) {
-                continue;
+                return false;
             }
             if ((nodefilter.t_created_upperbound > RTt_unspecified) && (node_ptr->t_created() > nodefilter.t_created_upperbound)) {
-                continue;
+                return false;
             }            
         }
         if (nodefilter.filtermask.Edit_supspecmatch()) { // Check superior specification matches
             if (nodefilter.has_no_superiors) {
                 if (node_ptr->num_superiors() > 0) {
-                    continue;
+                    return false;
                 }
             } else {
                 if (nodefilter.at_least_n_superiors > node_ptr->num_superiors()) {
-                    continue;
+                    return false;
                 }
                 if (nodefilter.self_is_superior) {
                     if (!node_ptr->has_sup(node_ptr->get_id_str())) {
-                        continue;
+                        return false;
                     }
                 }
             }
@@ -635,21 +637,46 @@ targetdate_sorted_Nodes Nodes_subset(Graph & graph, const Node_Filter & nodefilt
             if (nodefilter.subtree_uptr) {
                 Subtree_Branch_Map& subtreemap = *(nodefilter.subtree_uptr.get());
                 if (subtreemap.find(node_ptr->get_id().key())==subtreemap.end()) {
-                    continue;
+                    return false;
                 }
             }
         }
         if (nodefilter.filtermask.Edit_nnltreematch()) {
             if (nodefilter.nnltree_uptr) {
                 if (!nodefilter.nnltree_uptr->node_in_any_subtree(node_ptr->get_id().key())) {
-                    continue;
+                    return false;
                 }
             }
         }
-        // matched all filter requirements
-        nodes.emplace(node_ptr->effective_targetdate(), node_ptr.get());
+        return true;
+    };
 
+    if (newest_first) {
+        for (const auto & [nkey, node_ptr] : graph.get_nodes() | std::views::reverse) {
+
+            if (apply_filters(node_ptr)) {
+                // matched all filter requirements
+                nodes.emplace(node_ptr->effective_targetdate(), node_ptr.get());
+                if ((excerpt_size != 0) && (nodes.size() >= excerpt_size)) {
+                    break;
+                }
+            }
+
+        }
+    } else {
+        for (const auto & [nkey, node_ptr] : graph.get_nodes()) {
+
+            if (apply_filters(node_ptr)) {
+                // matched all filter requirements
+                nodes.emplace(node_ptr->effective_targetdate(), node_ptr.get());
+                if ((excerpt_size != 0) && (nodes.size() >= excerpt_size)) {
+                    break;
+                }
+            }
+
+        }
     }
+
     return nodes;
 }
 

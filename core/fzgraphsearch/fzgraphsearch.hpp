@@ -14,6 +14,8 @@
 // core
 #include "config.hpp"
 #include "standard.hpp"
+#include "Graphinfo.hpp"
+#include "Graphmodify.hpp"
 // #include "Graphaccess.hpp"
 
 using namespace fz;
@@ -22,6 +24,14 @@ enum flow_options {
     flow_unknown = 0, /// no recognized request
     flow_find_nodes = 1,     /// request: find Nodes that match the filter
     flow_NUMoptions
+};
+
+enum excerpt_options: int {
+    oldest = 0,         /// N oldest matching Nodes
+    newest = 1,         /// N newest matching Nodes
+    nearest = 2,        /// N matching Nodes with nearest target dates
+    furthest = 3,       /// N matching Nodes with furthest target dates
+    NUMexcerpt_options
 };
 
 
@@ -46,6 +56,12 @@ struct fzgraphsearch: public formalizer_standard_program {
     std::string listname;
     Boolean_Tag_Flags::boolean_flag btf = Boolean_Tag_Flags::none;
     std::string btf_nnl;
+    size_t excerpt_size = 0; // 0 means N is unlimited
+    excerpt_options excerpt_counting_by = oldest;
+
+    Map_of_Subtrees map_of_subtrees;
+    Graph_modifications * graphmod_ptr = nullptr;
+    size_t matched_count = 0;
 
     Graph_ptr graph_ptr = nullptr;
 
@@ -60,6 +76,10 @@ struct fzgraphsearch: public formalizer_standard_program {
     bool get_subtree(const std::string & cargs);
 
     bool get_nnltree(const std::string & cargs);
+
+    bool get_excerpt_specs(const std::string & cargs);
+
+    void conditional_result_add(const Node* match_ptr);
 
     virtual bool options_hook(char c, std::string cargs);
 

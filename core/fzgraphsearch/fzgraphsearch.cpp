@@ -14,6 +14,8 @@
 // std
 #include <iostream>
 #include <algorithm>
+#include <map>
+#include <ranges>
 
 // core
 #include "error.hpp"
@@ -39,10 +41,12 @@ fzgraphsearch fzgs;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzgraphsearch::fzgraphsearch() : formalizer_standard_program(false), config(*this) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "s:l:i:I:zc:C:m:M:t:T:rRp:P:b:d:D:S:B:N:F:f:";
+    add_option_args += "s:l:i:I:zc:C:m:M:t:T:rRp:P:b:d:D:S:B:N:F:f:X:";
     add_usage_top += " [-s <search-string>] [-z] [-i <date-time>] [-I <date-time>] [-c <comp_min>] [-C <comp_max>] [-m <mins_min>]"
                      " [-M <mins_max>] [-t <TD_min>] [-T <TD_max>] [-p <tdprop_1>] [-P <tdprop_2>] [-b <tdprop-list>] [-r|-R]"
-                     " [-d <tdpatt_1>] [-D <tdpatt_2>] [-S <sup-spec>] [-B <top-node>] [-N <listname>] [-F <BTF-category>] [-f <BTF-NNL>] -l <list-name>";
+                     " [-d <tdpatt_1>] [-D <tdpatt_2>] [-S <sup-spec>] [-B <top-node>] [-N <listname>] [-F <BTF-category>] [-f <BTF-NNL>]"
+                     " [-X <N[:order]]"
+                     " -l <list-name>";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("Target date property options are: unspecified, variable, inherit, fixed, exact.\n"
                          "Repeat pattern options are: nonrepeating, weekly, biweekly, monthly,\n"
@@ -79,6 +83,8 @@ void fzgraphsearch::usage_hook() {
           "    -N Nodes in the subtree map of NNL <listname>.\n"
           "    -F Nodes belonging to <BTF-category>, requires -f.\n"
           "    -f NNL to use for BTF mapping.\n"
+          "    -X Return N counted by order: oldest (default), newest, nearest,\n"
+          "       furthest\n"
           );
 }
 
@@ -152,6 +158,26 @@ bool fzgraphsearch::get_nnltree(const std::string & cargs) {
         return standard_error("Unable to collect map of subtrees for NNL: "+cargs, __func__);
     }
     nodefilter.filtermask.set_Edit_nnltreematch();
+    return true;
+}
+
+const std::map<std::string, excerpt_options> str2excerptoption = {
+    { "oldest", oldest },
+    { "newest", newest },
+    { "nearest", nearest },
+    { "furthest", furthest },
+};
+
+bool fzgraphsearch::get_excerpt_specs(const std::string& cargs) {
+    excerpt_size = std::atoi(cargs.c_str());
+    auto colon_pos = cargs.find(':');
+    if (colon_pos == std::string::npos) return true;
+    std::string order_str = cargs.substr(colon_pos+1);
+    auto it = str2excerptoption.find(order_str);
+    if (it == str2excerptoption.end()) {
+        return standard_error("Unrecognized order specifier: "+order_str, __func__);
+    }
+    excerpt_counting_by = it->second;
     return true;
 }
 
@@ -317,6 +343,10 @@ bool fzgraphsearch::options_hook(char c, std::string cargs) {
         return true;
     }
 
+    case 'X': {
+        return get_excerpt_specs(cargs);
+    }
+
     }
 
     return false;
@@ -354,6 +384,24 @@ Graph & fzgraphsearch::graph() {
     return *graph_ptr;
 }
 
+// Add to results list if additional conditions are met.
+void fzgraphsearch::conditional_result_add(const Node* match_ptr) {
+    if (btf != Boolean_Tag_Flags::none) {
+        Boolean_Tag_Flags::boolean_flag boolean_tag;
+        if (!map_of_subtrees.node_in_heads_or_any_subtree(match_ptr->get_id().key(), boolean_tag, true)) { // This uses get_PriorityCategory() on Node or Subtree header.
+            boolean_tag = Boolean_Tag_Flags::none;
+        }
+        if (boolean_tag != btf) return;
+    }
+
+    Named_Node_List_Element * listelement_ptr = graphmod_ptr->request_Named_Node_List_Element(namedlist_add, listname, match_ptr->get_id().key());
+    if (!listelement_ptr)
+        standard_exit_error(exit_general_error, "Unable to create new Named Node List Element in shared segment ("+graphmemman.get_active_name()+')', __func__);
+
+    matched_count++;
+    VERYVERBOSEOUT("\nAdding Node "+match_ptr->get_id_str()+" to Named Node List "+listname);
+}
+
 int find_nodes() {
     ERRTRACE;
     if (fzgs.listname.empty()) {
@@ -365,21 +413,20 @@ int find_nodes() {
     VERYVERBOSEOUT("Node filter:\n"+fzgs.nodefilter.str());
 
     // Possible BTF filter
-    Map_of_Subtrees map_of_subtrees;
     if (fzgs.btf != Boolean_Tag_Flags::none) {
         if (fzgs.btf_nnl.empty()) {
             VERBOSEOUT("Missing list name to use for Boolean Tag Flag categorized mapping.\n");
             return standard_exit_success(""); // We need verbose output, not very verbose.
         }
-        map_of_subtrees.collect(fzgs.graph(), fzgs.btf_nnl);
-        if (!map_of_subtrees.has_subtrees) {
+        fzgs.map_of_subtrees.collect(fzgs.graph(), fzgs.btf_nnl);
+        if (!fzgs.map_of_subtrees.has_subtrees) {
             VERBOSEOUT("No subtrees of "+fzgs.btf_nnl+" to use for Boolean Tag Flag categorized mapping.\n");
             return standard_exit_success(""); // We need verbose output, not very verbose.
         }
     }
 
     // find subset of Nodes
-    targetdate_sorted_Nodes matched_nodes = Nodes_subset(fzgs.graph(), fzgs.nodefilter);
+    targetdate_sorted_Nodes matched_nodes = Nodes_subset(fzgs.graph(), fzgs.nodefilter, fzgs.excerpt_size, fzgs.excerpt_counting_by == newest);
 
     size_t total_found = matched_nodes.size();
     if (total_found < 1) {
@@ -391,26 +438,27 @@ int find_nodes() {
     unsigned long segsize = 1024+(sizeof(Named_Node_List_Element)+sizeof(Graphmod_result))*2*total_found;
     // Determine a unique segment name to share with `fzserverpq`
     std::string segname(unique_name_Graphmod());
-    Graph_modifications * graphmod_ptr = allocate_Graph_modifications_in_shared_memory(segname, segsize);
-    if (!graphmod_ptr)
+    fzgs.graphmod_ptr = allocate_Graph_modifications_in_shared_memory(segname, segsize);
+    if (!fzgs.graphmod_ptr)
         standard_exit_error(exit_general_error, "Unable to create shared segment for modifications requests (name="+segname+", size="+std::to_string(segsize)+')', __func__);
 
     VERYVERBOSEOUT(graphmemman.info_str());
-    for (const auto & [t_match, match_ptr] : matched_nodes) {
+    if (fzgs.excerpt_counting_by != furthest) {
+        for (const auto & [t_match, match_ptr] : matched_nodes) {
+            fzgs.conditional_result_add(match_ptr);
 
-        if (fzgs.btf != Boolean_Tag_Flags::none) {
-            Boolean_Tag_Flags::boolean_flag boolean_tag;
-            if (!map_of_subtrees.node_in_heads_or_any_subtree(match_ptr->get_id().key(), boolean_tag, true)) { // This uses get_PriorityCategory() on Node or Subtree header.
-                boolean_tag = Boolean_Tag_Flags::none;
+            if ((fzgs.excerpt_size != 0) && (fzgs.excerpt_counting_by == nearest) && (fzgs.matched_count >= fzgs.excerpt_size)) {
+                break;
             }
-            if (boolean_tag != fzgs.btf) continue;
         }
+    } else {
+        for (const auto & [t_match, match_ptr] : matched_nodes | std::views::reverse) {
+            fzgs.conditional_result_add(match_ptr);
 
-        Named_Node_List_Element * listelement_ptr = graphmod_ptr->request_Named_Node_List_Element(namedlist_add, fzgs.listname, match_ptr->get_id().key());
-        if (!listelement_ptr)
-            standard_exit_error(exit_general_error, "Unable to create new Named Node List Element in shared segment ("+graphmemman.get_active_name()+')', __func__);
-
-        VERYVERBOSEOUT("\nAdding Node "+match_ptr->get_id_str()+" to Named Node List "+fzgs.listname);
+            if ((fzgs.excerpt_size != 0) && (fzgs.excerpt_counting_by == furthest) && (fzgs.matched_count >= fzgs.excerpt_size)) {
+                break;
+            }
+        }
     }
     VERYVERBOSEOUT("\n\n");
 

@@ -200,9 +200,10 @@ struct Node_Filter {
  * 
  * @param graph A valid Graph data structure.
  * @param nodefilter A specified Node_Filter.
+ * @param excerpt size limit, 0 means unlimited.
  * @return A map of pointers to nodes by effective targetdate that match the filter specifications.
  */
-targetdate_sorted_Nodes Nodes_subset(Graph & graph, const Node_Filter & nodefilter);
+targetdate_sorted_Nodes Nodes_subset(Graph & graph, const Node_Filter & nodefilter, size_t excerpt_size = 0, bool newest_first = false);
 
 /**
  * Selects all Nodes that are incomplete and lists them by (inherited)
