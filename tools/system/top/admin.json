@@ -121,6 +121,10 @@
         "Lost and Found" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20200820215834.1&G=true&T=true",
             "window" : "_blank"
+        },
+        "Active Repeated" : {
+            "url" : "/cgi-bin/fzgraphsearch-cgi.py?completion_lower=0&completion_upper=0.99&repeats=true",
+            "window" : "_blank"
         }
     },
     "Log Condition: " : {
