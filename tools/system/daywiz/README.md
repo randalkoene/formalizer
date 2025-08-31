@@ -37,7 +37,7 @@ expected. Missing data is therefore handled gracefully.
 
 When the data structure is updated in `daywiz.py` the new data structure will be used
 and stored when new data is saved. Hence, old data formats will load without causing
-and error and new formats are adopted smoothly. (See `get_day_data()`,
+an error and new formats are adopted smoothly. (See `get_day_data()`,
 `get_wiz_data()` and `daypage_wiztable.merge_data()` in `daywiz.py`.)
 
 Therefore, to update the Wiztable data structure, just update `wiztable.py`.
