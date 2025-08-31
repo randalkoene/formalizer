@@ -17,54 +17,76 @@ from io import StringIO
 from traceback import print_exc
 from subprocess import Popen, PIPE
 
-# cgitb.enable()
-# cgitb.disable()
-# cgitb.enable(display=0, logdir="/tmp/test_python_cgiformget.log")
-
 # Create instance of FieldStorage 
-#form = cgi.FieldStorage() 
+form = cgi.FieldStorage() 
 
-# Get data from fields
-#startfrom = form.getvalue('startfrom')
+action = form.getvalue('action')
+if not action:
+    action = 'graphinfo'
 
 print("Content-type:text/html\n\n")
 
-#thisscript = os.path.realpath(__file__)
-#print(f'(For dev reference, this script is at {thisscript}.)')
+def try_command_call(thecmd:str)->tuple:
+    try:
+        p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
+        (child_stdin,child_stdout) = (p.stdin, p.stdout)
+        child_stdin.close()
+        result = child_stdout.read()
+        child_stdout.close()
+        return True, result
 
-#cmdoptions = ""
+    except Exception as ex:                
+        print(ex)
+        f = StringIO()
+        print_exc(file=f)
+        a = f.getvalue().splitlines()
+        for line in a:
+            print(line)
+        return False, ''
 
-#if startfrom:
-#    cmdoptions += ' -1 '+startfrom
+def show_graph_info():
+    thecmd = "./fzserver-info -q -G -F html -E STDOUT"
+    success, result = try_command_call(thecmd)
+    if success:
+        print(result)
 
-#if cmdoptions:
+BALANCE='''<html>
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="/favicon-nodes-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
 
-thecmd = "./fzserver-info -q -G -F html -E STDOUT"
-#print('Using this command: ',thecmd)
-#print('<br>\n')
+<title>fz: Nodes Balance</title>
+</head>
+<body>
+<script type="text/javascript" src="/fzuistate.js"></script>
 
-try:
-    p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
-    (child_stdin,child_stdout) = (p.stdin, p.stdout)
-    child_stdin.close()
-    result = child_stdout.read()
-    child_stdout.close()
-    print(result)
-    #print(result.replace('\n', '<BR>'))
+<h3>fz: Nodes Balance</h3>
 
-except Exception as ex:                
-    print(ex)
-    f = StringIO()
-    print_exc(file=f)
-    a = f.getvalue().splitlines()
-    for line in a:
-        print(line)
+<table><tbody>
+<tr><td>Open Nodes</td><td>%s</td></tr>
+<tr><td>Completed Nodes</td><td>%s</td></tr>
+</tbody></table>
 
-#if "name" not in form or "addr" not in form:
-#    print("<H1>Error</H1>")
-#    print("Please fill in the name and addr fields.")
-#    return
+<hr>
 
-#print("</table>")
-#print("</body>")
-#print("</html>")
+<p>[<a href="/index.html">fz: Top</a>]</p>
+
+</body>
+</html>
+'''
+
+def show_nodes_balance():
+    thecmd = "./fzserver-info -q -B -E STDOUT"
+    success, result = try_command_call(thecmd)
+    if success:
+        balance = result.split(' ')
+        print(BALANCE % tuple(balance))
+
+if __name__ == '__main__':
+
+    if action == 'nodesbalance':
+        show_nodes_balance()
+    else:
+        show_graph_info()

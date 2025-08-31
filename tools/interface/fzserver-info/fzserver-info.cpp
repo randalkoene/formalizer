@@ -41,8 +41,8 @@ fzserver_info fzsi;
  * For `add_usage_top`, add command line option usage format specifiers.
  */
 fzserver_info::fzserver_info() : formalizer_standard_program(false), config(*this), output_format(output_txt) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "GPMo:F:";
-    add_usage_top += " [-G] [-P] [-M] [-o <info-output-path>] [-F txt|html|json|csv|raw]";
+    add_option_args += "GPMBo:F:";
+    add_usage_top += " [-G|-P|-M|-B] [-o <info-output-path>] [-F txt|html|json|csv|raw]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back("The <info-output-path> STDOUT sends to standard out and is the default.\n");
 }
@@ -56,6 +56,7 @@ void fzserver_info::usage_hook() {
     FZOUT("    -G Get Graph server status.\n"
           "    -P Ping the server.\n"
           "    -M POSIX named shared memory blocks.\n"
+          "    -B Nodes balance open and closed.\n"
           "    -o Send info output to <info-output-path>.\n"
           "    -F specify output format for Graph server status\n"
           "       available formats:\n"
@@ -119,6 +120,11 @@ bool fzserver_info::options_hook(char c, std::string cargs) {
 
     case 'M': {
         flowcontrol = flow_shared_memory;
+        return true;
+    }
+
+    case 'B': {
+        flowcontrol = flow_nodes_balance;
         return true;
     }
 
@@ -288,6 +294,20 @@ int shared_memory_blocks() {
     return standard.completed_ok(); 
 }
 
+int nodes_balance() {
+    ERRTRACE;
+
+    auto nodes_stats = Nodes_statistics(fzsi.graph());
+
+    std::string rendered_str = std::to_string(nodes_stats.num_open)+' '+std::to_string(nodes_stats.num_completed)+'\n';
+
+    if (!output_response(rendered_str)) {
+        return standard_exit_error(exit_file_error, "Unable to deliver nodes balance info.", __func__);
+    }
+
+    return standard.completed_ok();
+}
+
 int main(int argc, char *argv[]) {
     ERRTRACE;
 
@@ -305,6 +325,10 @@ int main(int argc, char *argv[]) {
 
     case flow_shared_memory: {
         return shared_memory_blocks();
+    }
+
+    case flow_nodes_balance: {
+        return nodes_balance();
     }
 
     default: {

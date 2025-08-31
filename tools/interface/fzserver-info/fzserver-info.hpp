@@ -32,6 +32,7 @@ enum flow_options {
     flow_graph_server = 1,  /// request: graph server status
     flow_ping_server = 2,   /// request: ping the server
     flow_shared_memory = 3, /// request: POSIX named shared memory blocks
+    flow_nodes_balance = 4, /// request: Nodes open and closed
     flow_NUMoptions
 };
 
