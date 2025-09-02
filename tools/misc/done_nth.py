@@ -133,7 +133,11 @@ config= {
 header = 'Randal action'
 
 # 1. Get the node content
-idx, node_id = data.split(':')
+data_list = data.split(':')
+if len(data_list) == 2:
+    idx, node_id = data_list
+else:
+    idx, node_id, header = data_list
 idx = int(idx)
 node_data = get_node_data(node_id)
 

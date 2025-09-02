@@ -17,8 +17,25 @@ import traceback
 from io import StringIO
 from traceback import print_exc
 import subprocess
+import argparse
 
-running_as_cgi = 'GATEWAY_INTERFACE' in os.environ
+parser = argparse.ArgumentParser(description='Collect lists below a specified string from dependencies of node.')
+parser.add_argument('-n', dest='node', type=str, help='Node for which to search dependencies')
+parser.add_argument('-s', dest='header', type=str, help='String above list')
+parser.add_argument('-d', dest='depth', type=int, default=1, help='Depth number of dependency levels to parse.')
+parser.add_argument('-tagopen', type=str, help='Optional opening tag string for identifiers to collect')
+parser.add_argument('-tagclose', type=str, help='Optional closing tag string for identifiers to collect')
+parser.add_argument('-F', dest='outformat', type=str, help='Output format: json (default), html')
+parser.add_argument('-nocgi', dest='nocgi', action="store_true", help='force command line mode')
+parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='turn on verbose mode')
+args = parser.parse_args()
+
+use_cgi_path = False
+if args.nocgi:
+    running_as_cgi = False
+    use_cgi_path = 'GATEWAY_INTERFACE' in os.environ
+else:
+    running_as_cgi = 'GATEWAY_INTERFACE' in os.environ
 
 TEST_HTML='''<html>
 <head>
@@ -81,7 +98,7 @@ def get_node_data(node: str, config:dict=None):
             'logcmderrors': False,
             'cmderrlog': '',
         }
-    if running_as_cgi:
+    if running_as_cgi or use_cgi_path:
         thecmd = f'./fzgraphhtml -n {node} -o STDOUT -F json -e -q'
     else:
         thecmd = f'fzgraphhtml -n {node} -o STDOUT -F json -e -q'
@@ -255,7 +272,7 @@ def process_as_cgi():
         print('Error: Invalid Node data returned: '+str(e))
         sys.exit(1)
     if not data:
-        print('Error: Failed to retrieve Node data.')
+        print(f'Error: Failed to retrieve data for Node [{node}].')
         sys.exit(1)
 
     collection = []
@@ -264,17 +281,6 @@ def process_as_cgi():
     to_html(collection)
 
 def process_as_cmdline():
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Collect lists below a specified string from dependencies of node.')
-    parser.add_argument('-n', dest='node', type=str, help='Node for which to search dependencies')
-    parser.add_argument('-s', dest='header', type=str, help='String above list')
-    parser.add_argument('-d', dest='depth', type=int, default=1, help='Depth number of dependency levels to parse.')
-    parser.add_argument('-tagopen', type=str, help='Optional opening tag string for identifiers to collect')
-    parser.add_argument('-tagclose', type=str, help='Optional closing tag string for identifiers to collect')
-    parser.add_argument('-F', dest='outformat', type=str, help='Output format: json (default), html')
-    parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='turn on verbose mode')
-    args = parser.parse_args()
 
     if not args.node:
         print('Error: No node specified.')
@@ -294,7 +300,7 @@ def process_as_cmdline():
         print('Error: Invalid Node data returned: '+str(e))
         sys.exit(1)
     if not data:
-        print('Error: Failed to retrieve Node data.')
+        print(f'Error: Failed to retrieve data for Node [{args.node}].')
         sys.exit(1)
 
     collection = []
