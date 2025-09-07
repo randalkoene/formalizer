@@ -166,7 +166,11 @@ try:
     retcode = try_subprocess_check_output(thecmd,'selected_node', config)
     if (retcode == 0):
         selected = chars2str(results['selected_node'], 16)
-        idx, node_id = data.split(':')
+        data_list = data.split(':')
+        if len(data_list) == 2:
+            idx, node_id = data_list
+        else:
+            idx, node_id, header = data_list
         idx = int(idx)
         # Get Node content
         node_data = get_node_data(node_id)
