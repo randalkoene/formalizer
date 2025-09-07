@@ -268,6 +268,68 @@ td.paramtitle {
 COPYTOCLIPBOARDENTRY='''<td><button class="button2" onclick="copyInnerHTMLToClipboard('%s');">copy</button> <span id="%s">%s</span></td>
 '''
 
+TOGGLE_KEYWORDS_JS = '''
+<script>
+function toggleKeyword(keyword) {
+    const textarea = document.getElementById('text');
+    if (!textarea) return;
+    
+    let content = textarea.value;
+    const keywordPattern = new RegExp('@' + keyword + '@\\\\s*', 'g');
+    
+    if (content.includes('@' + keyword + '@')) {
+        // Remove the keyword
+        content = content.replace(keywordPattern, '');
+    } else {
+        // Add the keyword at the end
+        content += '@' + keyword + '@';
+    }
+    
+    textarea.value = content;
+    textarea.focus();
+}
+
+// Create buttons for the special keywords
+document.addEventListener('DOMContentLoaded', function() {
+    const keywords = ['TZADJUST', 'WORK', 'SELFWORK', 'PREREQS', 'PROVIDES'];
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.margin = '10px 0';
+    
+    keywords.forEach(keyword => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = '@' + keyword + '@';
+        button.onclick = () => toggleKeyword(keyword);
+        button.style.margin = '0 2px 2px 0';
+        button.className = 'button2';//'keyword-toggle-btn';
+        buttonContainer.appendChild(button);
+    });
+    
+    // Try to find the textarea and insert buttons above it
+    const textarea = document.getElementById('text');
+    if (textarea && textarea.parentNode) {
+        textarea.parentNode.insertBefore(buttonContainer, textarea);
+    }
+    
+    // Add some basic styling
+    const style = document.createElement('style');
+    style.textContent = `
+        .keyword-toggle-btn {
+            padding: 2px 4px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .keyword-toggle-btn:hover {
+            background-color: #e0e0e0;
+        }
+    `;
+    document.head.appendChild(style);
+});
+</script>
+'''
+
 editpagetail = '''</tbody></table>
 <div id="after_cptplt"></div>
 <div id="templates_html" style="display:none;">
@@ -279,6 +341,7 @@ editpagetail = '''</tbody></table>
 <script>const htmltemplates = new htmlTemplates('after_cptplt', 'cptplt', 'templates', 'templates_html');</script>
 <script type="text/javascript" src="/copiedalert.js"></script>
 <script type="text/javascript" src="/copyinnerhtml.js"></script>
+''' + TOGGLE_KEYWORDS_JS + '''
 <hr>
 <script>
 function edge_update(event) {

@@ -392,6 +392,10 @@
             "url" : "http://{{ fzserverpq }}/doc/html/lists.html",
             "window" : "_blank"
         },
+        "Tips" : {
+            "url" : "/formalizer/tips.html",
+            "window" : "_blank"
+        },
         "C++ / C" : {
             "url" : "https://trello.com/b/BIRsdsnE",
             "window" : "_blank"

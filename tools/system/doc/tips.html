@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<HTML>
+
+<HEAD>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<link rel="stylesheet" href="/accordion.css">
+
+<TITLE>Tips</TITLE>
+</HEAD>
+<BODY>
+<script type="text/javascript" src="/fzuistate.js"></script>
+
+<H1>Tips</H1>
+
+<div class="accordion">
+
+<button class="button button1 accordion-header">
+Question 1: How do I convert Google Slides to a set of thumbnail images?
+</button>
+<div class="accordion-content">
+<p>
+<ol>
+	<li>Download the presentation as PDF.</li>
+	<li>Move the PDF to a new folder to keep related things in one place.</li>
+	<li>In that folder, use `thumbpdf` to create the thumbnail images. See example below and notes.</li>
+</ol>
+</p>
+<p>
+	Example:<br>
+	<pre>
+		thumbpdf --nomakepdf onboarding-slides.pdf
+	</pre>
+</p>
+<p>
+	Notes:
+	<ul>
+		<li>Without `--nomakepdf` the thumbnails are placed into a new PDF and the image files are deleted.</li>
+		<li>You may need to rename the PDF, because `thumbpdf` is pretty finicky about file names.</li>
+		<li>The thumbnails may be too small at the default resolution (9 == 90 pixels wide). For example, try `--resolution 32` (320px wide) or `--resolution 64` (640px wide).</li>
+	</ul>
+</p>
+</div>
+
+<button class="button button1 accordion-header">
+Question 2: (Add tip here)?
+</button>
+<div class="accordion-content">
+<p>(Add content here).</p>
+</div>
+
+<button class="button button1 accordion-header">
+Question 3: (Add tip here)?
+</button>
+<div class="accordion-content">
+<p>(Add content here).</p>
+</div>
+
+</div>
+
+<script type="text/javascript" src="/accordion.js"></script>
+
+<hr>
+
+<p>[<a href="/index.html">fz: Top</a>]</p>
+
+</BODY>
+
+</HTML>

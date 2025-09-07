@@ -1,0 +1,43 @@
+/* General styling for the accordion */
+.accordion {
+    max-width: 80vw;
+    margin: 20px auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden; /* Important for the collapsing animation */
+}
+
+/* Style the question button */
+/* Note: Simplified this and hover to instead inherit parts from fz.css button classes. */
+.accordion-header {
+    /*background-color: #f1f1f1;
+    color: #444;
+    cursor: pointer;*/
+    padding: 18px;
+    width: 100%;
+    text-align: left;
+    /*border: none;
+    outline: none;
+    transition: background-color 0.3s ease;
+    font-size: 16px;*/
+    font-weight: bold;
+}
+
+/* Add a hover effect to the question button */
+/*.accordion-header:hover {
+    background-color: #ddd;
+}*/
+
+/* Style the content area */
+.accordion-content {
+    /*background-color: #fff;*/
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out; /* Smooth transition for opening/closing */
+    padding: 0 18px; /* Initial padding is 0 */
+}
+
+/* Style the paragraph inside the content */
+.accordion-content p {
+    padding: 10px 0;
+}
