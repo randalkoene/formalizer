@@ -5,7 +5,7 @@
     "request_log": "/var/www/html/formalizer/formalizer.core.server.requests.log",
     "predefined_CGIbg": "fzbackup-mirror-to-github.sh&fztimezone&dayreview-plot.py",
     "persistent_NNL": "true",
-    "timezone_offset_hours": "9",
+    "timezone_offset_hours": "0",
     "batchmode_constraints_active": "true",
     "T_suspiciously_large": "4102473600"
 }
