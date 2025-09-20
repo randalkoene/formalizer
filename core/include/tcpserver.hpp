@@ -21,7 +21,9 @@ namespace fz {
 
 struct shared_memory_server {
     bool listen;
-    shared_memory_server() : listen(true) {}
+    bool handles_close; // Set this to true for multi-threaded handling of a queue of requests where the handler is responsible for closing each comms socket.
+    shared_memory_server(bool _handles_close = false) : listen(true), handles_close(_handles_close) {}
+    virtual std::string identify() const = 0;
     virtual void handle_request_with_data_share(int new_socket, const std::string & segment_name) = 0;
     virtual void handle_special_purpose_request(int new_socket, const std::string & request_str) = 0;
 };

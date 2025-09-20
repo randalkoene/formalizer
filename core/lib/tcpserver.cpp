@@ -7,7 +7,7 @@
 #include <stdlib.h> 
 //#include <string.h> 
 #include <sys/socket.h> 
-#include <unistd.h> 
+#include <unistd.h> // This provides socket close() and such.
 #include <arpa/inet.h>
 #include <cstring>
 #include <map>
@@ -181,6 +181,11 @@ bool find_server_address(std::string & ipaddr_str) {
  *       errors may not do so, although they will typically still log the error on the
  *       server side.
  * 
+ * Note: This function can work with server objects that handle one request at a time
+ *       and leave socket closing to this function, as well as multi-threaded FIFO queue
+ *       server objects that accept multiple requests concurrently and take care of
+ *       socket closing in the handler.
+ * 
  * @param port_number The port number to listen on.
  * @param server A shared_memory_server derived server object to handle requests with data share.
  * @return Server listen outcome, expressed in exit codes (exit_ok, exit_general_error, etc).
@@ -191,6 +196,8 @@ exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server
     struct sockaddr_in address;
     char str[str_SIZE];
     int addrlen = sizeof(address);
+
+    VERYVERBOSEOUT("Socket listening is using: "+server.identify());
   
     // Creating socket file descriptor 
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
@@ -263,7 +270,9 @@ exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server
 
         if ((request_str.substr(0,4) == "GET ") || (request_str.substr(0,6) == "PATCH ") || (request_str.substr(0,3) == "FZ ")) { // a special purpose request from a browser interface
             server.handle_special_purpose_request(new_socket, request_str);
-            close(new_socket);
+            if (!server.handles_close) {
+                close(new_socket);
+            }
             continue;
         }
 
@@ -289,7 +298,9 @@ exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server
         // If it was not (one of) the specific requests handled above then it specifies the
         // segment name for a request stack in shared memory.
         server.handle_request_with_data_share(new_socket, request_str);
-        close(new_socket);
+        if (!server.handles_close) {
+            close(new_socket);
+        }
 
     }
 

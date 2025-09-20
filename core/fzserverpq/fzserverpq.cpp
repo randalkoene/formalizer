@@ -17,6 +17,7 @@
 #include <iostream>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <unistd.h> // provides socket close() and such
 
 // core
 #include "error.hpp"
@@ -34,10 +35,20 @@
 #include "shm_server_handlers.hpp"
 #include "tcp_server_handlers.hpp"
 
+#ifdef USE_MULTI_THREADING
+    #include <thread>
+    #include <chrono>
+#endif
+
 using namespace fz;
 
 /// The local class derived from `formalizer_standard_program`.
-fzserverpq fzs;
+#ifdef USE_MULTI_THREADING
+    queing_fzserverpq fzs;
+    std::mutex queueMutex; // The mutex to protect special_FIFO and shm_FIFO.
+#else
+    fzserverpq fzs;
+#endif
 
 static const char usage_tail_str_A[] = R"UTAIL(
 The limited number of command line options are generally used only to start
@@ -225,12 +236,71 @@ std::string print_www_file_roots() {
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  */
-fzserverpq::fzserverpq() : formalizer_standard_program(false), config(*this), ga(*this, add_option_args, add_usage_top, true),
-                           flowcontrol(flow_unknown), graph_ptr(nullptr), ReqQ(config.reqqfilepath) {
+fzserverpq::fzserverpq(bool handles_close):
+    formalizer_standard_program(false), shared_memory_server(handles_close), config(*this),
+    ga(*this, add_option_args, add_usage_top, true),
+    flowcontrol(flow_unknown), graph_ptr(nullptr), ReqQ(config.reqqfilepath) {
+
     add_option_args += "Gp:L:";
     add_usage_top += " [-G] [-p <port-number>] [-L <request-log>]";
     usage_tail.push_back(usage_tail_str_A); // root path mapping cannot be inserted here, because config is parsed later
 }
+
+#ifdef USE_MULTI_THREADING
+
+/**
+ * The multi-threaded queing server needs to take responsibility for closing the
+ * comms socket after each corresponding queued request is handled.
+ */
+queing_fzserverpq::queing_fzserverpq(): fzserverpq(true) {
+}
+
+/**
+ * This is run regularly within a separate thread.
+ */
+void queing_fzserverpq::handle_queued_request() {
+    if (!special_FIFO.empty()) {
+        fzs_request safe_copy;
+        {
+            std::lock_guard<std::mutex> lock(queueMutex); // thread-safety for pushing to special_FIFO and shm_FIFO
+            safe_copy.comms_socket = special_FIFO.front().comms_socket;
+            safe_copy.req = special_FIFO.front().req;
+        }
+        fzserverpq::handle_special_purpose_request(safe_copy.comms_socket, safe_copy.req);
+        close(safe_copy.comms_socket);
+        {
+            std::lock_guard<std::mutex> lock(queueMutex); // thread-safety for pushing to special_FIFO and shm_FIFO
+            special_FIFO.pop();
+        }
+    } else if (!shm_FIFO.empty()) {
+        fzs_request safe_copy;
+        {
+            std::lock_guard<std::mutex> lock(queueMutex); // thread-safety for pushing to special_FIFO and shm_FIFO
+            safe_copy.comms_socket = shm_FIFO.front().comms_socket;
+            safe_copy.req = shm_FIFO.front().req;
+        }
+        fzserverpq::handle_request_with_data_share(safe_copy.comms_socket, safe_copy.req);
+        close(safe_copy.comms_socket);
+        {
+            std::lock_guard<std::mutex> lock(queueMutex); // thread-safety for pushing to special_FIFO and shm_FIFO
+            shm_FIFO.pop();
+        }
+    }
+}
+
+constexpr unsigned int reqs_interval_ms = 50;
+
+void queue_handling_thread_func(queing_fzserverpq* fzs_ptr) {
+    while (fzs_ptr->listen) {
+        fzs_ptr->handle_queued_request();
+        std::this_thread::sleep_for(std::chrono::milliseconds(reqs_interval_ms));
+    }
+
+    // In case this exits for some reason when the listening thread is still active
+    fzs_ptr->listen = false;
+}
+
+#endif // USE_MULTI_THREADING
 
 Graph & fzserverpq::graph() {
     if (graph_ptr) return *graph_ptr;
@@ -415,13 +485,22 @@ void load_Graph_and_stay_resident() {
         RETURN_AFTER_UNLOCKING;
     }
 
+    #ifdef USE_MULTI_THREADING
+        // Launch a query stack and thread
+        std::thread queue_handling_thread(queue_handling_thread_func, &fzs);
+    #endif
+
+    // Keep this thread listening to input on specified port until STOP is received
     server_socket_listen(fzs.config.port_number, fzs);
+
+    queue_handling_thread.join();
 
     RETURN_AFTER_UNLOCKING;
 }
 
 int main(int argc, char *argv[]) {
     ERRTRACE;
+
     fzs.init_top(argc, argv);
 
     switch (fzs.flowcontrol) {

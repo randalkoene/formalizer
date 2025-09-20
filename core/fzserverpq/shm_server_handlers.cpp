@@ -368,6 +368,7 @@ void fzserverpq::handle_request_with_data_share(int new_socket, const std::strin
     ERRTRACE;
 
     VERYVERBOSEOUT("Received Graph request with data share "+segment_name+".\n");
+    FZOUT("Received Graph request with data share "+segment_name+".\n");
     log("SHM", "Graph request received");
     if (handle_request_stack(segment_name)) {
         // send back results
@@ -384,3 +385,19 @@ void fzserverpq::handle_request_with_data_share(int new_socket, const std::strin
     }
     graphmemman.forget_manager(segment_name); // remove shared memory references that likely become stale when client is done
 }
+
+#ifdef USE_MULTI_THREADING
+
+void queing_fzserverpq::handle_request_with_data_share(int new_socket, const std::string & segment_name) {
+    ERRTRACE;
+
+    std::lock_guard<std::mutex> lock(queueMutex); // thread-safety for pushing to special_FIFO and shm_FIFO
+    VERYVERBOSEOUT("Adding shm request to queue.\n");
+    FZOUT("Adding shm request to queue.\n");
+    shm_FIFO.emplace(new_socket, segment_name);
+    if (special_FIFO.size() > 10) {
+        ADDWARNING(__func__, "Shm requests queue size > 10");
+    }
+}
+
+#endif // USE_MULTI_THREADING

@@ -11,6 +11,14 @@
 #include "version.hpp"
 #define __FZSERVERPQ_HPP (__VERSION_HPP)
 
+#define USE_MULTI_THREADING
+
+#ifdef USE_MULTI_THREADING
+    // std
+    #include <queue>
+    #include <mutex>
+#endif
+
 // core
 #include "config.hpp"
 #include "standard.hpp"
@@ -69,7 +77,7 @@ struct fzserverpq: public formalizer_standard_program, public shared_memory_serv
 
     std::string ipaddrstr; // After load_Graph_and_stay_resident() is called this contains both the IP address and Port number, e.g. "127.0.0.0:8090".
 
-    fzserverpq();
+    fzserverpq(bool handles_close = false);
 
     Graph & graph();
 
@@ -79,6 +87,8 @@ struct fzserverpq: public formalizer_standard_program, public shared_memory_serv
 
     void init_top(int argc, char *argv[]);
 
+    virtual std::string identify() const { return "Using single-threaded immediate requests.\n"; }
+
     virtual void handle_request_with_data_share(int new_socket, const std::string & segment_name); // see shm_server_handlers.cpp
 
     virtual void handle_special_purpose_request(int new_socket, const std::string & request_str); // see tcp_server_handlers.cpp
@@ -87,6 +97,40 @@ struct fzserverpq: public formalizer_standard_program, public shared_memory_serv
 
 };
 
-extern fzserverpq fzs;
+#ifdef USE_MULTI_THREADING
+
+// Information needed to handle a request.
+struct fzs_request {
+    int comms_socket; // Open socket used with the requesting client.
+    std::string req;  // Cached request string.
+};
+
+/**
+ * Requests received are placed into a FIFO queue for handling by a separate thread.
+ * 
+ * Note: At present, there is no method in place to deal with queues growing excessively.
+ */
+struct queing_fzserverpq: public fzserverpq {
+
+    std::queue<fzs_request> special_FIFO;
+    std::queue<fzs_request> shm_FIFO;
+
+    queing_fzserverpq();
+
+    virtual std::string identify() const { return "Using multi-threaded request queue.\n"; }
+
+    void handle_queued_request();
+
+    virtual void handle_request_with_data_share(int new_socket, const std::string & segment_name); // see shm_server_handlers.cpp
+
+    virtual void handle_special_purpose_request(int new_socket, const std::string & request_str); // see tcp_server_handlers.cpp
+
+};
+
+    extern queing_fzserverpq fzs;
+    extern std::mutex queueMutex; // The mutex to protect special_FIFO and shm_FIFO.
+#else
+    extern fzserverpq fzs;
+#endif // USE_MULTI_THREADING
 
 #endif // __FZSERVERPQ_HPP
