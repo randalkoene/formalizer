@@ -44,6 +44,8 @@ TEST=./test
 POSTGRESINC = /usr/include/postgresql
 POSTGRESLIB = -L/usr/lib/x86_64-linux-gnu -lpq
 
+UUID_REQS = -luuid
+
 # To find the Boost libraries
 # See the note on POSIX systems in Building Boost.Interprocess at https://www.boost.org/doc/libs/1_38_0/doc/html/interprocess.html#interprocess.intro.introduction_building_interprocess.
 BOOSTINTERPROCESSLIB_REQS = -lrt -lpthread
@@ -56,6 +58,7 @@ INCLUDES += -I$(POSTGRESINC)
 INCLUDES += -I$(LOCALINC)
 LIB_PATH = $(POSTGRESLIB)
 LIB_PATH += $(LOCALLIB)
+LIB_PATH += $(UUID_REQS)
 # +----- begin: Essential include and library paths for this program -----+
 
 # +----- begin: In case not included from CPATH -----+

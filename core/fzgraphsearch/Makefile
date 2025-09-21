@@ -49,12 +49,15 @@ BOOSTINTERPROCESSLIB_REQS = -lrt -lpthread
 LOCALINC = $(HOME)/local/include
 LOCALLIB = $(BOOSTINTERPROCESSLIB_REQS)
 
+UUID_REQS = -luuid
+
 # +----- begin: Essential include and library paths for this program -----+
 INCLUDES := -I$(CPATH) -I$(COREINCLUDEPATH)
 INCLUDES += -I$(POSTGRESINC)
 INCLUDES += -I$(LOCALINC)
 LIB_PATH = $(POSTGRESLIB)
 LIB_PATH += $(LOCALLIB)
+LIB_PATH += $(UUID_REQS)
 # +----- begin: Essential include and library paths for this program -----+
 
 # +----- begin: In case not included from CPATH -----+

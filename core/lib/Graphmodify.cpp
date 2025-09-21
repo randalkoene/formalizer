@@ -3,6 +3,8 @@
 
 // std
 #include <cmath>
+#include <random>
+#include <uuid/uuid.h>
 
 // core
 #include "error.hpp"
@@ -10,9 +12,7 @@
 #include "Graphinfo.hpp"
 #include "Graphmodify.hpp"
 
-
 namespace fz {
-
 
 Graphmod_error::Graphmod_error(exit_status_code ecode, std::string msg) : exit_code(ecode) {
     safecpy(msg, message, 256);
@@ -164,8 +164,12 @@ std::string Graphmod_unshared_results::info_str() {
 }
 
 std::string unique_name_Graphmod() {
-//VERYVERBOSEOUT("Check shared memory timestamp: "+TimeStamp("%Y%m%d%H%M%S",ActualTime())+"\n");
-    return TimeStamp("%Y%m%d%H%M%S",ActualTime());
+    uuid_t uuid;
+    char uuid_str[37]; // 36 chars + null terminator
+    uuid_generate_random(uuid);
+    uuid_unparse_lower(uuid, uuid_str);
+    return uuid_str;
+    // was: return TimeStamp("%Y%m%d%H%M%S",ActualTime());
 }
 
 /**

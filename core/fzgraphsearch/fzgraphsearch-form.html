@@ -12,13 +12,16 @@
     
 <h1>FZ: Search Graph</h1>
 
+<p>
+<button class="button button1" onclick="window.open('/cgi-bin/fzgraphsearch-cgi.py?today=on','_blank');">Nodes created today</button>
+</p>
+
 <form action="/cgi-bin/fzgraphsearch-cgi.py" method="post">
 <p>
 Verbose: <input type="checkbox" name="verbose">
 </p>
 <p>
 Search Node descriptions for this string: <input type="text" name="searchstring" size="50"> Case sensitive: <input type="checkbox" name="case_sensitive" checked>
-<button class="button button1" onclick="window.open('/cgi-bin/fzgraphsearch-cgi.py?today=on','_blank');">Nodes created today</button>
 </p>
 <p>
 Nodes created from (YYYYmmdd) <input type="text" name="t_created_from"> through (YYYYmmdd) <input type="text" name="t_created_through">.

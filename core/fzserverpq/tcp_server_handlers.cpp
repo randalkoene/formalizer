@@ -2292,7 +2292,6 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
     ERRTRACE;
 
     VERYVERBOSEOUT("Received Special Purpose request "+request_str+".\n");
-    FZOUT("Received Special Purpose request "+request_str+".\n");
     log("TCP","Received: "+request_str);
     auto requestvec = split(request_str,' ');
     if (requestvec.size()<2) {
@@ -2345,7 +2344,6 @@ void queing_fzserverpq::handle_special_purpose_request(int new_socket, const std
 
     std::lock_guard<std::mutex> lock(queueMutex); // thread-safety for pushing to special_FIFO and shm_FIFO
     VERYVERBOSEOUT("Adding special request to queue.\n");
-    FZOUT("Adding special request to queue.\n");
     special_FIFO.emplace(new_socket, request_str);
     if (special_FIFO.size() > 10) {
         ADDWARNING(__func__, "Special requests queue size > 10");
