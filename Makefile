@@ -58,6 +58,7 @@ EXECUTABLES =
 EXECUTABLES += $(COREPATH)/fzbackup/fzbackup.py
 EXECUTABLES += $(COREPATH)/fzbackup/fzbackup-mirror-to-github.sh
 EXECUTABLES += $(COREPATH)/fzbackup/fzbackup-from-web-cgi.py
+EXECUTABLES += $(COREPATH)/fzbackup/backup-environment.py
 EXECUTABLES += $(COREPATH)/fzedit/fzedit
 EXECUTABLES += $(COREPATH)/fzgraph/fzgraph
 EXECUTABLES += $(COREPATH)/fzgraphsearch/fzgraphsearch
