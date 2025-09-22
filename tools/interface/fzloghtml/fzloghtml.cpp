@@ -50,8 +50,11 @@ fzloghtml fzlh;
  */
 fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
                          iscale(interval_none), interval(0), noframe(false), recent_format(most_recent_html) {
-    add_option_args += "e:n:g:l:1:2:a:o:D:H:w:Nc:rRf:x:ACijtF:T:IS:B:";
-    add_usage_top += " [-e <log-stamp>] [-n <node-ID>] [-g <topic>] [-l <list-name>] [-I] [-1 <time-stamp-1>] [-2 <time-stamp-2>] [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R] [-f <search-text>] [-x <regex-pattern>|FILE:<file-path>] [-A] [-C] [-B <BTF-flag>] [-i] [-j] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>] [-S <selections-processor>]";
+    add_option_args += "e:n:g:l:1:2:a:o:D:H:w:Nc:rRf:x:ACi:jtF:T:IS:B:";
+    add_usage_top += " [-e <log-stamp>] [-n <node-ID>] [-g <topic>] [-l <list-name>] [-I] [-1 <time-stamp-1>] [-2 <time-stamp-2>]"
+                     " [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R]"
+                     " [-f <search-text>] [-x <regex-pattern>|FILE:<file-path>] [-A] [-C] [-B <BTF-flag>] [-i <date-stamp>]"
+                     " [-j] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>] [-S <selections-processor>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
     usage_tail.push_back(
         "Notes:\n"
@@ -109,7 +112,7 @@ void fzloghtml::usage_hook() {
           "    -A All search terms must be in a Log chunk\n"
           "    -C Case insensitive search\n"
           "    -B Filter by BTF flag\n"
-          "    -i Interpret for day review\n"
+          "    -i Interpret for day review of day <date-stamp>\n"
           "    -j Interpret current day for review\n"
           "    -t Show total time applied\n"
           "    -S Add Log chunk selection boxes for post-processing via\n"
@@ -204,6 +207,9 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
     }
 
     case '1': {
+        if (flowcontrol == flow_dayreview) {
+            return true; // ignore other interval specifications
+        }
         time_t t = ymd_stamp_time(cargs);
         if (t==RTt_invalid_time_stamp) {
             VERBOSEERR("Invalid 'from' time or date stamp "+cargs+'\n');
@@ -215,6 +221,9 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
     }
 
     case '2': {
+        if (flowcontrol == flow_dayreview) {
+            return true; // ignore other interval specifications
+        }
         time_t t = ymd_stamp_time(cargs);
         if (t==RTt_invalid_time_stamp) {
             VERBOSEERR("Invalid 'before' time or date stamp "+cargs+'\n');
@@ -226,6 +235,9 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
     }
 
     case 'a': {
+        if (flowcontrol == flow_dayreview) {
+            return true; // ignore other interval specifications
+        }
         time_t t = ymd_stamp_time(cargs);
         if (t==RTt_invalid_time_stamp) {
             VERBOSEERR("Invalid 'around' time or date stamp "+cargs+'\n');
@@ -308,6 +320,14 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
 
     case 'i': {
         flowcontrol = flow_dayreview;
+        time_t t = ymd_stamp_time(cargs, false, true); // ignore time of day
+        if (t==RTt_invalid_time_stamp) {
+            VERBOSEERR("Invalid 'dayreview' time or date stamp "+cargs+'\n');
+            break;
+        } else {
+            filter.t_from = t - (24*60*60);
+            filter.t_to = t + (2*24*60*60);
+        }
         return true;
     }
 

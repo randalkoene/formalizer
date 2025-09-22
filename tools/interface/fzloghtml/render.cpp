@@ -1010,6 +1010,7 @@ bool render_Log_review() {
         time_t t_chunkopen = chunkptr->get_open_time();
         if (t_chunkclose >= t_chunkopen) { // Only work with completed chunks.
 
+            VERYVERBOSEOUT("Evaluating chunk "+TimeStampYmdHM(t_chunkopen)+"-->"+TimeStampYmdHM(t_chunkclose)+'\n');
             Node_ID_key node_id = chunkptr->get_NodeID().key();
             Node_ptr node_ptr = fzlh.get_Graph_ptr()->Node_by_id(node_id);
             if (!node_ptr) {
@@ -1019,6 +1020,7 @@ bool render_Log_review() {
                 Boolean_Tag_Flags boolean_tag;
                 if (sleepNNL_ptr->contains(node_id)) {
                     if (node_id != nap_id) { // Does this chunk belong to a sleep Node?
+                        VERYVERBOSEOUT("  == sleep\n");
                         // The following test is a safety in case of multiple sleep Nodes in close proximity.
                         // Notes 20250822:
                         // - If there are two instances of sleep close together with the same sleep Node (same night)
@@ -1043,6 +1045,7 @@ bool render_Log_review() {
                             //FZOUT("DEBUG --> t_wakeup = "+TimeStampYmdHM(data.t_wakeup)+'\n');
                             //FZOUT("DEBUG --> t_candidate_wakeup = "+TimeStampYmdHM(data.t_candidate_wakeup)+'\n');
                             data.t_gosleep = t_chunkopen;
+                            VERYVERBOSEOUT("  wakeup="+TimeStampYmdHM(data.t_wakeup)+", gosleep="+TimeStampYmdHM(data.t_gosleep)+'\n');
                         }
                     } else { // Chunk is a nap.
                         data.elements.emplace_back(t_chunkopen, t_chunkclose - t_chunkopen, boolean_tag, node_ptr, node_ptr->get_text(), chunkptr->get_combined_entries_text(), true);
@@ -1085,6 +1088,10 @@ bool render_Log_review() {
                             }
                         }
                     }
+                }
+
+                if (data.t_candidate_wakeup >= (fzlh.filter.t_from + (2*24*60*60))) {
+                    break; // Do not continue through the next day.
                 }
             }
         }

@@ -71,6 +71,8 @@ caseinsensitive = form.getvalue('caseinsensitive')
 btf = form.getvalue('btf')
 review = form.getvalue('review')
 review_date = form.getvalue('reviewdate')
+if not review_date:
+    review_date = datetime.now().strftime("%Y%m%d")
 regen_index = form.getvalue('index')
 selectchunks = form.getvalue('selectchunks')
 
@@ -518,12 +520,8 @@ def render_Log_review():
     if review=='today':
         review_arg = '-j'
     else:
-        review_arg = '-i -D 2'
-    if review_date:
-        date_specific = '-a %s' % review_date
-    else:
-        date_specific = ''
-    thecmd = f"./fzloghtml -q -d formalizer -s randalk {date_specific} {review_arg} -F html -o STDOUT -E STDOUT"
+        review_arg = '-i %s' % review_date
+    thecmd = f"./fzloghtml -q -d formalizer -s randalk {review_arg} -F html -o STDOUT -E STDOUT"
     try:
         p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
         (child_stdin,child_stdout) = (p.stdin, p.stdout)
