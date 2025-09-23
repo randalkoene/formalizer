@@ -2,4 +2,5 @@
 *.pyc
 *.bak
 __pycache__
-
+token.pickle
+token.json

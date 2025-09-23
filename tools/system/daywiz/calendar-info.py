@@ -11,6 +11,7 @@ import os
 import datetime
 import os.path
 import pathlib
+import json
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -68,7 +69,7 @@ def main():
                 calendarId="primary",
                 timeMin=now,
                 timeMax=next_week,
-                maxResults=10,
+                maxResults=20,
                 singleEvents=True,
                 orderBy="startTime",
             )
@@ -82,6 +83,8 @@ def main():
 
         # Print the events
         print("Upcoming events for the next 7 days:")
+        print("-" * 30)
+        data = []
         for event in events:
             start = event["start"].get("dateTime", event["start"].get("date"))
             end = event["end"].get("dateTime", event["end"].get("date"))
@@ -90,12 +93,15 @@ def main():
             summary = event.get("summary", "No Title")
             location = event.get("location", "No Location")
             
-            print("-" * 30)
-            print(f"Event: {summary}")
-            print(f"Location: {location}")
-            print(f"Starts: {start}")
-            print(f"Ends:   {end}")
-            print("-" * 30)
+            entry = {}
+            entry['event'] = summary
+            entry['location'] = location
+            entry['start'] = start
+            entry['end'] = end
+
+            data.append(entry)
+
+        print(json.dumps(data))
 
     except HttpError as error:
         print(f"An error occurred: {error}")

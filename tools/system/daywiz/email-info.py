@@ -87,7 +87,7 @@ def main():
         # Get the estimated total number of results
         count = results.get("resultSizeEstimate", 0)
 
-        print(f"You have {count} unread emails.")
+        print(f"Unread emails: {count}")
         
     except HttpError as error:
         print(f"An error occurred: {error}")
