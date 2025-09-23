@@ -45,15 +45,15 @@ fzloghtml fzlh;
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
  * For `add_usage_top`, add command line option usage format specifiers.
  * 
- * Command line arguments used: 12ABCDEFHNQRTVWacdefghijlnoqrstvwx
- * Command line arguments still available: 03456789GIJKLMOPUXYZbkmpuyz
+ * Command line arguments used: 12ABCDEFHNQRTVWacdefghijlnoqrstvwxz
+ * Command line arguments still available: 03456789GIJKLMOPUXYZbkmpuy
  */
 fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flowcontrol(flow_log_interval), ga(*this, add_option_args, add_usage_top),
                          iscale(interval_none), interval(0), noframe(false), recent_format(most_recent_html) {
-    add_option_args += "e:n:g:l:1:2:a:o:D:H:w:Nc:rRf:x:ACi:jtF:T:IS:B:";
+    add_option_args += "e:n:g:l:1:2:a:o:D:H:w:Nc:rRf:x:ACi:jtF:T:IS:B:z";
     add_usage_top += " [-e <log-stamp>] [-n <node-ID>] [-g <topic>] [-l <list-name>] [-I] [-1 <time-stamp-1>] [-2 <time-stamp-2>]"
                      " [-a <time-stamp>] [-D <days>|-H <hours>|-w <weeks>] [-o <outputfile>] [-N] [-c <num>] [-r] [-R]"
-                     " [-f <search-text>] [-x <regex-pattern>|FILE:<file-path>] [-A] [-C] [-B <BTF-flag>] [-i <date-stamp>]"
+                     " [-f <search-text>] [-x <regex-pattern>|FILE:<file-path>] [-A] [-C] [-B <BTF-flag>] [-z] [-i <date-stamp>]"
                      " [-j] [-t] [-F <raw|txt|html>] [-T <file|'STR:string'>] [-S <selections-processor>]";
     usage_head.push_back("Generate HTML representation of requested Log records.\n");
     usage_tail.push_back(
@@ -61,6 +61,7 @@ fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flow
         "1. The <time-stamp1>, <time-stamp_2> and <time-stamp> arguments expect\n"
         "   standardized Formalizer time stamps, e.g. 202009140614, but will also\n"
         "   accept date stamps of analogous form, e.g. 20200914.\n"
+        "   The <time-stamp_2> can also recognize the specifier 'now'.\n"
         "2. A <log-stamp> can be a 12 digit Log chunk ID or a 14+ digit Log entry ID.\n"
         "3. Without a Node specification, the default is:\n"
         "     start from 24 hours before end of interval\n"
@@ -84,6 +85,21 @@ fzloghtml::fzloghtml() : formalizer_standard_program(false), config(*this), flow
         "      <a href=\"@FZSERVER@/doc/lists/lists.html\">\n"
         "11. If the FILE: tag is encountered wiht the '-x' option then the RegEx\n"
         "    pattern is obtained from the specified file.\n"
+        "\n"
+        "Examples:\n"
+        "\n"
+        "  fzloghtml -q -o STDOUT -N -w 8 -F html\n"
+        "  Output: Embeddable HTML rendered Log for the past 8 weeks.\n"
+        "\n"
+        "  fzloghtml -q -o STDOUT -N -1 20240701 -2 now -F json -z\n"
+        "  Output: JSON data with a count of Log chunks since 20240701.\n"
+        "\n"
+        "  fzloghtml -q -o STDOUT -i 20250923 -F html\n"
+        "  Output: HTML page with for day-review of 20250923.\n"
+        "\n"
+        "  fzloghtml -q -o STDOUT -N -1 20240701 -2 now -F json -z -x '[<]input type=\"checkbox\"[ ]*[>]'\n"
+        "  Output: JSON data with a count of Log chunks since 20240701 that contain\n"
+        "  unchecked checkboxes.\n"
         );
 }
 
@@ -99,7 +115,7 @@ void fzloghtml::usage_hook() {
           "    -l belongs to Nodes in NNL <list-name>\n"
           "    -I regenerate index to significant Log content\n"
           "    -1 start from <time-stamp-1>\n"
-          "    -2 end at <time-stamp-2>\n"
+          "    -2 end at <time-stamp-2> or 'now'\n"
           "    -a centered around <time-stamp>\n"
           "    -D interval size of <days>\n"
           "    -H interval size of <hours>\n"
@@ -112,6 +128,7 @@ void fzloghtml::usage_hook() {
           "    -A All search terms must be in a Log chunk\n"
           "    -C Case insensitive search\n"
           "    -B Filter by BTF flag\n"
+          "    -z Only count matching chunks\n"
           "    -i Interpret for day review of day <date-stamp>\n"
           "    -j Interpret current day for review\n"
           "    -t Show total time applied\n"
@@ -224,7 +241,12 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
         if (flowcontrol == flow_dayreview) {
             return true; // ignore other interval specifications
         }
-        time_t t = ymd_stamp_time(cargs);
+        time_t t;
+        if (cargs == "now") {
+            t = ActualTime();
+        } else {
+            t = ymd_stamp_time(cargs);
+        }
         if (t==RTt_invalid_time_stamp) {
             VERBOSEERR("Invalid 'before' time or date stamp "+cargs+'\n');
             break;
@@ -316,6 +338,11 @@ bool fzloghtml::options_hook(char c, std::string cargs) {
     case 'B': {
         btf = get_btf(cargs);
         return btf != Boolean_Tag_Flags::none;
+    }
+
+    case 'z': {
+        count_only = true;
+        return true;
     }
 
     case 'i': {

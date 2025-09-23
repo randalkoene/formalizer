@@ -420,6 +420,54 @@ const std::map<std::string, Boolean_Tag_Flags::boolean_flag> log_override_tags =
     { "@OTHER@", Boolean_Tag_Flags::other },
 };
 
+struct chunk_data {
+    time_t t_chunkopen;
+    time_t t_chunkclose;
+    Node_ID_key node_id_key;
+};
+
+struct render_data {
+    size_t chunks_rendered = 0;
+    std::vector<chunk_data> chunks;
+
+    std::string json_str() {
+        std::string jsonstr;
+        jsonstr.reserve(128*1024);
+
+        jsonstr += "{\n";
+
+        jsonstr += "\t\"chunks_rendered\": "+std::to_string(chunks_rendered);
+
+        jsonstr += ",\n\t\"chunks\": [\n";
+
+        for (size_t i = 0; i < chunks.size(); i++) {
+
+            jsonstr += "\t\t[";
+
+            jsonstr += std::to_string(chunks.at(i).t_chunkopen) + ',';
+
+            jsonstr += std::to_string(chunks.at(i).t_chunkclose) + ",\"";
+
+            jsonstr += chunks.at(i).node_id_key.str() + "\"]";
+
+            if ((i+1) < chunks.size()) {
+                jsonstr += ",\n";
+            } else {
+                jsonstr += '\n';
+            }
+
+        }
+
+        jsonstr += "\t]\n";
+
+        jsonstr += "}\n";
+
+        return jsonstr;
+    }
+
+};
+
+
 /**
  * Convert Log content that was retrieved with filtering to HTML using
  * rending templates and send to designated output destination.
@@ -481,6 +529,8 @@ bool render_Log_interval() {
     COMPILEDPING(std::cout,"PING: got templates\n");
 
     // Parse Log chunks
+
+    render_data data;
 
     Map_of_Subtrees map_of_subtrees;
     if (fzlh.btf != Boolean_Tag_Flags::none) {
@@ -581,7 +631,9 @@ bool render_Log_interval() {
                         }
                     }
                 }
-                combined_entries += render_Log_entry(*entryptr, loc, active_entry_template);
+                if (fzlh.recent_format != most_recent_json) {
+                    combined_entries += render_Log_entry(*entryptr, loc, active_entry_template);
+                }
             }
         }
         if ((override) && (booleanflag != fzlh.btf)) {
@@ -597,6 +649,14 @@ bool render_Log_interval() {
         }
 
         // Render chunk(s) for output
+
+        data.chunks_rendered++; // count matching chunks found
+        if (fzlh.count_only) continue;
+
+        if (fzlh.recent_format == most_recent_json) {
+            data.chunks.emplace_back(chunkptr->get_open_time(), chunkptr->get_close_time(), node_id.key());
+            continue;
+        }
 
         template_varvalues varvals;
 
@@ -667,6 +727,10 @@ bool render_Log_interval() {
         rendered_logcontent += "Send selected Log chunks to <input type=\"submit\" name=\""+fzlh.selection_processor+"\" value=\""+fzlh.selection_processor+"\" /></form>\n";
     }
 
+    if (fzlh.recent_format != most_recent_json) {
+        render_notes += "chunks_rendered = "+std::to_string(data.chunks_rendered);
+    }
+
     if (!render_notes.empty()) {
         rendered_logcontent += "<tr><td>Render notes:<pre>"+render_notes+"</pre></td></tr>\n";
     }
@@ -679,6 +743,10 @@ bool render_Log_interval() {
         rendered_logcontent += tail_template;
     }
 
+    if (fzlh.recent_format == most_recent_json) {
+        rendered_logcontent += data.json_str();
+    }
+    
     return send_rendered_to_output(rendered_logcontent);
 }
 

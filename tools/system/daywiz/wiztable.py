@@ -50,6 +50,7 @@ WIZTABLE_LINES=[
 	[ '20091115180507.1', 5, 'realistic', 0, 'checkbox', 6, 9, 'Ensure Schedule is realistic.', '' ], # Automatable.
 	[ '20091115180507.1', 5, 'relations', 0, 'checkbox', 6, 9, 'Prepare the list of people that I already know I should communicate with this day.', '' ],
     [ '20091115180507.1', -1, 'nodebalance', 0, 'number', 6, 9, 'Strive toward open <button class="button button1" onclick="window.open(\'/cgi-bin/fzserver-info-cgi.py?action=nodesbalance\',\'_blank\');">Nodes balance</button>.', '' ],
+    [ '20091115180507.1', -1, 'emailunread', 0, 'number', 6, 9, 'And strive to minimize unread emails in inbox.', '' ],
 	[ '20091115180507.1', 5, 'backup', 0, 'checkbox', 6, 9, '<button class="button button1" onclick="window.open(\'/cgi-bin/fzbackup-from-web-cgi.py\',\'_blank\');">Ensure backup of the Formalizer database</button>.', '' ], # Automatable.
 
 	[ '20211017053846.1', -4, 'weight', 0, 'number', 6, 10, 'Measure <a href="/cgi-bin/metrics.py?cmd=show&selectors=wiztable" target="_blank">weight</a>.', '' ],
