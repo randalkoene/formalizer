@@ -101,7 +101,14 @@ def parse_calendar_events(data_str)->dict:
         data_str = data_str.decode()
     return json.loads(data_str)
 
+def parse_chunks_open_checkboxes(data_str)->dict:
+    if isinstance(data_str, bytes):
+        data_str = data_str.decode()
+    return json.loads(data_str)
+
 def main_cmdline():
+    data = {}
+
     # Emails information
     thecmd = f'''email-info.py'''
     retcode, res = try_subprocess_check_output(thecmd)
@@ -109,8 +116,8 @@ def main_cmdline():
         print(f'{thecmd} caused error: '+res)
         return
     unread_emails = extract_data('Unread emails:', res)
-    data = {}
     data['unread_emails'] = unread_emails
+
     # Calendar information
     thecmd = f'''calendar-info.py'''
     retcode, res = try_subprocess_check_output(thecmd)
@@ -120,6 +127,16 @@ def main_cmdline():
     calendar_events_str = extract_data('----\n', res, everything_after=True)
     calendar_events = parse_calendar_events(calendar_events_str)
     data['calendar_events'] = calendar_events
+
+    # Chunks with open checkboxes
+    thecmd = f"""fzloghtml -q -o STDOUT -N -1 20240401 -2 now -F json -z -x '[<]input type="checkbox"[ ]*[>]'"""
+    retcode, res = try_subprocess_check_output(thecmd)
+    if retcode != 0:
+        print(f'{thecmd} caused error: '+res)
+        return
+    chunks_open_checkboxes = parse_chunks_open_checkboxes(res)
+    data['chunks_open_checkboxes'] = chunks_open_checkboxes['chunks_rendered']
+
     print(json.dumps(data))
 
 def main_cgi():

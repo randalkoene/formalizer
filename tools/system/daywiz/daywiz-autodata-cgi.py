@@ -56,6 +56,8 @@ Data:
 <P>
 Unread emails: %s
 <P>
+Chunks with open checkboxes: %s
+<P>
 Calendar events: %s
 </body>
 </html>
@@ -94,7 +96,7 @@ def show_data(cgioutfile:str):
         calendar_events_str += CALENDAR_EVENT_LINE % (entry['start'], entry['end'], entry['event'], entry['location'])
     calendar_events_str += '</tbody></table>'
 
-    print(TEST_HTML % (str(data['unread_emails']), str(calendar_events_str)))
+    print(TEST_HTML % (str(data['unread_emails']), str(data['chunks_open_checkboxes']), str(calendar_events_str)))
 
 def daywiz_autodata()->bool:
     if exists(daywiz_autodata_file):
