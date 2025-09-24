@@ -727,7 +727,7 @@ bool render_Log_interval() {
         rendered_logcontent += "Send selected Log chunks to <input type=\"submit\" name=\""+fzlh.selection_processor+"\" value=\""+fzlh.selection_processor+"\" /></form>\n";
     }
 
-    if (fzlh.recent_format != most_recent_json) {
+    if (fzlh.recent_format == most_recent_html) {
         render_notes += "chunks_rendered = "+std::to_string(data.chunks_rendered);
     }
 
