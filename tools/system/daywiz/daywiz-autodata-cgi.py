@@ -24,13 +24,15 @@ import sys, cgi, os
 from os.path import exists
 sys.stderr = sys.stdout
 from time import sleep
-from datetime import date, timedelta
+from datetime import datetime
 import traceback
 from json import load
-from io import StringIO
-from traceback import print_exc
+#from io import StringIO
+#from traceback import print_exc
 #from subprocess import Popen, PIPE
 #from pathlib import Path
+import base64
+
 
 from fzmodbase import *
 from tcpclient import serial_API_request
@@ -49,21 +51,56 @@ Does the group have write permission in the directory?
 </html>
 '''
 
-TEST_HTML='''<html>
-<title>daywiz-autodata_cgi.py - Test</title>
+AUTODATA_HTML='''<!DOCTYPE html>
+<html>
+<HEAD>
+<meta charset="utf-8" />
+<link rel="icon" href="/favicon-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+
+<TITLE>DayWiz AutoData</TITLE>
+<style>
+table, th, td {
+  border: 1px solid gray;
+  border-collapse: collapse;
+  padding: 15px;
+}
+</style>
+</HEAD>
 <body>
-Data:
-<P>
+<script type="text/javascript" src="/fzuistate.js"></script>
+
+<H1>DayWiz AutoData</H1>
+
 Unread emails: %s
 <P>
 Chunks with open checkboxes: %s
 <P>
-Calendar events: %s
+Calendar events:
+%s
+
+<script>
+function sendData(data) {
+    // Open a new browser window with the CGI script's URL and pass the data as a query parameter
+    var cgiScriptUrl = "/cgi-bin/fzgraphhtml-cgi.py?edit=new&data=" + encodeURIComponent(data);
+    window.open(cgiScriptUrl, '_blank');
+}
+</script>
 </body>
 </html>
 '''
 
-CALENDAR_EVENT_LINE='''<tr>
+CALENDAR_A_EVENT_LINE='''<tr>
+<td><button onclick="sendData('%s')">MkNode</button></td>
+<td>%s</td>
+<td>%s</td>
+<td>%s</td>
+<td>%s</td>
+</tr>
+'''
+
+CALENDAR_B_EVENT_LINE='''<tr>
 <td>%s</td>
 <td>%s</td>
 <td>%s</td>
@@ -74,6 +111,16 @@ CALENDAR_EVENT_LINE='''<tr>
 form = cgi.FieldStorage()
 
 dummy = form.getvalue('dummy')
+
+def encode_content(content:str, start_time:datetime, end_time:datetime):
+    content += '@EXTRA_DATA@'
+    content += end_time.strftime('%Y%m%d%H%M')
+    rq_hint = (end_time - start_time).total_seconds()/3600.0
+    content += ',%.2f' % rq_hint
+    return base64.urlsafe_b64encode(content.encode()).decode()
+
+def date_time_str(t:datetime)->str:
+    return t.strftime("%Y%m%d %H:%M")
 
 def show_data(cgioutfile:str):
     with open(cgioutfile, 'r') as f:
@@ -86,17 +133,23 @@ def show_data(cgioutfile:str):
         else:
             all_day_events.append(entry)
 
+    format_string = "%Y-%m-%dT%H:%M:%S%z"
     calendar_events_str = '<table></tbody>'
+    if len(events)>0:
+        start_time = datetime.strptime(events[0]['start'], format_string)
+        calendar_events_str += "<p>Times expressed in GMT %s</p>" % start_time.strftime('%z')
     for entry in events:
-        calendar_events_str += CALENDAR_EVENT_LINE % (entry['start'], entry['end'], entry['event'], entry['location'])
+        start_time = datetime.strptime(entry['start'], format_string)
+        end_time = datetime.strptime(entry['end'], format_string)
+        calendar_events_str += CALENDAR_A_EVENT_LINE % (encode_content(entry['event']+'\n'+entry['location'], start_time, end_time), date_time_str(start_time), date_time_str(end_time), entry['event'], entry['location'])
     calendar_events_str += '</tbody></table>'
 
     calendar_events_str += '<table></tbody>'
     for entry in all_day_events:
-        calendar_events_str += CALENDAR_EVENT_LINE % (entry['start'], entry['end'], entry['event'], entry['location'])
+        calendar_events_str += CALENDAR_B_EVENT_LINE % (entry['start'], entry['end'], entry['event'], entry['location'])
     calendar_events_str += '</tbody></table>'
 
-    print(TEST_HTML % (str(data['unread_emails']), str(data['chunks_open_checkboxes']), str(calendar_events_str)))
+    print(AUTODATA_HTML % (str(data['unread_emails']), str(data['chunks_open_checkboxes']), str(calendar_events_str)))
 
 def daywiz_autodata()->bool:
     if exists(daywiz_autodata_file):

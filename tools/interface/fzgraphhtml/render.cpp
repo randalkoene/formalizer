@@ -1251,6 +1251,9 @@ bool render_new_node_page() {
     if (fzgh.req_suggested != 0.0) {
         required_hrs = fzgh.req_suggested;
     }
+    if (fzgh.td_suggested != RTt_unspecified) {
+        ndata.targetdate = fzgh.td_suggested;
+    }
     td_property tdprop = ndata.tdproperty;
     if (fzgh.init_tdprop != _tdprop_num) {
         tdprop = fzgh.init_tdprop;

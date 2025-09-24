@@ -109,6 +109,8 @@ struct fzgraphhtml: public formalizer_standard_program {
 
     float req_suggested = 0.0;
 
+    time_t td_suggested = RTt_unspecified;
+
     td_property init_tdprop = _tdprop_num;
 
     std::string data; // optional pre-seeded data for a new Node (URI encoded)

@@ -683,8 +683,17 @@ def generate_Node_edit_form_page():
         template_content = new_node_templates[template]
 
     # If called from checkboxes.py:
+    td_hint = None
+    rq_hint = None
     if edit=='new' and data:
         template_content = base64.urlsafe_b64decode(data).decode()
+        # Detect possible extra data such as targetdate and required time hints
+        extra_data_pos = template_content.find('@EXTRA_DATA@')
+        if extra_data_pos >= 0:
+            extra_data = template_content[extra_data_pos+len('@EXTRA_DATA@'):]
+            template_content = template_content[:extra_data_pos]
+            td_hint = extra_data[0:12] # Hint format is: YYYYmmddHHMM,hrs
+            rq_hint = extra_data[13:]
 
     # This is reached when fzgraphhtml-cgi.py?edit=new&topics=<something>
     thecmd = "./fzgraphhtml -q -E STDOUT -o STDOUT -m "+edit
@@ -692,21 +701,28 @@ def generate_Node_edit_form_page():
         thecmd += " -t '"+topics+"'"
 
         # Try to find recommended required time based on median in topic statistics
-        try:
-            import json
-            with open(TOPICSTATSFILE, "r") as f:
-                topicstats = json.load(f)
-        except:
-            topicstats = {}
-        if topics in topicstats:
-            req_median = topicstats[topics]['median']
-            thecmd += " -R "+str(req_median)
+        if not rq_hint:
+            try:
+                import json
+                with open(TOPICSTATSFILE, "r") as f:
+                    topicstats = json.load(f)
+            except:
+                topicstats = {}
+            if topics in topicstats:
+                req_median = topicstats[topics]['median']
+                thecmd += " -R "+str(req_median)
 
         if prop:
             thecmd += " -p "+prop
 
     if data:
         thecmd += " -d '"+data+"'"
+
+    if rq_hint:
+        thecmd += " -R "+str(rq_hint)
+
+    if td_hint:
+        thecmd += " -Z "+str(td_hint)
 
     if SPA:
         thecmd += ' -j' # no Javascript
