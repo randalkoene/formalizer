@@ -20,9 +20,13 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 # If modifying these scopes, delete the file token.json.
-SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
+SCOPES = [
+    "https://www.googleapis.com/auth/calendar.readonly",
+    "https://www.googleapis.com/auth/gmail.readonly"
+]
 
 home_directory = os.environ['HOME']
+token_path = home_directory+'/.formalizer/config/daywiz/token.json'
 credentials_path = home_directory+'/.formalizer/config/daywiz/credentials.json'
 
 def main():
@@ -33,18 +37,18 @@ def main():
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    if os.path.exists("token.json"):
-        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+    if os.path.exists(token_path):
+        creds = Credentials.from_authorized_user_file(token_path, SCOPES)
+
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            # Check if credentials.json exists in the current directory.
-            # This file must be downloaded from the Google Cloud Console.
+            print('Looking for credentials in: '+credentials_path)
             if not os.path.exists(credentials_path):
                 print("Error: credentials.json not found.")
-                print("Please download your credentials file from the Google Cloud Console and place it in the same directory as this script.")
+                print("Please download your credentials file from the Google Cloud Console and place it in %s." % credentials_path)
                 return
 
             flow = InstalledAppFlow.from_client_secrets_file(
@@ -52,7 +56,7 @@ def main():
             )
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
-        with open("token.json", "w") as token:
+        with open(token_path, "w") as token:
             token.write(creds.to_json())
 
     try:
