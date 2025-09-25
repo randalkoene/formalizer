@@ -732,7 +732,7 @@ bool render_Log_interval() {
     }
 
     if (!render_notes.empty()) {
-        rendered_logcontent += "<tr><td>Render notes:<pre>"+render_notes+"</pre></td></tr>\n";
+        rendered_logcontent += "<tr><td><hr><pre>"+render_notes+"</pre></td></tr>\n";
     }
 
     if (!fzlh.noframe) {
