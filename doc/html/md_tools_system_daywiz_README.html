@@ -83,6 +83,14 @@ $(function() {
 <li><code>core/include/fznutrition.py</code>: Data file for known foods, categories, etc.</li>
 <li><code>core/include/fzhtmlpage.py</code>: HTML page builder template classes.</li>
 </ol>
+<h1>Database storage</h1>
+<p>The default version of <code>daywiz.py</code> now uses the Formalizer database to store and retrieve data.</p>
+<p>The data is stored in multiple tables by datestamp key. The content of each table is in the form of a JSON string containing the relevant data belonging to that table for that particular day.</p>
+<p>The nature of the content is transparent to the database, because it is within each JSON construct.</p>
+<p>Updating the variables included is relatively easy, because storing and retrieval is done by datestamp key and involves a replacement of all the data in that cell.</p>
+<p>The <code>daywiz.py</code> is careful to map available data to the up-to-date data structure expected. Missing data is therefore handled gracefully.</p>
+<p>When the data structure is updated in <code>daywiz.py</code> the new data structure will be used and stored when new data is saved. Hence, old data formats will load without causing an error and new formats are adopted smoothly. (See <code>get_day_data()</code>, <code>get_wiz_data()</code> and <code>daypage_wiztable.merge_data()</code> in <code>daywiz.py</code>.)</p>
+<p>Therefore, to update the Wiztable data structure, just update <code>wiztable.py</code>.</p>
 <h1>More</h1>
 <p>See <a href="https://trello.com/c/JssbodOF">https://trello.com/c/JssbodOF</a> .</p>
 <p>Also, note that the metrics defined and calculated in the Formalizer component <code>tools/system/metrics</code> are separate from those in DayWiz.</p>

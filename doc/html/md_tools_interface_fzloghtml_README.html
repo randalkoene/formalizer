@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Formalizer: fzloghtml - {{ brief_title }}}</title>
+<title>Formalizer: fzloghtml - Generate HTML representation of requested Log records.</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -65,13 +65,131 @@ $(function() {
 </div><!-- top -->
 <div class="PageDoc"><div class="header">
   <div class="headertitle">
-<div class="title">fzloghtml - {{ brief_title }}} </div>  </div>
+<div class="title">fzloghtml - Generate HTML representation of requested Log records. </div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><h1>To create a special URL that tells rendering to make a link to local files</h1>
 <p>In the URL part of a HTML link, put something like:</p>
 <p>@FZSERVER@/doc/tex/something.doc</p>
-<p>Randal A. Koene, 2020 </p>
+<h1>The <code>day review</code> option</h1>
+<p>Note that the fzloghtml <code>day review</code> option obtains the Log data needed for a DayReview, typically in either <code>json</code> or <code>html</code> format. The further processing of that data is done by <code>dayreview.py</code> or <code>dayreview-cgi.py</code> (see formalizer/tools/system/metrics/dayreview).</p>
+<p>The <code>GraphTypes.hpp:Boolean_Tag_Flags</code> are used to specify Node category. Currently, those are (aside from <code>tzadjust</code> and <code>error</code>): <code>work</code>, <code>self_work</code>, <code>system</code>, <code>other</code>, or <code>none</code>.</p>
+<p>This is carried out as followed in the <code>render.cpp:render_Log_review()</code> function:</p>
+<ol type="1">
+<li>Retrieve the NNL that lists all sleep Nodes.</li>
+<li>Identify which of those is the nap Node.</li>
+<li>Walk through completed Log chunks in the interval that was loaded.</li>
+<li>Detect sleep chunks and use those to determine wake-up and go-to-sleep times.</li>
+<li>Naps appear to receive the boolean tag flag <code>none</code>.</li>
+<li>For other Nodes, detect the category and specify it in the boolean tag flag as detailed below.</li>
+<li>(Also, collect metric tags data for tags such as @NMVIDSTART@ and @NMVIDSTOP. If found, that is written to a CSV file.)</li>
+<li>Render as json, html, txt or raw.</li>
+</ol>
+<p>Detecting Node/Chunk category:</p>
+<ol type="1">
+<li>Search for category override tags in the Log entries of the chunk.</li>
+<li>Get the Boolean Tag Flag with the function <code>Map_of_Subtrees::node_in_heads_or_any_subtree()</code>.</li>
+</ol>
+<p>The <code>Map_of_Subtrees</code> was collected for the head Nodes and their dependencies as specified in the <code>config.json</code> of <code>fzloghtml</code>. By default the NNL specified there is <code>threads</code>.</p>
+<p>Note that the categories search, as implemented in <code>fzloghtml</code>, does not search for overrides in the Node description, nor does it search for category specification by superior if not found for a Node. This means that many Nodes that are not covered by the map of subtrees for the specified NNL receive the <code>none</code> Boolean_Tag_Flag.</p>
+<h1>Examples of scripts that use this</h1>
+<ul>
+<li>fzlog-cgi.py</li>
+<li>fztask-cgi.py</li>
+<li>fztask.py</li>
+<li>fzcatchup.py</li>
+<li>fzlink.py</li>
+<li>checkboxes.py</li>
+<li>fzlog-mostrecent.sh</li>
+<li>fzloghtml-cgi.py</li>
+<li>fzloghtml-term-1920.sh</li>
+<li>fzloghtml-term.sh</li>
+<li>get_log_entry.sh</li>
+<li>dayreview.py</li>
+</ul>
+<h1>Prepared code that will probably be added to the Log page</h1>
+<p>The following is some Javascript code that will help to collect necessary information to automate an 'edit' call that can update a clicked checkbox:</p>
+<div class="fragment"><div class="line">document.addEventListener(&#39;click&#39;, function(event) {</div>
+<div class="line">    if (event.target.type === &#39;checkbox&#39;) {</div>
+<div class="line">        let nearestLink = null;</div>
+<div class="line">        let textUntilNewline = &#39;&#39;;</div>
+<div class="line">        let currentNode = event.target;</div>
+<div class="line">        </div>
+<div class="line">        // Part 1: Find nearest preceding link</div>
+<div class="line">        let linkSearchNode = event.target.previousSibling;</div>
+<div class="line">        while (linkSearchNode) {</div>
+<div class="line">            if (linkSearchNode.nodeType === Node.ELEMENT_NODE) {</div>
+<div class="line">                const links = linkSearchNode.querySelectorAll(&#39;a[href*=&quot;/cgi-bin/fzlog-cgi.py&quot;]&#39;);</div>
+<div class="line">                if (links.length &gt; 0) {</div>
+<div class="line">                    nearestLink = links[links.length - 1].href;</div>
+<div class="line">                    break;</div>
+<div class="line">                }</div>
+<div class="line">                </div>
+<div class="line">                if (linkSearchNode.tagName === &#39;A&#39; &amp;&amp; linkSearchNode.href.includes(&#39;/cgi-bin/fzlog-cgi.py&#39;)) {</div>
+<div class="line">                    nearestLink = linkSearchNode.href;</div>
+<div class="line">                    break;</div>
+<div class="line">                }</div>
+<div class="line">            }</div>
+<div class="line">            linkSearchNode = linkSearchNode.previousSibling;</div>
+<div class="line">            </div>
+<div class="line">            if (!linkSearchNode) {</div>
+<div class="line">                linkSearchNode = event.target.parentNode;</div>
+<div class="line">                event.target = linkSearchNode;</div>
+<div class="line">                if (linkSearchNode) {</div>
+<div class="line">                    linkSearchNode = linkSearchNode.previousSibling;</div>
+<div class="line">                }</div>
+<div class="line">            }</div>
+<div class="line">        }</div>
+<div class="line">        </div>
+<div class="line">        // Part 2: Capture text until next newline</div>
+<div class="line">        const treeWalker = document.createTreeWalker(</div>
+<div class="line">            document.body,</div>
+<div class="line">            NodeFilter.SHOW_TEXT,</div>
+<div class="line">            { acceptNode: function(node) { </div>
+<div class="line">                return NodeFilter.FILTER_ACCEPT; </div>
+<div class="line">            }},</div>
+<div class="line">            false</div>
+<div class="line">        );</div>
+<div class="line">        </div>
+<div class="line">        let foundCheckbox = false;</div>
+<div class="line">        while (treeWalker.nextNode()) {</div>
+<div class="line">            const textNode = treeWalker.currentNode;</div>
+<div class="line">            </div>
+<div class="line">            if (textNode.parentNode === currentNode || textNode.parentNode.contains(currentNode)) {</div>
+<div class="line">                foundCheckbox = true;</div>
+<div class="line">                continue;</div>
+<div class="line">            }</div>
+<div class="line">            </div>
+<div class="line">            if (foundCheckbox) {</div>
+<div class="line">                const textContent = textNode.nodeValue;</div>
+<div class="line">                const newlineIndex = textContent.indexOf(&#39;\n&#39;);</div>
+<div class="line">                </div>
+<div class="line">                if (newlineIndex &gt;= 0) {</div>
+<div class="line">                    textUntilNewline += textContent.substring(0, newlineIndex);</div>
+<div class="line">                    break;</div>
+<div class="line">                } else {</div>
+<div class="line">                    textUntilNewline += textContent;</div>
+<div class="line">                }</div>
+<div class="line">            }</div>
+<div class="line">        }</div>
+<div class="line">        </div>
+<div class="line">        // Trim whitespace from the captured text</div>
+<div class="line">        textUntilNewline = textUntilNewline.trim();</div>
+<div class="line">        </div>
+<div class="line">        // Now you have both variables available:</div>
+<div class="line">        // nearestLink - contains the URL or null if not found</div>
+<div class="line">        // textUntilNewline - contains all text until the next newline after the checkbox</div>
+<div class="line">        </div>
+<div class="line">        console.log(&#39;Nearest link:&#39;, nearestLink);</div>
+<div class="line">        console.log(&#39;Text until newline:&#39;, textUntilNewline);</div>
+<div class="line">        </div>
+<div class="line">        // Example usage:</div>
+<div class="line">        // const targetLink = nearestLink;</div>
+<div class="line">        // const checkboxContextText = textUntilNewline;</div>
+<div class="line">    }</div>
+<div class="line">});</div>
+</div><!-- fragment --><hr  />
+<p> Randal A. Koene, 2020 </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 <!-- start footer part -->

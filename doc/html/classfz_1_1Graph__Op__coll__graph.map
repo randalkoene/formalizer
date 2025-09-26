@@ -1,0 +1,5 @@
+<map id="fz::Graph_Op" name="fz::Graph_Op">
+<area shape="rect" id="node1" title="Pass a class derived from this one to Graph::op()." alt="" coords="21,184,128,211"/>
+<area shape="rect" id="node2" href="$structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key." alt="" coords="11,95,138,121"/>
+<area shape="rect" id="node3" href="$structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs." alt="" coords="5,5,144,32"/>
+</map>

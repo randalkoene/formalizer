@@ -1,0 +1,6 @@
+<map id="queing_fzserverpq" name="queing_fzserverpq">
+<area shape="rect" id="node1" title="Requests received are placed into a FIFO queue for handling by a separate thread." alt="" coords="125,169,267,196"/>
+<area shape="rect" id="node2" href="$structfzserverpq.html" title=" " alt="" coords="151,95,241,121"/>
+<area shape="rect" id="node3" href="$classfz_1_1formalizer__standard__program.html" title="This class provides a framework for standardized Formalizer programs." alt="" coords="5,5,179,47"/>
+<area shape="rect" id="node4" href="$structfz_1_1shared__memory__server.html" title=" " alt="" coords="203,13,399,39"/>
+</map>

@@ -72,16 +72,25 @@ $(function() {
 <div class="title">line_render_parameters Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Notes:  
+ <a href="structline__render__parameters.html#details">More...</a></p>
 <div class="dynheader">
 Collaboration diagram for line_render_parameters:</div>
 <div class="dyncontent">
 <div class="center"><img src="structline__render__parameters__coll__graph.png" border="0" usemap="#aline__render__parameters_coll__map" alt="Collaboration graph"/></div>
 <map name="aline__render__parameters_coll__map" id="aline__render__parameters_coll__map">
-<area shape="rect" title=" " alt="" coords="119,273,296,300"/>
-<area shape="rect" href="classfz_1_1Graph.html" title=" " alt="" coords="20,95,101,121"/>
-<area shape="rect" href="classfz_1_1Map__of__Subtrees.html" title="See how this is used in fzgraphhtml and nodeboard." alt="" coords="130,184,285,211"/>
-<area shape="rect" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID." alt="" coords="5,5,116,32"/>
-<area shape="rect" href="structfz_1_1render__environment.html" title="Configuration for a template rendering environment." alt="" coords="309,184,484,211"/>
+<area shape="rect" title="Notes:" alt="" coords="491,363,669,389"/>
+<area shape="rect" href="classfz_1_1Graph.html" title=" " alt="" coords="467,184,549,211"/>
+<area shape="rect" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph." alt="" coords="322,273,398,300"/>
+<area shape="rect" href="classfz_1_1Map__of__Subtrees.html" title="See how this is used in fzgraphhtml and nodeboard." alt="" coords="587,273,741,300"/>
+<area shape="rect" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID." alt="" coords="453,95,563,121"/>
+<area shape="rect" href="structfz_1_1render__environment.html" title="Configuration for a template rendering environment." alt="" coords="766,273,941,300"/>
+<area shape="rect" href="classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use." alt="" coords="26,184,123,211"/>
+<area shape="rect" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key." alt="" coords="11,95,138,121"/>
+<area shape="rect" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs." alt="" coords="5,5,144,32"/>
+<area shape="rect" href="classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="147,184,253,211"/>
+<area shape="rect" href="classfz_1_1Boolean__Tag__Flags.html" title=" " alt="" coords="277,184,443,211"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -117,6 +126,12 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>visible_time_and_date
 <tr class="memitem:a6b29fc99a29063f976014fe3cc62fc3f"><td class="memItemLeft" align="right" valign="top"><a id="a6b29fc99a29063f976014fe3cc62fc3f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>render_counts</b> (size_t num_rendered, size_t num_in_list, bool include_remove_button)</td></tr>
 <tr class="separator:a6b29fc99a29063f976014fe3cc62fc3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a00228667020a7ed754f1bd8ca87c830b"><td class="memItemLeft" align="right" valign="top"><a id="a00228667020a7ed754f1bd8ca87c830b"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>td_property_classes</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node)</td></tr>
+<tr class="separator:a00228667020a7ed754f1bd8ca87c830b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e87af95b01f66c223c55d567e2825f0"><td class="memItemLeft" align="right" valign="top"><a id="a4e87af95b01f66c223c55d567e2825f0"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>add_class_to_alertstyle</b> (const std::string &amp;class_str, std::string &amp;alertstyle)</td></tr>
+<tr class="separator:a4e87af95b01f66c223c55d567e2825f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acfc23c4e074edb9bd2e04e53c29fd165"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structline__render__parameters.html#acfc23c4e074edb9bd2e04e53c29fd165">render_Node</a> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node, time_t tdate, bool showdate=true, int list_pos=-1, bool remove_button=false)</td></tr>
 <tr class="memdesc:acfc23c4e074edb9bd2e04e53c29fd165"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call this to render parameters of a Node on a single line of a list of Nodes.  <a href="structline__render__parameters.html#acfc23c4e074edb9bd2e04e53c29fd165">More...</a><br /></td></tr>
 <tr class="separator:acfc23c4e074edb9bd2e04e53c29fd165"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -126,8 +141,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>render_counts</b> (si
 <tr class="memitem:af8199c3b56b8d09ac55ae9c381235e48"><td class="memItemLeft" align="right" valign="top"><a id="af8199c3b56b8d09ac55ae9c381235e48"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>render_List</b> (const std::string &amp;list_name)</td></tr>
 <tr class="separator:af8199c3b56b8d09ac55ae9c381235e48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab486d7ddb2da328598718ba927be638a"><td class="memItemLeft" align="right" valign="top"><a id="ab486d7ddb2da328598718ba927be638a"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>send_to_output</b> (const std::string &amp;rendered_output)</td></tr>
+<tr class="separator:ab486d7ddb2da328598718ba927be638a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acfda791d52bcd4638f8db9ab5cc960e4"><td class="memItemLeft" align="right" valign="top"><a id="acfda791d52bcd4638f8db9ab5cc960e4"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>present</b> ()</td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structline__render__parameters.html#acfda791d52bcd4638f8db9ab5cc960e4">present</a> ()</td></tr>
+<tr class="memdesc:acfda791d52bcd4638f8db9ab5cc960e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">See Note 1 for the reason why the head is only generated here. <br /></td></tr>
 <tr class="separator:acfda791d52bcd4638f8db9ab5cc960e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
@@ -161,10 +180,19 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>tdstamp</b></t
 <tr class="memitem:a572ece2fab6b6d81c7d29cb1dd4aaee6"><td class="memItemLeft" align="right" valign="top"><a id="a572ece2fab6b6d81c7d29cb1dd4aaee6"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><b>actual_num_render</b> = 0</td></tr>
 <tr class="separator:a572ece2fab6b6d81c7d29cb1dd4aaee6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad417fa39d7e10bcbda07e608b71f36a8"><td class="memItemLeft" align="right" valign="top"><a id="ad417fa39d7e10bcbda07e608b71f36a8"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>days_rendered</b> = 0</td></tr>
+<tr class="separator:ad417fa39d7e10bcbda07e608b71f36a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6fe5f457f2f61aafdb408f5f76df3f40"><td class="memItemLeft" align="right" valign="top"><a id="a6fe5f457f2f61aafdb408f5f76df3f40"></a>
 time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structline__render__parameters.html#a6fe5f457f2f61aafdb408f5f76df3f40">t_render</a> = 0</td></tr>
 <tr class="memdesc:a6fe5f457f2f61aafdb408f5f76df3f40"><td class="mdescLeft">&#160;</td><td class="mdescRight">The time when page rendering commenced. <br /></td></tr>
 <tr class="separator:a6fe5f457f2f61aafdb408f5f76df3f40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ecc89303c1690fdc2e7e76b16d80f49"><td class="memItemLeft" align="right" valign="top"><a id="a7ecc89303c1690fdc2e7e76b16d80f49"></a>
+const <a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>prev_ETD_node</b> = nullptr</td></tr>
+<tr class="separator:a7ecc89303c1690fdc2e7e76b16d80f49"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b19b0769e69c908f26a3478003674c0"><td class="memItemLeft" align="right" valign="top"><a id="a0b19b0769e69c908f26a3478003674c0"></a>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>prev_ETD_node_t_endbefore</b> = RTt_unspecified</td></tr>
+<tr class="separator:a0b19b0769e69c908f26a3478003674c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa4f7c7d6931cdf1071e4fb9419dd5b5b"><td class="memItemLeft" align="right" valign="top"><a id="aa4f7c7d6931cdf1071e4fb9419dd5b5b"></a>
 float&#160;</td><td class="memItemRight" valign="bottom"><b>day_total_hrs</b> = 0.0</td></tr>
 <tr class="separator:aa4f7c7d6931cdf1071e4fb9419dd5b5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -177,7 +205,12 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>day_total_hrs</b> = 
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>subtrees_list_tag</b></td></tr>
 <tr class="separator:aba160186ccfefbadd3b60389395eddfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Notes: </p>
+<ol type="1">
+<li>Rendering of the head of the page is done after collecting the rendered Nodes, because some of the information in the head may require information that is collected along the way, such as 'days_rendered'. </li>
+</ol>
+</div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="acfc23c4e074edb9bd2e04e53c29fd165"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#acfc23c4e074edb9bd2e04e53c29fd165">&#9670;&nbsp;</a></span>render_Node()</h2>
 

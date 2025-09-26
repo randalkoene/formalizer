@@ -174,216 +174,233 @@ $(function() {
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    flow_options _floption = flow_dependencies_tree;</div>
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    <span class="keywordtype">bool</span> _threads = <span class="keyword">false</span>;                  <span class="comment">// When true, prereqs/provides and possibly progress analysis may be included.</span></div>
 <div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    <span class="keywordtype">bool</span> _showcompleted = <span class="keyword">false</span>;            <span class="comment">// When true, include Nodes that are inactive.</span></div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    <span class="keywordtype">bool</span> _shownonmilestone = <span class="keyword">true</span>;          <span class="comment">// When true, include Nodes that are not Milestones.</span></div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="keywordtype">bool</span> _progressanalysis = <span class="keyword">false</span>;         <span class="comment">// When true (and _threads), include progress analysis.</span></div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="keywordtype">float</span> multiplier = 1.0;                 <span class="comment">// Multiplier of vertical card height.</span></div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> maxcols = DEFAULTMAXCOLS;  <span class="comment">// Column limit for hierarchy board.</span></div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> maxrows = DEFAULTMAXROWS;  <span class="comment">// Row limit for hierarchy board and for NNL dependencies board.</span></div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    time_t seconds_near_highlight = 0;      <span class="comment">// If non-zero, then highlight Nodes for which the target date is closer than this threshold difference.</span></div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keywordtype">bool</span> propose_td_solutions = <span class="keyword">false</span>;      <span class="comment">// When true, offer solutions to apply to deal with target date order errors.</span></div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <span class="keywordtype">bool</span> norepeated = <span class="keyword">false</span>;                <span class="comment">// When true then do not show repeated Nodes in a generated Threads board.</span></div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <span class="keywordtype">bool</span> do_development_test = <span class="keyword">false</span>;       <span class="comment">// When true, activate anything that is being tested under development.</span></div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;};</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160; </div>
-<div class="line"><a name="l00121"></a><span class="lineno"><a class="line" href="structnodeboard.html">  121</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structnodeboard.html">nodeboard</a>: <span class="keyword">public</span> <a class="code" href="classfz_1_1formalizer__standard__program.html">formalizer_standard_program</a> {</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    <a class="code" href="structfz_1_1Graph__access.html">Graph_access</a> ga;</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160; </div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    flow_options flowcontrol;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    <span class="keywordtype">bool</span> _showzerorequired = <span class="keyword">false</span>;         <span class="comment">// When true, include Nodes with required time &lt;= 0.</span></div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="keywordtype">bool</span> _shownonmilestone = <span class="keyword">true</span>;          <span class="comment">// When true, include Nodes that are not Milestones.</span></div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="keywordtype">float</span> _importancethreshold = 0.0;       <span class="comment">// If greater than 0.0, include Nodes with maximum importance connection above that threshold.</span></div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <span class="keywordtype">bool</span> _progressanalysis = <span class="keyword">false</span>;         <span class="comment">// When true (and _threads), include progress analysis.</span></div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keywordtype">float</span> multiplier = 1.0;                 <span class="comment">// Multiplier of vertical card height.</span></div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> maxcols = DEFAULTMAXCOLS;  <span class="comment">// Column limit for hierarchy board.</span></div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> maxrows = DEFAULTMAXROWS;  <span class="comment">// Row limit for hierarchy board and for NNL dependencies board.</span></div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    time_t seconds_near_highlight = 0;      <span class="comment">// If non-zero, then highlight Nodes for which the target date is closer than this threshold difference.</span></div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <span class="keywordtype">bool</span> propose_td_solutions = <span class="keyword">false</span>;      <span class="comment">// When true, offer solutions to apply to deal with target date order errors.</span></div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    <span class="keywordtype">bool</span> norepeated = <span class="keyword">false</span>;                <span class="comment">// When true then do not show repeated Nodes in a generated Threads board.</span></div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    <span class="keywordtype">bool</span> do_development_test = <span class="keyword">false</span>;       <span class="comment">// When true, activate anything that is being tested under development.</span></div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;};</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160; </div>
+<div class="line"><a name="l00123"></a><span class="lineno"><a class="line" href="structnodeboard.html">  123</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structnodeboard.html">nodeboard</a>: <span class="keyword">public</span> <a class="code" href="classfz_1_1formalizer__standard__program.html">formalizer_standard_program</a> {</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    <a class="code" href="structfz_1_1Graph__access.html">Graph_access</a> ga;</div>
 <div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160; </div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    <a class="code" href="classfz_1_1Node.html">Node</a> * node_ptr = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    std::string source_file;</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    std::string list_name;</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    std::vector&lt;std::string&gt; list_names_vec;</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160; </div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <a class="code" href="classfz_1_1Map__of__Subtrees.html">Map_of_Subtrees</a> map_of_subtrees;</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    flow_options flowcontrol;</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160; </div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    <a class="code" href="classfz_1_1Node.html">Node</a> * node_ptr = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    std::string source_file;</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    std::string list_name;</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    std::vector&lt;std::string&gt; list_names_vec;</div>
 <div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160; </div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    <span class="keywordtype">int</span> excerpt_length = 160;</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    <a class="code" href="classfz_1_1Map__of__Subtrees.html">Map_of_Subtrees</a> map_of_subtrees;</div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160; </div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;    <a class="code" href="namespacefz.html#afddacf07ad964643983aa625bd00aba8">Topic_ID</a> topic_id = 0;</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;    <span class="keywordtype">int</span> excerpt_length = 160;</div>
 <div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160; </div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    <span class="keywordtype">bool</span> show_completed = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;    <span class="keywordtype">bool</span> show_zero_required = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;    <span class="keywordtype">bool</span> threads = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;    <span class="keywordtype">bool</span> progress_analysis = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160; </div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;    time_t t_now = 0;</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    <a class="code" href="namespacefz.html#afddacf07ad964643983aa625bd00aba8">Topic_ID</a> topic_id = 0;</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160; </div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;    <span class="keywordtype">bool</span> show_completed = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;    <span class="keywordtype">bool</span> show_zero_required = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;    <span class="keywordtype">bool</span> threads = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;    <span class="keywordtype">bool</span> progress_analysis = <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160; </div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;    <span class="keywordtype">bool</span> detect_tdorder = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    <span class="keywordtype">bool</span> detect_tdfar = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    <span class="keywordtype">bool</span> detect_tdbad = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;    <span class="keywordtype">float</span> importance_threshold = 0.0;</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160; </div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    time_t t_now = 0;</div>
 <div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160; </div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    <span class="keywordtype">bool</span> show_dependencies_tree = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <span class="keywordtype">bool</span> show_superiors_tree = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160; </div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    <span class="keywordtype">bool</span> sort_by_subtree_times = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160; </div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    <span class="keywordtype">bool</span> timeline = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    <span class="keywordtype">bool</span> detect_tdorder = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <span class="keywordtype">bool</span> detect_tdfar = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    <span class="keywordtype">bool</span> detect_tdbad = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160; </div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    <span class="keywordtype">bool</span> show_dependencies_tree = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    <span class="keywordtype">bool</span> show_superiors_tree = <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160; </div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    time_t t_before = 0;</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    <span class="keywordtype">bool</span> sort_by_subtree_times = <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160; </div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    std::string progress_state_file;</div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> node_total = 0;</div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> progress_node_count = 0;</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    <span class="keywordtype">int</span> last_percentage_state = -1;</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    <span class="keywordtype">bool</span> timeline = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    time_t timeline_min_td = <a class="code" href="namespacefz.html#aef05dd6bfa4d4a09d3eace4949b6fab0ad567131680cdfe5720218682688975a4">RTt_maxtime</a>;</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <span class="keywordtype">float</span> timeline_stretch = 1.0;</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    <span class="keywordtype">float</span> timeline_last_vh = 0.0;</div>
 <div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160; </div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keywordtype">bool</span> highlight_topic_and_valuation = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;    <a class="code" href="namespacefz.html#afddacf07ad964643983aa625bd00aba8">Topic_ID</a> highlight_topic = 0;</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160; </div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    std::vector&lt;Topic_ID&gt; filter_topics;</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    std::string uri_encoded_filter_topics;</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160; </div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    std::string filter_substring;</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    <span class="keywordtype">int</span> filter_substring_excerpt_length = 80;</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    std::string uri_encoded_filter_substring;</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    time_t t_before = 0;</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160; </div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    std::string progress_state_file;</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> node_total = 0;</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> progress_node_count = 0;</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    <span class="keywordtype">int</span> last_percentage_state = -1;</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160; </div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    <span class="keywordtype">bool</span> highlight_topic_and_valuation = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <a class="code" href="namespacefz.html#afddacf07ad964643983aa625bd00aba8">Topic_ID</a> highlight_topic = 0;</div>
 <div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160; </div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    <span class="keywordtype">bool</span> board_title_specified = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    std::string board_title; <span class="comment">// Set to -f name or &quot;Kanban Board&quot; if not provided.</span></div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    std::string board_title_extra;</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    std::string post_extra;</div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160; </div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;    time_t nnl_deps_to_tdate = <a class="code" href="namespacefz.html#aef05dd6bfa4d4a09d3eace4949b6fab0ad567131680cdfe5720218682688975a4">RTt_maxtime</a>; <span class="comment">// In NNL dependencies columns show Nodes with target dates up to and including this target date.</span></div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    <span class="keywordtype">bool</span> nnl_deps_apply_maxrows = <span class="keyword">false</span>;    <span class="comment">// If yes then apply the max_rows constraint.</span></div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160; </div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    std::string grid_column_width = <span class="stringliteral">&quot; 260px&quot;</span>;</div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    std::string column_container_width = <span class="stringliteral">&quot;250px&quot;</span>;</div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    std::string card_width = <span class="stringliteral">&quot;240px&quot;</span>;</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    std::string card_height = <span class="stringliteral">&quot;240px&quot;</span>;</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160; </div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> max_columns = DEFAULTMAXCOLS;</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> max_rows = DEFAULTMAXROWS;</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160; </div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    time_t seconds_near_highlight = 0; <span class="comment">// If non-zero, then highlight Nodes for which the target date is closer than this threshold difference.</span></div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160; </div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    <span class="keywordtype">bool</span> minimize_grid = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    std::vector&lt;Topic_ID&gt; filter_topics;</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    std::string uri_encoded_filter_topics;</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160; </div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    std::string filter_substring;</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    <span class="keywordtype">int</span> filter_substring_excerpt_length = 80;</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;    std::string uri_encoded_filter_substring;</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160; </div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    <span class="keywordtype">bool</span> board_title_specified = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    std::string board_title; <span class="comment">// Set to -f name or &quot;Kanban Board&quot; if not provided.</span></div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    std::string board_title_extra;</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    std::string post_extra;</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160; </div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    time_t nnl_deps_to_tdate = <a class="code" href="namespacefz.html#aef05dd6bfa4d4a09d3eace4949b6fab0ad567131680cdfe5720218682688975a4">RTt_maxtime</a>; <span class="comment">// In NNL dependencies columns show Nodes with target dates up to and including this target date.</span></div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;    <span class="keywordtype">bool</span> nnl_deps_apply_maxrows = <span class="keyword">false</span>;    <span class="comment">// If yes then apply the max_rows constraint.</span></div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160; </div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    std::string grid_column_width = <span class="stringliteral">&quot; 260px&quot;</span>;</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    std::string column_container_width = <span class="stringliteral">&quot;250px&quot;</span>;</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    std::string card_width = <span class="stringliteral">&quot;240px&quot;</span>;</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    std::string card_height = <span class="stringliteral">&quot;240px&quot;</span>;</div>
 <div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160; </div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    std::string output_path;</div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160; </div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    std::vector&lt;CSV_Data_Day&gt; csv_data_vec;</div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160; </div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    <span class="keywordtype">float</span> vertical_multiplier = 1.0;</div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160; </div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;    <span class="keywordtype">bool</span> propose_td_solutions = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    <span class="keywordtype">bool</span> prefer_earlier = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> max_columns = DEFAULTMAXCOLS;</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> max_rows = DEFAULTMAXROWS;</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160; </div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    time_t seconds_near_highlight = 0; <span class="comment">// If non-zero, then highlight Nodes for which the target date is closer than this threshold difference.</span></div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160; </div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    <span class="keywordtype">bool</span> minimize_grid = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160; </div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    std::string output_path;</div>
 <div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160; </div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    <span class="keywordtype">bool</span> norepeated = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    std::vector&lt;CSV_Data_Day&gt; csv_data_vec;</div>
 <div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160; </div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    <span class="keywordtype">bool</span> do_development_test = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    <span class="keywordtype">float</span> vertical_multiplier = 1.0;</div>
 <div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160; </div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    <a class="code" href="classfz_1_1Graph.html">Graph</a> *graph_ptr;</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    <a class="code" href="structfz_1_1Named__Node__List.html">Named_Node_List_ptr</a> sleepNNL_ptr = <span class="keyword">nullptr</span>;</div>
 <div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160; </div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    <a class="code" href="structfz_1_1Log__filter.html">Log_filter</a> filter;</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    <span class="keywordtype">bool</span> explicit_passed_time = <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160; </div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    <a class="code" href="structfz_1_1render__environment.html">render_environment</a> env;</div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;    nodeboard_templates templates;</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    <span class="keywordtype">bool</span> propose_td_solutions = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;    <span class="keywordtype">bool</span> prefer_earlier = <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160; </div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> num_columns = 0;</div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> num_rows = 0;</div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160; </div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    <a class="code" href="structnodeboard.html">nodeboard</a>();</div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160; </div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> usage_hook();</div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160; </div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    <span class="keywordtype">bool</span> set_grid_and_card_sizes(<span class="keyword">const</span> std::string &amp; cargs);</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160; </div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <span class="keywordtype">bool</span> parse_error_detection_list(<span class="keyword">const</span> std::string &amp; cargs);</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    <span class="keywordtype">bool</span> norepeated = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160; </div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;    <span class="keywordtype">bool</span> do_development_test = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160; </div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    <a class="code" href="classfz_1_1Graph.html">Graph</a> *graph_ptr;</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160; </div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <a class="code" href="structfz_1_1Log__filter.html">Log_filter</a> filter;</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160; </div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <a class="code" href="structfz_1_1render__environment.html">render_environment</a> env;</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    nodeboard_templates templates;</div>
 <div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160; </div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> options_hook(<span class="keywordtype">char</span> c, std::string cargs);</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160; </div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    <span class="keywordtype">bool</span> parse_list_names(<span class="keyword">const</span> std::string &amp; arg);</div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160; </div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    <span class="keywordtype">bool</span> parse_filter_topics(<span class="keyword">const</span> std::string &amp; arg);</div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160; </div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    <span class="keywordtype">bool</span> parse_header_identifier(<span class="keyword">const</span> std::string &amp; arg, std::string &amp; header, std::string &amp; identifier);</div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160; </div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;    <span class="keywordtype">bool</span> parse_csv(<span class="keyword">const</span> std::string &amp; csv_data);</div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160; </div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    <a class="code" href="classfz_1_1Graph.html">Graph</a> &amp; graph();</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160; </div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    <a class="code" href="structnodeboard__options.html">nodeboard_options</a> get_nodeboard_options() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160; </div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    <span class="keywordtype">bool</span> make_options_pane(std::string &amp; rendered_pane);</div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160; </div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;    std::string build_nodeboard_cgi_call(<span class="keyword">const</span> <a class="code" href="structnodeboard__options.html">nodeboard_options</a> &amp; options) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160; </div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;    <span class="keywordtype">bool</span> shows_non_milestone_nodes() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160; </div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    std::string encode_modified_topic_filters(<span class="keywordtype">bool</span> _shownonmilestone) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160; </div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    <span class="keywordtype">bool</span> render_init();</div>
-<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160; </div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;    <span class="keywordtype">bool</span> to_output(<span class="keyword">const</span> std::string &amp; rendered_board);</div>
-<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160; </div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;    <span class="keywordtype">bool</span> filtered_out(<span class="keyword">const</span> <a class="code" href="classfz_1_1Node.html">Node</a> * node_ptr, std::string &amp; node_text) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160; </div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    <span class="keywordtype">bool</span> get_Node_card(<span class="keyword">const</span> <a class="code" href="classfz_1_1Node.html">Node</a> * node_ptr, std::string &amp; rendered_cards);</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160; </div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;    Node_render_result get_Node_alt_card(<span class="keyword">const</span> <a class="code" href="classfz_1_1Node.html">Node</a> * node_ptr, std::time_t tdate, std::string &amp; rendered_cards, <a class="code" href="structfz_1_1Node__Subtree.html">Node_Subtree</a> * subtree_ptr = <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160; </div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;    <span class="keywordtype">float</span> get_card_vertical_position(<span class="keyword">const</span> std::string &amp; start_time, <span class="keywordtype">float</span> v_offset = 4.0);</div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160; </div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    <span class="keywordtype">float</span> get_card_height(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> minutes);</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160; </div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;    <span class="keywordtype">bool</span> get_Schedule_card(<span class="keyword">const</span> <a class="code" href="structCSV__Data.html">CSV_Data</a> &amp; <a class="code" href="structfz_1_1entry__data.html">entry_data</a>, std::string &amp; rendered_cards);</div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160; </div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;    <span class="keywordtype">bool</span> get_column(<span class="keyword">const</span> std::string &amp; column_header, <span class="keyword">const</span> std::string &amp; rendered_cards, std::string &amp; rendered_columns, <span class="keyword">const</span> std::string extra_header, template_id_enum column_template);</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160; </div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;    <span class="comment">//bool get_alt_column(const std::string &amp; column_header, const std::string &amp; rendered_cards, std::string &amp; rendered_columns, const std::string extra_header);</span></div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160; </div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    <span class="keywordtype">bool</span> get_dependencies_column(<span class="keyword">const</span> std::string &amp; column_header, <span class="keyword">const</span> <a class="code" href="classfz_1_1Node.html">Node</a> * column_node, std::string &amp; rendered_columns, <span class="keyword">const</span> std::string extra_header);</div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160; </div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> get_Node_total_minutes_applied(<span class="keyword">const</span> <a class="code" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> nkey);</div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160; </div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <span class="keywordtype">void</span> progress_state_update();</div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160; </div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;    std::string tosup_todep_html_buttons(<span class="keyword">const</span> <a class="code" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp; column_key);</div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160; </div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    <span class="keywordtype">bool</span> get_fulldepth_dependencies_column(std::string &amp; column_header, <a class="code" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> column_key, <a class="code" href="structThreads__Board__Data.html">Threads_Board_Data</a> &amp; board_data, <span class="keyword">const</span> std::string extra_header = <span class="stringliteral">&quot;&quot;</span>);</div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160; </div>
-<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    <span class="keywordtype">bool</span> get_NNL_column(<span class="keyword">const</span> std::string &amp; nnl_str, std::string &amp; rendered_columns);</div>
-<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160; </div>
-<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;    <span class="keywordtype">bool</span> get_Topic_column(<span class="keyword">const</span> std::string &amp; topic_str, std::string &amp; rendered_columns);</div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160; </div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;    <span class="keywordtype">bool</span> get_day_column(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> day_idx, std::string &amp; rendered_columns);</div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160; </div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    <span class="keywordtype">bool</span> make_simple_grid_board(<span class="keyword">const</span> std::string &amp; rendered_cards);</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160; </div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    std::string call_comment_string();</div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160; </div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;    <span class="keywordtype">bool</span> make_multi_column_board(<span class="keyword">const</span> std::string &amp; rendered_columns, template_id_enum board_template = kanban_board_temp, <span class="keywordtype">bool</span> specify_rows = <span class="keyword">false</span>, <span class="keyword">const</span> std::string &amp; col_width = <span class="stringliteral">&quot; 240px&quot;</span>, <span class="keyword">const</span> std::string &amp; container_width = <span class="stringliteral">&quot;230px&quot;</span>, <span class="keyword">const</span> std::string &amp; card_width = <span class="stringliteral">&quot;220px&quot;</span>, <span class="keyword">const</span> std::string &amp; card_height = <span class="stringliteral">&quot;390px&quot;</span>);</div>
-<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160; </div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    std::string with_and_without_inactive_Nodes_buttons() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160; </div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;    std::string get_list_nearterm_Nodes_url() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160; </div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;};</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160; </div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;<span class="keywordtype">bool</span> node_board_render_random_test(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160; </div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;<span class="keywordtype">bool</span> node_board_render_dependencies(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160; </div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;<span class="keywordtype">bool</span> node_board_render_named_list(<a class="code" href="structfz_1_1Named__Node__List.html">Named_Node_List_ptr</a> namedlist_ptr, <a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160; </div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;<span class="keywordtype">bool</span> node_board_render_list_of_named_lists(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160; </div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;<span class="keywordtype">bool</span> node_board_render_list_of_topics(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160; </div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;<span class="keywordtype">bool</span> node_board_render_list_of_topics_and_NNLs(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160; </div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;<span class="keywordtype">bool</span> node_board_render_sysmet_categories(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160; </div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;<span class="keywordtype">bool</span> node_board_render_NNL_dependencies(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160; </div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;<span class="keywordtype">bool</span> node_board_render_dependencies_tree(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160; </div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;<span class="keywordtype">bool</span> node_board_render_superiors_tree(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160; </div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;<span class="keywordtype">bool</span> node_board_render_csv_schedule(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160; </div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// __NBRENDER_HPP</span></div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> num_columns = 0;</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> num_rows = 0;</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160; </div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;    <a class="code" href="structnodeboard.html">nodeboard</a>();</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160; </div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> usage_hook();</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160; </div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    <span class="keywordtype">bool</span> set_grid_and_card_sizes(<span class="keyword">const</span> std::string &amp; cargs);</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160; </div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    <span class="keywordtype">bool</span> parse_error_detection_list(<span class="keyword">const</span> std::string &amp; cargs);</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160; </div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> options_hook(<span class="keywordtype">char</span> c, std::string cargs);</div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160; </div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    <span class="keywordtype">bool</span> parse_list_names(<span class="keyword">const</span> std::string &amp; arg);</div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160; </div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;    <span class="keywordtype">bool</span> parse_filter_topics(<span class="keyword">const</span> std::string &amp; arg);</div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160; </div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    <span class="keywordtype">bool</span> parse_header_identifier(<span class="keyword">const</span> std::string &amp; arg, std::string &amp; header, std::string &amp; identifier);</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160; </div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;    <span class="keywordtype">bool</span> parse_csv(<span class="keyword">const</span> std::string &amp; csv_data);</div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160; </div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    <a class="code" href="classfz_1_1Graph.html">Graph</a> &amp; graph();</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160; </div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;    <a class="code" href="structnodeboard__options.html">nodeboard_options</a> get_nodeboard_options() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160; </div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;    <span class="keywordtype">bool</span> make_options_pane(std::string &amp; rendered_pane);</div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160; </div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;    std::string build_nodeboard_cgi_call(<span class="keyword">const</span> <a class="code" href="structnodeboard__options.html">nodeboard_options</a> &amp; options) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160; </div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    <span class="keywordtype">bool</span> shows_non_milestone_nodes() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160; </div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    std::string encode_modified_topic_filters(<span class="keywordtype">bool</span> _shownonmilestone) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160; </div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    <span class="keywordtype">bool</span> render_init();</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160; </div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    <span class="keywordtype">bool</span> to_output(<span class="keyword">const</span> std::string &amp; rendered_board);</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160; </div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    <span class="keywordtype">bool</span> filtered_out(<span class="keyword">const</span> <a class="code" href="classfz_1_1Node.html">Node</a> * node_ptr, std::string &amp; node_text) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160; </div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    <span class="keywordtype">bool</span> get_Node_card(<span class="keyword">const</span> <a class="code" href="classfz_1_1Node.html">Node</a> * node_ptr, std::string &amp; rendered_cards);</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160; </div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    Node_render_result get_Node_alt_card(<span class="keyword">const</span> <a class="code" href="classfz_1_1Node.html">Node</a> * node_ptr, std::time_t tdate, std::string &amp; rendered_cards, <a class="code" href="structfz_1_1Node__Subtree.html">Node_Subtree</a> * subtree_ptr = <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160; </div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    <span class="keywordtype">float</span> get_card_vertical_position(<span class="keyword">const</span> std::string &amp; start_time, <span class="keywordtype">float</span> v_offset = 4.0);</div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160; </div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    <span class="keywordtype">float</span> get_card_height(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> minutes);</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160; </div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    <span class="keywordtype">bool</span> get_Passed_Time_overlay(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> passed_minutes, std::string &amp; rendered_cards);</div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160; </div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    std::string get_schedule_card_color(<span class="keyword">const</span> <a class="code" href="structCSV__Data.html">CSV_Data</a> &amp; <a class="code" href="structfz_1_1entry__data.html">entry_data</a>);</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160; </div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    <span class="keywordtype">bool</span> get_Schedule_card(<span class="keyword">const</span> <a class="code" href="structCSV__Data.html">CSV_Data</a> &amp; <a class="code" href="structfz_1_1entry__data.html">entry_data</a>, std::string &amp; rendered_cards);</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160; </div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    <span class="keywordtype">bool</span> get_column(<span class="keyword">const</span> std::string &amp; column_header, <span class="keyword">const</span> std::string &amp; rendered_cards, std::string &amp; rendered_columns, <span class="keyword">const</span> std::string extra_header, template_id_enum column_template);</div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160; </div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    <span class="comment">//bool get_alt_column(const std::string &amp; column_header, const std::string &amp; rendered_cards, std::string &amp; rendered_columns, const std::string extra_header);</span></div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160; </div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    <span class="keywordtype">bool</span> get_dependencies_column(<span class="keyword">const</span> std::string &amp; column_header, <span class="keyword">const</span> <a class="code" href="classfz_1_1Node.html">Node</a> * column_node, std::string &amp; rendered_columns, <span class="keyword">const</span> std::string extra_header);</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160; </div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> get_Node_total_minutes_applied(<span class="keyword">const</span> <a class="code" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> nkey);</div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160; </div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    <span class="keywordtype">void</span> progress_state_update();</div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160; </div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;    std::string tosup_todep_html_buttons(<span class="keyword">const</span> <a class="code" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp; column_key);</div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160; </div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    <span class="keywordtype">bool</span> get_fulldepth_dependencies_column(std::string &amp; column_header, <a class="code" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> column_key, <a class="code" href="structThreads__Board__Data.html">Threads_Board_Data</a> &amp; board_data, <span class="keyword">const</span> std::string extra_header = <span class="stringliteral">&quot;&quot;</span>);</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160; </div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    <span class="keywordtype">bool</span> get_NNL_column(<span class="keyword">const</span> std::string &amp; nnl_str, std::string &amp; rendered_columns);</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160; </div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    <span class="keywordtype">bool</span> get_Topic_column(<span class="keyword">const</span> std::string &amp; topic_str, std::string &amp; rendered_columns);</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160; </div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    <span class="keywordtype">bool</span> get_day_column(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> day_idx, std::string &amp; rendered_columns);</div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160; </div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    <span class="keywordtype">bool</span> make_simple_grid_board(<span class="keyword">const</span> std::string &amp; rendered_cards);</div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160; </div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    std::string call_comment_string();</div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160; </div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    <span class="keywordtype">bool</span> make_multi_column_board(<span class="keyword">const</span> std::string &amp; rendered_columns, template_id_enum board_template = kanban_board_temp, <span class="keywordtype">bool</span> specify_rows = <span class="keyword">false</span>, <span class="keyword">const</span> std::string &amp; col_width = <span class="stringliteral">&quot; 240px&quot;</span>, <span class="keyword">const</span> std::string &amp; container_width = <span class="stringliteral">&quot;230px&quot;</span>, <span class="keyword">const</span> std::string &amp; card_width = <span class="stringliteral">&quot;220px&quot;</span>, <span class="keyword">const</span> std::string &amp; card_height = <span class="stringliteral">&quot;390px&quot;</span>);</div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160; </div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;    std::string with_and_without_inactive_Nodes_buttons() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160; </div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;    std::string get_list_nearterm_Nodes_url() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160; </div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;    std::string into_grid(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> row_idx, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> col_idx, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> span, <span class="keyword">const</span> std::string &amp; content) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160; </div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;};</div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160; </div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;<span class="keywordtype">bool</span> node_board_render_random_test(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160; </div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;<span class="keywordtype">bool</span> node_board_render_dependencies(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160; </div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;<span class="keywordtype">bool</span> node_board_render_named_list(<a class="code" href="structfz_1_1Named__Node__List.html">Named_Node_List_ptr</a> namedlist_ptr, <a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160; </div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;<span class="keywordtype">bool</span> node_board_render_list_of_named_lists(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160; </div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;<span class="keywordtype">bool</span> node_board_render_list_of_topics(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160; </div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;<span class="keywordtype">bool</span> node_board_render_list_of_topics_and_NNLs(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160; </div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;<span class="keywordtype">bool</span> node_board_render_sysmet_categories(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
+<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160; </div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;<span class="keywordtype">bool</span> node_board_render_NNL_dependencies(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
+<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160; </div>
+<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;<span class="keywordtype">bool</span> node_board_render_dependencies_tree(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
+<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160; </div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;<span class="keywordtype">bool</span> node_board_render_superiors_tree(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
+<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160; </div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;<span class="keywordtype">bool</span> node_board_render_csv_schedule(<a class="code" href="structnodeboard.html">nodeboard</a> &amp; nb);</div>
+<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160; </div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// __NBRENDER_HPP</span></div>
 <div class="ttc" id="aGraphinfo_8hpp_html"><div class="ttname"><a href="Graphinfo_8hpp.html">Graphinfo.hpp</a></div><div class="ttdoc">This header file declares basic information gathering functions for use with Graph data structures.</div></div>
-<div class="ttc" id="aclassfz_1_1Graph_html"><div class="ttname"><a href="classfz_1_1Graph.html">fz::Graph</a></div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:856</div></div>
+<div class="ttc" id="aclassfz_1_1Graph_html"><div class="ttname"><a href="classfz_1_1Graph.html">fz::Graph</a></div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:954</div></div>
 <div class="ttc" id="aclassfz_1_1Map__of__Subtrees_html"><div class="ttname"><a href="classfz_1_1Map__of__Subtrees.html">fz::Map_of_Subtrees</a></div><div class="ttdoc">See how this is used in fzgraphhtml and nodeboard.</div><div class="ttdef"><b>Definition:</b> Graphinfo.hpp:112</div></div>
-<div class="ttc" id="aclassfz_1_1Node_html"><div class="ttname"><a href="classfz_1_1Node.html">fz::Node</a></div><div class="ttdoc">The Node class is the principal object type within a Formalizer Graph.</div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:514</div></div>
+<div class="ttc" id="aclassfz_1_1Node_html"><div class="ttname"><a href="classfz_1_1Node.html">fz::Node</a></div><div class="ttdoc">The Node class is the principal object type within a Formalizer Graph.</div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:602</div></div>
 <div class="ttc" id="aclassfz_1_1formalizer__standard__program_html"><div class="ttname"><a href="classfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></div><div class="ttdoc">This class provides a framework for standardized Formalizer programs.</div><div class="ttdef"><b>Definition:</b> standard.hpp:155</div></div>
 <div class="ttc" id="agraph2dil_8hpp_html_ae2f423a6ec032d0cde29d8e3dd70efa9aaafcd972b9acb5a19b116a32cf8a2edc"><div class="ttname"><a href="graph2dil_8hpp.html#ae2f423a6ec032d0cde29d8e3dd70efa9aaafcd972b9acb5a19b116a32cf8a2edc">flow_NUMoptions</a></div><div class="ttdeci">@ flow_NUMoptions</div><div class="ttdoc">request: convert Graph to DIL files</div><div class="ttdef"><b>Definition:</b> graph2dil.hpp:42</div></div>
 <div class="ttc" id="anamespacefz_html"><div class="ttname"><a href="namespacefz.html">fz</a></div><div class="ttdoc">On Ubuntu, to install the libpq libraries, including the libpq-fe.h header file, do: sudo apt-get ins...</div><div class="ttdef"><b>Definition:</b> apiclient.hpp:26</div></div>
@@ -393,14 +410,14 @@ $(function() {
 <div class="ttc" id="astructCSV__Data_html"><div class="ttname"><a href="structCSV__Data.html">CSV_Data</a></div><div class="ttdef"><b>Definition:</b> nbrender.hpp:74</div></div>
 <div class="ttc" id="astructThreads__Board__Data_html"><div class="ttname"><a href="structThreads__Board__Data.html">Threads_Board_Data</a></div><div class="ttdef"><b>Definition:</b> nbrender.hpp:91</div></div>
 <div class="ttc" id="astructfz_1_1Graph__access_html"><div class="ttname"><a href="structfz_1_1Graph__access.html">fz::Graph_access</a></div><div class="ttdoc">A standardized way to access the Graph database.</div><div class="ttdef"><b>Definition:</b> Graphaccess.hpp:36</div></div>
-<div class="ttc" id="astructfz_1_1Log__filter_html"><div class="ttname"><a href="structfz_1_1Log__filter.html">fz::Log_filter</a></div><div class="ttdoc">Filter structure used to set up selective Log reading.</div><div class="ttdef"><b>Definition:</b> Logtypes.hpp:498</div></div>
-<div class="ttc" id="astructfz_1_1Named__Node__List_html"><div class="ttname"><a href="structfz_1_1Named__Node__List.html">fz::Named_Node_List</a></div><div class="ttdoc">A named List (or ordered collections) of Nodes.</div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:801</div></div>
+<div class="ttc" id="astructfz_1_1Log__filter_html"><div class="ttname"><a href="structfz_1_1Log__filter.html">fz::Log_filter</a></div><div class="ttdoc">Filter structure used to set up selective Log reading.</div><div class="ttdef"><b>Definition:</b> Logtypes.hpp:499</div></div>
+<div class="ttc" id="astructfz_1_1Named__Node__List_html"><div class="ttname"><a href="structfz_1_1Named__Node__List.html">fz::Named_Node_List</a></div><div class="ttdoc">A named List (or ordered collections) of Nodes.</div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:899</div></div>
 <div class="ttc" id="astructfz_1_1Node__ID__key_html"><div class="ttname"><a href="structfz_1_1Node__ID__key.html">fz::Node_ID_key</a></div><div class="ttdoc">Standardized Formalizer Node ID key.</div><div class="ttdef"><b>Definition:</b> Graphbase.hpp:255</div></div>
 <div class="ttc" id="astructfz_1_1Node__Subtree_html"><div class="ttname"><a href="structfz_1_1Node__Subtree.html">fz::Node_Subtree</a></div><div class="ttdef"><b>Definition:</b> Graphinfo.hpp:67</div></div>
 <div class="ttc" id="astructfz_1_1entry__data_html"><div class="ttname"><a href="structfz_1_1entry__data.html">fz::entry_data</a></div><div class="ttdoc">A useful data structure for keeping related data together.</div><div class="ttdef"><b>Definition:</b> Logaccess.hpp:35</div></div>
 <div class="ttc" id="astructfz_1_1render__environment_html"><div class="ttname"><a href="structfz_1_1render__environment.html">fz::render_environment</a></div><div class="ttdoc">Configuration for a template rendering environment.</div><div class="ttdef"><b>Definition:</b> templater.hpp:65</div></div>
 <div class="ttc" id="astructnodeboard__options_html"><div class="ttname"><a href="structnodeboard__options.html">nodeboard_options</a></div><div class="ttdef"><b>Definition:</b> nbrender.hpp:106</div></div>
-<div class="ttc" id="astructnodeboard_html"><div class="ttname"><a href="structnodeboard.html">nodeboard</a></div><div class="ttdef"><b>Definition:</b> nbrender.hpp:121</div></div>
+<div class="ttc" id="astructnodeboard_html"><div class="ttname"><a href="structnodeboard.html">nodeboard</a></div><div class="ttdef"><b>Definition:</b> nbrender.hpp:123</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

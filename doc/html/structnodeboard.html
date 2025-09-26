@@ -86,7 +86,7 @@ Collaboration diagram for nodeboard:</div>
 <div class="dyncontent">
 <div class="center"><img src="structnodeboard__coll__graph.png" border="0" usemap="#anodeboard_coll__map" alt="Collaboration graph"/></div>
 <map name="anodeboard_coll__map" id="anodeboard_coll__map">
-<area shape="rect" title=" " alt="" coords="1333,225,1424,252"/>
+<area shape="rect" title=" " alt="" coords="1333,243,1424,269"/>
 <area shape="rect" href="classfz_1_1formalizer__standard__program.html" title="This class provides a framework for standardized Formalizer programs." alt="" coords="994,25,1167,66"/>
 <area shape="rect" href="classfz_1_1Graph.html" title=" " alt="" coords="719,232,800,259"/>
 <area shape="rect" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph." alt="" coords="1043,153,1119,180"/>
@@ -97,14 +97,15 @@ Collaboration diagram for nodeboard:</div>
 <area shape="rect" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key." alt="" coords="442,19,569,45"/>
 <area shape="rect" href="classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use." alt="" coords="711,47,808,73"/>
 <area shape="rect" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs." alt="" coords="215,19,353,45"/>
+<area shape="rect" href="structfz_1_1Named__Node__List.html" title="A named List (or ordered collections) of Nodes." alt="" coords="1001,388,1161,415"/>
 <area shape="rect" href="classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="707,97,812,124"/>
 <area shape="rect" href="classfz_1_1Boolean__Tag__Flags.html" title=" " alt="" coords="676,148,843,175"/>
-<area shape="rect" href="structfz_1_1Graph__access.html" title="A standardized way to access the Graph database." alt="" coords="1015,388,1147,415"/>
-<area shape="rect" href="structfz_1_1Postgres__access.html" title="A standardized way to access the Formalizer database." alt="" coords="685,388,834,415"/>
-<area shape="rect" href="classfz_1_1fzpq__configurable.html" title=" " alt="" coords="427,388,584,415"/>
-<area shape="rect" href="classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="223,388,345,415"/>
-<area shape="rect" href="classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="29,363,141,389"/>
-<area shape="rect" href="classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="5,413,165,440"/>
+<area shape="rect" href="structfz_1_1Graph__access.html" title="A standardized way to access the Graph database." alt="" coords="1015,439,1147,465"/>
+<area shape="rect" href="structfz_1_1Postgres__access.html" title="A standardized way to access the Formalizer database." alt="" coords="685,439,834,465"/>
+<area shape="rect" href="classfz_1_1fzpq__configurable.html" title=" " alt="" coords="427,439,584,465"/>
+<area shape="rect" href="classfz_1_1configurable.html" title="Formalizer standard programs that can use configuration files should include a class that inherits co..." alt="" coords="223,439,345,465"/>
+<area shape="rect" href="classfz_1_1configbase.html" title="This is the base component for Formalizer configuration file configuration parameter loading and pars..." alt="" coords="29,413,141,440"/>
+<area shape="rect" href="classfz_1_1main__init__register.html" title="Classes that need an initialization function to be called first&#45;thing upon entering main() (but not b..." alt="" coords="5,464,165,491"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -175,6 +176,12 @@ Node_render_result&#160;</td><td class="memItemRight" valign="bottom"><b>get_Nod
 float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnodeboard.html#a2df2463581e503f1079b268fcc209631">get_card_height</a> (unsigned int minutes)</td></tr>
 <tr class="memdesc:a2df2463581e503f1079b268fcc209631"><td class="mdescLeft">&#160;</td><td class="mdescRight">Each minute is 1/1440 of the day, thus, using the same vertical calculation as above, each minute has a height of 84/1440=0.0583vh. <br /></td></tr>
 <tr class="separator:a2df2463581e503f1079b268fcc209631"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa128a67ba7e6efed03e28c4035b2da69"><td class="memItemLeft" align="right" valign="top"><a id="aa128a67ba7e6efed03e28c4035b2da69"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>get_Passed_Time_overlay</b> (unsigned int passed_minutes, std::string &amp;rendered_cards)</td></tr>
+<tr class="separator:aa128a67ba7e6efed03e28c4035b2da69"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad87968f8e7cea7e93e8bce081e462237"><td class="memItemLeft" align="right" valign="top"><a id="ad87968f8e7cea7e93e8bce081e462237"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_schedule_card_color</b> (const <a class="el" href="structCSV__Data.html">CSV_Data</a> &amp;<a class="el" href="structfz_1_1entry__data.html">entry_data</a>)</td></tr>
+<tr class="separator:ad87968f8e7cea7e93e8bce081e462237"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a166268d27bcb46af7933fe13dcacde01"><td class="memItemLeft" align="right" valign="top"><a id="a166268d27bcb46af7933fe13dcacde01"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>get_Schedule_card</b> (const <a class="el" href="structCSV__Data.html">CSV_Data</a> &amp;<a class="el" href="structfz_1_1entry__data.html">entry_data</a>, std::string &amp;rendered_cards)</td></tr>
 <tr class="separator:a166268d27bcb46af7933fe13dcacde01"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -221,6 +228,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>with_and_witho
 std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnodeboard.html#a716df11954ae68bbdad248a67acd1f21">get_list_nearterm_Nodes_url</a> () const</td></tr>
 <tr class="memdesc:a716df11954ae68bbdad248a67acd1f21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call this to generate the URL for a button that calls fzgraphsearch-cgi.py to produce a list of near-term (1 week) active Nodes in the subtree of node_ptr. <br /></td></tr>
 <tr class="separator:a716df11954ae68bbdad248a67acd1f21"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46427c1740427138045663dd95bf8fc8"><td class="memItemLeft" align="right" valign="top"><a id="a46427c1740427138045663dd95bf8fc8"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>into_grid</b> (unsigned int row_idx, unsigned int col_idx, unsigned int span, const std::string &amp;content) const</td></tr>
+<tr class="separator:a46427c1740427138045663dd95bf8fc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classfz_1_1formalizer__standard__program"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classfz_1_1formalizer__standard__program')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></td></tr>
 <tr class="memitem:a5ed1aa517fb32a549d09966f487da224 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1formalizer__standard__program.html#a5ed1aa517fb32a549d09966f487da224">formalizer_standard_program</a> (bool _usesconfig)</td></tr>
 <tr class="memdesc:a5ed1aa517fb32a549d09966f487da224 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base initialization of standard Formalizer programs.  <a href="classfz_1_1formalizer__standard__program.html#a5ed1aa517fb32a549d09966f487da224">More...</a><br /></td></tr>
@@ -286,6 +296,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>threads</b> = false</
 <tr class="memitem:ade9897cabd1d7dfc3c93c38f285d4a1b"><td class="memItemLeft" align="right" valign="top"><a id="ade9897cabd1d7dfc3c93c38f285d4a1b"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>progress_analysis</b> = false</td></tr>
 <tr class="separator:ade9897cabd1d7dfc3c93c38f285d4a1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ff9f011d2fc405dffa47893415444a5"><td class="memItemLeft" align="right" valign="top"><a id="a2ff9f011d2fc405dffa47893415444a5"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>importance_threshold</b> = 0.0</td></tr>
+<tr class="separator:a2ff9f011d2fc405dffa47893415444a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afa6af2b6b9ee71855f67d1c1b21f5f55"><td class="memItemLeft" align="right" valign="top"><a id="afa6af2b6b9ee71855f67d1c1b21f5f55"></a>
 time_t&#160;</td><td class="memItemRight" valign="bottom"><b>t_now</b> = 0</td></tr>
 <tr class="separator:afa6af2b6b9ee71855f67d1c1b21f5f55"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -310,6 +323,15 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>sort_by_subtree_times
 <tr class="memitem:a7d9fffed310c153c57e6e49871d3a1cf"><td class="memItemLeft" align="right" valign="top"><a id="a7d9fffed310c153c57e6e49871d3a1cf"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>timeline</b> = false</td></tr>
 <tr class="separator:a7d9fffed310c153c57e6e49871d3a1cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e8f5c0fcdb44b4ca726a14ef561471a"><td class="memItemLeft" align="right" valign="top"><a id="a8e8f5c0fcdb44b4ca726a14ef561471a"></a>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>timeline_min_td</b> = RTt_maxtime</td></tr>
+<tr class="separator:a8e8f5c0fcdb44b4ca726a14ef561471a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f85f9d5efe16ab9a46d3e571685e4e2"><td class="memItemLeft" align="right" valign="top"><a id="a5f85f9d5efe16ab9a46d3e571685e4e2"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>timeline_stretch</b> = 1.0</td></tr>
+<tr class="separator:a5f85f9d5efe16ab9a46d3e571685e4e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57fad8ced97ffac46e59ab22ac004a81"><td class="memItemLeft" align="right" valign="top"><a id="a57fad8ced97ffac46e59ab22ac004a81"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>timeline_last_vh</b> = 0.0</td></tr>
+<tr class="separator:a57fad8ced97ffac46e59ab22ac004a81"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae61e00c621c268cabed5eb3f7c65c90c"><td class="memItemLeft" align="right" valign="top"><a id="ae61e00c621c268cabed5eb3f7c65c90c"></a>
 time_t&#160;</td><td class="memItemRight" valign="bottom"><b>t_before</b> = 0</td></tr>
 <tr class="separator:ae61e00c621c268cabed5eb3f7c65c90c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -397,6 +419,12 @@ std::vector&lt; <a class="el" href="structCSV__Data__Day.html">CSV_Data_Day</a> 
 <tr class="memitem:af9a122cb8035524319b989d6433d1c9c"><td class="memItemLeft" align="right" valign="top"><a id="af9a122cb8035524319b989d6433d1c9c"></a>
 float&#160;</td><td class="memItemRight" valign="bottom"><b>vertical_multiplier</b> = 1.0</td></tr>
 <tr class="separator:af9a122cb8035524319b989d6433d1c9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa17b486841c5fc58eb23b3406956b30b"><td class="memItemLeft" align="right" valign="top"><a id="aa17b486841c5fc58eb23b3406956b30b"></a>
+<a class="el" href="structfz_1_1Named__Node__List.html">Named_Node_List_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>sleepNNL_ptr</b> = nullptr</td></tr>
+<tr class="separator:aa17b486841c5fc58eb23b3406956b30b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7ad55d78967027a68485a8661c87978"><td class="memItemLeft" align="right" valign="top"><a id="ab7ad55d78967027a68485a8661c87978"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>explicit_passed_time</b> = true</td></tr>
+<tr class="separator:ab7ad55d78967027a68485a8661c87978"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac14922f7fc33e40a81ab20ccd68b64e7"><td class="memItemLeft" align="right" valign="top"><a id="ac14922f7fc33e40a81ab20ccd68b64e7"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>propose_td_solutions</b> = false</td></tr>
 <tr class="separator:ac14922f7fc33e40a81ab20ccd68b64e7"><td class="memSeparator" colspan="2">&#160;</td></tr>

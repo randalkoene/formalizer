@@ -106,6 +106,9 @@ Public Member Functions</h2></td></tr>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfzmetricspq.html#ae77ba374865a79ee45dabaca7e9710a8">usage_hook</a> ()</td></tr>
 <tr class="memdesc:ae77ba374865a79ee45dabaca7e9710a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add FZOUT statements for each line of the usage info to print as help for program specific command line options. <br /></td></tr>
 <tr class="separator:ae77ba374865a79ee45dabaca7e9710a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a958416782cd9bd4c231e53b0ba116c56"><td class="memItemLeft" align="right" valign="top"><a id="a958416782cd9bd4c231e53b0ba116c56"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>get_index_or_interval</b> (const std::string &amp;cargs)</td></tr>
+<tr class="separator:a958416782cd9bd4c231e53b0ba116c56"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a42d6a7faa16dbc899c9b6fb501072674"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfzmetricspq.html#a42d6a7faa16dbc899c9b6fb501072674">options_hook</a> (char c, std::string cargs)</td></tr>
 <tr class="memdesc:a42d6a7faa16dbc899c9b6fb501072674"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handler for command line options that are defined in the derived class as options specific to the program.  <a href="structfzmetricspq.html#a42d6a7faa16dbc899c9b6fb501072674">More...</a><br /></td></tr>
 <tr class="separator:a42d6a7faa16dbc899c9b6fb501072674"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -147,9 +150,18 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a805bcd4081a5c42aa5800f0aa031c64e"><td class="memItemLeft" align="right" valign="top"><a id="a805bcd4081a5c42aa5800f0aa031c64e"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>index</b></td></tr>
 <tr class="separator:a805bcd4081a5c42aa5800f0aa031c64e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91eff1f71e4216371c85297bf502f0d2"><td class="memItemLeft" align="right" valign="top"><a id="a91eff1f71e4216371c85297bf502f0d2"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>last_index</b></td></tr>
+<tr class="separator:a91eff1f71e4216371c85297bf502f0d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aefb186ec9160006f868070f4117acf63"><td class="memItemLeft" align="right" valign="top"><a id="aefb186ec9160006f868070f4117acf63"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>interval_of_indices</b> = false</td></tr>
+<tr class="separator:aefb186ec9160006f868070f4117acf63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a37f4c193df10463292e87c4ea8fcccba"><td class="memItemLeft" align="right" valign="top"><a id="a37f4c193df10463292e87c4ea8fcccba"></a>
 std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>datajson</b></td></tr>
 <tr class="separator:a37f4c193df10463292e87c4ea8fcccba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9cb1da02b1348f8bd2e0e7272560b186"><td class="memItemLeft" align="right" valign="top"><a id="a9cb1da02b1348f8bd2e0e7272560b186"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>generic_table</b></td></tr>
+<tr class="separator:a9cb1da02b1348f8bd2e0e7272560b186"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a35708fd3fc980eb3a31e408912b661ec"><td class="memItemLeft" align="right" valign="top"><a id="a35708fd3fc980eb3a31e408912b661ec"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>outfile</b></td></tr>
 <tr class="separator:a35708fd3fc980eb3a31e408912b661ec"><td class="memSeparator" colspan="2">&#160;</td></tr>

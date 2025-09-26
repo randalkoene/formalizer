@@ -11,7 +11,7 @@ var indexSectionsWithContent =
   8: "efpr",
   9: "bcilm",
   10: "_acdefs",
-  11: "<abcdflmnrs"
+  11: "<abcdfglmnrs"
 };
 
 var indexSectionNames =

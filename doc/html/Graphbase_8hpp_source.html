@@ -161,7 +161,7 @@ $(function() {
 <div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <a class="code" href="classfz_1_1ID__exception.html">ID_exception</a>(std::string _idexceptioncase) : idexceptioncase(_idexceptioncase) {</div>
 <div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;        ADDERROR(<span class="stringliteral">&quot;Node_ID::Node_ID&quot;</span>,node_exception_stub+idexceptioncase);</div>
 <div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    }</div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    std::string what() { <span class="keywordflow">return</span> std::string(node_exception_stub) + idexceptioncase; }</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    std::string what()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> std::string(node_exception_stub) + idexceptioncase; }</div>
 <div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;};</div>
 <div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160; </div>
 <div class="line"><a name="l00178"></a><span class="lineno"><a class="line" href="structfz_1_1ID__TimeStamp.html">  178</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfz_1_1ID__TimeStamp.html">ID_TimeStamp</a> {</div>
@@ -392,7 +392,7 @@ $(function() {
 <div class="line"><a name="l00454"></a><span class="lineno">  454</span>&#160;    std::vector&lt;std::string&gt; topics;</div>
 <div class="line"><a name="l00455"></a><span class="lineno">  455</span>&#160;    time_t targetdate = <a class="code" href="namespacefz.html#aef05dd6bfa4d4a09d3eace4949b6fab0a328419ab650b1af199fdb58a44105aaa">RTt_unspecified</a>;</div>
 <div class="line"><a name="l00456"></a><span class="lineno">  456</span>&#160;    <span class="keywordtype">bool</span> repeats = <span class="keyword">false</span>; <span class="comment">// currently only used when building a filter</span></div>
-<div class="line"><a name="l00457"></a><span class="lineno">  457</span>&#160;    <a class="code" href="namespacefz.html#a6c45e5e183774ed3322e5c3d445b3f70">td_property</a> tdproperty = variable;</div>
+<div class="line"><a name="l00457"></a><span class="lineno">  457</span>&#160;    <a class="code" href="namespacefz.html#a6c45e5e183774ed3322e5c3d445b3f70">td_property</a> tdproperty = unspecified; <span class="comment">// was before 20241126: variable;</span></div>
 <div class="line"><a name="l00458"></a><span class="lineno">  458</span>&#160;    td_pattern tdpattern = patt_nonperiodic;</div>
 <div class="line"><a name="l00459"></a><span class="lineno">  459</span>&#160;    Graphsigned tdevery = 1;</div>
 <div class="line"><a name="l00460"></a><span class="lineno">  460</span>&#160;    Graphsigned tdspan = 0;</div>
@@ -455,12 +455,12 @@ $(function() {
 <div class="line"><a name="l00587"></a><span class="lineno">  587</span>&#160; </div>
 <div class="line"><a name="l00588"></a><span class="lineno">  588</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// __GRAPHBASE_HPP</span></div>
 <div class="ttc" id="aTimeStamp_8hpp_html"><div class="ttname"><a href="TimeStamp_8hpp.html">TimeStamp.hpp</a></div><div class="ttdoc">This header file declares Formalizer TimeStamp format and operations.</div></div>
-<div class="ttc" id="aclassfz_1_1Edge_html"><div class="ttname"><a href="classfz_1_1Edge.html">fz::Edge</a></div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:735</div></div>
+<div class="ttc" id="aclassfz_1_1Edge_html"><div class="ttname"><a href="classfz_1_1Edge.html">fz::Edge</a></div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:833</div></div>
 <div class="ttc" id="aclassfz_1_1Edit__flags_html"><div class="ttname"><a href="classfz_1_1Edit__flags.html">fz::Edit_flags</a></div><div class="ttdoc">A bitmask of flags for the data components of a Node.</div><div class="ttdef"><b>Definition:</b> Graphbase.hpp:326</div></div>
-<div class="ttc" id="aclassfz_1_1Graph_html"><div class="ttname"><a href="classfz_1_1Graph.html">fz::Graph</a></div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:856</div></div>
+<div class="ttc" id="aclassfz_1_1Graph_html"><div class="ttname"><a href="classfz_1_1Graph.html">fz::Graph</a></div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:954</div></div>
 <div class="ttc" id="aclassfz_1_1ID__exception_html"><div class="ttname"><a href="classfz_1_1ID__exception.html">fz::ID_exception</a></div><div class="ttdoc">Exception thrown when a Node ID is of invalid form.</div><div class="ttdef"><b>Definition:</b> Graphbase.hpp:151</div></div>
 <div class="ttc" id="aclassfz_1_1NoGraph__exception_html"><div class="ttname"><a href="classfz_1_1NoGraph__exception.html">fz::NoGraph_exception</a></div><div class="ttdoc">Exception thrown when a resident Graph is missing and.</div><div class="ttdef"><b>Definition:</b> Graphbase.hpp:139</div></div>
-<div class="ttc" id="aclassfz_1_1Node_html"><div class="ttname"><a href="classfz_1_1Node.html">fz::Node</a></div><div class="ttdoc">The Node class is the principal object type within a Formalizer Graph.</div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:514</div></div>
+<div class="ttc" id="aclassfz_1_1Node_html"><div class="ttname"><a href="classfz_1_1Node.html">fz::Node</a></div><div class="ttdoc">The Node class is the principal object type within a Formalizer Graph.</div><div class="ttdef"><b>Definition:</b> Graphtypes.hpp:602</div></div>
 <div class="ttc" id="aclassfz_1_1tdproperty__binary__pattern_html"><div class="ttname"><a href="classfz_1_1tdproperty__binary__pattern.html">fz::tdproperty_binary_pattern</a></div><div class="ttdef"><b>Definition:</b> Graphbase.hpp:412</div></div>
 <div class="ttc" id="aerror_8hpp_html"><div class="ttname"><a href="error_8hpp.html">error.hpp</a></div><div class="ttdoc">This header file declares error handling classes and functions for use with core Formalizer C++ code.</div></div>
 <div class="ttc" id="anamespacefz_html"><div class="ttname"><a href="namespacefz.html">fz</a></div><div class="ttdoc">On Ubuntu, to install the libpq libraries, including the libpq-fe.h header file, do: sudo apt-get ins...</div><div class="ttdef"><b>Definition:</b> apiclient.hpp:26</div></div>

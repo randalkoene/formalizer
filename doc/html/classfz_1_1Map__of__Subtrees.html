@@ -114,11 +114,12 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>node_in_subtree</b> (
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>node_in_any_subtree</b> (<a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> node_key) const</td></tr>
 <tr class="separator:a18be0836f7add0fd61e1677cb5cbe6c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a79bea00d8626d53da7ee47a2029ea6de"><td class="memItemLeft" align="right" valign="top"><a id="a79bea00d8626d53da7ee47a2029ea6de"></a>
-Boolean_Tag_Flags::boolean_flag&#160;</td><td class="memItemRight" valign="bottom"><b>get_category_boolean_tag</b> (<a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> node_key, <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> subtree_key) const</td></tr>
+Boolean_Tag_Flags::boolean_flag&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Map__of__Subtrees.html#a79bea00d8626d53da7ee47a2029ea6de">get_category_boolean_tag</a> (<a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> node_key, <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> subtree_key) const</td></tr>
+<tr class="memdesc:a79bea00d8626d53da7ee47a2029ea6de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deliver the Boolean Tag Flag of the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> itself, and if that is 'none' then instead deliver the Boolean Tag Flag of the Subtree head provided. <br /></td></tr>
 <tr class="separator:a79bea00d8626d53da7ee47a2029ea6de"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a98e85a38ee9c144860dea6e87e77a68d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Map__of__Subtrees.html#a98e85a38ee9c144860dea6e87e77a68d">node_in_heads_or_any_subtree</a> (<a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> node_key, Boolean_Tag_Flags::boolean_flag &amp;boolean_tag) const</td></tr>
-<tr class="memdesc:a98e85a38ee9c144860dea6e87e77a68d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Search the map of subtrees for an instance of a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a>.  <a href="classfz_1_1Map__of__Subtrees.html#a98e85a38ee9c144860dea6e87e77a68d">More...</a><br /></td></tr>
-<tr class="separator:a98e85a38ee9c144860dea6e87e77a68d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15765f9d55bf9689414bd5a98c916535"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Map__of__Subtrees.html#a15765f9d55bf9689414bd5a98c916535">node_in_heads_or_any_subtree</a> (<a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> node_key, Boolean_Tag_Flags::boolean_flag &amp;boolean_tag, bool search_superiors=false) const</td></tr>
+<tr class="memdesc:a15765f9d55bf9689414bd5a98c916535"><td class="mdescLeft">&#160;</td><td class="mdescRight">Search the map of subtrees for an instance of a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a>.  <a href="classfz_1_1Map__of__Subtrees.html#a15765f9d55bf9689414bd5a98c916535">More...</a><br /></td></tr>
+<tr class="separator:a15765f9d55bf9689414bd5a98c916535"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -147,8 +148,8 @@ Protected Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>See how this is used in fzgraphhtml and nodeboard. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a98e85a38ee9c144860dea6e87e77a68d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a98e85a38ee9c144860dea6e87e77a68d">&#9670;&nbsp;</a></span>node_in_heads_or_any_subtree()</h2>
+<a id="a15765f9d55bf9689414bd5a98c916535"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a15765f9d55bf9689414bd5a98c916535">&#9670;&nbsp;</a></span>node_in_heads_or_any_subtree()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -163,7 +164,13 @@ Protected Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">Boolean_Tag_Flags::boolean_flag &amp;&#160;</td>
-          <td class="paramname"><em>boolean_tag</em>&#160;</td>
+          <td class="paramname"><em>boolean_tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>search_superiors</em> = <code>false</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -177,14 +184,18 @@ Protected Attributes</h2></td></tr>
 <p>If found then also check the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> and the subtree top-Node for a category Boolean Flag Tag that may be used in visualization.</p>
 <p>A Boolean Flag Tag set at the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> itself overrides that of the subtree top-Node.</p>
 <p>The graph_ptr member variable must be valid, as set during collect().</p>
+<p>Note 1: If has_subtrees is false then boolean_tag is not modified. Note 2: Even with the search_superiors option, it is still possible that Boolean_Tag_Flags::none is returned without searching superiors if a) the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> is found in a subtree, and b) the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> has no explicit BTF, and c) the subtree head has no explicit BTF.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">node_key</td><td>Identifies the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> to search for. </td></tr>
     <tr><td class="paramname">boolean_tag</td><td>Receives the category Boolean Flag Tag if one was found. </td></tr>
+    <tr><td class="paramname">search_superiors</td><td>If set then searches for Boolean Flag Tag in superiors if not already found in subtrees. </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True if found in the map of subtrees. </dd></dl>
+<p>If this <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> is the head of this Subtree then use its Boolean Tag Flag.</p>
+<p>If this <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> is within the Subtree then use either, a) its own explicitly specified Boolean Tag Flag, or b) the Boolean Tag Flag of the Subtree head.</p>
 
 </div>
 </div>

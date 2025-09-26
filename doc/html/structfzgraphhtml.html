@@ -115,6 +115,10 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="memitem:a6ae1639cb229b5b0fdae5a1e6661873a"><td class="memItemLeft" align="right" valign="top"><a id="a6ae1639cb229b5b0fdae5a1e6661873a"></a>
 <a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>graph</b> ()</td></tr>
 <tr class="separator:a6ae1639cb229b5b0fdae5a1e6661873a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ed83a80edc99f40417bbf6119326940"><td class="memItemLeft" align="right" valign="top"><a id="a6ed83a80edc99f40417bbf6119326940"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfzgraphhtml.html#a6ed83a80edc99f40417bbf6119326940">output_prep_text</a> (const std::string &amp;text, bool do_excerpt=false)</td></tr>
+<tr class="memdesc:a6ed83a80edc99f40417bbf6119326940"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply any necessary excerpting, tag removal, or output format specific escaping of a text string. <br /></td></tr>
+<tr class="separator:a6ed83a80edc99f40417bbf6119326940"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classfz_1_1formalizer__standard__program"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classfz_1_1formalizer__standard__program')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classfz_1_1formalizer__standard__program.html">fz::formalizer_standard_program</a></td></tr>
 <tr class="memitem:a5ed1aa517fb32a549d09966f487da224 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1formalizer__standard__program.html#a5ed1aa517fb32a549d09966f487da224">formalizer_standard_program</a> (bool _usesconfig)</td></tr>
 <tr class="memdesc:a5ed1aa517fb32a549d09966f487da224 inherit pub_methods_classfz_1_1formalizer__standard__program"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base initialization of standard Formalizer programs.  <a href="classfz_1_1formalizer__standard__program.html#a5ed1aa517fb32a549d09966f487da224">More...</a><br /></td></tr>
@@ -156,6 +160,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>list_name</b><
 <tr class="memitem:a3407e889a40a8bcdb655f3966e334db7"><td class="memItemLeft" align="right" valign="top"><a id="a3407e889a40a8bcdb655f3966e334db7"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>subtrees_list_name</b></td></tr>
 <tr class="separator:a3407e889a40a8bcdb655f3966e334db7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e3128d8ad7a889a6c644f8260d46cf7"><td class="memItemLeft" align="right" valign="top"><a id="a9e3128d8ad7a889a6c644f8260d46cf7"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>detect_BTF</b> = false</td></tr>
+<tr class="separator:a9e3128d8ad7a889a6c644f8260d46cf7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a983a1920462dd17f1b074447e970530f"><td class="memItemLeft" align="right" valign="top"><a id="a983a1920462dd17f1b074447e970530f"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>test_cards</b> = false</td></tr>
 <tr class="separator:a983a1920462dd17f1b074447e970530f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -186,6 +193,18 @@ time_t&#160;</td><td class="memItemRight" valign="bottom"><b>t_last_rendered</b>
 <tr class="memitem:a4a0c3d7ba21daa3036963adadda39c56"><td class="memItemLeft" align="right" valign="top"><a id="a4a0c3d7ba21daa3036963adadda39c56"></a>
 unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>do_links_rendered</b> = 0</td></tr>
 <tr class="separator:a4a0c3d7ba21daa3036963adadda39c56"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1280cc18f52925ed3fcf1760670c772"><td class="memItemLeft" align="right" valign="top"><a id="ad1280cc18f52925ed3fcf1760670c772"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>req_suggested</b> = 0.0</td></tr>
+<tr class="separator:ad1280cc18f52925ed3fcf1760670c772"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83c21962b1c2139395c20606eac64677"><td class="memItemLeft" align="right" valign="top"><a id="a83c21962b1c2139395c20606eac64677"></a>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>td_suggested</b> = RTt_unspecified</td></tr>
+<tr class="separator:a83c21962b1c2139395c20606eac64677"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42026364948d9cd11a5edebf8ddf0b99"><td class="memItemLeft" align="right" valign="top"><a id="a42026364948d9cd11a5edebf8ddf0b99"></a>
+<a class="el" href="namespacefz.html#a6c45e5e183774ed3322e5c3d445b3f70">td_property</a>&#160;</td><td class="memItemRight" valign="bottom"><b>init_tdprop</b> = _tdprop_num</td></tr>
+<tr class="separator:a42026364948d9cd11a5edebf8ddf0b99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa5fc258ad7378514300a47dd0997f6b2"><td class="memItemLeft" align="right" valign="top"><a id="aa5fc258ad7378514300a47dd0997f6b2"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>data</b></td></tr>
+<tr class="separator:aa5fc258ad7378514300a47dd0997f6b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5bc6ee50c102e42e756b085776247ffb"><td class="memItemLeft" align="right" valign="top"><a id="a5bc6ee50c102e42e756b085776247ffb"></a>
 <a class="el" href="classfz_1_1Graph.html">Graph</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>graph_ptr</b> = nullptr</td></tr>
 <tr class="separator:a5bc6ee50c102e42e756b085776247ffb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -252,7 +271,8 @@ std::deque&lt; <a class="el" href="classfz_1_1main__init__register.html">main_in
 </div><div class="memdoc">
 
 <p>For <code>add_option_args</code>, add command line option identifiers as expected by <code>optarg()</code>. </p>
-<p>For <code>add_usage_top</code>, add command line option usage format specifiers. </p>
+<p>For <code>add_usage_top</code>, add command line option usage format specifiers.</p>
+<p>Command line arguments already assigned: CDEFILMNRSTVWYcdehjmnopqrstuvxZ Command line arguments still available: ABGHJKOPQUXabfgiklwyz </p>
 
 </div>
 </div>

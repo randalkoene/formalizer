@@ -101,14 +101,15 @@ Public Types</h2></td></tr>
 &#160;&#160;<b>g_adddupedge</b>
 , <b>g_removenulledge</b>
 , <b>g_removeunknownedge</b>
-, <b>g_noerrors</b>
+, <b>NUM_errcodes</b>
 , <br />
-&#160;&#160;<b>g_addnullnode</b>
+&#160;&#160;<b>g_noerrors</b>
+, <b>g_addnullnode</b>
 , <b>g_adddupnode</b>
 , <b>g_addnulledge</b>
-, <b>g_adddupedge</b>
 , <br />
-&#160;&#160;<b>g_removenulledge</b>
+&#160;&#160;<b>g_adddupedge</b>
+, <b>g_removenulledge</b>
 , <b>g_removeunknownedge</b>
 <br />
  }</td></tr>
@@ -122,14 +123,15 @@ Public Types</h2></td></tr>
 &#160;&#160;<b>g_adddupedge</b>
 , <b>g_removenulledge</b>
 , <b>g_removeunknownedge</b>
-, <b>g_noerrors</b>
+, <b>NUM_errcodes</b>
 , <br />
-&#160;&#160;<b>g_addnullnode</b>
+&#160;&#160;<b>g_noerrors</b>
+, <b>g_addnullnode</b>
 , <b>g_adddupnode</b>
 , <b>g_addnulledge</b>
-, <b>g_adddupedge</b>
 , <br />
-&#160;&#160;<b>g_removenulledge</b>
+&#160;&#160;<b>g_adddupedge</b>
+, <b>g_removenulledge</b>
 , <b>g_removeunknownedge</b>
 <br />
  }</td></tr>
@@ -137,6 +139,9 @@ Public Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a801d55f89007c6d35c0ebe67518a92a3"><td class="memItemLeft" align="right" valign="top"><a id="a801d55f89007c6d35c0ebe67518a92a3"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_error</b> () const</td></tr>
+<tr class="separator:a801d55f89007c6d35c0ebe67518a92a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab437522fb000d5d982f789d287465292"><td class="memItemLeft" align="right" valign="top"><a id="ab437522fb000d5d982f789d287465292"></a>
 const <a class="el" href="classfz_1_1Topic__Tags.html">Topic_Tags</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#ab437522fb000d5d982f789d287465292">get_topics</a> () const</td></tr>
 <tr class="memdesc:ab437522fb000d5d982f789d287465292"><td class="mdescLeft">&#160;</td><td class="mdescRight">tables references <br /></td></tr>
@@ -235,6 +240,9 @@ std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bott
 <tr class="memitem:ae7f463ade9dd62612d3dc410a3a99807"><td class="memItemLeft" align="right" valign="top"><a id="ae7f463ade9dd62612d3dc410a3a99807"></a>
 <a class="el" href="structfz_1_1Named__Node__List.html">Named_Node_List_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_List</b> (const std::string _name)</td></tr>
 <tr class="separator:ae7f463ade9dd62612d3dc410a3a99807"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16973ffc979d0a60c6a7e4434acd3a77"><td class="memItemLeft" align="right" valign="top"><a id="a16973ffc979d0a60c6a7e4434acd3a77"></a>
+Node_Index&#160;</td><td class="memItemRight" valign="bottom"><b>get_List_Nodes</b> (const std::string _name)</td></tr>
+<tr class="separator:a16973ffc979d0a60c6a7e4434acd3a77"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad4be8962de6c7d5b37164bed6d706657"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfz_1_1Named__Node__List.html">Named_Node_List_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#ad4be8962de6c7d5b37164bed6d706657">add_to_List</a> (const std::string _name, const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node, int16_t _features=0, int32_t _maxsize=0)</td></tr>
 <tr class="memdesc:ad4be8962de6c7d5b37164bed6d706657"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add the <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> ID key of a <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> to a Named <a class="el" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph.">Node</a> List.  <a href="classfz_1_1Graph.html#ad4be8962de6c7d5b37164bed6d706657">More...</a><br /></td></tr>
 <tr class="separator:ad4be8962de6c7d5b37164bed6d706657"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -265,9 +273,12 @@ ssize_t&#160;</td><td class="memItemRight" valign="bottom"><b>edit_all_in_List</
 <tr class="memitem:a4f09eab13f92b1cafa3e2d8f82e8abf9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfz_1_1Topic.html">Topic</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a4f09eab13f92b1cafa3e2d8f82e8abf9">main_Topic_of_Node</a> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node) const</td></tr>
 <tr class="memdesc:a4f09eab13f92b1cafa3e2d8f82e8abf9"><td class="mdescLeft">&#160;</td><td class="mdescRight">crossref tables: topics x nodes  <a href="classfz_1_1Graph.html#a4f09eab13f92b1cafa3e2d8f82e8abf9">More...</a><br /></td></tr>
 <tr class="separator:a4f09eab13f92b1cafa3e2d8f82e8abf9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6da927d8daf34c45230e389b15f9b262"><td class="memItemLeft" align="right" valign="top"><a id="a6da927d8daf34c45230e389b15f9b262"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a6da927d8daf34c45230e389b15f9b262">Node_is_in_NNL</a> (const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;nkey, const std::string &amp;list_name) const</td></tr>
+<tr class="memdesc:a6da927d8daf34c45230e389b15f9b262"><td class="mdescLeft">&#160;</td><td class="mdescRight">crossref tables: namedlists x nodes <br /></td></tr>
+<tr class="separator:a6da927d8daf34c45230e389b15f9b262"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a36bf168a629eaf2d0d6be6fde415f8bb"><td class="memItemLeft" align="right" valign="top"><a id="a36bf168a629eaf2d0d6be6fde415f8bb"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a36bf168a629eaf2d0d6be6fde415f8bb">Node_is_in_NNLs</a> (const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;nkey) const</td></tr>
-<tr class="memdesc:a36bf168a629eaf2d0d6be6fde415f8bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">crossref tables: namedlists x nodes <br /></td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>Node_is_in_NNLs</b> (const <a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a> &amp;nkey) const</td></tr>
 <tr class="separator:a36bf168a629eaf2d0d6be6fde415f8bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad961044368fc771944cde563f2a8c15d"><td class="memItemLeft" align="right" valign="top"><a id="ad961044368fc771944cde563f2a8c15d"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>Node_is_in_NNLs</b> (const <a class="el" href="classfz_1_1Node.html">Node</a> &amp;node) const</td></tr>
@@ -328,6 +339,10 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>t_suspiciously_large<
 <tr class="memitem:a9abddc3dbb038ee5db22f4cbe5d7a992"><td class="memItemLeft" align="right" valign="top"><a id="a9abddc3dbb038ee5db22f4cbe5d7a992"></a>
 <a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>latest_active_movable_with_required_time</b> () const</td></tr>
 <tr class="separator:a9abddc3dbb038ee5db22f4cbe5d7a992"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6aeaa5e0f0fc94fe3487d12c2f0aa7f9"><td class="memItemLeft" align="right" valign="top"><a id="a6aeaa5e0f0fc94fe3487d12c2f0aa7f9"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#a6aeaa5e0f0fc94fe3487d12c2f0aa7f9">op</a> (<a class="el" href="classfz_1_1Graph__Op.html">Graph_Op</a> &amp;_op) const</td></tr>
+<tr class="memdesc:a6aeaa5e0f0fc94fe3487d12c2f0aa7f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recursive operation carried out through the <a class="el" href="classfz_1_1Graph.html">Graph</a> structure. <br /></td></tr>
+<tr class="separator:a6aeaa5e0f0fc94fe3487d12c2f0aa7f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab437522fb000d5d982f789d287465292"><td class="memItemLeft" align="right" valign="top"><a id="ab437522fb000d5d982f789d287465292"></a>
 const <a class="el" href="classfz_1_1Topic__Tags.html">Topic_Tags</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Graph.html#ab437522fb000d5d982f789d287465292">get_topics</a> () const</td></tr>
 <tr class="memdesc:ab437522fb000d5d982f789d287465292"><td class="mdescLeft">&#160;</td><td class="mdescRight">tables references <br /></td></tr>

@@ -68,7 +68,31 @@ $(function() {
 <div class="title"><code>nodeboard</code> - Kanban board tool with Node hierarchy support </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>(( ...this would be a good place for general documentation of the tool... ))</p>
+<div class="textblock"><h1>Programs and scripts</h1>
+<ul>
+<li><code>nodeboard</code>: Generate Kanban board representations of Node hierarchies and Named Nodes Lists in a variety of useful ways.</li>
+<li><code>nodeboard-cgi.py</code>: Web interface CGI scripted access to <code>nodeboard</code>.</li>
+</ul>
+<h1>Examples</h1>
+<p>The following examples demonstrate some of the principal ways to use nodeboard. Note that many of the options available on the command line can also be modified from the <code>options</code> pane in the top-right corner of many generated boards.</p>
+<h2><code>nodeboard -g -n &lt;node-id&gt;</code></h2>
+<p>Generate a grid-constrained board that presents the Node specified by <code>&lt;node-id&gt;</code> and its hierarchy of superiors.</p>
+<h2><code>nodeboard -G -n &lt;node-id&gt;</code></h2>
+<p>Generate a grid-constrained board that presents the Node specified by <code>&lt;node-id&gt;</code> and its hierarchy of dependencies.</p>
+<h2><code>nodeboard -f &lt;sysmet-json-file&gt;</code></h2>
+<p>Generate a board from data indicated in a special system/metrics format.</p>
+<h2><code>nodeboard -n &lt;node-id&gt;</code></h2>
+<p>Generate a columns-constrained board that presents the Node specified by <code>&lt;node-id&gt;</code>, its direct dependencies as column headers, and further dependencies within the columns.</p>
+<h2><code>nodeboard -D &lt;name&gt;</code></h2>
+<p>Generate a board where the column headers are the Nodes in the NNL specified by <code>&lt;name&gt;</code> and their dependencies fill the columns.</p>
+<h2><code>nodeboard -c &lt;csv-path&gt;</code></h2>
+<p>Generate a schedule based on information in a CSV file indicated by <code>&lt;csv-path&gt;</code>.</p>
+<h2><code>nodeboard -l "{milestones_formalizer,procrastination,group_sleep}"</code></h2>
+<p>Generate a board from the specified list of NNLs.</p>
+<h2><code>nodeboard -t "{carboncopies,cc-research,cc-operations}"</code></h2>
+<p>Generate a board from the specified list of Topic keys.</p>
+<h2><code>nodeboard -m "{carboncopies,NNL:milestones_formalizer}"</code></h2>
+<p>Generate a board from the specified mixed list of topics and NNLs.</p>
 <h1>Detection and auto-solving of target date order problems</h1>
 <p>Assumptions:</p>
 <ul>

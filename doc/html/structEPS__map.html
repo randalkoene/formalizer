@@ -99,6 +99,9 @@ std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bott
 <tr class="memitem:a76970220685f4a5c72983fe4bd59b13f"><td class="memItemLeft" align="right" valign="top"><a id="a76970220685f4a5c72983fe4bd59b13f"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>show</b> ()</td></tr>
 <tr class="separator:a76970220685f4a5c72983fe4bd59b13f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a476ad698e593cacb74c8d3a25112614a"><td class="memItemLeft" align="right" valign="top"><a id="a476ad698e593cacb74c8d3a25112614a"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>show_btfresults</b> (const std::vector&lt; <a class="el" href="structbtf__results.html">btf_results</a> &gt; &amp;btfresults)</td></tr>
+<tr class="separator:a476ad698e593cacb74c8d3a25112614a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a40cf8bddfbbb4c05f5338d5b4dba9416"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEPS__map.html#a40cf8bddfbbb4c05f5338d5b4dba9416">reserve_exact</a> (<a class="el" href="classfz_1_1Node.html">Node_ptr</a> n_ptr, int chunks_req, time_t td)</td></tr>
 <tr class="memdesc:a40cf8bddfbbb4c05f5338d5b4dba9416"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reserve <code>chunks_req</code> in five minute granularity, immediately preceding the exact target date.  <a href="structEPS__map.html#a40cf8bddfbbb4c05f5338d5b4dba9416">More...</a><br /></td></tr>
 <tr class="separator:a40cf8bddfbbb4c05f5338d5b4dba9416"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -108,9 +111,15 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>show</b> ()</t
 <tr class="memitem:aec710070a3edd4b3b752ed4e331199bb"><td class="memItemLeft" align="right" valign="top">time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEPS__map.html#aec710070a3edd4b3b752ed4e331199bb">end_of_day_adjusted</a> (time_t td_raw)</td></tr>
 <tr class="memdesc:aec710070a3edd4b3b752ed4e331199bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adjust the new target date to take into account regular end of day target times for prioritized activities.  <a href="structEPS__map.html#aec710070a3edd4b3b752ed4e331199bb">More...</a><br /></td></tr>
 <tr class="separator:aec710070a3edd4b3b752ed4e331199bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa46f3d256b4c4f8a2e6098ac472e9a07"><td class="memItemLeft" align="right" valign="top">time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEPS__map.html#aa46f3d256b4c4f8a2e6098ac472e9a07">reserve</a> (<a class="el" href="classfz_1_1Node.html">Node_ptr</a> n_ptr, int chunks_req)</td></tr>
-<tr class="memdesc:aa46f3d256b4c4f8a2e6098ac472e9a07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reserve <code>chunks_req</code> in five minute granularity from the earliest available slot onward.  <a href="structEPS__map.html#aa46f3d256b4c4f8a2e6098ac472e9a07">More...</a><br /></td></tr>
-<tr class="separator:aa46f3d256b4c4f8a2e6098ac472e9a07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f8ad35dff4d7289be1f2c7c14b6389b"><td class="memItemLeft" align="right" valign="top">time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEPS__map.html#a6f8ad35dff4d7289be1f2c7c14b6389b">UTD_end_of_day_adjusted</a> (time_t td_raw)</td></tr>
+<tr class="memdesc:a6f8ad35dff4d7289be1f2c7c14b6389b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adjust the new target date of a UTD Node to take into account regular end of day target times for prioritized activities.  <a href="structEPS__map.html#a6f8ad35dff4d7289be1f2c7c14b6389b">More...</a><br /></td></tr>
+<tr class="separator:a6f8ad35dff4d7289be1f2c7c14b6389b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abbe49a5c6fdd21328aef95c19340891f"><td class="memItemLeft" align="right" valign="top">time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEPS__map.html#abbe49a5c6fdd21328aef95c19340891f">reserve</a> (<a class="el" href="classfz_1_1Node.html">Node_ptr</a> n_ptr, int chunks_req, bool is_UTD=false)</td></tr>
+<tr class="memdesc:abbe49a5c6fdd21328aef95c19340891f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reserve <code>chunks_req</code> in five minute granularity from the earliest available slot onward.  <a href="structEPS__map.html#abbe49a5c6fdd21328aef95c19340891f">More...</a><br /></td></tr>
+<tr class="separator:abbe49a5c6fdd21328aef95c19340891f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a939669d6512f2525806101bd179420b2"><td class="memItemLeft" align="right" valign="top">time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEPS__map.html#a939669d6512f2525806101bd179420b2">reserve_specific_days</a> (<a class="el" href="classfz_1_1Node.html">Node_ptr</a> n_ptr, int chunks_req, const std::vector&lt; int &gt; dayindices, time_t t_btf_limit)</td></tr>
+<tr class="memdesc:a939669d6512f2525806101bd179420b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reserve <code>chunks_req</code> in five minute granularity from the earliest available slot onward, but only on days specified by the map provided in fzu.config.btf_days.  <a href="structEPS__map.html#a939669d6512f2525806101bd179420b2">More...</a><br /></td></tr>
+<tr class="separator:a939669d6512f2525806101bd179420b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5e3012340bfcfdb748190a438052ec7a"><td class="memItemLeft" align="right" valign="top"><a id="a5e3012340bfcfdb748190a438052ec7a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>place_exact</b> ()</td></tr>
 <tr class="separator:a5e3012340bfcfdb748190a438052ec7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -219,9 +228,18 @@ eps_slots_map_t&#160;</td><td class="memItemRight" valign="bottom"><b>slots</b><
 <tr class="memitem:a261ba5d501e1ce33a00a8056c785af85"><td class="memItemLeft" align="right" valign="top"><a id="a261ba5d501e1ce33a00a8056c785af85"></a>
 eps_slots_map_t::iterator&#160;</td><td class="memItemRight" valign="bottom"><b>next_slot</b></td></tr>
 <tr class="separator:a261ba5d501e1ce33a00a8056c785af85"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3684fa4ee5444d5b81144fe71e81a5ee"><td class="memItemLeft" align="right" valign="top"><a id="a3684fa4ee5444d5b81144fe71e81a5ee"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>slots_past_t_btf_limit</b> = false</td></tr>
+<tr class="separator:a3684fa4ee5444d5b81144fe71e81a5ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7163670892e7c93ce84bde719709212"><td class="memItemLeft" align="right" valign="top"><a id="aa7163670892e7c93ce84bde719709212"></a>
+time_t&#160;</td><td class="memItemRight" valign="bottom"><b>t_previous_adjusted</b> = RTt_unspecified</td></tr>
+<tr class="separator:aa7163670892e7c93ce84bde719709212"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a49334d3a587cc6ff2b51b0cf1f5296b2"><td class="memItemLeft" align="right" valign="top"><a id="a49334d3a587cc6ff2b51b0cf1f5296b2"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>day_separator</b></td></tr>
 <tr class="separator:a49334d3a587cc6ff2b51b0cf1f5296b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8e438a8cdeed2479d5befd1de166fcc"><td class="memItemLeft" align="right" valign="top"><a id="ac8e438a8cdeed2479d5befd1de166fcc"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>showmap_day</b> = 0</td></tr>
+<tr class="separator:ac8e438a8cdeed2479d5befd1de166fcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aad58456ea9b498b90b624e507e9e0630"><td class="memItemLeft" align="right" valign="top"><a id="aad58456ea9b498b90b624e507e9e0630"></a>
 std::map&lt; time_t, <a class="el" href="classfz_1_1Node.html">Node_ptr</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>slots</b></td></tr>
 <tr class="separator:aad58456ea9b498b90b624e507e9e0630"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -399,21 +417,12 @@ std::map&lt; time_t, <a class="el" href="classfz_1_1Node.html">Node_ptr</a> &gt;
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Corresponding suggested target date taking into account TD preferences, or -1 if there are insufficient slots available.</dd></dl>
-<p>Note that this function uses the <code>EPS_map::next_slot</code> parameter to avoid checking slots more than once.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">n_ptr</td><td>Pointer to Node for which to allocate time. </td></tr>
-    <tr><td class="paramname">chunks_req</td><td>Number of chunks required. </td></tr>
-  </table>
-  </dd>
-</dl>
 <dl class="section return"><dt>Returns</dt><dd>Corresponding suggested target date taking into account TD preferences, or -1 if there are insufficient slots available. </dd></dl>
 
 </div>
 </div>
-<a id="aa46f3d256b4c4f8a2e6098ac472e9a07"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa46f3d256b4c4f8a2e6098ac472e9a07">&#9670;&nbsp;</a></span>reserve() <span class="overload">[2/2]</span></h2>
+<a id="abbe49a5c6fdd21328aef95c19340891f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abbe49a5c6fdd21328aef95c19340891f">&#9670;&nbsp;</a></span>reserve() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -428,7 +437,13 @@ std::map&lt; time_t, <a class="el" href="classfz_1_1Node.html">Node_ptr</a> &gt;
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>chunks_req</em>&#160;</td>
+          <td class="paramname"><em>chunks_req</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>is_UTD</em> = <code>false</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -443,6 +458,16 @@ std::map&lt; time_t, <a class="el" href="classfz_1_1Node.html">Node_ptr</a> &gt;
   <table class="params">
     <tr><td class="paramname">n_ptr</td><td>Pointer to Node for which to allocate time. </td></tr>
     <tr><td class="paramname">chunks_req</td><td>Number of chunks required. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Corresponding suggested target date taking into account TD preferences, or -1 if there are insufficient slots available.</dd></dl>
+<p>Note that this function uses the <code>EPS_map::next_slot</code> parameter to avoid checking slots more than once.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">n_ptr</td><td>Pointer to Node for which to allocate time. </td></tr>
+    <tr><td class="paramname">chunks_req</td><td>Number of chunks required. </td></tr>
+    <tr><td class="paramname">is_UTD</td><td>use UTD adjustments. </td></tr>
   </table>
   </dd>
 </dl>
@@ -627,6 +652,94 @@ std::map&lt; time_t, <a class="el" href="classfz_1_1Node.html">Node_ptr</a> &gt;
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True if there are insufficient slots available. </dd></dl>
+
+</div>
+</div>
+<a id="a939669d6512f2525806101bd179420b2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a939669d6512f2525806101bd179420b2">&#9670;&nbsp;</a></span>reserve_specific_days()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">time_t EPS_map::reserve_specific_days </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfz_1_1Node.html">Node_ptr</a>&#160;</td>
+          <td class="paramname"><em>n_ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>chunks_req</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; int &gt;&#160;</td>
+          <td class="paramname"><em>dayindices</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">time_t&#160;</td>
+          <td class="paramname"><em>t_btf_limit</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Reserve <code>chunks_req</code> in five minute granularity from the earliest available slot onward, but only on days specified by the map provided in fzu.config.btf_days. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">n_ptr</td><td>Pointer to Node for which to allocate time. </td></tr>
+    <tr><td class="paramname">chunks_req</td><td>Number of chunks required. </td></tr>
+    <tr><td class="paramname">dayindices</td><td>Vector with days of the week to use in the interval (0,6). </td></tr>
+    <tr><td class="paramname">t_btf_limit</td><td>Up to when to carry out BTF placements. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Corresponding suggested target date taking into account TD preferences, or -1 if there are insufficient slots available.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">n_ptr</td><td>Pointer to Node for which to allocate time. </td></tr>
+    <tr><td class="paramname">chunks_req</td><td>Number of chunks required. </td></tr>
+    <tr><td class="paramname">dayindices</td><td>Vector with days of the week to use in the interval (0,6). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Corresponding suggested target date taking into account TD preferences, or -1 if there are insufficient slots available. </dd></dl>
+
+</div>
+</div>
+<a id="a6f8ad35dff4d7289be1f2c7c14b6389b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6f8ad35dff4d7289be1f2c7c14b6389b">&#9670;&nbsp;</a></span>UTD_end_of_day_adjusted()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">time_t EPS_map::UTD_end_of_day_adjusted </td>
+          <td>(</td>
+          <td class="paramtype">time_t&#160;</td>
+          <td class="paramname"><em>td_raw</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Adjust the new target date of a UTD Node to take into account regular end of day target times for prioritized activities. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">td_raw</td><td>The new target date that was obtained, without adjustments. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A target date that may be shifted to align with a time of day specified for activities with a particular priority type. </dd></dl>
 
 </div>
 </div>

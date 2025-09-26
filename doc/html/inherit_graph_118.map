@@ -1,3 +1,4 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$structfz_1_1Set__builder__data.html" title="Data structure that specifies Node grouping categories." alt="" coords="5,5,156,32"/>
+<area shape="rect" id="node1" href="$structfz_1_1Postgres__access.html" title="A standardized way to access the Formalizer database." alt="" coords="5,5,155,32"/>
+<area shape="rect" id="node2" href="$structfz_1_1Graph__access.html" title="A standardized way to access the Graph database." alt="" coords="203,5,335,32"/>
 </map>

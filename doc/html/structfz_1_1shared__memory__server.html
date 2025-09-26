@@ -81,14 +81,21 @@ Inheritance diagram for fz::shared_memory_server:</div>
 <div class="dyncontent">
 <div class="center"><img src="structfz_1_1shared__memory__server__inherit__graph.png" border="0" usemap="#afz_1_1shared__memory__server_inherit__map" alt="Inheritance graph"/></div>
 <map name="afz_1_1shared__memory__server_inherit__map" id="afz_1_1shared__memory__server_inherit__map">
-<area shape="rect" title=" " alt="" coords="15,5,211,32"/>
-<area shape="rect" href="structfzserverpq.html" title=" " alt="" coords="5,80,96,107"/>
-<area shape="rect" href="structfzserverpqlog.html" title=" " alt="" coords="121,80,231,107"/>
+<area shape="rect" title=" " alt="" coords="41,5,237,32"/>
+<area shape="rect" href="structfzserverpq.html" title=" " alt="" coords="31,80,122,107"/>
+<area shape="rect" href="structfzserverpqlog.html" title=" " alt="" coords="147,80,257,107"/>
+<area shape="rect" href="structqueing__fzserverpq.html" title="Requests received are placed into a FIFO queue for handling by a separate thread." alt="" coords="5,155,148,181"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:ad964f6f970ac68ea191c1977eca755dc"><td class="memItemLeft" align="right" valign="top"><a id="ad964f6f970ac68ea191c1977eca755dc"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>shared_memory_server</b> (bool _handles_close=false)</td></tr>
+<tr class="separator:ad964f6f970ac68ea191c1977eca755dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42588a2b2ce8791e0e608698154a4175"><td class="memItemLeft" align="right" valign="top"><a id="a42588a2b2ce8791e0e608698154a4175"></a>
+virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><b>identify</b> () const =0</td></tr>
+<tr class="separator:a42588a2b2ce8791e0e608698154a4175"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afc810e2672b1d25e76d874590018be81"><td class="memItemLeft" align="right" valign="top"><a id="afc810e2672b1d25e76d874590018be81"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>handle_request_with_data_share</b> (int new_socket, const std::string &amp;segment_name)=0</td></tr>
 <tr class="separator:afc810e2672b1d25e76d874590018be81"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -101,6 +108,9 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:aaa1f6aae928c31c936e742a78363e7a8"><td class="memItemLeft" align="right" valign="top"><a id="aaa1f6aae928c31c936e742a78363e7a8"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>listen</b></td></tr>
 <tr class="separator:aaa1f6aae928c31c936e742a78363e7a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09cae60c25b8e820cdb2c83a94927c6b"><td class="memItemLeft" align="right" valign="top"><a id="a09cae60c25b8e820cdb2c83a94927c6b"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>handles_close</b></td></tr>
+<tr class="separator:a09cae60c25b8e820cdb2c83a94927c6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li>core/include/<a class="el" href="tcpserver_8hpp_source.html">tcpserver.hpp</a></li>

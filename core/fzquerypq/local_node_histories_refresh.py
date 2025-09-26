@@ -46,5 +46,6 @@ refreshcmd=f"{FZQUERYPQ} -d {DATABASE} -s {SCHEMANAME} -E STDOUT -R histories -q
 if not try_call_command(refreshcmd):
 	exit(1)
 
+# This may print 'GRANT' to STDOUT
 wwwaccesscmd=f"psql -d {DATABASE} -c 'GRANT SELECT ON {SCHEMANAME}.histories TO \"{CGIUSER}\";'"
 try_call_command(wwwaccesscmd)

@@ -1,0 +1,5 @@
+<map id="fz::Graph_Op" name="fz::Graph_Op">
+<area shape="rect" id="node1" title="Pass a class derived from this one to Graph::op()." alt="" coords="108,5,215,32"/>
+<area shape="rect" id="node2" href="$classfz_1_1Node__hierarchy__inferred__BTF.html" title="Infer a BTF category by traversing a Node&#39;s superiors hierarchy." alt="" coords="5,80,149,121"/>
+<area shape="rect" id="node3" href="$classfz_1_1Node__hierarchy__to__list.html" title="NOTE: The following is not currently implemented, because it&#39;s probably never needed,..." alt="" coords="173,80,317,121"/>
+</map>

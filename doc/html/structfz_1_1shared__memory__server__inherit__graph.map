@@ -1,5 +1,6 @@
 <map id="fz::shared_memory_server" name="fz::shared_memory_server">
-<area shape="rect" id="node1" title=" " alt="" coords="15,5,211,32"/>
-<area shape="rect" id="node2" href="$structfzserverpq.html" title=" " alt="" coords="5,80,96,107"/>
-<area shape="rect" id="node3" href="$structfzserverpqlog.html" title=" " alt="" coords="121,80,231,107"/>
+<area shape="rect" id="node1" title=" " alt="" coords="41,5,237,32"/>
+<area shape="rect" id="node2" href="$structfzserverpq.html" title=" " alt="" coords="31,80,122,107"/>
+<area shape="rect" id="node4" href="$structfzserverpqlog.html" title=" " alt="" coords="147,80,257,107"/>
+<area shape="rect" id="node3" href="$structqueing__fzserverpq.html" title="Requests received are placed into a FIFO queue for handling by a separate thread." alt="" coords="5,155,148,181"/>
 </map>
