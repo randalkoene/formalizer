@@ -920,7 +920,11 @@ class daypage(fz_htmlpage):
 
         # --- Individual components of the page.
         #     Components with main actions in page style and standard presentation:
-        self.html_std = fz_html_standard('daywiz.py')
+        use_form_submit=True
+        if 'cmd' in directives:
+            if directives['cmd'] == 'noredraw' or directives['cmd'] == 'update_noredraw':
+                use_form_submit = False
+        self.html_std = fz_html_standard('daywiz.py', use_form_submit=use_form_submit)
         self.html_icon = fz_html_icon()
         self.html_style = fz_html_style(['fz', ])
         self.html_uistate = fz_html_uistate()
@@ -1404,6 +1408,14 @@ def launch_as_cgi():
     if directives['cmd'] == 'update':
         _page.update_from_form(form)
         _page.show()
+    elif directives['cmd'] == 'update_noredraw':
+        _page.update_from_form(form)
+        par_changed = form.getvalue('par_changed')
+        if par_changed:
+            if par_changed == 'date':
+                _page.show() # redraw the page if the date changed
+                return
+        print('OK') # otherwise just confirm
     else:
         _page.show()
 

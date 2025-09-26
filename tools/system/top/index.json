@@ -59,7 +59,7 @@
             "window" : "_blank"
         },
         "DayWiz" : {
-            "url" : "/cgi-bin/daywiz.py",
+            "url" : "/cgi-bin/daywiz.py?cmd=noredraw",
             "window" : "_blank"
         },
         "Day Nutrition" : {

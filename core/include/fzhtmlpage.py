@@ -37,6 +37,7 @@ HTML_STD_TAIL='''</form><hr>
 '''
 # NOTE: The functions below require and id, not just a name.
 # BEWARE: *** Right now this seems to work for daywiz.py but not for consumed.py.
+# This version causes a form submit to send modified data.
 HTML_STD_BOTTOM='''<script>
 function chkbxUpdate(chkbx_ref) {
     var id = chkbx_ref.id;
@@ -72,13 +73,81 @@ window.addEventListener('keydown', (event) => {
 
 </html>
 '''
+# This version sends only the modified data and does not expect a
+# page redraw by default.
+HTML_STD_BOTTOM_NOREDRAW='''<script>
+function chkbxUpdate(chkbx_ref) {
+    var id = chkbx_ref.id;
+    var val = chkbx_ref.checked;
+    console.log(`${id} ${val}`);
+    sendData(id, val, false);
+}
+function formUpdate(input_ref) {
+    var id = input_ref.id;
+    var val = input_ref.value;
+    console.log(`${id} ${val}`);
+    if (id=='date') {
+        sendData(id, val, true);
+    } else {
+        sendData(id, val, false);
+    }
+}
+function sendData(parameter, value, redraw) {
+    var formData = new FormData();
+    formData.append('cmd', 'update_noredraw');
+    formData.append('par_changed', parameter);
+    formData.append('par_newval', value);
+    var dateInput = document.getElementById('date');
+    if (dateInput) {
+        formData.append('date', dateInput.value);
+    }
+
+    fetch('/cgi-bin/daywiz.py', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        if (redraw) {
+            document.body.innerHTML = data;
+        } else {
+            console.log('Success:', data);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating value. Please try again.');
+    });
+}
+function testUpdate(test_ref) {
+    console.log('TESTING');
+    return false;
+}
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+  }
+});
+</script>
+</body>
+
+</html>
+'''
 class fz_html_standard:
-    def __init__(self, cgibin: str, method='post'):
+    def __init__(self, cgibin: str, method='post', use_form_submit=True):
         self.top_content = HTML_STD_TOP
         self.head_content = '<meta charset="utf-8" />\n'
         self.body_content = HTML_STD_BODY % (cgibin, method)
         self.tail_content = HTML_STD_TAIL
-        self.bottom_content = HTML_STD_BOTTOM
+        if use_form_submit:
+            self.bottom_content = HTML_STD_BOTTOM
+        else:
+            self.bottom_content = HTML_STD_BOTTOM_NOREDRAW
 
     def generate_html_top(self) ->str:
         return self.top_content
