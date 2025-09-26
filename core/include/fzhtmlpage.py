@@ -27,7 +27,7 @@ HTML_STD_TOP='''<!DOCTYPE html>
 #             work with the GET method.
 HTML_STD_BODY='''<body>
 <form id="mainForm" action="/cgi-bin/%s" method="%s">
-<input type="hidden" name="cmd" value="update">
+<input type="hidden" name="cmd" value="%s">
 <input type="hidden" id="par_changed" name="par_changed" value="unknown">
 <input type="hidden" id="par_newval" name="par_newval" value="">
 '''
@@ -142,7 +142,11 @@ class fz_html_standard:
     def __init__(self, cgibin: str, method='post', use_form_submit=True):
         self.top_content = HTML_STD_TOP
         self.head_content = '<meta charset="utf-8" />\n'
-        self.body_content = HTML_STD_BODY % (cgibin, method)
+        if use_form_submit:
+            update_specifier = 'update'
+        else:
+            update_specifier = 'update_noredraw'
+        self.body_content = HTML_STD_BODY % (cgibin, method, update_specifier)
         self.tail_content = HTML_STD_TAIL
         if use_form_submit:
             self.bottom_content = HTML_STD_BOTTOM

@@ -203,7 +203,7 @@ DAYPAGE_TABLES_FRAME='''<table class="col_right_separated">
 </table>
 '''
 
-DAYPAGE_HTML_TOP_EXTRA='''%s <button class="button button1" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?startfrom=%s0000&daysinterval=1','_blank');">Visit corresponding Log interval</button>
+DAYPAGE_HTML_TOP_EXTRA='''%s <button type="button" class="button button1" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?startfrom=%s0000&daysinterval=1','_blank');">Visit corresponding Log interval</button>
 '''
 
 WIZTABLE_TOP='''<table class="secondcolfixedw">
