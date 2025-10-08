@@ -383,7 +383,16 @@ Boolean_Tag_Flags::boolean_flag Map_of_Subtrees::get_category_boolean_tag(Node_I
 
     Boolean_Tag_Flags::boolean_flag boolean_tag;
     boolean_tag = graph_ptr->find_category_tag(node_key);
-    if (boolean_tag == Boolean_Tag_Flags::none) boolean_tag = graph_ptr->find_category_tag(subtree_key);
+    if (boolean_tag == Boolean_Tag_Flags::none) {
+        boolean_tag = graph_ptr->find_category_tag(subtree_key);
+        if (boolean_tag != Boolean_Tag_Flags::none) {
+            const_cast<Map_of_Subtrees*>(this)->btf_source = subtree_key_BTF;
+            const_cast<Map_of_Subtrees*>(this)->btf_source_key = subtree_key;
+        }
+    } else {
+        const_cast<Map_of_Subtrees*>(this)->btf_source = node_BTF;
+        const_cast<Map_of_Subtrees*>(this)->btf_source_key = node_key;
+    }
     return boolean_tag;
 }
 
@@ -393,6 +402,7 @@ Boolean_Tag_Flags::boolean_flag Map_of_Subtrees::get_category_boolean_tag(Node_I
  * used in visualization.
  * 
  * A Boolean Flag Tag set at the Node itself overrides that of the subtree top-Node.
+ * The Map_of_Subtrees stores inference information about how the BTF was obtained.
  * 
  * The graph_ptr member variable must be valid, as set during collect().
  * 
@@ -410,6 +420,7 @@ Boolean_Tag_Flags::boolean_flag Map_of_Subtrees::get_category_boolean_tag(Node_I
  * @return True if found in the map of subtrees.
  */
 bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean_Tag_Flags::boolean_flag & boolean_tag, bool search_superiors) const {
+    const_cast<Map_of_Subtrees*>(this)->btf_source = not_inferred;
     if (!has_subtrees) return false;
     for (const auto & [subtree_key, subtree_ref]: map_of_subtrees) {
         if (subtree_key == node_key) {
@@ -440,6 +451,10 @@ bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean
             }
 
             boolean_tag = btf_op.btf_strongest;
+            if (boolean_tag != Boolean_Tag_Flags::none) {
+                const_cast<Map_of_Subtrees*>(this)->btf_source = superior_BTF;
+                const_cast<Map_of_Subtrees*>(this)->btf_source_key = btf_op.btf_source_key;
+            }
             return true;
         }
     }

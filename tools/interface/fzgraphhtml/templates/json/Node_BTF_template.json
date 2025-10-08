@@ -1,6 +1,9 @@
 {
 	"Node ID": "{{ node-id }}",
 	"btf-category": "{{ btf-category }}",
+	"btf-source": "{{ btf-source }}",
+	"btf-source-id": "{{ btf-source-id }}",
+	"subtrees-list": "{{ subtrees-list }}",
 	"btf-tzadjust": "{{ btf-tzadjust }}",
 	"btf-error": "{{ btf-error }}"
 }

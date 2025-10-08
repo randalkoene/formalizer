@@ -106,6 +106,14 @@ bool Node_Dependencies_fulldepth(const Node* node_ptr, Subtree_Branch_Map & full
  */
 map_of_subtrees_t Threads_Subtrees(Graph & graph, const std::string & nnl_str, bool sort_by_targetdate = false, bool norepeated = false);
 
+enum BTF_source {
+    not_inferred,    // no inference of BTF was carried out
+    node_BTF,        // found in Node itself
+    subtree_key_BTF, // inferred as BTF of subtree head
+    superior_BTF,    // inferred as BTF of Superior
+    NUMBTF_source
+};
+
 /**
  * See how this is used in fzgraphhtml and nodeboard.
  */
@@ -119,6 +127,8 @@ public:
     bool sort_by_targetdate = false;
     bool norepeated = false; // *** Not using this right now, as it probably breaks Node_Branch connections!
     bool has_subtrees = false;
+    BTF_source btf_source = not_inferred;
+    Node_ID_key btf_source_key;
 
     Map_of_Subtrees() {}
 

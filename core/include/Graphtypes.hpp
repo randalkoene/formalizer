@@ -541,6 +541,7 @@ public:
 class Node_hierarchy_inferred_BTF: public Graph_Op {
 public:
     Boolean_Tag_Flags::boolean_flag btf_strongest = Boolean_Tag_Flags::none;
+    Node_ID_key btf_source_key;
     float btf_strength = 0.0;
 
 public:

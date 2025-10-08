@@ -1168,6 +1168,7 @@ void Node_hierarchy_inferred_BTF::op(const Node& node) {
     if (btf != Boolean_Tag_Flags::none) {
         if (node.get_valuation() > btf_strength) {
             btf_strongest = btf;
+            btf_source_key = node.get_id().key();
             btf_strength = node.get_valuation();
         }
         stop_traverse = true;

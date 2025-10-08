@@ -1065,6 +1065,13 @@ std::string render_Node_prerequisites_and_provides_capabilities(Node & node) {
     return render_str;
 }
 
+const std::map<BTF_source, std::string> flag_source_map = {
+    { not_inferred, "not inferred" },
+    { node_BTF, "Node itself" },
+    { subtree_key_BTF, "inferred from subtree head BTF" },
+    { superior_BTF, "inferred from Superior BTF" },
+};
+
 const std::map<bool, std::string> flag_set_map = {
     { false, "none" },
     { true, "SET" },
@@ -1105,9 +1112,12 @@ std::string render_Node_BTF(Graph & graph, Node & node) {
     } else {
         nodevars.emplace("btf-category", "none");
     }
+    nodevars.emplace("btf-source", flag_source_map.at(map_of_subtrees.btf_source));
+    nodevars.emplace("btf-source-id", map_of_subtrees.btf_source_key.str());
     
     nodevars.emplace("btf-tzadjust", flag_set_map.at(node.get_bflags().TZadjust()));
     nodevars.emplace("btf-error", flag_set_map.at(node.get_bflags().Error()));
+    nodevars.emplace("subtrees-list", fzgh.subtrees_list_name);
 
     return env.render(templates[node_BTF_temp], nodevars);
 }
