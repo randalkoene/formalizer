@@ -246,6 +246,10 @@ def get_node_id_from_result(result_str:str)->str:
         return ''
     return result_str[id_start:id_end]
 
+def Set_Selected_Node(node_id:str):
+    thecmd = f'./fzgraph -q -E STDOUT -C /fz/graph/namedlists/_select?id={node_id}'
+    result_str = try_call_command(thecmd, return_result=True)
+
 def create_node():
     text = form.getvalue('text')
 
@@ -318,6 +322,8 @@ def create_node():
         print(edit_fail_page_tail)
     else:
         node_id = get_node_id_from_result(result_str)
+        Set_Selected_Node(node_id)
+        print('<p>Selected Node set to: %s</p>' % str(node_id))
         print(create_success_page_tail % (node_id, node_id, node_id))
 
 def modify_node():

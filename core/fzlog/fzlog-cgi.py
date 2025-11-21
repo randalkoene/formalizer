@@ -40,6 +40,9 @@ help = form.getvalue('help')
 action = form.getvalue('action')
 node = form.getvalue('node')
 id = form.getvalue('id')
+updatecheckbox = form.getvalue('updatecheckbox')
+if updatecheckbox:
+    action = 'updatecheckbox'
 replacement_text = form.getvalue('text')
 T_emulated = form.getvalue('T')
 if (T_emulated == 'actual'): # 'actual' and '' have the same effect
@@ -680,18 +683,54 @@ def extract_node_and_text(getlogentryoutput: str) -> tuple:
     node = nodestr.strip()
     return (node, textstr)
 
+def find_next_checkbox(entrytext:str, pos:int)->tuple:
+    tag = '<input type="checkbox">'
+    tagpos = entrytext.find(tag, pos)
+    if tagpos < 0:
+        return None, -1, -1
+    eolpos = entrytext.find('\n', tagpos + len(tag))
+    if eolpos < 0:
+        eolpos = len(entrytext)
+    checkboxtext = entrytext[tagpos+len(tag):eolpos]
+    return checkboxtext, eolpos, tagpos+len(tag)
+
+def collect_checkboxes(entrytext:str)->list:
+    checkboxes = []
+    pos = 0
+    while True:
+        next_checkbox, pos, text_pos = find_next_checkbox(entrytext, pos)
+        if not next_checkbox:
+            break
+        checkboxes.append( [ next_checkbox, text_pos ] )
+    return checkboxes
+
+def make_checkboxes_list(checkboxes:list, id:str)->str:
+    checkboxeslist_html = ''
+    for i in range(len(checkboxes)):
+        node_cell = '<td><input name="checkboxnode_%s_%s" type="text"></td>' % (str(id), str(checkboxes[i][1]))
+        use_selected_cell = '''<td><button type="button" onclick="window.open('/cgi-bin/fzlog-cgi.py?updatecheckbox=use_selected&text_pos=%s&id=%s','_blank');">Use Selected</button></td>''' % (str(checkboxes[i][1]), str(id))
+        text_cell = '<td>'+str(checkboxes[i][0])+'</td>'
+        checkboxeslist_html += '<tr>'+node_cell+use_selected_cell+text_cell+'</tr>\n'
+    return checkboxeslist_html
+
 def edit_Log_entry(id: str, verbosity = 0) -> bool:
     print(editentrypagehead)
     thecmd = './fzloghtml -e '+id+' -N -o STDOUT -F raw -q'
     retcode = try_subprocess_check_output(thecmd, 'entry_text', verbosity)
     if (retcode == 0):
         entrynode, entrytext = extract_node_and_text(results['entry_text'].decode())
+        checkboxes = collect_checkboxes(entrytext)
+        checkboxeslist_html = make_checkboxes_list(checkboxes, id)
         print('<p>Editing Log entry: <b>'+id+'</b></p>')
         print(editentryform_start)
         print(entrytext, end='')
         print(editentryform_middle)
         print(entrynode, end='')
         print(editentryform_end)
+        print('<hr><form action="/cgi-bin/fzlog-cgi.py" method="post">')
+        print('<table><tbody>\n'+checkboxeslist_html+'</tbody></table>')
+        print('Update checkboxes <input type="submit" name="updatecheckbox" value="use_input" />.')
+        print('</form>')
         print(editentrypagetail_success)
     else:
         print(editentrypagetail_failure)
@@ -715,6 +754,59 @@ def replace_Log_entry(id: str, text: str, verbosity = 0) -> bool:
             print('<p>Now associated with <b>the same Node</b> as the Log chunk.</p>')
         print(replaceentrypagetail_success)
     else:
+        print(replaceentrypagetail_failure)
+    return (retcode == 0)
+
+def find_update_checkbox_id()->tuple:
+    for field_name in form.keys():
+        field_pos = field_name.find('checkboxnode_')
+        if field_pos >= 0:
+            field_value = form.getvalue(field_name)
+            if field_value:
+                id_end = field_name.find('_', field_pos+len('checkboxnode_'))
+                id = field_name[field_pos+len('checkboxnode_'):id_end]
+                text_pos = field_name[id_end+1:]
+                return id, text_pos, field_value
+    return None, None
+
+def update_checkbox_entrytext(entrytext:str, text_pos:int, set_node:str)->str:
+    if text_pos<1:
+        return entrytext
+    update_entrytext = entrytext[:text_pos-1]
+    update_entrytext += 'checked> [ '
+    update_entrytext += set_node
+    update_entrytext += ' ]'
+    update_entrytext += entrytext[text_pos:]
+    return update_entrytext
+
+def update_checkbox(id:str, updatecheckbox:str):
+    text_pos = form.getvalue('text_pos')
+    if updatecheckbox == 'use_selected':
+        set_node = get_selected_Node(verbosity=verbosity)
+        if set_node == '':
+            print(replaceentrypagehead)
+            print("No Node in 'selected' NNL for checkbox update.")
+            print(replaceentrypagetail_failure)
+            return
+    if not id:
+        id, text_pos, set_node = find_update_checkbox_id()
+    if not id:
+        print(replaceentrypagehead)
+        print('No ID for checkbox update.')
+        print(replaceentrypagetail_failure)
+        return
+    thecmd = './fzloghtml -e '+id+' -N -o STDOUT -F raw -q'
+    retcode = try_subprocess_check_output(thecmd, 'entry_text', verbosity)
+    if (retcode == 0):
+        entrynode, entrytext = extract_node_and_text(results['entry_text'].decode())
+        entrytext = update_checkbox_entrytext(entrytext, int(text_pos), set_node)
+        #print(replaceentrypagehead)
+        #print('Replace Log entry %s at position %s using Node %s.\n<p>' % (str(id), str(text_pos), str(set_node)))
+        #print(entrytext)
+        #print(replaceentrypagetail_success)
+        return replace_Log_entry(id=str(id), text=entrytext, verbosity=verbosity)
+    else:
+        print(replaceentrypagehead)
         print(replaceentrypagetail_failure)
     return (retcode == 0)
 
@@ -1008,7 +1100,6 @@ def insert_Log_chunk_page(chunk_id:str):
 def show_interface_options():
     print(interface_options_help)
 
-
 if __name__ == '__main__':
     if help:
         show_interface_options()
@@ -1072,6 +1163,9 @@ if __name__ == '__main__':
         sys.exit(0)
     if (action == 'insertchunkpage'):
         insert_Log_chunk_page(id)
+        sys.exit(0)
+    if (action == 'updatecheckbox'):
+        update_checkbox(id, updatecheckbox)
         sys.exit(0)
 
     show_interface_options()
