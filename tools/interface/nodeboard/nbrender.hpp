@@ -305,6 +305,8 @@ struct nodeboard: public formalizer_standard_program {
 
     std::string into_grid(unsigned int row_idx, unsigned int col_idx, unsigned int span, const std::string & content) const;
 
+    std::string nbdep_column_header_content(const std::string& node_id, const std::string& more_args);
+
 };
 
 bool node_board_render_random_test(nodeboard & nb);

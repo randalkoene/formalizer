@@ -1604,11 +1604,12 @@ bool node_board_render_random_test(nodeboard & nb) {
     return nb.make_simple_grid_board(rendered_cards);
 }
 
-std::string nbdep_column_header_content(const std::string& node_id, const std::string& more_args) {
+std::string nodeboard::nbdep_column_header_content(const std::string& node_id, const std::string& more_args) {
     return "<button class=\"tiny_button tiny_green\" onclick=\"window.open('/cgi-bin/fzlink.py?id="+node_id+"', '_blank');\">"+node_id+"</button>"
            "<button class=\"tiny_button tiny_green\" onclick=\"window.open('/cgi-bin/nodeboard-cgi.py?n="+node_id+more_args+"&G=true', '_blank');\">DEP</button>"
            "<button class=\"tiny_button tiny_green\" onclick=\"window.open('/cgi-bin/nodeboard-cgi.py?n="+node_id+more_args+"&g=true', '_blank');\">SUP</button>"
-           "<button class=\"tiny_button tiny_green\" onclick=\"window.open('/cgi-bin/fzgraphhtml-cgi.py?edit="+node_id+"', '_blank');\">edit</button>";
+           "<button class=\"tiny_button tiny_green\" onclick=\"window.open('/cgi-bin/fzgraphhtml-cgi.py?edit="+node_id+"', '_blank');\">edit</button>"
+           "<button class=\"tiny_button tiny_green\" onclick=\"window.open('http://"+graph().get_server_full_address()+"/fz/graph/namedlists/superiors?add="+node_id+"&unique=true', '_blank');\">2sup</button>";
 }
 
 bool node_board_render_dependencies(nodeboard & nb) {
@@ -1672,7 +1673,7 @@ bool node_board_render_dependencies(nodeboard & nb) {
             //     " (<a href=\"/cgi-bin/nodeboard-cgi.py?n="+idtext+include_filter_substr+"\">DEP</a>)";
 
             nb.get_dependencies_column(
-                nbdep_column_header_content(edge_ptr->get_dep_str(), include_filter_substr),
+                nb.nbdep_column_header_content(edge_ptr->get_dep_str(), include_filter_substr),
                 edge_ptr->get_dep(),
                 rendered_columns,
                 tagless); // 20250823, was: tagless.substr(0,nb.excerpt_length));
