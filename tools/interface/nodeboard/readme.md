@@ -18,14 +18,32 @@ of many generated boards.
 Generate a grid-constrained board that presents the Node specified by
 `<node-id>` and its hierarchy of superiors.
 
+E.g. the board created by:
+
+```
+/cgi-bin/nodeboard-cgi.py?n=20100907053900.1&g=true&I=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true&i=79
+```
+
 ### `nodeboard -G -n <node-id>`
 
 Generate a grid-constrained board that presents the Node specified by
 `<node-id>` and its hierarchy of dependencies.
 
+E.g. the board created by:
+
+```
+/cgi-bin/nodeboard-cgi.py?n=20100907053900.1&G=true&I=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true&i=79
+```
+
 ### `nodeboard -f <sysmet-json-file>`
 
 Generate a board from data indicated in a special system/metrics format.
+
+E.g. the board created by:
+
+```
+/cgi-bin/nodeboard-cgi.py?f=main2023
+```
 
 ### `nodeboard -n <node-id>`
 
@@ -33,15 +51,33 @@ Generate a columns-constrained board that presents the Node specified
 by `<node-id>`, its direct dependencies as column headers, and further
 dependencies within the columns.
 
+E.g. the board created by:
+
+```
+/cgi-bin/nodeboard-cgi.py?n=20250822225247.1&Z=true
+```
+
 ### `nodeboard -D <name>`
 
 Generate a board where the column headers are the Nodes in the NNL specified
 by `<name>` and their dependencies fill the columns.
 
+E.g. the baord created by:
+
+```
+/cgi-bin/nodeboard-cgi.py?D=week_main_goals&T=true&u=204512311159&r=100&U=true
+```
+
 ### `nodeboard -c <csv-path>`
 
 Generate a schedule based on information in a CSV file indicated by
 `<csv-path>`.
+
+E.g. the board created by:
+
+```
+/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20
+```
 
 ### `nodeboard -l "{milestones_formalizer,procrastination,group_sleep}"`
 

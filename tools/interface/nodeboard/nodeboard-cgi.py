@@ -37,6 +37,7 @@ webdata_path = "/var/www/webdata/formalizer"
 intentionscategoriesfile = "/var/www/webdata/formalizer/categories_a2c.json"
 workcategoriesfile = "/var/www/webdata/formalizer/categories_work.json"
 main2023categoriesfile = "/var/www/webdata/formalizer/categories_main2023.json"
+ccfresponsibilitiesfile = "/var/www/webdata/formalizer/ccf_responsibilities.json"
 
 logfile = webdata_path + '/nodeboard-cgi.log'
 
@@ -265,6 +266,9 @@ def show_sysmet_board(sysmet_json_path:str, sysmet_output_path:str):
 def show_main2023_board():
     show_sysmet_board(main2023categoriesfile, '/main2023categories-kanban.html')
 
+def show_ccfresponsibilities_board():
+    show_sysmet_board(ccfresponsibilitiesfile, '/ccfresponsibilities-kanban.html')
+
 def show_node_dependencies_board():
     # Note: We send the following to a static output page in case there are
     #       uses where that is efficient. Nevertheless, we return the contents
@@ -373,6 +377,10 @@ def show_help():
 if __name__ == '__main__':
     if (sysmet_file == 'main2023'):
         show_main2023_board()
+        sys.exit(0)
+
+    if (sysmet_file == 'ccfresponsibilities'):
+        show_ccfresponsibilities_board()
         sys.exit(0)
 
     if subtree_list:

@@ -1,0 +1,15 @@
+{
+    "CCF Infrastructure" : {
+    	"NNLs" : "ccf_infrastructure"
+    },
+    "CCF Research" : {
+        "NNLs" : "ccf_research"
+    },
+    "CCF Education" : {
+        "NNLs" : "ccf_education"
+    },
+    "CCF Community" : {
+        "NNLs" : "ccf_community"
+    },
+    "other" : "DEFAULT"
+}

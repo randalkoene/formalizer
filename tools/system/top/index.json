@@ -154,6 +154,10 @@
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20101230042609.1&F=[",
             "window" : "_blank"
         },
+        "Board:CCF" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?f=ccfresponsibilities",
+            "window" : "_blank"
+        },
         "Categories:Active Main" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?f=main2023",
             "window" : "_blank"
