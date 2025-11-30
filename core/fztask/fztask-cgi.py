@@ -133,9 +133,10 @@ def get_fields_data()->tuple:
     if T_emulated:
         if (T_emulated == '') or (T_emulated == 'actual'):
             T_emulated = None
-        # detect format from HTML datetime input element
-        if (T_emulated[10] == 'T'):
-            T_emulated = T_emulated[0:4]+T_emulated[5:7]+T_emulated[8:10]+T_emulated[11:13]+T_emulated[14:16]
+        else:
+            # detect format from HTML datetime input element
+            if (T_emulated[10] == 'T'):
+                T_emulated = T_emulated[0:4]+T_emulated[5:7]+T_emulated[8:10]+T_emulated[11:13]+T_emulated[14:16]
     return (is_static, T_emulated)
 
 def render_static_nonlocal_fztask_page(
