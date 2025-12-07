@@ -5,6 +5,17 @@
 #
 # Install and/or restore complete backed-up system environment.
 
+# +----------------------------------------------------------+
+# + IMPORTANT:                                               +
+# +                                                          +
+# + This script must be copied to the mountable external     +
+# + drive that contains the mountable environment backup.    +
+# + Copy the script to the new system to start installation. +
+# + This is necessary in case scp copying of the script is   +
+# + not possible, such as then the original system is not    +
+# + runnable.                                                +
+# +----------------------------------------------------------+
+
 import subprocess
 import shlex
 import os
@@ -31,9 +42,11 @@ def run_command(args, command)->bool:
     """
     Runs a command.
     """
+    global state
     try:
         print(f"Running: {command}")
         if args.simulate:
+            print('(** Simulating in step [%s])' % state['step'])
             if not args.failafter:
                 return True
             return state['step'] != args.failafter
@@ -44,7 +57,7 @@ def run_command(args, command)->bool:
             print("STDERR:")
             print(result.stderr)
             return False
-        return True
+        return result.returncode == 0
 
     except subprocess.CalledProcessError as e:
         print(f"Error executing command: {e}")
@@ -62,6 +75,7 @@ def run_sudo_command(args, command)->bool:
     """
     Runs a sudo command, prompting for password once if necessary.
     """
+    global state
     try:
         # Refresh sudo timestamp to cache password
         # This will prompt for password if needed, allowing subsequent sudo commands to run without re-entry
@@ -70,6 +84,7 @@ def run_sudo_command(args, command)->bool:
         # Execute the actual sudo command
         print(f"Running: sudo {command}")
         if args.simulate:
+            print('(** Simulating in step [%s])' % state['step'])
             if not args.failafter:
                 return True
             return state['step'] != args.failafter
@@ -80,7 +95,7 @@ def run_sudo_command(args, command)->bool:
             print("STDERR:")
             print(result.stderr)
             return False
-        return True
+        return result.returncode == 0
 
     except subprocess.CalledProcessError as e:
         print(f"Error executing command: {e}")
@@ -103,14 +118,23 @@ def sudo_commands_test(args):
     print("Finished running sudo commands.")
 
 def ensure_user_data_mounted(args)->bool:
+    global userdata_mounted
     if userdata_mounted: return True
     # mount user data
     if not run_sudo_command(args, f'mount -t {args.mounttype} -o loop {args.archive} {args.mountpoint}'):
         return False
+    run_command(args, 'df')
+    if not run_command(args, f'mountpoint {args.mountpoint}'):
+        do_exit(args, f'Archive failed to mount at {args.mountpoint}')
     userdata_mounted = True
+    # test if user names are identical
+    if not os.path.isdir(f'{args.mountpoint}/{this_user}'):
+        print(f'=> User name may be different. Directory {args.mountpoint}/{this_user} not found.')
+        do_exit(args, 'User name not in archive')
     return True
 
 def ensure_user_data_unmounted(args)->bool:
+    global userdata_mounted
     if not userdata_mounted: return True
     # unmount user data
     if not run_sudo_command(args, f'umount {args.mountpoint}'):
@@ -119,12 +143,15 @@ def ensure_user_data_unmounted(args)->bool:
     return True
 
 def state_update(step_done:str):
+    global state
     state['step'] = step_done
 
 def did_step(step_done:str)->bool:
+    global state
     return state['step'] == step_done
 
 def do_exit(args, condition:str):
+    global state
     if not ensure_user_data_unmounted(args):
         print(f'Warning: Failed to unmount {args.mountpoint}.')
     T_end = datetime.now()
@@ -135,32 +162,42 @@ def do_exit(args, condition:str):
     print(f'\n{condition}.')
     exit(0)
 
+def test_to_here(args):
+    print('\nStopping early due to "test_to_here".')
+    do_exit(args, 'Test to Here')
+
 def detect_already_installed(args):
     print('\nDetecting previous replications.\n')
     do_replicate = False
     # Does the replicate state file exist in ~/ and does it have valid data?
     try:
         with open(state_file, 'r') as f:
-            state = json.load(f)
-        if args.restart:
-            state_update('')
-            print('Force new replication.')
+            prev_state = json.load(f)
+        if not isinstance(prev_state, dict):
+            print('=> Invalid state file.')
             do_replicate = True
+            print('=> New replication.')
         else:
-            # Did the previous replicate run reach completion?
-            if state['exit'] != 'Completed':
+            state = prev_state
+            if args.restart:
+                state_update('')
+                print('=> Force new replication.')
                 do_replicate = True
-                print('Resuming replication.')
             else:
-                T_last = state['T'][-1][1]
-                print(f'Last replicated at {T_last}.')
-                print('Beware: Replicating may overwrite existing user system environment files.')
-                response = input('Do you want to replicate anyway? (y/N) ')
-                if response:
-                    do_replicate = response == 'y' or response == 'Y'
+                # Did the previous replicate run reach completion?
+                if state['exit'] != 'Completed':
+                    do_replicate = True
+                    print('=> Resuming replication from %s at step [%s]' % (state['T'][-1][1], state['step']))
+                else:
+                    T_last = state['T'][-1][1]
+                    print(f'=> Last replicated at {T_last}.')
+                    print('Beware: Replicating may overwrite existing user system environment files.')
+                    response = input('Do you want to replicate anyway? (y/N) ')
+                    if response:
+                        do_replicate = response == 'y' or response == 'Y'
     except:
         do_replicate = True
-        print('New replication.')
+        print('=> New replication.')
     if not do_replicate: do_exit(args, 'Canceled')
     if did_step(''):
         state_update('detect_installed')
@@ -168,6 +205,8 @@ def detect_already_installed(args):
 def copy_home(args):
     print('\nCopying and merging user home data.\n')
     if not ensure_user_data_mounted(args): do_exit(args, 'Error during copy_home.')
+
+    test_to_here(args)
 
     # Copy
     if not run_command(args, f'cp -r {args.mountpoint}/{this_user} {user_home}/{this_user}'): do_exit(args, 'Error during copy_home.')
@@ -289,6 +328,8 @@ if __name__ == "__main__":
     detect_already_installed(args)
 
     if did_step('detect_installed'): copy_home(args)
+
+    test_to_here(args)
 
     if did_step('copy_home'): copy_www(args)
 
