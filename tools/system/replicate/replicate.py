@@ -26,6 +26,8 @@ from datetime import datetime
 this_user = os.environ['USER']
 user_home = os.environ['HOME']
 state_file = user_home+'/.replicate_state.json'
+stdout_file = user_home+'/.replicate_quiet_stdout'
+stderr_file = user_home+'/.replicate_quiet_stderr'
 
 T_start = None
 Step = None
@@ -38,26 +40,65 @@ state = {
     'exit': '', # previous exit condition
 }
 
-def run_command(args, command)->bool:
+run_result = None
+error_groups = None
+
+def check_deletes_failed(stderr_str: str):
+    global error_groups
+    other_messages = []
+    err_messages = stderr_str.split('\n')
+    deletes_failed = 0
+    for message in err_messages:
+        if message.find('rsync: [sender] sender failed to remove') >= 0:
+            deletes_failed += 1
+        else:
+            other_messages.append(message)
+    error_groups = {
+        'deletes': deletes_failed,
+        'other_num': size(other_messages),
+        'other': '\n'.join(other_messages),
+    }
+
+def run_command(args, command, quiet_stdout_stderr=False)->bool:
     """
     Runs a command.
     """
     global state
+    global run_result
+    if isinstance(command, list):
+        command_str = ' '.join(command)
+    else:
+        command_str = command
+        command = shlex.split(f"{command}")
     try:
-        print(f"Running: {command}")
+        if not quiet_stdout_stderr:
+            print(f"Running: {command_str}")
         if args.simulate:
             print('(** Simulating in step [%s])' % state['step'])
             if not args.failafter:
                 return True
             return state['step'] != args.failafter
-        result = subprocess.run(shlex.split(f"{command}"), capture_output=True, text=True, check=True)
-        print("STDOUT:")
-        print(result.stdout)
-        if result.stderr:
-            print("STDERR:")
-            print(result.stderr)
+        run_result = subprocess.run(command, capture_output=True, text=True, check=True)
+        if not quiet_stdout_stderr:
+            print("STDOUT:")
+            print(run_result.stdout)
+        else:
+            if len(run_result.stdout) > 0:
+                with open(stdout_file, 'a') as f:
+                    f.write(run_result.stdout+'\n')
+        if run_result.stderr:
+            check_deletes_failed(run_result.stderr)
+            if not quiet_stdout_stderr:
+                print("STDERR:")
+                print(error_groups['other'])
+            else:
+                if len(error_groups['other_num']) > 0:
+                    with open(stderr_file, 'a') as f:
+                        f.write(error_groups['other']+'\n')
+            if error_groups['deletes'] > 0:
+                print('Rsync deletes failed: %d' % error_groups['deletes'])
             return False
-        return result.returncode == 0
+        return run_result.returncode == 0
 
     except subprocess.CalledProcessError as e:
         print(f"Error executing command: {e}")
@@ -68,34 +109,51 @@ def run_command(args, command)->bool:
             print("STDERR:")
             print(e.stderr)
     except FileNotFoundError:
-        print(f"Error: Command '{command.split()[0]}' not found. Make sure it's in your PATH.")
+        print(f"Error: Command '{command_str.split()[0]}' not found. Make sure it's in your PATH.")
     return False
 
-def run_sudo_command(args, command)->bool:
+def run_sudo_command(args, command, quiet_stdout_stderr=False)->bool:
     """
     Runs a sudo command, prompting for password once if necessary.
     """
     global state
+    global run_result
+    if isinstance(command, list):
+        command_str = ' '.join(command)
+    else:
+        command_str = command
+        command = shlex.split(f"{command}")
     try:
         # Refresh sudo timestamp to cache password
         # This will prompt for password if needed, allowing subsequent sudo commands to run without re-entry
         subprocess.run(["sudo", "-v"], check=True)
 
         # Execute the actual sudo command
-        print(f"Running: sudo {command}")
+        if not quiet_stdout_stderr:
+            print(f"Running: sudo {command_str}")
         if args.simulate:
             print('(** Simulating in step [%s])' % state['step'])
             if not args.failafter:
                 return True
             return state['step'] != args.failafter
-        result = subprocess.run(shlex.split(f"sudo {command}"), capture_output=True, text=True, check=True)
-        print("STDOUT:")
-        print(result.stdout)
-        if result.stderr:
-            print("STDERR:")
-            print(result.stderr)
+        run_result = subprocess.run(['sudo']+command, capture_output=True, text=True, check=True)
+        if not quiet_stdout_stderr:
+            print("STDOUT:")
+            print(run_result.stdout)
+        else:
+            if len(run_result.stdout) > 0:
+                with open(stdout_file, 'a') as f:
+                    f.write(run_result.stdout+'\n')
+        if run_result.stderr:
+            if not quiet_stdout_stderr:
+                print("STDERR:")
+                print(run_result.stderr)
+            else:
+                if len(run_result.stderr) > 0:
+                    with open(stderr_file, 'a') as f:
+                        f.write(run_result.stderr+'\n')
             return False
-        return result.returncode == 0
+        return run_result.returncode == 0
 
     except subprocess.CalledProcessError as e:
         print(f"Error executing command: {e}")
@@ -106,7 +164,7 @@ def run_sudo_command(args, command)->bool:
             print("STDERR:")
             print(e.stderr)
     except FileNotFoundError:
-        print(f"Error: Command '{command.split()[0]}' not found. Make sure it's in your PATH.")
+        print(f"Error: Command '{command_str.split()[0]}' not found. Make sure it's in your PATH.")
     return False
 
 def sudo_commands_test(args):
@@ -145,6 +203,7 @@ def ensure_user_data_unmounted(args)->bool:
 def state_update(step_done:str):
     global state
     state['step'] = step_done
+    print('\n=> Step done: %s' % str(step_done))
 
 def did_step(step_done:str)->bool:
     global state
@@ -167,6 +226,7 @@ def test_to_here(args):
     do_exit(args, 'Test to Here')
 
 def detect_already_installed(args):
+    global state
     print('\nDetecting previous replications.\n')
     do_replicate = False
     # Does the replicate state file exist in ~/ and does it have valid data?
@@ -186,8 +246,9 @@ def detect_already_installed(args):
             else:
                 # Did the previous replicate run reach completion?
                 if state['exit'] != 'Completed':
+                    print('Last run failed with: %s' % str(state['exit']))
                     do_replicate = True
-                    print('=> Resuming replication from %s at step [%s]' % (state['T'][-1][1], state['step']))
+                    print('=> Resuming replication from %s after completed step [%s]' % (state['T'][-1][1], state['step']))
                 else:
                     T_last = state['T'][-1][1]
                     print(f'=> Last replicated at {T_last}.')
@@ -195,6 +256,9 @@ def detect_already_installed(args):
                     response = input('Do you want to replicate anyway? (y/N) ')
                     if response:
                         do_replicate = response == 'y' or response == 'Y'
+                        # *** Should this follow?
+                        # state_update('')
+                        # *** Or something else that causes sync without full copying?
     except:
         do_replicate = True
         print('=> New replication.')
@@ -203,39 +267,81 @@ def detect_already_installed(args):
         state_update('detect_installed')
 
 def copy_home(args):
-    print('\nCopying and merging user home data.\n')
+    print('\nCopying user home data.\n')
     if not ensure_user_data_mounted(args): do_exit(args, 'Error during copy_home.')
 
-    test_to_here(args)
-
-    # Copy
     if not run_command(args, f'cp -r {args.mountpoint}/{this_user} {user_home}/{this_user}'): do_exit(args, 'Error during copy_home.')
-
-    # Merge
-    if not run_command(args, f'mv {user_home}/{this_user}/. {user_home}/'): do_exit(args, 'Error during copy_home.')
 
     state_update('copy_home')
 
-def copy_www(args):
-    print('\nCopying /var/www data.\n')
-    if not ensure_user_data_mounted(args): do_exit(args, 'Error during copy_www.')
+def delete_empty_folders(args)->bool:
+    print('\nDeleting empty folders of source copy...')
+    deleted_count = 0
+    errors = 0
+    directories_with_content = 0
+    for dirpath, dirnames, filenames in os.walk(user_home+'/'+this_user, topdown=False):
+        # Check if the current directory is empty (contains no files and no subdirectories)
+        if not dirnames and not filenames:
+            # Sudo here to also delete directories marked read only
+            if run_sudo_command(args, ['rmdir', dirpath], quiet_stdout_stderr=True):
+                deleted_count += 1
+            else:
+                errors += 1
+        else:
+            directories_with_content += 1
+
+    if deleted_count == 0:
+        print("No empty directories found.")
+    else:
+        print(f"Successfully deleted {deleted_count} empty directories.")
+    print(f'Directories with content in {user_home}/{this_user}: {directories_with_content}')
+    if directories_with_content > 0:
+        print('=> Note: You may want to delete these manually.')
+    if errors > 0:
+        print('Errors: %d' % errors)
+        print(f'You can read the error output in {user_home}/{stderr_file}.')
+    print(f'You can read suppressed standard output in {user_home}/{stdout_file}.')
+
+    return errors == 0
+
+def merge_home(args):
+    print('\nMerging user home data.\n')
+    if not ensure_user_data_mounted(args): do_exit(args, 'Error during merge_home.')
+
+    if not run_command(args, f'rsync -a --remove-source-files --ignore-existing {user_home}/{this_user}/ {user_home}/'):
+        if error_groups['other_num'] > 0:
+            do_exit(args, 'Error during merge_home.')
+
+    if not delete_empty_folders(args): do_exit(args, 'Error during merge_home.')
+
+    state_update('merge_home')
+
+def copy_www_webdata(args):
+    print('\nCopying /var/www/webdata data.\n')
+    if not ensure_user_data_mounted(args): do_exit(args, 'Error during copy_www_webdata.')
 
     # Make /var/www
-    if not run_sudo_command(args, 'mkdir /var/www'): do_exit(args, 'Error during copy_www.')
+    if not run_sudo_command(args, 'mkdir /var/www'): do_exit(args, 'Error during copy_www_webdata.')
 
     # Copy webdata
-    if not run_sudo_command(args, f'cp -r {args.mountpoint}/www/webdata /var/www/'): do_exit(args, 'Error during copy_www.')
+    if not run_sudo_command(args, f'cp -r {args.mountpoint}/www/webdata /var/www/'): do_exit(args, 'Error during copy_www_webdata.')
 
     # Change owner to www-data
-    if not run_sudo_command(args, 'chown -R www-data:www-data /var/www/webdata'): do_exit(args, 'Error during copy_www.')
+    if not run_sudo_command(args, 'chown -R www-data:www-data /var/www/webdata'): do_exit(args, 'Error during copy_www_webdata.')
+
+    state_update('copy_www_webdata')
+
+def copy_www_html(args):
+    print('\nCopying /var/www/html data.\n')
+    if not ensure_user_data_mounted(args): do_exit(args, 'Error during copy_www_html.')
 
     # Copy html
-    if not run_sudo_command(args, f'cp -r {args.mountpoint}/www/html /var/www/'): do_exit(args, 'Error during copy_www.')
+    if not run_sudo_command(args, f'cp -r {args.mountpoint}/www/html /var/www/'): do_exit(args, 'Error during copy_www_html.')
 
     # Change owner to user
-    if not run_sudo_command(args, f'chown -R {this_user}:{this_user} /var/www/html'): do_exit(args, 'Error during copy_www.')
+    if not run_sudo_command(args, f'chown -R {this_user}:{this_user} /var/www/html'): do_exit(args, 'Error during copy_www_html.')
 
-    state_update('copy_www')
+    state_update('copy_www_html')
 
 def copy_cgibin(args):
     print('\nCopying /usr/lib/cgi-bin.\n')
@@ -246,24 +352,66 @@ def copy_cgibin(args):
 
     state_update('copy_cgibin')
 
+def check_ssh()->bool:
+    if run_command(args, 'ssh -o StrictHostKeyChecking=no -o BatchMode=yes localhost true 2>/dev/null'):
+        print('SSH server is running and accepting local connections.')
+        return True
+    print('SSH server is not running or not accepting local connections.')
+    return False
+
 def ensure_ssh(args):
     print('\nEnsuring SSH server is working.\n')
 
-    print('NOT YET IMPLEMENTED.')
+    if check_ssh():
+        state_update('ensure_ssh')
+        return
 
-    state_update('ensure_ssh')
+    # Install and activate SSH server
+    print('Installing OpenSSH server...')
+    run_sudo_command(args, 'apt update -y')
+    run_sudo_command(args, 'apt install openssh-server -y')
+
+    print('Enabling and starting SSH service...')
+    run_sudo_command(args, 'systemctl enable --now ssh')
+
+    if check_ssh():
+        state_update('ensure_ssh')
+    else:
+        do_exit(args, 'Error during ensure_ssh.')
+
+def check_apache()->bool:
+    if run_command(args, 'pgrep -x apache2 >/dev/null'):
+        print('Apache server is running.')
+        return True
+    print('Apache server is not running.')
+    return False
 
 def ensure_httpd(args):
     print('\nEnsuring Web server is running.\n')
 
-    print('NOT YET IMPLEMENTED.')
+    if check_apache():
+        state_update('ensure_httpd')
+        return
 
-    state_update('ensure_httpd')
+    # Install and activate Apache server
+    print('Installing Apache server...')
+    run_sudo_command(args, 'apt update -y')
+    run_sudo_command(args, 'apt install apache2 -y')
+
+    print('Enabling and starting Apache service...')
+    run_sudo_command(args, 'systemctl enable --now apache2')
+
+    # *** There may be more Apache set up at: https://trello.com/c/kztslGPJ
+
+    if check_apache():
+        state_update('ensure_httpd')
+    else:
+        do_exit(args, 'Error during ensure_httpd.')
 
 def copy_profile(args):
     print('\nCopying .bashrc and .profile.\n')
 
-    print('NOT YET IMPLEMENTED.')
+    print('NOT YET IMPLEMENTED -- See Trello for dev details.')
 
     state_update('copy_profile')
 
@@ -292,6 +440,8 @@ def install_programs(args):
     print('\nInstalling designated programs.\n')
 
     print('NOT YET IMPLEMENTED.')
+    print('There is a list in ~/apt-installed.txt, but the list is too long. There should be a subset of much-used programs.')
+    print('More detailed in Trello.')
 
     state_update('install_programs')
 
@@ -323,17 +473,25 @@ if __name__ == "__main__":
     if args.failafter:
         args.simulate = True
 
+    if os.path.exists(stdout_file):
+        os.remove(stdout_file)
+    if os.path.exists(stderr_file):
+        os.remove(stderr_file)
+
     print("Replicate complete system environment with programs and user data.\n")
     T_start = datetime.now()
     detect_already_installed(args)
 
     if did_step('detect_installed'): copy_home(args)
+    if did_step('copy_home'): merge_home(args)
 
     test_to_here(args)
 
-    if did_step('copy_home'): copy_www(args)
+    if did_step('merge_home'): copy_www_webdata(args)
 
-    if did_step('copy_www'): copy_cgibin(args)
+    if did_step('copy_www_webdata'): copy_www_html(args)
+
+    if did_step('copy_www_html'): copy_cgibin(args)
 
     if did_step('copy_cgibin'): ensure_ssh(args)
 
