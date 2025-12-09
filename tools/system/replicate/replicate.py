@@ -394,13 +394,16 @@ def copy_cgibin(args):
     # Copy cgi-bin
     if not run_sudo_command(args, f'cp -r {args.mountpoint}/cgi-bin /usr/lib/'): do_exit(args, 'Error during copy_cgibin.')
 
+    # Make files in /usr/lib/cgi-bin executable
+    run_sudo_command(args, f'chmod -R a+x /usr/lib/cgi-bin')
+
     state_update('copy_cgibin')
 
 def check_ssh()->bool:
-    if run_command(args, 'ssh -o StrictHostKeyChecking=no -o BatchMode=yes localhost true 2>/dev/null'):
-        print('SSH server is running and accepting local connections.')
+    if run_command(args, 'systemctl is-active --quiet sshd'):
+        print('SSH server is running and active.')
         return True
-    print('SSH server is not running or not accepting local connections.')
+    print('SSH server is not running or not active.')
     return False
 
 def ensure_ssh(args):
@@ -424,7 +427,7 @@ def ensure_ssh(args):
         do_exit(args, 'Error during ensure_ssh.')
 
 def check_apache()->bool:
-    if run_command(args, 'pgrep -x apache2 >/dev/null'):
+    if run_command(args, 'pgrep -x apache2'):
         print('Apache server is running.')
         return True
     print('Apache server is not running.')
@@ -529,8 +532,6 @@ if __name__ == "__main__":
     if did_step('detect_installed'): copy_home(args)
     if did_step('copy_home'): merge_home(args)
 
-    test_to_here(args)
-
     if did_step('merge_home'): copy_www_webdata(args)
 
     if did_step('copy_www_webdata'): copy_www_html(args)
@@ -542,6 +543,8 @@ if __name__ == "__main__":
     if did_step('ensure_ssh'): ensure_httpd(args)
 
     if did_step('ensure_httpd'): copy_profile(args)
+
+    test_to_here(args)
 
     if did_step('copy_profile'): setup_postgres(args)
 
