@@ -274,26 +274,70 @@ def copy_home(args):
 
     state_update('copy_home')
 
+def check_undeleted_files(args, dirpath:str, filenames:list):
+    print('Checking %d undeleted files...' % len(filenames))
+    remaining = []
+    # Form corresponding ~/ dirpath
+    p = dirpath.find('/'+this_user)
+    home_dirpath = dirpath[0:p]+dirpath[p+len('/'+this_user):]
+    for fname in filenames:
+        if not os.path.exists(home_dirpath+'/'+fname):
+            remaining.append(fname)
+        else:
+            # Compare corresponding files
+            if run_command(args, ['cmp', '-s', home_dirpath+'/'+fname, dirpath+'/'+fname], quiet_stdout_stderr=True):
+                # Delete the identical file
+                if not run_sudo_command(args, ['rm', '-f', dirpath+'/'+fname], quiet_stdout_stderr=True):
+                    remaining.append(fname)
+            else:
+                remaining.append(fname)
+            if error_groups:
+                if 'other_num' in error_groups:
+                    if len(error_groups['other_num']) > 0:
+                        print('An error occurred. Check %s' % stderr_file)
+    if len(remaining)==0:
+        return None
+    return remaining
+
 def delete_empty_folders(args)->bool:
     print('\nDeleting empty folders of source copy...')
-    deleted_count = 0
+    total_deleted_count = 0
     errors = 0
-    directories_with_content = 0
-    for dirpath, dirnames, filenames in os.walk(user_home+'/'+this_user, topdown=False):
-        # Check if the current directory is empty (contains no files and no subdirectories)
-        if not dirnames and not filenames:
-            # Sudo here to also delete directories marked read only
-            if run_sudo_command(args, ['rmdir', dirpath], quiet_stdout_stderr=True):
-                deleted_count += 1
+    while True:
+        directories_with_content = 0
+        remaining_files = 0
+        deleted_count = 0
+        for dirpath, dirnames, filenames in os.walk(user_home+'/'+this_user, topdown=False):
+            # Check if the current directory is empty (contains no files and no subdirectories)
+            if not dirnames and not filenames:
+                # Sudo here to also delete directories marked read only
+                if run_sudo_command(args, ['rmdir', dirpath], quiet_stdout_stderr=True):
+                    deleted_count += 1
+                else:
+                    errors += 1
             else:
-                errors += 1
-        else:
-            directories_with_content += 1
+                if filenames:
+                    filenames = check_undeleted_files(args, dirpath, filenames)
+                    if filenames:
+                        remaining_files += len(filenames)
+                    if not dirnames and not filenames:
+                        if run_sudo_command(args, ['rmdir', dirpath], quiet_stdout_stderr=True):
+                            deleted_count += 1
+                        else:
+                            errors += 1
+                    else:
+                        directories_with_content += 1
+                else:
+                    directories_with_content += 1
+        total_deleted_count += deleted_count
+        print('Iteration, deleted count: %d' % deleted_count)
+        if deleted_count == 0:
+            break;
 
-    if deleted_count == 0:
+    if total_deleted_count == 0:
         print("No empty directories found.")
     else:
-        print(f"Successfully deleted {deleted_count} empty directories.")
+        print(f"Successfully deleted {total_deleted_count} empty directories.")
     print(f'Directories with content in {user_home}/{this_user}: {directories_with_content}')
     if directories_with_content > 0:
         print('=> Note: You may want to delete these manually.')
