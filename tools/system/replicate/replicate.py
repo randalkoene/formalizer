@@ -43,6 +43,32 @@ state = {
 run_result = None
 error_groups = None
 
+essential = [
+    'w3m',
+    'rxvt-unicode',
+    #'encfs', # needs to be run manually
+    'g++',
+    'xfig',
+    'mpg123',
+    'gxmessage',
+    'graphviz',
+    'octave',
+    'imagemagick',
+    'mc',
+    'postgresql',
+    'postgresql-contrib',
+    'libpq-dev',
+]
+
+optional = [
+    'quodlibet',
+    'okular',
+    'festival',
+    'planner',
+    'pdftk',
+    'freemind'
+]
+
 def check_deletes_failed(stderr_str: str):
     global error_groups
     other_messages = []
@@ -112,7 +138,7 @@ def run_command(args, command, quiet_stdout_stderr=False)->bool:
         print(f"Error: Command '{command_str.split()[0]}' not found. Make sure it's in your PATH.")
     return False
 
-def run_sudo_command(args, command, quiet_stdout_stderr=False)->bool:
+def run_sudo_command(args, command, quiet_stdout_stderr=False, in_terminal_window=False)->bool:
     """
     Runs a sudo command, prompting for password once if necessary.
     """
@@ -123,20 +149,30 @@ def run_sudo_command(args, command, quiet_stdout_stderr=False)->bool:
     else:
         command_str = command
         command = shlex.split(f"{command}")
+    if in_terminal_window:
+        command = ['gnome-terminal', '--', '/bin/bash', '-c', 'sudo']+command
+        command_str = ' '.join(command)
     try:
+        if not quiet_stdout_stderr:
+            if in_terminal_window:
+                print(f"Running: {command_str}")
+            else:
+                print(f"Running: sudo {command_str}")
         # Refresh sudo timestamp to cache password
         # This will prompt for password if needed, allowing subsequent sudo commands to run without re-entry
-        subprocess.run(["sudo", "-v"], check=True)
+        if not in_terminal_window:
+            subprocess.run(["sudo", "-v"], check=True)
 
         # Execute the actual sudo command
-        if not quiet_stdout_stderr:
-            print(f"Running: sudo {command_str}")
         if args.simulate:
             print('(** Simulating in step [%s])' % state['step'])
             if not args.failafter:
                 return True
             return state['step'] != args.failafter
-        run_result = subprocess.run(['sudo']+command, capture_output=True, text=True, check=True)
+        if in_terminal_window:
+            run_result = subprocess.run(command, capture_output=True, text=True, check=True)
+        else:
+            run_result = subprocess.run(['sudo']+command, capture_output=True, text=True, check=True)
         if not quiet_stdout_stderr:
             print("STDOUT:")
             print(run_result.stdout)
@@ -456,16 +492,67 @@ def ensure_httpd(args):
         do_exit(args, 'Error during ensure_httpd.')
 
 def copy_profile(args):
-    print('\nCopying .bashrc and .profile.\n')
+    print("\nLet's merge old and new .bashrc and .profile using the meld tool.\n")
 
-    print('NOT YET IMPLEMENTED -- See Trello for dev details.')
+    run_sudo_command(args, 'apt install meld -y')
+
+    run_command(args, 'cp -f .profile profile.bak')
+    run_command(args, 'cp -f .bashrc bashrc.bak')
+
+    print('=> Starting with .profile: review differences, copy changes using the arrows, save the merged file to ~/.profile.')
+    if not run_command(args, f'meld {user_home}/{this_user}/.profile {user_home}/.profile'):
+        do_exit(args, 'Error during copy_profile.')
+
+    print('\n=> Next, with .bashrc: review differences, copy changes using the arrows, save the merged file to ~/.bashrc.')
+    if not run_command(args, f'meld {user_home}/{this_user}/.bashrc {user_home}/.bashrc'):
+        do_exit(args, 'Error during copy_profile.')
 
     state_update('copy_profile')
+
+def ssh_keygen(args):
+    if not run_command(args, 'which gnome-terminal'):
+        print('\nSkipping ssh_keygen, because gnome-terminal is not available.\n')
+        print('\n=> Please do this manually later.\n')
+        state_update('ssh_keygen')
+
+    print('\nGenerate SSH keys.\n')
+    print('\n=>Follow prompts in the new gnome-terminal window.')
+
+    if not run_command(args, 'gnome-terminal -- /bin/bash -c ssh-keygen'): do_exit(args, 'Error during ssh_keygen.')
+
+    state_update('ssh_keygen')
+
+def essential_programs(args):
+    print('\nInstalling essential programs.\n')
+
+    #apt_arg = ' '.join(essential)
+    #run_sudo_command(args, f'apt install {apt_arg} -y')
+
+    for apt_arg in essential:
+        if apt_arg[0] == '@':
+            if not run_sudo_command(args, f'apt install {apt_arg[1:]}', in_terminal_window=True):
+                response = input('Do you want to carry on? (Y/n) ')
+                if response:
+                    do_stop = response == 'n' or response == 'N'
+                    if do_stop:
+                        do_exit(args, "Error during essential_programs.")
+        else:
+            if not run_sudo_command(args, f'apt install {apt_arg} -y'):
+                response = input('Do you want to carry on? (Y/n) ')
+                if response:
+                    do_stop = response == 'n' or response == 'N'
+                    if do_stop:
+                        do_exit(args, "Error during essential_programs.")
+
+    state_update('essential_programs')
 
 def setup_postgres(args):
     print('\nSetting up postgres.\n')
 
     print('NOT YET IMPLEMENTED.')
+    ~$ sudo -u postgres createuser --interactive
+~$ createdb randalk
+Answer y to the question about being a superuser. That way, your randalk role has the authority to create the formalizer user and do other things needed by fzsetup.
 
     state_update('setup_postgres')
 
@@ -506,6 +593,14 @@ def setup_rsyncaccount(args):
 
     state_update('setup_rsyncaccount')
 
+def final_messages(args):
+    print("\nWe're almost done. Here are some final messages:\n")
+
+    print('Encrypted volume mounting needs to be installed manually. Do this:')
+    print('  sudo apt install encfs')
+
+    state_update('final_messages')
+
 # Example usage:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Install and/or restore complete backed-up system environment.')
@@ -544,9 +639,13 @@ if __name__ == "__main__":
 
     if did_step('ensure_httpd'): copy_profile(args)
 
-    test_to_here(args)
+    if did_step('copy_profile'): ssh_keygen(args)
 
-    if did_step('copy_profile'): setup_postgres(args)
+    if did_step('ssh_keygen'): essential_programs(args)
+
+    if did_step('essential_programs'): setup_postgres(args)
+
+    test_to_here(args)
 
     if did_step('setup_postgres'): restore_formalizer_database(args)
 
@@ -557,5 +656,7 @@ if __name__ == "__main__":
     if did_step('install_programs'): setup_vpn(args)
 
     if did_step('setup_vpn'): setup_rsyncaccount(args)
+
+    if did_step('setup_rsyncaccount'): final_messages(args)
 
     do_exit(args, "Completed")
