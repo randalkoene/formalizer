@@ -451,8 +451,8 @@ def ensure_ssh(args):
 
     # Install and activate SSH server
     print('Installing OpenSSH server...')
-    run_sudo_command(args, 'apt update -y')
-    run_sudo_command(args, 'apt install openssh-server -y')
+    run_sudo_command(args, 'apt-get update -y')
+    run_sudo_command(args, 'apt-get install openssh-server -y')
 
     print('Enabling and starting SSH service...')
     run_sudo_command(args, 'systemctl enable --now ssh')
@@ -478,8 +478,8 @@ def ensure_httpd(args):
 
     # Install and activate Apache server
     print('Installing Apache server...')
-    run_sudo_command(args, 'apt update -y')
-    run_sudo_command(args, 'apt install apache2 -y')
+    run_sudo_command(args, 'apt-get update -y')
+    run_sudo_command(args, 'apt-get install apache2 -y')
 
     print('Enabling and starting Apache service...')
     run_sudo_command(args, 'systemctl enable --now apache2')
@@ -494,7 +494,7 @@ def ensure_httpd(args):
 def copy_profile(args):
     print("\nLet's merge old and new .bashrc and .profile using the meld tool.\n")
 
-    run_sudo_command(args, 'apt install meld -y')
+    run_sudo_command(args, 'apt-get install meld -y')
 
     run_command(args, 'cp -f .profile profile.bak')
     run_command(args, 'cp -f .bashrc bashrc.bak')
@@ -508,6 +508,14 @@ def copy_profile(args):
         do_exit(args, 'Error during copy_profile.')
 
     state_update('copy_profile')
+
+    print('\nWe just updated .bashrc and we need the new environment variablesn\nfor the next steps.\n=> Please:')
+    print('1. Open a new terminal.')
+    print('2. Rerun this same script with the same arguments:\n')
+    print(f'   ./replicate.py -t {args.mounttype} {args.archive} {args.mountpoint}\n')
+    print('Relax, this is perfectly normal.')
+
+    do_exit(args, 'Requesting new terminal after copy_profile.')
 
 def ssh_keygen(args):
     if not run_command(args, 'which gnome-terminal'):
@@ -530,14 +538,14 @@ def essential_programs(args):
 
     for apt_arg in essential:
         if apt_arg[0] == '@':
-            if not run_sudo_command(args, f'apt install {apt_arg[1:]}', in_terminal_window=True):
+            if not run_sudo_command(args, f'apt-get install {apt_arg[1:]}', in_terminal_window=True):
                 response = input('Do you want to carry on? (Y/n) ')
                 if response:
                     do_stop = response == 'n' or response == 'N'
                     if do_stop:
                         do_exit(args, "Error during essential_programs.")
         else:
-            if not run_sudo_command(args, f'apt install {apt_arg} -y'):
+            if not run_sudo_command(args, f'apt-get install {apt_arg} -y'):
                 response = input('Do you want to carry on? (Y/n) ')
                 if response:
                     do_stop = response == 'n' or response == 'N'
@@ -546,20 +554,80 @@ def essential_programs(args):
 
     state_update('essential_programs')
 
+def install_pgadmin4(args):
+    print('\nInstalling pgAdmin4.\n')
+
+    # Install the public key for the repository (if not done previously):
+    if not run_command(args, 'curl -fsS https://www.pgadmin.org/static/packages_pgadmin_org.pub | sudo gpg --dearmor -o /usr/share/keyrings/packages-pgadmin-org.gpg'):
+        do_exit(args, "Error during install_pgadmin4.")
+
+
+    # Create the repository configuration file:
+    if not run_sudo_command(args, ["sh", "-c", 'echo "deb [signed-by=/usr/share/keyrings/packages-pgadmin-org.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list && apt update']):
+        do_exit(args, "Error during install_pgadmin4.")
+
+    if not run_sudo_command(args, 'apt-get update'):
+        do_exit(args, "Error during install_pgadmin4.")
+
+    # Install for desktop mode only:
+    if not run_sudo_command(args, 'apt-get install pgadmin4-desktop -y'):
+        do_exit(args, "Error during install_pgadmin4.")
+
+    state_update('install_pgadmin4')
+
 def setup_postgres(args):
     print('\nSetting up postgres.\n')
 
-    print('NOT YET IMPLEMENTED.')
-    ~$ sudo -u postgres createuser --interactive
-~$ createdb randalk
-Answer y to the question about being a superuser. That way, your randalk role has the authority to create the formalizer user and do other things needed by fzsetup.
+    if not run_command(args, 'pg_isready'):
+        print('=> Postgres is not ready for setup.')
+        do_exit(args, "Error during setup_postgres.")
+
+    # Note: The default admin shell is available through: sudo -i -u postgres
+    #       The command line interface through: psql
+
+    if not run_sudo_command(args, f'-u postgres createuser -d -r -s {this_user}'):
+        do_exit(args, "Error during setup_postgres.")
+    print(f'=> Created postgres superuser role for {this_user}.')
+
+    if not run_command(args, f'createdb {this_user}'):
+        do_exit(args, "Error during setup_postgres.")
+    print(f'=> Created {this_user} database.')
 
     state_update('setup_postgres')
+
+def prepare_formalizer(args):
+    print('\nPreparing Formalizer.\n')
+
+#~$ cd ~/src/formalizer/core/fzbuild
+#~$ fzbuild.py -C && fzbuild.py -M
+#~$ cd ~/src/formalizer
+#~$ make all
+#~$ fzsetup
 
 def restore_formalizer_database(args):
     print('\nRestoring Formalizer database from backup.\n')
 
+    # There are probably already achived Formalizer databases on the
+    # system, but we want to pull the most recent one.
+
+    # ***
+    # ... fzrestore.sh can't be used at this point yet, because
+    #     the various Formalizer scripts aren't ready and reachable yet
+    # ... also, fzrestore.sh calls fzsetup -1 fzuser, which also cannot
+    #     work unless Formalizer scripts are ready and reachable.
+    # ... Probable, some other Formalizer preparation step should happen
+    #     first.
+    # ... Actually... if we open a new shell then the fz* scripts are
+    #     reachable, but it would probably best to recompile them all
+    #     first just to be sure they work right and that the Formalizer
+    #     Makefile has prepared everything
+    # ... Let's try having the Formalizer build steps come first.
+    # Use fzrestore.sh
     print('NOT YET IMPLEMENTED.')
+#    ~$ mkdir -p .archive/postgres
+#~$ scp 192.168.0.3:.archive/postgres/formalizer-postgres-backup-202101030955.gz .archive/postgres/
+#~$ fzrestore.sh /home/randalk/.archive/postgres/formalizer-postgres-backup-202101030955.gz
+
 
     state_update('restore_formalizer_database')
 
@@ -568,12 +636,33 @@ def test_formalizer(args):
 
     print('NOT YET IMPLEMENTED.')
 
+
     state_update('test_formalizer')
 
 def install_programs(args):
-    print('\nInstalling designated programs.\n')
+    print('\nInstalling optional programs.\n')
 
-    print('NOT YET IMPLEMENTED.')
+    for apt_arg in optional:
+        response = input(f'Do you want to install {apt_arg}? (Y/n) ')
+        if response:
+            do_skip = response == 'n' or response == 'N'
+            if not do_skip:
+                if apt_arg[0] == '@':
+                    if not run_sudo_command(args, f'apt-get install {apt_arg[1:]}', in_terminal_window=True):
+                        response = input('Do you want to carry on? (Y/n) ')
+                        if response:
+                            do_stop = response == 'n' or response == 'N'
+                            if do_stop:
+                                do_exit(args, "Error during install_programs.")
+                else:
+                    if not run_sudo_command(args, f'apt-get install {apt_arg} -y'):
+                        response = input('Do you want to carry on? (Y/n) ')
+                        if response:
+                            do_stop = response == 'n' or response == 'N'
+                            if do_stop:
+                                do_exit(args, "Error during install_programs.")
+
+
     print('There is a list in ~/apt-installed.txt, but the list is too long. There should be a subset of much-used programs.')
     print('More detailed in Trello.')
 
@@ -593,13 +682,20 @@ def setup_rsyncaccount(args):
 
     state_update('setup_rsyncaccount')
 
+more_messages='''
+I think it was old information in ~/.pgadmin, .config/pgadmin, .config/pgadmin4, .cache/pgadmin4. I think there needs to be a separate step to get things set up for pgAdmin4 by deleting those folders before running it and by giving "gui" access to the "formalizer" server and various permissions once that is all ready and set up.
+'''
+
 def final_messages(args):
     print("\nWe're almost done. Here are some final messages:\n")
 
     print('Encrypted volume mounting needs to be installed manually. Do this:')
     print('  sudo apt install encfs')
 
+    print(more_messages)
+
     state_update('final_messages')
+
 
 # Example usage:
 if __name__ == "__main__":
@@ -643,11 +739,15 @@ if __name__ == "__main__":
 
     if did_step('ssh_keygen'): essential_programs(args)
 
-    if did_step('essential_programs'): setup_postgres(args)
+    if did_step('essential_programs'): install_pgadmin4(args)
+
+    if did_step('install_pgadmin4'): setup_postgres(args) # *** This step might be too early!
+
+    if did_step('setup_postgres'): prepare_formalizer(args)
 
     test_to_here(args)
 
-    if did_step('setup_postgres'): restore_formalizer_database(args)
+    if did_step('prepare_formalizer'): restore_formalizer_database(args)
 
     if did_step('restore_formalizer_database'): test_formalizer(args)
 

@@ -15,7 +15,7 @@ if [ $# -lt 1 -o "$1" = "-h" ]; then
 	echo "  -s rename an existing schema (usually USER) if it exists before restoring"
 	echo "     Use this if you are restoring to an existing database, and"
 	echo "     if you want to test a different version of the Formalizer"
-	echo "     Graph and Log data. If you want to delete the old scheme"
+	echo "     Graph and Log data. If you want to delete the old schema"
 	echo "     then use 'psql' with the 'DROP SCHEMA name CASCADE;' command."
 	echo ""
 	exit
