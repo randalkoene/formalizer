@@ -598,11 +598,16 @@ def setup_postgres(args):
 def prepare_formalizer(args):
     print('\nPreparing Formalizer.\n')
 
-#~$ cd ~/src/formalizer/core/fzbuild
-#~$ fzbuild.py -C && fzbuild.py -M
-#~$ cd ~/src/formalizer
-#~$ make all
-#~$ fzsetup
+    if not run_command(args, f'fzbuild.py -R'):
+        do_exit(args, "Error during prepare_formalizer.")
+
+    if not run_command(args, f'cd {user_home}/src/formalizer && make all'):
+        do_exit(args, "Error during prepare_formalizer.")
+
+    if not run_command(args, 'fzsetup -A --defaults'):
+        do_exit(args, "Error during prepare_formalizer.")
+
+    state_update('prepare_formalizer')
 
 def restore_formalizer_database(args):
     print('\nRestoring Formalizer database from backup.\n')
@@ -627,6 +632,8 @@ def restore_formalizer_database(args):
 #    ~$ mkdir -p .archive/postgres
 #~$ scp 192.168.0.3:.archive/postgres/formalizer-postgres-backup-202101030955.gz .archive/postgres/
 #~$ fzrestore.sh /home/randalk/.archive/postgres/formalizer-postgres-backup-202101030955.gz
+
+# Note that in psql you can use "\du" to see user roles.
 
 
     state_update('restore_formalizer_database')

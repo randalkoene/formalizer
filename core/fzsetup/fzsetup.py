@@ -98,6 +98,9 @@ else:
     print('Configuration loaded. Checking that it contains data...')
     assert len(config) > 0
 
+# Some extra configuration defaults
+config['use_defaults'] = False
+
 # Enable us to import standardized Formalizer Python components.
 fzcorelibdir = config['sourceroot'] + '/core/lib'
 fzcoreincludedir = config['sourceroot'] + '/core/include'
@@ -179,7 +182,8 @@ def create_tables(cmdargs):
     # This should create all the tables fresh if they don't exist yet.
     print('***This is just a test to see if the PQ table layouts were imported correctly:')
     print(Graphpostgres.pq_topiclayout) # That worked!
-    print('\n***Implement actual table creation here!\n')
+    print('\n***For a brand-new setup, implement actual table creation here!')
+    print('\n***This is not a problem if fzrestore will be used to restore an existing set of tables.\n')
     # *** This will need to call a program that can use the Graphpostgres and Logpostgres libraries.
     # *** So far, this is always done by dil2graph, but when setting up a brand new environment
     # *** for someone, those tables will need to be created correctly in empty condition.
@@ -318,9 +322,12 @@ def init_webtree():
         print(f'Unable to create the web interface directory {webtreeroot}. See the fzsetup README.md.')
         exit(retcode)
 
-    errtoweb = input('\nWould you like to inspect Formalizer reported warnings and errors through the web interface?\n(Other parameters of the error configuration file will not be modified.) (Y/n) ')
-    if (errtoweb != 'n'):
+    if config['use_defaults']:
         setup_error_reports_to_web()
+    else:
+        errtoweb = input('\nWould you like to inspect Formalizer reported warnings and errors through the web interface?\n(Other parameters of the error configuration file will not be modified.) (Y/n) ')
+        if (errtoweb != 'n'):
+            setup_error_reports_to_web()
 
     
 def set_All_flowcontrol():
@@ -328,12 +335,12 @@ def set_All_flowcontrol():
     flow_control['create_schema']=True
     flow_control['create_tables']=True
     flow_control['make_fzuser_role']=True
-    flow_control['make_binaries']=True    
+    # flow_control['make_binaries']=True    # Let's do this separately with fzbuild -r.
     flow_control['create_configtree']=True
     flow_control['init_webtree']=True
 
 
-def list_assumptions():
+def list_assumptions(do_exit:bool):
     print('Fundamental assumptions (based on config and more):\n')
     print(f'  configroot  : {config["configroot"]}')
     print(f'  sourceroot  : {config["sourceroot"]}')
@@ -341,8 +348,16 @@ def list_assumptions():
     print(f'  wwwhostroot : {config["wwwhostroot"]}')
     print(f'  doxyroot    : {config["doxyroot"]}')
     print(f'  wwwdoxyroot : {config["wwwdoxyroot"]}')
-    exit(0)
 
+    print(f'\n  use_defaults: {config["use_defaults"]}')
+    if do_exit:
+        exit(0)
+
+def show_flowcontrol():
+    print('\nSetup will do the following:')
+    for key in flow_control:
+        if flow_control[key]:
+            print(f'\t{key}')
 
 """
 Reset the Formalizer environment. After confirmation, this will delete the
@@ -474,8 +489,12 @@ def parse_options():
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='turn on verbose mode')
     parser.add_argument('-R', '--reset', dest='reset', help='reset: all, graph, log, metrics, guide')
     parser.add_argument('-l', '--list', dest='list', action="store_true", help='list roots and other fundamental assumptions')
+    parser.add_argument('--defaults', dest='usedefaults', action="store_true", help='use defaults (non-interactive)')
 
     args = parser.parse_args()
+
+    if args.usedefaults:
+        config['use_defaults'] = True
 
     if not args.dbname:
         args.dbname = 'formalizer'
@@ -484,7 +503,7 @@ def parse_options():
     if args.verbose:
         config['verbose'] = True
     if args.list:
-        list_assumptions()
+        list_assumptions(do_exit=True)
     if args.doall:
         set_All_flowcontrol()
     if args.permissions:
@@ -516,15 +535,19 @@ def parse_options():
         if (args.reset == "guide"):
             flow_control['reset_guide']=True
 
-    print('Working with the following targets:\n')
+    list_assumptions(do_exit=False)
+
+    show_flowcontrol()
+
+    print('\nWorking with the following targets:\n')
     print(f'  Formalizer Postgres database name   : {args.dbname}')
     print(f'  Formalizer user or group schema name: {args.schemaname}\n')
 
-    choice = input('Is this correct? (y/N) \n')
-
-    if (choice != 'y'):
-        print('Ok. You can try again with different command arguments.\n')
-        exit(0)
+    if not config['use_defaults']:
+        choice = input('Is this correct? (y/N) \n')
+        if (choice != 'y'):
+            print('Ok. You can try again with different command arguments.\n')
+            exit(0)
 
     return args
 
