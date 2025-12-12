@@ -89,7 +89,12 @@ def check_deletes_failed(stderr_str: str, chkstr:str):
         'other': '\n'.join(other_messages),
     }
 
-def run_command(args, command, quiet_stdout_stderr=False, chkstr='rsync: [sender] sender failed to remove')->bool:
+def run_command(
+    args,
+    command,
+    quiet_stdout_stderr=False,
+    chkstr='rsync: [sender] sender failed to remove',
+    return_stdout=False):
     """
     Runs a command.
     """
@@ -128,6 +133,8 @@ def run_command(args, command, quiet_stdout_stderr=False, chkstr='rsync: [sender
             if error_groups['deletes'] > 0:
                 print('Rsync deletes failed: %d' % error_groups['deletes'])
             return False
+        if return_stdout:
+            return run_result.stdout
         return run_result.returncode == 0
 
     except subprocess.CalledProcessError as e:
@@ -602,8 +609,8 @@ def setup_postgres(args):
 def prepare_formalizer(args):
     print('\nPreparing Formalizer.\n')
 
-    #if not run_command(args, f'{user_home}/src/formalizer/tools/dev/fzbuild/fzbuild.py -R'):
-    #    do_exit(args, "Error during prepare_formalizer.")
+    if not run_command(args, f'{user_home}/src/formalizer/tools/dev/fzbuild/fzbuild.py -R'):
+        do_exit(args, "Error during prepare_formalizer.")
 
     if not run_command(args, ['bash', '-c', f'cd {user_home}/src/formalizer && make executables']):
         do_exit(args, "Error during prepare_formalizer.")
@@ -615,32 +622,39 @@ def prepare_formalizer(args):
 
     state_update('prepare_formalizer')
 
+def get_database_path(stdout_returned:str)->str:
+    stdout_lines = stdout_returned.split('\n')
+    for message in stdout_lines:
+        p = message.find('Saved as ')
+        if p >= 0:
+            return message[len('Saved as '):]
+    return ''
+
 def restore_formalizer_database(args):
     print('\nRestoring Formalizer database from backup.\n')
+
+    # Note that in psql you can use "\du" to see user roles.
 
     # There are probably already achived Formalizer databases on the
     # system, but we want to pull the most recent one.
 
-    # ***
-    # ... fzrestore.sh can't be used at this point yet, because
-    #     the various Formalizer scripts aren't ready and reachable yet
-    # ... also, fzrestore.sh calls fzsetup -1 fzuser, which also cannot
-    #     work unless Formalizer scripts are ready and reachable.
-    # ... Probable, some other Formalizer preparation step should happen
-    #     first.
-    # ... Actually... if we open a new shell then the fz* scripts are
-    #     reachable, but it would probably best to recompile them all
-    #     first just to be sure they work right and that the Formalizer
-    #     Makefile has prepared everything
-    # ... Let's try having the Formalizer build steps come first.
+    if not run_command(args, f'make -p {user_home}/.formalizer/archive/postgres'):
+        do_exit(args, "Error during restore_formalizer_database.")
+
+    # Retrieve most recent remote backup or use command line specified
+    if args.database:
+        fzdatabase_backup=args.database
+    else:
+        stdout_returned = run_command(args, 'database-from-github.py', return_stdout=True)
+        if not stdout_returned:
+            do_exit(args, "Error during restore_formalizer_database.")
+    fzdatabase_backup = get_database_path(stdout_returned)
+    if not os.path.exists(fzdatabase_backup):
+        do_exit(args, "Error during restore_formalizer_database.")
+
     # Use fzrestore.sh
-    print('NOT YET IMPLEMENTED.')
-#    ~$ mkdir -p .archive/postgres
-#~$ scp 192.168.0.3:.archive/postgres/formalizer-postgres-backup-202101030955.gz .archive/postgres/
-#~$ fzrestore.sh /home/randalk/.archive/postgres/formalizer-postgres-backup-202101030955.gz
-
-# Note that in psql you can use "\du" to see user roles.
-
+    if not run_command(args, f'fzrestore.sh -n {fzdatabase_backup}'):
+        do_exit(args, "Error during restore_formalizer_database.")
 
     state_update('restore_formalizer_database')
 
@@ -718,6 +732,7 @@ if __name__ == "__main__":
     parser.add_argument('archive', type=str, help='Path to a loop-mountable archive file.')
     parser.add_argument('mountpoint', type=str, help='Path to a mount-point.')
     parser.add_argument('-t', dest='mounttype', type=str, default='ext4', help='Loop-mountable type (default=ext4).')
+    parser.add_argument('-d', dest='database', type=str, help='Use specified database backup file instead of remote.')
     parser.add_argument('-R', '--restart', dest='restart', action="store_true", help='Force restart of replication from first step.')
     parser.add_argument('-S', '--simulate', dest='simulate', action="store_true", help='Simulate actions.')
     parser.add_argument('-F', '--failafter', dest='failafter', type=str, help='Simulate failure after specified step.')
@@ -760,9 +775,9 @@ if __name__ == "__main__":
 
     if did_step('setup_postgres'): prepare_formalizer(args)
 
-    test_to_here(args)
-
     if did_step('prepare_formalizer'): restore_formalizer_database(args)
+
+    test_to_here(args)
 
     if did_step('restore_formalizer_database'): test_formalizer(args)
 
