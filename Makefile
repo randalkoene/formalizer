@@ -146,6 +146,8 @@ EXECUTABLES += $(TOOLSPATH)/system/requestmanual/requestmanual.py
 # EXECUTABLES += $(TOOLSPATH)/system/schedule/checkrequired/checkrequired
 # EXECUTABLES += $(TOOLSPATH)/system/schedule/favorvariable/favorvariable
 # EXECUTABLES += $(TOOLSPATH)/system/syswizard/syswizard
+EXECUTABLES += $(TOOLSPATH)/system/replicate/replicate.py
+EXECUTABLES += $(TOOLSPATH)/system/replicate/database-schemas.py
 EXECUTABLES += $(TOOLSPATH)/system/top/index-term.sh
 EXECUTABLES += $(TOOLSPATH)/system/schedule/schedule
 

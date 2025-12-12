@@ -119,6 +119,7 @@ flow_control = {
     'create_tables' : False,
     'give_permissions': False,
     'make_fzuser_role' : False,
+    'make_gui_role': False,
     'make_binaries' : False,
     'create_configtree' : False,
     'init_webtree' : False,
@@ -192,12 +193,19 @@ def create_tables(cmdargs):
 
 
 def grant_fzuser_access(cmdargs,beverbose):
+    # *** Not clear if this is correct: It looks like I intended to use role fzrandalk for all the
+    #     permissions within the formalizer::randalk schema.
+    #     Instead, it looks like this is assuming that role randalk already has all the necessary
+    #     privileges, and www-data is given the necessary privileges directly as well, without
+    #     actually needing to go through membership in fzrandalk that both randalk and www-data have.
     cgiuser = config['cgiuser']
+    # Default: For database formalizer, give table editing privileges in schema randalk to www-data.
     retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA \"{cmdargs.schemaname}\" TO \"{cgiuser}\";'")
     if (retcode != 0):
         print(f'Unable to give access permissions to {cgiuser}.')
         return retcode
     print(f'Database user {cgiuser} has been granted modification access permissions on schema {cmdargs.schemaname}.')
+    # Default: For database formalizer, enable login for www-data.
     retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'ALTER ROLE \"{cgiuser}\" WITH LOGIN;'")
     if (retcode != 0):
         print(f'Unable to alter {cgiuser} tole to include login permissions.')
@@ -212,27 +220,43 @@ def make_fzuser_role(cmdargs,beverbose):
     fzuser = f"fz{cmdargs.schemaname}"
     cgiuser = config['cgiuser']
     print(f'Creating {fzuser} role, {cgiuser} role, and access permissions if any of those do not already exist.')
+    # Default: For database formalizer create new role www-data.
     retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'CREATE ROLE \"{cgiuser}\";'")
     if (retcode != 0):
         print(f'The {cgiuser} role may already exist. If necessary, use `psql -d formalizer -c \'\\du\'` to confirm.')
+    # Default: For database formalizer create new role fzrandalk.
     retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'CREATE ROLE \"{fzuser}\";'")
     if (retcode != 0):
         print(f'The {fzuser} role may already exist. If necessary, use `psql -d formalizer -c \'\\du\'` to confirm.')
+    # Default: For database formalizer grant fzrandalk to randalk.
+    # Beware: cmdargs.schemaname happens to be the $USER by default, which is also a role name, which is why
+    #         this works. Otherwise, you cannot grant a role to an object (like a schema).
     retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'GRANT \"{fzuser}\" TO \"{cmdargs.schemaname}\";'")
     if (retcode != 0):
         print(f'The {cmdargs.schemaname} role may already be a member of group role {fzuser}. If necessary, use `psql -d formalizer -c \'\\du\'` to confirm.')
+    # Default: For database formalizer grant fzrandalk to www-data.
     retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'GRANT \"{fzuser}\" TO \"{cgiuser}\";'")
     if (retcode != 0):
         print(f'The {cgiuser} role may already be a member of group role {fzuser}. If necessary, use `psql -d formalizer -c \'\\du\'` to confirm.')
+    # Default: For database formalizer give ownership of the randalk schema to the role fzrandalk.
     retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'ALTER SCHEMA \"{cmdargs.schemaname}\" OWNER TO \"{fzuser}\";'")
     if (retcode != 0):
         print(f'The {cmdargs.schemaname} schema may already be owned by {fzuser}. If necessary, use `psql -d formalizer -c \'\\dn\'` to confirm.')
+    # Default: Give fzrandalk all the necessary access privileges.
     retcode = grant_fzuser_access(cmdargs,False)
     if (retcode != 0):
         print(f'Giving {cgiuser} access permissions to the {cmdargs.schemaname} schema failed.')
         exit(retcode)
     if beverbose:
         print(f'The {fzuser} role owns schema {cmdargs.schemaname} in database {cmdargs.dbname}, and  {cgiuser} and {fzuser} roles have access permissions to schema {cmdargs.schemaname}.')
+
+def make_gui_role(cmdargs,beverbose):
+    print(f'Creating gui role (for pgAdmin4) with Superuser access permissions that does not already exist.')
+    retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'CREATE ROLE gui SUPERUSER;'")
+    if (retcode != 0):
+        print(f'The gui role may already exist. If necessary, use `psql -d formalizer -c \'\\du\'` to confirm.')
+    if beverbose:
+        print('The gui (pgAdmin4) has access permissions for postgres.')
 
 
 """
@@ -481,7 +505,7 @@ def parse_options():
 
     parser = argparse.ArgumentParser(description='Setup or refresh a Formalizer environment.',epilog=theepilog)
     parser.add_argument('-A', '--All', dest='doall', action="store_true", help='do all setup steps, ensure environment is ready')
-    parser.add_argument('-1', '--One', metavar='setupaction', help='specify a step to do: database, schema, tables, fzuser, binaries, config, web')
+    parser.add_argument('-1', '--One', metavar='setupaction', help='specify a step to do: database, schema, tables, fzuser, binaries, config, web, gui')
     parser.add_argument('-d', '--database', dest='dbname', help='specify database name (default: formalizer)')
     parser.add_argument('-s', '--schema', dest='schemaname', help='specify schema name (default: $USER)')
     parser.add_argument('-p', '--permissions', dest='permissions', action='store_true', help=f'give database login and schema access permissions to {config["cgiuser"]}')
@@ -517,6 +541,8 @@ def parse_options():
             flow_control['create_tables']=True
         if (args.One == "fzuser"):
             flow_control['make_fzuser_role']=True
+        if (args.One == "gui"):
+            flow_control['make_gui_role']=True
         if (args.One == "binaries"):
             flow_control['make_binaries']=True
         if (args.One == "config"):
@@ -582,6 +608,8 @@ if __name__ == '__main__':
         grant_fzuser_access(args,True)
     if flow_control['make_fzuser_role']:
         make_fzuser_role(args,True)
+    if flow_control['make_gui_role']:
+        make_gui_role(args,True)
     if flow_control['make_binaries']:
         make_binaries_available()
     if flow_control['create_configtree']:

@@ -586,6 +586,101 @@ def install_pgadmin4(args):
 
     state_update('install_pgadmin4')
 
+'''
+Some important information about the database
+=============================================
+
+Seing defined users (list of roles), their attributes, which other roles they are
+members of, and a possible description:
+> psql
+randalk=# \du+
+
+ Role name |                         Attributes                         |  Member of  | Description 
+-----------+------------------------------------------------------------+-------------+-------------
+ fzrandalk | Cannot login                                               | {}          | 
+ gui       | Superuser                                                  | {}          | 
+ postgres  | Superuser, Create role, Create DB, Replication, Bypass RLS | {}          | 
+ randalk   | Superuser, Create role, Create DB                          | {fzrandalk} | 
+ www-data  |                                                            | {fzrandalk} | 
+
+The fzrandalk role is the one that forms the group for those who modify the tables
+in the database. (At least, that's what I think it was meant to be for?)
+  The fzrandalk role is granted to the schema (with fzsetup -1 fzuser).
+The www-data role is used by CGI scripts and is a member of fzrandalk.
+The randalk role is used by the primary user and is a member of fzrandalk.
+The postgres rols is the typical default superuser of a PostgreSQL installation.
+The gui role is used by pgAdmin4.
+
+> psql
+randalk=# \l+
+
+    Name    |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges   |  Size   | Tablespace |                Description                 
+------------+----------+----------+-------------+-------------+-----------------------+---------+------------+--------------------------------------------
+ formalizer | randalk  | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =Tc/randalk          +| 79 MB   | pg_default | 
+            |          |          |             |             | randalk=CTc/randalk  +|         |            | 
+            |          |          |             |             | gui=c/randalk         |         |            | 
+ postgres   | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |                       | 8417 kB | pg_default | default administrative connection database
+ randalk    | randalk  | UTF8     | en_US.UTF-8 | en_US.UTF-8 |                       | 8569 kB | pg_default | 
+ template0  | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +| 8417 kB | pg_default | unmodifiable empty database
+            |          |          |             |             | postgres=CTc/postgres |         |            | 
+ template1  | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +| 8593 kB | pg_default | default template for new databases
+            |          |          |             |             | postgres=CTc/postgres |         |            | 
+
+The two template databases are administrative, not for our data.
+The postgres database is the default database.
+The randalk database is the user's personal database.
+The formalizer database contains the Formalizer data.
+
+The format for the "Access privileges" column is:
+  grantee=privilege-abbreviation[*]/grantor
+Multiple entries for different grantees are separated by "+".
+  c means can connect to the database.
+  C means can create schemas and tables.
+  T means can make temporary tables in the database.
+
+The gui role has been granted connection privileges by randalk.
+
+There are also object-level (table, etc) permissions for users. See postgres documentation.
+
+> psql
+SELECT datname FROM pg_database;
+
+  datname   
+------------
+ postgres
+ randalk
+ template1
+ template0
+ formalizer
+
+The schema (e.g. randalk) acts as a namespace within the database. For example,
+this way you can have groups of tables that belong together:
+  randalk.Nodes, randalk.Chunks, etc.
+
+To see the schemas that exist in a database:
+> psql
+randalk=# \c formalizer
+randalk=# \dn
+
+   List of schemas
+  Name   |   Owner   
+---------+-----------
+ public  | postgres
+ randalk | fzrandalk
+
+Summarizing:
+
+-> database "formalizer"
+   -> has schema "randalk" (schema)
+      -> owned by "fzrandalk" (role)
+
+-> role "fzrandalk"
+   -> has members "randalk" (role) and "www-data" (role)
+
+The label "randalk" is used twice, for a role and for a schema.
+
+'''
+
 def setup_postgres(args):
     print('\nSetting up postgres.\n')
 
@@ -616,6 +711,11 @@ def prepare_formalizer(args):
         do_exit(args, "Error during prepare_formalizer.")
 
     if not run_command(args, 'fzsetup -A --defaults', chkstr=' already '): # Don't fail when some postgres things have already been done.
+        if error_groups['other_num'] > 0:
+            if error_groups['other'].strip() != '':
+                do_exit(args, "Error during prepare_formalizer.")
+
+    if not run_command(args, 'fzsetup -1 gui --defaults', chkstr=' already '):
         if error_groups['other_num'] > 0:
             if error_groups['other'].strip() != '':
                 do_exit(args, "Error during prepare_formalizer.")
@@ -658,7 +758,7 @@ def restore_formalizer_database(args):
         do_exit(args, "Error during restore_formalizer_database.")
 
     # Use fzrestore.sh
-    if not run_command(args, f'fzrestore.sh -n {fzdatabase_backup}'):
+    if not run_command(args, f'fzrestore.sh -n -s {this_user} {fzdatabase_backup}'):
         do_exit(args, "Error during restore_formalizer_database.")
 
     state_update('restore_formalizer_database')
@@ -718,6 +818,13 @@ more_messages='''
 I think it was old information in ~/.pgadmin, .config/pgadmin, .config/pgadmin4, .cache/pgadmin4. I think there needs to be a separate step to get things set up for pgAdmin4 by deleting those folders before running it and by giving "gui" access to the "formalizer" server and various permissions once that is all ready and set up.
 
 Please read the contents of ~/src/formalizer/doc/installation.md
+
+Tests you should carry out to ensure that you have a fully functioning
+environmnt:
+
+- Test access and use of your ID book vault.
+- Test decrypted mounting of your private volume.
+
 '''
 
 def final_messages(args):
