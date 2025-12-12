@@ -7,9 +7,9 @@
  * Versioning is based on https://semver.org/ and the C++ header defines __FZSERVERPQ-LOG_HPP.
  */
 
-#ifndef __FZSERVERPQ-LOG_HPP
+#ifndef __FZSERVERPQ_LOG_HPP
 #include "version.hpp"
-#define __FZSERVERPQ-LOG_HPP (__VERSION_HPP)
+#define __FZSERVERPQ_LOG_HPP (__VERSION_HPP)
 
 // core
 #include "config.hpp"
@@ -83,4 +83,4 @@ struct fzserverpqlog: public formalizer_standard_program, public shared_memory_s
 
 extern fzserverpqlog fzsl;
 
-#endif // __FZSERVERPQ-LOG_HPP
+#endif // __FZSERVERPQ_LOG_HPP
