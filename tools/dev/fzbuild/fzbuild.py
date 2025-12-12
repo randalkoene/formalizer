@@ -48,7 +48,8 @@ compile_dirs = {}
 compile_dirs['lib'] = buildconfig['lib']
 compile_dirs.update(buildconfig['cpp']['core'])
 for key in buildconfig['cpp']['tools']:
-    compile_dirs.update(buildconfig['cpp']['tools'][key])
+    if key != "conversion": # We normally don't need conversion tools
+        compile_dirs.update(buildconfig['cpp']['tools'][key])
 
 flow_control = {
     'make_docs' : False,
