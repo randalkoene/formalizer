@@ -701,6 +701,12 @@ def setup_postgres(args):
 
     state_update('setup_postgres')
 
+def has_non_empty_errors()->bool:
+    if error_groups['other_num'] > 0:
+        if error_groups['other'].strip() != '':
+            return True
+    return False
+
 def prepare_formalizer(args):
     print('\nPreparing Formalizer.\n')
 
@@ -711,14 +717,12 @@ def prepare_formalizer(args):
         do_exit(args, "Error during prepare_formalizer.")
 
     if not run_command(args, 'fzsetup -A --defaults', chkstr=' already '): # Don't fail when some postgres things have already been done.
-        if error_groups['other_num'] > 0:
-            if error_groups['other'].strip() != '':
-                do_exit(args, "Error during prepare_formalizer.")
+        if has_non_empty_errors():
+            do_exit(args, "Error during prepare_formalizer.")
 
     if not run_command(args, 'fzsetup -1 gui --defaults', chkstr=' already '):
-        if error_groups['other_num'] > 0:
-            if error_groups['other'].strip() != '':
-                do_exit(args, "Error during prepare_formalizer.")
+        if has_non_empty_errors():
+            do_exit(args, "Error during prepare_formalizer.")
 
     state_update('prepare_formalizer')
 
@@ -758,8 +762,9 @@ def restore_formalizer_database(args):
         do_exit(args, "Error during restore_formalizer_database.")
 
     # Use fzrestore.sh
-    if not run_command(args, f'fzrestore.sh -n -s {this_user} {fzdatabase_backup}'):
-        do_exit(args, "Error during restore_formalizer_database.")
+    if not run_command(args, f'fzrestore.sh -n -s {this_user} {fzdatabase_backup}', chkstr=' already '):
+        if has_non_empty_errors():
+            do_exit(args, "Error during restore_formalizer_database.")
 
     state_update('restore_formalizer_database')
 
