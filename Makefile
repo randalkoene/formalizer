@@ -53,6 +53,12 @@ TOOLSCOMPDIRS += $(TOOLSPATH)/system/schedule
 COMPILABLES = $(LIBCOMPDIRS) $(CORECOMPDIRS) $(TOOLSCOMPDIRS)
 # +----- end  : Select Formalizer compilables -----+
 
+CONVERSION = 
+EXECUTABLES += $(TOOLSPATH)/conversion/dil2graph/dil2graph
+EXECUTABLES += $(TOOLSPATH)/conversion/graph2dil/graph2dil
+EXECUTABLES += $(TOOLSPATH)/conversion/graph2dil/graph2dil-diff.sh
+EXECUTABLES += $(TOOLSPATH)/conversion/graph2dil/graph2dil-integrity.py
+
 # +----- begin: Select Formalizer executables -----+
 EXECUTABLES =
 EXECUTABLES += $(COREPATH)/fzbackup/fzbackup.py
@@ -88,10 +94,6 @@ EXECUTABLES += $(TOOLSPATH)/compat/categories_a2c-NNLs-init.sh
 EXECUTABLES += $(TOOLSPATH)/compat/categories_hourly-NNLs-init.sh
 EXECUTABLES += $(TOOLSPATH)/compat/frequent-init.sh
 EXECUTABLES += $(TOOLSPATH)/compat/v1xv2x-refresh.sh
-EXECUTABLES += $(TOOLSPATH)/conversion/dil2graph/dil2graph
-EXECUTABLES += $(TOOLSPATH)/conversion/graph2dil/graph2dil
-EXECUTABLES += $(TOOLSPATH)/conversion/graph2dil/graph2dil-diff.sh
-EXECUTABLES += $(TOOLSPATH)/conversion/graph2dil/graph2dil-integrity.py
 EXECUTABLES += $(TOOLSPATH)/dev/boilerplate/boilerplate
 EXECUTABLES += $(TOOLSPATH)/dev/fzbuild/fzbuild.py
 EXECUTABLES += $(TOOLSPATH)/glue/fzdaily.sh
@@ -448,6 +450,8 @@ tests: $(TESTS)
 # call `make doxygen` to refresh code documentation
 doxygen: FORCE
 	doxygen Doxyfile
+
+conversion: $(CONVERSION)
 
 # call `make clean` to remove links to executables
 clean:
