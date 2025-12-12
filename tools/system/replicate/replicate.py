@@ -72,15 +72,16 @@ optional = [
     'freemind'
 ]
 
-def check_deletes_failed(stderr_str: str):
+def check_deletes_failed(stderr_str: str, chkstr:str):
     global error_groups
     other_messages = []
     err_messages = stderr_str.split('\n')
     deletes_failed = 0
     for message in err_messages:
-        if message.find('rsync: [sender] sender failed to remove') >= 0:
+        if message.find(chkstr) >= 0:
             deletes_failed += 1
         else:
+            message = message.strip()
             other_messages.append(message)
     error_groups = {
         'deletes': deletes_failed,
@@ -88,7 +89,7 @@ def check_deletes_failed(stderr_str: str):
         'other': '\n'.join(other_messages),
     }
 
-def run_command(args, command, quiet_stdout_stderr=False)->bool:
+def run_command(args, command, quiet_stdout_stderr=False, chkstr='rsync: [sender] sender failed to remove')->bool:
     """
     Runs a command.
     """
@@ -109,16 +110,16 @@ def run_command(args, command, quiet_stdout_stderr=False)->bool:
             return state['step'] != args.failafter
         run_result = subprocess.run(command, capture_output=True, text=True, check=True)
         if not quiet_stdout_stderr:
-            print("STDOUT:")
+            print("WITHIN-CALL STDOUT:")
             print(run_result.stdout)
         else:
             if len(run_result.stdout) > 0:
                 with open(stdout_file, 'a') as f:
                     f.write(run_result.stdout+'\n')
         if run_result.stderr:
-            check_deletes_failed(run_result.stderr)
+            check_deletes_failed(run_result.stderr, chkstr)
             if not quiet_stdout_stderr:
-                print("STDERR:")
+                print("WITHIN-CALL STDERR:")
                 print(error_groups['other'])
             else:
                 if len(error_groups['other_num']) > 0:
@@ -132,10 +133,10 @@ def run_command(args, command, quiet_stdout_stderr=False)->bool:
     except subprocess.CalledProcessError as e:
         print(f"Error executing command: {e}")
         if e.stdout:
-            print("STDOUT:")
+            print("CALL STDOUT:")
             print(e.stdout)
         if e.stderr:
-            print("STDERR:")
+            print("CALL STDERR:")
             print(e.stderr)
     except FileNotFoundError:
         print(f"Error: Command '{command_str.split()[0]}' not found. Make sure it's in your PATH.")
@@ -177,7 +178,7 @@ def run_sudo_command(args, command, quiet_stdout_stderr=False, in_terminal_windo
         else:
             run_result = subprocess.run(['sudo']+command, capture_output=True, text=True, check=True)
         if not quiet_stdout_stderr:
-            print("STDOUT:")
+            print("WITHIN-CALL STDOUT:")
             print(run_result.stdout)
         else:
             if len(run_result.stdout) > 0:
@@ -185,7 +186,7 @@ def run_sudo_command(args, command, quiet_stdout_stderr=False, in_terminal_windo
                     f.write(run_result.stdout+'\n')
         if run_result.stderr:
             if not quiet_stdout_stderr:
-                print("STDERR:")
+                print("WITHIN-CALL STDERR:")
                 print(run_result.stderr)
             else:
                 if len(run_result.stderr) > 0:
@@ -197,10 +198,10 @@ def run_sudo_command(args, command, quiet_stdout_stderr=False, in_terminal_windo
     except subprocess.CalledProcessError as e:
         print(f"Error executing command: {e}")
         if e.stdout:
-            print("STDOUT:")
+            print("CALL STDOUT:")
             print(e.stdout)
         if e.stderr:
-            print("STDERR:")
+            print("CALL STDERR:")
             print(e.stderr)
     except FileNotFoundError:
         print(f"Error: Command '{command_str.split()[0]}' not found. Make sure it's in your PATH.")
@@ -607,8 +608,10 @@ def prepare_formalizer(args):
     if not run_command(args, ['bash', '-c', f'cd {user_home}/src/formalizer && make executables']):
         do_exit(args, "Error during prepare_formalizer.")
 
-    if not run_command(args, 'fzsetup -A --defaults'):
-        do_exit(args, "Error during prepare_formalizer.")
+    if not run_command(args, 'fzsetup -A --defaults', chkstr=' already '): # Don't fail when some postgres things have already been done.
+        if error_groups['other_num'] > 0:
+            if error_groups['other'].strip() != '':
+                do_exit(args, "Error during prepare_formalizer.")
 
     state_update('prepare_formalizer')
 
