@@ -39,7 +39,7 @@ Alternatively:
 
 1. Clone this git repository.
 2. Change to the `tools/dev/fzbuild` directory.
-3. Run `fzbuild -C && fzbuild -M`.
+3. Run `fzbuild -C && fzbuild -M`, or `fzbuild -r`.
 
 ## Usage
 

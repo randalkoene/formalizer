@@ -44,6 +44,7 @@ run_result = None
 error_groups = None
 
 essential = [
+    'build-essential'
     'git',
     'w3m',
     'rxvt-unicode',
@@ -599,7 +600,7 @@ def setup_postgres(args):
 def prepare_formalizer(args):
     print('\nPreparing Formalizer.\n')
 
-    if not run_command(args, f'fzbuild.py -R'):
+    if not run_command(args, f'{user_home}/src/formalizer/tools/dev/fzbuild/fzbuild.py -R'):
         do_exit(args, "Error during prepare_formalizer.")
 
     if not run_command(args, f'cd {user_home}/src/formalizer && make all'):

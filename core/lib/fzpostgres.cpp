@@ -214,7 +214,8 @@ time_t epochtime_from_timestamp_pq(std::string pqtimestamp) {
     if ((pqtimestamp.front()<'0') || (pqtimestamp.front()>'9')) return -1;
 
     // remove non-digits and seconds to ensure Formalizer time stamp format
-    pqtimestamp.erase(remove_if(pqtimestamp.begin(),pqtimestamp.end(),is_not_digit),pqtimestamp.end());
+    // *** This looks like a really slow way to do this. Why do it this way?
+    pqtimestamp.erase(std::remove_if(pqtimestamp.begin(),pqtimestamp.end(),is_not_digit),pqtimestamp.end());
     while (pqtimestamp.size()>12) pqtimestamp.pop_back();
 
     return time_stamp_time(pqtimestamp);
