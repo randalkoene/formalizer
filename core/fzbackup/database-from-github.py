@@ -11,7 +11,7 @@ user_home = os.environ['HOME']
 OWNER = "koenera"
 REPO = "formalizer2"
 DIRPATH = "archive/postgres"
-with open(user_home+'.fzdatabase-token', 'r') as f:
+with open(user_home+'/.fzdatabase-token', 'r') as f:
     fzdatabase = json.load(f)
 TOKEN = fzdatabase['fzdatabase']
 
