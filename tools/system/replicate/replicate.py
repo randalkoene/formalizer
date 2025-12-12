@@ -84,7 +84,7 @@ def check_deletes_failed(stderr_str: str):
             other_messages.append(message)
     error_groups = {
         'deletes': deletes_failed,
-        'other_num': size(other_messages),
+        'other_num': len(other_messages),
         'other': '\n'.join(other_messages),
     }
 
@@ -601,10 +601,10 @@ def setup_postgres(args):
 def prepare_formalizer(args):
     print('\nPreparing Formalizer.\n')
 
-    if not run_command(args, f'{user_home}/src/formalizer/tools/dev/fzbuild/fzbuild.py -R'):
-        do_exit(args, "Error during prepare_formalizer.")
+    #if not run_command(args, f'{user_home}/src/formalizer/tools/dev/fzbuild/fzbuild.py -R'):
+    #    do_exit(args, "Error during prepare_formalizer.")
 
-    if not run_command(args, f'cd {user_home}/src/formalizer && make all'):
+    if not run_command(args, ['bash', '-c', f'cd {user_home}/src/formalizer && make executables']):
         do_exit(args, "Error during prepare_formalizer.")
 
     if not run_command(args, 'fzsetup -A --defaults'):

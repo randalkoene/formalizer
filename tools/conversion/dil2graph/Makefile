@@ -169,6 +169,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/Graphpostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/Graphcompare.o
 CORE_OBJS += $(CORELIBPATH)/obj/Logpostgres.o
 CORE_OBJS += $(CORELIBPATH)/obj/dilaccess.o
+CORE_OBJS += $(CORELIBPATH)/obj/html.o
 # +----- end  : Select Formalizer core library objects -----+
 
 DIL2AL_OBJS= $(DIL2AL)/utilities.o $(DIL2AL)/interface.o $(DIL2AL)/testcode.o $(DIL2AL)/diladmin.o \
