@@ -46,6 +46,7 @@ error_groups = None
 essential = [
     'build-essential'
     'git',
+    'uuid-dev'
     'w3m',
     'rxvt-unicode',
     #'encfs', # needs to be run manually

@@ -21,6 +21,7 @@
 
 #include <memory>
 #include <map>
+#include <cstdint>
 #include <ctime>
 
 #include "error.hpp"
