@@ -44,6 +44,7 @@ run_result = None
 error_groups = None
 
 essential = [
+    'git',
     'w3m',
     'rxvt-unicode',
     #'encfs', # needs to be run manually
