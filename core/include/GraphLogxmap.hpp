@@ -20,6 +20,7 @@
 //#define USE_COMPILEDPING
 
 // std
+#include <cstdint>
 #include <vector>
 
 // core
