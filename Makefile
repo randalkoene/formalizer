@@ -75,6 +75,7 @@ EXECUTABLES += $(COREPATH)/fzlog/fzlog
 EXECUTABLES += $(COREPATH)/fzquerypq/fzquerypq
 EXECUTABLES += $(COREPATH)/fzquerypq/local_node_histories_refresh.py
 EXECUTABLES += $(COREPATH)/fzbackup/fzrestore.sh
+EXECUTABLES += $(COREPATH)/fzbackup/database-from-github.py
 EXECUTABLES += $(COREPATH)/fzserverpq/fzserverpq
 EXECUTABLES += $(COREPATH)/fzserverpq/fzserverpqd.sh
 # EXECUTABLES += $(COREPATH)/fzserverpq/fzserverpq-graph
