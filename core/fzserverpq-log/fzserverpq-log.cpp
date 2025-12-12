@@ -24,8 +24,8 @@
 // local
 #include "version.hpp"
 #include "fzserverpq-log.hpp"
-#include "shm_server_handlers.hpp"
-#include "tcp_server_handlers.hpp"
+// *** #include "shm_server_handlers.hpp"
+// *** #include "tcp_server_handlers.hpp"
 
 
 using namespace fz;
