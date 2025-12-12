@@ -56,7 +56,7 @@ if [ "$interactive" = "y" ]; then
 	read n
 fi
 
-fzsetup -1 fzuser
+fzsetup --defaults -1 fzuser
 
 echo "Importing backup of database tables"
 if [ "$interactive" = "y" ]; then
@@ -72,7 +72,7 @@ if [ "$interactive" = "y" ]; then
 	read n
 fi
 
-fzsetup -1 fzuser
+fzsetup --defaults -1 fzuser
 
 echo "Give fzuser login and access permissions (fzsetup -p)"
 if [ "$interactive" = "y" ]; then
@@ -80,6 +80,6 @@ if [ "$interactive" = "y" ]; then
 	read n
 fi
 
-fzsetup -p
+fzsetup --defaults -p
 
 echo "Restore process completed. Please check for errors!"

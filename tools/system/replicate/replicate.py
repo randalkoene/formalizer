@@ -638,7 +638,7 @@ def restore_formalizer_database(args):
     # There are probably already achived Formalizer databases on the
     # system, but we want to pull the most recent one.
 
-    if not run_command(args, f'make -p {user_home}/.formalizer/archive/postgres'):
+    if not run_command(args, f'mkdir -p {user_home}/.formalizer/archive/postgres'):
         do_exit(args, "Error during restore_formalizer_database.")
 
     # Retrieve most recent remote backup or use command line specified
@@ -648,7 +648,12 @@ def restore_formalizer_database(args):
         stdout_returned = run_command(args, 'database-from-github.py', return_stdout=True)
         if not stdout_returned:
             do_exit(args, "Error during restore_formalizer_database.")
-    fzdatabase_backup = get_database_path(stdout_returned)
+        fzdatabase_backup = get_database_path(stdout_returned)
+        if fzdatabase_backup == '':
+            do_exit(args, "Error during restore_formalizer_database.")
+        fzdatabase_backup = f'{user_home}/.formalizer/archive/postgres/'+fzdatabase_backup
+
+    print(f'Using {fzdatabase_backup}')
     if not os.path.exists(fzdatabase_backup):
         do_exit(args, "Error during restore_formalizer_database.")
 
