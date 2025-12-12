@@ -56,7 +56,7 @@ if [ "$interactive" = "y" ]; then
 	read n
 fi
 
-fzsetup --defaults -1 fzuser
+fzsetup --defaults --ignoreschema -1 fzuser
 
 echo "Importing backup of database tables"
 if [ "$interactive" = "y" ]; then

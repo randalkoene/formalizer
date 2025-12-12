@@ -200,11 +200,12 @@ def grant_fzuser_access(cmdargs,beverbose):
     #     actually needing to go through membership in fzrandalk that both randalk and www-data have.
     cgiuser = config['cgiuser']
     # Default: For database formalizer, give table editing privileges in schema randalk to www-data.
-    retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA \"{cmdargs.schemaname}\" TO \"{cgiuser}\";'")
-    if (retcode != 0):
-        print(f'Unable to give access permissions to {cgiuser}.')
-        return retcode
-    print(f'Database user {cgiuser} has been granted modification access permissions on schema {cmdargs.schemaname}.')
+    if not cmdargs.ignoreschema:
+        retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA \"{cmdargs.schemaname}\" TO \"{cgiuser}\";'")
+        if (retcode != 0):
+            print(f'Unable to give access permissions to {cgiuser}.')
+            return retcode
+        print(f'Database user {cgiuser} has been granted modification access permissions on schema {cmdargs.schemaname}.')
     # Default: For database formalizer, enable login for www-data.
     retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'ALTER ROLE \"{cgiuser}\" WITH LOGIN;'")
     if (retcode != 0):
@@ -239,9 +240,10 @@ def make_fzuser_role(cmdargs,beverbose):
     if (retcode != 0):
         print(f'The {cgiuser} role may already be a member of group role {fzuser}. If necessary, use `psql -d formalizer -c \'\\du\'` to confirm.')
     # Default: For database formalizer give ownership of the randalk schema to the role fzrandalk.
-    retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'ALTER SCHEMA \"{cmdargs.schemaname}\" OWNER TO \"{fzuser}\";'")
-    if (retcode != 0):
-        print(f'The {cmdargs.schemaname} schema may already be owned by {fzuser}. If necessary, use `psql -d formalizer -c \'\\dn\'` to confirm.')
+    if not cmdargs.ignoreschema:
+        retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'ALTER SCHEMA \"{cmdargs.schemaname}\" OWNER TO \"{fzuser}\";'")
+        if (retcode != 0):
+            print(f'The {cmdargs.schemaname} schema may already be owned by {fzuser}. If necessary, use `psql -d formalizer -c \'\\dn\'` to confirm.')
     # Default: Give fzrandalk all the necessary access privileges.
     retcode = grant_fzuser_access(cmdargs,False)
     if (retcode != 0):
@@ -514,6 +516,7 @@ def parse_options():
     parser.add_argument('-R', '--reset', dest='reset', help='reset: all, graph, log, metrics, guide')
     parser.add_argument('-l', '--list', dest='list', action="store_true", help='list roots and other fundamental assumptions')
     parser.add_argument('--defaults', dest='usedefaults', action="store_true", help='use defaults (non-interactive)')
+    parser.add_argument('--ignoreschema', dest='ignoreschema', action="store_true", help='ignore schema steps in -1 fzuser (because schema does not exist yet)')
 
     args = parser.parse_args()
 
