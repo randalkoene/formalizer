@@ -759,7 +759,7 @@ void Log::setup_Chunk_node_caches(Graph & graph) {
         Log_chunk * chunk = chunkptr.get();
 
         if (!chunk) {
-            ADDERROR(__func__,"null-chunk in Graph.chunks at chunk with ID "+chunk->get_tbegin_str());
+            ADDERROR(__func__,"null-chunk in Graph.chunks at chunk with ID "+chunk_key->str());
             continue;
         }
 
