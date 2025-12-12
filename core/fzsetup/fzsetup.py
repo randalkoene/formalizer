@@ -252,7 +252,7 @@ def make_fzuser_role(cmdargs,beverbose):
 
 def make_gui_role(cmdargs,beverbose):
     print(f'Creating gui role (for pgAdmin4) with Superuser access permissions that does not already exist.')
-    retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'CREATE ROLE gui SUPERUSER;'")
+    retcode = try_subprocess_check_output(f"psql -d {cmdargs.dbname} -c 'CREATE ROLE gui SUPERUSER LOGIN;'")
     if (retcode != 0):
         print(f'The gui role may already exist. If necessary, use `psql -d formalizer -c \'\\du\'` to confirm.')
     if beverbose:
