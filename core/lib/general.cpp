@@ -12,11 +12,14 @@
 #include <memory>
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
 
 // core
 #include "general.hpp"
 
 namespace fz {
+
+using PcloseType = int(*)(FILE*);
 
 /**
  * Execute a shell command and retrieve the standard output as a string.
@@ -30,7 +33,7 @@ namespace fz {
 std::string shellcmd2str(std::string cmd) {
     std::array<char, 2048> buffer;
     std::string result;
-    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
+    std::unique_ptr<FILE, PcloseType> pipe(popen(cmd.c_str(), "r"), pclose);
     if (!pipe) {
         throw std::runtime_error("popen() failed with command: "+cmd);
     }
