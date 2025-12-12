@@ -684,6 +684,8 @@ def setup_rsyncaccount(args):
 
 more_messages='''
 I think it was old information in ~/.pgadmin, .config/pgadmin, .config/pgadmin4, .cache/pgadmin4. I think there needs to be a separate step to get things set up for pgAdmin4 by deleting those folders before running it and by giving "gui" access to the "formalizer" server and various permissions once that is all ready and set up.
+
+Please read the contents of ~/src/formalizer/doc/installation.md
 '''
 
 def final_messages(args):

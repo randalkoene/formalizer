@@ -16,13 +16,19 @@ version = "0.1.0-0.1"
 
 # Standardized expectations.
 userhome = os.getenv('HOME')
-fzuserbase = userhome + '/.formalizer'
+fzuserbase = userhome + '/.formalizer' # This has to be setup right!
+
 fzsetupconfigdir = fzuserbase+'/config/fzsetup.py'
 fzsetupconfig = fzsetupconfigdir+'/config.json'
+
+fzbuildconfigdir = fzuserbase+'/config/fzbuild.py'
+fzbuildconfig = fzbuildconfigdir+'/config.json'
 
 try:
     with open(fzsetupconfig) as f:
         config = json.load(f)
+    with open(fzbuildconfig) as f:
+        buildconfig = json.load(f)
 
 except FileNotFoundError:
     print('Unable to load fundamental standard configuration data.\nPlease run `fzsetup -l` first to self-initialize and check the results.\n')
@@ -37,30 +43,17 @@ sys.path.append(fzcoreincludedir)
 # core components
 import coreversion
 
-compile_dirs = {
-    "lib" : "/core/lib",
-    "fzedit" : "/core/fzedit",
-    "fzgraph" : "/core/fzgraph",
-    "fzgraphsearch" : "/core/fzgraphsearch",
-    "fzguide.system" : "/core/fzguide.system",
-    "fzlog" : "/core/fzlog",
-    "fzquerypq" : "/core/fzquerypq",
-    "fzserverpq" : "/core/fzserverpq",
-    "fzupdate" : "/core/fzupdate",
-    "dil2graph" : "/tools/conversion/dil2graph",
-    "graph2dil" : "/tools/conversion/graph2dil",
-    "boilerplate" : "/tools/dev/boilerplate",
-    "fzdashboard" : "/tools/interface/fzdashboard",
-    "fzgraphhtml" : "/tools/interface/fzgraphhtml",
-    "fzloghtml" : "/tools/interface/fzloghtml",
-    "fzlogmap" : "/tools/interface/fzlogmap",
-    "fzlogtime" : "/tools/interface/fzlogtime",
-    "fzserver-info" : "/tools/interface/fzserver-info",
-    "nodeboard" : "/tools/interface/nodeboard"
-}
+# identify all compilable directories
+compile_dirs = {}
+compile_dirs['lib'] = buildconfig['lib']
+compile_dirs.update(buildconfig['cpp']['core'])
+for key in buildconfig['cpp']['tools']:
+    compile_dirs.update(buildconfig['cpp']['tools'][key])
 
 flow_control = {
     'make_docs' : False,
+    'rebuild_all': False,
+    'rebuild_progs': False,
     'compile_all' : False,
     'clean_all' : False,
     'compile_lib' : False,
@@ -227,6 +220,31 @@ def compile_all():
     print('Compiling done.')
     exit(0)
 
+def rebuild_progs():
+    print('Cleaning and Compiling all programs.\n')
+    for compilable in compile_dirs:
+        if compilable != 'lib':
+            print('\t'+compilable)
+            retcode = try_subprocess_check_output('cd '+config['sourceroot']+compile_dirs[compilable]+' && make clean && make')
+            if retcode != 0:
+                print(f'Unable to clean and compile {compilable}.')
+                exit(retcode)
+
+    print('Rebuilding programs done.')
+    exit(0)
+
+def rebuild_all():
+    print('Cleaning and Compiling all compilables.\n')
+    for compilable in compile_dirs:
+        print('\t'+compilable)
+        retcode = try_subprocess_check_output('cd '+config['sourceroot']+compile_dirs[compilable]+' && make clean && make')
+        if retcode != 0:
+            print(f'Unable to clean and compile {compilable}.')
+            exit(retcode)
+
+    print('Rebuilding all done.')
+    exit(0)
+
 
 if __name__ == '__main__':
 
@@ -239,6 +257,8 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--Doxygen', dest='makedocs', action="store_true", help='update Doxygen documentation')
     parser.add_argument('-M', '--MakeAll', dest='makeall', action="store_true", help='compile all build targets')
     parser.add_argument('-C', '--CleanAll', dest='cleanall', action="store_true", help='clean all build targets')
+    parser.add_argument('-R', '--RebuildAll', dest='rebuildall', action="store_true", help='clean & compile all build targets')
+    parser.add_argument('-r', '--RebuildProgs', dest='rebuildprogs', action="store_true", help='clean & compile all program targets (not libs)')
     parser.add_argument('-L', '--MakeLib', dest='makelib', action="store_true", help='compile library objects')
     parser.add_argument('-l', '--CleanLib', dest='cleanlib', action="store_true", help='clean library objects')
     parser.add_argument('-n', '--no-lib', dest='nolib', action="store_true", help='skip library rebuilds')
@@ -285,6 +305,10 @@ if __name__ == '__main__':
         flow_control['build_nodeboard'] = True
     if args.makedocs:
         flow_control['make_docs'] = True
+    if args.rebuildall:
+        flow_control['rebuild_all'] = True
+    if args.rebuildprogs:
+        flow_control['rebuild_progs'] = True
     if args.makeall:
         flow_control['compile_all'] = True
     if args.cleanall:
@@ -316,10 +340,16 @@ if __name__ == '__main__':
         compile_lib()
     if flow_control['clean_lib']:
         clean_lib()
-    if flow_control['clean_all']:
-        clean_all()
-    if flow_control['compile_all']:
-        compile_all()
+    if flow_control['rebuild_all']:
+        rebuild_all()
+    else:
+        if flow_control['rebuild_progs']:
+            rebuild_progs()
+        else:
+            if flow_control['clean_all']:
+                clean_all()
+            if flow_control['compile_all']:
+                compile_all()
     if flow_control['build_boilerplate']:
         build_program('boilerplate', args)
     if flow_control['build_dil2graph']:

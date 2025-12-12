@@ -1,0 +1,80 @@
+{
+	"lib": "/core/lib",
+	"include": "/core/include",
+	"cpp": {
+		"core": {
+			"fzedit" : "/core/fzedit",
+			"fzgraph" : "/core/fzgraph",
+			"fzgraphsearch" : "/core/fzgraphsearch",
+			"fzguide.system" : "/core/fzguide.system",
+			"fzlog" : "/core/fzlog",
+			"fzmetricspq": "/core/fzmetricspq",
+			"fzquerypq" : "/core/fzquerypq",
+			"fzserverpq" : "/core/fzserverpq",
+			"fzserverpq-log": "/core/fzserverpq-log",
+			"fzupdate" : "/core/fzupdate"
+		},
+		"tools": {
+			"conversion": {
+				"dil2graph" : "/tools/conversion/dil2graph",
+				"graph2dil" : "/tools/conversion/graph2dil"
+			},
+			"dev": {
+				"boilerplate" : "/tools/dev/boilerplate"
+			},
+			"interface": {
+				"fzdashboard" : "/tools/interface/fzdashboard",
+				"fzgraphhtml" : "/tools/interface/fzgraphhtml",
+				"fzlogdata": "/tools/interface/fzlogdata",
+				"fzloghtml" : "/tools/interface/fzloghtml",
+				"fzlogmap" : "/tools/interface/fzlogmap",
+				"fzlogtime" : "/tools/interface/fzlogtime",
+				"fzserver-info" : "/tools/interface/fzserver-info",
+				"fzvismilestones": "/tools/interface/fzvismilestones",
+				"nodeboard" : "/tools/interface/nodeboard"
+			},
+			"system": {
+				"schedule": "/tools/system/schedule"
+			}
+		}
+	},
+	"py": {
+		"core": {
+			"fzbackup": "/core/fzbackup",
+			"fzinfo": "/core/fzinfo",
+			"fzsetup": "/core/fzsetup",
+			"fztask": "/core/fztask",
+			"fztask-server": "/core/fztask-server",
+			"fztimezone": "/core/fztimezone"
+		},
+		"tools": {
+			"dev": {
+				"fzbuild": "/tools/dev/fzbuild",
+				"fzpackage": "/tools/dev/fzpackage"
+			},
+			"interface": {
+				"addnode": "/tools/interface/addnode",
+				"fzcatchup": "/tools/interface/fzcatchup",
+				"fzlink": "/tools/interface/fzlink",
+				"fzuistate": "/tools/interface/fzuistate",
+				"logentry": "/tools/interface/logentry",
+				"logentry-form": "/tools/interface/logentry-form"
+			},
+			"system": {
+				"daywiz": "/tools/system/daywiz",
+				"earlywiz": "/tools/system/earlywiz",
+				"nutrition": "/tools/system/nutrition",
+				"replicate": "/tools/system/replicate",
+				"requestmanual": "/tools/system/requestmanual"
+			},
+			"metrics": {
+				"dayreview": "/tools/system/metrics/dayreview",
+				"metrictags": "/tools/system/metrics/metrictags",
+				"nodemetrics": "/tools/system/metrics/nodemetrics",
+				"orderscore": "/tools/system/metrics/orderscore",
+				"sysmet-extract": "/tools/system/metrics/sysmet-extract",
+				"weekreview": "/tools/system/metrics/weekreview"
+			}
+		}
+	}
+}

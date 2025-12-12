@@ -4,16 +4,21 @@
 # them. E.g. use this when fundamental classes have been updated,
 # such as Node or Graph.
 
-topdir=`pwd`
-cpp_dirs="core/fzedit core/fzgraph core/fzgraphsearch core/fzlog core/fzquerypq core/fzserverpq core/fzupdate tools/interface/fzdashboard tools/interface/fzgraphhtml tools/interface/fzloghtml tools/interface/fzlogmap tools/interface/fzlogtime tools/interface/fzserver-info tools/interface/fzvismilestones tools/interface/nodeboard tools/system/schedule"
+# 20251211: This shell script is now simply a wrapper for fzbuild -r.
+fzbuild.py -r
 
-for cppdir in $cpp_dirs; do
+# Previous implementation:
+#
+# topdir=`pwd`
+# cpp_dirs="core/fzedit core/fzgraph core/fzgraphsearch core/fzlog core/fzquerypq core/fzserverpq core/fzupdate tools/interface/fzdashboard tools/interface/fzgraphhtml tools/interface/fzloghtml tools/interface/fzlogmap tools/interface/fzlogtime tools/interface/fzserver-info tools/interface/fzvismilestones tools/interface/nodeboard tools/system/schedule"
 
-	cd $topdir/$cppdir
+# for cppdir in $cpp_dirs; do
 
-	make clean && make
+# 	cd $topdir/$cppdir
 
-done
+# 	make clean && make
 
-cd $topdir
-echo "Done"
+# done
+
+# cd $topdir
+# echo "Done"
