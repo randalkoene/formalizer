@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<HTML>
+
+<HEAD>
+<meta charset="utf-8" />
+<link rel="icon" href="/favicon-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+
+<TITLE>Set-up and Replicate System Envionment</TITLE>
+</HEAD>
+<BODY>
+<script type="text/javascript" src="/fzuistate.js"></script>
+
+<H1>Set-up and Replicate System Envionment</H1>
+
+To set up and replicate a complete system environment, including the Formalizer, on a new machine or VM:
+<P>
+<OL>
+<LI>Make sure you recently backed up the Formalizer database.
+	<P>
+<LI>Make sure you recently created or synchronized a backup partition.
+	<P>
+<LI>Make sure your backup drive also contains a copy of the replicate.py script.
+	<P>
+<LI>Make sure your backup drive contains a copy of the .fzdatabase-token file.
+</OL>
+<P>
+Then:
+<OL>
+<LI>Install the operating system on the machine/VM with a user account with identical username.
+	<P>
+<LI>Attach the backup drive and copy replicate.py and .fzdatabase-token to the home directory.
+	<P>
+<LI>Run <code>./replicate.py &lt;path-to-mountable-partition&gt; &lt;path-to-mountpoint&gt;</code>
+</OL>
+<P>
+If replicate.py exits with an error then try to correct the error and then simply
+run the same replicate command again.
+
+</BODY>
+
+</HTML>

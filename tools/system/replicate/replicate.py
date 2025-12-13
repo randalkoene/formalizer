@@ -836,33 +836,56 @@ def install_programs(args):
 
     state_update('install_programs')
 
-def setup_vpn(args):
-    print('\nSetting up VPN.\n')
-
-    print('NOT YET IMPLEMENTED.')
-
-    state_update('setup_vpn')
-
 def setup_rsyncaccount(args):
     print('\nSetting up rsyncaccount.\n')
 
-    print('NOT YET IMPLEMENTED.')
+    if not os.path.exists(f'{user_home}/local/bin/rsynctoartemis.sh'):
+        do_exit(args, "Error during setup_rsyncaccount.")
+
+    if not os.path.exists(f'{user_home}/local/bin/rsyncaccount'):
+        do_exit(args, "Error during setup_rsyncaccount.")
+
+    print('=> The rsyncaccount.sh script and rsyncaccount are available for synchronization.')
 
     state_update('setup_rsyncaccount')
 
 more_messages='''
-I think it was old information in ~/.pgadmin, .config/pgadmin, .config/pgadmin4, .cache/pgadmin4. I think there needs to be a separate step to get things set up for pgAdmin4 by deleting those folders before running it and by giving "gui" access to the "formalizer" server and various permissions once that is all ready and set up.
+Beware of:
+=========
+
+Old information in ~/.pgadmin, .config/pgadmin, .config/pgadmin4, .cache/pgadmin4. That information should be removed before setting up pgAdmin4.
 
 There can also be problematic old information in the PYTHONPATH statement in .bashrc.
 Remove those if there are Python environment related problems such as complaints about modules that are deprecated in the current Python version.
 
 Please read the contents of ~/src/formalizer/doc/installation.md
 
+Clean-up:
+========
+
 Setting up the Formalizer database may have created a backup of an old schema.
 To delete old schemas from the database you can see the schemas present and delete obsolete ones using the database-schemas.py script.
 
-Tests you should carry out to ensure that you have a fully functioning
-environmnt:
+Components requiring manual attention:
+=====================================
+
+Encrypted volume mounting needs to be installed manually. Do this:
+
+  sudo apt install encfs
+
+To set up the privateinternetaccess vpn:
+
+  Go to: https://www.privateinternetaccess.com/
+  Download the Linux installer (a .run file).
+  Do: chmod +x pia-linux-*.run && sh pia-linux-3.3.1-06924.run
+  Authenticate when prompted.
+  Enter your PIA username and password.
+
+
+Tests:
+=====
+
+Tests you should carry out to ensure that you have a fully functioning environmnt:
 
 - Test access and use of your ID book vault.
 - Test decrypted mounting of your private volume.
@@ -872,9 +895,6 @@ Of course, the only real test to see if everything, especially the Formalizer, i
 
 def final_messages(args):
     print("\nWe're almost done. Here are some final messages:\n")
-
-    print('Encrypted volume mounting needs to be installed manually. Do this:')
-    print('  sudo apt install encfs')
 
     print(more_messages)
 
@@ -936,9 +956,7 @@ if __name__ == "__main__":
 
     if did_step('test_formalizer'): install_programs(args)
 
-    if did_step('install_programs'): setup_vpn(args)
-
-    if did_step('setup_vpn'): setup_rsyncaccount(args)
+    if did_step('install_programs'): setup_rsyncaccount(args)
 
     if did_step('setup_rsyncaccount'): final_messages(args)
 

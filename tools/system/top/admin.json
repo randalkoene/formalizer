@@ -153,6 +153,10 @@
         "Duplicate / Restore Account" : {
             "url" : "http://{{ fzserverpq }}/doc/txt/Duplicating-or-Restoring-my-home-Account.pdf",
             "window" : "_blank"
+        },
+        "Set-up and Replicate System Environment" : {
+            "url" : "/formalizer/setup-and-replicate.html",
+            "window" : "_blank"
         }
     }
 }
