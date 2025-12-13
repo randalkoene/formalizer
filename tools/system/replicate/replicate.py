@@ -498,10 +498,16 @@ def ensure_httpd(args):
 
     # *** There may be more Apache set up at: https://trello.com/c/kztslGPJ
 
-    if check_apache():
-        state_update('ensure_httpd')
-    else:
+    if not check_apache():
         do_exit(args, 'Error during ensure_httpd.')
+
+    if not run_sudo_command(args, 'a2enmod cgi'):
+        do_exit(args, 'Error during ensure_httpd.')
+
+    if not run_sudo_command(args, 'systemctl restart apache2'):
+        do_exit(args, 'Error during ensure_httpd.')
+    
+    state_update('ensure_httpd')
 
 def copy_profile(args):
     print("\nLet's merge old and new .bashrc and .profile using the meld tool.\n")
