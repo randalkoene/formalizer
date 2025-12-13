@@ -936,8 +936,6 @@ if __name__ == "__main__":
 
     if did_step('test_formalizer'): install_programs(args)
 
-    test_to_here(args)
-
     if did_step('install_programs'): setup_vpn(args)
 
     if did_step('setup_vpn'): setup_rsyncaccount(args)
