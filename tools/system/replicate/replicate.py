@@ -22,6 +22,7 @@ import os
 import json
 import argparse
 from datetime import datetime
+from time import sleep
 
 this_user = os.environ['USER']
 user_home = os.environ['HOME']
@@ -771,8 +772,37 @@ def restore_formalizer_database(args):
 def test_formalizer(args):
     print('\nTesting Formalizer by running fzsetup.\n')
 
-    print('NOT YET IMPLEMENTED.')
+    print('Launching background terminal to rest running fzserverpq...')
 
+    # Opening this in the background without halting this script.
+    command = "nohup urxvt -bg cyan -rv -e fzserverpqd.sh > .replicate_test_formalizer_output.log 2>&1 &"
+    subprocess.Popen(command, shell=True)
+    # if not run_command(args, ['nohup', 'urxvt', '-bg', 'cyan', '-rv', '-e', 'fzserverpqd.sh', '>', '/dev/null' '2>&1', '&']):
+    #     do_exit(args, "Error during test_formalizer.")
+
+    # Give it some time to launch
+    sleep(3.0)
+
+    fzserver_info_response = run_command(args, 'fzserver-info -q -G -F json', return_stdout=True)
+    if not fzserver_info_response:
+        do_exit(args, "Error during test_formalizer.")
+
+    try:
+        info = json.loads(fzserver_info_response)
+
+        print(f"Server status: {info['process_status']}")
+        print(f"Size: {info['size']}")
+        print(f"Used: {info['memory_used']}")
+        print(f"Topics: {info['number_Topics']}")
+        print(f"Nodes: {info['number_Nodes']}")
+        print(f"Edges: {info['number_Edges']}")
+    except Exception as e:
+        print('Error: '+str(e))
+        do_exit(args, "Error during test_formalizer.")
+
+    if info['process_status'] != 'active':
+        print('Error: Server is not active.')
+        do_exit(args, "Error during test_formalizer.")
 
     state_update('test_formalizer')
 
@@ -781,23 +811,24 @@ def install_programs(args):
 
     for apt_arg in optional:
         response = input(f'Do you want to install {apt_arg}? (Y/n) ')
+        do_skip = False
         if response:
             do_skip = response == 'n' or response == 'N'
-            if not do_skip:
-                if apt_arg[0] == '@':
-                    if not run_sudo_command(args, f'apt-get install {apt_arg[1:]}', in_terminal_window=True):
-                        response = input('Do you want to carry on? (Y/n) ')
-                        if response:
-                            do_stop = response == 'n' or response == 'N'
-                            if do_stop:
-                                do_exit(args, "Error during install_programs.")
-                else:
-                    if not run_sudo_command(args, f'apt-get install {apt_arg} -y'):
-                        response = input('Do you want to carry on? (Y/n) ')
-                        if response:
-                            do_stop = response == 'n' or response == 'N'
-                            if do_stop:
-                                do_exit(args, "Error during install_programs.")
+        if not do_skip:
+            if apt_arg[0] == '@':
+                if not run_sudo_command(args, f'apt-get install {apt_arg[1:]}', in_terminal_window=True):
+                    response = input('Do you want to carry on? (Y/n) ')
+                    if response:
+                        do_stop = response == 'n' or response == 'N'
+                        if do_stop:
+                            do_exit(args, "Error during install_programs.")
+            else:
+                if not run_sudo_command(args, f'apt-get install {apt_arg} -y'):
+                    response = input('Do you want to carry on? (Y/n) ')
+                    if response:
+                        do_stop = response == 'n' or response == 'N'
+                        if do_stop:
+                            do_exit(args, "Error during install_programs.")
 
 
     print('There is a list in ~/apt-installed.txt, but the list is too long. There should be a subset of much-used programs.')
@@ -822,7 +853,13 @@ def setup_rsyncaccount(args):
 more_messages='''
 I think it was old information in ~/.pgadmin, .config/pgadmin, .config/pgadmin4, .cache/pgadmin4. I think there needs to be a separate step to get things set up for pgAdmin4 by deleting those folders before running it and by giving "gui" access to the "formalizer" server and various permissions once that is all ready and set up.
 
+There can also be problematic old information in the PYTHONPATH statement in .bashrc.
+Remove those if there are Python environment related problems such as complaints about modules that are deprecated in the current Python version.
+
 Please read the contents of ~/src/formalizer/doc/installation.md
+
+Setting up the Formalizer database may have created a backup of an old schema.
+To delete old schemas from the database you can see the schemas present and delete obsolete ones using the database-schemas.py script.
 
 Tests you should carry out to ensure that you have a fully functioning
 environmnt:
@@ -830,6 +867,7 @@ environmnt:
 - Test access and use of your ID book vault.
 - Test decrypted mounting of your private volume.
 
+Of course, the only real test to see if everything, especially the Formalizer, is fully operational is to use many aspects of the system environment.
 '''
 
 def final_messages(args):
@@ -894,11 +932,11 @@ if __name__ == "__main__":
 
     if did_step('prepare_formalizer'): restore_formalizer_database(args)
 
-    test_to_here(args)
-
     if did_step('restore_formalizer_database'): test_formalizer(args)
 
     if did_step('test_formalizer'): install_programs(args)
+
+    test_to_here(args)
 
     if did_step('install_programs'): setup_vpn(args)
 
