@@ -171,7 +171,7 @@
             "window" : "_blank"
         }
     },
-    "Current Tracks: " : {
+    "Current Work Tracks: " : {
         "Threads" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?D=threads&T=true&u=204512311159&r=100&U=true",
             "window" : "_blank"
@@ -186,22 +186,6 @@
         },
         "CCF Team" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20250822084723.1&G=true&Z=true&T=true&B=79",
-            "window" : "_blank"
-        },
-        "IDEAL-SITUATION" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?n=20190306192914.1&G=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
-            "window" : "_blank"
-        },
-        "FORMALIZER" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?n=20091119165134.1&G=true&T=true&C=300&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
-            "window" : "_blank"
-        },
-        "SYSTEM" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?n=20240420032415.1&G=true&T=true&C=300&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
-            "window" : "_blank"
-        },
-        "METRICS" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?n=20240608190914.1&G=true&T=true&C=300&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
             "window" : "_blank"
         },
         "CARBONCOPIES" : {
@@ -227,6 +211,24 @@
         "FUNDNET" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20090223182241.1&G=true&T=true&B=79&C=300&i=79&tdorder=true&tdfar=true&tdbad=true&N=7.0&O=later",
             "window" : "_blank"
+        }
+    },
+    "Other Current Tracks: " : {
+        "IDEAL-SITUATION" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20190306192914.1&G=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
+            "window" : "_blank"
+        },
+        "FORMALIZER" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20091119165134.1&G=true&T=true&C=300&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
+            "window" : "_blank"
+        },
+        "SYSTEM" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20240420032415.1&G=true&T=true&C=300&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
+            "window" : "_blank"
+        },
+        "METRICS" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20240608190914.1&G=true&T=true&C=300&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
+            "window" : "_blank"
         },
         "PERSFIN-FIXED" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20150103095831.1&G=true&T=true&C=150&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
@@ -238,6 +240,10 @@
         },
         "LONGHEALTH" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20190306192127.1&G=true&T=true&C=150&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
+            "window" : "_blank"
+        },
+        "HOMEEXP" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20090322073805.1&G=true&T=true&B=79&i=79&tdorder=true&tdfar=true&tdbad=true&N=7.0&O=later",
             "window" : "_blank"
         }
     },
