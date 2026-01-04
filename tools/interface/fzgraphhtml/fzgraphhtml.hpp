@@ -70,6 +70,7 @@ public:
     bool show_tzadjust = true; // Show effects of @TZADJUST@ in next Nodes lists generated.
     unsigned int max_do_links = 0; // 0 means no maximum.
     bool include_checkboxes = false;
+    std::string subtrees_list_name;
 };
 
 
@@ -82,8 +83,6 @@ struct fzgraphhtml: public formalizer_standard_program {
     std::string node_idstr;
 
     std::string list_name;
-
-    std::string subtrees_list_name;
 
     bool detect_BTF = false;
 

@@ -213,9 +213,9 @@ struct line_render_parameters {
                             templates[node_pars_in_list_head_temp].size() +
                             templates[node_pars_in_list_tail_temp].size());
         }
-        map_of_subtrees.collect(graph(), fzgh.subtrees_list_name);
+        map_of_subtrees.collect(graph(), fzgh.config.subtrees_list_name);
         if (map_of_subtrees.has_subtrees) {
-            subtrees_list_tag = "<b>["+fzgh.subtrees_list_name+"]</b>";
+            subtrees_list_tag = "<b>["+fzgh.config.subtrees_list_name+"]</b>";
         }
     }
 
@@ -1077,6 +1077,21 @@ const std::map<bool, std::string> flag_set_map = {
     { true, "SET" },
 };
 
+Boolean_Tag_Flags::boolean_flag find_Node_BTF(Graph & graph, Node & node, Map_of_Subtrees & map_of_subtrees) {
+    map_of_subtrees.collect(graph, fzgh.config.subtrees_list_name);
+
+    if (!map_of_subtrees.has_subtrees) {
+        standard_exit_error(exit_bad_request_data, "Missing subtrees list: "+fzgh.config.subtrees_list_name, __func__);
+    }
+
+    Boolean_Tag_Flags::boolean_flag boolean_tag;
+    if (!map_of_subtrees.node_in_heads_or_any_subtree(node.get_id().key(), boolean_tag, true)) { // includes searching of superiors as needed
+        boolean_tag = Boolean_Tag_Flags::none;
+    }
+
+    return boolean_tag;
+}
+
 /**
  * Render the Boolean Tag Flag data found for the Node,
  * either as directly and explicitly specified, or as
@@ -1090,16 +1105,7 @@ const std::map<bool, std::string> flag_set_map = {
  */
 std::string render_Node_BTF(Graph & graph, Node & node) {
     Map_of_Subtrees map_of_subtrees;
-    map_of_subtrees.collect(graph, fzgh.subtrees_list_name);
-
-    if (!map_of_subtrees.has_subtrees) {
-        standard_exit_error(exit_bad_request_data, "Missing subtrees list: "+fzgh.subtrees_list_name, __func__);
-    }
-
-    Boolean_Tag_Flags::boolean_flag boolean_tag;
-    if (!map_of_subtrees.node_in_heads_or_any_subtree(node.get_id().key(), boolean_tag, true)) { // includes searching of superiors as needed
-        boolean_tag = Boolean_Tag_Flags::none;
-    }
+    Boolean_Tag_Flags::boolean_flag boolean_tag = find_Node_BTF(graph, node, map_of_subtrees);
 
     render_environment env;
     fzgraphhtml_templates templates;
@@ -1117,7 +1123,7 @@ std::string render_Node_BTF(Graph & graph, Node & node) {
     
     nodevars.emplace("btf-tzadjust", flag_set_map.at(node.get_bflags().TZadjust()));
     nodevars.emplace("btf-error", flag_set_map.at(node.get_bflags().Error()));
-    nodevars.emplace("subtrees-list", fzgh.subtrees_list_name);
+    nodevars.emplace("subtrees-list", fzgh.config.subtrees_list_name);
 
     return env.render(templates[node_BTF_temp], nodevars);
 }
@@ -1383,7 +1389,16 @@ bool render_node_edit() {
     }
     Graph & graph = *graph_ptr;
     Node & node = *node_ptr;
-    
+
+    Boolean_Tag_Flags::boolean_flag boolean_tag = Boolean_Tag_Flags::none;
+    bool explicit_BTFcategory = node.get_bflags().get_AllCategories() != Boolean_Tag_Flags::none;
+    if (!explicit_BTFcategory) {
+        if (!fzgh.config.subtrees_list_name.empty()) {
+            Map_of_Subtrees map_of_subtrees;
+            boolean_tag = find_Node_BTF(graph, node, map_of_subtrees);
+        }
+    }
+
     // this is where you do the same as in render_Node_data(), with a few extra bits
     render_environment env;
     fzgraphhtml_templates templates;
@@ -1463,6 +1478,11 @@ bool render_node_edit() {
     nodevars.emplace("fzserverpq", fzgh.replacements[fzserverpq_address]); // graph.get_server_full_address()
     nodevars.emplace("topics", render_Node_topics(graph, node, true));
     nodevars.emplace("bflags", join(node.get_bflags().get_Boolean_Tag_flags_strvec(), ", "));
+    if (!explicit_BTFcategory) {
+        nodevars.emplace("btf-inferred", "("+boolean_flag_str_map.at(boolean_tag)+" inferred)");
+    } else {
+        nodevars.emplace("btf-inferred", "");
+    }
     nodevars.emplace("NNLs", render_Node_NNLs(graph, node));
 
     // Check potential superiors to add from the superiors NNL.

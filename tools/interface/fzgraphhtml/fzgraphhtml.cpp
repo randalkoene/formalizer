@@ -81,6 +81,8 @@ fzgraphhtml::fzgraphhtml() : formalizer_standard_program(false), config(*this) {
         "  show_tzadjust (bool): Apply @TZADJUST@ in lists of Nodes.\n"
         "  max_do_links (int): Maximum number of [do] links to place.\n"
         "    A value of 0 means no limit.\n"
+        "  default_subtrees (string): Default dependency subtrees NNL to use\n"
+        "    (overridden by -S).\n"
         );
 }
 
@@ -310,7 +312,7 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
     }
 
     case 'S': {
-        subtrees_list_name = cargs;
+        config.subtrees_list_name = cargs;
         return true;
     }
 
@@ -402,6 +404,7 @@ bool fzgh_configurable::set_parameter(const std::string & parlabel, const std::s
     CONFIG_TEST_AND_SET_PAR(show_tzadjust, "show_tzadjust", parlabel, parvalue_to_bool(parvalue));
     CONFIG_TEST_AND_SET_PAR(max_do_links, "max_do_links", parlabel, atoi(parvalue.c_str()));
     CONFIG_TEST_AND_SET_PAR(include_checkboxes, "include_checkboxes", parlabel, parvalue_to_bool(parvalue));
+    CONFIG_TEST_AND_SET_PAR(subtrees_list_name, "default_subtrees", parlabel, parvalue);
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }

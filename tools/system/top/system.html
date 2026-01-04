@@ -86,6 +86,53 @@ During the day, keep track of actual progress. At a minimum, check <button class
 </p></li>
 </ol>
 
+<h2>Node Targetdate Types</h2>
+
+<p>
+<b>Unspecified (Default, common):</b>
+<ul>
+<li>Queued. TD is used only to indicate order in the queue.</li>
+<li>Apply this whenever other types do not strictly apply.</li>
+<li>Change order easily by using the VTD, UTD, WORK UTD, SELFWORK UTD Nodes buttons on the Top page.</li>
+</ul>
+</p>
+
+<p>
+<b>Inherit:</b>
+<ul>
+<li>Behaves just like the Superior Node it inherits from.</li>
+</ul>
+</p>
+
+<p>
+<b>Variable (Rare):</b>
+<ul>
+<li>Automatically movable, but only if the TD has been passed. Assign the TD with that in mind.</li>
+<li>Try to apply this only to Nodes that are a priority that should be accomplished within 7 days as part of currently critical milestones.</li>
+<li>When applying this, carefully consider: Would this become a critical accomplishment with fixed TD in 7 days, 4 days, 2 days?</li>
+<li>Ask yourself: Is this crucial to keeping a bigger accomplishment on track that impacts many people?</li>
+</ul>
+</p>
+
+<p>
+<b>Fixed (Relatively Rare):</b>
+<ul>
+<li>Real deadline. The TD is so meaningful that the Schedule has to allow time to accomplish by that TD. Keep this very much in mind, resist the temptation to assign fixed TD where it does not truly apply, because doing so places a heavy burden on automatic scheduling.</li>
+<li>Ask yourself: Does this need to be completed by a specific time, because after that there are bad consequences or it becomes undoable, a missed opportunity?</li>
+<li>If the accomplishment requires significant time then the fixed TD should only be applied to the final component of a sub-hierarchy of Nodes.</li>
+</ul>
+</p>
+
+<p>
+<b>Exact (Externally Imposed):</b>
+<ul>
+<li>Takes place at a real specific time. Normally, this is due to agreements with or expectations by other people.</li>
+<li>If an Exact TD Node requires preparation then that must be specified by a sub-hierarchy of Nodes. To those Nodes, apply either VTD or FTD type.</li>
+<li>Ask yourself: Does this happen at a very specific time, like a meeting with others?</li>
+</ul>
+</p>
+
+
 <hr>
 
 A brief reminder of new System methods that I'm still manually testing:

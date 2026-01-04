@@ -499,6 +499,7 @@ void Node::refresh_boolean_tag_flags() {
 }
 
 const std::map<Boolean_Tag_Flags::boolean_flag, const std::string> boolean_flag_str_map = {
+    { Boolean_Tag_Flags::none, "none" },
     { Boolean_Tag_Flags::tzadjust, "TZADJUST" },
     { Boolean_Tag_Flags::work, "WORK" },
     { Boolean_Tag_Flags::self_work, "SELFWORK" },
