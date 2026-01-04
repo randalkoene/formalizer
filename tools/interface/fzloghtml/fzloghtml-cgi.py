@@ -76,6 +76,8 @@ if not review_date:
 regen_index = form.getvalue('index')
 selectchunks = form.getvalue('selectchunks')
 
+json_output = form.getvalue('json')
+
 #if not review:
 #    print("Content-type:text/html\n\n")
 print("Content-type:text/html\n")
@@ -169,6 +171,27 @@ width: 300px;
 top: 100%;
 right: 50%;
 }
+/* Define the flashing sequence */
+@keyframes warning-flash {
+  0% { background-color: #ff0000; color: white; }    /* Bright Red */
+  50% { background-color: #8b0000; color: #cccccc; } /* Dark Red */
+  100% { background-color: #ff0000; color: white; }   /* Back to Bright */
+}
+
+/* The class that triggers the flash */
+.flashing {
+  animation: warning-flash 0.8s infinite; /* Cycles every 0.8 seconds forever */
+  border: 2px solid white;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.8); /* Optional glow effect */
+}
+
+/* Basic button styling */
+#my-button {
+  padding: 10px 20px;
+  background-color: #ccc;
+  cursor: pointer;
+  transition: all 0.3s;
+}
 </style>
 </head>
 <body>
@@ -191,7 +214,7 @@ right: 50%;
 </span><br>
 <button class="button button2" onclick="window.open('/cgi-bin/orderscore-cgi.py', '_blank');">OrderScore</button><br>
 <button class="button button1" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?review=today', '_blank');">Today Review</button><br>
-<button class="button button2" onclick="window.open('/cgi-bin/nodeboard-cgi.py?D=week_main_goals&T=true&u=204512311159&r=100&U=true', '_blank');">Week Goals</button><br>
+<button id="WeekGoals" class="button button2" onclick="window.open('/cgi-bin/nodeboard-cgi.py?D=week_main_goals&T=true&u=204512311159&r=100&U=true', '_blank');">Week Goals</button><br>
 <button class="button button1" onclick="window.open('/cgi-bin/daywiz.py', '_blank');">DayWiz</button>
 </div>
 
@@ -271,6 +294,36 @@ pastePopupLink('docpopupfunc', 'entrytext');
 const global_autologupdate = new autoLogUpdate('logautoupdate', true, 'entrytext');
 </script>
 <!-- <script type="text/javascript" src="/logcheckbox.js"></script> -->
+<script type="module">
+import { fzCGIRequest, setupfzCGIListener, pollfzServer } from '/fzCGIRequest.js';
+const btn = document.getElementById('WeekGoals');
+function startWarning() {
+    btn.classList.add('flashing');
+}
+function stopWarning() {
+    btn.classList.remove('flashing');
+}
+function responseHandler(data) {
+    let logdata = JSON.parse(data);
+    if ('chunks_rendered' in logdata) {
+        //console.log(`Number of chunks returned: ${logdata['chunks_rendered']}`);
+        if (logdata['chunks_rendered'] == 1) {
+            //console.log(`Last chunk in history of Node at epoch: ${logdata['chunks'][0][0]}`);
+            const unixtime_ms = logdata['chunks'][0][0] * 1000;
+            const now = Date.now();
+            const elapsed_ms = now - unixtime_ms;
+            const elapsed_days = elapsed_ms / (24*60*60*1000);
+            //console.log(`Days elapsed: ${elapsed_days}`);
+            if (elapsed_days > 7.0) {
+                startWarning();
+            } else {
+                stopWarning();
+            }
+        }
+    }
+}
+pollfzServer('/cgi-bin/fzloghtml-cgi.py', [['json','on'], ['node', '20240603105017.1'], ['frommostrecent', 'on'], ['numchunks', '1']], responseHandler, 10000);
+</script>
 '''
 
 
@@ -506,6 +559,29 @@ def render_log_interval():
     print(cgi_custom_tail)
     print("</body>\n</html>")
 
+def json_log_interval():
+    cmdoptions = build_command_options()
+    if cmdoptions:
+        thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -N -F json "+cmdoptions
+        try:
+            p = Popen(thecmd,shell=True,stdin=PIPE,stdout=PIPE,close_fds=True, universal_newlines=True)
+            (child_stdin,child_stdout) = (p.stdin, p.stdout)
+            child_stdin.close()
+            result = child_stdout.read()
+            child_stdout.close()
+            print(result)
+
+        except Exception as ex:                
+            print('{"error": "')
+            f = StringIO()
+            print_exc(file=f)
+            a = f.getvalue().splitlines()
+            for line in a:
+                print(line)
+            print('"}')
+    else:
+        print('{"error": "Missing command options."}')
+
 def show_rendered_Log_review(rendered:str, thecmd:str):
     part1 = rendered.find('<html>')
     if part1 >= 0:
@@ -595,6 +671,9 @@ if __name__ == '__main__':
         elif mostrecentdata:
             render_most_recent()
         else:
-            render_log_interval()
+            if json_output:
+                json_log_interval()
+            else:
+                render_log_interval()
 
     sys.exit(0)

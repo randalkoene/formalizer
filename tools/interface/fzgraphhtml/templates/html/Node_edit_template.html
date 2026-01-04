@@ -68,7 +68,7 @@ Defs.: inherit = must inherit from superior; variable = auto-updateable; fixed =
 Special codes: -1 = obsolete, -2 = replaced, -3 = done differently, -4 = no longer possible (did not come to pass)
 <input type="hidden" name="orig_comp" value="{{ comp }}"></td>
 </tr>
-<tr><td class="paramtitle">Required:  </td><td><input type="number" name="req_hrs" min="0.0" max="1000.0" step="0.00001" value={{ req_hrs }}> </td><td>hrs, or <input type="number" name="req_mins" min="0" max="10000" step="1" value={{ req_mins }}> mins
+<tr><td class="paramtitle"><span class="tooltip">Required:  <span class="tooltiptext"><div style="width:500px;">The recommended time is initialized from topic-specific statistics. You can regenerate and update these by using the Node Metrics button on the Top page.</div></span></span></td><td><input type="number" name="req_hrs" min="0.0" max="1000.0" step="0.00001" value={{ req_hrs }}> </td><td>hrs, or <input type="number" name="req_mins" min="0" max="10000" step="1" value={{ req_mins }}> mins
 | Add: <input type="number" name="add_hrs" min="-1000.0" max="1000.0" step="0.00001" value=0> hrs, or <input type="number" name="add_mins" min="-10000" max="10000" step="1" value=0> mins
 <br><input type="hidden" name="orig_mins" value="{{ req_mins }}"></td>
 </tr>

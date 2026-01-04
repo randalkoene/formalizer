@@ -363,6 +363,7 @@ TOPLEVEL += $(TOOLSPATH)/interface/resources/htmlsvg.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/logcheckbox.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/accordion.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/accordion.js
+TOPLEVEL += $(TOOLSPATH)/interface/resources/fzCGIRequest.js
 TOPLEVEL += $(MEDIAPATH)/favicon-192x192.png
 TOPLEVEL += $(MEDIAPATH)/favicon-32x32.png
 TOPLEVEL += $(MEDIAPATH)/favicon-16x16.png
@@ -393,6 +394,7 @@ TESTS += $(TOOLSPATH)/misc/test_crypto.html
 TESTS += $(TOOLSPATH)/misc/test_encrypt_idbook.html
 TESTS += $(TOOLSPATH)/misc/test_delayed_hover.html
 TESTS += $(TOOLSPATH)/misc/test_dragndrop.html
+TESTS += $(TOOLSPATH)/misc/test_fzcgirequest.html
 
 # CGI processors that are used by test HTML pages
 TESTCGI =
