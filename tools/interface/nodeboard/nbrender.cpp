@@ -46,7 +46,8 @@ const std::vector<std::string> template_ids = {
     "Schedule_board",
     "Schedule_column",
     "Node_analysis_card",
-    "Options_pane"
+    "Options_pane",
+    "NNL_Options_pane"
 };
 
 std::string template_path_from_id(template_id_enum template_id) {
@@ -572,6 +573,73 @@ bool nodeboard::make_options_pane(std::string & rendered_pane) {
 
     if (!env.fill_template_from_map(
             template_path_from_id(options_pane_temp),
+            pane_map,
+            rendered_pane)) {
+        return false;
+    }
+    return true;
+}
+
+bool nodeboard::make_NNL_options_pane(std::string & rendered_pane) {
+    std::map<std::string, std::string> pane_map = {
+        { "list-name", list_name },
+        //{ "sup-or-dep", sup_or_dep.at(flowcontrol == flow_superiors_tree) },
+        { "show-completed", true_checked.at(show_completed) },
+        { "show-zero-required", true_checked.at(show_zero_required) },
+        { "importance-threshold", to_precision_string(importance_threshold, 2) },
+        { "threads", true_checked.at(threads) },
+        { "progress-analysis", true_checked.at(progress_analysis) },
+        { "hide-repeated", true_checked.at(norepeated) },
+        { "detect-tdorder", true_checked.at(detect_tdorder) },
+        { "detect-tdfar", true_checked.at(detect_tdfar) },
+        { "detect-tdbad", true_checked.at(detect_tdbad) },
+        { "timeline", true_checked.at(timeline) },
+        { "timeline-stretch", to_precision_string(timeline_stretch, 2) },
+        { "highlighted-topic", "" },
+        { "max-rows", std::to_string(max_rows) },
+        { "max-columns", std::to_string(max_columns) },
+        { "days-nearterm", "" },
+        { "none-checked", "" },
+        { "earlier-checked", "" },
+        { "later-checked", "" },
+        { "filter", "" },
+        { "topic-filters", "" },
+        { "nnl-deps-to-tdate", "" }
+    };
+
+    if (highlight_topic_and_valuation) {
+        pane_map.at("highlighted-topic") = "value=\""+std::to_string(highlight_topic)+'"';
+    }
+
+    if (propose_td_solutions) {
+        if (prefer_earlier) {
+            pane_map.at("earlier-checked") = "checked";
+        } else {
+            pane_map.at("later-checked") = "checked";
+        }
+    } else {
+        pane_map.at("none-checked") = "checked";
+    }
+
+    if (seconds_near_highlight>0) {
+        pane_map.at("days-nearterm") = "value=\""+to_precision_string(float(seconds_near_highlight)/86400.0, 1)+'"';
+    }
+
+    if (!filter_substring.empty()) {
+        pane_map.at("filter") = uri_encoded_filter_substring;
+    }
+
+    std::string uri_encoded_modifed_topic_filters = encode_modified_topic_filters(shows_non_milestone_nodes());
+    if (!uri_encoded_modifed_topic_filters.empty()) {
+        pane_map.at("topic-filters") = uri_encoded_modifed_topic_filters;
+    }
+
+    if (nnl_deps_to_tdate != RTt_maxtime) {
+        pane_map.at("nnl-deps-to-tdate") = TimeStampYmdHM(nnl_deps_to_tdate);
+    }
+
+    if (!env.fill_template_from_map(
+            template_path_from_id(NNL_options_pane_temp),
             pane_map,
             rendered_pane)) {
         return false;
@@ -1901,6 +1969,11 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
         return false;
     }
 
+    // 2026-01-04 Adding this to better generate web based control.
+    if (!nb.make_NNL_options_pane(nb.board_title_extra)) {
+        nb.board_title_extra = "Warning: Failed to render options pane.<br>";
+    }
+
     if (!nb.board_title_specified) {
         nb.board_title = "Dependencies of Nodes in NNL '"+nb.list_name+'\'';
     }
@@ -1909,7 +1982,7 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
     if (nb.threads) threads_option = "&T=true";
 
     //nb.board_title_extra = with_and_without_inactive_Nodes_buttons("D="+nb.list_name, threads_option, nb.show_completed);
-    nb.board_title_extra = nb.with_and_without_inactive_Nodes_buttons();
+    nb.board_title_extra += nb.with_and_without_inactive_Nodes_buttons();
 
     if (nb.threads) {
         nodeboard_options with_progress_analysis = nb.get_nodeboard_options();

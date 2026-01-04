@@ -1,0 +1,134 @@
+<style>
+.options {
+  margin: auto;
+  border: 3px solid #000000; /*#73AD21;*/
+  position: fixed;
+  right: 1em;
+  top: 0;
+  display: none;
+  z-index: 2002;
+  background-color: var(--grid-options);
+  opacity: 0.7;
+}
+.options-closed {
+  height: 20px;
+  position: fixed;
+  right: 1em;
+  top: 0;
+  z-index: 2001;
+  color: #00007f;
+  background-color: var(--grid-options);
+}
+.options-close {
+  height: 20px;
+  position: fixed;
+  right: 1em;
+  top: 2em;
+  z-index: 2003;
+  color: #000000;
+  background-color: #ef3f3f;
+  display: none;
+}
+</style>
+<script type="text/javascript" src="/exportpage.js"></script>
+<script>
+const export_page = new ExportPage();
+</script>
+<div class="options-closed" id="options-closed">
+options
+</div>
+<div class="options" id="options">
+<div class="options-close" id="options-close">
+close
+</div>
+
+<form action="/cgi-bin/nodeboard-cgi.py">
+
+<input type="hidden" name="D" value="{{ list-name }}">
+
+Nodes with TD up to: <input type="text" size=12 name="u" value="{{ nnl-deps-to-tdate }}">
+<br>
+<input type="checkbox" name="I" value="true" {{ show-completed }}> show completed Nodes
+<br>
+<input type="checkbox" name="Z" value="true" {{ show-zero-required }}> show zero required Nodes
+<br>
+<input type="checkbox" name="T" value="true" {{ threads }}> show as Threads
+<br>
+<input type="checkbox" name="P" value="true" {{ progress-analysis }}> include Progress Analysis
+<br>
+<input type="checkbox" name="U" value="true" {{ hide-repeated }}> hide repeated Nodes
+<br>
+<input type="checkbox" name="tdorder" value="true" {{ detect-tdorder }}> detect TD order errors
+<br>
+<input type="checkbox" name="tdfar" value="true" {{ detect-tdfar }}> detect distant TD errors
+<br>
+<input type="checkbox" name="tdbad" value="true" {{ detect-tdbad }}> detect bad TD errors
+<br>
+<input type="checkbox" name="z" value="true" {{ timeline }}> place on timeline
+<input type="text" name="zstretch" size=5 value="{{ timeline-stretch }}"> stretch factor
+<br>
+highlight topic and valuation: <input type="text" size=10 name="B" {{ highlighted-topic }}>
+<br>
+max. number of rows: <input type="text" size=10 name="r" value="{{ max-rows }}">
+<br>
+max. number of columns: <input type="text" size=10 name="C" value="{{ max-columns }}">
+<br>
+highlight near-term days: <input type="text" size=10 name="N" {{ days-nearterm }}>
+<br>
+solutions:
+<input type="radio" name="O" value="" {{ none-checked }}> none
+<input type="radio" name="O" value="earlier" {{ earlier-checked }}> earlier
+<input type="radio" name="O" value="later" {{ later-checked }}> later
+<br>
+filter: <input type="text" name="F" {{ filter }}>
+<br>
+topic filters: <input type="text" name="i" {{ topic-filters }}>
+<br>
+importance threshold: <input type="text" name="w" value="{{ importance-threshold }}">
+<br>
+
+<input type="submit" value="Update" method="get" target="_blank">
+</form>
+<button onclick="export_page.ExportHTML();">Export Page</button>
+<button onclick="export_page.ExportScreenshot();">Screenshot</button>
+<button id="export_svg">Export SVG</button>
+
+<script>
+document.onclick = function() { document.getElementById("tooltip").style.display = 'none'; };
+const options = document.getElementById("options");
+const options_closed = document.getElementById("options-closed");
+const options_close = document.getElementById("options-close");
+options_closed.addEventListener(
+  "mouseenter",
+  (event) => {
+    options.style.display = 'block';
+    options_closed.style.display = 'none';
+    options_close.style.display = 'block';
+  },
+  false,
+);
+options_close.addEventListener(
+  "mouseenter",
+  (event) => {
+    options.style.display = 'none';
+    options_closed.style.display = 'block';
+    options_close.style.display = 'none';
+  },
+  false,
+);
+</script>
+<script type="module">
+import { htmlToSvg } from '/htmlsvg.js';
+document.getElementById('export_svg').addEventListener('click', async () => {
+  export_page.ExportSVG();
+  const svgConfig = {
+    downloadSvg: true,
+    filename: export_page.filename,
+  };
+  const htmlElement = document.documentElement; //getElementById("DivId");
+  const svg = await htmlToSvg(htmlElement, svgConfig);
+  console.log(svg);
+});
+</script>
+
+</div>

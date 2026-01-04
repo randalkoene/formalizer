@@ -20,7 +20,8 @@ except:
 import sys, cgi, os
 sys.stderr = sys.stdout
 from time import strftime
-from datetime import datetime
+from datetime import datetime, date
+from dateutil.relativedelta import relativedelta, SU
 import traceback
 from io import StringIO
 from traceback import print_exc
@@ -38,6 +39,9 @@ def convert_datetime_format(datetime_str):
     date_numeric = date_part.replace('-', '')
     time_numeric = time_part.replace(':', '')
     return date_numeric + time_numeric
+
+def get_upcoming_Sunday():
+    return date.today() + relativedelta(weeks=+1, weekday=SU(0))
 
 # Create instance of FieldStorage 
 form = cgi.FieldStorage() 
@@ -136,7 +140,7 @@ otherwise around the end of Log.
 '''
 
 #<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-log_interval_head = '''<html>
+log_interval_head_part1 = '''<html>
 <head>
 <meta charset="utf-8" />
 <link rel="stylesheet" href="/fz.css">
@@ -214,7 +218,9 @@ right: 50%;
 </span><br>
 <button class="button button2" onclick="window.open('/cgi-bin/orderscore-cgi.py', '_blank');">OrderScore</button><br>
 <button class="button button1" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?review=today', '_blank');">Today Review</button><br>
-<button id="WeekGoals" class="button button2" onclick="window.open('/cgi-bin/nodeboard-cgi.py?D=week_main_goals&T=true&u=204512311159&r=100&U=true', '_blank');">Week Goals</button><br>
+<button id="WeekGoals" class="button button2" onclick="window.open('/cgi-bin/nodeboard-cgi.py?D=week_main_goals&T=true&u='''
+
+log_interval_head_part2 = '''&r=100&U=true', '_blank');">Week Goals</button><br>
 <button class="button button1" onclick="window.open('/cgi-bin/daywiz.py', '_blank');">DayWiz</button>
 </div>
 
@@ -322,7 +328,7 @@ function responseHandler(data) {
         }
     }
 }
-pollfzServer('/cgi-bin/fzloghtml-cgi.py', [['json','on'], ['node', '20240603105017.1'], ['frommostrecent', 'on'], ['numchunks', '1']], responseHandler, 10000);
+pollfzServer('/cgi-bin/fzloghtml-cgi.py', [['json','on'], ['node', '20240603105017.1'], ['frommostrecent', 'on'], ['numchunks', '1']], responseHandler, 60000);
 </script>
 '''
 
@@ -500,7 +506,8 @@ def build_command_options()->str:
     return cmdoptions
 
 def render_log_interval():
-    print(log_interval_head)
+    upcoming_Sunday_str = get_upcoming_Sunday().strftime("%Y%m%d%H%M")
+    print(log_interval_head_part1+upcoming_Sunday_str+log_interval_head_part2)
     if selectchunks:
         print('<form action="/cgi-bin/selectchunks.py" method="post">')
     thisscript = os.path.realpath(__file__)

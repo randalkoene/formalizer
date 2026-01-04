@@ -58,6 +58,7 @@ enum template_id_enum {
     schedule_column_temp,
     node_analysis_card_temp,
     options_pane_temp,
+    NNL_options_pane_temp,
     NUM_temp
 };
 
@@ -246,6 +247,8 @@ struct nodeboard: public formalizer_standard_program {
     nodeboard_options get_nodeboard_options() const;
 
     bool make_options_pane(std::string & rendered_pane);
+
+    bool make_NNL_options_pane(std::string & rendered_pane);
 
     std::string build_nodeboard_cgi_call(const nodeboard_options & options) const;
 
