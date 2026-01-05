@@ -677,6 +677,7 @@ public:
 
     const Node_utf8_text & get_text() const { return text; }
     std::string get_excerpt(size_t excerpt_length = 0) const;
+    std::string find_tag_in_text(const std::string tag) const;
 
     time_t get_targetdate() const { return targetdate; }
     std::string get_targetdate_str() const { return TimeStampYmdHM(targetdate); } // Note: See get_effective_targetdate_str().

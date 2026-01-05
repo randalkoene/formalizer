@@ -20,6 +20,7 @@
 #include "debug.hpp"
 #include "error.hpp"
 #include "standard.hpp"
+#include "general.hpp"
 #include "stringio.hpp"
 #include "Graphtypes.hpp"
 #include "Logtypes.hpp"
@@ -38,6 +39,8 @@ using namespace fz;
 
 /// The local class derived from `formalizer_standard_program`.
 fzlog fzl;
+
+const std::string onopen_onclose_log = "/var/www/webdata/formalizer/fzlog-onopen-onclose.log";
 
 /**
  * For `add_option_args`, add command line option identifiers as expected by `optarg()`.
@@ -222,9 +225,22 @@ bool fzlog::options_hook(char c, std::string cargs) {
 }
 
 
+std::vector<std::string> parse_onopen_onclose(const std::string & parvalue) {
+    ERRTRACE;
+
+    std::vector<std::string> permitted;
+    if (parvalue.empty())
+        return permitted;
+
+    permitted = split(parvalue, '&');
+
+    return permitted;
+}
+
 /// Configure configurable parameters.
 bool fzl_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     CONFIG_TEST_AND_SET_PAR(content_file, "content_file", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(permitted_onopen_onclose, "onopen_onclose", parlabel, parse_onopen_onclose(parvalue)); // E.g. from "indicators.py,fzinfo"
     //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
@@ -244,6 +260,64 @@ void fzlog::init_top(int argc, char *argv[]) {
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
     // *** add any initialization here that has to happen once in main(), for the derived class
 
+}
+
+// Parse an ONOPEN or ONCLOSE tag string to extract program and arguments.
+// Format is:
+//   <tag>:<program>,<arg>=<value>,<arg>=<value>,...
+onopen_onclose::onopen_onclose(const std::string tagstr) {
+    // Find start of data.
+    auto colonpos = tagstr.find(':');
+    if (colonpos == std::string::npos) return;
+
+    // Find program.
+    colonpos++;
+    auto comma = tagstr.find(',', colonpos);
+    if (comma == std::string::npos) { // Only a program name.
+        program = tagstr.substr(colonpos);
+        if (program.empty()) return;
+        valid = true;
+        return;
+    }
+    if (colonpos == comma) return; // Missing program name.
+    program = tagstr.substr(colonpos, comma - colonpos);
+
+    // Find arguments.
+    comma++;
+    auto argpairs = split(tagstr.substr(comma), ',');
+    for (auto&& argpair : argpairs) {
+        if (argpair.empty()) continue; // no arg-value data
+        auto equalpos = argpair.find('=');
+        if (equalpos == std::string::npos) {
+            args.emplace(argpair, ""); // omitting '=' is permitted
+        } else {
+            if (equalpos==0) continue; // missing arg
+            args.emplace(argpair.substr(0, equalpos), argpair.substr(equalpos+1));
+        }
+    }
+
+    valid = true;
+}
+
+// Note: This assumes that the program is reachable through /usr/lib/cgi-bin.
+void onopen_onclose::try_call() {
+    // Check if program is in list of permitted programs.
+    if (!find_in_vec_of_strings(fzl.config.permitted_onopen_onclose, program)) {
+        return;
+    }
+
+    // Build and make the call.
+    std::string cmdstr = "/usr/lib/cgi-bin/"+program;
+    for (const auto& [arg, value] : args) {
+        cmdstr += ' ' + arg;
+        if (!value.empty()) {
+            cmdstr += ' ' + value;
+        }
+    }
+    std::string response = shellcmd2str(cmdstr);
+    if (!response.empty()) {
+        string_to_file(onopen_onclose_log, cmdstr+'\n'+response+'\n');
+    }
 }
 
 void check_specific_node(entry_data & edata) {
@@ -562,6 +636,17 @@ bool close_chunk(time_t closing_time) {
         standard_exit_error(exit_communication_error, "Server request to update completion ratio of Node "+node_idstr+" failed.", __func__);
     }
     To_Debug_LogFile("close_chunk(): chunk closed");
+
+    // Possible permitted program with arguments to run ONCLOSE.
+    Node * prevchunk_node_ptr;
+    std::tie(prevchunk_node_ptr, fzl.edata.graph_ptr) = find_Node_by_idstr(node_idstr, fzl.edata.graph_ptr);
+    if (prevchunk_node_ptr) {
+        std::string onclose_tagstr = prevchunk_node_ptr->find_tag_in_text("ONCLOSE");
+        if (!onclose_tagstr.empty()) {
+            onopen_onclose onclose(onclose_tagstr);
+            onclose.try_call();
+        }
+    }
 
     VERBOSEOUT("Log chunk "+fzl.edata.c_newest->get_tbegin_str()+" closed.\n");   
 
@@ -1005,6 +1090,13 @@ bool open_chunk() {
     VERBOSEOUT("Log chunk "+new_chunk.get_tbegin_str()+" appended.\n");
     // auto t4 = std::chrono::high_resolution_clock::now(); // PROFILING (remove this)
     // profiling_us.emplace_back(std::chrono::duration_cast<std::chrono::microseconds>(t4 - t3).count()); // PROFILING (remove this)
+
+    // Possible permitted program with arguments to run ONOPEN.
+    std::string onopen_tagstr = newchunk_node_ptr->find_tag_in_text("ONOPEN");
+    if (!onopen_tagstr.empty()) {
+        onopen_onclose onopen(onopen_tagstr);
+        onopen.try_call();
+    }
 
     if (!add_to_recent_Nodes_FIFO(*newchunk_node_ptr)) {
         standard_warning("Unable to push new Log chunk Node to fifo 'recent' Named Node List.", __func__);

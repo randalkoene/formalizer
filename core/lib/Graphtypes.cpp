@@ -440,6 +440,30 @@ std::string Node::get_excerpt(size_t excerpt_length) const {
     return remove_html_tags(get_text().c_str()).substr(0, excerpt_length);
 }
 
+std::string Node::find_tag_in_text(const std::string tag) const {
+    if (tag.empty()) return "";
+    std::string content = get_excerpt(); // full text content without HTML tags
+    size_t search_start = 0;
+    size_t tagpos = 0;
+    while (true) {
+        tagpos = content.find('@'+tag, search_start);
+        if (tagpos == std::string::npos) {
+            return ""; // not found
+        }
+        tagpos++;
+        search_start = tagpos+tag.size();
+        if (search_start >= content.size()) return "";
+        if ((content.at(search_start) == '@') || (content.at(search_start) == ':')) break; // found tag
+    }
+    auto tagend = content.find('@', search_start);
+    if (tagend == std::string::npos) {
+        return ""; // incomplete
+    }
+    auto taglen = tagend-tagpos;
+    if (taglen < tag.size()) return ""; // tag contained '@', which is not allowed
+    return content.substr(tagpos, taglen); // returns the tag and any extra data
+}
+
 bool Node::is_first_instance(time_t tdate_compare) const {
     if (!repeats) return true;
     return tdate_compare == const_cast<Node *>(this)->effective_targetdate();

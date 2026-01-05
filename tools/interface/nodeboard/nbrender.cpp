@@ -1992,6 +1992,7 @@ bool node_board_render_NNL_dependencies(nodeboard & nb) {
         nb.board_title_extra += make_button(nb.build_nodeboard_cgi_call(with_progress_analysis), "With Progress Analysis", false);
         nb.board_title_extra +=
             "<button class=\"button button1\" onclick=\"window.open('/cgi-bin/fzquerypq-cgi.py','_blank');\">Update Node histories</button>"
+            "<button class=\"button button3\" onclick=\"window.open('/cgi-bin/fzgraphhtml-cgi.py?srclist=" + nb.list_name + "','_blank');\">NNL</button>"
             "<b>Threads</b>:<br>"
             "Where @VISOUTPUT: ...@ is defined in Node content it is shown as the expected advantageous non-internal (visible) output of a thread.<br>"
             "Otherwise, an excerpt of Node content is shown as the thread header.<br>"

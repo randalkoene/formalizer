@@ -404,6 +404,7 @@ TESTCGI += $(TOOLSPATH)/misc/test_progress_indicator.py
 TESTCGI += $(TOOLSPATH)/misc/test_background_process.py
 TESTCGI += $(TOOLSPATH)/misc/convert_idbook.py
 TESTCGI += $(TOOLSPATH)/misc/test_noreload_cgi.py
+TESTCGI += $(TOOLSPATH)/misc/test_cgireflect.py
 # +----- end  : Select Formalizer executables -----+
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html

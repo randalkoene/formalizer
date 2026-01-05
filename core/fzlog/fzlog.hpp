@@ -41,6 +41,7 @@ public:
     bool set_parameter(const std::string & parlabel, const std::string & parvalue);
 
     std::string content_file; ///< Optional file path for entry text content.
+    std::vector<std::string> permitted_onopen_onclose;
 };
 
 
@@ -75,5 +76,16 @@ struct fzlog: public formalizer_standard_program {
 };
 
 extern fzlog fzl;
+
+struct onopen_onclose {
+    std::string program;
+    std::map<std::string, std::string> args;
+
+    bool valid = false;
+
+    onopen_onclose(const std::string tagstr);
+
+    void try_call();
+};
 
 #endif // __FZLOG_HPP
