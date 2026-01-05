@@ -57,7 +57,8 @@
 				"fzlink": "/tools/interface/fzlink",
 				"fzuistate": "/tools/interface/fzuistate",
 				"logentry": "/tools/interface/logentry",
-				"logentry-form": "/tools/interface/logentry-form"
+				"logentry-form": "/tools/interface/logentry-form",
+				"indicators": "/tools/interface/indicators"
 			},
 			"system": {
 				"daywiz": "/tools/system/daywiz",

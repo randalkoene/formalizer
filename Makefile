@@ -232,6 +232,7 @@ CGIEXE += $(TOOLSPATH)/interface/fzlink/fzlink.py
 CGIEXE += $(TOOLSPATH)/interface/fzlogtime/fzlogtime.cgi
 CGIEXE += $(TOOLSPATH)/interface/fzserver-info/fzserver-info-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzuistate/fzuistate.py
+CGIEXE += $(TOOLSPATH)/interface/indicators/indicators.py
 CGIEXE += $(TOOLSPATH)/misc/lists_from_dependencies.py
 CGIEXE += $(TOOLSPATH)/misc/delete_nth.py
 CGIEXE += $(TOOLSPATH)/misc/done_nth.py
