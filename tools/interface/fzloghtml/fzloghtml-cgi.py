@@ -301,7 +301,7 @@ const global_autologupdate = new autoLogUpdate('logautoupdate', true, 'entrytext
 </script>
 <!-- <script type="text/javascript" src="/logcheckbox.js"></script> -->
 <script type="module">
-import { fzCGIRequest, setupfzCGIListener, pollfzServer } from '/fzCGIRequest.js';
+// import { fzCGIRequest, setupfzCGIListener, pollfzServer } from '/fzCGIRequest.js';
 const btn = document.getElementById('WeekGoals');
 function startWarning() {
     btn.classList.add('flashing');
@@ -309,6 +309,7 @@ function startWarning() {
 function stopWarning() {
     btn.classList.remove('flashing');
 }
+/* Commented out "direct" approach:
 function responseHandler(data) {
     let logdata = JSON.parse(data);
     if ('chunks_rendered' in logdata) {
@@ -329,6 +330,34 @@ function responseHandler(data) {
     }
 }
 pollfzServer('/cgi-bin/fzloghtml-cgi.py', [['json','on'], ['node', '20240603105017.1'], ['frommostrecent', 'on'], ['numchunks', '1']], responseHandler, 60000);
+*/
+async function getIndicatorsData(url, targetKey) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = await response.json();
+    
+    // Access the specific piece of data
+    //const result = data[targetKey];
+    if (data['WeekGoals_Overdue']['state']) {
+        startWarning();
+    } else {
+        stopWarning();
+    }
+    
+    //console.log(`The data is:`, data);
+    //return data;
+
+  } catch (error) {
+    console.error("Failed to fetch or parse JSON:", error);
+  }
+}
+const IndicatorsDataUrl = '/formalizer/indicators.json';
+setInterval(() => {
+  getIndicatorsData(IndicatorsDataUrl);
+}, 10000); // every 10 seconds
 </script>
 '''
 

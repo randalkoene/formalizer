@@ -17,6 +17,10 @@ again, e.g:
 
 ./replicate.py /media/randalk/SSKSDDEXT4/randalk-ext4-moutable-20250603 /media/randalk/SSKSDDEXT4/mount-point
 
+It's also very important to read the messages produced at the end of the
+script, because they may still mention checks to perform and things that
+need to be done.
+
 --
 
 Randal A. Koene, 20251002

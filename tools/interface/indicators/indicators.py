@@ -27,12 +27,12 @@ from datetime import datetime
 #indicatorsconfigdir = fzuserbase+'/config/indicators.py'
 #indicatorsconfig = indicatorsconfigdir+'/config.json'
 
-data_path = '/var/www/webdata/indicators.json'
+data_path = '/var/www/html/formalizer/indicators.json'
 
 data = {
     "WeekGoals_Overdue": {
             "state": False,
-            "t_update": 0,
+            "t_update": "202506010000",
         }
 }
 
@@ -162,8 +162,8 @@ def Update_DataFile():
     try:
         with open(data_path, 'w') as f:
             json.dump(data, f)
-    except:
-        pass
+    except Exception as e:
+        print('Update error: '+str(e))
 
 # Called by ONCLOSE in 20240603105017.1.
 def WeekGoals_updated():
@@ -179,7 +179,8 @@ def WeekGoals_check():
     t_now = datetime.now()
     t_elapsed = t_now - t
     t_days = t_elapsed.total_seconds()/(24*60*60)
-    data['WeekGoals_Overdue']['state'] = t_days > 7.0
+    #data['WeekGoals_Overdue']['state'] = t_days > 7.0
+    data['WeekGoals_Overdue']['state'] = t_elapsed.total_seconds() > 60.0
 
 def Indicators_Tests():
     WeekGoals_check()
@@ -187,9 +188,16 @@ def Indicators_Tests():
 
     Update_DataFile()
 
+def Ensure_DataFile_Exists_World_Writable():
+    if not os.path.exists(data_path):
+        Update_DataFile()
+        os.chmod(data_path, 0o666) # world readable/writeable
+
 if __name__ == '__main__':
 
-    Read_DataFile();
+    Ensure_DataFile_Exists_World_Writable()
+
+    Read_DataFile()
 
     #core_version = coreversion.coreversion()
     indicators_long_id = "Interface:Indicators" + f" v{version}" # (core v{core_version})"

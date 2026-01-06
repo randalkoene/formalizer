@@ -895,6 +895,10 @@ Tests you should carry out to ensure that you have a fully functioning environmn
 
 - Test access and use of your ID book vault.
 - Test decrypted mounting of your private volume.
+- The /var/www/html/formalizer directory must be owned by USER:USER (e.g. randalk).
+- The /var/www/webdata directory must be owned by www-data:www-data.
+- There needs to be a symlink called "data" from /var/www/html/formalizer to
+  /var/www/webdata.
 
 Of course, the only real test to see if everything, especially the Formalizer, is fully operational is to use many aspects of the system environment.
 '''
