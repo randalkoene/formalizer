@@ -1,1 +1,2 @@
 31 7,13,19 * * * /home/randalk/.formalizer/bin/fzdaily.sh > /tmp/fzdaily.log 2>&1
+16,46 * * * * /home/randalk/.formalizer/bin/fzhourly.sh > /tmp/fzhourly.log 2>&1

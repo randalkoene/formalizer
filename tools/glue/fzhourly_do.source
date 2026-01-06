@@ -1,0 +1,4 @@
+# This file is sourced by fzhourly.sh. Please add activities below with full paths.
+# The setup stub for this file should be copied to: ~/.formalizer/fzhourly_do.source
+
+/home/randalk/.formalizer/bin/indicators -T

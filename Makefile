@@ -98,6 +98,7 @@ EXECUTABLES += $(TOOLSPATH)/compat/v1xv2x-refresh.sh
 EXECUTABLES += $(TOOLSPATH)/dev/boilerplate/boilerplate
 EXECUTABLES += $(TOOLSPATH)/dev/fzbuild/fzbuild.py
 EXECUTABLES += $(TOOLSPATH)/glue/fzdaily.sh
+EXECUTABLES += $(TOOLSPATH)/glue/fzhourly.sh
 EXECUTABLES += $(TOOLSPATH)/glue/graph-resident.py
 EXECUTABLES += $(TOOLSPATH)/glue/graph-topics.sh
 # EXECUTABLES += $(TOOLSPATH)/glue/calendarsync/calendarsync
@@ -155,6 +156,7 @@ EXECUTABLES += $(TOOLSPATH)/system/schedule/schedule
 # configuration files needed by local scripts
 LOCALCONFIG =
 LOCALCONFIG += $(TOOLSPATH)/glue/fzdaily_do.source
+LOCALCONFIG += $(TOOLSPATH)/glue/fzhourly_do.source
 
 # configuration files needed by CGI scripts
 CONFIGEXPOSE =

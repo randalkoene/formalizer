@@ -179,8 +179,8 @@ def WeekGoals_check():
     t_now = datetime.now()
     t_elapsed = t_now - t
     t_days = t_elapsed.total_seconds()/(24*60*60)
-    #data['WeekGoals_Overdue']['state'] = t_days > 7.0
-    data['WeekGoals_Overdue']['state'] = t_elapsed.total_seconds() > 60.0
+    data['WeekGoals_Overdue']['state'] = t_days > 7.0
+    #data['WeekGoals_Overdue']['state'] = t_elapsed.total_seconds() > 60.0
 
 def Indicators_Tests():
     WeekGoals_check()
