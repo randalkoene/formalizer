@@ -221,7 +221,7 @@ right: 50%;
 <button id="WeekGoals" class="button button2" onclick="window.open('/cgi-bin/nodeboard-cgi.py?D=week_main_goals&T=true&u='''
 
 log_interval_head_part2 = '''&r=100&U=true', '_blank');">Week Goals</button><br>
-<button class="button button1" onclick="window.open('/cgi-bin/daywiz.py', '_blank');">DayWiz</button>
+<button id="DayWiz" class="button button1" onclick="window.open('/cgi-bin/daywiz.py', '_blank');">DayWiz</button>
 </div>
 
 <script type="text/javascript" src="/stateoflog.js"></script>
@@ -303,11 +303,11 @@ const global_autologupdate = new autoLogUpdate('logautoupdate', true, 'entrytext
 <script type="module">
 // import { fzCGIRequest, setupfzCGIListener, pollfzServer } from '/fzCGIRequest.js';
 const btn = document.getElementById('WeekGoals');
-function startWarning() {
-    btn.classList.add('flashing');
+function startWarning(btn_id) {
+    document.getElementById(btn_id).classList.add('flashing');
 }
-function stopWarning() {
-    btn.classList.remove('flashing');
+function stopWarning(btn_id) {
+    document.getElementById(btn_id).classList.remove('flashing');
 }
 /* Commented out "direct" approach:
 function responseHandler(data) {
@@ -322,9 +322,9 @@ function responseHandler(data) {
             const elapsed_days = elapsed_ms / (24*60*60*1000);
             //console.log(`Days elapsed: ${elapsed_days}`);
             if (elapsed_days > 7.0) {
-                startWarning();
+                startWarning('WeekGoals');
             } else {
-                stopWarning();
+                stopWarning('WeekGoals');
             }
         }
     }
@@ -339,12 +339,15 @@ async function getIndicatorsData(url, targetKey) {
     }
     const data = await response.json();
     
-    // Access the specific piece of data
-    //const result = data[targetKey];
     if (data['WeekGoals_Overdue']['state']) {
-        startWarning();
+        startWarning('WeekGoals');
     } else {
-        stopWarning();
+        stopWarning('WeekGoals');
+    }
+    if (data['DayWiz_Overdue']['state']) {
+        startWarning('DayWiz');
+    } else {
+        stopWarning('DayWiz');
     }
     
     //console.log(`The data is:`, data);

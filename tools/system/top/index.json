@@ -17,6 +17,10 @@
             "url" : "/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END",
             "window" : "_blank"
         },
+        "Schedule" : {
+            "url" : "/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20",
+            "window" : "_blank"
+        },
         "Named Node Lists" : {
             "url" : "/cgi-bin/fzgraphhtml-cgi.py?srclist=?",
             "window" : "_blank"

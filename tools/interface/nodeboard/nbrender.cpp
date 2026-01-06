@@ -10,6 +10,7 @@
 #include <cmath>
 //#include <iostream>
 #include <stdexcept>
+#include <chrono>
 
 #include "error.hpp"
 #include "general.hpp"
@@ -1528,6 +1529,19 @@ std::string nodeboard::call_comment_string() {
     return call_comment;
 }
 
+// *** Note: At the moment, this produces a time that is a few hours off, probably a locale thing.
+time_t upcoming_Sunday() {
+    auto now = std::chrono::system_clock::now();
+    auto today = std::chrono::floor<std::chrono::days>(now);
+    std::chrono::weekday curr_wd{today};
+    std::chrono::days days_to_next_sunday = (std::chrono::Sunday - curr_wd);
+    if (days_to_next_sunday <= std::chrono::days{0}) {
+        days_to_next_sunday += std::chrono::weeks{1};
+    }
+    auto upcoming_sunday = today + days_to_next_sunday;
+    return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::sys_days{upcoming_sunday}.time_since_epoch()).count();
+}
+
 bool nodeboard::make_multi_column_board(const std::string & rendered_columns, template_id_enum board_template, bool specify_rows, const std::string & col_width, const std::string & container_width, const std::string & card_width, const std::string & card_height) {
     template_varvalues board;
     // Insert the HTML for all the cards into the Kanban board.
@@ -1565,6 +1579,9 @@ bool nodeboard::make_multi_column_board(const std::string & rendered_columns, te
     board.emplace("row-heights", specified_rows);
     board.emplace("call-comment", call_comment_string());
     board.emplace("post-extra", post_extra);
+    if (flowcontrol==flow_csv_schedule) { // Used by Calendar Schedule
+        board.emplace("week-TD", TimeStampYmdHM(upcoming_Sunday()));
+    }
     std::string rendered_board;
     rendered_board = env.render(templates[board_template], board);
 
@@ -2262,7 +2279,8 @@ bool node_board_render_csv_schedule(nodeboard & nb) {
     shorter.multiplier = (shorter.multiplier > 1.0) ? shorter.multiplier-1.0 : shorter.multiplier/2.0;
     longer.multiplier = (longer.multiplier >= 1.0) ? longer.multiplier+1.0 : longer.multiplier*2.0;
     nb.post_extra = make_button(nb.build_nodeboard_cgi_call(shorter), "smaller", true)
-        + make_button(nb.build_nodeboard_cgi_call(longer), "larger", true);
+        + make_button(nb.build_nodeboard_cgi_call(longer), "larger", true)
+        + make_button("/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20", "Refresh", true);
 
     std::string grid_column_width_str = ' '+to_precision_string(col_width, 2)+"vw";
     std::string card_width_str = to_precision_string(card_width, 2)+"vw";

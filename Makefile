@@ -373,6 +373,7 @@ TOPLEVEL += $(MEDIAPATH)/favicon-32x32.png
 TOPLEVEL += $(MEDIAPATH)/favicon-16x16.png
 TOPLEVEL += $(MEDIAPATH)/favicon.ico
 TOPLEVEL += $(MEDIAPATH)/favicon-nodes-32x32.png
+TOPLEVEL += $(MEDIAPATH)/favicon-schedule-32x32.png
 TOPLEVEL += $(MEDIAPATH)/RTT-Momentary.png
 TOPLEVEL += $(MEDIAPATH)/dashboard.png
 TOPLEVEL += $(MEDIAPATH)/RTT-Summarized-HTML.png

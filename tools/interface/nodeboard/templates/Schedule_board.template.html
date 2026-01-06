@@ -6,11 +6,12 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<link rel="icon" href="/favicon-32x32.png">
+<link rel="icon" href="/favicon-schedule-32x32.png">
 <link rel="stylesheet" href="/fz.css">
 <!-- https://www.w3schools.com/w3css/4/w3.css -->
 <link rel="stylesheet" href="/w3.css">
 <link rel="stylesheet" href="/fzuistate.css">
+<link rel="stylesheet" href="/clock.css">
 <style>
 .grid-container {
   display: grid;
@@ -85,6 +86,38 @@
   width: {{ card-width }};
 }
 
+#protocol_tab {
+z-index:333333 !important;
+position: fixed;
+top: 185px;
+right: 0px;
+width: 300px;
+height: 500px;
+display: block;
+text-align: right;
+}
+/* Define the flashing sequence */
+@keyframes warning-flash {
+  0% { background-color: #ff0000; color: white; }    /* Bright Red */
+  50% { background-color: #8b0000; color: #cccccc; } /* Dark Red */
+  100% { background-color: #ff0000; color: white; }   /* Back to Bright */
+}
+
+/* The class that triggers the flash */
+.flashing {
+  animation: warning-flash 0.8s infinite; /* Cycles every 0.8 seconds forever */
+  border: 2px solid white;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.8); /* Optional glow effect */
+}
+
+/* Basic button styling */
+#my-button {
+  padding: 10px 20px;
+  background-color: #ccc;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
 h4 {
   text-align: center;
 }
@@ -92,6 +125,11 @@ h4 {
 <title>{{ board-header }}</title>
 </head>
 <body>
+<script type="text/javascript" src="/clock.js"></script>
+<div id="protocol_tab">
+<button id="WeekGoals" class="button button2" onclick="window.open('/cgi-bin/nodeboard-cgi.py?D=week_main_goals&T=true&u={{ week-TD }}&r=100&U=true', '_blank');">Week Goals</button><br>
+<button id="DayWiz" class="button button1" onclick="window.open('/cgi-bin/daywiz.py', '_blank');">DayWiz</button>
+</div>
 
 <h2>{{ board-header }} {{ post-extra }}</h2>
 
@@ -106,5 +144,43 @@ h4 {
 </div>
 
 <script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module">
+function startWarning(btn_id) {
+    document.getElementById(btn_id).classList.add('flashing');
+}
+function stopWarning(btn_id) {
+    document.getElementById(btn_id).classList.remove('flashing');
+}
+async function getIndicatorsData(url, targetKey) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = await response.json();
+    
+    if (data['WeekGoals_Overdue']['state']) {
+        startWarning('WeekGoals');
+    } else {
+        stopWarning('WeekGoals');
+    }
+    if (data['DayWiz_Overdue']['state']) {
+        startWarning('DayWiz');
+    } else {
+        stopWarning('DayWiz');
+    }
+    
+    //console.log(`The data is:`, data);
+    //return data;
+
+  } catch (error) {
+    console.error("Failed to fetch or parse JSON:", error);
+  }
+}
+const IndicatorsDataUrl = '/formalizer/indicators.json';
+setInterval(() => {
+  getIndicatorsData(IndicatorsDataUrl);
+}, 10000); // every 10 seconds
+</script>
 </body>
 </html> 

@@ -31,9 +31,13 @@ data_path = '/var/www/html/formalizer/indicators.json'
 
 data = {
     "WeekGoals_Overdue": {
-            "state": False,
-            "t_update": "202506010000",
-        }
+        "state": False,
+        "t_update": "202506010000",
+    },
+    "DayWiz_Overdue": {
+        "state": False,
+        "t_update": "202506010000",
+    }
 }
 
 results = {}
@@ -99,6 +103,7 @@ def parse_options():
     parser.add_argument('-s', '--schema', dest='schemaname', help='specify schema name (default: randalk)')
     parser.add_argument('-T', '--tests', dest='tests', action="store_true", help='Run all indicator tests')
     parser.add_argument('-W', '--weekgoals', dest='weekgoals', action="store_true", help='Weekly Main Goals has been updated')
+    parser.add_argument('-D', '--daywiz', dest='daywiz', action="store_true", help='DayWiz has been updated')
     #parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='turn on verbose mode')
 
     args = parser.parse_args()
@@ -154,7 +159,8 @@ def Read_DataFile():
     global data
     try:
         with open(data_path, 'r') as f:
-            data = json.load(f)
+            stored_data = json.load(f)
+        data.update(stored_data)
     except:
         pass
 
@@ -182,8 +188,22 @@ def WeekGoals_check():
     data['WeekGoals_Overdue']['state'] = t_days > 7.0
     #data['WeekGoals_Overdue']['state'] = t_elapsed.total_seconds() > 60.0
 
+def DayWiz_updated():
+    data['DayWiz_Overdue']['state'] = False
+    data['DayWiz_Overdue']['t_update'] = datetime.now().strftime("%Y%m%d%H%M")
+    Update_DataFile()
+
+def DayWiz_check():
+    t_str = data['DayWiz_Overdue']['t_update']
+    t = datetime.strptime(t_str, "%Y%m%d%H%M")
+    t_now = datetime.now()
+    t_elapsed = t_now - t
+    t_days = t_elapsed.total_seconds()/(24*60*60)
+    data['DayWiz_Overdue']['state'] = t_days > 1.0
+
 def Indicators_Tests():
     WeekGoals_check()
+    DayWiz_check()
     # *** Put other checks here...
 
     Update_DataFile()
@@ -210,5 +230,7 @@ if __name__ == '__main__':
         Indicators_Tests()
     elif args.weekgoals:
         WeekGoals_updated()
+    elif args.daywiz:
+        DayWiz_updated()
 
 sys.exit(0)
