@@ -331,7 +331,7 @@ function responseHandler(data) {
 }
 pollfzServer('/cgi-bin/fzloghtml-cgi.py', [['json','on'], ['node', '20240603105017.1'], ['frommostrecent', 'on'], ['numchunks', '1']], responseHandler, 60000);
 */
-async function getIndicatorsData(url, targetKey) {
+async function getIndicatorsData(url) {
   try {
     const response = await fetch(url);
     if (!response.ok) {

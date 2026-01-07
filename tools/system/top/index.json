@@ -64,7 +64,8 @@
         },
         "DayWiz" : {
             "url" : "/cgi-bin/daywiz.py?cmd=noredraw",
-            "window" : "_blank"
+            "window" : "_blank",
+            "id": "DayWiz_Overdue"
         },
         "Day Nutrition" : {
             "url" : "/formalizer/day-nutrition.html",
@@ -182,7 +183,8 @@
         },
         "Week Goals" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?D=week_main_goals&T=true&u=204512311159&r=100&U=true",
-            "window" : "_blank"
+            "window" : "_blank",
+            "id": "WeekGoals_Overdue"
         },
         "CCF Clusters" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20250822225247.1&Z=true",

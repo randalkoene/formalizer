@@ -34,6 +34,18 @@
     top: 120px;
     right: 0px;
 }
+/* Define the flashing sequence */
+@keyframes warning-flash {
+  0% { background-color: #ff0000; color: white; }    /* Bright Red */
+  50% { background-color: #8b0000; color: #cccccc; } /* Dark Red */
+  100% { background-color: #ff0000; color: white; }   /* Back to Bright */
+}
+/* The class that triggers the flash */
+.flashing {
+  animation: warning-flash 0.8s infinite; /* Cycles every 0.8 seconds forever */
+  border: 2px solid white;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.8); /* Optional glow effect */
+}
 </style>
 <TITLE>Formalizer Environment v2.0a - Top</TITLE>
 </HEAD>
@@ -77,6 +89,39 @@
 <script>
 const state_of_log = new logState(logstate_id="timerBarText");
 const state_of_backup = new backupState('backupstate');
+</script>
+<script type="module">
+function startWarning(btn_id) {
+    document.getElementById(btn_id).classList.add('flashing');
+}
+function stopWarning(btn_id) {
+    document.getElementById(btn_id).classList.remove('flashing');
+}
+const indicator_ids = {{ indicator-ids }};
+async function getIndicatorsData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = await response.json();
+    
+    for for (const indicator_id of indicator_ids) {
+        if (data[indicator_id]['state']) {
+            startWarning(indicator_id);
+        } else {
+            stopWarning(indicator_id);
+        }
+    }
+
+  } catch (error) {
+    console.error("Failed to fetch or parse JSON:", error);
+  }
+}
+const IndicatorsDataUrl = '/formalizer/indicators.json';
+setInterval(() => {
+  getIndicatorsData(IndicatorsDataUrl);
+}, 10000); // every 10 seconds
 </script>
 </BODY>
 

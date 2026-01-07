@@ -10,6 +10,8 @@
 #include <memory>
 #include <vector>
 #include <cstdlib>
+#include <set>
+#include <sstream>
 
 // core
 #include "error.hpp"
@@ -167,7 +169,7 @@ std::string escape_double_quotes(const std::string & unescaped_str) {
     return escaped_str;
 }
 
-std::string render_buttons(render_environment & env, fzdashboard_templates & templates, JSON_block * block_ptr, dynamic_or_static html_output = dynamic_html) {
+std::string render_buttons(render_environment & env, fzdashboard_templates & templates, JSON_block * block_ptr, std::set<std::string>& indicator_ids, dynamic_or_static html_output = dynamic_html) {
     if (!block_ptr) {
         return "";
     }
@@ -176,6 +178,7 @@ std::string render_buttons(render_environment & env, fzdashboard_templates & tem
     button_info.emplace_back("url");
     button_info.emplace_back("window");
     button_info.emplace_back("SPAinfo");
+    button_info.emplace_back("id"); // optional ID for indicator buttons (2026-01-07)
     std::string button_num_char("1");
     for (auto & button : block_ptr->elements) {
         if (is_populated_JSON_block(button.get())) {
@@ -192,6 +195,16 @@ std::string render_buttons(render_environment & env, fzdashboard_templates & tem
                     varvals.emplace("url", escape_double_quotes(text_by_label(button_info, "url"))+text_by_label(button_info, "SPAinfo")); // using a string and not a flag here, because some URLs may already have arguments (use "&SPA=no") and others not (use "?SPA=no")
                     set_text_by_label(button_info, "SPAinfo", ""); // explicitly clear, since it doesn't always get replaced
                 }
+
+                std::string id_str = text_by_label(button_info, "id");
+                if (id_str != "") {
+                    indicator_ids.emplace(id_str);
+                    varvals.emplace("id", "id=\""+id_str+'"');
+                } else {
+                    varvals.emplace("id", "");
+                }
+                set_text_by_label(button_info, "id", ""); // explicitly clear
+
                 if (here) {
                     buttons_str += env.render(templates[index_button_here_temp], varvals);
                 } else {
@@ -223,6 +236,21 @@ bool send_rendered_to_output(std::string & filename_without_dir, std::string & r
     return true;
 }
 
+std::string Set2JSlist(const std::set<std::string>& inputSet) {
+    std::ostringstream oss;
+    oss << "[";
+    bool first = true;
+    for (const auto& str : inputSet) {
+        if (!first) {
+            oss << ", ";
+        }
+        oss << "\"" << str << "\"";
+        first = false;
+    }
+    oss << "]";
+    return oss.str();
+}
+
 bool render(std::string & json_str, dynamic_or_static html_output) {
     JSON_data data(json_str);
     VERYVERBOSEOUT("JSON data:\n"+data.json_str());
@@ -237,6 +265,8 @@ bool render(std::string & json_str, dynamic_or_static html_output) {
     inner_varvals.emplace("fzserverpq",ipport);
     VERBOSEOUT("Embedded server addresses receive IP:Port: "+ipport+'\n');
 
+    std::set<std::string> indicator_ids;
+
     std::string button_sections;
 
     for (auto & section : data.content_elements()) {
@@ -247,13 +277,15 @@ bool render(std::string & json_str, dynamic_or_static html_output) {
             } else {
                 varvals.emplace("section_heading", section->label);
             }
-            varvals.emplace("buttons", render_buttons(env, templates, section->children.get(), html_output));
+            varvals.emplace("buttons", render_buttons(env, templates, section->children.get(), indicator_ids, html_output));
             button_sections += env.render(templates[index_section_temp], varvals);
         }
     }
 
     template_varvalues varvals;
     varvals.emplace("button-sections",button_sections);
+
+    varvals.emplace("indicator-ids", Set2JSlist(indicator_ids));
 
 // --- copy to clipboard tests
     // varvals.emplace("copy-html-html", copy_from_id_button("htmlcopy", "HTML Copy Test", "button1"));
