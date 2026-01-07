@@ -106,7 +106,7 @@ async function getIndicatorsData(url) {
     }
     const data = await response.json();
     
-    for for (const indicator_id of indicator_ids) {
+    for (const indicator_id of indicator_ids) {
         if (data[indicator_id]['state']) {
             startWarning(indicator_id);
         } else {

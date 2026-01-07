@@ -1,4 +1,5 @@
 # This file is sourced by fzhourly.sh. Please add activities below with full paths.
 # The setup stub for this file should be copied to: ~/.formalizer/fzhourly_do.source
 
+/home/randalk/.formalizer/bin/email-info > /tmp/email-count.log 2>&1
 /home/randalk/.formalizer/bin/indicators -T

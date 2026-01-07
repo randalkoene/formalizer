@@ -248,6 +248,7 @@ CGIEXE += $(TOOLSPATH)/system/daywiz/wiztable.py
 CGIEXE += $(TOOLSPATH)/system/daywiz/nutrition.py
 CGIEXE += $(TOOLSPATH)/system/daywiz/consumed.py
 CGIEXE += $(TOOLSPATH)/system/daywiz/daywiz-autodata-cgi.py
+CGIEXE += $(TOOLSPATH)/system/daywiz/email-info-cgi.py
 CGIEXE += $(TOOLSPATH)/system/earlywiz/earlywiz.py
 CGIEXE += $(TOOLSPATH)/system/metrics/dayreview/dayreview_algorithm.py
 CGIEXE += $(TOOLSPATH)/system/metrics/dayreview/dayreview-cgi.py

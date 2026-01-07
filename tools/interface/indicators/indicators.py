@@ -37,6 +37,10 @@ data = {
     "DayWiz_Overdue": {
         "state": False,
         "t_update": "202506010000",
+    },
+    "Email_Overdue": {
+        "state": False,
+        "t_update": "202506010000",
     }
 }
 
@@ -104,6 +108,7 @@ def parse_options():
     parser.add_argument('-T', '--tests', dest='tests', action="store_true", help='Run all indicator tests')
     parser.add_argument('-W', '--weekgoals', dest='weekgoals', action="store_true", help='Weekly Main Goals has been updated')
     parser.add_argument('-D', '--daywiz', dest='daywiz', action="store_true", help='DayWiz has been updated')
+    parser.add_argument('-E', '--email', dest='email', action="store_true", help='Email has been updated')
     #parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='turn on verbose mode')
 
     args = parser.parse_args()
@@ -201,9 +206,38 @@ def DayWiz_check():
     t_days = t_elapsed.total_seconds()/(24*60*60)
     data['DayWiz_Overdue']['state'] = t_days > 1.0
 
+def Email_updated():
+    data['Email_Overdue']['state'] = False
+    data['Email_Overdue']['t_update'] = datetime.now().strftime("%Y%m%d%H%M")
+    Update_DataFile()
+
+def Email_check():
+    # t_str = data['Email_Overdue']['t_update']
+    # t = datetime.strptime(t_str, "%Y%m%d%H%M")
+    # t_now = datetime.now()
+    # t_elapsed = t_now - t
+    # t_days = t_elapsed.total_seconds()/(24*60*60)
+    # data['Email_Overdue']['state'] = t_days > 1.0
+    try:
+        with open('/tmp/email-count.log', 'r') as f:
+            email_count_str = str(f.read())
+        emailpos = email_count_str.find('Unread emails:')
+        if emailpos>=0:
+            emailpos += len('Unread emails:')
+            countend = email_count_str.find('\n', emailpos)
+            if countend>=0:
+                count = int(email_count_str[emailpos:countend])
+            else:
+                count = int(email_count_str[emailpos:])
+            Email_updated()
+            data['Email_Overdue']['state'] = count > 20
+    except:
+        Email_updated()
+
 def Indicators_Tests():
     WeekGoals_check()
     DayWiz_check()
+    Email_check()
     # *** Put other checks here...
 
     Update_DataFile()
@@ -232,5 +266,7 @@ if __name__ == '__main__':
         WeekGoals_updated()
     elif args.daywiz:
         DayWiz_updated()
+    elif args.email:
+        Email_updated()
 
 sys.exit(0)
