@@ -7,6 +7,7 @@
 # Use dependencies list extractions to populate a template of team
 # activities and support needed. This is useful for team reviews
 # and meetings.
+# There is a button for this on the CCF Team board (see Top page).
 
 import os
 import sys
@@ -274,7 +275,7 @@ def process_as_cmdline():
             data[identifier][header] = list_data
 
     if args.outformat == 'html':
-        to_html(data)
+        to_html(data, headers)
     else:
         print(json.dumps(data))
 

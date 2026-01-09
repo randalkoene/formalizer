@@ -9,6 +9,7 @@
 #
 # E.g. this is used to find all things Randal has to attend
 # to noted in CCF Team Member Nodes.
+# There is a button for this on the CCF Team board (see Top page).
 
 import os
 import sys
