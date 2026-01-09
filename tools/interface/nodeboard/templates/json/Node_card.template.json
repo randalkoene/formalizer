@@ -1,0 +1,4 @@
+{
+  "node-id": "{{ node-id }}",
+  "node-text": "{{ node-text }}"
+}

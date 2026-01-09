@@ -22,6 +22,7 @@
 #include "nbrender.hpp"
 #include "nbgrid.hpp"
 #include "jsonlite.hpp"
+#include "jsonutil.hpp"
 
 /// The Makefile attempts to provide this at compile time based on the source
 /// file directory.
@@ -52,7 +53,8 @@ const std::vector<std::string> template_ids = {
 };
 
 std::string template_path_from_id(template_id_enum template_id) {
-    return template_dir+"/"+template_ids[template_id]+".template.html";
+    if (nb.JSON_output) return template_dir+"/json/"+template_ids[template_id]+".template.json";
+    return template_dir+"/html/"+template_ids[template_id]+".template.html";
 }
 
 bool load_templates(nodeboard_templates & templates) {
@@ -75,11 +77,11 @@ nodeboard::nodeboard():
     graph_ptr(nullptr) {
 
     // Still available: ajkxyYz
-    add_option_args += "RGgn:L:D:l:t:m:f:c:IZUi:F:u:H:TPO:e:b:M:Kp:B:N:C:r:S:Xo:z:w:";
+    add_option_args += "RGgn:L:D:l:t:m:f:c:IZUi:F:u:H:TPO:e:b:M:Kp:B:N:C:r:S:XJo:z:w:";
     add_usage_top += " [-R] [-G|-g] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
         " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-Z] [-U] [-i <topic_id>,...] [-F <substring>]"
         " [-u <up-to>] [-w <importance-threshold>] [-H <board-header>] [-T] [-P] [-O earlier|later] [-e <errors-list>] [-b <before>] [-M <multiplier>] [-p <progress-state-file>]"
-        " [-K] [-S <size-list>] [-B <topic-id>] [-N <near-term-days>] [-C <max-columns>] [-r <max-rows>] [-X] [-z <stretch-factor>] [-o <output-file|STDOUT>]";
+        " [-K] [-S <size-list>] [-B <topic-id>] [-N <near-term-days>] [-C <max-columns>] [-r <max-rows>] [-X] [-z <stretch-factor>] [-J] [-o <output-file|STDOUT>]";
 
     usage_head.push_back("Generate Kanban board representation of Nodes hierarchy.\n");
     usage_tail.push_back(
@@ -139,6 +141,7 @@ void nodeboard::usage_hook() {
         "    -r Max number of rows (default: 100), in -G/-g or -D modes.\n"
         "    -X Fully expanded grid (do not minimize rows and columns)\n"
         "    -z Place on timeline with specified stretch factor\n"
+        "    -J Output as JSON instead of HTML\n"
         "    -o Output to file (or STDOUT).\n"
         "       Default: /var/www/html/formalizer/test_node_card.html\n"
         "    -R Development test.\n"
@@ -367,6 +370,11 @@ bool nodeboard::options_hook(char c, std::string cargs) {
             timeline = true;
             timeline_stretch = atof(cargs.c_str());
             if (timeline_stretch <= 0.0) timeline_stretch = 1.0;
+            return true;
+        }
+
+        case 'J': {
+            JSON_output = true;
             return true;
         }
 
@@ -883,216 +891,236 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
     // For each node: Set up a map of content to template position IDs.
     template_varvalues nodevars;
 
-    // Highlight Milestones and their valuation.
-    std::string card_bg_highlight;
-    if (highlight_topic_and_valuation) {
-        if (node_ptr->in_topic(highlight_topic)) {
-            if (node_ptr->get_valuation() > 3.0) { // elevated highlight
-                card_bg_highlight = "w3-orange";
-            } else { // highlight
-                card_bg_highlight = "w3-green";
-            }
-        }
-    }
-    nodevars.emplace("nodebg-color", card_bg_highlight);
-
-    // Show if a Node is inactive, active exact/fixed, or active VTD.
-    std::string node_color;
-    bool text_is_dark = true;
-    bool highlight_targetdate = false;
-    if (node_ptr->is_active()) {
-        bool tderror = false;
-        if (detect_tdfar) {
-            if FAR_TD(tdate,t_now) { // Target dates more than a hundred years in the future are suspect.
-                tderror = true;
-            }
-        }
-        if (detect_tdbad) {
-            if BAD_TD(tdate) {
-                tderror = true;
-            }
-        }
-        if (detect_tdorder) {
-            if (const_cast<Node*>(node_ptr)->td_suspect_by_superiors()) {
-                tderror = true;
-            }
-        }
-        if (tderror) {
-            node_color = "w3-red";
-            text_is_dark = false;
+    if (JSON_output) {
+        std::string node_id_str = node_ptr->get_id_str();
+        nodevars.emplace("node-id", node_id_str);
+        float completion = node_ptr->get_completion();
+        float progress = completion*100.0;
+        if (progress < 0.0) progress = 100.0;
+        if (progress > 100.0) progress = 100.0;
+        nodevars.emplace("node-progress", to_precision_string(progress, 1));
+        nodevars.emplace("node-targetdate", " ("+DateStampYmd(tdate)+')');
+        size_t depnum = node_ptr->num_dependencies();
+        if (depnum<1) {
+            nodevars.emplace("dep-num", "");
         } else {
-            if ((seconds_near_highlight > 0) && (tdate <= (t_now + seconds_near_highlight))) { // within near-term threshold
-                highlight_targetdate = true;
+            nodevars.emplace("dep-num", std::to_string(node_ptr->num_active_dependencies())+'/'+std::to_string(depnum));
+        }
+        nodevars.emplace("node-text", escape_for_json(node_text));
+
+    } else { // HTML output
+
+        // Highlight Milestones and their valuation.
+        std::string card_bg_highlight;
+        if (highlight_topic_and_valuation) {
+            if (node_ptr->in_topic(highlight_topic)) {
+                if (node_ptr->get_valuation() > 3.0) { // elevated highlight
+                    card_bg_highlight = "w3-orange";
+                } else { // highlight
+                    card_bg_highlight = "w3-green";
+                }
             }
-            if (node_ptr->td_fixed() || node_ptr->td_exact()) {
-                node_color = "w3-aqua";
+        }
+        nodevars.emplace("nodebg-color", card_bg_highlight);
+
+        // Show if a Node is inactive, active exact/fixed, or active VTD.
+        std::string node_color;
+        bool text_is_dark = true;
+        bool highlight_targetdate = false;
+        if (node_ptr->is_active()) {
+            bool tderror = false;
+            if (detect_tdfar) {
+                if FAR_TD(tdate,t_now) { // Target dates more than a hundred years in the future are suspect.
+                    tderror = true;
+                }
+            }
+            if (detect_tdbad) {
+                if BAD_TD(tdate) {
+                    tderror = true;
+                }
+            }
+            if (detect_tdorder) {
+                if (const_cast<Node*>(node_ptr)->td_suspect_by_superiors()) {
+                    tderror = true;
+                }
+            }
+            if (tderror) {
+                node_color = "w3-red";
+                text_is_dark = false;
             } else {
-                node_color = "w3-light-grey";
-            }
-        }
-    } else {
-        node_color = "w3-dark-grey";
-    }
-    nodevars.emplace("node-color", node_color);
-
-    std::string node_id_str = node_ptr->get_id_str();
-    nodevars.emplace("node-id", node_id_str);
-
-    nodevars.emplace("fzserverpq", graph().get_server_full_address());
-
-    // Show a hint that this Node may  have some history worth seeing.
-    if (node_ptr->probably_has_Log_history()) {
-        if (text_is_dark) {
-            nodevars.emplace("nodelink-bg-color", "class=\"link-bg-color-yellow\"");
-        } else {
-            nodevars.emplace("nodelink-bg-color", "class=\"link-bg-color-blue\"");
-        }
-    } else {
-        nodevars.emplace("nodelink-bg-color", "");
-    }
-    nodevars.emplace("node-id-history", node_id_str+"&alt=histfull");
-    float completion = node_ptr->get_completion();
-    float progress = completion*100.0;
-    if (progress < 0.0) progress = 100.0;
-    if (progress > 100.0) progress = 100.0;
-    nodevars.emplace("node-progress", to_precision_string(progress, 1));
-
-    if (highlight_targetdate) {
-        nodevars.emplace("td-bg-color", "class=\"td-bg-color-green\"");
-    } else {
-        nodevars.emplace("td-bg-color", "");
-    }
-    nodevars.emplace("node-targetdate", " ("+DateStampYmd(tdate)+')');
-
-    nodevars.emplace("node-deps", node_id_str);
-    size_t depnum = node_ptr->num_dependencies();
-    if (depnum<1) {
-        nodevars.emplace("dep-num", "");
-    } else {
-        nodevars.emplace("dep-num", ",<b>"+std::to_string(node_ptr->num_active_dependencies())+'/'+std::to_string(depnum)+"</b>");
-    }
-
-    std::string include_filter_substr;
-    if (!filter_substring.empty()) {
-        include_filter_substr = "&F="+uri_encoded_filter_substring;
-    }
-    if (!filter_topics.empty()) {
-        include_filter_substr += "&i="+uri_encoded_filter_topics;
-    }
-    if (show_completed) {
-        include_filter_substr += "&I=true";
-    }
-    if (show_zero_required) {
-        include_filter_substr += "&Z=true";
-    }
-    if (importance_threshold > 0.0) {
-        include_filter_substr += "&w="+to_precision_string(importance_threshold, 2);
-    }
-    nodevars.emplace("filter-substr", include_filter_substr);
-
-    std::string prereqs_str;
-    std::string hours_applied_str;
-    if (threads) {
-        // Look for specified prerequisites and their state.
-        auto prereqs = get_prerequisites(*node_ptr, true);
-        if (!prereqs.empty()) {
-            unsigned int num_unsolved = 0;
-            unsigned int num_unfulfilled = 0;
-            unsigned int num_fulfilled = 0;
-            for (const auto & prereq : prereqs) {
-                if (prereq.state()==unsolved) {
-                    num_unsolved++;
-                } else if (prereq.state()==unfulfilled) {
-                    num_unfulfilled++;
+                if ((seconds_near_highlight > 0) && (tdate <= (t_now + seconds_near_highlight))) { // within near-term threshold
+                    highlight_targetdate = true;
+                }
+                if (node_ptr->td_fixed() || node_ptr->td_exact()) {
+                    node_color = "w3-aqua";
                 } else {
-                    num_fulfilled++;
+                    node_color = "w3-light-grey";
                 }
             }
-            if ((num_unsolved > 0) || (num_unfulfilled > 0)) {
-                prereqs_str += "<p>";
-                if (num_unsolved > 0) {
-                    prereqs_str += "<span style=\"color:red;\">"+std::to_string(num_unsolved)+" unsolved</span> ";
-                }
-                if (num_unfulfilled > 0) {
-                    prereqs_str += std::to_string(num_unfulfilled)+" unfulfilled ";
-                }
-                prereqs_str += "prerequisites</p>";
-            }
+        } else {
+            node_color = "w3-dark-grey";
+        }
+        nodevars.emplace("node-color", node_color);
 
-            if (subtree_ptr) {
-                subtree_ptr->prerequisites_with_solving_nodes += num_fulfilled + num_unfulfilled;
-                subtree_ptr->unsolved_prerequisites += num_unsolved;
+        std::string node_id_str = node_ptr->get_id_str();
+        nodevars.emplace("node-id", node_id_str);
+
+        nodevars.emplace("fzserverpq", graph().get_server_full_address());
+
+        // Show a hint that this Node may  have some history worth seeing.
+        if (node_ptr->probably_has_Log_history()) {
+            if (text_is_dark) {
+                nodevars.emplace("nodelink-bg-color", "class=\"link-bg-color-yellow\"");
+            } else {
+                nodevars.emplace("nodelink-bg-color", "class=\"link-bg-color-blue\"");
             }
+        } else {
+            nodevars.emplace("nodelink-bg-color", "");
+        }
+        nodevars.emplace("node-id-history", node_id_str+"&alt=histfull");
+        float completion = node_ptr->get_completion();
+        float progress = completion*100.0;
+        if (progress < 0.0) progress = 100.0;
+        if (progress > 100.0) progress = 100.0;
+        nodevars.emplace("node-progress", to_precision_string(progress, 1));
+
+        if (highlight_targetdate) {
+            nodevars.emplace("td-bg-color", "class=\"td-bg-color-green\"");
+        } else {
+            nodevars.emplace("td-bg-color", "");
+        }
+        nodevars.emplace("node-targetdate", " ("+DateStampYmd(tdate)+')');
+
+        nodevars.emplace("node-deps", node_id_str);
+        size_t depnum = node_ptr->num_dependencies();
+        if (depnum<1) {
+            nodevars.emplace("dep-num", "");
+        } else {
+            nodevars.emplace("dep-num", ",<b>"+std::to_string(node_ptr->num_active_dependencies())+'/'+std::to_string(depnum)+"</b>");
         }
 
-        if (progress_analysis && (!node_ptr->is_special_code())) {
-            float hours_applied;
-            float hours_required = node_ptr->get_required_hours();
-            if (!node_ptr->get_repeats()) {
-                // Determine actual time applied to this Node from its Log history.
-                auto minutes_applied = get_Node_total_minutes_applied(node_ptr->get_id().key());
-                hours_applied = float(minutes_applied)/60.0;
-                hours_applied_str = "<p>hours applied: "+to_precision_string(hours_applied, 2);
+        std::string include_filter_substr;
+        if (!filter_substring.empty()) {
+            include_filter_substr = "&F="+uri_encoded_filter_substring;
+        }
+        if (!filter_topics.empty()) {
+            include_filter_substr += "&i="+uri_encoded_filter_topics;
+        }
+        if (show_completed) {
+            include_filter_substr += "&I=true";
+        }
+        if (show_zero_required) {
+            include_filter_substr += "&Z=true";
+        }
+        if (importance_threshold > 0.0) {
+            include_filter_substr += "&w="+to_precision_string(importance_threshold, 2);
+        }
+        nodevars.emplace("filter-substr", include_filter_substr);
 
-                // If possible, propose a corrected required time.
-                if (minutes_applied > 0) {
-                    // Also, detect incorrect completion==0.
-                    if (completion==0.0) {
-                        hours_applied_str += " <span style=\"color:red;\"><b>Erroneous Zero Completion</b></span>";
+        std::string prereqs_str;
+        std::string hours_applied_str;
+        if (threads) {
+            // Look for specified prerequisites and their state.
+            auto prereqs = get_prerequisites(*node_ptr, true);
+            if (!prereqs.empty()) {
+                unsigned int num_unsolved = 0;
+                unsigned int num_unfulfilled = 0;
+                unsigned int num_fulfilled = 0;
+                for (const auto & prereq : prereqs) {
+                    if (prereq.state()==unsolved) {
+                        num_unsolved++;
+                    } else if (prereq.state()==unfulfilled) {
+                        num_unfulfilled++;
                     } else {
-                        long minutes_required = node_ptr->get_required_minutes();
-                        if (completion > 1.0) {
-                            minutes_required = round(float(minutes_required)*completion);
-                            completion = 1.0;
-                        }
-                        long proposed_minutes_required = round(float(minutes_applied) / completion);
-                        if (proposed_minutes_required != minutes_required) {
-                            hours_required = float(proposed_minutes_required)/60.0;
-                            hours_applied_str += " Proposed corrected required time: <b>"+to_precision_string(hours_required, 2)+" hrs</b>";
-                        }
+                        num_fulfilled++;
                     }
                 }
-            } else {
-                hours_applied = hours_required*completion;
-                hours_applied_str = "<p>hours applied (this instance): "+to_precision_string(hours_applied, 2);
-            }
-            hours_applied_str += "</p>";
+                if ((num_unsolved > 0) || (num_unfulfilled > 0)) {
+                    prereqs_str += "<p>";
+                    if (num_unsolved > 0) {
+                        prereqs_str += "<span style=\"color:red;\">"+std::to_string(num_unsolved)+" unsolved</span> ";
+                    }
+                    if (num_unfulfilled > 0) {
+                        prereqs_str += std::to_string(num_unfulfilled)+" unfulfilled ";
+                    }
+                    prereqs_str += "prerequisites</p>";
+                }
 
-            // Check if more granularity would be advised.
-            float hours_remaining = (1.0-completion)*hours_required;
-            if (hours_remaining > 2.0) {
-                hours_applied_str += "<p style=\"color:red;\">Advise more granularity!</p>";
+                if (subtree_ptr) {
+                    subtree_ptr->prerequisites_with_solving_nodes += num_fulfilled + num_unfulfilled;
+                    subtree_ptr->unsolved_prerequisites += num_unsolved;
+                }
             }
 
-            if (subtree_ptr) {
-                // Gather combined data for subtree.
-                subtree_ptr->hours_required += hours_required;
-                subtree_ptr->hours_applied += hours_applied;
+            if (progress_analysis && (!node_ptr->is_special_code())) {
+                float hours_applied;
+                float hours_required = node_ptr->get_required_hours();
+                if (!node_ptr->get_repeats()) {
+                    // Determine actual time applied to this Node from its Log history.
+                    auto minutes_applied = get_Node_total_minutes_applied(node_ptr->get_id().key());
+                    hours_applied = float(minutes_applied)/60.0;
+                    hours_applied_str = "<p>hours applied: "+to_precision_string(hours_applied, 2);
+
+                    // If possible, propose a corrected required time.
+                    if (minutes_applied > 0) {
+                        // Also, detect incorrect completion==0.
+                        if (completion==0.0) {
+                            hours_applied_str += " <span style=\"color:red;\"><b>Erroneous Zero Completion</b></span>";
+                        } else {
+                            long minutes_required = node_ptr->get_required_minutes();
+                            if (completion > 1.0) {
+                                minutes_required = round(float(minutes_required)*completion);
+                                completion = 1.0;
+                            }
+                            long proposed_minutes_required = round(float(minutes_applied) / completion);
+                            if (proposed_minutes_required != minutes_required) {
+                                hours_required = float(proposed_minutes_required)/60.0;
+                                hours_applied_str += " Proposed corrected required time: <b>"+to_precision_string(hours_required, 2)+" hrs</b>";
+                            }
+                        }
+                    }
+                } else {
+                    hours_applied = hours_required*completion;
+                    hours_applied_str = "<p>hours applied (this instance): "+to_precision_string(hours_applied, 2);
+                }
+                hours_applied_str += "</p>";
+
+                // Check if more granularity would be advised.
+                float hours_remaining = (1.0-completion)*hours_required;
+                if (hours_remaining > 2.0) {
+                    hours_applied_str += "<p style=\"color:red;\">Advise more granularity!</p>";
+                }
+
+                if (subtree_ptr) {
+                    // Gather combined data for subtree.
+                    subtree_ptr->hours_required += hours_required;
+                    subtree_ptr->hours_applied += hours_applied;
+                }
+
+                if (get_provides_capabilities(*node_ptr).empty()) {
+                    prereqs_str += "<p style=\"color:coral;\">No provides specified.</p>";
+                }
             }
 
-            if (get_provides_capabilities(*node_ptr).empty()) {
-                prereqs_str += "<p style=\"color:coral;\">No provides specified.</p>";
-            }
         }
+        nodevars.emplace("node-prereqs", prereqs_str);
+        nodevars.emplace("node-hrsapplied", hours_applied_str);
 
+        nodevars.emplace("node-text", node_text);
+
+        // Placement on timeline option
+        std::string extra_style_str;
+        if (timeline) {
+            // position relative to the card itself, i.e. relative to min target date in line?
+            // or absolute, which is relative to the line container?
+            // or fixed, which is relative to the viewport?
+            timeline_last_vh = float(tdate - timeline_min_td)/float(RTt_oneday);
+            timeline_last_vh *= timeline_stretch;
+            if (timeline_last_vh<0.0) timeline_last_vh = 0.0;
+            extra_style_str = " style=\"top:"+to_precision_string(timeline_last_vh, 2)+"vh;position:absolute;\"";
+        }
+        nodevars.emplace("extra-style", extra_style_str);
     }
-    nodevars.emplace("node-prereqs", prereqs_str);
-    nodevars.emplace("node-hrsapplied", hours_applied_str);
-
-    nodevars.emplace("node-text", node_text);
-
-    // Placement on timeline option
-    std::string extra_style_str;
-    if (timeline) {
-        // position relative to the card itself, i.e. relative to min target date in line?
-        // or absolute, which is relative to the line container?
-        // or fixed, which is relative to the viewport?
-        timeline_last_vh = float(tdate - timeline_min_td)/float(RTt_oneday);
-        timeline_last_vh *= timeline_stretch;
-        if (timeline_last_vh<0.0) timeline_last_vh = 0.0;
-        extra_style_str = " style=\"top:"+to_precision_string(timeline_last_vh, 2)+"vh;position:absolute;\"";
-    }
-    nodevars.emplace("extra-style", extra_style_str);
 
     // For each node: Create a Kanban card and add it to the output HTML.
     if (progress_analysis) {
@@ -1636,6 +1664,12 @@ std::string nodeboard::get_list_nearterm_Nodes_url() const {
 }
 
 std::string nodeboard::into_grid(unsigned int row_idx, unsigned int col_idx, unsigned int span, const std::string & content) const {
+    if (JSON_output) {
+        std::string separator;
+        if ((row_idx>0) || (col_idx>0)) separator = "\n,";
+        return separator+content;
+    }
+
     std::string to_grid = "<div style=\"grid-area: " // position: absolute; 
         + std::to_string(row_idx+1) + " / "
         + std::to_string(col_idx+1);

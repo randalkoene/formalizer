@@ -1,0 +1,10 @@
+{
+  "column-widths": "{{ column-widths }}",
+  "row-heights": "{{ row-heights }}",
+  "column-widths": "{{ column-widths }}",
+  "card-width": "{{ card-width }}",
+  "board-header": "{{ board-header }}",
+  "week-TD": "{{ week-TD }}",
+  "call-comment": "{{ call-comment }}",
+  "the-columns": [ {{ the-columns }} ]
+}

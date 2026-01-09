@@ -197,6 +197,7 @@ struct nodeboard: public formalizer_standard_program {
 
     bool minimize_grid = true;
 
+    bool JSON_output = false;
     std::string output_path;
 
     std::vector<CSV_Data_Day> csv_data_vec;
@@ -311,6 +312,8 @@ struct nodeboard: public formalizer_standard_program {
     std::string nbdep_column_header_content(const std::string& node_id, const std::string& more_args);
 
 };
+
+extern nodeboard nb;
 
 bool node_board_render_random_test(nodeboard & nb);
 

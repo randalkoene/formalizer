@@ -1,0 +1,23 @@
+{
+  "node-id": "{{ node-id }}",
+  "sup-or-dep": "{{ sup-or-dep }}",
+  "show-completed": "{{ show-completed }}",
+  "show-zero-required": "{{ show-zero-required }}",
+  "threads": "{{ threads }}",
+  "progress-analysis": "{{ progress-analysis }}",
+  "hide-repeated": "{{ hide-repeated }}",
+  "detect-tdorder": "{{ detect-tdorder }}",
+  "detect-tdfar": "{{ detect-tdfar }}",
+  "detect-tdbad": "{{ detect-tdbad }}",
+  "timeline": "{{ timeline }}",
+  "timeline-stretch": "{{ timeline-stretch }}",
+  "highlighted-topic": "{{ highlighted-topic }}",
+  "max-rows": "{{ max-rows }}",
+  "max-columns": "{{ max-columns }}",
+  "days-nearterm": "{{ days-nearterm }}",
+  "earlier-checked": "{{ earlier-checked }}",
+  "later-checked": "{{ later-checked }}",
+  "filter": "{{ filter }}",
+  "topic-filters": "{{ topic-filters }}",
+  "importance-threshold": "{{ importance-threshold }}"
+}

@@ -1,0 +1,13 @@
+{
+  "column-widths": "{{ column-widths }}",
+  "row-heights": "{{ row-heights }}",
+  "column-bgcolor": "{{ column-bgcolor }}",
+  "container-width": "{{ container-width }}",
+  "column-bgcolor": "{{ column-bgcolor }}",
+  "container-width": "{{ container-width }}",
+  "card-width": "{{ card-width }}",
+  "card-height": "{{ card-height }}",
+  "board-header": "{{ board-header }}",
+  "call-comment": "{{ call-comment }}",
+  "the-columns": [ {{ the-columns }} ]
+}

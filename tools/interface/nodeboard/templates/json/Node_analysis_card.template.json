@@ -1,0 +1,8 @@
+{
+  "node-progress": "{{ node-progress }}",
+  "node-targetdate": "{{ node-targetdate }}",
+  "node-hrsapplied": "{{ node-hrsapplied }}",
+  "node-prereqs": "{{ node-prereqs }}",
+  "node-text": "{{ node-text }}",
+  "node-id": "{{ node-id }}"
+}

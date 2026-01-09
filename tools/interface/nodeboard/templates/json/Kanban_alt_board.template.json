@@ -1,0 +1,5 @@
+{
+  "board-header": "{{ board-header }}",
+  "call-comment": "{{ call-comment }}",
+  "the-columns": [ {{ the-columns }} ]
+}

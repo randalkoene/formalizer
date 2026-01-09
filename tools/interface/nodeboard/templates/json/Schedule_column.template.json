@@ -1,0 +1,5 @@
+{
+	"column-id": "{{ column-id }}",
+	"column-extra": "{{ column-extra }}",
+	"column-cards": [ {{ column-cards }} ]
+}

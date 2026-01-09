@@ -1,0 +1,9 @@
+{
+  "vert-pos": "{{ vert-pos }}",
+  "node-height": "{{ node-height }}",
+  "node-color": "{{ node-color }}",
+  "node-text": "{{ node-text }}",
+  "node-id": "{{ node-id }}",
+  "start-time": "{{ start-time }}",
+  "minutes": "{{ minutes }}"
+}

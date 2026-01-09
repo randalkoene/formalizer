@@ -1,0 +1,4 @@
+{
+  "board-header": "{{ board-header }}",
+  "the-nodes": [ {{ the-nodes }} ]
+}
