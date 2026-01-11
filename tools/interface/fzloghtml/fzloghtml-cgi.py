@@ -221,7 +221,9 @@ right: 50%;
 <button id="WeekGoals" class="button button2" onclick="window.open('/cgi-bin/nodeboard-cgi.py?D=week_main_goals&T=true&u='''
 
 log_interval_head_part2 = '''&r=100&U=true', '_blank');">Week Goals</button><br>
-<button id="DayWiz" class="button button1" onclick="window.open('/cgi-bin/daywiz.py', '_blank');">DayWiz</button>
+<button id="DayWiz" class="button button1" onclick="window.open('/cgi-bin/daywiz.py', '_blank');">DayWiz</button><br>
+<button class="button button2" onclick="window.open('/cgi-bin/nodeboard-cgi.py?n=20250822084723.1&G=true&Z=true&T=true&B=79', '_blank');">CCF Team</button><br>
+<button class="button button1" onclick="window.open('/cgi-bin/team_state.py?node=20250822084723.1&headers=Current%20activities,Randal%20action&tagopen=%3Ch3%3E&tagclose=%3C%2Fh3%3E', '_blank');">Team State</button>
 </div>
 
 <script type="text/javascript" src="/stateoflog.js"></script>
