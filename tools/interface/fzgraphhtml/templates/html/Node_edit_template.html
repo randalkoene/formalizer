@@ -82,6 +82,8 @@ Special codes: -1 = obsolete, -2 = replaced, -3 = done differently, -4 = no long
 <td valign="top" width="30%">Tags legend:<p>@TZADJUST@: time-zone offset automatically applied, e.g. a targetdate at 4 pm in PST will appear as 4pm in CET in the Schedule.<p>@VISOUTPUT:...@: Excerpt of Node content that can be used as title in a Threads board.<p>@PREREQS:...@: Comma-separated list of prerequisites needed from Node dependencies to complete this Node.<p>@PROVIDES:...@: Comma-separated list of achievements (completed requirements) provided when this Node is completed.<p>@ONOPEN:...@/@ONCLOSE:...@: Run specified permitted program with arguments (see fzlog config). Format is: tag:program,arg=value,arg=value,...<p>@WORK@, @SELFWORK@, @SYSTEM@, @OTHER@: Tag used to set a Boolean Tag Flag on the Node.</td>
 </tr></table>
 </form>
+<br>
+<button class="button button1" onclick="window.open('/cgi-bin/subhierarchy.py?depth=4&branches=3&node={{ node-id }}', '_blank');">Convert to Sub-Hierarchy</button>
 </td>
 </tr>
 <tr>
