@@ -73,11 +73,13 @@ table, th, td {
 
 <H1>DayWiz AutoData</H1>
 
-Unread emails: %s
+<b>Unread emails</b>: %s
 <P>
-Chunks with open checkboxes: %s
+<b>Chunks with open checkboxes</b>: %s
 <P>
-Calendar events:
+<b>Calendar events</b>:
+%s
+<P>
 %s
 
 <script>
@@ -124,7 +126,7 @@ def date_time_str(t:datetime)->str:
 
 def show_data(cgioutfile:str):
     with open(cgioutfile, 'r') as f:
-        data = load(f)
+        data = load(f) # This is json.load().
     all_day_events = []
     events = []
     for entry in data['calendar_events']:
@@ -149,7 +151,16 @@ def show_data(cgioutfile:str):
         calendar_events_str += CALENDAR_B_EVENT_LINE % (entry['start'], entry['end'], entry['event'], entry['location'])
     calendar_events_str += '</tbody></table>'
 
-    print(AUTODATA_HTML % (str(data['unread_emails']), str(data['chunks_open_checkboxes']), str(calendar_events_str)))
+    if 'email_details' in data:
+        email_details_str = '<b>Emails received in the last 24 hours (%d)</b>:\n<table></tbody>\n' % len(data['email_details'])
+        for email_details in data['email_details']:
+            email_details_str += '<tr><td>'+email_details['from']
+            email_details_str += '</td><td>'+email_details['subject']+'</td></tr>\n'
+        email_details_str += '</tbody></table>\n'
+    else:
+        email_details_str = ''
+
+    print(AUTODATA_HTML % (str(data['unread_emails']), str(data['chunks_open_checkboxes']), str(calendar_events_str), str(email_details_str)))
 
 def daywiz_autodata()->bool:
     if exists(daywiz_autodata_file):

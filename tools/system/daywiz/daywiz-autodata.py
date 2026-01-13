@@ -96,6 +96,52 @@ def extract_data(line_id, data_str, everything_after=False)->str:
         return data_str[data_start:]
     return data_str[data_start:data_end]
 
+def get_email_data(email_data_str:str)->dict:
+    fromstart = email_data_str.find('From: ')
+    if fromstart<0:
+        return None
+    fromstart += len('From: ')
+    fromend = email_data_str.find('\n', fromstart)
+    if fromend<0:
+        return None
+    details = {}
+    details['from'] = email_data_str[fromstart:fromend]
+    subjectstart = email_data_str.find('Subj: ', fromend)
+    if subjectstart<0:
+        return None
+    subjectstart += len('Subj: ')
+    subjectend = email_data_str.find('\n', subjectstart)
+    if subjectend<0:
+        return None
+    details['subject'] = email_data_str[subjectstart:subjectend]
+    return details
+
+def extract_email_details(data_str)->list:
+    if isinstance(data_str, bytes):
+        data_str = data_str.decode()
+    # Are email details included?
+    emailspos = data_str.find('Emails from')
+    if emailspos < 0:
+        return None
+    # Identify separated emails and collect details into list
+    startpos = data_str.find('\n', emailspos)
+    if startpos < 0:
+        return None
+    startpos += 1
+    email_details = []
+    while True:
+        nextpos = data_str.find('-----', startpos)
+        if nextpos < 0:
+            break;
+        email_data = get_email_data(data_str[startpos:nextpos])
+        if email_data:
+            email_details.append(email_data)
+        startpos = data_str.find('\n', nextpos)
+        if startpos < 0:
+            break;
+        startpos += 1
+    return email_details
+
 def parse_calendar_events(data_str)->dict:
     if isinstance(data_str, bytes):
         data_str = data_str.decode()
@@ -110,13 +156,16 @@ def main_cmdline():
     data = {}
 
     # Emails information
-    thecmd = f'''email-info.py'''
+    thecmd = f'''email-info.py -s'''
     retcode, res = try_subprocess_check_output(thecmd)
     if retcode != 0:
         print(f'{thecmd} caused error: '+res)
         return
     unread_emails = extract_data('Unread emails:', res)
     data['unread_emails'] = unread_emails
+    email_details = extract_email_details(res)
+    if email_details:
+        data['email_details'] = email_details
 
     # Calendar information
     thecmd = f'''calendar-info.py'''
