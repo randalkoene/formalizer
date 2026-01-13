@@ -474,7 +474,11 @@ class daypage_nutritable:
             str(calories) )
 
     def entryline_html(self) ->str:
-        return ENTRYLINE_TR_FRAME % (datetime.now().strftime('%H:%M'), SUBMIT_ON_INPUT, SUBMIT_ON_INPUT, SUBMIT_ON_INPUT)
+        return ENTRYLINE_TR_FRAME % (
+            datetime.now().strftime('%H:%M'),
+            SUBMIT_ON_INPUT,
+            SUBMIT_AND_FORCE_REDRAW_ON_INPUT,
+            SUBMIT_ON_INPUT)
 
     def generate_html_body(self) ->str:
         table_str = NUTRI_TABLE_HEAD % self.day.strftime('%Y.%m.%d')
@@ -575,7 +579,11 @@ class daypage_exercise:
         return EXERCISED_TR_FRAME % ( self.time_html(idx), 'exerc_edit_name_'+str(idx), name, SUBMIT_ON_INPUT, 'exerc_edit_quantity_'+str(idx), str(self.logged[idx][2]), SUBMIT_ON_INPUT, unit )
 
     def entryline_html(self) ->str:
-        return EXERCISEENTRY_TR_FRAME % (datetime.now().strftime('%H:%M'), SUBMIT_ON_INPUT, SUBMIT_ON_INPUT, SUBMIT_ON_INPUT)
+        return EXERCISEENTRY_TR_FRAME % (
+            datetime.now().strftime('%H:%M'),
+            SUBMIT_ON_INPUT,
+            SUBMIT_AND_FORCE_REDRAW_ON_INPUT,
+            SUBMIT_ON_INPUT)
 
     def generate_html_body(self) ->str:
         table_str = EXERCISE_TABLE_HEAD % make_tooltip(exercises)
@@ -669,7 +677,7 @@ class daypage_accounts:
         return ACCOUNTENTRY_TR_FRAME % (
             datetime.now().strftime('%H:%M'),
             SUBMIT_ON_INPUT,
-            SUBMIT_ON_INPUT,
+            SUBMIT_AND_FORCE_REDRAW_ON_INPUT,
             SUBMIT_ON_INPUT,
             SUBMIT_ON_INPUT,
             SUBMIT_ON_INPUT, )
@@ -768,7 +776,7 @@ class daypage_communications:
         return COMMSENTRY_TR_FRAME % (
             datetime.now().strftime('%H:%M'),
             SUBMIT_ON_INPUT,
-            SUBMIT_ON_INPUT,
+            SUBMIT_AND_FORCE_REDRAW_ON_INPUT,
             SUBMIT_ON_CHANGE,
             SUBMIT_ON_INPUT, )
 
@@ -920,10 +928,12 @@ class daypage(fz_htmlpage):
 
         # --- Individual components of the page.
         #     Components with main actions in page style and standard presentation:
-        use_form_submit=True
-        if 'cmd' in directives:
-            if directives['cmd'] == 'noredraw' or directives['cmd'] == 'update_noredraw':
-                use_form_submit = False
+        # Original prior to 20260112 testing:
+        # use_form_submit=True
+        # if 'cmd' in directives:
+        #     if directives['cmd'] == 'noredraw' or directives['cmd'] == 'update_noredraw':
+        #         use_form_submit = False
+        use_form_submit = False # Testing this default for the generated form (20260112)
         self.html_std = fz_html_standard('daywiz.py', use_form_submit=use_form_submit)
         self.html_icon = fz_html_icon()
         self.html_style = fz_html_style(['fz', ])

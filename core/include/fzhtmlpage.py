@@ -13,6 +13,7 @@ from datetime import datetime
 
 SUBMIT_ON_CHANGE=' onchange="chkbxUpdate(this)"'
 SUBMIT_ON_INPUT=' onchange="formUpdate(this)"' # NOTE: For this to work the value may need to change.
+SUBMIT_AND_FORCE_REDRAW_ON_INPUT=' onchange="formUpdateForceRedraw(this)"'
 TEST_ON_INPUT=' onchange="testUpdate(this)"'
 
 HTML_STD_TOP='''<!DOCTYPE html>
@@ -27,7 +28,7 @@ HTML_STD_TOP='''<!DOCTYPE html>
 #             work with the GET method.
 HTML_STD_BODY='''<body>
 <form id="mainForm" action="/cgi-bin/%s" method="%s">
-<input type="hidden" name="cmd" value="%s">
+<input type="hidden" id="cmd" name="cmd" value="%s">
 <input type="hidden" id="par_changed" name="par_changed" value="unknown">
 <input type="hidden" id="par_newval" name="par_newval" value="">
 '''
@@ -57,6 +58,18 @@ function formUpdate(input_ref) {
     par_changed.value = id;
     var par_newval = document.getElementById("par_newval");
     par_newval.value = val;
+    document.getElementById("mainForm").submit();
+}
+function formUpdateForceRedraw(input_ref) {
+    var id = input_ref.id;
+    var val = input_ref.value;
+    console.log(`${id} ${val}`);
+    var par_changed = document.getElementById("par_changed");
+    par_changed.value = id;
+    var par_newval = document.getElementById("par_newval");
+    par_newval.value = val;
+    var redraw_cmd = document.getElementById("cmd");
+    redraw_cmd.value = 'update';
     document.getElementById("mainForm").submit();
 }
 function testUpdate(test_ref) {
@@ -91,6 +104,18 @@ function formUpdate(input_ref) {
     } else {
         sendData(id, val, false);
     }
+}
+function formUpdateForceRedraw(input_ref) {
+    var id = input_ref.id;
+    var val = input_ref.value;
+    console.log(`${id} ${val}`);
+    var par_changed = document.getElementById("par_changed");
+    par_changed.value = id;
+    var par_newval = document.getElementById("par_newval");
+    par_newval.value = val;
+    var redraw_cmd = document.getElementById("cmd");
+    redraw_cmd.value = 'update';
+    document.getElementById("mainForm").submit();
 }
 function sendData(parameter, value, redraw) {
     var formData = new FormData();
