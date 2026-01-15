@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<HTML>
+<!-- This is a test page for an easy-start visual timer of any length. The resulting code can be integrated with any web page. -->
+
+<HEAD>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="icon" href="/favicon-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<style>
+.timerpanel {
+    float: right;
+    width: 10.0%;
+    padding: 10px;
+}
+.timerBar {
+  width: 100px;
+  height: 400px; /* in CSS 96px == 1 inch */
+  background-color: rgb(50, 82, 20);
+  position: relative;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+.timerBarFill {
+  background-color: rgb(107, 206, 15);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  bottom: 0;
+  transition: 1s;
+}
+.timerBarText1 {
+  position: relative;
+  top: 10px;
+  width: 100%;
+  text-align: center;
+  color: #ffffff;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.5em;
+}
+.timerBarText2 {
+  position: relative;
+  top: 35px;
+  width: 100%;
+  text-align: center;
+  color: #ffffff;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.5em;
+}
+</style>
+<TITLE>Test: Timer</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Test: Timer</H1>
+
+<p>
+<button id="startTimer" class="button button1" onclick="button_timer_start();">Start</button>   
+</p>
+<p>
+<button id="startTimer" class="button button2" onclick="timer_end();">Stop</button>
+</p>
+<p>
+Hours: <input id="timerHours" type="number" min="0" max="100" value="0">
+</p>
+<p>
+Minutes: <input id="timerMinutes" type="number" min="0" max="10000" value="5">
+</p>
+
+<div class="timepanel">
+<section class="container">
+    <div class="timerBar">
+        <div class="timerBarFill">
+        </div>
+        <div class="timerBarTextContainer">
+            <div class="timerBarText1"></div>
+            <div class="timerBarText2"></div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <audio id="timeover1">
+        <!-- <source src="horse.ogg" type="audio/ogg"> -->
+        <source src="/formalizer/SlowMorning.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <audio id="timeover2">
+        <!-- <source src="horse.ogg" type="audio/ogg"> -->
+        <source src="/formalizer/Daybreak.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <audio id="timeover3">
+        <!-- <source src="horse.ogg" type="audio/ogg"> -->
+        <source src="/formalizer/EarlyRiser.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <audio id="timeover4">
+        <!-- <source src="horse.ogg" type="audio/ogg"> -->
+        <source src="/formalizer/sms-alert-1-daniel_simon.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <p>
+        <button id="chooseAudio" class="button button1" onclick="chooseSound('1');">Select SlowMorning.mp3</button>
+        <button id="chooseAudio" class="button button1" onclick="chooseSound('2');">Select Daybreak.mp3</button>
+        <button id="chooseAudio" class="button button1" onclick="chooseSound('3');">Select EarlyRiser.mp3</button>
+        <button id="chooseAudio" class="button button1" onclick="chooseSound('4');">Select sms-alert-1-daniel_simon.mp3</button>
+    </p>
+    <p>
+        <button id="stopAudio" class="button button2" onclick="stopSound();">Stop Audible Alert</button>
+        <button id="testAudio" class="button button1" onclick="startSound();">Test Audible Alert</button>
+    </p>
+</section>
+
+<script type="text/javascript">
+
+const fill = document.querySelector(".timerBarFill");
+const text1 = document.querySelector(".timerBarText1");
+const text2 = document.querySelector(".timerBarText2");
+let chunk_seconds = 20*60;
+// a bit pointless, because CSS pixels are not real pixels, better to just redraw each second
+//let secondsperupdate = chunk_seconds / 600; // e.g. 20*60 / 600 = 2 seconds
+let secondsperupdate = 1;
+let secondsLeft = chunk_seconds;
+let heightPct = 0; // start empty before a timer is set
+fill.style.height = 0;
+
+// every hundred millisecond, but probably should only do when a line less
+//let countDown = setInterval(tick, secondsperupdate * 1000);
+let countDown = null;
+
+var audioelement = document.getElementById("timeover1");
+
+// A sound to play when the timer has run out.
+function startSound() {
+    audioelement.loop = true;
+    audioelement.play();
+}
+
+function stopSound() {
+    audioelement.pause();
+    audioelement.load();
+}
+
+function chooseSound(num) {
+    audioelement = document.getElementById("timeover"+num);
+}
+
+function tick() {
+    // *** Change this to (occasionally) confirm the actual time remaining by doing a diff between start time and now.
+    //     That is more reliable than the interval timer.
+    secondsLeft -= secondsperupdate;
+    var minsleft = Math.floor(secondsLeft / 60);
+    var hoursleft = Math.floor(minsleft/60);
+    var mins_remain = minsleft - (60*hoursleft);
+    var secsleft = secondsLeft % 60;
+    console.log('minsleft='+minsleft+', hoursleft='+hoursleft+', mins_remain='+mins_remain+', secsleft='+secsleft)
+    var secstr = ("0" + secsleft).substr(-2);
+    text1.textContent = `${hoursleft}:${mins_remain}:${secstr}`;
+    text2.textContent = `${minsleft}:${secstr}`;
+    if (secondsLeft === 0) {
+        clearInterval(countDown);
+        fill.style.height = 0;
+        startSound();
+        return;
+    }
+    heightPct = 100 * secondsLeft / chunk_seconds;
+    //console.log(`${heightPct}%`);
+    fill.style.height = `${heightPct}%`;
+    if (heightPct < 50) {
+        fill.style.backgroundColor = '#f2ed6d';
+    }
+    if (heightPct < 25) {
+        fill.style.backgroundColor = '#ea7267';
+    }
+
+}
+function timer_start(mins) {
+    console.log('Timer mins = ' + mins);
+    chunk_seconds = mins * 60;
+    secondsLeft = chunk_seconds;
+    heightPct = 100;
+    fill.style.height = `100%`;
+    countDown = setInterval(tick, secondsperupdate * 1000);
+}
+function timer_end() {
+    clearInterval(countDown);
+    secondsLeft = 0;
+}
+function button_timer_start() {
+    const hours_input = document.getElementById("timerHours");
+    const minutes_input = document.getElementById("timerMinutes");
+    var mins = Number(minutes_input.value);
+    var hours = Number(hours_input.value);
+    console.log('mins = '+mins+', hours = '+hours)
+    timer_start(mins+(60*hours));
+}
+
+window.onload = function() {
+
+    source.addEventListener("TC_start", function(event) {
+        const t = JSON.parse(event.data).t;
+        const mins = JSON.parse(event.data).mins;
+        console.log('Event t_start = '+t);
+        timer_start(mins);
+    });
+
+    source.addEventListener("TC_end", function(event) {
+        const t = JSON.parse(event.data).t
+        console.log('Event t_end = '+ t)
+        timer_end();
+    });
+
+};
+
+</script>
+
+</BODY>
+
+</HTML>

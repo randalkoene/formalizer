@@ -1,0 +1,11 @@
+{
+    "test1" : {
+        "NNLs" : "selected",
+        "Topics" : "organization;system"
+    },
+    "test2" : {
+        "NNLs" : "shortlist",
+        "Topics" : "family;health"
+    },
+    "test3" : "DEFAULT"
+}

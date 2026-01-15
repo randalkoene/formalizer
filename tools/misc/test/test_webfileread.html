@@ -1,0 +1,46 @@
+<html>
+<head>
+
+</head>
+<body>
+
+<div id="fileDisplayArea">
+
+</div>
+
+<!-- This file read is really just the same as a URL get. -->
+<!-- Note that for the purposes of receiving events from a server, such as
+     task chunk changes, there are much nicer ways to do this with SSEs. -->
+
+<script>
+var fileDisplayArea = document.getElementById('fileDisplayArea');
+function readTextFile(file)
+{
+
+    var rawFile = new XMLHttpRequest();
+    rawFile.onreadystatechange = function ()
+    {
+        if(rawFile.readyState === 4)
+        {
+            if(rawFile.status === 200 || rawFile.status == 0)
+            {
+                var allText = rawFile.responseText;
+                fileDisplayArea.innerText = allText 
+            } else {
+                console.error(rawFile.statusText);
+            }
+        }
+    };
+    rawFile.ontimeout = function(e) {
+        console.error("Request for " + file + " timed out.");
+    };
+    rawFile.open("GET", file, true); //, false);
+    rawFile.timeout = 2000; // ms
+    rawFile.send(null);
+}
+
+readTextFile("/formalizer/.fzchunkmarks");
+</script>
+
+</body>
+</html>

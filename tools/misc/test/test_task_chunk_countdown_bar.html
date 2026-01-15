@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Countdown Bar</title>
+</head>
+<style>
+.container {
+  max-width: 1024px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.timerBar {
+  width: 150px;
+  height: 400px;
+  background-color: darkblue;
+  position: relative;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+
+.timerBarFill {
+  background-color: #68edcb;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  bottom: 0;
+  transition: 1s;
+}
+
+.timerBarText {
+  position: absolute;
+  top: 10px;
+  text-align: center;
+  color: #ffffff;
+  left: 5;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.5em;
+}
+
+</style>
+<body>
+
+<!-- Notes:
+- This is just an example that shows how the visualization can work, and it
+  uses front-end timers to do most of the animation, so that there is less
+  need for server-client communication.
+- You can add to this Server-Sent Events (SSEs) as the way to subscribe
+  listeners to the Formalizer events that matter to a dashboard. For
+  example, there can be a central fztask-server (perhaps implemented as
+  a little Flask server) that is being informed when a task chunk was
+  closed (or it may detect it if nothing has happened for quite a while),
+  when one is opened, and how much time there is before an alert should be
+  given. The central server can be listened to by fztask.py (the command
+  line utility for Formalizer task management), as well as by any number of
+  other task monitors and managers.
+- On the client side, you can use a standard .js Fromalizer resource that
+  any monitor/manager page can load, and which works much as shown at
+  https://www.smashingmagazine.com/2018/02/sse-websockets-data-flow-http2/.
+- To begin building this, just start making a a tiny fztask-server to begin
+  testing the registration of listeners and broadcasting events. You can
+  let fztask keep on doing its autonomous task chunk sleep for now, right
+  after it informs the fztask-server. That way, its functionality is
+  unchanged for now, while the little server is being developed. The first
+  test client can be the fron dashboard, showing task chunk countdowns.
+-->
+
+
+   <section class="container">
+     <div class="timerBar">
+       <div class="timerBarFill">
+       </div>
+       <div class="timerBarTextContainer">   
+       <div class="timerBarText"></div>
+       </div>
+     </div>
+  </section>
+
+<H1>Test: Get NNL Content</H1>
+
+<div id="nnldata"></div>
+
+<script>
+const fill = document.querySelector(".timerBarFill");
+const text = document.querySelector(".timerBarText");
+const initialTime = 180;
+let secondsLeft = initialTime;
+let heightPct = 100;
+
+let countDown = setInterval(tick, 100);
+
+function tick() {
+  secondsLeft--;
+  text.textContent = `${secondsLeft}`;
+  if(secondsLeft === 0) {
+    clearInterval(countDown);
+    fill.style.height = 0;
+    return;
+  }
+  heightPct = secondsLeft/initialTime;
+  console.log(`${heightPct}%`);
+  fill.style.height = `${heightPct*100}%`;
+  if(heightPct < 120/180) {
+    fill.style.backgroundColor='#f2ed6d';
+  }
+  if (heightPct < 60/180) {
+    fill.style.backgroundColor='#ea7267';
+  }
+
+}
+
+function calcHeight(time) {
+  
+}
+</script>
+
+<script type="text/javascript">
+class getNNL {
+  constructor(list_name, idx=null) {
+    this.list_name = list_name;
+    this.idx = idx;
+    this.received_NNL = '';
+    this.NNL_content = null;
+    this.request_done = false;
+    fetch(`/cgi-bin/fzgraph-cgi.py?action=generic&C=/fz/graph/namedlists/${list_name}.json&o=STDOUT&q=true&minimal=true`, {
+      mode: 'no-cors'
+    })
+    .then(response => response.text())
+    .then(data => {
+      //console.log(`NNL content response: ${data}`);
+      var emptyline_idx = data.indexOf('\n\n');
+      var from_idx = emptyline_idx + 2;
+      if (emptyline_idx == -1) {
+        emptyline_idx = data.indexOf('\r\n\r\n');
+        from_idx = emptyline_idx + 4;
+      }
+      if (emptyline_idx >= 0) {
+        try {
+          const data_json = JSON.parse(data.substring(from_idx));
+          const data_keys = Object.keys(data_json);
+          this.received_NNL = data_keys[0];
+          if (this.idx == null) {
+            this.NNL_content = data_json[this.received_NNL];
+          } else {
+            this.NNL_content = data_json[this.received_NNL][this.idx];
+          }
+        } catch {
+          console.error('Unable to parse JSON NNL data.');
+        }
+      } else {
+        console.error('No data found.');
+      }
+      this.request_done = true;
+      
+    });
+  }
+};
+class compareSelected {
+  constructor(compare_with, do_when_different, interval_ms=1000) {
+    this.compare_with = compare_with;
+    this.do_when_different = do_when_different;
+    this.selected = null;
+    setInterval(this.checkSelected.bind(this), interval_ms);
+  };
+
+  checkSelected() {
+    if (this.selected) { // A call was made.
+      if (this.selected.request_done) {
+        // Process request result.
+        if (this.selected.NNL_content) {
+          // Compare.
+          if (this.selected.NNL_content != this.compare_with) this.do_when_different(this.selected.NNL_content);
+        }
+        // Make new request.
+        this.selected = new getNNL('selected', 0);
+      }
+    } else { // No call was made yet.
+      this.selected = new getNNL('selected', 0);
+    }
+  }
+};
+function different_selected(selected) {
+  nnldata_ref = document.getElementById("nnldata");
+  nnldata_ref.innerHTML = `Selected: ${selected}`;
+}
+nnldata_ref = document.getElementById("nnldata");
+nnldata_ref.innerHTML = `Starting`;
+var cmpwith = new compareSelected('20220412082514.1', different_selected);
+    
+    // fetch('http://127.0.0.1:8090/fz/graph/namedlists/promises.json', {
+    //     mode: 'no-cors'
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //   console.log(`NNL content response: ${data}`);
+    // });
+    // var nnlcontent = new XMLHttpRequest();
+    // nnlcontent.onreadystatechange = function() {
+    //     if (this.readyState == 4) {
+    //         if (this.status == 200) {
+    //             console.log(`NNL content response: ${nnlcontent.response}`);
+    //             var content = nnlcontent.responseText;
+    //             const lines = content.split('\n');
+    //             var emptylines = 0;
+    //             var skiplines = 0;
+    //             for (let i = 0; i < lines.length; ++i) {
+    //                 if ((lines[i] == '\r') || (lines[i] == '')) {
+    //                     emptylines += 1;
+    //                     if (emptylines >= 2) {
+    //                         skiplines = i+1;
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //             if (emptylines < 2) {
+    //                 console.error('No data content.');
+    //             } else {
+    //                 nnldata_ref = document.getElementById("nnldata");
+    //                 nnldata_ref.innerHTML = '';
+    //                 for (let i = skiplines; i < lines.length; ++i) {
+    //                     nnldata_ref.innerHTML += lines[i]+'<br>';
+    //                 }
+    //             }
+    //         } else {
+    //             console.error('NNL content loading failed.');
+    //         }
+    //     }
+    // }
+    // nnlcontent.open('GET', 'http://127.0.0.1:8090/fz/graph/namedlists/promises.raw');
+    // nnlcontent.send();
+</script>
+
+</body>
+</html>

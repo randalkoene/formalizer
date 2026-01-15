@@ -113,7 +113,7 @@ Superiors: <span class="tooltip">[<a class="nnl" href="http://{{ fzserverpq }}/f
 </tr>
 <tr>
 <td>
-Dependencies: [<a class="nnl" href="http://{{ fzserverpq }}/fz/graph/nodes/{{ node-id }}/dependencies/addlist?dependencies=">add from dependencies NNL</a>] <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=dependencies">dependencies</a> <button class="button button1" onclick="window.open('NOT IMPLEMENTED YET', '_self');">Add Team Members</button>
+Dependencies: [<a class="nnl" href="http://{{ fzserverpq }}/fz/graph/nodes/{{ node-id }}/dependencies/addlist?dependencies=">add from dependencies NNL</a>] <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=dependencies">dependencies</a> <button class="button button1" onclick="window.open('/cgi-bin/team_subgroup.py?node={{ node-id }}', '_self');">Add Team Members</button>
 <ol>
 {{ dependencies }}
 </ol>

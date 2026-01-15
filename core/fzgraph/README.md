@@ -26,7 +26,7 @@ The third method may be worthwhile if experience shows it to be so. Unless that 
 
 ### Background information about how an Edge is added
 
-One way to create and Edge is to call fzgraph as follows:
+One way to create an Edge is to call fzgraph as follows:
 
 `fzgraph -M edges -S <superior-id> -D <dependency-id>`
 
