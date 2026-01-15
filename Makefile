@@ -123,10 +123,10 @@ EXECUTABLES += $(TOOLSPATH)/interface/indicators/indicators.py
 EXECUTABLES += $(TOOLSPATH)/interface/logentry/logentry.py
 EXECUTABLES += $(TOOLSPATH)/interface/nodeboard/nodeboard
 EXECUTABLES += $(TOOLSPATH)/interface/panes/panes-term.sh
-EXECUTABLES += $(TOOLSPATH)/misc/mp4-combine-video-audio.sh
-EXECUTABLES += $(TOOLSPATH)/misc/lists_from_dependencies.py
-EXECUTABLES += $(TOOLSPATH)/misc/team_state.py
-EXECUTABLES += $(TOOLSPATH)/misc/team_doc.py
+EXECUTABLES += $(TOOLSPATH)/misc/user/mp4-combine-video-audio.sh
+EXECUTABLES += $(TOOLSPATH)/misc/user/lists_from_dependencies.py
+EXECUTABLES += $(TOOLSPATH)/misc/user/team_state.py
+EXECUTABLES += $(TOOLSPATH)/misc/user/team_doc.py
 EXECUTABLES += $(TOOLSPATH)/system/daywiz/daywiz.py
 EXECUTABLES += $(TOOLSPATH)/system/daywiz/metrics.py
 EXECUTABLES += $(TOOLSPATH)/system/daywiz/score.py
@@ -238,12 +238,12 @@ CGIEXE += $(TOOLSPATH)/interface/fzlink/fzlink.py
 CGIEXE += $(TOOLSPATH)/interface/fzlogtime/fzlogtime.cgi
 CGIEXE += $(TOOLSPATH)/interface/fzserver-info/fzserver-info-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzuistate/fzuistate.py
-CGIEXE += $(TOOLSPATH)/misc/lists_from_dependencies.py
-CGIEXE += $(TOOLSPATH)/misc/delete_nth.py
-CGIEXE += $(TOOLSPATH)/misc/done_nth.py
-CGIEXE += $(TOOLSPATH)/misc/selected_to_nth.py
-CGIEXE += $(TOOLSPATH)/misc/team_state.py
-CGIEXE += $(TOOLSPATH)/misc/team_doc.py
+CGIEXE += $(TOOLSPATH)/misc/user/lists_from_dependencies.py
+CGIEXE += $(TOOLSPATH)/misc/user/delete_nth.py
+CGIEXE += $(TOOLSPATH)/misc/user/done_nth.py
+CGIEXE += $(TOOLSPATH)/misc/user/selected_to_nth.py
+CGIEXE += $(TOOLSPATH)/misc/user/team_state.py
+CGIEXE += $(TOOLSPATH)/misc/user/team_doc.py
 CGIEXE += $(TOOLSPATH)/system/daywiz/daywiz.py
 CGIEXE += $(TOOLSPATH)/system/daywiz/metrics.py
 CGIEXE += $(TOOLSPATH)/system/daywiz/score.py
@@ -391,29 +391,30 @@ THIRDPARTY += $(THIRDPARTYBASE)/md4c/build/md2html/md2html
 
 # Test files to copy to web servable Formalizer directory
 TESTS = 
-TESTS += $(TOOLSPATH)/misc/development-tests-INDEX.html
-TESTS += $(TOOLSPATH)/misc/test_python_cgiformget.html
-TESTS += $(TOOLSPATH)/misc/test_python_cgianalysis.html
-TESTS += $(TOOLSPATH)/misc/test_visual_counters.html
-TESTS += $(TOOLSPATH)/misc/test_add_node.html
-TESTS += $(TOOLSPATH)/misc/test_task_chunk_countdown_bar.html
-TESTS += $(TOOLSPATH)/misc/test_webfileread.html
-TESTS += $(TOOLSPATH)/misc/test_timed_close.html
-TESTS += $(TOOLSPATH)/misc/test_crypto.html
-TESTS += $(TOOLSPATH)/misc/test_encrypt_idbook.html
-TESTS += $(TOOLSPATH)/misc/test_delayed_hover.html
-TESTS += $(TOOLSPATH)/misc/test_dragndrop.html
-TESTS += $(TOOLSPATH)/misc/test_fzcgirequest.html
+TESTS += $(TOOLSPATH)/misc/test/development-tests-INDEX.html
+TESTS += $(TOOLSPATH)/misc/test/test_add_node.html
+TESTS += $(TOOLSPATH)/misc/test/test_crypto.html
+TESTS += $(TOOLSPATH)/misc/test/test_delayed_hover.html
+TESTS += $(TOOLSPATH)/misc/test/test_dragndrop.html
+TESTS += $(TOOLSPATH)/misc/test/test_encrypt_idbook.html
+TESTS += $(TOOLSPATH)/misc/test/test_fzcgirequest.html
+TESTS += $(TOOLSPATH)/misc/test/test_python_cgianalysis.html
+TESTS += $(TOOLSPATH)/misc/test/test_python_cgiformget.html
+TESTS += $(TOOLSPATH)/misc/test/test_task_chunk_countdown_bar.html
+TESTS += $(TOOLSPATH)/misc/test/test_timed_close.html
+TESTS += $(TOOLSPATH)/misc/test/test_visual_counters.html
+TESTS += $(TOOLSPATH)/misc/test/test_webfileread.html
 
 # CGI processors that are used by test HTML pages
 TESTCGI =
-TESTCGI += $(TOOLSPATH)/misc/test_python_cgianalysis.py
-TESTCGI += $(TOOLSPATH)/misc/test_python_cgiformget.py
-TESTCGI += $(TOOLSPATH)/misc/test_progress_indicator.py
-TESTCGI += $(TOOLSPATH)/misc/test_background_process.py
-TESTCGI += $(TOOLSPATH)/misc/convert_idbook.py
-TESTCGI += $(TOOLSPATH)/misc/test_noreload_cgi.py
-TESTCGI += $(TOOLSPATH)/misc/test_cgireflect.py
+TESTCGI += $(TOOLSPATH)/misc/test/convert_idbook.py
+TESTCGI += $(TOOLSPATH)/misc/test/test_background_process.py
+TESTCGI += $(TOOLSPATH)/misc/test/test_cgireflect.py
+TESTCGI += $(TOOLSPATH)/misc/test/test_noreload_cgi.py
+TESTCGI += $(TOOLSPATH)/misc/test/test_progress_indicator.py
+TESTCGI += $(TOOLSPATH)/misc/test/test_python_cgianalysis.py
+TESTCGI += $(TOOLSPATH)/misc/test/test_python_cgiformget.py
+
 # +----- end  : Select Formalizer executables -----+
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
