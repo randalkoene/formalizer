@@ -279,7 +279,7 @@ def process_as_cgi():
         except:
             targetdate_relevance_days = 30
     team = form.getvalue('team')
-    if not taem:
+    if not team:
         team = "20250822084723.1"
 
     process_common(node, team)
