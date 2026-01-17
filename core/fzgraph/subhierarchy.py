@@ -134,7 +134,7 @@ def try_subprocess_check_output(
     except subprocess.CalledProcessError as cpe:
         errorstr = f'Error output: {str(cpe.output)}\nError code: {cpe.returncode}'
         results['error'] = errorstr
-        errorstr = f'Subprocess call: {str(cpe.cmd)}\n'+errorstr+'\n'
+        errorstr += f'Subprocess call: {str(cpe.cmd)}\n'+errorstr+'\n'
         if config['logcmderrors']:
             try:
                 with open(config['cmderrlog'],'a') as f:
@@ -154,6 +154,8 @@ def try_subprocess_check_output(
                 print(res.decode(), flush=True)
             else:
                 print(res, flush=True)
+        if isinstance(res, bytes):
+            return 0, res.decode()
         return 0, res
 
 def get_node_content()->tuple:
@@ -372,26 +374,33 @@ def get_node_id_from_result(result_str:str)->str:
         return ''
     id_len =  len(identifier)
     id_start += id_len
-    id_end = result_str.find('\n',id_start)
+    id_end = result_str.find('\n', id_start)
     if id_end < 0:
         return ''
-    return result_str[id_start:id_end]
+    return result_str[id_start:id_end].strip()
 
 nodes_created = []
+validity_error = ''
 
 def valid_superior_id(superior_id:str)->bool:
-    if not superior_id:
-        return False
-    if superior_id == '':
-        return False
-    if len(superior_id) < 16:
-        return False
-    if superior_id[14] != '.':
+    global validity_error
+    try:
+        if not superior_id:
+            return False
+        if superior_id == '':
+            return False
+        if len(superior_id) < 16:
+            return False
+        if superior_id[14] != '.':
+            return False
+    except Exception as e:
+        validity_error = 'Exception at superior_id tests: '+str(e)
         return False
     try:
         s = float(superior_id)
         return True
     except:
+        validity_error = 'The superior_id does not have Float appearance: '+str(superior_id)
         return False
 
 # Recursively make the Dependency Nodes of the indicated node in the
@@ -401,6 +410,7 @@ def make_node_and_dependencies(superior_id:str, i:int, data:dict, is_top:bool)->
     global nodes_created
     textfile = '/var/www/webdata/formalizer/node-text.html'
     resstr = ''
+    atstep = 'prep data'
     if not is_top: # Make this node
         try:
             # *** Clear superiors NNL?
@@ -415,18 +425,21 @@ def make_node_and_dependencies(superior_id:str, i:int, data:dict, is_top:bool)->
             with open(textfile,'w') as f:
                 f.write(data[i]['content'])
             # Run fzgraph to make Node
+            atstep = 'call fzgraph'
             thecmd= f'./fzgraph -E STDOUT -M node -S {superior_id} -f {textfile} -H {req_hrs} -a {val:.5f} -t {targetdate} -p {prop}'
             retcode, resstr = try_subprocess_check_output(thecmd)
             if retcode != 0:
                 return show_error_page(f'Error: Failed to execute {thecmd}')
+            atstep = 'get ID'
             superior_id = get_node_id_from_result(resstr)
+            atstep = 'validate ID'
             if not valid_superior_id(superior_id):
-                show_error_page(f'Error Node creation failed or did not return Node ID. Check the dependencies hierarchy that may have been created.')
+                show_error_page(f'Error Node creation failed or did not return Node ID. Check the dependencies hierarchy that may have been created. Validity error: '+validity_error)
             else:
                 nodes_created.append(superior_id)
             resstr += thecmd + '\n'
         except Exception as e:
-            show_error_page(f'Error during Node creation at index {i} with superior {superior_id}: '+str(e))
+            show_error_page(f'Error during Node creation at index {i} with superior {superior_id} during step "{atstep}":\n{str(e)}\nThe command {thecmd} had returned:\n{str(resstr)}')
     # Recurse through dependency making
     data_branch = data[i]
     for idx in data_branch.keys():
