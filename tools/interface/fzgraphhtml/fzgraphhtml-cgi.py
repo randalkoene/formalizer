@@ -545,6 +545,9 @@ NODEBTF_HTML_TEMPLATE = '''<html>
 <li>If the Node is <b>not</b> found within the subtrees or "use_priority" is specified then also search the tree of Superiors for a BTF.
 In this case the priority BTF is used by comparing what is found in the subtree and in the tree of Superiors.
 </ol>
+<p>
+Note that if the Category source specifies that a cached BTF was reused and you really need to know where it came from
+then reload the graph (e.g. by restarting fzserverpq).
 
 <hr>
 

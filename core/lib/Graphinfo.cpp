@@ -454,6 +454,7 @@ bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean
             if (cached_btf_flags != Boolean_Tag_Flags::none) {
                 if (nptr->get_t_modified() <= cached_btf_inferred.get_t_bflags()) { // reliable cache
                     boolean_tag = static_cast<Boolean_Tag_Flags::boolean_flag>(cached_btf_flags);
+                    const_cast<Map_of_Subtrees*>(this)->btf_source = cached_BTF;
                     return true;
                 }
             }

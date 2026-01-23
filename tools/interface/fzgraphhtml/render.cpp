@@ -1070,6 +1070,7 @@ const std::map<BTF_source, std::string> flag_source_map = {
     { node_BTF, "Node itself" },
     { subtree_key_BTF, "inferred from subtree head BTF" },
     { superior_BTF, "inferred from Superior BTF" },
+    { cached_BTF, "reused cached BTF" },
 };
 
 const std::map<bool, std::string> flag_set_map = {

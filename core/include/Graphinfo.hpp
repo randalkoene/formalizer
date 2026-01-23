@@ -112,6 +112,7 @@ enum BTF_source {
     node_BTF,        // found in Node itself
     subtree_key_BTF, // inferred as BTF of subtree head
     superior_BTF,    // inferred as BTF of Superior
+    cached_BTF,      // reused from cached BTF
     NUMBTF_source
 };
 
