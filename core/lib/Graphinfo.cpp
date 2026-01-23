@@ -8,6 +8,7 @@
 
 // core
 #include "error.hpp"
+#include "ReferenceTime.hpp"
 #include "Graphinfo.hpp"
 #include "GraphLogxmap.hpp"
 
@@ -337,6 +338,7 @@ bool Map_of_Subtrees::collect(Graph & graph, const std::string & list_name) {
     subtrees_list_name = list_name;
     map_of_subtrees = Threads_Subtrees(graph, subtrees_list_name, sort_by_targetdate);
     has_subtrees = !map_of_subtrees.empty();
+    t_collected = ActualTime();
     return true;
 }
 
@@ -396,6 +398,16 @@ Boolean_Tag_Flags::boolean_flag Map_of_Subtrees::get_category_boolean_tag(Node_I
     return boolean_tag;
 }
 
+bool is_priority_BTF(Boolean_Tag_Flags::boolean_flag this_btf, Boolean_Tag_Flags::boolean_flag that_btf) {
+    if (that_btf & Boolean_Tag_Flags::work) return false;
+    if (this_btf & Boolean_Tag_Flags::work) return true;
+    if (that_btf & Boolean_Tag_Flags::self_work) return false;
+    if (this_btf & Boolean_Tag_Flags::self_work) return true;
+    if (that_btf & Boolean_Tag_Flags::system) return false;
+    if (this_btf & Boolean_Tag_Flags::system) return true;
+    return false;
+}
+
 /**
  * Search the map of subtrees for an instance of a Node. If found then also check
  * the Node and the subtree top-Node for a category Boolean Flag Tag that may be
@@ -412,23 +424,51 @@ Boolean_Tag_Flags::boolean_flag Map_of_Subtrees::get_category_boolean_tag(Node_I
  *         superiors if a) the Node is found in a subtree, and
  *         b) the Node has no explicit BTF, and c) the subtree
  *         head has no explicit BTF.
+ * Note 3: This was modified on 20260122 to use and update a Node BTF cache.
+ * 
+ * *** TO DO: Because finding a Node in the map and finding Node BTF are so
+ *            mixed together here and might depend on different logic, perhaps
+ *            these should be split into two completely separate functions to call.
+ * *** TO DO: Consider if searching superiors should happen before searching the
+ *            map, depending on whether there is an efficiency gain.
+ * *** TO DO: Consider if there are efficiency gains by requiring a Node_ptr
+ *            instead of a Node_ID_key.
  * 
  * @param node_key Identifies the Node to search for.
  * @param boolean_tag Receives the category Boolean Flag Tag if one was found.
  * @param search_superiors If set then searches for Boolean Flag Tag in superiors if
  *                         not already found in subtrees.
- * @return True if found in the map of subtrees.
+ * @param use_priority If set then always check both map and Superiors and use priority BTF.
+ * @return True if found in the map of subtrees OR if search_superiors==true and BTF found in superiors.
  */
-bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean_Tag_Flags::boolean_flag & boolean_tag, bool search_superiors) const {
+bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean_Tag_Flags::boolean_flag & boolean_tag, bool search_superiors, bool use_priority) const {
     const_cast<Map_of_Subtrees*>(this)->btf_source = not_inferred;
-    if (!has_subtrees) return false;
+    bool node_found = false;
+    boolean_tag = Boolean_Tag_Flags::none;
+
+    if (search_superiors && graph_ptr) { // Assumes we don't really need to know if in map, more interested in BTF.
+        Node_ptr nptr = graph_ptr->Node_by_id(node_key);
+        if (nptr) {
+            auto cached_btf_inferred = nptr->get_bflags_inferred();
+            auto cached_btf_flags = cached_btf_inferred.get_Boolean_Tag_flags();
+            if (cached_btf_flags != Boolean_Tag_Flags::none) {
+                if (nptr->get_t_modified() <= cached_btf_inferred.get_t_bflags()) { // reliable cache
+                    boolean_tag = static_cast<Boolean_Tag_Flags::boolean_flag>(cached_btf_flags);
+                    return true;
+                }
+            }
+        }
+    }
+
+    if (!has_subtrees) return false; // At present, this function demands that there be a valid map of subtrees.
     for (const auto & [subtree_key, subtree_ref]: map_of_subtrees) {
         if (subtree_key == node_key) {
             /**
              * If this Node is the head of this Subtree then use its Boolean Tag Flag.
              */
             boolean_tag = get_category_boolean_tag(node_key, subtree_key);
-            return true;
+            node_found = true;
+            break;
         }
         if (subtree_ref.map_by_key.find(node_key) != subtree_ref.map_by_key.end()) {
             /**
@@ -436,30 +476,41 @@ bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean
              * specified Boolean Tag Flag, or b) the Boolean Tag Flag of the Subtree head.
              */
             boolean_tag = get_category_boolean_tag(node_key, subtree_key);
-            return true;
+            node_found = true;
+            break;
         }
     }
 
-    if (search_superiors) {
+    if (search_superiors && ((boolean_tag == Boolean_Tag_Flags::none) || use_priority)) {
         if (graph_ptr) {
             Node_hierarchy_inferred_BTF btf_op(node_key);
             graph_ptr->op(btf_op);
+            Boolean_Tag_Flags::boolean_flag btf_from_sups = Boolean_Tag_Flags::none;
 
             if (!btf_op.error_str.empty()) {
                 standard_error("Node_hierarchy_inferred_BTF errors: "+btf_op.error_str, __func__);
-                return false;
+            } else {
+                btf_from_sups = btf_op.btf_strongest;
+                if (is_priority_BTF(btf_from_sups, boolean_tag)) {
+                    boolean_tag = btf_from_sups;
+                    const_cast<Map_of_Subtrees*>(this)->btf_source = superior_BTF;
+                    const_cast<Map_of_Subtrees*>(this)->btf_source_key = btf_op.btf_source_key;
+                    node_found = true; // See return conditions specified.
+                }
             }
-
-            boolean_tag = btf_op.btf_strongest;
-            if (boolean_tag != Boolean_Tag_Flags::none) {
-                const_cast<Map_of_Subtrees*>(this)->btf_source = superior_BTF;
-                const_cast<Map_of_Subtrees*>(this)->btf_source_key = btf_op.btf_source_key;
-            }
-            return true;
         }
     }
 
-    return false;
+    if (graph_ptr && (boolean_tag != Boolean_Tag_Flags::none)) {
+        // Cache this.
+        Node_ptr nptr = graph_ptr->Node_by_id(node_key);
+        if (nptr) {
+            const Boolean_Tag_Flags& btfref = nptr->get_bflags_inferred();
+            const_cast<Boolean_Tag_Flags&>(btfref).copy_Boolean_Tag_flags(boolean_tag, t_collected);
+        }
+    }
+
+    return node_found;
 }
 
 /**

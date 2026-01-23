@@ -459,13 +459,15 @@ public:
     };
 protected:
     Boolean_Tag_Flags_type bflags;
+    time_t t_bflags = RTt_unspecified; /// time at which BTF was done set (see how this is used in Map_of_Subtrees::node_in_heads_or_any_subtree()).
 public:
     Boolean_Tag_Flags() : bflags(Boolean_Tag_Flags::none) {}
     Boolean_Tag_Flags_type get_Boolean_Tag_flags() const { return bflags; }
+    time_t get_t_bflags() const { return t_bflags; }
     std::vector<Boolean_Tag_Flags::boolean_flag> get_Boolean_Tag_flags_vec() const;
     std::vector<std::string> get_Boolean_Tag_flags_strvec() const;
     void clear() { bflags = Boolean_Tag_Flags::none; }
-    void copy_Boolean_Tag_flags(Boolean_Tag_Flags_type _bflags) { bflags = _bflags; }
+    void copy_Boolean_Tag_flags(Boolean_Tag_Flags_type _bflags, time_t t = RTt_unspecified) { bflags = _bflags; t_bflags = t; }
     void or_set(Boolean_Tag_Flags_type _bflags) { bflags |= _bflags; }
     //bool set_Boolean_Tag_flag_by_label(const std::string flaglabel);
 
@@ -624,6 +626,9 @@ protected:
     Edit_flags editflags;                    /// flags used to indicate Node data that has been modified (or should be modified, https://trello.com/c/eUjjF1yZ)
 
     Boolean_Tag_Flags bflags;                /// flags representing boolean tags parsed from the Node description.
+    Boolean_Tag_Flags bflags_inferred;       /// BTF obtained by inference.
+
+    time_t t_modified = RTt_unspecified;     /// Useful when using caches (see Map_of_Subtrees::node_in_heads_or_any_subtree()).
 
     #define SEM_TRAVERSED 1
     mutable int semaphore;                   /// used to detect graph traversal etc.
@@ -653,6 +658,9 @@ public:
     const Node_ID &get_id() const { return id; }
     std::string get_id_str() const { return id.str(); }
     time_t t_created() const { return id.key().idT.get_epoch_time(); }
+
+    time_t get_t_modified() const { return t_modified; }
+    void update_t_modified(time_t t = RTt_unspecified);
 
     float get_valuation() const { return valuation; }
     float get_completion() const { return completion; }
@@ -713,6 +721,7 @@ public:
 
     void refresh_boolean_tag_flags();
     const Boolean_Tag_Flags & get_bflags() const { return bflags; }
+    const Boolean_Tag_Flags & get_bflags_inferred() const { return bflags_inferred; }
 
     /// change parameters: topics
     bool add_topic(Topic_Tags &topictags, Topic_ID topicid, float topicrelevance);
@@ -980,10 +989,15 @@ protected:
 
     void set_all_semaphores(int sval);
 
+    time_t t_modified = RTt_unspecified; // Useful for caches (see Map_of_Subtrees::node_in_heads_or_any_subtree()).
+
 public:
     Graph(): nodes(graphmemman.get_allocator()), edges(graphmemman.get_allocator()), namedlists(graphmemman.get_allocator()), server_IP_str(graphmemman.get_allocator()) {}
 
     std::string get_error() const;
+
+    time_t get_t_modified() { return t_modified; }
+    void update_t_modified(time_t t = RTt_unspecified);
 
     /// tables references
     const Topic_Tags & get_topics() const { return topics; }

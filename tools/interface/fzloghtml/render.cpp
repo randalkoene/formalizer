@@ -644,7 +644,7 @@ bool render_Log_interval() {
         if ((fzlh.btf != Boolean_Tag_Flags::none) && (!override)) {
             // Check if Node is in category subtree.
             if (!map_of_subtrees.has_subtrees) continue;
-            if (!map_of_subtrees.node_in_heads_or_any_subtree(node_id.key(), booleanflag, true)) continue; // includes searching superiors hierarchy as needed
+            if (!map_of_subtrees.node_in_heads_or_any_subtree(node_id.key(), booleanflag, true, true)) continue; // includes searching superiors hierarchy as needed
             if (booleanflag != fzlh.btf) continue;
         }
 
@@ -1136,7 +1136,7 @@ bool render_Log_review() {
                         // Check if Node is in category subtree.
                         if (map_of_subtrees.has_subtrees) {
                             Boolean_Tag_Flags::boolean_flag booleanflag;
-                            if (map_of_subtrees.node_in_heads_or_any_subtree(node_id, booleanflag, true)) { // includes searching superiors hierarchy as needed
+                            if (map_of_subtrees.node_in_heads_or_any_subtree(node_id, booleanflag, true, true)) { // includes searching superiors hierarchy as needed
                                 boolean_tag.copy_Boolean_Tag_flags(booleanflag);
                             }
                         }
@@ -1301,7 +1301,7 @@ bool render_Log_review_today() {
                         //   Check if Node is in category subtree.
                         if (map_of_subtrees.has_subtrees) {
                             Boolean_Tag_Flags::boolean_flag booleanflag;
-                            if (map_of_subtrees.node_in_heads_or_any_subtree(node_id, booleanflag, true)) { // includes searching superiors hierarchy as needed
+                            if (map_of_subtrees.node_in_heads_or_any_subtree(node_id, booleanflag, true, true)) { // includes searching superiors hierarchy as needed
                                 boolean_tag.copy_Boolean_Tag_flags(booleanflag);
                             }
                         }

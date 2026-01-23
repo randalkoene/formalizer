@@ -188,7 +188,7 @@ $(OBJ)/Graphbase.o: Graphbase.cpp $(INC)/Graphbase.hpp $(INC)/error.hpp $(INC)/T
 $(OBJ)/Graphtypes.o: Graphtypes.cpp $(INC)/Graphtypes.hpp $(INC)/general.hpp $(INC)/html.hpp $(INC)/TimeStamp.hpp
 	$(CCPP) $(CPPFLAGS) -c Graphtypes.cpp -o $(OBJ)/Graphtypes.o
 
-$(OBJ)/Graphinfo.o: Graphinfo.cpp $(INC)/Graphinfo.hpp $(INC)/Graphtypes.hpp $(INC)/error.hpp
+$(OBJ)/Graphinfo.o: Graphinfo.cpp $(INC)/Graphinfo.hpp $(INC)/Graphtypes.hpp $(INC)/ReferenceTime.hpp $(INC)/error.hpp
 	$(CCPP) $(CPPFLAGS) -c Graphinfo.cpp -o $(OBJ)/Graphinfo.o
 
 $(OBJ)/Graphmodify.o: Graphmodify.cpp $(INC)/Graphmodify.hpp $(INC)/Graphtypes.hpp $(INC)/error.hpp

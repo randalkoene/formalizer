@@ -533,6 +533,19 @@ NODEBTF_HTML_TEMPLATE = '''<html>
 %s
 </tbody></table>
 
+<h3>How a Node's Boolean Tag Flags (BTF) are inferred</h3>
+
+<ol>
+<li>A map of subtrees is collected based on a Named Nodes List (NNL) such as the "threads" NNL.
+<li>If the Node is found within these subtrees then:
+<ul>
+<li>If the Node is the head of a subtree, use its specified BTF.
+<LI>If the Node is within a subtree then (a) use its own specified BTF, or if unspecified, (b) the BTF of the subtree head.
+</ul>
+<li>If the Node is <b>not</b> found within the subtrees or "use_priority" is specified then also search the tree of Superiors for a BTF.
+In this case the priority BTF is used by comparing what is found in the subtree and in the tree of Superiors.
+</ol>
+
 <hr>
 
 <p>[<a href="/index.html">fz: Top</a>]</p>

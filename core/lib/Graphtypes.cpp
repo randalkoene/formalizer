@@ -394,6 +394,14 @@ Node_ID::Node_ID(const ID_TimeStamp _idT): idkey(_idT), idS_cache("") { // , gra
     idS_cache = Node_ID_TimeStamp_to_string(idkey.idT).c_str();
 }
 
+void Node::update_t_modified(time_t t) {
+    if (t == RTt_unspecified) {
+        t_modified = ActualTime();
+    } else {
+        t_modified = t;
+    }
+}
+
 bool Node::add_topic(Topic_Tags &topictags, uint16_t topicid, float topicrelevance) {
     if (!topictags.find_by_id(topicid)) {
         ADDWARNING(__func__,"could not find topic with id="+std::to_string(topicid)+" in Node #"+id.str());
@@ -1474,6 +1482,14 @@ std::string Graph::get_error() const {
     };
     if (error >= NUM_errcodes) return "unrecognized error";
     return errcodes_map.at(error);
+}
+
+void Graph::update_t_modified(time_t t) {
+    if (t == RTt_unspecified) {
+        t_modified = ActualTime();
+    } else {
+        t_modified = t;
+    }
 }
 
 std::vector<std::string> Graph::get_List_names() const {

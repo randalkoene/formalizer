@@ -208,6 +208,8 @@ bool request_stack_valid(Graph_modifications & graphmod, std::string segname) {
  */
 bool handle_request_stack(std::string segname) {
     ERRTRACE;
+    bool nodes_modified = false; // Tracks modification times relevant to things like BTF (see Map_of_Subtrees::node_in_heads_or_any_subtree())
+    time_t modification_time = ActualTime();
 
     std::string graph_segname(graphmemman.get_active_name()); // preserve, so that we can work with an explicitly named Graph if we want to
     if (segname.empty())
@@ -234,6 +236,8 @@ bool handle_request_stack(std::string segname) {
                 if (!node_ptr)
                     ERRRETURNFALSE(__func__, "Graph modify add node failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
                 
+                node_ptr->update_t_modified(modification_time); // NODE_MODIFIED (if we track that in a new table)
+                nodes_modified = true;
                 results_ptr->add(graphmod_add_node, node_ptr->get_id().key());
                 #ifdef USE_CHANGE_HISTORY
                 // this is an example of a place where a change history record can be created and where the
@@ -247,6 +251,13 @@ bool handle_request_stack(std::string segname) {
                 if (!edge_ptr)
                     ERRRETURNFALSE(__func__, "Graph modify add edge failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
                 
+                if (edge_ptr->get_dep()) {
+                    edge_ptr->get_dep()->update_t_modified(modification_time); // NODE_MODIFIED (if we track that in a new table)
+                }
+                if (edge_ptr->get_sup()) {
+                    edge_ptr->get_sup()->update_t_modified(modification_time); // NODE_MODIFIED (if we track that in a new table)
+                }
+                nodes_modified = true;
                 results_ptr->add(graphmod_add_edge, edge_ptr->get_id().key());
                 break;
             }
@@ -285,6 +296,8 @@ bool handle_request_stack(std::string segname) {
                 if (!node_ptr)
                     ERRRETURNFALSE(__func__, "Graph modify edit node failed. Warning! Parts of the requested stack of modifications may have been carried out (IN MEMORY ONLY)!");
                 
+                node_ptr->update_t_modified(modification_time); // NODE_MODIFIED (if we track that in a new table)
+                nodes_modified = true;
                 results_ptr->add(graphmod_edit_node, node_ptr->get_id().key());
                 #ifdef USE_CHANGE_HISTORY
                 // this is an example of a place where a change history record can be created and where the
@@ -356,6 +369,9 @@ bool handle_request_stack(std::string segname) {
 
     }
 
+    if (nodes_modified && fzs.graph_ptr) {
+        fzs.graph_ptr->update_t_modified(modification_time);
+    }
     // Here is the call to the database-dependent library for modifications in the database.
     if (!handle_Graph_modifications_pq(*fzs.graph_ptr, fzs.ga.config.dbname, fzs.ga.config.pq_schemaname, *results_ptr)) {
         ERRRETURNFALSE(__func__, "Unable to send in-memory Graph changes to storage.");

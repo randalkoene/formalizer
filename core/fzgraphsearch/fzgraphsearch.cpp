@@ -388,7 +388,7 @@ Graph & fzgraphsearch::graph() {
 void fzgraphsearch::conditional_result_add(const Node* match_ptr) {
     if (btf != Boolean_Tag_Flags::none) {
         Boolean_Tag_Flags::boolean_flag boolean_tag;
-        if (!map_of_subtrees.node_in_heads_or_any_subtree(match_ptr->get_id().key(), boolean_tag, true)) { // This uses get_PriorityCategory() on Node or Subtree header.
+        if (!map_of_subtrees.node_in_heads_or_any_subtree(match_ptr->get_id().key(), boolean_tag, true, true)) { // This uses get_PriorityCategory() on Node or Subtree header.
             boolean_tag = Boolean_Tag_Flags::none;
         }
         if (boolean_tag != btf) return;

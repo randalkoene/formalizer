@@ -17,6 +17,7 @@
 #include <memory>
 
 // core
+#include "ReferenceTime.hpp"
 #include "Graphtypes.hpp"
 
 namespace fz {
@@ -127,6 +128,7 @@ public:
     bool sort_by_targetdate = false;
     bool norepeated = false; // *** Not using this right now, as it probably breaks Node_Branch connections!
     bool has_subtrees = false;
+    time_t t_collected = RTt_unspecified;
     BTF_source btf_source = not_inferred;
     Node_ID_key btf_source_key;
 
@@ -146,7 +148,7 @@ public:
 
     Boolean_Tag_Flags::boolean_flag get_category_boolean_tag(Node_ID_key node_key, Node_ID_key subtree_key) const;
 
-    bool node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean_Tag_Flags::boolean_flag & boolean_tag, bool search_superiors = false) const;
+    bool node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean_Tag_Flags::boolean_flag & boolean_tag, bool search_superiors = false, bool use_priority = false) const;
 };
 
 /**
