@@ -425,6 +425,10 @@ bool is_priority_BTF(Boolean_Tag_Flags::boolean_flag this_btf, Boolean_Tag_Flags
  *         b) the Node has no explicit BTF, and c) the subtree
  *         head has no explicit BTF.
  * Note 3: This was modified on 20260122 to use and update a Node BTF cache.
+ *         Caching happens only if search_superiors, because the cached inferred
+ *         BTF should always be reliably the same, while generating a Nodes Schedule
+ *         for a given Map of Subtrees (e.g. indicating "threads") is meant for a
+ *         different kind of insight.
  * 
  * *** TO DO: Because finding a Node in the map and finding Node BTF are so
  *            mixed together here and might depend on different logic, perhaps
@@ -433,6 +437,9 @@ bool is_priority_BTF(Boolean_Tag_Flags::boolean_flag this_btf, Boolean_Tag_Flags
  *            map, depending on whether there is an efficiency gain.
  * *** TO DO: Consider if there are efficiency gains by requiring a Node_ptr
  *            instead of a Node_ID_key.
+ * *** TO DO: Calls to this function always seem to either set both search_superiors
+ *            and use_priority to "true" or set both to "false", so they can probably
+ *            be a single flag.
  * 
  * @param node_key Identifies the Node to search for.
  * @param boolean_tag Receives the category Boolean Flag Tag if one was found.
@@ -446,6 +453,7 @@ bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean
     bool node_found = false;
     boolean_tag = Boolean_Tag_Flags::none;
 
+    // Possibly get BTF from cache (and return true even if not in Map of Subtrees)
     if (search_superiors && graph_ptr) { // Assumes we don't really need to know if in map, more interested in BTF.
         Node_ptr nptr = graph_ptr->Node_by_id(node_key);
         if (nptr) {
@@ -461,6 +469,7 @@ bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean
         }
     }
 
+    // Find in Map of Subtrees and attempt to infer BTF from that
     if (!has_subtrees) return false; // At present, this function demands that there be a valid map of subtrees.
     for (const auto & [subtree_key, subtree_ref]: map_of_subtrees) {
         if (subtree_key == node_key) {
@@ -482,6 +491,7 @@ bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean
         }
     }
 
+    // Infer BTF from tree of Superiors
     if (search_superiors && ((boolean_tag == Boolean_Tag_Flags::none) || use_priority)) {
         if (graph_ptr) {
             Node_hierarchy_inferred_BTF btf_op(node_key);
@@ -502,7 +512,8 @@ bool Map_of_Subtrees::node_in_heads_or_any_subtree(Node_ID_key node_key, Boolean
         }
     }
 
-    if (graph_ptr && (boolean_tag != Boolean_Tag_Flags::none)) {
+    // Possibly cache the BTF inferred
+    if (search_superiors && graph_ptr && (boolean_tag != Boolean_Tag_Flags::none)) {
         // Cache this.
         Node_ptr nptr = graph_ptr->Node_by_id(node_key);
         if (nptr) {

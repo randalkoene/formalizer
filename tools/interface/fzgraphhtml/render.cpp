@@ -518,7 +518,7 @@ struct line_render_parameters {
 #endif
         // -- Content excerpt
         Boolean_Tag_Flags::boolean_flag boolean_tag;
-        if (map_of_subtrees.node_in_heads_or_any_subtree(node.get_id().key(), boolean_tag)) {
+        if (map_of_subtrees.node_in_heads_or_any_subtree(node.get_id().key(), boolean_tag)) { // (!!!) Note: This is a Threads-only check, different than all other BTF inferences!
             if (category_tag_str.find(boolean_tag) != category_tag_str.end()) {
                 varvals.emplace("excerpt", category_tag_str.at(boolean_tag)+subtrees_list_tag+node.get_excerpt(fzgh.config.excerpt_length));
             } else {
