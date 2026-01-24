@@ -42,6 +42,10 @@ public:
 
     std::string content_file; ///< Optional file path for entry text content.
     std::vector<std::string> permitted_onopen_onclose;
+    std::string sleepNNL;
+    std::string subtrees_list_name;
+    std::string indicators_path;
+    bool work_BTF_on_closechunk = false; ///< Optionally, update a day's WORK hours detected when a Log chunk is closed.
 };
 
 

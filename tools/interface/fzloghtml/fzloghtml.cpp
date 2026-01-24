@@ -613,6 +613,7 @@ bool interpret_for_dayreview() {
     return render_Log_review();
 }
 
+// A similar process is in fzlog::update_BTF_WORK_hours().
 bool interpret_for_dayreview_today() {
     fzlh.filter.t_to = ActualTime();
     fzlh.filter.t_from = fzlh.filter.t_to - RTt_oneday;

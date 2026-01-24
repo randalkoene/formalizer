@@ -1,3 +1,7 @@
 {
-    "onopen_onclose": "indicators.py&fzinfo"
+    "onopen_onclose": "indicators.py&fzinfo",
+    "sleepNNL": "group_sleep",
+    "subtrees": "threads",
+    "indicators_path": "/var/www/html/formalizer/indicators.json",
+    "work_BTF_on_closechunk": "true"
 }

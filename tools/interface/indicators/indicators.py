@@ -30,6 +30,7 @@ from datetime import datetime
 data_path = '/var/www/html/formalizer/indicators.json'
 
 data = {
+    "Day_BTF_WORK": 0.0,
     "WeekGoals_Overdue": {
         "state": False,
         "t_update": "202506010000",
@@ -41,7 +42,7 @@ data = {
     "Email_Overdue": {
         "state": False,
         "t_update": "202506010000",
-    }
+    },
 }
 
 results = {}

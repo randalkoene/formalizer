@@ -15,6 +15,8 @@
 // std
 #include <iostream>
 #include <chrono> // FOR PROFILING AND DEBUGGING (remove this)
+#include <locale>
+#include <cctype>
 
 // core
 #include "debug.hpp"
@@ -23,6 +25,7 @@
 #include "general.hpp"
 #include "stringio.hpp"
 #include "Graphtypes.hpp"
+#include "Graphinfo.hpp"
 #include "Logtypes.hpp"
 #include "Logpostgres.hpp"
 #include "utf8.hpp"
@@ -241,7 +244,10 @@ std::vector<std::string> parse_onopen_onclose(const std::string & parvalue) {
 bool fzl_configurable::set_parameter(const std::string & parlabel, const std::string & parvalue) {
     CONFIG_TEST_AND_SET_PAR(content_file, "content_file", parlabel, parvalue);
     CONFIG_TEST_AND_SET_PAR(permitted_onopen_onclose, "onopen_onclose", parlabel, parse_onopen_onclose(parvalue)); // E.g. from "indicators.py,fzinfo"
-    //CONFIG_TEST_AND_SET_FLAG(example_flagenablefunc, example_flagdisablefunc, "exampleflag", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(sleepNNL, "sleepNNL", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(subtrees_list_name, "subtrees", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(indicators_path, "indicators_path", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_PAR(work_BTF_on_closechunk, "work_BTF_on_closechunk", parlabel, (parvalue == "true"));
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
 
@@ -600,6 +606,198 @@ bool update_Node_completion(const std::string & node_idstr, time_t add_seconds) 
     return port_API_request(api_url);
 }
 
+const std::map<Boolean_Tag_Flags::boolean_flag, char> category_character = {
+    { Boolean_Tag_Flags::tzadjust, 't' },
+    { Boolean_Tag_Flags::work, 'w' },
+    { Boolean_Tag_Flags::self_work, 's' },
+    { Boolean_Tag_Flags::system, 'S' },
+    { Boolean_Tag_Flags::other, '?' },
+    { Boolean_Tag_Flags::error,  'e' },
+};
+
+struct btf_review_element {
+    time_t t_begin = 0;
+    time_t seconds_applied = 0;
+    char category = '?';
+    const Node* node_ptr;
+    //std::string nodedesc;
+    //std::string logcontent;
+
+    btf_review_element(time_t start, time_t seconds, const Boolean_Tag_Flags & boolean_tag, const Node* _nodeptr, bool is_nap = false):
+        t_begin(start), seconds_applied(seconds), node_ptr(_nodeptr) {
+        if (is_nap) {
+            category = 'n';
+        } else if (boolean_tag.None()) {
+            category = category_character.at(Boolean_Tag_Flags::other);
+        } else if (boolean_tag.Work()) {
+            category = category_character.at(Boolean_Tag_Flags::work);
+        } else if (boolean_tag.SelfWork()) {
+            category = category_character.at(Boolean_Tag_Flags::self_work);
+        } else if (boolean_tag.System()) {
+            category = category_character.at(Boolean_Tag_Flags::system);
+        } else if (boolean_tag.Other()) {
+            category = category_character.at(Boolean_Tag_Flags::other);
+        }
+    }
+
+};
+
+struct btf_review_data {
+    Node_ID_key prevnight_id;
+    time_t t_candidate_wakeup = 0;
+    time_t t_wakeup = 0;
+    time_t t_gosleep = 0;
+    std::vector<btf_review_element> elements;
+};
+
+const std::map<std::string, Boolean_Tag_Flags::boolean_flag> log_override_tags = {
+    { "@WORK@", Boolean_Tag_Flags::work },
+    { "@SELFWORK@", Boolean_Tag_Flags::self_work },
+    { "@SYSTEM@", Boolean_Tag_Flags::system },
+    { "@OTHER@", Boolean_Tag_Flags::other },
+};
+
+std::string lowercase(const std::string & s, std::locale & loc) {
+    std::string s_lower(s);
+    for (size_t i = 0; i < s.size(); i++) {
+        s_lower[i] = std::tolower(s[i], loc);
+    }
+    return s_lower;
+}
+
+// This part was adapted from fzloghtml::interpret_for_dayreview_today().
+bool update_BTF_WORK_hours() {
+    Log_filter filter;
+    filter.t_to = ActualTime();
+    filter.t_from = filter.t_to - RTt_oneday;
+
+    entry_data btfedata;
+    btfedata.log_ptr = fzl.ga.request_Log_excerpt(filter);
+    if (!btfedata.log_ptr) return standard_error("Missing Log excerpt.", __func__);
+    if (!fzl.edata.graph_ptr) return standard_error("Missing Graph pointer.", __func__);
+    if (fzl.config.indicators_path.empty()) return standard_error("Missing indicators path.", __func__);
+
+    Named_Node_List_ptr sleepNNL_ptr = nullptr;
+    std::locale loc;
+    Node_ID_key nap_id;
+
+    auto prepare_sleep_node_identification = [&] () {
+        if (fzl.config.sleepNNL.empty()) return standard_error("Missing sleepNNL specification in config file.", __func__);
+        sleepNNL_ptr = fzl.edata.graph_ptr->get_List(fzl.config.sleepNNL);
+        if (!sleepNNL_ptr) return standard_error("Unable to retrieve NNL "+fzl.config.sleepNNL, __func__);
+        for (const auto & node_key : sleepNNL_ptr->list) {
+            Node_ptr node_ptr = fzl.edata.graph_ptr->Node_by_id(node_key);
+            if (!node_ptr) {
+                ADDERROR(__func__,fzl.config.sleepNNL+" NNL node with ID "+node_key.str()+" not found");
+            } else {
+                if (lowercase(node_ptr->get_text(), loc).find(" nap") != std::string::npos) {
+                    nap_id = node_key;
+                }
+            }
+        }
+        return true;
+    };
+
+    //apply_search_strings_case_insensitive(loc);
+
+    if (!prepare_sleep_node_identification()) {
+        return standard_error("Unable to find sleep Node for day start.", __func__);
+    }
+
+    btf_review_data data;
+    Map_of_Subtrees map_of_subtrees;
+    map_of_subtrees.collect(*fzl.edata.graph_ptr, fzl.config.subtrees_list_name);
+    if (!map_of_subtrees.has_subtrees) {
+        return standard_error("Missing Map of Subtrees from '"+fzl.config.subtrees_list_name+"'.", __func__);
+    }
+
+    for (const auto & [chunk_key, chunkptr] : btfedata.log_ptr->get_Chunks()) if (chunkptr) {
+
+        time_t t_chunkclose = chunkptr->get_close_time();
+        time_t t_chunkopen = chunkptr->get_open_time();
+        if (t_chunkclose >= t_chunkopen) { // Only work with completed chunks.
+
+            Node_ID_key node_id = chunkptr->get_NodeID().key();
+            Node_ptr node_ptr = fzl.edata.graph_ptr->Node_by_id(node_id);
+            if (!node_ptr) {
+                ADDERROR(__func__,"node with ID "+node_id.str()+" not found");
+            } else {
+
+                Boolean_Tag_Flags boolean_tag;
+                if (sleepNNL_ptr->contains(node_id)) {
+                    if (node_id != nap_id) { // Does this chunk belong to a sleep Node?
+                        // The following test is a safety in case of multiple sleep Nodes in close proximity.
+                        if ((t_chunkclose - data.t_candidate_wakeup) > (4*3600)) {
+                            data.t_wakeup = data.t_candidate_wakeup;
+                            data.t_candidate_wakeup = t_chunkclose;
+                        }
+                    } else { // Chunk is a nap.
+                        data.elements.emplace_back(t_chunkopen, t_chunkclose - t_chunkopen, boolean_tag, node_ptr, true);
+                    }
+                } else {
+                    // Identify category.
+                    //   Look for category override tags in chunk content.
+                    // *** Perhaps make this a service function reached through Graphinfo.
+                    bool override = false;
+                    std::string combined_entries(chunkptr->get_combined_entries_text());
+                    for (const auto & [ tag, flag ] : log_override_tags) {
+                        if (combined_entries.find(tag) != std::string::npos) {
+                            boolean_tag.copy_Boolean_Tag_flags(flag);
+                            override = true;
+                            break;
+                        }
+                    }
+                    if (!override) {
+                        //   Check if Node is in category subtree.
+                        if (map_of_subtrees.has_subtrees) {
+                            Boolean_Tag_Flags::boolean_flag booleanflag;
+                            if (map_of_subtrees.node_in_heads_or_any_subtree(node_id, booleanflag, true, true)) { // includes searching superiors hierarchy as needed
+                                boolean_tag.copy_Boolean_Tag_flags(booleanflag);
+                            }
+                        }
+                    }
+                    data.elements.emplace_back(t_chunkopen, t_chunkclose - t_chunkopen, boolean_tag, node_ptr);
+                    
+                }
+            }
+        }
+
+    }
+
+    data.t_wakeup = data.t_candidate_wakeup;
+    data.t_gosleep = filter.t_to;
+
+    // Collect BTF WORK time
+    time_t BTF_WORK_total_seconds = 0;
+    for (const auto& element : data.elements) {
+        if ((element.t_begin >= data.t_wakeup) && (element.t_begin <= data.t_gosleep)) {
+            if (element.category == 'w') {
+                BTF_WORK_total_seconds += element.seconds_applied;
+            }
+        }
+    }
+
+    // Find Day_BTF_WORK in indicators file and update its data
+    std::string indicators_json;
+    if (!file_to_string(fzl.config.indicators_path, indicators_json)) {
+        return standard_error("Failed to read indicators file at "+fzl.config.indicators_path+".", __func__);
+    }
+    auto btfworktag = indicators_json.find("\"Day_BTF_WORK\":");
+    if (btfworktag == std::string::npos) {
+        return standard_error("Day_BTF_WORK tag not found in "+fzl.config.indicators_path+".", __func__);
+    }
+    auto comma = indicators_json.find(',', btfworktag);
+    if (comma == std::string::npos) {
+        return standard_error("Missing comma after Day_BTF_WORK tag in "+fzl.config.indicators_path+".", __func__);
+    }
+    indicators_json = indicators_json.substr(0, btfworktag) + "\"Day_BTF_WORK\": " + to_precision_string(double(BTF_WORK_total_seconds)/3600.0, 2) + indicators_json.substr(comma);
+    if (!string_to_file(fzl.config.indicators_path, indicators_json)) {
+        return standard_error("Failed to write to indicators file at "+fzl.config.indicators_path+".", __func__);
+    }
+
+    return true;
+}
+
 /**
  * Note that the closing_time must be greater or equal to the opening
  * time of the Log chunk.
@@ -646,6 +844,11 @@ bool close_chunk(time_t closing_time) {
             onopen_onclose onclose(onclose_tagstr);
             onclose.try_call();
         }
+    }
+
+    // Possible WORK hours check.
+    if (fzl.config.work_BTF_on_closechunk) {
+        update_BTF_WORK_hours();
     }
 
     VERBOSEOUT("Log chunk "+fzl.edata.c_newest->get_tbegin_str()+" closed.\n");   
