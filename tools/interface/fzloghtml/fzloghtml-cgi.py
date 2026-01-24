@@ -217,7 +217,7 @@ right: 50%;
 <span class="alt_tooltiptext prot_tip"><div>Just get started on a Node, you don't need to complete it right away, you just need to figure out what to do and take notes about that to get started.</div></span>
 </span><br>
 <button class="button button2" onclick="window.open('/cgi-bin/orderscore-cgi.py', '_blank');">OrderScore</button><br>
-<button class="button button1" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?review=today', '_blank');">Today Review</button><br>
+<button id="TodayReview" class="button button1" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?review=today', '_blank');">Today Review</button><br>
 <button id="WeekGoals" class="button button2" onclick="window.open('/cgi-bin/nodeboard-cgi.py?D=week_main_goals&T=true&u='''
 
 log_interval_head_part2 = '''&r=100&U=true', '_blank');">Week Goals</button><br>
@@ -350,6 +350,10 @@ async function getIndicatorsData(url) {
         startWarning('DayWiz');
     } else {
         stopWarning('DayWiz');
+    }
+
+    if ('Day_BTF_WORK' in data) {
+        document.getElementById('TodayReview').innerHTML = `Today Review | ${data['Day_BTF_WORK']}`;
     }
     
     //console.log(`The data is:`, data);
