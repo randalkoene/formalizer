@@ -332,6 +332,7 @@ def render_search_results():
         print('-->')
 
     # *** should add t_created_from and t_created_through here
+    # Note: This step just creates a list of Nodes in searchresultsNNL, this does not render.
     print(f'<!-- Graph_search("{searchstring}",{searchresultsNNL}) output')
     if not Graph_search(searchstring, searchresultsNNL):
         Call_Error('Search returned error.')
@@ -343,7 +344,11 @@ def render_search_results():
         print(TDUPDATEBUTTON)
     print(NNLFORMHEAD)
     print('<table id="nodedata" class="blueTable"><tbody>')
-    rendercmd = f"./fzgraphhtml -q -e -L '{searchresultsNNL}' -N all -c -o STDOUT -E STDOUT"
+    # *** This next command needs to be able to adjust to btf_nnl
+    if btf_nnl:
+        rendercmd = f"./fzgraphhtml -q -e -L '{searchresultsNNL}' -N all -S '{btf_nnl}' -c -o STDOUT -E STDOUT"
+    else:
+        rendercmd = f"./fzgraphhtml -q -e -L '{searchresultsNNL}' -N all -c -o STDOUT -E STDOUT"
     try_command_call(rendercmd)
     print('</tbody></table>')
     print('</form>')

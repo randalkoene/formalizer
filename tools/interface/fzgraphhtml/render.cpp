@@ -213,9 +213,13 @@ struct line_render_parameters {
                             templates[node_pars_in_list_head_temp].size() +
                             templates[node_pars_in_list_tail_temp].size());
         }
-        map_of_subtrees.collect(graph(), fzgh.config.subtrees_list_name);
-        if (map_of_subtrees.has_subtrees) {
-            subtrees_list_tag = "<b>["+fzgh.config.subtrees_list_name+"]</b>";
+        // 2026-01-24 Added -S arg specific test here so that having a default subtrees_list_name
+        //            in config.json does not automatically include this.
+        if (fzgh.highlight_subtree_nodes) {
+            map_of_subtrees.collect(graph(), fzgh.config.subtrees_list_name);
+            if (map_of_subtrees.has_subtrees) {
+                subtrees_list_tag = "<b>["+fzgh.config.subtrees_list_name+"]</b>";
+            }
         }
     }
 

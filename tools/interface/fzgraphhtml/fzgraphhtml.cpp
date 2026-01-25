@@ -313,6 +313,7 @@ bool fzgraphhtml::options_hook(char c, std::string cargs) {
 
     case 'S': {
         config.subtrees_list_name = cargs;
+        highlight_subtree_nodes = true;
         return true;
     }
 

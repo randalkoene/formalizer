@@ -86,6 +86,8 @@ struct fzgraphhtml: public formalizer_standard_program {
 
     bool detect_BTF = false;
 
+    bool highlight_subtree_nodes = false;
+
     bool test_cards = false;
 
     bool update_shortlist = false;
