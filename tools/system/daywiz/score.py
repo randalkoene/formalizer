@@ -6,6 +6,17 @@
 # Score graphing.
 #
 # This can be launched as a CGI script.
+#
+# Call this with something like:
+#   /cgi-bin/score.py?cmd=show&selectors=wiztable
+# You can request multiple selectors by wiztable ID, e.g:
+#   /cgi-bin/score.py?cmd=show&selectors=wiztable,emailunread
+# You can plot specific wiztable ID data over time, e.g.:
+#   /cgi-bin/score.py?cmd=show&selectors=wiztable&IDs=emailunread,openchkbx
+#
+# *** Note: At the moment, digging in is deactivated
+#           And plotting multiple IDs of wiztable on one page
+#           is not yet implemented.
 
 # Import modules for CGI handling 
 try:
@@ -132,6 +143,8 @@ class score_tables:
     def generate_html_head(self) ->str:
         return SCOREPAGE_HEAD_STYLE
 
+    # This is where the real plotting work happens.
+    # The plot shows whatever is collected in score_data.
     def generate_html_body(self) ->str:
         self.content = ''
         score_data = []
@@ -149,6 +162,47 @@ class score_tables:
     def generate_html_tail(self) ->str:
         return ''
 
+class wiztable_IDs:
+    def __init__(self, day: datetime, data: dict, IDs: list):
+        self.day = day
+        self.data = data
+        self.IDs = IDs
+
+        self.days = [ score_daypage_wiztable(day_key, self.data[day_key], False) for day_key in self.data ]
+
+    def generate_html_head(self) ->str:
+        return SCOREPAGE_HEAD_STYLE
+
+    # This is where the real plotting work happens.
+    def generate_html_body(self) ->str:
+        self.content = ''
+        # Collect specified days
+        score_days = list(self.data.keys())
+        # By ID, collect the data for all specified days.
+        data_by_ID = {}
+        for ID in self.IDs:
+            data_by_ID[ID] = []
+            for dataday in self.data:
+                ID_value_list = [ entry[2] for entry in self.data[dataday] if entry[0]==ID ]
+                if len(ID_value_list)==0:
+                    ID_value = 0 # When the ID was not found in that day's data
+                else:
+                    ID_value_str = ID_value_list[0]
+                    if ID_value_str == '':
+                        ID_value = 0
+                    elif ID_value_str == 'checked':
+                        ID_value = 1
+                    else:
+                        ID_value = float(ID_value_str)
+                data_by_ID[ID].append(ID_value)
+        # Generate plots
+        for ID in self.IDs:
+            fig = px.scatter(data_by_ID[ID], x=score_days, y=data_by_ID[ID])
+            self.content += '<p>\n' + pxio.to_html(fig, full_html=False) + '\n</p>\n'
+        return self.content
+
+    def generate_html_tail(self) ->str:
+        return ''
 
 class scorepage(fz_htmlpage):
     def __init__(self, directives: dict):
@@ -157,7 +211,7 @@ class scorepage(fz_htmlpage):
         self.day = datetime.strptime(self.day_str, '%Y.%m.%d')
 
          # A list used to navigate to the data to display:
-        self.selection = [ 'wiztable' ] #directives['selectors'].split(',')
+        self.selection = [ 'wiztable' ] #directives['selectors'].split(',') -- digging in only works when this split is used
 
         # Retrieve data:
         self.data = {}
@@ -179,10 +233,17 @@ class scorepage(fz_htmlpage):
         # Select metric to work with:
         self.data = self.select_data()
         if self.data is not None:
-            self.scores = score_tables(self.day, self.data)
-            self.head_list.append( self.scores )
-            self.body_list.append( self.scores )
-            self.tail_list.append( self.scores )
+            if isinstance(self.data, dict): # Inspecting multiple days
+                if len(directives['IDs'])==0:
+                    self.scores = score_tables(self.day, self.data)
+                    self.head_list.append( self.scores )
+                    self.body_list.append( self.scores )
+                    self.tail_list.append( self.scores )
+                else:
+                    self.scores = wiztable_IDs(self.day, self.data, directives['IDs'])
+                    self.head_list.append( self.scores )
+                    self.body_list.append( self.scores )
+                    self.tail_list.append( self.scores )
 
     def database_call(self, thecmd:str):
         try:
@@ -235,6 +296,10 @@ class scorepage(fz_htmlpage):
                     wizday = dbdaykey[0:4]+'.'+dbdaykey[4:6]+'.'+dbdaykey[6:8]
                     self.data[tablekey][wizday] = data[tablekey][dbdaykey]
 
+    # This digs into the data as specified in the list of selectors.
+    # E.g:
+    #   for ['wiztable'] this returns self.data['wiztable']
+    #   for ['wiztable', '202601140000'] this returns self.data['wiztable']['202601140000']
     def select_data(self) ->dict:
         entry_point = self.data
         for selector in self.selection:
@@ -255,7 +320,8 @@ def get_directives(formfields: cgi.FieldStorage) ->dict:
     directives = {
         'cmd': formfields.getvalue('cmd'),
         'date': formfields.getvalue('date'),
-        'selectors': formfields.getvalue('selectors')
+        'selectors': formfields.getvalue('selectors'),
+        'IDs': formfields.getvalue('IDs'), # Added 20260126.
     }
     return directives
 
@@ -276,6 +342,10 @@ def check_directives(directives: dict) ->dict:
         directives['date'] = date_str
     if not directives['selectors']:
         directives['selectors'] = 'NONE'
+    if not directives['IDs']:
+        directives['IDs'] = []
+    else:
+        directives['IDs'] = directives['IDs'].split(',')
     return directives
 
 def launch_as_cgi():

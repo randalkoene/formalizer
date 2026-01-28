@@ -209,7 +209,7 @@ DAYPAGE_HTML_TOP_EXTRA='''%s <button type="button" class="button button1" onclic
 WIZTABLE_TOP='''<table class="secondcolfixedw">
 <tr><th>t recommended</th><th>t actual</th><th>description</th><th>state</th><th>extra</th></tr>
 '''
-WIZTABLE_SUMMARY='''<tr><td></td><td></td><td><a href="/cgi-bin/score.py?cmd=show&selectors=wiztable">score</a>: %s/%s</td><td>%s/%s</td><td></td></tr>
+WIZTABLE_SUMMARY='''<tr><td></td><td></td><td><span class="alt_tooltip"><span class="alt_tooltiptext" style="bottom: 100%%;">Show graph of scores over time.</span><a href="/cgi-bin/score.py?cmd=show&selectors=wiztable">score</a>: %s/%s</span></td><td>%s/%s</td><td></td></tr>
 '''
 
 WIZLINE_TEXT_FRAME='<input id="%s" type="text" value="%s" %s>'

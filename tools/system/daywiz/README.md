@@ -11,6 +11,17 @@ steps throughout the day.
 4. `nutrition.py`: (Under construction. Intended to help with nutrition planning.)
 5. `score.py`: Generate evaluated and scored output for the day and recent days.
 6. `wiztable.py`: Contains the definition of the table on the left-hand side of the DayWiz page.
+7. `calendar-info.py`: Pull Google Calendar data.
+8. `convert_to_database.py`: Conversion from JSON data file to Formalizer database table.
+9. `daydata_from_database.py`: Testing retrieval of a day's data from the Formalizer database table.
+10. `daywiz-autodata-cgi.py`: CGI entry point to retrieve number of emails, numbe of checkboxes, upcoming calendar entries, and 24 hour emails received
+11. `daywiz-autodata.py`: Retrieve number of emails, numbe of checkboxes, upcoming calendar entries, and 24 hour emails received.
+12. `email-info-cgi.py`: CGI entry point to run `email-info.py`.
+13. `email-info.py`: Retrieve number of emails unread and optionally the last 24 hours of emails received.
+14. `inspect_data.py`: Inspect the data format and more for data stored in the Formalizer database table.
+
+Note that `daywiz_json.py` is like `daywiz.py`, but works with the JSON data source
+and is now deprecated.
 
 ## Additional dependencies
 
