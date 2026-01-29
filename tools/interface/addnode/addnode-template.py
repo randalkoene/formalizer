@@ -114,6 +114,12 @@ templates = {
 <P>
 <b>Coordination notes</b>:
 <P>
+Resume: 
+<P>
+Experience Summary: 
+<P>
+Main CCF Skill Application: 
+<P>
 (notes)
 <P>
 

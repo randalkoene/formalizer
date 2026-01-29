@@ -223,7 +223,8 @@ right: 50%;
 log_interval_head_part2 = '''&r=100&U=true', '_blank');">Week Goals</button><br>
 <button id="DayWiz" class="button button1" onclick="window.open('/cgi-bin/daywiz.py', '_blank');">DayWiz</button><br>
 <button class="button button2" onclick="window.open('/cgi-bin/nodeboard-cgi.py?n=20250822084723.1&G=true&Z=true&T=true&B=79', '_blank');">CCF Team</button><br>
-<button class="button button1" onclick="window.open('/cgi-bin/team_state.py?node=20250822084723.1&headers=Current%20activities,Randal%20action&tagopen=%3Ch3%3E&tagclose=%3C%2Fh3%3E', '_blank');">Team State</button>
+<button class="button button1" onclick="window.open('/cgi-bin/team_state.py?node=20250822084723.1&headers=Current%20activities,Randal%20action&tagopen=%3Ch3%3E&tagclose=%3C%2Fh3%3E', '_blank');">Team State</button><br>
+<button class="button button2" onclick="window.open('/cgi-bin/fzgraphsearch-cgi.py?completion_lower=0.0&completion_upper=0.99&tdprop_lower=unspecified&tdprop_upper=unspecified&hours_lower=0.1&hours_upper=1000.0&btf=WORK&btf_nnl=week_main_goals&draggable=on', '_blank');">WORK UTD (WMG)</button>
 </div>
 
 <script type="text/javascript" src="/stateoflog.js"></script>
