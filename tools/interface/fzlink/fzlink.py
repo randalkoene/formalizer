@@ -55,7 +55,7 @@ page_header = '''<html>
 <body>
 '''
 
-page_tail = '''<hr>
+page_tail = '''<hr id="END">
 <script type="text/javascript" src="/fzuistate.js"></script>
 <script type="text/javascript" src="/clock.js"></script>
 <script type="text/javascript" src="/delayedpopup.js"></script>
@@ -158,7 +158,7 @@ def render_output():
 
         if (alt=="hist50"):
             #print(f'\n<br>\n<p>\n[<a href="/cgi-bin/fzlink.py?id={id}&alt=histfull">full history</a>]\n</p>\n<br>\n')
-            print(f'\n<br>\n<p>\n<button class="button button2" onclick="location.href=\'/cgi-bin/fzlink.py?id={id}&alt=histfull\';">full history</button>\n</p>\n<br>\n')
+            print(f'\n<br>\n<p>\n<button class="button button2" onclick="location.href=\'/cgi-bin/fzlink.py?id={id}&alt=histfull#END\';">full history</button>\n</p>\n<br>\n')
 
     if addframe:
         print(page_tail)
