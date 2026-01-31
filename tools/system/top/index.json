@@ -474,6 +474,10 @@
         "DeepSeek" : {
             "url" : "https://chat.deepseek.com/",
             "window" : "_blank"
+        },
+        "Sci-Hub" : {
+            "url" : "https://www.sci-hub.pub/",
+            "window" : "_blank"
         }
     },
     "Action: " : {

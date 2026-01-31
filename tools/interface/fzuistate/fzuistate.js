@@ -7,42 +7,74 @@
 
 // --- Buttons added to the page:
 
+// To add/change buttons just modify the bottombar_data list.
 const bottombar_data = [
-    [ 'system', "window.open('/system.html', '_blank');", 'System' ],
     [ 'logtime', "window.open('/cgi-bin/fzlogtime.cgi?source=nonlocal&cgivar=wrap','_blank');", 'Log Time' ],
+    [ 'system', "window.open('/system.html', '_blank');", 'System' ],
     [ 'calsched', "window.open('/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20','_blank');", 'Calendar Schedule' ],
     [ 'behtools', "window.open('/formalizer/system-help.html','_blank');", 'Behavior Tools' ],
     [ 'supclear', "window.open('/cgi-bin/fzgraph-cgi.py?action=generic&q=true&L=delete&l=superiors&E=STDOUT&W=STDOUT','_blank');", 'Clear SupNNL' ],
+    [ 'searchgraph', "window.open('/formalizer/fzgraphsearch-form.html','_blank');", 'Search Graph' ],
     [ 'logentry', "window.open('/formalizer/logentry-form_fullpage.template.html','_blank');", 'Add Log Entry' ],
     [ 'addnode', "window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new','_blank');", 'Add Node' ],
     [ 'darkmode', "switch_light_or_dark();", 'Light / Dark' ],
+];
+const rightbar_data = [
     [ 'fztop', "window.open('/','_blank');", 'Top' ],
 ];
 const bottombar_div = document.createElement("div");
+bottombar_div.id = "bottombar";
 document.body.prepend(bottombar_div);
 
 var bottombar_open = true;
 function bottombar_toggle() {
-    if (bottombar_open) {
-        bottombar_div.style.display = 'none';
-    } else {
-        bottombar_div.style.display = 'block';
-    }
+    const state = bottombar_open ? 'none' : 'flex';
+    bottombar_div.style.display = state;
+    rightbar_div.style.display = state;
     bottombar_open = !bottombar_open;
 }
 
 var buttontype = 2;
 for (let i = 0; i < bottombar_data.length; ++i) {
-    var btnelement = document.createElement("div");
-    btnelement.innerHTML = `<button id="${bottombar_data[i][0]}" class="button button${buttontype}" onclick="${bottombar_data[i][1]}">${bottombar_data[i][2]}</button>`;
+    // Create the button directly
+    var btn = document.createElement("button");
+    btn.id = bottombar_data[i][0];
+    btn.className = `button button${buttontype}`;
+    btn.setAttribute("onclick", bottombar_data[i][1]);
+    btn.textContent = bottombar_data[i][2];
+
+    // Logic for button types
     buttontype -= 1;
-    if (buttontype == 0) {
-        buttontype = 2;
-    }
-    bottombar_div.appendChild(btnelement);
+    if (buttontype == 0) buttontype = 2;
+
+    // Append the button directly to the bar
+    bottombar_div.appendChild(btn);
 }
+
+const rightbar_div = document.createElement("div");
+rightbar_div.id = "rightbar";
+document.body.prepend(rightbar_div);
+
+buttontype = 2;
+for (let i = 0; i < rightbar_data.length; ++i) {
+    var rbtn = document.createElement("button");
+    rbtn.id = rightbar_data[i][0];
+    rbtn.className = `button button${buttontype}`;
+    rbtn.setAttribute("onclick", rightbar_data[i][1]);
+    rbtn.textContent = rightbar_data[i][2];
+    
+    buttontype -= 1;
+    if (buttontype == 0) buttontype = 2;
+
+    rightbar_div.appendChild(rbtn);
+}
+
 const bottombar_togglediv = document.createElement("div");
-bottombar_togglediv.innerHTML = `<button id="bottombar" class="button button3" onclick="bottombar_toggle();">::</button>`;
+bottombar_togglediv.innerHTML = `<button id="bottombar-toggle" class="button button3" onclick="bottombar_toggle();">::</button>`;
+bottombar_togglediv.style.position = "fixed";
+bottombar_togglediv.style.bottom = "0";
+bottombar_togglediv.style.right = "0";
+bottombar_togglediv.style.zIndex = "1001"; // Keep it above the bar
 document.body.prepend(bottombar_togglediv);
 
 // Request server-side storage of data:

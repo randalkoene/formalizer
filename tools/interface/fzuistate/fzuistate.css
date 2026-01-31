@@ -1,60 +1,53 @@
+/* Horizontal Bar Container */
 #bottombar {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: flex-end;
+    
     position: fixed;
-    bottom: 0px;
-    right: 0px;
+    bottom: 0;
+    /* Move it left so it doesn't sit under the toggle button */
+    right: 45px;             
+    
+    pointer-events: none;
     z-index: 1000;
 }
-#darkmode {
+
+/* Target the buttons directly as children */
+#bottombar > button {
+    pointer-events: auto; /* Re-enable clicking */
+    margin-left: 2px;
+    cursor: pointer;
+    white-space: nowrap;
+    position: static; /* Overrides any previous 'fixed' positioning */
+}
+
+/* Vertical Bar Container */
+#rightbar {
+    display: flex;
+    flex-direction: column;   /* Stacks buttons vertically */
+    align-items: flex-end;    /* Aligns buttons to the right edge */
+    
     position: fixed;
-    bottom: 0px;
-    right: 45px;
+    right: 0;
+    /* Move it up so it starts above the toggle button. 
+       Adjust 'bottom' based on the height of your toggle button. */
+    bottom: 42px;             
+    
+    pointer-events: none;
     z-index: 1000;
 }
-#addnode {
-    position: fixed;
-    bottom: 0px;
-    right: 168px;
-    z-index: 1000;
+
+#rightbar > button {
+    pointer-events: auto;
+    margin-bottom: 2px;       /* Spacing between vertical buttons */
+    cursor: pointer;
+    white-space: nowrap;
 }
-#logentry {
-    position: fixed;
-    bottom: 0px;
-    right: 278px;
-    z-index: 1000;
+
+/* Specific fix for fztop height */
+/*#fztop {
+    margin-bottom: 40px; 
 }
-#supclear {
-    position: fixed;
-    bottom: 0px;
-    right: 419px;
-    z-index: 1000;
-}
-#behtools {
-    position: fixed;
-    bottom: 0px;
-    right: 560px;
-    z-index: 1000;
-}
-#calsched {
-    position: fixed;
-    bottom: 0px;
-    right: 704px;
-    z-index: 1000;
-}
-#system {
-    position: fixed;
-    bottom: 0px;
-    right: 878px;
-    z-index: 1000;
-}
-#logtime {
-    position: fixed;
-    bottom: 0px;
-    right: 970px;
-    z-index: 1000;
-}
-#fztop {
-    position: fixed;
-    bottom: 40px;
-    right: 0px;
-    z-index: 1000;
-}
+*/
