@@ -1,5 +1,7 @@
 <map id="fz::Map_of_Subtrees" name="fz::Map_of_Subtrees">
-<area shape="rect" id="node1" title="See how this is used in fzgraphhtml and nodeboard." alt="" coords="5,184,160,211"/>
-<area shape="rect" id="node2" href="$classfz_1_1Graph.html" title=" " alt="" coords="42,95,123,121"/>
-<area shape="rect" id="node3" href="$classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID." alt="" coords="27,5,138,32"/>
+<area shape="rect" id="node1" title="See how this is used in fzgraphhtml and nodeboard." alt="" coords="51,184,206,211"/>
+<area shape="rect" id="node2" href="$classfz_1_1Graph.html" title=" " alt="" coords="25,95,107,121"/>
+<area shape="rect" id="node3" href="$classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID." alt="" coords="5,5,116,32"/>
+<area shape="rect" id="node4" href="$structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key." alt="" coords="141,95,268,121"/>
+<area shape="rect" id="node5" href="$structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs." alt="" coords="141,5,279,32"/>
 </map>

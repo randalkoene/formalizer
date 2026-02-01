@@ -82,17 +82,13 @@ Collaboration diagram for fz::Edge:</div>
 <div class="dyncontent">
 <div class="center"><img src="classfz_1_1Edge__coll__graph.png" border="0" usemap="#afz_1_1Edge_coll__map" alt="Collaboration graph"/></div>
 <map name="afz_1_1Edge_coll__map" id="afz_1_1Edge_coll__map">
-<area shape="rect" title=" " alt="" coords="246,392,321,419"/>
-<area shape="rect" href="classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="5,199,111,225"/>
-<area shape="rect" href="classfz_1_1Node.html" title="The Node class is the principal object type within a Formalizer Graph." alt="" coords="245,288,321,315"/>
-<area shape="rect" href="classfz_1_1Edge__ID.html" title="Edge ID that caches its ID stamp for frequent use." alt="" coords="443,288,537,315"/>
-<area shape="rect" href="structfz_1_1Edge__ID__key.html" title="Standardized Formalizer Edge ID key." alt="" coords="553,199,678,225"/>
-<area shape="rect" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key." alt="" coords="467,95,593,121"/>
-<area shape="rect" href="classfz_1_1Node__ID.html" title="Node ID that caches its ID stamp for frequent use." alt="" coords="431,199,528,225"/>
-<area shape="rect" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs." alt="" coords="461,5,599,32"/>
-<area shape="rect" href="classfz_1_1Graph.html" title=" " alt="" coords="135,199,216,225"/>
-<area shape="rect" href="classfz_1_1Topic__Tags.html" title="Topic tag data, arranged by integer Index&#45;ID." alt="" coords="120,95,231,121"/>
-<area shape="rect" href="classfz_1_1Boolean__Tag__Flags.html" title=" " alt="" coords="240,199,407,225"/>
+<area shape="rect" title=" " alt="" coords="74,377,149,404"/>
+<area shape="rect" href="classfz_1_1Edit__flags.html" title="A bitmask of flags for the data components of a Node." alt="" coords="5,288,111,315"/>
+<area shape="rect" href="classfz_1_1Edge__ID.html" title="Edge ID that caches its ID stamp for frequent use." alt="" coords="135,288,229,315"/>
+<area shape="rect" href="structfz_1_1Edge__ID__key.html" title="Standardized Formalizer Edge ID key." alt="" coords="22,199,147,225"/>
+<area shape="rect" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key." alt="" coords="21,95,148,121"/>
+<area shape="rect" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs." alt="" coords="15,5,154,32"/>
+<area shape="rect" href="structfz_1_1GraphIDcache.html" title=" " alt="" coords="171,199,305,225"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -186,69 +182,6 @@ const <a class="el" href="classfz_1_1Edit__flags.html">Edit_flags</a> &amp;&#160
 <tr class="memitem:a15a1e54c09cc313fedec32ee17e968dd"><td class="memItemLeft" align="right" valign="top"><a id="a15a1e54c09cc313fedec32ee17e968dd"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>clear_editflags</b> ()</td></tr>
 <tr class="separator:a15a1e54c09cc313fedec32ee17e968dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae442407157b6d489406e78e0196b7394"><td class="memItemLeft" align="right" valign="top"><a id="ae442407157b6d489406e78e0196b7394"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Edge</b> (<a class="el" href="classfz_1_1Node.html">Node</a> &amp;_dep, <a class="el" href="classfz_1_1Node.html">Node</a> &amp;_sup)</td></tr>
-<tr class="separator:ae442407157b6d489406e78e0196b7394"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adaf45b440449d84a5fb0c9a0688fbedf"><td class="memItemLeft" align="right" valign="top"><a id="adaf45b440449d84a5fb0c9a0688fbedf"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Edge</b> (<a class="el" href="classfz_1_1Graph.html">Graph</a> &amp;graph, std::string id_str)</td></tr>
-<tr class="separator:adaf45b440449d84a5fb0c9a0688fbedf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab05c185370b1902706b0642a35d8a7d1"><td class="memItemLeft" align="right" valign="top"><a id="ab05c185370b1902706b0642a35d8a7d1"></a>
-<a class="el" href="classfz_1_1Edge__ID.html">Edge_ID</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_id</b> () const</td></tr>
-<tr class="separator:ab05c185370b1902706b0642a35d8a7d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4bfa65c44ab7774964a3899de57c8d34"><td class="memItemLeft" align="right" valign="top"><a id="a4bfa65c44ab7774964a3899de57c8d34"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_id_str</b> () const</td></tr>
-<tr class="separator:a4bfa65c44ab7774964a3899de57c8d34"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afff10778af688a743fb5f6106bc2835d"><td class="memItemLeft" align="right" valign="top"><a id="afff10778af688a743fb5f6106bc2835d"></a>
-<a class="el" href="structfz_1_1Edge__ID__key.html">Edge_ID_key</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_key</b> () const</td></tr>
-<tr class="separator:afff10778af688a743fb5f6106bc2835d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3cc0b95047bc787dd024973b6f6f1d61"><td class="memItemLeft" align="right" valign="top"><a id="a3cc0b95047bc787dd024973b6f6f1d61"></a>
-<a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_dep_key</b> () const</td></tr>
-<tr class="separator:a3cc0b95047bc787dd024973b6f6f1d61"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad2569c91758696c6cf03f4cb198da70f"><td class="memItemLeft" align="right" valign="top"><a id="ad2569c91758696c6cf03f4cb198da70f"></a>
-<a class="el" href="structfz_1_1Node__ID__key.html">Node_ID_key</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_sup_key</b> () const</td></tr>
-<tr class="separator:ad2569c91758696c6cf03f4cb198da70f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab31cee0f52adfa59f44ac2855b42f28f"><td class="memItemLeft" align="right" valign="top"><a id="ab31cee0f52adfa59f44ac2855b42f28f"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_dep_str</b> () const</td></tr>
-<tr class="separator:ab31cee0f52adfa59f44ac2855b42f28f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abdf131b4e14a40818aaedff767f3b86b"><td class="memItemLeft" align="right" valign="top"><a id="abdf131b4e14a40818aaedff767f3b86b"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_sup_str</b> () const</td></tr>
-<tr class="separator:abdf131b4e14a40818aaedff767f3b86b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ccb813dd83b7d850fc9e96234c81310"><td class="memItemLeft" align="right" valign="top"><a id="a1ccb813dd83b7d850fc9e96234c81310"></a>
-<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_dep</b> () const</td></tr>
-<tr class="separator:a1ccb813dd83b7d850fc9e96234c81310"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf8f689c1fef122d3a9e6cfb43c9a8ea"><td class="memItemLeft" align="right" valign="top"><a id="abf8f689c1fef122d3a9e6cfb43c9a8ea"></a>
-<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_sup</b> () const</td></tr>
-<tr class="separator:abf8f689c1fef122d3a9e6cfb43c9a8ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a22e51245574c1620a74f16cfd1246118"><td class="memItemLeft" align="right" valign="top"><a id="a22e51245574c1620a74f16cfd1246118"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>get_dependency</b> () const</td></tr>
-<tr class="separator:a22e51245574c1620a74f16cfd1246118"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a91f6c15dd0c1cb00368fb5f3314b0b56"><td class="memItemLeft" align="right" valign="top"><a id="a91f6c15dd0c1cb00368fb5f3314b0b56"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>get_significance</b> () const</td></tr>
-<tr class="separator:a91f6c15dd0c1cb00368fb5f3314b0b56"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af621e80c28e45742eee04cf0b7b16b2c"><td class="memItemLeft" align="right" valign="top"><a id="af621e80c28e45742eee04cf0b7b16b2c"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>get_importance</b> () const</td></tr>
-<tr class="separator:af621e80c28e45742eee04cf0b7b16b2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a507f369e7619db79fecaf7c985ccfbeb"><td class="memItemLeft" align="right" valign="top"><a id="a507f369e7619db79fecaf7c985ccfbeb"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>get_urgency</b> () const</td></tr>
-<tr class="separator:a507f369e7619db79fecaf7c985ccfbeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8231e4831b14d91c1c83bf2de80159ef"><td class="memItemLeft" align="right" valign="top"><a id="a8231e4831b14d91c1c83bf2de80159ef"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>get_priority</b> () const</td></tr>
-<tr class="separator:a8231e4831b14d91c1c83bf2de80159ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab2944b05135ed53f4eff67cb4b7adbc9"><td class="memItemLeft" align="right" valign="top"><a id="ab2944b05135ed53f4eff67cb4b7adbc9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_dependency</b> (float d)</td></tr>
-<tr class="separator:ab2944b05135ed53f4eff67cb4b7adbc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed9e1dbda2a6fa99025b981f81f99d83"><td class="memItemLeft" align="right" valign="top"><a id="aed9e1dbda2a6fa99025b981f81f99d83"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_significance</b> (float s)</td></tr>
-<tr class="separator:aed9e1dbda2a6fa99025b981f81f99d83"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae4ae79af9f16c85357ea5c845b19fc18"><td class="memItemLeft" align="right" valign="top"><a id="ae4ae79af9f16c85357ea5c845b19fc18"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_importance</b> (float i)</td></tr>
-<tr class="separator:ae4ae79af9f16c85357ea5c845b19fc18"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3fce4dd668139b9d8d45f82d237e1fc5"><td class="memItemLeft" align="right" valign="top"><a id="a3fce4dd668139b9d8d45f82d237e1fc5"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_urgency</b> (float u)</td></tr>
-<tr class="separator:a3fce4dd668139b9d8d45f82d237e1fc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1882d2e0a72001d8910cef463c2e4b71"><td class="memItemLeft" align="right" valign="top"><a id="a1882d2e0a72001d8910cef463c2e4b71"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_priority</b> (float p)</td></tr>
-<tr class="separator:a1882d2e0a72001d8910cef463c2e4b71"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
@@ -279,28 +212,18 @@ Graph_Node_ptr&#160;</td><td class="memItemRight" valign="bottom"><b>sup</b></td
 <tr class="memitem:ae46ff022323a1ccc44b731ed3874bea1"><td class="memItemLeft" align="right" valign="top"><a id="ae46ff022323a1ccc44b731ed3874bea1"></a>
 <a class="el" href="classfz_1_1Edit__flags.html">Edit_flags</a>&#160;</td><td class="memItemRight" valign="bottom"><b>editflags</b></td></tr>
 <tr class="separator:ae46ff022323a1ccc44b731ed3874bea1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a75189c993bc75c8f46e8ef0791a1b95d"><td class="memItemLeft" align="right" valign="top"><a id="a75189c993bc75c8f46e8ef0791a1b95d"></a>
-<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>dep</b></td></tr>
-<tr class="separator:a75189c993bc75c8f46e8ef0791a1b95d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a02f6796001cf22d7cffee3050f63c90e"><td class="memItemLeft" align="right" valign="top"><a id="a02f6796001cf22d7cffee3050f63c90e"></a>
-<a class="el" href="classfz_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>sup</b></td></tr>
-<tr class="separator:a02f6796001cf22d7cffee3050f63c90e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
 <tr class="memitem:afab89afd724f1b07b1aaad6bdc61c47a"><td class="memItemLeft" align="right" valign="top"><a id="afab89afd724f1b07b1aaad6bdc61c47a"></a>
 class&#160;</td><td class="memItemRight" valign="bottom"><b>Graph</b></td></tr>
 <tr class="separator:afab89afd724f1b07b1aaad6bdc61c47a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed91756449328e2c454e53e9c5e53936"><td class="memItemLeft" align="right" valign="top"><a id="aed91756449328e2c454e53e9c5e53936"></a>
+<tr class="memitem:a6db9d28bd448a131448276ee03de1e6d"><td class="memItemLeft" align="right" valign="top"><a id="a6db9d28bd448a131448276ee03de1e6d"></a>
 class&#160;</td><td class="memItemRight" valign="bottom"><b>Node</b></td></tr>
-<tr class="separator:aed91756449328e2c454e53e9c5e53936"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a6db9d28bd448a131448276ee03de1e6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a830e073f3d8749c626ec2d96c61220a6"><td class="memItemLeft" align="right" valign="top"><a id="a830e073f3d8749c626ec2d96c61220a6"></a>
 class&#160;</td><td class="memItemRight" valign="bottom"><b>Graph_modifications</b></td></tr>
 <tr class="separator:a830e073f3d8749c626ec2d96c61220a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a690c5f803d18c8a75432c70cdece9f13"><td class="memItemLeft" align="right" valign="top"><a id="a690c5f803d18c8a75432c70cdece9f13"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Edge.html#a690c5f803d18c8a75432c70cdece9f13">identical_Edges</a> (<a class="el" href="classfz_1_1Edge.html">Edge</a> &amp;edge1, <a class="el" href="classfz_1_1Edge.html">Edge</a> &amp;edge2, std::string &amp;trace)</td></tr>
-<tr class="memdesc:a690c5f803d18c8a75432c70cdece9f13"><td class="mdescLeft">&#160;</td><td class="mdescRight">friend (utility) functions <br /></td></tr>
-<tr class="separator:a690c5f803d18c8a75432c70cdece9f13"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a690c5f803d18c8a75432c70cdece9f13"><td class="memItemLeft" align="right" valign="top"><a id="a690c5f803d18c8a75432c70cdece9f13"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Edge.html#a690c5f803d18c8a75432c70cdece9f13">identical_Edges</a> (<a class="el" href="classfz_1_1Edge.html">Edge</a> &amp;edge1, <a class="el" href="classfz_1_1Edge.html">Edge</a> &amp;edge2, std::string &amp;trace)</td></tr>
 <tr class="memdesc:a690c5f803d18c8a75432c70cdece9f13"><td class="mdescLeft">&#160;</td><td class="mdescRight">friend (utility) functions <br /></td></tr>
@@ -378,9 +301,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>core/include/<a class="el" href="Graphtypes_8hpp_source.html">Graphtypes.hpp</a></li>
-<li>inactive/include/<a class="el" href="Graphunshared_8hpp_source.html">Graphunshared.hpp</a></li>
 <li>core/lib/Graphtypes.cpp</li>
-<li>inactive/lib/Graphunshared.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

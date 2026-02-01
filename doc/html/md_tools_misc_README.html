@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Formalizer: Miscellaneous Prototypes for Testing</title>
+<title>Formalizer: Miscellaneous</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -65,15 +65,20 @@ $(function() {
 </div><!-- top -->
 <div class="PageDoc"><div class="header">
   <div class="headertitle">
-<div class="title">Miscellaneous Prototypes for Testing </div>  </div>
+<div class="title">Miscellaneous </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>A collection of (mostly tiny) prototypes developed for testing purposes. These are not formally part of the Formalizer core or tools module structure.</p>
+<div class="textblock"><p>This category includes both Prototypes for Testing, as well as tools that are fairly user specific and less likely to be standard tools of any Formalizer installation.</p>
+<h1>Testing</h1>
+<p>A collection of (mostly tiny) prototypes developed for testing purposes. These are not formally part of the Formalizer core or tools module structure.</p>
+<h1>User</h1>
+<p>A collection of tools that perform useful actions that may be integrated in a specific Formalizer setup, but that are not as general-purpose as other tool categories.</p>
 <h1>How to use these</h1>
 <ol type="1">
 <li>Copy the executable scripts to the CGI directory (typically <code>/usr/lib/cgi-bin/</code>).</li>
 <li>Copy the <code>.html</code> files to a web-visible directory (e.g. <code>/var/www/html/formalizer/</code>).</li>
 </ol>
+<p>Note that this is typically done through inclusion in the top Makefile in categories such as EXECUTABLES, SYMBIN and CGIEXE.</p>
 <hr  />
 <p>Randal A. Koene, 2020 </p>
 </div></div><!-- contents -->

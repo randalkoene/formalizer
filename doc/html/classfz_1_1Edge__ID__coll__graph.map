@@ -1,6 +1,7 @@
 <map id="fz::Edge_ID" name="fz::Edge_ID">
-<area shape="rect" id="node1" title="Edge ID that caches its ID stamp for frequent use." alt="" coords="27,288,122,315"/>
+<area shape="rect" id="node1" title="Edge ID that caches its ID stamp for frequent use." alt="" coords="142,288,237,315"/>
 <area shape="rect" id="node2" href="$structfz_1_1Edge__ID__key.html" title="Standardized Formalizer Edge ID key." alt="" coords="12,199,137,225"/>
 <area shape="rect" id="node3" href="$structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key." alt="" coords="11,95,138,121"/>
 <area shape="rect" id="node4" href="$structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs." alt="" coords="5,5,144,32"/>
+<area shape="rect" id="node5" href="$structfz_1_1GraphIDcache.html" title=" " alt="" coords="161,199,295,225"/>
 </map>

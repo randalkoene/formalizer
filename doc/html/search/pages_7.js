@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['license_2021',['LICENSE',['../md_core_fztask_server_LICENSE.html',1,'']]],
-  ['logentry_20_2d_20command_20line_20interface_20to_20fzlog_2022',['logentry - command line interface to fzlog',['../md_tools_interface_logentry_Readme.html',1,'']]]
+  ['indicators_20_2d_20_7b_7b_20brief_5ftitle_20_7d_7d_7d_2030',['indicators - {{ brief_title }}}',['../md_tools_interface_indicators_README.html',1,'']]]
 ];

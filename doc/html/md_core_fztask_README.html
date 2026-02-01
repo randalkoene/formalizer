@@ -93,6 +93,10 @@ $(function() {
 <li>Selecting a new Node: Via the "Log Time" button on that page, then through the time selection and then the "Select Node for next Log Chunk" button, which offers access to the list of Next Nodes, Recent Log, and much more.</li>
 <li>A timer: Via the "Timer" button on the main Formalizer index page.</li>
 </ul>
+<h1>fztask-cgi.py</h1>
+<p>The <code>fztask-cgi.py</code> script provides both web-based CGI control and local operability when run through <code>w3m</code> in a terminal.</p>
+<p>The non-local option, argument <code>n=on</code> is used by the <code>fzlogtime.cgi</code> generated page to forward a specific time stamp to Node selection.</p>
+<p>Once selected, the actual opening of a new Log chunk always goes through <code>fzlog-cgi.py</code>.</p>
 <hr  />
 <p> Randal A. Koene, 20201125 </p>
 </div></div><!-- contents -->

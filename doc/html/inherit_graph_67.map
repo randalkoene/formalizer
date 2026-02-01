@@ -1,5 +1,3 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classfz_1_1Graph__Op.html" title="Pass a class derived from this one to Graph::op()." alt="" coords="5,46,112,73"/>
-<area shape="rect" id="node2" href="$classfz_1_1Node__hierarchy__inferred__BTF.html" title="Infer a BTF category by traversing a Node&#39;s superiors hierarchy." alt="" coords="160,5,304,47"/>
-<area shape="rect" id="node3" href="$classfz_1_1Node__hierarchy__to__list.html" title="NOTE: The following is not currently implemented, because it&#39;s probably never needed,..." alt="" coords="160,71,304,112"/>
+<area shape="rect" id="node1" href="$classfz_1_1Graph__modifications.html" title="This data structure is the most efficient method to request a stack of Graph modifications." alt="" coords="5,5,181,32"/>
 </map>

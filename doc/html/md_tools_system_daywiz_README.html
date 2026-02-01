@@ -77,7 +77,16 @@ $(function() {
 <li><code>nutrition.py</code>: (Under construction. Intended to help with nutrition planning.)</li>
 <li><code>score.py</code>: Generate evaluated and scored output for the day and recent days.</li>
 <li><code>wiztable.py</code>: Contains the definition of the table on the left-hand side of the DayWiz page.</li>
+<li><code>calendar-info.py</code>: Pull Google Calendar data.</li>
+<li><code>convert_to_database.py</code>: Conversion from JSON data file to Formalizer database table.</li>
+<li><code>daydata_from_database.py</code>: Testing retrieval of a day's data from the Formalizer database table.</li>
+<li><code>daywiz-autodata-cgi.py</code>: CGI entry point to retrieve number of emails, numbe of checkboxes, upcoming calendar entries, and 24 hour emails received</li>
+<li><code>daywiz-autodata.py</code>: Retrieve number of emails, numbe of checkboxes, upcoming calendar entries, and 24 hour emails received.</li>
+<li><code>email-info-cgi.py</code>: CGI entry point to run <code>email-info.py</code>.</li>
+<li><code>email-info.py</code>: Retrieve number of emails unread and optionally the last 24 hours of emails received.</li>
+<li><code>inspect_data.py</code>: Inspect the data format and more for data stored in the Formalizer database table.</li>
 </ol>
+<p>Note that <code>daywiz_json.py</code> is like <code>daywiz.py</code>, but works with the JSON data source and is now deprecated.</p>
 <h1>Additional dependencies</h1>
 <ol type="1">
 <li><code>core/include/fznutrition.py</code>: Data file for known foods, categories, etc.</li>

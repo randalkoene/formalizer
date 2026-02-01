@@ -475,6 +475,8 @@ tests: $(TESTS)
 # call `make doxygen` to refresh code documentation
 doxygen: FORCE
 	doxygen Doxyfile
+	sudo rm -r -f $(WEBINTERFACESDIR)/doxygen-html
+	sudo cp -r -f doc/html $(WEBINTERFACESDIR)/doxygen-html
 
 conversion: $(CONVERSION)
 

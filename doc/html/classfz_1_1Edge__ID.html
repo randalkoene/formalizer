@@ -86,10 +86,11 @@ Collaboration diagram for fz::Edge_ID:</div>
 <div class="dyncontent">
 <div class="center"><img src="classfz_1_1Edge__ID__coll__graph.png" border="0" usemap="#afz_1_1Edge__ID_coll__map" alt="Collaboration graph"/></div>
 <map name="afz_1_1Edge__ID_coll__map" id="afz_1_1Edge__ID_coll__map">
-<area shape="rect" title="Edge ID that caches its ID stamp for frequent use." alt="" coords="27,288,122,315"/>
+<area shape="rect" title="Edge ID that caches its ID stamp for frequent use." alt="" coords="142,288,237,315"/>
 <area shape="rect" href="structfz_1_1Edge__ID__key.html" title="Standardized Formalizer Edge ID key." alt="" coords="12,199,137,225"/>
 <area shape="rect" href="structfz_1_1Node__ID__key.html" title="Standardized Formalizer Node ID key." alt="" coords="11,95,138,121"/>
 <area shape="rect" href="structfz_1_1ID__TimeStamp.html" title="Timestamp IDs in the format required for Node IDs." alt="" coords="5,5,144,32"/>
+<area shape="rect" href="structfz_1_1GraphIDcache.html" title=" " alt="" coords="161,199,295,225"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -100,22 +101,6 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a0072a208fca69b5d6031b10f26a971b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf1be36b2ba245c5783d69faecbea1f7"><td class="memItemLeft" align="right" valign="top"><a id="abf1be36b2ba245c5783d69faecbea1f7"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Edge_ID</b> (<a class="el" href="structfz_1_1Edge__ID__key.html">Edge_ID_key</a> _idkey)</td></tr>
-<tr class="separator:abf1be36b2ba245c5783d69faecbea1f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ada9383a9d34b9ac4c4e29267720ce8e9"><td class="memItemLeft" align="right" valign="top"><a id="ada9383a9d34b9ac4c4e29267720ce8e9"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Edge_ID</b> (<a class="el" href="classfz_1_1Node.html">Node</a> &amp;_dep, <a class="el" href="classfz_1_1Node.html">Node</a> &amp;_sup)</td></tr>
-<tr class="separator:ada9383a9d34b9ac4c4e29267720ce8e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a459adb68cadc0d5b46dcefbac82b7030"><td class="memItemLeft" align="right" valign="top"><a id="a459adb68cadc0d5b46dcefbac82b7030"></a>
-<a class="el" href="structfz_1_1Edge__ID__key.html">Edge_ID_key</a>&#160;</td><td class="memItemRight" valign="bottom"><b>key</b> () const</td></tr>
-<tr class="separator:a459adb68cadc0d5b46dcefbac82b7030"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac65361275e06af2df68bc29fb76a8eac"><td class="memItemLeft" align="right" valign="top"><a id="ac65361275e06af2df68bc29fb76a8eac"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>str</b> () const</td></tr>
-<tr class="separator:ac65361275e06af2df68bc29fb76a8eac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0072a208fca69b5d6031b10f26a971b6"><td class="memItemLeft" align="right" valign="top"><a id="a0072a208fca69b5d6031b10f26a971b6"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Edge_ID</b> (std::string _idS)</td></tr>
-<tr class="separator:a0072a208fca69b5d6031b10f26a971b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf1be36b2ba245c5783d69faecbea1f7"><td class="memItemLeft" align="right" valign="top"><a id="abf1be36b2ba245c5783d69faecbea1f7"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfz_1_1Edge__ID.html#abf1be36b2ba245c5783d69faecbea1f7">Edge_ID</a> (<a class="el" href="structfz_1_1Edge__ID__key.html">Edge_ID_key</a> _idkey)</td></tr>
-<tr class="memdesc:abf1be36b2ba245c5783d69faecbea1f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Try to use this one only for container element initialization and such. <br /></td></tr>
 <tr class="separator:abf1be36b2ba245c5783d69faecbea1f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada9383a9d34b9ac4c4e29267720ce8e9"><td class="memItemLeft" align="right" valign="top"><a id="ada9383a9d34b9ac4c4e29267720ce8e9"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Edge_ID</b> (<a class="el" href="classfz_1_1Node.html">Node</a> &amp;_dep, <a class="el" href="classfz_1_1Node.html">Node</a> &amp;_sup)</td></tr>
@@ -140,9 +125,7 @@ Protected Attributes</h2></td></tr>
 <div class="textblock"><p><a class="el" href="classfz_1_1Edge.html">Edge</a> ID that caches its ID stamp for frequent use. </p>
 </div><hr/>The documentation for this class was generated from the following files:<ul>
 <li>core/include/<a class="el" href="Graphtypes_8hpp_source.html">Graphtypes.hpp</a></li>
-<li>inactive/include/<a class="el" href="Graphunshared_8hpp_source.html">Graphunshared.hpp</a></li>
 <li>core/lib/Graphtypes.cpp</li>
-<li>inactive/lib/Graphunshared.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

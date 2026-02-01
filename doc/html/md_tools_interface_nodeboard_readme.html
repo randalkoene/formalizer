@@ -77,17 +77,29 @@ $(function() {
 <p>The following examples demonstrate some of the principal ways to use nodeboard. Note that many of the options available on the command line can also be modified from the <code>options</code> pane in the top-right corner of many generated boards.</p>
 <h2><code>nodeboard -g -n &lt;node-id&gt;</code></h2>
 <p>Generate a grid-constrained board that presents the Node specified by <code>&lt;node-id&gt;</code> and its hierarchy of superiors.</p>
-<h2><code>nodeboard -G -n &lt;node-id&gt;</code></h2>
+<p>E.g. the board created by:</p>
+<div class="fragment"><div class="line">/cgi-bin/nodeboard-cgi.py?n=20100907053900.1&amp;g=true&amp;I=true&amp;T=true&amp;B=79&amp;tdorder=true&amp;tdbad=true&amp;tdfar=true&amp;i=79</div>
+</div><!-- fragment --><h2><code>nodeboard -G -n &lt;node-id&gt;</code></h2>
 <p>Generate a grid-constrained board that presents the Node specified by <code>&lt;node-id&gt;</code> and its hierarchy of dependencies.</p>
-<h2><code>nodeboard -f &lt;sysmet-json-file&gt;</code></h2>
+<p>E.g. the board created by:</p>
+<div class="fragment"><div class="line">/cgi-bin/nodeboard-cgi.py?n=20100907053900.1&amp;G=true&amp;I=true&amp;T=true&amp;B=79&amp;tdorder=true&amp;tdbad=true&amp;tdfar=true&amp;i=79</div>
+</div><!-- fragment --><h2><code>nodeboard -f &lt;sysmet-json-file&gt;</code></h2>
 <p>Generate a board from data indicated in a special system/metrics format.</p>
-<h2><code>nodeboard -n &lt;node-id&gt;</code></h2>
+<p>E.g. the board created by:</p>
+<div class="fragment"><div class="line">/cgi-bin/nodeboard-cgi.py?f=main2023</div>
+</div><!-- fragment --><h2><code>nodeboard -n &lt;node-id&gt;</code></h2>
 <p>Generate a columns-constrained board that presents the Node specified by <code>&lt;node-id&gt;</code>, its direct dependencies as column headers, and further dependencies within the columns.</p>
-<h2><code>nodeboard -D &lt;name&gt;</code></h2>
+<p>E.g. the board created by:</p>
+<div class="fragment"><div class="line">/cgi-bin/nodeboard-cgi.py?n=20250822225247.1&amp;Z=true</div>
+</div><!-- fragment --><h2><code>nodeboard -D &lt;name&gt;</code></h2>
 <p>Generate a board where the column headers are the Nodes in the NNL specified by <code>&lt;name&gt;</code> and their dependencies fill the columns.</p>
-<h2><code>nodeboard -c &lt;csv-path&gt;</code></h2>
+<p>E.g. the baord created by:</p>
+<div class="fragment"><div class="line">/cgi-bin/nodeboard-cgi.py?D=week_main_goals&amp;T=true&amp;u=204512311159&amp;r=100&amp;U=true</div>
+</div><!-- fragment --><h2><code>nodeboard -c &lt;csv-path&gt;</code></h2>
 <p>Generate a schedule based on information in a CSV file indicated by <code>&lt;csv-path&gt;</code>.</p>
-<h2><code>nodeboard -l "{milestones_formalizer,procrastination,group_sleep}"</code></h2>
+<p>E.g. the board created by:</p>
+<div class="fragment"><div class="line">/cgi-bin/schedule-cgi.py?c=true&amp;num_days=7&amp;s=20</div>
+</div><!-- fragment --><h2><code>nodeboard -l "{milestones_formalizer,procrastination,group_sleep}"</code></h2>
 <p>Generate a board from the specified list of NNLs.</p>
 <h2><code>nodeboard -t "{carboncopies,cc-research,cc-operations}"</code></h2>
 <p>Generate a board from the specified list of Topic keys.</p>

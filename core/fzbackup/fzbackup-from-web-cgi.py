@@ -215,6 +215,10 @@ def backup_with_mirror_to_github():
 
 	serial_API_request(f'CGIbg_run_as_user({cgiprog},{cgiargs},{cgioutfile})', running_on_server=True, error_exit_pause=False)
 
+	# *** If fzbackup-mirror-to-github.sh is updated to update a progress state file
+	#     then here is where we could (mostly) replace the loop below with a call to fzbgprogress.py:make_background_progress_monitor()
+	#     as already used in nodeboard-cgi.py.
+
 	# 2. Wait for an updated signal value to indicate that the background process is done.
 	timeout_s=3*60 # 3 minutes
 	for i in range(timeout_s):
