@@ -135,6 +135,12 @@ function init_darkmode() {
 }
 const darkmodebutton = document.getElementById('darkmode');
 
+function set_noncolor_theme_details(json_uistate) {
+    if (json_uistate.hasOwnProperty('buttonradius')) {
+        document.documentElement.style.setProperty('--btn-radius', `${json_uistate['buttonradius']}px`);
+    }
+}
+
 // --- Clock mode choice:
 var numclockmodes = 2;
 var clockmode = 0;
@@ -227,6 +233,9 @@ if (clockmodebutton) {
 }
 
 // Let's read state
+// *** There's an alternative way to load/store this data using JS localStorage,
+//     but perhaps that would be harder for other parts of the Formalizer to
+//     access and modify, as is expected here with fzuistate.py.
 var uistate = new XMLHttpRequest();
 uistate.onreadystatechange = function() {
     if (this.readyState == 4) {
@@ -239,6 +248,7 @@ uistate.onreadystatechange = function() {
                 darkmode = Number(json_uistate['darkmode']);
                 set_darkmode();
             }
+            set_noncolor_theme_details(json_uistate);
             if (json_uistate.hasOwnProperty('clockmode')) {
                 clockmode = Number(json_uistate['clockmode']);
                 set_clockmode();

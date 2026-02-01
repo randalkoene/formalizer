@@ -342,6 +342,7 @@ TOPLEVEL += $(TOOLSPATH)/system/top/granular-controls.html
 TOPLEVEL += $(TOOLSPATH)/system/top/select.html
 TOPLEVEL += $(TOOLSPATH)/system/top/integrity.html
 TOPLEVEL += $(TOOLSPATH)/system/top/integrity-static.html
+TOPLEVEL += $(TOOLSPATH)/system/top/customize.html
 TOPLEVEL += $(TOOLSPATH)/system/top/locations.html
 TOPLEVEL += $(TOOLSPATH)/system/top/idbook.html
 TOPLEVEL += $(TOOLSPATH)/interface/fzuistate/fzuistate.css

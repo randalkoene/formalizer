@@ -99,6 +99,10 @@
         "Time Zone" : {
             "url" : "/cgi-bin/fztimezone-cgi.py?show=true",
             "window" : "_blank"
+        },
+        "Customize" : {
+            "url" : "/customize.html",
+            "window" : "_blank"
         }
     },
     "Graph Condition: " : {

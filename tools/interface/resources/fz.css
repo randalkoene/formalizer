@@ -45,18 +45,6 @@ border:0;
 border-top:1px solid #eee;
 margin:20px 0
 }
-.button {
-border: none;
-color: black;
-padding: 8px 16px;
-text-align: center;
-text-decoration: none;
-display: inline-block;
-font-size: 16px;
-margin: 4px 2px;
-transition-duration: 0.4s;
-cursor: pointer;
-}
 :root {
 --color-bg: black;
 --color-text: black;
@@ -86,6 +74,8 @@ cursor: pointer;
 --tdp-V: black;
 --tdp-F: black;
 --tdp-E: black;
+
+--btn-radius: 0px;
 }
 [data-theme="white"] {
 --color-bg: white;
@@ -262,6 +252,19 @@ border: var(--border-textarea);
 table td {
 background: var(--color-bg);
 color: var(--color-text);
+}
+.button {
+border: none;
+color: black;
+border-radius: var(--btn-radius);
+padding: 8px 16px;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+font-size: 16px;
+margin: 4px 2px;
+transition-duration: 0.4s;
+cursor: pointer;
 }
 .button1 {
 background-color: var(--color-bg);

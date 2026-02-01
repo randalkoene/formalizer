@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<HTML>
+
+<HEAD>
+<meta charset="utf-8" />
+<link rel="icon" href="/favicon-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<link rel="stylesheet" href="/clock.css">
+<TITLE>Formalizer Environment v2.0a - Customize</TITLE>
+</HEAD>
+<BODY>
+<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="text/javascript" src="/clock.js"></script>
+
+<H1>Formalizer Environment v2.0a - Customize</H1>
+
+<form action="/cgi-bin/fzuistate.py" method="post">
+Button radius: <input type="number" name="buttonradius" size="5"><br />
+<input type="submit" value="Apply" />
+</form>
+<br>
+Color Theme: <button class="button button1" onclick="switch_light_or_dark();">Light / Dark</button>
+<br>
+<button class="button button2" onclick="location.href='/index.html';">fz: Top</button>
+<br>
+
+<hr>
+
+</BODY>
+
+</HTML>

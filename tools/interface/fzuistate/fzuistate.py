@@ -52,6 +52,9 @@ ui_state = {
     'darkmode' : 0,
     'clockmode': 0,
     'tz_offset_hours': 9,
+
+    'buttonradius': 10,
+
     'something' : 100
 }
 
@@ -220,6 +223,11 @@ def handle_ui_state_update():
             updated=True
     except Exception as e:
         to_log(str(e))
+
+    buttonradius = form.getvalue('buttonradius')
+    if buttonradius:
+        ui_state['buttonradius'] = buttonradius
+        updated = True
 
     if updated:
         if (attempt_write_ui_state(ui_state)):

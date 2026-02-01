@@ -87,6 +87,11 @@ class logState {
         return document.getElementById(logstate_id);
     }
 
+    // run_func could be used to update something like the highlighting of
+    // the minutes a Log chunk has been open, dependening on whether more
+    // minutes have gone by than the intended time required for the Node,
+    // but note that the fzloghtml call itself does not return the Node's
+    // time required
     updateStateOfLog() {
     	logstate.open( 'GET', '/cgi-bin/fzloghtml-cgi.py?mostrecentraw=on' );
 		logstate.send(); // no form data presently means we're requesting state
