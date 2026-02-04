@@ -481,7 +481,7 @@ def render_node_with_history(node: str, verbosity = 0):
     print("</tbody></table>")
 
     print(f'<noscript>\n<br>\n<p>\n[<a href="/cgi-bin/fzlink.py?id={node}&alt=histfull">full history</a>]\n</p>\n<br>\n</noscript>')
-    print(f'\n<br>\n<p>\n<button class="button button2" onclick="location.href=\'/cgi-bin/fzlink.py?id={node}&alt=histfull\';">full history</button>\n</p>\n<br>\n')
+    print(f'\n<br>\n<p>\n<button class="button button2" onclick="location.href=\'/cgi-bin/fzlink.py?id={node}&alt=histfull#END\';">full history</button>\n</p>\n<br>\n')
 
 PRECAUTIONFAIL = '''<html>
 <head>
