@@ -245,6 +245,8 @@ editentrypagehead = '''<html>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/fzuistate.css">
+<link rel="stylesheet" href="/copiedalert.css">
+<link rel="stylesheet" href="/htmltemplatestocopy.css">
 <title>fz: Edit Log entry</title>
 </head>
 <body>
@@ -268,7 +270,22 @@ Replace entry <input type="submit" name="replaceentry" value="Text" /> or <input
 <button onclick="markdown2HTML()">Markdown2HTML</button>
 '''
 
-editentrypagetail_success = '''<hr>
+editentrypagetail_success = '''<div id="after_cptplt"></div>
+<div id="templates_html" style="display:none;">
+<button class="button2" onclick="copyInnerHTMLToClipboard('chkbx_tpl');">copy</button> <span id="chkbx_tpl"><input type="checkbox" ></span>
+<button class="button2" onclick="copyInnerHTMLToClipboard('lnkblank_tpl');">copy</button> <span id="lnkblank_tpl"><a href="URL" class="docpopupfunc" target="_blank">target</a></span>
+<button class="button2" onclick="copyInnerHTMLToClipboard('lnklocaldoc_tpl');">copy</button> <span id="lnklocaldoc_tpl"><a href="@FZSERVER@/doc/" target="_blank">~/doc/path</a></span>
+<button class="button2" onclick="copyInnerHTMLToClipboard('lnklocalwww_tpl');">copy</button> <span id="lnklocalwww_tpl"><a href="@FZSERVER@/" target="_blank">/var/www/html/path</a></span>
+<button class="button2" onclick="copyInnerHTMLToClipboard('img_tpl');">copy</button> <span id="img_tpl"><img class="hoverdelayfunc" src="/favicon.png" width=32px height=32px></span>
+<button class="button2" onclick="copyInnerHTMLToClipboard('acttype_tpl');">copy</button> <span id="acttype_tpl">@ACTTYPE=A100@</span>
+<p></p>
+</div>
+<script type="text/javascript" src="/htmltemplatestocopy.js"></script>
+<script>const htmltemplates = new htmlTemplates('after_cptplt', 'cptplt', 'templates', 'templates_html');</script>
+<script type="text/javascript" src="/copiedalert.js"></script>
+<script type="text/javascript" src="/copyinnerhtml.js"></script>
+
+<hr>
 [<a href="/index.html">fz: Top</a>]
 
 <script type="text/javascript" src="/fzuistate.js"></script>

@@ -8,8 +8,8 @@
 <button class="button button1" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?startfrom={{ T_context }}&daysinterval=3');">temporal context</button>
 <button class="button button1" onclick="window.open('/cgi-bin/nodeboard-cgi.py?n={{ node-id }}');">dependencies</button>
 <button class="button button1" onclick="window.open('/cgi-bin/nodemetrics.py?node={{ node-id }}');">metrics</button>
-<button class="button button1" onclick="window.open('/cgi-bin/nodeboard-cgi.py?G=true&n={{ node-id }}&I=true&T=true');">dependencies tree</button>
-<button class="button button1" onclick="window.open('/cgi-bin/nodeboard-cgi.py?g=true&n={{ node-id }}&I=true&T=true');">superiors tree</button>
+<button class="button button1" onclick="window.open('/cgi-bin/nodeboard-cgi.py?G=true&n={{ node-id }}&I=true&T=true');">DEP tree</button>
+<button class="button button1" onclick="window.open('/cgi-bin/nodeboard-cgi.py?g=true&n={{ node-id }}&I=true&T=true');">SUP tree</button>
 <button class="button button2" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new&tosup={{ node-id }}');">mkwsup</button>
 <button class="button button2" onclick="window.open('http://{{ fzserverpq }}/fz/graph/namedlists/superiors?add={{ node-id }}&unique=true');">2sup</button>
 <button class="button button2" onclick="copyInputValueToClipboard('node_id');">copy ID</button>

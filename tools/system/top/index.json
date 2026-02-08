@@ -206,6 +206,10 @@
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20230624214603.1&G=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
             "window" : "_blank"
         },
+        "NETMORPH-CONFIGURATION" : {
+            "url" : "/cgi-bin/nodeboard-cgi.py?n=20250318163438.1&G=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
+            "window" : "_blank"
+        },
         "GROUND-TRUTH-BY-NETMORPH" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20240316154330.1&G=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
             "window" : "_blank"
