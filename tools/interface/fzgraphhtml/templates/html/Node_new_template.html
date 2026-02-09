@@ -15,9 +15,9 @@
 <table class="blueTable"><tbody>
 
 <tr>
-<td class="paramtitle">Targetdate: </td><td><input type="number" name="targetdate" min="0", max="999912312359" step="1" value="{{ eff_td }}"> </td><td>(<code>YYYYmmddHHMM</code> format),
-or <input type="datetime-local" id="alt_targetdate" name="alt_targetdate" min="1990-01-01T00:00:00" value="{{ eff_td_date }}T{{ eff_td_time }}"> (local format),
-or <input type="date" id="alt2_targetdate" name="alt2_targetdate" min="1990-01-01" value="{{ eff_td_date }}"> <input type="time" id="alt2_targettime" name="alt2_targettime" value="{{ eff_td_time }}"><br>
+<td class="paramtitle">Targetdate: </td><td><input type="number" name="targetdate" min="0", max="999912312359" step="1" value="{{ eff_td }}"{{ is_disabled }}> </td><td>(<code>YYYYmmddHHMM</code> format),
+or <input type="datetime-local" id="alt_targetdate" name="alt_targetdate" min="1990-01-01T00:00:00" value="{{ eff_td_date }}T{{ eff_td_time }}"{{ is_disabled }}> (local format),
+or <input type="date" id="alt2_targetdate" name="alt2_targetdate" min="1990-01-01" value="{{ eff_td_date }}"{{ is_disabled }}> <input type="time" id="alt2_targettime" name="alt2_targettime" value="{{ eff_td_time }}"{{ is_disabled }}><br>
 <input type="hidden" name="orig_td" value="{{ eff_td }}"></td>
 <!-- <script>
 document.getElementById('alt_targetdate').value = new Date().toISOString().substring(0, 10);
@@ -26,35 +26,35 @@ document.getElementById('alt_targetdate').value = new Date().toISOString().subst
 
 <tr>
 <td class="paramtitle">TD Property:</td><td colspan=2>
-<input type="radio" name="prop" value="unspecified" {{ prop_unspecified }}> <span class="tooltip">unspecified [queue, Default]<span class="tooltiptext"><div style="width:500px;">Queued. TD is used only to indicate order in the queue. Apply this whenever other types do not strictly apply. Automatic rescheduling does take into account WORK UTD vs SELFWORK UTD.<br>
+<input type="radio" name="prop" value="unspecified" {{ prop_unspecified }}{{ is_disabled }}> <span class="tooltip">unspecified [queue, Default]<span class="tooltiptext"><div style="width:500px;">Queued. TD is used only to indicate order in the queue. Apply this whenever other types do not strictly apply. Automatic rescheduling does take into account WORK UTD vs SELFWORK UTD.<br>
 Future: Ideally, automatic rescheduling of UTD Nodes should take into account the dependency structure.</div></span></span> |
-<input type="radio" name="prop" value="inherit" {{ prop_inherit }}> <span class="tooltip">inherit<span class="tooltiptext"><div style="width:500px;">Behaves just like the Superior Node it inherits from. ITD Nodes are those that are requirements for their superior Node(s) to be accomplished and where scheduling can be determined completely by the dependency hierarchy.</div></span></span> |
-<input type="radio" name="prop" value="variable" {{ prop_variable }}> <span class="tooltip">variable [movable after TD, Rare]<span class="tooltiptext"><div style="width:500px;">Automatically movable, but only if the TD has been passed. Assign the TD with that in mind. Try to apply this only to Nodes that are a priority that should be accomplished within 7 days as part of currently critical milestones. When applying this, carefully consider: Would this become a critical accomplishment with fixed TD in 7 days, 4 days, 2 days? Ask yourself: Is this crucial to keeping a bigger accomplishment on track that impacts many people?<br>
+<input type="radio" name="prop" value="inherit" {{ prop_inherit }}{{ is_disabled }}> <span class="tooltip">inherit<span class="tooltiptext"><div style="width:500px;">Behaves just like the Superior Node it inherits from. ITD Nodes are those that are requirements for their superior Node(s) to be accomplished and where scheduling can be determined completely by the dependency hierarchy.</div></span></span> |
+<input type="radio" name="prop" value="variable" {{ prop_variable }}{{ is_disabled }}> <span class="tooltip">variable [movable after TD, Rare]<span class="tooltiptext"><div style="width:500px;">Automatically movable, but only if the TD has been passed. Assign the TD with that in mind. Try to apply this only to Nodes that are a priority that should be accomplished within 7 days as part of currently critical milestones. When applying this, carefully consider: Would this become a critical accomplishment with fixed TD in 7 days, 4 days, 2 days? Ask yourself: Is this crucial to keeping a bigger accomplishment on track that impacts many people?<br>
 These should be mainly about near-term objectives and Milestones. Having many VTD Nodes messes with the queued automatic rescheduling of UTD Nodes and is unrealistic.</div></span></span> |
-<input type="radio" name="prop" value="fixed" {{ prop_fixed }}> <span class="tooltip">fixed [real deadline, Relatively Rare]<span class="tooltiptext"><div style="width:500px;">Real deadline. The TD is so meaningful that the Schedule has to allow time to accomplish by that TD. Keep this very much in mind, resist the temptation to assign fixed TD where it does not truly apply, because doing so places a heavy burden on automatic scheduling. Ask yourself: Does this need to be completed by a specific time, because after that there are bad consequences or it becomes undoable, a missed opportunity, a broken promise? If the accomplishment requires significant time then the fixed TD should only be applied to the final component of a sub-hierarchy of Nodes.<br>
+<input type="radio" name="prop" value="fixed" {{ prop_fixed }}{{ is_disabled }}> <span class="tooltip">fixed [real deadline, Relatively Rare]<span class="tooltiptext"><div style="width:500px;">Real deadline. The TD is so meaningful that the Schedule has to allow time to accomplish by that TD. Keep this very much in mind, resist the temptation to assign fixed TD where it does not truly apply, because doing so places a heavy burden on automatic scheduling. Ask yourself: Does this need to be completed by a specific time, because after that there are bad consequences or it becomes undoable, a missed opportunity, a broken promise? If the accomplishment requires significant time then the fixed TD should only be applied to the final component of a sub-hierarchy of Nodes.<br>
 FTD Nodes should be about things where the due date is to a large degree outside of my control and that are largely non-optional.</div></span></span> |
-<input type="radio" name="prop" value="exact" {{ prop_exact }}> <span class="tooltip">exact [real specific time, Externally Imposed]<span class="tooltiptext"><div style="width:500px;">Takes place at a real specific time. Normally, this is due to agreements with or expectations by other people. Ask yourself: Does this happen at a very specific time, like a meeting with others?<br>
+<input type="radio" name="prop" value="exact" {{ prop_exact }}{{ is_disabled }}> <span class="tooltip">exact [real specific time, Externally Imposed]<span class="tooltiptext"><div style="width:500px;">Takes place at a real specific time. Normally, this is due to agreements with or expectations by other people. Ask yourself: Does this happen at a very specific time, like a meeting with others?<br>
 If an Exact TD Node <b>requires preparation</b> then that must be specified by a sub-hierarchy of Nodes. To those Nodes, apply either VTD or FTD type.</div></span></span></td>
 </tr>
 
 <tr>
-<td class="paramtitle"><label for="repeats"> Repeats:</label></td><td colspan="2"><input type="checkbox" id="repeats" name="repeats" value="True">  (takes precedence over stored TD pattern -- <b>BEWARE: fzgraph and fzedit don't support this yet!</b>)</td>
+<td class="paramtitle"><label for="repeats"> Repeats:</label></td><td colspan="2"><input type="checkbox" id="repeats" name="repeats" value="True"{{ is_disabled }}>  (takes precedence over stored TD pattern -- <b>BEWARE: fzgraph and fzedit don't support this yet!</b>)</td>
 </tr>
 
 <tr>
 <td class="paramtitle">TD Pattern:</td><td colspan=2>
-<input type="radio" name="patt" value="nonperiodic" {{ patt_nonperiodic }}> nonperiodic |
-<input type="radio" name="patt" value="daily" {{ patt_daily }}> daily |
-<input type="radio" name="patt" value="workdays" {{ patt_workdays }}> workdays |
-<input type="radio" name="patt" value="weekly" {{ patt_weekly }}> weekly |
-<input type="radio" name="patt" value="biweekly" {{ patt_biweekly }}> biweekly |
-<input type="radio" name="patt" value="monthly" {{ patt_monthly }}> monthly |
+<input type="radio" name="patt" value="nonperiodic" {{ patt_nonperiodic }}{{ is_disabled }}> nonperiodic |
+<input type="radio" name="patt" value="daily" {{ patt_daily }}{{ is_disabled }}> daily |
+<input type="radio" name="patt" value="workdays" {{ patt_workdays }}{{ is_disabled }}> workdays |
+<input type="radio" name="patt" value="weekly" {{ patt_weekly }}{{ is_disabled }}> weekly |
+<input type="radio" name="patt" value="biweekly" {{ patt_biweekly }}{{ is_disabled }}> biweekly |
+<input type="radio" name="patt" value="monthly" {{ patt_monthly }}{{ is_disabled }}> monthly |
 <input type="radio" name="patt" value="eofmonth" {{ patt_endofmonthoffset }}> end-of-month offset |
-<input type="radio" name="patt" value="yearly" {{ patt_yearly }}> yearly</td>
+<input type="radio" name="patt" value="yearly" {{ patt_yearly }}{{ is_disabled }}> yearly</td>
 </tr>
 
 <tr>
-<td class="paramtitle">Every:</td><td><input type="number" name="every" min="1" step="1" value="{{ td_every }}"></td><td class="paramtitle">Span: <input type="number" name="span" min="0" step="1" value="{{ td_span }}"></td>
+<td class="paramtitle">Every:</td><td><input type="number" name="every" min="1" step="1" value="{{ td_every }}"{{ is_disabled }}></td><td class="paramtitle">Span: <input type="number" name="span" min="0" step="1" value="{{ td_span }}"{{ is_disabled }}></td>
 </tr>
 
 </tbody></table>
@@ -62,36 +62,36 @@ If an Exact TD Node <b>requires preparation</b> then that must be specified by a
 <table class="blueTable"><tbody>
 
 <tr>
-<td class="paramtitle">Completion:</td><td><input type="number" name="comp" min="-4.0" max="1.0" step="0.01" value="{{ comp }}"><br>Set completed: <input type="checkbox" name="set_complete"></td>
+<td class="paramtitle">Completion:</td><td><input type="number" name="comp" min="-4.0" max="1.0" step="0.01" value="{{ comp }}"{{ is_disabled }}><br>Set completed: <input type="checkbox" name="set_complete"{{ is_disabled }}></td>
 <td>Special codes:
 <input type="radio" id="nocode" name="comp_code" value="" checked> <label for="nocode">N/A</label>
-<input type="radio" id="obsolete" name="comp_code" value="-1"> <label for="obsolete">obsolete</label>
-<input type="radio" id="replaced" name="comp_code" value="-2"> <label for="replaced">replaced</label>
-<input type="radio" id="differently" name="comp_code" value="-3"> <label for="differently">done differently</label>
-<input type="radio" id="notpossible" name="comp_code" value="-4"> <label for="notpossible">no longer possible (did not come to pass)</label>
+<input type="radio" id="obsolete" name="comp_code" value="-1"{{ is_disabled }}> <label for="obsolete">obsolete</label>
+<input type="radio" id="replaced" name="comp_code" value="-2"{{ is_disabled }}> <label for="replaced">replaced</label>
+<input type="radio" id="differently" name="comp_code" value="-3"{{ is_disabled }}> <label for="differently">done differently</label>
+<input type="radio" id="notpossible" name="comp_code" value="-4"{{ is_disabled }}> <label for="notpossible">no longer possible (did not come to pass)</label>
 <br> | Hours required to complete: <b>{{ hrs_to_complete }}</b></td>
 </tr>
 
 <tr>
 <td class="paramtitle">Required:</td>
 <td colspan="2">
-<input type="radio" id="zerochunks" name="req_mins_typical" value="0" checked> <label for="zerochunks">0 mins</label>
+<input type="radio" id="zerochunks" name="req_mins_typical" value="0"{{ is_disabled }}> <label for="zerochunks">0 mins</label>
 <input type="radio" id="onechunk" name="req_mins_typical" value="20" checked> <label for="onechunk">20 mins</label>
-<input type="radio" id="twochunks" name="req_mins_typical" value="40"> <label for="twochunks">40 mins</label>
-<input type="radio" id="threechunks" name="req_mins_typical" value="60"> <label for="threechunks">60 mins</label>
-<input type="radio" id="nonchunked" name="req_mins_typical" value=""> <label for="nonchunked"><span class="tooltip">other<span class="tooltiptext"><div style="width:500px;">The recommended time is initialized from topic-specific statistics. You can regenerate and update these by using the Node Metrics button on the Top page.</div></span></span></label>
-<input type="number" name="req_hrs" min="0.0" max="1000.0" step="0.00001" value="{{ req_hrs }}"> hrs + <input type="number" name="req_mins" min="0" max="10000" step="1" value=""> mins
-<input type="hidden" name="orig_mins" value="{{ req_mins }}"></td>
+<input type="radio" id="twochunks" name="req_mins_typical" value="40"{{ is_disabled }}> <label for="twochunks">40 mins</label>
+<input type="radio" id="threechunks" name="req_mins_typical" value="60"{{ is_disabled }}> <label for="threechunks">60 mins</label>
+<input type="radio" id="nonchunked" name="req_mins_typical" value=""{{ is_disabled }}> <label for="nonchunked"><span class="tooltip">other<span class="tooltiptext"><div style="width:500px;">The recommended time is initialized from topic-specific statistics. You can regenerate and update these by using the Node Metrics button on the Top page.</div></span></span></label>
+<input type="number" name="req_hrs" min="0.0" max="1000.0" step="0.00001" value="{{ req_hrs }}"{{ is_disabled }}> hrs + <input type="number" name="req_mins" min="0" max="10000" step="1" value=""{{ is_disabled }}> mins
+<input type="hidden" name="orig_mins" value="{{ req_mins }}"{{ is_disabled }}></td>
 </tr>
 
 <tr>
 <td class="paramtitle">Valuation:</td>
 <td colspan="2">
-<input type="radio" id="valone" name="val_typical" value="1.0"> <label for="valone">1.0</label>
-<input type="radio" id="valtwo" name="val_typical" value="2.0"> <label for="valtwo">2.0</label>
+<input type="radio" id="valone" name="val_typical" value="1.0"{{ is_disabled }}> <label for="valone">1.0</label>
+<input type="radio" id="valtwo" name="val_typical" value="2.0"{{ is_disabled }}> <label for="valtwo">2.0</label>
 <input type="radio" id="valthree" name="val_typical" value="3.0" checked> <label for="valthree">3.0</label>
-<input type="radio" id="atypical" name="val_typical" value=""> <label for="atypical">other</label>
-<input type="number" name="val" min="0.0" max="10.0" step="0.1" value=""></td>
+<input type="radio" id="atypical" name="val_typical" value=""{{ is_disabled }}> <label for="atypical">other</label>
+<input type="number" name="val" min="0.0" max="10.0" step="0.1" value=""{{ is_disabled }}></td>
 </tr>
 
 </table>
