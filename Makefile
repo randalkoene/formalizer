@@ -230,6 +230,7 @@ CGIEXE += $(COREPATH)/fzquerypq/fzquerypq-cgi.py
 CGIEXE += $(COREPATH)/fztask/fztask-cgi.py
 CGIEXE += $(COREPATH)/fzupdate/fzupdate-cgi.py
 CGIEXE += $(COREPATH)/fztimezone/fztimezone-cgi.py
+CGIEXE += $(TOOLSPATH)/interface/fzapicall/fzapicall.py
 CGIEXE += $(TOOLSPATH)/interface/logentry-form/logentry-form.py
 CGIEXE += $(TOOLSPATH)/interface/fzgraphhtml/fzgraphhtml-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/addnode/addnode-template.py

@@ -53,6 +53,7 @@
 			},
 			"interface": {
 				"addnode": "/tools/interface/addnode",
+				"fzapicall": "/tools/interface/fzapicall",
 				"fzcatchup": "/tools/interface/fzcatchup",
 				"fzlink": "/tools/interface/fzlink",
 				"fzuistate": "/tools/interface/fzuistate",
