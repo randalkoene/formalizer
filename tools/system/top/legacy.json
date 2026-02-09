@@ -28,5 +28,61 @@
             "url" : "https://docs.google.com/spreadsheets/d/1-be-haSP3cqnwinYokcg0x91e8f-_LBT9HQOy9QHhxs/edit#gid=0",
             "window" : "_blank"
         }
+    },
+    "Legacy Metrics": {
+        "Metrics Sheets" : {
+            "url" : "https://docs.google.com/spreadsheets/d/1_UX286LRCFbp5V1nnNIKMdggfELggocSXy80x-DZtM0/edit#gid=0",
+            "window" : "_blank"
+        },
+        "Reward &amp; Positive" : {
+            "url" : "https://docs.google.com/spreadsheets/d/1oDD4moypes9qII1olFaLWhydOPCWFa7f_u6hWXTZVP4/edit#gid=1180724961",
+            "window" : "_blank"
+        },
+        "LVL4 Day Plan" : {
+            "url" : "https://docs.google.com/spreadsheets/d/1mNAYcHlFjXHzSFHHli-_cOfeEjxwcRizJlwbWYPIZA8/edit#gid=0",
+            "window" : "_blank"
+        }
+    },
+    "Legacy System Boards": {
+        "Promises and Challenges" : {
+            "url" : "https://trello.com/b/mnu1VKIn",
+            "window" : "_blank"
+        },
+        "Metrics" : {
+            "url" : "https://trello.com/b/e3sHVgMT",
+            "window" : "_blank"
+        },
+        "Experiments" : {
+            "url" : "https://trello.com/b/tlgXjZBm",
+            "window" : "_blank"
+        },
+        "Carboncopies" : {
+            "url" : "https://trello.com/b/ABTA2xEA",
+            "window" : "_blank"
+        },
+        "Meditation, Mindstate & Flow" : {
+            "url" : "https://trello.com/b/6ZfhOnuN",
+            "window" : "_blank"
+        }
+    },
+    "Legacy Track Collections": {
+        "Personal Life" : {
+            "url" : "https://trello.com/b/zUiabFZx",
+            "window" : "_blank"
+        },
+        "Ongoing Opportunities Search" : {
+            "url" : "https://trello.com/b/asCOUeKD",
+            "window" : "_blank"
+        }
+    },
+    "Legacy Information": {
+        "Team Overview" : {
+            "url" : "https://docs.google.com/spreadsheets/d/1x1ea0yCaAeJVE_eJ0pJmEjIqpKjdWR9wmp2a1_M2aNI/edit?usp=drive_link",
+            "window" : "_blank"
+        },
+        "Team Member Notes" : {
+            "url" : "https://docs.google.com/document/d/1c--nJcln_J7TDoYGVPshaq7VAZCLc0t5SOXTtHixCco/edit?tab=t.0k",
+            "window" : "_blank"
+        }
     }
 }

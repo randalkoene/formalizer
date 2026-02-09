@@ -101,18 +101,6 @@
             "url" : "/cgi-bin/orderscore-cgi.py",
             "window" : "_blank"
         },
-        "Metrics Sheets" : {
-            "url" : "https://docs.google.com/spreadsheets/d/1_UX286LRCFbp5V1nnNIKMdggfELggocSXy80x-DZtM0/edit#gid=0",
-            "window" : "_blank"
-        },
-        "Reward &amp; Positive" : {
-            "url" : "https://docs.google.com/spreadsheets/d/1oDD4moypes9qII1olFaLWhydOPCWFa7f_u6hWXTZVP4/edit#gid=1180724961",
-            "window" : "_blank"
-        },
-        "LVL4 Day Plan" : {
-            "url" : "https://docs.google.com/spreadsheets/d/1mNAYcHlFjXHzSFHHli-_cOfeEjxwcRizJlwbWYPIZA8/edit#gid=0",
-            "window" : "_blank"
-        },
         "Intention Performance" : {
             "url" : "/cgi-bin/sysmet-extract-cgi.py?categories=intentions",
             "window" : "_blank"
@@ -171,7 +159,7 @@
             "url" : "/cgi-bin/fzvismilestones-cgi.py?F=%5B&L=true",
             "window" : "_blank"
         },
-        "Graph" : {
+        "Graph:Cyto" : {
             "url" : "/cgi-bin/fzvismilestones-cgi.py",
             "window" : "_blank"
         }
@@ -208,10 +196,6 @@
         },
         "NETMORPH-CONFIGURATION" : {
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20250318163438.1&G=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
-            "window" : "_blank"
-        },
-        "GROUND-TRUTH-BY-NETMORPH" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?n=20240316154330.1&G=true&T=true&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
             "window" : "_blank"
         },
         "ETHICS-FRAMEWORK-1.0" : {
@@ -258,36 +242,12 @@
         }
     },
     "System Boards: " : {
-        "Main Categories" : {
-            "url" : "/cgi-bin/nodeboard-cgi.py?f=main2023",
-            "window" : "_blank"
-        },
-        "Promises and Challenges" : {
-            "url" : "https://trello.com/b/mnu1VKIn",
-            "window" : "_blank"
-        },
         "NoC Pers. Roadmap" : {
             "url" : "https://trello.com/b/cOCvAYh4",
             "window" : "_blank"
         },
-        "Metrics" : {
-            "url" : "https://trello.com/b/e3sHVgMT",
-            "window" : "_blank"
-        },
-        "Experiments" : {
-            "url" : "https://trello.com/b/tlgXjZBm",
-            "window" : "_blank"
-        },
         "Concierge" : {
             "url" : "https://trello.com/b/ptGdOpzW",
-            "window" : "_blank"
-        },
-        "Carboncopies" : {
-            "url" : "https://trello.com/b/ABTA2xEA",
-            "window" : "_blank"
-        },
-        "Meditation, Mindstate & Flow" : {
-            "url" : "https://trello.com/b/6ZfhOnuN",
             "window" : "_blank"
         },
         "Financials, Income & Capital" : {
@@ -298,10 +258,6 @@
     "Track Collections: " : {
         "Health" : {
             "url" : "https://trello.com/b/uNGTL6aO",
-            "window" : "_blank"
-        },
-        "Personal Life" : {
-            "url" : "https://trello.com/b/zUiabFZx",
             "window" : "_blank"
         },
         "Finances" : {
@@ -324,11 +280,7 @@
             "url" : "/cgi-bin/nodeboard-cgi.py?n=20240808115448.1&G=true&T=true&C=150&B=79&tdorder=true&tdbad=true&tdfar=true&N=7.0&O=later",
             "window" : "_blank"
         },
-        "Ongoing Opportunities Search" : {
-            "url" : "https://trello.com/b/asCOUeKD",
-            "window" : "_blank"
-        },
-        "FORMALIZER-NEWAL-METHOD" : {
+        "Formalizer Refactor" : {
             "url" : "https://trello.com/b/PEfStDEN",
             "window" : "_blank"
         },
@@ -389,14 +341,6 @@
         }
     },
     "Information: " : {
-        "Team Overview" : {
-            "url" : "https://docs.google.com/spreadsheets/d/1x1ea0yCaAeJVE_eJ0pJmEjIqpKjdWR9wmp2a1_M2aNI/edit?usp=drive_link",
-            "window" : "_blank"
-        },
-        "Team Member Notes" : {
-            "url" : "https://docs.google.com/document/d/1c--nJcln_J7TDoYGVPshaq7VAZCLc0t5SOXTtHixCco/edit?tab=t.0k",
-            "window" : "_blank"
-        },
         "Sys:Doc" : {
             "url" : "/formalizer/doc.html",
             "window" : "_blank"
