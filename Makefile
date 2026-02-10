@@ -408,6 +408,7 @@ TESTS += $(TOOLSPATH)/misc/test/test_delayed_hover.html
 TESTS += $(TOOLSPATH)/misc/test/test_dragndrop.html
 TESTS += $(TOOLSPATH)/misc/test/test_encrypt_idbook.html
 TESTS += $(TOOLSPATH)/misc/test/test_fzcgirequest.html
+TESTS += $(TOOLSPATH)/misc/test/test_hover_serverdata.html
 TESTS += $(TOOLSPATH)/misc/test/test_python_cgianalysis.html
 TESTS += $(TOOLSPATH)/misc/test/test_python_cgiformget.html
 TESTS += $(TOOLSPATH)/misc/test/test_task_chunk_countdown_bar.html

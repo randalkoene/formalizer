@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Test Hover Server Data</title>
+<style>
+/* Define the flashing sequence */
+@keyframes warning-flash {
+  0% { background-color: #ff0000; color: white; }    /* Bright Red */
+  50% { background-color: #8b0000; color: #cccccc; } /* Dark Red */
+  100% { background-color: #ff0000; color: white; }   /* Back to Bright */
+}
+
+/* The class that triggers the flash */
+.flashing {
+  animation: warning-flash 0.8s infinite; /* Cycles every 0.8 seconds forever */
+  border: 2px solid white;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.8); /* Optional glow effect */
+}
+
+/* Basic button styling */
+#my-button {
+  padding: 10px 20px;
+  background-color: #ccc;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+</style>
+</head>
+<body>
+
+<h1>Test Hover Server Data</h1>
+
+This page tests associating page elements with javascript such that hovering
+on an element causes a call to retrieve data via the Formalizer API server.
+<P>
+
+<div id="tab1" style="display:none;">
+Hover Tab1 content.
+</div>
+<button id="hover1" onmouseover="HoverButton1_On()" onmouseout="HoverButton1_Off()">Hover over this button (raw scripting)</button>
+<P>
+<div id="tab2" style="display:none;">
+Hover Tab2 content.
+</div>
+<button id="hover2">Hover over this button (using hoveropentab)</button>
+
+<P>
+<div id="tab3" style="display:none;">
+Hover Tab3 content.
+</div>
+<button id="hover3">Hover over this button (using HoverAction) to get selected</button>
+
+<P>
+<div id="tab4" style="display:none;">
+Hover Tab4 content.
+</div>
+<button id="hover4">Hover over this button (using HoverAction) to get superiors</button>
+
+
+<script type="text/javascript" src="/hoveropentab.js"></script>
+<script>
+  function HoverButton1_On() {
+    console.log('Hovering on hover1');
+    document.getElementById('tab1').style.display = 'block';
+  }
+  function HoverButton1_Off() {
+    console.log('Closing hover1');
+    document.getElementById('tab1').style.display = 'none';
+  }
+  //export { HoverButton1_On, HoverButton1_Off };
+
+  const Hover2 = new HoverOpenTab('hover2', 'tab2', start_open=true);
+
+</script>
+<script type="module">
+  import { fzCGIRequest } from '/fzCGIRequest.js';
+
+  class HoverAction {
+    constructor(hoverclick_id, tab_id, async_action=null, handler=null) {
+        this.tab_open_ref = document.getElementById(hoverclick_id);
+        this.tab_ref = document.getElementById(tab_id);
+        this.tab_open = false;
+        this.async_action = async_action;
+        this.handler = handler;
+        this.action_busy = false;
+
+        this.tab_open_ref.addEventListener('mouseover', async (event) => {
+            this.open_tab(this.async_action, this.handler);
+        });
+        this.tab_open_ref.addEventListener('mouseout', () => {
+            this.close_tab();
+        });
+    }
+
+    async open_tab(async_action, handler) {
+      if (!this.tab_open) {
+        this.tab_ref.style.display = 'block';
+        this.tab_open = true;
+        if (async_action && (!this.action_busy)) {
+          this.action_busy = true;
+          const response = await async_action();
+          if (handler) {
+            handler(response);
+          }
+          this.action_busy = false;
+        }
+      }
+    }
+
+    close_tab() {
+      if (this.tab_open) {
+        this.tab_ref.style.display = 'none';
+        this.tab_open = false;
+      }
+    }
+
+  };
+
+  function getResponseJson(responseString) {
+    try {
+      const data = JSON.parse(responseString);
+      return data;
+    } catch (error) {
+      // If an error is caught, the string is not valid JSON
+      return {};
+    }
+  }
+
+  async function fzAPICall(apicall) {
+    const fzcgiutil = '/cgi-bin/fzapicall.py';
+    const argstuples = [['apicall', apicall]];
+    const response = await fzCGIRequest(fzcgiutil, argstuples);
+    return getResponseJson(response);
+  }
+
+  async function getSelected() {
+    const data = await fzAPICall('/fz/graph/namedlists/selected.json');
+    if ('selected' in data) {
+      console.log(`Selected is ${data['selected'][0]}`);
+      const textdata = await fzAPICall(`/fz/graph/nodes/${data['selected'][0]}/text.json`);
+      if ('text' in textdata) {
+        console.log(textdata['text']);
+        document.getElementById('tab3').innerHTML = `Selected is ${data['selected'][0]}: ${textdata['text']}`;
+      } else {
+        document.getElementById('tab3').innerHTML = `Selected is ${data['selected'][0]}: (no text content)`;
+      }
+    } else {
+      console.log('Selected is empty');
+      document.getElementById('tab3').innerHTML = `Selected is empty`;
+    }
+  }
+  async function getSuperiors() {
+    const data = await fzAPICall('/fz/graph/namedlists/superiors.json');
+    if ('superiors' in data) {
+      console.log(`Superiors are ${data['superiors']}`);
+      document.getElementById('tab4').innerHTML = `Superiors are ${data['superiors']}`;
+    } else {
+      console.log('Superiors is empty');
+      document.getElementById('tab4').innerHTML = `Superiors is empty`;
+    }
+  }
+  const Hover3 = new HoverAction('hover3', 'tab3', getSelected);
+  const Hover4 = new HoverAction('hover4', 'tab4', getSuperiors);
+</script>
+
+</body>
+</html>
