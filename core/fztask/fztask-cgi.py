@@ -324,7 +324,7 @@ Log entries in this chunk: %s
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <script type="text/javascript" src="/delayedpopup.js"></script>
 <script>
 set_hover_delayed_function('.buttonpopupfunc', openHiddenPopup, 1000);

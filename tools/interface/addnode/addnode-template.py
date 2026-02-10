@@ -200,7 +200,7 @@ SELECT_TEMPLATE_PAGE='''<html>
 
 <p>[<a href="/index.html">fz: Top</a>]</p>
 
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -241,7 +241,7 @@ SELECT_TEMPLATE_PAGE='''<html>
 #     window.open('/cgi-bin/fzedit-cgi.py?edge='+edge_id+'&edgemod='+modtype+'&modval='+value);
 # }
 # </script>
-# <script type="text/javascript" src="/fzuistate.js"></script>
+# <script type="module" src="/fzuistate.js"></script>
 # <script type="text/javascript" src="/clock.js"></script>
 # <script>
 #     var clock = new floatClock('clock');

@@ -131,7 +131,7 @@ CLUSTERS_PAGE = '''<html>
 <title>Team Clusters</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <h1>Team Clusters</h1>
 <p>
 <pre>

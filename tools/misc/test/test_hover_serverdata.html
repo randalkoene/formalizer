@@ -46,16 +46,29 @@ Hover Tab2 content.
 <button id="hover2">Hover over this button (using hoveropentab)</button>
 
 <P>
-<div id="tab3" style="display:none;">
-Hover Tab3 content.
+
+<div style="position:fixed;bottom:0;">
+<div style="display:inline-block;">
+<!--<div id="tab3" style="display:none; position:fixed; z-index:2000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.4); justify-content:center;align-items:center;">-->
+<div id="tab3" style="display:none; position:absolute; z-index:2000; bottom:65px; width:250px; height:300px; background-color:rgba(0,0,0,0.4); justify-content:center;align-items:center;">
+  <div style="background-color:#fefefe;padding: 20px;border: 1px solid #888;width: 100%;height: 100%;border-radius: 10px;">
+    <span id="tab3close" style="color:#aaa;float:right;font-size:28px;font-weight:bold;cursor:pointer;">&times;</span>
+    <span id="tab3content">Hover Tab3 content.</span>
+  </div>
 </div>
 <button id="hover3">Hover over this button (using HoverAction) to get selected</button>
+</div>
 
-<P>
-<div id="tab4" style="display:none;">
-Hover Tab4 content.
+<div style="display:inline-block;">
+<div id="tab4" style="display:none; position:absolute; z-index:2000; bottom:65px; width:250px; height:300px; background-color:rgba(0,0,0,0.4); justify-content:center;align-items:center;">
+  <div style="background-color:#fefefe;padding: 20px;border: 1px solid #888;width: 100%;height: 100%;border-radius: 10px;">
+    <span id="tab4close" style="color:#aaa;float:right;font-size:28px;font-weight:bold;cursor:pointer;">&times;</span>
+    <span id="tab4content">Hover Tab4 content.</span>
+  </div>
 </div>
 <button id="hover4">Hover over this button (using HoverAction) to get superiors</button>
+</div>
+</div>
 
 <P>
 <button id="NNLcopy">Grab text copy of Weekly Main Goals NNL</button>
@@ -85,10 +98,12 @@ Hover Tab4 content.
   import { fzAPICall } from '/fzCGIRequest.js';
 
   class HoverAction {
-    constructor(hoverclick_id, tab_id, async_action=null, handler=null) {
+    constructor(hoverclick_id, tab_id, close_if_mouseout=true, open_func=null, close_func=null, async_action=null, handler=null) {
         this.tab_open_ref = document.getElementById(hoverclick_id);
         this.tab_ref = document.getElementById(tab_id);
-        this.tab_open = false;
+        //this.tab_open = false;
+        this.open_func = open_func;
+        this.close_func = close_func;
         this.async_action = async_action;
         this.handler = handler;
         this.action_busy = false;
@@ -96,15 +111,29 @@ Hover Tab4 content.
         this.tab_open_ref.addEventListener('mouseover', async (event) => {
             this.open_tab(this.async_action, this.handler);
         });
-        this.tab_open_ref.addEventListener('mouseout', () => {
-            this.close_tab();
-        });
+        if (close_if_mouseout) {
+          this.tab_open_ref.addEventListener('mouseout', () => {
+              this.close_tab();
+          });
+        }
+    }
+
+    default_open() {
+      this.tab_ref.style.display = 'block';
+    }
+
+    default_close() {
+      this.tab_ref.style.display = 'none';
     }
 
     async open_tab(async_action, handler) {
-      if (!this.tab_open) {
-        this.tab_ref.style.display = 'block';
-        this.tab_open = true;
+      if (this.tab_ref.style.display == 'none') {
+        if (this.open_func) {
+          this.open_func();
+        } else {
+          this.default_open();
+        }
+        //this.tab_open = true;
         if (async_action && (!this.action_busy)) {
           this.action_busy = true;
           const response = await async_action();
@@ -117,42 +146,65 @@ Hover Tab4 content.
     }
 
     close_tab() {
-      if (this.tab_open) {
-        this.tab_ref.style.display = 'none';
-        this.tab_open = false;
+      if (this.tab_ref.style.display != 'none') {
+        if (this.close_func) {
+          this.close_func();
+        } else {
+          this.default_close();
+        }
+        //this.tab_open = false;
       }
     }
 
   };
 
+  function openSelected() { // *** might not need this anymore
+    var modal = document.getElementById("tab3");
+    //modal.style.display = "flex";
+    modal.style.display = "block";
+    document.getElementById("tab3close").onclick = function() { modal.style.display = "none"; }
+  }
+
+  function openSuperiors() { // *** might not need this anymore
+    var modal = document.getElementById("tab4");
+    //modal.style.display = "flex";
+    modal.style.display = "block";
+    document.getElementById("tab4close").onclick = function() { modal.style.display = "none"; }
+  }
+
+
   async function getSelected() {
     const data = await fzAPICall('/fz/graph/namedlists/selected.json');
     if ('selected' in data) {
       console.log(`Selected is ${data['selected'][0]}`);
-      const textdata = await fzAPICall(`/fz/graph/nodes/${data['selected'][0]}/excerpt.json`);
-      if ('text' in textdata) {
-        console.log(textdata['text']);
-        document.getElementById('tab3').innerHTML = `Selected is ${data['selected'][0]}: ${textdata['text']}`;
+      const apicall = `/fz/graph/nodes/${data['selected'][0]}/excerpt.json`;
+      console.log(`Excerpt API call: ${apicall}`);
+      const textdata = await fzAPICall(apicall);
+      if ('excerpt' in textdata) {
+        console.log(textdata['excerpt']);
+        //document.getElementById('tab3').innerHTML = `Selected is ${data['selected'][0]}: ${textdata['excerpt']}`;
+        document.getElementById("tab3content").textContent = `Selected is ${data['selected'][0]}: ${textdata['excerpt'].substring(0,400)}`;
       } else {
-        document.getElementById('tab3').innerHTML = `Selected is ${data['selected'][0]}: (no text content)`;
+        document.getElementById("tab3content").textContent = `Selected is ${data['selected'][0]}: (no text content)`;
       }
     } else {
       console.log('Selected is empty');
-      document.getElementById('tab3').innerHTML = `Selected is empty`;
+      document.getElementById("tab3content").textContent = `Selected is empty`;
     }
   }
+
   async function getSuperiors() {
     const data = await fzAPICall('/fz/graph/namedlists/superiors.json');
     if ('superiors' in data) {
       console.log(`Superiors are ${data['superiors']}`);
-      document.getElementById('tab4').innerHTML = `Superiors are ${data['superiors']}`;
+      document.getElementById('tab4content').textContent = `Superiors are ${data['superiors']}`;
     } else {
       console.log('Superiors is empty');
-      document.getElementById('tab4').innerHTML = `Superiors is empty`;
+      document.getElementById('tab4content').textContent = `Superiors is empty`;
     }
   }
-  const Hover3 = new HoverAction('hover3', 'tab3', getSelected);
-  const Hover4 = new HoverAction('hover4', 'tab4', getSuperiors);
+  const Hover3 = new HoverAction('hover3', 'tab3', true, null, null, getSelected); // used to use openSelected
+  const Hover4 = new HoverAction('hover4', 'tab4', true, null, null, getSuperiors); // used to use openSuperiors
 
   async function getWeeklyMainGoals() {
     const NNLname = 'week_main_goals';

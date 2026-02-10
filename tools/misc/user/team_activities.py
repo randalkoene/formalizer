@@ -158,7 +158,7 @@ ACTIVITIES_PAGE = '''<html>
 <title>Team Member Activities</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <h1>Team Member Activities</h1>
 <p>
 Skills applied at CCF: %s
@@ -186,7 +186,7 @@ TEAM_ACTIVITIES_PAGE = '''<html>
 <title>Team Activities</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <h1>Team Activities</h1>
 <p>
 <pre>

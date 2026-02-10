@@ -166,7 +166,7 @@ HTML_PAGE = '''<html>
 </style>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <h1>Select Subgroup from CCF Team</h1>
 Number of team members listed: %s
 <form action="/cgi-bin/team_subgroup.py" method="post">

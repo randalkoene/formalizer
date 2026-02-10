@@ -104,7 +104,7 @@ interface_options_help = '''<html>
 <link rel="stylesheet" href="/fzuistate.css">
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h1>fzloghtml-cgi API</h1>
 
@@ -201,7 +201,7 @@ right: 50%;
 <body>
 <script type="text/javascript" src="/clock.js"></script>
 <script type="text/javascript" src="/score.js"></script>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <button id="timerBarText" class="button button2 logstate">_____</button>
 
 <div id="protocol_tab">
@@ -670,7 +670,7 @@ INDEXMISSINGARGS='''<html>
 <title>fz: Log Index</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 %s
 </body>
 </html>

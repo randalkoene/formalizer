@@ -80,7 +80,7 @@ overflow-x: auto;
 }
 </style>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <h1>Specify Sub-Hierarchy</h1>
 <form action="/cgi-bin/subhierarchy.py" method="post">
 <a class="nnl" href="/cgi-bin/fzlink.py?id=%s" target="_blank">%s</a>
@@ -243,7 +243,7 @@ GEN_PAGE_HTML = '''<html>
 <link rel="stylesheet" href="/fzuistate.css">
 <title>Generating Sub-Hierarchy</title>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <h1>Generating Sub-Hierarchy</h1>
 </body>
 %s
@@ -257,7 +257,7 @@ ERROR_PAGE_HTML='''<html>
 <link rel="stylesheet" href="/fzuistate.css">
 <title>Sub-Hierarchy Error</title>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <h1>Sub-Hierarchy Error</h1>
 </body>
 %s

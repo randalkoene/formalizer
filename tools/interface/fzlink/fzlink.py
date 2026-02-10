@@ -56,7 +56,7 @@ page_header = '''<html>
 '''
 
 page_tail = '''<hr id="END">
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <script type="text/javascript" src="/clock.js"></script>
 <script type="text/javascript" src="/delayedpopup.js"></script>
 <script>

@@ -18,7 +18,7 @@ PAGETEMPLATE='''<html>
 <title>fz: CGI API Help Index</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h1>fz: CGI API Help Index</h1>
 

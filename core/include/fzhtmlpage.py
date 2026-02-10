@@ -220,7 +220,7 @@ class fz_html_style:
 class fz_html_uistate:
     def __init__(self):
         self.head_content = '<link rel="stylesheet" href="/fzuistate.css">\n'
-        self.tail_content = '<script type="text/javascript" src="/fzuistate.js"></script>\n'
+        self.tail_content = '<script type="module" src="/fzuistate.js"></script>\n'
 
     def generate_html_head(self) ->str:
         return self.head_content

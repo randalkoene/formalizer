@@ -34,7 +34,7 @@ RESULTPAGE = '''<html>
 <title>fz: Batch Edit</title>
 </head>
 <body onload="do_if_opened_by_script('Keep Page','Go to Topics','/cgi-bin/fzgraphhtml-cgi.py?topics=?');">
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <p class="%s">%s</p>
 <hr>
 <script type="text/javascript" src="/fzclosing_window.js"></script>

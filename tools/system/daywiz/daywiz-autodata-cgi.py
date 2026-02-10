@@ -69,7 +69,7 @@ table, th, td {
 </style>
 </HEAD>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <H1>DayWiz AutoData</H1>
 

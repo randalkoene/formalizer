@@ -36,7 +36,7 @@ Set all to: <input id="setto" name="setto" type="number"> <input type="submit" v
 <hr>
 
 <button id="darkmode" class="button button2" onclick="switch_light_or_dark();">Light / Dark</button>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <script type="text/javascript" src="/clock.js"></script>
 </body>
 </html>

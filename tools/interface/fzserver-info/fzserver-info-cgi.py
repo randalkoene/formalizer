@@ -60,7 +60,7 @@ BALANCE='''<html>
 <title>fz: Nodes Balance</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h3>fz: Nodes Balance</h3>
 

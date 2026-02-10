@@ -1,28 +1,82 @@
-// fzuistate.js - Randal A. Koene, 20210315
+// fzuistate.js - Randal A. Koene, 20210315 (updates through at least 2026)
 // Formalizer Web UI standard state handling
-// Note: Load this in a <script> tag at end of <body> section or within $("document").ready(function(){ ... }); as when in <head> section.
+// Note: Load this in a <script type="module"> tag within the <body> section or within $("document").ready(function(){ ... }); as when in <head> section.
 //       The Javascript below ineracts with the Python CGI script fzuistate.py, which
 //       processes both update and state requests. Update requests are made with valid
 //       form data submitted while state requests are made by providing no form data.
 
 // --- Buttons added to the page:
 
+/*
+A few things we need in order to extend this to allow for hover actions
+displaying extra information:
+
+- [DONE] Switch building raw buttons within container DIV to building incorporated DIVs and
+  buttons within (as per test_hover_serverdata.html), perhaps only if and when a
+  button is specified to have a hover action.
+- [DONE] Pull the common CSS used in test_hover_serverdata.html into fzuistate.css for use
+  in the hover cards.
+- [DONE] Add information for bottombar_data so that it's clear which buttons have hover
+  actions and what functions to use.
+- [DONE] Make a section in fzuistate.js where necessary javascript is added to create
+  HoverAction objects and add necessary functions.
+- Figure out best way to include async, e.g. convert all of fzuistate.js to a module,
+  and then update whereever fzuistate.js is imported. (And test that it still works.)
+
+*/
+
+// -- Button Bars Section --
+
+// Objects and functions needed by buttons with HoverAction
+// (Adapted from test_hover_serverdata.html, see alternatives there.)
+
+import { fzAPICall } from '/fzCGIRequest.js';
+import { HoverAction } from '/hoveraction.js';
+
+async function getSelected() {
+    const data = await fzAPICall('/fz/graph/namedlists/selected.json');
+    if ('selected' in data) {
+        const textdata = await fzAPICall(`/fz/graph/nodes/${data['selected'][0]}/excerpt.json`);
+        if ('excerpt' in textdata) {
+            document.getElementById("tab3content").textContent = `Selected [${data['selected'][0]}]: ${textdata['excerpt'].substring(0,400)}`;
+        } else {
+            document.getElementById("tab3content").textContent = `Selected [${data['selected'][0]}]: (no retrieved content)`;
+        }
+    } else {
+        document.getElementById("tab3content").textContent = `No Selected Node`;
+    }
+}
+
+/*
+For hover action, the generated HTML produced below needs to be of a format similar
+to this (from test_hover_serverdata.html):
+
+<div style="display:inline-block;">
+<div id="hover_<ID>" class="bottombar_hoverdiv">
+  <div class="bottombar_carddiv">
+    <span id="close_<ID>" class="bottombar_closediv">&times;</span>
+    <span id="content_<ID>">Hover card content.</span>
+  </div>
+</div>
+<button id="<ID>">Hover over this button (using HoverAction) to get selected</button>
+</div>
+*/
+
+// -- Bottom bar
 // To add/change buttons just modify the bottombar_data list.
+// Format per list item: [ button-id, onclick-JS, button-label, hover-async-action ]
 const bottombar_data = [
-    [ 'logtime', "window.open('/cgi-bin/fzlogtime.cgi?source=nonlocal&cgivar=wrap','_blank');", 'Log Time' ],
-    [ 'system', "window.open('/system.html', '_blank');", 'System' ],
-    [ 'calsched', "window.open('/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20','_blank');", 'Calendar Schedule' ],
-    [ 'behtools', "window.open('/formalizer/system-help.html','_blank');", 'Behavior Tools' ],
-    [ 'supclear', "window.open('/cgi-bin/fzgraph-cgi.py?action=generic&q=true&L=delete&l=superiors&E=STDOUT&W=STDOUT','_blank');", 'Clear SupNNL' ],
-    [ 'searchgraph', "window.open('/formalizer/fzgraphsearch-form.html','_blank');", 'Search Graph' ],
-    [ 'logentry', "window.open('/formalizer/logentry-form_fullpage.template.html','_blank');", 'Add Log Entry' ],
-    [ 'addnode', "window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new','_blank');", 'Add Node' ],
-    [ 'darkmode', "switch_light_or_dark();", 'Light / Dark' ],
+    [ 'logtime', "window.open('/cgi-bin/fzlogtime.cgi?source=nonlocal&cgivar=wrap','_blank');", 'Log Time', getSelected ],
+    [ 'system', "window.open('/system.html', '_blank');", 'System', null ],
+    [ 'calsched', "window.open('/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20','_blank');", 'Calendar Schedule', null ],
+    [ 'behtools', "window.open('/formalizer/system-help.html','_blank');", 'Behavior Tools', null ],
+    [ 'supclear', "window.open('/cgi-bin/fzgraph-cgi.py?action=generic&q=true&L=delete&l=superiors&E=STDOUT&W=STDOUT','_blank');", 'Clear SupNNL', null ],
+    [ 'searchgraph', "window.open('/formalizer/fzgraphsearch-form.html','_blank');", 'Search Graph', null ],
+    [ 'logentry', "window.open('/formalizer/logentry-form_fullpage.template.html','_blank');", 'Add Log Entry', null ],
+    [ 'addnode', "window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new','_blank');", 'Add Node', null ],
+    [ 'darkmode', "switch_light_or_dark();", 'Light / Dark', null ],
 ];
-const rightbar_data = [
-    [ 'fztop', "window.open('/','_blank');", 'Top' ],
-];
-const bottombar_div = document.createElement("div");
+const bottombar_div = document.createElement("div"); // container DIV for bottom buttons
 bottombar_div.id = "bottombar";
 document.body.prepend(bottombar_div);
 
@@ -34,23 +88,53 @@ function bottombar_toggle() {
     bottombar_open = !bottombar_open;
 }
 
+var hoveractions = [];
 var buttontype = 2;
 for (let i = 0; i < bottombar_data.length; ++i) {
-    // Create the button directly
-    var btn = document.createElement("button");
-    btn.id = bottombar_data[i][0];
-    btn.className = `button button${buttontype}`;
-    btn.setAttribute("onclick", bottombar_data[i][1]);
-    btn.textContent = bottombar_data[i][2];
+    if (!bottombar_data[i][3]) {
+        var btn = document.createElement("button"); // Create the button directly
+        btn.id = bottombar_data[i][0];
+        btn.className = `button button${buttontype} bottombar_button`;
+        btn.setAttribute("onclick", bottombar_data[i][1]);
+        btn.textContent = bottombar_data[i][2];
+        bottombar_div.appendChild(btn); // Append the button directly to the bar
+    } else {
+        var btndiv = document.createElement("div"); // Create inline div for hover card and button
+        btndiv.style.display = 'inline-block';
 
+        var hoverdiv = document.createElement("div"); // Create hidden div for hover card
+        hoverdiv.id = `hover_${bottombar_data[i][0]}`;
+        hoverdiv.className = 'bottombar_hoverdiv';
+
+        var carddiv = document.createElement("div"); // Create card div for hover card
+        carddiv.className = 'bottombar_carddiv';
+
+        var contentspan = document.createElement("span"); // Create span for hover card content
+        contentspan.id = `content_${bottombar_data[i][0]}`;
+
+        var btn = document.createElement("button"); // Create button
+        btn.id = bottombar_data[i][0];
+        btn.className = `button button${buttontype} bottombar_button`;
+        btn.setAttribute("onclick", bottombar_data[i][1]);
+        btn.textContent = bottombar_data[i][2];
+
+        carddiv.appendChild(contentspan);
+        hoverdiv.appendChild(carddiv);
+        btndiv.appendChild(hoverdiv);
+        btndiv.appendChild(btn);
+        bottombar_div.appendChild(btndiv);
+
+        hoveractions.push( new HoverAction(btn.id, hoverdiv.id, true, null, null, bottombar_data[i][3]) );
+    }
     // Logic for button types
     buttontype -= 1;
     if (buttontype == 0) buttontype = 2;
-
-    // Append the button directly to the bar
-    bottombar_div.appendChild(btn);
 }
 
+// -- Right bar
+const rightbar_data = [
+    [ 'fztop', "window.open('/','_blank');", 'Top' ],
+];
 const rightbar_div = document.createElement("div");
 rightbar_div.id = "rightbar";
 document.body.prepend(rightbar_div);
@@ -69,6 +153,7 @@ for (let i = 0; i < rightbar_data.length; ++i) {
     rightbar_div.appendChild(rbtn);
 }
 
+// -- Bars toggle
 const bottombar_togglediv = document.createElement("div");
 bottombar_togglediv.innerHTML = `<button id="bottombar-toggle" class="button button3" onclick="bottombar_toggle();">::</button>`;
 bottombar_togglediv.style.position = "fixed";
@@ -76,6 +161,8 @@ bottombar_togglediv.style.bottom = "0";
 bottombar_togglediv.style.right = "0";
 bottombar_togglediv.style.zIndex = "1001"; // Keep it above the bar
 document.body.prepend(bottombar_togglediv);
+
+// -- UI State Section --
 
 // Request server-side storage of data:
 function sendData( data ) {

@@ -14,14 +14,37 @@
     z-index: 1000;
 }
 
-/* Target the buttons directly as children */
-#bottombar > button {
+.bottombar_button {
     pointer-events: auto; /* Re-enable clicking */
     margin-left: 2px;
     cursor: pointer;
     white-space: nowrap;
     position: static; /* Overrides any previous 'fixed' positioning */
 }
+
+.bottombar_hoverdiv {
+    display:none;
+    position:absolute;
+    z-index:1001;
+    bottom:65px;
+    width:250px;
+    height:300px;
+    background-color:rgba(0,0,0,0.4);
+    justify-content:center;
+    align-items:center;
+}
+
+.bottombar_carddiv {
+    background-color:#fefefe;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 100%;height: 100%;
+    border-radius: 10px;
+}
+
+/*.bottombar_closediv {
+    color:#aaa;float:right;font-size:28px;font-weight:bold;cursor:pointer;
+}*/
 
 /* Vertical Bar Container */
 #rightbar {

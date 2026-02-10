@@ -127,7 +127,7 @@ table.batchmodify th, table.batchmodify td {
 </style>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 '''
 
 graphsearch_results_tail = '''

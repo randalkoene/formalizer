@@ -63,7 +63,7 @@ TAG_GENERATOR_PAGE = '''<html>
 
 <p>[<a href="/index.html">fz: Top</a>]</p>
 
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <script>
 function copyHtmlToClipboard(template_id) {
   var copyRef = document.getElementById(template_id)

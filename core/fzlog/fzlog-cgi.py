@@ -68,7 +68,7 @@ interface_options_help = '''
 <link rel="stylesheet" href="/fzuistate.css">
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h1>fzlog-cgi API</h1>
 
@@ -161,7 +161,7 @@ openpagetail_success = '''
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -171,7 +171,7 @@ openpagetail_failure = '''<p class="fail"><b>ERROR: Unable to open new Log chunk
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -193,7 +193,7 @@ closepagetail_success = '''<p class="success"><b>Log chunk closed (<a href="/cgi
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -203,7 +203,7 @@ closepagetail_failure = '''<p class="fail"><b>ERROR: Unable to close Log chunk (
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -225,7 +225,7 @@ reopenpagetail_success = '''<p class="success"><b>Log chunk reopened (<a href="/
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -235,7 +235,7 @@ reopenpagetail_failure = '''<p class="fail"><b>ERROR: Unable to reopen Log chunk
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -288,7 +288,7 @@ editentrypagetail_success = '''<div id="after_cptplt"></div>
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <script type="text/javascript" src="/delayedpopup.js"></script>
 <script>
 pastePopupLink('docpopupfunc', 'entrytext');
@@ -330,7 +330,7 @@ editentrypagetail_failure = '''<p class="fail"><b>ERROR: Unable to edit Log entr
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -351,7 +351,7 @@ replaceentrypagetail_success = '''<p class="success"><b>Log entry content replac
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -361,7 +361,7 @@ replaceentrypagetail_failure = '''<p class="fail"><b>ERROR: Unable to replace Lo
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -382,7 +382,7 @@ deleteentrypagetail_success = '''<p class="success"><b>Log entry deleted.</b></p
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -396,7 +396,7 @@ deleteentrypagetail_failure = '''<p class="fail"><b>ERROR: Unable to delete Log 
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 </body>
 </html>
 '''
@@ -508,7 +508,7 @@ PRECAUTIONFAIL = '''<html>
 <title>fz: Zero Chunk Length Precaution Failed</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h3>fz: Zero Chunk Length Precaution Failed</h3>
 
@@ -529,7 +529,7 @@ PRECAUTIONPAGE = '''<html>
 <title>fz: Zero Chunk Length Precaution</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h3>fz: Zero Chunk Length Precaution</h3>
 
@@ -550,7 +550,7 @@ NODEPRECAUTIONPAGE = '''<html>
 <title>fz: Same Node Precaution</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h3>fz: Same Node Precaution</h3>
 
@@ -845,7 +845,7 @@ CHUNK_MODIFY_PAGE = '''<html>
 <title>fz: Log - Modify Chunk %s</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h1>fz: Log - Modify Chunk %s</h1>
 
@@ -903,7 +903,7 @@ GENERIC_ERROR_PAGE = '''<html>
 <title>fz: Log - Generic Call Failed</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <b>Attempted command</b>:
 <p>
@@ -938,7 +938,7 @@ GENERIC_SUCCESS_PAGE = '''<html>
 <title>fz: Log - Generic Call Succeeded</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <b>Command</b>:
 <p>
@@ -995,7 +995,7 @@ INSERT_LOG_CHUNK_ERROR='''<html>
 <title>fz: Insert Log chunk error</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h3>fz: Insert Log chunk error</h3>
 
@@ -1020,7 +1020,7 @@ INSERT_LOG_CHUNK='''<html>
 <title>fz: Insert Log chunk</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h3>fz: Insert Log chunk</h3>
 
@@ -1090,7 +1090,7 @@ INSERT_LOG_CHUNK_PAGE='''<html>
 <title>fz: Insert Log chunk</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h3>fz: Insert Log chunk</h3>
 

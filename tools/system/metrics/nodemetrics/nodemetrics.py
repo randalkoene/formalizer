@@ -74,7 +74,7 @@ NODE_METRICS_PAGE='''<html>
 <title>Node Metric</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h1>Node Metrics</h1>
 
@@ -111,7 +111,7 @@ NODES_SUBSET_METRICS_PAGE='''<html>
 <title>Nodes Subset Metrics</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h1>Nodes Subset Metrics</h1>
 
@@ -158,7 +158,7 @@ THREESAMPLES_NODES_SUBSET_METRICS_PAGE='''<html>
 <title>Nodes Three Sample Subsets Metrics</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h1>Nodes Three Sample Subsets Metrics</h1>
 
@@ -457,7 +457,7 @@ HELP='''<html>
 <title>Node Metrics</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 %s
 

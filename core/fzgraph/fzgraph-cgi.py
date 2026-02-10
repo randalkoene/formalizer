@@ -47,7 +47,7 @@ interface_options_help = '''
 <link rel="stylesheet" href="/fzuistate.css">
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h1>fzgraph-cgi API</h1>
 
@@ -126,7 +126,7 @@ edit_result_page_head = '''<html>
 <title>fz: Graph - Add Node</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 '''
 
 edit_success_page_tail = f'''<p class="success"><b>Node added. To review or edit more, follow this link: <a href="/cgi-bin/fzgraphhtml-cgi.py?edit={id}">{id}</a>.</b></p>
@@ -149,7 +149,7 @@ NNL_edit_result_page_head = '''<html>
 <title>fz: Graph - Add to Named Node List</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 '''
 
 NNL_edit_success_page_tail = f'''<hr>
@@ -166,7 +166,7 @@ missing_action_request_html = '''<html>
 <title>fz: Graph - Missing Graph Action Request</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <p class="fail"><b>ERROR: Missing Graph action request.</b></p>
 <hr>
 [<a href="/index.html">fz: Top</a>]
@@ -183,7 +183,7 @@ unrecognized_action_request_page_head = '''<html>
 <title>fz: Graph - Unrecognized Graph Action Request</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 '''
 
 missing_addtoNNL_arguments = '''<html>
@@ -194,7 +194,7 @@ missing_addtoNNL_arguments = '''<html>
 <title>fz: Graph - Missing Arguments in Add to NNL Request</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <p class="fail"><b>ERROR: Missing 'add_id' or 'namedlist' form arguments in 'addtoNNL' Graph action request.</b></p>
 <hr>
 [<a href="/index.html">fz: Top</a>]
@@ -456,7 +456,7 @@ GENERIC_ERROR_PAGE = '''<html>
 <title>fz: Graph - Generic Call Failed</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <b>Attempted command</b>:
 <p>
@@ -491,7 +491,7 @@ GENERIC_SUCCESS_PAGE = '''<html>
 <title>fz: Graph - Generic Call Succeeded</title>
 </head>
 <body onload="do_if_opened_by_script('Keep Page','Go to Log','/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END');">
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <script type="text/javascript" src="/fzclosing_window.js"></script>
 
 <b>Command</b>:

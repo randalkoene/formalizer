@@ -108,7 +108,7 @@ interface_options_help = '''
 </head>
 <body>
 <script type="text/javascript" src="/clock.js"></script>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h1>fzgraphhtml-cgi API</h1>
 
@@ -178,7 +178,7 @@ listpagehead = '''<html>
 </head>
 <body>
 <script type="text/javascript" src="/clock.js"></script>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <h3>fz:modify Named Node List</h3>
 <p>List element is Node {node_id} at list position {list_pos}.</p>
 
@@ -200,7 +200,7 @@ listpagehead_nomodif = '''<html>
 </head>
 <body>
 <script type="text/javascript" src="/clock.js"></script>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <h3>Named Node List: {list_name}</h3>
 
 {form_head}
@@ -219,7 +219,7 @@ listpagehead_alllists = '''<html>
 </head>
 <body>
 <script type="text/javascript" src="/clock.js"></script>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <h3>Named Node Lists</h3>
 
 <table class="blueTable"><tbody>
@@ -254,7 +254,7 @@ editpagehead = '''<html>
 </head>
 <body>
 <script type="text/javascript" src="/clock.js"></script>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <style type="text/css">
 td.paramtitle {
     vertical-align: top;
@@ -460,7 +460,7 @@ topicspagehead = '''<html>
 </head>
 <body>
 <script type="text/javascript" src="/clock.js"></script>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <h1>fz: Topics</h1>
 <br>
 <table class="blueTable"><tbody>
@@ -525,7 +525,7 @@ NODEBTF_HTML_TEMPLATE = '''<html>
 <title>fz: Node Inferred Boolean Tag Flags</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h3>fz: Node Inferred Boolean Tag Flags</h3>
 
@@ -653,7 +653,7 @@ NEW_NODE_INIT_PAGE='''<html>
 </head>
 <body>
 <script type="text/javascript" src="/clock.js"></script>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <h3>New Node - Init Page</h3>
 <button class="button button1" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?topics_alt=?&to-node=NEW&VTDdefault=on', '_self');">Today VTD defaulting Node - Topic</button>
 <button class="button button2" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?topics_alt=?&to-node=NEW&UTDdefault=on', '_self');">Other Day UTD defaulting Node - Topic</button>

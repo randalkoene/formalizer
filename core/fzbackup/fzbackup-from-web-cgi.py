@@ -163,7 +163,7 @@ td {
 </tr>
 </tbody>
 </table>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 </body>
 </html>
 '''

@@ -136,7 +136,7 @@ right: 50%;
 <body>
 <script type="text/javascript" src="/clock.js"></script>
 <script type="text/javascript" src="/score.js"></script>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <button id="timerBarText" class="button button2 logstate">_____</button>
 
 <div id="protocol_tab">

@@ -41,7 +41,7 @@ interface_options_help = '''
 <link rel="stylesheet" href="/fzuistate.css">
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h1>fzedit-cgi API</h1>
 
@@ -151,7 +151,7 @@ edit_result_page_head = '''<html>
 <title>fz: Edit</title>
 </head>
 <body onload="do_if_opened_by_script('Keep Page','Go to Topics','/cgi-bin/fzgraphhtml-cgi.py?topics=?');">
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 '''
 
 edit_success_page_tail = f'''<p class="success"><b>Node modified. To review or edit more, follow this link: <a href="/cgi-bin/fzgraphhtml-cgi.py?edit={id}">{id}</a>.</b></p>

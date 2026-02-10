@@ -40,7 +40,7 @@ pagehead = """Content-type:text/html
 <title>fz: Log Entry (fzlog)</title>
 </head>
 <body onload="do_if_opened_by_script('Keep Page','Go to Log','/cgi-bin/fzloghtml-cgi.py?frommostrecent=on&numchunks=100#END');">
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 """
 
 redirect_head = """Content-type:text/html
@@ -53,7 +53,7 @@ redirect_head = """Content-type:text/html
 <title>fz: Log Entry (fzlog)</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 """
 
 keep_page = "<script>function do_if_opened_by_script(button_text, alt_text, alt_url) { /* do nothing */ }</script>"

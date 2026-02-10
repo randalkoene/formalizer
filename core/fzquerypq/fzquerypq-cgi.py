@@ -57,7 +57,7 @@ pagetail = '''
 
 <p>[<a href="/index.html">fz: Top</a>]</p>
 
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 </body>
 </html>
 '''

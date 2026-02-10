@@ -13,7 +13,7 @@ pagehead = '''Content-type:text/html
 <title>fz: Update</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <style type="text/css">
 .map {
     font-family: "Lucida Sans Typewriter";

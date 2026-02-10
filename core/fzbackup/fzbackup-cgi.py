@@ -48,7 +48,7 @@ interface_options_help = '''
 <link rel="stylesheet" href="/fzuistate.css">
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h1>fzbackup-cgi API</h1>
 
@@ -102,7 +102,7 @@ pagetail = '''
 <hr>
 [<a href="/index.html">fz: Top</a>]
 
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 </body>
 </html>
 '''

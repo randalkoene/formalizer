@@ -47,7 +47,7 @@ TEST_HTML='''<html>
 <body>
 <button>Test output %s</button>.
 </body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 </html>
 '''
 
@@ -175,7 +175,7 @@ table, th, td {
 </style>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <ul>
 '''
 

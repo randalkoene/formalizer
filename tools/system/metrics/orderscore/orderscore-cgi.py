@@ -44,7 +44,7 @@ FAILEDTOSAVETEMPLATE = '''<html>
 <title>fz: Order Score - Failed to Save</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <h3>fz: Order Score - Failed to Save</h3>
 
 <p class="fail">Failed to save order score.</p>
@@ -62,7 +62,7 @@ FAILEDTOSAVERECORDTEMPLATE = '''<html>
 <title>fz: Order Score - Failed to Save Record</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <h3>fz: Order Score - Failed to Save Record</h3>
 
 <p class="fail">Failed to save order score record.</p>
@@ -80,7 +80,7 @@ SHOWTEMPLATE = '''<html>
 <title>fz: Order Score</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <h3>fz: Order Score</h3>
 
 <p>
@@ -149,7 +149,7 @@ RECORDGRAPHTEMPLATE='''<html>
 <title>fz: %s</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 <h3>fz: %s</h3>
 
 %s

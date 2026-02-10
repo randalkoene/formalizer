@@ -64,7 +64,7 @@ interface_options_help = '''
 <title>schedule-cgi API</title>
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 <h1>schedule-cgi API</h1>
 

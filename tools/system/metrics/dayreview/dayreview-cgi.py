@@ -48,7 +48,7 @@ DAYREVIEW_SUMMARY = '''<html>
 <link rel="stylesheet" href="/fzuistate.css">
 </head>
 <body>
-<script type="text/javascript" src="/fzuistate.js"></script>
+<script type="module" src="/fzuistate.js"></script>
 
 %s
 

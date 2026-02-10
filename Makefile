@@ -375,6 +375,7 @@ TOPLEVEL += $(TOOLSPATH)/interface/resources/tooltip.css
 TOPLEVEL += $(TOOLSPATH)/interface/resources/dbjsondecrypt.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/delayedpopup.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/draggable_rows.js
+TOPLEVEL += $(TOOLSPATH)/interface/resources/hoveraction.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/hoveropentab.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/exportpage.js
 TOPLEVEL += $(TOOLSPATH)/interface/resources/htmlsvg.js
