@@ -57,6 +57,14 @@ Hover Tab4 content.
 </div>
 <button id="hover4">Hover over this button (using HoverAction) to get superiors</button>
 
+<P>
+<button id="NNLcopy">Grab text copy of Weekly Main Goals NNL</button>
+<div id="NNLcopybox" style="display:none; position:fixed; z-index:2000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.4); justify-content:center;align-items:center;">
+  <div style="background-color:#fefefe;padding: 20px;border: 1px solid #888;width: 50%;height: 300px;border-radius: 10px;">
+    <span id="NNLcopyclose" style="color:#aaa;float:right;font-size:28px;font-weight:bold;cursor:pointer;">&times;</span>
+    <textarea id="NNLcontent" rows="8" cols="80">(no week_main_goals content)</textarea>
+  </div>
+</div>
 
 <script type="text/javascript" src="/hoveropentab.js"></script>
 <script>
@@ -74,7 +82,7 @@ Hover Tab4 content.
 
 </script>
 <script type="module">
-  import { fzCGIRequest } from '/fzCGIRequest.js';
+  import { fzAPICall } from '/fzCGIRequest.js';
 
   class HoverAction {
     constructor(hoverclick_id, tab_id, async_action=null, handler=null) {
@@ -117,28 +125,11 @@ Hover Tab4 content.
 
   };
 
-  function getResponseJson(responseString) {
-    try {
-      const data = JSON.parse(responseString);
-      return data;
-    } catch (error) {
-      // If an error is caught, the string is not valid JSON
-      return {};
-    }
-  }
-
-  async function fzAPICall(apicall) {
-    const fzcgiutil = '/cgi-bin/fzapicall.py';
-    const argstuples = [['apicall', apicall]];
-    const response = await fzCGIRequest(fzcgiutil, argstuples);
-    return getResponseJson(response);
-  }
-
   async function getSelected() {
     const data = await fzAPICall('/fz/graph/namedlists/selected.json');
     if ('selected' in data) {
       console.log(`Selected is ${data['selected'][0]}`);
-      const textdata = await fzAPICall(`/fz/graph/nodes/${data['selected'][0]}/text.json`);
+      const textdata = await fzAPICall(`/fz/graph/nodes/${data['selected'][0]}/excerpt.json`);
       if ('text' in textdata) {
         console.log(textdata['text']);
         document.getElementById('tab3').innerHTML = `Selected is ${data['selected'][0]}: ${textdata['text']}`;
@@ -162,7 +153,22 @@ Hover Tab4 content.
   }
   const Hover3 = new HoverAction('hover3', 'tab3', getSelected);
   const Hover4 = new HoverAction('hover4', 'tab4', getSuperiors);
+
+  async function getWeeklyMainGoals() {
+    const NNLname = 'week_main_goals';
+    const data = await fzAPICall(`/fz/graph/namedlists/${NNLname}.json`);
+    if (NNLname in data) {
+      var modal = document.getElementById("NNLcopybox");
+      modal.style.display = "flex";
+      document.getElementById("NNLcopyclose").onclick = function() { modal.style.display = "none"; }
+      document.getElementById("NNLcontent").value = `${data[NNLname]}`;
+    } else {
+      alert(`Failed to retrieve ${NNLname} NNL content.`);
+    }
+  }
+  document.getElementById('NNLcopy').addEventListener('click', async (event) => { getWeeklyMainGoals(); });
 </script>
+
 
 </body>
 </html>

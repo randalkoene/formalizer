@@ -62,4 +62,22 @@ async function pollfzServer(fzcgiutil, argstuples, handler, poll_ms) {
 // setupfzCGIListener('some_id', fzcgiutil, argstuples, responseHandler);
 // pollServer(fzcgiutil, argstuples, responseHandler); // Start the loop
 
-export { fzCGIRequest, setupfzCGIListener, pollfzServer };
+function getResponseJson(responseString) {
+    try {
+        const data = JSON.parse(responseString);
+        return data;
+    } catch (error) {
+        // If an error is caught, the string is not valid JSON
+        return {};
+    }
+}
+
+async function fzAPICall(apicall) {
+    const fzcgiutil = '/cgi-bin/fzapicall.py';
+    const argstuples = [['apicall', apicall]];
+    const response = await fzCGIRequest(fzcgiutil, argstuples);
+    //console.log(response);
+    return getResponseJson(response);
+}
+
+export { fzCGIRequest, setupfzCGIListener, pollfzServer, getResponseJson, fzAPICall };

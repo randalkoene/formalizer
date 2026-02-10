@@ -106,6 +106,7 @@ The GET/PATCH port API includes the following:
   /fz/graph/nodes/<node-id>/targetdate.<raw|txt|html|json>
   /fz/graph/nodes/<node-id>/effectivetd.<raw|txt|html|json>
   /fz/graph/nodes/<node-id>/text.<raw|txt|html|json>
+  /fz/graph/nodes/<node-id>/excerpt.<raw|txt|html|json>
   /fz/graph/nodes/<node-id>/tdproperty.<raw|txt|html|json>
   /fz/graph/nodes/<node-id>/repeats.<raw|txt|html|json>
   /fz/graph/nodes/<node-id>/tdpattern.<raw|txt|html|json>

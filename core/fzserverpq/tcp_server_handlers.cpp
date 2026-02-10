@@ -26,6 +26,7 @@
 #include "standard.hpp"
 //#include "general.hpp"
 //#include "stringio.hpp"
+#include "jsonutil.hpp"
 #include "Graphtypes.hpp"
 #include "Graphinfo.hpp"
 #include "Graphpostgres.hpp"
@@ -1094,7 +1095,8 @@ bool handle_node_strdata_show_html(std::string parlabel, std::string parvalue, s
 
 bool handle_node_strdata_show_json(std::string parlabel, std::string parvalue, std::string & response_html) {
     response_html = "{\n"
-        "    \"" + parlabel + "\": \"" + replace_char(parvalue, '"', '\'')
+        // "    \"" + parlabel + "\": \"" + replace_char(parvalue, '"', '\'')
+        "    \"" + parlabel + "\": \"" + escape_for_json(parvalue) // *** TESTING THIS!
         + "\"\n}\n";
     return true;
 }
@@ -1136,6 +1138,7 @@ bool handle_node_map_show_json(std::string parlabel, const std::map<std::string,
     response_html = "{";
     for (const auto & [pairlabel, pairvalue] : parmap) {
         response_html += "\n    \"" + replace_char(pairlabel, '"', '\'') + "\": \"" + replace_char(pairvalue, '"', '\'') + "\",";
+        //response_html += "\n    \"" + replace_char(pairlabel, '"', '\'') + "\": \"" + escape_for_json(pairvalue) + "\","; // *** MAYBE WE WANT THIS TOO (like in handle_node_strdata_show_json())!
     }
     response_html.back() = '\n';
     response_html += "}\n";
@@ -1195,6 +1198,10 @@ bool handle_node_text_show(Node & node, std::string show_type_extension, std::st
     return single_node_strdata_show(show_type_extension, "text", node.get_text().c_str(), response_html);
 }
 
+bool handle_node_excerpt_show(Node & node, std::string show_type_extension, std::string & response_html) {
+    return single_node_strdata_show(show_type_extension, "excerpt", node.get_excerpt(), response_html);
+}
+
 bool handle_node_tdproperty_show(Node & node, std::string show_type_extension, std::string & response_html) {
     return single_node_strdata_show(show_type_extension, "tdproperty", node.get_tdproperty_str(), response_html);
 }
@@ -1251,6 +1258,7 @@ const node_parameter_show_map_t node_parameter_show_map = {
     {"required", handle_node_required_show},
     {"targetdate", handle_node_targetdate_show},
     {"text", handle_node_text_show},
+    {"excerpt", handle_node_excerpt_show},
     {"tdproperty", handle_node_tdproperty_show},
     {"repeats", handle_node_repeats_show},
     {"tdpattern", handle_node_tdpattern_show},
@@ -1554,6 +1562,7 @@ const node_context_edit_map_t node_context_edit_map = {
  *   /fz/graph/nodes/20200901061505.1/targetdate.json
  *   /fz/graph/nodes/20200901061505.1/effectivetd.json
  *   /fz/graph/nodes/20200901061505.1/text.json
+ *   /fz/graph/nodes/20200901061505.1/excerpt.json
  *   /fz/graph/nodes/20200901061505.1/tdproperty.json
  *   /fz/graph/nodes/20200901061505.1/repeats.json
  *   /fz/graph/nodes/20200901061505.1/tdpattern.json
@@ -1589,8 +1598,10 @@ bool handle_node_direct_parameter(Node & node, std::string extension, std::strin
     // identify the command
     Edit_flags editflags;
     std::string route_extension = extension.substr(0,seppos); //  E.g. completion, required, valuation, etc.
-    if (!editflags.set_Edit_flag_by_label(route_extension)) {
-        return standard_error("Unrecognized Node parameter: '" + route_extension + '\'', __func__); // extension.substr(0,seppos) + '\'', __func__);
+    if (extension[seppos] != '.') { // Treated differently, so that there can be more ways to show data than to modify data.
+        if (!editflags.set_Edit_flag_by_label(route_extension)) {
+            return standard_error("Unrecognized Node parameter: '" + route_extension + '\'', __func__); // extension.substr(0,seppos) + '\'', __func__);
+        }
     }
     // *** Eventually, you probably want to make this more like the serial data version,
     // *** where Node_data knows how to parse string values and set itself, and then
@@ -1620,7 +1631,7 @@ bool handle_node_direct_parameter(Node & node, std::string extension, std::strin
             }
             break;
         }
-        case '.': { // <node-id>.html/txt/node/desc, targetdate.txt, etc
+        case '.': { // <node-id>.<param>.html/txt/node/desc, targetdate.txt, etc
             To_Debug_LogFile("Started processing Node info request for node "+node.get_id_str()+" with route extension "+route_extension);
             auto it = node_parameter_show_map.find(route_extension);
             if (it == node_parameter_show_map.end()) {
