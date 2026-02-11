@@ -140,6 +140,8 @@ otherwise around the end of Log.
 '''
 
 #<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+# Maybe prepend <!DOCTYPE html> -- but note that doing so does change the appearance of the font and
+# makes table row bars taller. (See suggestions in the doc/developer/standards_mode.md file.)
 log_interval_head_part1 = '''<html>
 <head>
 <meta charset="utf-8" />

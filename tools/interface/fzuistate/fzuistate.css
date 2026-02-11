@@ -71,8 +71,28 @@
     white-space: nowrap;
 }
 
-/* Specific fix for fztop height */
-/*#fztop {
-    margin-bottom: 40px; 
+#timezone_input {
+    display:none;
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:2000;
+    background:rgba(30,30,30,0.5)
 }
-*/
+#tz_inlay {
+    position:absolute;
+    top:45%;
+    left:45%;
+    z-index:2001;
+    background:#fff
+}
+#tz_close {
+    color:red;
+    display:inline-block;
+    cursor:pointer;
+}
+#tzhours {
+    display:inline-block;
+}
