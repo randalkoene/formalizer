@@ -60,7 +60,7 @@ std::string standard_HTML_header(const std::string& titlestr, const std::string&
     } else {
         htmlstr += bodytag;
     }
-    htmlstr += "<script type=\"text/javascript\" src=\"http://";
+    htmlstr += "<script type=\"module\" src=\"http://";
     htmlstr += serverIPaddrstr;
     htmlstr += "/fzuistate.js\"></script>";
     htmlstr += "<h3>";

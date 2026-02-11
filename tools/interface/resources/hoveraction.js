@@ -20,13 +20,14 @@ class HoverAction {
       this.action_busy = false;
 
       this.tab_open_ref.addEventListener('mouseover', async (event) => {
-          this.open_tab(this.async_action, this.handler);
+          await this.open_tab(this.async_action, this.handler);
       });
       if (close_if_mouseout) {
         this.tab_open_ref.addEventListener('mouseout', () => {
             this.close_tab();
         });
       }
+      this.close_tab();
   }
 
   default_open() {

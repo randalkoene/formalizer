@@ -26,7 +26,7 @@
     display:none;
     position:absolute;
     z-index:1001;
-    bottom:65px;
+    bottom:85px;
     width:250px;
     height:300px;
     background-color:rgba(0,0,0,0.4);
@@ -35,11 +35,13 @@
 }
 
 .bottombar_carddiv {
-    background-color:#fefefe;
+    background-color:var(--w3-lightgrey); /* #fefefe; */
+    color:black;
     padding: 20px;
     border: 1px solid #888;
     width: 100%;height: 100%;
     border-radius: 10px;
+    overflow: clip;
 }
 
 /*.bottombar_closediv {

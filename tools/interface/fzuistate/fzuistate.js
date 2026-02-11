@@ -20,7 +20,7 @@ displaying extra information:
   actions and what functions to use.
 - [DONE] Make a section in fzuistate.js where necessary javascript is added to create
   HoverAction objects and add necessary functions.
-- Figure out best way to include async, e.g. convert all of fzuistate.js to a module,
+- [DONE] Figure out best way to include async, e.g. convert all of fzuistate.js to a module,
   and then update whereever fzuistate.js is imported. (And test that it still works.)
 
 */
@@ -38,12 +38,29 @@ async function getSelected() {
     if ('selected' in data) {
         const textdata = await fzAPICall(`/fz/graph/nodes/${data['selected'][0]}/excerpt.json`);
         if ('excerpt' in textdata) {
-            document.getElementById("tab3content").textContent = `Selected [${data['selected'][0]}]: ${textdata['excerpt'].substring(0,400)}`;
+            document.getElementById("content_logtime").textContent = `Selected [${data['selected'][0]}]: ${textdata['excerpt'].substring(0,400)}`;
         } else {
-            document.getElementById("tab3content").textContent = `Selected [${data['selected'][0]}]: (no retrieved content)`;
+            document.getElementById("content_logtime").textContent = `Selected [${data['selected'][0]}]: (no retrieved content)`;
         }
     } else {
-        document.getElementById("tab3content").textContent = `No Selected Node`;
+        document.getElementById("content_logtime").textContent = `No Selected Node`;
+    }
+}
+
+async function getSuperiors() {
+    const data = await fzAPICall('/fz/graph/namedlists/superiors.json');
+    if ('superiors' in data) {
+        document.getElementById('content_supclear').textContent = 'Superiors:';
+        for (const superior of data['superiors']) {
+            const textdata = await fzAPICall(`/fz/graph/nodes/${superior}/excerpt.json`);
+            if ('excerpt' in textdata) {
+                document.getElementById('content_supclear').textContent += ` [${superior}] ${textdata['excerpt'].substring(0,200)}`;
+            } else {
+                document.getElementById('content_supclear').textContent += ` [${superior}] (no retrieved content)`;
+            }
+        }
+    } else {
+        document.getElementById('content_supclear').textContent = `No selected Superiors`;
     }
 }
 
@@ -70,7 +87,7 @@ const bottombar_data = [
     [ 'system', "window.open('/system.html', '_blank');", 'System', null ],
     [ 'calsched', "window.open('/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20','_blank');", 'Calendar Schedule', null ],
     [ 'behtools', "window.open('/formalizer/system-help.html','_blank');", 'Behavior Tools', null ],
-    [ 'supclear', "window.open('/cgi-bin/fzgraph-cgi.py?action=generic&q=true&L=delete&l=superiors&E=STDOUT&W=STDOUT','_blank');", 'Clear SupNNL', null ],
+    [ 'supclear', "window.open('/cgi-bin/fzgraph-cgi.py?action=generic&q=true&L=delete&l=superiors&E=STDOUT&W=STDOUT','_blank');", 'Clear SupNNL', getSuperiors ],
     [ 'searchgraph', "window.open('/formalizer/fzgraphsearch-form.html','_blank');", 'Search Graph', null ],
     [ 'logentry', "window.open('/formalizer/logentry-form_fullpage.template.html','_blank');", 'Add Log Entry', null ],
     [ 'addnode', "window.open('/cgi-bin/fzgraphhtml-cgi.py?edit=new','_blank');", 'Add Node', null ],
@@ -123,6 +140,8 @@ for (let i = 0; i < bottombar_data.length; ++i) {
         btndiv.appendChild(hoverdiv);
         btndiv.appendChild(btn);
         bottombar_div.appendChild(btndiv);
+
+        //hoverdiv.style.bottom = `${btn.offsetHeight}px`;
 
         hoveractions.push( new HoverAction(btn.id, hoverdiv.id, true, null, null, bottombar_data[i][3]) );
     }

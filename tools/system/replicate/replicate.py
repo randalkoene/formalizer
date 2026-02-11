@@ -875,6 +875,18 @@ To delete old schemas from the database you can see the schemas present and dele
 Components requiring manual attention:
 =====================================
 
+Solving CORS so that the Formalizer API server can serve up files via the web server serving resources (e.g. JS files needed in HTML headers):
+
+  When using Apache2 on Ubuntu, you can do this (other servers have analogous solutions):
+
+  1. In /etc/apache2/sites-available/000-default.conf add:
+
+  <IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "http://127.0.0.1:8090"
+  </IfModule>
+
+  2. Enable mod_headers: sudo a2enmod headers && sudo systemctl restart apache2
+
 Encrypted volume mounting needs to be installed manually. Do this:
 
   sudo apt install encfs
