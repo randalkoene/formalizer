@@ -253,21 +253,19 @@ def batch_modify_nodes():
             if form.getvalue(formarg) == 'on':
                 nodelist.append(formarg[6:])
 
-    do_filter = form.getvalue('filter') == 'on'
-    do_unspecified = form.getvalue('unspecified') == 'on'
-    do_uniqueTD = form.getvalue('uniqueTD') == 'on'
+    batchmodify = form.getvalue('batchmodify')
 
-    if do_filter:
+    if batchmodify=='filter':
         clear_NNL(searchresultsNNL)
         nodes_csv = get_nodes_CSV(nodelist)
         fill_NNL(searchresultsNNL, nodes_csv)
         show_updated_NNL(searchresultsNNL)
 
-    if do_unspecified:
+    elif batchmodify=='unspecified':
         batch_modify_unspecified_internal(nodelist)
         show_updated_NNL(searchresultsNNL)
 
-    if do_uniqueTD:
+    elif batchmodify=='uniqueTD':
         batch_modify_uniqueTD_internal(nodelist)
         show_updated_NNL(searchresultsNNL)
 

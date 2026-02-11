@@ -278,23 +278,24 @@ def Call_Error(msg: str):
     print(graphsearch_results_tail)
     sys.exit(0)   
 
-# TODO: Perhaps filter, unspecified and unique target date should be radio buttons
-#       for clarity. As it is, filter is prioritized, and once it is handled
-#       in fzeditbatch-cgi.py, the other two are ignored. The unspecified
-#       checkbox is prioritized over unique target dates, and once it is handled
-#       in fzeditbatch-cgi.py, the rest is ignored. Therefore, only one checkbox
-#       request is carried out.
-#       All of these apply only to the "batchmodify" button, while the
-#       "Apply TD Updates" button ignores all three.
 NNLFORMHEAD='''
 <form action="/cgi-bin/fzeditbatch-cgi.py" method="post">
-<table class="batchmodify"><tbody><tr><td>
-Select All<input onclick="toggle(this);" type="checkbox" /><br>
-filter <input type="checkbox" name="filter"> - show selected as filtered list<br>
-unspecified <input type="checkbox" name="unspecified"> - convert selected to unspecified target date Nodes<br>
-unique target dates <input type="checkbox" name="uniqueTD"> - modify selected to ensure unique target dates<br>
+<table class="batchmodify"><tbody>
+<tr><td>
+Select All<input onclick="toggle(this);" type="checkbox" /> - select checkboxes of all search results shown<br>
+</td></tr>
+<tr><td>
+<table class="batchmodify"><tbody>
+<tr><td><input type="radio" id="filter" name="batchmodify" value="filter"> <label for="filter">filter</label></td><td> - keep only selected in search results NNL and redisplay</td>
+<tr><td><input type="radio" id="unspecified" name="batchmodify" value="unspecified"> <label for="unspecified">unspecified</label></td><td> - convert selected to unspecified target date (UTD) Nodes</td>
+<tr><td><input type="radio" id="uniqueTD" name="batchmodify" value="uniqueTD"> <label for="uniqueTD">unique target dates</label></td><td> - modify selected to ensure unique target dates</td>
+</tbody></table>
+<P>
 <input type="submit" name="action" value="batchmodify"><br>
-</td></tr></tbody></table>
+</td></tr>
+</td></tr>
+</tbody></table>
+<P>
 '''
 
 CHECKALLJS='''
@@ -317,7 +318,7 @@ DRAGGABLEJS='''<script type="text/javascript" src="/draggable_rows.js"></script>
 #       action 'targetdates'.
 TDUPDATEBUTTON='''
 <button id="tdupdatebtn" class="button button1" onclick="apply_td_updates();">Apply TD Updates</button>
-Drag up and down within Node description column to update target date order.
+&rarr; Drag up and down within Node description column, then click "Apply TD Updates" to update target date order.
 '''
 
 def render_search_results():
