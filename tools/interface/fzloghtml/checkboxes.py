@@ -28,6 +28,7 @@ form = cgi.FieldStorage()
 weeksinterval = form.getvalue('weeksinterval')
 if not weeksinterval:
     weeksinterval = 24
+fromdate = form.getvalue('fromdate')
 
 print("Content-type:text/html\n\n")
 
@@ -219,10 +220,16 @@ function sendData(data) {
 def main():
     # Call the external program fzloghtml with the specified arguments
     regex_pattern = r'[<]input type="checkbox"[ ]*[>]'
-    command = [
-        './fzloghtml', '-q', '-d', 'formalizer', '-s', 'randalk', '-o', 'STDOUT', '-E', 'STDOUT', '-N',
-        '-w', str(weeksinterval), '-x', regex_pattern
-    ]
+    if fromdate:
+        command = [
+            './fzloghtml', '-q', '-d', 'formalizer', '-s', 'randalk', '-o', 'STDOUT', '-E', 'STDOUT', '-N',
+            '-1', str(fromdate), '-2', 'now', '-x', regex_pattern
+        ]
+    else:
+        command = [
+            './fzloghtml', '-q', '-d', 'formalizer', '-s', 'randalk', '-o', 'STDOUT', '-E', 'STDOUT', '-N',
+            '-w', str(weeksinterval), '-x', regex_pattern
+        ]
     
     try:
         result = subprocess.run(command, capture_output=True, text=True, check=True)

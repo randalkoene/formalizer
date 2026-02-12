@@ -92,7 +92,7 @@
             "window" : "_blank"
         },
         "Checkboxes": {
-            "url" : "/cgi-bin/checkboxes.py?weeksinterval=24",
+            "url" : "/cgi-bin/checkboxes.py?fromdate=20240401",
             "window" : "_blank"
         }
     },
