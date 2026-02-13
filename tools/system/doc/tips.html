@@ -53,10 +53,19 @@ Question 2: Where do I find Formalizer and System Developer documentation and he
 </div>
 
 <button class="button button1 accordion-header">
-Question 3: (Add tip here)?
+Question 3: How do I record an online meeting, presentation or call?
 </button>
 <div class="accordion-content">
-<p>(Add content here).</p>
+<p>The easiest solution is (on a full Ubuntu system, like alcyone) to press: CTRL+ALT+SHIFT+R</p>
+<p>
+	That is the Gnome Recorder. You can pick a region on the screen, or a window, or a screen. The biggest issue with this one is that it does not record sound. Recordings are of webm type, which isn't really an issue most of the time.
+</p>
+<p>
+	For video+audio, you need to use the <b>EasyScreenCast</b> Gnome extension. For this, you need to install the Gnome Extension Manager (available through the App Center). Restart the Gnome shell (ALT+F2 then type r in X, in Wayland you have to log out and back in). Once installed, the built-in recording capability can also handle audio sources. You can click on the camera icon in the control bar and select and audio source there.
+</p>
+<p>
+	<b>Note</b>: I found that invoking Gnome Screen Recorder with the key combination still invokes recording without sound. Use the camera icon at top to set up what to record and start recording instead. The result by default ends up in ~/Videos. This was tested to work on alcyone. I found that selecting stereo analog headphone audio as the source worked well, while selecting default audio did not. Test before the session to be recorded, and make sure you don't get duplicate sound when attending from another laptop, i.e. disconnect the target end of the audio cable so that audio still goes there but doesn't arrive anywhere physical.
+</p>
 </div>
 
 </div>
