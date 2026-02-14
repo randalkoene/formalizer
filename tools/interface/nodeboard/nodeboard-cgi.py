@@ -24,6 +24,7 @@ from io import StringIO
 from traceback import print_exc
 from subprocess import Popen, PIPE
 from pathlib import Path
+from datetime import datetime, timedelta
 
 from fzmodbase import *
 from fzbgprogress import *
@@ -88,6 +89,14 @@ tdbad = form.getvalue('tdbad')
 tdfar = form.getvalue('tdfar')
 subtreesort = form.getvalue('K')
 nnldepstotdate = form.getvalue('u')
+
+nnlweeksahead = form.getvalue('nnlweeksahead')
+if nnlweeksahead:
+    current_time = datetime.now()
+    weeks_later = timedelta(weeks=int(nnlweeksahead))
+    future_time = current_time + weeks_later
+    nnldepstotdate = future_time.strftime('%Y%m%d%H%M')
+
 proposetdsolutions = form.getvalue('O')
 norepeated = form.getvalue('U')
 dodevelopmenttest = form.getvalue('R')
