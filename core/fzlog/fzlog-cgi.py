@@ -853,6 +853,8 @@ CHUNK_MODIFY_PAGE = '''<html>
 <input id="chunk_id" type="hidden" value="%s">
 <script type="text/javascript" src="/copyinputvalue.js"></script>
 <P>
+Visit Log centered around <button class="button button1" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?around=%s#%s','_blank');">%s</button>
+<P>
 
 <form action="/cgi-bin/fzlog-cgi.py" method="GET">
 Change Node to:<br>
@@ -893,7 +895,7 @@ Change Close timestamp to:<br>
 '''
 
 def generate_chunk_modify_page():
-    print(CHUNK_MODIFY_PAGE % (id, id, id, id, id, id))
+    print(CHUNK_MODIFY_PAGE % (id, id, id, id, id, id, id, id, id))
 
 GENERIC_ERROR_PAGE = '''<html>
 <head>
