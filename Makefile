@@ -312,6 +312,7 @@ WEBINTERFACES += $(TOOLSPATH)/system/doc/system-documentation.html
 WEBINTERFACES += $(TOOLSPATH)/system/doc/help
 WEBINTERFACES += $(TOOLSPATH)/system/doc/system-help.html
 WEBINTERFACES += $(TOOLSPATH)/system/doc/ready-docs.html
+WEBINTERFACES += $(TOOLSPATH)/system/doc/carboncopies-today.html
 WEBINTERFACES += $(TOOLSPATH)/system/doc/gemini.html
 WEBINTERFACES += $(TOOLSPATH)/system/doc/tips.html
 WEBINTERFACES += $(TOOLSPATH)/system/doc/setup-and-replicate.html
@@ -395,6 +396,10 @@ TOPLEVEL += $(MEDIAPATH)/RTT-Summarized-HTML.png
 TOPLEVEL += $(MEDIAPATH)/System-Action-HTML.png
 TOPLEVEL += $(MEDIAPATH)/decisions-and-communication.png
 TOPLEVEL += $(FZCONFIGSRCPATH)/logentry.py/favicon-logentry-32x32.png
+TOPLEVEL += $(MEDIAPATH)/meshes-in-neuroglancer-2.png
+TOPLEVEL += $(MEDIAPATH)/meshes-in-neuroglancer-3.png
+TOPLEVEL += $(MEDIAPATH)/meshes-in-neuroglancer-4.png
+TOPLEVEL += $(MEDIAPATH)/meshes-in-neuroglancer.png
 
 # Third party tools
 THIRDPARTY =

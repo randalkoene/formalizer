@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<HTML>
+
+<HEAD>
+<meta charset="utf-8" />
+<link rel="icon" href="/favicon-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+
+<TITLE>Carboncopies Today and Main Projects</TITLE>
+</HEAD>
+<BODY>
+<script type="module" src="/fzuistate.js"></script>
+
+<H1>Carboncopies Today and Main Projects</H1>
+
+<table><tbody><tr>
+
+<td style="vertical-align: top; padding: 10px;"><!-- column 1 -->
+
+<h3>General</h3>
+
+<button class="button button1" onclick="window.open('https://docs.google.com/document/d/1X_w2aykHcSEj7UowONOsJBa2QMt4PYXzBbWGtdRR2HY/edit?tab=t.0#heading=h.wty8n33fyp0q','_blank');">Introducing Carboncopies</button><br>
+<button class="button button1" onclick="window.open('https://carboncopies.org/Newsletter/December2025/#workshop','_blank');">Functionalizing Brain Data - Ground-Truthing</button> <button class="button button1" onclick="window.open('https://www.youtube.com/watch?v=gl5H1_IJ1DA','_blank');">Kording: Why ground-truth simulation is so hard</button><br>
+<button class="button button1" onclick="window.open('https://carboncopies.org/Newsletter/December2025/#AN2025','_blank');">Aspirational Neuroscience at SfN2025 - Memory Decoding</button> <button class="button button1" onclick="window.open('https://aspirationalneuroscience.org/sfn-meetup-2025/','_blank');">Event Page</button> <button class="button button1" onclick="window.open('https://neurobiology.substack.com/p/when-will-we-be-able-to-decode-a','_blank');">Andy McKenzie</button><br>
+<button class="button button1" onclick="window.open('https://carboncopies.org/assets/images/sfn-poster-2025.png','_blank');">SfN2025 - Brain Emulation Challenge</button> <button class="button button1" onclick="window.open('https://docs.google.com/presentation/d/1b0xgXNMH8yYCopVPBIa6AJ7zyC7DfluOayyYYhC8yjI/edit?slide=id.g3e1f8a764aa_0_49#slide=id.g3e1f8a764aa_0_49','_blank');">Brain Emulation Challenge (slides)</button><br>
+<button class="button button1" onclick="window.open('https://alleninstitute.org/news/how-far-are-we-from-a-human-brain-simulation-and-what-does-that-mean-for-science','_blank');">Allen Institute chimes in about human whole brain emulation</button><br>
+
+<button class="button button1" onclick="window.open('https://drive.google.com/file/d/1kXc65X0h_mjRx2Uhln_w0OsglbyD0GG7/view?usp=drive_link','_blank');">Carboncopies onboarding video</button><br>
+
+</td>
+
+<td style="vertical-align: top; padding: 10px;"><!-- column 2 -->
+
+<h3>Demos</h3>
+
+To build an example, from Netmorph reservoir generation, through Connectome tuning to hidden function, to virtual data collection and Neuroglancer inspection:
+
+<UL>
+	<LI>Access the VM, run API and NES.</LI>
+	<LI>Pick the example (e.g. xor_scnm) and request a full run-through: ./Run.sh -R -n -S -M</LI>
+	<LI>Inspect in Neuroglancer: <a href="http://neuroglancer-demo.appspot.com/#!%7B%22dimensions%22%3A%7B%22x%22%3A%5B100%2C%22nm%22%5D%2C%22y%22%3A%5B100%2C%22nm%22%5D%2C%22z%22%3A%5B200%2C%22nm%22%5D%7D%2C%22layers%22%3A%5B%7B%22name%22%3A%22Microscopy%20Data%22%2C%22source%22%3A%22precomputed%3A%2F%2Fhttp://pve.braingenix.org:8000%2FDataset%2F895097eb-c15d-4380-a01f-f98ce832ecee%2FData%22%2C%22tab%22%3A%22source%22%2C%22type%22%3A%22image%22%7D%2C%7B%22name%22%3A%22Ground%20Truth%20Segmentation%22%2C%22source%22%3A%22precomputed%3A%2F%2Fhttp://pve.braingenix.org:8000%2FDataset%2F895097eb-c15d-4380-a01f-f98ce832ecee%2FSegmentation%22%2C%22tab%22%3A%22source%22%2C%22type%22%3A%22segmentation%22%7D%5D%2C%22layout%22%3A%22xy-3d%22%2C%22position%22%3A%5B0.0%2C0.0%2C0.0%5D%2C%22projectionOrientation%22%3A%5B0.09116003662347794%2C0.28062376379966736%2C-0.19248539209365845%2C0.935889720916748%5D%2C%22selectedLayer%22%3A%7B%22layer%22%3A%22Ground%20Truth%20Segmentation%22%2C%22visible%22%3Atrue%7D%7D" target="_blank">Dataset in Neuroglancer</a> (<b>API server must be running.</b>)</LI>
+	<LI>Or, for the autoassociative memory example, in Neuroglancer: <a href="http://neuroglancer-demo.appspot.com/#!%7B%22dimensions%22%3A%7B%22x%22%3A%5B100%2C%22nm%22%5D%2C%22y%22%3A%5B100%2C%22nm%22%5D%2C%22z%22%3A%5B200%2C%22nm%22%5D%7D%2C%22layers%22%3A%5B%7B%22name%22%3A%22Microscopy%20Data%22%2C%22source%22%3A%22precomputed%3A%2F%2Fhttp://pve.braingenix.org:8000%2FDataset%2Fd71115ee-b2f4-4c99-83e1-192c3234536e%2FData%22%2C%22tab%22%3A%22source%22%2C%22type%22%3A%22image%22%7D%2C%7B%22name%22%3A%22Ground%20Truth%20Segmentation%22%2C%22source%22%3A%22precomputed%3A%2F%2Fhttp://pve.braingenix.org:8000%2FDataset%2Fd71115ee-b2f4-4c99-83e1-192c3234536e%2FSegmentation%22%2C%22tab%22%3A%22source%22%2C%22type%22%3A%22segmentation%22%7D%5D%2C%22layout%22%3A%22xy-3d%22%2C%22position%22%3A%5B0.0%2C0.0%2C0.0%5D%2C%22projectionOrientation%22%3A%5B0.09116003662347794%2C0.28062376379966736%2C-0.19248539209365845%2C0.935889720916748%5D%2C%22selectedLayer%22%3A%7B%22layer%22%3A%22Ground%20Truth%20Segmentation%22%2C%22visible%22%3Atrue%7D%7D" target="_blank">Dataset in Neuroglancer</a></LI>
+</UL>
+
+For Blender demo of Netmorph generated example:
+
+<UL>
+	<LI>Open Blender from its folde in Downloads.</LI>
+	<LI>Open the example .blend.gz for the xor_scnm example from the CCF-backup/braingenix folder on the SSD.</LI>
+	<LI>Use the View/Navigate menu to pick Fly Through</LI>
+	<LI>To create a Blender file of the reservoir for the Autoassociative memory example: <code>./autoassociative_reservoir.py -modelfile nesvbp-autoassociative -DoBlend -BevelDepth 0.2</code> (BlenderExec was already pointing at the right executable)</LI>
+</UL>
+
+<button class="button button1" onclick="window.open('https://drive.google.com/file/d/1BO2LsjIFxF3DHNeFLDG3p3_oxidXfgXH/view?usp=drive_link','_blank');">Netmorph reservoir growth to synthetic data generation</button><br>
+<button class="button button1" onclick="window.open('https://drive.google.com/file/d/1u8SVkAaOAiaSgp3I4Jyle3N86USUhQ60/view?usp=sharing','_blank');">Reservoir Netmorph result (rotating)</button><br>
+<button class="button button1" onclick="window.open('https://drive.google.com/file/d/1Oqx0o7QjSkyxfrkbXjrW0WxO4F1zn28v/view?usp=drive_link','_blank');">Netmorph grown synthetic autoassociative memory system (with music)</button><br>
+<button class="button button1" onclick="window.open('https://drive.google.com/file/d/1TgvlCW7nMdlilX06fgl7YSya9Qd8jxHq/view?usp=drive_link','_blank');">Encoding autoassociative memory engram - Vm responses (short)</button><br>
+
+<button class="button button1" onclick="window.open('https://drive.google.com/file/d/15f2z88SHP3btUfCznrK2XIdEsRIB5lEN/view?usp=sharing','_blank');">WBE and the Translation Problem (full video)</button><br>
+
+</td>
+
+</tr></tbody></table>
+
+<img src="/meshes-in-neuroglancer.png" width="40%"> <img src="/meshes-in-neuroglancer-2.png" width="40%">
+<img src="/meshes-in-neuroglancer-3.png" width="40%"> <img src="/meshes-in-neuroglancer-4.png" width="40%">
+
+</BODY>
+
+</HTML>
