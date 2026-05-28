@@ -400,6 +400,7 @@ TOPLEVEL += $(MEDIAPATH)/meshes-in-neuroglancer-2.png
 TOPLEVEL += $(MEDIAPATH)/meshes-in-neuroglancer-3.png
 TOPLEVEL += $(MEDIAPATH)/meshes-in-neuroglancer-4.png
 TOPLEVEL += $(MEDIAPATH)/meshes-in-neuroglancer.png
+TOPLEVEL += $(MEDIAPATH)/sfn-poster-2025.png
 
 # Third party tools
 THIRDPARTY =
