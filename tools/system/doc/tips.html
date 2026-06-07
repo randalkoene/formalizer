@@ -68,6 +68,35 @@ Question 3: How do I record an online meeting, presentation or call?
 </p>
 </div>
 
+<button class="button button1 accordion-header">
+Question 3: How do I fix hanging ssh attempts?
+</button>
+<div class="accordion-content">
+<p>The SSH connection is getting stuck because a corrupted or unresponsive background ControlMaster process (SSH multiplexing) is blocking the session.</p>
+<h3>The Core Problem</h3>
+<p>The log shows auto-mux: Trying existing master followed by mux_client_request_session: session request sent. Your SSH client is trying to reuse an old, dead, or frozen background connection socket instead of establishing a fresh one.</p>
+<h3>How to Fix It Immediately</h3>
+<ul>
+<li>Bypass multiplexing for this command:
+Force a clean connection by adding the -O stop flag or disabling the ControlMaster feature temporarily:
+ssh -o ControlMaster=no -vvv -p 2200 rkoene@pve.braingenix.org</li>
+<li>Kill the stuck master process:
+Find and terminate the background SSH process manually:
+pkill -f "ssh.*pve.braingenix.org"</li>
+<li>Clean up the dead socket file:
+Look inside your ~/.ssh/ directory for control socket files (often named after the host, port, and user) and delete the one corresponding to this connection.</li>
+</ul>
+<h3>How to Prevent It Permanentely</h3>
+<p>Open your local configuration file at ~/.ssh/config and add an auto-timeout to your multiplexing settings so dead connections clear themselves out automatically:</p>
+<pre>
+Host *
+    ControlMaster auto
+    ControlPath ~/.ssh/sockets/%r@%h:%p
+    ControlPersist 10m
+</pre>
+<p>(The ControlPersist 10m directive ensures the background connection automatically closes after 10 minutes of inactivity, preventing permanent freezes).</p>
+</div>
+
 </div>
 
 <script type="text/javascript" src="/accordion.js"></script>
