@@ -12,6 +12,16 @@ localhost
 127.0.0.1
 ```
 
+## Slowdown / hang of calls to localhost:8090
+
+It seems that Chrome may cause hangs that resolve after about a minute
+when it does DNS related work on localhost URLs.
+
+A fairly simple solution may be to use 127.0.0.1 directly instead of
+localhost when opening the Formalizer top page, Nodes page, Log page,
+etc. More information is provided in Log chunk 202606201025 and the
+document linked from there.
+
 ## Access permissions for web control directories
 
 Web-based Formalizer control depends on activities carried out in the
