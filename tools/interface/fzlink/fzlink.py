@@ -150,6 +150,31 @@ def render_output():
 
     if altcmd:
         print(f'\n<!-- Secondary command: {altcmd} -->\n')
+        print(f'''<br>
+<p>
+<button class="button button2" onclick="exportHistory('{id}');">Export</button>
+</p>
+<script>
+function exportHistory(nodeId) {{
+    var src = document.documentElement.outerHTML;
+    var marker = '<!-- Secondary command:';
+    var idx = src.indexOf(marker);
+    if (idx === -1) {{ alert('No history content found.'); return; }}
+    var afterComment = src.indexOf('-->', idx) + 3;
+    var bodyEnd = src.lastIndexOf('</body>');
+    var content = bodyEnd !== -1 ? src.slice(afterComment, bodyEnd) : src.slice(afterComment);
+    var fullHtml = '<!DOCTYPE html>\\n<html>\\n<head>\\n<meta charset="utf-8">\\n<title>' + nodeId + ' history</title>\\n</head>\\n<body>\\n' + content.trim() + '\\n</body>\\n</html>';
+    var blob = new Blob([fullHtml], {{type: 'text/html'}});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = nodeId + '-history.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+}}
+</script>
+''')
         print('<br>\n<table><tbody>\n')
         print('<br>\n\n')
         try_the_command(altcmd)
