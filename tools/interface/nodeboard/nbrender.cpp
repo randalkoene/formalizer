@@ -989,7 +989,8 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
         } else {
             nodevars.emplace("td-bg-color", "");
         }
-        nodevars.emplace("node-targetdate", " ("+DateStampYmd(tdate)+')');
+        float hrstocomplete = node_ptr->hours_to_complete();
+        nodevars.emplace("node-targetdate", " ("+DateStampYmd(tdate)+','+to_precision_string(hrstocomplete, 1)+')');
 
         nodevars.emplace("node-deps", node_id_str);
         size_t depnum = node_ptr->num_dependencies();
