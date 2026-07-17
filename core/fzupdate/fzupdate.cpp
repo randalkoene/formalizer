@@ -17,6 +17,7 @@
 // std
 #include <cmath>
 #include <iostream>
+#include <algorithm>
 
 // core
 #include "error.hpp"
@@ -83,7 +84,7 @@ void fzupdate::usage_hook() {
           "    -D number of days to map with -u (default in config, or 14)\n"
           "    -P interval seconds for moveable packing beyond map (or 'none')\n"
           "    -c specify a chain of placers (VTD,UTD)\n"
-          "    -m overhead multiplier to use with '-T full'\n"
+          "    -m safety margin on computed demand with '-T full' (default 1.1)\n"
           "    -B day map such as 'SELFWORK:WED,SAT_WORK:MON,TUE,THU,SUN'\n"
           "    -S use categories within dependency subtrees of Nodes in NNL.\n"
           "    -M show maps for number of <days> (when -V).\n"
@@ -262,6 +263,7 @@ bool fzu_configurable::set_parameter(const std::string & parlabel, const std::st
     CONFIG_TEST_AND_SET_PAR(map_multiplier, "map_multiplier", parlabel, get_positive_integer(parvalue, "map_multiplier"));
     CONFIG_TEST_AND_SET_PAR(map_days, "map_days", parlabel, get_positive_integer(parvalue, "map_days"));
     CONFIG_TEST_AND_SET_PAR(full_overhead_multiplier, "full_overhead_multiplier", parlabel, std::atof(parvalue.c_str()));
+    CONFIG_TEST_AND_SET_PAR(full_map_days_max, "full_map_days_max", parlabel, (unsigned long)std::atol(parvalue.c_str()));
     CONFIG_TEST_AND_SET_PAR(warn_repeating_too_tight,"warn_repeating_too_tight", parlabel, (parvalue != "false"));
     CONFIG_TEST_AND_SET_PAR(endofday_priorities,"endofday_priorities", parlabel, (parvalue != "false"));
     CONFIG_TEST_AND_SET_PAR(dolater_endofday,"dolater_endofday", parlabel, get_time_of_day_seconds(parvalue));
@@ -397,6 +399,199 @@ time_t get_t_limit_for_everything(time_t t_pass, targetdate_sorted_Nodes& incomp
     return t_pass + time_t(float(seconds_req)*fzu.config.full_overhead_multiplier);
 }
 
+/**
+ * Round a candidate time limit up to the start of a day boundary measured from the
+ * start of the day containing t_pass. The EPS map always starts at `day_start_time(t_pass)`
+ * and spans an integer number of days, so aligning the limit this way makes the map end
+ * coincide exactly with fzu.t_limit.
+ */
+time_t align_to_map_day_end(time_t t_pass, time_t t) {
+    time_t firstday = day_start_time(t_pass);
+    if (t <= firstday) {
+        return firstday + seconds_per_day;
+    }
+    time_t ndays = (t - firstday + seconds_per_day - 1) / seconds_per_day;
+    return firstday + ndays*seconds_per_day;
+}
+
+/**
+ * The number of chunks that the placers will attempt to place within a map bounded by
+ * `t_limit`. This mirrors exactly what the placers consume:
+ *  - Unspecified (UTD) Nodes are placed regardless of their target date (they form a
+ *    priority-ordered to-do stack), so all of their instances are counted.
+ *  - All other Nodes (exact, fixed, variable, inherited, and repeating instances) are
+ *    counted only when their instance target date is at or before `t_limit`.
+ * The per-entry chunk count matches `eps_data_vec::updvar_chunks_required()`.
+ */
+size_t chunks_required_for_update(const targetdate_sorted_Nodes & fetched, time_t t_limit) {
+    size_t total = 0;
+    for (const auto & [t, node_ptr] : fetched) {
+        if (!node_ptr) {
+            continue;
+        }
+        chunks_t chunks_req = seconds_to_chunks(node_ptr->seconds_to_complete());
+        if (chunks_req == 0) {
+            continue;
+        }
+        if (node_ptr->td_unspecified()) {
+            total += chunks_req; // UTD Nodes are placed regardless of date.
+        } else if (t <= t_limit) {
+            total += chunks_req;
+        }
+    }
+    return total;
+}
+
+/**
+ * Determine the smallest day-aligned t_limit for a `-T full` update such that the EPS map
+ * has enough 5-minute slots to place all required chunks (with the configured safety
+ * margin). Because the placement demand itself grows with t_limit (a wider window admits
+ * more repeating-Node instances and more dated Nodes), this is solved with a small
+ * fixed-point iteration accelerated by the measured demand-growth rate.
+ *
+ * On success it sets `fzu.t_limit`, returns it, and leaves in `fetched_out` the incomplete
+ * Nodes fetched up to `t_limit + fetch_days_beyond_t_limit` (identical to what
+ * update_variable() would otherwise fetch, so the caller reuses it).
+ *
+ * If the schedule is genuinely infeasible (repeating and dated Nodes consume essentially
+ * all available time, or the required horizon is absurdly large) the behaviour depends on
+ * `config.full_map_days_max`: if that cap is set, `t_limit` is pinned to the cap and
+ * `tail_packing` is set true (overflow UTD Nodes get order-preserving dates beyond the
+ * map); otherwise the function exits with a diagnostic error.
+ */
+time_t updvar_full_t_limit(time_t t_pass, targetdate_sorted_Nodes & fetched_out, bool & tail_packing) {
+    tail_packing = false;
+    const double chunk_seconds = (double)fzu.config.chunk_seconds;
+
+    double margin = fzu.config.full_overhead_multiplier;
+    if (margin < 1.05) {
+        margin = 1.05;
+    }
+    if (margin > 1.5) {
+        VERBOSEOUT("Note: full_overhead_multiplier="+to_precision_string(margin)+" is large; with demand-based sizing it only enlarges the map and runtime linearly. A value around 1.05-1.2 is recommended.\n");
+    }
+
+    const time_t firstday = day_start_time(t_pass);
+    const bool have_cap = (fzu.config.full_map_days_max > 0);
+    const time_t t_cap = firstday + time_t(fzu.config.full_map_days_max) * seconds_per_day;
+    const time_t t_hardcap = firstday + time_t(3660) * seconds_per_day; // ~10 year safety backstop
+
+    time_t min_span = std::max<time_t>(time_t(fzu.config.map_days)*seconds_per_day, seconds_per_week);
+    time_t T = align_to_map_day_end(t_pass, t_pass + min_span);
+
+    size_t prev_D = 0;
+    time_t prev_T = t_pass;
+    const int max_iters = 12;
+
+    for (int k = 1; k <= max_iters; ++k) {
+        bool at_cap = have_cap && (T >= t_cap);
+        if (at_cap) {
+            T = t_cap;
+        }
+        // Normally the fetch window tracks the sizing candidate T. But when pinned to the
+        // horizon cap, we still want every UTD Node placed (they are a priority-ordered
+        // stack), so the fetch is extended to cover the latest movable Node's target date.
+        // The map itself stays capped, so the extra fetch only adds cheap node iteration.
+        time_t fetchlimit = T + (fzu.config.fetch_days_beyond_t_limit * seconds_per_day);
+        if (at_cap) {
+            time_t t_latest = T;
+            Node* node_latest = fzu.graph().latest_active_movable_with_required_time();
+            if (node_latest && (node_latest->effective_targetdate() > t_latest)) {
+                t_latest = node_latest->effective_targetdate();
+            }
+            fetchlimit = t_latest + (fzu.config.fetch_days_beyond_t_limit * seconds_per_day);
+        }
+        fetched_out = Nodes_incomplete_with_repeating_by_targetdate(fzu.graph(), fetchlimit, 0, fzu.config.pack_moveable);
+        size_t D = chunks_required_for_update(fetched_out, T);
+        time_t T_needed = align_to_map_day_end(t_pass, t_pass + time_t(double(D) * chunk_seconds * margin));
+
+        VERBOSEOUT("[full sizing] iter "+std::to_string(k)+": t_limit="+TimeStampYmdHM(T)
+            +" days="+std::to_string((T-firstday)/seconds_per_day)
+            +" fetched="+std::to_string(fetched_out.size())
+            +" demand_chunks="+std::to_string(D)
+            +" needs_t_limit="+TimeStampYmdHM(T_needed)+'\n');
+
+        if (at_cap) {
+            // Pinned to the horizon cap: accept it and pack any overflow UTD Nodes beyond the map.
+            tail_packing = (T_needed > T);
+            if (tail_packing) {
+                VERBOSEOUT("[full sizing] Reached full_map_days_max cap ("+std::to_string(fzu.config.full_map_days_max)+" days); packing overflow UTD Nodes at intervals beyond the map.\n");
+            }
+            fzu.t_limit = T;
+            return T;
+        }
+
+        if (T_needed <= T) {
+            fzu.t_limit = T;
+            VERBOSEOUT("[full sizing] Converged: t_limit="+TimeStampYmdHM(T)+" ("+std::to_string((T-firstday)/seconds_per_day)+" days).\n");
+            return T;
+        }
+
+        // r_raw is the physical demand-growth rate (fraction of each added day's capacity
+        // consumed by repeating and dated Nodes); r_eff folds in the safety margin.
+        double r_raw = 0.0;
+        if ((k > 1) && (T > prev_T)) {
+            r_raw = (double(D) - double(prev_D)) * chunk_seconds / double(T - prev_T);
+        }
+        double r_eff = r_raw * margin;
+        prev_D = D;
+        prev_T = T;
+
+        if (r_eff >= 0.98) {
+            // Demand grows about as fast as (or faster than) capacity, so no finite horizon
+            // fits everything by slot placement alone (given the safety margin).
+            if (have_cap) {
+                T = t_cap;
+                continue; // handle via the cap + tail-packing path on the next pass
+            }
+            if (r_raw >= 0.98) {
+                standard_exit_error(exit_general_error,
+                    "Cannot size `-T full`: repeating and dated Nodes consume ~"+to_precision_string(r_raw*100.0, 1)
+                    +"% of available time as the horizon grows, so no finite horizon fits all UTD Nodes. "
+                    "Set config `full_map_days_max` to enable tail-packing, reduce repeating commitments, "
+                    "or update a bounded window with -D <days> or -T <YYYYmmddHHMM>.", __func__);
+            }
+            standard_exit_error(exit_general_error,
+                "Cannot size `-T full`: repeating and dated Nodes consume ~"+to_precision_string(r_raw*100.0, 1)
+                +"% of available time, and the safety margin ("+to_precision_string(margin)
+                +") pushes the requirement past capacity. Lower full_overhead_multiplier toward 1.1, "
+                "set config `full_map_days_max` to enable tail-packing, or use -D <days> / -T <YYYYmmddHHMM>.", __func__);
+        }
+
+        time_t T_next = (r_eff > 0.0) ? (T + time_t(double(T_needed - T) / (1.0 - r_eff))) : T_needed;
+        T = align_to_map_day_end(t_pass, T_next);
+
+        if (T > t_hardcap) {
+            if (have_cap) {
+                T = t_cap;
+                continue;
+            }
+            standard_exit_error(exit_general_error,
+                "Cannot size `-T full`: required horizon exceeds ~10 years ("+TimeStampYmdHM(T)+"). "
+                "Set config `full_map_days_max` to enable tail-packing, reduce repeating commitments, or use -D/-T.", __func__);
+        }
+    }
+
+    // Did not converge within the iteration cap.
+    if (have_cap) {
+        fzu.t_limit = (T > t_cap) ? t_cap : T;
+        time_t t_latest = fzu.t_limit;
+        Node* node_latest = fzu.graph().latest_active_movable_with_required_time();
+        if (node_latest && (node_latest->effective_targetdate() > t_latest)) {
+            t_latest = node_latest->effective_targetdate();
+        }
+        time_t fetchlimit = t_latest + (fzu.config.fetch_days_beyond_t_limit * seconds_per_day);
+        fetched_out = Nodes_incomplete_with_repeating_by_targetdate(fzu.graph(), fetchlimit, 0, fzu.config.pack_moveable);
+        tail_packing = true;
+        VERBOSEOUT("[full sizing] Did not converge within "+std::to_string(max_iters)+" iterations; using cap with tail-packing.\n");
+        return fzu.t_limit;
+    }
+    standard_exit_error(exit_general_error,
+        "Cannot size `-T full`: did not converge within "+std::to_string(max_iters)+" iterations (last t_limit "
+        +TimeStampYmdHM(T)+"). Set config `full_map_days_max` to enable tail-packing, or use -D/-T.", __func__);
+    return T; // unreachable (standard_exit_error does not return)
+}
+
 struct update_constraints {
     time_t t_pass = RTt_unspecified;
     time_t t_fetchlimit = RTt_maxtime;
@@ -431,10 +626,12 @@ struct update_constraints {
         if (fzu.config.map_days > days_in_map) {
             days_in_map = fzu.config.map_days;
         }
-        time_t t_maplimit = t_pass + days_in_map*seconds_per_day;
-        if (t_maplimit < fzu.t_limit) {
-            float seconds_needed = fzu.t_limit - t_pass;
-            days_in_map = ceil(seconds_needed / float(seconds_per_day));
+        // The map starts at the beginning of the day containing t_pass (see the EPS_map
+        // constructor), so days_in_map must be measured from that day-start, not from
+        // t_pass, or the map end can fall up to nearly a day short of fzu.t_limit.
+        time_t firstday = day_start_time(t_pass);
+        if (firstday + time_t(days_in_map)*seconds_per_day < fzu.t_limit) {
+            days_in_map = (fzu.t_limit - firstday + seconds_per_day - 1) / seconds_per_day;
         }
     }
 
@@ -449,27 +646,7 @@ struct update_constraints {
     }
 
     size_t get_chunks_UTD_plus_to_t_limit() {
-        size_t total = 0;
-        size_t i = 0;
-        for (const auto & [t, node_ptr] : *incomplete_repeating_ptr) {
-            if (!node_ptr) {
-                ADDERROR(__func__, "Received a null-node");
-            } else {
-                chunks_t chunks_req = epsdata_ptr->at(i).chunks_req;
-                if (chunks_req > 0) {
-                    if (node_ptr->td_unspecified() && (!node_ptr->get_repeats())) {
-                        total += chunks_req;
-                    } else {
-                        if (t <= fzu.t_limit) {
-                            total += chunks_req;
-                        }
-                    }                    
-                }
-            }
-            ++i;
-        }
-
-        return total;
+        return chunks_required_for_update(*incomplete_repeating_ptr, fzu.t_limit);
     }
 
     size_t get_chunks_to_t_limit() {
@@ -537,8 +714,15 @@ struct update_constraints {
         size_t chunks_all_UTD_plus = get_chunks_UTD_plus_to_t_limit();
         s += "\nChunks for all UTDs + to t_limit ETD,FTD,VTD & repeats : "+std::to_string(chunks_all_UTD_plus);
         s += "\nA t_limit that would fit all those chunks              : "+TimeStampYmdHM(get_t_limit_for_chunks(t_pass, chunks_all_UTD_plus));
-        s += "\nA t_limit fit for everything but infinite repeats      : "+TimeStampYmdHM(get_t_limit_for_everything(t_pass, *incomplete_repeating_ptr));
-        s += "\nChunks available to t_limit                            : "+std::to_string(get_chunks_to_t_limit());
+        s += "\nA t_limit fit for everything (legacy estimate)         : "+TimeStampYmdHM(get_t_limit_for_everything(t_pass, *incomplete_repeating_ptr));
+        size_t chunks_available = get_chunks_to_t_limit();
+        s += "\nChunks available to t_limit                            : "+std::to_string(chunks_available);
+        float margin = fzu.config.full_overhead_multiplier;
+        if (margin < 1.05) margin = 1.05;
+        size_t demand_with_margin = (size_t)(double(chunks_all_UTD_plus) * double(margin));
+        s += "\nSafety margin (full_overhead_multiplier, clamped >=1.05): "+to_precision_string(margin);
+        s += "\nDemand x margin vs. available chunks                   : "+std::to_string(demand_with_margin)+" vs. "+std::to_string(chunks_available)
+             +(demand_with_margin <= chunks_available ? "  (fits)" : "  (does NOT fit -> needs larger t_limit or tail-packing)");
         s += "\n\nSetting the t_limit to the t_limit to fit everything would provide\na complete and safe update, because FTD/ETD target dates\nbeyond that would not be modified anyway.\n";
         return s;
     }
@@ -601,8 +785,6 @@ bool request_batch_targetdates_modifications(const targetdate_sorted_Nodes & upd
     return true;
 }
 
-#define USE_NEW_MAX_T_LIMIT
-
 /**
  * The update_variable() function handles VTD and UTD Nodes. See the definition of categories below.
  * 
@@ -649,41 +831,26 @@ int update_variable(time_t t_pass) {
         VERBOSEOUT("Pack-moveable mode.\n");
     }
 
-    // Updated on 20240917, see notes in Log chunk 202409170932.
+    // For `-T full` (t_limit == RTt_maxtime), size the map from the actual placement
+    // demand rather than guessing with a multiplier. See updvar_full_t_limit().
+    // Updated on 20240917, see notes in Log chunk 202409170932; reworked to demand-based sizing.
     bool test_fail_full = false;
+    bool tail_packing = false;
+    bool already_fetched = false;
+    targetdate_sorted_Nodes incomplete_repeating;
     if (fzu.t_limit == RTt_maxtime) {
-#ifdef USE_NEW_MAX_T_LIMIT
         test_fail_full = true;
-        VERBOSEOUT("Calculating time limit to accommodate everything for `-T full`...\n");
-        // Find the latest non-repeating movable.
-        Node* node_latest = fzu.graph().latest_active_movable_with_required_time();
-        time_t t_latest = node_latest->effective_targetdate();
-        VERBOSEOUT("Latest non-repeating movable: "+TimeStampYmdHM(t_latest)+'\n');
-        // Get a list of incomplete Nodes up to that point.
-        targetdate_sorted_Nodes tmp_incomplete_repeating = Nodes_incomplete_with_repeating_by_targetdate(fzu.graph(), t_latest, 0, fzu.config.pack_moveable);
-        // Find the time required for everything in there and set the t_limit accordingly.
-        fzu.t_limit = get_t_limit_for_everything(t_pass, tmp_incomplete_repeating);
+        VERBOSEOUT("Sizing `-T full` from actual placement demand...\n");
+        updvar_full_t_limit(t_pass, incomplete_repeating, tail_packing);
+        already_fetched = true;
         VERBOSEOUT("Updating to "+TimeStampYmdHM(fzu.t_limit)+".\n");
-#else
-        // Let's keep this case from exploding: Set the limit to time needed to complete non-repeating Nodes.
-        size_t annual_repeating_minutes = total_minutes_incomplete_repeating(fzu.graph(), t_pass, t_pass+(seconds_per_day*365), true);  
-        float minutes_per_year = 60*24*365;
-        float year_ratio = (float)annual_repeating_minutes / minutes_per_year;
-        if (year_ratio >= 1.0) {
-            return standard_exit_error(exit_general_error, "Unable to project time needed to complete Nodes.", __func__);
-        }
-        size_t available_minutes_per_year = (1.0-year_ratio)*minutes_per_year;
-        size_t minutes = total_minutes_incomplete_nonrepeating(fzu.graph(), t_pass, fzu.t_limit); // *** Insufficient, there's even a note about that in the function!
-        size_t num_years = (minutes / available_minutes_per_year) + 1;
-        VERBOSEOUT("Updating "+std::to_string(num_years)+" years.\n");
-        minutes_per_year *= (60*num_years); // years int seconds
-        fzu.t_limit = t_pass + (size_t)minutes_per_year;
-#endif
     }
 
     update_constraints constraints(t_pass);
-    // *** Might be able to re-use tmp_incomplete_repeating where applicable to save time.
-    targetdate_sorted_Nodes incomplete_repeating = Nodes_incomplete_with_repeating_by_targetdate(fzu.graph(), constraints.t_fetchlimit, 0, fzu.config.pack_moveable);
+    // In `-T full` mode updvar_full_t_limit() already fetched to constraints.t_fetchlimit; reuse it.
+    if (!already_fetched) {
+        incomplete_repeating = Nodes_incomplete_with_repeating_by_targetdate(fzu.graph(), constraints.t_fetchlimit, 0, fzu.config.pack_moveable);
+    }
     Edit_flags editflags;
     editflags.set_Edit_targetdate();
 
@@ -696,8 +863,8 @@ int update_variable(time_t t_pass) {
         VERYVERBOSEOUT("Showing maps with up to "+std::to_string(fzu.config.showmaps_days)+" days.\n");
     }
 
-    // *** constraints.days_in_map was not set to the amount needed for fzu.t_limit determined above!
     EPS_map updvar_map(t_pass, constraints.days_in_map, incomplete_repeating, epsdata, test_fail_full);
+    updvar_map.pack_tail_beyond = tail_packing;
     updvar_map.process_chain(fzu.config.chain);
     updvar_map.place_exact();
     updvar_map.place_fixed();
@@ -714,8 +881,19 @@ int update_variable(time_t t_pass) {
     targetdate_sorted_Nodes eps_update_nodes = fzu.config.UTD_is_priority_queue ? updvar_map.get_epsvtd_and_utd_update_nodes() : updvar_map.get_eps_update_nodes();
 
     if (test_fail_full && (!updvar_map.utd_all_placed)) {
-        VERBOSEOUT("The `full_overhead_multiplier` was too small to achieve placement\nof all UTD Nodes in `-T full` mode.\n");
-        return standard_exit_error(exit_bad_config_value, "Larger `full_overhead_multiplier` needed for `-T full`. Multiplier used was "+to_precision_string(fzu.config.full_overhead_multiplier)+'.', __func__);
+        // With demand-based sizing (and tail-packing when full_map_days_max is set) this
+        // should be unreachable; if it fires it indicates a placement-accounting bug.
+        size_t capacity_chunks = updvar_map.slots.size() / (fzu.config.chunk_minutes / minutes_per_slot);
+        size_t demand_chunks = chunks_required_for_update(incomplete_repeating, fzu.t_limit);
+        VERBOSEOUT("Not all UTD Nodes could be placed in `-T full` mode.\n");
+        return standard_exit_error(exit_general_error,
+            "`-T full` failed to place all UTD Nodes ("+std::to_string(updvar_map.utd_num_mapped)+" of "
+            +std::to_string(updvar_map.utd_num_parsed)+" placed). Demand="+std::to_string(demand_chunks)
+            +" chunks, capacity="+std::to_string(capacity_chunks)+" chunks, days_in_map="
+            +std::to_string(constraints.days_in_map)+", t_limit="+TimeStampYmdHM(fzu.t_limit)
+            +", margin="+to_precision_string(fzu.config.full_overhead_multiplier)
+            +". This should not happen with demand-based sizing; set config `full_map_days_max` to enable "
+            "tail-packing, or report this as a sizing bug.", __func__);
     }
 
     if (eps_update_nodes.empty()) {

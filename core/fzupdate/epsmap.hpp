@@ -147,6 +147,9 @@ struct EPS_map {
     std::vector<std::unique_ptr<Placer>> placer_chain;
     bool test_fail_full = false;
     bool utd_all_placed = false;
+    bool pack_tail_beyond = false; ///< When true, UTD Nodes that do not fit within the map are given order-preserving target dates beyond the map (tail-packing).
+    size_t utd_num_parsed = 0;     ///< Number of Uncategorized UTD Nodes the placer attempted (for diagnostics).
+    size_t utd_num_mapped = 0;     ///< Number of Uncategorized UTD Nodes the placer placed, including tail-packed (for diagnostics).
 
     targetdate_sorted_Nodes & nodelist;
     eps_data_vec_t & epsdata;

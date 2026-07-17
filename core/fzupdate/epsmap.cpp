@@ -1052,8 +1052,9 @@ targetdate_sorted_Nodes EPS_map::get_epsvtd_and_utd_update_nodes() {
             if (tdprop == unspecified) {
                 if ((epsdataref.t_eps > RTt_unspecified) && (epsdataref.t_eps < RTt_maxtime)) {
 
-                    // Beyond dates to work with an order would be unaffected.
-                    if ((node_ptr->effective_targetdate() > fzu.t_limit) && (t_lastupdated < node_ptr->effective_targetdate())) {
+                    // Beyond dates to work with an order would be unaffected — unless we are
+                    // tail-packing, in which case UTD Nodes past t_limit also get new dates.
+                    if ((!pack_tail_beyond) && (node_ptr->effective_targetdate() > fzu.t_limit) && (t_lastupdated < node_ptr->effective_targetdate())) {
                         break;
                     }
 
@@ -1108,7 +1109,17 @@ void Uncategorized_UTD_Placer::place() {
                 num_parsed++;
                 time_t t_suggested = updvar_map.reserve(node_ptr, epsdataref.chunks_req, true);
                 if (t_suggested < 0) {
-                    epsdataref.epsflags.set_insufficient();
+                    if (updvar_map.pack_tail_beyond) {
+                        // The map is full: give this UTD Node an order-preserving target date
+                        // beyond the map so all UTD Nodes still receive updated dates.
+                        time_t t_tail = updvar_map.t_beyond;
+                        updvar_map.t_beyond += fzu.config.pack_interval_beyond;
+                        epsdataref.t_eps = t_tail;
+                        updvar_map.previous_group_td = t_tail;
+                        num_mapped++;
+                    } else {
+                        epsdataref.epsflags.set_insufficient();
+                    }
                 } else {
                     epsdataref.t_eps = t_suggested;
                     updvar_map.previous_group_td = t_suggested; // Every UTD Node must have a unique target date.
@@ -1120,6 +1131,8 @@ void Uncategorized_UTD_Placer::place() {
         ++i;
     }
 
+    updvar_map.utd_num_parsed = num_parsed;
+    updvar_map.utd_num_mapped = num_mapped;
     updvar_map.utd_all_placed = num_mapped == num_parsed;
     VERYVERBOSEOUT('\n'+std::to_string(num_mapped)+" of "+std::to_string(num_parsed)+" Uncategorized Nodes with unspecified target dates mapped.\n");
     if (fzu.config.showmaps) {

@@ -40,7 +40,8 @@ public:
 
     unsigned int map_multiplier = 3;
     unsigned long map_days = 14;
-    float full_overhead_multiplier = 1.1; ///< Used with `-T full` to attempt to ensure that all UTD Nodes are placed.
+    float full_overhead_multiplier = 1.1; ///< Safety margin applied to the computed placement demand in `-T full` (values much above ~1.2 only enlarge the map and runtime).
+    unsigned long full_map_days_max = 0;  ///< If >0, caps the `-T full` map horizon (days); overflow UTD Nodes are packed at intervals beyond the map (tail-packing). 0 = uncapped.
 
     bool warn_repeating_too_tight = true;
 
