@@ -604,10 +604,21 @@ bool request_batch_targetdates_modifications(const targetdate_sorted_Nodes & upd
 #define USE_NEW_MAX_T_LIMIT
 
 /**
+ * The update_variable() function handles VTD and UTD Nodes. See the definition of categories below.
+ * 
  * Note: Much of this is a re-implementation of the Formalizer 1.x process carried out by dil2al when the
  *       function alcomp.cc:generate_AL_CRT() is called.
  * 
  * Note: The first step is now to parse a possible "chain" specification.
+ * 
+ * Some chain types currently defined in `epsmap.cpp/hpp`:
+ *   VTD = Vartiable Target Date (VTD) Nodes
+ *   UTD = Uncategorized UTD Nodes
+ *   BTF = Boolean Tag Flag categorized UTD Nodes
+ *   The definition of UTD Nodes (as used in UTD and BTF categories above) no longer means
+ *   "unspecified" as in the Formalizer 1.x. Instead it now refers to Nodes that are treated
+ *   as being on an ordered to-do stack, where the stack order has to be preserved, but target
+ *   dates can be freely shifted.
  * 
  * Outline of steps:
  * 1. Determine the time limit (fzu.t_limit) up to which mapping is to be done.
@@ -618,7 +629,8 @@ bool request_batch_targetdates_modifications(const targetdate_sorted_Nodes & upd
  * 6. Create an EPS map for constraints.days_in_map. Set map time stamps, create list of 5 minute slots, create Node key to EPS data index lookup table.
  * 7. Place exact target date Nodes. Up to fzu.t_limit, map exact target date Nodes (plus collect some additional information).
  * 8. Place fixed target date Nodes. Up to fzu.t_limit, map fixed and inherit target date Nodes (plus collect some additional information).
- * 9. Group and place moveable (variable and unspecified) Nodes.
+ * 9. Group and place moveable (variable and unspecified) Nodes. Normally, this now uses the configured "chain" process,
+ *    and the default chain in `config/fzupdate/config.json` is now typically "VTD;BTF;UTD".
  * 10. From the map, collect the Nodes to update and their new target dates.
  * 11. Request modification of that batch.
  * 

@@ -62,6 +62,8 @@ The Nodes that were updated are placed in the NNL `repeating_updated`.
 # Updating variable Nodes
 
 The `fzupdate -u` call updates variable target date Nodes with the `update_variable()` function of `fzupdate.cpp`.
+This handles Variable Target Date (VTD) Nodes and multiple categories of UTD Nodes that are handles like a todo stack where order is preserved but target dates can shift freely.
+Specific categories are described in a code comment for function `update_variable()`.
 
 1. A time limit, `t_limit`, is set. Normally, this is `t_pass` plus the number of days in `config.map_days`. Alternatively, a specific `t_limit` may have been requested that must be smaller or equal to `t_pass`. To keep updates from exploding, if `t_limit` was set to `RTt_maxtime` it is instead set to a TD that is sufficient to complete all non-repeating Nodes.
 2. Constraints are initialized. The `update_constraints` struct is used for that. It contains `t_fetchlimit`, `chunks_per_week`, `num_nodes_with_repeating`, `chunks_req_total`, `weeks_for_nonperiodic`, `days_in_map`. The `f_fetchlimit` is `t_limit` plus `config.fetch_days_beyond_t_limit` (defaults to 30). The `chunks_per_week` is determined based on `config.chunk_minutes`.
@@ -87,9 +89,11 @@ Time for Nodes with fixed target dates is found in the map such that a Node coul
 
 Randomization could be applied as a secondary step when suggesting a day-calendar of Nodes to work on.
 
-## Variable TD Nodes
+## Variable TD Nodes (VTD Nodes and UTD Node categories)
 
 This process applies to all Nodes marked `variable` TD, `unspecified` TD, or EPS `treatgroupable`.
+
+Note that `unspecified` is the old label we used in Formalizer 1.x. They are no longer treated that way in Formalizer 2.x, though we kept the legacy label, so that these are still referred to as UTD Nodes. There are now several categories (expandable in future work), and a processing chain is specified in the fzupdate configuration file. Some information about the categories is in the code comment for function `update_variable()`.
 
 Processing is done in terms of so-called EPS groups, i.e. groups of Node that are treated as having the same target dates.
 
