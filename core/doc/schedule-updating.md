@@ -6,6 +6,10 @@ information.
 
 This document was started as part of Node [20240614082648.1](http://localhost/cgi-bin/fzlink.py?id=20240614082648.1).
 
+For a reference of `fzupdate`'s operation modes, command-line options, configuration
+parameters, and how the legacy `pack_moveable`/`-P` mechanism relates to the newer
+`full_map_days_max` tail-packing, see [../fzupdate/README.md](../fzupdate/README.md).
+
 # Programs used to auto-update the Schedule
 
 Updating the Schedule via a form link in an HTML page is done by calling:
@@ -84,6 +88,8 @@ Specific categories are described in a code comment for function `update_variabl
 11. Nodes to update are collected from the EPS map and requests are made to update them to their new target dates.
 
 Note that there is an alternative method called `pack_moveable`, but that method is off by default and is presently typically left off in the `config.json`. The `pack_moveable` option attempts to pack more moveables into the map instead of leaving them undisturbed if their target dates are beyond `t_limit`.
+
+`pack_moveable`/`-P` is the *legacy* mechanism on this default (non-chain) placement path. It is independent of the newer `full_map_days_max` tail-packing used by the placer chain (`VTD;BTF;UTD`) for `-T full`; the two should not be combined. See [../fzupdate/README.md](../fzupdate/README.md#placement-mechanisms-legacy-vs-new) for the distinction and guidance on which to use.
 
 ## Exact TD Nodes
 
