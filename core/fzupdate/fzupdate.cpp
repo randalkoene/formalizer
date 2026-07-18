@@ -43,8 +43,8 @@ fzupdate fzu;
  */
 fzupdate::fzupdate() : formalizer_standard_program(false), config(*this),
                  reftime(add_option_args, add_usage_top) { //ga(*this, add_option_args, add_usage_top)
-    add_option_args += "rubRNT:D:P:dc:m:B:S:M:eZ:";
-    add_usage_top += " [-r|-u|-b|-R|-N] [-T <t_max|full>] [-D <days>] [-P <pack_interval>] [-c <chain>] [-m <multiplier>] [-B <btf_days>] [-S <NNL_name>] [-M <days>] [-e] [-Z <EOD>] [-d]";
+    add_option_args += "rubRNT:D:P:dc:m:F:B:S:M:eZ:";
+    add_usage_top += " [-r|-u|-b|-R|-N] [-T <t_max|full>] [-D <days>] [-P <pack_interval>] [-c <chain>] [-m <multiplier>] [-F <days>] [-B <btf_days>] [-S <NNL_name>] [-M <days>] [-e] [-Z <EOD>] [-d]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "The -T limit overrides the 'map_days' configuration or default parameter.\n"
@@ -85,6 +85,7 @@ void fzupdate::usage_hook() {
           "    -P interval seconds for moveable packing beyond map (or 'none')\n"
           "    -c specify a chain of placers (VTD,UTD)\n"
           "    -m safety margin on computed demand with '-T full' (default 1.1)\n"
+          "    -F cap '-T full' map horizon to <days>; overflow UTD Nodes are tail-packed (0=uncapped)\n"
           "    -B day map such as 'SELFWORK:WED,SAT_WORK:MON,TUE,THU,SUN'\n"
           "    -S use categories within dependency subtrees of Nodes in NNL.\n"
           "    -M show maps for number of <days> (when -V).\n"
@@ -181,6 +182,11 @@ bool fzupdate::options_hook(char c, std::string cargs) {
 
     case 'm': {
         config.full_overhead_multiplier = std::atof(cargs.c_str());
+        return true;
+    }
+
+    case 'F': {
+        config.full_map_days_max = (unsigned long)std::atol(cargs.c_str());
         return true;
     }
 

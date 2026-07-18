@@ -41,6 +41,7 @@ With no mode flag, `fzupdate` prints usage.
 | `-T <t_max\|full>` | Time limit to update up to (inclusive). A timestamp `YYYYmmddHHMM`, or `full` for a complete update of all movable Nodes (see [`-T full`](#-t-full-in-depth)). Overrides the `map_days` configuration for `-u`. Also the target date argument for `-b`, and the end time for `-R`/`-N`. |
 | `-D <days>` | Number of days to map with `-u` (overrides config `map_days`; default 14). Ignored when `-T` gives an explicit limit. |
 | `-m <margin>` | Safety margin applied to the computed demand in `-T full` (overrides config `full_overhead_multiplier`; default 1.1). |
+| `-F <days>` | Cap the `-T full` map horizon to `<days>`; overflow UTD Nodes are tail-packed beyond the map (overrides config `full_map_days_max`; `0` = uncapped). |
 | `-P <seconds\|none>` | **Legacy** "pack moveable" mode: turns on `pack_moveable` and sets the beyond-map packing interval to `<seconds>`; `-P none` turns it off. See [Placement mechanisms](#placement-mechanisms-legacy-vs-new). Off by default and normally left off. |
 | `-c <chain>` | Placer chain for `-u`, e.g. `VTD,UTD` (comma or semicolon separated). Overrides config `chain`. |
 | `-B <btf_days>` | Boolean-Tag-Flag day map, e.g. `SELFWORK:WED,SAT_WORK:MON,TUE,THU,SUN` — restricts categorized UTD Nodes to specific weekdays. |
@@ -66,7 +67,7 @@ values). Initialize config directories with `fzsetup.py -C`.
 | `map_days` | `14` | Default horizon for `-u` when no `-T`/`-D` is given. |
 | `map_multiplier` | `3` | Scales the computed `days_in_map` from the weeks of non-periodic work required. |
 | `full_overhead_multiplier` | `1.1` | Safety margin on computed demand for `-T full`. Recommended `1.05`–`1.2`; larger values only enlarge the map and runtime. (Formerly a raw multiplier on a rough estimate — a large value like `2.0` is no longer needed.) |
-| `full_map_days_max` | `0` (off) | Caps the `-T full` map horizon (in days). When set, overflow UTD Nodes are tail-packed beyond the map (see below). `0` = uncapped. |
+| `full_map_days_max` | `0` (off) | Caps the `-T full` map horizon (in days). When set, overflow UTD Nodes are tail-packed beyond the map (see below). `0` = uncapped. Also settable per-run with `-F <days>`. |
 | `fetch_days_beyond_t_limit` | `30` | Fetch incomplete Nodes this many days past `t_limit` (so nearby fixed/exact Nodes are visible). |
 | `pack_moveable` | `false` | **Legacy** alternative placement (see [Placement mechanisms](#placement-mechanisms-legacy-vs-new)). Normally off. |
 | `pack_interval_beyond` | `86400` (1 day) | Spacing between successive target dates assigned beyond the map. Used both by legacy `pack_moveable` and by the new tail-packing. |
@@ -185,6 +186,9 @@ fzupdate -E STDOUT -u -T full -B WORK:SUN,MON,TUE,WED,THU,FRI_SELFWORK:SAT -d -V
 
 # Apply a full update (requires full_map_days_max set if the schedule is over-committed):
 fzupdate -u -T full -B WORK:SUN,MON,TUE,WED,THU,FRI_SELFWORK:SAT
+
+# Full update with a one-off 90-day cap and margin (overriding config), dry run:
+fzupdate -u -T full -F 90 -m 1.1 -B WORK:SUN,MON,TUE,WED,THU,FRI_SELFWORK:SAT -d -V
 
 # Update repeating Nodes whose target dates have passed (as of an emulated time):
 fzupdate -r -t 202607171200
