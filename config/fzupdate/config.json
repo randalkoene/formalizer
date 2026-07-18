@@ -4,7 +4,8 @@
     "timezone_offset_hours": "0",
     "update_to_earlier_allowed": "false",
     "UTD_is_priority_queue": "true",
-    "full_overhead_multiplier": "2.0",
+    "full_overhead_multiplier": "1.1",
+    "full_map_days_max": "120",
     "showmaps": "false",
     "chain": "VTD;BTF;UTD",
     "NNL_name": "threads"
