@@ -51,6 +51,9 @@ Options:
 <li><code>T_emulate=YYYYmmddHHMM</code>: Use emulated time instead of actual current time.
 <li><code>map_days=NUM</code>: Do updates with a map of size NUM days. Default: 14 days.
 <li><code>T_pass=YYYYmmddHHMM</code>: Update up to and including this date. This argument is also used as the specified target date when breaking up an EPS group.
+<li><code>full_update=on</code>: Do a complete update of all movable (variable/unspecified) Nodes (passes <code>-T full</code>).
+<li><code>ovmultiplier=NUM</code>: Safety margin on computed demand with <code>full_update</code> (passes <code>-m</code>; default 1.1).
+<li><code>full_map_days=NUM</code>: Cap the <code>full_update</code> map horizon to NUM days; overflow UTD Nodes are tail-packed beyond the map (passes <code>-F</code>; 0 = uncapped). Overrides the fzupdate config <code>full_map_days_max</code>.
 <li><code>verbose=true</code>: Be verbose.
 </ul>
 
@@ -141,6 +144,7 @@ map_days = form.getvalue('map_days')
 T_max = form.getvalue('T_max')
 full_update = form.getvalue('full_update')
 ovmultiplier = form.getvalue('ovmultiplier')
+full_map_days = form.getvalue('full_map_days')
 btf_days = form.getvalue('btf_days')
 verbose = form.getvalue('verbose')
 showmaps = form.getvalue('showmaps')
@@ -358,6 +362,8 @@ if __name__ == '__main__':
                     add_to_cmd += ' -D '+map_days
         if ovmultiplier:
             add_to_cmd += ' -m '+ovmultiplier
+        if full_map_days:
+            add_to_cmd += ' -F '+full_map_days
         if btf_days:
             add_to_cmd += ' -B '+btf_days
         if showmaps:
