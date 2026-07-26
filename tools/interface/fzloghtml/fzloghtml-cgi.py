@@ -156,6 +156,11 @@ log_interval_head_part1 = '''<html>
 <meta http-equiv="cache-control" content="no-cache" />
 <title>fz: Log interval</title>
 <style>
+pre {
+    white-space: pre-wrap; /* keep formatting but wrap long lines */
+    overflow-wrap: break-word;
+    word-break: break-word; /* break long unbroken tokens */
+}
 .logstate {
 position: fixed;
 top: 120px;
