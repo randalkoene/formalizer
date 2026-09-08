@@ -246,7 +246,7 @@ cgi_custom_tail = '''
 <p>Enter HTML text here to append a Log Entry:
 <form action="/cgi-bin/logentry-form.py" method="post"><input type="hidden" name="showrecent" value="on">
 <textarea id="entrytext" rows="10" cols="100" name="entrytext"></textarea><br>
-Add entry for <input type="submit" name="makeentry" value="Log Chunk Node" /> or <input type="submit" name="makeentry" value="Other Node" /> | <input type="submit" name="makeentry" value="Templates" /> | [<a href="/cgi-bin/metrictags.py" target="_blank">Show Metric Tags</a>].
+Add entry for <input type="submit" name="makeentry" value="Log Chunk Node" /> or <input type="submit" name="makeentry" value="Other Node" /> | <input type="submit" name="makeentry" value="Templates" /> <button type="button" onclick="markdown2HTML()">Markdown2HTML</button> | [<a href="/cgi-bin/metrictags.py" target="_blank">Show Metric Tags</a>].
 </form>
 </p>
 
@@ -299,6 +299,36 @@ Or:<br />
 
 <p>[<a href="/index.html">fz: Top</a>] <span id="logautoupdate">_</span></p>
 
+<script>
+// Sends content through md2html.
+function markdown2HTML() {
+    const content_ref = document.getElementById("entrytext");
+    const content = content_ref.value;
+    const cgiUrl = '/cgi-bin/md2html-cgi.py';
+    const formData = new URLSearchParams();
+    formData.append('markdown_text', content);
+    fetch(cgiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData,
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text(); // or .json() if your script returns JSON
+    }).then(data => {
+        content_ref.value = data;
+        // console.log('Server response:', data);
+        // console.log('Reloading page...');
+        // window.location.reload();
+    }).catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+        alert('An error occurred. Please check the console for details.');
+    });
+}
+</script>
 <script type="text/javascript" src="/delayedpopup.js"></script>
 <script>
 set_hover_delayed_function('.hoverdelayfunc', enlargeImage, 1000);
