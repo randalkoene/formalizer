@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inbox Triage</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>%F0%9F%93%A5</text></svg>">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <h1>Inbox Triage</h1>
+    <button id="mode-badge" class="readonly-badge" type="button"
+            title="Click to switch between read-only and write mode">read-only</button>
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab is-active" role="tab" data-view="triage">Triage</button>
+    <button class="tab" role="tab" data-view="dashboard">Dashboard</button>
+    <button class="tab" role="tab" data-view="weights">Weights</button>
+    <button class="tab" role="tab" data-view="data">Data</button>
+    <button class="tab" role="tab" data-view="manual">Manual</button>
+  </nav>
+
+  <div class="topbar-right">
+    <span id="cache-stamp" class="cache-stamp"></span>
+    <button id="sync" class="btn" title="Pull in new mail and drop anything you have handled in Gmail. Takes a few seconds.">Sync</button>
+    <button id="rescore" class="btn" title="Re-run scoring over the local cache. Pure local computation — no network, no mailbox access.">Re-score</button>
+    <button id="theme" class="btn btn-icon" title="Toggle light / dark" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+
+<!-- ───────────────────────────── TRIAGE ───────────────────────────── -->
+<main id="view-triage" class="view is-active">
+  <aside class="rail">
+    <div class="rail-hero">
+      <div class="hero-pair">
+        <button class="hero-jump" data-needs="reply" title="Someone is waiting on an answer from you">
+          <span class="hero-figure" id="hero-reply">—</span>
+          <span class="hero-caption">to reply</span>
+        </button>
+        <button class="hero-jump" data-needs="read" title="Worth a glance, but nothing is being asked">
+          <span class="hero-figure hero-figure-sm" id="hero-read">—</span>
+          <span class="hero-caption">to read</span>
+        </button>
+      </div>
+      <div class="hero-sub" id="hero-sub"></div>
+      <div class="composition" id="composition" role="img" aria-label="Inbox composition by category"></div>
+    </div>
+
+    <div class="rail-list" id="rail-list"></div>
+
+    <div class="rail-foot">
+      <div class="foot-note">
+        Nothing here modifies your mailbox.<br>
+        Fetch new mail with <code>./triage.py fetch</code>.
+      </div>
+    </div>
+  </aside>
+
+  <section class="listpane">
+    <div class="listbar">
+      <div class="search-wrap">
+        <input id="search" type="search" placeholder="Search sender, subject, snippet…  ( / )" autocomplete="off" spellcheck="false">
+      </div>
+      <label class="sort-wrap">
+        <span>Sort</span>
+        <select id="sort">
+          <option value="score">Score</option>
+          <option value="date-desc">Newest</option>
+          <option value="date-asc">Oldest</option>
+          <option value="sender">Sender</option>
+        </select>
+      </label>
+      <span id="list-count" class="list-count"></span>
+    </div>
+    <div class="listhead">
+      <span class="col-score">Score</span>
+      <span class="col-main">Message</span>
+      <span class="col-age">Age</span>
+    </div>
+    <div id="select-bar" class="select-bar hidden">
+      <label class="sel-all"><input type="checkbox" id="select-all"> <span id="sel-count">0 selected</span></label>
+      <div id="sel-actions" class="sel-actions"></div>
+      <button class="link-btn" id="sel-clear">clear</button>
+    </div>
+    <div id="list" class="list" tabindex="0"></div>
+    <div id="list-more" class="list-more hidden"><button class="btn" id="show-more">Show more</button></div>
+  </section>
+
+  <section class="detail" id="detail">
+    <div class="empty-state">
+      <div class="empty-mark">↳</div>
+      <p>Select a message to see why it scored the way it did.</p>
+      <p class="empty-hint"><kbd>j</kbd> <kbd>k</kbd> to move · <kbd>/</kbd> to search · <kbd>1</kbd>–<kbd>8</kbd> for categories</p>
+    </div>
+  </section>
+</main>
+
+<!-- ──────────────────────────── DASHBOARD ─────────────────────────── -->
+<main id="view-dashboard" class="view">
+  <div class="dash">
+    <section class="card card-wide">
+      <h2>What is actually in there</h2>
+      <p class="card-sub">Every unread message in the inbox, by category.</p>
+      <div id="chart-categories" class="chart"></div>
+    </section>
+
+    <section class="card">
+      <h2>How old is the backlog</h2>
+      <p class="card-sub">Time since each message arrived.</p>
+      <div id="chart-age" class="chart"></div>
+    </section>
+
+    <section class="card">
+      <h2>Score distribution</h2>
+      <p class="card-sub">Where the scoring puts your mail. The thresholds are the tuning handles.</p>
+      <div id="chart-scores" class="chart"></div>
+    </section>
+
+    <section class="card card-wide">
+      <h2>Arrivals by month</h2>
+      <p class="card-sub">When the unread mail landed.</p>
+      <div id="chart-months" class="chart"></div>
+    </section>
+
+    <section class="card">
+      <h2>Loudest senders</h2>
+      <p class="card-sub">Who generates the most unread mail.</p>
+      <div id="chart-senders" class="chart"></div>
+    </section>
+
+    <section class="card">
+      <h2>Busiest rules</h2>
+      <p class="card-sub">Which scoring rules fire most often — the ones worth tuning first.</p>
+      <div id="chart-rules" class="chart"></div>
+    </section>
+
+    <section class="card card-wide">
+      <h2>Oldest mail still waiting on you</h2>
+      <p class="card-sub">Actionable categories only, oldest first.</p>
+      <div id="oldest-list" class="oldest"></div>
+    </section>
+  </div>
+</main>
+
+<!-- ───────────────────────────── WEIGHTS ──────────────────────────── -->
+<main id="view-weights" class="view">
+  <div class="weights-wrap">
+    <section class="card card-wide">
+      <h2>Scoring weights</h2>
+      <p class="card-sub">
+        Read-only here. Edit <code id="config-path">config.yaml</code>, then press
+        <strong>Re-score</strong> above — it recomputes from the local cache, so there is no
+        network call and no mailbox access.
+      </p>
+      <div id="weights-table"></div>
+    </section>
+  </div>
+</main>
+
+<!-- ────────────────────────────── DATA ───────────────────────────── -->
+<main id="view-data" class="view">
+  <div class="dash">
+
+    <section class="card card-wide">
+      <h2>Refresh from Gmail</h2>
+      <p class="card-sub">
+        These run <code>triage.py</code> as a subprocess, so the browser and the terminal
+        do exactly the same thing. They <strong>read</strong> Gmail — the OAuth scope is
+        <code>gmail.readonly</code>, so they cannot change anything in your mailbox.
+      </p>
+      <div id="job-buttons" class="job-buttons"></div>
+      <div id="job-panel" class="job-panel hidden">
+        <div class="job-head">
+          <span id="job-title"></span>
+          <span id="job-elapsed" class="job-elapsed"></span>
+          <button id="job-cancel" class="btn">Stop</button>
+        </div>
+        <div id="job-progress" class="job-progress hidden">
+          <div class="job-bar"><i></i></div>
+          <span class="job-count"></span>
+        </div>
+        <div id="job-summary" class="job-summary hidden"></div>
+        <div id="job-warnings" class="job-warnings hidden"></div>
+        <pre id="job-log" class="job-log"></pre>
+      </div>
+    </section>
+
+    <section class="card card-wide">
+      <h2>What has been done to your mailbox</h2>
+      <p class="card-sub">
+        Every action is written here before it is sent, so there is a record even if a call
+        later fails. Everything this tool can do is reversible from Gmail.
+      </p>
+      <div id="action-log"></div>
+    </section>
+
+    <section class="card card-wide">
+      <h2>What you have taught it</h2>
+      <p class="card-sub">
+        Stored in <code id="corrections-path">corrections.yaml</code>. Never regenerated by
+        a config rebuild. Removing an entry re-scores immediately.
+      </p>
+      <div id="corrections-table"></div>
+    </section>
+
+    <section class="card card-wide">
+      <h2>Lists and groups</h2>
+      <p class="card-sub">
+        Mail arriving via a list sits in Bulk by default. Say which lists you actually read and
+        they are tagged <em>Lists you follow</em>, counted under <strong>To read</strong>, and
+        reachable from the rail — without pretending a mailing list is personal mail.
+      </p>
+      <div id="list-candidates"></div>
+    </section>
+
+    <section class="card card-wide">
+      <h2>Your other addresses</h2>
+      <p class="card-sub">
+        Addresses that forward into this mailbox. Mail sent to them counts as sent to you —
+        without this, such mail scores <code>not_addressed</code> and tends to sink into Bulk.
+      </p>
+      <div id="alias-list" class="alias-list"></div>
+      <div id="alias-candidates"></div>
+      <form id="alias-form" class="alias-form">
+        <input id="alias-input" type="email" placeholder="another.address@example.com"
+               autocomplete="off" spellcheck="false">
+        <button class="btn" type="submit">Add address</button>
+      </form>
+    </section>
+
+  </div>
+</main>
+
+<!-- ───────────────────────────── MANUAL ──────────────────────────── -->
+<main id="view-manual" class="view">
+  <div class="manual">
+
+    <section class="card card-wide">
+      <h2>What this app is</h2>
+      <p class="card-sub">A diagnostic view of your unread Gmail. It sorts unread mail into
+      categories and shows, for every message, exactly why it landed where it did.</p>
+      <p>Nothing here modifies your mailbox. The OAuth token is scoped
+      <code>gmail.readonly</code>, so Google refuses any change regardless of what this code
+      asks for. Reading a message here does <strong>not</strong> mark it read in Gmail.</p>
+      <p>It works on a <strong>local cache</strong>. Fetching copies mail into
+      <code>cache/</code>; everything else — scoring, filtering, teaching — runs against that
+      copy, offline and instantly.</p>
+    </section>
+
+    <section class="card card-wide">
+      <h2>Starting and stopping</h2>
+      <p>The server is an ordinary program. Started in a terminal, <kbd>Ctrl</kbd>+<kbd>C</kbd>
+      stops it. Started in the background, <kbd>Ctrl</kbd>+<kbd>C</kbd> in some other terminal
+      does nothing at all — the old one keeps the port, the browser keeps showing a page, and
+      a new one refuses to start.</p>
+      <table class="wt" style="max-width:520px">
+        <tbody>
+          <tr><td class="rule">./serve.py</td><td>start it</td></tr>
+          <tr><td class="rule">./serve.py --status</td><td>is one running, and as which pid</td></tr>
+          <tr><td class="rule">./serve.py --stop</td><td>stop whichever one holds the port</td></tr>
+          <tr><td class="rule">./serve.py --port 8712</td><td>run a second one alongside</td></tr>
+        </tbody>
+      </table>
+      <p class="manual-note">Trying to start one while another holds the port now prints the
+      offending pid and its command line, with these commands — rather than an
+      "address already in use" traceback.</p>
+      <p>Stopping the server loses nothing. Everything lives in <code>cache/</code>,
+      <code>config.yaml</code> and <code>corrections.yaml</code> on disk. Write mode is the one
+      thing that does not survive: a fresh server always starts read-only.</p>
+      <p class="manual-note">So if you restart the server with a browser tab already open, that
+      tab is talking to a read-only server again. The badge re-checks with the server every ten
+      seconds and corrects itself, and any action refused in the meantime says plainly that
+      write mode is off rather than failing quietly.</p>
+
+      <h2>The refresh options</h2>
+      <p class="card-sub"><strong>Sync</strong> is in the top bar and is the one you want almost
+      always. The rest live in the <strong>Data</strong> tab. The first three change <em>which
+      mail you are looking at</em>; the last changes <em>who the scorer thinks matters</em>.</p>
+
+      <div class="manual-table-wrap">
+        <table class="wt manual-table">
+          <thead>
+            <tr>
+              <th style="width:150px"></th>
+              <th>Sync</th>
+              <th>Full rebuild</th>
+              <th>Rebuild, re-probing senders</th>
+              <th>Rebuild config from history</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><b>Same as CLI</b></td>
+              <td class="rule">triage.py sync</td>
+              <td class="rule">triage.py fetch</td>
+              <td class="rule">triage.py fetch --force</td>
+              <td class="rule">triage.py seed-config --force</td></tr>
+            <tr><td><b>What it reads</b></td>
+              <td>One listing of what is unread right now, then <em>only</em> the messages you
+                  do not already have.</td>
+              <td>Every unread message in your inbox, the thread each belongs to, and
+                  correspondence history for senders it has <em>not seen before</em>.</td>
+              <td>Identical — except it re-probes correspondence history for
+                  <em>every</em> sender from scratch, ignoring what is cached.</td>
+              <td>Your <em>Sent</em> mail from the last 3 years, plus a sample of your inbox
+                  from the last 2 years. It does not refresh the mail you are triaging.</td></tr>
+            <tr><td><b>What it writes</b></td>
+              <td class="rule">cache/</td>
+              <td class="rule">cache/</td>
+              <td class="rule">cache/</td>
+              <td class="rule">config.yaml</td></tr>
+            <tr><td><b>Overwrites your edits?</b></td>
+              <td class="ok">No</td>
+              <td class="ok">No</td>
+              <td class="ok">No</td>
+              <td class="warn">Yes — replaces config.yaml, including any weights,
+                  VIPs or grant entries you hand-tuned.</td></tr>
+            <tr><td><b>Roughly how long</b></td>
+              <td><b>Seconds.</b></td>
+              <td>A few minutes. Faster on repeat runs, because sender history is reused.</td>
+              <td>Noticeably longer — two extra lookups per sender.</td>
+              <td>A minute or two.</td></tr>
+            <tr><td><b>Use it when</b></td>
+              <td>Constantly. After replying in Gmail, after reading on your phone, or just to
+                  pull in new mail.</td>
+              <td>Sender history looks wrong — e.g. somebody you write to constantly is
+                  still scoring as a stranger.</td>
+              <td>The people or grants in your life have changed and you want the
+                  suggestions re-derived from scratch.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="manual-note"><b>In short:</b> press <strong>Sync</strong>. Reach for a
+      <strong>full rebuild</strong> only if the cache looks wrong, and for
+      <strong>re-probing senders</strong> only when the <code>sender_known</code> /
+      <code>sender_frequent</code> signals look stale. Treat <strong>Rebuild config</strong> as
+      a reset of the generated config — it is the only one that destroys anything, and it is
+      confirmed before it runs.</p>
+
+      <h3 class="manual-h3">Why Sync exists</h3>
+      <p>This app learns what happened to a message only by asking Gmail. When you reply in
+      Gmail, read something on your phone, or archive from another client, that message stops
+      being unread-in-inbox — but the local cache has no way to notice.</p>
+      <p><strong>Sync</strong> asks once: it lists what is unread right now, drops everything in
+      the cache that no longer is, downloads only genuinely new messages, and re-scores. It
+      takes seconds because it never re-downloads what it already has. A full rebuild re-fetches
+      all two thousand messages and takes minutes.</p>
+      <h3 class="manual-h3">Replying, one message at a time</h3>
+      <p>Pressing <strong>Reply in Gmail</strong> opens Gmail in a new tab and puts a small
+      prompt here naming that message. Reply there, come back, and press <strong>Replied /
+      read — remove it</strong>: the app checks that one message against Gmail and drops it
+      from triage, in about a second. <strong>Cancel</strong> leaves it exactly where it was.</p>
+      <p>The prompt does not take your word for it. It asks Gmail whether the message is still
+      unread in your inbox, and if it somehow is — you closed the tab without opening it, say —
+      it tells you and changes nothing rather than quietly losing the message.</p>
+      <p>This exists so you do not have to reply to five things and then try to remember which
+      five. Settle each one as you go. <strong>Sync</strong> in the top bar is still there for
+      everything else: mail you read on your phone, archived elsewhere, or that simply arrived.</p>
+
+      <p class="manual-note">What you have <em>taught</em> the classifier lives in
+      <code>corrections.yaml</code> and is <strong>never</strong> touched by any of the three.</p>
+
+      <h3 class="manual-h3">Reading the progress panel</h3>
+      <p>A run moves through three states, and the panel always says which one it is in:</p>
+      <ul class="manual-list">
+        <li><b>Fetching</b> — the bar tracks the current phase: messages, then threads, then
+            senders. The phase name and counts sit beside it.</li>
+        <li><b>Scoring…</b> — the bar sweeps instead of filling, because there is no countable
+            unit here. Takes a couple of seconds. The fetch is already finished at this point.</li>
+        <li><b>Done</b> — the panel turns green, the bar reads <em>complete</em>, and a summary
+            line states what landed: messages, threads, senders, and how many need your
+            attention.</li>
+      </ul>
+      <p>If the bar stops short of 100%, that is not a stall — it means some items genuinely
+      could not be fetched, and the warning box above the log says how many and why. Everything
+      else is still cached and scored.</p>
+      <p class="manual-note">Scoring runs automatically after a fetch, so there is nothing to
+      press afterwards. The log's last line is always <code>Re-scored N messages.</code> when
+      a run has fully completed.</p>
+    </section>
+
+    <section class="card card-wide">
+      <h2>The panels</h2>
+
+      <h3 class="manual-h3">Two kinds of attention</h3>
+      <p>Every message is judged on two separate questions. <em>What kind of mail is this?</em>
+      — that is the category. And <em>what does it want from you?</em> — that is the
+      <strong>needs</strong> axis, shown as a pill on each row:</p>
+      <ul class="manual-list">
+        <li><b class="pill needs-reply">reply</b> — someone is waiting on an answer. A question
+            aimed at you, a request, a deadline, or a direct reply to something you sent.</li>
+        <li><b class="pill needs-read">read</b> — worth a glance, but nothing is being asked:
+            grant and org business, threads you are in, a list you follow, a booking
+            confirmation, a security alert.</li>
+        <li>no pill — nothing needs you.</li>
+      </ul>
+      <p>The two are deliberately independent. A grant message that asks you to confirm a budget
+      is filed under <em>Grants &amp; Funding</em> but still says <b>reply</b>; a mailing list
+      you follow stays <em>Bulk</em> but says <b>read</b>. Neither axis has to lie to keep the
+      other honest.</p>
+
+      <h3 class="manual-h3">Triage — the left rail</h3>
+      <p>The two numbers at the top are the ones that matter: how much is waiting on a
+      <strong>reply</strong>, and how much is worth <strong>reading</strong>. Click either to
+      see just that. The thin striped bar underneath is the whole inbox by category, to scale —
+      the grey majority is bulk and automated mail.</p>
+      <p>Below that the rail has three groups. <b>Needs you</b> filters by the needs axis.
+      <b>By kind</b> filters by category. <b>Worth a look inside the noise</b> filters by tag —
+      the handful of things inside Bulk and Automated that usually deserve a glance: lists you
+      follow, travel bookings, invoices, security alerts, calendar invites.</p>
+
+      <h3 class="manual-h3">Old mail</h3>
+      <p>Unread mail gains weight for about a month — it has been sitting there — and then
+      loses it again. By four months the age bonus is gone; by a year it is a penalty. Something
+      unanswered that long has usually been overtaken by events.</p>
+      <p>But "usually" is not "always", so nothing is hidden. Every list splits at
+      <strong>120 days</strong>: recent mail first, then a collapsed <em>Older than 120 days</em>
+      band with its count. Open it when you want to sweep the backlog; ignore it the rest of the
+      time. The score breakdown always says which way age pushed a message, and by how much.</p>
+
+      <h3 class="manual-h3">Triage — the message list</h3>
+      <p>Search matches sender, subject and snippet; multiple words must all match. Sort by
+      score, date or sender. Each row shows its score, who sent it, the top reasons that
+      produced that score, and its age. Small pills mark thread length, whether you have
+      replied in that thread, and attachments. The coloured stripe on the left is the
+      category.</p>
+
+      <h3 class="manual-h3">Read-only and write mode</h3>
+      <p>The badge at the top left is a switch. <strong>read-only</strong> is where the app
+      starts, every time the server starts, and it is not a promise — it is enforced. The write
+      credential lives in a separate file that is only loaded when you arm write mode, so in
+      read-only mode the process holds nothing capable of changing your mailbox.</p>
+      <p>Clicking it arms <strong>write mode</strong> for 15 minutes, counting down on the
+      badge, after which it disarms itself. Granting the write scope is a one-time step:
+      <code>./triage.py authorize-write</code>.</p>
+      <p>The scope requested is <code>gmail.modify</code>. It can mark read, archive, star,
+      trash and report spam. It <strong>cannot delete permanently</strong> — Google reserves
+      that for a far broader scope this tool never asks for — so everything here is reversible
+      from Gmail, and trashed mail sits in Trash for about 30 days.</p>
+
+      <h3 class="manual-h3">What the actions are</h3>
+      <ul class="manual-list">
+        <li><b>Reply in Gmail</b> — always available, no write access needed. Replying happens
+            in Gmail so you have everything Gmail gives you. Note that opening it there is what
+            marks it read; this app never does that behind your back.</li>
+        <li><b>Mark read</b> — clears the unread flag, leaves it in the inbox.</li>
+        <li><b>Archive</b> — removes it from the inbox; still in All Mail.</li>
+        <li><b>Star</b> — flags it in Gmail and leaves it here, still unread.</li>
+        <li><b>Trash</b> — Gmail's Trash, recoverable for about 30 days.</li>
+        <li><b>Report spam</b> — moves it to Spam. Offered only in the Spam category.</li>
+        <li><b>Unsubscribe</b> — opens the sender's own unsubscribe link. Changes nothing in Gmail.</li>
+      </ul>
+      <p>Which actions appear depends on where you are. Categories where every message matters
+      get <em>star, mark read, archive</em> — <strong>no trash</strong>.
+      <strong>Bulk</strong> and <strong>Automated</strong> add <em>trash</em>.
+      <strong>Spam</strong> offers <em>trash</em> and <em>report spam</em>.
+      <strong>Onboarding</strong> has <em>no trash</em> on purpose — applications and resumes
+      are worth keeping, so that pile is read and filed, never cleared.</p>
+      <p>Every view with actions also has checkboxes, so you can tick several and act on them
+      together — including Needs Reply, Grants, Directed, Threads and Onboarding, where plenty of messages
+      only need a glance before being cleared. Batch does not widen what is possible: trash is
+      still absent from those four, in bulk exactly as it is singly. <strong>Select all
+      shown</strong> is in the bar above the list.</p>
+      <p><strong>All messages offers no actions at all</strong>, and so has no checkboxes. That is deliberate: deciding
+      what to do with something should follow from having looked at a category. The server
+      enforces this too, not just the buttons — an action aimed at the catch-all view is
+      refused outright.</p>
+      <p>Every action is written to <code>cache/actions.log</code> <em>before</em> it is sent,
+      so there is a record even if the call later fails. <strong>Data → What has been done to
+      your mailbox</strong> shows it, as does <code>./triage.py actions</code>.</p>
+
+      <h3 class="manual-h3">Triage — the detail pane</h3>
+      <p><strong>Why this score</strong> is the important part: every rule that fired, what it
+      contributed, and in plain words why. Bars run right for points gained, left for points
+      lost. If a message is in the wrong place, this tells you which rule to blame.</p>
+      <p><strong>Teach the classifier</strong> — see above. <strong>Actions</strong> act on
+      Gmail, and are greyed out until write mode is armed. <strong>Signals</strong> are the
+      internal flags, highlighted when true.</p>
+
+      <h3 class="manual-h3">Dashboard</h3>
+      <p>Shape of the backlog: composition, age, score distribution, arrivals by month, loudest
+      senders, and which scoring rules fire most (the ones worth tuning first). Bars are
+      clickable — they jump into the filtered list.</p>
+
+      <h3 class="manual-h3">Weights</h3>
+      <p>Every weight and threshold with its default; anything you have overridden is
+      highlighted. Read-only here: edit <code>config.yaml</code>, then press
+      <strong>Re-score</strong>.</p>
+
+      <h3 class="manual-h3">Data</h3>
+      <p>The three refresh options, everything you have taught the classifier (with
+      <em>forget</em> on each row), and your forwarding aliases.</p>
+    </section>
+
+    <section class="card card-wide">
+      <h2>Teaching it</h2>
+      <p>When a message is filed wrongly, open it and use <strong>Teach the classifier</strong>.
+      Pick what the correction applies to — this sender, everyone at this domain, or just this
+      one message — then press one of:</p>
+      <ul class="manual-list">
+        <li><b>Personal — never bulk</b> — real human correspondence. Overrides every bulk and
+            automated signal, however list-like the headers look.</li>
+        <li><b>Always important</b> — treat like a VIP, always surface it.</li>
+        <li><b>This really is bulk</b> — force it into Bulk.</li>
+        <li><b>Ignore this sender</b> — noise you never want near the top.</li>
+      </ul>
+      <p>The <b>note</b> field records <em>why</em>, and shows up in the score breakdown later.
+      <b>File this one message under</b> pins a single message to a category outright,
+      whatever the rules think.</p>
+      <p>Corrections save to <code>corrections.yaml</code> and re-score immediately. They change
+      how the local cache is scored — they never touch your mailbox.</p>
+
+      <h3 class="manual-h3">Lists and groups</h3>
+      <p>Mail that arrives via a mailing list or a group address sits in Bulk, which is right
+      for most of it and wrong for the few groups you actually belong to. Teach those once:
+      open any message from the list and press <strong>I read this list</strong>, or use
+      <strong>Data → Lists and groups</strong>, which ranks every list you have not ruled on by
+      how much mail it sends so you can clear them in one pass.</p>
+      <p>A list you follow stays in Bulk — it really is list mail — but is tagged
+      <em>Lists you follow</em>, counted under <strong>To read</strong>, and reachable from the
+      rail. A list can be taught by its <code>List-Id</code> or by its address; both spellings
+      are treated as the same list.</p>
+
+      <h3 class="manual-h3">Onboarding</h3>
+      <p>Intake mail — volunteer offers, resumes, internship applications — arrives through a
+      group address and therefore looks exactly like a mailing list: <code>List-Id</code>,
+      <code>Precedence: list</code>, an unsubscribe link. It is not. It gets its own category,
+      <strong>Onboarding</strong>, which sits between the threads and the noise, is marked
+      <b>read</b> rather than <b>reply</b>, and offers no <em>trash</em> so nothing you may want
+      to refer back to is thrown away from here.</p>
+      <p>Which groups count is config, not code: <code>onboarding_addresses</code> in
+      <code>config.yaml</code>, starting with <code>onboarding@carboncopies.org</code>. Either
+      spelling works — the group address or its <code>List-Id</code>. Teaching still outranks
+      it: muting the group, or marking a sender as bulk, puts that mail back in Bulk.</p>
+
+      <h3 class="manual-h3">Muting is not hiding</h3>
+      <p><strong>Mute this list</strong> does not remove anything. Muted mail is filed in
+      <em>Bulk</em> like any other list mail, sorted to the bottom, marked <em>needs
+      nothing</em>, and tagged so you can pull it up from <strong>Muted — still filed in
+      Bulk</strong> in the rail whenever you want to check what you muted.</p>
+      <p>This is deliberate. Every message in the cache is in exactly one category, always —
+      that holds for muted lists, ignored senders and year-old mail alike. Nothing is dropped,
+      nothing is invisible, and the counts always add up to the message total. When actions
+      that modify Gmail arrive, they will be driven off these buckets, so a message that fell
+      out of all of them would be a message silently exempt from whatever you chose to do.</p>
+      <p>Muting also never files anything as <em>Spam</em>. That bucket means failed
+      authentication, impersonation or a lookalike domain — a newsletter you are tired of is
+      not spam, and conflating the two would make the spam bucket useless for the one job it
+      has.</p>
+
+      <h3 class="manual-h3">Forwarding aliases</h3>
+      <p>If mail reaches you at another address that forwards into this mailbox, declare it
+      under <strong>Data → Your other addresses</strong>, or press <strong>That address is
+      me</strong> on any message that shows it. This matters more than it sounds: until an
+      alias is declared, mail sent to it counts as <em>not addressed to you</em>, earns no
+      directedness credit, and tends to sink into Bulk — which is exactly how personal mail
+      ends up looking like a newsletter.</p>
+    </section>
+
+    <section class="card card-wide">
+      <h2>Keyboard and links</h2>
+      <div class="manual-cols">
+        <table class="wt">
+          <thead><tr><th>Key</th><th>Does</th></tr></thead>
+          <tbody>
+            <tr><td><kbd>j</kbd> <kbd>k</kbd> / <kbd>↓</kbd> <kbd>↑</kbd></td><td>Move through the list</td></tr>
+            <tr><td><kbd>/</kbd></td><td>Jump to search (<kbd>Esc</kbd> leaves it)</td></tr>
+            <tr><td><kbd>1</kbd>–<kbd>8</kbd></td><td>Filter to a category, in rail order</td></tr>
+            <tr><td><kbd>0</kbd></td><td>All messages</td></tr>
+            <tr><td><kbd>t</kbd> <kbd>g</kbd> <kbd>w</kbd> <kbd>d</kbd> <kbd>m</kbd></td>
+                <td>Triage, dashboard, weights, data, manual</td></tr>
+            <tr><td><kbd>r</kbd></td><td>Re-score</td></tr>
+          </tbody>
+        </table>
+        <table class="wt">
+          <thead><tr><th>Link</th><th>Opens</th></tr></thead>
+          <tbody>
+            <tr><td class="rule">#triage</td><td>…and #dashboard, #weights, #data, #manual</td></tr>
+            <tr><td class="rule">#m93</td><td>Message 93 directly — shareable</td></tr>
+            <tr><td class="rule">#needs=reply</td><td>…also #cat=grants, #tag=travel</td></tr>
+            <tr><td class="rule">?theme=dark</td><td>Pin light or dark for this load</td></tr>
+            <tr><td class="rule">/api/messages</td><td>The raw JSON, same as the CLI's <code>--json</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="manual-note">Message numbers match the CLI exactly, so
+      <code>./triage.py explain 93</code> and <code>#m93</code> are the same message.</p>
+    </section>
+
+  </div>
+</main>
+
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-card">
+    <h2 id="modal-title"></h2>
+    <p id="modal-body"></p>
+    <div id="modal-note" class="modal-note hidden"></div>
+    <div id="modal-buttons" class="modal-buttons"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

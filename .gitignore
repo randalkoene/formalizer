@@ -4,3 +4,8 @@
 __pycache__
 token.pickle
 token.json
+# inbox-triage: credentials and personal mail data
+tools/system/inbox-triage/*token*.json
+tools/system/inbox-triage/cache/
+tools/system/inbox-triage/config.yaml
+tools/system/inbox-triage/corrections.yaml
