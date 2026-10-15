@@ -584,7 +584,7 @@ bool CGI_bg_run_as_user(int socket, const std::string & argstr) {
 
     std::string cgiargs = build_CGI_argument_string(argsvec[1]);
 
-    std::string cmdstr = argsvec[0]+cgiargs+" > "+argsvec[2]+" 2>1&";
+    std::string cmdstr = argsvec[0]+cgiargs+" > "+argsvec[2]+" 2>&1 &";
     VERYVERBOSEOUT("CGI_bg_run_as_user cmdstr="+cmdstr+'\n');
     // *** TESTING
     // std::string timestamp=TimeStamp("%Y%m%d%H%M%S",ActualTime());

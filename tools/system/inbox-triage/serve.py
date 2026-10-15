@@ -21,6 +21,10 @@ Credentials, precisely:
   ./serve.py                 # http://127.0.0.1:8711
   ./serve.py --port 9000
   ./serve.py --no-browser
+  ./serve.py --idle-exit 180 # quit after 3 idle hours
+
+Normally started from the Formalizer dashboard (see inbox-triage-start) and
+stopped with the Stop server button in the page.
 """
 
 import argparse
@@ -93,6 +97,9 @@ WRITE = WriteMode()
 HERE = os.path.dirname(os.path.realpath(__file__))
 WEB_DIR = os.path.join(HERE, "web")
 PID_FILE = os.path.join(store.CACHE_DIR, "serve.pid")
+
+# Time of the most recent request, for --idle-exit.
+LAST_REQUEST = time.time()
 
 
 def _read_pid():
@@ -655,6 +662,8 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, fh.read(), ctype)
 
     def do_GET(self):
+        global LAST_REQUEST
+        LAST_REQUEST = time.time()
         url = urlparse(self.path)
         path = url.path
 
@@ -720,8 +729,41 @@ class Handler(BaseHTTPRequestHandler):
             return {}
         return json.loads(self.rfile.read(length) or b"{}")
 
+    def _cross_origin(self):
+        """True for a POST some other web page made from the browser.
+
+        Without this, any page open in the same browser could post a simple
+        text/plain request here -- arm write mode, act on mail, stop the server.
+        Browsers always send Origin on a POST; curl and scripts do not, and are
+        let through.
+        """
+        origin = self.headers.get("Origin")
+        if origin is None:
+            return False
+        return urlparse(origin).netloc != (self.headers.get("Host") or "")
+
     def do_POST(self):
+        global LAST_REQUEST
+        LAST_REQUEST = time.time()
         path = urlparse(self.path).path
+        if self._cross_origin():
+            return self._send(403, {"error": "cross-origin request refused"})
+
+        # Before DATA.ensure(): stopping must work even with a broken cache.
+        if path == "/api/shutdown":
+            if JOB.is_running():
+                if not self._body().get("force"):
+                    return self._send(409, {
+                        "error": "A %s job is still running." % (JOB.status()["label"] or "CLI"),
+                        "jobRunning": True,
+                    })
+                JOB.cancel()
+            self._send(200, {"stopping": True})
+            # shutdown() waits for serve_forever() to return, which cannot
+            # happen inside this request's own thread.
+            threading.Timer(0.2, self.server.shutdown).start()
+            return
+
         try:
             DATA.ensure()
         except Exception as exc:
@@ -877,6 +919,9 @@ def main():
     parser.add_argument("--no-browser", action="store_true")
     parser.add_argument("--arm-minutes", type=int, default=ARM_MINUTES,
                         help="how long write mode stays armed (default %d)" % ARM_MINUTES)
+    parser.add_argument("--idle-exit", type=int, default=0, metavar="MINUTES",
+                        help="exit after this many minutes without a request "
+                             "(default 0: never)")
     parser.add_argument("--stop", action="store_true",
                         help="stop a running inbox-triage server and exit")
     parser.add_argument("--status", action="store_true",
@@ -950,8 +995,21 @@ def main():
             except Exception:
                 pass
         threading.Timer(0.5, open_browser).start()
+    if args.idle_exit > 0:
+        print("   exits after %d idle minutes" % args.idle_exit)
+
+        def idle_watch():
+            while True:
+                time.sleep(30)
+                if (not JOB.is_running()
+                        and time.time() - LAST_REQUEST > args.idle_exit * 60):
+                    print("idle for %d minutes" % args.idle_exit)
+                    httpd.shutdown()
+                    return
+        threading.Thread(target=idle_watch, daemon=True).start()
     try:
         httpd.serve_forever()
+        print("stopped")         # via Stop server, or --idle-exit
     except KeyboardInterrupt:
         print("\nstopped")
     finally:

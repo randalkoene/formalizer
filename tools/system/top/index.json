@@ -303,6 +303,10 @@
             "window" : "_blank",
             "id": "Email_Overdue"
         },
+        "Inbox Triage" : {
+            "url" : "/cgi-bin/inbox-triage-cgi.py",
+            "window" : "_blank"
+        },
         "Messenger" : {
             "url" : "https://www.messenger.com/",
             "window" : "_blank"

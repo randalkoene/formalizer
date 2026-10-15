@@ -40,7 +40,16 @@ Same data, same scoring, same read-only guarantees:
 ./serve.py --stop          # stop whichever process holds the port
 ./serve.py --port 9000
 ./serve.py --no-browser
+./serve.py --idle-exit 180 # quit after 3 hours without a request
 ```
+
+From the Formalizer dashboard, the **Inbox Triage** button (Communication)
+starts the server if needed and opens it. The button goes to
+`inbox-triage-cgi.py`, which asks fzserverpq to run `inbox-triage-start.py` as
+you via `CGIbg_run_as_user` (it must be listed in `predefined_CGIbg`).
+Started that way, the server runs detached, logs to `cache/serve.log`, and exits
+after 180 idle minutes. The **⏻** button at the top right of the page stops it;
+if a fetch or sync is running it asks before cancelling it.
 
 `Ctrl-C` stops a server running in the foreground. One started in the background
 survives it — so if the port is taken, `--stop` is the way. Starting over an

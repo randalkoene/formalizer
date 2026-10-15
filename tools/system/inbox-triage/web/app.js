@@ -1513,6 +1513,8 @@ function initEvents() {
     try { localStorage.setItem('triage-theme', next); } catch (_) { /* private mode */ }
   };
 
+  $('#stop-server').onclick = stopServer;
+
   $('#rescore').onclick = async () => {
     const btn = $('#rescore');
     btn.disabled = true;
@@ -1561,6 +1563,35 @@ function initEvents() {
     else if (e.key === 'r') { $('#rescore').click(); }
     else if (e.key === 's') { $('#sync').click(); }
   });
+}
+
+async function stopServer() {
+  if (!confirm('Stop the inbox-triage server?\n\nNothing is lost: everything is in the cache '
+    + 'and your config. The Inbox Triage button on the Formalizer dashboard starts it again.')) return;
+  try {
+    let res = await fetch('/api/shutdown', { method: 'POST' });
+    if (res.status === 409) {
+      const { error } = await res.json();
+      if (!confirm(`${error}\n\nCancel it and stop the server anyway?`)) return;
+      res = await fetch('/api/shutdown', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ force: true }),
+      });
+    }
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || res.statusText);
+  } catch (err) {
+    errorToast(`Could not stop the server: ${err.message}`);
+    return;
+  }
+  clearInterval(jobPoll);
+  clearInterval(modeTimer);
+  document.body.innerHTML = `<div class="stopped-page">
+    <h2>Inbox Triage stopped</h2>
+    <p>The server has shut down. Start it again from the Formalizer dashboard.</p>
+    <button class="btn" id="close-tab">Close this tab</button></div>`;
+  $('#close-tab').onclick = () => window.close();
 }
 
 // ?theme=dark|light pins the theme for this load (handy for bookmarks and for

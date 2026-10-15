@@ -212,6 +212,11 @@ kbd {
 .btn:hover { border-color: var(--accent); color: var(--accent); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-icon { padding: 5px 9px; }
+.btn-stop:hover { border-color: var(--neg); color: var(--neg); }
+
+.stopped-page { padding: 40px; max-width: 560px; }
+.stopped-page h2 { margin-bottom: 8px; }
+.stopped-page p { color: var(--text-secondary); margin-bottom: 16px; }
 
 /* ───────────────────────────── views ───────────────────────────── */
 
