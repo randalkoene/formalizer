@@ -86,6 +86,8 @@ const COMMANDS = [
       F.flag('milestones', 'Milestones only'), F.flag('all', 'Include inactive')] },
   { cmd: 'node', label: 'Node', desc: 'One Node: details, visible superiors and active dependencies, and its description.',
     fields: [F.id('id', 'Node ID', true), F.flag('full', 'Full description'), F.flag('all', 'Include inactive dependencies')] },
+  { cmd: 'context', label: 'Context', desc: 'What Claude reads to start working on a Node: the Node, its path up to the nearest Milestone, active dependencies, links found in its text and Log, and recent Log entries.',
+    fields: [F.id('id', 'Node ID', true), F.int('log', 'Log entries', 10), F.int('links', 'Links', 20), F.flag('full', 'Full description')] },
   { cmd: 'subtree', label: 'Subtree', desc: 'Everything active below a Node, as an indented tree.',
     fields: [F.id('id', 'Node ID', true), F.int('depth', 'Depth', 3), F.flag('milestones', 'Milestones only'),
       F.flag('all', 'Include inactive'), F.int('max', 'Max', '')] },

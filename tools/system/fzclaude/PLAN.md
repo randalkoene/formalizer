@@ -18,7 +18,7 @@ what comes next. For how the tools work, see `README.md`.
 
 | Phase | What | Status |
 |---|---|---|
-| 0 | Orientation: a private map of how the scoped part of the Formalizer is organized | **next**, after the scope is tuned |
+| 0 | Orientation: a private map of how the scoped part of the Formalizer is organized | **done** (2026-10-15): ~/.claude/skills/formalizer-map/ |
 | 1 | Read-only `fzclaude` wrapper with include/exclude scope, disclosure log, token stats, paging, incremental `changes` | **done** (2026-10-14) |
 | 1b | Browser interface (Claude Access on the dashboard): scope editor, preview, proposals, activity | **done** (2026-10-14) |
 | 1c | Guard hook in `~/.claude/settings.json` (fails closed) | **done** (2026-10-14) |
@@ -31,22 +31,22 @@ what comes next. For how the tools work, see `README.md`.
 
 ### Now: initial testing and tuning of the read-only stage
 
-- [ ] Run `make fzclaude-install` (the first install), then restart
+- [x] Run `make fzclaude-install` (the first install), then restart
       fzclaude-web (⏻, then the dashboard button).
-- [ ] Set the scope in **Scope rules**: `[CARBONCOPIES]` under Include, and
+- [x] Set the scope in **Scope rules**: `[CARBONCOPIES]` under Include, and
       `family` under Exclude (topic, or topic tree).
-- [ ] Preview in **Use** (Map, Today, Log, Node). Check:
+- [x] Preview in **Use** (Map, Today, Log, Node). Check:
   - [ ] Is anything visible that shouldn't be? Add exclusions.
   - [ ] Is anything missing that should be visible? Check how many Nodes
         `shared_outside` hides (strict mode), and decide between keeping
         strict mode on and adding explicit excludes.
   - [ ] Are the page sizes, excerpt lengths and the 14-day Log window right?
-- [ ] Commit `tools/system/fzclaude/` and the related `Makefile`,
+- [x] Commit `tools/system/fzclaude/` and the related `Makefile`,
       `config/fzserverpq/config.json` and `tools/system/top/index.json`
       changes.
 - [ ] Consider a `permissions.deny` Read rule for `~/.formalizer/archive/**`
       (backups). The guard does not cover Claude's Read tool.
-- [ ] Phase 0: Claude runs `fzclaude map` and writes the private orientation
+- [x] Phase 0: Claude runs `fzclaude map` and writes the private orientation
       skill in `~/.claude/skills/formalizer-map/`, holding:
   - a factual part, generated from `fzclaude map`, which can be refreshed
   - your annotations, edited by hand

@@ -61,6 +61,7 @@ RUN_SPECS = {
     'map': {'depth': 'int', 'width': 'int', 'all': 'flag', 'milestones': 'flag'},
     'today': {'days': 'int', 'max': 'int', 'offset': 'int'},
     'node': {'id': 'pos:id', 'full': 'flag', 'all': 'flag', 'max': 'int'},
+    'context': {'id': 'pos:id', 'log': 'int', 'links': 'int', 'full': 'flag'},
     'subtree': {'id': 'pos:id', 'depth': 'int', 'all': 'flag', 'milestones': 'flag', 'max': 'int', 'offset': 'int'},
     'search': {'text': 'pos:text', 'regex': 'flag', 'all': 'flag', 'milestones': 'flag', 'max': 'int', 'offset': 'int'},
     'log': {'days': 'int', 'since': 'stamp', 'until': 'stamp', 'all-time': 'flag', 'node': 'id',

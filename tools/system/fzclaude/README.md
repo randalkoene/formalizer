@@ -198,6 +198,25 @@ gives its status in words (`40%`, `done`, `obsolete`, `replaced`,
 - `today [--days N]`: Schedule entries in scope (same data as `schedule`).
 - `node <id> [--full]`: one Node, its visible superiors and dependencies,
   and its description.
+- `context <id> [--log 10] [--links 20] [--full]`: one call with what is
+  needed to start working on a Node:
+  - the Node and its description
+  - its path up through visible superiors to the nearest Milestone(s)
+  - its active dependencies
+  - links found in its description and in its whole Log history, with Claude
+    Docs/artifacts marked
+  - its most recent Log entries
+
+  A Node's Log (here and in `log --node`) includes entries that belong to the
+  Node but sit in another Node's chunk. `fzlog -e -n` adds them that way
+  while another chunk is open, and so does every `link` proposal. They come
+  from two sources:
+  - **`fzloghtml -n`**, like the Node pages: the `histories` cache table,
+    rebuilt daily by `local_node_histories_refresh.py`.
+  - **A local scan of the last `node_log_scan_days`** (default 60), for
+    entries added since the last refresh. `fzlog -e` does not update the
+    cache. Only the matching entries are returned, and duplicates are
+    removed.
 - `subtree <id> [--depth 3] [--all] [--milestones]`
 - `search <text> [--regex] [--all] [--milestones]`: the search runs inside
   fzclaude, so only matches are returned.
@@ -217,6 +236,9 @@ Proposals:
 
 - `propose <file.json>`: Claude saves a proposal. It is validated against
   the current scope.
+- `link <id> <url> [--text "what it is"]`: a one-step proposal for a Log
+  entry on the Node, recording a document or other work product (e.g. a
+  Claude Doc started for the Node). `context` then finds it again.
 - `proposals`, `show <id>`
 - `apply <id> [--no-backup] [--decline]`: **you only**. It validates the
   proposal again, shows it, asks for `yes`, runs `fzbackup.py`, and then runs

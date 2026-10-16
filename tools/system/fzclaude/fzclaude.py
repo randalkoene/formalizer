@@ -73,6 +73,7 @@ DEFAULT_CONFIG = {
     'node_text_chars': 4000,
     'scope_max_age_minutes': 60,
     'scope_max_nodes': 20000,
+    'node_log_scan_days': 60,
     'milestone_topic_id': 79,
     'chars_per_token': 4.0,
     'workers': 8,
@@ -115,6 +116,10 @@ CONFIG_SCHEMA = [
     ('excerpt_chars', 'int', 'Output size', 'Excerpt length in list lines', ''),
     ('entry_chars', 'int', 'Output size', 'Log entry length', 'Longer entries are cut off unless --full is used.'),
     ('node_text_chars', 'int', 'Output size', 'Node description length', 'For the node command, unless --full is used.'),
+    ('node_log_scan_days', 'int', 'Output size', 'Days scanned for a Node\'s entries in other chunks',
+     'A Log entry can belong to a Node but sit in a chunk of another Node (fzlog -e -n while another chunk is '
+     'open; this is how link proposals add entries). For one Node\'s Log, the last this many days are scanned '
+     'for such entries. The scan happens locally: only the matching entries reach Claude.'),
     ('milestone_topic_id', 'int', 'Graph', 'Topic ID that marks Milestones',
      'Nodes with this topic are Milestones, as in nodeboard\'s "Milestones Only" view (ROADMAP_TOPIC, 79). '
      'They are marked in Claude\'s output and can be listed on their own with --milestones.'),
@@ -132,6 +137,7 @@ SCOPE_RULE_KEYS = (
 ID_RE = re.compile(r'\d{14}\.\d+')
 ID_FULL_RE = re.compile(r'^\d{14}\.\d+$')
 NEW_NODE_RE = re.compile(r'New Node: (\d{14}\.\d+)')
+URL_RE = re.compile(r'https?://[^\s<>"\'()\[\]]+')
 
 # fzgraphhtml custom templates. With -F json the Node text is JSON-escaped and
 # superiors/dependencies are rendered as space separated IDs.
@@ -304,7 +310,7 @@ def html_to_text(s: str) -> str:
 
     def link(m):
         url, label = m.group(1), re.sub(r'<[^>]+>', '', m.group(2))
-        return label if url in label else f'{label} <{url}>'
+        return label if url in label else f'{label} ({url})'  # not <url>: tags are stripped below
 
     s = re.sub(r'(?is)<a\b[^>]*?href\s*=\s*["\']([^"\']*)["\'][^>]*>(.*?)</a>', link, s)
     s = re.sub(r'(?i)<br\s*/?>|</p>|</li>|</div>|</h\d>|</tr>', '\n', s)
@@ -810,7 +816,9 @@ def parse_log_raw(text: str) -> list:
             if len(parts) < 4:
                 cur = None
                 continue
-            cur = {'open': parts[0].strip(), 'close': parts[1].strip(),
+            # With -n, fzloghtml wraps the open time in a temporal-context link: keep only the stamp.
+            stamp = re.search(r'\d{12}', parts[0])
+            cur = {'open': stamp.group(0) if stamp else parts[0].strip(), 'close': parts[1].strip(),
                    'diff': ':'.join(parts[2:-1]).strip(), 'node': parts[-1].strip(), 'entries': []}
             chunks.append(cur)
         elif line.startswith('ENTRY:') and cur is not None:
@@ -829,7 +837,7 @@ def log_entries(cfg, vis, t_from, t_to, node=None, search=None):
     if node:
         a += ['-n', node]
     if search:
-        a += ['-f', search, '-C']
+        a += ['-f', search, '-A', '-C']  # -A: all search terms must be present
     rc, out = run_tool('fzloghtml', a)
     if rc != 0:
         raise ScopeError('fzloghtml could not produce the requested Log interval')
@@ -842,6 +850,21 @@ def log_entries(cfg, vis, t_from, t_to, node=None, search=None):
         for e in shown:
             rows.append((c, e))
     return rows, hidden_entries, hidden_chunks
+
+
+def node_log_entries(cfg, vis, nid, t_from, t_to, search=None):
+    """One Node's Log: its own chunks (fzloghtml -n selects chunks by their Node), plus entries that
+    belong to it inside other chunks, e.g. those added with fzlog -e -n while another chunk was open.
+    The second part scans only the last node_log_scan_days, filtered here, not sent."""
+    rows, h_entries, h_chunks = log_entries(cfg, vis, t_from, t_to, node=nid, search=search)
+    scan_from = (datetime.datetime.now() - datetime.timedelta(days=cfg['node_log_scan_days'])).strftime('%Y%m%d%H%M')
+    scan_from = max(scan_from, t_from)
+    if t_to == 'now' or t_to >= scan_from:
+        have = {(c['open'], e['minor']) for c, e in rows}
+        extra, _, _ = log_entries(cfg, vis, scan_from, t_to, search=search)
+        rows += [(c, e) for c, e in extra if e['node'] == nid and (c['open'], e['minor']) not in have]
+        rows.sort(key=lambda r: (r[0]['open'], to_int(r[1]['minor'])))
+    return rows, h_entries, h_chunks
 
 
 def print_log_rows(cfg, vis, rows, full=False):
@@ -877,7 +900,10 @@ def cmd_log(args, cfg, scope):
         days = args.days or cfg['log_days_default']
         t_from = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime('%Y%m%d%H%M')
     t_to = args.until or 'now'
-    rows, h_entries, h_chunks = log_entries(cfg, vis, t_from, t_to, args.node, args.search)
+    if args.node:
+        rows, h_entries, h_chunks = node_log_entries(cfg, vis, args.node, t_from, t_to, args.search)
+    else:
+        rows, h_entries, h_chunks = log_entries(cfg, vis, t_from, t_to, search=args.search)
     OUT.p(f'Log {fmt_td(t_from)} to {fmt_td(t_to) if t_to != "now" else "now"}: {len(rows)} entries in scope'
           + hidden_note(cfg, h_entries, f'entries outside scope, {h_chunks} chunks entirely') + '.')
     if args.count:
@@ -889,6 +915,75 @@ def cmd_log(args, cfg, scope):
     print_log_rows(cfg, vis, rows[start:max(end, 0)], args.full)
     if start > 0:
         OUT.p(f'... {start} earlier entries (use --offset {args.offset + (end - start)})')
+
+
+def milestone_paths(nid: str, vis: dict, limit=3) -> list:
+    """Paths upward from nid through visible superiors, each ending at the first Milestone (or a top)."""
+    paths, stack = [], [[nid]]
+    while stack and len(paths) < limit:
+        path = stack.pop(0)
+        sups = [s for s in vis[path[-1]]['sups'] if s in vis and s not in path]
+        if len(path) > 1 and (is_milestone(vis[path[-1]]) or not sups):
+            paths.append(path[1:])
+            continue
+        if not sups:
+            continue
+        stack.extend(path + [s] for s in sups)
+    return paths
+
+
+def cmd_context(args, cfg, scope):
+    """Everything needed to start working on a Node, in one call."""
+    vis = scope['visible']
+    nid = args.id
+    if nid not in vis:
+        return out_of_scope(nid)
+    d = fetch_node(nid)
+    if d is None:
+        return OUT.p(f'{nid}: could not be read.')
+    m = node_meta(d)
+    text = html_to_text(d['text'])
+
+    OUT.p('Node: ' + node_line(nid, m, ''))
+    limit = len(text) if args.full else cfg['node_text_chars']
+    OUT.p('  ' + text[:limit].replace('\n', '\n  ') + (f' ... ({len(text) - limit} more characters, use --full)'
+                                                        if len(text) > limit else ''))
+
+    paths = milestone_paths(nid, vis)
+    ex = excerpts(cfg, {n for p in paths for n in p}, 70)
+    OUT.p('Under:' + ('' if paths else ' (no visible superiors)'))
+    for p in paths:
+        OUT.p('  ' + ' > '.join(f'{n} {ex[n]}' for n in p))
+        OUT.nodes.update(p)
+
+    deps = [c for c in m['deps'] if c in vis]
+    active = sorted((c for c in deps if is_active(vis[c])), key=lambda x: vis[x]['td'])
+    OUT.p(f'Active dependencies: {len(active)}' + (f' ({len(deps) - len(active)} inactive left out)'
+                                                   if len(deps) > len(active) else ''))
+    dex = excerpts(cfg, active[:cfg['max_nodes']])
+    for c in active[:cfg['max_nodes']]:
+        OUT.p('  ' + node_line(c, vis[c], dex[c]))
+
+    # The Node's whole Log history is read for links; only the most recent entries are shown.
+    rows, _, _ = node_log_entries(cfg, vis, nid, '199001010000', 'now')
+    rows = [(c, e) for c, e in rows if e['node'] == nid]
+    links, seen = [], set()
+    for src, s in [('description', text)] + [(f"Log {c['open']}.{e['minor']}", html_to_text(e['text']))
+                                             for c, e in rows]:
+        for url in URL_RE.findall(s):
+            url = url.rstrip('.,;:')
+            if url not in seen:
+                seen.add(url)
+                links.append((src, url))
+    OUT.p(f'Links: {len(links)}' + (' (newest last)' if links else ''))
+    for src, url in links[-args.links:]:
+        kind = ' [Claude Doc/artifact]' if re.match(r'https://claude\.ai/(code/)?artifact/', url) else ''
+        OUT.p(f'  {src}: {url}{kind}')
+
+    recent = rows[-args.log:]
+    OUT.p(f'Log: {len(rows)} entries for this Node' + (f', the last {len(recent)} shown' if rows else ''))
+    if recent:
+        print_log_rows(cfg, vis, recent)
 
 
 def cmd_topics(args, cfg, scope):
@@ -1277,6 +1372,10 @@ def cmd_propose(args, cfg, scope):
             prop = json.load(f)
     except (OSError, ValueError) as e:
         return OUT.p(f'Could not read proposal file: {e}')
+    save_proposal(prop, scope, cfg)
+
+
+def save_proposal(prop: dict, scope: dict, cfg: dict):
     errors = validate_proposal(prop, scope['visible'], cfg)
     if errors:
         OUT.p('Proposal rejected:')
@@ -1293,6 +1392,22 @@ def cmd_propose(args, cfg, scope):
     write_json(proposal_path(pid), record)
     OUT.p(f"Proposal {pid} saved with {len(record['steps'])} steps. "
           f'It changes nothing until the user runs: fzclaude show {pid}; fzclaude apply {pid}')
+
+
+def cmd_link(args, cfg, scope):
+    """Propose a Log entry that links a work product (a document, chat, file) to a Node."""
+    if args.id not in scope['visible']:
+        return out_of_scope(args.id)
+    if not URL_RE.fullmatch(args.url):
+        return OUT.p(f'Not a link: {args.url}')
+    text = f'{args.text.strip()}: {args.url}' if args.text else args.url
+    save_proposal({
+        'title': f'Link to {args.id}: ' + (args.text.strip() if args.text else args.url)[:60],
+        'context_node': args.id,
+        'steps': [{'why': 'Record the link in the Log of the Node it belongs to, so it can be found from there '
+                          '(fzclaude context lists it)',
+                   'argv': ['fzlog', '-e', '-n', args.id, '-T', text]}],
+    }, scope, cfg)
 
 
 def cmd_proposals(args, cfg, scope):
@@ -1452,6 +1567,16 @@ def build_parser():
     p.add_argument('name')
     filters(p)
     paging(p)
+    p = sub.add_parser('context', help='what is needed to work on a Node: Node, Milestone path, '
+                                       'active dependencies, links, recent Log')
+    p.add_argument('id')
+    p.add_argument('--log', type=int, default=10, help='recent Log entries shown')
+    p.add_argument('--links', type=int, default=20, help='links shown (newest)')
+    p.add_argument('--full', action='store_true', help='complete description text')
+    p = sub.add_parser('link', help='propose a Log entry that links a document or other work to a Node')
+    p.add_argument('id')
+    p.add_argument('url')
+    p.add_argument('--text', default='', help='what the link is, e.g. "Abstract draft (Claude Doc)"')
     p = sub.add_parser('changes', help='what changed since the last call')
     p.add_argument('--no-mark', action='store_true', help='do not move the snapshot forward')
     paging(p, offset=False)
@@ -1478,6 +1603,7 @@ COMMANDS = {
     'scope': cmd_scope, 'map': cmd_map, 'today': cmd_today, 'node': cmd_node,
     'subtree': cmd_subtree, 'search': cmd_search, 'log': cmd_log, 'topics': cmd_topics,
     'nnls': cmd_nnls, 'nnl': cmd_nnl, 'changes': cmd_changes, 'propose': cmd_propose,
+    'context': cmd_context, 'link': cmd_link,
 }
 NO_SCOPE_COMMANDS = {
     'disclosures': cmd_disclosures, 'stats': cmd_stats, 'proposals': cmd_proposals, 'show': cmd_show,
