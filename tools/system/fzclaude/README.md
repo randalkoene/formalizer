@@ -1,5 +1,12 @@
 # fzclaude - Scoped, audited access to the Formalizer for Claude
 
+> **Status:** read-only stage, initial testing and tuning. **We are partway
+> through the plan, and steps remain:** see **`PLAN.md`** for what is done and
+> what to do next.
+>
+> **Day-to-day way of working** with Claude on Nodes (Log entries for source
+> material, Claude Docs, handoffs, keeping chats small): see **`HOWTO.md`**.
+
 `fzclaude` is the only route through which Claude (Claude Code) works with
 Formalizer data:
 
@@ -239,6 +246,8 @@ Proposals:
 - `link <id> <url> [--text "what it is"]`: a one-step proposal for a Log
   entry on the Node, recording a document or other work product (e.g. a
   Claude Doc started for the Node). `context` then finds it again.
+- `note <id> --text "..."`: a one-step proposal for a plain Log entry, e.g.
+  the handoff at the end of a session. See `HOWTO.md`.
 - `proposals`, `show <id>`
 - `apply <id> [--no-backup] [--decline]`: **you only**. It validates the
   proposal again, shows it, asks for `yes`, runs `fzbackup.py`, and then runs

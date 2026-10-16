@@ -54,6 +54,10 @@ what comes next. For how the tools work, see `README.md`.
       day's Schedule. Then review **Activity**: what was sent, the tokens per
       command, and anything blocked.
 
+- [x] Node work workflow: `context`, `link`, `note`, Claude Docs as the
+      workspace, handoff entries (`HOWTO.md`), tried on the Yasufumi Node
+      (2026-10-15)
+
 ### Tuning questions to answer from real use
 
 - Which commands are expensive (`fzclaude stats`)? Do any need a terser

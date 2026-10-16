@@ -1410,6 +1410,22 @@ def cmd_link(args, cfg, scope):
     }, scope, cfg)
 
 
+def cmd_note(args, cfg, scope):
+    """Propose a plain Log entry for a Node, e.g. a session handoff: done, open, where to continue."""
+    if args.id not in scope['visible']:
+        return out_of_scope(args.id)
+    text = args.text.strip()
+    if not text:
+        return OUT.p('A note needs --text.')
+    save_proposal({
+        'title': f'Note on {args.id}: ' + one_line(text, 60),
+        'context_node': args.id,
+        'steps': [{'why': 'Record this in the Log of the Node it belongs to, so the next session finds it '
+                          '(fzclaude context shows it)',
+                   'argv': ['fzlog', '-e', '-n', args.id, '-T', text]}],
+    }, scope, cfg)
+
+
 def cmd_proposals(args, cfg, scope):
     files = sorted(os.listdir(PROPOSALS_DIR)) if os.path.isdir(PROPOSALS_DIR) else []
     if not files:
@@ -1577,6 +1593,9 @@ def build_parser():
     p.add_argument('id')
     p.add_argument('url')
     p.add_argument('--text', default='', help='what the link is, e.g. "Abstract draft (Claude Doc)"')
+    p = sub.add_parser('note', help='propose a plain Log entry for a Node, e.g. a session handoff')
+    p.add_argument('id')
+    p.add_argument('--text', required=True)
     p = sub.add_parser('changes', help='what changed since the last call')
     p.add_argument('--no-mark', action='store_true', help='do not move the snapshot forward')
     paging(p, offset=False)
@@ -1603,7 +1622,7 @@ COMMANDS = {
     'scope': cmd_scope, 'map': cmd_map, 'today': cmd_today, 'node': cmd_node,
     'subtree': cmd_subtree, 'search': cmd_search, 'log': cmd_log, 'topics': cmd_topics,
     'nnls': cmd_nnls, 'nnl': cmd_nnl, 'changes': cmd_changes, 'propose': cmd_propose,
-    'context': cmd_context, 'link': cmd_link,
+    'context': cmd_context, 'link': cmd_link, 'note': cmd_note,
 }
 NO_SCOPE_COMMANDS = {
     'disclosures': cmd_disclosures, 'stats': cmd_stats, 'proposals': cmd_proposals, 'show': cmd_show,
