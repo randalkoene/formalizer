@@ -1,0 +1,290 @@
+# fzclaude - Scoped, audited access to the Formalizer for Claude
+
+`fzclaude` is the only route through which Claude (Claude Code) works with
+Formalizer data:
+
+- It reads through the regular Formalizer tools (`fzgraphhtml`, `fzloghtml`)
+  in their read-only modes. It never touches the database, and it does not
+  create or modify Named Node Lists, even temporarily.
+- Everything it returns is filtered by include/exclude rules that only you
+  edit.
+- Every call made from within Claude Code is recorded, with the Node and Log
+  entry IDs it returned and an estimated token count. That output is what
+  gets sent to Anthropic.
+- It never changes the Graph or Log on Claude's behalf. Claude writes a
+  *proposal*, and you review and apply it.
+
+`fzclaude-guard.py` is a Claude Code hook. It blocks Claude from going
+around `fzclaude`, for example by calling other Formalizer tools or `psql`
+directly, by reaching local web services (the Formalizer CGI scripts,
+fzserverpq, fzclaude-web), or by editing the `fzclaude` configuration or
+disclosure log.
+
+`fzclaude-web.py` is the browser interface to all of this (see below).
+
+Where this project stands and what comes next is in `PLAN.md`.
+
+## Installing changes: `make fzclaude-install`
+
+Claude helps develop fzclaude in this repository. But the copies that
+actually run (the scope filter, the guard hook, the web server) are
+**installed copies** in `~/.formalizer/fzclaude/bin/`, and the guard keeps
+Claude from changing them. A change Claude makes in the repository has no
+effect until **you** install it:
+
+```bash
+cd ~/src/formalizer
+git diff tools/system/fzclaude/     # optional: see what changed
+make fzclaude-install
+```
+
+`make fzclaude-install` runs `fzclaude-install.sh`, which:
+
+1. Shows the differences between the installed copies and the repository
+   versions of `fzclaude.py`, `fzclaude-guard.py`, `fzclaude-web.py`,
+   `fzclaude-web-start.py` and `web/`, and asks before installing anything.
+2. Copies them to `~/.formalizer/fzclaude/bin/` and appends a line, with the
+   git revision, to `~/.formalizer/fzclaude/install.log`.
+3. Points `fzclaude`, `fzclaude-guard` and `fzclaude-web-start` in
+   `~/.formalizer/bin` at the installed copies. These three are therefore not
+   part of `make executables`.
+4. Reminds you to restart fzclaude-web (⏻ in the page, then the dashboard
+   button) if it is running.
+
+It refuses to run from a Claude session, and the guard blocks Claude from
+running it, from editing the installed copies or the `~/.formalizer/bin`
+links, and from editing Claude Code settings files (where the hook is
+registered). The guard also blocks Claude from running a repository copy of
+`fzclaude`. Claude can test repository code only with `HOME` set to a
+throwaway directory, where the Formalizer tools and data cannot be found.
+
+Run `make fzclaude-install` once to begin with, and again whenever you want
+a change to fzclaude to take effect.
+
+## Setup
+
+1. `make fzclaude-install` (see above). The CGI script for the dashboard
+   button is installed by `make executables`.
+2. Click **Claude Access** (under Research Tools on the dashboard), or run
+   `fzclaude init`. Either way, the configuration goes in
+   `~/.formalizer/fzclaude/config.json`. This is
+   deliberately not in `~/.formalizer/config`, which is a symlink into this
+   git repository: the rules name Nodes and topics.
+3. Edit the configuration (see below), then look at what Claude would see.
+   When you run these commands yourself, nothing is sent anywhere:
+
+   ```bash
+   fzclaude scope refresh
+   fzclaude map
+   fzclaude today
+   fzclaude log --days 3
+   ```
+
+4. Install the guard in `~/.claude/settings.json` so it applies in every
+   project:
+
+   ```json
+   "hooks": {
+     "PreToolUse": [
+       {
+         "matcher": "Bash|Edit|Write|NotebookEdit|WebFetch|mcp__.*",
+         "hooks": [ {
+           "type": "command",
+           "command": "G=/home/randalk/.formalizer/fzclaude/bin/fzclaude-guard.py; [ -f \"$G\" ] || G=/home/randalk/.formalizer/bin/fzclaude-guard.py; exec python3 \"$G\"",
+           "timeout": 10,
+           "onFailure": "block"
+         } ]
+       }
+     ]
+   }
+   ```
+
+   This runs the installed guard, or the repository copy if nothing is
+   installed yet. With `"onFailure": "block"`, a guard that crashes or times
+   out blocks the tool call instead of letting it through. `/hooks` in Claude
+   Code shows or disables the hook.
+
+   The guard does not cover Claude's Read tool. To keep Claude from reading
+   files that may contain Formalizer data, add `permissions.deny` rules, e.g.
+   `"Read(//home/randalk/.formalizer/archive/**)"`.
+
+## The web interface
+
+`fzclaude-web.py` serves a page on `http://127.0.0.1:8712/`. It is started
+from the dashboard's **Claude Access** button, in the same way as Inbox
+Triage: `fzclaude-web-cgi.py` asks fzserverpq to run `fzclaude-web-start.py`
+as you, through `CGIbg_run_as_user`. That needs `fzclaude-web-start.py` in
+the fzserverpq `predefined_CGIbg` list, followed by an fzserverpq restart.
+It stops itself after 3 idle hours, or with the ⏻ button.
+
+The page has four tabs:
+
+- **Use** runs any read command and shows exactly what Claude would receive,
+  with an estimated token count. Clicking a Node ID shows that Node. Pages
+  are previewed with `changes --no-mark`, so previewing never moves Claude's
+  baseline.
+- **Scope rules** is the configuration editor. Every rule is explained in
+  place, Node IDs show their descriptions, and topics are suggested from
+  your topic list. Saving validates the configuration, keeps the previous
+  version in `config-history/`, rebuilds the scope, and shows the result.
+  Earlier versions can be loaded back.
+- **Proposals** lists Claude's proposals with each step's reason and exact
+  command. You can apply a proposal (with or without a backup first) or
+  decline it.
+- **Activity** shows what was sent to Claude per session and per call, with
+  the Nodes and Log entries each call returned. It also shows token costs and
+  everything the guard blocked.
+
+The web server uses the same code paths as the command line: reads run
+`fzclaude <command>`, saving uses fzclaude's validation, and applying runs
+`fzclaude apply --yes`. Its safeguards:
+
+- It listens on 127.0.0.1 only and checks the Host header.
+- A random token, created at each start, is required on every API request,
+  so other web pages in your browser cannot use the API.
+- Claude Code environment markers are stripped from every call it makes.
+- The guard keeps Claude's Bash, WebFetch and browser tools away from it.
+
+## Visibility rules
+
+| Rule | Effect |
+|---|---|
+| `include: [<node-id>]` | The Node and its full dependency subtree are visible. |
+| `include_topic: [<tag>]` | Nodes with the topic are visible. |
+| `include_topic_tree: [<tag>]` | Nodes with the topic, and their subtrees, are visible. |
+| `exclude: [<node-id>]` | Hides that one Node. |
+| `exclude_tree: [<node-id>]` | Hides the Node and its subtree. |
+| `exclude_topic: [<tag>]` | Hides Nodes that have the topic. |
+| `exclude_topic_tree: [<tag>]` | Hides Nodes that have the topic, and their subtrees. |
+| `strict_shared: true` | Also hides a Node that has a superior outside the included set (it is shared with something you did not include). Include roots are exempt. |
+
+Any exclude beats any include. Log chunks and entries follow the Nodes they
+belong to: an entry is visible only if its own Node (or, if it has none, its
+chunk's Node) is visible.
+
+Unknown configuration variables, malformed Node IDs, include Nodes that
+cannot be found, and exclusion subtrees that cannot be fully read all stop
+`fzclaude` from building a scope. It refuses rather than guessing.
+
+The scope is cached in `~/.formalizer/fzclaude/scope.json` and is rebuilt
+after `scope_max_age_minutes` or whenever the rules change. A Node created
+after the last rebuild stays invisible until the next one.
+
+Other configuration variables: `max_nodes`, `max_log_entries` (page sizes),
+`log_days_default` (default Log window), `excerpt_chars`, `entry_chars`,
+`node_text_chars` (truncation), `show_hidden_counts` (whether output says
+how many items were withheld), `scope_max_nodes` (safety cap on the walk),
+`chars_per_token` (token estimate), and `workers` (parallel `fzgraphhtml`
+calls).
+
+## Commands
+
+Reading (filtered, paged, and recorded when run by Claude).
+
+Node listings (`map`, `subtree`, `search`, `nnl`, and the dependencies in
+`node`) show only **active** Nodes by default, as `Node::is_active()`
+defines them: completion is at least 0 and below 1. Each listing says how
+many inactive Nodes it left out, and `--all` includes them. With
+`--milestones`, only Milestones are shown (Nodes with topic
+`milestone_topic_id`, 79 by default, as in nodeboard's "Milestones Only").
+They are nested under their nearest Milestone ancestor. Every Node line
+gives its status in words (`40%`, `done`, `obsolete`, `replaced`,
+`done-differently`, `no-longer-possible`) and marks Milestones. `today` and
+`log` are not filtered this way.
+
+- `scope [status|refresh]`: counts of visible and hidden Nodes, and the roots.
+- `map [--depth 2] [--width 25]`: an outline of the visible Graph with
+  subtree sizes. This is the source for Claude's orientation notes.
+- `today [--days N]`: Schedule entries in scope (same data as `schedule`).
+- `node <id> [--full]`: one Node, its visible superiors and dependencies,
+  and its description.
+- `subtree <id> [--depth 3] [--all] [--milestones]`
+- `search <text> [--regex] [--all] [--milestones]`: the search runs inside
+  fzclaude, so only matches are returned.
+- `log [--days N | --since T] [--until T] [--node id] [--search text] [--count] [--full]`
+- `topics`, `nnls`, `nnl <name>`
+- `changes [--no-mark]`: new or changed Nodes and new Log entries since the
+  previous `changes`. This is how Claude catches up without rereading
+  everything.
+
+Accounting:
+
+- `disclosures [--since YYYYmmdd] [--session id] [--ids]`: what was sent to
+  Claude, per session.
+- `stats`: estimated tokens per call, for each command.
+
+Proposals:
+
+- `propose <file.json>`: Claude saves a proposal. It is validated against
+  the current scope.
+- `proposals`, `show <id>`
+- `apply <id> [--no-backup] [--decline]`: **you only**. It validates the
+  proposal again, shows it, asks for `yes`, runs `fzbackup.py`, and then runs
+  the steps in order, stopping at the first failure.
+
+## Proposal format
+
+```json
+{
+  "title": "Nov 24 event and preparation",
+  "context_node": "20261001090000.1",
+  "steps": [
+    { "name": "event", "why": "The event itself, at its fixed time",
+      "argv": ["fzgraph", "-M", "node", "-S", "20261001090000.1", "-T", "Event ...",
+               "-t", "202611241000", "-p", "fixed", "-H", "1.5"] },
+    { "why": "Preparation, due two days before",
+      "argv": ["fzgraph", "-M", "node", "-S", "@event", "-T", "Prepare ...",
+               "-t", "202611220900", "-p", "variable", "-H", "3"] }
+  ]
+}
+```
+
+`@name` refers to a Node created by an earlier step. Its new ID is read from
+fzgraph's `New Node:` output when the proposal is applied.
+
+Allowed steps:
+
+- `fzgraph -M node` (requires `-S` and `-T`, no `-q`)
+- `fzgraph -M edges`
+- `fzgraph -C` with completion, required, targetdate, skip, topics, or
+  superiors/dependencies add/remove requests
+- `fzedit -M`
+- `fzlog -e -n <id> -T`, `fzlog -c <id>`, `fzlog -C`
+
+Every Node a step refers to must be in scope, and excluded topics cannot be
+added. Text has to be given inline with `-T`, so you see all of it when you
+review the proposal.
+
+## Files
+
+All of these are in `~/.formalizer/fzclaude/`:
+
+- `config.json`: the rules (yours).
+- `scope.json`: the cached visible set, holding structure and hashes but no
+  text.
+- `snapshot.json`: the baseline for `changes`.
+- `disclosure.jsonl`: one line per call.
+- `proposals/`: proposals and their results.
+- `guard.log`: commands the guard blocked.
+- `config-history/`: earlier configurations, saved by the web interface.
+- `web.log`: output of fzclaude-web.
+- `bin/`: the installed copies of fzclaude, the guard and fzclaude-web.
+- `install.log`: when each version was installed, and from which git
+  revision.
+
+## Limitations
+
+- The guard does not see computer-use clicks inside a browser window. Keep
+  computer use away from the fzclaude page.
+- The guard checks command text. It is a tripwire, not a sandbox, and a
+  sufficiently indirect command could get past it.
+- Token counts are estimates (characters / `chars_per_token`). Exact counts
+  would require sending the text to Anthropic's API.
+- Output in Claude's context is re-sent with every later request in that
+  session. The disclosure log records what was disclosed and to which
+  session, not each re-send.
+- `fzgraphhtml -t` may not list every Node with a topic. Strict mode covers
+  the gap for `exclude_topic_tree`.
+
+---
+Randal A. Koene, 2026

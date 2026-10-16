@@ -141,6 +141,8 @@ EXECUTABLES += $(TOOLSPATH)/system/daywiz/calendar-info.py
 EXECUTABLES += $(TOOLSPATH)/system/daywiz/daywiz-autodata.py
 EXECUTABLES += $(TOOLSPATH)/system/earlywiz/earlywiz.py
 EXECUTABLES += $(TOOLSPATH)/system/inbox-triage/inbox-triage-start.py
+# fzclaude, fzclaude-guard and fzclaude-web-start are not linked here: 'make fzclaude-install'
+# installs copies that Claude cannot change (see tools/system/fzclaude/README.md).
 # EXECUTABLES += $(TOOLSPATH)/system/fzcatchup/fzcatchup
 # EXECUTABLES += $(TOOLSPATH)/system/fzpassed/fzpassed
 # EXECUTABLES += $(TOOLSPATH)/system/metrics/sysmetrics/sysmetrics
@@ -263,6 +265,7 @@ CGIEXE += $(TOOLSPATH)/system/daywiz/daywiz-autodata-cgi.py
 CGIEXE += $(TOOLSPATH)/system/daywiz/email-info-cgi.py
 CGIEXE += $(TOOLSPATH)/system/earlywiz/earlywiz.py
 CGIEXE += $(TOOLSPATH)/system/inbox-triage/inbox-triage-cgi.py
+CGIEXE += $(TOOLSPATH)/system/fzclaude/fzclaude-web-cgi.py
 CGIEXE += $(TOOLSPATH)/system/metrics/dayreview/dayreview_algorithm.py
 CGIEXE += $(TOOLSPATH)/system/metrics/dayreview/dayreview-cgi.py
 CGIEXE += $(TOOLSPATH)/system/metrics/dayreview/dayreview-plot-cgi.py
@@ -478,6 +481,10 @@ executables: $(EXECUTABLES)
 	./pycmdlinks.sh $(EXEDIR)
 	sudo ./thirdparty.py $(EXEDIR) $(CGIDIR) $(THIRDPARTY)
 	@echo '--- NOTE: You may still need to update browser caches, e.g. shift+reload in firefox.'
+
+# call `make fzclaude-install` to review and install changes to fzclaude (you only, not Claude)
+fzclaude-install: FORCE
+	$(TOOLSPATH)/system/fzclaude/fzclaude-install.sh
 
 # call `make tests` to make test files available
 tests: $(TESTS)

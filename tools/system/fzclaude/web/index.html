@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="fzc-token" content="@@TOKEN@@">
+<title>fzclaude</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>%F0%9F%94%8D</text></svg>">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <h1>fzclaude</h1>
+    <span class="brand-sub">what Claude can see in your Formalizer</span>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button class="tab is-active" role="tab" data-view="use">Use</button>
+    <button class="tab" role="tab" data-view="rules">Scope rules</button>
+    <button class="tab" role="tab" data-view="proposals">Proposals <span id="pending-count" class="count" hidden></span></button>
+    <button class="tab" role="tab" data-view="activity">Activity</button>
+  </nav>
+  <div class="topbar-right">
+    <button id="theme" class="btn btn-icon" title="Toggle light / dark" aria-label="Toggle theme">◐</button>
+    <button id="stop-server" class="btn btn-icon btn-stop" title="Stop the fzclaude-web server. The dashboard button starts it again." aria-label="Stop server">⏻</button>
+  </div>
+</header>
+
+<!-- ─────────────────────────────── USE ─────────────────────────────── -->
+<main id="view-use" class="view is-active">
+  <aside class="rail">
+    <p class="rail-note">Each command runs <code>fzclaude</code> exactly as Claude would. The output on the right is
+      precisely what Claude would receive. Runs from this page go to your browser only.</p>
+    <div id="cmd-list" class="cmd-list"></div>
+  </aside>
+  <section class="main">
+    <form id="cmd-form" class="card cmd-form" autocomplete="off"></form>
+    <div class="card output-card">
+      <div class="output-head">
+        <div>
+          <div class="eyebrow">What Claude would receive</div>
+          <code id="out-argv" class="argv"></code>
+        </div>
+        <div id="out-meta" class="out-meta"></div>
+      </div>
+      <pre id="out" class="output"><span class="muted">Press Run, or choose another command on the left.</span></pre>
+      <div id="out-actions" class="out-actions"></div>
+    </div>
+  </section>
+</main>
+
+<!-- ─────────────────────────────── RULES ─────────────────────────────── -->
+<main id="view-rules" class="view">
+  <section class="main narrow">
+    <div id="rules-banner"></div>
+    <div class="card">
+      <div class="card-head">
+        <h2>Current scope</h2>
+        <button id="scope-refresh" class="btn btn-ghost" type="button">Rebuild now</button>
+      </div>
+      <pre id="scope-status" class="output small"></pre>
+    </div>
+    <div class="card explainer">
+      <h2>How the rules combine</h2>
+      <ol>
+        <li>Claude sees nothing unless an <b>Include</b> rule reaches it.</li>
+        <li><b>Exclude</b> rules always win over Include rules.</li>
+        <li>Log entries follow their Nodes: an entry is visible only if its Node is.</li>
+        <li>Changes take effect when you save. The scope is rebuilt right away, and the result is shown above.</li>
+      </ol>
+    </div>
+    <form id="rules-form"></form>
+    <div class="savebar">
+      <span id="dirty" class="dirty" hidden>Unsaved changes</span>
+      <label class="history">Load an earlier version:
+        <select id="history"><option value="">-</option></select>
+      </label>
+      <button id="revert" class="btn btn-ghost" type="button">Discard changes</button>
+      <button id="save" class="btn btn-primary" type="button">Save and rebuild scope</button>
+    </div>
+    <div id="save-result"></div>
+  </section>
+</main>
+
+<!-- ─────────────────────────────── PROPOSALS ─────────────────────────────── -->
+<main id="view-proposals" class="view">
+  <aside class="rail">
+    <p class="rail-note">Claude cannot change your Formalizer. It can only propose. Nothing happens until you apply a
+      proposal here or with <code>fzclaude apply</code>.</p>
+    <div id="proposal-list" class="cmd-list"></div>
+  </aside>
+  <section class="main">
+    <div id="proposal-detail" class="card"><p class="muted">No proposal selected.</p></div>
+  </section>
+</main>
+
+<!-- ─────────────────────────────── ACTIVITY ─────────────────────────────── -->
+<main id="view-activity" class="view">
+  <section class="main">
+    <div class="card">
+      <div class="card-head">
+        <h2>Sent to Claude</h2>
+        <label>Period
+          <select id="since">
+            <option value="1">today</option>
+            <option value="7" selected>last 7 days</option>
+            <option value="30">last 30 days</option>
+            <option value="">all time</option>
+          </select>
+        </label>
+      </div>
+      <pre id="disclosures" class="output small"></pre>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <h2>Disclosure log</h2>
+        <div class="log-controls">
+          <label><input type="checkbox" id="who-all"> Include runs by you (not sent to Claude)</label>
+          <label><input type="checkbox" id="raw-log"> Raw log lines</label>
+        </div>
+      </div>
+      <p class="muted">One entry per fzclaude call, from <code>~/.formalizer/fzclaude/disclosure.jsonl</code>.
+        Click a row to see which Nodes and Log entries it returned.</p>
+      <div class="table-wrap"><table id="calls" class="table"></table></div>
+      <pre id="calls-raw" class="output small" hidden></pre>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h2>Token cost per command</h2>
+        <pre id="stats" class="output small"></pre>
+      </div>
+      <div class="card">
+        <h2>Blocked by the guard</h2>
+        <div class="table-wrap"><table id="guard" class="table"></table></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
