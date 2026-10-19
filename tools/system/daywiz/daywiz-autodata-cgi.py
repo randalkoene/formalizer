@@ -180,7 +180,7 @@ def daywiz_autodata()->bool:
 
     # 2. Wait for an updated modification time to indicate that the background process is done.
     timeout_s=3*60 # 3 minutes
-    for i in range(timeout_s):
+    for i in range(timeout_s*10): # 0.1 s per iteration
         sleep(0.1)
         if exists(daywiz_autodata_file):
             new_modification_timestamp = os.path.getmtime(daywiz_autodata_file)
