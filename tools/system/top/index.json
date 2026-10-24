@@ -349,6 +349,10 @@
         }
     },
     "Information: " : {
+        "Manual" : {
+            "url" : "/cgi-bin/fzlink.py?FZSERVER=/fzdoc/manual/manual.md",
+            "window" : "_blank"
+        },
         "Sys:Doc" : {
             "url" : "/formalizer/doc.html",
             "window" : "_blank"
