@@ -205,13 +205,19 @@ The dashboard is generated from `tools/system/top/index.json` (see
 - **Timer:** [Timer](http://localhost/formalizer/timer.html)
   ([README](https://github.com/randalkoene/formalizer/blob/master/tools/interface/timer/README.md)).
 
-### II.4 The day cycle: EarlyWiz, DayWiz, LateWiz, and the System guide
+### II.4 The day cycle: DayWiz, checkboxes and the System guide
 
-- **EarlyWiz:** steps early in the day ([README](https://github.com/randalkoene/formalizer/blob/master/tools/system/earlywiz/README.md)).
-- **DayWiz:** steps throughout the day, with day records stored in the database (Fig.1;
-  [DayWiz](http://localhost/cgi-bin/daywiz.py?cmd=noredraw),
+- **DayWiz:** the steps to carry out throughout the day, with day records stored in the
+  database (Fig.1; [DayWiz](http://localhost/cgi-bin/daywiz.py?cmd=noredraw),
   [README](https://github.com/randalkoene/formalizer/blob/master/tools/system/daywiz/README.md)).
-- **LateWiz:** see Node 20210428054509.1 ([README](https://github.com/randalkoene/formalizer/blob/master/tools/system/latewiz/README.md)).
+  DayWiz covers what EarlyWiz and LateWiz were made for, and those two are not in use at
+  present.
+- **Checkboxes:** a checkbox in a Log entry is a quick note about something to deal with
+  later. Making one is faster than creating a Node or resolving the matter while in the
+  middle of something else. As part of DayWiz, go through the open (unchecked) checkboxes
+  on the [Checkboxes](http://localhost/cgi-bin/checkboxes.py?fromdate=20240401) page and
+  work through them, either by turning them into Nodes (the page adds buttons for that)
+  or by resolving them in other ways.
 - **System guide:** AM and PM protocol guide content, served by
   [fzguide.system](https://github.com/randalkoene/formalizer/blob/master/core/fzguide.system/README.md) and edited through
   [Filter & Edit Guide](http://localhost/formalizer/fzguide.system-form.html).
@@ -248,7 +254,6 @@ Read-only sorting of unread mail into categories, with the reasons shown:
 
 - [Day Nutrition](http://localhost/formalizer/day-nutrition.html) and the nutrition
   components of DayWiz ([DayWiz README](https://github.com/randalkoene/formalizer/blob/master/tools/system/daywiz/README.md)).
-- [Checkboxes](http://localhost/cgi-bin/checkboxes.py?fromdate=20240401).
 - (to be written)
 
 ### II.9 Working with Claude
@@ -414,6 +419,21 @@ Python program (main source, header, Makefile, version header). Add it to the ca
 in the top `Makefile` (EXECUTABLES, SYMBIN, CGIEXE, ...). See also
 [tools/misc](https://github.com/randalkoene/formalizer/blob/master/tools/misc/README.md).
 
+**C++ or Python:** the choice is about complexity and speed. Simple things deserve a
+Python script. Things that churn through data are better done in C++.
+
+**Reuse the core library.** Many handy functions already exist, so look there before
+writing new code:
+
+- C++ (`core/include/*.hpp`, `core/lib/`): `Graphtypes` (Nodes, Edges, Topics, NNLs),
+  `Graphinfo` (selecting and sorting Nodes, e.g. incomplete Nodes by target date),
+  `Graphmodify` (requesting changes through the server), `Graphaccess` (standard Graph
+  access), `Logtypes`, `Loginfo`, `Logaccess`, `TimeStamp`, `templater` (simple
+  templating for generated output), `jsonlite`, `stringio`, `general`, `config`, `error` and `standard` (the
+  standard program structure).
+- Python (`core/include/*.py`): `Graphaccess`, `Logaccess`, `tcpclient` (server calls),
+  `fzhtmlpage` (page building), `fzcmdcalls`, `fzmodbase`, `TimeStamp`.
+
 ### IV.7 Installation on a new machine
 
 See the top-level [README](https://github.com/randalkoene/formalizer/blob/master/README.md), [fzsetup](https://github.com/randalkoene/formalizer/blob/master/core/fzsetup/README.md),
@@ -469,7 +489,8 @@ See the top-level [README](https://github.com/randalkoene/formalizer/blob/master
 | `fzcatchup` | Log catch-up | [README](https://github.com/randalkoene/formalizer/blob/master/tools/interface/fzcatchup/README.md) |
 | `fzapicall.py` | Forward API calls | [README](https://github.com/randalkoene/formalizer/blob/master/tools/interface/fzapicall/README.md) |
 | `timer` | Timer page | [README](https://github.com/randalkoene/formalizer/blob/master/tools/interface/timer/README.md) |
-| `daywiz`, `earlywiz`, `latewiz` | Day cycle wizards | [II.4](#ii4-the-day-cycle-earlywiz-daywiz-latewiz-and-the-system-guide) |
+| `daywiz` | Day cycle wizard | [II.4](#ii4-the-day-cycle-daywiz-checkboxes-and-the-system-guide) |
+| `checkboxes.py` | Open checkboxes in the Log | [II.4](#ii4-the-day-cycle-daywiz-checkboxes-and-the-system-guide) |
 | `schedule` | Calendar Schedule views | [README](https://github.com/randalkoene/formalizer/blob/master/tools/system/schedule/README.md) |
 | `sysmet-extract`, `sysmet-add`, `dayreview` | Metrics | [I.8](#i8-metrics-and-indicators) |
 | `inbox-triage` | Mail triage | [README](https://github.com/randalkoene/formalizer/blob/master/tools/system/inbox-triage/README.md) |
