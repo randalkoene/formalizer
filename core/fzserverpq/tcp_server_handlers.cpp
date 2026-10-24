@@ -2161,7 +2161,23 @@ std::string basename_from_path(const std::string& path) {
 }
 
 /**
+ * True if url contains a '..' path segment, which could climb out of a www_file_root.
+ * File names that merely contain '..' (e.g. 'notes..txt') are not affected.
+ * Note: The url is not URL-decoded before file serving. If that changes, then
+ * this test must be applied after decoding.
+ */
+bool has_dotdot_segment(const std::string & url) {
+    for (size_t pos = url.find(".."); pos != std::string::npos; pos = url.find("..", pos + 2)) {
+        bool at_start = (pos == 0) || (url[pos-1] == '/');
+        bool at_end = (pos + 2 == url.size()) || (url[pos+2] == '/') || (url[pos+2] == '?');
+        if (at_start && at_end) return true;
+    }
+    return false;
+}
+
+/**
  * Translate a url into a file path by doing the following:
+ * 0. Refuse urls with '..' path segments (see has_dotdot_segment()).
  * 1. Compare the first part of the path (up to the first '/') with defined roots.
  * 2. If there is a match, then the file path is the defined root-path concatenated
  *    with the remainder of the url.
@@ -2176,6 +2192,11 @@ std::string basename_from_path(const std::string& path) {
  *    '/index.html' -> ('') -> '/var/www/html/index.html'
  */
 void direct_tcpport_api_file_serving(int new_socket, const std::string & url) {
+    if (has_dotdot_segment(url)) {
+        handle_request_error(new_socket, http_bad_request, "Path segments '..' are not allowed: "+url);
+        return;
+    }
+
     std::string file_path;
     auto rootkey_end = url.find('/', 1); // skip the initial '/'
     if (rootkey_end != std::string::npos) {
