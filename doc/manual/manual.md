@@ -415,7 +415,9 @@ make doxygen             # refresh the Doxygen documentation
 ### IV.6 Writing a new tool
 
 Use [boilerplate](https://github.com/randalkoene/formalizer/blob/master/tools/dev/boilerplate/README.md) to start a standard C++ or
-Python program (main source, header, Makefile, version header). Add it to the categories
+Python program (main source, header, Makefile, version header). Small Python scripts,
+especially little CGI scripts that need no special imports, gain little from it and are
+often written without it. Add a new tool to the categories
 in the top `Makefile` (EXECUTABLES, SYMBIN, CGIEXE, ...). See also
 [tools/misc](https://github.com/randalkoene/formalizer/blob/master/tools/misc/README.md).
 
