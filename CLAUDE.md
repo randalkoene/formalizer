@@ -74,6 +74,7 @@ fzsetup.py -C
 
 ## Key conventions
 
+- **Writing a new tool:** follow `doc/manual/manual.md` section IV.6 (when to use boilerplate, reusing the core library, choosing C++ or Python).
 - **C++ programs** follow a boilerplate pattern (see `tools/dev/boilerplate/`): a main `.cpp`, a `.hpp`, and a `Makefile`. Each program has a version header.
 - **CGI variants** of programs are named `<program>-cgi.py` and call the compiled binary or act as the API endpoint.
 - **Python shared utilities** in `core/include/` (`fzhtmlpage.py`, `fzcmdcalls.py`, `fzmodbase.py`, etc.) are symlinked into `/usr/lib/cgi-bin/` for CGI use.
