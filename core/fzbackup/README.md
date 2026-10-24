@@ -20,7 +20,33 @@ the Graph, Log, Named Nodes Lists, and such.
 
 6. The output of the backup process appears on the new HTML page.
 
-## `backup-envrionment.py` - Backup the whole account
+## `backup-environment.py` - Backup the whole account
+
+The regular full backup is made when the regularly scheduled Node 20201002064246.1
+comes up (there is a button for it under "Backups" on the FZ Admin page). Run:
+
+```
+backup-environment -full
+```
+
+This shows the current settings (external drive mountable partition file, its mount
+point, the directories to rsync, dry-run mode) and a menu of options. The two main ones
+are:
+
+- `b` = Proceed with backup. Loop-mounts the mountable partition file (an ext4 file
+  system inside a file on the external drive) at the mount point (needs `sudo`), then
+  runs `rsync --delete --force -avhP` for each directory in the list: `/home/randalk`,
+  `/var/www` and `/usr/lib/cgi-bin`. All of `/home/randalk` is copied, including hidden
+  directories such as `~/.formalizer` and `~/.claude` (Claude Code settings, memory and
+  session transcripts). When rsync is done it asks whether to unmount (default yes).
+  Toggle dry-run mode with `d` first to see what would be copied without copying.
+
+- `c` = Create mountable partition. Only for setting up a new backup drive or partition
+  file: the file must not exist yet and the mount point must already exist (make it with
+  `M`). Creates a 180G file at the external path, formats it as ext4, mounts it to
+  `chmod -R 777` it, and unmounts it. After that, use `b` as usual. If the path of the
+  partition file or mount point changes, update the defaults in the `config` dictionary
+  at the top of the script (or change them for one run with `e` and `m`).
 
 
 

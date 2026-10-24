@@ -146,12 +146,8 @@
         }
     },
     "Backups: " : {
-        "Making Backup Partition" : {
-            "url" : "/cgi-bin/fzlink.py?id=20240115220431.1&alt=histfull",
-            "window" : "_blank"
-        },
-        "Rsync to Backup Partition": {
-            "url" : "http://{{ fzserverpq }}/doc/txt/rsync-to-backup-partition.txt",
+        "Regular Full Backup (Node)" : {
+            "url" : "/cgi-bin/fzlink.py?id=20201002064246.1&alt=histfull",
             "window" : "_blank"
         },
         "Duplicate / Restore Account" : {
