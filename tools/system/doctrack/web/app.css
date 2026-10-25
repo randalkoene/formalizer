@@ -156,6 +156,12 @@ code, .mono { font-family: var(--mono); font-size: 12px; }
   padding: 0 7px; margin: 1px 3px 1px 0;
 }
 a.tag:hover { color: var(--text-primary); text-decoration: none; }
+.tag.area { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.tag.area:hover { color: var(--accent); }
+:root[data-theme="dark"] .tag.area { color: #fff; }
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .tag.area { color: #fff; }
+}
 
 .muted { color: var(--text-muted); }
 .small { font-size: 12px; }

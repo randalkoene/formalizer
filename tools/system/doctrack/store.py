@@ -7,7 +7,8 @@ Tables
   fulltext   FTS5 index of title + extracted text, for keyword search
   rules      remembered queue decisions for whole folders
   summaries  what Claude wrote about a work: key points, tags, date estimate
-  work_tags  tags per work (from summaries, editable)
+  work_tags  specific tags per work (from summaries, editable)
+  work_areas broad areas per work, from the fixed list AREAS
   tags       the tag vocabulary; a tag may be merged into another
   sends      log of every work whose text was handed out for summarizing
 
@@ -29,6 +30,19 @@ CACHE_DIR = os.path.join(HERE, "cache")
 DB_FILE = os.environ.get("DOCTRACK_DB") or os.path.join(CACHE_DIR, "doctrack.db")
 
 STATES = ("new", "approved", "ignored", "summarized")
+
+# Broad areas: every summarized work gets one or two of these, beside its
+# specific tags. Edit freely; a work keeps an area that is later removed here
+# until it is summarized again.
+AREAS = (
+    "whole brain emulation",
+    "neuroscience",
+    "neurotechnology",
+    "artificial intelligence",
+    "mind and philosophy",
+    "strategy and organization",
+    "outreach and education",
+)
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS works (
@@ -84,6 +98,11 @@ CREATE TABLE IF NOT EXISTS work_tags (
     work_id TEXT NOT NULL,
     tag     TEXT NOT NULL,
     PRIMARY KEY (work_id, tag)
+);
+CREATE TABLE IF NOT EXISTS work_areas (
+    work_id TEXT NOT NULL,
+    area    TEXT NOT NULL,
+    PRIMARY KEY (work_id, area)
 );
 CREATE TABLE IF NOT EXISTS sends (
     id       INTEGER PRIMARY KEY,
@@ -271,14 +290,20 @@ def save_summary(db, work_id, s, by):
     db.execute("DELETE FROM work_tags WHERE work_id = ?", (work_id,))
     for t in s.get("tags", []):
         t = canonical_tag(db, t)
+        if t in AREAS:
+            continue  # an area, not a specific tag
         db.execute("INSERT OR IGNORE INTO tags (name) VALUES (?)", (t,))
         db.execute("INSERT OR IGNORE INTO work_tags VALUES (?, ?)", (work_id, t))
+    db.execute("DELETE FROM work_areas WHERE work_id = ?", (work_id,))
+    for a in s.get("areas", []):
+        db.execute("INSERT OR IGNORE INTO work_areas VALUES (?, ?)", (work_id, a.strip().lower()))
     db.execute("UPDATE works SET state = 'summarized' WHERE id = ?", (work_id,))
 
 
 def tag_counts(db):
     return db.execute("SELECT t.name, t.merged_into, COUNT(wt.work_id) AS n FROM tags t "
-                      "LEFT JOIN work_tags wt ON wt.tag = t.name GROUP BY t.name ORDER BY n DESC, t.name"
+                      "LEFT JOIN work_tags wt ON wt.tag = t.name GROUP BY t.name "
+                      "HAVING n > 0 OR t.merged_into IS NOT NULL ORDER BY n DESC, t.name"
                       ).fetchall()
 
 
@@ -292,6 +317,19 @@ def merge_tag(db, old, new):
 
 def tags_of(db, work_id):
     return [r["tag"] for r in db.execute("SELECT tag FROM work_tags WHERE work_id = ? ORDER BY tag", (work_id,))]
+
+
+def areas_of(db, work_id):
+    return [r["area"] for r in db.execute("SELECT area FROM work_areas WHERE work_id = ? ORDER BY area",
+                                          (work_id,))]
+
+
+def area_counts(db):
+    """Every area in AREAS with its number of works, plus any no longer listed."""
+    counts = {a: 0 for a in AREAS}
+    for r in db.execute("SELECT area, COUNT(*) AS n FROM work_areas GROUP BY area"):
+        counts[r["area"]] = r["n"]
+    return counts
 
 
 def summary_of(db, work_id):

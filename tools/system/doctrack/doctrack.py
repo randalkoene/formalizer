@@ -57,28 +57,32 @@ def scan(db, root):
         ts, ps = os.stat(tex), os.stat(pdf)
         files = {"tex": (tex, ts.st_mtime, ts.st_size), "pdf": (pdf, ps.st_mtime, ps.st_size)}
         old_sig = sigs.get(wid, {})
+        prev = store.work(db, wid)
+        meta = json.loads(prev["meta"]) if prev else {}
         unchanged = old_sig.get("tex") == (ts.st_mtime, ts.st_size) and \
-            old_sig.get("pdf") == (ps.st_mtime, ps.st_size)
-        w = {"id": wid, "source": "tex", "path": path}
+            old_sig.get("pdf") == (ps.st_mtime, ps.st_size) and \
+            meta.get("text_version") == scanner.TEXT_VERSION
+        w = {"id": wid, "source": "tex", "path": path, "text_version": scanner.TEXT_VERSION}
         w.update(scanner.parse_tex(tex))  # cheap, and picks up parser improvements
         if unchanged:
-            prev = store.work(db, wid)
-            meta = json.loads(prev["meta"])
             w.update({k: meta[k] for k in ("pdf_title", "pdf_author", "pdf_created", "pdf_mtime", "first_line")})
             w.update({k: prev[k] for k in ("pages", "words", "koene")})
             w["text_hash"] = prev["text_hash"]
             text = None
             kept += 1
+            scanner.classify(w)
         else:
             print(f"  reading {path}", file=sys.stderr)
             facts, text = scanner.read_pdf(pdf, w["tex_author"])
             w.update(facts)
+            scanner.classify(w)
+            if w["kind"] == "slides":
+                text = scanner.clean_slides(text)
+                w["words"] = len(text.split())
             w["text_hash"] = hashlib.sha1(text.encode()).hexdigest()
             read += 1
-        scanner.classify(w)
         w["meta"] = {k: v for k, v in w.items() if k not in store.WORK_COLS}
         w["koene"] = int(w["koene"])
-        prev = store.work(db, wid)
         w["family"] = prev["family"] if prev else wid
         store.save_work(db, w, files, text)
     store.mark_missing(db, "tex", seen)
@@ -132,6 +136,9 @@ def cmd_list(db, args):
     if args.state:
         where.append("state = ?")
         params.append(args.state)
+    if args.area:
+        where.append("family IN (SELECT work_id FROM work_areas WHERE area = ?)")
+        params.append(args.area)
     rows = store.works(db, " AND ".join(where), params)
     if args.sort == "path":
         rows = sorted(rows, key=lambda w: w["path"])
@@ -163,6 +170,7 @@ def cmd_show(db, args):
         print(f"\n{'summary':>13}: {s['title']}  ({s['date_estimate']}, by {s['by']}, {s['at'][:10]})")
         for p in json.loads(s["key_points"]):
             print(f"{'':>15}- {p}")
+        print(f"{'areas':>13}: {', '.join(store.areas_of(db, w['family']))}")
         print(f"{'tags':>13}: {', '.join(store.tags_of(db, w['family']))}")
 
 
@@ -193,6 +201,9 @@ def cmd_stats(db, args):
     print("\nstate       families")
     for s in store.STATES:
         print(f"{s:<10} {sum(w['state'] == s for w in heads):9d}")
+    print("\narea                        works")
+    for a, n in store.area_counts(db).items():
+        print(f"{a:<26} {n:6d}")
     print("\ndecade      families")
     dec = {}
     for w in heads:
@@ -253,7 +264,8 @@ Each object:
   {"id": "<work id as given>",
    "title": "<the work's title, cleaned up>",
    "key_points": ["3 to 5 points: the claims, results or proposals, each one sentence"],
-   "tags": ["3 to 8 lowercase topic tags; prefer existing tags"],
+   "areas": ["1 or 2 broad areas, exactly as listed below"],
+   "tags": ["3 to 8 lowercase specific topic tags, not area names; prefer existing tags"],
    "date_estimate": "YYYY or YYYY-MM, when the work was written or presented"}
 """
 
@@ -267,12 +279,19 @@ def excerpt(text, limit):
 
 
 def cmd_batch(db, args):
-    rows = store.works(db, "missing = 0 AND excluded = '' AND family = id AND state = 'approved'")[:args.n]
+    rows = store.works(db, "missing = 0 AND excluded = '' AND family = id AND state = 'approved'")
+    if args.works:
+        wanted = {w["id"] for w in resolve(db, args.works)}
+        rows = [w for w in rows if w["id"] in wanted]
+        if len(rows) < len(wanted):
+            sys.exit("only approved family heads can be batched")
+    rows = rows[:args.n]
     if not rows:
         print("Nothing approved is waiting for a summary.")
         return
     tags = [t["name"] for t in store.tag_counts(db) if not t["merged_into"]]
     print(SUMMARY_FORMAT)
+    print("Areas: " + "; ".join(store.AREAS))
     print("Existing tags: " + (", ".join(tags) if tags else "(none yet)") + "\n")
     chars = 0
     for w in rows:
@@ -301,6 +320,9 @@ def cmd_summarize(db, args):
             print(f"skipped {w['id']}: it is {w['state']}, not approved")
         elif not store.was_sent(db, w["id"]):
             print(f"skipped {w['id']}: its text was never handed out by 'batch'")
+        elif not 1 <= len(s.get("areas", [])) <= 2 or \
+                any(a.strip().lower() not in store.AREAS for a in s["areas"]):
+            print(f"skipped {w['id']}: give 1 or 2 areas from: {'; '.join(store.AREAS)}")
         else:
             store.save_summary(db, w["id"], s, args.by)
             done += 1
@@ -317,6 +339,10 @@ def cmd_sent(db, args):
 
 
 def cmd_tags(db, args):
+    print("Areas:")
+    for a, n in store.area_counts(db).items():
+        print(f"{n:4d} {a}")
+    print("\nTags:")
     for t in store.tag_counts(db):
         if t["merged_into"]:
             print(f"{'':>4} {t['name']}  -> {t['merged_into']}")
@@ -340,6 +366,7 @@ def main():
     s.add_argument("--excluded", action="store_true", help="list the excluded works instead")
     s.add_argument("--kind")
     s.add_argument("--state", choices=store.STATES)
+    s.add_argument("--area", choices=store.AREAS)
     s.add_argument("--sort", choices=["date", "path", "kind"], default="date")
     s = sub.add_parser("show")
     s.add_argument("work", help="number from 'list' or work id")
@@ -357,6 +384,7 @@ def main():
         s.add_argument("--all-new", action="store_true", help="every work now waiting in the queue")
     sub.add_parser("rules")
     s = sub.add_parser("batch")
+    s.add_argument("works", nargs="*", help="particular approved works (default: oldest first)")
     s.add_argument("--n", type=int, default=3)
     s.add_argument("--max-chars", type=int, default=24000, help="text per work")
     s = sub.add_parser("summarize")

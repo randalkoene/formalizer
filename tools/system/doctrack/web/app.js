@@ -45,6 +45,10 @@ function tagLinks(tags) {
   return tags.map(t => `<a class="tag" href="#/catalog?tag=${encodeURIComponent(t)}">${esc(t)}</a>`).join('');
 }
 
+function areaLinks(areas) {
+  return areas.map(a => `<a class="tag area" href="#/catalog?area=${encodeURIComponent(a)}">${esc(a)}</a>`).join('');
+}
+
 function titleCell(w, extra = '') {
   return `<td class="title"><a href="#/work/${w.n}">${esc(w.title)}</a>`
     + `<span class="path">${esc(w.path)}</span>${extra}</td>`;
@@ -174,7 +178,7 @@ function catalogParams() {
 
 async function viewCatalog() {
   const p = catalogParams();
-  const [ov, tags] = await Promise.all([api('/api/overview'), api('/api/tags')]);
+  const [ov, { tags }] = await Promise.all([api('/api/overview'), api('/api/tags')]);
   const opt = (vals, cur, all) => `<option value="">${all}</option>` + vals.map(v =>
     `<option value="${esc(v)}"${v === cur ? ' selected' : ''}>${esc(v)}</option>`).join('');
   main.innerHTML = `
@@ -187,6 +191,7 @@ async function viewCatalog() {
       <select name="state">${opt(['new', 'approved', 'ignored', 'summarized'], p.get('state'), 'any state')}</select>
       <select name="kind">${opt(Object.keys(ov.kinds).sort(), p.get('kind'), 'any kind')}</select>
       <select name="decade">${opt(Object.keys(ov.decades).sort(), p.get('decade'), 'any decade')}</select>
+      <select name="area">${opt(Object.keys(ov.areas), p.get('area'), 'any area')}</select>
       <select name="tag">${opt(tags.filter(t => !t.merged_into).map(t => t.name), p.get('tag'), 'any tag')}</select>
       <label><input type="checkbox" name="versions" value="1"${p.get('versions') ? ' checked' : ''}> versions</label>
       <label><input type="checkbox" name="excluded" value="1"${p.get('excluded') ? ' checked' : ''}> excluded</label>
@@ -225,7 +230,8 @@ async function loadResults(p) {
           <td class="nowrap">${esc(w.date.slice(0, 7))}</td>
           <td class="nowrap hide-sm">${esc(w.kind)}</td>
           ${titleCell(w, (w.snippet ? `<span class="snippet">${snippet(w.snippet)}</span>` : '')
-            + (w.tags.length ? `<span class="snippet">${tagLinks(w.tags)}</span>` : ''))}
+            + (w.areas.length || w.tags.length
+              ? `<span class="snippet">${areaLinks(w.areas)}${tagLinks(w.tags)}</span>` : ''))}
           <td class="num nowrap hide-sm">${w.pages}</td>
           ${versionsCell(w)}
           <td class="nowrap">${stateChip(w)}</td>
@@ -267,7 +273,7 @@ async function viewWork(n) {
         ${s ? `<span class="muted small">${esc(s.dateEstimate)} · by ${esc(s.by)}, ${esc(s.at.slice(0, 10))}</span>` : ''}</div>
       <div class="panel-body">
         ${s ? `<ul class="key-points">${s.keyPoints.map(p => `<li>${esc(p)}</li>`).join('')}</ul>
-               <div style="margin-top:10px">${tagLinks(w.tags)}</div>`
+               <div style="margin-top:10px">${areaLinks(w.areas)}${tagLinks(w.tags)}</div>`
             : `<span class="muted">${w.excluded ? 'Excluded works are not summarized.'
                 : w.headState === 'approved' ? 'Approved; waiting for a summary in a Claude Code session (doctrack.py batch).'
                 : w.headState === 'ignored' ? 'Ignored: searchable, but not summarized.'
@@ -317,13 +323,20 @@ async function viewWork(n) {
 // ───────────────────────── tags ─────────────────────────
 
 async function viewTags() {
-  const tags = await api('/api/tags');
+  const { tags, areas } = await api('/api/tags');
   const live = tags.filter(t => !t.merged_into);
   const merged = tags.filter(t => t.merged_into);
   main.innerHTML = `
     <div class="view-head"><h2>Tags</h2>
-      <span class="lead">${live.length} tags. Claude proposes tags with each summary; merge near-duplicates here.</span></div>
-    <section class="panel"><div class="panel-body">
+      <span class="lead">Every summarized work gets one or two broad areas and a few specific tags.</span></div>
+    <section class="panel">
+      <div class="panel-head"><h3>Areas</h3><span class="muted small">fixed list, set in store.py</span></div>
+      <div class="panel-body"><div class="tag-cloud">${Object.entries(areas).map(([a, n]) =>
+        `<a class="tag area" href="#/catalog?area=${encodeURIComponent(a)}">${esc(a)}<span class="n">${n}</span></a>`).join('')}</div>
+    </div></section>
+    <section class="panel">
+      <div class="panel-head"><h3>Specific tags</h3><span class="muted small">${live.length}; proposed by Claude, merge near-duplicates below</span></div>
+      <div class="panel-body">
       ${live.length ? `<div class="tag-cloud">${live.map(t =>
         `<a class="tag" href="#/catalog?tag=${encodeURIComponent(t.name)}">${esc(t.name)}<span class="n">${t.n}</span></a>`).join('')}</div>`
         : '<div class="empty">No tags yet. They arrive with the first summaries.</div>'}

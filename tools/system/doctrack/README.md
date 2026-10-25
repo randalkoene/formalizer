@@ -68,6 +68,7 @@ Summarizing is not done from the UI: it stays in a Claude Code session.
 ./doctrack.py rules                  # remembered folder decisions
 
 ./doctrack.py batch --n 3            # print approved works for summarizing
+./doctrack.py batch 238 63 8         # ... these particular approved works
 ./doctrack.py summarize sums.json    # store what Claude wrote
 ./doctrack.py sent                   # every hand-out of text, with time and size
 ./doctrack.py tags
@@ -91,6 +92,9 @@ the root, without `.tex`.
   document, guessed from the document class and the path.
 - **Koene:** whether "Koene" appears in the first two PDF pages or the author
   fields. `?` in `list` marks the ones without.
+- **Slide text:** for slide decks, lines printed on more than half the pages
+  (navigation, headers, footers) are dropped, and so are Beamer build-up pages
+  whose lines all reappear on the next page.
 - **Families:** works whose PDF texts share at least half their word 5-grams
   are versions of one another. The newest is the family head. Only heads are
   reviewed and summarized; `list --all` shows the other versions too.
@@ -99,7 +103,8 @@ the root, without `.tex`.
   works stay in the store with the reason.
 
 A re-scan re-reads every `.tex` (cheap), but runs `pdfinfo` and `pdftotext` only
-for works whose `.tex` or PDF changed in size or modification time. Works that
+for works whose `.tex` or PDF changed in size or modification time, or when
+`TEXT_VERSION` in `scanner.py` was raised because text extraction changed. Works that
 disappear are marked missing, not deleted.
 
 ## The review queue and what leaves this machine
@@ -115,3 +120,13 @@ summaries only for works that are approved and were handed out by `batch`.
 
 When the text of a summarized work changes, it goes back to `approved`, so the
 next `batch` picks it up again.
+
+## Summaries, areas and tags
+
+A summary holds a cleaned-up title, 3 to 5 key points, a date estimate, one or
+two broad **areas** and a few specific **tags**. The areas come from a fixed list,
+`AREAS` in `store.py` (whole brain emulation, neuroscience, neurotechnology,
+artificial intelligence, mind and philosophy, strategy and organization,
+outreach and education); `summarize` refuses anything else. Tags are free,
+lowercase, and never an area name; near-duplicates can be merged with
+`tag-merge` or on the Tags page.

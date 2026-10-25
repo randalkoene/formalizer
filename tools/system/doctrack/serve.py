@@ -112,8 +112,9 @@ JOB = Job()
 
 # ---------- data shaping ----------
 
-def row(w, sizes, tags=None):
+def row(w, sizes, tags=None, areas=None):
     return {
+        "areas": areas if areas is not None else [],
         "n": w["n"], "id": w["id"], "title": w["title"], "kind": w["kind"], "date": w["date"],
         "pages": w["pages"], "words": w["words"], "path": w["path"], "koene": bool(w["koene"]),
         "head": w["family"] == w["id"], "state": w["state"], "excluded": w["excluded"],
@@ -125,6 +126,13 @@ def all_tags(db):
     out = {}
     for r in db.execute("SELECT work_id, tag FROM work_tags ORDER BY tag"):
         out.setdefault(r["work_id"], []).append(r["tag"])
+    return out
+
+
+def all_areas(db):
+    out = {}
+    for r in db.execute("SELECT work_id, area FROM work_areas ORDER BY area"):
+        out.setdefault(r["work_id"], []).append(r["area"])
     return out
 
 
@@ -144,19 +152,21 @@ def overview(db):
         "excluded": db.execute("SELECT COUNT(*) FROM works WHERE missing = 0 AND excluded != ''").fetchone()[0],
         "states": states, "kinds": kinds, "decades": decades, "lastScan": last,
         "tags": db.execute("SELECT COUNT(*) FROM tags WHERE merged_into IS NULL").fetchone()[0],
+        "areas": store.area_counts(db),
         "sends": db.execute("SELECT COUNT(*) FROM sends").fetchone()[0],
     }
 
 
 def list_works(db, q):
     one = lambda k: (q.get(k) or [""])[0]
-    sizes, tags = store.family_sizes(db), all_tags(db)
+    sizes, tags, areas = store.family_sizes(db), all_tags(db), all_areas(db)
     if one("q"):
         rows = store.search(db, one("q"), limit=200, mark=("\x01", "\x02"))
         out = []
         for w in rows:
             # The best hit may be an older version; show the family head with its snippet.
-            r = row(store.work(db, w["family"]) or w, sizes, tags.get(w["family"], []))
+            r = row(store.work(db, w["family"]) or w, sizes, tags.get(w["family"], []),
+                    areas.get(w["family"], []))
             r["snippet"] = " ".join(w["snip"].split())
             out.append(r)
         return out
@@ -174,7 +184,11 @@ def list_works(db, q):
     if one("tag"):
         where.append("family IN (SELECT work_id FROM work_tags WHERE tag = ?)")
         params.append(one("tag"))
-    return [row(w, sizes, tags.get(w["family"], [])) for w in store.works(db, " AND ".join(where), params)]
+    if one("area"):
+        where.append("family IN (SELECT work_id FROM work_areas WHERE area = ?)")
+        params.append(one("area"))
+    return [row(w, sizes, tags.get(w["family"], []), areas.get(w["family"], []))
+            for w in store.works(db, " AND ".join(where), params)]
 
 
 def work_detail(db, n):
@@ -182,7 +196,7 @@ def work_detail(db, n):
     if not w:
         return None
     sizes = store.family_sizes(db)
-    out = row(w, sizes, store.tags_of(db, w["family"]))
+    out = row(w, sizes, store.tags_of(db, w["family"]), store.areas_of(db, w["family"]))
     meta = json.loads(w["meta"] or "{}")
     out["meta"] = {k: meta.get(k, "") for k in ("docclass", "tex_author", "tex_date", "pdf_author",
                                                  "has_abstract")}
@@ -216,7 +230,7 @@ def queue(db):
 
 
 def tags(db):
-    return [dict(t) for t in store.tag_counts(db)]
+    return {"tags": [dict(t) for t in store.tag_counts(db)], "areas": store.area_counts(db)}
 
 
 def sent(db):

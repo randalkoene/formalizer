@@ -15,6 +15,10 @@ from datetime import datetime, timezone
 FAMILY_THRESHOLD = 0.5
 SHINGLE_WORDS = 5
 
+# Raise when text extraction changes, so that the next scan re-reads every PDF.
+# 2: slide decks lose repeated lines and Beamer build-up pages.
+TEXT_VERSION = 2
+
 DOCCLASS_RE = re.compile(r"^[^%\n]*\\documentclass\s*(?:\[[^\]]*\])?\s*\{([^}]*)\}", re.M)
 
 
@@ -148,6 +152,29 @@ def read_pdf(pdf, tex_author):
         "koene": bool(re.search(r"koene", first + tex_author + info.get("Author", ""), re.I)),
     }
     return facts, text
+
+
+def clean_slides(text):
+    """Text of a slide deck without its repetitions.
+
+    pdftotext separates pages with form feeds. Lines printed on most pages
+    (navigation bars, headers, footers) are dropped, and so is a page whose
+    remaining lines all reappear on the next page: a Beamer build step whose
+    final state follows.
+    """
+    pages = [[l.strip() for l in p.splitlines() if l.strip()] for p in text.split("\f")]
+    pages = [p for p in pages if p]
+    if len(pages) < 4:
+        return text
+    seen_on = {}
+    for p in pages:
+        for l in set(p):
+            seen_on[l] = seen_on.get(l, 0) + 1
+    common = {l for l, n in seen_on.items() if n > len(pages) / 2}
+    pages = [[l for l in p if l not in common] for p in pages]
+    kept = [p for i, p in enumerate(pages)
+            if p and not (i + 1 < len(pages) and set(p) <= set(pages[i + 1]))]
+    return "\n\f\n".join("\n".join(p) for p in kept)
 
 
 # ---------- classification ----------
