@@ -144,6 +144,33 @@ Folder rules match on source and path, so `approve --folder 'gdrive:My Drive/Pap
 works as it does for LaTeX folders. Titles of files being read are printed to
 stderr only; the scan's summary line on stdout gives counts.
 
+## After the queue: getting approved works summarized
+
+Deciding in the queue is only half of it. What each decision leads to:
+
+- **Approved:** summarized by Claude, but only when asked. Open a Claude Code
+  session in `~/src/formalizer` and ask:
+
+  > Summarize the approved works in Doc Track (tools/system/doctrack, see its README).
+
+  Add a number ("the next 20") to do part of them. The Queue page shows how
+  many approved works are waiting, with the same request and a Copy button.
+- **Ignored:** nothing more to do; searchable in the catalog.
+- **Set aside:** nothing more to do for now; listed on the Set aside page.
+
+**For Claude, handling that request:** repeat until no approved work is left or
+the asked-for number is done:
+
+1. `./doctrack.py batch --n 3` prints up to three approved works (their text,
+   cut to `--max-chars`) and the JSON format to answer in, including the areas
+   and the existing tags to prefer.
+2. Write one JSON object per work to a scratch file, then
+   `./doctrack.py summarize <file>`.
+
+Then report how many were summarized, how many are left, and any tags worth
+merging. Stay inside this procedure: text only leaves the machine through
+`batch`, which logs it.
+
 ## The review queue and what leaves this machine
 
 Each family head has a state: `new` (waiting for review), `approved`, `ignored`,

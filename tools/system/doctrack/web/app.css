@@ -201,6 +201,13 @@ a.tag:hover { color: var(--text-primary); text-decoration: none; }
   padding: 8px 12px; margin-bottom: 16px;
 }
 
+.next-step ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; font-size: 13px; }
+.next-step .request {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin: 6px 0; padding: 6px 10px; background: var(--surface-sunk); border-radius: var(--radius-sm);
+}
+.next-step .request code { white-space: normal; }
+
 /* ───────── tables ───────── */
 
 table.works { width: 100%; border-collapse: collapse; }

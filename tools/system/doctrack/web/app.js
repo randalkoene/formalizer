@@ -98,10 +98,7 @@ async function viewQueue() {
       <div class="count"><b class="st-ignored">${ov.states.ignored}</b><span>ignored</span></div>
       <div class="count"><b class="st-aside">${ov.states.aside}</b><span>set aside</span></div>
     </div>`;
-  if (q.approvedWaiting) {
-    html += `<div class="hint">${q.approvedWaiting} approved works wait for a summary. Summaries are written
-      in a Claude Code session: <code>doctrack.py batch</code>, then <code>doctrack.py summarize</code>.</div>`;
-  }
+  html += nextStep(q.approvedWaiting);
   if (!waiting) html += `<div class="panel"><div class="empty">Nothing waiting for review.</div></div>`;
   for (const f of q.folders) {
     html += `
@@ -169,11 +166,40 @@ async function viewQueue() {
     if (!confirm('Remove this rule and put its works back in the queue?')) return;
     await decide({ state: 'new', folder: b.dataset.forget });
   });
+  const copy = $('#copy-request');
+  if (copy) copy.onclick = async () => {
+    try { await navigator.clipboard.writeText(SUMMARY_REQUEST); toast('Request copied'); }
+    catch (e) { toast('Could not copy; select the text instead', true); }
+  };
   const all = $('#approve-all');
   if (all) all.onclick = async () => {
     if (!confirm(`Approve all ${waiting} waiting works for summarizing by Claude?`)) return;
     await decide({ state: 'approved', allNew: true });
   };
+}
+
+// What to do once works are decided on. Ignored and set-aside works need
+// nothing more; approved works are summarized in a Claude Code session.
+const SUMMARY_REQUEST = 'Summarize the approved works in Doc Track (tools/system/doctrack, see its README).';
+
+function nextStep(approved) {
+  return `
+    <section class="panel next-step">
+      <div class="panel-head"><h3>What happens next</h3>
+        ${approved ? `<span class="chip st-approved">${approved} approved, waiting for a summary</span>` : ''}</div>
+      <div class="panel-body">
+        <ul>
+          <li><b class="st-approved">Approved</b> works get their summary, areas and tags in a Claude Code
+            session. Open one in <code>~/src/formalizer</code> and ask:
+            <div class="request"><code id="summary-request">${esc(SUMMARY_REQUEST)}</code>
+              <button class="btn btn-sm" id="copy-request">Copy</button></div>
+            Claude works through them a few at a time; you can stop part way, or ask for a number
+            (“the next 20”). Nothing is summarized without that request.</li>
+          <li><b class="st-ignored">Ignored</b> works need nothing more: they stay searchable in the Catalog.</li>
+          <li><b class="st-aside">Set aside</b> works need nothing more for now: they wait on the Set aside page.</li>
+        </ul>
+      </div>
+    </section>`;
 }
 
 async function decide(body) {
