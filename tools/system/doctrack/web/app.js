@@ -257,7 +257,7 @@ async function viewWork(n) {
   }
   const s = w.summary;
   main.innerHTML = `
-    <div class="work-title"><h2>${esc(s?.title || w.title)}</h2></div>
+    <div class="work-title"><h2>${esc(w.title)}</h2></div>
     <div class="work-meta">
       <span class="muted">#${w.n}</span>
       <span>${esc(w.kind)}</span>
@@ -298,7 +298,7 @@ async function viewWork(n) {
       <div class="panel-head"><h3>Details</h3></div>
       <div class="panel-body"><dl class="facts">
         <dt>id</dt><dd class="mono">${esc(w.id)}</dd>
-        ${w.title !== (s?.title || w.title) ? `<dt>title as found</dt><dd>${esc(w.title)}</dd>` : ''}
+        ${w.foundTitle !== w.title ? `<dt>title as found</dt><dd>${esc(w.foundTitle)}</dd>` : ''}
         ${w.excluded ? `<dt>excluded</dt><dd>${esc(w.excluded)}</dd>` : ''}
         <dt>document class</dt><dd>${esc(w.meta.docclass)}</dd>
         ${w.meta.tex_author ? `<dt>author (tex)</dt><dd>${esc(w.meta.tex_author)}</dd>` : ''}

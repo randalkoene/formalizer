@@ -131,15 +131,26 @@ def connect():
 
 # ---------- works ----------
 
+# Work rows carry summary_title: the title in their family's summary, if any.
+WORKS_WITH_SUMMARY_TITLE = ("SELECT works.*, s.title AS summary_title FROM works "
+                            "LEFT JOIN summaries s ON s.work_id = works.family")
+
+
 def works(db, where="1", params=()):
-    return db.execute(f"SELECT * FROM works WHERE {where} ORDER BY date, id", params).fetchall()
+    return db.execute(f"{WORKS_WITH_SUMMARY_TITLE} WHERE {where} ORDER BY date, id", params).fetchall()
 
 
 def work(db, key):
     """A work by its number or id, or None."""
     if str(key).isdigit():
-        return db.execute("SELECT * FROM works WHERE n = ?", (int(key),)).fetchone()
-    return db.execute("SELECT * FROM works WHERE id = ?", (key,)).fetchone()
+        return db.execute(f"{WORKS_WITH_SUMMARY_TITLE} WHERE n = ?", (int(key),)).fetchone()
+    return db.execute(f"{WORKS_WITH_SUMMARY_TITLE} WHERE works.id = ?", (key,)).fetchone()
+
+
+def display_title(w):
+    """The summary's cleaned-up title when there is one, else the title found by the scanner."""
+    summary_title = w["summary_title"] if "summary_title" in w.keys() else None
+    return summary_title or w["title"]
 
 
 def file_sigs(db, source):

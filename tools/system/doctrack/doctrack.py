@@ -112,7 +112,7 @@ def line(db, w, width=58):
     k = "" if w["koene"] else "?"
     mark = STATE_MARK.get(w["state"], " ") if not w["excluded"] and w["family"] == w["id"] else " "
     return (f"{w['n']:4d} {mark} {w['date'][:7]} {w['kind']:<9} {w['pages']:3d}p {fam:>3}{k:1} "
-            f"{w['title'][:width]}  [{w['path']}]")
+            f"{store.display_title(w)[:width]}  [{w['path']}]")
 
 
 def resolve(db, keys):
@@ -153,7 +153,12 @@ def cmd_list(db, args):
 def cmd_show(db, args):
     w = resolve(db, [args.work])[0]
     meta = json.loads(w["meta"])
-    for k in ("n", "id", "title", "kind", "state", "excluded", "date", "date_source", "pages", "words"):
+    for k in ("n", "id"):
+        print(f"{k:>13}: {w[k]}")
+    print(f"{'title':>13}: {store.display_title(w)}")
+    if store.display_title(w) != w["title"]:
+        print(f"{'found title':>13}: {w['title']}")
+    for k in ("kind", "state", "excluded", "date", "date_source", "pages", "words"):
         print(f"{k:>13}: {w[k]}")
     for k in ("tex_date", "docclass", "tex_author", "pdf_author", "has_abstract"):
         print(f"{k:>13}: {meta.get(k, '')}")
@@ -220,7 +225,7 @@ def cmd_export(db, args):
         f.write("\t".join(cols) + "\n")
         for w in rows:
             vals = [w["n"], w["family"] == w["id"], w["state"], w["excluded"], w["kind"], w["date"],
-                    w["pages"], w["words"], bool(w["koene"]), w["title"], w["path"]]
+                    w["pages"], w["words"], bool(w["koene"]), store.display_title(w), w["path"]]
             f.write("\t".join(str(v).replace("\t", " ") for v in vals) + "\n")
     print(f"wrote {len(rows)} rows to {args.file}")
 

@@ -115,7 +115,8 @@ JOB = Job()
 def row(w, sizes, tags=None, areas=None):
     return {
         "areas": areas if areas is not None else [],
-        "n": w["n"], "id": w["id"], "title": w["title"], "kind": w["kind"], "date": w["date"],
+        "n": w["n"], "id": w["id"], "title": store.display_title(w), "foundTitle": w["title"],
+        "kind": w["kind"], "date": w["date"],
         "pages": w["pages"], "words": w["words"], "path": w["path"], "koene": bool(w["koene"]),
         "head": w["family"] == w["id"], "state": w["state"], "excluded": w["excluded"],
         "versions": sizes.get(w["family"], 1) - 1, "tags": tags if tags is not None else [],
@@ -204,8 +205,7 @@ def work_detail(db, n):
     out["files"] = [{"role": f["role"], "path": f["path"]}
                     for f in db.execute("SELECT role, path FROM files WHERE work_id = ?", (w["id"],))]
     out["hasPdf"] = any(f["role"] == "pdf" for f in out["files"])
-    out["family"] = [row(v, sizes) for v in db.execute(
-        "SELECT * FROM works WHERE family = ? AND missing = 0 ORDER BY date DESC", (w["family"],))]
+    out["family"] = [row(v, sizes) for v in reversed(store.works(db, "family = ? AND missing = 0", (w["family"],)))]
     head = store.work(db, w["family"])
     out["headN"] = head["n"]
     out["headState"] = head["state"]
@@ -239,7 +239,7 @@ def sent(db):
         ids = json.loads(r["work_ids"])
         works = [store.work(db, i) for i in ids]
         out.append({"at": r["at"], "purpose": r["purpose"], "chars": r["chars"],
-                    "works": [{"n": w["n"], "title": w["title"]} if w else {"n": None, "title": i}
+                    "works": [{"n": w["n"], "title": store.display_title(w)} if w else {"n": None, "title": i}
                               for i, w in zip(ids, works)]})
     return out
 
