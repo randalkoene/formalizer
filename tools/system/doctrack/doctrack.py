@@ -1,18 +1,32 @@
 #!/usr/bin/env python3
 """doctrack: a catalog of Randal's own writings and presentations.
 
-PROTOTYPE SCANNER. It finds candidate works in ~/doc/tex and lists them for a
-check by hand. Nothing is sent anywhere; everything written goes to
-doctrack/cache/.
+Everything it writes goes to doctrack/cache/doctrack.db. The only way document
+text leaves this machine is the 'batch' command, which prints the text of
+approved works for a Claude Code session to summarize, and logs what it printed.
 
-A work, for now, is a main .tex file (one with \\documentclass) that has a
-compiled PDF of the same name beside it.
+Catalog
+  doctrack.py scan                  find works in ~/doc/tex (incremental)
+  doctrack.py list                  one line per work (family heads only)
+  doctrack.py show <n|id>           everything known about one work
+  doctrack.py search <words>        keyword search over the full text
+  doctrack.py stats                 counts by kind, state, decade
+  doctrack.py export <file>         TSV for review in a spreadsheet
 
-  doctrack.py scan            find works, extract PDF text (incremental)
-  doctrack.py list            list works, one line each (family heads only)
-  doctrack.py show <n|id>     everything known about one work
-  doctrack.py stats           counts by kind, decade and family
-  doctrack.py export <file>   write a TSV for review in a spreadsheet
+Review queue
+  doctrack.py queue                 works waiting for a decision, by folder
+  doctrack.py approve <n>...        allow these to be summarized by Claude
+  doctrack.py approve --folder P    ... every work whose path starts with P, now and later
+  doctrack.py ignore <n>...         keep for search, never summarize (also --folder)
+  doctrack.py unreview <n>...       back to the queue
+  doctrack.py rules                 the remembered folder decisions
+
+Summaries (in a Claude Code session)
+  doctrack.py batch [--n 3]         print approved, unsummarized works for summarizing
+  doctrack.py summarize <file.json> store the summaries written for a batch
+  doctrack.py sent                  what text has been handed out, and when
+  doctrack.py tags                  the tag vocabulary with counts
+  doctrack.py tag-merge <old> <new> fold one tag into another
 
 Design: Node 20261015131453.1 and its linked Claude Doc.
 """
@@ -21,365 +35,153 @@ import argparse
 import hashlib
 import json
 import os
-import re
-import subprocess
 import sys
-from datetime import datetime, timezone
 
-HERE = os.path.dirname(os.path.realpath(__file__))
-CACHE_DIR = os.path.join(HERE, "cache")
-TEXT_DIR = os.path.join(CACHE_DIR, "text")
-WORKS_FILE = os.path.join(CACHE_DIR, "works.json")
+import scanner
+import store
 
 DEFAULT_ROOT = os.path.expanduser("~/doc/tex")
-
-# Two works whose PDF texts share at least this fraction of word 5-grams
-# (Jaccard) are treated as versions of one another.
-FAMILY_THRESHOLD = 0.5
-SHINGLE_WORDS = 5
-
-DOCCLASS_RE = re.compile(r"^[^%\n]*\\documentclass\s*(?:\[[^\]]*\])?\s*\{([^}]*)\}", re.M)
-
-
-# ---------- LaTeX parsing ----------
-
-def strip_comments(tex):
-    return re.sub(r"(?<!\\)%.*", "", tex)
-
-
-def braced_arg(tex, macro):
-    """Return the first {...} argument of \\macro, braces balanced, or None."""
-    m = re.search(r"\\" + macro + r"\s*(?:\[[^\]]*\])?\s*\{", tex)
-    if not m:
-        return None
-    depth, i = 1, m.end()
-    while i < len(tex) and depth:
-        if tex[i] == "{":
-            depth += 1
-        elif tex[i] == "}":
-            depth -= 1
-        i += 1
-    return tex[m.end():i - 1] if depth == 0 else None
-
-
-def drop_macro_with_arg(s, macro):
-    while True:
-        arg = braced_arg(s, macro)
-        if arg is None:
-            return s
-        s = s.replace(arg, "", 1)
-        s = re.sub(r"\\" + macro + r"\s*(?:\[[^\]]*\])?\s*\{\s*\}", "", s, count=1)
-
-
-def expand_macros(s, tex):
-    """Replace \\foo in s by its \\newcommand{\\foo}{...} or \\def\\foo{...} body from tex."""
-    if not s:
-        return s
-    for name in set(re.findall(r"\\([a-zA-Z@]+)", s)):
-        m = re.search(r"\\(?:re)?newcommand\*?\s*\{?\\" + name + r"\}?\s*\{|\\def\\" + name + r"\s*\{", tex)
-        if not m:
-            continue
-        depth, i = 1, m.end()
-        while i < len(tex) and depth:
-            depth += {"{": 1, "}": -1}.get(tex[i], 0)
-            i += 1
-        if depth == 0:
-            s = re.sub(r"\\" + name + r"(?![a-zA-Z@])", lambda _: tex[m.end():i - 1], s)
-    return s
-
-
-def plain(s):
-    """Rough LaTeX to plain text, good enough for titles and author lines."""
-    if s is None:
-        return ""
-    for macro in ("thanks", "footnote", "affiliation", "email", "inst"):
-        s = drop_macro_with_arg(s, macro)
-    s = s.replace("\\\\", " ").replace("~", " ")
-    s = re.sub(r"\\(?:and|And|AND)\b", ",", s)
-    s = re.sub(r"\\[a-zA-Z@]+\*?", " ", s)
-    s = re.sub(r"[{}$]", "", s)
-    s = s.replace("``", '"').replace("''", '"')
-    return re.sub(r"\s+", " ", s).strip()
-
-
-def parse_tex(path):
-    with open(path, encoding="utf-8", errors="replace") as f:
-        raw = f.read()
-    m = DOCCLASS_RE.search(raw)
-    tex = strip_comments(raw)
-    date = plain(expand_macros(braced_arg(tex, "date"), tex))
-    if date.lower() in ("", "today"):
-        date = ""
-    docclass = m.group(1).strip() if m else ""
-    if docclass == "res":
-        # In the res class \title is a job title; the document is a CV of \name.
-        title = "CV: " + plain(braced_arg(tex, "name"))
-    else:
-        title = plain(expand_macros(braced_arg(tex, "title"), tex))
-    return {
-        "docclass": docclass,
-        "tex_title": title,
-        "tex_author": plain(expand_macros(braced_arg(tex, "author"), tex)),
-        "tex_date": date,
-        "has_abstract": bool(re.search(r"\\begin\{abstract\}|\\abstract\b", tex)),
-        "is_letter": bool(re.search(r"\\begin\{letter\}", tex)),
-    }
-
-
-# ---------- PDF ----------
-
-def run(cmd):
-    try:
-        return subprocess.run(cmd, capture_output=True, text=True, errors="replace",
-                              timeout=120).stdout
-    except (subprocess.TimeoutExpired, OSError):
-        return ""
-
-
-def pdf_info(path):
-    info = {}
-    for line in run(["pdfinfo", path]).splitlines():
-        k, _, v = line.partition(":")
-        info[k.strip()] = v.strip()
-    return info
-
-
-def pdf_date(info):
-    """CreationDate from pdfinfo as YYYY-MM-DD, or ''."""
-    v = info.get("CreationDate", "")
-    for fmt in ("%a %b %d %H:%M:%S %Y %Z", "%a %b %d %H:%M:%S %Y"):
-        try:
-            return datetime.strptime(v, fmt).strftime("%Y-%m-%d")
-        except ValueError:
-            pass
-    return ""
-
-
-def text_file(work_id):
-    h = hashlib.sha1(work_id.encode()).hexdigest()[:16]
-    return os.path.join(TEXT_DIR, h + ".txt")
-
-
-# ---------- classification ----------
-
-def guess_kind(w):
-    path = w["id"].lower()
-    stem = os.path.basename(path)
-    cls = w["docclass"].lower()
-    if cls in ("beamer", "foils") or "slides" in stem or "presentation" in path:
-        return "slides"
-    if "poster" in path:
-        return "poster"
-    if cls == "res" or re.search(r"(^|[-_.])(cv|resume)([-_.]|$)", stem):
-        return "cv"
-    if "statement" in stem:
-        return "statement"
-    if w["is_letter"] or cls == "letter" or "letter" in stem:
-        return "letter"
-    if "abstract" in stem and w["pages"] <= 2:
-        return "abstract"
-    if "report" in path:
-        return "report"
-    if "proposal" in path or "grant" in path:
-        return "proposal"
-    return "document"
-
-
-def exclusion(w):
-    """Why a work stays out of the catalog, or '' when it belongs in it."""
-    if w["id"].startswith("cv/") or w["kind"] in ("cv", "statement", "letter"):
-        return "job application"
-    if not w["koene"] and re.search(r"sample|template|instruction|typesetting|ws-ijmc|IOS-Book",
-                                    w["title"] + " " + w["id"], re.I):
-        return "publisher template"
-    return ""
-
-
-def best_date(w):
-    """(YYYY-MM-DD, source). PDF creation date beats file time; \\date is kept separately."""
-    if w["pdf_created"]:
-        return w["pdf_created"], "pdf"
-    t = datetime.fromtimestamp(w["pdf_mtime"], tz=timezone.utc)
-    return t.strftime("%Y-%m-%d"), "mtime"
-
-
-def best_title(w):
-    if w["tex_title"]:
-        return w["tex_title"]
-    if w["pdf_title"] and not re.search(r"\.(dvi|tex)$|^untitled$|^microsoft word", w["pdf_title"], re.I):
-        return w["pdf_title"]
-    return w.get("first_line", "") or os.path.basename(w["id"])
-
-
-# ---------- families (near-duplicates) ----------
-
-def shingles(text):
-    words = re.findall(r"[a-z0-9]+", text.lower())
-    n = SHINGLE_WORDS
-    return {hash(" ".join(words[i:i + n])) for i in range(max(0, len(words) - n + 1))}
-
-
-def assign_families(works):
-    sh = {}
-    for w in works:
-        try:
-            with open(text_file(w["id"]), encoding="utf-8", errors="replace") as f:
-                sh[w["id"]] = shingles(f.read())
-        except OSError:
-            sh[w["id"]] = set()
-    parent = {w["id"]: w["id"] for w in works}
-
-    def find(x):
-        while parent[x] != x:
-            parent[x] = parent[parent[x]]
-            x = parent[x]
-        return x
-
-    ids = [w["id"] for w in works if len(sh[w["id"]]) >= 20]
-    for i, a in enumerate(ids):
-        sa = sh[a]
-        for b in ids[i + 1:]:
-            sb = sh[b]
-            small, large = (sa, sb) if len(sa) <= len(sb) else (sb, sa)
-            if len(small) < FAMILY_THRESHOLD * len(large):
-                continue  # Jaccard cannot reach the threshold
-            inter = len(small & large)
-            if inter / (len(sa) + len(sb) - inter) >= FAMILY_THRESHOLD:
-                parent[find(a)] = find(b)
-
-    groups = {}
-    for w in works:
-        groups.setdefault(find(w["id"]), []).append(w)
-    for members in groups.values():
-        members.sort(key=lambda w: w["date"], reverse=True)
-        head = members[0]["id"]
-        for w in members:
-            w["family"] = head
-            w["family_size"] = len(members)
+STATE_MARK = {"new": "N", "approved": "A", "ignored": "I", "summarized": "S"}
 
 
 # ---------- scan ----------
 
-def find_mains(root):
-    for dirpath, dirnames, filenames in os.walk(root):
-        dirnames.sort()
-        for fn in sorted(filenames):
-            if not fn.endswith(".tex"):
-                continue
-            tex = os.path.join(dirpath, fn)
-            pdf = tex[:-4] + ".pdf"
-            if not os.path.isfile(pdf):
-                continue
-            try:
-                with open(tex, encoding="utf-8", errors="replace") as f:
-                    if not DOCCLASS_RE.search(f.read()):
-                        continue
-            except OSError:
-                continue
-            yield tex, pdf
-
-
-def load_works():
-    try:
-        with open(WORKS_FILE) as f:
-            return json.load(f)
-    except (OSError, ValueError):
-        return {"root": None, "works": []}
-
-
-def scan(root):
-    os.makedirs(TEXT_DIR, exist_ok=True)
-    old = {w["id"]: w for w in load_works()["works"]}
-    works, reused = [], 0
-    for tex, pdf in find_mains(root):
-        wid = os.path.relpath(tex, root)[:-4]
+def scan(db, root):
+    """Find works below root and bring the store up to date."""
+    sigs = store.file_sigs(db, "tex")
+    seen, read, kept = set(), 0, 0
+    for tex, pdf in scanner.find_mains(root):
+        path = os.path.relpath(tex, root)[:-4]
+        wid = "tex:" + path
+        seen.add(wid)
         ts, ps = os.stat(tex), os.stat(pdf)
-        sig = [ts.st_mtime, ts.st_size, ps.st_mtime, ps.st_size]
-        prev = old.get(wid)
-        if prev and prev.get("sig") == sig and os.path.isfile(text_file(wid)):
-            prev.update(parse_tex(tex))  # cheap, and picks up parser improvements
-            works.append(prev)
-            reused += 1
-            continue
-        print(f"  reading {wid}", file=sys.stderr)
-        w = {"id": wid, "tex": tex, "pdf": pdf, "sig": sig, "pdf_mtime": ps.st_mtime}
-        w.update(parse_tex(tex))
-        info = pdf_info(pdf)
-        w["pages"] = int(info.get("Pages", "0") or 0)
-        w["pdf_title"] = info.get("Title", "")
-        w["pdf_author"] = info.get("Author", "")
-        w["pdf_created"] = pdf_date(info)
-        text = run(["pdftotext", "-enc", "UTF-8", pdf, "-"])
-        with open(text_file(wid), "w", encoding="utf-8") as f:
-            f.write(text)
-        w["words"] = len(text.split())
-        first = run(["pdftotext", "-l", "2", pdf, "-"])
-        w["first_line"] = next((l.strip() for l in first.splitlines() if len(l.strip()) > 3), "")
-        w["koene"] = bool(re.search(r"koene", first + w["tex_author"] + w["pdf_author"], re.I))
-        works.append(w)
-    for w in works:
-        w["kind"] = guess_kind(w)
-        w["date"], w["date_source"] = best_date(w)
-        w["title"] = best_title(w)
-        w["excluded"] = exclusion(w)
-    assign_families(works)
-    works.sort(key=lambda w: (w["date"], w["id"]))
-    with open(WORKS_FILE, "w") as f:
-        json.dump({"root": root, "scanned": datetime.now().isoformat(timespec="seconds"),
-                   "works": works}, f, indent=1)
-    heads = sum(1 for w in works if w["family"] == w["id"])
-    print(f"{len(works)} works ({reused} unchanged), {heads} families. Saved {WORKS_FILE}")
+        files = {"tex": (tex, ts.st_mtime, ts.st_size), "pdf": (pdf, ps.st_mtime, ps.st_size)}
+        old_sig = sigs.get(wid, {})
+        unchanged = old_sig.get("tex") == (ts.st_mtime, ts.st_size) and \
+            old_sig.get("pdf") == (ps.st_mtime, ps.st_size)
+        w = {"id": wid, "source": "tex", "path": path}
+        w.update(scanner.parse_tex(tex))  # cheap, and picks up parser improvements
+        if unchanged:
+            prev = store.work(db, wid)
+            meta = json.loads(prev["meta"])
+            w.update({k: meta[k] for k in ("pdf_title", "pdf_author", "pdf_created", "pdf_mtime", "first_line")})
+            w.update({k: prev[k] for k in ("pages", "words", "koene")})
+            w["text_hash"] = prev["text_hash"]
+            text = None
+            kept += 1
+        else:
+            print(f"  reading {path}", file=sys.stderr)
+            facts, text = scanner.read_pdf(pdf, w["tex_author"])
+            w.update(facts)
+            w["text_hash"] = hashlib.sha1(text.encode()).hexdigest()
+            read += 1
+        scanner.classify(w)
+        w["meta"] = {k: v for k, v in w.items() if k not in store.WORK_COLS}
+        w["koene"] = int(w["koene"])
+        prev = store.work(db, wid)
+        w["family"] = prev["family"] if prev else wid
+        store.save_work(db, w, files, text)
+    store.mark_missing(db, "tex", seen)
+
+    live = [dict(r) for r in store.works(db, "source = 'tex' AND missing = 0")]
+    texts = {w["id"]: store.text_of(db, w["id"]) for w in live}
+    for wid, head in scanner.families(live, texts).items():
+        db.execute("UPDATE works SET family = ? WHERE id = ?", (head, wid))
+    store.refresh_states(db)
+    db.commit()
+    heads = db.execute("SELECT COUNT(*) FROM works WHERE source = 'tex' AND missing = 0 "
+                       "AND excluded = '' AND family = id").fetchone()[0]
+    gone = len(sigs.keys() - seen)
+    print(f"{len(seen)} works ({read} read, {kept} unchanged{f', {gone} gone' if gone else ''}); "
+          f"{heads} family heads in the catalog.")
 
 
 # ---------- output ----------
 
-def numbered(works):
-    return list(enumerate(works, 1))
+def family_size(db, w):
+    return db.execute("SELECT COUNT(*) FROM works WHERE family = ? AND missing = 0", (w["family"],)).fetchone()[0]
 
 
-def line(n, w, width=60):
-    fam = f"+{w['family_size'] - 1}" if w["family_size"] > 1 else ""
+def line(db, w, width=58):
+    size = family_size(db, w)
+    fam = f"+{size - 1}" if size > 1 else ""
     k = "" if w["koene"] else "?"
-    return (f"{n:4d} {w['date'][:7]} {w['kind']:<9} {w['pages']:3d}p {fam:>3}{k:1} "
-            f"{w['title'][:width]}  [{w['id']}]")
+    mark = STATE_MARK.get(w["state"], " ") if not w["excluded"] and w["family"] == w["id"] else " "
+    return (f"{w['n']:4d} {mark} {w['date'][:7]} {w['kind']:<9} {w['pages']:3d}p {fam:>3}{k:1} "
+            f"{w['title'][:width]}  [{w['path']}]")
 
 
-def cmd_list(args):
-    data = load_works()
-    rows = numbered(data["works"])
-    rows = [(n, w) for n, w in rows if bool(w["excluded"]) == args.excluded]
+def resolve(db, keys):
+    out = []
+    for k in keys:
+        w = store.work(db, k)
+        if not w:
+            sys.exit(f"no work {k}")
+        out.append(w)
+    return out
+
+
+def cmd_list(db, args):
+    where = ["missing = 0", "excluded != ''" if args.excluded else "excluded = ''"]
     if not args.all:
-        rows = [(n, w) for n, w in rows if w["family"] == w["id"]]
+        where.append("family = id")
+    params = []
     if args.kind:
-        rows = [(n, w) for n, w in rows if w["kind"] == args.kind]
+        where.append("kind = ?")
+        params.append(args.kind)
+    if args.state:
+        where.append("state = ?")
+        params.append(args.state)
+    rows = store.works(db, " AND ".join(where), params)
     if args.sort == "path":
-        rows.sort(key=lambda r: r[1]["id"])
+        rows = sorted(rows, key=lambda w: w["path"])
     elif args.sort == "kind":
-        rows.sort(key=lambda r: (r[1]["kind"], r[1]["date"]))
-    for n, w in rows:
-        print(line(n, w) + (f"  ({w['excluded']})" if args.excluded else ""))
-    print(f"\n{len(rows)} shown. '+k' = k other versions; '?' = 'Koene' not found in the first pages.")
+        rows = sorted(rows, key=lambda w: (w["kind"], w["date"]))
+    for w in rows:
+        print(line(db, w) + (f"  ({w['excluded']})" if args.excluded else ""))
+    print(f"\n{len(rows)} shown. State: N new, A approved, I ignored, S summarized. "
+          "'+k' = k other versions; '?' = 'Koene' not on the first pages.")
 
 
-def cmd_show(args):
-    works = load_works()["works"]
-    key = args.work
-    hit = works[int(key) - 1] if key.isdigit() and 0 < int(key) <= len(works) else \
-        next((w for w in works if w["id"] == key), None)
-    if not hit:
-        sys.exit(f"no work {key}")
-    for k in ("id", "title", "kind", "excluded", "date", "date_source", "tex_date", "docclass", "pages",
-              "words", "koene", "tex_author", "pdf_author", "has_abstract", "tex", "pdf"):
-        print(f"{k:>13}: {hit[k]}")
-    fam = [w for w in works if w["family"] == hit["family"] and w is not hit]
-    if fam:
+def cmd_show(db, args):
+    w = resolve(db, [args.work])[0]
+    meta = json.loads(w["meta"])
+    for k in ("n", "id", "title", "kind", "state", "excluded", "date", "date_source", "pages", "words"):
+        print(f"{k:>13}: {w[k]}")
+    for k in ("tex_date", "docclass", "tex_author", "pdf_author", "has_abstract"):
+        print(f"{k:>13}: {meta.get(k, '')}")
+    for f in db.execute("SELECT role, path FROM files WHERE work_id = ?", (w["id"],)):
+        print(f"{f['role']:>13}: {f['path']}")
+    others = db.execute("SELECT * FROM works WHERE family = ? AND id != ? AND missing = 0 ORDER BY date DESC",
+                        (w["family"], w["id"])).fetchall()
+    if others:
         print(f"{'versions':>13}:")
-        for w in fam:
-            print(f"{'':>15}{w['date']}  {w['id']}")
+        for o in others:
+            print(f"{'':>15}{o['n']:4d}  {o['date']}  {o['path']}")
+    s = store.summary_of(db, w["family"])
+    if s:
+        print(f"\n{'summary':>13}: {s['title']}  ({s['date_estimate']}, by {s['by']}, {s['at'][:10]})")
+        for p in json.loads(s["key_points"]):
+            print(f"{'':>15}- {p}")
+        print(f"{'tags':>13}: {', '.join(store.tags_of(db, w['family']))}")
 
 
-def cmd_stats(args):
-    everything = load_works()["works"]
+def cmd_search(db, args):
+    rows, families = [], set()
+    for w in store.search(db, " ".join(args.words), args.limit * 5):
+        if w["family"] not in families and len(rows) < args.limit:
+            families.add(w["family"])
+            rows.append(w)
+    for w in rows:
+        print(line(db, w))
+        print(f"{'':>10}{' '.join(w['snip'].split())}")
+    if not rows:
+        print("no matches")
+
+
+def cmd_stats(db, args):
+    live = "missing = 0"
+    everything = store.works(db, live)
     works = [w for w in everything if not w["excluded"]]
     heads = [w for w in works if w["family"] == w["id"]]
     reasons = {}
@@ -391,6 +193,9 @@ def cmd_stats(args):
     print("kind        works  families")
     for k in sorted({w["kind"] for w in works}):
         print(f"{k:<10} {sum(w['kind'] == k for w in works):6d} {sum(w['kind'] == k for w in heads):9d}")
+    print("\nstate       families")
+    for s in store.STATES:
+        print(f"{s:<10} {sum(w['state'] == s for w in heads):9d}")
     print("\ndecade      families")
     dec = {}
     for w in heads:
@@ -398,19 +203,152 @@ def cmd_stats(args):
         dec[d] = dec.get(d, 0) + 1
     for d in sorted(dec):
         print(f"{d:<10} {dec[d]:9d}")
-    print(f"\n'Koene' not found in first pages: {sum(not w['koene'] for w in heads)} families")
 
 
-def cmd_export(args):
-    works = load_works()["works"]
-    cols = ["n", "head", "excluded", "kind", "date", "pages", "words", "koene", "family_size", "title", "id"]
+def cmd_export(db, args):
+    cols = ["n", "head", "state", "excluded", "kind", "date", "pages", "words", "koene", "title", "path"]
+    rows = store.works(db, "missing = 0")
     with open(args.file, "w", encoding="utf-8") as f:
         f.write("\t".join(cols) + "\n")
-        for n, w in numbered(works):
-            row = [n, w["family"] == w["id"], w["excluded"], w["kind"], w["date"], w["pages"], w["words"],
-                   w["koene"], w["family_size"], w["title"], w["id"]]
-            f.write("\t".join(str(v).replace("\t", " ") for v in row) + "\n")
-    print(f"wrote {len(works)} rows to {args.file}")
+        for w in rows:
+            vals = [w["n"], w["family"] == w["id"], w["state"], w["excluded"], w["kind"], w["date"],
+                    w["pages"], w["words"], bool(w["koene"]), w["title"], w["path"]]
+            f.write("\t".join(str(v).replace("\t", " ") for v in vals) + "\n")
+    print(f"wrote {len(rows)} rows to {args.file}")
+
+
+# ---------- review queue ----------
+
+def queued(db):
+    return store.works(db, "missing = 0 AND excluded = '' AND family = id AND state = 'new'")
+
+
+def cmd_queue(db, args):
+    rows = queued(db)
+    folders = {}
+    for w in rows:
+        folders.setdefault(w["path"].split("/")[0], []).append(w)
+    for folder in sorted(folders, key=str.lower):
+        print(f"{folder}/  ({len(folders[folder])})")
+        for w in folders[folder]:
+            print("  " + line(db, w))
+    print(f"\n{len(rows)} works waiting. approve or ignore them by number, or by --folder prefix.")
+
+
+def decide(db, args, state):
+    if args.folder:
+        prefix = args.folder if ":" in args.folder else "tex:" + args.folder
+        if state == "new":
+            db.execute("DELETE FROM rules WHERE prefix = ?", (prefix,))
+        else:
+            store.add_rule(db, prefix, state)
+        hits = store.works(db, "missing = 0 AND excluded = '' AND family = id AND id LIKE ? || '%'", (prefix,))
+        targets = [w for w in hits if w["state"] in ("new", "approved", "ignored")]
+    elif args.all_new:
+        targets = queued(db)
+    else:
+        targets = resolve(db, args.works)
+        for w in targets:
+            if w["excluded"]:
+                sys.exit(f"{w['n']} is excluded ({w['excluded']})")
+            if w["family"] != w["id"]:
+                sys.exit(f"{w['n']} is an older version; decide on its family head, "
+                         f"{store.work(db, w['family'])['n']}")
+    store.set_state(db, [w["id"] for w in targets], state)
+    store.refresh_states(db)
+    db.commit()
+    print(f"{len(targets)} works now {state}." + (f" Rule saved for {args.folder}." if args.folder else ""))
+
+
+def cmd_rules(db, args):
+    for r in db.execute("SELECT * FROM rules ORDER BY prefix"):
+        print(f"{r['decision']:<9} {r['prefix']}  ({r['at'][:10]})")
+
+
+# ---------- summaries ----------
+
+SUMMARY_FORMAT = """\
+Write a JSON list, one object per work, to a file, then run
+  doctrack.py summarize <file>
+Each object:
+  {"id": "<work id as given>",
+   "title": "<the work's title, cleaned up>",
+   "key_points": ["3 to 5 points: the claims, results or proposals, each one sentence"],
+   "tags": ["3 to 8 lowercase topic tags; prefer existing tags"],
+   "date_estimate": "YYYY or YYYY-MM, when the work was written or presented"}
+"""
+
+
+def excerpt(text, limit):
+    """The start and the end of a long text: abstract and introduction, conclusions."""
+    if len(text) <= limit:
+        return text
+    head = limit * 3 // 4
+    return text[:head] + "\n\n[... middle left out ...]\n\n" + text[-(limit - head):]
+
+
+def cmd_batch(db, args):
+    rows = store.works(db, "missing = 0 AND excluded = '' AND family = id AND state = 'approved'")[:args.n]
+    if not rows:
+        print("Nothing approved is waiting for a summary.")
+        return
+    tags = [t["name"] for t in store.tag_counts(db) if not t["merged_into"]]
+    print(SUMMARY_FORMAT)
+    print("Existing tags: " + (", ".join(tags) if tags else "(none yet)") + "\n")
+    chars = 0
+    for w in rows:
+        body = excerpt(store.text_of(db, w["id"]), args.max_chars)
+        chars += len(body)
+        print(f"=== WORK {w['id']}")
+        print(f"kind: {w['kind']} | date: {w['date']} ({w['date_source']}) | pages: {w['pages']} | "
+              f"title as found: {w['title']}")
+        print(f"--- text ({len(body)} chars)")
+        print(body)
+        print()
+    store.log_send(db, [w["id"] for w in rows], chars, "summarize")
+    db.commit()
+    print(f"=== {len(rows)} works, {chars} characters (logged).", file=sys.stderr)
+
+
+def cmd_summarize(db, args):
+    with open(args.file, encoding="utf-8") as f:
+        items = json.load(f)
+    done = 0
+    for s in items:
+        w = store.work(db, s.get("id", ""))
+        if not w:
+            print(f"skipped {s.get('id')}: no such work")
+        elif w["state"] not in ("approved", "summarized"):
+            print(f"skipped {w['id']}: it is {w['state']}, not approved")
+        elif not store.was_sent(db, w["id"]):
+            print(f"skipped {w['id']}: its text was never handed out by 'batch'")
+        else:
+            store.save_summary(db, w["id"], s, args.by)
+            done += 1
+    db.commit()
+    print(f"{done} summaries stored.")
+
+
+def cmd_sent(db, args):
+    for r in db.execute("SELECT * FROM sends ORDER BY id"):
+        ids = json.loads(r["work_ids"])
+        print(f"{r['at']}  {r['purpose']}  {r['chars']:7d} chars  {len(ids)} works")
+        for i in ids:
+            print(f"{'':>22}{i}")
+
+
+def cmd_tags(db, args):
+    for t in store.tag_counts(db):
+        if t["merged_into"]:
+            print(f"{'':>4} {t['name']}  -> {t['merged_into']}")
+        else:
+            print(f"{t['n']:4d} {t['name']}")
+
+
+def cmd_tag_merge(db, args):
+    store.merge_tag(db, args.old.lower(), args.new.lower())
+    db.commit()
+    print(f"{args.old} merged into {args.new}.")
 
 
 def main():
@@ -422,17 +360,48 @@ def main():
     s.add_argument("--all", action="store_true", help="include every version, not only family heads")
     s.add_argument("--excluded", action="store_true", help="list the excluded works instead")
     s.add_argument("--kind")
+    s.add_argument("--state", choices=store.STATES)
     s.add_argument("--sort", choices=["date", "path", "kind"], default="date")
     s = sub.add_parser("show")
     s.add_argument("work", help="number from 'list' or work id")
+    s = sub.add_parser("search")
+    s.add_argument("words", nargs="+", help="FTS5 query, e.g. substrate independent, or \"whole brain\"")
+    s.add_argument("--limit", type=int, default=20)
     sub.add_parser("stats")
     s = sub.add_parser("export")
     s.add_argument("file")
+    sub.add_parser("queue")
+    for name in ("approve", "ignore", "unreview"):
+        s = sub.add_parser(name)
+        s.add_argument("works", nargs="*")
+        s.add_argument("--folder", help="path prefix below the root, e.g. SFN- or AGI-2010/")
+        s.add_argument("--all-new", action="store_true", help="every work now waiting in the queue")
+    sub.add_parser("rules")
+    s = sub.add_parser("batch")
+    s.add_argument("--n", type=int, default=3)
+    s.add_argument("--max-chars", type=int, default=24000, help="text per work")
+    s = sub.add_parser("summarize")
+    s.add_argument("file")
+    s.add_argument("--by", default="claude-code-session")
+    sub.add_parser("sent")
+    sub.add_parser("tags")
+    s = sub.add_parser("tag-merge")
+    s.add_argument("old")
+    s.add_argument("new")
     args = p.parse_args()
+
+    db = store.connect()
     if args.cmd == "scan":
-        scan(os.path.abspath(os.path.expanduser(args.root)))
+        scan(db, os.path.abspath(os.path.expanduser(args.root)))
+    elif args.cmd in ("approve", "ignore", "unreview"):
+        if not (args.works or args.folder or args.all_new):
+            sys.exit("give work numbers, --folder or --all-new")
+        decide(db, args, {"approve": "approved", "ignore": "ignored", "unreview": "new"}[args.cmd])
     else:
-        {"list": cmd_list, "show": cmd_show, "stats": cmd_stats, "export": cmd_export}[args.cmd](args)
+        {"list": cmd_list, "show": cmd_show, "search": cmd_search, "stats": cmd_stats,
+         "export": cmd_export, "queue": cmd_queue, "rules": cmd_rules, "batch": cmd_batch,
+         "summarize": cmd_summarize, "sent": cmd_sent, "tags": cmd_tags,
+         "tag-merge": cmd_tag_merge}[args.cmd](db, args)
 
 
 if __name__ == "__main__":
