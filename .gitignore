@@ -9,3 +9,5 @@ tools/system/inbox-triage/*token*.json
 tools/system/inbox-triage/cache/
 tools/system/inbox-triage/config.yaml
 tools/system/inbox-triage/corrections.yaml
+# doctrack: extracted text of personal documents
+tools/system/doctrack/cache/
