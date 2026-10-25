@@ -6,7 +6,9 @@ text leaves this machine is the 'batch' command, which prints the text of
 approved works for a Claude Code session to summarize, and logs what it printed.
 
 Catalog
-  doctrack.py scan                  find works in ~/doc/tex (incremental)
+  doctrack.py scan                  find works in ~/doc/tex and Google Drive (incremental)
+  doctrack.py scan --source tex     ... only one source (tex or drive)
+  doctrack.py drive-auth            one-time read-only Google Drive authorization (opens a browser)
   doctrack.py list                  one line per work (family heads only)
   doctrack.py show <n|id>           everything known about one work
   doctrack.py search <words>        keyword search over the full text
@@ -17,6 +19,7 @@ Review queue
   doctrack.py queue                 works waiting for a decision, by folder
   doctrack.py approve <n>...        allow these to be summarized by Claude
   doctrack.py approve --folder P    ... every work whose path starts with P, now and later
+                                    (P as 'queue' prints it, e.g. 'gdrive:My Drive/Papers/')
   doctrack.py ignore <n>...         keep for search, never summarize (also --folder)
   doctrack.py unreview <n>...       back to the queue
   doctrack.py rules                 the remembered folder decisions
@@ -46,8 +49,34 @@ STATE_MARK = {"new": "N", "approved": "A", "ignored": "I", "summarized": "S"}
 
 # ---------- scan ----------
 
-def scan(db, root):
-    """Find works below root and bring the store up to date."""
+def scan(db, root, sources=("tex", "drive")):
+    """Bring the store up to date from each source, then regroup families."""
+    if "tex" in sources:
+        scan_tex(db, root)
+    if "drive" in sources:
+        import drive
+        if drive.have_token():
+            from googleapiclient.errors import HttpError
+            try:
+                scan_drive(db)
+            except HttpError as e:
+                db.commit()  # keep what was read before the error
+                print(f"Google Drive: scan stopped, HTTP {e.resp.status}: {e.reason}")
+        else:
+            print("Google Drive: no token yet, skipped (run: doctrack.py drive-auth)")
+    live = [dict(r) for r in store.works(db, "missing = 0")]
+    texts = {w["id"]: store.text_of(db, w["id"]) for w in live}
+    for wid, head in scanner.families(live, texts).items():
+        db.execute("UPDATE works SET family = ? WHERE id = ?", (head, wid))
+    store.refresh_states(db)
+    db.commit()
+    heads = db.execute("SELECT COUNT(*) FROM works WHERE missing = 0 AND excluded = '' "
+                       "AND family = id").fetchone()[0]
+    print(f"{heads} family heads in the catalog.")
+
+
+def scan_tex(db, root):
+    """Find works below root and bring their store entries up to date."""
     sigs = store.file_sigs(db, "tex")
     seen, read, kept = set(), 0, 0
     for tex, pdf in scanner.find_mains(root):
@@ -86,18 +115,93 @@ def scan(db, root):
         w["family"] = prev["family"] if prev else wid
         store.save_work(db, w, files, text)
     store.mark_missing(db, "tex", seen)
-
-    live = [dict(r) for r in store.works(db, "source = 'tex' AND missing = 0")]
-    texts = {w["id"]: store.text_of(db, w["id"]) for w in live}
-    for wid, head in scanner.families(live, texts).items():
-        db.execute("UPDATE works SET family = ? WHERE id = ?", (head, wid))
-    store.refresh_states(db)
     db.commit()
-    heads = db.execute("SELECT COUNT(*) FROM works WHERE source = 'tex' AND missing = 0 "
-                       "AND excluded = '' AND family = id").fetchone()[0]
     gone = len(sigs.keys() - seen)
-    print(f"{len(seen)} works ({read} read, {kept} unchanged{f', {gone} gone' if gone else ''}); "
-          f"{heads} family heads in the catalog.")
+    print(f"~/doc/tex: {len(seen)} works ({read} read, {kept} unchanged{f', {gone} gone' if gone else ''}).")
+
+
+def scan_drive(db):
+    """Find works in Google Drive and bring their store entries up to date.
+
+    Titles of files being read go to stderr only, so that a summary on stdout
+    shows counts and no document names.
+    """
+    import drive
+    svc = drive.service()
+    print("Google Drive: listing folders and files ...", file=sys.stderr)
+    folder_path = drive.folder_paths(svc)
+    files = drive.list_files(svc)
+    sigs = store.file_sigs(db, "gdrive")
+    seen, counts = set(), {"read": 0, "unchanged": 0, "not mine": 0, "excluded": 0}
+    for i, f in enumerate(files, 1):
+        folder = folder_path((f.get("parents") or [None])[0]) if f.get("parents") else "Shared with me"
+        wid = "gdrive:" + f["id"]
+        mtime = drive.epoch(f["modifiedTime"])
+        prev = store.work(db, wid)
+        meta = json.loads(prev["meta"]) if prev else {}
+        unchanged = sigs.get(wid, {}).get("gdrive", (None,))[0] == mtime and \
+            meta.get("text_version") == scanner.TEXT_VERSION
+        if unchanged and meta.get("mine") is False:
+            counts["not mine"] += 1
+            seen.add(wid)
+            continue
+        mine = meta.get("mine") if unchanged else None
+        if mine is None:
+            mine = bool(f.get("ownedByMe") or f.get("lastModifyingUser", {}).get("me")
+                        or any(o.get("me") for o in f.get("owners", [])))
+        name_reason = drive.exclusion_by_name(f["name"], folder)
+        if not mine and not name_reason:
+            mine = drive.edited_by_me(svc, f["id"])
+        w = {"id": wid, "source": "gdrive", "path": f"{folder}/{f['name']}", "title": f["name"],
+             "kind": drive.kind_of(f, folder), "date": f["createdTime"][:10], "date_source": "drive-created",
+             "pages": 0, "koene": 1, "text_version": scanner.TEXT_VERSION, "mine": mine,
+             "mime": f["mimeType"], "web_url": f.get("webViewLink", ""), "modified": f["modifiedTime"],
+             "owners": [o.get("displayName", "") for o in f.get("owners", [])]}
+        sig = {"gdrive": (f["id"], mtime, 0)}
+        seen.add(wid)
+        if not mine:
+            # Not yours: remember only that, so it is not checked again until it changes.
+            counts["not mine"] += 1
+            w.update(excluded="not mine", words=0, text_hash="", family=prev["family"] if prev else wid)
+            w["meta"] = {k: v for k, v in w.items() if k not in store.WORK_COLS}
+            store.save_work(db, w, sig, "")
+            continue
+        if unchanged and prev["excluded"] in ("internal", "job application", "not mine") and not name_reason:
+            unchanged = False  # its text was never read; read it now
+        text = None
+        if name_reason:
+            w.update(excluded=name_reason, words=0, text_hash="")
+            text = ""
+            counts["excluded"] += 1
+        elif unchanged:
+            w.update(excluded=prev["excluded"], words=prev["words"], text_hash=prev["text_hash"])
+            counts["unchanged"] += 1
+        else:
+            print(f"  [{i}/{len(files)}] reading {w['path']}", file=sys.stderr)
+            try:
+                text = drive.text_of(svc, f)
+            except Exception as e:
+                print(f"    could not read: {e}", file=sys.stderr)
+                text = ""
+            if w["kind"] == "slides":
+                text = scanner.clean_slides(text)
+            w["words"] = len(text.split())
+            w["text_hash"] = hashlib.sha1(text.encode()).hexdigest()
+            w["excluded"] = "too short" if w["words"] < drive.MIN_WORDS else ""
+            if w["excluded"]:
+                text = ""  # keep no text for what stays out of the catalog
+                counts["excluded"] += 1
+            else:
+                counts["read"] += 1
+        w["family"] = prev["family"] if prev else wid
+        w["meta"] = {k: v for k, v in w.items() if k not in store.WORK_COLS}
+        store.save_work(db, w, sig, text)
+        if i % 50 == 0:
+            db.commit()
+    store.mark_missing(db, "gdrive", seen)
+    db.commit()
+    print(f"Google Drive: {len(files)} files; {counts['read']} read, {counts['unchanged']} unchanged, "
+          f"{counts['excluded']} excluded by title, folder or length, {counts['not mine']} not yours.")
 
 
 # ---------- output ----------
@@ -160,7 +264,9 @@ def cmd_show(db, args):
         print(f"{'found title':>13}: {w['title']}")
     for k in ("kind", "state", "excluded", "date", "date_source", "pages", "words"):
         print(f"{k:>13}: {w[k]}")
-    for k in ("tex_date", "docclass", "tex_author", "pdf_author", "has_abstract"):
+    keys = ("web_url", "owners", "modified") if w["source"] == "gdrive" else \
+        ("tex_date", "docclass", "tex_author", "pdf_author", "has_abstract")
+    for k in keys:
         print(f"{k:>13}: {meta.get(k, '')}")
     for f in db.execute("SELECT role, path FROM files WHERE work_id = ?", (w["id"],)):
         print(f"{f['role']:>13}: {f['path']}")
@@ -236,9 +342,9 @@ def cmd_queue(db, args):
     rows = store.queued(db)
     folders = {}
     for w in rows:
-        folders.setdefault(w["path"].split("/")[0], []).append(w)
+        folders.setdefault(store.queue_group(w), []).append(w)
     for folder in sorted(folders, key=str.lower):
-        print(f"{folder}/  ({len(folders[folder])})")
+        print(f"{store.group_label(folder)}  ({len(folders[folder])})  --folder '{folder}'")
         for w in folders[folder]:
             print("  " + line(db, w))
     print(f"\n{len(rows)} works waiting. approve or ignore them by number, or by --folder prefix.")
@@ -366,6 +472,8 @@ def main():
     sub = p.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("scan")
     s.add_argument("--root", default=DEFAULT_ROOT)
+    s.add_argument("--source", choices=["tex", "drive"], help="scan only this source (default: both)")
+    sub.add_parser("drive-auth")
     s = sub.add_parser("list")
     s.add_argument("--all", action="store_true", help="include every version, not only family heads")
     s.add_argument("--excluded", action="store_true", help="list the excluded works instead")
@@ -404,7 +512,12 @@ def main():
 
     db = store.connect()
     if args.cmd == "scan":
-        scan(db, os.path.abspath(os.path.expanduser(args.root)))
+        scan(db, os.path.abspath(os.path.expanduser(args.root)),
+             (args.source,) if args.source else ("tex", "drive"))
+    elif args.cmd == "drive-auth":
+        import drive
+        drive.authorize()
+        print(f"Drive token saved to {drive.TOKEN_PATH} (scope: drive.readonly).")
     elif args.cmd in ("approve", "ignore", "unreview"):
         if not (args.works or args.folder or args.all_new):
             sys.exit("give work numbers, --folder or --all-new")

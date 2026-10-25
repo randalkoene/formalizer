@@ -58,6 +58,13 @@ function versionsCell(w) {
   return `<td class="num hide-sm">${w.versions ? '+' + w.versions : ''}</td>`;
 }
 
+// The PDF for a LaTeX work, the Google Drive page for a Drive work.
+function openLink(w, primary = false) {
+  const cls = primary ? 'btn btn-primary' : 'btn btn-sm';
+  if (w.webUrl) return `<a class="${cls}" href="${esc(w.webUrl)}" target="_blank" rel="noopener">${primary ? 'Open in Drive' : 'Drive'}</a>`;
+  return `<a class="${cls}" href="/pdf/${w.n}" target="_blank" rel="noopener">${primary ? 'Open PDF' : 'PDF'}</a>`;
+}
+
 // ───────────────────────── header ─────────────────────────
 
 async function refreshHeader() {
@@ -95,14 +102,14 @@ async function viewQueue() {
   if (!waiting) html += `<div class="panel"><div class="empty">Nothing waiting for review.</div></div>`;
   for (const f of q.folders) {
     html += `
-      <section class="panel" data-folder="${esc(f.folder)}/">
+      <section class="panel" data-folder="${esc(f.prefix)}">
         <div class="panel-head">
-          <h3>${esc(f.folder)}/</h3><span class="muted small">${f.works.length}</span>
+          <h3>${esc(f.label)}</h3><span class="muted small">${f.works.length}</span>
           <span class="actions">
             <button class="btn btn-sm btn-approve" data-folder-decide="approved"
-              title="Approve every work in ${esc(f.folder)}/, and anything found there later">Approve folder</button>
+              title="Approve every work in ${esc(f.label)}, and anything found there later">Approve folder</button>
             <button class="btn btn-sm" data-folder-decide="ignored"
-              title="Ignore every work in ${esc(f.folder)}/, and anything found there later">Ignore folder</button>
+              title="Ignore every work in ${esc(f.label)}, and anything found there later">Ignore folder</button>
           </span>
         </div>
         <table class="works"><tbody>
@@ -115,7 +122,7 @@ async function viewQueue() {
               <td class="num nowrap hide-sm">${w.pages}p</td>
               ${versionsCell(w)}
               <td class="row-actions">
-                <a class="btn btn-sm" href="/pdf/${w.n}" target="_blank" rel="noopener">PDF</a>
+                ${openLink(w)}
                 <button class="btn btn-sm btn-approve" data-decide="approved">Approve</button>
                 <button class="btn btn-sm" data-decide="ignored">Ignore</button>
               </td>
@@ -131,7 +138,7 @@ async function viewQueue() {
         <table class="works"><tbody>
           ${q.rules.map(r => `
             <tr><td class="nowrap"><span class="chip st-${esc(r.decision)}">${esc(r.decision)}</span></td>
-              <td class="mono">${esc(r.prefix.replace(/^tex:/, ''))}</td>
+              <td class="mono">${esc(r.label)}</td>
               <td class="muted small nowrap">${esc((r.at || '').slice(0, 10))}</td>
               <td class="row-actions"><button class="btn btn-sm" data-forget="${esc(r.prefix)}"
                 title="Remove the rule and put its works back in the queue">Forget</button></td></tr>`).join('')}
@@ -248,7 +255,7 @@ async function viewWork(n) {
   const canDecide = !w.excluded;
   const headLink = w.head ? '' : `<a href="#/work/${w.headN}">newest version (${w.headN})</a>`;
   const actions = [];
-  if (w.hasPdf) actions.push(`<a class="btn btn-primary" href="/pdf/${w.n}" target="_blank" rel="noopener">Open PDF</a>`);
+  if (w.hasPdf || w.webUrl) actions.push(openLink(w, true));
   if (canDecide) {
     const st = w.headState;
     if (st !== 'approved' && st !== 'summarized') actions.push(`<button class="btn btn-approve" data-decide="approved">Approve</button>`);
@@ -290,7 +297,7 @@ async function viewWork(n) {
           <td class="nowrap">${esc(v.date)}</td>
           ${titleCell(v)}
           <td class="num nowrap">${v.pages}p</td>
-          <td class="row-actions"><a class="btn btn-sm" href="/pdf/${v.n}" target="_blank" rel="noopener">PDF</a></td>
+          <td class="row-actions">${openLink(v)}</td>
         </tr>`).join('')}</tbody></table>
     </section>` : ''}
 
@@ -300,7 +307,9 @@ async function viewWork(n) {
         <dt>id</dt><dd class="mono">${esc(w.id)}</dd>
         ${w.foundTitle !== w.title ? `<dt>title as found</dt><dd>${esc(w.foundTitle)}</dd>` : ''}
         ${w.excluded ? `<dt>excluded</dt><dd>${esc(w.excluded)}</dd>` : ''}
-        <dt>document class</dt><dd>${esc(w.meta.docclass)}</dd>
+        ${w.meta.docclass ? `<dt>document class</dt><dd>${esc(w.meta.docclass)}</dd>` : ""}
+        ${w.meta.owners ? `<dt>owners</dt><dd>${esc(w.meta.owners)}</dd>` : ""}
+        ${w.meta.modified ? `<dt>last modified</dt><dd>${esc(w.meta.modified.replace("T", " ").slice(0, 16))}</dd>` : ""}
         ${w.meta.tex_author ? `<dt>author (tex)</dt><dd>${esc(w.meta.tex_author)}</dd>` : ''}
         ${w.meta.tex_date ? `<dt>\\date</dt><dd>${esc(w.meta.tex_date)}</dd>` : ''}
         ${w.meta.pdf_author ? `<dt>author (pdf)</dt><dd>${esc(w.meta.pdf_author)}</dd>` : ''}

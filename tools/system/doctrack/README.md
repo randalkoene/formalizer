@@ -3,9 +3,9 @@
 A catalog of Randal's own writings and presentations, by topic and date.
 Design and open questions: Node 20261015131453.1 and its linked Claude Doc.
 
-**Status:** scanner for `~/doc/tex`, SQLite store with keyword search, review
-queue, summaries written in a Claude Code session, and a browser UI. Google
-Drive and the CV come next.
+**Status:** scanners for `~/doc/tex` and Google Drive, SQLite store with
+keyword search, review queue, summaries written in a Claude Code session, and a
+browser UI. The CV comes next.
 
 Everything is stored in `cache/doctrack.db` (gitignored). Set `DOCTRACK_DB` to
 use another database file, e.g. for testing.
@@ -15,6 +15,7 @@ use another database file, e.g. for testing.
 - `doctrack.py`: the command line
 - `scanner.py`: finds works in a LaTeX tree, reads titles, dates and PDF text,
   guesses kind and exclusions, groups versions into families
+- `drive.py`: finds works in Google Drive (read-only) and exports their text
 - `store.py`: the SQLite schema and all database access
 - `serve.py` and `web/`: the browser UI on http://127.0.0.1:8713
 - `doctrack-start.py`, `doctrack-cgi.py`: start the UI from the dashboard
@@ -51,7 +52,9 @@ Summarizing is not done from the UI: it stays in a Claude Code session.
 ## Commands
 
 ```
-./doctrack.py scan                   # find works in ~/doc/tex (incremental)
+./doctrack.py scan                   # find works in ~/doc/tex and Google Drive (incremental)
+./doctrack.py scan --source drive    # only one source: tex or drive
+./doctrack.py drive-auth             # one-time read-only Drive authorization (opens a browser)
 ./doctrack.py list                   # one line per family head, oldest first
 ./doctrack.py list --state new --kind slides
 ./doctrack.py list --excluded        # what is left out, and why
@@ -106,6 +109,36 @@ A re-scan re-reads every `.tex` (cheap), but runs `pdfinfo` and `pdftotext` only
 for works whose `.tex` or PDF changed in size or modification time, or when
 `TEXT_VERSION` in `scanner.py` was raised because text extraction changed. Works that
 disappear are marked missing, not deleted.
+
+## Google Drive
+
+`drive-auth` asks Google for a token with only the `drive.readonly` scope, so
+Google rejects any change to Drive. It uses the OAuth client that daywiz and
+inbox-triage already use (`~/.formalizer/config/daywiz/credentials.json`) and
+keeps its own token in `~/.formalizer/config/doctrack/drive-token.json`, apart
+from the Gmail tokens. The Google Cloud project behind that client must have the
+Google Drive API enabled.
+
+A scan lists Google Docs, Google Slides, `.docx` and `.pptx` files in My Drive,
+the shared drives, and files shared with you. Its id is `gdrive:` plus the file
+id; its path is the drive, folders and title, e.g. `My Drive/Papers/Draft`.
+
+- **Yours:** a file counts when you own it, were the last to modify it, or
+  appear in its revision history (one extra request per file, made only when
+  the first two do not settle it). Other files are recorded as `not mine` and
+  not checked again until they change.
+- **Left out by name:** titles and folder names are matched locally against
+  word lists in `drive.py`: `INTERNAL` (finance, budgets, meeting notes, HR,
+  contracts, policies, templates ...) and `JOB_APPLICATION`. `KEEP` words
+  (proposal, grant, application, paper, abstract, presentation ...) in a title
+  override both. Files left out this way are never exported.
+- **Too short:** under 300 words after export; their text is not kept.
+- **Date:** the Drive creation date.
+
+Drive works go through the same review queue, grouped by drive and top folder.
+Folder rules match on source and path, so `approve --folder 'gdrive:My Drive/Papers/'`
+works as it does for LaTeX folders. Titles of files being read are printed to
+stderr only; the scan's summary line on stdout gives counts.
 
 ## The review queue and what leaves this machine
 

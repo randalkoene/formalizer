@@ -114,6 +114,8 @@ JOB = Job()
 
 def row(w, sizes, tags=None, areas=None):
     return {
+        "source": w["source"],
+        "webUrl": json.loads(w["meta"] or "{}").get("web_url", "") if w["source"] == "gdrive" else "",
         "areas": areas if areas is not None else [],
         "n": w["n"], "id": w["id"], "title": store.display_title(w), "foundTitle": w["title"],
         "kind": w["kind"], "date": w["date"],
@@ -200,7 +202,8 @@ def work_detail(db, n):
     out = row(w, sizes, store.tags_of(db, w["family"]), store.areas_of(db, w["family"]))
     meta = json.loads(w["meta"] or "{}")
     out["meta"] = {k: meta.get(k, "") for k in ("docclass", "tex_author", "tex_date", "pdf_author",
-                                                 "has_abstract")}
+                                                 "has_abstract", "modified")}
+    out["meta"]["owners"] = ", ".join(meta.get("owners", []))
     out["dateSource"] = w["date_source"]
     out["files"] = [{"role": f["role"], "path": f["path"]}
                     for f in db.execute("SELECT role, path FROM files WHERE work_id = ?", (w["id"],))]
@@ -220,10 +223,12 @@ def queue(db):
     sizes = store.family_sizes(db)
     folders = {}
     for w in store.queued(db):
-        folders.setdefault(w["path"].split("/")[0], []).append(row(w, sizes))
+        folders.setdefault(store.queue_group(w), []).append(row(w, sizes))
     return {
-        "folders": [{"folder": f, "works": folders[f]} for f in sorted(folders, key=str.lower)],
-        "rules": [dict(r) for r in db.execute("SELECT * FROM rules ORDER BY prefix")],
+        "folders": [{"prefix": f, "label": store.group_label(f), "works": folders[f]}
+                    for f in sorted(folders, key=str.lower)],
+        "rules": [dict(r, label=store.group_label(r["prefix"]))
+                  for r in db.execute("SELECT * FROM rules ORDER BY prefix")],
         "approvedWaiting": len(store.works(db, "missing = 0 AND excluded = '' AND family = id "
                                                 "AND state = 'approved'")),
     }

@@ -258,11 +258,24 @@ def families(works, texts):
             x = parent[x]
         return x
 
+    # Candidate pairs share at least 3 sampled 5-grams; only those are compared
+    # in full. 5-grams found in very many works (letterheads, boilerplate) are
+    # no evidence and are skipped.
     ids = [w["id"] for w in works if len(sh[w["id"]]) >= 20]
-    for i, a in enumerate(ids):
-        sa = sh[a]
-        for b in ids[i + 1:]:
-            sb = sh[b]
+    index = {}
+    for wid in ids:
+        for s in sh[wid]:
+            if s % 8 == 0:
+                index.setdefault(s, []).append(wid)
+    shared = {}
+    for bucket in index.values():
+        if 1 < len(bucket) <= 50:
+            for i, a in enumerate(bucket):
+                for b in bucket[i + 1:]:
+                    shared[(a, b)] = shared.get((a, b), 0) + 1
+    for (a, b), n in shared.items():
+        if n >= 3:
+            sa, sb = sh[a], sh[b]
             small, large = (sa, sb) if len(sa) <= len(sb) else (sb, sa)
             if len(small) < FAMILY_THRESHOLD * len(large):
                 continue  # Jaccard cannot reach the threshold

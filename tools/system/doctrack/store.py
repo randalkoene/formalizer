@@ -199,10 +199,29 @@ def mark_missing(db, source, seen_ids):
 
 # ---------- queue ----------
 
-def rule_for(db, work_id):
-    """The decision of the longest folder rule that covers work_id, or None."""
-    r = db.execute("SELECT decision FROM rules WHERE ? LIKE prefix || '%' ORDER BY LENGTH(prefix) DESC LIMIT 1",
-                   (work_id,)).fetchone()
+def location(w):
+    """Where a work lives, as folder rules see it: 'tex:SFN-2003/...' or 'gdrive:My Drive/...'."""
+    return f"{w['source']}:{w['path']}"
+
+
+def queue_group(w):
+    """The folder a work is listed under in the queue, as a rule prefix ending in '/'.
+
+    TeX works group by their top folder; Drive works by drive and top folder.
+    """
+    parts = w["path"].split("/")[:-1]
+    depth = 2 if w["source"] == "gdrive" else 1
+    return f"{w['source']}:{'/'.join(parts[:depth])}/" if parts else f"{w['source']}:"
+
+
+def group_label(prefix):
+    return prefix.replace("gdrive:", "Drive: ", 1).replace("tex:", "", 1)
+
+
+def rule_for(db, w):
+    """The decision of the longest folder rule that covers work w, or None."""
+    r = db.execute("SELECT decision FROM rules WHERE substr(?, 1, length(prefix)) = prefix "
+                   "ORDER BY length(prefix) DESC LIMIT 1", (location(w),)).fetchone()
     return r["decision"] if r else None
 
 
@@ -211,7 +230,7 @@ def refresh_states(db):
     for w in works(db, "excluded = '' AND missing = 0 AND family = id"):
         state = w["state"]
         if state == "new":
-            state = rule_for(db, w["id"]) or "new"
+            state = rule_for(db, w) or "new"
         if state == "summarized":
             s = db.execute("SELECT text_hash FROM summaries WHERE work_id = ?", (w["id"],)).fetchone()
             if not s or s["text_hash"] != w["text_hash"]:
@@ -244,7 +263,8 @@ def decide(db, state, keys=(), folder=None, all_new=False):
             db.execute("DELETE FROM rules WHERE prefix = ?", (prefix,))
         else:
             add_rule(db, prefix, state)
-        hits = works(db, "missing = 0 AND excluded = '' AND family = id AND id LIKE ? || '%'", (prefix,))
+        hits = works(db, "missing = 0 AND excluded = '' AND family = id "
+                     "AND substr(source || ':' || path, 1, length(?)) = ?", (prefix, prefix))
         targets = [w for w in hits if w["state"] in ("new", "approved", "ignored")]
     elif all_new:
         targets = queued(db)
