@@ -18,13 +18,14 @@
   <nav class="tabs" role="tablist">
     <a class="tab" href="#/queue" data-view="queue">Queue <span class="tab-count" id="count-queue"></span></a>
     <a class="tab" href="#/catalog" data-view="catalog">Catalog</a>
+    <a class="tab" href="#/aside" data-view="aside">Set aside <span class="tab-count tab-count-quiet" id="count-aside"></span></a>
     <a class="tab" href="#/tags" data-view="tags">Tags</a>
     <a class="tab" href="#/sent" data-view="sent">Sent</a>
   </nav>
 
   <div class="topbar-right">
     <span id="scan-stamp" class="stamp"></span>
-    <button id="scan" class="btn" title="Re-scan ~/doc/tex. Reads only files that changed; local only.">Scan</button>
+    <button id="scan" class="btn" title="Re-scan ~/doc/tex and Google Drive. Reads only files that changed.">Scan</button>
     <button id="theme" class="btn btn-icon" title="Toggle light / dark" aria-label="Toggle theme">◐</button>
     <button id="stop-server" class="btn btn-icon btn-stop" title="Stop the doctrack server. Nothing is lost; the dashboard button starts it again." aria-label="Stop server">⏻</button>
   </div>

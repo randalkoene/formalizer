@@ -35,15 +35,17 @@ fzserverpq to run `doctrack-start.py` as you via `CGIbg_run_as_user` (it must be
 listed in `predefined_CGIbg`). Started that way, the server runs detached, logs
 to `cache/serve.log`, and exits after 180 idle minutes. The **⏻** button stops it.
 
-- **Queue:** works waiting for review, grouped by folder. Approve or ignore one
-  work, or a whole folder (saved as a rule for works found there later), or
-  approve everything waiting. Each row links to its PDF.
+- **Queue:** works waiting for review, grouped by folder. Approve, ignore or set
+  aside one work, or a whole folder (saved as a rule for works found there
+  later), or approve everything waiting. Each row links to its PDF or Drive page.
 - **Catalog:** full-text search with highlighted snippets, and filters by
   state, kind, decade and tag. Shows versions and excluded works on request.
 - **Work page:** summary and tags, versions, files, PDF, and the queue actions.
+- **Set aside:** works kept apart from the catalog for later attention, by folder,
+  each with a link and a way back to the queue.
 - **Tags:** the vocabulary with counts; merge one tag into another.
 - **Sent:** every batch of text handed out for summarizing.
-- **Scan** re-scans `~/doc/tex` in the background.
+- **Scan** re-scans `~/doc/tex` and Google Drive in the background.
 
 The server listens on 127.0.0.1 only, refuses POSTs from other sites, and serves
 a PDF only when it belongs to a catalogued work and lies under `~/doc/tex`.
@@ -67,6 +69,8 @@ Summarizing is not done from the UI: it stays in a Claude Code session.
 ./doctrack.py approve 4 5 6          # may be summarized by Claude
 ./doctrack.py approve --folder SFN-  # every work below SFN-*, now and later
 ./doctrack.py ignore 13              # searchable, never summarized
+./doctrack.py aside 412              # kept apart for later, e.g. a CCF library item (also --folder)
+./doctrack.py list --state aside     # what was set aside
 ./doctrack.py unreview 13            # back to the queue
 ./doctrack.py rules                  # remembered folder decisions
 
@@ -142,14 +146,20 @@ stderr only; the scan's summary line on stdout gives counts.
 
 ## The review queue and what leaves this machine
 
-Each family head has a state: `new` (waiting for review), `approved`, `ignored`
-or `summarized`. Folder decisions are saved as rules, so works that appear later
+Each family head has a state: `new` (waiting for review), `approved`, `ignored`,
+`summarized` or `aside`. Folder decisions are saved as rules, so works that appear later
 under that folder get the same state without asking.
 
 Document text leaves the machine only through `batch`, which prints the text
 of approved works, at most `--max-chars` (24000) per work: the start and the end
 of a long text. Each call is logged; `sent` shows the log. `summarize` accepts
 summaries only for works that are approved and were handed out by `batch`.
+
+`aside` is for documents that are not your writing but deserve attention later,
+such as items from the CCF library: they are left out of catalog listings and
+search (unless asked for with `--state aside` or the state filter), are never
+summarized, and are listed on their own page. Their text stays in the store, so
+a later tool for the CCF library can use it.
 
 When the text of a summarized work changes, it goes back to `approved`, so the
 next `batch` picks it up again.

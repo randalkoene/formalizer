@@ -1,5 +1,5 @@
 // Doc Track — local UI for the doctrack catalog.
-// Views are hash routes: #/queue, #/catalog?..., #/work/<n>, #/tags, #/sent.
+// Views are hash routes: #/queue, #/catalog?..., #/work/<n>, #/aside, #/tags, #/sent.
 
 'use strict';
 
@@ -13,7 +13,8 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g,
 // Search snippets arrive with \x01 ... \x02 around each hit.
 const snippet = s => esc(s).replace(/\x01/g, '<mark>').replace(/\x02/g, '</mark>');
 
-const STATE_LABEL = { new: 'waiting', approved: 'approved', ignored: 'ignored', summarized: 'summarized' };
+const STATE_LABEL = { new: 'waiting', approved: 'approved', ignored: 'ignored', summarized: 'summarized',
+  aside: 'set aside' };
 
 async function api(path, body) {
   const opts = body === undefined ? {} : {
@@ -71,6 +72,7 @@ async function refreshHeader() {
   try {
     const ov = await api('/api/overview');
     $('#count-queue').textContent = ov.states.new || '';
+    $('#count-aside').textContent = ov.states.aside || '';
     $('#scan-stamp').textContent = ov.lastScan ? 'scanned ' + ov.lastScan.replace('T', ' ').slice(0, 16) : '';
     return ov;
   } catch (e) { return null; }
@@ -94,6 +96,7 @@ async function viewQueue() {
       <div class="count"><b class="st-approved">${ov.states.approved}</b><span>approved</span></div>
       <div class="count"><b class="st-summarized">${ov.states.summarized}</b><span>summarized</span></div>
       <div class="count"><b class="st-ignored">${ov.states.ignored}</b><span>ignored</span></div>
+      <div class="count"><b class="st-aside">${ov.states.aside}</b><span>set aside</span></div>
     </div>`;
   if (q.approvedWaiting) {
     html += `<div class="hint">${q.approvedWaiting} approved works wait for a summary. Summaries are written
@@ -110,6 +113,8 @@ async function viewQueue() {
               title="Approve every work in ${esc(f.label)}, and anything found there later">Approve folder</button>
             <button class="btn btn-sm" data-folder-decide="ignored"
               title="Ignore every work in ${esc(f.label)}, and anything found there later">Ignore folder</button>
+            <button class="btn btn-sm" data-folder-decide="aside"
+              title="Set aside every work in ${esc(f.label)}, and anything found there later">Set aside folder</button>
           </span>
         </div>
         <table class="works"><tbody>
@@ -125,6 +130,8 @@ async function viewQueue() {
                 ${openLink(w)}
                 <button class="btn btn-sm btn-approve" data-decide="approved">Approve</button>
                 <button class="btn btn-sm" data-decide="ignored">Ignore</button>
+                <button class="btn btn-sm" data-decide="aside"
+                  title="Not your writing, but worth attention later (e.g. CCF library)">Set aside</button>
               </td>
             </tr>`).join('')}
         </tbody></table>
@@ -154,7 +161,8 @@ async function viewQueue() {
   $$('[data-folder-decide]').forEach(b => b.onclick = async () => {
     const folder = b.closest('section').dataset.folder;
     const state = b.dataset.folderDecide;
-    if (!confirm(`${state === 'approved' ? 'Approve' : 'Ignore'} everything in ${folder}, including works found there later?`)) return;
+    const verb = { approved: 'Approve', ignored: 'Ignore', aside: 'Set aside' }[state];
+    if (!confirm(`${verb} everything in ${folder}, including works found there later?`)) return;
     await decide({ state, folder });
   });
   $$('[data-forget]').forEach(b => b.onclick = async () => {
@@ -171,7 +179,7 @@ async function viewQueue() {
 async function decide(body) {
   try {
     const r = await api('/api/decide', body);
-    toast(`${r.count} ${r.count === 1 ? 'work' : 'works'} ${body.state === 'new' ? 'back in the queue' : body.state}`);
+    toast(`${r.count} ${r.count === 1 ? 'work' : 'works'} ${body.state === 'new' ? 'back in the queue' : STATE_LABEL[body.state]}`);
     await route();
   } catch (e) { toast(e.message, true); }
 }
@@ -195,7 +203,7 @@ async function viewCatalog() {
     </div>
     <form class="filters" id="filters">
       <input type="search" name="q" placeholder='Search the full text, e.g. substrate  or  "whole brain"' value="${esc(p.get('q') || '')}">
-      <select name="state">${opt(['new', 'approved', 'ignored', 'summarized'], p.get('state'), 'any state')}</select>
+      <select name="state">${opt(['new', 'approved', 'ignored', 'summarized', 'aside'], p.get('state'), 'any state')}</select>
       <select name="kind">${opt(Object.keys(ov.kinds).sort(), p.get('kind'), 'any kind')}</select>
       <select name="decade">${opt(Object.keys(ov.decades).sort(), p.get('decade'), 'any decade')}</select>
       <select name="area">${opt(Object.keys(ov.areas), p.get('area'), 'any area')}</select>
@@ -260,6 +268,7 @@ async function viewWork(n) {
     const st = w.headState;
     if (st !== 'approved' && st !== 'summarized') actions.push(`<button class="btn btn-approve" data-decide="approved">Approve</button>`);
     if (st !== 'ignored') actions.push(`<button class="btn" data-decide="ignored">Ignore</button>`);
+    if (st !== 'aside') actions.push(`<button class="btn" data-decide="aside" title="Not your writing, but worth attention later (e.g. CCF library)">Set aside</button>`);
     if (st !== 'new') actions.push(`<button class="btn" data-decide="new" title="Back to the review queue">Back to queue</button>`);
   }
   const s = w.summary;
@@ -284,6 +293,7 @@ async function viewWork(n) {
             : `<span class="muted">${w.excluded ? 'Excluded works are not summarized.'
                 : w.headState === 'approved' ? 'Approved; waiting for a summary in a Claude Code session (doctrack.py batch).'
                 : w.headState === 'ignored' ? 'Ignored: searchable, but not summarized.'
+                : w.headState === 'aside' ? 'Set aside for later attention: kept out of the catalog and never summarized.'
                 : 'Not reviewed yet. Approve it to have it summarized.'}</span>`}
       </div>
     </section>
@@ -322,10 +332,48 @@ async function viewWork(n) {
     try {
       const st = b.dataset.decide;
       await api('/api/decide', { state: st, works: [w.headN] });
-      toast(st === 'new' ? 'Back in the queue' : st[0].toUpperCase() + st.slice(1));
+      toast(st === 'new' ? 'Back in the queue' : STATE_LABEL[st][0].toUpperCase() + STATE_LABEL[st].slice(1));
       refreshHeader();
       viewWork(n);
     } catch (e) { toast(e.message, true); }
+  });
+}
+
+// ───────────────────────── set aside ─────────────────────────
+
+async function viewAside() {
+  const { folders } = await api('/api/aside');
+  const count = folders.reduce((n, f) => n + f.works.length, 0);
+  let html = `
+    <div class="view-head">
+      <h2>Set aside</h2>
+      <span class="lead">${count} ${count === 1 ? 'work' : 'works'} kept apart from the catalog for later
+        attention, such as CCF library items. Not summarized, not in catalog search.</span>
+    </div>`;
+  if (!count) html += `<div class="panel"><div class="empty">Nothing set aside. Use Set aside in the queue.</div></div>`;
+  for (const f of folders) {
+    html += `
+      <section class="panel">
+        <div class="panel-head"><h3>${esc(f.label)}</h3><span class="muted small">${f.works.length}</span></div>
+        <table class="works"><tbody>
+          ${f.works.map(w => `
+            <tr data-n="${w.n}">
+              <td class="num nowrap muted">${w.n}</td>
+              <td class="nowrap">${esc(w.date.slice(0, 7))}</td>
+              <td class="nowrap hide-sm">${esc(w.kind)}</td>
+              ${titleCell(w)}
+              <td class="num nowrap hide-sm">${w.pages}p</td>
+              <td class="row-actions">
+                ${openLink(w)}
+                <button class="btn btn-sm" data-decide="new" title="Back to the review queue">Back to queue</button>
+              </td>
+            </tr>`).join('')}
+        </tbody></table>
+      </section>`;
+  }
+  main.innerHTML = html;
+  $$('[data-decide]').forEach(b => b.onclick = async () => {
+    await decide({ state: 'new', works: [Number(b.closest('tr').dataset.n)] });
   });
 }
 
@@ -407,6 +455,7 @@ async function route() {
   try {
     if (view === 'catalog') await viewCatalog();
     else if (view === 'work') await viewWork(arg);
+    else if (view === 'aside') await viewAside();
     else if (view === 'tags') await viewTags();
     else if (view === 'sent') await viewSent();
     else await viewQueue();

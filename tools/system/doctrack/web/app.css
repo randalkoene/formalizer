@@ -22,6 +22,7 @@
   --st-approved: #2a78d6;
   --st-ignored: #9b988f;
   --st-summarized: #008300;
+  --st-aside: #8a5cc9;
 
   --radius: 10px;
   --radius-sm: 6px;
@@ -47,6 +48,7 @@
     --neg: #e66767;
     --st-approved: #3987e5;
     --st-summarized: #4fbf4f;
+    --st-aside: #a988e0;
   }
 }
 
@@ -67,6 +69,7 @@
   --neg: #e66767;
   --st-approved: #3987e5;
   --st-summarized: #4fbf4f;
+  --st-aside: #a988e0;
 }
 
 * { box-sizing: border-box; }
@@ -117,6 +120,7 @@ code, .mono { font-family: var(--mono); font-size: 12px; }
   font-size: 11px; font-weight: 600; color: var(--surface-2);
   background: var(--st-new); border-radius: 999px; padding: 0 6px; margin-left: 2px;
 }
+.tab-count-quiet { background: var(--st-aside); }
 .tab-count:empty { display: none; }
 .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .stamp { font-size: 11px; color: var(--text-muted); }
@@ -148,6 +152,7 @@ code, .mono { font-family: var(--mono); font-size: 12px; }
 .st-approved { color: var(--st-approved); }
 .st-ignored { color: var(--st-ignored); }
 .st-summarized { color: var(--st-summarized); }
+.st-aside { color: var(--st-aside); }
 .st-excluded, .st-version { color: var(--text-muted); }
 
 .tag {

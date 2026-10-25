@@ -150,7 +150,7 @@ def overview(db):
         decades[d] = decades.get(d, 0) + 1
     last = db.execute("SELECT MAX(last_seen) FROM works").fetchone()[0]
     return {
-        "families": len(heads),
+        "families": len(heads) - states["aside"],
         "works": db.execute("SELECT COUNT(*) FROM works WHERE missing = 0 AND excluded = ''").fetchone()[0],
         "excluded": db.execute("SELECT COUNT(*) FROM works WHERE missing = 0 AND excluded != ''").fetchone()[0],
         "states": states, "kinds": kinds, "decades": decades, "lastScan": last,
@@ -177,6 +177,8 @@ def list_works(db, q):
     params = []
     if not one("versions"):
         where.append("family = id")
+    if not one("state") and not one("excluded"):
+        where.append(store.NOT_ASIDE)
     for col in ("state", "kind"):
         if one(col):
             where.append(f"{col} = ?")
@@ -219,14 +221,18 @@ def work_detail(db, n):
     return out
 
 
-def queue(db):
+def by_folder(db, rows):
     sizes = store.family_sizes(db)
     folders = {}
-    for w in store.queued(db):
+    for w in rows:
         folders.setdefault(store.queue_group(w), []).append(row(w, sizes))
+    return [{"prefix": f, "label": store.group_label(f), "works": folders[f]}
+            for f in sorted(folders, key=str.lower)]
+
+
+def queue(db):
     return {
-        "folders": [{"prefix": f, "label": store.group_label(f), "works": folders[f]}
-                    for f in sorted(folders, key=str.lower)],
+        "folders": by_folder(db, store.queued(db)),
         "rules": [dict(r, label=store.group_label(r["prefix"]))
                   for r in db.execute("SELECT * FROM rules ORDER BY prefix")],
         "approvedWaiting": len(store.works(db, "missing = 0 AND excluded = '' AND family = id "
@@ -321,6 +327,8 @@ class Handler(BaseHTTPRequestHandler):
                     return self._send(400, {"error": f"search: {e}"})
             if path == "/api/queue":
                 return self._send(200, queue(db))
+            if path == "/api/aside":
+                return self._send(200, {"folders": by_folder(db, store.set_aside(db))})
             if path == "/api/tags":
                 return self._send(200, tags(db))
             if path == "/api/sent":
@@ -375,8 +383,8 @@ class Handler(BaseHTTPRequestHandler):
             body = self._body()
             if path == "/api/decide":
                 state = body.get("state")
-                if state not in ("approved", "ignored", "new"):
-                    return self._send(400, {"error": "state must be approved, ignored or new"})
+                if state not in ("approved", "ignored", "aside", "new"):
+                    return self._send(400, {"error": "state must be approved, ignored, aside or new"})
                 try:
                     count = store.decide(db, state, [str(n) for n in body.get("works", [])],
                                          body.get("folder") or None, bool(body.get("allNew")))

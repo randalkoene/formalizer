@@ -16,6 +16,8 @@ Queue states (works.state), for family heads that are not excluded
   new         found, not reviewed yet
   approved    may be sent to Claude for summarizing
   ignored     stays in the catalog for search, never summarized
+  aside       set apart from the catalog for later attention, e.g. CCF library
+              items: not listed or searched with the catalog, never summarized
   summarized  has a summary for its current text
 A summarized work whose text changes goes back to approved.
 """
@@ -29,7 +31,11 @@ HERE = os.path.dirname(os.path.realpath(__file__))
 CACHE_DIR = os.path.join(HERE, "cache")
 DB_FILE = os.environ.get("DOCTRACK_DB") or os.path.join(CACHE_DIR, "doctrack.db")
 
-STATES = ("new", "approved", "ignored", "summarized")
+STATES = ("new", "approved", "ignored", "summarized", "aside")
+
+# SQL condition for works whose family is not set aside (older versions keep
+# state 'new'; the family head carries the decision).
+NOT_ASIDE = "family NOT IN (SELECT id FROM works WHERE state = 'aside')"
 
 # Broad areas: every summarized work gets one or two of these, beside its
 # specific tags. Edit freely; a work keeps an area that is later removed here
@@ -77,7 +83,7 @@ CREATE TABLE IF NOT EXISTS files (
 CREATE VIRTUAL TABLE IF NOT EXISTS fulltext USING fts5(work_id UNINDEXED, title, body);
 CREATE TABLE IF NOT EXISTS rules (
     prefix   TEXT PRIMARY KEY,      -- work id prefix, e.g. tex:SFN-
-    decision TEXT NOT NULL,         -- approved, ignored
+    decision TEXT NOT NULL,         -- approved, ignored, aside
     at       TEXT
 );
 CREATE TABLE IF NOT EXISTS summaries (
@@ -265,7 +271,7 @@ def decide(db, state, keys=(), folder=None, all_new=False):
             add_rule(db, prefix, state)
         hits = works(db, "missing = 0 AND excluded = '' AND family = id "
                      "AND substr(source || ':' || path, 1, length(?)) = ?", (prefix, prefix))
-        targets = [w for w in hits if w["state"] in ("new", "approved", "ignored")]
+        targets = [w for w in hits if w["state"] in ("new", "approved", "ignored", "aside")]
     elif all_new:
         targets = queued(db)
     else:
@@ -283,6 +289,10 @@ def decide(db, state, keys=(), folder=None, all_new=False):
     set_state(db, [w["id"] for w in targets], state)
     refresh_states(db)
     return len(targets)
+
+
+def set_aside(db):
+    return works(db, "missing = 0 AND excluded = '' AND family = id AND state = 'aside'")
 
 
 def family_sizes(db):
@@ -375,7 +385,8 @@ def search(db, query, limit=20, mark=("[", "]")):
     for w in db.execute(
             "SELECT w.*, snippet(fulltext, 2, ?, ?, ' ... ', 12) AS snip FROM fulltext "
             "JOIN works w ON w.id = fulltext.work_id "
-            "WHERE fulltext MATCH ? AND w.excluded = '' AND w.missing = 0 ORDER BY rank LIMIT ?",
+            "WHERE fulltext MATCH ? AND w.excluded = '' AND w.missing = 0 AND w." + NOT_ASIDE +
+            " ORDER BY rank LIMIT ?",
             (mark[0], mark[1], query, limit * 5)):
         if w["family"] not in families and len(rows) < limit:
             families.add(w["family"])

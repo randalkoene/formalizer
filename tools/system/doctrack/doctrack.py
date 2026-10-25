@@ -21,6 +21,9 @@ Review queue
   doctrack.py approve --folder P    ... every work whose path starts with P, now and later
                                     (P as 'queue' prints it, e.g. 'gdrive:My Drive/Papers/')
   doctrack.py ignore <n>...         keep for search, never summarize (also --folder)
+  doctrack.py aside <n>...          set apart from the catalog for later attention, e.g.
+                                    CCF library items; never summarized (also --folder;
+                                    see them with: list --state aside)
   doctrack.py unreview <n>...       back to the queue
   doctrack.py rules                 the remembered folder decisions
 
@@ -44,7 +47,7 @@ import scanner
 import store
 
 DEFAULT_ROOT = os.path.expanduser("~/doc/tex")
-STATE_MARK = {"new": "N", "approved": "A", "ignored": "I", "summarized": "S"}
+STATE_MARK = {"new": "N", "approved": "A", "ignored": "I", "summarized": "S", "aside": "X"}
 
 
 # ---------- scan ----------
@@ -240,6 +243,8 @@ def cmd_list(db, args):
     if args.state:
         where.append("state = ?")
         params.append(args.state)
+    elif not args.excluded:
+        where.append(store.NOT_ASIDE)
     if args.area:
         where.append("family IN (SELECT work_id FROM work_areas WHERE area = ?)")
         params.append(args.area)
@@ -250,7 +255,8 @@ def cmd_list(db, args):
         rows = sorted(rows, key=lambda w: (w["kind"], w["date"]))
     for w in rows:
         print(line(db, w) + (f"  ({w['excluded']})" if args.excluded else ""))
-    print(f"\n{len(rows)} shown. State: N new, A approved, I ignored, S summarized. "
+    print(f"\n{len(rows)} shown. State: N new, A approved, I ignored, S summarized, X set aside "
+          "(shown only with --state aside). "
           "'+k' = k other versions; '?' = 'Koene' not on the first pages.")
 
 
@@ -347,7 +353,7 @@ def cmd_queue(db, args):
         print(f"{store.group_label(folder)}  ({len(folders[folder])})  --folder '{folder}'")
         for w in folders[folder]:
             print("  " + line(db, w))
-    print(f"\n{len(rows)} works waiting. approve or ignore them by number, or by --folder prefix.")
+    print(f"\n{len(rows)} works waiting. approve, ignore or aside them by number, or by --folder prefix.")
 
 
 def decide(db, args, state):
@@ -358,7 +364,7 @@ def decide(db, args, state):
     db.commit()
     rule = "" if not args.folder else \
         f" Rule for {args.folder} removed." if state == "new" else f" Rule saved for {args.folder}."
-    print(f"{count} works now {state}.{rule}")
+    print(f"{count} works now {'set aside' if state == 'aside' else state}.{rule}")
 
 
 def cmd_rules(db, args):
@@ -490,7 +496,7 @@ def main():
     s = sub.add_parser("export")
     s.add_argument("file")
     sub.add_parser("queue")
-    for name in ("approve", "ignore", "unreview"):
+    for name in ("approve", "ignore", "aside", "unreview"):
         s = sub.add_parser(name)
         s.add_argument("works", nargs="*")
         s.add_argument("--folder", help="path prefix below the root, e.g. SFN- or AGI-2010/")
@@ -518,10 +524,11 @@ def main():
         import drive
         drive.authorize()
         print(f"Drive token saved to {drive.TOKEN_PATH} (scope: drive.readonly).")
-    elif args.cmd in ("approve", "ignore", "unreview"):
+    elif args.cmd in ("approve", "ignore", "aside", "unreview"):
         if not (args.works or args.folder or args.all_new):
             sys.exit("give work numbers, --folder or --all-new")
-        decide(db, args, {"approve": "approved", "ignore": "ignored", "unreview": "new"}[args.cmd])
+        decide(db, args, {"approve": "approved", "ignore": "ignored", "aside": "aside",
+                         "unreview": "new"}[args.cmd])
     else:
         {"list": cmd_list, "show": cmd_show, "search": cmd_search, "stats": cmd_stats,
          "export": cmd_export, "queue": cmd_queue, "rules": cmd_rules, "batch": cmd_batch,
