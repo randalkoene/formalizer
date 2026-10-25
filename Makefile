@@ -141,6 +141,7 @@ EXECUTABLES += $(TOOLSPATH)/system/daywiz/calendar-info.py
 EXECUTABLES += $(TOOLSPATH)/system/daywiz/daywiz-autodata.py
 EXECUTABLES += $(TOOLSPATH)/system/earlywiz/earlywiz.py
 EXECUTABLES += $(TOOLSPATH)/system/inbox-triage/inbox-triage-start.py
+EXECUTABLES += $(TOOLSPATH)/system/doctrack/doctrack-start.py
 # fzclaude, fzclaude-guard and fzclaude-web-start are not linked here: 'make fzclaude-install'
 # installs copies that Claude cannot change (see tools/system/fzclaude/README.md).
 # EXECUTABLES += $(TOOLSPATH)/system/fzcatchup/fzcatchup
@@ -265,6 +266,7 @@ CGIEXE += $(TOOLSPATH)/system/daywiz/daywiz-autodata-cgi.py
 CGIEXE += $(TOOLSPATH)/system/daywiz/email-info-cgi.py
 CGIEXE += $(TOOLSPATH)/system/earlywiz/earlywiz.py
 CGIEXE += $(TOOLSPATH)/system/inbox-triage/inbox-triage-cgi.py
+CGIEXE += $(TOOLSPATH)/system/doctrack/doctrack-cgi.py
 CGIEXE += $(TOOLSPATH)/system/fzclaude/fzclaude-web-cgi.py
 CGIEXE += $(TOOLSPATH)/system/metrics/dayreview/dayreview_algorithm.py
 CGIEXE += $(TOOLSPATH)/system/metrics/dayreview/dayreview-cgi.py

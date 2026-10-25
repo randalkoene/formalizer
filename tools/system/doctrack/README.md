@@ -4,8 +4,8 @@ A catalog of Randal's own writings and presentations, by topic and date.
 Design and open questions: Node 20261015131453.1 and its linked Claude Doc.
 
 **Status:** scanner for `~/doc/tex`, SQLite store with keyword search, review
-queue, and summaries written in a Claude Code session. Google Drive, the CV and
-a browser UI come next.
+queue, summaries written in a Claude Code session, and a browser UI. Google
+Drive and the CV come next.
 
 Everything is stored in `cache/doctrack.db` (gitignored). Set `DOCTRACK_DB` to
 use another database file, e.g. for testing.
@@ -16,6 +16,37 @@ use another database file, e.g. for testing.
 - `scanner.py`: finds works in a LaTeX tree, reads titles, dates and PDF text,
   guesses kind and exclusions, groups versions into families
 - `store.py`: the SQLite schema and all database access
+- `serve.py` and `web/`: the browser UI on http://127.0.0.1:8713
+- `doctrack-start.py`, `doctrack-cgi.py`: start the UI from the dashboard
+
+## Browser UI
+
+```
+./serve.py                 # opens http://127.0.0.1:8713 in your browser
+./serve.py --status
+./serve.py --stop
+./serve.py --idle-exit 180 # quit after 3 hours without a request
+```
+
+From the Formalizer dashboard, the **Doc Track** button (Information) starts the
+server if needed and opens it. The button goes to `doctrack-cgi.py`, which asks
+fzserverpq to run `doctrack-start.py` as you via `CGIbg_run_as_user` (it must be
+listed in `predefined_CGIbg`). Started that way, the server runs detached, logs
+to `cache/serve.log`, and exits after 180 idle minutes. The **⏻** button stops it.
+
+- **Queue:** works waiting for review, grouped by folder. Approve or ignore one
+  work, or a whole folder (saved as a rule for works found there later), or
+  approve everything waiting. Each row links to its PDF.
+- **Catalog:** full-text search with highlighted snippets, and filters by
+  state, kind, decade and tag. Shows versions and excluded works on request.
+- **Work page:** summary and tags, versions, files, PDF, and the queue actions.
+- **Tags:** the vocabulary with counts; merge one tag into another.
+- **Sent:** every batch of text handed out for summarizing.
+- **Scan** re-scans `~/doc/tex` in the background.
+
+The server listens on 127.0.0.1 only, refuses POSTs from other sites, and serves
+a PDF only when it belongs to a catalogued work and lies under `~/doc/tex`.
+Summarizing is not done from the UI: it stays in a Claude Code session.
 
 ## Commands
 

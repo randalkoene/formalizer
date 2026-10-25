@@ -167,13 +167,10 @@ def cmd_show(db, args):
 
 
 def cmd_search(db, args):
-    rows, families = [], set()
-    for w in store.search(db, " ".join(args.words), args.limit * 5):
-        if w["family"] not in families and len(rows) < args.limit:
-            families.add(w["family"])
-            rows.append(w)
+    rows = store.search(db, " ".join(args.words), args.limit)
     for w in rows:
-        print(line(db, w))
+        # The best hit may be an older version; show the family head with its snippet.
+        print(line(db, store.work(db, w["family"]) or w))
         print(f"{'':>10}{' '.join(w['snip'].split())}")
     if not rows:
         print("no matches")
@@ -219,12 +216,8 @@ def cmd_export(db, args):
 
 # ---------- review queue ----------
 
-def queued(db):
-    return store.works(db, "missing = 0 AND excluded = '' AND family = id AND state = 'new'")
-
-
 def cmd_queue(db, args):
-    rows = queued(db)
+    rows = store.queued(db)
     folders = {}
     for w in rows:
         folders.setdefault(w["path"].split("/")[0], []).append(w)
@@ -236,28 +229,14 @@ def cmd_queue(db, args):
 
 
 def decide(db, args, state):
-    if args.folder:
-        prefix = args.folder if ":" in args.folder else "tex:" + args.folder
-        if state == "new":
-            db.execute("DELETE FROM rules WHERE prefix = ?", (prefix,))
-        else:
-            store.add_rule(db, prefix, state)
-        hits = store.works(db, "missing = 0 AND excluded = '' AND family = id AND id LIKE ? || '%'", (prefix,))
-        targets = [w for w in hits if w["state"] in ("new", "approved", "ignored")]
-    elif args.all_new:
-        targets = queued(db)
-    else:
-        targets = resolve(db, args.works)
-        for w in targets:
-            if w["excluded"]:
-                sys.exit(f"{w['n']} is excluded ({w['excluded']})")
-            if w["family"] != w["id"]:
-                sys.exit(f"{w['n']} is an older version; decide on its family head, "
-                         f"{store.work(db, w['family'])['n']}")
-    store.set_state(db, [w["id"] for w in targets], state)
-    store.refresh_states(db)
+    try:
+        count = store.decide(db, state, args.works, args.folder, args.all_new)
+    except ValueError as e:
+        sys.exit(str(e))
     db.commit()
-    print(f"{len(targets)} works now {state}." + (f" Rule saved for {args.folder}." if args.folder else ""))
+    rule = "" if not args.folder else \
+        f" Rule for {args.folder} removed." if state == "new" else f" Rule saved for {args.folder}."
+    print(f"{count} works now {state}.{rule}")
 
 
 def cmd_rules(db, args):

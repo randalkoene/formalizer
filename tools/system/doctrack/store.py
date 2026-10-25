@@ -199,6 +199,47 @@ def add_rule(db, prefix, decision):
     db.execute("INSERT OR REPLACE INTO rules VALUES (?, ?, ?)", (prefix, decision, now()))
 
 
+def queued(db):
+    return works(db, "missing = 0 AND excluded = '' AND family = id AND state = 'new'")
+
+
+def decide(db, state, keys=(), folder=None, all_new=False):
+    """Set the queue state of works given by number or id, a folder prefix, or
+    everything waiting. A folder decision is remembered as a rule; 'new' for a
+    folder removes its rule. Returns the number of works changed; raises
+    ValueError for a work that cannot be decided on. Does not commit."""
+    if folder:
+        prefix = folder if ":" in folder else "tex:" + folder
+        if state == "new":
+            db.execute("DELETE FROM rules WHERE prefix = ?", (prefix,))
+        else:
+            add_rule(db, prefix, state)
+        hits = works(db, "missing = 0 AND excluded = '' AND family = id AND id LIKE ? || '%'", (prefix,))
+        targets = [w for w in hits if w["state"] in ("new", "approved", "ignored")]
+    elif all_new:
+        targets = queued(db)
+    else:
+        targets = []
+        for k in keys:
+            w = work(db, k)
+            if not w:
+                raise ValueError(f"no work {k}")
+            if w["excluded"]:
+                raise ValueError(f"{w['n']} is excluded ({w['excluded']})")
+            if w["family"] != w["id"]:
+                raise ValueError(f"{w['n']} is an older version; decide on its family head, "
+                                 f"{work(db, w['family'])['n']}")
+            targets.append(w)
+    set_state(db, [w["id"] for w in targets], state)
+    refresh_states(db)
+    return len(targets)
+
+
+def family_sizes(db):
+    return {r["family"]: r["n"] for r in
+            db.execute("SELECT family, COUNT(*) AS n FROM works WHERE missing = 0 GROUP BY family")}
+
+
 # ---------- summaries and tags ----------
 
 def log_send(db, work_ids, chars, purpose):
@@ -259,8 +300,15 @@ def summary_of(db, work_id):
 
 # ---------- search ----------
 
-def search(db, query, limit=20):
-    return db.execute(
-        "SELECT w.*, snippet(fulltext, 2, '[', ']', ' ... ', 12) AS snip FROM fulltext "
-        "JOIN works w ON w.id = fulltext.work_id "
-        "WHERE fulltext MATCH ? AND w.excluded = '' ORDER BY rank LIMIT ?", (query, limit)).fetchall()
+def search(db, query, limit=20, mark=("[", "]")):
+    """Best match per family, best first. Raises sqlite3.OperationalError on a bad query."""
+    rows, families = [], set()
+    for w in db.execute(
+            "SELECT w.*, snippet(fulltext, 2, ?, ?, ' ... ', 12) AS snip FROM fulltext "
+            "JOIN works w ON w.id = fulltext.work_id "
+            "WHERE fulltext MATCH ? AND w.excluded = '' AND w.missing = 0 ORDER BY rank LIMIT ?",
+            (mark[0], mark[1], query, limit * 5)):
+        if w["family"] not in families and len(rows) < limit:
+            families.add(w["family"])
+            rows.append(w)
+    return rows

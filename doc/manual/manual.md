@@ -236,11 +236,16 @@ The dashboard is generated from `tools/system/top/index.json` (see
 - **Problems:** the Graph Condition section of the [FZ Admin](http://localhost/admin.html)
   page lists problematic target dates and other issues.
 
-### II.6 Inbox Triage
+### II.6 Inbox Triage and Doc Track
 
 Read-only sorting of unread mail into categories, with the reasons shown:
 [Inbox Triage](http://localhost/cgi-bin/inbox-triage-cgi.py),
 [README](https://github.com/randalkoene/formalizer/blob/master/tools/system/inbox-triage/README.md).
+
+A catalog of your own papers, talks and abstracts, with full-text search, a
+review queue, and summaries and topic tags written by Claude for approved works:
+[Doc Track](http://localhost/cgi-bin/doctrack-cgi.py),
+[README](https://github.com/randalkoene/formalizer/blob/master/tools/system/doctrack/README.md).
 
 ### II.7 Boards, graph views and planning
 
@@ -496,6 +501,7 @@ See the top-level [README](https://github.com/randalkoene/formalizer/blob/master
 | `schedule` | Calendar Schedule views | [README](https://github.com/randalkoene/formalizer/blob/master/tools/system/schedule/README.md) |
 | `sysmet-extract`, `sysmet-add`, `dayreview` | Metrics | [I.8](#i8-metrics-and-indicators) |
 | `inbox-triage` | Mail triage | [README](https://github.com/randalkoene/formalizer/blob/master/tools/system/inbox-triage/README.md) |
+| `doctrack` | Catalog of own writings and talks | [README](https://github.com/randalkoene/formalizer/blob/master/tools/system/doctrack/README.md) |
 | `fzclaude` | Claude's access | [README](https://github.com/randalkoene/formalizer/blob/master/tools/system/fzclaude/README.md) |
 | `replicate` | Environment replication | [README](https://github.com/randalkoene/formalizer/blob/master/tools/system/replicate/README.md) |
 | `requestmanual.py` | Ask the user to do a step | [README](https://github.com/randalkoene/formalizer/blob/master/tools/system/requestmanual/README.md) |

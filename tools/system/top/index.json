@@ -361,6 +361,10 @@
             "url" : "/formalizer/ready-docs.html",
             "window" : "_blank"
         },
+        "Doc Track" : {
+            "url" : "/cgi-bin/doctrack-cgi.py",
+            "window" : "_blank"
+        },
         "Formalizer Doxygen" : {
             "url" : "/formalizer/doxygen-html/index.html",
             "window" : "_blank"
