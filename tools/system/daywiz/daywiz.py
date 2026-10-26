@@ -1292,6 +1292,36 @@ class daypage(fz_htmlpage):
     def update_from_list(self, args: list) ->bool:
         return self._update(args[0], args[1])
 
+    # === Member functions for the set API (see set_day_value below):
+
+    # Set the state of a Wiztable item, using the same update path as the page.
+    # Unless overwrite is True, a state that is already filled in is left alone.
+    def set_wiz_state(self, item: str, value: str, overwrite=False) ->dict:
+        result = { 'date': self.day_str, 'item': item, 'value': value, 'old': '', 'status': 'error', 'message': '' }
+        if item not in self.tables.wiztable.lines_indices:
+            result['message'] = 'Unknown Wiztable item: '+item
+            return result
+        old_state = self.tables.wiztable.lines[self.tables.wiztable.lines_indices[item]]._state
+        result['old'] = old_state
+        if old_state != '' and not overwrite:
+            result['status'] = 'skipped'
+            result['message'] = 'Already filled in. Use overwrite to replace.'
+            return result
+        if not self._update('wiz_state_'+item, value):
+            result['message'] = 'Update or save failed.'
+            return result
+        # Read back from the database, because database_call() does not report failures.
+        daytimestamp = self.day_str[0:4]+self.day_str[5:7]+self.day_str[8:10]+'0000'
+        stored = self.get_day_data_from_database(daytimestamp)
+        if 'wiztable' in stored:
+            for wizline in stored['wiztable']:
+                if wizline[0] == item:
+                    if str(wizline[2]) == self.tables.wiztable.lines[self.tables.wiztable.lines_indices[item]]._state:
+                        result['status'] = 'set'
+                        return result
+        result['message'] = 'Saved value not found in database. See '+error_file
+        return result
+
     # === Member functions for use by other scripts (e.g. consumed.py, see add_nutrition_to_log below):
 
     def add_nutrition_to_multidaylog(self, name:str, quantity:float, hour:int, minute:int, dryrun=False) ->str:
@@ -1412,6 +1442,9 @@ def launch_as_cgi():
     #   global got_here_active
     #   got_here_active = True
     directives = get_directives(form)
+    if directives['cmd'] == 'set':
+        set_from_form(form)
+        return
     directives = check_directives(directives)
     _page = daypage(directives)
 
@@ -1446,6 +1479,37 @@ def add_nutrition_to_log(datestr:str, name:str, quantity:float, hour:int, minute
     _page = daypage(directives)
     htmlstr = _page.add_nutrition_to_multidaylog(name, quantity, hour, minute, dryrun=dryrun)
     return htmlstr
+
+# Set the state of a Wiztable item for a day. Call this from other scripts,
+# or through the CGI with cmd=set (see set_from_form and daywiz-set.py).
+# Unlike the page, an unparseable date is an error rather than today.
+# Returns a dict with 'status' set to 'set', 'skipped' or 'error'.
+def set_day_value(datestr:str, item:str, value:str, overwrite=False)->dict:
+    if datestr:
+        try:
+            _date = datetime.strptime(datestr, '%Y.%m.%d')
+        except:
+            try:
+                _date = datetime.strptime(datestr, '%Y-%m-%d')
+            except:
+                return { 'date': datestr, 'item': item, 'value': value, 'old': '', 'status': 'error', 'message': 'Invalid date: '+datestr }
+    directives = check_directives({ 'cmd': 'set', 'date': datestr })
+    try:
+        _page = daypage(directives)
+        return _page.set_wiz_state(item, value, overwrite)
+    except Exception as e:
+        return { 'date': directives['date'], 'item': item, 'value': value, 'old': '', 'status': 'error', 'message': str(e)+'\n'+traceback.format_exc() }
+
+# CGI form fields: cmd=set, date (optional, default today), item, value, overwrite (optional, 'true').
+# Responds with JSON.
+def set_from_form(formfields: cgi.FieldStorage):
+    item = formfields.getvalue('item')
+    value = formfields.getvalue('value')
+    if not item or value is None:
+        print(json.dumps({ 'status': 'error', 'message': 'Missing item or value.' }))
+        return
+    overwrite = (formfields.getvalue('overwrite') == 'true')
+    print(json.dumps(set_day_value(formfields.getvalue('date'), item, value, overwrite)))
 
 
 if __name__ == '__main__':

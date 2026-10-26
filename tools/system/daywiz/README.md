@@ -19,6 +19,8 @@ steps throughout the day.
 12. `email-info-cgi.py`: CGI entry point to run `email-info.py`.
 13. `email-info.py`: Retrieve number of emails unread and optionally the last 24 hours of emails received.
 14. `inspect_data.py`: Inspect the data format and more for data stored in the Formalizer database table.
+15. `daywiz-set.py`: Set the state of a Wiztable item for a day from a script (see "Setting values from scripts").
+16. `daywiz-collect.py`: Collect values (e.g. open Nodes for `nodebalance`) and fill them in with `daywiz-set.py`.
 
 Note that `daywiz_json.py` is like `daywiz.py`, but works with the JSON data source
 and is now deprecated.
@@ -52,6 +54,25 @@ an error and new formats are adopted smoothly. (See `get_day_data()`,
 `get_wiz_data()` and `daypage_wiztable.merge_data()` in `daywiz.py`.)
 
 Therefore, to update the Wiztable data structure, just update `wiztable.py`.
+
+## Setting values from scripts
+
+`daywiz.py` accepts `cmd=set` with the form fields `item`, `value`, and optionally
+`date` (YYYY.MM.DD, default today) and `overwrite=true`. It responds with JSON whose
+`status` is `set`, `skipped` (already filled in and no overwrite) or `error`. The update
+goes through the same code as a change made on the page, and the stored value is read
+back from the database to confirm it. An invalid date is an error, not today.
+
+Other Python scripts in this directory can call `set_day_value()` directly, but only
+when running as the web server user, because saving writes temporary files in
+`/var/www/webdata/formalizer`. From the command line, use `daywiz-set.py`, which
+calls `daywiz.py` through the web server:
+
+```
+daywiz-set.py nodebalance 3533 -d 2026.10.26
+daywiz-collect.py              # collect and fill all items that have a collector
+daywiz-collect.py -n           # only show the collected values
+```
 
 ## More
 
