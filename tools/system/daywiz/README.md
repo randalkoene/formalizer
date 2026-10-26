@@ -74,6 +74,77 @@ daywiz-collect.py              # collect and fill all items that have a collecto
 daywiz-collect.py -n           # only show the collected values
 ```
 
+## Candidates for daywiz-collect
+
+Wiztable items that could be filled in automatically by adding collectors to
+`daywiz-collect.py`, from most to least ready. (Survey of 2026-10-26, based on the
+line definitions in `wiztable.py` and the tools behind their buttons.)
+
+### Ready now (a tool already produces the value)
+
+| Item | Type | Source |
+|---|---|---|
+| `emailunread` | number | `daywiz-autodata.py` (via `email-info.py`), already run by the Sync button |
+| `openchkbx` | number | `daywiz-autodata.py`: chunks with open checkboxes |
+| `backup` | checkbox | `fzbackup.py` writes `~/.archive/postgres/formalizer-postgres-backup-<YYYYmmddHHMM>.gz`; one dated today means checked |
+
+`daywiz-autodata.py` normally runs through fzserverpq (as the user with Gmail access).
+A collector would either run it directly or read the `daywiz_autodata.json` it leaves
+behind in `/var/www/webdata/formalizer`.
+
+### From DayWiz's own data (the day's nutrition table, with times)
+
+| Item | Type | Rule |
+|---|---|---|
+| `morningfast` | checkbox | No nutrition entries before a morning cutoff (to decide) |
+| `lessthan300` | checkbox | Calories before the cutoff under 300 (`consumed_calories()` already sums them) |
+| `fastafter8` | checkbox | No nutrition entries after 20:00 |
+| `finalized` | checkbox | The previous day's DayWiz data meets a definition of "finalized" (e.g. `reviewscore` filled, or a minimum score) |
+| `caffeine`, `alcohol` | number | Only if these are logged as foods in the nutrition table |
+
+These can only be judged once the day is over, so a run late that evening or early the
+next morning would fill the previous day with `-d`.
+
+### From the Log and the Schedule (needs a rule)
+
+| Item | Type | Possible rule |
+|---|---|---|
+| `log` | checkbox | Newest Log chunk is open, or closed within the last N minutes |
+| `startedearly` | checkbox | At least 1 hour logged on priority Nodes by 10:00 |
+| `firstwork` / `secondwork` | checkbox | At least 4 hours logged on work Nodes by 14:00 / after 14:00 |
+| `challenge` | checkbox | Time logged today on a Node in the `challenges_open` NNL |
+| `passedfixed` / `passedrepeat` | checkbox | No passed Fixed (or repeating) Nodes remain |
+| `priority` | checkbox | Every Promise above some priority has a scheduled slot |
+| `schedfits` | checkbox | Schedule's required time fits in the time available |
+| `reviewscore` | number | Day review page (`fzloghtml-cgi.py?review=true`); where the score number is produced still needs checking |
+
+"Priority Nodes" and "work Nodes" need a definition, e.g. a set of NNLs or the
+`threads`/`week_main_goals` subtrees.
+
+### Partly automatable
+
+- `calsync`: a collector could list calendar events without a matching Node, but
+  whether calendar and Schedule agree is a judgment call.
+- `checkboxes`, `promises`, `milestones`, `decisions`, `variable`, `realistic`,
+  `relations`: review steps. A collector could fill a supporting number (e.g. a count
+  of overdue Promises) if number lines are added for that.
+
+### Manual only
+
+The morning ritual, health and body lines (`weight`, `bloodpressure`, `pushup*`,
+`shower`, `teeth`, etc.), messaging catch-ups (Signal, WhatsApp, Discord, etc.), and
+reflections (`lovedbody`, `lovedmind`, `visible`). `weight` and `bloodpressure` would
+need a connected scale or blood-pressure monitor.
+
+### Suggested order
+
+1. `emailunread`, `openchkbx`, `backup`: a few lines each, no decisions needed.
+2. `morningfast`, `lessthan300`, `fastafter8`: once the cutoffs and run time are chosen.
+3. The Log-based items, once work and priority Nodes are defined.
+
+Note that a checkbox set by a script means "the rule held", which is not quite "I did
+it". A collector could instead fill a number line and leave the checkbox manual.
+
 ## More
 
 See https://trello.com/c/JssbodOF .
