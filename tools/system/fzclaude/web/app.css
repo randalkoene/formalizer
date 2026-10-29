@@ -284,3 +284,5 @@ input[type=number] { width: 7em; }
 .tri-steps { padding-left: 20px; color: var(--text-secondary); }
 .tri-steps li { margin-bottom: 10px; }
 .tri-steps pre { margin: 6px 0; white-space: pre-wrap; }
+.tri-log { margin-left: auto; white-space: nowrap; font-size: 12.5px; color: var(--accent); text-decoration: none; }
+.tri-log:hover { text-decoration: underline; }

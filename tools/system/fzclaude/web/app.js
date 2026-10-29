@@ -519,6 +519,9 @@ async function applyProposal(p) {
 let triages = [];
 let triage = null;
 
+// The Formalizer web interface (Apache) on this machine, for links into the Log.
+const FZ_WEB = 'http://localhost';
+
 const ACTION_LABELS = { leave: 'Leave', checked: 'Mark checked', obsolete: 'Checked, obsolete', link: 'Link to Node', new: 'New Node' };
 
 async function loadTriages(selectTid = null) {
@@ -586,8 +589,11 @@ function otherNodeChoice(name, checked) {
 
 function triageItem(it, i) {
   const res = triage.results[it.ref];
+  const chunk = it.ref.slice(0, 12);
+  const logUrl = `${FZ_WEB}/cgi-bin/fzloghtml-cgi.py?around=${chunk}#${chunk}`;
   const head = `<div class="tri-head"><code class="tri-ref">${esc(it.ref)}</code>
-    <span class="tri-box">${esc(it.checkbox.replace(/<[^>]+>/g, '').trim())}</span></div>`;
+    <span class="tri-box">${esc(it.checkbox.replace(/<[^>]+>/g, '').trim())}</span>
+    <a class="tri-log" href="${esc(logUrl)}" target="_blank" rel="noopener" title="Open the Log around this entry's chunk">Log ↗</a></div>`;
   if (res && res.ok) {
     return `<div class="tri-item is-done">${head}<div class="tri-why"><span class="pill pos">done</span>
       ${linkify(res.msg)} <span class="muted">· ${esc(fmtStamp(res.when))}</span></div></div>`;
