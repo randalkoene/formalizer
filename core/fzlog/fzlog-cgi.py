@@ -753,20 +753,23 @@ def edit_Log_entry(id: str, verbosity = 0) -> bool:
         print(editentrypagetail_failure)
     return (retcode == 0)
 
-def replace_Log_entry(id: str, text: str, verbosity = 0) -> bool:
+def replace_Log_entry(id: str, text: str, verbosity = 0, entry_node = None) -> bool:
+    # entry_node, when given, is the Node the entry belongs to ('' for the chunk's Node).
+    # Otherwise the Node comes from the form.
+    set_node = node if entry_node is None else entry_node
     with open(contentfilepath, 'w') as f:
         f.write(text)
     print(replaceentrypagehead)
     thecmd = './fzlog -E STDOUT -W STDOUT -r ' + id + ' -f ' + contentfilepath + extra_cmd_args(T_emulated, verbosity)
-    if node:
-        thecmd += ' -n ' + node
+    if set_node:
+        thecmd += ' -n ' + set_node
     print('<!-- thecmd = '+thecmd+' -->')
     retcode = try_subprocess_check_output(thecmd, 'replace_log', verbosity)
     if (retcode == 0):
         print('<p>Replacement content: </p>')
         print(text)
-        if node:
-            print(f'<p>Replacement Node: {node}</p>')
+        if set_node:
+            print(f'<p>Replacement Node: {set_node}</p>')
         else:
             print('<p>Now associated with <b>the same Node</b> as the Log chunk.</p>')
         print(replaceentrypagetail_success)
@@ -821,7 +824,8 @@ def update_checkbox(id:str, updatecheckbox:str):
         #print('Replace Log entry %s at position %s using Node %s.\n<p>' % (str(id), str(text_pos), str(set_node)))
         #print(entrytext)
         #print(replaceentrypagetail_success)
-        return replace_Log_entry(id=str(id), text=entrytext, verbosity=verbosity)
+        # Keep the Node the entry belongs to. Without -n, fzlog -r would give it the chunk's Node.
+        return replace_Log_entry(id=str(id), text=entrytext, verbosity=verbosity, entry_node=entrynode)
     else:
         print(replaceentrypagehead)
         print(replaceentrypagetail_failure)

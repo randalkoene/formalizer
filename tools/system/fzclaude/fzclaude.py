@@ -75,6 +75,8 @@ DEFAULT_CONFIG = {
     'scope_max_nodes': 20000,
     'node_log_scan_days': 60,
     'milestone_topic_id': 79,
+    'checkboxes_all': False,
+    'checkboxes_since': 20240401,
     'chars_per_token': 4.0,
     'workers': 8,
 }
@@ -123,6 +125,13 @@ CONFIG_SCHEMA = [
     ('milestone_topic_id', 'int', 'Graph', 'Topic ID that marks Milestones',
      'Nodes with this topic are Milestones, as in nodeboard\'s "Milestones Only" view (ROADMAP_TOPIC, 79). '
      'They are marked in Claude\'s output and can be listed on their own with --milestones.'),
+    ('checkboxes_all', 'bool', 'Checkboxes', 'Show open checkboxes from the whole Log',
+     'Off: the checkboxes command shows only checkboxes in Log entries whose Node is in scope. On: it shows '
+     'every open checkbox in the Log, with the ID and a short excerpt of the Node its entry belongs to, except '
+     'where that Node is hidden by an exclude rule (exclude, exclude_tree, exclude_topic, exclude_topic_tree). '
+     'Nothing else about those Nodes becomes visible.'),
+    ('checkboxes_since', 'int', 'Checkboxes', 'Look for open checkboxes from this date on (YYYYmmdd)',
+     'Used when the checkboxes command is not given --since.'),
     ('chars_per_token', 'float', 'Performance', 'Characters per token',
      'Used for the token estimates in the disclosure log. About 4 for English text.'),
     ('workers', 'int', 'Performance', 'Parallel fzgraphhtml calls', ''),
@@ -217,6 +226,8 @@ def check_config(data) -> tuple:
             errors.append(f"'{key}' must be a whole number of at least 1")
         elif typ == 'float' and (not isinstance(val, (int, float)) or isinstance(val, bool) or val <= 0):
             errors.append(f"'{key}' must be a positive number")
+    if isinstance(cfg['checkboxes_since'], int) and not re.fullmatch(r'(19|20)\d{6}', str(cfg['checkboxes_since'])):
+        errors.append("'checkboxes_since' must be a date written as YYYYmmdd")
     return cfg, errors
 
 
@@ -468,6 +479,8 @@ def compute_scope(cfg: dict) -> dict:
         'hidden': hidden,
         'notes': notes,
         'visible': visible,
+        # For the checkboxes command with checkboxes_all, which must still honor exclude_tree.
+        'excluded_tree': sorted(excluded_tree),
     }
     write_json(SCOPE_PATH, scope)
     return scope
@@ -915,6 +928,89 @@ def cmd_log(args, cfg, scope):
     print_log_rows(cfg, vis, rows[start:max(end, 0)], args.full)
     if start > 0:
         OUT.p(f'... {start} earlier entries (use --offset {args.offset + (end - start)})')
+
+
+CHECKBOX_RE = re.compile(r'<input type="checkbox"\s*>')
+CHECKBOX_LOG_REGEX = '[<]input type="checkbox"[ ]*[>]'
+
+
+def open_checkboxes(text: str) -> list:
+    """The text of each unchecked checkbox in a Log entry, up to the end of its line, in order."""
+    res = []
+    for m in CHECKBOX_RE.finditer(text):
+        eol = text.find('\n', m.end())
+        res.append(text[m.end():eol if eol >= 0 else len(text)])
+    return res
+
+
+def excluded_by_rules(nid: str, d, cfg: dict, scope: dict) -> bool:
+    """True if a Node outside the visible set is hidden by an exclude rule (or cannot be read)."""
+    if d is None or nid in cfg['exclude'] or nid in scope['excluded_tree']:
+        return True
+    return bool(set(parse_topics(d['topics'])) & (set(cfg['exclude_topic']) | set(cfg['exclude_topic_tree'])))
+
+
+def visible_checkboxes(cfg: dict, scope: dict, t_from: str):
+    """Log entries with open checkboxes that the checkboxes rules let Claude see, as a list of
+    (chunk, entry, checkbox texts), and the number of checkboxes withheld."""
+    rc, out = run_tool('fzloghtml', ['-1', t_from, '-2', 'now', '-x', CHECKBOX_LOG_REGEX, '-F', 'raw',
+                                     '-o', 'STDOUT', '-E', os.devnull, '-q'])
+    if rc != 0:
+        raise ScopeError('fzloghtml could not search the Log for checkboxes')
+    vis = scope['visible']
+    found = []
+    for c in parse_log_raw(out):
+        for e in c['entries']:
+            boxes = open_checkboxes(e['text'])
+            if boxes:
+                found.append((c, e, boxes))
+    outside = list(dict.fromkeys(e['node'] for _, e, _ in found if e['node'] not in vis))
+    data = Fetcher(cfg['workers']).get_many(outside) if (cfg['checkboxes_all'] and outside) else {}
+    allowed = {n for n, d in data.items() if not excluded_by_rules(n, d, cfg, scope)}
+    shown, withheld = [], 0
+    for c, e, boxes in found:
+        if e['node'] in vis or e['node'] in allowed:
+            shown.append((c, e, boxes))
+        else:
+            withheld += len(boxes)
+    return shown, withheld
+
+
+def checkbox_scope(cfg: dict, scope: dict) -> dict:
+    if cfg['checkboxes_all'] and 'excluded_tree' not in scope:
+        return load_scope(cfg, force=True)  # scope.json written by an older fzclaude
+    return scope
+
+
+def cmd_checkboxes(args, cfg, scope):
+    scope = checkbox_scope(cfg, scope)
+    vis = scope['visible']
+    t_from = args.since or f"{cfg['checkboxes_since']}0000"
+    if len(t_from) == 8:
+        t_from += '0000'
+    shown, withheld = visible_checkboxes(cfg, scope, t_from)
+    total = sum(len(b) for _, _, b in shown)
+    n_outside = sum(len(b) for _, e, b in shown if e['node'] not in vis)
+    OUT.p(f'Open checkboxes since {fmt_td(t_from)}: {total} in {len(shown)} Log entries'
+          + (f', {n_outside} of them in entries of Nodes outside scope' if n_outside else '')
+          + hidden_note(cfg, withheld, 'withheld') + '.')
+    if args.count:
+        return
+    page, trailer = paged(shown, args.max or cfg['max_log_entries'], args.offset, 'Log entries')
+    ex = excerpts(cfg, dict.fromkeys(e['node'] for _, e, _ in page), 80)
+    for c, e, boxes in page:
+        eid = f"{c['open']}.{e['minor']}"
+        OUT.entries.add(eid)
+        OUT.nodes.add(e['node'])
+        where = '' if e['node'] in vis else ' (outside scope)'
+        OUT.p(f"== {fmt_td(c['open'])} entry {eid}, Node {e['node']}{where}: {ex[e['node']]}")
+        if args.entry:
+            OUT.p('   entry: ' + one_line(html_to_text(e['text']), cfg['entry_chars']))
+        # [entry-id:n] names the n-th open checkbox of the entry, as a triage file will refer to it.
+        for i, b in enumerate(boxes, 1):
+            OUT.p(f'  [{eid}:{i}] {one_line(html_to_text(b), cfg["entry_chars"])}')
+    if trailer:
+        OUT.p(trailer)
 
 
 def milestone_paths(nid: str, vis: dict, limit=3) -> list:
@@ -1516,6 +1612,316 @@ def cmd_apply(args, cfg):
     print(f'\nProposal {args.pid}: {status}.')
 
 
+# ------------------------------------------------------------ checkbox triage
+#
+# Claude saves suggestions for open checkboxes with 'fzclaude triage <file>'. The Checkboxes tab of
+# fzclaude-web shows them as a form, and the user's choices are carried out by
+# 'fzclaude triage-apply', which only the user can run.
+
+TRIAGE_DIR = os.path.join(STATE_DIR, 'triage')
+TRIAGE_ACTIONS = ('new', 'link', 'checked', 'obsolete', 'leave')
+TD_PROPS = ('unspecified', 'variable', 'fixed')
+CHECKBOX_REF_RE = re.compile(r'^(\d{12}\.\d+):([1-9]\d*)$')
+CHECKED_TAG = '<input type="checkbox" checked>'
+
+
+def checkbox_key(text: str) -> str:
+    """A checkbox's text as Claude sees it, without truncation, for comparisons."""
+    return ' '.join(html_to_text(text).split())
+
+
+def triage_path(tid: str) -> str:
+    if not re.fullmatch(r'[\w-]+', tid):
+        fail(f'not a triage ID: {tid}')
+    return os.path.join(TRIAGE_DIR, tid + '.json')
+
+
+def topic_list(s) -> list:
+    return [t.strip() for t in str(s or '').split(',') if t.strip()]
+
+
+def validate_triage(t, vis: dict, cfg: dict) -> list:
+    if not isinstance(t, dict) or not isinstance(t.get('items'), list) or not t['items']:
+        return ['a triage needs a non-empty "items" list']
+    errors = []
+    if not isinstance(t.get('title', ''), str):
+        errors.append('"title" must be text')
+    excluded_topics = set(cfg['exclude_topic']) | set(cfg['exclude_topic_tree'])
+    seen = set()
+    for n, it in enumerate(t['items'], 1):
+        w = f'item {n}'
+        if not isinstance(it, dict):
+            errors.append(f'{w}: not a JSON object')
+            continue
+        unknown = set(it) - {'ref', 'checkbox', 'suggest', 'why', 'superiors', 'link', 'node_text', 'hours',
+                             'targetdate', 'td_prop', 'topics', 'other'}
+        if unknown:
+            errors.append(f"{w}: unknown fields: {', '.join(sorted(unknown))}")
+        ref = str(it.get('ref', ''))
+        w = f'item {n} ({ref})'
+        if not CHECKBOX_REF_RE.match(ref):
+            errors.append(f'{w}: "ref" must look like <entry-id>:<n>, as the checkboxes command shows it')
+        elif ref in seen:
+            errors.append(f'{w}: the same checkbox appears twice')
+        seen.add(ref)
+        if not isinstance(it.get('checkbox'), str) or not it['checkbox'].strip():
+            errors.append(f'{w}: "checkbox" must hold the checkbox text')
+        if it.get('suggest') not in TRIAGE_ACTIONS:
+            errors.append(f'{w}: "suggest" must be one of {", ".join(TRIAGE_ACTIONS)}')
+        for key in ('superiors', 'link'):
+            cands = it.get(key, [])
+            if not isinstance(cands, list) or not all(isinstance(c, dict) and isinstance(c.get('id'), str)
+                                                      and isinstance(c.get('why', ''), str) for c in cands):
+                errors.append(f'{w}: "{key}" must be a list of {{"id": ..., "why": ...}}')
+                continue
+            for c in cands:
+                if c['id'] not in vis:
+                    errors.append(f"{w}: {key} Node {c['id']} is not in scope")
+        if it.get('suggest') == 'new' and not it.get('superiors'):
+            errors.append(f'{w}: a new Node needs at least one candidate in "superiors"')
+        if it.get('suggest') == 'link' and not it.get('link'):
+            errors.append(f'{w}: "link" needs at least one Node')
+        for key in ('why', 'node_text', 'other'):
+            if not isinstance(it.get(key, ''), str):
+                errors.append(f'{w}: "{key}" must be text')
+        h = it.get('hours', 0.5)
+        if not isinstance(h, (int, float)) or isinstance(h, bool) or not 0 < h <= 1000:
+            errors.append(f'{w}: "hours" must be a number above 0')
+        if not re.fullmatch(r'(\d{12})?', str(it.get('targetdate', '')) or ''):
+            errors.append(f'{w}: "targetdate" must look like YYYYmmddHHMM')
+        if it.get('td_prop', 'variable') not in TD_PROPS:
+            errors.append(f'{w}: "td_prop" must be one of {", ".join(TD_PROPS)}')
+        for tag in topic_list(it.get('topics')):
+            if not re.fullmatch(r'[^\s,()]+', tag):
+                errors.append(f'{w}: not a topic tag: {tag}')
+            elif tag in excluded_topics:
+                errors.append(f'{w}: topic {tag} is excluded')
+    return errors
+
+
+def cmd_triage(args, cfg, scope):
+    """Save Claude's suggestions for open checkboxes, for the user's Checkboxes form."""
+    try:
+        with open(args.file) as f:
+            t = json.load(f)
+    except (OSError, ValueError) as e:
+        return OUT.p(f'Could not read the triage file: {e}')
+    scope = checkbox_scope(cfg, scope)
+    errors = validate_triage(t, scope['visible'], cfg)
+    if not errors:
+        # Each checkbox must still be open, and visible to Claude under the checkboxes rules.
+        t_from = min(i['ref'][:12] for i in t['items'])
+        shown, _ = visible_checkboxes(cfg, scope, t_from)
+        current = {f"{c['open']}.{e['minor']}:{n}": b
+                   for c, e, boxes in shown for n, b in enumerate(boxes, 1)}
+        for it in t['items']:
+            have = current.get(it['ref'])
+            said = checkbox_key(it['checkbox'])
+            if have is None:
+                errors.append(f"{it['ref']}: no such open checkbox (it may be checked already)")
+            elif checkbox_key(have) != said and not (said.endswith('…') and checkbox_key(have).startswith(said[:-1])):
+                errors.append(f"{it['ref']}: the checkbox text does not match; the entry may have changed")
+            else:
+                it['checkbox'] = have  # the full text as in the Log, for the form
+    if errors:
+        OUT.p('Triage rejected:')
+        for e in errors:
+            OUT.p('  ' + e)
+        return
+    slug = re.sub(r'[^\w]+', '-', (t.get('title') or 'checkboxes').lower()).strip('-')[:40]
+    tid = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '-' + slug
+    os.makedirs(TRIAGE_DIR, exist_ok=True)
+    write_json(triage_path(tid), {
+        'tid': tid, 'title': t.get('title') or 'Checkboxes', 'created': now_stamp(), 'session': SESSION_ID,
+        'status': 'pending', 'items': t['items'], 'results': {}, 'applications': [],
+    })
+    OUT.p(f"Triage {tid} saved with {len(t['items'])} checkboxes. Nothing changes until the user "
+          f'goes through it in the Checkboxes tab of fzclaude-web.')
+
+
+def read_log_entry(eid: str):
+    """(own Node ID or '', exact stored text) of one Log entry, or None."""
+    rc, out = run_tool('fzloghtml', ['-e', eid, '-N', '-F', 'raw', '-o', 'STDOUT', '-E', os.devnull, '-q'])
+    m = re.search(r'ENTRY:[^:\n]*:([^\n]*)\n__BEGIN__\n(.*)\n__END__\s*$', out, re.S) if rc == 0 else None
+    return (m.group(1).strip(), m.group(2)) if m else None
+
+
+def check_decisions(t: dict, decisions) -> list:
+    errors = []
+    items = {i['ref']: i for i in t['items']}
+    if not isinstance(decisions, list):
+        return ['decisions must be a list']
+    for d in decisions:
+        ref = d.get('ref') if isinstance(d, dict) else None
+        if ref not in items:
+            errors.append(f'{ref}: not a checkbox of this triage')
+            continue
+        a = d.get('action')
+        if a not in TRIAGE_ACTIONS:
+            errors.append(f'{ref}: unknown action {a}')
+        elif a == 'link' and not ID_FULL_RE.match(str(d.get('node', ''))):
+            errors.append(f'{ref}: link needs a Node ID')
+        elif a == 'new':
+            if not ID_FULL_RE.match(str(d.get('superior', ''))):
+                errors.append(f'{ref}: a new Node needs a superior Node ID')
+            if not str(d.get('text', '')).strip():
+                errors.append(f'{ref}: a new Node needs a description')
+            if not 0 < to_float(d.get('hours'), -1) <= 1000:
+                errors.append(f'{ref}: hours must be a number above 0')
+            if d.get('td_prop') not in TD_PROPS:
+                errors.append(f'{ref}: target date property must be one of {", ".join(TD_PROPS)}')
+            elif d['td_prop'] != 'unspecified' and not re.fullmatch(r'\d{12}', str(d.get('targetdate', ''))):
+                errors.append(f'{ref}: a {d["td_prop"]} target date needs a date and time')
+            if any(not re.fullmatch(r'[^\s,()]+', g) for g in topic_list(d.get('topics'))):
+                errors.append(f'{ref}: topics must be comma-separated topic tags')
+    return errors
+
+
+def cmd_triage_apply(args, cfg):
+    if BY_CLAUDE:
+        fail('triage-apply must be run by you, not by Claude.')
+    path = triage_path(args.tid)
+    if not os.path.exists(path):
+        fail(f'no triage {args.tid}')
+    t = read_json(path)
+    try:
+        decisions = read_json(args.decisions)
+    except (OSError, ValueError) as e:
+        fail(f'could not read the decisions file: {e}')
+    decisions = [d for d in decisions if isinstance(d, dict) and d.get('action') != 'leave'] \
+        if isinstance(decisions, list) else decisions
+    errors = check_decisions(t, decisions)
+    # Nodes named in the decisions must exist (the user may have typed in any Node).
+    if not errors:
+        named = {d['node'] if d['action'] == 'link' else d['superior']
+                 for d in decisions if d['action'] in ('link', 'new')}
+        found = Fetcher(cfg['workers']).get_many(named)
+        errors += [f'Node {n} not found' for n, d in found.items() if d is None]
+    if errors:
+        print('Nothing was done:')
+        for e in errors:
+            print('  ' + e)
+        sys.exit(1)
+    dry = args.dry_run
+    if not decisions:
+        return print('No checkboxes to handle (all were left as they are).')
+    print(f"{'DRY RUN: nothing will be changed.' if dry else 'Applying'} {len(decisions)} checkbox decisions "
+          f"from triage {t['tid']}.")
+    if not dry and not args.yes and input("Type 'yes' to go ahead: ").strip() != 'yes':
+        return print('Not applied.')
+    if not dry and not args.no_backup:
+        print('Making a backup with fzbackup.py...')
+        if subprocess.run([os.path.join(FZBIN, 'fzbackup.py')]).returncode != 0:
+            fail('backup failed; nothing was applied')
+
+    items = {i['ref']: i for i in t['items']}
+    by_entry = {}
+    for d in decisions:
+        by_entry.setdefault(CHECKBOX_REF_RE.match(d['ref']).group(1), []).append(d)
+    results, counts, created_any = {}, {a: 0 for a in TRIAGE_ACTIONS}, False
+    tmp_dir = os.path.join(STATE_DIR, 'tmp')
+    os.makedirs(tmp_dir, exist_ok=True)
+
+    action_of = {d['ref']: d['action'] for d in decisions}
+
+    def result(ref, ok, msg, node=''):
+        results[ref] = {'ok': ok, 'action': action_of[ref], 'node': node, 'msg': msg, 'when': now_stamp()}
+        print(f"  {'ok' if ok else 'FAILED'}: {ref} {msg}")
+
+    for eid, ds in by_entry.items():
+        print(f'\nLog entry {eid}:')
+        got = read_log_entry(eid)
+        if got is None:
+            for d in ds:
+                result(d['ref'], False, 'could not read the Log entry')
+            continue
+        own_node, text = got
+        boxes = list(CHECKBOX_RE.finditer(text))
+        edits = []  # (start, end, replacement, ref, node)
+        for d in sorted(ds, key=lambda d: int(d['ref'].rsplit(':', 1)[1])):
+            ref, n = d['ref'], int(d['ref'].rsplit(':', 1)[1])
+            if n > len(boxes):
+                result(ref, False, 'this checkbox is no longer open; the entry has changed')
+                continue
+            m = boxes[n - 1]
+            eol = text.find('\n', m.end())
+            if checkbox_key(text[m.end():eol if eol >= 0 else len(text)]) != checkbox_key(items[ref]['checkbox']):
+                result(ref, False, 'the checkbox text has changed since the triage; left alone')
+                continue
+            node, suffix = '', ''
+            if d['action'] == 'new':
+                argv = ['fzgraph', '-M', 'node', '-S', d['superior'], '-T', str(d['text']).strip(),
+                        '-H', str(to_float(d['hours'])), '-p', d['td_prop']]
+                if d['td_prop'] != 'unspecified':
+                    argv += ['-t', d['targetdate']]
+                if topic_list(d.get('topics')):
+                    argv += ['-g', ','.join(topic_list(d.get('topics')))]
+                print('  ' + shlex.join(argv))
+                if dry:
+                    node = '(new Node)'
+                else:
+                    r = subprocess.run([os.path.join(FZBIN, 'fzgraph')] + argv[1:], capture_output=True,
+                                       text=True, errors='replace')
+                    mt = NEW_NODE_RE.search(r.stdout + r.stderr)
+                    if r.returncode != 0 or not mt:
+                        result(ref, False, 'fzgraph could not make the Node: ' + (r.stdout + r.stderr).strip()[-300:])
+                        continue
+                    node, created_any = mt.group(1), True
+                suffix = f' [ {node} ]'
+            elif d['action'] == 'link':
+                node = d['node']
+                suffix = f' [ {node} ]'
+            elif d['action'] == 'obsolete':
+                suffix = ' [ obsolete ]'
+            edits.append((m.start(), m.end(), CHECKED_TAG + suffix, ref, node))
+        if not edits:
+            continue
+        new_text = text
+        for start, end, rep, _, _ in sorted(edits, reverse=True):
+            new_text = new_text[:start] + rep + new_text[end:]
+        for start, end, rep, ref, _ in edits:
+            eol = text.find('\n', end)
+            print(f"  {ref}: {one_line(rep + text[end:eol if eol >= 0 else len(text)], 160)}")
+        argv = ['fzlog', '-r', eid, '-f', '<file>'] + (['-n', own_node] if own_node else [])
+        print('  ' + shlex.join(argv))
+        if not dry:
+            tmp = os.path.join(tmp_dir, f'entry-{eid}.txt')
+            with open(tmp, 'w') as f:
+                f.write(new_text)
+            argv[4] = tmp
+            r = subprocess.run([os.path.join(FZBIN, 'fzlog')] + argv[1:], capture_output=True,
+                               text=True, errors='replace')
+            os.remove(tmp)
+            if r.returncode != 0:
+                for _, _, _, ref, node in edits:
+                    made = f' (Node {node} WAS made; link it by hand)' if action_of[ref] == 'new' else ''
+                    result(ref, False, 'fzlog could not update the entry: '
+                           + (r.stdout + r.stderr).strip()[-300:] + made, node)
+                continue
+        for _, _, _, ref, node in edits:
+            counts[action_of[ref]] += 1
+            result(ref, True, {'new': f'new Node {node}', 'link': f'linked to {node}', 'checked': 'checked',
+                               'obsolete': 'checked, obsolete'}[action_of[ref]], node)
+
+    handled = sum(counts.values())
+    summary = (f"{'Would handle' if dry else 'Handled'} {handled} of {len(decisions)} checkboxes: "
+               f"{counts['new']} new Nodes, {counts['link']} linked, {counts['checked']} checked, "
+               f"{counts['obsolete']} obsolete.")
+    failed = sum(1 for r in results.values() if not r['ok'])
+    if failed:
+        summary += f' {failed} failed.'
+    print('\n' + summary)
+    if dry:
+        return
+    t['results'].update(results)
+    t['applications'].append({'when': now_stamp(), 'handled': handled, 'failed': failed, 'summary': summary})
+    done = {r for r, res in t['results'].items() if res['ok']}
+    t['status'] = 'done' if done >= set(items) else 'partial'
+    write_json(path, t)
+    if created_any and os.path.exists(SCOPE_PATH):
+        os.remove(SCOPE_PATH)  # new Nodes: rebuild the scope on the next call
+
+
 def cmd_init(args):
     if BY_CLAUDE:
         fail('init must be run by you, not by Claude.')
@@ -1577,6 +1983,11 @@ def build_parser():
     p.add_argument('--count', action='store_true')
     p.add_argument('--full', action='store_true', help='complete entry text')
     paging(p)
+    p = sub.add_parser('checkboxes', help='open (unchecked) checkboxes in the Log')
+    p.add_argument('--since', help='YYYYmmdd[HHMM] (default: checkboxes_since in the configuration)')
+    p.add_argument('--entry', action='store_true', help='also show the text of each Log entry')
+    p.add_argument('--count', action='store_true')
+    paging(p)
     sub.add_parser('topics', help='topics on Nodes in scope')
     sub.add_parser('nnls', help='Named Node Lists holding Nodes in scope')
     p = sub.add_parser('nnl', help='Nodes in scope in one Named Node List')
@@ -1610,6 +2021,14 @@ def build_parser():
     sub.add_parser('proposals', help='list proposals')
     p = sub.add_parser('show', help='show a proposal')
     p.add_argument('pid')
+    p = sub.add_parser('triage', help='save suggestions for open checkboxes, for the Checkboxes form')
+    p.add_argument('file')
+    p = sub.add_parser('triage-apply', help='carry out choices made in the Checkboxes form (you only)')
+    p.add_argument('tid')
+    p.add_argument('--decisions', required=True, help='JSON file with the choices')
+    p.add_argument('--dry-run', action='store_true', help='show what would happen, change nothing')
+    p.add_argument('--no-backup', action='store_true')
+    p.add_argument('--yes', action='store_true', help='do not ask for confirmation (used by fzclaude-web)')
     p = sub.add_parser('apply', help='carry out a proposal (you only)')
     p.add_argument('pid')
     p.add_argument('--decline', action='store_true')
@@ -1622,7 +2041,8 @@ COMMANDS = {
     'scope': cmd_scope, 'map': cmd_map, 'today': cmd_today, 'node': cmd_node,
     'subtree': cmd_subtree, 'search': cmd_search, 'log': cmd_log, 'topics': cmd_topics,
     'nnls': cmd_nnls, 'nnl': cmd_nnl, 'changes': cmd_changes, 'propose': cmd_propose,
-    'context': cmd_context, 'link': cmd_link, 'note': cmd_note,
+    'context': cmd_context, 'link': cmd_link, 'note': cmd_note, 'checkboxes': cmd_checkboxes,
+    'triage': cmd_triage,
 }
 NO_SCOPE_COMMANDS = {
     'disclosures': cmd_disclosures, 'stats': cmd_stats, 'proposals': cmd_proposals, 'show': cmd_show,
@@ -1638,9 +2058,9 @@ def main():
     cfg = load_config()
     global CFG
     CFG = cfg
-    if args.cmd == 'apply':
+    if args.cmd in ('apply', 'triage-apply'):
         try:
-            return cmd_apply(args, cfg)
+            return (cmd_apply if args.cmd == 'apply' else cmd_triage_apply)(args, cfg)
         except ScopeError as e:
             fail(str(e))
     try:

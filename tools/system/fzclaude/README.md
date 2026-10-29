@@ -27,6 +27,44 @@ directly, by reaching local web services (the Formalizer CGI scripts,
 fzserverpq, fzclaude-web), or by editing the `fzclaude` configuration or
 disclosure log.
 
+Its rules are hard or soft:
+
+- **Hard rules always block:**
+  - the database programs
+  - the Claude Code environment markers
+  - commands that are yours to run (`apply`, `triage-apply`, `init`,
+    installing)
+  - running or loading a fzclaude other than the installed one
+  - changes to the protected files and settings
+- **Soft rules cover the rest:** running other Formalizer programs, reaching
+  local web services, and interpreter code that *mentions* them. During
+  development many soft hits are harmless, e.g. a syntax check of a script
+  that contains a program's name. A soft hit:
+  - goes through if it matches one of your exceptions
+  - otherwise becomes a permission prompt for you to allow or deny ("ask")
+  - is blocked outright if you turned asking off
+
+Exceptions and asking are set in `~/.formalizer/fzclaude/guard-exceptions.json`,
+which only you edit:
+
+```json
+{
+  "ask": true,
+  "exceptions": [
+    {"tool": "Bash", "pattern": "fzgraph -h( 2>&1)?", "why": "help text"}
+  ]
+}
+```
+
+- `pattern` is a Python regular expression that must match the whole
+  command (for Bash), or the JSON of the tool input (for other tools).
+  Keep patterns narrow: a pattern such as `fzgraph .*` would let every
+  fzgraph call through.
+- Without the file, asking is on and there are no exceptions.
+- If the file cannot be read or parsed, soft hits are blocked.
+- Every decision (blocked, asked, excepted) is recorded in `guard.log` and
+  shown in the Activity tab.
+
 `fzclaude-web.py` is the browser interface to all of this (see below).
 
 Where this project stands and what comes next is in `PLAN.md`.
@@ -138,9 +176,12 @@ The page has four tabs:
 - **Proposals** lists Claude's proposals with each step's reason and exact
   command. You can apply a proposal (with or without a backup first) or
   decline it.
+- **Checkboxes** shows Claude's suggestions for open checkboxes (see
+  "Checkbox triage" below) as a form, and processes your choices.
 - **Activity** shows what was sent to Claude per session and per call, with
   the Nodes and Log entries each call returned. It also shows token costs and
-  everything the guard blocked.
+  everything the guard stopped (blocked, asked about, or let through by an
+  exception).
 
 The web server uses the same code paths as the command line: reads run
 `fzclaude <command>`, saving uses fzclaude's validation, and applying runs
@@ -176,6 +217,9 @@ cannot be found, and exclusion subtrees that cannot be fully read all stop
 The scope is cached in `~/.formalizer/fzclaude/scope.json` and is rebuilt
 after `scope_max_age_minutes` or whenever the rules change. A Node created
 after the last rebuild stays invisible until the next one.
+
+`checkboxes_all` (default off) and `checkboxes_since` (default 20240401)
+control the `checkboxes` command (see below). They do not change the scope.
 
 Other configuration variables: `max_nodes`, `max_log_entries` (page sizes),
 `log_days_default` (default Log window), `excerpt_chars`, `entry_chars`,
@@ -228,6 +272,15 @@ gives its status in words (`40%`, `done`, `obsolete`, `replaced`,
 - `search <text> [--regex] [--all] [--milestones]`: the search runs inside
   fzclaude, so only matches are returned.
 - `log [--days N | --since T] [--until T] [--node id] [--search text] [--count] [--full]`
+- `checkboxes [--since YYYYmmdd[HHMM]] [--entry] [--count]`: open (unchecked)
+  checkboxes in the Log since `checkboxes_since`, grouped by Log entry. Each
+  one is named `[<entry-id>:<n>]`, the n-th open checkbox in that entry.
+  `--entry` adds the entry's text for context. With `checkboxes_all` off, only
+  entries whose Node is in scope are shown. With it on, every open checkbox
+  is shown except those in entries of Nodes hidden by an exclude rule. For
+  entries outside scope, only the entry, its checkboxes, and the Node's ID and
+  a short excerpt are shown. `node`, `search`, etc. still do not show that
+  Node.
 - `topics`, `nnls`, `nnl <name>`
 - `changes [--no-mark]`: new or changed Nodes and new Log entries since the
   previous `changes`. This is how Claude catches up without rereading
@@ -252,6 +305,56 @@ Proposals:
 - `apply <id> [--no-backup] [--decline]`: **you only**. It validates the
   proposal again, shows it, asks for `yes`, runs `fzbackup.py`, and then runs
   the steps in order, stopping at the first failure.
+- `triage <file.json>`: Claude saves suggestions for open checkboxes (see
+  "Checkbox triage").
+- `triage-apply <id> --decisions <file> [--dry-run] [--no-backup] [--yes]`:
+  **you only**, normally run by the Checkboxes form.
+
+## Checkbox triage
+
+How to ask for one, and what Claude does step by step, is in `HOWTO.md`.
+
+Claude reads `fzclaude checkboxes`, looks for suitable superiors (`search`,
+`node`, `subtree`) and for related Nodes in the next two weeks (`today --days
+14`), and saves its suggestions:
+
+```json
+{
+  "title": "Open checkboxes, first batch",
+  "items": [
+    { "ref": "202610200900.1:1", "checkbox": "Ask Ken about budget",
+      "suggest": "new", "why": "Belongs with the budget review",
+      "superiors": [ {"id": "20260101090000.1", "why": "Budget review Node"} ],
+      "node_text": "Ask Ken about the Q1 budget", "hours": 0.5,
+      "targetdate": "202611101700", "td_prop": "variable", "topics": "" },
+    { "ref": "202610200900.1:2", "checkbox": "Send slides",
+      "suggest": "obsolete", "why": "The event was in March" }
+  ]
+}
+```
+
+`suggest` is one of `new`, `link` (it is already covered by an existing
+Node, listed in `link` like `superiors`), `checked`, `obsolete`, or `leave`.
+`other` may hold a suggestion for handling it differently by hand. Saving
+checks that every checkbox is still open and visible to Claude, that the
+text matches, and that every candidate Node is in scope.
+
+In the **Checkboxes** tab, each checkbox starts out set to Claude's
+suggestion. You can change the action, the superior (or type in any Node
+ID), the description, hours, target date and property, and topics. With
+**Dry run** ticked (the default), processing shows exactly what would
+happen and changes nothing. Untick it to process for real:
+
+1. A backup with `fzbackup.py` (unless you untick it).
+2. For each Log entry: Nodes are made with `fzgraph -M node`, and then the
+   entry is rewritten with `fzlog -r` (keeping the entry's own Node). Each
+   handled `<input type="checkbox">` becomes `<input type="checkbox"
+   checked>`, followed by `[ <node-id> ]` (new or linked Node) or
+   `[ obsolete ]`, as "Use Selected" on the Log entry edit page does.
+3. A checkbox whose text has changed since the triage is left alone.
+4. The result says how many checkboxes were handled. The triage records the
+   results, so handled checkboxes show as done and the rest can be
+   processed later.
 
 ## Proposal format
 
@@ -296,7 +399,13 @@ All of these are in `~/.formalizer/fzclaude/`:
 - `snapshot.json`: the baseline for `changes`.
 - `disclosure.jsonl`: one line per call.
 - `proposals/`: proposals and their results.
-- `guard.log`: commands the guard blocked.
+- `triage/`: checkbox triages, with your choices' results.
+- `tmp/`: the latest choices sent from the Checkboxes form, and entry text
+  while it is being rewritten.
+- `guard.log`: commands the guard blocked, asked about, or let through by an
+  exception.
+- `guard-exceptions.json`: your guard exceptions, and whether soft hits are
+  asked about (yours; optional).
 - `config-history/`: earlier configurations, saved by the web interface.
 - `web.log`: output of fzclaude-web.
 - `bin/`: the installed copies of fzclaude, the guard and fzclaude-web.

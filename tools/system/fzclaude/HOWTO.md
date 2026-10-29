@@ -41,6 +41,44 @@ last handoff, and the links to its documents.
 6. **Changes to the Formalizer itself** (new Nodes, target dates, completion)
    are always proposals that you review and apply.
 
+## Triaging open checkboxes
+
+You ask: *"Triage my open checkboxes (a batch of 25)."* Claude makes
+suggestions, and you decide in the **Checkboxes** tab of fzclaude-web. Claude
+does this in batches, so that you can process one batch while Claude
+prepares the next.
+
+What Claude does (the triage file format is in `README.md`, "Checkbox
+triage"):
+
+1. `fzclaude checkboxes --count`, then `fzclaude checkboxes --max 25`. The
+   list starts with the oldest entries. Checkboxes from a batch you haven't
+   processed yet are still open, so the next batch starts after them
+   (`--offset`). Add `--entry` when a checkbox line only makes sense with the
+   rest of its entry.
+2. `fzclaude today --days 14` once, for the Nodes coming up.
+3. For each checkbox, decide what to suggest:
+   - **`obsolete`**: it is clearly outdated (an event that has passed,
+     something since done another way).
+   - **`link`**: an existing Node already covers it.
+   - **`new`**: otherwise, if it is something to do.
+   - **`leave`**: when unsure. **`other`** holds an idea for handling it
+     differently by hand.
+
+   For `new` and `link`, it finds 1 to 3 candidate Nodes with `search`,
+   checked with `node`. Candidates must be in scope.
+4. For `new`:
+   - **Description:** clean up the checkbox text into a Node description.
+   - **Hours:** an estimate (0.5 when there is nothing to go on).
+   - **Target date:** if it relates to a Node in the next 14 days, set it
+     before that Node's target date. Otherwise set it after those 14 days,
+     spread out rather than all on one day.
+   - **`td_prop`:** `variable`, and `fixed` only for a real deadline.
+   - **`why`:** one line, which the form shows next to the suggestion.
+5. Claude writes the JSON to its scratchpad and runs `fzclaude triage <file>`.
+   If it is rejected, it fixes the errors and saves again. Then it tells you
+   how many checkboxes are in the triage, and what it was unsure about.
+
 ## Keeping the context window manageable
 
 - **One chat per Node**, or per small cluster of closely related Nodes. When

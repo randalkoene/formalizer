@@ -20,6 +20,7 @@
     <button class="tab is-active" role="tab" data-view="use">Use</button>
     <button class="tab" role="tab" data-view="rules">Scope rules</button>
     <button class="tab" role="tab" data-view="proposals">Proposals <span id="pending-count" class="count" hidden></span></button>
+    <button class="tab" role="tab" data-view="checkboxes">Checkboxes <span id="triage-count" class="count" hidden></span></button>
     <button class="tab" role="tab" data-view="activity">Activity</button>
   </nav>
   <div class="topbar-right">
@@ -96,6 +97,19 @@
   </section>
 </main>
 
+<!-- ─────────────────────────────── CHECKBOXES ─────────────────────────────── -->
+<main id="view-checkboxes" class="view">
+  <aside class="rail">
+    <p class="rail-note">Claude's suggestions for open checkboxes in the Log. Each one starts out set to what Claude
+      suggests. Change what you like, then process the form. Nothing changes in your Formalizer until you process it
+      with <b>Dry run</b> unticked.</p>
+    <div id="triage-list" class="cmd-list"></div>
+  </aside>
+  <section class="main">
+    <div id="triage-detail"><div class="card"><p class="muted">No triage selected.</p></div></div>
+  </section>
+</main>
+
 <!-- ─────────────────────────────── ACTIVITY ─────────────────────────────── -->
 <main id="view-activity" class="view">
   <section class="main">
@@ -132,7 +146,7 @@
         <pre id="stats" class="output small"></pre>
       </div>
       <div class="card">
-        <h2>Blocked by the guard</h2>
+        <h2>Stopped by the guard</h2>
         <div class="table-wrap"><table id="guard" class="table"></table></div>
       </div>
     </div>

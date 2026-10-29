@@ -123,11 +123,11 @@ a { color: var(--accent); }
 .btn-ghost { background: transparent; }
 .btn-icon { padding: 5px 9px; }
 .btn-stop:hover { border-color: var(--neg); color: var(--neg); }
-input[type=text], input[type=number], select {
+input[type=text], input[type=number], input[type=datetime-local], textarea, select {
   font: inherit; color: var(--text-primary); background: var(--surface-2);
   border: 1px solid var(--line-strong); border-radius: 6px; padding: 5px 8px;
 }
-input[type=text]:focus, input[type=number]:focus, select:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+input[type=text]:focus, input[type=number]:focus, input[type=datetime-local]:focus, textarea:focus, select:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
 input[type=number] { width: 7em; }
 
 /* ── layout ── */
@@ -257,3 +257,30 @@ input[type=number] { width: 7em; }
 .table tr.detail td { background: var(--surface-sunk); }
 .log-controls { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--text-secondary); }
 .log-controls label { display: flex; align-items: center; gap: 5px; }
+
+/* Checkboxes (triage form) */
+.tri-list { padding: 0 16px; }
+.tri-item { border-top: 1px solid var(--line); padding: 12px 0; }
+.tri-item:first-child { border-top: 0; }
+.tri-item.is-done { opacity: .65; }
+.tri-head { display: flex; gap: 10px; align-items: baseline; }
+.tri-ref { font-size: 11.5px; color: var(--text-muted); white-space: nowrap; }
+.tri-box { font-weight: 600; }
+.tri-why { margin: 6px 0; color: var(--text-secondary); font-size: 13px; }
+.tri-other { margin-top: 4px; }
+.tri-actions { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 6px 0; }
+.tri-actions label, .tri-props label { display: inline-flex; align-items: center; gap: 4px; }
+.tri-sub { margin: 6px 0 0 18px; padding: 8px 12px; background: var(--surface-sunk); border-radius: var(--radius); }
+.tri-label { display: block; font-size: 12px; color: var(--text-muted); margin: 6px 0 3px; }
+.tri-sub textarea { display: block; width: 100%; box-sizing: border-box; margin-top: 3px; font: inherit; }
+.tri-row { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin-top: 8px; font-size: 13px; }
+.tri-props { display: inline-flex; gap: 10px; }
+.cand { display: flex; gap: 6px; align-items: flex-start; margin: 3px 0; font-size: 13px; }
+.cand-why { color: var(--text-muted); font-size: 12px; }
+.other-id { width: 180px; }
+.tri-bar { position: sticky; bottom: 0; z-index: 1; justify-content: flex-end; }
+.tri-bar #tri-tally { margin-right: auto; }
+.tri-history { margin: 6px 0 0; padding-left: 20px; color: var(--text-secondary); font-size: 13px; }
+.tri-steps { padding-left: 20px; color: var(--text-secondary); }
+.tri-steps li { margin-bottom: 10px; }
+.tri-steps pre { margin: 6px 0; white-space: pre-wrap; }

@@ -66,6 +66,7 @@ RUN_SPECS = {
     'search': {'text': 'pos:text', 'regex': 'flag', 'all': 'flag', 'milestones': 'flag', 'max': 'int', 'offset': 'int'},
     'log': {'days': 'int', 'since': 'stamp', 'until': 'stamp', 'all-time': 'flag', 'node': 'id',
             'search': 'text', 'count': 'flag', 'full': 'flag', 'max': 'int', 'offset': 'int'},
+    'checkboxes': {'since': 'stamp', 'entry': 'flag', 'count': 'flag', 'max': 'int', 'offset': 'int'},
     'topics': {},
     'nnls': {},
     'nnl': {'name': 'pos:text', 'all': 'flag', 'milestones': 'flag', 'max': 'int', 'offset': 'int'},
@@ -234,6 +235,42 @@ def list_proposals() -> list:
     return res
 
 
+def list_triages() -> list:
+    d = fzclaude.TRIAGE_DIR
+    res = []
+    if os.path.isdir(d):
+        for fn in sorted(os.listdir(d), reverse=True):
+            if fn.endswith('.json'):
+                try:
+                    t = fzclaude.read_json(os.path.join(d, fn))
+                except ValueError:
+                    continue
+                done = sum(1 for r in t.get('results', {}).values() if r.get('ok'))
+                res.append({'tid': t['tid'], 'title': t['title'], 'created': t['created'], 'status': t['status'],
+                            'items': len(t['items']), 'done': done})
+    return res
+
+
+def triage_payload(tid: str) -> dict:
+    """A triage, with what each candidate Node is, for the Checkboxes form."""
+    path = fzclaude.triage_path(tid)
+    if not os.path.exists(path):
+        raise ValueError(f'no triage {tid}')
+    t = fzclaude.read_json(path)
+    ids = {c['id'] for it in t['items'] for key in ('superiors', 'link') for c in it.get(key, [])}
+    data = fzclaude.Fetcher(8).get_many(ids)
+    nodes = {}
+    for nid, d in data.items():
+        if d is None:
+            nodes[nid] = {'found': False}
+        else:
+            m = fzclaude.node_meta(d)
+            nodes[nid] = {'found': True, 'excerpt': fzclaude.one_line(fzclaude.html_to_text(d['text']), 140),
+                          'td': fzclaude.fmt_td(m['td']), 'comp': m['comp']}
+    t['nodes'] = nodes
+    return t
+
+
 # ------------------------------------------------------------------ HTTP
 
 class State:
@@ -328,6 +365,13 @@ class Handler(BaseHTTPRequestHandler):
                 return {'topics': all_topics()}
             if name == 'proposals':
                 return {'proposals': list_proposals()}
+            if name == 'triages':
+                return {'triages': list_triages()}
+            if name == 'triage':
+                tid = q.get('id', '')
+                if not re.fullmatch(r'[\w-]+', tid):
+                    raise ValueError('not a triage ID')
+                return triage_payload(tid)
             if name == 'disclosure-log':
                 recs = read_jsonl_tail(fzclaude.DISCLOSURE_PATH, 2000)
                 if q.get('who') != 'all':
@@ -366,6 +410,23 @@ class Handler(BaseHTTPRequestHandler):
             if name == 'decline':
                 return run_fzclaude(['apply', pid, '--decline'])
             args = ['apply', pid, '--yes'] + ([] if data.get('backup', True) else ['--no-backup'])
+            return {'job': start_job(args)}
+        if name == 'triage-apply':
+            tid = str(data.get('tid', ''))
+            if not re.fullmatch(r'[\w-]+', tid):
+                raise ValueError('not a triage ID')
+            decisions = data.get('decisions')
+            if not isinstance(decisions, list):
+                raise ValueError('decisions must be a list')
+            tmp = os.path.join(fzclaude.STATE_DIR, 'tmp')
+            os.makedirs(tmp, exist_ok=True)
+            path = os.path.join(tmp, f'decisions-{tid}.json')  # the latest choices for this triage
+            fzclaude.write_json(path, decisions)
+            args = ['triage-apply', tid, '--decisions', path, '--yes']
+            if data.get('dry_run'):
+                args.append('--dry-run')
+            elif not data.get('backup', True):
+                args.append('--no-backup')
             return {'job': start_job(args)}
         if name == 'stop':
             threading.Thread(target=State.server.shutdown, daemon=True).start()

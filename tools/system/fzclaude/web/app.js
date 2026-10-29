@@ -43,6 +43,7 @@ function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('is-active', v.id === 'view-' + name));
   if (name === 'rules') loadRules();
   if (name === 'proposals') loadProposals();
+  if (name === 'checkboxes') loadTriages();
   if (name === 'activity') loadActivity();
 }
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => showView(t.dataset.view)));
@@ -97,6 +98,9 @@ const COMMANDS = [
   { cmd: 'log', label: 'Log', desc: 'Log entries in scope. Without dates, the default number of recent days.',
     fields: [F.int('days', 'Days', ''), F.stamp('since', 'Since (YYYYmmddHHMM)'), F.stamp('until', 'Until'),
       F.id('node', 'Node ID'), F.text('search', 'Search'), F.flag('count', 'Count only'), F.flag('full', 'Full entries')] },
+  { cmd: 'checkboxes', label: 'Checkboxes', desc: 'Open checkboxes in the Log, as Claude reads them before suggesting what to do with them. Which ones are shown depends on the Checkboxes rules on the Scope rules tab. To handle them, see the Checkboxes tab.',
+    fields: [F.stamp('since', 'Since (YYYYmmdd)'), F.flag('entry', 'Show entry text'), F.flag('count', 'Count only'),
+      F.int('max', 'Max entries', '')] },
   { cmd: 'changes', label: 'Changes', desc: 'What Claude\'s next "changes" call would return. Previewing here does not move Claude\'s baseline.',
     fields: [] },
   { cmd: 'topics', label: 'Topics', desc: 'Topics on Nodes in scope, with counts.', fields: [] },
@@ -510,6 +514,237 @@ async function applyProposal(p) {
   if (again) { again.hidden = false; again.innerHTML = keep; }
 }
 
+/* ───────────────────────────── Checkboxes ───────────────────────────── */
+
+let triages = [];
+let triage = null;
+
+const ACTION_LABELS = { leave: 'Leave', checked: 'Mark checked', obsolete: 'Checked, obsolete', link: 'Link to Node', new: 'New Node' };
+
+async function loadTriages(selectTid = null) {
+  try {
+    triages = (await api('triages')).triages;
+  } catch (err) {
+    $('#triage-list').innerHTML = `<p class="muted">Error: ${esc(err.message)}</p>`;
+    return;
+  }
+  const open = triages.filter(t => t.status !== 'done').length;
+  $('#triage-count').hidden = !open;
+  $('#triage-count').textContent = open;
+  $('#triage-list').innerHTML = triages.length ? triages.map(t => {
+    const cls = { pending: 'warn', partial: 'warn', done: 'pos' }[t.status] ?? '';
+    return `<button class="cmd" type="button" data-tid="${esc(t.tid)}"><b>${esc(t.title)}</b>
+      <span><span class="pill ${cls}">${esc(t.status)}</span> ${t.done} of ${t.items} handled · ${esc(fmtStamp(t.created))}</span></button>`;
+  }).join('') : '<p class="muted">No triages yet.</p>';
+  document.querySelectorAll('[data-tid]').forEach(b => b.addEventListener('click', () => showTriage(b.dataset.tid)));
+  const pick = selectTid || (triages.find(t => t.status !== 'done') || triages[0] || {}).tid;
+  if (pick) await showTriage(pick);
+  else $('#triage-detail').innerHTML = TRIAGE_HOWTO;
+}
+
+const TRIAGE_PROMPT = 'Triage my open checkboxes (a batch of 25), following the checkbox section of the fzclaude HOWTO.';
+
+const TRIAGE_HOWTO = `<div class="card">
+  <h2>How this works</h2>
+  <ol class="tri-steps">
+    <li><b>Claude makes the suggestions.</b> In a Claude Code session, ask:
+      <pre class="output small">${esc(TRIAGE_PROMPT)}</pre>
+      Claude reads your open checkboxes (the same list as <i>Checkboxes</i> on the Use tab), looks for superiors
+      and related Nodes on the Schedule, and saves a triage.</li>
+    <li><b>The triage appears here as a form</b>, one checkbox per row, each set to what Claude suggests.
+      Click <b>Reload</b> below, or come back to this tab.</li>
+    <li><b>You decide.</b> Change actions, superiors, descriptions, hours and target dates as you like.
+      Process with <b>Dry run</b> ticked to see what would happen, then untick it to do it.</li>
+  </ol>
+  <button class="btn" type="button" id="tri-reload">Reload</button>
+</div>`;
+
+document.addEventListener('click', e => {
+  if (e.target.id === 'tri-reload') loadTriages();
+});
+
+function stampToLocal(s) {
+  return /^\d{12}$/.test(s || '') ? `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}T${s.slice(8, 10)}:${s.slice(10, 12)}` : '';
+}
+
+function localToStamp(v) {
+  return (v || '').replace(/[-T:]/g, '').slice(0, 12);
+}
+
+function nodeChoice(name, c, checked) {
+  const n = triage.nodes[c.id] || {};
+  const what = n.found === false ? '<span class="pill neg">not found</span>'
+    : `${esc(n.excerpt || '')} <span class="muted">· TD ${esc(n.td || '?')}</span>`;
+  return `<label class="cand"><input type="radio" name="${name}" value="${esc(c.id)}" ${checked ? 'checked' : ''}>
+    <span>${linkify(c.id)} ${what}${c.why ? `<br><span class="cand-why">${esc(c.why)}</span>` : ''}</span></label>`;
+}
+
+function otherNodeChoice(name, checked) {
+  return `<label class="cand"><input type="radio" name="${name}" value="other" ${checked ? 'checked' : ''}>
+    <span>Other Node: <input type="text" class="other-id" data-for="${name}" placeholder="YYYYmmddHHMMSS.n"></span></label>`;
+}
+
+function triageItem(it, i) {
+  const res = triage.results[it.ref];
+  const head = `<div class="tri-head"><code class="tri-ref">${esc(it.ref)}</code>
+    <span class="tri-box">${esc(it.checkbox.replace(/<[^>]+>/g, '').trim())}</span></div>`;
+  if (res && res.ok) {
+    return `<div class="tri-item is-done">${head}<div class="tri-why"><span class="pill pos">done</span>
+      ${linkify(res.msg)} <span class="muted">· ${esc(fmtStamp(res.when))}</span></div></div>`;
+  }
+  const sup = it.superiors || [];
+  const lnk = it.link || [];
+  const text = it.node_text || it.checkbox.replace(/<[^>]+>/g, '').trim();
+  const prop = it.td_prop || 'variable';
+  const failed = res && !res.ok ? `<div class="banner neg">Last attempt failed: ${linkify(res.msg)}</div>` : '';
+  return `<div class="tri-item" data-i="${i}">${head}
+    <div class="tri-why"><span class="pill">Claude: ${esc(ACTION_LABELS[it.suggest] || it.suggest)}</span> ${esc(it.why || '')}
+      ${it.other ? `<div class="tri-other"><b>Other idea:</b> ${linkify(it.other)}</div>` : ''}</div>
+    ${failed}
+    <div class="tri-actions">${Object.entries(ACTION_LABELS).map(([a, label]) =>
+      `<label><input type="radio" name="act-${i}" value="${a}" ${a === it.suggest ? 'checked' : ''}> ${label}</label>`).join('')}</div>
+    <div class="tri-sub" data-show="link">
+      ${lnk.map((c, k) => nodeChoice(`lnk-${i}`, c, k === 0)).join('')}${otherNodeChoice(`lnk-${i}`, !lnk.length)}
+    </div>
+    <div class="tri-sub" data-show="new">
+      <div class="tri-label">Superior</div>
+      ${sup.map((c, k) => nodeChoice(`sup-${i}`, c, k === 0)).join('')}${otherNodeChoice(`sup-${i}`, !sup.length)}
+      <label class="tri-label">Description<textarea class="n-text" rows="2">${esc(text)}</textarea></label>
+      <div class="tri-row">
+        <label>Hours <input type="number" class="n-hours" step="0.25" min="0.05" value="${esc(it.hours ?? 0.5)}"></label>
+        <label>Target date <input type="datetime-local" class="n-td" value="${esc(stampToLocal(it.targetdate))}"></label>
+        <span class="tri-props">${TD_PROPS.map(p =>
+          `<label><input type="radio" name="prop-${i}" value="${p}" ${p === prop ? 'checked' : ''}> ${p}</label>`).join('')}</span>
+        <label>Topics <input type="text" class="n-topics" value="${esc(it.topics || '')}" placeholder="optional, comma-separated"></label>
+      </div>
+    </div>
+  </div>`;
+}
+
+const TD_PROPS = ['unspecified', 'variable', 'fixed'];
+
+function syncTriageItem(el) {
+  const a = (el.querySelector('input[name^="act-"]:checked') || {}).value;
+  el.querySelectorAll('.tri-sub').forEach(s => { s.hidden = s.dataset.show !== a; });
+  el.dataset.action = a || '';
+}
+
+async function showTriage(tid) {
+  document.querySelectorAll('[data-tid]').forEach(b => b.classList.toggle('is-active', b.dataset.tid === tid));
+  $('#triage-detail').innerHTML = '<div class="card"><p class="muted">Loading…</p></div>';
+  try {
+    triage = await api('triage', { query: { id: tid } });
+  } catch (err) {
+    $('#triage-detail').innerHTML = `<div class="card"><p class="muted">Error: ${esc(err.message)}</p></div>`;
+    return;
+  }
+  const open = triage.items.filter(it => !(triage.results[it.ref] || {}).ok).length;
+  const history = (triage.applications || []).map(a =>
+    `<li>${esc(fmtStamp(a.when))}: ${esc(a.summary)}</li>`).join('');
+  $('#triage-detail').innerHTML = `
+    <div class="card">
+      <div class="card-head"><h2>${esc(triage.title)}</h2><span class="muted">${open} open of ${triage.items.length}</span></div>
+      <p class="muted">Suggested ${esc(fmtStamp(triage.created))} · <code>${esc(triage.tid)}</code></p>
+      ${history ? `<ul class="tri-history">${history}</ul>` : ''}
+    </div>
+    <div class="card tri-list">${triage.items.map(triageItem).join('')}</div>
+    <div class="card apply-bar tri-bar">
+      <span id="tri-tally" class="muted"></span>
+      <label><input type="checkbox" id="tri-dry" checked> Dry run</label>
+      <label><input type="checkbox" id="tri-backup" checked> Back up first (fzbackup.py)</label>
+      <button class="btn btn-primary" type="button" id="tri-go">Process</button>
+    </div>
+    <pre id="tri-output" class="output small" hidden></pre>`;
+  document.querySelectorAll('.tri-item[data-i]').forEach(el => {
+    syncTriageItem(el);
+    el.addEventListener('change', () => { syncTriageItem(el); tallyTriage(); });
+  });
+  document.querySelectorAll('.other-id').forEach(inp => inp.addEventListener('input', () => {
+    const radio = inp.closest('.cand').querySelector('input[type=radio]');
+    radio.checked = true;
+  }));
+  $('#tri-dry').addEventListener('change', tallyTriage);
+  $('#tri-go').addEventListener('click', processTriage);
+  tallyTriage();
+}
+
+function tallyTriage() {
+  const counts = {};
+  document.querySelectorAll('.tri-item[data-i]').forEach(el => { counts[el.dataset.action] = (counts[el.dataset.action] || 0) + 1; });
+  const parts = Object.entries(ACTION_LABELS).filter(([a]) => counts[a]).map(([a, l]) => `${counts[a]} ${l.toLowerCase()}`);
+  $('#tri-tally').textContent = parts.join(' · ');
+  $('#tri-go').textContent = $('#tri-dry').checked ? 'Dry run' : `Process ${document.querySelectorAll('.tri-item[data-i]').length - (counts.leave || 0)} checkboxes`;
+  $('#tri-backup').disabled = $('#tri-dry').checked;
+}
+
+function chosenNode(el, name) {
+  const r = el.querySelector(`input[name="${name}"]:checked`);
+  if (!r) return '';
+  return r.value === 'other' ? el.querySelector(`.other-id[data-for="${name}"]`).value.trim() : r.value;
+}
+
+function collectDecisions() {
+  const decisions = [];
+  const problems = [];
+  document.querySelectorAll('.tri-item[data-i]').forEach(el => {
+    const i = el.dataset.i;
+    const it = triage.items[i];
+    const action = el.dataset.action;
+    if (!action || action === 'leave') return;
+    const d = { ref: it.ref, action };
+    if (action === 'link') {
+      d.node = chosenNode(el, `lnk-${i}`);
+      if (!ID_RE.test(d.node)) problems.push(`${it.ref}: choose the Node to link to`);
+    }
+    if (action === 'new') {
+      d.superior = chosenNode(el, `sup-${i}`);
+      d.text = el.querySelector('.n-text').value.trim();
+      d.hours = parseFloat(el.querySelector('.n-hours').value);
+      d.targetdate = localToStamp(el.querySelector('.n-td').value);
+      d.td_prop = (el.querySelector(`input[name="prop-${i}"]:checked`) || {}).value;
+      d.topics = el.querySelector('.n-topics').value.trim();
+      if (!ID_RE.test(d.superior)) problems.push(`${it.ref}: choose a superior`);
+      if (!d.text) problems.push(`${it.ref}: the description is empty`);
+      if (!(d.hours > 0)) problems.push(`${it.ref}: hours must be above 0`);
+      if (d.td_prop !== 'unspecified' && d.targetdate.length !== 12) problems.push(`${it.ref}: set a target date`);
+    }
+    decisions.push(d);
+  });
+  return { decisions, problems };
+}
+
+async function processTriage() {
+  const { decisions, problems } = collectDecisions();
+  if (problems.length) return alert('Please fix these first:\n\n' + problems.join('\n'));
+  if (!decisions.length) return alert('Every checkbox is set to Leave, so there is nothing to do.');
+  const dry = $('#tri-dry').checked;
+  const backup = $('#tri-backup').checked;
+  if (!dry && !confirm(`Process ${decisions.length} checkboxes in your Formalizer${backup ? ' (after a backup)' : ' WITHOUT a backup'}?`)) return;
+  $('#tri-go').disabled = true;
+  const out = $('#tri-output');
+  out.hidden = false;
+  out.textContent = 'Starting…';
+  const tid = triage.tid;
+  try {
+    const { job } = await api('triage-apply', { method: 'POST', body: { tid, decisions, dry_run: dry, backup } });
+    for (;;) {
+      await new Promise(r => setTimeout(r, 800));
+      const j = await api('job', { query: { id: job } });
+      out.innerHTML = linkify(j.output || '…');
+      out.scrollTop = out.scrollHeight;
+      if (j.status !== 'running') break;
+    }
+  } catch (err) {
+    out.textContent += '\nError: ' + err.message;
+  }
+  $('#tri-go').disabled = false;
+  if (dry) return;  // keep the form as it is, so it can be processed for real
+  const keep = out.innerHTML;
+  await loadTriages(tid);
+  const again = $('#tri-output');
+  if (again) { again.hidden = false; again.innerHTML = keep; }
+}
+
 /* ───────────────────────────── Activity ───────────────────────────── */
 
 function sinceStamp() {
@@ -579,10 +814,14 @@ function renderCalls(records, since) {
 }
 
 function renderGuard(records) {
-  if (!records.length) { $('#guard').innerHTML = '<tr><td class="muted">Nothing blocked.</td></tr>'; return; }
-  $('#guard').innerHTML = '<tr><th>Time</th><th>Tool</th><th>Reason</th><th>Attempt</th></tr>' + records.map(r => {
+  if (!records.length) { $('#guard').innerHTML = '<tr><td class="muted">Nothing stopped.</td></tr>'; return; }
+  const pill = { blocked: 'neg', asked: 'warn', excepted: 'pos' };
+  $('#guard').innerHTML = '<tr><th>Time</th><th>Tool</th><th>Decision</th><th>Reason</th><th>Attempt</th></tr>' + records.map(r => {
     const what = r.input ? (r.input.command || r.input.file_path || r.input.url || JSON.stringify(r.input)) : '';
-    return `<tr><td>${esc((r.t || '').replace('T', ' '))}</td><td>${esc(r.tool)}</td><td>${esc(r.reason)}</td>
+    const decision = r.decision || 'blocked';
+    return `<tr><td>${esc((r.t || '').replace('T', ' '))}</td><td>${esc(r.tool)}</td>
+      <td><span class="pill ${pill[decision] || ''}">${esc(decision)}</span>${r.exception ? `<br><span class="muted">${esc(r.exception)}</span>` : ''}</td>
+      <td>${esc(r.reason)}</td>
       <td><code>${esc(String(what).slice(0, 300))}</code></td></tr>`;
   }).join('');
 }
