@@ -281,8 +281,26 @@ input[type=number] { width: 7em; }
 .tri-bar { position: sticky; bottom: 0; z-index: 1; justify-content: flex-end; }
 .tri-bar #tri-tally { margin-right: auto; }
 .tri-history { margin: 6px 0 0; padding-left: 20px; color: var(--text-secondary); font-size: 13px; }
-.tri-steps { padding-left: 20px; color: var(--text-secondary); }
-.tri-steps li { margin-bottom: 10px; }
-.tri-steps pre { margin: 6px 0; white-space: pre-wrap; }
 .tri-log { margin-left: auto; white-space: nowrap; font-size: 12.5px; color: var(--accent); text-decoration: none; }
 .tri-log:hover { text-decoration: underline; }
+.tri-howto { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--text-secondary); }
+.tri-howto h3 { margin: 0 0 6px; font-size: 13px; color: var(--text-primary); }
+.tri-howto pre { margin: 6px 0; white-space: pre-wrap; }
+.tri-howto-buttons { display: flex; gap: 6px; margin-bottom: 8px; }
+.herdr-note { margin: 6px 0 8px; }
+.herdr-note.banner { padding: 6px 10px; }
+input.wide { width: 420px; max-width: 100%; }
+#launch-status:empty { display: none; }
+#launch-status { display: flex; flex-direction: column; gap: 8px; }
+.banner.launch { background: var(--surface-2); border-color: var(--line-strong); }
+.banner.launch.pos { background: var(--pos-soft); border-color: var(--pos); }
+.banner.launch.warn { background: var(--warn-soft); border-color: var(--warn); }
+.launch-meta { margin-top: 4px; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.launch-meta .btn { padding: 2px 8px; font-size: 12px; }
+.spinner { display: inline-block; width: 11px; height: 11px; margin-right: 7px; vertical-align: -1px;
+  border: 2px solid var(--accent-soft); border-top-color: var(--accent); border-radius: 50%; animation: spin .9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+.cmd.is-archived { opacity: .6; }
+.show-archived { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12.5px; color: var(--text-secondary); }
+#tri-archive { margin-left: 8px; padding: 2px 8px; font-size: 12px; }

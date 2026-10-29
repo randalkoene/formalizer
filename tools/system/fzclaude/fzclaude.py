@@ -77,12 +77,14 @@ DEFAULT_CONFIG = {
     'milestone_topic_id': 79,
     'checkboxes_all': False,
     'checkboxes_since': 20240401,
+    'launch_dir': '',
+    'launch_workspace': 'fzclaude',
     'chars_per_token': 4.0,
     'workers': 8,
 }
 
 # Descriptions of the configuration variables, used by fzclaude-web.py to build
-# its configuration editor. Types: ids (Node IDs), tags (topic tags), bool, int, float.
+# its configuration editor. Types: ids (Node IDs), tags (topic tags), bool, int, float, text.
 CONFIG_SCHEMA = [
     ('include', 'ids', 'Include', 'Nodes and everything below them',
      'Each Node listed here is visible to Claude, together with every Node below it: its '
@@ -132,6 +134,12 @@ CONFIG_SCHEMA = [
      'Nothing else about those Nodes becomes visible.'),
     ('checkboxes_since', 'int', 'Checkboxes', 'Look for open checkboxes from this date on (YYYYmmdd)',
      'Used when the checkboxes command is not given --since.'),
+    ('launch_dir', 'text', 'Launching Claude', 'Directory in which new Claude sessions start',
+     'Used by the "Start in Claude" buttons of fzclaude-web, which open a Claude Code session in a herdr tab. '
+     'Empty means your home directory. Claude Code asks whether to trust a directory the first time.'),
+    ('launch_workspace', 'text', 'Launching Claude', 'herdr workspace for those sessions',
+     'New sessions open as tabs in the herdr workspace with this label, which is created if it does not exist. '
+     'herdr must be running; attach to it with "herdr" in a terminal to see the session.'),
     ('chars_per_token', 'float', 'Performance', 'Characters per token',
      'Used for the token estimates in the disclosure log. About 4 for English text.'),
     ('workers', 'int', 'Performance', 'Parallel fzgraphhtml calls', ''),
@@ -226,6 +234,8 @@ def check_config(data) -> tuple:
             errors.append(f"'{key}' must be a whole number of at least 1")
         elif typ == 'float' and (not isinstance(val, (int, float)) or isinstance(val, bool) or val <= 0):
             errors.append(f"'{key}' must be a positive number")
+        elif typ == 'text' and (not isinstance(val, str) or '\n' in val):
+            errors.append(f"'{key}' must be a single line of text")
     if isinstance(cfg['checkboxes_since'], int) and not re.fullmatch(r'(19|20)\d{6}', str(cfg['checkboxes_since'])):
         errors.append("'checkboxes_since' must be a date written as YYYYmmdd")
     return cfg, errors
@@ -1733,6 +1743,7 @@ def cmd_triage(args, cfg, scope):
     os.makedirs(TRIAGE_DIR, exist_ok=True)
     write_json(triage_path(tid), {
         'tid': tid, 'title': t.get('title') or 'Checkboxes', 'created': now_stamp(), 'session': SESSION_ID,
+        'cwd': os.getcwd(),  # Claude Code keeps sessions per directory: resuming needs this one
         'status': 'pending', 'items': t['items'], 'results': {}, 'applications': [],
     })
     OUT.p(f"Triage {tid} saved with {len(t['items'])} checkboxes. Nothing changes until the user "

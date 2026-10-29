@@ -43,7 +43,7 @@ function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('is-active', v.id === 'view-' + name));
   if (name === 'rules') loadRules();
   if (name === 'proposals') loadProposals();
-  if (name === 'checkboxes') loadTriages();
+  if (name === 'checkboxes') loadTriages().then(pollLaunches);
   if (name === 'activity') loadActivity();
 }
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => showView(t.dataset.view)));
@@ -98,7 +98,7 @@ const COMMANDS = [
   { cmd: 'log', label: 'Log', desc: 'Log entries in scope. Without dates, the default number of recent days.',
     fields: [F.int('days', 'Days', ''), F.stamp('since', 'Since (YYYYmmddHHMM)'), F.stamp('until', 'Until'),
       F.id('node', 'Node ID'), F.text('search', 'Search'), F.flag('count', 'Count only'), F.flag('full', 'Full entries')] },
-  { cmd: 'checkboxes', label: 'Checkboxes', desc: 'Open checkboxes in the Log, as Claude reads them before suggesting what to do with them. Which ones are shown depends on the Checkboxes rules on the Scope rules tab. To handle them, see the Checkboxes tab.',
+  { cmd: 'checkboxes', label: 'Checkboxes', desc: 'Open checkboxes in the Log, as Claude reads them before suggesting what to do with them. Which ones are shown depends on the Checkboxes settings on the Settings tab. To handle them, see the Checkboxes tab.',
     fields: [F.stamp('since', 'Since (YYYYmmdd)'), F.flag('entry', 'Show entry text'), F.flag('count', 'Count only'),
       F.int('max', 'Max entries', '')] },
   { cmd: 'changes', label: 'Changes', desc: 'What Claude\'s next "changes" call would return. Previewing here does not move Claude\'s baseline.',
@@ -198,7 +198,7 @@ $('#out-actions').addEventListener('click', e => {
 
 function setOutput(text) { $('#out').textContent = text; }
 
-/* ───────────────────────────── Scope rules ───────────────────────────── */
+/* ───────────────────────────── Settings ───────────────────────────── */
 
 let rules = null;     // payload from /api/config
 let draft = null;     // configuration being edited
@@ -289,6 +289,10 @@ function renderRule(s) {
     return `<div class="rule">${head}${help}<label class="toggle"><input type="checkbox" data-bool="${s.key}" ${draft[s.key] ? 'checked' : ''}>
       On <span class="default-note">(default: ${def ? 'on' : 'off'})</span></label></div>`;
   }
+  if (s.type === 'text') {
+    return `<div class="rule">${head}${help}<label class="toggle"><input type="text" class="wide" data-text="${s.key}" value="${esc(draft[s.key])}">
+      <span class="default-note">default ${def ? esc(def) : '(empty)'}</span></label></div>`;
+  }
   return `<div class="rule">${head}${help}<label class="toggle"><input type="number" data-num="${s.key}" value="${esc(draft[s.key])}"
     ${s.type === 'float' ? 'step="0.1"' : 'step="1"'} min="0"> <span class="default-note">default ${esc(def)}</span></label></div>`;
 }
@@ -363,6 +367,7 @@ $('#rules-form').addEventListener('keydown', e => {
 $('#rules-form').addEventListener('change', e => {
   const t = e.target;
   if (t.dataset.bool) draft[t.dataset.bool] = t.checked;
+  if (t.dataset.text) draft[t.dataset.text] = t.value.trim();
   if (t.dataset.num) {
     const s = rules.schema.find(x => x.key === t.dataset.num);
     draft[t.dataset.num] = s.type === 'float' ? parseFloat(t.value) : parseInt(t.value, 10);
@@ -518,52 +523,186 @@ async function applyProposal(p) {
 
 let triages = [];
 let triage = null;
+let triageFormTouched = false;  // choices made in the open form, which a reload would lose
+let showArchived = false;
+
+document.addEventListener('change', e => {
+  if (e.target.id === 'show-archived') {
+    showArchived = e.target.checked;
+    loadTriages(triage ? triage.tid : null, true);
+  }
+});
+
+async function archiveTriage(archived) {
+  const t = triage;
+  if (archived && t.status !== 'done' && !confirm('This triage still has open checkboxes. Archive it anyway? '
+    + 'Its checkboxes stay open in the Log and can come up in a new batch.')) return;
+  try {
+    await api('triage-archive', { method: 'POST', body: { tid: t.tid, archived } });
+  } catch (err) {
+    return alert(err.message);
+  }
+  await loadTriages(archived && !showArchived ? null : t.tid);
+}
 
 // The Formalizer web interface (Apache) on this machine, for links into the Log.
 const FZ_WEB = 'http://localhost';
 
 const ACTION_LABELS = { leave: 'Leave', checked: 'Mark checked', obsolete: 'Checked, obsolete', link: 'Link to Node', new: 'New Node' };
 
-async function loadTriages(selectTid = null) {
+async function loadTriages(selectTid = null, listOnly = false) {
   try {
-    triages = (await api('triages')).triages;
+    const r = await api('triages');
+    triages = r.triages;
+    triagePrompt = r.launch.triage;
   } catch (err) {
     $('#triage-list').innerHTML = `<p class="muted">Error: ${esc(err.message)}</p>`;
     return;
   }
-  const open = triages.filter(t => t.status !== 'done').length;
+  const current = triages.filter(t => !t.archived);
+  const open = current.filter(t => t.status !== 'done').length;
   $('#triage-count').hidden = !open;
   $('#triage-count').textContent = open;
-  $('#triage-list').innerHTML = triages.length ? triages.map(t => {
+  const archived = triages.length - current.length;
+  const listed = showArchived ? triages : current;
+  $('#triage-list').innerHTML = (listed.length ? listed.map(t => {
     const cls = { pending: 'warn', partial: 'warn', done: 'pos' }[t.status] ?? '';
-    return `<button class="cmd" type="button" data-tid="${esc(t.tid)}"><b>${esc(t.title)}</b>
-      <span><span class="pill ${cls}">${esc(t.status)}</span> ${t.done} of ${t.items} handled · ${esc(fmtStamp(t.created))}</span></button>`;
-  }).join('') : '<p class="muted">No triages yet.</p>';
-  document.querySelectorAll('[data-tid]').forEach(b => b.addEventListener('click', () => showTriage(b.dataset.tid)));
-  const pick = selectTid || (triages.find(t => t.status !== 'done') || triages[0] || {}).tid;
+    return `<button class="cmd${t.archived ? ' is-archived' : ''}" type="button" data-tid="${esc(t.tid)}"><b>${esc(t.title)}</b>
+      <span><span class="pill ${cls}">${esc(t.status)}</span>${t.archived ? ' <span class="pill">archived</span>' : ''}
+      ${t.done} of ${t.items} handled · ${esc(fmtStamp(t.created))}</span></button>`;
+  }).join('') : '<p class="muted">No triages yet.</p>')
+    + (archived ? `<label class="show-archived"><input type="checkbox" id="show-archived" ${showArchived ? 'checked' : ''}>
+        Show ${archived} archived</label>` : '');
+  document.querySelectorAll('#triage-list [data-tid]').forEach(b => b.addEventListener('click', () => showTriage(b.dataset.tid)));
+  if (listOnly) {
+    if (triage) document.querySelectorAll('#triage-list [data-tid]').forEach(b => b.classList.toggle('is-active', b.dataset.tid === triage.tid));
+    return;
+  }
+  const pick = selectTid || (current.find(t => t.status !== 'done') || current[0] || {}).tid;
+  $('#triage-howto').innerHTML = triageHowto();
+  updateHerdrNote();
   if (pick) await showTriage(pick);
-  else $('#triage-detail').innerHTML = TRIAGE_HOWTO;
+  else $('#triage-detail').innerHTML = '<div class="card"><p class="muted">No triage to show. '
+    + 'See <b>Next batch</b> on the left for how to get one.</p></div>';
 }
 
-const TRIAGE_PROMPT = 'Triage my open checkboxes (a batch of 25), following the checkbox section of the fzclaude HOWTO.';
+let triagePrompt = '';
 
-const TRIAGE_HOWTO = `<div class="card">
-  <h2>How this works</h2>
-  <ol class="tri-steps">
-    <li><b>Claude makes the suggestions.</b> In a Claude Code session, ask:
-      <pre class="output small">${esc(TRIAGE_PROMPT)}</pre>
-      Claude reads your open checkboxes (the same list as <i>Checkboxes</i> on the Use tab), looks for superiors
-      and related Nodes on the Schedule, and saves a triage.</li>
-    <li><b>The triage appears here as a form</b>, one checkbox per row, each set to what Claude suggests.
-      Click <b>Reload</b> below, or come back to this tab.</li>
-    <li><b>You decide.</b> Change actions, superiors, descriptions, hours and target dates as you like.
-      Process with <b>Dry run</b> ticked to see what would happen, then untick it to do it.</li>
-  </ol>
-  <button class="btn" type="button" id="tri-reload">Reload</button>
-</div>`;
+function triageHowto() {
+  return `<h3>Next batch</h3>
+  <p>Start a Claude session with this request, or copy it into a session of your own:</p>
+  <pre class="output small">${esc(triagePrompt)}</pre>
+  <div class="tri-howto-buttons">
+    <button class="btn btn-primary" type="button" data-launch="triage">Start in Claude</button>
+    <button class="btn" type="button" id="tri-copy">Copy request</button>
+    <button class="btn" type="button" id="tri-reload">Reload</button>
+  </div>
+  <p class="herdr-note"></p>
+  <p>Claude reads your open checkboxes (as <i>Checkboxes</i> on the Use tab shows them), looks for superiors and
+    related Nodes on the Schedule, and saves a triage. It then appears above as a form. Checkboxes you left in an
+    earlier triage stay open, so they can come up again in a new batch.</p>`;
+}
+
+// "Start in Claude" opens a session in a herdr tab, so herdr has to be running.
+async function updateHerdrNote() {
+  let s = { running: false, detail: '' };
+  try { s = await api('herdr'); } catch (err) { s.detail = err.message; }
+  document.querySelectorAll('.herdr-note').forEach(el => {
+    el.className = 'herdr-note ' + (s.running ? 'muted' : 'banner warn');
+    el.innerHTML = s.running
+      ? 'Sessions open in herdr. Run <code>herdr</code> in a terminal to see them.'
+      : '<b>herdr is not running</b>, so <i>Start in Claude</i> cannot open a session. Run <code>herdr</code> in a '
+        + 'terminal to start it, then <b>Reload</b>. Or copy the request into a Claude session yourself.';
+  });
+}
+
+async function launchClaude(btn, request, tid = '') {
+  const label = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Starting…';
+  try {
+    await api('launch', { method: 'POST', body: { request, tid } });
+    btn.textContent = 'Started';
+    pollLaunches();
+  } catch (err) {
+    alert('Could not start Claude: ' + err.message);
+    updateHerdrNote();
+  }
+  setTimeout(() => { btn.textContent = label; btn.disabled = false; }, 3000);
+}
+
+// Sessions started with the buttons above, as herdr sees them. Checked every few seconds while
+// the Checkboxes tab is open. A triage saved by such a session is shown right away, unless another
+// triage form is open: re-rendering would lose choices made in it, so then only the list is updated.
+const LAUNCH_POLL_MS = 5000;
+const shownTriages = new Set();
+
+function launchCard(la) {
+  const what = la.request === 'resume' ? `Resumed session (triage <code>${esc(la.tid)}</code>)` : 'Claude, next batch';
+  const where = `herdr workspace “${esc(la.workspace)}”, started ${esc(fmtStamp(la.started).slice(11))}`;
+  const dismiss = `<button class="btn btn-ghost" type="button" data-dismiss="${esc(la.id)}">Dismiss</button>`;
+  let cls = 'banner', msg;
+  if (la.triage) {
+    const t = triages.find(x => x.tid === la.triage);
+    const showing = triage && triage.tid === la.triage;
+    cls += ' pos';
+    msg = `<b>New triage saved</b>${t ? `: ${esc(t.title)} (${t.items} checkboxes)` : ''}.
+      ${showing ? 'It is shown below.' : `<button class="btn" type="button" data-show-tid="${esc(la.triage)}">Show it</button>`}`;
+  } else if (la.agent_status === 'closed') {
+    msg = 'The herdr tab was closed.';
+  } else if (la.agent_status === 'blocked') {
+    cls += ' warn';
+    msg = '<b>Claude is waiting for you in herdr</b>, e.g. a question or a permission prompt. Run <code>herdr</code> to answer it.';
+  } else if (la.agent_status === 'working') {
+    msg = `<span class="spinner"></span><b>Claude is working.</b> ${la.request === 'triage'
+      ? 'This tab shows the triage as soon as it is saved.' : ''}`;
+  } else if (la.agent_status === 'unknown') {
+    msg = '<span class="spinner"></span><b>Claude is starting…</b> On first use, Claude Code may ask in herdr whether to trust the directory.';
+  } else {  // idle or done: Claude's turn has ended
+    cls += la.request === 'triage' ? ' warn' : '';
+    msg = la.request === 'triage'
+      ? '<b>Claude has stopped without saving a triage yet.</b> It may have a question for you: run <code>herdr</code> to see.'
+      : '<b>Claude is waiting for your next request</b> in herdr.';
+  }
+  return `<div class="${cls} launch">${msg}<div class="launch-meta">${what} · ${where} ${dismiss}</div></div>`;
+}
+
+async function pollLaunches() {
+  if (!$('#view-checkboxes').classList.contains('is-active')) return;
+  let launches = [];
+  try { launches = (await api('launches')).launches; } catch (err) { return; }
+  const fresh = launches.find(la => la.triage && !shownTriages.has(la.triage));
+  if (fresh) {
+    shownTriages.add(fresh.triage);
+    await loadTriages(fresh.triage, triageFormTouched);
+  }
+  $('#launch-status').innerHTML = launches.map(launchCard).join('');
+}
+setInterval(pollLaunches, LAUNCH_POLL_MS);
+
+document.addEventListener('click', async e => {
+  const d = e.target.closest('[data-dismiss]');
+  if (d) {
+    await api('launch-dismiss', { method: 'POST', body: { id: d.dataset.dismiss } }).catch(() => {});
+    pollLaunches();
+  }
+  const s = e.target.closest('[data-show-tid]');
+  if (s && (!triageFormTouched || confirm('Leave the open form? The choices you made in it are not kept.'))) {
+    await showTriage(s.dataset.showTid);
+    pollLaunches();
+  }
+});
 
 document.addEventListener('click', e => {
   if (e.target.id === 'tri-reload') loadTriages();
+  const launch = e.target.closest('[data-launch]');
+  if (launch) launchClaude(launch, launch.dataset.launch, launch.dataset.tid || '');
+  if (e.target.id === 'tri-copy') {
+    navigator.clipboard.writeText(triagePrompt).then(() => {
+      e.target.textContent = 'Copied';
+      setTimeout(() => { e.target.textContent = 'Copy request'; }, 1500);
+    }).catch(() => alert(triagePrompt));
+  }
 });
 
 function stampToLocal(s) {
@@ -636,7 +775,8 @@ function syncTriageItem(el) {
 }
 
 async function showTriage(tid) {
-  document.querySelectorAll('[data-tid]').forEach(b => b.classList.toggle('is-active', b.dataset.tid === tid));
+  triageFormTouched = false;
+  document.querySelectorAll('#triage-list [data-tid]').forEach(b => b.classList.toggle('is-active', b.dataset.tid === tid));
   $('#triage-detail').innerHTML = '<div class="card"><p class="muted">Loading…</p></div>';
   try {
     triage = await api('triage', { query: { id: tid } });
@@ -649,8 +789,13 @@ async function showTriage(tid) {
     `<li>${esc(fmtStamp(a.when))}: ${esc(a.summary)}</li>`).join('');
   $('#triage-detail').innerHTML = `
     <div class="card">
-      <div class="card-head"><h2>${esc(triage.title)}</h2><span class="muted">${open} open of ${triage.items.length}</span></div>
-      <p class="muted">Suggested ${esc(fmtStamp(triage.created))} · <code>${esc(triage.tid)}</code></p>
+      <div class="card-head"><h2>${esc(triage.title)}</h2>
+        <span class="muted">${open} open of ${triage.items.length}
+          <button class="btn btn-ghost" type="button" id="tri-archive"
+            title="${triage.archived ? 'Put it back in the list' : 'Hide it from the list. Nothing is deleted.'}">${triage.archived ? 'Unarchive' : 'Archive'}</button></span></div>
+      <p class="muted">Suggested ${esc(fmtStamp(triage.created))} · <code>${esc(triage.tid)}</code>
+        ${/^[0-9a-f-]{36}$/.test(triage.session || '') ? `<button class="btn btn-ghost" type="button" data-launch="resume"
+          data-tid="${esc(triage.tid)}" title="Open the Claude session that made this triage, in herdr">Resume that session</button>` : ''}</p>
       ${history ? `<ul class="tri-history">${history}</ul>` : ''}
     </div>
     <div class="card tri-list">${triage.items.map(triageItem).join('')}</div>
@@ -663,7 +808,7 @@ async function showTriage(tid) {
     <pre id="tri-output" class="output small" hidden></pre>`;
   document.querySelectorAll('.tri-item[data-i]').forEach(el => {
     syncTriageItem(el);
-    el.addEventListener('change', () => { syncTriageItem(el); tallyTriage(); });
+    el.addEventListener('change', () => { triageFormTouched = true; syncTriageItem(el); tallyTriage(); });
   });
   document.querySelectorAll('.other-id').forEach(inp => inp.addEventListener('input', () => {
     const radio = inp.closest('.cand').querySelector('input[type=radio]');
@@ -671,6 +816,7 @@ async function showTriage(tid) {
   }));
   $('#tri-dry').addEventListener('change', tallyTriage);
   $('#tri-go').addEventListener('click', processTriage);
+  $('#tri-archive').addEventListener('click', () => archiveTriage(!triage.archived));
   tallyTriage();
 }
 

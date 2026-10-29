@@ -168,7 +168,8 @@ The page has four tabs:
   with an estimated token count. Clicking a Node ID shows that Node. Pages
   are previewed with `changes --no-mark`, so previewing never moves Claude's
   baseline.
-- **Scope rules** is the configuration editor. Every rule is explained in
+- **Settings** is the configuration editor: the scope rules and the other
+  settings (Checkboxes, Launching Claude, output sizes). Every setting is explained in
   place, Node IDs show their descriptions, and topics are suggested from
   your topic list. Saving validates the configuration, keeps the previous
   version in `config-history/`, rebuilds the scope, and shows the result.
@@ -178,6 +179,17 @@ The page has four tabs:
   decline it.
 - **Checkboxes** shows Claude's suggestions for open checkboxes (see
   "Checkbox triage" below) as a form, and processes your choices.
+  - **Start in Claude** opens a Claude Code session that starts on the
+    request for the next batch.
+  - **Resume that session** reopens the session that made a triage, in the
+    directory where it was made.
+
+  Both open a tab in a herdr workspace (`launch_workspace`, default
+  `fzclaude`), in `launch_dir` (default: your home directory). They need
+  the herdr server to be running; the tab says so when it isn't. Run `herdr`
+  in a terminal to see the session. These buttons can only start requests
+  defined in `fzclaude-web.py` (`LAUNCH_REQUESTS`); the page cannot send any
+  other command or request text.
 - **Activity** shows what was sent to Claude per session and per call, with
   the Nodes and Log entries each call returned. It also shows token costs and
   everything the guard stopped (blocked, asked about, or let through by an

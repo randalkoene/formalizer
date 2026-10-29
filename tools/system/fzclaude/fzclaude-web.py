@@ -19,6 +19,9 @@ Safeguards:
     reaching this port.
   * Claude Code environment markers are removed from the environment of
     every fzclaude call made from here.
+  * The "Start in Claude" buttons can only start the requests defined in
+    LAUNCH_REQUESTS below, or resume the session that made a triage. The page
+    names which; it cannot send a command or request text of its own.
 
   ./fzclaude-web.py                  # http://127.0.0.1:8712
   ./fzclaude-web.py --idle-exit 180  # quit after 3 idle hours (0 = never)
@@ -36,6 +39,8 @@ import math
 import os
 import re
 import secrets
+import shlex
+import shutil
 import subprocess
 import sys
 import threading
@@ -247,7 +252,7 @@ def list_triages() -> list:
                     continue
                 done = sum(1 for r in t.get('results', {}).values() if r.get('ok'))
                 res.append({'tid': t['tid'], 'title': t['title'], 'created': t['created'], 'status': t['status'],
-                            'items': len(t['items']), 'done': done})
+                            'items': len(t['items']), 'done': done, 'archived': bool(t.get('archived'))})
     return res
 
 
@@ -269,6 +274,125 @@ def triage_payload(tid: str) -> dict:
                           'td': fzclaude.fmt_td(m['td']), 'comp': m['comp']}
     t['nodes'] = nodes
     return t
+
+
+# ------------------------------------------------------- starting Claude sessions
+#
+# A session is opened as a tab in a herdr workspace, which works without a display: herdr is
+# reached through its socket. The user attaches to herdr ('herdr' in a terminal) to see it.
+
+LAUNCH_REQUESTS = {
+    'triage': 'Triage my open checkboxes (a batch of 25), following the checkbox section of the fzclaude HOWTO.',
+}
+SESSION_ID_RE = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+
+
+def find_program(name: str) -> str:
+    """Started from fzserverpq, this server may not have ~/.local/bin on its PATH."""
+    return shutil.which(name) or os.path.join(os.path.expanduser('~'), '.local', 'bin', name)
+
+
+def herdr(args: list, timeout=15):
+    """(ok, parsed JSON output or None, text output) of a herdr command."""
+    try:
+        p = subprocess.run([find_program('herdr')] + args, capture_output=True, text=True, errors='replace',
+                           timeout=timeout, env=clean_env(), stdin=subprocess.DEVNULL)
+    except (OSError, subprocess.TimeoutExpired) as e:
+        return False, None, str(e)
+    try:
+        data = json.loads(p.stdout)
+    except ValueError:
+        data = None
+    return p.returncode == 0, data, (p.stdout + p.stderr).strip()
+
+
+def herdr_status() -> dict:
+    ok, _, out = herdr(['status', 'server'])
+    running = ok and re.search(r'status:\s*running', out) is not None
+    return {'running': running, 'detail': '' if running else (out or 'herdr did not answer')[-300:]}
+
+
+def launch_claude(command: str, cwd: str, label: str) -> dict:
+    """Run a command in a new tab of the configured herdr workspace."""
+    try:
+        cfg = fzclaude.load_config()
+    except SystemExit:
+        cfg = fzclaude.DEFAULT_CONFIG
+    if not herdr_status()['running']:
+        raise ValueError('herdr is not running. Start it (run "herdr" in a terminal), then try again.')
+    ws_label = cfg['launch_workspace'] or 'fzclaude'
+    ok, data, out = herdr(['workspace', 'list'])
+    if not ok or data is None:
+        raise ValueError(f'herdr could not list its workspaces: {out[-300:]}')
+    ws = next((w for w in data.get('result', {}).get('workspaces', []) if w.get('label') == ws_label), None)
+    if ws:
+        ok, data, out = herdr(['tab', 'create', '--workspace', ws['workspace_id'], '--cwd', cwd,
+                               '--label', label, '--focus'])
+    else:
+        ok, data, out = herdr(['workspace', 'create', '--cwd', cwd, '--label', ws_label, '--focus'])
+    pane = ((data or {}).get('result', {}).get('root_pane') or {}).get('pane_id') if ok else None
+    if not pane:
+        raise ValueError(f'herdr could not open a tab: {out[-300:]}')
+    ok, _, out = herdr(['pane', 'run', pane, command])
+    if not ok:
+        raise ValueError(f'herdr could not start Claude in the new tab: {out[-300:]}')
+    lid = secrets.token_hex(4)
+    with LAUNCHES_LOCK:
+        LAUNCHES[lid] = {'id': lid, 'pane': pane, 'workspace': ws_label, 'label': label,
+                         'started': fzclaude.now_stamp(), 'started_epoch': time.time()}
+    return {'ok': True, 'workspace': ws_label, 'launch': lid,
+            'message': f'Claude is starting in herdr, workspace "{ws_label}". Run "herdr" in a terminal to see it.'}
+
+
+# Sessions started from this page, so the page can show how they are doing. Kept in memory only:
+# after a restart of fzclaude-web, earlier sessions are no longer followed.
+LAUNCHES = {}
+LAUNCHES_LOCK = threading.Lock()
+
+
+def launch_states() -> list:
+    """Each followed session with herdr's view of it, and for a triage request, the triage it saved."""
+    with LAUNCHES_LOCK:
+        launches = [dict(v) for v in LAUNCHES.values()]
+    triages = list_triages() if launches else []
+    res = []
+    for la in sorted(launches, key=lambda x: x['started_epoch']):
+        ok, data, _ = herdr(['pane', 'get', la['pane']], timeout=5)
+        pane = (data or {}).get('result', {}).get('pane') if ok else None
+        la['agent_status'] = pane.get('agent_status', 'unknown') if pane else 'closed'
+        if la.get('request') == 'triage':
+            # A triage saved since the start (same minute or later) is this session's work.
+            new = [t for t in triages if t['created'] >= la['started']]
+            la['triage'] = new[0]['tid'] if new else ''
+        res.append(la)
+    return res
+
+
+def launch_request(name: str, tid: str = '') -> dict:
+    claude = find_program('claude')
+    try:
+        default_dir = fzclaude.load_config()['launch_dir'] or os.path.expanduser('~')
+    except SystemExit:
+        default_dir = os.path.expanduser('~')
+    if name == 'resume':
+        path = fzclaude.triage_path(tid) if re.fullmatch(r'[\w-]+', tid) else ''
+        if not path or not os.path.exists(path):
+            raise ValueError('no such triage')
+        t = fzclaude.read_json(path)
+        sid = t.get('session', '')
+        if not SESSION_ID_RE.match(sid):
+            raise ValueError('this triage does not record the session that made it')
+        cwd = t.get('cwd') if os.path.isdir(t.get('cwd') or '') else default_dir
+        res = launch_claude(shlex.join([claude, '--resume', sid]), cwd, 'fz-resume')
+    else:
+        if name not in LAUNCH_REQUESTS:
+            raise ValueError(f'unknown request: {name}')
+        if not os.path.isdir(default_dir):
+            raise ValueError(f'launch_dir is not a directory: {default_dir}')
+        res = launch_claude(shlex.join([claude, LAUNCH_REQUESTS[name]]), default_dir, f'fz-{name}')
+    with LAUNCHES_LOCK:
+        LAUNCHES[res['launch']].update({'request': name, 'tid': tid if name == 'resume' else ''})
+    return res
 
 
 # ------------------------------------------------------------------ HTTP
@@ -366,7 +490,11 @@ class Handler(BaseHTTPRequestHandler):
             if name == 'proposals':
                 return {'proposals': list_proposals()}
             if name == 'triages':
-                return {'triages': list_triages()}
+                return {'triages': list_triages(), 'launch': {k: v for k, v in LAUNCH_REQUESTS.items()}}
+            if name == 'herdr':
+                return herdr_status()
+            if name == 'launches':
+                return {'launches': launch_states()}
             if name == 'triage':
                 tid = q.get('id', '')
                 if not re.fullmatch(r'[\w-]+', tid):
@@ -428,6 +556,22 @@ class Handler(BaseHTTPRequestHandler):
             elif not data.get('backup', True):
                 args.append('--no-backup')
             return {'job': start_job(args)}
+        if name == 'launch':
+            return launch_request(str(data.get('request', '')), str(data.get('tid', '')))
+        if name == 'triage-archive':
+            # Archiving only hides a triage from the list; the file and its results are kept.
+            tid = str(data.get('tid', ''))
+            path = fzclaude.triage_path(tid) if re.fullmatch(r'[\w-]+', tid) else ''
+            if not path or not os.path.exists(path):
+                raise ValueError('no such triage')
+            t = fzclaude.read_json(path)
+            t['archived'] = bool(data.get('archived', True))
+            fzclaude.write_json(path, t)
+            return {'ok': True}
+        if name == 'launch-dismiss':
+            with LAUNCHES_LOCK:
+                LAUNCHES.pop(str(data.get('id', '')), None)
+            return {'ok': True}
         if name == 'stop':
             threading.Thread(target=State.server.shutdown, daemon=True).start()
             return {'ok': True}
