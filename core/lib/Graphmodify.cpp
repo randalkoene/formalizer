@@ -5,6 +5,8 @@
 #include <cmath>
 #include <random>
 #include <uuid/uuid.h>
+#include <thread>
+#include <chrono>
 
 // core
 #include "error.hpp"
@@ -869,25 +871,27 @@ Graph_modifications::Graph_modifications() : data(graphmemman.get_allocator()) {
 }
 
 std::string Graph_modifications::generate_unique_Node_ID_str() {
-    time_t t_now = ActualTime();
-    // Check for other Nodes with that time stamp.
-    key_sorted_Nodes nodes = Nodes_created_in_time_interval(*graph_ptr, t_now, t_now+1);
+    // A time stamp has only 9 minor-IDs. When Nodes are made in rapid succession
+    // (e.g. by a script), all of them can be used up within one second. In that
+    // case, wait for the next second and try again (a few times).
+    for (int attempt = 0; attempt < 3; ++attempt) {
+        time_t t_now = ActualTime();
+        // Check for other Nodes with that time stamp.
+        key_sorted_Nodes nodes = Nodes_created_in_time_interval(*graph_ptr, t_now, t_now+1);
 
-    // Is there still a minor_id available (single digit)?
-    uint8_t minor_id = 1;
-    if (!nodes.empty()) {
-        minor_id = std::prev(nodes.end())->second->get_id().key().idT.minor_id + 1;
-        if (minor_id > 9) {
-            // *** Note that instead of returning empty, we could wait a second and try again.
-            ADDERROR(__func__, "No minor_id digits remaining for Node ID with time stamp "+Node_ID_TimeStamp_from_epochtime(t_now));
-            return "";
+        // Is there still a minor_id available (single digit)?
+        unsigned int minor_id = 1;
+        if (!nodes.empty()) {
+            minor_id = std::prev(nodes.end())->second->get_id().key().idT.minor_id + 1;
         }
+        if (minor_id <= 9) {
+            // Generate Node ID time stamp with minor-ID.
+            return Node_ID_TimeStamp_from_epochtime(t_now, minor_id);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
-
-    // Generate Node ID time stamp with minor-ID.
-    std::string nodeid_str = Node_ID_TimeStamp_from_epochtime(t_now, minor_id);
-
-    return nodeid_str;
+    ADDERROR(__func__, "No minor_id digits remaining for Node ID with time stamp "+Node_ID_TimeStamp_from_epochtime(ActualTime()));
+    return "";
 }
 
 Node * Graph_modifications::request_add_Node() {
