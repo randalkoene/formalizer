@@ -79,6 +79,68 @@ A Node is a task, goal or other item in the Graph. Its main properties (defined 
   `@SELFWORK@`, `@SYSTEM@`, `@OTHER@` and `@TZADJUST@`. These are used for categorizing
   Nodes, e.g. in day reviews and the WORK/SELFWORK UTD Nodes pages.
 
+#### Target date property rules
+
+How the target date (`targetdate`) and the property (`tdproperty`) combine, as
+implemented in `Node::effective_targetdate()` (`core/lib/Graphtypes.cpp`):
+
+- `inherit`: the Node's own `targetdate` value is not used. The effective target
+  date is the earliest effective target date found among its superiors.
+- `exact`, `fixed`, `variable` and `unspecified`: the Node's own `targetdate` is
+  used. For `unspecified` (UTD) Nodes this has been so since September 2024: their
+  target date is the place given to them by Schedule updating, which treats them as
+  an ordered todo stack (before that, UTD Nodes were treated as having no target
+  date). Schedule updating re-places `variable` and `unspecified` Nodes. `fixed`
+  and `exact` target dates change only when a repeating Node advances to its next
+  instance, or when they are edited (e.g. by converting passed fixed target dates,
+  see [II.5](#ii5-scheduling-and-updating)).
+- For a Node that is not `inherit` and has no local target date (negative
+  `targetdate`), `effective_targetdate()` logs an "Erroneous (non-protocol) target
+  date" error and returns the unspecified value.
+
+When the Graph is loaded from the database (`Graphpostgres.cpp`, with
+`DOUBLE_CHECK_INHERIT` defined in `Graphpostgres.hpp`), Nodes with no local target
+date are corrected:
+
+| Stored in database | Loaded as |
+|---|---|
+| `fixed`, no target date | `inherit` (warning) |
+| `exact`, no target date | `unspecified` (error; should never occur) |
+| `variable`, no target date | `unspecified` (warning) |
+| `inherit` or `unspecified`, no target date | unchanged |
+| any property with a target date | unchanged |
+
+New Nodes get `unspecified` as the compiled-in default property (it was `variable`
+before November 2024); `fzgraph` and the Add Node page normally set it explicitly.
+The mapping from Formalizer 1.x properties is in
+[dil2graph NOTES.txt](https://github.com/randalkoene/formalizer/blob/master/tools/conversion/dil2graph/NOTES.txt).
+
+#### Parameter values and defaults
+
+- **Completion** is a ratio from 0.0 to 1.0. When time is logged on a Node
+  (`/fz/graph/logtime`, `Node_apply_minutes()` in `core/lib/Graphmodify.cpp`), the
+  ratio becomes time applied / required time. If it would exceed 1.0:
+  - for a non-repeating Node, the required time is set to the time actually spent
+    and completion is set to 1.0;
+  - for a repeating Node, this instance is done: completion returns to 0.0 and
+    the target date advances to the next instance.
+  The negative values -1 to -4 have the special meanings listed above.
+- **`tdevery` and `tdspan`** only matter for repeating Nodes. When an instance is
+  advanced, a `tdevery` below 1 is used as 1. `tdspan = 0` means unlimited
+  repetitions. A `tdspan` of 1 or below 0 is corrected to 0 with repeating turned
+  off. For a limited span, each advance reduces `tdspan`, and when fewer than 2
+  remain the Node stops repeating (`tdpattern` is kept as a reminder). Repeating
+  Nodes are not advanced past their final instance by Schedule updating, so they
+  do not quietly disappear from the Schedule.
+- **Defaults at creation:** the compiled-in defaults (`Node_data` in
+  `core/include/Graphbase.hpp`) are completion 0.0, `tdproperty=unspecified`,
+  `tdpattern=nonperiodic`, `tdevery=1` (e.g. `daily` means every day) and
+  `tdspan=0`. `fzgraph` overrides these (and hours, valuation, superiors, topics,
+  target date and Edge values) from `~/.formalizer/config/fzgraph/config.json`;
+  `fzgraph -h` shows the defaults currently in effect.
+
+Source: Trello cards UShT5isz and GLbMdW5q (archived in ~/.formalizer/archive/trello/cards/).
+
 ### I.3 Edges, superiors and dependencies, Milestones
 
 An Edge connects a dependency Node to a superior Node (the dependency contributes to, or
@@ -90,11 +152,72 @@ marked by a bracketed upper-case name at the start of their description, e.g.
 `[CARBONCOPIES]`, and the "Graph:" and "Current Work Tracks:" buttons on the top page
 show them as boards (see `nodeboard` in [Part II](#ii7-boards-graph-views-and-planning)).
 
+#### Adding Edges
+
+Through the web pages:
+
+1. Open [Named Node Lists](http://localhost/cgi-bin/fzgraphhtml-cgi.py?srclist=?) and
+   use `[delete]` on the `superiors` NNL, so that it starts empty.
+2. Find the superior Node or Nodes (in Next Nodes, a Topic, Search Graph, ...) and
+   follow the `[list]` link next to each. On the page that opens, choose
+   "add to [superiors] list".
+3. Open the Edit page of the dependency Node (`fzgraphhtml-cgi.py?edit=<node-id>`) and
+   choose `[add from superiors NNL]`. This asks the server
+   (`/fz/graph/nodes/<node-id>/superiors/addlist?superiors=`) to add an Edge from the
+   Node to each Node in the `superiors` NNL.
+
+To add dependencies to a Node instead, do the same with the `dependencies` NNL and
+`[add from dependencies NNL]`.
+
+On the command line:
+
+```
+fzgraph -M edges -S <superior-ids> -D <dependency-ids>
+```
+
+`-S` and `-D` take comma-separated lists of equal length; the Nodes are paired up in
+order. Edge values can be given with `-Y`, `-G`, `-I`, `-U` and `-P` (dependency,
+significance, importance, urgency, priority); otherwise the defaults from the
+`fzgraph` configuration are used. How this request is carried out is described in the
+[fzgraph README](https://github.com/randalkoene/formalizer/blob/master/core/fzgraph/README.md).
+
+Source: Trello card J7mo4uTq (archived in ~/.formalizer/archive/trello/cards/).
+
 ### I.4 Topics
 
 Topics are tags with which Nodes are grouped by subject. All Topics are listed by the
 [Topics](http://localhost/cgi-bin/fzgraphhtml-cgi.py?topics=?) button on the top page.
-(to be written: how Topics are created and used)
+
+A Topic has an ID number, a tag (e.g. `organization`), a title, an optional superior
+Topic, and keywords with relevance values (`Topic` in `core/include/Graphtypes.hpp`).
+Each Node has one or more Topics, each with a relevance value. Topics are also used to
+filter Log and board views (e.g. `fzloghtml -g <topic>`, `nbrender -t`), and the Add
+Node page uses per-Topic statistics to suggest the required time.
+
+**Adding a Topic to a Node, or removing it:**
+
+- On a Node's Edit page, the Topics line has an `[add]` link. It opens the Topics list
+  with an "add to <node-id>" link for each Topic, which sends
+  `/fz/graph/nodes/<node-id>/topics/add?<tag>=1.0` to the server. Each Topic shown on
+  the Edit page has a `[remove]` link
+  (`/fz/graph/nodes/<node-id>/topics/remove?<tag>=`).
+- When adding a new Node, the Add Node page first asks for a Topic ("add to NEW").
+- On the command line, `fzgraph -g <tags>` sets the Topics of a new Node, and
+  `fzedit -M <node-id> -g <tags>` replaces the Topics of an existing Node. Both refuse
+  tags that are not known Topics.
+
+**Creating a Topic:** there is at present no tool for creating a new Topic. The Topics
+came from the conversion of Formalizer 1.x (one Topic per topical DIL file, see
+`dil2graph`). If the server receives a `topics/add` request with an unknown tag, it
+creates the Topic in the resident Graph, but no code path writes a single new Topic to
+the database's Topics table (only storing a complete Graph does), so such a Topic would
+probably not survive a restart of `fzserverpq` (unverified).
+
+Topics differ from NNLs: a Topic is a set that a Node belongs to with some relevance,
+and which Topics a Node has is one of its parameters. An NNL is an ordered list that
+Nodes are placed into (see [directory_layout.md](../developer/directory_layout.md#program-names)).
+
+Source: Trello card lLucv6fM (archived in ~/.formalizer/archive/trello/cards/).
 
 ### I.5 Named Node Lists (NNLs)
 
@@ -110,6 +233,32 @@ scheduling. Examples:
   act through NNL URLs on the server.
 
 All NNLs: [Named Node Lists](http://localhost/cgi-bin/fzgraphhtml-cgi.py?srclist=?).
+
+**Creating an NNL and adding Nodes:** follow the `[list]` link next to a Node in any
+Node list. The page that opens ("fz:modify Named Node List") has a field "Add to any
+new or existing List". Enter a name: if no NNL with that name exists, it is created
+and the Node is added. The same page has links to add the Node to the `superiors` or
+`dependencies` NNL, or to one of the existing NNLs listed below. When the page was
+opened from within an NNL, it also offers to remove the Node from that NNL or move it
+up, down or to a position.
+
+**Deleting an NNL:** the `[delete]` link next to the NNL on the
+[Named Node Lists](http://localhost/cgi-bin/fzgraphhtml-cgi.py?srclist=?) page.
+
+**On the command line:** `fzgraph -L add|remove|delete -l <name> -S <node-ids>` (the
+Node IDs can be given with `-S` and/or `-D`). Requests that are only available through
+the server API can be sent with `fzgraph -C '<path>'`, for example
+`fzgraph -C '/fz/graph/namedlists/<name>?copy=<from_name>&to_max=10'`. `fzserverpq -h`
+lists the `/fz/graph/namedlists/...` requests.
+
+An NNL can have features, set when it is created through the server API
+(`?add=<node-id>&unique=true|false&fifo=true|false&prepend=true|false&maxsize=N`):
+`unique` (no duplicates), `prepend` (add to the front instead of the back), a maximum
+size, and `fifo` (when the NNL is full, the entry at the far end is pushed out; without
+`fifo`, adding to a full NNL fails). Without `unique`, a Node can appear in an NNL more
+than once.
+
+Source: Trello card xyriN7Hu (archived in ~/.formalizer/archive/trello/cards/).
 
 ### I.6 The Log
 
@@ -372,6 +521,14 @@ JSON. Initialize the directories with `fzsetup.py -C`. See the
 Above these are the core programs and the tools. See the [core README](https://github.com/randalkoene/formalizer/blob/master/core/README.md)
 for what belongs in `core`.
 
+- [Architecture](../developer/architecture.md): why the Graph is held by a
+  memory-resident server while the Log is accessed through the core library, and the
+  choice of one authoritative data server.
+- [Directory layout](../developer/directory_layout.md): where things go in the source
+  tree, and why `fzgraph` changes structure while `fzedit` changes parameters.
+- [Conventions](../developer/conventions.md): small files and functions, library code
+  apart from program code, web plus command line interfaces.
+
 ### IV.2 Communicating with `fzserverpq`
 
 - C++ tools use the shared-memory API (e.g. Node editing in the
@@ -384,7 +541,8 @@ for what belongs in `core`.
   [fzapicall](https://github.com/randalkoene/formalizer/blob/master/tools/interface/fzapicall/README.md)
   ([server address notes](../developer/server_address.md)).
 - [CGI API self-documentation](http://localhost/cgi-bin/cgi_api_help.py).
-- [Tracing actions](../developer/tracing_actions.md): example traces through the server.
+- [Tracing actions](../developer/tracing_actions.md): example traces through the server,
+  including a Node edit from the Edit page to the database.
 
 ### IV.3 Core programs
 
@@ -425,6 +583,21 @@ especially little CGI scripts that need no special imports, gain little from it 
 often written without it. Add a new tool to the categories
 in the top `Makefile` (EXECUTABLES, SYMBIN, CGIEXE, ...). See also
 [tools/misc](https://github.com/randalkoene/formalizer/blob/master/tools/misc/README.md).
+
+**Formalizer standardized programs:** a standardized program lives in the source tree in
+the standard place, uses the core library, has a module ID and version, uses the
+standard configuration files, error queues and command line options, and is known to the
+root `Makefile` and `fzinfo.py -E`. A C++ standardized program has a class derived from
+`formalizer_standard_program`. Objects that must be initialized on entering `main()`
+(above all, configuration through the `configurable` class) register themselves with
+`main_init_register`; see "Early initialization: `init()` registration" in the
+[core README](https://github.com/randalkoene/formalizer/blob/master/core/README.md). The
+[boilerplate README](https://github.com/randalkoene/formalizer/blob/master/tools/dev/boilerplate/README.md)
+describes the questions `boilerplate` asks, the files it creates, and the registration
+steps it leaves to you. For errors and debugging, see
+[error handling](../developer/error_handling.md) and [debugging hints](../developer/debugging.md).
+
+Source: Trello cards AqLNBRWx and eyckMCRs (archived in ~/.formalizer/archive/trello/cards/).
 
 **C++ or Python:** the choice is about complexity and speed. Simple things deserve a
 Python script. Things that churn through data are better done in C++.
@@ -521,5 +694,10 @@ See the top-level [README](https://github.com/randalkoene/formalizer/blob/master
   [Formalizer Tutorial](https://docs.google.com/presentation/d/14W3Si2YHAnpXmZ8sBfLdOERz1DlFU5HEkFWW_Rc7Zl4/edit?usp=sharing).
 - Developer notes: [server address](../developer/server_address.md),
   [tracing actions](../developer/tracing_actions.md),
-  [standards mode](../developer/standards_mode.md).
+  [standards mode](../developer/standards_mode.md),
+  [architecture](../developer/architecture.md),
+  [directory layout](../developer/directory_layout.md),
+  [conventions](../developer/conventions.md),
+  [error handling](../developer/error_handling.md),
+  [debugging hints](../developer/debugging.md).
 - [CHANGES](https://github.com/randalkoene/formalizer/blob/master/CHANGES.md) (older change notes).
