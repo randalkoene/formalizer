@@ -35,6 +35,7 @@
         } else if (confvalue=="false") { \
             (flagdisablefunc)(); \
         } \
+        return true; \
     } \
 }
 

@@ -47,7 +47,7 @@ bool err_configbase::set_parameter(const std::string &parlabel, const std::strin
     CONFIG_TEST_AND_SET_PAR(ErrQ.errfilepath, "errlogpath", parlabel, parvalue);
     CONFIG_TEST_AND_SET_PAR(WarnQ.errfilepath, "warnlogpath", parlabel, parvalue);
     CONFIG_TEST_AND_SET_FLAG(ErrQ.enable_caching, ErrQ.disable_caching, "errcaching", parlabel, parvalue);
-    CONFIG_TEST_AND_SET_FLAG(ErrQ.enable_caching, ErrQ.disable_caching, "errcaching", parlabel, parvalue);
+    CONFIG_TEST_AND_SET_FLAG(WarnQ.enable_caching, WarnQ.disable_caching, "warncaching", parlabel, parvalue);
     CONFIG_PAR_NOT_FOUND(parlabel);
 }
 
