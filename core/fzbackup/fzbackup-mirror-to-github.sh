@@ -19,7 +19,6 @@ echo "Pushing database backups and DayWiz JSON to GitHub."
 echo "==================================================="
 echo ""
 echo "Note: Your username for this Github account is 'koenera'."
-echo "      Your password is: S17...@4..."
 echo ""
 
 # echo "JUST TESTING!"
