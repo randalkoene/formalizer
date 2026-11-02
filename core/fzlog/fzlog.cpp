@@ -400,7 +400,6 @@ bool replace_entry(entry_data & edata) {
     Log_entry * new_entry;
     if (edata.node_ptr) {
         new_entry = new Log_entry(log_stamp, edata.utf8_text, edata.node_ptr->get_id().key(), edata.c_newest);
-        //*** This should probably be able to cause an update of the Node history chain and the histories cache!
     } else {
         new_entry = new Log_entry(log_stamp, edata.utf8_text, edata.c_newest);
     }
@@ -459,7 +458,6 @@ bool make_entry(entry_data & edata) {
     Log_entry * new_entry;
     if (edata.node_ptr) {
         new_entry = new Log_entry(log_stamp, edata.utf8_text, edata.node_ptr->get_id().key(), edata.c_newest);
-        //*** This should probably be able to cause an update of the Node history chain and the histories cache!
     } else {
         new_entry = new Log_entry(log_stamp, edata.utf8_text, edata.c_newest);
     }
@@ -515,7 +513,6 @@ bool insert_entry(entry_data & edata) {
     Log_entry * new_entry;
     if (edata.node_ptr) {
         new_entry = new Log_entry(log_stamp, edata.utf8_text, edata.node_ptr->get_id().key(), edata.c_newest);
-        //*** This should probably be able to cause an update of the Node history chain and the histories cache!
     } else {
         new_entry = new Log_entry(log_stamp, edata.utf8_text, edata.c_newest);
     }
@@ -1311,8 +1308,6 @@ bool open_chunk() {
     //     profiling_str += std::to_string(us)+' '; // PROFILING (remove this)
     // } // PROFILING (remove this)
     // string_to_file("/var/www/webdata/formalizer/fzlog.profiling", profiling_str); // PROFILING (remove this)
-
-    //*** This should probably be able to cause an update of the Node history chain and the histories cache!
 
     return true;
 }
