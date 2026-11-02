@@ -11,3 +11,43 @@ dil2al. This program needs dil2al.hh and several object files to build.
 Use make and the Makefile for compilation.
 
 Make is not yet functional.
+
+3. Target date property mapping from Formalizer 1.x to 2.x
+
+Formalizer 1.x has no 'inherit' target date property. In 1.x, a Node
+inherits its target date when it has tdproperty=fixed and no locally
+specified target date (RTt_unspecified, shown as "F?" in 1.x). Formalizer
+2.x makes this explicit with tdproperty=inherit.
+
+get_Node_tdproperty() in dil2graph.cpp converts as follows:
+
+- exact                                       ==> exact
+- fixed + locally specified targetdate        ==> fixed
+- fixed + no locally specified targetdate     ==> inherit
+- not exact or fixed + locally specified TD   ==> variable
+- not exact or fixed + no locally specified   ==> unspecified
+
+After that, convert_DIL_entry_to_Node() applies a second check (compiled
+in, because dil2graph.hpp defines DOUBLE_CHECK_INHERIT): if the converted
+targetdate is negative (unspecified), then a fixed Node becomes inherit
+and any other Node becomes unspecified. This means that an exact Node
+without a target date becomes unspecified, not exact.
+
+Resulting outcomes:
+
+  Formalizer 1.x             -- Formalizer 2.x
+  tdproperty  targetdate        tdproperty  targetdate
+  exact       unspecified    -- unspecified unspecified
+  exact       specified      -- exact       specified
+  fixed       unspecified    -- inherit     unspecified
+  fixed       specified      -- fixed       specified
+  variable    unspecified    -- unspecified unspecified
+  variable    specified      -- variable    specified
+  unspecified unspecified    -- unspecified unspecified
+  unspecified specified      -- variable    specified
+
+How the 2.x properties are treated after loading from the database is
+described in doc/manual/manual.md, section I.2.
+
+Source: Trello cards UShT5isz and GLbMdW5q (archived in
+~/.formalizer/archive/trello/cards/).
