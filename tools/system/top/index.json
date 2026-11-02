@@ -21,6 +21,10 @@
             "url" : "/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20",
             "window" : "_blank"
         },
+        "Make Room" : {
+            "url" : "/cgi-bin/makeroom-cgi.py",
+            "window" : "_blank"
+        },
         "Named Node Lists" : {
             "url" : "/cgi-bin/fzgraphhtml-cgi.py?srclist=?",
             "window" : "_blank"

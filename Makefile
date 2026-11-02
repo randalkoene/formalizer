@@ -282,6 +282,7 @@ CGIEXE += $(TOOLSPATH)/system/metrics/weekreview/weekreview.py
 CGIEXE += $(TOOLSPATH)/interface/nodeboard/nodeboard-cgi.py
 CGIEXE += $(TOOLSPATH)/interface/fzvismilestones/fzvismilestones-cgi.py
 CGIEXE += $(TOOLSPATH)/system/schedule/schedule-cgi.py
+CGIEXE += $(TOOLSPATH)/system/makeroom/makeroom-cgi.py
 CGIEXE += $(TOOLSPATH)/system/doc/cgi_api_help.py
 
 # Data files that need to be symlinked into the WEBDATADIR directory
@@ -291,6 +292,7 @@ SYMDATA += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_work.json
 SYMDATA += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_main2023.json
 SYMDATA += $(TOOLSPATH)/system/metrics/sysmet-extract/categories_new2023.json
 SYMDATA += $(FZCONFIGPATH)/config/nodeboard/ccf_responsibilities.json
+SYMDATA += $(FZCONFIGPATH)/config/makeroom/makeroom.json
 
 # CGI scripts for machine-local use with w3m, which can launch programs as the user
 LOCALCGI =

@@ -1,0 +1,16 @@
+{
+"_comment" : "Which Nodes the Make Room form proposes. See tools/system/makeroom/README.md.",
+"days" : 7,
+"skip_default" : [
+    "20250408212452.1",
+    "20251127120839.1",
+    "20250417073724.1"
+],
+"skip_offer" : [],
+"hide" : [],
+"list_fixed_repeating" : true,
+"list_exact_repeating" : false,
+"move_tdprops" : [ "variable" ],
+"move_days" : 7,
+"history_weeks" : 8
+}
