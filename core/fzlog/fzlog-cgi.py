@@ -573,6 +573,9 @@ def make_rerun_arguments(opennew:bool, node:str, T_emulated:str, verbosity:int, 
     cgiarguments += '&verbosity='+str(verbosity)
     if override_precautions:
         cgiarguments += '&override=on'
+    # The rerun is the confirmation, so it must skip the precaution checks
+    # (zero-length chunk, same Node) that produced the confirmation page.
+    cgiarguments += '&overridezero=on'
     if opennew:
         confirmedcall = '/cgi-bin/fzlog-cgi.py?action=open'+cgiarguments
     else:
