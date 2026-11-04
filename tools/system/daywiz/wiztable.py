@@ -39,7 +39,8 @@ WIZTABLE_LINES=[
 	[ '20091115180507.1', 4, 'timeuse', 0, 'checkbox', 6, 9, 'Review how I <b>used my time</b> (tool: dayreview).', '' ],
 	[ '20091115180507.1', 5, 'calsync', 0, 'checkbox', 6, 9, '<button type="button" class="button button1" onclick="window.open(\'/cgi-bin/daywiz-autodata-cgi.py\',\'_blank\');">Sync</button> <a href="https://calendar.google.com/calendar/?authuser=rkoene@carboncopies.org" target="_blank">Google Calendar</a> with Schedule.', '' ], # Automatable.
     [ '20091115180507.1', -1, 'emailunread', 0, 'number', 6, 9, 'And strive to minimize unread emails in inbox.', '' ],
-    [ '20091115180507.1', -1, 'openchkbx', 0, 'number', 6, 9, 'And strive to minimize chunks with open checkboxes.', '' ],    
+    [ '20091115180507.1', -1, 'openchkbx', 0, 'number', 6, 9, 'And strive to minimize chunks with open checkboxes.', '' ],
+    [ '20091115180507.1', 4, 'emailbulk', 0, 'checkbox', 6, 9, '<button type="button" class="button button1" onclick="window.open(\'/cgi-bin/inbox-triage-cgi.py\',\'_blank\');">Inbox Triage</button>: clear bulk mail (rescue the few that matter, trash the rest).', '' ],
 	[ '20091115180507.1', 3, 'promises', 0, 'checkbox', 6, 9, 'Review <a href="/cgi-bin/fzgraphhtml-cgi.py?srclist=promises&sort_by=targetdate" target="_blank"><b>Promises</b></a>. Update, revise and re-prioritize as needed. Make sure Scheduling is correct.', '' ],
 	[ '20091115180507.1', 5, 'passedfixed', 0, 'checkbox', 6, 9, '<a href="/cgi-bin/fzupdate-cgi.py?update=passedfixed" target="_blank">Confirm passed non-repeating Fixed Nodes to convert to Variable</a> - or - manually update them.', '' ],
 	[ '20091115180507.1', 5, 'passedrepeat', 0, 'checkbox', 6, 9, 'Auto-update passed repeating Nodes to their next instances.', '' ],
