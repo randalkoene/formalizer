@@ -21,6 +21,7 @@
     <button class="tab is-active" role="tab" data-view="triage">Triage</button>
     <button class="tab" role="tab" data-view="dashboard">Dashboard</button>
     <button class="tab" role="tab" data-view="weights">Weights</button>
+    <button class="tab" role="tab" data-view="drafts">Drafts <span id="drafts-tab-count" class="tab-count"></span></button>
     <button class="tab" role="tab" data-view="data">Data</button>
     <button class="tab" role="tab" data-view="manual">Manual</button>
   </nav>
@@ -49,6 +50,7 @@
         </button>
       </div>
       <div class="hero-sub" id="hero-sub"></div>
+      <div class="drafts-strip hidden" id="drafts-strip"></div>
       <div class="composition" id="composition" role="img" aria-label="Inbox composition by category"></div>
     </div>
 
@@ -238,6 +240,28 @@
 </main>
 
 <!-- ───────────────────────────── MANUAL ──────────────────────────── -->
+<!-- ───────────────────────────── DRAFTS ───────────────────────────── -->
+<main id="view-drafts" class="view">
+  <div class="dash">
+    <section class="card card-wide">
+      <h2>Reply drafts</h2>
+      <p class="card-sub">
+        Flag a message with <strong>Draft reply</strong> in its detail pane and say what you
+        want to answer. Then, in a Claude session, say
+        <strong>&ldquo;draft my flagged replies&rdquo;</strong>. The texts appear here, where you
+        can read and edit them. <strong>Create drafts</strong> puts them in Gmail as drafts in
+        the right threads (write mode). Nothing here ever sends mail.
+      </p>
+      <div class="drafts-bar">
+        <button id="drafts-create" class="btn btn-primary" disabled>Create drafts</button>
+        <button id="drafts-check" class="btn" title="Read-only. Reloads the drafts already in Gmail, and marks the ones you sent or deleted.">Check drafts</button>
+        <span id="drafts-summary" class="drafts-summary"></span>
+      </div>
+    </section>
+    <div id="drafts-list" class="card-wide drafts-list"></div>
+  </div>
+</main>
+
 <main id="view-manual" class="view">
   <div class="manual">
 

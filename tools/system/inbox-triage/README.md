@@ -479,8 +479,72 @@ deliberately does not request), and **Add to grant tracker** (no such thing
 exists). **Unsubscribe** survives as a plain link to the sender's own
 `List-Unsubscribe` URL.
 
+## Reply drafts
+
+For the emails that are hard to get around to answering, Claude writes the
+first draft and you decide what goes out. Nothing in this app can send mail.
+
+1. **Flag** a message: in its detail pane, under **Draft reply**, type a
+   one-line intent ("decline kindly", "yes, propose Tue or Wed") and press
+   **Flag for a drafted reply**. This is local, in `cache/draft_requests.json`.
+   The rail and the **Drafts** tab then remind you of the next step.
+2. **Ask Claude**: in a Claude Code session, say *"draft my flagged replies"*.
+   Claude runs `./triage.py draft-requests --json` (read-only, includes the
+   thread), writes the replies, and stores them with
+   `./triage.py draft-write <file.json>`. Still nothing reaches Gmail.
+3. **Review** in the **Drafts** tab: read and edit the text, To and Cc.
+4. **Create drafts** (write mode). Each reply becomes a Gmail draft in the
+   right thread (`In-Reply-To`/`References` set). Each one is logged to
+   `cache/actions.log` before the call. `gmail.modify` covers creating drafts,
+   so no new authorization is needed.
+5. **Open draft in Gmail**, finish it there and send it. Back in the app, a
+   prompt asks **Sent or deleted — check it**, as *Reply in Gmail* does. The
+   app asks Gmail (read-only) whether the draft was sent. Gmail may keep
+   answering to the draft id after sending, then with a message labelled SENT
+   instead of DRAFT; otherwise the draft is gone and a SENT message of yours is
+   in the thread.
+   - **Sent:** the app marks the original read in Gmail (write mode), together
+     with the other unread messages in that thread that were there when the
+     draft was made, and drops them from triage. This is needed because the
+     draft link opens only Gmail's compose window, never the message itself,
+     so Gmail would otherwise keep it unread and the next sync would bring it
+     back.
+   - **Deleted:** the message stays in triage; you can flag it again.
+
+   **Check drafts** does the same for every draft at once, and also reloads
+   each draft's current text from Gmail, so edits made there show up here.
+
+A request keeps its own copy of the envelope, so it survives the message
+dropping out of triage after you reply.
+
+```
+./triage.py draft-requests [--json] [--all] [--no-thread]
+./triage.py draft-write replies.json   # [{"id", "body", "to"?, "cc"?, "subject"?}]
+./triage.py drafts-check [--json]
+```
+
+There is deliberately no CLI command that creates the Gmail drafts: that step
+is the **Create drafts** button, with write mode armed by you.
+
+### What Claude does for "draft my flagged replies"
+
+1. `cd ~/src/formalizer/tools/system/inbox-triage && ./triage.py draft-requests --json`
+2. For each request, read the intent and the whole thread. Randal's own earlier
+   messages in the thread (`sent_by_me`) show his tone and how he signs off.
+   Where the reply depends on Formalizer context (a project, a promise, a
+   date), look it up through `fzclaude` only.
+3. Write a plain-text reply that does what the intent says, no more. Reply to
+   the sender by default; set `to`/`cc` when the intent or the thread calls for
+   replying to all. Mark anything uncertain in the text with `[[...]]` so
+   Randal sees it.
+4. Save the list as JSON in the scratchpad and run
+   `./triage.py draft-write <file>`.
+5. Tell Randal how many texts are ready and that they are in the **Drafts** tab
+   for review and **Create drafts**. Never arm write mode or create the Gmail
+   drafts.
+
 ## Still not implemented
 
-Drafting or sending mail from inside the app — replying goes through Gmail on
+Sending mail from inside the app — sending always happens in Gmail, on
 purpose. Custom labels, and scheduled digests. `scoring.py` also carries an
 `LLM_HOOK` slot for a future model-assisted pass.

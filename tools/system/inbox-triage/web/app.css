@@ -1005,3 +1005,51 @@ table.wt .rule { font-family: var(--mono); }
 @media (prefers-reduced-motion: reduce) {
   .toast .spinner { animation: none; border-top-color: var(--accent); }
 }
+
+/* ───────────────────────────── reply drafts ───────────────────────────── */
+
+.tab-count:not(:empty) {
+  margin-left: 4px; padding: 0 6px; border-radius: 9px;
+  background: var(--accent); color: #fff; font-size: 11px; font-weight: 650;
+}
+.drafts-strip {
+  margin-top: 10px; padding: 8px 10px;
+  border: 1px solid var(--accent); border-radius: var(--radius-sm);
+  font-size: 12px; line-height: 1.45; color: var(--text-primary);
+  cursor: pointer;
+}
+.drafts-strip:hover { background: var(--surface-2); }
+.drafts-strip b { color: var(--accent); }
+.drafts-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.drafts-summary { font-size: 12px; color: var(--text-muted); }
+.btn-primary { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.drafts-list { display: flex; flex-direction: column; gap: 12px; }
+.drafts-group h3 {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-muted); margin: 6px 0 8px; font-weight: 650;
+}
+.draft-card {
+  background: var(--surface-1); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 12px 16px; margin-bottom: 10px;
+}
+.draft-head { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.draft-subject { font-weight: 600; }
+.draft-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.draft-intent { font-size: 12px; margin-top: 6px; }
+.draft-intent b { color: var(--text-secondary); }
+.draft-text, .draft-edit {
+  width: 100%; box-sizing: border-box; margin-top: 8px;
+  font: inherit; font-size: 13px; line-height: 1.5;
+  white-space: pre-wrap; overflow-wrap: anywhere;
+  background: var(--surface-2); color: var(--text-primary);
+  border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 8px 10px;
+}
+.draft-edit { min-height: 10em; resize: vertical; }
+.draft-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+.draft-actions label { font-size: 12px; }
+.draft-intent-input {
+  width: 100%; box-sizing: border-box; font: inherit; font-size: 13px;
+  background: var(--surface-2); color: var(--text-primary);
+  border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 6px 8px;
+}
+.pill.pill-draft { background: var(--accent); color: #fff; }

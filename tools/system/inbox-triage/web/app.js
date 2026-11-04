@@ -26,6 +26,7 @@ const state = {
   filtered: [],
   selected: new Set(),
   mode: { armed: false, writeTokenPresent: false, remaining: 0 },
+  drafts: { requests: [], counts: {} },
 };
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -99,6 +100,7 @@ async function load() {
       </div>`;
   }
   state.byN = new Map(messages.map((m) => [m.n, m]));
+  await loadDrafts();
   renderRail();
   renderList();
   if ($('#view-dashboard').classList.contains('is-active')) renderDashboard();
@@ -239,6 +241,7 @@ function msgRow(m, selectable) {
   if (m.threadCount > 1) pills.push(`<span class="pill">thread ${m.threadCount}</span>`);
   if (m.youSent > 0) pills.push('<span class="pill">you replied</span>');
   if (m.attachments) pills.push(`<span class="pill">${m.attachments} att</span>`);
+  if (m.draft && DRAFT_PILL[m.draft]) pills.push(`<span class="pill pill-draft">${DRAFT_PILL[m.draft]}</span>`);
   const box = selectable
     ? `<input type="checkbox" class="msg-pick" data-pick="${m.n}" ${
          state.selected.has(m.n) ? 'checked' : ''}>`
@@ -520,6 +523,8 @@ function renderDetail(d) {
       <div class="flags">${flagNames}</div>
     </div>
 
+    ${draftSection(d)}
+
     ${att}
 
     <div class="dt-section">
@@ -588,10 +593,337 @@ function renderDetail(d) {
     btn.onclick = () => runAction(btn.dataset.msgact, [d.n], { spec });
   });
 
+  wireDraftSection(d, pane);
+
   $$('[data-list]', pane).forEach((btn) => {
     btn.onclick = () => teach(btn.dataset.list
       ? { scope: 'list', target: btn.dataset.listkey, kind: btn.dataset.list }
       : { scope: 'list', target: btn.dataset.listkey, clear: true });
+  });
+}
+
+/* ───────────────────────────── reply drafts ─────────────────────────────
+   Flag (local) → Claude writes the text (local) → you read/edit it here →
+   Create drafts (the one Gmail write, write mode) → Open draft in Gmail.
+   Nothing in this app can send mail. */
+
+const DRAFT_PILL = { flagged: '\u270e flagged', written: '\u270e text ready',
+  created: '\u270e draft in Gmail', sent: '\u270e replied', gone: '\u270e draft deleted' };
+
+const CLAUDE_HINT = 'In a Claude session, say <strong>&ldquo;draft my flagged replies&rdquo;</strong>.';
+
+async function loadDrafts() {
+  try {
+    state.drafts = await fetch('/api/drafts').then((r) => r.json());
+  } catch (err) { return; }
+  renderDraftsChrome();
+}
+
+function setDrafts(payload) {
+  state.drafts = { requests: payload.requests, counts: payload.counts };
+  for (const m of state.messages) {
+    const req = payload.requests.find((r) => r.id === m.id);
+    m.draft = req ? req.status : null;
+  }
+  renderDraftsChrome();
+}
+
+function renderDraftsChrome() {
+  const c = state.drafts.counts || {};
+  const open = (c.flagged || 0) + (c.written || 0);
+  $('#drafts-tab-count').textContent = open ? String(open) : '';
+  const strip = $('#drafts-strip');
+  if (!strip) return;
+  const parts = [];
+  if (c.flagged) parts.push(`<div><b>\u270e ${c.flagged} flagged</b> for a drafted reply. ${CLAUDE_HINT}</div>`);
+  if (c.written) parts.push(`<div><b>\u270e ${c.written} text${c.written > 1 ? 's' : ''} ready</b> — review them and press <strong>Create drafts</strong>.</div>`);
+  strip.innerHTML = parts.join('');
+  strip.classList.toggle('hidden', !parts.length);
+  strip.onclick = () => showView('drafts');
+}
+
+function draftText(r) {
+  return r.gmail_body || r.body || '';
+}
+
+function draftSection(d) {
+  const r = d.draftRequest;
+  const intentBox = (val) => `
+      <input id="draft-intent" class="draft-intent-input" type="text"
+             placeholder="What should the reply say? e.g. &ldquo;yes, propose Tue or Wed&rdquo;"
+             value="${esc(val || '')}">`;
+  let inner;
+  if (!r) {
+    inner = `${intentBox('')}
+      <div class="draft-actions">
+        <button class="act-btn act-primary" id="draft-flag">Flag for a drafted reply</button>
+      </div>
+      <div class="actions-note">Local only. ${CLAUDE_HINT} You will see the text here before anything goes to Gmail.</div>`;
+  } else if (r.status === 'flagged') {
+    inner = `${intentBox(r.intent)}
+      <div class="draft-actions">
+        <button class="act-btn" id="draft-flag">Update intent</button>
+        <button class="act-btn" id="draft-clear">Unflag</button>
+      </div>
+      <div class="actions-note"><b>Flagged — waiting for Claude.</b> ${CLAUDE_HINT}</div>`;
+  } else if (r.status === 'written') {
+    inner = `<div class="draft-intent"><b>Intent:</b> ${esc(r.intent || '—')}</div>
+      <div class="draft-meta">To ${esc((r.draft_to || []).join(', '))}${
+        (r.draft_cc || []).length ? ` · Cc ${esc(r.draft_cc.join(', '))}` : ''}</div>
+      <div class="draft-text">${esc(r.body)}</div>
+      <div class="draft-actions">
+        <button class="act-btn act-primary" id="draft-create">Create this draft in Gmail</button>
+        <button class="act-btn" id="draft-review">Edit in Drafts tab</button>
+        <button class="act-btn" id="draft-clear">Discard</button>
+      </div>`;
+  } else if (r.status === 'created') {
+    inner = `<div class="draft-meta">Draft in Gmail since ${esc(r.created_at || '')}${
+        r.gmail_body ? ' · text as last checked in Gmail' : ''}</div>
+      <div class="draft-text">${esc(draftText(r))}</div>
+      <div class="draft-actions">
+        ${r.draft_url ? `<a class="act-btn act-primary" data-dopen="${esc(r.id)}" href="${esc(r.draft_url)}" target="_blank" rel="noopener">Open draft in Gmail \u2197</a>` : ''}
+      </div>
+      <div class="actions-note">Send or delete it in Gmail. This app then asks Gmail which it was,
+        and after a sent reply marks the original read there.</div>`;
+  } else if (r.status === 'sent') {
+    inner = `<div class="draft-meta">Replied: the draft was sent. The original is still unread in Gmail.</div>
+      <div class="draft-text">${esc(draftText(r))}</div>
+      <div class="draft-actions">
+        <button class="act-btn act-primary" id="draft-markread">Mark read in Gmail and remove from triage</button>
+      </div>`;
+  } else {
+    inner = `<div class="draft-meta">The Gmail draft was deleted without being sent.</div>
+      <div class="draft-text">${esc(draftText(r))}</div>
+      ${intentBox(r.intent)}
+      <div class="draft-actions">
+        <button class="act-btn" id="draft-flag">Flag again</button>
+        <button class="act-btn" id="draft-clear">Clear</button>
+      </div>`;
+  }
+  return `<div class="dt-section"><h3>Draft reply</h3>${inner}</div>`;
+}
+
+function wireDraftSection(d, pane) {
+  const flagBtn = $('#draft-flag', pane);
+  if (flagBtn) flagBtn.onclick = () => draftCall('/api/drafts/flag',
+    { n: d.n, intent: $('#draft-intent', pane).value }, 'Flagged for a drafted reply', d.n);
+  const intent = $('#draft-intent', pane);
+  if (intent) intent.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); flagBtn.click(); } e.stopPropagation(); };
+  const clearBtn = $('#draft-clear', pane);
+  if (clearBtn) clearBtn.onclick = () => {
+    if (d.draftRequest.status === 'written' && !confirm('Discard this draft text?')) return;
+    draftCall('/api/drafts/clear', { id: d.id }, 'Draft request cleared', d.n);
+  };
+  const createBtn = $('#draft-create', pane);
+  if (createBtn) createBtn.onclick = () => createDrafts([d.id]).then(() => select(d.n));
+  const reviewBtn = $('#draft-review', pane);
+  if (reviewBtn) reviewBtn.onclick = () => showView('drafts');
+  const markBtn = $('#draft-markread', pane);
+  if (markBtn) markBtn.onclick = () => markReplied([d.id]);
+  wireDraftOpen(pane);
+}
+
+function wireDraftOpen(root) {
+  $$('[data-dopen]', root).forEach((a) => {
+    a.addEventListener('click', () => {
+      const r = (state.drafts.requests || []).find((x) => x.id === a.dataset.dopen);
+      // The link opens Gmail itself; the modal waits for the verdict.
+      if (r) setTimeout(() => confirmDraftDone(r.id, r.subject), 350);
+    });
+  });
+}
+
+/* A sent draft never showed you the original in Gmail (the link opens only the
+   compose window), so Gmail still has it unread. Mark it read there, with the
+   rest of the thread that was there when the draft was made, and drop it from
+   triage. Write mode, like Mark read. */
+async function markReplied(ids) {
+  const what = ids.length > 1 ? `the ${ids.length} messages you replied to` : 'the message you replied to';
+  if (!(await armFor({ label: 'Mark read' }, `${what}, in Gmail`))) return false;
+  const done = busy('Marking read in Gmail…');
+  try {
+    const res = await postJSON('/api/drafts/mark-read', { ids });
+    setDrafts(res);
+    state.activeN = null;
+    await load();
+    done();
+    toast(`Replied — marked read in Gmail and removed from triage (${res.succeeded.length})`, 4000);
+    if ($('#view-drafts').classList.contains('is-active')) renderDrafts();
+    return true;
+  } catch (err) {
+    done();
+    errorToast(err.message);
+    refreshMode();
+    return false;
+  } finally { done(); }
+}
+
+/* Like confirmHandled for Reply in Gmail: ask Gmail (read-only) whether the
+   draft was sent or deleted. */
+async function confirmDraftDone(id, subject) {
+  modal({
+    title: 'Draft opened in Gmail',
+    body: subject,
+    note: 'Send it (or delete it) there, then come back. This app asks Gmail which '
+        + 'it was; after a sent reply it marks the original read in Gmail.',
+    buttons: [
+      {
+        label: 'Sent or deleted — check it', primary: true, keepOpen: true,
+        onClick: async () => {
+          $('#modal-buttons').innerHTML = '<button class="modal-btn" disabled>Checking Gmail…</button>';
+          const doneBusy = busy('Checking Gmail…');
+          let c;
+          try {
+            const res = await postJSON('/api/drafts/check', { ids: [id] });
+            setDrafts(res);
+            c = res.check;
+          } catch (err) {
+            closeModal();
+            doneBusy();
+            errorToast(err.message);
+            return;
+          }
+          doneBusy();
+          if (c.sent) {
+            closeModal();
+            await markReplied([id]);
+          } else if (c.gone) {
+            closeModal();
+            await load();
+            toast('Draft deleted — the message stays in triage', 4000);
+          } else {
+            modal({
+              title: 'Still a draft in Gmail',
+              body: subject,
+              note: 'Gmail still has this draft, so nothing changed. If you just sent '
+                  + 'it, give it a moment and check again.',
+              buttons: [
+                { label: 'Check again', primary: true, keepOpen: true,
+                  onClick: () => confirmDraftDone(id, subject) },
+                { label: 'Leave it' },
+              ],
+            });
+          }
+          if ($('#view-drafts').classList.contains('is-active')) renderDrafts();
+        },
+      },
+      { label: 'Not yet — leave it' },
+    ],
+  });
+}
+
+async function draftCall(url, body, ok, reselect) {
+  try {
+    setDrafts(await postJSON(url, body));
+    toast(ok);
+    renderList();
+    if (reselect != null) await select(reselect);
+    if ($('#view-drafts').classList.contains('is-active')) renderDrafts();
+  } catch (err) { errorToast(err.message); }
+}
+
+async function createDrafts(ids) {
+  if (!ids.length) return;
+  const spec = { label: 'Create drafts' };
+  const what = ids.length > 1 ? `${ids.length} replies, as Gmail drafts (nothing is sent)`
+    : 'one reply, as a Gmail draft (nothing is sent)';
+  if (!(await armFor(spec, what))) return;
+  const done = busy('Creating drafts in Gmail…');
+  try {
+    const res = await postJSON('/api/drafts/create', { ids });
+    setDrafts(res);
+    done();
+    toast(`Drafts created: ${res.created.length}`
+      + (res.failed.length ? `, ${res.failed.length} failed: ${res.failed[0].error}` : ''), 5000);
+    renderList();
+    if ($('#view-drafts').classList.contains('is-active')) renderDrafts();
+  } catch (err) {
+    done();
+    errorToast(err.message);
+    refreshMode();
+  } finally { done(); }
+}
+
+function renderDrafts() {
+  const reqs = state.drafts.requests || [];
+  const by = (st) => reqs.filter((r) => r.status === st);
+  const written = by('written');
+  const c = state.drafts.counts || {};
+
+  const createBtn = $('#drafts-create');
+  createBtn.disabled = !written.length;
+  createBtn.textContent = written.length ? `Create drafts (${written.length})` : 'Create drafts';
+  $('#drafts-summary').innerHTML = [
+    c.flagged ? `${c.flagged} waiting for Claude` : '',
+    c.written ? `${c.written} ready to create` : '',
+    c.created ? `${c.created} in Gmail` : '',
+    c.sent ? `${c.sent} replied` : '',
+    c.gone ? `${c.gone} deleted` : '',
+  ].filter(Boolean).join(' · ') || 'Nothing flagged yet.';
+
+  const head = (r) => `
+    <div class="draft-head"><span class="draft-subject">${esc(r.subject || '(no subject)')}</span></div>
+    <div class="draft-meta">from ${esc(r.from_name || '')} &lt;${esc(r.from_addr)}&gt; · ${fmtDate(r.date)}</div>
+    <div class="draft-intent"><b>Intent:</b> ${esc(r.intent || '—')}</div>`;
+
+  const card = (r) => {
+    if (r.status === 'flagged') {
+      return `<div class="draft-card" data-id="${esc(r.id)}">${head(r)}
+        <div class="draft-actions"><button class="act-btn" data-dclear="${esc(r.id)}">Unflag</button></div></div>`;
+    }
+    if (r.status === 'written') {
+      return `<div class="draft-card" data-id="${esc(r.id)}">${head(r)}
+        <div class="draft-meta">To <input class="draft-intent-input" data-dto="${esc(r.id)}" value="${esc((r.draft_to || []).join(', '))}"></div>
+        <div class="draft-meta">Cc <input class="draft-intent-input" data-dcc="${esc(r.id)}" value="${esc((r.draft_cc || []).join(', '))}"></div>
+        <textarea class="draft-edit" data-dbody="${esc(r.id)}">${esc(r.body)}</textarea>
+        <div class="draft-actions">
+          <label><input type="checkbox" data-dpick="${esc(r.id)}" checked> include in Create drafts</label>
+          <button class="act-btn" data-dsave="${esc(r.id)}">Save edits</button>
+          <button class="act-btn" data-dclear="${esc(r.id)}" data-dconfirm="1">Discard</button>
+        </div></div>`;
+    }
+    return `<div class="draft-card" data-id="${esc(r.id)}">${head(r)}
+      <div class="draft-meta">${r.status === 'created'
+        ? `Draft in Gmail since ${esc(r.created_at || '')}${r.gmail_body ? ' · text as last checked in Gmail' : ''}`
+        : r.status === 'sent' ? 'Replied: the draft was sent.'
+        : 'The Gmail draft was deleted without being sent.'}</div>
+      <div class="draft-text">${esc(draftText(r))}</div>
+      <div class="draft-actions">
+        ${r.status === 'created' && r.draft_url ? `<a class="act-btn act-primary" data-dopen="${esc(r.id)}" href="${esc(r.draft_url)}" target="_blank" rel="noopener">Open draft in Gmail \u2197</a>` : ''}
+        <button class="act-btn" data-dclear="${esc(r.id)}">Clear from this list</button>
+      </div></div>`;
+  };
+
+  const group = (title, list, note = '') => list.length ? `
+    <section class="drafts-group"><h3>${title} (${list.length})</h3>${note}${list.map(card).join('')}</section>` : '';
+
+  $('#drafts-list').innerHTML =
+    group('Ready to create', written)
+    + group('Waiting for Claude', by('flagged'), `<p class="card-sub">${CLAUDE_HINT}</p>`)
+    + group('In Gmail', by('created'))
+    + group('Replied', by('sent'))
+    + group('Deleted', by('gone'));
+  wireDraftOpen($('#drafts-list'));
+
+  const splitAddrs = (v) => v.split(',').map((x) => x.trim()).filter(Boolean);
+  $$('#drafts-list [data-dsave]').forEach((btn) => {
+    const id = btn.dataset.dsave;
+    btn.onclick = () => draftCall('/api/drafts/text', {
+      id,
+      body: $(`[data-dbody="${CSS.escape(id)}"]`).value,
+      to: splitAddrs($(`[data-dto="${CSS.escape(id)}"]`).value),
+      cc: splitAddrs($(`[data-dcc="${CSS.escape(id)}"]`).value),
+    }, 'Edits saved');
+  });
+  $$('#drafts-list [data-dclear]').forEach((btn) => {
+    btn.onclick = () => {
+      if (btn.dataset.dconfirm && !confirm('Discard this draft text?')) return;
+      draftCall('/api/drafts/clear', { id: btn.dataset.dclear }, 'Cleared');
+    };
+  });
+  // Typing in the drafts must not trigger the app's single-key shortcuts.
+  $$('#drafts-list input, #drafts-list textarea').forEach((el) => {
+    el.onkeydown = (e) => e.stopPropagation();
   });
 }
 
@@ -1392,6 +1724,7 @@ function showView(name, { push = true } = {}) {
   $$('.tab').forEach((t) => t.classList.toggle('is-active', t.dataset.view === name));
   if (name === 'weights') renderWeights();
   if (name === 'data') { renderJobs(); renderCorrections(); renderActionLog(); }
+  if (name === 'drafts') loadDrafts().then(renderDrafts);
   if (name === 'dashboard' && state.overview) renderDashboard();
   if (push && location.hash.slice(1) !== name) {
     history.replaceState(null, '', `#${name}`);
@@ -1413,7 +1746,7 @@ function applyHash() {
     renderList();
     return;
   }
-  if (['triage', 'dashboard', 'weights', 'data', 'manual'].includes(hash)) showView(hash, { push: false });
+  if (['triage', 'dashboard', 'weights', 'drafts', 'data', 'manual'].includes(hash)) showView(hash, { push: false });
 }
 
 function moveSelection(delta) {
@@ -1427,6 +1760,40 @@ function moveSelection(delta) {
 
 function initEvents() {
   $$('.tab').forEach((t) => { t.onclick = () => showView(t.dataset.view); });
+
+  $('#drafts-create').onclick = async () => {
+    const ids = $$('#drafts-list [data-dpick]').filter((b) => b.checked).map((b) => b.dataset.dpick);
+    if (!ids.length) { toast('No drafts ticked'); return; }
+    // Unsaved edits in a ticked card are saved first, so what reaches Gmail is
+    // what is on the screen.
+    const splitAddrs = (v) => v.split(',').map((x) => x.trim()).filter(Boolean);
+    try {
+      for (const id of ids) {
+        const r = state.drafts.requests.find((x) => x.id === id);
+        const sel = (k) => $(`[data-${k}="${CSS.escape(id)}"]`);
+        const body = sel('dbody').value;
+        const to = splitAddrs(sel('dto').value);
+        const cc = splitAddrs(sel('dcc').value);
+        if (r && (body !== r.body || to.join(',') !== (r.draft_to || []).join(',')
+                  || cc.join(',') !== (r.draft_cc || []).join(','))) {
+          setDrafts(await postJSON('/api/drafts/text', { id, body, to, cc }));
+        }
+      }
+    } catch (err) { errorToast(err.message); return; }
+    await createDrafts(ids);
+  };
+  $('#drafts-check').onclick = async () => {
+    const done = busy('Checking drafts in Gmail (read-only)…');
+    try {
+      const res = await postJSON('/api/drafts/check', {});
+      setDrafts(res);
+      done();
+      toast(`Checked ${res.check.checked}: ${res.check.sent} sent, ${res.check.gone} deleted, ${res.check.changed} edited in Gmail`, 4000);
+      renderDrafts();
+      await load();
+      if (res.check.sent_ids && res.check.sent_ids.length) await markReplied(res.check.sent_ids);
+    } catch (err) { done(); errorToast(err.message); } finally { done(); }
+  };
 
   $('#search').addEventListener('input', (e) => {
     state.query = e.target.value;

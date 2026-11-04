@@ -46,6 +46,7 @@ from urllib.parse import urlparse
 
 import actions as gmail_actions
 import corrections
+import drafts
 import gmail_client
 import scoring
 import store
@@ -182,6 +183,21 @@ class Data:
 DATA = Data()
 
 
+# Message id -> draft request status, refreshed before each /api/messages.
+DRAFT_STATUS = {}
+
+
+def refresh_draft_status():
+    DRAFT_STATUS.clear()
+    DRAFT_STATUS.update({k: v.get("status") for k, v in drafts.load().items()})
+
+
+def drafts_payload():
+    data = drafts.load()
+    reqs = sorted(data.values(), key=lambda r: r.get("flagged_at", ""))
+    return {"requests": [drafts.public(r) for r in reqs], "counts": drafts.counts(data)}
+
+
 def row(entry):
     msg, sc = entry["msg"], entry["score"]
     thread = DATA.threads.get(msg["threadId"]) or {}
@@ -207,6 +223,7 @@ def row(entry):
             for r in sc["reasons"][:3]
         ],
         "flags": sc["flags"],
+        "draft": (DRAFT_STATUS.get(msg["id"]) or None),
         # Lowercased haystack so client-side search stays cheap.
         "q": (
             msg["subject"] + " " + msg["from_name"] + " " + msg["from_addr"]
@@ -433,6 +450,7 @@ def detail(n):
         "listKinds": corrections.LIST_KINDS,
         "gmailUrl": "https://mail.google.com/mail/u/0/#all/%s" % msg["id"],
         "unsubscribeUrl": unsub_url,
+        "draftRequest": (lambda r: drafts.public(r) if r else None)(drafts.load().get(msg["id"])),
     }
 
 
@@ -677,6 +695,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, WRITE.status())
         if path == "/api/actions":
             return self._send(200, {"log": gmail_actions.read_log(limit=120)})
+        if path == "/api/drafts":
+            return self._send(200, drafts_payload())
         if path == "/api/corrections":
             return self._send(200, {
                 "corrections": corrections.load(),
@@ -698,6 +718,7 @@ class Handler(BaseHTTPRequestHandler):
             ov["hasScores"] = bool(DATA.scores)
             return self._send(200, ov)
         if path == "/api/messages":
+            refresh_draft_status()
             return self._send(200, [row(e) for e in DATA.ordered])
         if path == "/api/weights":
             cfg = scoring.load_config()
@@ -862,6 +883,102 @@ class Handler(BaseHTTPRequestHandler):
                 DATA.ensure()
                 payload["overview"] = overview()
             return self._send(200, payload)
+
+        # Reply drafts. Flagging, clearing and editing are local only. Creating
+        # the Gmail drafts is the one write, and it needs write mode armed, like
+        # every other action. Nothing here can send mail.
+        if path == "/api/drafts/flag":
+            try:
+                body = self._body()
+                entry = DATA.numbered.get(int(body.get("n")))
+                if not entry:
+                    raise ValueError("unknown message number")
+                drafts.flag(entry["msg"], (body.get("intent") or "").strip())
+            except Exception as exc:
+                return self._send(400, {"error": str(exc)})
+            return self._send(200, drafts_payload())
+
+        if path == "/api/drafts/clear":
+            try:
+                drafts.clear(self._body().get("id"))
+            except Exception as exc:
+                return self._send(400, {"error": str(exc)})
+            return self._send(200, drafts_payload())
+
+        if path == "/api/drafts/text":
+            try:
+                body = self._body()
+                drafts.set_text(body.get("id"), body.get("body"),
+                                to=body.get("to") or None,
+                                cc=body.get("cc") if "cc" in body else None,
+                                subject=body.get("subject") or None, source="randal")
+            except Exception as exc:
+                return self._send(400, {"error": str(exc)})
+            return self._send(200, drafts_payload())
+
+        if path == "/api/drafts/create":
+            try:
+                ids = self._body().get("ids") or []
+                if not ids:
+                    raise ValueError("no drafts selected")
+                WRITE.require()
+                created, failed = drafts.create(
+                    ids, gmail_client.get_write_service(), gmail_actions.log)
+            except PermissionError as exc:
+                return self._send(403, {"error": str(exc)})
+            except Exception as exc:
+                return self._send(400, {"error": str(exc)})
+            return self._send(200, {**drafts_payload(), "created": created, "failed": failed})
+
+        # Read-only, spawned like the other reads.
+        if path == "/api/drafts/check":
+            try:
+                argv = [sys.executable, os.path.join(HERE, "triage.py"), "drafts-check", "--json"]
+                for mid in self._body().get("ids") or []:
+                    argv += ["--id", str(mid)]
+                proc = subprocess.run(
+                    argv,
+                    cwd=HERE, capture_output=True, text=True, timeout=60,
+                    env=dict(os.environ, PYTHONUNBUFFERED="1"),
+                )
+                if proc.returncode != 0:
+                    raise RuntimeError((proc.stderr or proc.stdout or "failed").strip()[:300])
+                result = json.loads(proc.stdout.strip().splitlines()[-1])
+            except Exception as exc:
+                return self._send(400, {"error": str(exc)})
+            return self._send(200, {**drafts_payload(), "check": result})
+
+        # After a sent draft: mark what you replied to read in Gmail, as opening
+        # the thread in Gmail would have, and drop it from triage. That is the
+        # flagged message plus the other unread messages in its thread that were
+        # already there when the draft was made. Write mode, like Mark read.
+        if path == "/api/drafts/mark-read":
+            try:
+                data = drafts.load()
+                ids = []
+                for mid in self._body().get("ids") or []:
+                    req = data.get(mid)
+                    if not req or req.get("status") != "sent":
+                        raise ValueError("no sent draft for message %s" % mid)
+                    cutoff = req.get("created_ms") or 0
+                    if not cutoff and req.get("created_at"):
+                        cutoff = int(__import__("datetime").datetime.fromisoformat(
+                            req["created_at"]).timestamp() * 1000)
+                    ids.append(mid)
+                    ids += [m["id"] for m in DATA.messages
+                            if m["threadId"] == req["threadId"] and m["id"] != mid
+                            and (not cutoff or m["internalDate"] <= cutoff)]
+                if not ids:
+                    raise ValueError("nothing to mark read")
+                WRITE.require()
+                result = gmail_actions.apply("mark_read", ids, note="draft sent")
+                gmail_actions.drop_from_cache(result["succeeded"])
+                DATA.rescore()
+            except PermissionError as exc:
+                return self._send(403, {"error": str(exc)})
+            except Exception as exc:
+                return self._send(400, {"error": str(exc)})
+            return self._send(200, {**drafts_payload(), **result, "overview": overview()})
 
         if path == "/api/rescore":
             try:

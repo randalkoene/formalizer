@@ -23,6 +23,10 @@ config.yaml.
   triage.py authorize-write   grant the write scope (opens a browser, one time)
   triage.py act <what> <n>... mark read / archive / star / trash / report spam
   triage.py actions           show what has been done to your mailbox
+
+  triage.py draft-requests    messages you flagged for a drafted reply (read-only)
+  triage.py draft-write <f>   store reply texts for them (local; no Gmail change)
+  triage.py drafts-check      refresh created drafts from Gmail (read-only)
 """
 
 import argparse
@@ -32,6 +36,7 @@ import sys
 
 import actions
 import corrections
+import drafts
 import gmail_client
 import scoring
 import seed_config
@@ -576,6 +581,98 @@ def cmd_weights(args):
         print("  %-32s %8s%s" % (key, current, flag))
 
 
+THREAD_BODY_LIMIT = 6000  # characters per earlier message handed to Claude
+
+
+def cmd_draft_requests(args):
+    """List the messages flagged for a drafted reply, with their thread. Read-only.
+
+    This is what Claude reads in a "draft my flagged replies" session. Thread
+    text is fetched with the read-only token; nothing in Gmail changes.
+    """
+    data = drafts.load()
+    wanted = ("flagged", "written") if args.all else ("flagged",)
+    reqs = [r for r in data.values() if r.get("status") in wanted]
+    reqs.sort(key=lambda r: r.get("date", 0))
+
+    if reqs and not args.no_thread:
+        service = gmail_client.get_service()
+        for req in reqs:
+            try:
+                raw = service.users().threads().get(
+                    userId="me", id=req["threadId"], format="full").execute()
+            except Exception as exc:
+                req["thread_error"] = str(exc)[:200]
+                continue
+            thread = []
+            for m in raw.get("messages", []) or []:
+                norm = store.normalize(m)
+                thread.append({
+                    "id": norm["id"],
+                    "from": ("%s <%s>" % (norm["from_name"], norm["from_addr"])).strip(),
+                    "to": [r["addr"] for r in norm["to"]],
+                    "cc": [r["addr"] for r in norm["cc"]],
+                    "date": norm["internalDate"],
+                    "sent_by_me": "SENT" in norm["labelIds"],
+                    "is_flagged_message": norm["id"] == req["id"],
+                    "body": norm["body_text"][:THREAD_BODY_LIMIT],
+                })
+            req["thread"] = thread
+
+    if args.json:
+        print(json.dumps([drafts.public(r) for r in reqs], ensure_ascii=False, indent=1))
+        return
+    if not reqs:
+        print("No messages are flagged for drafting.")
+        return
+    for r in reqs:
+        print("%s  [%s]  %s" % (r["id"], r["status"], r["subject"][:70]))
+        print("    from %s   intent: %s" % (r["from_addr"], r.get("intent") or "(none)"))
+
+
+def cmd_draft_write(args):
+    """Store reply texts for flagged messages. Local only: nothing reaches Gmail.
+
+    The file is a JSON list of {"id", "body", optional "to", "cc", "subject"}.
+    The drafts only reach Gmail when Randal presses Create drafts in the app.
+    """
+    with open(args.file) as fh:
+        items = json.load(fh)
+    if isinstance(items, dict):
+        items = [items]
+    ok, bad = 0, []
+    for item in items:
+        try:
+            drafts.set_text(item["id"], item.get("body"), to=item.get("to"),
+                            cc=item.get("cc"), subject=item.get("subject"),
+                            source="claude")
+            ok += 1
+        except Exception as exc:
+            bad.append("%s: %s" % (item.get("id"), exc))
+    print("Stored %d draft text(s). They are in Inbox Triage, waiting for "
+          "Create drafts." % ok)
+    for line in bad:
+        print("  not stored: " + line)
+    if bad:
+        sys.exit(1)
+
+
+def cmd_drafts_check(args):
+    """Read-only: refresh created drafts from Gmail, mark sent/deleted ones.
+
+    Marking a replied-to message read is the app's job (write mode), not this
+    read-only command's.
+    """
+    result = drafts.check(gmail_client.get_service(), only=set(args.id or []) or None)
+    if args.json:
+        print(json.dumps(result))
+        return
+    print("Checked %(checked)d draft(s): %(sent)d sent, %(gone)d deleted, "
+          "%(changed)d edited in Gmail." % result)
+    if result["sent"]:
+        print("Mark the replied-to message(s) read from the app (write mode).")
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="triage.py",
@@ -670,6 +767,24 @@ def main():
     p.add_argument("address")
     p.add_argument("--remove", action="store_true")
     p.set_defaults(func=cmd_alias)
+
+    p = sub.add_parser("draft-requests",
+                       help="messages flagged for a drafted reply, with thread (read-only)")
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--all", action="store_true",
+                   help="also include requests that already have text")
+    p.add_argument("--no-thread", action="store_true", help="skip fetching thread text")
+    p.set_defaults(func=cmd_draft_requests)
+
+    p = sub.add_parser("draft-write", help="store reply texts for flagged messages (local)")
+    p.add_argument("file")
+    p.set_defaults(func=cmd_draft_write)
+
+    p = sub.add_parser("drafts-check",
+                       help="refresh created drafts from Gmail (read-only)")
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--id", action="append", help="only this message id (repeatable)")
+    p.set_defaults(func=cmd_drafts_check)
 
     args = parser.parse_args()
     args.func(args)

@@ -79,6 +79,16 @@ triage"):
    If it is rejected, it fixes the errors and saves again. Then it tells you
    how many checkboxes are in the triage, and what it was unsure about.
 
+## Drafting flagged email replies
+
+You ask: *"Draft my flagged replies."* You have flagged the emails, each with
+a one-line intent, in Inbox Triage. Claude writes the replies and stores them
+locally. You read and edit them in Inbox Triage's **Drafts** tab, press
+**Create drafts** to put them in Gmail as drafts, and send them from Gmail.
+Claude never creates the Gmail drafts and never sends anything. The steps
+Claude follows are in `tools/system/inbox-triage/README.md`, "What Claude does
+for 'draft my flagged replies'".
+
 ## Keeping the context window manageable
 
 - **One chat per Node**, or per small cluster of closely related Nodes. When
