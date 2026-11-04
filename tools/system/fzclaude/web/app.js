@@ -22,13 +22,31 @@ async function api(name, { method = 'GET', query = null, body = null } = {}) {
   return data;
 }
 
+// The Formalizer web interface (Apache) on this machine, for links to Nodes and into the Log.
+const FZ_WEB = 'http://localhost';
+
+// Node IDs become links. Each carries the real Formalizer Node page address (fzlink.py).
+// On the Proposals and Checkboxes tabs a click opens that page in a new browser tab.
+// Elsewhere a plain click shows the Node in this app (Use tab, fzclaude node), and
+// Ctrl/Cmd/Shift-click or middle-click opens the Formalizer page.
 function linkify(text) {
-  return esc(text).replace(/\b\d{14}\.\d+\b/g, id => `<a class="nid" data-id="${id}" title="Show this Node">${id}</a>`);
+  return esc(text).replace(/\b\d{14}\.\d+\b/g, id =>
+    `<a class="nid" data-id="${id}" href="${FZ_WEB}/cgi-bin/fzlink.py?id=${id}" target="_blank" rel="noopener">${id}</a>`);
 }
+
+const NID_EXTERNAL_VIEWS = '#view-proposals, #view-checkboxes';
+
+document.addEventListener('mouseover', e => {
+  const a = e.target.closest('a.nid');
+  if (a && !a.title) a.title = a.closest(NID_EXTERNAL_VIEWS)
+    ? 'Open this Node in the Formalizer'
+    : 'Show this Node here (Ctrl-click: open in the Formalizer)';
+});
 
 document.addEventListener('click', e => {
   const a = e.target.closest('a.nid');
   if (!a) return;
+  if (a.closest(NID_EXTERNAL_VIEWS) || e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
   e.preventDefault();
   showView('use');
   selectCommand('node', { id: a.dataset.id }, true);
@@ -544,9 +562,6 @@ async function archiveTriage(archived) {
   }
   await loadTriages(archived && !showArchived ? null : t.tid);
 }
-
-// The Formalizer web interface (Apache) on this machine, for links into the Log.
-const FZ_WEB = 'http://localhost';
 
 const ACTION_LABELS = { leave: 'Leave', checked: 'Mark checked', obsolete: 'Checked, obsolete', link: 'Link to Node', new: 'New Node' };
 

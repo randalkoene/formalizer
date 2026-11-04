@@ -165,7 +165,10 @@ It stops itself after 3 idle hours, or with the ⏻ button.
 The page has four tabs:
 
 - **Use** runs any read command and shows exactly what Claude would receive,
-  with an estimated token count. Clicking a Node ID shows that Node. Pages
+  with an estimated token count. Clicking a Node ID shows that Node here;
+  Ctrl-click or middle-click opens its Formalizer page instead. On the
+  Proposals and Checkboxes tabs a Node ID always opens the Formalizer
+  page, in a new browser tab. Pages
   are previewed with `changes --no-mark`, so previewing never moves Claude's
   baseline.
 - **Settings** is the configuration editor: the scope rules and the other
