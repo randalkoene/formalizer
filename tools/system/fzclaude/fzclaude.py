@@ -1884,7 +1884,8 @@ def cmd_triage_apply(args, cfg):
             if d['action'] == 'new':
                 argv = ['fzgraph', '-M', 'node', '-S', d['superior'], '-T', str(d['text']).strip(),
                         '-H', str(to_float(d['hours'])), '-p', d['td_prop']]
-                if d['td_prop'] != 'unspecified':
+                # Also for unspecified (UTD) Nodes: their target date is their place on the todo stack.
+                if re.fullmatch(r'\d{12}', str(d.get('targetdate', ''))):
                     argv += ['-t', d['targetdate']]
                 if topic_list(d.get('topics')):
                     argv += ['-g', ','.join(topic_list(d.get('topics')))]
