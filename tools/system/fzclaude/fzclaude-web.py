@@ -202,15 +202,7 @@ def lookup_node(nid: str) -> dict:
 
 
 def all_topics() -> list:
-    rc, out = fzclaude.run_tool('fzgraphhtml', ['-t', '?', '-F', 'txt', '-e', '-o', 'STDOUT', '-E', os.devnull,
-                                                '-q', '-T', fzclaude.TOPICS_TEMPLATE])
-    topics = []
-    if rc == 0:
-        for rec in out.split('@@R@@')[1:]:
-            f = rec.rstrip('\n').split('@@F@@')
-            if len(f) >= 2 and f[0].strip():
-                topics.append({'tag': f[0].strip(), 'title': f[1].strip()})
-    return topics
+    return [{'tag': tag, 'title': title} for tag, title in (fzclaude.topic_titles() or {}).items()]
 
 
 def read_jsonl_tail(path: str, limit: int) -> list:
@@ -271,8 +263,9 @@ def triage_payload(tid: str) -> dict:
         else:
             m = fzclaude.node_meta(d)
             nodes[nid] = {'found': True, 'excerpt': fzclaude.one_line(fzclaude.html_to_text(d['text']), 140),
-                          'td': fzclaude.fmt_td(m['td']), 'comp': m['comp']}
+                          'td': fzclaude.fmt_td(m['td']), 'comp': m['comp'], 'topics': m['topics']}
     t['nodes'] = nodes
+    t['topics'] = sorted(all_topics(), key=lambda x: x['tag'])
     return t
 
 

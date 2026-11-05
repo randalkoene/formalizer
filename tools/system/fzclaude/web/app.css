@@ -278,6 +278,13 @@ input[type=number] { width: 7em; }
 .cand { display: flex; gap: 6px; align-items: flex-start; margin: 3px 0; font-size: 13px; }
 .cand-why { color: var(--text-muted); font-size: 12px; }
 .other-id { width: 180px; }
+.tri-topics > span:first-child { color: var(--text-muted); font-size: 12px; }
+.topic-chips { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.topic-chip { display: inline-flex; align-items: center; gap: 2px; padding: 1px 4px 1px 8px; border-radius: 10px;
+  background: var(--accent-soft); font-size: 12.5px; }
+.topic-rm { border: 0; background: none; cursor: pointer; padding: 0 3px; color: var(--text-muted); font-size: 13px; line-height: 1; }
+.topic-rm:hover { color: var(--text-primary); }
+.n-topic-add { max-width: 280px; }
 .tri-bar { position: sticky; bottom: 0; z-index: 1; justify-content: flex-end; }
 .tri-bar #tri-tally { margin-right: auto; }
 .tri-history { margin: 6px 0 0; padding-left: 20px; color: var(--text-secondary); font-size: 13px; }

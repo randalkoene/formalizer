@@ -563,7 +563,7 @@ async function archiveTriage(archived) {
   await loadTriages(archived && !showArchived ? null : t.tid);
 }
 
-const ACTION_LABELS = { leave: 'Leave', checked: 'Mark checked', obsolete: 'Checked, obsolete', link: 'Link to Node', new: 'New Node' };
+const ACTION_LABELS = { leave: 'Leave', checked: 'Mark checked', obsolete: 'Checked, obsolete', link: 'Checked, link to Node', new: 'New Node' };
 
 async function loadTriages(selectTid = null, listOnly = false) {
   try {
@@ -775,10 +775,37 @@ function triageItem(it, i) {
         <label>Target date <input type="datetime-local" class="n-td" value="${esc(stampToLocal(it.targetdate))}"></label>
         <span class="tri-props">${TD_PROPS.map(p =>
           `<label><input type="radio" name="prop-${i}" value="${p}" ${p === prop ? 'checked' : ''}> ${p}</label>`).join('')}</span>
-        <label>Topics <input type="text" class="n-topics" value="${esc(it.topics || '')}" placeholder="optional, comma-separated"></label>
+      </div>
+      <div class="tri-row tri-topics"><span>Topics</span>
+        <input type="hidden" class="n-topics" value="${esc(itemTopics(it).join(','))}">
+        <span class="topic-chips">${topicChips(itemTopics(it))}</span>
+        <select class="n-topic-add"><option value="">Add a topic…</option>${(triage.topics || []).map(t =>
+          `<option value="${esc(t.tag)}">${esc(t.tag)}${t.title ? ` · ${esc(t.title)}` : ''}</option>`).join('')}</select>
       </div>
     </div>
   </div>`;
+}
+
+// Claude's topics; for triages made before it had to suggest one, those of the first superior.
+function itemTopics(it) {
+  const own = String(it.topics || '').split(',').map(s => s.trim()).filter(Boolean);
+  if (own.length) return own;
+  const first = (it.superiors || [])[0];
+  return first ? ((triage.nodes[first.id] || {}).topics || []) : [];
+}
+
+function topicChips(tags) {
+  return tags.map(t => `<span class="topic-chip">${esc(t)}<button type="button" class="topic-rm" data-tag="${esc(t)}"
+    title="Remove this topic">×</button></span>`).join('');
+}
+
+function setTopics(el, tags) {
+  el.querySelector('.n-topics').value = tags.join(',');
+  el.querySelector('.topic-chips').innerHTML = topicChips(tags);
+}
+
+function currentTopics(el) {
+  return el.querySelector('.n-topics').value.split(',').filter(Boolean);
 }
 
 const TD_PROPS = ['unspecified', 'variable', 'fixed'];
@@ -823,7 +850,22 @@ async function showTriage(tid) {
     <pre id="tri-output" class="output small" hidden></pre>`;
   document.querySelectorAll('.tri-item[data-i]').forEach(el => {
     syncTriageItem(el);
-    el.addEventListener('change', () => { triageFormTouched = true; syncTriageItem(el); tallyTriage(); });
+    el.addEventListener('change', e => {
+      triageFormTouched = true;
+      if (e.target.classList.contains('n-topic-add')) {
+        const tag = e.target.value;
+        if (tag && !currentTopics(el).includes(tag)) setTopics(el, [...currentTopics(el), tag]);
+        e.target.value = '';
+      }
+      syncTriageItem(el);
+      tallyTriage();
+    });
+    el.addEventListener('click', e => {
+      const rm = e.target.closest('.topic-rm');
+      if (!rm) return;
+      triageFormTouched = true;
+      setTopics(el, currentTopics(el).filter(t => t !== rm.dataset.tag));
+    });
   });
   document.querySelectorAll('.other-id').forEach(inp => inp.addEventListener('input', () => {
     const radio = inp.closest('.cand').querySelector('input[type=radio]');
@@ -871,6 +913,7 @@ function collectDecisions() {
       d.td_prop = (el.querySelector(`input[name="prop-${i}"]:checked`) || {}).value;
       d.topics = el.querySelector('.n-topics').value.trim();
       if (!ID_RE.test(d.superior)) problems.push(`${it.ref}: choose a superior`);
+      if (!d.topics) problems.push(`${it.ref}: choose at least one topic`);
       if (!d.text) problems.push(`${it.ref}: the description is empty`);
       if (!(d.hours > 0)) problems.push(`${it.ref}: hours must be above 0`);
       if (d.td_prop !== 'unspecified' && d.targetdate.length !== 12) problems.push(`${it.ref}: set a target date`);

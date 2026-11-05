@@ -341,22 +341,33 @@ Claude reads `fzclaude checkboxes`, looks for suitable superiors (`search`,
       "suggest": "new", "why": "Belongs with the budget review",
       "superiors": [ {"id": "20260101090000.1", "why": "Budget review Node"} ],
       "node_text": "Ask Ken about the Q1 budget", "hours": 0.5,
-      "targetdate": "202611101700", "td_prop": "variable", "topics": "" },
+      "targetdate": "202611101700", "td_prop": "variable", "topics": "fund-raising" },
     { "ref": "202610200900.1:2", "checkbox": "Send slides",
-      "suggest": "obsolete", "why": "The event was in March" }
+      "suggest": "obsolete", "why": "The event was in March",
+      "superiors": [ {"id": "20260101090000.2", "why": "Talks and slides Node"} ],
+      "node_text": "Send the slides", "hours": 0.25,
+      "targetdate": "202611121700", "td_prop": "variable", "topics": "communication" }
   ]
 }
 ```
 
 `suggest` is one of `new`, `link` (it is already covered by an existing
 Node, listed in `link` like `superiors`), `checked`, `obsolete`, or `leave`.
-`other` may hold a suggestion for handling it differently by hand. Saving
-checks that every checkbox is still open and visible to Claude, that the
-text matches, and that every candidate Node is in scope.
+`other` may hold a suggestion for handling it differently by hand. Every
+item, whatever its suggestion, also carries the New Node fields (at least
+one superior, `node_text`, a target date unless `td_prop` is `unspecified`,
+and at least one topic), so that the form is ready if you switch to
+**New Node**. Saving checks that every checkbox is still open and visible
+to Claude, that the text matches, that every candidate Node is in scope,
+and that every topic exists.
 
 In the **Checkboxes** tab, each checkbox starts out set to Claude's
-suggestion. You can change the action, the superior (or type in any Node
-ID), the description, hours, target date and property, and topics. With
+suggestion. **Checked, link to Node** marks the checkbox done and adds the
+Node ID, as **Checked, obsolete** does with `[ obsolete ]`. You can change the
+action, the superior (or type in any Node ID), the description, hours, target
+date and property, and the topics (picked from the list of existing topics;
+a New Node needs at least one). For a triage made before topics were
+required, the topics of the first superior are filled in. With
 **Dry run** ticked (the default), processing shows exactly what would
 happen and changes nothing. Untick it to process for real:
 

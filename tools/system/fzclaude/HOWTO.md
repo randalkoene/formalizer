@@ -65,9 +65,15 @@ triage"):
    - **`leave`**: when unsure. **`other`** holds an idea for handling it
      differently by hand.
 
-   For `new` and `link`, it finds 1 to 3 candidate Nodes with `search`,
-   checked with `node`. Candidates must be in scope.
-4. For `new`:
+   For `link`, it finds 1 to 3 candidate Nodes with `search`, checked with
+   `node`. Candidates must be in scope.
+4. For **every** checkbox, whatever it suggests, it also prepares a New Node,
+   so that the form is ready if you switch to **New Node**:
+   - **Superiors:** 1 to 3 candidates, found and checked as for `link`.
+   - **Topics:** at least one existing topic that fits (every Node belongs
+     to a topic), usually the superior's or a related Node's. `fzclaude
+     topics` lists them, e.g. cc-operations, cc-research, communication,
+     formalizer, system, meetings, fund-raising.
    - **Description:** clean up the checkbox text into a Node description.
    - **Hours:** an estimate (0.5 when there is nothing to go on).
    - **Target date:** if it relates to a Node in the next 14 days, set it

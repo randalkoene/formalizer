@@ -1092,6 +1092,20 @@ def cmd_context(args, cfg, scope):
         print_log_rows(cfg, vis, recent)
 
 
+def topic_titles():
+    """All topics that exist in the Formalizer, {tag: title}, or None if they could not be read."""
+    rc, out = run_tool('fzgraphhtml', ['-t', '?', '-F', 'txt', '-e', '-o', 'STDOUT', '-E', os.devnull,
+                                       '-q', '-T', TOPICS_TEMPLATE])
+    if rc != 0:
+        return None
+    titles = {}
+    for rec in out.split('@@R@@')[1:]:
+        f = rec.rstrip('\n').split('@@F@@')
+        if len(f) >= 2 and f[0].strip():
+            titles[f[0].strip()] = f[1].strip()
+    return titles
+
+
 def cmd_topics(args, cfg, scope):
     vis = scope['visible']
     counts = {}
@@ -1100,14 +1114,7 @@ def cmd_topics(args, cfg, scope):
             c = counts.setdefault(t, [0, 0])
             c[0] += 1
             c[1] += is_active(m)
-    titles = {}
-    rc, out = run_tool('fzgraphhtml', ['-t', '?', '-F', 'txt', '-e', '-o', 'STDOUT', '-E', os.devnull,
-                                       '-q', '-T', TOPICS_TEMPLATE])
-    if rc == 0:
-        for rec in out.split('@@R@@')[1:]:
-            f = rec.rstrip('\n').split('@@F@@')
-            if len(f) >= 2:
-                titles[f[0].strip()] = f[1].strip()
+    titles = topic_titles() or {}
     OUT.p(f'{len(counts)} topics on Nodes in scope (Nodes, active):')
     for t, (n, inc) in sorted(counts.items(), key=lambda x: -x[1][0]):
         OUT.p(f'  {t} ({n}, {inc}) {titles.get(t, "")}'.rstrip())
@@ -1657,6 +1664,9 @@ def validate_triage(t, vis: dict, cfg: dict) -> list:
     if not isinstance(t.get('title', ''), str):
         errors.append('"title" must be text')
     excluded_topics = set(cfg['exclude_topic']) | set(cfg['exclude_topic_tree'])
+    known = topic_titles()
+    if known is None:
+        errors.append('could not read the list of topics, to check the topics')
     seen = set()
     for n, it in enumerate(t['items'], 1):
         w = f'item {n}'
@@ -1687,8 +1697,15 @@ def validate_triage(t, vis: dict, cfg: dict) -> list:
             for c in cands:
                 if c['id'] not in vis:
                     errors.append(f"{w}: {key} Node {c['id']} is not in scope")
-        if it.get('suggest') == 'new' and not it.get('superiors'):
-            errors.append(f'{w}: a new Node needs at least one candidate in "superiors"')
+        # Every item is prepared for "New Node", whatever is suggested, so that the user can switch to it.
+        if not it.get('superiors'):
+            errors.append(f'{w}: "superiors" needs at least one candidate, also when "new" is not suggested')
+        if not str(it.get('node_text', '')).strip():
+            errors.append(f'{w}: "node_text" is needed, also when "new" is not suggested')
+        if it.get('td_prop', 'variable') != 'unspecified' and not it.get('targetdate'):
+            errors.append(f'{w}: "targetdate" is needed unless "td_prop" is unspecified')
+        if not topic_list(it.get('topics')):
+            errors.append(f'{w}: "topics" needs at least one topic (every Node belongs to a topic)')
         if it.get('suggest') == 'link' and not it.get('link'):
             errors.append(f'{w}: "link" needs at least one Node')
         for key in ('why', 'node_text', 'other'):
@@ -1706,6 +1723,8 @@ def validate_triage(t, vis: dict, cfg: dict) -> list:
                 errors.append(f'{w}: not a topic tag: {tag}')
             elif tag in excluded_topics:
                 errors.append(f'{w}: topic {tag} is excluded')
+            elif known is not None and tag not in known:
+                errors.append(f'{w}: there is no topic {tag} (see the topics command)')
     return errors
 
 
@@ -1783,6 +1802,8 @@ def check_decisions(t: dict, decisions) -> list:
                 errors.append(f'{ref}: target date property must be one of {", ".join(TD_PROPS)}')
             elif d['td_prop'] != 'unspecified' and not re.fullmatch(r'\d{12}', str(d.get('targetdate', ''))):
                 errors.append(f'{ref}: a {d["td_prop"]} target date needs a date and time')
+            if not topic_list(d.get('topics')):
+                errors.append(f'{ref}: a new Node needs at least one topic')
             if any(not re.fullmatch(r'[^\s,()]+', g) for g in topic_list(d.get('topics'))):
                 errors.append(f'{ref}: topics must be comma-separated topic tags')
     return errors
