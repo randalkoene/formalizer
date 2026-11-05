@@ -670,7 +670,10 @@ bool render_Log_interval() {
         time_t t_chunkopen = chunkptr->get_open_time();
         varvals.emplace("chunk_id", t_open_str);
         varvals.emplace("node_id", node_id.str());
-        if (fzlh.search_strings.empty()) {
+        // Excerpts selected by search text or by RegEx pattern (e.g. the checkboxes page)
+        // get a button that opens the chunk in the context of the surrounding Log.
+        bool show_around_button = (!fzlh.search_strings.empty()) || (fzlh.pattern && (fzlh.recent_format == most_recent_html));
+        if (!show_around_button) {
             varvals.emplace("node_info", include_Node_info(node_id));
         } else {
             std::string around_button = make_around_button(t_open_str);
