@@ -71,9 +71,10 @@ programs), e.g. `fzserverpq` rather than `server`, `fztask` rather than `task`,
 The names are short: `fzgraph`, not `fzgraphedit`. The core programs are divided
 by the kind of change they make, not by the kind of Graph element:
 
-- **`fzgraph` changes the structure of the Graph:** it adds Nodes (`-M node`) and
-  Edges (`-M edges`), and modifies Named Node Lists (`-L add|remove|delete`). It
-  can also pass any request to the server port API (`-C`).
+- **`fzgraph` changes the structure of the Graph:** it adds Nodes (`-M node`),
+  Edges (`-M edges`) and Topics (`-M topic`), and modifies Named Node Lists
+  (`-L add|remove|delete`). It can also pass any request to the server port API
+  (`-C`).
 - **`fzedit` changes parameters inside existing elements:** all edits of Node and
   Edge parameters go through `fzedit -M <node-id>|<edge-id>`, including which
   Topics a Node belongs to (`-g`).
@@ -94,8 +95,8 @@ Rationale for where Topics and Named Node Lists fit:
   modified through `fzgraph` (or directly through the server's
   `/fz/graph/namedlists/...` API, which does not need shared memory).
 
-Note: at present there is no command line option for creating a Topic on its own.
-How Topics come into being is described in the manual, section I.4.
+Creating a Topic (`fzgraph -M topic`) adds a new set to the Graph, so it is part
+of `fzgraph`. How Topics are created is described in the manual, section I.4.
 
 These arrangements are not hard to change: a different set of core programs could
 be built from the same library code.

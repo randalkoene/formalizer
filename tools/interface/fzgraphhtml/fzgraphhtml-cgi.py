@@ -25,6 +25,10 @@ from io import StringIO
 from traceback import print_exc
 from subprocess import Popen, PIPE
 import base64
+import re
+import html
+import urllib.request
+import urllib.parse
 from pathlib import Path
 home = str(Path.home())
 
@@ -78,6 +82,8 @@ topic = form.getvalue('topic')
 tonode = form.getvalue('to-node')
 norepeats = form.getvalue('norepeats')
 btf = form.getvalue('btf')
+newtopic_tag = form.getvalue('newtopic_tag') # create a new Topic (see handle_new_topic())
+newtopic_title = form.getvalue('newtopic_title')
 
 # extra arguments for generating Next Nodes Schedule
 num_elements = form.getvalue('num_elements')
@@ -119,6 +125,7 @@ Main modes:
 <li><code>id</code>: List of Named Node Lists
 <li><code>srclist</code>: List of Nodes in a specified Named Node List
 <li><code>topics</code>: List of Topics
+<li><code>newtopic_tag</code>: Create a new Topic (optional <code>newtopic_title</code>) and add it to the Node in <code>to-node</code>, or to a NEW Node
 <li><code>topic</code>: List of Nodes in a specified Topic
 <li><code>norepeats</code>: List of Incomplete Nodes in order of Effective Target Date
 <li>By default: Schedule of Incomplete Nodes with Repeats of Repeating Nodes
@@ -762,13 +769,95 @@ def generate_Node_edit_form_page():
     print(editpagetail % (copy_templates, fzserverpq_addrport))
 
 
+NODE_ID_RE = re.compile(r'[0-9]{14}\.[0-9]+')
+TOPIC_TAG_RE = re.compile(r'[a-z0-9][a-z0-9-]*')
+
+NEW_TOPIC_FORM = '''<hr>
+<form action="/cgi-bin/fzgraphhtml-cgi.py" method="get">
+<b>New Topic</b>: tag <input type="text" name="newtopic_tag" size="24" pattern="[a-z0-9][a-z0-9-]*" title="lowercase letters, digits and hyphens" required>
+title <input type="text" name="newtopic_title" size="40" placeholder="(optional, defaults to the tag)">
+%s<input type="submit" value="Create and add to %s">
+</form>
+'''
+
+def new_topic_form() -> str:
+    """The 'New Topic' form, carrying along where the new Topic should be added."""
+    hidden = ''
+    for name in ('to-node', 'VTDdefault', 'UTDdefault', 'data', 'SPA'):
+        v = form.getvalue(name)
+        if v:
+            hidden += f'<input type="hidden" name="{name}" value="{html.escape(v, quote=True)}">\n'
+    target = tonode if (tonode and NODE_ID_RE.fullmatch(tonode)) else 'NEW Node'
+    return NEW_TOPIC_FORM % (hidden, html.escape(target))
+
+def server_request(api: str):
+    """Send a request to fzserverpq. Returns (ok, response text)."""
+    try:
+        with urllib.request.urlopen(f'http://{fzserverpq_addrport.strip()}{api}', timeout=10) as r:
+            return (r.status == 200, r.read().decode(errors='replace'))
+    except Exception as e:
+        return (False, str(e))
+
+def new_topic_error_page(msg: str):
+    print(f'''<html><head><meta charset="utf-8"><link rel="stylesheet" href="/fz.css"><title>fz: New Topic</title></head>
+<body><h1>fz: New Topic</h1>
+<p><b>Error:</b> {html.escape(msg)}</p>
+<p>[<a href="javascript:history.back()">back</a>] [<a href="/index.html">fz: Top</a>]</p>
+</body></html>''')
+
+def go_to_page(url: str):
+    print(f'''<html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0; url={html.escape(url, quote=True)}">
+<title>fz: New Topic</title></head>
+<body><p>Topic created. Continue at <a href="{html.escape(url, quote=True)}">{html.escape(url)}</a>.</p></body></html>''')
+
+def handle_new_topic():
+    """Create a new Topic through fzserverpq, then add it to the Node in to-node
+    (and return to its Edit page), or continue making a NEW Node with it."""
+    tag = newtopic_tag.strip()
+    title = (newtopic_title or '').strip()
+    if not TOPIC_TAG_RE.fullmatch(tag) or len(tag) > 80:
+        return new_topic_error_page(f"'{tag}' is not a valid Topic tag. Use lowercase letters, digits and hyphens.")
+    if tonode and tonode != 'NEW' and not NODE_ID_RE.fullmatch(tonode):
+        return new_topic_error_page(f"'{tonode}' is not a Node ID.")
+
+    api = '/fz/graph/topics/add?tag=' + urllib.parse.quote(tag)
+    if title:
+        api += '&title=' + urllib.parse.quote(title)
+    ok, res = server_request(api)
+    if not ok:
+        return new_topic_error_page(f'The server did not create Topic {tag}: {res}')
+
+    if tonode and tonode != 'NEW':
+        ok, res = server_request(f'/fz/graph/nodes/{tonode}/topics/add?{tag}=1.0')
+        if not ok:
+            return new_topic_error_page(f'Topic {tag} was created, but adding it to Node {tonode} failed: {res}')
+        return go_to_page(f'/cgi-bin/fzgraphhtml-cgi.py?edit={tonode}' + statevars)
+
+    # NEW Node: continue as the 'add to NEW' links on the Topics page do.
+    prop_default = 'variable' if form.getvalue('VTDdefault') else 'unspecified'
+    url = f'/cgi-bin/fzgraphhtml-cgi.py?edit=new&topics={urllib.parse.quote(tag)}&prop={prop_default}'
+    if data:
+        url += '&data=' + urllib.parse.quote(data)
+    return go_to_page(url + statevars)
+
 def generate_topics_page():
     thecmd = "./fzgraphhtml -q -t '?' -E STDOUT -o STDOUT"
+    if tonode and not (tonode == 'NEW' or NODE_ID_RE.fullmatch(tonode)):
+        return new_topic_error_page(f"'{tonode}' is not a Node ID.") # it would go into a shell command
     if tonode:
         thecmd += " -i " + tonode
     if SPA:
         thecmd += ' -j' # no Javascript
-    try_command_call(thecmd)
+    if not tonode:
+        try_command_call(thecmd)
+        return
+    # Offer the 'New Topic' form when the Topics are listed to add one to a Node.
+    page = try_command_call(thecmd, printhere=False)
+    pos = page.rfind('</body>')
+    if pos < 0:
+        print(page + new_topic_form())
+    else:
+        print(page[:pos] + new_topic_form() + page[pos:])
 
 def generate_alternative_topics_page():
     VTDdefault = form.getvalue('VTDdefault')
@@ -798,7 +887,9 @@ def generate_alternative_topics_page():
             print('</tr>\n<tr>')
         print(f'<td>{resvec[i]}</td>')
     print('</tr>')
-    print(topicspagetail)
+    print('</tbody></table>')
+    print(new_topic_form())
+    print(topicspagetail.replace('</tbody></table>', '', 1))
 
 def generate_topic_nodes_page():
     thecmd = "./fzgraphhtml -q -t '"+topic+"' -E STDOUT -o STDOUT"
@@ -889,6 +980,10 @@ if __name__ == '__main__':
 
     if btf:
         generate_Node_inferred_BTF_page()
+        sys.exit(0)
+
+    if newtopic_tag:
+        handle_new_topic()
         sys.exit(0)
 
     if id:

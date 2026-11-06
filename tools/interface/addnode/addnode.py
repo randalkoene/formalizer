@@ -15,6 +15,7 @@ import subprocess
 import re
 import pty
 import socket
+import shlex
 #import time
 #from datetime import datetime
 
@@ -488,6 +489,12 @@ topics_info = """
 TOPICS
 """
 
+# New Topics confirmed during collect_topics(), as (tag, title) pairs. They are
+# made with 'fzgraph -M topic' just before the Node (see make_new_topics()).
+new_topics = []
+
+TOPIC_TAG_RE = re.compile(r'[a-z0-9][a-z0-9-]*')
+
 def collect_topics():
     get_topics()
     global topics_info
@@ -495,18 +502,43 @@ def collect_topics():
     topics_vec = results['topics'].decode().split()
     topics = ''
     while not topics:
+        new_topics.clear()
         print(topics_info)
         blue_ansi()
         topics = input('Topics (comma separated): ')
-        chosen_topics = topics.split()
+        chosen_topics = [ t for t in re.split(r'[,\s]+', topics) if t ]
+        topics = ','.join(chosen_topics)
         for tpc in chosen_topics:
             if (not tpc in topics_vec):
                 print(f'Unrecognized Topic tag: \'{tpc}\'')
+                if not TOPIC_TAG_RE.fullmatch(tpc):
+                    print('A new Topic tag can only have lowercase letters, digits and hyphens.')
+                    topics = ''
+                    break
                 confirmadd = input(f'Do you wish to add this as a new Topic? ({No_yes(ANSI_bb)})')
                 if (confirmadd != 'y'):
                     topics = ''
+                    break
+                title = input(f'Title for new Topic \'{tpc}\' (ENTER: same as the tag): ').strip()
+                new_topics.append((tpc, title))
         lightgray_ansi()
     return topics
+
+
+def new_topic_commands() -> list:
+    cmds = []
+    for tag, title in new_topics:
+        cmd = f'fzgraph -M topic -g {shlex.quote(tag)}'
+        if title:
+            cmd += f' -T {shlex.quote(title)}'
+        cmds.append(cmd)
+    return cmds
+
+
+def make_new_topics():
+    for cmd in new_topic_commands():
+        retcode = try_subprocess_check_output(cmd, 'fzgraph_topic_res')
+        exit_error(retcode, f'Making a new Topic failed: {cmd}')
 
 
 superiors_and_dependencies_info = """
@@ -589,6 +621,9 @@ def collect_node_data():
 
 
 def simulate_make_node(fzgraphcmd: str):
+    for cmd in new_topic_commands():
+        print('Simulated call to make a new Topic:')
+        print('  '+cmd)
     print('Simulated call to fzgraph:')
     print('  '+fzgraphcmd)
     print('')
@@ -634,6 +669,7 @@ if __name__ == '__main__':
     if args.simulate:
         node_id = simulate_make_node(fzgraphcmd)
     else:
+        make_new_topics()
         node_id = make_node(fzgraphcmd)
 
     print(f'Completed addnode. Created Node {node_id}.')

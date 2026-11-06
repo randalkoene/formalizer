@@ -201,17 +201,34 @@ Node page uses per-Topic statistics to suggest the required time.
   `/fz/graph/nodes/<node-id>/topics/add?<tag>=1.0` to the server. Each Topic shown on
   the Edit page has a `[remove]` link
   (`/fz/graph/nodes/<node-id>/topics/remove?<tag>=`).
-- When adding a new Node, the Add Node page first asks for a Topic ("add to NEW").
+- When adding a new Node, the first page asks whether the Node defaults to a variable
+  (VTD) or unspecified (UTD) target date, and then shows the Topics list, where you
+  pick a Topic ("add to NEW").
 - On the command line, `fzgraph -g <tags>` sets the Topics of a new Node, and
   `fzedit -M <node-id> -g <tags>` replaces the Topics of an existing Node. Both refuse
   tags that are not known Topics.
+- The server's `topics/add` request also refuses unknown tags. (Until 2026-11, it
+  created such a Topic in the resident Graph only, so after a restart the Node held
+  the ID of a Topic that did not exist.)
 
-**Creating a Topic:** there is at present no tool for creating a new Topic. The Topics
-came from the conversion of Formalizer 1.x (one Topic per topical DIL file, see
-`dil2graph`). If the server receives a `topics/add` request with an unknown tag, it
-creates the Topic in the resident Graph, but no code path writes a single new Topic to
-the database's Topics table (only storing a complete Graph does), so such a Topic would
-probably not survive a restart of `fzserverpq` (unverified).
+**Creating a Topic:** a new Topic is stored in the database's Topics table and added to
+the resident Graph at the same time, so it survives a restart of `fzserverpq`. Tags are
+lowercase letters, digits and hyphens. The title is optional and defaults to the tag.
+A new Topic gets its tag as its only keyword (relevance 1.0) and no superior Topic.
+If the tag already exists, nothing changes. There are three ways to create a Topic:
+
+- In the web interface: the Topics list reached from a Node's Edit page, or while
+  adding a new Node, has a "New Topic" form below the list (tag and title). It creates
+  the Topic and adds it to that Node, or continues to the new Node form with it.
+- On the command line: `fzgraph -M topic -g <tag> [-T <title>]`. Several comma
+  separated tags make several Topics (then without `-T`). The interactive `addnode`
+  script offers this when you enter an unknown tag.
+- Through the server port API: `/fz/graph/topics/add?tag=<tag>[&title=<title>]`
+  (the title URL-encoded). The response includes a line `Topic ID: <id>`.
+
+There is no way yet to change or delete a Topic, or to set its superior Topic. The
+original Topics came from the conversion of Formalizer 1.x (one Topic per topical DIL
+file, see `dil2graph`).
 
 Topics differ from NNLs: a Topic is a set that a Node belongs to with some relevance,
 and which Topics a Node has is one of its parameters. An NNL is an ordered list that

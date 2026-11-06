@@ -165,6 +165,26 @@ bool add_Topic_pq(PGconn *conn, std::string schemaname, const Topic *topic) {
     return simple_call_pq(conn,tstr);
 }
 
+bool Add_new_Topic_pq(std::string dbname, std::string schemaname, Topic_ID id, const std::string & tag, const std::string & title) {
+    ERRTRACE;
+
+    PGconn* conn = connection_setup_pq(dbname);
+    if (!conn) return false;
+
+    // Same field order as pq_topiclayout. Dollar-quoting as in Topic_pq::tag_pqstr().
+    std::string idstr(std::to_string(id));
+    std::string tstr("INSERT INTO "+schemaname+".Topics VALUES ("+
+                     idstr+','+idstr+','+
+                     "$txt$"+tag+"$txt$,"+
+                     "$txt$"+title+"$txt$,"+
+                     "ARRAY[$txt$"+tag+"$txt$],"+
+                     "ARRAY[1.000])");
+    bool res = simple_call_pq(conn, tstr);
+
+    PQfinish(conn);
+    return res;
+}
+
 bool add_Node_pq(PGconn *conn, std::string schemaname, const Node *node) {
     ERRHERE(".1");
     if (!node)

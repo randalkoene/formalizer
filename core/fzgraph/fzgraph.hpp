@@ -40,6 +40,7 @@ enum flow_options {
     flow_remove_from_list = 5, /// request: remove Node(s) from Named Node List
     flow_delete_list = 6, /// request: delete Named Node List
     flow_port_api = 7,    /// request: send API string to server port
+    flow_make_topic = 8,  /// request: make new Topic(s)
     flow_NUMoptions
 };
 
@@ -78,6 +79,7 @@ public:
 
     bool supdep_from_cmdline;
     bool nnl_supdep_used;
+    bool topics_from_cmdline = false; ///< -g was given (-M topic must not use the configured default topics)
 
     bool update_shortlist = false;
 

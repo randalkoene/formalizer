@@ -1290,7 +1290,15 @@ bool handle_node_topics_edit(Node & node, std::string editstr) {
                 standard_error("Incomplete parameter value pair ("+topic_relevance+')', __func__);
                 continue;
             }
-            if (!node.add_topic(topic_relevance_pair[0], "", atof(topic_relevance_pair[1].c_str()))) {
+            // Only existing Topics. Unknown tags used to create a Topic in memory only,
+            // leaving a dangling Topic ID in the Node's database row after a restart.
+            // New Topics are made with /fz/graph/topics/add (see handle_topics_add()).
+            Topic * topic_ptr = fzs.graph().find_Topic_by_tag(topic_relevance_pair[0]);
+            if (!topic_ptr) {
+                standard_error("Unknown Topic ("+topic_relevance_pair[0]+"), create it first with /fz/graph/topics/add", __func__);
+                continue;
+            }
+            if (!node.add_topic(topic_ptr->get_id(), atof(topic_relevance_pair[1].c_str()))) {
                 standard_error("Failed to add topic ("+topic_relevance_pair[0]+')', __func__);
                 continue;
             }
@@ -1970,13 +1978,148 @@ bool handle_fz_vfs_database_request(int new_socket, const std::string & fzreques
     return false;
 }
 
+/// Decode %XX and '+' in a GET value. (URL_Decode() in cgihandler does not decode %XX correctly.)
+std::string decode_GET_value(const std::string & value) {
+    std::string decoded;
+    decoded.reserve(value.size());
+    for (size_t i = 0; i < value.size(); ++i) {
+        if ((value[i] == '%') && ((i + 2) < value.size()) && isxdigit(value[i+1]) && isxdigit(value[i+2])) {
+            decoded += (char) std::stoi(value.substr(i+1, 2), nullptr, 16);
+            i += 2;
+        } else if (value[i] == '+') {
+            decoded += ' ';
+        } else {
+            decoded += value[i];
+        }
+    }
+    return decoded;
+}
+
+/// Topic tags are lowercase letters, digits and hyphens, starting with a letter or digit.
+bool valid_Topic_tag(const std::string & tag) {
+    if (tag.empty() || (tag.size() > 80) || (tag[0] == '-')) {
+        return false;
+    }
+    for (const auto & c : tag) {
+        if (!(((c >= 'a') && (c <= 'z')) || ((c >= '0') && (c <= '9')) || (c == '-'))) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/// Topic titles are stored HTML-escaped, as the existing titles are (e.g. '&amp;').
+std::string escape_Topic_title(const std::string & title) {
+    std::string escaped;
+    for (const auto & c : title) {
+        switch (c) {
+            case '&': escaped += "&amp;"; break;
+            case '<': escaped += "&lt;"; break;
+            case '>': escaped += "&gt;"; break;
+            case '"': escaped += "&quot;"; break;
+            default: escaped += c;
+        }
+    }
+    return escaped;
+}
+
+/// Name of the shared memory segment that holds the memory-resident Graph (see Graphtypes.cpp).
+const std::string graph_segment_name("fzgraph");
+
+/**
+ * Create a new Topic that persists: first in the database, then in the memory-resident Graph.
+ *
+ * E.g. /fz/graph/topics/add?tag=new-topic&title=New%20Topic
+ *
+ * The title is optional and defaults to the tag. If a Topic with the tag already exists,
+ * nothing is changed and the existing Topic ID is reported.
+ *
+ * The response contains a line 'Topic ID: <id>' for programs that call this.
+ *
+ * @param argstr The part of the request after 'add?'.
+ * @param response_html Receives the response.
+ * @return True if the Topic exists after the call.
+ */
+bool handle_topics_add(const std::string & argstr, std::string & response_html) {
+    ERRTRACE;
+
+    std::string tag;
+    std::string title;
+    for (const auto & tv : GET_token_values(argstr)) {
+        if (tv.token == "tag") {
+            tag = decode_GET_value(tv.value);
+        } else if (tv.token == "title") {
+            title = decode_GET_value(tv.value);
+        }
+    }
+    if (!valid_Topic_tag(tag)) {
+        return standard_error("Invalid Topic tag ("+tag+"), use lowercase letters, digits and hyphens", __func__);
+    }
+    if (title.empty()) {
+        title = tag;
+    }
+    title = escape_Topic_title(title);
+    if ((title.find("$txt$") != std::string::npos) || (title.size() > 256)) {
+        return standard_error("Invalid Topic title", __func__);
+    }
+
+    Topic * existing = fzs.graph().find_Topic_by_tag(tag);
+    if (existing) {
+        response_html = standard_HTML_header("fz: Topic Add") + "<p>Topic already exists.</p>\n<p>Topic ID: "
+                        + std::to_string(existing->get_id()) + "</p>\n</body>\n</html>\n";
+        return true;
+    }
+
+    Topic_Tags & topictags = *(const_cast<Topic_Tags *>(&fzs.graph().get_topics()));
+    Topic_ID new_id = topictags.num_Topics();
+
+    // Database first, so that a failure there leaves no Topic that exists only in memory.
+    if (!Add_new_Topic_pq(fzs.ga.dbname(), fzs.ga.pq_schemaname(), new_id, tag, title)) {
+        return standard_error("Adding Topic "+tag+" to the database failed", __func__);
+    }
+
+    // Allocations below must be in the Graph's shared memory segment.
+    graphmemman.cache();
+    if (!graphmemman.set_active(graph_segment_name)) {
+        graphmemman.uncache();
+        return standard_error("Unable to activate Graph segment to add Topic "+tag+" (it is in the database and will load on restart)", __func__);
+    }
+    Topic_ID id = topictags.find_or_add_Topic(tag, title);
+    Topic * topic = topictags.find_by_id(id);
+    if (topic) {
+        Topic_KeyRel_Vector * tkr = const_cast<Topic_KeyRel_Vector *>(&topic->get_keyrel()); // as in read_Topics_pq()
+        tkr->emplace_back(tag, 1.0);
+    }
+    graphmemman.uncache();
+
+    if ((id != new_id) || (!topic)) {
+        return standard_error("Topic "+tag+" received ID "+std::to_string(id)+" in memory but "+std::to_string(new_id)+" in the database, restart fzserverpq", __func__);
+    }
+
+    response_html = standard_HTML_header("fz: Topic Add") + "<p>Topic created: " + tag + " (" + title
+                    + ")</p>\n<p>Topic ID: " + std::to_string(id) + "</p>\n</body>\n</html>\n";
+    return true;
+}
+
+/**
+ * Examples:
+ *   /fz/graph/topics/add?tag=new-topic&title=New%20Topic
+ */
+bool handle_topics_direct_request(const std::string & topicsreqstr, std::string & response_html) {
+    if (topicsreqstr.substr(0,4) == "add?") {
+        return handle_topics_add(topicsreqstr.substr(4), response_html);
+    }
+    return standard_error("No known Topics request: "+topicsreqstr, __func__);
+}
+
 /**
  * Handle a Graph request in the Formalizer /fz/ virtual filesystem.
- * 
+ *
  * Examples:
  *   /fz/graph/logtime?<T>
  *   /fz/graph/nodes/...
  *   /fz/graph/namedlists/...
+ *   /fz/graph/topics/add?tag=<tag>[&title=<title>]
  * 
  * @param new_socket The communication socket file handler to respond to.
  * @param fzrequesturl The URL-like string containing the request to handle.
@@ -2007,6 +2150,13 @@ bool handle_fz_vfs_graph_request(int new_socket, const std::string & fzrequestur
         std::string response_html;
         if (handle_named_list_direct_request(fzrequesturl.substr(21), response_html)) {
             return handle_request_response(new_socket, response_html, "NNL request successful");
+        }
+    }
+
+    if (fzrequesturl.substr(10,7) == "topics/") {
+        std::string response_html;
+        if (handle_topics_direct_request(fzrequesturl.substr(17), response_html)) {
+            return handle_request_response(new_socket, response_html, "Topics request successful");
         }
     }
 

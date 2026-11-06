@@ -2,6 +2,25 @@
 
 This includes adding Nodes, adding Edges, etc.
 
+## Making a Topic
+
+```
+fzgraph -M topic -g <tag> [-T <title>]
+```
+
+This sends `/fz/graph/topics/add?tag=<tag>&title=<title>` to `fzserverpq`, which
+stores the new Topic in the database's Topics table first and then adds it to the
+memory-resident Graph, so the Topic survives a server restart. Tags are lowercase
+letters, digits and hyphens. The title defaults to the tag. The new Topic gets its tag
+as its only keyword (relevance 1.0) and no superior Topic. A tag that already exists is
+reported (with its ID) and left unchanged. Several comma separated tags make several
+Topics, but then without `-T`. The tags must be given with `-g` on the command line;
+the configured default topics are never used for this.
+
+The server request responds with a line `Topic ID: <id>`. The request
+`/fz/graph/nodes/<node-id>/topics/add?<tag>=<relevance>` only accepts existing Topics,
+so make a new Topic first. See also the manual, section I.4.
+
 
 
 ## About *removing* (deleting) Nodes

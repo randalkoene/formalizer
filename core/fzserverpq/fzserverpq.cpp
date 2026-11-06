@@ -115,6 +115,8 @@ The GET/PATCH port API includes the following:
   /fz/graph/nodes/<node-id>/topics.<raw|txt|html|json>
   /fz/graph/nodes/<node-id>/in_NNLs.<raw|txt|html|json>
 
+  /fz/graph/nodes/<node-id>/topics/add?<tag>=<relevance>[&<tag>=<relevance>]
+  /fz/graph/nodes/<node-id>/topics/remove?<tag>=
   /fz/graph/nodes/<node-id>/superiors/<add|remove>?<node-id>=
   /fz/graph/nodes/<node-id>/superiors/addlist?<superiors|<list-name>>=
   /fz/graph/nodes/<node-id>/dependencies/<add|remove>?<node-id>=
@@ -131,6 +133,8 @@ The GET/PATCH port API includes the following:
   /fz/graph/namedlists/_shortlist
   /fz/graph/namedlists/_set?persistent=
   /fz/graph/namedlists/_reload
+
+  /fz/graph/topics/add?tag=<tag>[&title=<title>]
 
 (*) The Node information request is delegated by fzserverpq to fzgraphhtml
     to ensure that the same output format standards are used.

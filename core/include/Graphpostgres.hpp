@@ -84,6 +84,23 @@ bool create_Edges_table_pq(PGconn* conn, std::string schemaname);
 
 bool add_Topic_pq(PGconn *conn, std::string schemaname, const Topic *topic);
 
+/**
+ * Add one new Topic to the Topics table, before it is added to the memory-resident
+ * Graph. The Topic gets the tag itself as its single keyword (relevance 1.0) and no
+ * superior Topic (supid = id).
+ *
+ * Note: The caller is responsible for validating the tag and title, and for making
+ *       sure that `id` is the ID that the Topic will receive in the Graph.
+ *
+ * @param dbname The name of the database.
+ * @param schemaname The Postgres schema name for Formalizer data.
+ * @param id The ID (index) of the new Topic.
+ * @param tag The unique tag of the new Topic.
+ * @param title The title of the new Topic.
+ * @return True if the Topic was added to the database.
+ */
+bool Add_new_Topic_pq(std::string dbname, std::string schemaname, Topic_ID id, const std::string & tag, const std::string & title);
+
 bool add_Node_pq(PGconn *conn, std::string schemaname, const Node *node);
 
 bool add_Edge_pq(PGconn *conn, std::string schemaname, const Edge *edge);

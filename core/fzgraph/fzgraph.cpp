@@ -30,6 +30,7 @@
 #include "tcpclient.hpp"
 #include "apiclient.hpp"
 #include "Graphtoken.hpp"
+#include "html.hpp"
 
 // local
 #include "version.hpp"
@@ -51,7 +52,7 @@ fzgraphedit fzge;
 fzgraphedit::fzgraphedit() : formalizer_standard_program(false), graph_ptr(nullptr), config(*this),
                              supdep_from_cmdline(false), nnl_supdep_used(false) { //ga(*this, add_option_args, add_usage_top)
     add_option_args += "M:L:C:T:f:H:a:S:D:t:g:p:r:e:s:Y:G:I:U:P:l:d:uzo:m";
-    add_usage_top += " [-M node|edges] [-L add|remove|delete] [-C <api-string>] [-T <text>] [-f <content-file>] [-H <hours>] [-a <val>] [-S <sups>] [-D <deps>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>] [-l <name>] [-d <ask|keep|delete>] [-u] [-z] [-o <outfile>] [-m]";
+    add_usage_top += " [-M node|edges|topic] [-L add|remove|delete] [-C <api-string>] [-T <text>] [-f <content-file>] [-H <hours>] [-a <val>] [-S <sups>] [-D <deps>] [-t <targetdate>] [-g <topics>] [-p <tdprop>] [-r <repeat>] [-e <every>] [-s <span>] [-Y <depcy>] [-G <sig>] [-I <imp>] [-U <urg>] [-P <priority>] [-l <name>] [-d <ask|keep|delete>] [-u] [-z] [-o <outfile>] [-m]";
     //usage_head.push_back("Description at the head of usage information.\n");
     usage_tail.push_back(
         "\n"
@@ -105,6 +106,17 @@ fzgraphedit::fzgraphedit() : formalizer_standard_program(false), graph_ptr(nullp
         "   options -q and -o <outfile>, e.g. -q -o STDOUT.\n"
         "\n"
         "   For more information about the API see fzserverpq.\n"
+        "\n"
+        "E. Making a Topic (-M topic):\n"
+        "   - The new Topic tag is given with -g. Several comma separated tags make\n"
+        "     several Topics. Tags are lowercase letters, digits and hyphens.\n"
+        "   - An optional title is given with -T (only with a single tag). The\n"
+        "     title defaults to the tag.\n"
+        "   - A tag that already exists is reported and left unchanged.\n"
+        "   - The configured default topics are never used here.\n"
+        "\n"
+        "   Example:\n"
+        "   -M topic -g oop-newproject -T 'Objective Oriented Planning - NEWPROJECT'\n"
         );
 }
 
@@ -125,7 +137,7 @@ std::string NodeIDs_to_string(const Node_ID_key_Vector & nodeidvec) {
  */
 void fzgraphedit::usage_hook() {
     //ga.usage_hook();
-    FZOUT("    -M make 'node' or 'edges'\n");
+    FZOUT("    -M make 'node', 'edges' or 'topic'\n");
     FZOUT("    -L modify Named Node List: 'add' to, 'remove' from, or 'delete'\n");
     FZOUT("    -C send any <api-string> to the server port\n");
     FZOUT("    -o send server API output to outfile (can set to STDOUT)\n");
@@ -248,6 +260,10 @@ bool fzgraphedit::options_hook(char c, std::string cargs) {
             flowcontrol = flow_make_edge;
             return true;
         }
+        if (cargs=="topic") {
+            flowcontrol = flow_make_topic;
+            return true;
+        }
         return false;
     }
 
@@ -312,6 +328,7 @@ bool fzgraphedit::options_hook(char c, std::string cargs) {
 
     case 'g': {
         config.nd.topics = parse_config_topics(cargs);
+        topics_from_cmdline = true;
         return true;
     }
 
@@ -470,6 +487,50 @@ int port_API_request() {
     return standard.completed_ok();
 }
 
+/**
+ * Make one or more new Topics through the server's /fz/graph/topics/add request,
+ * which stores each Topic in the database and adds it to the memory-resident Graph.
+ * 
+ * Tags come from -g on the command line (never from the configured defaults).
+ * The optional title comes from -T and can be used only with a single tag.
+ */
+int make_topic() {
+    ERRTRACE;
+
+    if (!fzge.topics_from_cmdline || fzge.config.nd.topics.empty()) {
+        return standard_exit_error(exit_missing_parameter, "Making a Topic needs the new tag(s) with -g.", __func__);
+    }
+    std::string title(fzge.config.nd.utf8_text);
+    if ((!title.empty()) && (fzge.config.nd.topics.size() > 1)) {
+        return standard_exit_error(exit_command_line_error, "A title (-T) can only be given when making a single Topic.", __func__);
+    }
+
+    for (const auto & tag : fzge.config.nd.topics) {
+        std::string api_str("/fz/graph/topics/add?tag="+uri_encode(tag));
+        if (!title.empty()) {
+            api_str += "&title="+uri_encode(title);
+        }
+        VERYVERBOSEOUT("Sending request: "+api_str+'\n');
+        std::string response_str;
+        if (!http_GET(fzge.get_Graph()->get_server_IPaddr(), fzge.get_Graph()->get_server_port(), api_str, response_str)) {
+            return standard_exit_error(exit_communication_error, "Topic request to Server port failed: "+api_str, __func__);
+        }
+        auto first_line_end = response_str.find('\n');
+        if (response_str.substr(0, first_line_end).find("200 OK") == std::string::npos) {
+            return standard_exit_error(exit_general_error, "Server did not make Topic '"+tag+"' (tags are lowercase letters, digits and hyphens). See the server's ErrQ for details.", __func__);
+        }
+        auto idpos = response_str.find("Topic ID: ");
+        std::string idstr(idpos == std::string::npos ? "?" : response_str.substr(idpos+10, response_str.find('<', idpos) - (idpos+10)));
+        if (response_str.find("Topic already exists") != std::string::npos) {
+            VERBOSEOUT("Topic "+tag+" already exists (ID "+idstr+").\n");
+        } else {
+            VERBOSEOUT("Topic "+tag+" created (ID "+idstr+").\n");
+        }
+    }
+
+    return standard.completed_ok();
+}
+
 int main(int argc, char *argv[]) {
     ERRTRACE;
 
@@ -511,6 +572,10 @@ int main(int argc, char *argv[]) {
 
     case flow_port_api: {
         return port_API_request();
+    }
+
+    case flow_make_topic: {
+        return make_topic();
     }
 
     default: {
