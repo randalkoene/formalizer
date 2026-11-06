@@ -1348,6 +1348,15 @@ def parse_flags(prog: str, args: list) -> list:
     return res
 
 
+def raw_html_problem(text: str) -> str:
+    """Log entries and Node descriptions are shown as HTML, so a raw '<' or '>' in text
+    Claude writes (e.g. a placeholder like <title>) can break the page that shows it."""
+    if '<' in text or '>' in text:
+        return ('contains "<" or ">", which the Log and Node pages read as HTML '
+                '(e.g. <title> hides the rest of the page); write &lt; and &gt; instead')
+    return ''
+
+
 def validate_proposal(prop: dict, vis: dict, cfg: dict) -> list:
     errors = []
     if not isinstance(prop, dict) or not isinstance(prop.get('title'), str) or not prop['title'].strip():
@@ -1392,6 +1401,10 @@ def validate_proposal(prop: dict, vis: dict, cfg: dict) -> list:
             continue
         fd = dict(fl)
         name = step.get('name')
+        if '-T' in fd and (prog in ('fzlog', 'fzedit') or (prog == 'fzgraph' and fd.get('-M') == 'node')):
+            problem = raw_html_problem(fd['-T'])
+            if problem:
+                err(f'text {problem}')
 
         if prog == 'fzgraph':
             if ('-M' in fd) == ('-C' in fd):
@@ -1711,6 +1724,8 @@ def validate_triage(t, vis: dict, cfg: dict) -> list:
         for key in ('why', 'node_text', 'other'):
             if not isinstance(it.get(key, ''), str):
                 errors.append(f'{w}: "{key}" must be text')
+        if isinstance(it.get('node_text', ''), str) and raw_html_problem(it.get('node_text', '')):
+            errors.append(f'{w}: "node_text" ' + raw_html_problem(it['node_text']))
         h = it.get('hours', 0.5)
         if not isinstance(h, (int, float)) or isinstance(h, bool) or not 0 < h <= 1000:
             errors.append(f'{w}: "hours" must be a number above 0')
