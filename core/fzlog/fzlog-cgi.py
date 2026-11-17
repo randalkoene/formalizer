@@ -23,6 +23,7 @@ sys.stderr = sys.stdout
 from time import strftime, time
 from datetime import datetime
 import traceback
+import html
 from io import StringIO
 from traceback import print_exc
 import subprocess
@@ -744,7 +745,9 @@ def edit_Log_entry(id: str, verbosity = 0) -> bool:
         checkboxeslist_html = make_checkboxes_list(checkboxes, id)
         print('<p>Editing Log entry: <b>'+id+'</b></p>')
         print(editentryform_start)
-        print(entrytext, end='')
+        # Escape '&', '<' and '>' so that the textarea shows the stored text exactly,
+        # including entities like &lt; (a browser decodes entities inside a textarea).
+        print(html.escape(entrytext, quote=False), end='')
         print(editentryform_middle)
         print(entrynode, end='')
         print(editentryform_end)
