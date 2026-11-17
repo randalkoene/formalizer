@@ -76,6 +76,15 @@ bool lowercase_match_skipping_spaces(const std::vector<std::string> & match_vec,
 std::string remove_html(const std::string & htmlstr);
 
 /**
+ * Escape the characters that HTML would interpret ('&', '<', '>'), so that
+ * plain text shows exactly as written when it is placed into an HTML page.
+ * 
+ * @param txtstr A string of plain text.
+ * @return The same text, safe to place between HTML tags.
+ */
+std::string html_escape_text(const std::string & txtstr);
+
+/**
  * Remove all HTML tags (but not special characters) to produce text that
  * can be safely excerpted into HTML tables, etc, but that can still show
  * ampersands and such properly within an HTML context.

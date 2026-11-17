@@ -921,6 +921,12 @@ struct review_element {
             { "node", nodedesc },
             { "log", logcontent },
         };
+        if (fzlh.recent_format == most_recent_html) {
+            // nodedesc and logcontent are plain text (remove_html() turned "&lt;" back into '<'),
+            // so escape them again to show them as written instead of as broken HTML.
+            chunk_map["node"] = html_escape_text(nodedesc);
+            chunk_map["log"] = html_escape_text(logcontent);
+        }
         chunk_map[category_to_key.at(category)] = "checked";
         if (category == '?') { // Highlight "other" for easier flagging during review.
             chunk_map["other-hl"] = " class=\"fail\"";
