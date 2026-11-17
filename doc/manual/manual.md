@@ -363,6 +363,10 @@ The dashboard is generated from `tools/system/top/index.json` (see
 - **Catching up** on many chunks after time away:
   [fzcatchup](https://github.com/randalkoene/formalizer/blob/master/tools/interface/fzcatchup/README.md).
 - **Finer control:** [Log Chunk Granular](http://localhost/granular-controls.html).
+- **Fixing the Log:** deleting a Log entry (empty it first, then delete), and changing
+  a chunk's open or close time (an open-time change needs the chunk emptied of entries
+  for now) are described in the
+  [fzlog README](https://github.com/randalkoene/formalizer/blob/master/core/fzlog/README.md).
 - **Viewing and filtering:** [Filter Log](http://localhost/formalizer/fzloghtml-form.html),
   [Log Index](http://localhost/cgi-bin/fzloghtml-cgi.py?index=on&alloflog=on)
   ([fzloghtml README](https://github.com/randalkoene/formalizer/blob/master/tools/interface/fzloghtml/README.md)). Links to local files

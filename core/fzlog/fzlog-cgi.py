@@ -43,7 +43,7 @@ id = form.getvalue('id')
 updatecheckbox = form.getvalue('updatecheckbox')
 if updatecheckbox:
     action = 'updatecheckbox'
-replacement_text = form.getvalue('text')
+replacement_text = form.getvalue('text', '') # empty text is allowed, to empty an entry before deleting it
 T_emulated = form.getvalue('T')
 if (T_emulated == 'actual'): # 'actual' and '' have the same effect
     T_emulated = ''
@@ -82,6 +82,7 @@ Operations:
 <li><code>action=replaceentry</code>: Replace Log entry. (Comes from 'editentry'.)
 <li><code>action=generic</code>: Make generic fzlog call.
 <li><code>action=modify</code>: Generate Chunk Modify Page.
+<li><code>action=delete</code>: Delete Log entry <code>id</code>. The entry must be empty (see 'editentry').
 </ul>
 </p>
 
