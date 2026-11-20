@@ -262,35 +262,36 @@ queing_fzserverpq::queing_fzserverpq(): fzserverpq(true) {
 
 /**
  * This is run regularly within a separate thread.
+ *
+ * Takes the next request (special_FIFO first, then shm_FIFO), handles it and
+ * closes its socket. The queues are only checked, read and changed while
+ * queueMutex is held, because the listen thread adds to them at any time.
+ * The request is handled without holding the lock, so that the listen thread
+ * can keep adding requests meanwhile.
  */
 void queing_fzserverpq::handle_queued_request() {
-    if (!special_FIFO.empty()) {
-        fzs_request safe_copy;
-        {
-            std::lock_guard<std::mutex> lock(queueMutex); // thread-safety for pushing to special_FIFO and shm_FIFO
-            safe_copy.comms_socket = special_FIFO.front().comms_socket;
-            safe_copy.req = special_FIFO.front().req;
-        }
-        fzserverpq::handle_special_purpose_request(safe_copy.comms_socket, safe_copy.req);
-        close(safe_copy.comms_socket);
-        {
-            std::lock_guard<std::mutex> lock(queueMutex); // thread-safety for pushing to special_FIFO and shm_FIFO
+    fzs_request request;
+    bool is_special;
+    {
+        std::lock_guard<std::mutex> lock(queueMutex); // thread-safety for pushing to special_FIFO and shm_FIFO
+        if (!special_FIFO.empty()) {
+            request = std::move(special_FIFO.front());
             special_FIFO.pop();
-        }
-    } else if (!shm_FIFO.empty()) {
-        fzs_request safe_copy;
-        {
-            std::lock_guard<std::mutex> lock(queueMutex); // thread-safety for pushing to special_FIFO and shm_FIFO
-            safe_copy.comms_socket = shm_FIFO.front().comms_socket;
-            safe_copy.req = shm_FIFO.front().req;
-        }
-        fzserverpq::handle_request_with_data_share(safe_copy.comms_socket, safe_copy.req);
-        close(safe_copy.comms_socket);
-        {
-            std::lock_guard<std::mutex> lock(queueMutex); // thread-safety for pushing to special_FIFO and shm_FIFO
+            is_special = true;
+        } else if (!shm_FIFO.empty()) {
+            request = std::move(shm_FIFO.front());
             shm_FIFO.pop();
+            is_special = false;
+        } else {
+            return;
         }
     }
+    if (is_special) {
+        fzserverpq::handle_special_purpose_request(request.comms_socket, request.req);
+    } else {
+        fzserverpq::handle_request_with_data_share(request.comms_socket, request.req);
+    }
+    close(request.comms_socket);
 }
 
 constexpr unsigned int reqs_interval_ms = 50;

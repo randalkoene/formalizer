@@ -409,7 +409,7 @@ void queing_fzserverpq::handle_request_with_data_share(int new_socket, const std
     std::lock_guard<std::mutex> lock(queueMutex); // thread-safety for pushing to special_FIFO and shm_FIFO
     VERYVERBOSEOUT("Adding shm request to queue.\n");
     shm_FIFO.emplace(new_socket, segment_name);
-    if (special_FIFO.size() > 10) {
+    if (shm_FIFO.size() > 10) {
         ADDWARNING(__func__, "Shm requests queue size > 10");
     }
 }

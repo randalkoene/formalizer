@@ -13,6 +13,7 @@
 
 // std
 //#include <ctime>
+#include <atomic>
 
 // core
 #include "error.hpp"
@@ -20,7 +21,7 @@
 namespace fz {
 
 struct shared_memory_server {
-    bool listen;
+    std::atomic<bool> listen; // Atomic, because a multi-threaded server (fzserverpq) reads and sets it from more than one thread.
     bool handles_close; // Set this to true for multi-threaded handling of a queue of requests where the handler is responsible for closing each comms socket.
     shared_memory_server(bool _handles_close = false) : listen(true), handles_close(_handles_close) {}
     virtual std::string identify() const = 0;
