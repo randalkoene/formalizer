@@ -4,6 +4,7 @@
 // std
 #include <iostream>
 #include <fstream>
+#include <mutex>
 
 // core
 #include "ReferenceTime.hpp"
@@ -18,13 +19,28 @@ bool mute_error = false;
 Errors ErrQ(DEFAULT_ERRLOGPATH);
 Errors WarnQ(DEFAULT_WARNLOGPATH);
 
+/**
+ * One lock for all Errors queues (ErrQ, WarnQ, and others such as fzserverpq's ReqQ),
+ * so that threads can push, pop, print and write them safely.
+ *
+ * It is recursive because these functions call each other while holding it:
+ * push() calls output() when caching is off, and output() calls pretty_print()
+ * and flush(). Functions called while it is held must not wait on another lock.
+ * One lock for all queues means there is no lock order to get wrong.
+ *
+ * Errors can be pushed by constructors of global objects (before main) and during
+ * exit. With GCC's libstdc++ on Linux, std::recursive_mutex is initialized at compile
+ * time and has no destructor, so it can be used at both of those times.
+ */
+static std::recursive_mutex errors_mutex;
+
 #ifdef NO_ERR_TRACE
 
-std::string errhint;
+thread_local std::string errhint;
 
 #else
 
-Stack_Tracer errtracer;
+thread_local Stack_Tracer errtracer;
 
 /// Compose the full stack trace into one string. (Brackets are added by Errors::pretty_print().)
 std::string Stack_Tracer::print() {
@@ -80,6 +96,8 @@ void Errors::push(std::string f, std::string e) {
     if (e.empty())
         e = "unspecified";
 
+    std::lock_guard<std::recursive_mutex> lock(errors_mutex);
+
 #ifdef NO_ERR_TRACE
 
     if (trace_or_time) {
@@ -114,6 +132,7 @@ void Errors::push(std::string f, std::string e) {
  * @return content of the oldest error instance or empty instance if the queue was empty.
  */
 Error_Instance Errors::pop() {
+    std::lock_guard<std::recursive_mutex> lock(errors_mutex);
     if (errq.size() < 1)
         return Error_Instance("", "", "");
     Error_Instance e(errq.front());
@@ -128,6 +147,7 @@ Error_Instance Errors::pop() {
  * @return number of errors that were in the error queue when it was cleared.
  */
 int Errors::flush() {
+    std::lock_guard<std::recursive_mutex> lock(errors_mutex);
     int s = errq.size();
     numflushed += s;
     errq.clear();
@@ -148,6 +168,7 @@ std::string Errors::print_updated_timecode() {
  * @return string of error content in order of occurrence.
  */
 std::string Errors::pretty_print() {
+    std::lock_guard<std::recursive_mutex> lock(errors_mutex);
     std::string estr;
 
     // If this is the first output, or if a day has passed since the last time code then include one.
@@ -178,6 +199,7 @@ std::string Errors::pretty_print() {
  * @param mode output mode.
  */
 void Errors::output(std::ofstream::openmode mode) {
+    std::lock_guard<std::recursive_mutex> lock(errors_mutex);
     if (num()>0) {
 
         if (get_errfilepath().empty()) set_errfilepath(DEFAULT_ERRLOGPATH);

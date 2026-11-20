@@ -125,8 +125,9 @@ enum exit_status_code {
 extern bool mute_error;
 
 #ifdef NO_ERR_TRACE
-    /// Global variable that can be updated to give a better hint about where exactly an error occurred.
-    extern std::string errhint;
+    /// Variable that can be updated to give a better hint about where exactly an error occurred.
+    /// Each thread has its own copy (see errtracer below).
+    extern thread_local std::string errhint;
 #endif
 
 struct Error_Instance {
@@ -164,8 +165,13 @@ struct Stack_Tracer: public StackTrace {
 
 };
 
-/// The global stack tracer variable.
-extern Stack_Tracer errtracer;
+/**
+ * The stack tracer variable. Each thread has its own copy, because every function
+ * with ERRTRACE adds to it and removes from it. In a program with more than one
+ * thread (fzserverpq), a shared trace was changed by two threads at once, which
+ * is a data race and also mixed the threads' function names in error traces.
+ */
+extern thread_local Stack_Tracer errtracer;
 
 class Trace_This {
 protected:
