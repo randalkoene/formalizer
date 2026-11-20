@@ -1079,24 +1079,25 @@ std::string Topic_pq::title_pqstr() {
     return "$txt$"+std::string(topic->get_title().c_str())+"$txt$";
 }
 
-/// Return the comma delimited string of keywords inside the ARRAY[] constructor.
+/// Return the comma delimited string of (dollar-quoted) keywords inside the ARRAY[] constructor.
 std::string Topic_pq::All_Topic_keyword_pqstr() {
     const Topic_KeyRel_Vector &k = topic->get_keyrel();
     if (k.size()<1) {
         // ADDWARNING(__func__,"Topic "+topic->get_tag()+" has zero keywords, which breaks backward compatible convention.");
-        return "ARRAY[]";
+        return "ARRAY[]::text[]"; // Postgres refuses an untyped empty ARRAY[] ("cannot determine type of empty array").
     }
 
+    // Keywords are dollar-quoted like tag and title, so that characters such as ' need no escaping.
     auto comma_fold = [&k](auto it) {
         auto comma_fold_impl = [&k](auto it, auto& comma_fold_ref) mutable {
             if (it == k.end())
                 return std::string("]");
-            return ",'" + std::string(it->keyword.c_str()) + "'" + comma_fold_ref(std::next(it),comma_fold_ref);
+            return ",$txt$" + std::string(it->keyword.c_str()) + "$txt$" + comma_fold_ref(std::next(it),comma_fold_ref);
         };
         return comma_fold_impl(it,comma_fold_impl);
     };
 
-    return "ARRAY['"+std::string(k.begin()->keyword.c_str()) + "'" + comma_fold(std::next(k.begin()));
+    return "ARRAY[$txt$"+std::string(k.begin()->keyword.c_str()) + "$txt$" + comma_fold(std::next(k.begin()));
 }
 
 /// Return the coma delimeted 3-digit precision representation of keyword relevances inside the ARRAY[] constructor.
@@ -1104,7 +1105,7 @@ std::string Topic_pq::All_Topic_relevance_pqstr() {
     const Topic_KeyRel_Vector &k = topic->get_keyrel();
     if (k.size()<1) {
         // ADDWARNING(__func__,"Topic "+topic->get_tag()+" has zero keywords, which breaks backward compatible convention.");
-        return "ARRAY[]";
+        return "ARRAY[]::real[]"; // Postgres refuses an untyped empty ARRAY[] ("cannot determine type of empty array").
     }
 
     auto comma_fold = [&k](auto it) {
