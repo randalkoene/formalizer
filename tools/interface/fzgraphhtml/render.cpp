@@ -852,8 +852,12 @@ std::string render_Node_topics(Graph & graph, Node & node, bool remove_button = 
         if (i>0) {
             topics_str += ", ";
         }
-        if (remove_button) {
-            topics_str += tagstr + " [<a href=\"/fz/graph/nodes/" + node.get_id_str() + "/topics/remove?" + tagstr + "=\">remove</a>] (" + to_precision_string(tagrel,1) + ')';
+        // No [remove] for a Node's only Topic: every Node must keep at least one Topic,
+        // and the server refuses that removal.
+        if (remove_button && (topictagsvec.size() > 1)) {
+            // The link needs the fzserverpq address: the Edit page itself is served by Apache,
+            // which does not know /fz/ routes.
+            topics_str += tagstr + " [<a href=\"http://" + fzgh.replacements[fzserverpq_address] + "/fz/graph/nodes/" + node.get_id_str() + "/topics/remove?" + tagstr + "=\">remove</a>] (" + to_precision_string(tagrel,1) + ')';
         } else {
             topics_str += tagstr + " (" + to_precision_string(tagrel,1) + ')';
         }
@@ -983,7 +987,7 @@ std::string render_Node_dependencies(Graph & graph, Node & node, bool remove_but
                     deps_str += "<span class=\""+supdep_active_highlight.at(is_active)+"\">"+remove_html_tags(htmltext).substr(0,fzgh.config.excerpt_length)+"</span>";
                 }
                 if (remove_button) {
-                    deps_str += "[<a href=\"http://"+graphserveraddr+"/fz/graph/nodes/" + node.get_id_str() + "/superiors/remove?" + edge_ptr->get_dep_str() + "=\">remove</a>]";
+                    deps_str += "[<a href=\"http://"+graphserveraddr+"/fz/graph/nodes/" + node.get_id_str() + "/dependencies/remove?" + edge_ptr->get_dep_str() + "=\">remove</a>]";
                 }
 
                 // Add Edge parameter data.

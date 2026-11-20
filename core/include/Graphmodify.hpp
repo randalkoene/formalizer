@@ -196,8 +196,7 @@ typedef Batchmod_tpass * Batchmod_tpass_ptr;
  * by one of these elements, including the data that is pointed to by one or
  * more of the shared memory pointers.
  * 
- * For more information about Edit_flags and Edit protocols, see:
- * https://trello.com/c/ooCyccJ0/95-fzedit-node-and-edge-editor#comment-5fc059eee4536d8a147db56f
+ * For more information about Edit_flags and Edit protocols, see core/fzedit/README.md.
  */
 struct Graphmod_data: public Edit_flags {
     Graph_modification_request request;

@@ -1309,11 +1309,23 @@ bool handle_node_topics_edit(Node & node, std::string editstr) {
         }
     } else if (editstr.substr(0,7) == "remove?") {
         auto topic_relevance_pair = split(editstr.substr(7), '=');
-        if (topic_relevance_pair.size() < 1) {
+        if ((topic_relevance_pair.size() < 1) || topic_relevance_pair[0].empty()) {
             return standard_error("Missing topic tag", __func__);
         }
-        if (!node.remove_topic(topic_relevance_pair[0])) {
-            return standard_error("Failed to remove topic ("+topic_relevance_pair[0]+')', __func__);
+        // Check each reason Node::remove_topic() can refuse, so that the log says which one it was.
+        const std::string & tag = topic_relevance_pair[0];
+        Topic * topic_ptr = fzs.graph().find_Topic_by_tag(tag);
+        if (!topic_ptr) {
+            return standard_error("Unknown Topic ("+tag+')', __func__);
+        }
+        if (node.get_topics().find(topic_ptr->get_id()) == node.get_topics().end()) {
+            return standard_error("Node "+node.get_id_str()+" does not have Topic ("+tag+')', __func__);
+        }
+        if (node.get_topics().size() <= 1) {
+            return standard_error("Not removing Topic ("+tag+") from Node "+node.get_id_str()+": a Node must keep at least one Topic", __func__);
+        }
+        if (!node.remove_topic(topic_ptr->get_id())) {
+            return standard_error("Failed to remove topic ("+tag+')', __func__);
         }
     } else {
         return standard_error("Unrecognized Topic edit string: '" + editstr + '\'', __func__);

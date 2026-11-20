@@ -70,10 +70,27 @@ That calls the `modify_node()` function in `fzedit-cgi.py`, which collects the n
 
 ## Editing Edges
 
-TBD
-
-This will be similar to editing Node parameters. The source (dependency) and target (superior) Node IDs that are integral parts of an Edge ID cannot be modified, because those are structural necessities for the Edge to exist.
+The source (dependency) and target (superior) Node IDs that are integral parts of an Edge ID cannot be modified, because those are structural necessities for the Edge to exist.
 To change the connection that an Edge creates, remove (delete) the old Edge and create a new one.
+
+Edges are added and removed from either end through the direct TCP-port API (the Node ID in the path is the
+Node being edited, the ID after `?` is the other end of the Edge):
+
+```
+    /fz/graph/nodes/20091115180507.1/superiors/add?20090309102906.1=
+    /fz/graph/nodes/20091115180507.1/superiors/remove?20090309102906.1=
+    /fz/graph/nodes/20091115180507.1/superiors/addlist?superiors=
+    /fz/graph/nodes/20091115180507.1/dependencies/add?20120716181425.1=
+    /fz/graph/nodes/20091115180507.1/dependencies/remove?20120716181425.1=
+    /fz/graph/nodes/20091115180507.1/dependencies/addlist?dependencies=
+```
+
+`addlist` adds every Node in the named Node List (here `superiors` or `dependencies`) as a superior or dependency.
+The [remove] links next to superiors and dependencies on the Edit Web Page use the `remove` routes.
+
+Edge parameters (dependency, significance, importance, urgency, priority) are changed on the Edit Web Page,
+which calls `fzedit-cgi.py?edge=<edge-id>&edgemod=<parameter>&modval=<value>`.
+A direct route of the form below is not implemented yet:
 
 ```
     /fz/graph/edges/20200901061505.1>20200904135323.1/edit?urgency=3.0
@@ -81,6 +98,20 @@ To change the connection that an Edge creates, remove (delete) the old Edge and 
 
 ## Editing Topics
 
-TBD
+A Node's Topics are added and removed through the direct TCP-port API:
+
+```
+    /fz/graph/nodes/20200901061505.1/topics/add?organization=1.0&oop-change=1.0
+    /fz/graph/nodes/20200901061505.1/topics/remove?literature=
+```
+
+Only existing Topics can be added to a Node. A new Topic is created first with:
+
+```
+    /fz/graph/topics/add?tag=new-topic&title=New%20Topic
+```
+
+Every Node must keep at least one Topic, so the server refuses to remove a Node's last Topic.
+The [remove] links next to Topics on the Edit Web Page use the `remove` route.
 
 Randal A. Koene, 20201126
