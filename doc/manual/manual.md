@@ -466,7 +466,7 @@ it can see and records what is disclosed. Changes are only proposed, and applied
 ### III.2 Running the data server
 
 `fzserverpq` holds the Graph in shared memory and serializes all database access. Most
-tools need it to be running. Start it with `fzserverpqd.sh`. Its port and the roots from
+tools need it to be running. Start it with `fzserverpqd.sh` and stop it with `fzgraph -z`. Its port and the roots from
 which it serves files are set in `~/.formalizer/config/fzserverpq/config.json`; when it
 starts, it writes its address to `~/.formalizer/server_address`.
 
@@ -564,6 +564,8 @@ for what belongs in `core`.
 - [CGI API self-documentation](http://localhost/cgi-bin/cgi_api_help.py).
 - [Tracing actions](../developer/tracing_actions.md): example traces through the server,
   including a Node edit from the Edit page to the database.
+- [Inside fzserverpq: two threads](../developer/architecture.md#inside-fzserverpq-two-threads):
+  how the listen thread and the queue thread divide the work, and what they share.
 
 ### IV.3 Core programs
 

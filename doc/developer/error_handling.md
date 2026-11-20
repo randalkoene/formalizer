@@ -30,13 +30,25 @@ Each entry is written as:
 
 The `<trace>` part depends on compile-time definitions:
 
-- By default, a cooperative stack trace is kept in the global `errtracer`.
+- By default, a cooperative stack trace is kept in `errtracer`.
   Functions that call `ERRTRACE` (or `ERRENTER(label)`) at the top add their name
   to the trace for as long as they run. `ERRHERE(".milestone")` and
   `ERRHINT(...)` update the current level to show where in the function the
   program was. The trace is printed as `func1:func2:func3.milestone`.
-- With `NO_ERR_TRACE` defined, only a single global hint string (`errhint`) is
+- With `NO_ERR_TRACE` defined, only a single hint string (`errhint`) is
   kept, set by the same macros.
+
+`errtracer` and `errhint` are `thread_local`: each thread has its own trace, which
+starts empty when the thread starts. In `fzserverpq`, an error from a request
+handler therefore shows a trace that starts at the handler (e.g.
+`handle_special_purpose_request:handle_named_list_direct_request`). The functions
+of `Errors` (`push`, `pop`, `flush`, `pretty_print`, `output`) share one recursive
+lock, so threads can use `ErrQ`, `WarnQ` and other `Errors` queues safely. See
+[architecture.md, "Inside fzserverpq: two threads"](./architecture.md#inside-fzserverpq-two-threads).
+
+Because `errtracer` is `thread_local`, every object file that uses the error macros
+must be compiled with the same `error.hpp`. After a change to it, rebuild programs
+clean (`fzbuild -r`); a mix of old and new object files fails at the link step.
 - With both `NO_ERR_TRACE` and `NO_ERR_HINTS` defined, the macros do nothing.
 
 A queue can instead put a time stamp in that position: `enable_timestamping()`

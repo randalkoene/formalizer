@@ -23,6 +23,55 @@ changes the in-memory Graph and then writes the change to the database. See
 [tracing_actions.md](./tracing_actions.md) and the
 [fzedit README](https://github.com/randalkoene/formalizer/blob/master/core/fzedit/README.md).
 
+## Inside fzserverpq: two threads
+
+`fzserverpq` runs two threads (`USE_MULTI_THREADING`, defined in `fzserverpq.hpp`):
+
+1. **The listen thread** (the main thread, `server_socket_listen()` in
+   `core/lib/tcpserver.cpp`). It accepts a connection, reads the request string
+   and decides what kind it is:
+   - `PING` and `STOP` are answered right away on this thread. `STOP` (sent by
+     `fzgraph -z`) ends the listen loop.
+   - A request that starts with `GET `, `PATCH ` or `FZ ` (browser and port API
+     requests) goes into the queue `special_FIFO`.
+   - Anything else is taken to be the name of a shared-memory segment with a stack
+     of `Graph_modifications` or a data request, and goes into the queue `shm_FIFO`.
+
+   Putting a request in a queue only stores the open socket and the request string;
+   the socket stays open until the request is handled.
+2. **The queue thread** (`queue_handling_thread_func()` in `fzserverpq.cpp`). It
+   takes one request from the queues, runs its handler, closes the socket, and
+   then sleeps 50 ms (`reqs_interval_ms`). `special_FIFO` is always emptied before
+   `shm_FIFO`.
+
+Because of this, every request handler runs on the queue thread, one at a time.
+The Graph in memory and the database are only changed from that thread, so
+handlers do not need locks against each other. The two threads share only:
+
+- the two queues, guarded by `queueMutex`;
+- the `listen` flag, which ends both loops;
+- the error queues and error trace (`ErrQ`, `WarnQ`, `errtracer`; see
+  [error_handling.md](./error_handling.md)). Since 2026-11-20 each thread has its
+  own `errtracer` (`thread_local`), and one lock in `error.cpp` guards all
+  `Errors` queues. Before that, both threads changed the same trace and queues,
+  which is a data race (Node 20261102153502.1).
+
+Consequences worth knowing:
+
+- A burst of N requests takes at least N × 50 ms, because the queue thread sleeps
+  after each request.
+- While the listen thread waits in `read()` for a slow client, no other connection
+  is accepted.
+
+Other programs on the same machine read the Graph directly in shared memory, and
+they map the segment for writing (`bi::open_only` in `Graphtypes.cpp` and
+`Graphmodify.cpp`, changed from `open_read_only` at some point). These programs
+run as separate processes, so the two threads above do not coordinate with them.
+For example, computing an effective target date (`Node::inherit_targetdate()`)
+resets and sets the traversal `semaphore` of Nodes in the shared Graph. Two such
+programs, or one such program and a Graph change in the server, can run at the
+same time.
+
 ## The Log: library access
 
 The Log is queried and changed directly by the programs that need it (e.g.
