@@ -71,6 +71,12 @@ struct fzserverpq: public formalizer_standard_program, public shared_memory_serv
 
     Graph * graph_ptr;
 
+    /// Name of the shared memory segment that holds the Graph (normally "fzgraph"), recorded when the
+    /// Graph is loaded. Every request starts with this segment active (see activate_graph_segment()).
+    std::string graph_segname;
+
+    bool activate_graph_segment();
+
     // *** A v0.1 simplistic server request log (see https://trello.com/c/dnKYchIu for the better way).
     Errors ReqQ;
 

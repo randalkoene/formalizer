@@ -76,6 +76,14 @@ Consequences worth knowing:
   Before, one such connection held up all requests, including a Stop Server
   request, for over a minute. A listen thread that never waits on a single
   client (e.g. with `poll()`) would remove the 3 s as well.
+- New Graph objects are created in the *active* shared memory segment. A request from
+  another program arrives in its own temporary segment, which the server activates while
+  it reads the request and writes the reply, and forgets afterwards. So every request
+  starts by activating the Graph's segment again (`fzserverpq::activate_graph_segment()`,
+  name recorded at startup in `fzs.graph_segname`). Until 2026-11-20, a request rejected
+  during validation left no segment active: all following shared memory requests failed,
+  and a request creating a Graph object threw an exception that ended the server
+  (Node 20261105213819.1).
 - The kernel holds up to `SOMAXCONN` connections while the listen thread is busy.
   Until 2026-11-20 the backlog was 3, and in a burst the extra connections were
   dropped and retried by their clients only after 1 s.

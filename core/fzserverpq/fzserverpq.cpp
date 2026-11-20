@@ -289,6 +289,7 @@ bool queing_fzserverpq::handle_queued_request() {
             return false;
         }
     }
+    activate_graph_segment(); // start every request from the same state, whatever the previous one left active
     if (is_special) {
         fzserverpq::handle_special_purpose_request(request.comms_socket, request.req);
     } else {
@@ -331,6 +332,33 @@ void queue_handling_thread_func(queing_fzserverpq* fzs_ptr) {
 Graph & fzserverpq::graph() {
     if (graph_ptr) return *graph_ptr;
     throw NoGraph_exception(" in fzserverpq.");
+}
+
+/**
+ * Make the Graph's shared memory segment the active one, so that Graph objects
+ * created by a request (Nodes, Edges, Topics, list elements) are allocated there.
+ *
+ * Called at the start of every request and after a shared memory request is done.
+ * A request that ends with an error (e.g. one rejected during validation) can leave
+ * its own, by then forgotten, request segment as the last active one, i.e. none.
+ * Before 2026-11-20 every following shared memory request then failed, and a
+ * request creating a Graph object threw an exception that ended the server
+ * (Node 20261105213819.1).
+ *
+ * @return True if the Graph's segment is active.
+ */
+bool fzserverpq::activate_graph_segment() {
+    if (graph_segname.empty()) {
+        return false; // The Graph has not been loaded yet.
+    }
+    if (graphmemman.get_active_name() == graph_segname) {
+        return true;
+    }
+    if (!graphmemman.set_active(graph_segname)) {
+        ADDERROR(__func__, "Unable to activate the Graph's shared memory segment "+graph_segname);
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -485,6 +513,14 @@ void load_Graph_and_stay_resident() {
         standard_error("Unable to load Graph", __func__);
         RETURN_AFTER_UNLOCKING;
     }
+
+    // Remember the Graph's shared memory segment (active right after loading), see activate_graph_segment().
+    fzs.graph_segname = graphmemman.get_active_name();
+    if (fzs.graph_segname.empty()) {
+        standard_error("No active shared memory segment after loading the Graph", __func__);
+        RETURN_AFTER_UNLOCKING;
+    }
+    VERYVERBOSEOUT("Graph shared memory segment: "+fzs.graph_segname+'\n');
 
     VERYVERBOSEOUT(graphmemman.info_str());
     VERYVERBOSEOUT(Graph_Info_str(*fzs.graph_ptr));

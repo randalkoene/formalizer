@@ -211,7 +211,9 @@ bool handle_request_stack(std::string segname) {
     bool nodes_modified = false; // Tracks modification times relevant to things like BTF (see Map_of_Subtrees::node_in_heads_or_any_subtree())
     time_t modification_time = ActualTime();
 
-    std::string graph_segname(graphmemman.get_active_name()); // preserve, so that we can work with an explicitly named Graph if we want to
+    // The Graph's segment as recorded when it was loaded. (This used to be whatever segment was active,
+    // which was none after a request that ended with an error, see fzserverpq::activate_graph_segment().)
+    const std::string & graph_segname = fzs.graph_segname;
     if (segname.empty())
         ERRRETURNFALSE(__func__, "Missing shared segment name for request stack");
     
@@ -399,6 +401,7 @@ void fzserverpq::handle_request_with_data_share(int new_socket, const std::strin
         send(new_socket, response_str.c_str(), response_str.size()+1, 0);
     }
     graphmemman.forget_manager(segment_name); // remove shared memory references that likely become stale when client is done
+    activate_graph_segment(); // forgetting the request segment leaves none active if it was the active one
 }
 
 #ifdef USE_MULTI_THREADING
