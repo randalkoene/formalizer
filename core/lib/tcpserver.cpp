@@ -9,6 +9,8 @@
 #include <sys/socket.h> 
 #include <unistd.h> // This provides socket close() and such.
 #include <arpa/inet.h>
+#include <sys/time.h> // struct timeval for SO_RCVTIMEO
+#include <cerrno>
 #include <cstring>
 #include <map>
 #include <filesystem>
@@ -190,6 +192,9 @@ bool find_server_address(std::string & ipaddr_str) {
  * @param server A shared_memory_server derived server object to handle requests with data share.
  * @return Server listen outcome, expressed in exit codes (exit_ok, exit_general_error, etc).
  */
+/// Seconds that server_socket_listen() waits for a new connection's request before closing it.
+constexpr time_t first_read_timeout_s = 3;
+
 exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server & server) {
     #define str_SIZE 1024
     int server_fd, new_socket, valread;
@@ -227,8 +232,12 @@ exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server
         return exit_communication_error; 
     } 
   
-    // puts the server socket in passive mode 
-    if (listen(server_fd, 3) < 0) {
+    // Puts the server socket in passive mode.
+    // The backlog is how many connections the kernel holds while this loop is busy. It was 3,
+    // so in a burst of requests (e.g. a page loading several things at once) further
+    // connections were dropped and their clients retried only after 1 second.
+    // SOMAXCONN is the system maximum (net.core.somaxconn).
+    if (listen(server_fd, SOMAXCONN) < 0) {
         standard_error("The listen() call returned an error.", __func__); 
         return exit_communication_error;
     }
@@ -248,9 +257,24 @@ exit_status_code server_socket_listen(uint16_t port_number, shared_memory_server
         }
         VERYVERBOSEOUT("Connection accepted from: "+std::string(inet_ntoa(address.sin_addr))+'\n');
 
+        // Limit how long the read below can wait. Browsers open spare connections ahead of
+        // time that may send nothing, and while this loop waits in read() no other connection
+        // is accepted (this was the read that "often hangs until some timeout"; one such wait
+        // delayed a Stop Server request by 77 s). Real clients send their request right after
+        // connecting. Only this first read uses the socket's receive timeout.
+        struct timeval first_read_timeout{first_read_timeout_s, 0};
+        if (setsockopt(new_socket, SOL_SOCKET, SO_RCVTIMEO, &first_read_timeout, sizeof(first_read_timeout)) < 0) {
+            ADDWARNING(__func__, "The setsockopt(SO_RCVTIMEO) call failed, the read may wait without limit");
+        }
+
         // read string send by client
         memset(str, 0, str_SIZE); // just playing it safe
-        valread = read(new_socket, str, sizeof(str)); // *** right now, this read often hangs until some timeout
+        valread = read(new_socket, str, sizeof(str));
+        if ((valread<0) && ((errno == EAGAIN) || (errno == EWOULDBLOCK))) {
+            VERYVERBOSEOUT("No request received within "+std::to_string(first_read_timeout_s)+" s, closing the connection.\n");
+            close(new_socket); // normal for a browser's spare connection, so not logged as an error
+            continue;
+        }
         if (valread==0) {
             ADDWARNING(__func__, "EOF encountered");
             VERYVERBOSEOUT("Read encountered EOF.\n");

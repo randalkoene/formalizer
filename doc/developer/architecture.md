@@ -69,8 +69,16 @@ Consequences worth knowing:
   waiting in `accept()` and would otherwise not notice until the next connection
   arrived. Either way the program exits with status 0, so `fzserverpqd.sh` does
   not restart it.
-- While the listen thread waits in `read()` for a slow client, no other connection
-  is accepted.
+- While the listen thread waits in `read()` for a client's request, no other
+  connection is accepted. Browsers open spare connections that may send nothing,
+  so since 2026-11-20 this first read waits at most 3 s (`SO_RCVTIMEO`,
+  `first_read_timeout_s` in `tcpserver.cpp`) and then closes the connection.
+  Before, one such connection held up all requests, including a Stop Server
+  request, for over a minute. A listen thread that never waits on a single
+  client (e.g. with `poll()`) would remove the 3 s as well.
+- The kernel holds up to `SOMAXCONN` connections while the listen thread is busy.
+  Until 2026-11-20 the backlog was 3, and in a burst the extra connections were
+  dropped and retried by their clients only after 1 s.
 
 Other programs on the same machine read the Graph directly in shared memory, and
 they map the segment for writing (`bi::open_only` in `Graphtypes.cpp` and
