@@ -41,15 +41,17 @@ changes the in-memory Graph and then writes the change to the database. See
    the socket stays open until the request is handled.
 2. **The queue thread** (`queue_handling_thread_func()` in `fzserverpq.cpp`). It
    takes one request from the queues, runs its handler, closes the socket, and
-   then sleeps 50 ms (`reqs_interval_ms`). `special_FIFO` is always emptied before
-   `shm_FIFO`.
+   goes on to the next request without a pause. `special_FIFO` is always emptied
+   before `shm_FIFO`. When both queues are empty it waits on the condition
+   variable `queueCV`, which is notified whenever a request is added, or at most
+   250 ms (`idle_check_ms`), after which it checks the `listen` flag again.
 
 Because of this, every request handler runs on the queue thread, one at a time.
 The Graph in memory and the database are only changed from that thread, so
 handlers do not need locks against each other. The two threads share only:
 
-- the two queues, guarded by `queueMutex`;
-- the `listen` flag, which ends both loops;
+- the two queues, guarded by `queueMutex`, and `queueCV`;
+- the `listen` flag (`std::atomic<bool>`), which ends both loops;
 - the error queues and error trace (`ErrQ`, `WarnQ`, `errtracer`; see
   [error_handling.md](./error_handling.md)). Since 2026-11-20 each thread has its
   own `errtracer` (`thread_local`), and one lock in `error.cpp` guards all
@@ -58,8 +60,15 @@ handlers do not need locks against each other. The two threads share only:
 
 Consequences worth knowing:
 
-- A burst of N requests takes at least N × 50 ms, because the queue thread sleeps
-  after each request.
+- Until 2026-11-20 the queue thread slept 50 ms after every request, so a burst
+  of N requests took at least N × 50 ms.
+- Stopping: `fzgraph -z` sends `STOP`, which the listen thread handles itself;
+  the queue thread notices within 250 ms. `/fz/_stop` (the "Stop Server" button on
+  the FZ Admin page) is handled on the queue thread, which sets `listen` to false
+  and then sends `STOP` to the server's own port, because the listen thread is
+  waiting in `accept()` and would otherwise not notice until the next connection
+  arrived. Either way the program exits with status 0, so `fzserverpqd.sh` does
+  not restart it.
 - While the listen thread waits in `read()` for a slow client, no other connection
   is accepted.
 

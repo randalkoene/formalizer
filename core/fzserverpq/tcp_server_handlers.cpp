@@ -1920,7 +1920,8 @@ void show_db_log(int new_socket) {
 bool show_ReqQ(int new_socket) {
     ERRTRACE;
     std::string reqq_html(standard_HTML_header("fz: ReqQ"));
-    reqq_html += "<p>When fzserverpq exits, ReqQ will be flushed to: "+fzs.ReqQ.get_errfilepath()+"</p>\n\n";
+    reqq_html += "<p>ReqQ is written to: "+fzs.ReqQ.get_errfilepath()+"</p>\n"
+                 "<p>The server does not cache ReqQ, so each request is written there right away and this list is normally empty.</p>\n\n";
     reqq_html += "<p>Current status of ReqQ:</p>\n<hr>\n<pre>\n" + fzs.ReqQ.pretty_print() + "</pre>\n<hr>\n</body>\n</html>\n";
     return handle_request_response(new_socket, reqq_html, "ReqQ request sucessful");
 }
@@ -1928,7 +1929,9 @@ bool show_ReqQ(int new_socket) {
 bool show_ErrQ(int new_socket) {
     ERRTRACE;
     std::string errq_html(standard_HTML_header("fz: ErrQ"));
-    errq_html += "<p>When fzserverpq exits, ErrQ will be flushed to: "+ErrQ.get_errfilepath()+"</p>\n\n";
+    errq_html += "<p>ErrQ is written to: "+ErrQ.get_errfilepath()+"</p>\n"
+                 "<p>With error caching on (errcaching in the error config), errors stay in this list and are written there when fzserverpq exits normally. "
+                 "With caching off, each error is written there right away and does not stay in this list.</p>\n\n";
     errq_html += "<p>Current status of ErrQ:</p>\n<hr>\n<pre>\n" + ErrQ.pretty_print() + "</pre>\n<hr>\n</body>\n</html>\n";
     return handle_request_response(new_socket, errq_html, "ErrQ request sucessful");
 }
@@ -2190,10 +2193,27 @@ bool handle_tzadjust(int new_socket) {
     return handle_request_response(new_socket, tzadjust_html, "TZadjust reported");
 }
 
+/**
+ * Stop the server (/fz/_stop, e.g. the "Stop Server" button on the FZ Admin page).
+ *
+ * In the multi-threaded server this runs on the queue thread, while the listen thread
+ * waits in accept() for the next connection. Setting `listen` to false alone does not
+ * wake it, so the server would keep its port and lock file, and the next connection
+ * would be queued but never answered. Therefore, after answering, this sends STOP to
+ * the server's own port, exactly as `fzgraph -z` does. The listen thread then takes
+ * its normal STOP path and the program exits cleanly.
+ */
 bool handle_stop(int new_socket) {
     fzs.listen = false;
     std::string status_html(standard_HTML_header("fz: Server Stop") + "Server status: STOPPING\n</body>\n</html>\n");
-    return handle_request_response(new_socket, status_html, "Stopping");
+    bool responded = handle_request_response(new_socket, status_html, "Stopping");
+#ifdef USE_MULTI_THREADING
+    std::string stop_response;
+    if (!client_socket_shmem_request("STOP", "127.0.0.1", fzs.config.port_number, stop_response)) {
+        ADDERROR(__func__, "Unable to send STOP to the listen thread (no problem if it had already stopped, otherwise the server exits at its next connection)");
+    }
+#endif
+    return responded;
 }
 
 bool handle_set_verbosity(int new_socket, std::string verbosity_str, bool veryverbose, bool quiet) {
@@ -2524,10 +2544,15 @@ void fzserverpq::handle_special_purpose_request(int new_socket, const std::strin
 void queing_fzserverpq::handle_special_purpose_request(int new_socket, const std::string & request_str) {
     ERRTRACE;
 
-    std::lock_guard<std::mutex> lock(queueMutex); // thread-safety for pushing to special_FIFO and shm_FIFO
     VERYVERBOSEOUT("Adding special request to queue.\n");
-    special_FIFO.emplace(new_socket, request_str);
-    if (special_FIFO.size() > 10) {
+    size_t queue_size;
+    {
+        std::lock_guard<std::mutex> lock(queueMutex); // thread-safety for pushing to special_FIFO and shm_FIFO
+        special_FIFO.emplace(new_socket, request_str);
+        queue_size = special_FIFO.size();
+    }
+    queueCV.notify_one(); // wake the queue thread
+    if (queue_size > 10) { // warn outside the lock, writing the warning can take a moment
         ADDWARNING(__func__, "Special requests queue size > 10");
     }
 }

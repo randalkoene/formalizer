@@ -46,6 +46,7 @@ using namespace fz;
 #ifdef USE_MULTI_THREADING
     queing_fzserverpq fzs;
     std::mutex queueMutex; // The mutex to protect special_FIFO and shm_FIFO.
+    std::condition_variable queueCV; // Notified after a request is added to special_FIFO or shm_FIFO.
 #else
     fzserverpq fzs;
 #endif
@@ -268,8 +269,10 @@ queing_fzserverpq::queing_fzserverpq(): fzserverpq(true) {
  * queueMutex is held, because the listen thread adds to them at any time.
  * The request is handled without holding the lock, so that the listen thread
  * can keep adding requests meanwhile.
+ *
+ * @return False if both queues were empty, true if a request was handled.
  */
-void queing_fzserverpq::handle_queued_request() {
+bool queing_fzserverpq::handle_queued_request() {
     fzs_request request;
     bool is_special;
     {
@@ -283,7 +286,7 @@ void queing_fzserverpq::handle_queued_request() {
             shm_FIFO.pop();
             is_special = false;
         } else {
-            return;
+            return false;
         }
     }
     if (is_special) {
@@ -292,14 +295,31 @@ void queing_fzserverpq::handle_queued_request() {
         fzserverpq::handle_request_with_data_share(request.comms_socket, request.req);
     }
     close(request.comms_socket);
+    return true;
 }
 
-constexpr unsigned int reqs_interval_ms = 50;
+/// The longest time the queue thread waits for a request before checking again whether
+/// the server is stopping. A STOP received by the listen thread (e.g. from `fzgraph -z`)
+/// sets `listen` to false without notifying queueCV, so this is how soon that is noticed.
+constexpr unsigned int idle_check_ms = 250;
 
+/**
+ * The queue thread. Handles queued requests one after the other, without a pause.
+ * When both queues are empty it waits on queueCV until a request is added, or at most
+ * idle_check_ms. (Until 2026-11-20 it slept 50 ms after every request, which made a
+ * burst of N requests take about N x 50 ms.)
+ *
+ * Note: The wait uses the steady clock (wait_for), so a change of the system clock
+ * cannot lengthen it.
+ */
 void queue_handling_thread_func(queing_fzserverpq* fzs_ptr) {
     while (fzs_ptr->listen) {
-        fzs_ptr->handle_queued_request();
-        std::this_thread::sleep_for(std::chrono::milliseconds(reqs_interval_ms));
+        if (!fzs_ptr->handle_queued_request()) {
+            std::unique_lock<std::mutex> lock(queueMutex);
+            queueCV.wait_for(lock, std::chrono::milliseconds(idle_check_ms), [fzs_ptr] {
+                return !fzs_ptr->special_FIFO.empty() || !fzs_ptr->shm_FIFO.empty() || !fzs_ptr->listen;
+            });
+        }
     }
 
     // In case this exits for some reason when the listening thread is still active

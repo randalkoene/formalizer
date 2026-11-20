@@ -17,6 +17,7 @@
     // std
     #include <queue>
     #include <mutex>
+    #include <condition_variable>
 #endif
 
 // core
@@ -119,7 +120,7 @@ struct queing_fzserverpq: public fzserverpq {
 
     virtual std::string identify() const { return "Using multi-threaded request queue.\n"; }
 
-    void handle_queued_request();
+    bool handle_queued_request(); // Returns false if both queues were empty.
 
     virtual void handle_request_with_data_share(int new_socket, const std::string & segment_name); // see shm_server_handlers.cpp
 
@@ -129,6 +130,7 @@ struct queing_fzserverpq: public fzserverpq {
 
     extern queing_fzserverpq fzs;
     extern std::mutex queueMutex; // The mutex to protect special_FIFO and shm_FIFO.
+    extern std::condition_variable queueCV; // Notified after a request is added to special_FIFO or shm_FIFO.
 #else
     extern fzserverpq fzs;
 #endif // USE_MULTI_THREADING
