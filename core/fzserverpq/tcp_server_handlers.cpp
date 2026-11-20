@@ -34,6 +34,7 @@
 #include "binaryio.hpp"
 #include "apiclient.hpp"
 #include "tcpclient.hpp"
+#include "cgihandler.hpp" // URL_Decode()
 
 // local
 #include "tcp_server_handlers.hpp"
@@ -1993,23 +1994,6 @@ bool handle_fz_vfs_database_request(int new_socket, const std::string & fzreques
     return false;
 }
 
-/// Decode %XX and '+' in a GET value. (URL_Decode() in cgihandler does not decode %XX correctly.)
-std::string decode_GET_value(const std::string & value) {
-    std::string decoded;
-    decoded.reserve(value.size());
-    for (size_t i = 0; i < value.size(); ++i) {
-        if ((value[i] == '%') && ((i + 2) < value.size()) && isxdigit(value[i+1]) && isxdigit(value[i+2])) {
-            decoded += (char) std::stoi(value.substr(i+1, 2), nullptr, 16);
-            i += 2;
-        } else if (value[i] == '+') {
-            decoded += ' ';
-        } else {
-            decoded += value[i];
-        }
-    }
-    return decoded;
-}
-
 /// Topic tags are lowercase letters, digits and hyphens, starting with a letter or digit.
 bool valid_Topic_tag(const std::string & tag) {
     if (tag.empty() || (tag.size() > 80) || (tag[0] == '-')) {
@@ -2062,9 +2046,9 @@ bool handle_topics_add(const std::string & argstr, std::string & response_html) 
     std::string title;
     for (const auto & tv : GET_token_values(argstr)) {
         if (tv.token == "tag") {
-            tag = decode_GET_value(tv.value);
+            tag = URL_Decode(tv.value);
         } else if (tv.token == "title") {
-            title = decode_GET_value(tv.value);
+            title = URL_Decode(tv.value);
         }
     }
     if (!valid_Topic_tag(tag)) {

@@ -4,6 +4,7 @@
 // std
 #include <new>
 #include <stdlib.h>
+#include <cctype>
 
 // core
 //#include "error.hpp"
@@ -11,27 +12,29 @@
 
 namespace fz {
 
-// Adapted from https://www.guyrutenberg.com/2007/09/07/introduction-to-c-cgi-processing-forms/
+/**
+ * Decode a URL-encoded (GET or form POST) string: '%XX' (two hex digits) becomes that
+ * byte and '+' becomes a space. A '%' that is not followed by two hex digits is kept
+ * as it is.
+ *
+ * Note: Until 2026-11-20 this turned every '%XX' into a null character (strtol() got
+ *       an empty string, the "0x" prefix was missing) and dropped the rest of the
+ *       string after a '%' near its end (Node 20261105213819.3).
+ *
+ * Adapted from https://www.guyrutenberg.com/2007/09/07/introduction-to-c-cgi-processing-forms/
+ */
 std::string URL_Decode(const std::string str) {
     std::string temp;
     temp.reserve(str.size());
-    char tmp[5] = {0, 0, 0, 0, 0};
-    char tmpchar;
+    char tmp[3] = {0, 0, 0};
 
-    int size = str.size();
-    for (int i = 0; i < size; i++) {
-        if (str[i] == '%') {
-            if (i + 2 < size) {
-                tmp[2] = str[i + 1];
-                tmp[3] = str[i + 2];
-                tmp[4] = '\0';
-                tmpchar = (char)strtol(tmp, NULL, 0);
-                temp += tmpchar;
-                i += 2;
-                continue;
-            } else {
-                break;
-            }
+    size_t size = str.size();
+    for (size_t i = 0; i < size; i++) {
+        if ((str[i] == '%') && ((i + 2) < size) && isxdigit((unsigned char) str[i + 1]) && isxdigit((unsigned char) str[i + 2])) {
+            tmp[0] = str[i + 1];
+            tmp[1] = str[i + 2];
+            temp += (char) strtol(tmp, NULL, 16);
+            i += 2;
         } else if (str[i] == '+') {
             temp += ' ';
         } else {

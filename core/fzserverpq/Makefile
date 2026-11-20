@@ -134,6 +134,7 @@ CORE_OBJS += $(CORELIBPATH)/obj/html.o
 CORE_OBJS += $(CORELIBPATH)/obj/utf8.o
 CORE_OBJS += $(CORELIBPATH)/obj/tcpserver.o
 CORE_OBJS += $(CORELIBPATH)/obj/tcpclient.o
+CORE_OBJS += $(CORELIBPATH)/obj/cgihandler.o
 # CORE_OBJS += $(CORELIBPATH)/obj/apiclient.o
 # CORE_OBJS += $(CORELIBPATH)/obj/dilaccess.o
 # +----- end  : Select Formalizer core library objects -----+
