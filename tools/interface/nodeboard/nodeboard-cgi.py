@@ -392,12 +392,21 @@ LOGCAL_ERROR='''
 
 def show_log_calendar_board():
     # Log calendar (Node 20260223154446.1): nodeboard-cgi.py?logcal=<YYYYmmdd|today>&days=<n>&M=<multiplier>
+    # or, for a month grid: nodeboard-cgi.py?logcal=<YYYYmm>
     # 1. fzloghtml writes the Log chunks around the requested days as CSV data.
     # 2. nodeboard -k renders the day columns from that data.
-    import tempfile, html
+    import tempfile, html, calendar
     from subprocess import run
+    month_view = False
     if log_calendar_day == 'today':
         first_day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    elif len(str(log_calendar_day)) == 6:
+        try:
+            first_day = datetime.strptime(str(log_calendar_day)+'01', '%Y%m%d')
+        except ValueError:
+            print(LOGCAL_ERROR % ('Invalid month (expected YYYYmm).', ''))
+            return
+        month_view = True
     else:
         try:
             first_day = datetime.strptime(str(log_calendar_day), '%Y%m%d')
@@ -405,7 +414,9 @@ def show_log_calendar_board():
             print(LOGCAL_ERROR % ('Invalid date (expected YYYYmmdd or today).', ''))
             return
     days = 1
-    if log_calendar_days:
+    if month_view:
+        days = calendar.monthrange(first_day.year, first_day.month)[1]
+    elif log_calendar_days:
         if not str(log_calendar_days).isdigit():
             print(LOGCAL_ERROR % ('Invalid number of days.', ''))
             return
@@ -427,17 +438,21 @@ def show_log_calendar_board():
     with tempfile.NamedTemporaryFile(mode='w+', suffix='.csv', prefix='fzlogcal-') as csvfile:
         logcmd = ['./fzloghtml', '-q', '-d', 'formalizer', '-s', 'randalk', '-o', csvfile.name, '-N', '-F', 'txt',
                   '-1', t_from, '-2', t_to,
-                  '-T', 'STR:{{ chunk_id }},{{ t_open_tz }},{{ t_mins }},{{ is_open }},{{ node_id }},{{ excerpt }}\\n']
+                  '-T', 'STR:{{ chunk_id }},{{ t_open_tz }},{{ t_mins }},{{ is_open }},{{ node_id }},{{ category }},{{ excerpt }}\\n']
         res = run(logcmd, capture_output=True, text=True)
         if res.returncode != 0:
-            print(LOGCAL_ERROR % ('fzloghtml was unable to get the Log chunks.', html.escape(' '.join(logcmd)+'\n'+res.stdout+res.stderr)))
+            print(LOGCAL_ERROR % ('fzloghtml was unable to get the Log chunks. (exit code %d)' % res.returncode, html.escape(' '.join(logcmd)+'\n'+res.stdout+res.stderr)))
             return
-        nbcmd = ['./nodeboard', '-k', csvfile.name, '-a', '%s,%d' % (first_day.strftime('%Y%m%d'), days), '-M', multiplier, '-q', '-o', 'STDOUT']
+        if month_view:
+            range_arg = first_day.strftime('%Y%m')
+        else:
+            range_arg = '%s,%d' % (first_day.strftime('%Y%m%d'), days)
+        nbcmd = ['./nodeboard', '-k', csvfile.name, '-a', range_arg, '-M', multiplier, '-q', '-o', 'STDOUT']
         if header_arg:
             nbcmd += ['-H', header_arg]
         res = run(nbcmd, capture_output=True, text=True)
         if res.returncode != 0:
-            print(LOGCAL_ERROR % ('nodeboard was unable to render the Log calendar.', html.escape(' '.join(nbcmd)+'\n'+res.stdout+res.stderr)))
+            print(LOGCAL_ERROR % ('nodeboard was unable to render the Log calendar. (exit code %d)' % res.returncode, html.escape(' '.join(nbcmd)+'\n'+res.stdout+res.stderr)))
             return
         print(res.stdout)
 

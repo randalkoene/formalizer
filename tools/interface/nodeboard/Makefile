@@ -142,7 +142,7 @@ $(OBJ)/nbrender.o: nbrender.cpp nbrender.hpp nbgrid.hpp version.hpp
 $(OBJ)/nblogcal.o: nblogcal.cpp nbrender.hpp version.hpp
 	$(CCPP) $(CPPFLAGS) $(TEMPLATEDIR) -c nblogcal.cpp -o $(OBJ)/nblogcal.o
 
-$(OBJ)/nodeboard.o: nodeboard.cpp $(COREINCLUDEPATH)/standard.hpp
+$(OBJ)/nodeboard.o: nodeboard.cpp nbrender.hpp version.hpp $(COREINCLUDEPATH)/standard.hpp
 	$(CCPP) $(CPPFLAGS) $(STANDARD_STREAMS) $(TEMPLATEDIR) -c nodeboard.cpp -o $(OBJ)/nodeboard.o
 
 nodeboard: $(OBJ)/nodeboard.o $(OBJ)/nbrender.o $(OBJ)/nbgrid.o $(OBJ)/nblogcal.o $(CORE_OBJS)

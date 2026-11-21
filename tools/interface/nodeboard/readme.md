@@ -79,7 +79,7 @@ E.g. the board created by:
 /cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20
 ```
 
-### `nodeboard -k <csv-path> -a <YYYYmmdd>,<days>`
+### `nodeboard -k <csv-path> -a <YYYYmmdd>,<days>` or `-a <YYYYmm>`
 
 Generate a Log calendar: day columns with a card for each Log chunk at the time
 where it is (Node 20260223154446.1). Clicking a card opens a pop-up that shows the
@@ -91,14 +91,24 @@ The CSV data is made by `fzloghtml` with a custom template, e.g.:
 
 ```
 fzloghtml -q -o <csv-path> -N -F txt -1 <day-before> -2 <day-after> \
-  -T 'STR:{{ chunk_id }},{{ t_open_tz }},{{ t_mins }},{{ is_open }},{{ node_id }},{{ excerpt }}\n'
+  -T 'STR:{{ chunk_id }},{{ t_open_tz }},{{ t_mins }},{{ is_open }},{{ node_id }},{{ category }},{{ excerpt }}\n'
 ```
+
+(The `{{ category }}` field may be left out, then chunks are not colored by
+category.)
+
+With `-a <YYYYmm>` the Log calendar is a month grid (Monday to Sunday). Each day
+has four rows of 6 hours (00, 06, 12, 18) with the chunks as colored blocks.
+Hovering a block shows its time, length, category and excerpt, clicking it opens
+the chunk pop-up. The date opens the Day view, and its tooltip has the hours
+logged per category.
 
 The CGI handler does both steps, e.g. for the 3 days from 20 November 2026:
 
 ```
 /cgi-bin/nodeboard-cgi.py?logcal=20261120&days=3
 /cgi-bin/nodeboard-cgi.py?logcal=today&days=1
+/cgi-bin/nodeboard-cgi.py?logcal=202611
 ```
 
 Notes:
@@ -107,11 +117,13 @@ Notes:
   `(from ...)` and `(continues)`. The open chunk is drawn up to the present time.
 - The card text is the start of the chunk's entries (`excerpt`), or the Node
   description in italics if the chunk has no entries.
-- Sleep chunks (Nodes in NNL `group_sleep`) have the same blue as in the calendar
-  Schedule, the open chunk is salmon, and other chunks alternate between two light
-  colors.
+- Colors show the category, as in the day review (work, self-work, system/care,
+  other, none), with a legend at the top. Sleep chunks (Nodes in NNL `group_sleep`)
+  have the same blue as in the calendar Schedule. The open chunk is outlined in
+  orange-red, and today is outlined in the month grid.
 - The pop-up gets the chunk from `fzloghtml-cgi.py?chunk=<chunk-id>`.
-- Rendering code: `nblogcal.cpp`; templates: `templates/html/Logcal_*.template.html`.
+- Rendering code: `nblogcal.cpp`; templates: `templates/html/Logcal_*.template.html`
+  (board, column, card, and the month grid's day cell).
 
 ### `nodeboard -l "{milestones_formalizer,procrastination,group_sleep}"`
 

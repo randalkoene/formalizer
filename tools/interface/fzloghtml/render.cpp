@@ -461,6 +461,47 @@ const std::map<std::string, Boolean_Tag_Flags::boolean_flag> log_override_tags =
     { "@OTHER@", Boolean_Tag_Flags::other },
 };
 
+/**
+ * The category of a Log chunk as a Formalizer tag (@WORK@, @SELFWORK@, @SYSTEM@,
+ * @OTHER@ or @NONE@), found as in the day review: an override tag in the chunk's
+ * entries, else the Boolean Tag Flag of the Node from the Map of Subtrees
+ * (including inference through superiors). Results for Nodes are cached in
+ * node_cache, because many chunks belong to the same Nodes.
+ */
+std::string chunk_category(Log_chunk & chunk, const Map_of_Subtrees & map_of_subtrees, std::map<Node_ID_key, Boolean_Tag_Flags::boolean_flag> & node_cache) {
+    Boolean_Tag_Flags::boolean_flag booleanflag = Boolean_Tag_Flags::none;
+    bool override = false;
+    std::string combined_entries(chunk.get_combined_entries_text());
+    for (const auto & [ tag, flag ] : log_override_tags) {
+        if (combined_entries.find(tag) != std::string::npos) {
+            booleanflag = flag;
+            override = true;
+            break;
+        }
+    }
+    if (!override) {
+        Node_ID_key node_key = chunk.get_NodeID().key();
+        auto it = node_cache.find(node_key);
+        if (it != node_cache.end()) {
+            booleanflag = it->second;
+        } else {
+            if (map_of_subtrees.has_subtrees) {
+                if (!map_of_subtrees.node_in_heads_or_any_subtree(node_key, booleanflag, true, true)) {
+                    booleanflag = Boolean_Tag_Flags::none;
+                }
+            }
+            node_cache[node_key] = booleanflag;
+        }
+    }
+    switch (booleanflag) {
+        case Boolean_Tag_Flags::work: return "@WORK@";
+        case Boolean_Tag_Flags::self_work: return "@SELFWORK@";
+        case Boolean_Tag_Flags::system: return "@SYSTEM@";
+        case Boolean_Tag_Flags::other: return "@OTHER@";
+        default: return "@NONE@";
+    }
+}
+
 struct chunk_data {
     time_t t_chunkopen;
     time_t t_chunkclose;
@@ -574,10 +615,15 @@ bool render_Log_interval() {
     render_data data;
 
     Map_of_Subtrees map_of_subtrees;
-    if (fzlh.btf != Boolean_Tag_Flags::none) {
+    bool want_category = (!customtemplate.empty()) && (customtemplate.find("category") != std::string::npos);
+    std::map<Node_ID_key, Boolean_Tag_Flags::boolean_flag> category_cache;
+    if ((fzlh.btf != Boolean_Tag_Flags::none) || want_category) {
         // *** Why did I have to do the collect() call and prepare a map_of_subtrees
         //     to be able to do BTF detection and inference?
-        map_of_subtrees.collect(*fzlh.get_Graph_ptr(), fzlh.config.subtrees_list_name);
+        Graph_ptr graph_ptr = fzlh.get_Graph_ptr();
+        if (graph_ptr) {
+            map_of_subtrees.collect(*graph_ptr, fzlh.config.subtrees_list_name);
+        }
     }
     std::string temporalcontextstr, t_open_str;
     for (const auto & [chunk_key, chunkptr] : fzlh.edata.log_ptr->get_Chunks()) {
@@ -738,6 +784,7 @@ bool render_Log_interval() {
         //   t_mins:    chunk length in minutes, or the minutes so far for the open chunk
         //   is_open:   1 for the open chunk, else 0
         //   excerpt:   short plain text excerpt of the chunk content (one line)
+        //   category:  @WORK@, @SELFWORK@, @SYSTEM@, @OTHER@ or @NONE@ (as in the day review)
         varvals.emplace("t_open_tz", t_open_visible_str);
         if (t_chunkclose < t_chunkopen) {
             time_t t_sofar = (ActualTime() - t_chunkopen)/60;
@@ -749,6 +796,9 @@ bool render_Log_interval() {
         }
         if ((!customtemplate.empty()) && (customtemplate.find("excerpt") != std::string::npos)) {
             varvals.emplace("excerpt", chunk_excerpt(*chunkptr, 160));
+        }
+        if (want_category) {
+            varvals.emplace("category", chunk_category(*chunkptr, map_of_subtrees, category_cache));
         }
         if (t_chunkclose < t_chunkopen) {
             varvals.emplace("t_chunkclose", "OPEN");

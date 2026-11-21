@@ -80,6 +80,84 @@
   margin-bottom: 8px;
 }
 
+.logcal-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin: 0 3px 0 8px;
+  vertical-align: middle;
+  border: 1px solid gray;
+}
+
+.logcal-open {
+  outline: 2px solid #ff4500;
+  outline-offset: -2px;
+}
+
+.logcal-card {
+  border-top: 1px solid rgba(0,0,0,0.25);
+}
+
+/* Month grid */
+.logcal-weekday {
+  text-align: center;
+  font-weight: bold;
+  background-color: var(--grid-bgoverlay);
+}
+
+.logcal-daycell {
+  background-color: var(--grid-bgoverlay);
+  padding: 2px 4px 4px 4px;
+  min-height: 90px;
+}
+
+.logcal-outside {
+  opacity: 0.3;
+}
+
+.logcal-today {
+  outline: 3px solid #ff4500;
+}
+
+.logcal-daycell-head {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.logcal-sixh {
+  display: flex;
+  align-items: center;
+  margin-top: 3px;
+}
+
+.logcal-sixh-label {
+  font-size: 8px;
+  color: gray;
+  width: 14px;
+  flex: none;
+}
+
+.logcal-sixh-bar {
+  position: relative;
+  flex: 1;
+  height: 14px;
+  background-color: rgba(128,128,128,0.15);
+}
+
+.logcal-seg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  min-width: 1px;
+  cursor: pointer;
+  box-shadow: inset -1px 0 0 rgba(0,0,0,0.25);
+}
+
+.logcal-seg:hover {
+  outline: 2px solid black;
+  z-index: 10;
+}
+
 #chunk-popup {
   position: fixed;
   top: 5vh;
@@ -133,13 +211,17 @@ pre {
 &nbsp;
 <button class="button button1" onclick="window.open('{{ day-url }}','_self');">Day</button>
 <button class="button button1" onclick="window.open('{{ week-url }}','_self');">Week</button>
+<button class="button button1" onclick="window.open('{{ month-url }}','_self');">Month</button>
 &nbsp;
 <input type="date" id="logcal-date" value="{{ first-day }}" title="Go to date">
 &nbsp;
+<span style="{{ size-style }}">
 <button class="button button1" onclick="window.open('{{ smaller-url }}','_self');">smaller</button>
 <button class="button button1" onclick="window.open('{{ larger-url }}','_self');">larger</button>
-<span class="w3-small">({{ num-chunks }} Log chunks loaded. Click a chunk to see it.)</span>
+</span>
+<span class="w3-small">({{ num-chunks }} Log chunks loaded. {{ hint }})</span>
 [<a href="/index.html">fz: Top</a>]
+<br>{{ legend }}
 </div>
 
 <div class="grid-container">
@@ -161,6 +243,7 @@ pre {
 <script type="module" src="/fzuistate.js"></script>
 <script>
 const logcalDays = '{{ days }}';
+const logcalIsMonth = ('{{ is-month }}' === '1');
 const logcalMultiplier = '{{ multiplier }}';
 const popup = document.getElementById('chunk-popup');
 const popupContent = document.getElementById('chunk-popup-content');
@@ -197,7 +280,7 @@ function closeChunk() {
 
 document.addEventListener('click', function(event) {
     if (event.target.closest('a, button, input')) return;
-    const card = event.target.closest('.logcal-card');
+    const card = event.target.closest('.logcal-card, .logcal-seg');
     if (card) {
         openChunk(card.dataset.chunk);
     }
@@ -222,7 +305,11 @@ document.addEventListener('keydown', function(event) {
 document.getElementById('logcal-date').addEventListener('change', function(event) {
     const value = event.target.value.replaceAll('-', '');
     if (/^[0-9]{8}$/.test(value)) {
-        window.open('/cgi-bin/nodeboard-cgi.py?logcal='+value+'&days='+logcalDays+'&M='+logcalMultiplier, '_self');
+        if (logcalIsMonth) {
+            window.open('/cgi-bin/nodeboard-cgi.py?logcal='+value.substring(0,6)+'&M='+logcalMultiplier, '_self');
+        } else {
+            window.open('/cgi-bin/nodeboard-cgi.py?logcal='+value+'&days='+logcalDays+'&M='+logcalMultiplier, '_self');
+        }
     }
 });
 </script>

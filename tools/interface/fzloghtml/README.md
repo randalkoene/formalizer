@@ -14,6 +14,10 @@ values of the normal chunk template, these are meant for one-line formats:
 - `{{ t_open_tz }}`: chunk open time with time zone adjustment, as `YYYYmmddHHMM`.
 - `{{ t_mins }}`: chunk length in minutes, or the minutes so far for the open chunk.
 - `{{ is_open }}`: `1` for the open chunk, else `0`.
+- `{{ category }}`: `@WORK@`, `@SELFWORK@`, `@SYSTEM@`, `@OTHER@` or `@NONE@`,
+  found as in the day review: an override tag in the chunk's entries, else the
+  Boolean Tag Flag of the Node from the Map of Subtrees of the `threads` NNL (see
+  below). The Map of Subtrees is only collected when the template uses this.
 - `{{ excerpt }}`: up to 160 bytes of plain text from the chunk's entries (tags
   removed, whitespace and newlines made single spaces, UTF8 safe). It may contain
   commas, so put it last in a CSV line.

@@ -91,8 +91,9 @@ struct CSV_Data_Day {
 /**
  * One Log chunk in the Log calendar (-k). The CSV data is made by fzloghtml with
  * the custom template
- *   STR:{{ chunk_id }},{{ t_open_tz }},{{ t_mins }},{{ is_open }},{{ node_id }},{{ excerpt }}\n
- * The excerpt is the last field and may contain commas.
+ *   STR:{{ chunk_id }},{{ t_open_tz }},{{ t_mins }},{{ is_open }},{{ node_id }},{{ category }},{{ excerpt }}\n
+ * The excerpt is the last field and may contain commas. The category (e.g. @WORK@)
+ * may be missing (older format without it).
  */
 struct Logcal_chunk {
     std::string chunk_id;         ///< As in the Log (not time zone adjusted), used to fetch the chunk.
@@ -101,9 +102,11 @@ struct Logcal_chunk {
     bool is_open = false;
     std::string node_id;
     Node * node_ptr = nullptr;    ///< nullptr if the Node was not found in the Graph.
+    std::string category;         ///< WORK, SELFWORK, SYSTEM, OTHER, NONE, or empty if not in the data.
+    bool is_sleep = false;        ///< Node is in the sleep NNL (set separately, like node_ptr).
     std::string excerpt;
 
-    bool parse(const std::string & csv_line); // node_ptr is set separately
+    bool parse(const std::string & csv_line); // node_ptr and is_sleep are set separately
     time_t t_close() const { return t_open + 60*time_t(minutes); }
 };
 
@@ -231,6 +234,7 @@ struct nodeboard: public formalizer_standard_program {
     std::vector<Logcal_chunk> logcal_chunks;
     time_t logcal_first_day = 0;   ///< Start of the first day shown in the Log calendar (0 means today).
     unsigned int logcal_days = 1;  ///< Number of days shown in the Log calendar.
+    bool logcal_month = false;     ///< Show a month grid (-a <YYYYmm>).
 
     bool propose_td_solutions = false;
     bool prefer_earlier = true;
@@ -329,7 +333,11 @@ struct nodeboard: public formalizer_standard_program {
 
     std::string logcal_cgi_call(time_t first_day, unsigned int days, float multiplier) const;
 
+    std::string logcal_month_cgi_call(time_t t_in_month) const;
+
     bool get_logcal_day_column(time_t t_day, const std::string & card_template, const std::string & column_template, std::string & rendered_columns);
+
+    bool get_logcal_month_cell(time_t t_day, bool is_today, const std::string & cell_template, std::string & rendered_cells);
 
     bool make_simple_grid_board(const std::string & rendered_cards);
 
