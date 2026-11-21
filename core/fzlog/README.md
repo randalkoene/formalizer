@@ -55,39 +55,34 @@ for both (and for changing the chunk's Node).
 Rules:
 
 - A chunk's open time must be at or before its close time, at or after the close
-  time of the chunk before it, and not later than now.
+  time of the chunk before it, after the open time of the chunk before it (its
+  ID), and not later than now.
 - A chunk's close time must leave room before the next chunk's open time.
   So when two adjacent chunks change, change the one that makes room first:
   - Moving the boundary earlier: first move the close time of the earlier chunk,
     then the open time of the later chunk.
   - Moving the boundary later: first move the open time of the later chunk,
     then the close time of the earlier chunk.
-- The open time is the chunk's ID, so changing it changes the ID. Links that
-  point to the old chunk ID stop working.
+- Changing these times does not change the time logged on the Nodes (their
+  completion), only the Log itself.
 
-**For now, the chunk must have no Log entries to change its open time.**
-`fzlog -m <chunk-ID> -1 ...` otherwise stops with "Sorry! For now, a Log chunk
-must be emptied to change its ID." The Log entries carry the chunk ID in their
-own IDs, and changing those is not implemented yet. To do it by hand:
+### Changing the open time of a chunk with Log entries
 
-1. Copy the text of each entry in the chunk (and note its Node, if it differs
-   from the chunk's Node). The `edit` page of each entry shows both.
-2. Empty and delete each entry, as above.
-3. Change the open time: `fzlog -m <old-chunk-ID> -1 <YYYYmmddHHMM>`.
-   The new chunk ID is the new open time.
-4. Re-add the entries in their original order, each at the end of the chunk:
-   `fzlog -i <new-chunk-ID> -T "<text>" [-n <node-ID>]`, or with `-f <file>`
-   for longer text.
+The open time is the chunk's ID, and each Log entry's ID starts with it
+(`YYYYmmddHHMM.nnn`). Since 2026-11-21, `fzlog -m <chunk-ID> -1 <time>` works
+for chunks with entries: it changes the chunk ID, the IDs of its entries (they
+keep their number, text, Node and order), a Breakpoint with that ID, and the
+chunk and entry IDs in the `histories` cache, all in one database statement.
+Either everything changes or nothing does, and the number of entries changed in
+the database must equal the number loaded with the chunk. (Until then the chunk
+had to be emptied first and the entries re-added by hand.)
 
-### Planned: keep the entries when changing the open time
+Links elsewhere that contain the old chunk or entry ID (in Log entries, Node
+descriptions or outside the Formalizer) are not changed.
 
-The plan is to let `fzlog -m <chunk-ID> -1 <time>` do the steps above itself:
-keep the entries (text, Node, order), remove them, change the open time, and
-add them back under the new chunk ID. A copy of the entries is written to a
-temporary JSON file first, so they can be restored if a step fails. The
-`Change Open timestamp` form on the `action=modify` page would then work for
-chunks that have entries, with no change needed in the page itself. A better
-version would change the IDs inside a single database transaction.
+The test `tests/test_chunk_id_change.sh <path-to-fzlog>` runs these changes, and
+the cases that must be refused, in a throw-away database (`fztest_chunkid`,
+created and dropped by the script). It never touches the Formalizer database.
 
 --
 

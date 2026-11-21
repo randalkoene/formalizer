@@ -999,8 +999,6 @@ bool replace_chunk_close(time_t t_close_new) {
 bool replace_chunk_open(time_t t_open_new) {
     ERRTRACE;
 
-    FZOUT("WARNING! This is not yet properly implemented. It does not yet change the IDs of associated Entries! The Log Chunk must be empty of Entries.\n");
-
     // We want to read the Log chunk and the one before it.
     Log_chunk_ID_key key(fzl.chunk_id_str);
     if (!fzl.edata.log_ptr) { // make an empty one if it does not exist yet
@@ -1024,18 +1022,19 @@ bool replace_chunk_open(time_t t_open_new) {
     if (!chunk_ptr) {
         standard_exit_error(exit_bad_request_data, "Unable to find Log chunk with ID "+fzl.chunk_id_str, __func__);
     }
-    auto chunk_before_ptr = log.get_chunk(std::prev(it)); // if this is nullptr then it's the beginning of the Log
+    // The chunk before it, or nullptr at the beginning of the Log. (std::prev() of the first
+    // element is undefined, so that is checked first.)
+    auto chunk_before_ptr = (it == log.get_Chunks().begin()) ? nullptr : log.get_chunk(std::prev(it));
     VERYVERBOSEOUT("\nModifying Log chunk open-time. Note these rules and data:\n");
     VERYVERBOSEOUT("  Rule 1: New open-time must be <= close-time.\n");
     VERYVERBOSEOUT("  Rule 2: New open-time must be >= previous chunk close-time.\n");
     VERYVERBOSEOUT("  Rule 3: New open-time must be <= current time.\n");
+    VERYVERBOSEOUT("  Rule 4: New open-time must be > previous chunk open-time (its ID).\n");
     VERYVERBOSEOUT("All times are expressed in the Formalizer database time zone, i.e. no time-zone adjustment.\n\n");
 
-    // --- *** Temporary extra test:
-    if (const_cast<Log_chunk*>(chunk_ptr)->get_entries().size() > 0) {
-        standard_exit_error(exit_bad_request_data, "Sorry! For now, a Log chunk must be emptied to change its ID.", __func__);
-    }
-    // ---
+    // The chunk's Log entries keep their minor IDs, text, Node and order, and their IDs change
+    // with the chunk ID (see modify_Log_chunk_id_pq()). Until 2026-11-20 the chunk had to be empty.
+    size_t num_entries = const_cast<Log_chunk*>(chunk_ptr)->get_entries().size();
 
     time_t chunk_t_close = chunk_ptr->get_close_time();
     time_t before_t_close = 0;
@@ -1046,6 +1045,7 @@ bool replace_chunk_open(time_t t_open_new) {
     bool atorbefore_tclose = chunk_ptr->is_open() || (t_open_new <= chunk_t_close);
     bool notbefore_tprevclose = t_open_new >= before_t_close;
     bool notafter_tnow = t_open_new <= t_now;
+    bool after_prevopen = (!chunk_before_ptr) || (t_open_new > chunk_before_ptr->get_open_time());
 
     VERYVERBOSEOUT("Chunk open-time (unmodified) : "+TimeStampYmdHM(chunk_ptr->get_open_time())+'\n');
     VERYVERBOSEOUT("Chunk close-time             : "+TimeStampYmdHM(chunk_t_close)+passfailstr.at(atorbefore_tclose));
@@ -1066,13 +1066,21 @@ bool replace_chunk_open(time_t t_open_new) {
     if (!notafter_tnow) {
         standard_exit_error(exit_bad_request_data, "Failed to modify. Specified open-time exceeds current time.", __func__);
     }
+    if (!after_prevopen) {
+        standard_exit_error(exit_bad_request_data, "Failed to modify. Specified open-time is not after the previous chunk's open-time (its ID).", __func__);
+    }
+
+    if (t_open_new == chunk_ptr->get_open_time()) {
+        VERBOSEOUT("Log chunk "+fzl.chunk_id_str+" already opens at "+TimeStampYmdHM(t_open_new)+", no change.\n");
+        return true;
+    }
 
     // Carry out modification in database.
     if (!modify_Log_chunk_id_pq(*chunk_ptr, t_open_new, fzl.ga)) {
         standard_exit_error(exit_database_error, "Unable to modify Log chunk "+fzl.chunk_id_str+" in database", __func__);
     }
 
-    VERBOSEOUT("Log chunk "+fzl.chunk_id_str+" open-time (ID) modified to "+TimeStampYmdHM(t_open_new)+".\n");
+    VERBOSEOUT("Log chunk "+fzl.chunk_id_str+" open-time (ID) modified to "+TimeStampYmdHM(t_open_new)+", with "+std::to_string(num_entries)+" Log entries.\n");
 
     return true;
 }

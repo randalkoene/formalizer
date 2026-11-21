@@ -404,10 +404,42 @@ bool modify_Log_chunk_id_pq(const Log_chunk & chunk, time_t new_id, Postgres_acc
     #define CLOSE_LOG_PQ_RETURN(r) { PQfinish(apq.conn); return r; }
     apq.pq_schemaname = pa.pq_schemaname();
 
-    ERRHERE(".close");
+    // The chunk ID (its open time) is also the first part of the IDs of its Log entries
+    // (YYYYmmddHHMM.nnn), and it can appear in Breakpoints and in the histories cache.
+    // All of these change in one DO block, which PostgreSQL runs as a single statement:
+    // if any part fails (e.g. another chunk already has the new ID), nothing changes.
+    // (Before 2026-11-20 only Logchunks changed, so the chunk had to be empty first.)
+    ERRHERE(".modify");
     Logchunk_pq chunk_pq(&chunk);
-    std::string close_cmd_pq("UPDATE "+apq.pq_schemaname+".Logchunks SET id = "+TimeStamp_pq(new_id)+" WHERE id = "+chunk_pq.id_pqstr());
-    if (!simple_call_pq(apq.conn, close_cmd_pq))
+    const std::string s(apq.pq_schemaname);
+    const std::string old_id_pq(chunk_pq.id_pqstr());   // e.g. '20261120 10:00'
+    const std::string new_id_pq(TimeStamp_pq(new_id));
+    const std::string old_prefix(chunk.get_tbegin_str()); // the chunk ID string, e.g. 202611201000
+    const std::string new_prefix(TimeStampYmdHM(new_id));
+    const std::string old_entry_prefix("'"+old_prefix+".'"); // entry IDs start with this
+    // As a safety check, the number of entries renamed in the database must equal the number
+    // of entries loaded with the chunk; otherwise everything is rolled back.
+    const std::string num_entries(std::to_string(const_cast<Log_chunk *>(&chunk)->get_entries().size()));
+    std::string do_pq(
+        "DO $fzchunkid$ DECLARE n integer; BEGIN\n"
+        "  UPDATE "+s+".Logchunks SET id = "+new_id_pq+" WHERE id = "+old_id_pq+";\n"
+        "  IF NOT FOUND THEN RAISE EXCEPTION 'Log chunk "+old_prefix+" not found'; END IF;\n"
+        "  UPDATE "+s+".Logentries SET id = '"+new_prefix+"' || substr(id, 13) WHERE substr(id, 1, 13) = "+old_entry_prefix+";\n"
+        "  GET DIAGNOSTICS n = ROW_COUNT;\n"
+        "  IF n <> "+num_entries+" THEN RAISE EXCEPTION 'Log chunk "+old_prefix+": % entries in the database, "+num_entries+" loaded, nothing changed', n; END IF;\n"
+        "  IF to_regclass('"+s+".breakpoints') IS NOT NULL THEN\n"
+        "    UPDATE "+s+".Breakpoints SET id = "+new_id_pq+" WHERE id = "+old_id_pq+";\n"
+        "  END IF;\n"
+        "  IF to_regclass('"+s+".histories') IS NOT NULL THEN\n"
+        "    UPDATE "+s+".histories SET chunkids = array_replace(chunkids, '"+old_prefix+"'::char(12), '"+new_prefix+"'::char(12))\n"
+        "      WHERE '"+old_prefix+"' = ANY(chunkids);\n"
+        "    UPDATE "+s+".histories SET entryids = ARRAY(\n"
+        "        SELECT CASE WHEN substr(e, 1, 13) = "+old_entry_prefix+" THEN ('"+new_prefix+"' || substr(e, 13))::char(16) ELSE e END\n"
+        "        FROM unnest(entryids) WITH ORDINALITY AS u(e, o) ORDER BY o)\n"
+        "      WHERE EXISTS (SELECT 1 FROM unnest(entryids) AS u(e) WHERE substr(e, 1, 13) = "+old_entry_prefix+");\n"
+        "  END IF;\n"
+        "END $fzchunkid$;");
+    if (!simple_call_pq(apq.conn, do_pq))
         CLOSE_LOG_PQ_RETURN(false);
 
     CLOSE_LOG_PQ_RETURN(true);
