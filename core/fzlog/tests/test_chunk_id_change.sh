@@ -26,7 +26,7 @@ if psql -lqt | cut -d'|' -f1 | grep -qw "$DB"; then
 fi
 
 createdb "$DB" || { echo "createdb failed."; exit 1; }
-trap 'dropdb "$DB" && echo "" && echo "Dropped test database $DB."' EXIT
+trap 'rm -f "$LASTOUT"; dropdb "$DB" && echo "" && echo "Dropped test database $DB."' EXIT
 
 q() { psql -X -q -t -A -d "$DB" -c "$1"; }
 
@@ -73,7 +73,9 @@ fails=0
 check() { # description, expected, actual
     if [ "$2" = "$3" ]; then echo "  ok:   $1"; else echo "  FAIL: $1"; echo "        expected: $2"; echo "        got:      $3"; fails=$((fails+1)); fi
 }
-run_fzlog() { "$FZLOG" -d "$DB" -s "$S" -E STDOUT -W STDOUT -q -m "$1" -1 "$2" > /tmp/fztest_chunkid_out.$$ 2>&1; local r=$?; sed 's/^/        | /' /tmp/fztest_chunkid_out.$$ | head -6; rm -f /tmp/fztest_chunkid_out.$$; return $r; }
+# Runs fzlog as the modify page does (without -q), shows its output, and keeps it in $LASTOUT.
+LASTOUT=$(mktemp)
+run_fzlog() { "$FZLOG" -d "$DB" -s "$S" -E STDOUT -W STDOUT -m "$1" -1 "$2" > "$LASTOUT" 2>&1; local r=$?; sed 's/^/        | /' "$LASTOUT" | head -8; return $r; }
 
 echo "=== Before"
 snapshot | sed 's/^/  /'
@@ -112,9 +114,9 @@ check "B's entries have the new IDs, same Nodes, texts and order" \
       "$(q "SELECT id||'|'||nid||'|'||text FROM $S.Logentries WHERE id LIKE '202611191005.%' ORDER BY id")"
 check "no entries left with the old chunk ID" "0" "$(q "SELECT count(*) FROM $S.Logentries WHERE id LIKE '202611191000.%'")"
 check "Breakpoint moved to 10:05" "202611191005" "$(q "SELECT to_char(id,'YYYYMMDDHH24MI') FROM $S.Breakpoints")"
-check "histories: chunk ID replaced" "{202611191005}" "$(q "SELECT chunkids::text FROM $S.histories WHERE nid='20200101000000.2'")"
-check "histories: entry IDs replaced, order kept" "{202611191005.001,202611191005.003}" "$(q "SELECT entryids::text FROM $S.histories WHERE nid='20200101000000.2'")"
-check "histories: other Node's entry replaced" "{202611191005.002}" "$(q "SELECT entryids::text FROM $S.histories WHERE nid='20200101000000.3'")"
+check "histories cache not changed (it is rebuilt with fzquerypq -R histories)" \
+      "$(echo "$before" | grep '^hist ')" "$(snapshot | grep '^hist ')"
+check "fzlog's output mentions refreshing Node histories" "1" "$(grep -c 'Refresh Node histories' "$LASTOUT")"
 check "chunks A, C, E, F and their entries unchanged" \
       "$(echo "$before" | grep -E '^(chunk 2026111909|chunk 2026111911|chunk 2026111912|entry 202611190900|entry 202611191100|hist  20200101000000.1)')" \
       "$(snapshot | grep -E '^(chunk 2026111909|chunk 2026111911|chunk 2026111912|entry 202611190900|entry 202611191100|hist  20200101000000.1)')"

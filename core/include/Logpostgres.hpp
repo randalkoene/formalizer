@@ -166,10 +166,11 @@ bool modify_Log_chunk_nid_pq(const Log_chunk & chunk, Postgres_access & pa);
  * Change Chunk Open time, i.e. the Log chunk ID. The chunk must already
  * exist within a table in schema of PostgreSQL database.
  *
- * The IDs of the chunk's Log entries (chunk ID + minor ID), a Breakpoint with
- * the chunk ID and the chunk and entry IDs in the histories cache are changed
- * as well, all in a single statement: either everything changes or nothing.
- * Callers check the timing rules first (see fzlog.cpp replace_chunk_open()).
+ * The IDs of the chunk's Log entries (chunk ID + minor ID) and a Breakpoint with
+ * the chunk ID are changed as well, in a single statement: either everything
+ * changes or nothing. The histories cache is not changed; rebuild it afterwards
+ * (fzquerypq -R histories). Callers check the timing rules first (see fzlog.cpp
+ * replace_chunk_open()).
  *
  * @param chunk A valid Log chunk object.
  * @param new_id A new open time that will also be the new ID.

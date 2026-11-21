@@ -1081,6 +1081,7 @@ bool replace_chunk_open(time_t t_open_new) {
     }
 
     VERBOSEOUT("Log chunk "+fzl.chunk_id_str+" open-time (ID) modified to "+TimeStampYmdHM(t_open_new)+", with "+std::to_string(num_entries)+" Log entries.\n");
+    VERBOSEOUT("Note: Refresh Node histories ('Update Node histories', or fzquerypq -R histories) so that the chunk shows on its Nodes' history pages again.\n");
 
     return true;
 }

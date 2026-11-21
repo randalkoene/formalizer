@@ -71,11 +71,17 @@ Rules:
 The open time is the chunk's ID, and each Log entry's ID starts with it
 (`YYYYmmddHHMM.nnn`). Since 2026-11-21, `fzlog -m <chunk-ID> -1 <time>` works
 for chunks with entries: it changes the chunk ID, the IDs of its entries (they
-keep their number, text, Node and order), a Breakpoint with that ID, and the
-chunk and entry IDs in the `histories` cache, all in one database statement.
-Either everything changes or nothing does, and the number of entries changed in
-the database must equal the number loaded with the chunk. (Until then the chunk
-had to be emptied first and the entries re-added by hand.)
+keep their number, text, Node and order) and a Breakpoint with that ID, all in
+one database statement. Either everything changes or nothing does, and the
+number of entries changed in the database must equal the number loaded with the
+chunk. (Until then the chunk had to be emptied first and the entries re-added by
+hand.)
+
+The Node histories cache (`histories`) is not changed, as with other Log
+changes. Afterwards, rebuild it ("Update Node histories", or
+`fzquerypq -R histories`), or the chunk is missing from its Nodes' history
+pages until the next rebuild. (The web server user may only read that table,
+which is why fzlog does not update it.)
 
 Links elsewhere that contain the old chunk or entry ID (in Log entries, Node
 descriptions or outside the Formalizer) are not changed.
