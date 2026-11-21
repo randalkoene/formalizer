@@ -17,7 +17,7 @@ try:
     import cgitb; cgitb.enable()
 except:
     pass
-import sys, cgi, os
+import sys, cgi, os, re
 sys.stderr = sys.stdout
 from time import strftime
 from datetime import datetime, date
@@ -82,6 +82,8 @@ selectchunks = form.getvalue('selectchunks')
 
 json_output = form.getvalue('json')
 
+single_chunk = form.getvalue('chunk')
+
 #if not review:
 #    print("Content-type:text/html\n\n")
 print("Content-type:text/html\n")
@@ -115,6 +117,8 @@ Operations:
 <li><code>index!=None</code>: Generate and render Log index.
 <li><code>mostrecentraw!=None</code>: Retrieve raw content of most recent Log chunk.
 <li><code>mostrecentdata!=None</code>: Retrieve data for most recent Log chunk.
+<li><code>chunk=YYYYmmddHHMM</code>: Only the HTML table rows of that Log chunk, as in the Log page
+(used by the pop-ups of the Log calendar, <code>nodeboard-cgi.py?logcal=today</code>).
 <li>Otherwise: Render specified Log interval.
 </ul>
 </p>
@@ -213,6 +217,7 @@ right: 50%;
 
 <div id="protocol_tab">
 <button class="button button1" onclick="window.open('/cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20', '_blank');">Calendar Schedule</button><br>
+<button class="button button1" onclick="window.open('/cgi-bin/nodeboard-cgi.py?logcal=today&days=1', '_blank');">Log Calendar</button><br>
 <span class="alt_tooltip">Distractions off <input type="checkbox">
 <span class="alt_tooltiptext prot_tip"><div>Turn off video distractions.</div></span>
 </span><br>
@@ -587,6 +592,21 @@ def build_command_options()->str:
 
     return cmdoptions
 
+def render_single_chunk(chunk_id:str):
+    # Only the table rows of one Log chunk, without page frame, e.g. for a pop-up.
+    if not (len(chunk_id) == 12 and chunk_id.isdigit()):
+        print('<tr><td><b>Invalid Log chunk ID.</b></td></tr>')
+        return
+    thecmd = ['./fzloghtml', '-q', '-d', 'formalizer', '-s', 'randalk', '-o', 'STDOUT', '-E', 'STDOUT', '-N', '-F', 'html', '-e', chunk_id]
+    try:
+        p = Popen(thecmd, stdin=PIPE, stdout=PIPE, close_fds=True, universal_newlines=True)
+        result, _ = p.communicate('')
+        # Leave out the 'chunks_rendered = N' note that fzloghtml adds in html format.
+        result = re.sub(r'<tr><td><hr><pre>chunks_rendered = [0-9]+</pre></td></tr>\s*$', '', result)
+        print(result)
+    except Exception as ex:
+        print('<tr><td><b>Unable to get Log chunk:</b> %s</td></tr>' % str(ex))
+
 def render_log_interval():
     upcoming_Sunday_str = get_upcoming_Sunday().strftime("%Y%m%d%H%M")
     print(log_interval_head_part1+upcoming_Sunday_str+log_interval_head_part2)
@@ -750,7 +770,9 @@ if __name__ == '__main__':
         print(interface_options_help)
         sys.exit(0)
 
-    if review:
+    if single_chunk:
+        render_single_chunk(single_chunk)
+    elif review:
         render_Log_review()
     elif regen_index:
         render_Log_index()

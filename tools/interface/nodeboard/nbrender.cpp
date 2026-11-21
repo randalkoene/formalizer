@@ -76,10 +76,10 @@ nodeboard::nodeboard():
     output_path("/var/www/html/formalizer/test_node_card.html"),
     graph_ptr(nullptr) {
 
-    // Still available: ajkxyYz
-    add_option_args += "RGgn:L:D:l:t:m:f:c:IZUi:F:u:H:TPO:e:b:M:Kp:B:N:C:r:S:XJo:z:w:";
+    // Still available: jxyY
+    add_option_args += "RGgn:L:D:l:t:m:f:c:k:a:IZUi:F:u:H:TPO:e:b:M:Kp:B:N:C:r:S:XJo:z:w:";
     add_usage_top += " [-R] [-G|-g] [-n <node-ID>] [-L <name>] [-D <name>] [-l {<name>,...}] [-t {<topic>,...}]"
-        " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-I] [-Z] [-U] [-i <topic_id>,...] [-F <substring>]"
+        " [-m {<topic>,NNL:<name>,...}] [-f <json-path>] [-c <csv-path>] [-k <csv-path> [-a <YYYYmmdd>[,<days>]]] [-I] [-Z] [-U] [-i <topic_id>,...] [-F <substring>]"
         " [-u <up-to>] [-w <importance-threshold>] [-H <board-header>] [-T] [-P] [-O earlier|later] [-e <errors-list>] [-b <before>] [-M <multiplier>] [-p <progress-state-file>]"
         " [-K] [-S <size-list>] [-B <topic-id>] [-N <near-term-days>] [-C <max-columns>] [-r <max-rows>] [-X] [-z <stretch-factor>] [-J] [-o <output-file|STDOUT>]";
 
@@ -110,6 +110,11 @@ void nodeboard::usage_hook() {
         "    -m List of mixed Topics and NNLs (prepend with 'NNL:').\n"
         "    -f Use categories from sysmet-style JSON file.\n"
         "    -c Generate schedule based on CSV file.\n"
+        "    -k Generate Log calendar based on CSV file made by fzloghtml with\n"
+        "       the custom template:\n"
+        "       'STR:{{ chunk_id }},{{ t_open_tz }},{{ t_mins }},{{ is_open }},{{ node_id }},{{ excerpt }}\\n'\n"
+        "    -a First day and number of days shown in the Log calendar\n"
+        "       (default: today and 1 day).\n"
         "    -I Include completed Nodes.\n"
         "       This also includes Nodes with completion values < 0.\n"
         "    -Z Include zero required time Nodes.\n"
@@ -245,6 +250,16 @@ bool nodeboard::options_hook(char c, std::string cargs) {
             flowcontrol = flow_csv_schedule;
             source_file = cargs;
             return true;
+        }
+
+        case 'k': {
+            flowcontrol = flow_log_calendar;
+            source_file = cargs;
+            return true;
+        }
+
+        case 'a': {
+            return parse_logcal_range(cargs);
         }
 
         case 'I': {
@@ -1143,11 +1158,15 @@ Node_render_result nodeboard::get_Node_alt_card(const Node * node_ptr, std::time
  * Finding the nearest 20 minute block: trunc((start_minute/1440)*72)
  * Finding the position of a 20 minute-chunked start: trunc( 1.17*(start_minute/1440)*72)
  */
+float nodeboard::get_minute_vertical_position(float start_minute, float v_offset) {
+    return 1.17*(start_minute/1440.0)*72.0*vertical_multiplier + v_offset;
+}
+
 float nodeboard::get_card_vertical_position(const std::string & start_time, float v_offset) {
     int hour = atoi(start_time.substr(0, 2).c_str());
     int minute = atoi(start_time.substr(3, 2).c_str());
     float start_minute = (hour*60) + minute;
-    return 1.17*(start_minute/1440.0)*72.0*vertical_multiplier + v_offset;
+    return get_minute_vertical_position(start_minute, v_offset);
 }
 
 /**

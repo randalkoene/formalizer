@@ -103,6 +103,8 @@ dodevelopmenttest = form.getvalue('R')
 timeline = form.getvalue('z')
 timeline_stretch = form.getvalue('zstretch')
 importance_threshold = form.getvalue('w')
+log_calendar_day = form.getvalue('logcal')
+log_calendar_days = form.getvalue('days')
 
 include_td_detect = ''
 if tdorder:
@@ -372,6 +374,73 @@ def show_calendar_schedule_board():
     thecmd = f"./nodeboard -c '{calendar_file}'{header_arg_str}{vertical_multiplier_arg} -q -o STDOUT"
     success, res = try_command_call(thecmd, print_result=True)
 
+LOGCAL_ERROR='''
+<html>
+<head>
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>Log Calendar: error</title>
+</head>
+<body>
+<script type="module" src="/fzuistate.js"></script>
+<h3>Log Calendar: error</h3>
+<p>%s</p>
+<pre>%s</pre>
+</body>
+</html>
+'''
+
+def show_log_calendar_board():
+    # Log calendar (Node 20260223154446.1): nodeboard-cgi.py?logcal=<YYYYmmdd|today>&days=<n>&M=<multiplier>
+    # 1. fzloghtml writes the Log chunks around the requested days as CSV data.
+    # 2. nodeboard -k renders the day columns from that data.
+    import tempfile, html
+    from subprocess import run
+    if log_calendar_day == 'today':
+        first_day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    else:
+        try:
+            first_day = datetime.strptime(str(log_calendar_day), '%Y%m%d')
+        except ValueError:
+            print(LOGCAL_ERROR % ('Invalid date (expected YYYYmmdd or today).', ''))
+            return
+    days = 1
+    if log_calendar_days:
+        if not str(log_calendar_days).isdigit():
+            print(LOGCAL_ERROR % ('Invalid number of days.', ''))
+            return
+        days = min(max(int(log_calendar_days), 1), 31)
+    multiplier = '1.0'
+    if vertical_multiplier:
+        try:
+            multiplier = str(max(float(vertical_multiplier), 1.0))
+        except ValueError:
+            pass
+
+    # Chunks that start the day before or that end after the last day may still overlap
+    # the days shown (also with a time zone adjustment), so ask for one more day on each side.
+    # The days shown are chosen by nodeboard.
+    t_from = (first_day - timedelta(days=1)).strftime('%Y%m%d')
+    t_to_dt = first_day + timedelta(days=days+1)
+    t_to = 'now' if t_to_dt > datetime.now() else t_to_dt.strftime('%Y%m%d')
+
+    with tempfile.NamedTemporaryFile(mode='w+', suffix='.csv', prefix='fzlogcal-') as csvfile:
+        logcmd = ['./fzloghtml', '-q', '-d', 'formalizer', '-s', 'randalk', '-o', csvfile.name, '-N', '-F', 'txt',
+                  '-1', t_from, '-2', t_to,
+                  '-T', 'STR:{{ chunk_id }},{{ t_open_tz }},{{ t_mins }},{{ is_open }},{{ node_id }},{{ excerpt }}\\n']
+        res = run(logcmd, capture_output=True, text=True)
+        if res.returncode != 0:
+            print(LOGCAL_ERROR % ('fzloghtml was unable to get the Log chunks.', html.escape(' '.join(logcmd)+'\n'+res.stdout+res.stderr)))
+            return
+        nbcmd = ['./nodeboard', '-k', csvfile.name, '-a', '%s,%d' % (first_day.strftime('%Y%m%d'), days), '-M', multiplier, '-q', '-o', 'STDOUT']
+        if header_arg:
+            nbcmd += ['-H', header_arg]
+        res = run(nbcmd, capture_output=True, text=True)
+        if res.returncode != 0:
+            print(LOGCAL_ERROR % ('nodeboard was unable to render the Log calendar.', html.escape(' '.join(nbcmd)+'\n'+res.stdout+res.stderr)))
+            return
+        print(res.stdout)
+
 HELP='''
 <html>
 <body>
@@ -402,6 +471,10 @@ if __name__ == '__main__':
 
     if calendar_file:
         show_calendar_schedule_board()
+        sys.exit(0)
+
+    if log_calendar_day:
+        show_log_calendar_board()
         sys.exit(0)
 
     show_help()

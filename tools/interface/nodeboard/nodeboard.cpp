@@ -90,6 +90,14 @@ bool node_superiors_tree() {
     return standard_exit(node_board_render_superiors_tree(nb), "Node superiors tree created.\n", exit_general_error, "Unable to create Node superiors tree.", __func__);
 }
 
+bool log_calendar() {
+    if (nb.source_file.empty()) {
+        return standard_error("Missing source file argument.", __func__);
+    }
+
+    return standard_exit(node_board_render_log_calendar(nb), "Log calendar created from CSV file.\n", exit_general_error, "Unable to create Log calendar from CSV file.", __func__);
+}
+
 bool csv_schedule() {
     if (nb.source_file.empty()) {
         return standard_error("Missing source file argument.", __func__);
@@ -165,6 +173,11 @@ int main(int argc, char *argv[]) {
 
         case flow_csv_schedule: {
             csv_schedule();
+            break;
+        }
+
+        case flow_log_calendar: {
+            log_calendar();
             break;
         }
 

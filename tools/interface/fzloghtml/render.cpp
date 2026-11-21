@@ -281,6 +281,47 @@ std::string include_Node_info(const Node_ID & node_id) {
     return nodestr;
 }
 
+/**
+ * Cut a UTF8 string to at most max_bytes bytes without splitting a multi-byte
+ * character.
+ */
+std::string utf8_cut(const std::string & s, size_t max_bytes) {
+    if (s.size() <= max_bytes) return s;
+    size_t cut = max_bytes;
+    while ((cut > 0) && ((static_cast<unsigned char>(s[cut]) & 0xC0) == 0x80)) {
+        cut--; // s[cut] is a continuation byte, so the character starts earlier
+    }
+    return s.substr(0, cut);
+}
+
+/**
+ * A short plain text excerpt of the content of a Log chunk, for use in
+ * one-line formats (e.g. the CSV data used by the Log calendar in nodeboard).
+ * The text of the entries is joined, HTML tags are removed, all whitespace
+ * (including newlines) becomes single spaces, and the result is cut to at
+ * most max_bytes bytes (UTF8 safe). Commas are kept: the excerpt should be
+ * the last field of a CSV line.
+ */
+std::string chunk_excerpt(Log_chunk & chunk, size_t max_bytes) {
+    std::string excerpt;
+    for (const auto& entryptr : chunk.get_entries()) {
+        if (!entryptr) continue;
+        std::string entrytext = remove_html_tags(entryptr->get_entrytext());
+        for (char c : entrytext) {
+            if ((c == '\n') || (c == '\r') || (c == '\t') || (c == ' ')) {
+                if ((!excerpt.empty()) && (excerpt.back() != ' ')) excerpt += ' ';
+            } else {
+                excerpt += c;
+            }
+        }
+        if (!excerpt.empty() && (excerpt.back() != ' ')) excerpt += ' ';
+        if (excerpt.size() > max_bytes) break;
+    }
+    excerpt = utf8_cut(excerpt, max_bytes);
+    while ((!excerpt.empty()) && (excerpt.back() == ' ')) excerpt.pop_back();
+    return excerpt;
+}
+
 bool entry_has_each(const std::string & entrytextref) {
     for (const auto & search_text : fzlh.search_strings) {
         if (entrytextref.find(search_text)==std::string::npos) {
@@ -692,6 +733,23 @@ bool render_Log_interval() {
             varvals.emplace("t_chunkopen", temporalcontextstr);
         }
         varvals.emplace("temp_context", temporalcontextstr);
+        // Values meant for custom templates, e.g. for the Log calendar CSV data:
+        //   t_open_tz: chunk open time with time zone adjustment, always plain YYYYmmddHHMM
+        //   t_mins:    chunk length in minutes, or the minutes so far for the open chunk
+        //   is_open:   1 for the open chunk, else 0
+        //   excerpt:   short plain text excerpt of the chunk content (one line)
+        varvals.emplace("t_open_tz", t_open_visible_str);
+        if (t_chunkclose < t_chunkopen) {
+            time_t t_sofar = (ActualTime() - t_chunkopen)/60;
+            varvals.emplace("t_mins", std::to_string((t_sofar > 0) ? t_sofar : 0));
+            varvals.emplace("is_open", "1");
+        } else {
+            varvals.emplace("t_mins", std::to_string((t_chunkclose - t_chunkopen)/60));
+            varvals.emplace("is_open", "0");
+        }
+        if ((!customtemplate.empty()) && (customtemplate.find("excerpt") != std::string::npos)) {
+            varvals.emplace("excerpt", chunk_excerpt(*chunkptr, 160));
+        }
         if (t_chunkclose < t_chunkopen) {
             varvals.emplace("t_chunkclose", "OPEN");
             varvals.emplace("t_diff", "");

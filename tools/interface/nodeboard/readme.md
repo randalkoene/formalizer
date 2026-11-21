@@ -79,6 +79,40 @@ E.g. the board created by:
 /cgi-bin/schedule-cgi.py?c=true&num_days=7&s=20
 ```
 
+### `nodeboard -k <csv-path> -a <YYYYmmdd>,<days>`
+
+Generate a Log calendar: day columns with a card for each Log chunk at the time
+where it is (Node 20260223154446.1). Clicking a card opens a pop-up that shows the
+whole Log chunk as in the Log page. The page has buttons for earlier and later
+days, today, Day and Week views, a date picker, and smaller and larger cards. The
+left and right arrow keys also move earlier and later, and Escape closes the pop-up.
+
+The CSV data is made by `fzloghtml` with a custom template, e.g.:
+
+```
+fzloghtml -q -o <csv-path> -N -F txt -1 <day-before> -2 <day-after> \
+  -T 'STR:{{ chunk_id }},{{ t_open_tz }},{{ t_mins }},{{ is_open }},{{ node_id }},{{ excerpt }}\n'
+```
+
+The CGI handler does both steps, e.g. for the 3 days from 20 November 2026:
+
+```
+/cgi-bin/nodeboard-cgi.py?logcal=20261120&days=3
+/cgi-bin/nodeboard-cgi.py?logcal=today&days=1
+```
+
+Notes:
+
+- Chunks that cross midnight are split over the two day columns and marked with
+  `(from ...)` and `(continues)`. The open chunk is drawn up to the present time.
+- The card text is the start of the chunk's entries (`excerpt`), or the Node
+  description in italics if the chunk has no entries.
+- Sleep chunks (Nodes in NNL `group_sleep`) have the same blue as in the calendar
+  Schedule, the open chunk is salmon, and other chunks alternate between two light
+  colors.
+- The pop-up gets the chunk from `fzloghtml-cgi.py?chunk=<chunk-id>`.
+- Rendering code: `nblogcal.cpp`; templates: `templates/html/Logcal_*.template.html`.
+
 ### `nodeboard -l "{milestones_formalizer,procrastination,group_sleep}"`
 
 Generate a board from the specified list of NNLs.

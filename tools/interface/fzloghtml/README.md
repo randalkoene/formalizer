@@ -6,6 +6,23 @@ In the URL part of a HTML link, put something like:
 
 @FZSERVER@/doc/tex/something.doc
 
+## Values for custom templates
+
+With `-T 'STR:...'` a custom template is used for each Log chunk. Besides the
+values of the normal chunk template, these are meant for one-line formats:
+
+- `{{ t_open_tz }}`: chunk open time with time zone adjustment, as `YYYYmmddHHMM`.
+- `{{ t_mins }}`: chunk length in minutes, or the minutes so far for the open chunk.
+- `{{ is_open }}`: `1` for the open chunk, else `0`.
+- `{{ excerpt }}`: up to 160 bytes of plain text from the chunk's entries (tags
+  removed, whitespace and newlines made single spaces, UTF8 safe). It may contain
+  commas, so put it last in a CSV line.
+
+The Log calendar (`nodeboard -k`, see nodeboard's readme) uses these.
+
+`fzloghtml-cgi.py?chunk=<chunk-id>` returns only the HTML table rows of one Log
+chunk, as in the Log page (used by the Log calendar pop-ups).
+
 ## The `day review` option
 
 Note that the fzloghtml `day review` option obtains the Log data needed for a

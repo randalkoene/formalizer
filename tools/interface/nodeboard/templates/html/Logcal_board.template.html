@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html style="overflow-x:scroll;">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="icon" href="/favicon-logentry-32x32.png">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/w3.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<style>
+.grid-container {
+  display: grid;
+  grid-template-columns:{{ column-widths }};
+  grid-gap: 5px 5px;
+  background-color: var(--grid-bg);
+  color: black;
+  padding: 5px;
+  width: fit-content;
+  position: absolute;
+  left: 20px;
+}
+
+.logcal-column {
+  background-color: var(--grid-bgoverlay);
+  position: relative;
+  height: {{ column-height }};
+  font-size: 10px;
+}
+
+.logcal-column h4 {
+  text-align: center;
+  margin: 0;
+  height: 3vh;
+}
+
+.logcal-hour {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dotted rgba(128,128,128,0.5);
+  font-size: 9px;
+  color: gray;
+  padding-left: 2px;
+}
+
+.logcal-card {
+  border-radius: 6px;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+  left: 32px;
+  right: 4px;
+  position: absolute;
+  text-align: left;
+  overflow: hidden;
+  min-height: 3px;
+  cursor: pointer;
+  color: black;
+}
+
+.logcal-card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.4);
+  z-index: 555555 !important;
+  height: auto !important;
+  min-height: 60px;
+  max-height: 200px;
+  background-color: rgba(255, 255, 0, 1.0) !important;
+}
+
+.logcal-card .container {
+  padding: 0px 6px;
+}
+
+.logcal-card p {
+  margin: 0;
+}
+
+.logcal-nav {
+  margin-bottom: 8px;
+}
+
+#chunk-popup {
+  position: fixed;
+  top: 5vh;
+  left: 10vw;
+  width: 80vw;
+  max-height: 88vh;
+  z-index: 999999;
+  background-color: var(--color-bg, white);
+  color: var(--color-text, black);
+  border: 2px solid gray;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+#chunk-popup[hidden] {
+  display: none;
+}
+
+#chunk-popup-bar {
+  padding: 6px 10px;
+  border-bottom: 1px solid gray;
+}
+
+#chunk-popup-close {
+  float: right;
+}
+
+#chunk-popup-body {
+  overflow-y: auto;
+  padding: 6px 10px;
+}
+
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+</style>
+<title>{{ board-header }}</title>
+</head>
+<body>
+
+<h2>{{ board-header }}: {{ range }}</h2>
+
+<div class="logcal-nav">
+<button class="button button2" onclick="window.open('{{ prev-url }}','_self');" title="Left arrow key">&#9664; Earlier</button>
+<button class="button button2" onclick="window.open('{{ today-url }}','_self');">Today</button>
+<button class="button button2" onclick="window.open('{{ next-url }}','_self');" title="Right arrow key">Later &#9654;</button>
+&nbsp;
+<button class="button button1" onclick="window.open('{{ day-url }}','_self');">Day</button>
+<button class="button button1" onclick="window.open('{{ week-url }}','_self');">Week</button>
+&nbsp;
+<input type="date" id="logcal-date" value="{{ first-day }}" title="Go to date">
+&nbsp;
+<button class="button button1" onclick="window.open('{{ smaller-url }}','_self');">smaller</button>
+<button class="button button1" onclick="window.open('{{ larger-url }}','_self');">larger</button>
+<span class="w3-small">({{ num-chunks }} Log chunks loaded. Click a chunk to see it.)</span>
+[<a href="/index.html">fz: Top</a>]
+</div>
+
+<div class="grid-container">
+
+{{ the-columns }}
+
+</div>
+
+<div id="chunk-popup" hidden>
+<div id="chunk-popup-bar">
+<b id="chunk-popup-title"></b>
+[<a id="chunk-popup-log" href="#" target="_blank">open in Log</a>]
+[<a id="chunk-popup-modify" href="#" target="_blank">modify</a>]
+<button id="chunk-popup-close" class="button button2" title="Escape key">close</button>
+</div>
+<div id="chunk-popup-body"><table><tbody id="chunk-popup-content"></tbody></table></div>
+</div>
+
+<script type="module" src="/fzuistate.js"></script>
+<script>
+const logcalDays = '{{ days }}';
+const logcalMultiplier = '{{ multiplier }}';
+const popup = document.getElementById('chunk-popup');
+const popupContent = document.getElementById('chunk-popup-content');
+
+function chunkLabel(id) {
+    // YYYYmmddHHMM -> YYYY-mm-dd HH:MM
+    return id.substring(0,4)+'-'+id.substring(4,6)+'-'+id.substring(6,8)+' '+id.substring(8,10)+':'+id.substring(10,12);
+}
+
+async function openChunk(id) {
+    if (!/^[0-9]{12}$/.test(id)) return;
+    document.getElementById('chunk-popup-title').textContent = 'Log chunk '+chunkLabel(id);
+    document.getElementById('chunk-popup-log').href = '/cgi-bin/fzlink.py?id='+id;
+    document.getElementById('chunk-popup-modify').href = '/cgi-bin/fzlog-cgi.py?action=modify&id='+id;
+    popupContent.innerHTML = '<tr><td>Loading...</td></tr>';
+    popup.hidden = false;
+    try {
+        const response = await fetch('/cgi-bin/fzloghtml-cgi.py?chunk='+id, { cache: 'no-store' });
+        if (!response.ok) {
+            throw new Error('HTTP status '+response.status);
+        }
+        popupContent.innerHTML = await response.text();
+    } catch (error) {
+        popupContent.innerHTML = '';
+        const row = popupContent.insertRow();
+        row.insertCell().textContent = 'Unable to load the Log chunk: '+error;
+    }
+}
+
+function closeChunk() {
+    popup.hidden = true;
+    popupContent.innerHTML = '';
+}
+
+document.addEventListener('click', function(event) {
+    if (event.target.closest('a, button, input')) return;
+    const card = event.target.closest('.logcal-card');
+    if (card) {
+        openChunk(card.dataset.chunk);
+    }
+});
+
+document.getElementById('chunk-popup-close').addEventListener('click', closeChunk);
+
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeChunk();
+        return;
+    }
+    if (!popup.hidden) return;
+    if (event.target.closest('input, textarea')) return;
+    if (event.key === 'ArrowLeft') {
+        window.open('{{ prev-url }}', '_self');
+    } else if (event.key === 'ArrowRight') {
+        window.open('{{ next-url }}', '_self');
+    }
+});
+
+document.getElementById('logcal-date').addEventListener('change', function(event) {
+    const value = event.target.value.replaceAll('-', '');
+    if (/^[0-9]{8}$/.test(value)) {
+        window.open('/cgi-bin/nodeboard-cgi.py?logcal='+value+'&days='+logcalDays+'&M='+logcalMultiplier, '_self');
+    }
+});
+</script>
+</body>
+</html>

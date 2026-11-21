@@ -42,6 +42,7 @@ enum flow_options {
     flow_dependencies_tree = 14,      ///< request: show tree of Node dependencies in a grid
     flow_superiors_tree = 15,         ///< request: show tree of Node dependencies in a grid
     flow_csv_schedule = 16,           ///< request: show schedule based on CSV file
+    flow_log_calendar = 17,           ///< request: show Log calendar based on CSV file
     flow_NUMoptions
 };
 
@@ -85,6 +86,25 @@ struct CSV_Data {
 struct CSV_Data_Day {
     std::vector<CSV_Data> day;
 
+};
+
+/**
+ * One Log chunk in the Log calendar (-k). The CSV data is made by fzloghtml with
+ * the custom template
+ *   STR:{{ chunk_id }},{{ t_open_tz }},{{ t_mins }},{{ is_open }},{{ node_id }},{{ excerpt }}\n
+ * The excerpt is the last field and may contain commas.
+ */
+struct Logcal_chunk {
+    std::string chunk_id;         ///< As in the Log (not time zone adjusted), used to fetch the chunk.
+    time_t t_open = 0;            ///< Open time with time zone adjustment, used for placement.
+    unsigned int minutes = 0;     ///< Length, or minutes so far if the chunk is open.
+    bool is_open = false;
+    std::string node_id;
+    Node * node_ptr = nullptr;    ///< nullptr if the Node was not found in the Graph.
+    std::string excerpt;
+
+    bool parse(const std::string & csv_line); // node_ptr is set separately
+    time_t t_close() const { return t_open + 60*time_t(minutes); }
 };
 
 // This is used to collect information to render an NNL dependencies board
@@ -208,6 +228,10 @@ struct nodeboard: public formalizer_standard_program {
 
     bool explicit_passed_time = true;
 
+    std::vector<Logcal_chunk> logcal_chunks;
+    time_t logcal_first_day = 0;   ///< Start of the first day shown in the Log calendar (0 means today).
+    unsigned int logcal_days = 1;  ///< Number of days shown in the Log calendar.
+
     bool propose_td_solutions = false;
     bool prefer_earlier = true;
 
@@ -267,6 +291,8 @@ struct nodeboard: public formalizer_standard_program {
 
     Node_render_result get_Node_alt_card(const Node * node_ptr, std::time_t tdate, std::string & rendered_cards, Node_Subtree * subtree_ptr = nullptr);
 
+    float get_minute_vertical_position(float start_minute, float v_offset = 4.0);
+
     float get_card_vertical_position(const std::string & start_time, float v_offset = 4.0);
 
     float get_card_height(unsigned int minutes);
@@ -296,6 +322,14 @@ struct nodeboard: public formalizer_standard_program {
     bool get_Topic_column(const std::string & topic_str, std::string & rendered_columns);
 
     bool get_day_column(unsigned int day_idx, std::string & rendered_columns);
+
+    bool parse_logcal_range(const std::string & cargs);
+
+    bool parse_logcal_csv(const std::string & csv_data);
+
+    std::string logcal_cgi_call(time_t first_day, unsigned int days, float multiplier) const;
+
+    bool get_logcal_day_column(time_t t_day, const std::string & card_template, const std::string & column_template, std::string & rendered_columns);
 
     bool make_simple_grid_board(const std::string & rendered_cards);
 
@@ -336,5 +370,9 @@ bool node_board_render_dependencies_tree(nodeboard & nb);
 bool node_board_render_superiors_tree(nodeboard & nb);
 
 bool node_board_render_csv_schedule(nodeboard & nb);
+
+bool node_board_render_log_calendar(nodeboard & nb);
+
+bool render_log_calendar_page(nodeboard & nb, std::string & rendered_page);
 
 #endif // __NBRENDER_HPP
