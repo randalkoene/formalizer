@@ -204,7 +204,7 @@ def check_emulated_time():
                         leavegap = input(f'{ANSI_bb}Your choices are: [{ANSI_gn}A{ANSI_bb}]ttach to close-time, make the [{ANSI_rd}g{ANSI_bb}]ap, or [{ANSI_yb}e{ANSI_bb}]xit?{ANSI_nrm} ')
                         if (leavegap == 'e'):
                             exit_success('Exiting.')
-                        if (leavegap != 'A'):
+                        if (leavegap != 'g'): # Attach is the default (was reversed until 2026-11-20: 'A' left the gap)
                             print('Adjusting emulated time to closing time of most recent Log chunk.')
                             args.T_emulate = recent_chunk[5]
                         else:

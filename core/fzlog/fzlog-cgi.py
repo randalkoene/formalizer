@@ -565,6 +565,102 @@ NODEPRECAUTIONPAGE = '''<html>
 </html>
 '''
 
+# When a new Log chunk is opened and the most recent chunk is already CLOSED, a new chunk
+# that would open up to this many minutes after that close time is opened AT the close time,
+# so that no gap appears in the Log (as fztask on the command line does). A larger gap is
+# probably a deliberate break, so then a confirmation page offers both choices.
+# (When the most recent chunk is still open, fzlog -c closes it and opens the new chunk at
+# the same time, so there is never a gap and this check does nothing.)
+ATTACH_TO_CLOSE_LIMIT_MINUTES = 5
+
+GAPPRECAUTIONPAGE = '''<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>fz: Log Gap Precaution</title>
+</head>
+<body>
+<script type="module" src="/fzuistate.js"></script>
+
+<h3>fz: Log Gap Precaution</h3>
+
+<p>The most recent Log chunk was closed at <b>%s</b>, %s minutes before the new chunk would open (%s).</p>
+
+<p><button class="button button1" onclick="window.open('%s', '_self');">Attach: open the new chunk at %s</button> (no gap)</p>
+<p><button class="button button2" onclick="window.open('%s', '_self');">Leave the gap: open the new chunk at %s</button></p>
+
+<p>To do neither, close this page.</p>
+
+<hr>
+[<a href="/index.html">fz: Top</a>]
+
+</body>
+</html>
+'''
+
+def attach_to_close_decision(recent_chunk_raw:str, t_open:str) -> tuple:
+    '''
+    Decide when to open a new Log chunk, given the most recent chunk (one line of
+    `fzloghtml -R -F raw`: chunk_id status node_id minor_id entry_id t_close) and
+    the intended open time t_open (YYYYmmddHHMM).
+
+    Returns (decision, t_close, gap_minutes), where decision is:
+      'as_is'  : open at t_open (the most recent chunk is open, could not be read,
+                 or there is no gap);
+      'attach' : open at t_close instead (closed 1 to ATTACH_TO_CLOSE_LIMIT_MINUTES
+                 minutes before t_open);
+      'ask'    : closed longer before t_open, let the user choose.
+    '''
+    fields = recent_chunk_raw.split('\n')[0].split(' ')
+    if (len(fields) < 6) or (fields[1] != 'CLOSED'):
+        return ('as_is', '', 0)
+    t_close = fields[5]
+    try:
+        d_close = datetime.strptime(t_close, "%Y%m%d%H%M")
+        d_open = datetime.strptime(t_open, "%Y%m%d%H%M")
+    except ValueError:
+        return ('as_is', '', 0)
+    if t_close <= fields[0]:
+        return ('as_is', '', 0) # zero-length chunk: a new chunk cannot have the same ID (open time)
+    gap_minutes = int((d_open - d_close).total_seconds() // 60)
+    if gap_minutes <= 0:
+        return ('as_is', t_close, gap_minutes) # fzlog itself rejects an open time before the close time
+    if gap_minutes <= ATTACH_TO_CLOSE_LIMIT_MINUTES:
+        return ('attach', t_close, gap_minutes)
+    return ('ask', t_close, gap_minutes)
+
+def readable_stamp(stamp:str) -> str:
+    try:
+        return datetime.strptime(stamp, "%Y%m%d%H%M").strftime("%Y-%m-%d %H:%M")
+    except ValueError:
+        return stamp
+
+def gap_to_closed_chunk_check(node:str, T_emulated:str, verbosity:int, override_precautions:bool) -> str:
+    '''
+    See ATTACH_TO_CLOSE_LIMIT_MINUTES. Returns the emulated time to open the new chunk with
+    (unchanged, or the close time of the most recent chunk), or shows the confirmation page
+    and exits.
+    '''
+    if form.getvalue('gapok') == 'on': # the user chose to leave the gap
+        return T_emulated
+    if 'recent_chunk_raw' not in results: # not yet read by zero_time_Log_chunk_precaution()
+        retcode = try_subprocess_check_output('./fzloghtml -E STDOUT -o STDOUT -q -R -F raw', 'recent_chunk_raw', verbosity, print_result=False)
+        if retcode != 0:
+            return T_emulated # keep the previous behavior if the most recent chunk cannot be read
+    t_open = T_emulated if T_emulated else datetime.now().strftime("%Y%m%d%H%M")
+    decision, t_close, gap_minutes = attach_to_close_decision(results['recent_chunk_raw'].decode(), t_open)
+    if decision == 'attach':
+        return t_close
+    if decision == 'ask':
+        attachcall = make_rerun_arguments(True, node, t_close, verbosity, override_precautions)
+        gapcall = make_rerun_arguments(True, node, T_emulated, verbosity, override_precautions) + '&gapok=on'
+        open_at_str = readable_stamp(T_emulated) if T_emulated else 'the time you click'
+        print(GAPPRECAUTIONPAGE % (readable_stamp(t_close), str(gap_minutes), readable_stamp(t_open),
+                                   attachcall, readable_stamp(t_close), gapcall, open_at_str))
+        sys.exit(0)
+    return T_emulated
+
 def make_rerun_arguments(opennew:bool, node:str, T_emulated:str, verbosity:int, override_precautions:bool)->str:
     cgiarguments = ''
     if opennew:
@@ -643,6 +739,7 @@ def zero_time_Log_chunk_precaution(opennew:bool, T_emulated:str, verbosity:int, 
 def open_new_Log_chunk(node: str, T_emulated: str, verbosity = 1, override_precautions=False) -> bool:
     #DEBUG_LONG_DELAY_INSTANCES('mark-0')
     zero_time_Log_chunk_precaution(opennew=True, T_emulated=T_emulated, verbosity=verbosity, override_precautions=override_precautions, node=node)
+    T_emulated = gap_to_closed_chunk_check(node, T_emulated, verbosity, override_precautions)
     #DEBUG_LONG_DELAY_INSTANCES('mark-1')
     print(openpagehead)
     if not node:
