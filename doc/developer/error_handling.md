@@ -97,9 +97,27 @@ A queue can instead put a time stamp in that position: `enable_timestamping()`
   configured log file locations. CGI scripts typically call programs with
   `-E STDOUT`.
 
+**Keep caching on for programs that web pages call.** CGI scripts call programs
+with `-E STDOUT -W STDOUT` and often read the *start* of the output as data (e.g.
+the selected Node ID is the first 16 characters of `fzgraphhtml -F node` output).
+With caching on, error and warning lines come after the output, at exit. With
+caching off they come first, and the page reads them as data. This happened on
+2026-11-20, when `errcaching`/`warncaching` were set to `"false"` for a few hours:
+opening a Log chunk from the fz: Task page tried to open the Node "Time" (from
+"Time Code at START OF PROGRAM"). So the shared config keeps both at `"true"`.
+
 `fzserverpq` is started by `fzserverpqd.sh` with
-`-E /var/www/html/formalizer/formalizer.core.server.error.ErrQ.log`, and its
-current queue can be viewed at `/fz/ErrQ` on the server port.
+`-E /var/www/html/formalizer/formalizer.core.server.error.ErrQ.log` and
+`-W /var/www/html/formalizer/formalizer.core.server.error.WarnQ.log`. The server
+turns caching off for both queues itself (in `fzserverpq::init_top()`, after the
+config is read), so its errors and warnings are in those files as soon as they
+happen and survive a crash. Its own warnings file (since 2026-11-20) keeps them
+from being overwritten when another program writes the shared WarnQ log. With
+caching off, the `/fz/ErrQ` page shows an empty queue; the entries are in the file.
+
+The templater reports a variable value that a template does not use only in very
+verbose mode (`-V`), since templates for text formats deliberately use a subset.
+A template variable without a value is still a warning (or an error).
 
 ## Not implemented
 

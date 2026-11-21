@@ -483,6 +483,13 @@ void fzserverpq::init_top(int argc, char *argv[]) {
     // *** add any initialization here that has to happen before standard initialization
     init(argc, argv,version(),FORMALIZER_MODULE_ID,FORMALIZER_BASE_OUT_OSTREAM_PTR,FORMALIZER_BASE_ERR_OSTREAM_PTR);
     // *** add any initialization here that has to happen once in main(), for the derived class
+    // The server writes errors and warnings to its log files as they happen, so that a crash
+    // does not lose them (cached entries are only written at exit). This is set here, after
+    // init() has read the shared error config, and only for the server: other programs keep
+    // caching, because web pages call them with -E STDOUT and read the start of their output
+    // (see doc/developer/error_handling.md).
+    ErrQ.disable_caching();
+    WarnQ.disable_caching();
     ReqQ.disable_caching();
     ReqQ.enable_timestamping();
     ReqQ.set_errfilepath(config.request_log);

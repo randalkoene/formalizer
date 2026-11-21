@@ -322,8 +322,8 @@ def setup_error_reports_to_web():
         err_config = {
             'errlogpath' : config['wwwhostroot']+'/formalizer/formalizer.core.error.ErrQ.log',
             'warnlogpath' : config['wwwhostroot']+'/formalizer/formalizer.core.error.WarnQ.log',
-            'errcaching' : 'false',
-            'warncaching' : 'false'
+            'errcaching' : 'true',
+            'warncaching' : 'true'
         }
         webroot = config['wwwhostroot']+'/formalizer'
         retcode = try_subprocess_check_output(f'mkdir -p {webroot}')

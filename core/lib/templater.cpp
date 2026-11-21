@@ -13,6 +13,7 @@
 #include "error.hpp"
 #include "general.hpp"
 #include "stringio.hpp"
+#include "standard.hpp" // VERYVERBOSEOUT
 #include "templater.hpp"
 
 namespace fz {
@@ -102,9 +103,13 @@ std::string render_environment::render(const std::string temp, template_varvalue
     }
     rendered += temp.substr(p);
 
+    // A template may use only some of the variable values a program prepares (e.g. the plain
+    // text formats of fzgraphhtml), so an unused value is only reported in very verbose mode.
+    // Until 2026-11-20 it was a warning, which put ~13 lines in WarnQ for every Node rendered
+    // in such a format (and, with warning caching off, before the output on STDOUT).
     for (auto v : vars) {
         if (v.second.n_applied == 0) {
-            ADDWARNING(__func__,"unused variable value ("+v.first+','+v.second.varvalue+") with template ("+temp.substr(0,20)+')');
+            VERYVERBOSEOUT("render: unused variable value ("+v.first+") with template ("+temp.substr(0,20)+")\n");
             render_error = rerr_unused_variable_value;
         }
     }

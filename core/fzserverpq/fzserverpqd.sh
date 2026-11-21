@@ -6,6 +6,7 @@
 # Daemonize the Graph server.
 
 fzserverpq_error_log="/var/www/html/formalizer/formalizer.core.server.error.ErrQ.log"
+fzserverpq_warning_log="/var/www/html/formalizer/formalizer.core.server.error.WarnQ.log"
 
 echo "Stopping a running fzserverpq daemon if one is present..."
 
@@ -24,10 +25,11 @@ do
 	echo "This is not yet a full daemonization. That is yet to be implemented."
 	echo "This is really just a handy start script."
 	echo ""
-	echo "Errors are logged to $fzserverpq_error_log."
+	echo "Errors are logged to $fzserverpq_error_log,"
+	echo "warnings to $fzserverpq_warning_log."
 	echo ""
 
-	fzserverpq -G -E $fzserverpq_error_log
+	fzserverpq -G -E $fzserverpq_error_log -W $fzserverpq_warning_log
 
 	if [ $? -eq 0 ]; then
 		echo "Server exited normally."
