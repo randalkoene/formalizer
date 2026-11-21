@@ -49,8 +49,24 @@ fzlog -m <chunk-ID> -2 <YYYYmmddHHMM>   # new close time
 fzlog -m <chunk-ID> -1 <YYYYmmddHHMM>   # new open time
 ```
 
-In the browser, `/cgi-bin/fzlog-cgi.py?action=modify&id=<chunk-ID>` has forms
-for both (and for changing the chunk's Node).
+In the browser, `/cgi-bin/fzlog-cgi.py?action=modify&id=<chunk-ID>` (click a
+chunk's time on the Log page) has forms for both (and for changing the chunk's
+Node), and above them a time strip from the start of the previous chunk to the
+end of the next one:
+
+- Drag the start or end of the chunk in 5-minute steps (or select a handle and
+  use the arrow keys). A handle stops at the limits set by the rules below and
+  says which limit it reached.
+- By default, dragging a boundary that the chunk shares with a neighbour moves
+  the neighbour's edge along. Uncheck "Move the previous chunk's end along" or
+  "Move the next chunk's start along" to leave a gap instead (e.g. to insert a
+  missing chunk afterwards).
+- The page lists the fzlog calls that Apply will make, in an order in which
+  every step obeys the rules (`action=modifytimes` runs them and stops at the
+  first that fails).
+- The logic is in `tools/interface/resources/chunkstrip.js`. Its test,
+  `chunkstrip_test.html` next to it, runs in any browser from the source
+  directory.
 
 Rules:
 

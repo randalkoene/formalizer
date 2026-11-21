@@ -21,7 +21,9 @@ except:
 import sys, cgi, os, stat
 sys.stderr = sys.stdout
 from time import strftime, time
-from datetime import datetime
+from datetime import datetime, timedelta
+import re
+import json
 import traceback
 import html
 from io import StringIO
@@ -83,6 +85,7 @@ Operations:
 <li><code>action=replaceentry</code>: Replace Log entry. (Comes from 'editentry'.)
 <li><code>action=generic</code>: Make generic fzlog call.
 <li><code>action=modify</code>: Generate Chunk Modify Page.
+<li><code>action=modifytimes</code>: Change start/end times of a chunk and its neighbours, in the given order (from the time strip on the Chunk Modify Page): <code>&amp;s1=CHUNK_ID:1|2:TIME[&amp;s2=...]</code> (1 = open time, 2 = close time; at most 4 steps), <code>&amp;final=CHUNK_ID</code> (the chunk's ID afterwards).
 <li><code>action=delete</code>: Delete Log entry <code>id</code>. The entry must be empty (see 'editentry').
 </ul>
 </p>
@@ -950,6 +953,7 @@ CHUNK_MODIFY_PAGE = '''<html>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/fz.css">
 <link rel="stylesheet" href="/fzuistate.css">
+<link rel="stylesheet" href="/chunkstrip.css">
 <title>fz: Log - Modify Chunk %s</title>
 </head>
 <body>
@@ -963,6 +967,7 @@ CHUNK_MODIFY_PAGE = '''<html>
 <P>
 Visit Log centered around <button class="button button1" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?around=%s#%s','_blank');">%s</button>
 <P>
+@@CHUNKSTRIP@@
 
 <form action="/cgi-bin/fzlog-cgi.py" method="GET">
 Change Node to:<br>
@@ -1002,8 +1007,163 @@ Change Close timestamp to:<br>
 </html>
 '''
 
+def is_stamp(s) -> bool:
+    '''True for a 12-digit Formalizer time stamp (YYYYmmddHHMM), e.g. a Log chunk ID.'''
+    return isinstance(s, str) and (len(s) == 12) and s.isdigit()
+
+def stamp_add_minutes(stamp:str, minutes:int) -> str:
+    return (datetime.strptime(stamp, "%Y%m%d%H%M") + timedelta(minutes=minutes)).strftime("%Y%m%d%H%M")
+
+def stamp_diff_minutes(a:str, b:str) -> int:
+    return int((datetime.strptime(a, "%Y%m%d%H%M") - datetime.strptime(b, "%Y%m%d%H%M")).total_seconds() // 60)
+
+def get_chunk_neighbourhood(chunk_id:str):
+    '''
+    The Log chunk with chunk_id and the chunks just before and after it, for the time
+    strip (chunkstrip.js): {'now', 'prev', 'cur', 'next'}, each chunk {'open', 'close',
+    'node', 'desc'} with close None while open. Returns None if this cannot be determined.
+
+    Two fzloghtml calls: the chunk and the one after it, and the chunk and the one before
+    it. Times are database times: fzloghtml shifts t_chunkopen/t_chunkclose by its
+    timezone_offset_hours setting, so that shift is measured on t_chunkopen against the
+    chunk ID and undone for t_chunkclose.
+    '''
+    template = 'STR:{{ chunk_id }} {{ t_chunkopen }} {{ t_chunkclose }} {{ node_id }}\n'
+    pattern = re.compile(r'^([0-9]{12}) ([0-9]{12}) ([0-9]{12}|OPEN) ([0-9]{14}\.[0-9]+)$')
+    chunks = {}
+    for interval in (['-1', chunk_id, '-c', '2'], ['-2', chunk_id, '-c', '2', '-r']):
+        try:
+            res = subprocess.run(['./fzloghtml'] + interval + ['-T', template, '-o', 'STDOUT', '-N', '-q', '-E', 'STDOUT', '-W', 'STDOUT'],
+                                 capture_output=True, timeout=30)
+        except Exception:
+            return None
+        if res.returncode != 0:
+            return None
+        for line in res.stdout.decode(errors='replace').split('\n'):
+            m = pattern.match(line.strip())
+            if not m:
+                continue
+            cid, topen_shown, tclose_shown, nid = m.groups()
+            shift = stamp_diff_minutes(topen_shown, cid)
+            close = None if (tclose_shown == 'OPEN') else stamp_add_minutes(tclose_shown, -shift)
+            chunks[cid] = {'open': cid, 'close': close, 'node': nid, 'desc': ''}
+    if chunk_id not in chunks:
+        return None
+    ids = sorted(chunks)
+    i = ids.index(chunk_id)
+    return {
+        'now': datetime.now().strftime("%Y%m%d%H%M"),
+        'prev': chunks[ids[i-1]] if (i > 0) else None,
+        'cur': chunks[chunk_id],
+        'next': chunks[ids[i+1]] if (i+1 < len(ids)) else None,
+    }
+
+CHUNKSTRIP_SECTION = '''<h3>Drag the start or end of this chunk</h3>
+<div id="chunkstrip"></div>
+<script type="text/javascript" src="/chunkstrip.js"></script>
+<script>
+ChunkStrip(document.getElementById('chunkstrip'), @@DATA@@, (steps, d) => {
+    let url = '/cgi-bin/fzlog-cgi.py?action=modifytimes';
+    steps.forEach((s, i) => { url += '&s' + (i + 1) + '=' + s.id + ':' + s.flag + ':' + s.to; });
+    url += '&final=' + ChunkTimes.fmtStamp(d.open);
+    window.location.href = url;
+});
+</script>
+<hr>
+'''
+
 def generate_chunk_modify_page():
-    print(CHUNK_MODIFY_PAGE % (id, id, id, id, id, id, id, id, id))
+    page = CHUNK_MODIFY_PAGE % (id, id, id, id, id, id, id, id, id)
+    data = get_chunk_neighbourhood(id) if is_stamp(id) else None
+    if data:
+        strip = CHUNKSTRIP_SECTION.replace('@@DATA@@', json.dumps(data))
+    else:
+        strip = '<p>(The time strip is not available for this chunk: its times, or those of its neighbours, could not be read.)</p>\n'
+    print(page.replace('@@CHUNKSTRIP@@', strip))
+
+REFRESH_HISTORIES_BUTTON = '''<p>Node histories are rebuilt separately, so that changed chunks show on their Nodes' history pages again:
+<button class="button button1" onclick="window.open('/cgi-bin/fzquerypq-cgi.py','_blank');">refresh Node histories</button></p>
+'''
+
+MODIFY_TIMES_PAGE = '''<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/fz.css">
+<link rel="stylesheet" href="/fzuistate.css">
+<title>fz: Log - Chunk Times %s</title>
+</head>
+<body>
+<script type="module" src="/fzuistate.js"></script>
+
+<h3>fz: Log - Chunk Times %s</h3>
+%s
+<hr>
+</body>
+</html>
+'''
+
+def modify_chunk_times(form):
+    '''
+    Carries out the steps planned by the time strip (chunkstrip.js), in order, one fzlog
+    call each: s1, s2, ... = CHUNK_ID:1|2:TIME (1 = open time, 2 = close time). fzlog checks
+    its rules for every step. Stops at the first step that fails.
+    '''
+    steps = []
+    for i in range(1, 5):
+        v = form.getvalue(f's{i}')
+        if not v:
+            break
+        parts = str(v).split(':')
+        if (len(parts) != 3) or (not is_stamp(parts[0])) or (parts[1] not in ('1', '2')) or (not is_stamp(parts[2])):
+            print(MODIFY_TIMES_PAGE % ('Not Changed', 'Not Changed', f'<p class="fail"><b>Invalid step {i}: {html.escape(str(v))}</b>. Nothing was changed.</p>'))
+            return False
+        steps.append(parts)
+    final = form.getvalue('final')
+    if (not steps) or (not is_stamp(final)):
+        print(MODIFY_TIMES_PAGE % ('Not Changed', 'Not Changed', '<p class="fail"><b>Missing or invalid steps.</b> Nothing was changed.</p>'))
+        return False
+
+    body = '<ol>\n'
+    all_ok = True
+    open_changed = False
+    for n, (cid, flag, to) in enumerate(steps, 1):
+        what = ('start (open time, the chunk ID)' if flag == '1' else 'end (close time)')
+        cmd = ['./fzlog', '-E', 'STDOUT', '-W', 'STDOUT', '-m', cid, '-' + flag, to]
+        try:
+            res = subprocess.run(cmd, capture_output=True, timeout=60)
+            output = res.stdout.decode(errors='replace') + res.stderr.decode(errors='replace')
+            ok = (res.returncode == 0)
+        except Exception as e:
+            output = str(e)
+            ok = False
+        body += (f'<li>Chunk {cid}: {what} to {to}: <b>{"done" if ok else "FAILED"}</b>'
+                 f'<br><code>fzlog -m {cid} -{flag} {to}</code><pre>{html.escape(output.strip())}</pre></li>\n')
+        if not ok:
+            all_ok = False
+            if n < len(steps):
+                body += '<li>(The remaining steps were not carried out.)</li>\n'
+            break
+        if flag == '1':
+            open_changed = True
+    body += '</ol>\n'
+    if all_ok:
+        body = '<p>All steps were carried out.</p>\n' + body
+        show_id = final
+    else:
+        body = ('<p class="fail"><b>A step failed.</b> The steps before it were carried out, and each of them left a valid Log, '
+                'but the Log may now have a gap or a boundary that moved on one side only. Check the Log, '
+                'and use the time strip or the forms on the modify page to finish or undo the change.</p>\n' + body)
+        show_id = None
+    links = ''
+    if show_id:
+        links += (f'<p>[<a href="/cgi-bin/fzloghtml-cgi.py?around={show_id}#{show_id}">Log around this chunk</a>] '
+                  f'[<a href="/cgi-bin/fzlog-cgi.py?action=modify&id={show_id}">modify this chunk again</a>]</p>\n')
+    else:
+        links += f'<p>[<a href="/cgi-bin/fzloghtml-cgi.py?around={steps[0][0]}#{steps[0][0]}">Log around this change</a>]</p>\n'
+    if open_changed:
+        links += REFRESH_HISTORIES_BUTTON
+    print(MODIFY_TIMES_PAGE % (('Changed' if all_ok else 'Partly Changed'), ('Changed' if all_ok else 'Partly Changed'), body + links))
+    return all_ok
 
 GENERIC_ERROR_PAGE = '''<html>
 <head>
@@ -1095,7 +1255,10 @@ def generic_fzlog_call(form):
         sys.exit(0)
 
     # 3. Present the result.
-    print(GENERIC_SUCCESS_PAGE % (thecmd, decoded_result))
+    page = GENERIC_SUCCESS_PAGE % (thecmd, decoded_result)
+    if 'Refresh Node histories' in decoded_result:
+        page = page.replace('<hr>\n</body>', REFRESH_HISTORIES_BUTTON + '<hr>\n</body>')
+    print(page)
 
 INSERT_LOG_CHUNK_ERROR='''<html>
 <head>
@@ -1284,6 +1447,9 @@ if __name__ == '__main__':
             sys.exit(1)
     if (action == 'modify'):
         generate_chunk_modify_page()
+        sys.exit(0)
+    if (action == 'modifytimes'):
+        modify_chunk_times(form)
         sys.exit(0)
     if (action == 'insert'):
         insert_Log_chunk(id, T_emulated, node)

@@ -1,0 +1,169 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>chunkstrip test</title>
+</head>
+<body>
+<h3>chunkstrip.js logic test</h3>
+<p>Checks the limits, 5-minute snapping and the order of fzlog calls of the Log chunk time strip, with made-up
+chunks, in this browser. Nothing in the Formalizer is read or changed. Open this file directly from the source
+directory (file:///.../tools/interface/resources/chunkstrip_test.html). It takes a few seconds.</p>
+<pre id="out">Running...</pre>
+<script src="chunkstrip.js"></script>
+<script>
+// Made-up chunks (no real Log data). Times are YYYYmmddHHMM.
+// Made-up chunks for the mock-up (no real Log data). Times are YYYYmmddHHMM.
+const SCENARIOS = {
+    'Adjacent on both sides': {
+        now: '202611211000',
+        prev: { open: '202611210800', close: '202611210910', node: '20250101120000.1', desc: 'Email and inbox triage' },
+        cur:  { open: '202611210910', close: '202611210947', node: '20250101120000.2', desc: 'WBE101 session preparation' },
+        next: { open: '202611210947', close: '202611210958', node: '20250101120000.3', desc: 'Coffee break' },
+    },
+    'Gap before': {
+        now: '202611211000',
+        prev: { open: '202611210800', close: '202611210850', node: '20250101120000.1', desc: 'Email and inbox triage' },
+        cur:  { open: '202611210910', close: '202611210947', node: '20250101120000.2', desc: 'WBE101 session preparation' },
+        next: { open: '202611210947', close: '202611210958', node: '20250101120000.3', desc: 'Coffee break' },
+    },
+    'Gap after': {
+        now: '202611211100',
+        prev: { open: '202611210800', close: '202611210910', node: '20250101120000.1', desc: 'Email and inbox triage' },
+        cur:  { open: '202611210910', close: '202611210947', node: '20250101120000.2', desc: 'WBE101 session preparation' },
+        next: { open: '202611211005', close: '202611211040', node: '20250101120000.3', desc: 'Grant report draft' },
+    },
+    'Most recent, still open': {
+        now: '202611211000',
+        prev: { open: '202611210800', close: '202611210910', node: '20250101120000.1', desc: 'Email and inbox triage' },
+        cur:  { open: '202611210910', close: null, node: '20250101120000.2', desc: 'WBE101 session preparation' },
+        next: null,
+    },
+    'Next chunk still open': {
+        now: '202611211000',
+        prev: { open: '202611210800', close: '202611210910', node: '20250101120000.1', desc: 'Email and inbox triage' },
+        cur:  { open: '202611210910', close: '202611210947', node: '20250101120000.2', desc: 'WBE101 session preparation' },
+        next: { open: '202611210947', close: null, node: '20250101120000.3', desc: 'Coffee break' },
+    },
+    'Short neighbours': {
+        now: '202611211000',
+        prev: { open: '202611210903', close: '202611210910', node: '20250101120000.1', desc: 'Quick reply' },
+        cur:  { open: '202611210910', close: '202611210947', node: '20250101120000.2', desc: 'WBE101 session preparation' },
+        next: { open: '202611210947', close: '202611210952', node: '20250101120000.3', desc: 'Stretch' },
+    },
+    'Zero-length previous': {
+        now: '202611211000',
+        prev: { open: '202611210905', close: '202611210905', node: '20250101120000.1', desc: 'Opened by mistake' },
+        cur:  { open: '202611210908', close: '202611210947', node: '20250101120000.2', desc: 'WBE101 session preparation' },
+        next: { open: '202611210947', close: '202611210958', node: '20250101120000.3', desc: 'Coffee break' },
+    },
+    'Most recent, closed': {
+        now: '202611211000',
+        prev: { open: '202611210800', close: '202611210910', node: '20250101120000.1', desc: 'Email and inbox triage' },
+        cur:  { open: '202611210910', close: '202611210930', node: '20250101120000.2', desc: 'WBE101 session preparation' },
+        next: null,
+    },
+};
+
+</script>
+<script>
+const out = [];
+const console = { log: (s) => out.push(s) };
+setTimeout(() => {
+const T = ChunkTimes;
+const S = SCENARIOS;
+
+let fails = 0, checked = 0;
+function expect(cond, msg) { if (!cond) { fails++; if (fails <= 20) console.log('  FAIL: ' + msg); } }
+
+// Simulate fzlog on the three chunks: apply the planned calls and check every step.
+function applySteps(m, steps) {
+    const st = { prev: m.prev && { ...m.prev }, cur: { ...m.cur }, next: m.next && { ...m.next } };
+    for (const s of steps) {
+        const [, , id, flag, to] = s.cmd.split(' ');
+        const who = ['prev', 'cur', 'next'].find((w) => st[w] && T.fmtStamp(st[w].open) === id);
+        if (!who) return 'no chunk with ID ' + id;
+        st[who][flag === '-1' ? 'open' : 'close'] = T.parseStamp(to);
+        // Invariants after every step (what the Log requires).
+        const list = [st.prev, st.cur, st.next].filter(Boolean);
+        for (let i = 0; i < list.length; i++) {
+            const c = list[i];
+            if (c.close !== null && c.close < c.open) return 'a chunk ends before it starts';
+            if (c.open > m.now || (c.close !== null && c.close > m.now)) return 'a time in the future';
+            if (i > 0) {
+                if (c.open <= list[i - 1].open) return 'chunks out of order';
+                if (c.open < list[i - 1].close) return 'chunks overlap';
+            }
+        }
+    }
+    return st;
+}
+
+for (const [name, sc] of Object.entries(S)) {
+    const conv = (c) => c ? { open: T.parseStamp(c.open), close: c.close ? T.parseStamp(c.close) : null } : null;
+    const m = { now: T.parseStamp(sc.now), prev: conv(sc.prev), cur: conv(sc.cur), next: conv(sc.next) };
+    for (const linkPrev of [true, false]) for (const linkNext of [true, false]) {
+        let n = 0;
+        // Every start minute the start handle allows, and for each, every end minute the end handle allows.
+        const lo0 = T.limitsOpen(m, { open: m.cur.open, close: m.cur.close }, linkPrev, linkNext);
+        const loStart = Math.max(lo0.lo, m.cur.open - 24 * 60);
+        for (let open = loStart; open <= m.now; open++) {
+            const closes = (m.cur.close === null) ? [null] : [];
+            if (m.cur.close !== null) for (let c = open; c <= m.now; c++) closes.push(c);
+            for (const close of closes) {
+                const t = { open, close };
+                const lo = T.limitsOpen(m, t, linkPrev, linkNext);
+                if (open < lo.lo || open > lo.hi) continue;
+                if (close !== null) {
+                    const lc = T.limitsClose(m, t, linkNext);
+                    if (close < lc.lo || close > lc.hi) continue;
+                }
+                n++; checked++;
+                const d = T.derive(m, t, linkPrev, linkNext);
+                const p = T.plan(m, d);
+                expect(p.ok, `${name} links ${linkPrev}/${linkNext}: open ${T.fmtTime(open)} close ${close === null ? 'open' : T.fmtTime(close)} cannot be planned (${p.problem})`);
+                if (!p.ok) continue;
+                const st = applySteps(m, p.steps);
+                expect(typeof st !== 'string', `${name}: steps break the Log: ${st}`);
+                if (typeof st === 'string') continue;
+                expect(st.cur.open === open && st.cur.close === close, `${name}: final times differ`);
+                if (m.prev) {
+                    expect(st.prev.open === m.prev.open, `${name}: previous chunk's start moved`);
+                    if (!linkPrev) expect(st.prev.close === m.prev.close, `${name}: previous chunk's end moved with the toggle off`);
+                }
+                if (m.next) {
+                    expect(st.next.close === m.next.close, `${name}: next chunk's end moved`);
+                    if (!linkNext) expect(st.next.open === m.next.open, `${name}: next chunk's start moved with the toggle off`);
+                }
+                expect(p.steps.length <= 4, `${name}: more than 4 calls`);
+            }
+        }
+        console.log(`${name.padEnd(22)} links prev ${String(linkPrev).padEnd(5)} next ${String(linkNext).padEnd(5)}: ${n} allowed positions, all planned and checked`);
+    }
+}
+
+// Snapping: 5-minute marks, limits and the original time; never outside the limits.
+const s0 = T.parseStamp('202611210900');
+expect(T.snap(s0 + 7, s0, s0 + 60, s0 + 33) === s0 + 5, 'snap to 5-minute mark');
+expect(T.snap(s0 + 32, s0, s0 + 60, s0 + 33) === s0 + 33, 'snap to the original time');
+expect(T.snap(s0 + 59, s0, s0 + 58, s0 + 10) === s0 + 58, 'snap to the upper limit');
+expect(T.snap(s0 - 20, s0 + 2, s0 + 58, s0 + 10) === s0 + 2, 'snap to the lower limit');
+for (let r = s0 - 30; r < s0 + 90; r++) { const x = T.snap(r, s0 + 3, s0 + 47, s0 + 20); expect(x >= s0 + 3 && x <= s0 + 47, 'snap within limits'); }
+
+// An example plan, to show the order for moving a shared boundary earlier and later.
+const ex = S['Adjacent on both sides'];
+const mex = { now: T.parseStamp(ex.now), prev: { open: T.parseStamp(ex.prev.open), close: T.parseStamp(ex.prev.close) },
+              cur: { open: T.parseStamp(ex.cur.open), close: T.parseStamp(ex.cur.close) }, next: { open: T.parseStamp(ex.next.open), close: T.parseStamp(ex.next.close) } };
+for (const delta of [-10, +10]) {
+    const d = T.derive(mex, { open: mex.cur.open + delta, close: mex.cur.close }, true, true);
+    console.log(`\nMoving the start ${delta > 0 ? 'later' : 'earlier'} by 10 minutes, previous chunk's end along:`);
+    for (const s of T.plan(mex, d).steps) console.log('  ' + s.cmd + '   (' + s.what + ')');
+}
+
+console.log(`\n${checked} positions checked. ` + (fails ? `${fails} FAILED.` : 'All checks passed.'));
+document.title = fails ? 'chunkstrip test: FAILED' : 'chunkstrip test: passed';
+
+document.getElementById('out').textContent = out.join('\n');
+}, 50);
+</script>
+</body>
+</html>

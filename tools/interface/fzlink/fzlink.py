@@ -69,6 +69,7 @@ set_hover_delayed_function('.docpopupfunc', openPopup, 1000);
 thecmd = ""
 altcmd = ""
 addframe = False
+findchunk = "" # Log chunk to scroll to and highlight (see FINDCHUNK_SCRIPT)
 
 cut_from_page_header = '''
 <style type="text/css">
@@ -107,17 +108,26 @@ def build_command(id, alt):
     global thecmd
     global altcmd
     global addframe
+    global findchunk
     if id:
         idlen = len(id)
+        # Log chunks and entries: show the 24 hours around the chunk (12 hours before and
+        # after), then scroll to it (FINDCHUNK_SCRIPT). Until 2026-11-21 this showed one day
+        # starting at the chunk, so a chunk whose open time (ID) was later moved earlier was
+        # not shown at all. Only digits are accepted, since the ID goes into a shell command.
         if (idlen==12): # This refers to a Log Chunk!
             # Log chunk ID
-            thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -D 1 -1 "+id
+            if id.isdigit():
+                findchunk = id
+                thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -a "+id+" -H 24"
         else:
             if (idlen>12):
                 if (id[12]=='.'): # This refers to a Log Entry!
                     # Log entry ID (show the chunk)
                     chunkid = id[0:12]
-                    thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -D 1 -1 "+chunkid
+                    if chunkid.isdigit() and id[13:].isdigit():
+                        findchunk = chunkid
+                        thecmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -a "+chunkid+" -H 24"
                 else:
                     if (idlen==16): # This refers to a Node!
                         # Node ID
@@ -131,6 +141,27 @@ def build_command(id, alt):
                                 if (alt=="histfull"):
                                     altcmd = "./fzloghtml -q -d formalizer -s randalk -o STDOUT -E STDOUT -N -t -n "+id
 
+
+# Scrolls to the Log chunk with the requested ID and highlights it. If there is no chunk
+# with that ID (e.g. its open time was changed), it uses the chunk closest in time.
+FINDCHUNK_SCRIPT = '''
+<script>
+(function () {
+    const want = '%s';
+    const minutes = (s) => Date.UTC(+s.substr(0, 4), +s.substr(4, 2) - 1, +s.substr(6, 2), +s.substr(8, 2), +s.substr(10, 2)) / 60000;
+    let best = null, bestdiff = Infinity;
+    document.querySelectorAll('tr.chktop[id]').forEach((row) => {
+        if (!/^[0-9]{12}$/.test(row.id)) return;
+        const diff = Math.abs(minutes(row.id) - minutes(want));
+        if (diff < bestdiff) { best = row; bestdiff = diff; }
+    });
+    if (best) {
+        best.style.outline = '3px solid #4CAF50';
+        best.scrollIntoView({ block: 'center' });
+    }
+})();
+</script>
+'''
 
 def render_output():
     print(http_response)
@@ -147,6 +178,8 @@ def render_output():
         try_the_command(thecmd)
         if addframe or altcmd:
             print("</tbody></table>")
+        if findchunk:
+            print(FINDCHUNK_SCRIPT % findchunk)
 
     if altcmd:
         print(f'\n<!-- Secondary command: {altcmd} -->\n')
