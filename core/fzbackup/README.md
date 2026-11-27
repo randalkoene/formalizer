@@ -207,6 +207,28 @@ restic -r rclone:gdrive:formalizer-restic --password-file ~/.config/restic/forma
 The database backups are then under `/tmp/fzrestore$HOME/.formalizer/archive/postgres/`.
 Check one with `fzbackup-verify.py FILE` before restoring it with `fzrestore.sh`.
 
+To fetch only the newest database backup into the local backup directory, use
+`database-from-offsite.py` (this is what `tools/system/replicate/replicate.py` does).
+
+### Moving from backups kept in Git
+
+Earlier versions pushed `~/.formalizer` with its database backups to a Git remote. Git
+keeps every backup ever committed in its history, even after the file is deleted, so the
+repository grows without limit. After setting up restic, stop tracking the backups and
+remove them from the history (a one-time step that needs `sudo apt install git-filter-repo`):
+
+```
+cd ~/.formalizer
+echo 'archive/postgres/' >> .gitignore
+git rm -r --cached archive/postgres && git commit -am "Stop tracking database backups"
+git remote get-url origin                     # note the URL: filter-repo removes the remote
+git filter-repo --force --invert-paths --path archive/postgres/
+git remote add origin URL && git push --force -u origin main
+```
+
+The files in `archive/postgres/` stay on disk. `database-from-github.py` no longer finds
+backups after this; use `database-from-offsite.py`.
+
 ### Alternative: Backblaze B2 without rclone
 
 Restic can talk to Backblaze B2 directly: no OAuth client, no consent screen and no

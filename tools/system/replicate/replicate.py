@@ -758,7 +758,10 @@ def restore_formalizer_database(args):
     if args.database:
         fzdatabase_backup=args.database
     else:
-        stdout_returned = run_command(args, 'database-from-github.py', return_stdout=True)
+        # Needs restic, rclone and their configuration (restored with the home
+        # directory, or see "Getting backups back on a new machine" in
+        # core/fzbackup/README.md).
+        stdout_returned = run_command(args, 'database-from-offsite.py', return_stdout=True)
         if not stdout_returned:
             do_exit(args, "Error during restore_formalizer_database.")
         fzdatabase_backup = get_database_path(stdout_returned)
