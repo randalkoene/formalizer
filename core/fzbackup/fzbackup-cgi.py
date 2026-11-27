@@ -91,8 +91,10 @@ pagehead = '''Content-type:text/html
 <link rel="stylesheet" href="/fzuistate.css">
 <title>fz: %s</title>
 <style>
-.fail { color: #d03030; font-weight: bold; }
-.ok { color: #30a030; font-weight: bold; }
+.fail { color: #a00000; font-weight: bold; }
+.ok { color: #207020; font-weight: bold; }
+[data-theme="darkblue1"] .fail, [data-theme="darkblue2"] .fail, [data-theme="black"] .fail { color: #ffcc66; }
+[data-theme="darkblue1"] .ok, [data-theme="darkblue2"] .ok, [data-theme="black"] .ok { color: #99dd99; }
 .note { opacity: 0.75; }
 .blueTable td { vertical-align: middle; }
 .blueTable td.num { text-align: right; }
