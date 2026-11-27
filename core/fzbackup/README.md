@@ -145,16 +145,20 @@ After a confirmation it:
 `USER_undone_TIMESTAMP`). `--drop-old TIMESTAMP` deletes the renamed schema once you are
 sure.
 
-To test without touching the live data, make a scratch database and restore into it:
-
-```
-fzbackup-verify.py --keep            # note the name of the kept database, fzverify_...
-fzbackup-restore.sh -d fzverify_... formalizer-postgres-backup-YYYYmmddHHMM.gz
-fzbackup-restore.sh -d fzverify_... --undo TIMESTAMP
-dropdb fzverify_...
-```
-
 With `-d`, no fresh backup is made and fzserverpq is not stopped.
+
+### `fzbackup-restore-test.sh` - Test restore and undo without touching the live data
+
+```
+fzbackup-restore-test.sh
+```
+
+Picks two local backups by itself (the newest, and the newest from an earlier month),
+makes a throwaway database `fzrestoretest_TIMESTAMP` from the newest, restores the older
+one into it with `fzbackup-restore.sh -d`, checks that the database then matches the older
+backup exactly, undoes the restore, checks that it matches the newest backup again, and
+deletes the throwaway database. It ends with a summary and PASS or FAIL. It takes several
+minutes, because each check loads a backup into a scratch database.
 
 ## Setting up encrypted off-site backups (restic and rclone)
 

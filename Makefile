@@ -81,6 +81,7 @@ EXECUTABLES += $(COREPATH)/fzbackup/fzrestore.sh
 EXECUTABLES += $(COREPATH)/fzbackup/database-from-github.py
 EXECUTABLES += $(COREPATH)/fzbackup/database-from-offsite.py
 EXECUTABLES += $(COREPATH)/fzbackup/fzbackup-restore.sh
+EXECUTABLES += $(COREPATH)/fzbackup/fzbackup-restore-test.sh
 EXECUTABLES += $(COREPATH)/fzserverpq/fzserverpq
 EXECUTABLES += $(COREPATH)/fzserverpq/fzserverpqd.sh
 # EXECUTABLES += $(COREPATH)/fzserverpq/fzserverpq-graph
