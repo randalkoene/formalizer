@@ -48,6 +48,46 @@ are:
   partition file or mount point changes, update the defaults in the `config` dictionary
   at the top of the script (or change them for one run with `e` and `m`).
 
+- `v` = Verify the copy on the external drive (also offered right after `b`, and
+  available directly as `backup-environment -verify`). It mounts the partition if
+  needed and then:
+  1. counts files in each rsync directory and in its copy;
+  2. compares the directories in `checksumdirs` (by default `~/.formalizer` and
+     `~/src/formalizer`) with their copies by checksum (an `rsync --checksum` dry run);
+  3. runs `fzbackup-verify.py` on the newest database backup in the copy.
+
+  Small differences in counts and checksums are expected for files that changed after
+  the rsync.
+
+## `fzbackup-verify.py` - Check that a database backup can be restored
+
+```
+fzbackup-verify.py [backup.gz | directory] [--fresh] [--keep] [-d formalizer]
+```
+
+Tests a gzipped `pg_dump` backup (by default the newest in the `backuproot` of the
+fzbackup config) without touching the live database: `gzip -t`, SHA-256, a restore into a
+scratch database `fzverify_<timestamp>` with `ON_ERROR_STOP` in a single transaction, and
+a comparison of the row count of every table with the live database. The scratch database
+is dropped afterwards unless `--keep` is given. `--fresh` makes a new backup with
+`fzbackup` first, so that the comparison is against the current state.
+
+Exit codes: 0 = restored and all tables match; 1 = a check failed (damaged file, restore
+error, no tables); 2 = restored, but row counts differ from the live database, which is
+expected when the Formalizer changed after the backup was made.
+
+## `fzbackup-prune.py` - Thin out database backups
+
+```
+fzbackup-prune.py [directory] [--apply] [--keep-last 4] [--daily-days 14] [--weekly-days 92] [-q]
+```
+
+Keeps the newest backup of each day for 14 days, of each ISO week for 3 months, and of
+each month forever, plus the 4 most recent backups. Everything else in the backup
+directory that matches `formalizer-postgres-backup-YYYYmmddHHMM.gz` is deleted. Every
+month keeps at least one backup. Without `--apply` it only lists what it would keep (and
+why) and what it would delete.
+
 
 
 --
