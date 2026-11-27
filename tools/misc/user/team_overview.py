@@ -266,9 +266,10 @@ PAGE_HEAD = '''<html>
 <style>
 table { border-collapse: collapse; width: 100%%; }
 th, td { border: 1px solid #ccc; padding: 4px 6px; text-align: left; vertical-align: top; font-size: 0.9em; }
-th { background-color: #e7f1fb; }
+th { background-color: var(--tr-bg-2); color: var(--tr-fg); }
 td.flags { color: #a00000; }
-tr.alumni td { color: #777777; }
+[data-theme="darkblue1"] td.flags, [data-theme="darkblue2"] td.flags, [data-theme="black"] td.flags { color: #ffcc66; }
+tr.alumni td { color: var(--inactive-node-color); }
 </style>
 </head>
 <body>
