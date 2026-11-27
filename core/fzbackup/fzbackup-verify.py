@@ -182,8 +182,16 @@ def verify(backup: str, dbname: str, scratch: str, keep: bool) -> int:
     if not restored:
         print('FAIL: the restored database contains no tables.')
         return 1
+    # Compare only the schemas that are in the backup. Other schemas in the live
+    # database, such as USER_before_restore_TIMESTAMP kept by fzbackup-restore.sh,
+    # are mentioned but are not differences.
+    schemas = {t.split('.', 1)[0] for t in restored}
+    other = sorted({t.split('.', 1)[0] for t in live} - schemas)
+    live = {t: n for t, n in live.items() if t.split('.', 1)[0] in schemas}
     print(f'Row counts, backup versus live database "{dbname}":')
     differ = compare(live, restored)
+    if other:
+        print(f'(Not compared: other schemas in "{dbname}": {", ".join(other)}.)')
     total = sum(restored.values())
     print(f'{len(restored)} tables, {total:,} rows restored.')
     if differ:
