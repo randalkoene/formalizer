@@ -11,7 +11,7 @@ try:
     import cgitb; cgitb.enable()
 except:
     pass
-import sys, cgi, os, stat
+import sys, cgi, os, stat, re, html, subprocess
 sys.stderr = sys.stdout
 import time
 from time import strftime
@@ -176,6 +176,46 @@ def select_Node():
     print(selectnodehtml)
     print(pagetail)
 
+NODE_ID_RE = re.compile(r'^[0-9]{14}\.[0-9]{1,3}$')
+
+nodeentryhtml = """<h1>Log: Add Entry about a Node</h1>
+<p>The entry is added to the open Log chunk and belongs to Node
+<a href="/cgi-bin/fzlink.py?id={node}" target="_blank">{node}</a>, so it also shows in that Node's history.</p>
+<p><i>{excerpt}</i></p>
+<form action="/cgi-bin/logentry-form.py" method="post">
+<input type="hidden" name="node" value="{node}">
+<textarea rows="15" cols="100" name="entrytext" autofocus></textarea><br>
+<input type="submit" name="makeentry" value="Add entry for this Node" />
+</form>
+"""
+
+def node_excerpt(node:str) -> str:
+    try:
+        res = subprocess.run(['./fzgraphhtml', '-n', node, '-o', 'STDOUT', '-E', 'STDOUT', '-F', 'desc', '-x', '160', '-q'],
+                             capture_output=True, text=True, timeout=20)
+        return html.escape(res.stdout.strip())
+    except Exception:
+        return ''
+
+def node_entry_form(node:str):
+    """A Log entry form for one given Node (e.g. the Node page's "entry" button), so that a note about
+    that Node goes into the open Log chunk without opening a new chunk."""
+    print(pagehead)
+    print(keep_page) # the form page itself does not close
+    if not NODE_ID_RE.match(node or ''):
+        print('<p class="fail"><b>Missing or malformed Node ID.</b></p>')
+    else:
+        print(nodeentryhtml.format(node=node, excerpt=node_excerpt(node)))
+    print(pagetail)
+
+def send_to_fzlog_for_given_Node(logentrytmpfile:str, node:str):
+    if not NODE_ID_RE.match(node or ''):
+        print(pagehead)
+        print('<p class="fail"><b>Missing or malformed Node ID.</b></p>')
+        print(pagetail)
+        return
+    send_to_fzlog(logentrytmpfile, node)
+
 # A readable location for CGI scripts is probably /var/www/html/formalizer,
 # although the /var/www/webdata is another candidate.
 templatefiles = {
@@ -307,6 +347,12 @@ if __name__ == '__main__':
     showrecent = form.getvalue("showrecent")
     entrytext = form.getvalue("entrytext")
     template = form.getvalue("template")
+    node_option = form.getvalue("node")
+
+    # Option: Show the entry form for a given Node (Node page "entry" button)
+    if (makeentry_option == "fornode"):
+        node_entry_form(node_option)
+        sys.exit(0)
 
     if not makeentry_option and not insertentry_option:
         missing_option()
@@ -334,6 +380,9 @@ if __name__ == '__main__':
                     # Option: Make Log entry for another Node (1st step)
                     elif (makeentry_option == "Other Node"):
                         select_Node()
+                    # Option: Make Log entry for the Node given in the form
+                    elif (makeentry_option == "Add entry for this Node"):
+                        send_to_fzlog_for_given_Node(logentrytextfile, node_option)
                     elif (makeentry_option == "insert"): # This processes Insert Entry
                         send_insert_to_fzlog(insertentry_option, logentrytextfile)
                     else:

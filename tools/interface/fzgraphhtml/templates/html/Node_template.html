@@ -4,6 +4,7 @@
 <button class="button button2" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?edit={{ node-id }}');">edit</button>
 <button class="button button2" onclick="window.open('http://{{ fzserverpq }}/fz/graph/namedlists/_select?id={{ node-id }}');">select</button>
 <button class="button button3" onclick="window.open('/cgi-bin/fzlog-cgi.py?action=open&node={{ node-id }}');">do</button>
+<button class="button button3" onclick="window.open('/cgi-bin/logentry-form.py?makeentry=fornode&node={{ node-id }}');">entry</button>
 <button class="button button1" onclick="window.open('/cgi-bin/fzgraphhtml-cgi.py?id={{ node-id }}&srclist=');">list</button>
 <button class="button button1" onclick="window.open('/cgi-bin/fzloghtml-cgi.py?startfrom={{ T_context }}&daysinterval=3');">temporal context</button>
 <button class="button button1" onclick="window.open('/cgi-bin/nodeboard-cgi.py?n={{ node-id }}');">dependencies</button>
