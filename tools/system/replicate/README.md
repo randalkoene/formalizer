@@ -21,6 +21,15 @@ It's also very important to read the messages produced at the end of the
 script, because they may still mention checks to perform and things that
 need to be done.
 
+## Off-site backups (restic, rclone)
+
+`restic` and `rclone` are in the list of essential programs, because the
+encrypted off-site copy of the Formalizer database backups depends on them.
+Their configuration (`~/.config/rclone/rclone.conf` and
+`~/.config/restic/formalizer.pass`) comes back with the restored home
+directory. If it does not, follow "Off-site database backups" in
+`doc/installation.md`.
+
 --
 
 Randal A. Koene, 20251002

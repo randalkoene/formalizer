@@ -129,7 +129,8 @@ def make_backup():
     backuppath = backupconfig["backuproot"]+"formalizer-postgres-backup-"+timestamp+".gz"
 
     # do the pg_dump to the designated file
-    retcode = try_subprocess_check_output(f'pg_dump {args.dbname} | gzip > {backuppath}')
+    # (--rsyncable lets restic store only the changed parts of each new backup off-site)
+    retcode = try_subprocess_check_output(f'pg_dump {args.dbname} | gzip --rsyncable > {backuppath}')
     if (retcode != 0):
         print(f'Unable to backup the {args.dbname} database to {backuppath}')
         exit(retcode)

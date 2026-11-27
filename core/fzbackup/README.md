@@ -88,6 +88,133 @@ directory that matches `formalizer-postgres-backup-YYYYmmddHHMM.gz` is deleted. 
 month keeps at least one backup. Without `--apply` it only lists what it would keep (and
 why) and what it would delete.
 
+## Setting up encrypted off-site backups (restic and rclone)
+
+Local backups in `~/.formalizer/archive/` do not survive the loss of the machine. The
+off-site copy uses [restic](https://restic.net), which encrypts everything before it
+leaves the machine, removes duplicate data between backups, and applies the same kind of
+retention rule as `fzbackup-prune.py`. Restic can store its repository in many places.
+This guide uses Google Drive, reached through [rclone](https://rclone.org). A shorter
+alternative without rclone is at the end.
+
+Do this once per Formalizer installation. It takes about half an hour, most of it in the
+Google Cloud console. Words in CAPITALS are your own choices.
+
+### 1. Install
+
+```
+sudo apt install restic rclone
+```
+
+(`tools/system/replicate/replicate.py` installs both as essential programs.)
+
+### 2. Make your own Google OAuth client
+
+rclone needs permission to use your Google Drive. Do not use rclone's built-in client:
+it is shared by all rclone users and is usually over Google's quota (rclone then fails
+with `Error 403: Quota exceeded ... rateLimitExceeded`).
+
+In https://console.cloud.google.com, signed in with the Google account whose Drive will
+hold the backups:
+
+1. Create a project (for example `formalizer-backup`) and select it.
+2. APIs & Services, Library: enable the **Google Drive API**.
+3. Google Auth Platform (older menus: OAuth consent screen): give an app name and your
+   email as support and contact address, and choose audience **External**. Do not upload
+   a logo: a logo makes Google require a review of the app.
+4. Google Auth Platform, Clients, Create client: type **Desktop app**, any name (for
+   example `rclone-HOSTNAME`), leave "AI-powered agent" unchecked. Copy the client ID and
+   client secret.
+5. Publishing. While the app's status is "Testing", Google ends the sign-in after
+   **7 days**, so unattended backups stop working a week later. To publish (Audience,
+   Publish app) Google requires a home page URL and a privacy policy URL on the Branding
+   page, on a domain listed there under Authorized domains. A short page on a website you
+   control is enough, for example: "This app is used only by NAME to back up NAME's own
+   files to NAME's own Google Drive. It collects and shares no data." Because the app only
+   asks for access to the files it creates, publishing needs no review by Google.
+
+   Until it is published, renew the sign-in weekly with `rclone config reconnect gdrive:`.
+   Adding yourself as a test user is not needed to sign in, and Google may refuse it for
+   some accounts.
+
+Keep a note of the Google account, project and client name in your own records (not in
+this repository).
+
+### 3. Connect rclone to Google Drive
+
+```
+rclone config
+```
+
+| Prompt | Answer |
+|---|---|
+| `n/s/q>` | `n` (new remote). Skip `s`: a config password would stop unattended runs. |
+| `name>` | `gdrive` |
+| `Storage>` | `drive` |
+| `client_id>`, `client_secret>` | the values from step 2 |
+| `scope>` | "Access to files created by rclone only" (`drive.file`) |
+| `root_folder_id>`, `service_account_file>` | Enter |
+| `Edit advanced config?` | `n` |
+| `Use auto config?` | `y`. Sign in with the right Google account. At "Google hasn't verified this app": Advanced, Go to APP NAME, Allow. |
+| `Configure this as a team drive?` | `n`, then `y` to keep the remote, then `q` |
+
+Check: `rclone lsd gdrive:` prints nothing and no error (rclone only sees files it has
+made). `rclone about gdrive:` shows the free space.
+
+### 4. Make the restic password
+
+```
+mkdir -p ~/.config/restic && chmod 700 ~/.config/restic
+( umask 077; openssl rand -base64 33 > ~/.config/restic/formalizer.pass )
+```
+
+Store a copy of this password somewhere that does not depend on this machine (a password
+manager, or on paper in a safe place). **Without it, the off-site backups can never be
+read.** To see it: `cat ~/.config/restic/formalizer.pass`.
+
+### 5. Create the repository and make the first backup
+
+```
+export RESTIC_REPOSITORY=rclone:gdrive:formalizer-restic
+export RESTIC_PASSWORD_FILE=~/.config/restic/formalizer.pass
+restic init
+restic backup --tag formalizer-archive ~/.formalizer/archive
+restic snapshots
+```
+
+### 6. Check that the backup can be read back
+
+```
+restic check
+restic restore latest --target /tmp/fzrestore-test
+fzbackup-verify.py /tmp/fzrestore-test$HOME/.formalizer/archive/postgres
+rm -rf /tmp/fzrestore-test
+```
+
+`fzbackup-verify.py` restores the newest database backup from that copy into a scratch
+database and compares it with the live database.
+
+### Getting backups back on a new machine
+
+Install restic and rclone, redo step 3 (or restore `~/.config/rclone/rclone.conf`), put
+the password back into `~/.config/restic/formalizer.pass`, and run:
+
+```
+restic -r rclone:gdrive:formalizer-restic --password-file ~/.config/restic/formalizer.pass \
+    restore latest --target /tmp/fzrestore
+```
+
+The database backups are then under `/tmp/fzrestore$HOME/.formalizer/archive/postgres/`.
+Check one with `fzbackup-verify.py FILE` before restoring it with `fzrestore.sh`.
+
+### Alternative: Backblaze B2 without rclone
+
+Restic can talk to Backblaze B2 directly: no OAuth client, no consent screen and no
+expiring sign-in, only an account and an application key (the first 10 GB are free).
+Make a bucket and an application key in the B2 web console, then use
+`RESTIC_REPOSITORY=b2:BUCKET:formalizer-restic` with `B2_ACCOUNT_ID` and `B2_ACCOUNT_KEY`
+set, and follow steps 4 to 6.
+
 
 
 --

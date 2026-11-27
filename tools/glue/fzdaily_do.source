@@ -3,4 +3,5 @@
 
 /home/randalk/.formalizer/bin/fzbackup
 /home/randalk/.formalizer/bin/fzbackup-prune.py --apply -q
+/home/randalk/.formalizer/bin/fzbackup-offsite.py -q
 /home/randalk/.formalizer/bin/local_node_histories_refresh.py

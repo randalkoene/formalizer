@@ -67,6 +67,7 @@ EXECUTABLES += $(COREPATH)/fzbackup/fzbackup-from-web-cgi.py
 EXECUTABLES += $(COREPATH)/fzbackup/backup-environment.py
 EXECUTABLES += $(COREPATH)/fzbackup/fzbackup-verify.py
 EXECUTABLES += $(COREPATH)/fzbackup/fzbackup-prune.py
+EXECUTABLES += $(COREPATH)/fzbackup/fzbackup-offsite.py
 EXECUTABLES += $(COREPATH)/fzedit/fzedit
 EXECUTABLES += $(COREPATH)/fzgraph/fzgraph
 EXECUTABLES += $(COREPATH)/fzgraphsearch/fzgraphsearch

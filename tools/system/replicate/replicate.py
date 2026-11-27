@@ -45,9 +45,9 @@ run_result = None
 error_groups = None
 
 essential = [
-    'build-essential'
+    'build-essential',
     'git',
-    'uuid-dev'
+    'uuid-dev',
     'w3m',
     'rxvt-unicode',
     #'encfs', # needs to be run manually
@@ -62,6 +62,8 @@ essential = [
     'postgresql',
     'postgresql-contrib',
     'libpq-dev',
+    'restic', # encrypted off-site copies of ~/.formalizer/archive (doc/installation.md)
+    'rclone', # restic reaches Google Drive through rclone
 ]
 
 optional = [

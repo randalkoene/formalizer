@@ -52,7 +52,11 @@ git push
 
 echo "Formalizer database backups mirrored to GitHub."
 echo ""
-echo "Please remember to prune excess backups from time to time."
+
+# Encrypted off-site copy of ~/.formalizer/archive (restic). Old snapshots are
+# thinned out by the daily cron run, so --no-forget keeps this button fast.
+# Old local backups are thinned out daily by fzbackup-prune.py (cron).
+fzbackup-offsite.py --no-forget
 echo ""
 
 num_daywiz=$(ls $HOME/.formalizer/archive/daywiz_data-* | wc -l)
