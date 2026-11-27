@@ -161,7 +161,11 @@ bool custom_template(const std::string & cargs) {
         return true;
     }
     if (replace_template == "node") {
+        // A custom Node line replaces every variant of the line: the plain one, the one with a remove
+        // button (used when rendering a Named Node List) and the one without Javascript.
         template_ids[node_pars_in_list_temp] = cargs.substr(equalpos);
+        template_ids[node_pars_in_list_with_remove_temp] = cargs.substr(equalpos);
+        template_ids[node_pars_in_list_nojs_temp] = cargs.substr(equalpos);
         return true;
     }
     if (replace_template == "Node") {
