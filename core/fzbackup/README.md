@@ -53,7 +53,9 @@ are:
   needed and then:
   1. counts files in each rsync directory and in its copy;
   2. compares the directories in `checksumdirs` (by default `~/.formalizer` and
-     `~/src/formalizer`) with their copies by checksum (an `rsync --checksum` dry run);
+     `~/src/formalizer`) with their copies by checksum (an `rsync --checksum` dry run,
+     leaving out `.git` folders), and reports how many files have different content,
+     are new since the copy, or exist only in the copy, with a few examples of each;
   3. runs `fzbackup-verify.py` on the newest database backup in the copy.
 
   Small differences in counts and checksums are expected for files that changed after

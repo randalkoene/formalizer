@@ -182,26 +182,45 @@ def verify_copy() -> bool:
         print(f'  {dirname}: {n_src} files, copy: {n_copy} files{note}')
 
     print('\n=== Verify: checksums ===')
+    print('(.git folders are left out: Git checks its own integrity, and after commits or')
+    print(' a history rewrite they would hide everything else.)')
     for dirname in config['checksumdirs']:
         copy = copy_of(dirname)
         if not os.path.isdir(copy):
             print(f'FAIL: no copy of {dirname} at {copy}')
             ok = False
             continue
-        # A dry run with --checksum lists every file whose content differs or is missing.
+        # A dry run with --checksum lists what rsync would do to make the copy equal the
+        # original. Its itemized lines tell the kinds of difference apart:
+        #   '*deleting ...'   only in the copy (deleted since the rsync)
+        #   '>f+++++++++ ...' only in the original (new since the rsync)
+        #   '>fc...... ...'   in both, but the content differs
+        # Lines for directories ('cd', '.d') and for metadata only ('.f..t', permissions)
+        # do not mean the content differs, and are not counted.
         p = Popen(['rsync', '-a', '--dry-run', '--checksum', '--itemize-changes', '--delete',
-                   dirname + '/', copy + '/'], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+                   '--exclude=.git/', dirname + '/', copy + '/'],
+                  stdout=PIPE, stderr=PIPE, universal_newlines=True)
         out, err = p.communicate()
-        changed = [l for l in out.splitlines() if l and not l.startswith('.d')]
         if p.returncode != 0:
             print(f'FAIL: checksum comparison of {dirname} failed: {err.strip()}')
             ok = False
-        elif changed:
-            print(f'  {dirname}: {len(changed)} file(s) differ from the copy, for example:')
-            for line in changed[:10]:
-                print('    ' + line)
-        else:
+            continue
+        kinds = {'content differs': [], 'new since the copy': [], 'only in the copy': []}
+        for line in out.splitlines():
+            if line.startswith('*deleting') and not line.endswith('/'):
+                kinds['only in the copy'].append(line[len('*deleting'):].strip())
+            elif line.startswith('>f+++++++++'):
+                kinds['new since the copy'].append(line[12:])
+            elif line.startswith('>f'):
+                kinds['content differs'].append(line[12:])
+        if not any(kinds.values()):
             print(f'  {dirname}: all files match by checksum.')
+            continue
+        print(f'  {dirname}:')
+        for kind, files in kinds.items():
+            if files:
+                examples = ', '.join(files[:5]) + (', ...' if len(files) > 5 else '')
+                print(f'    {len(files):6d} {kind}: {examples}')
 
     print('\n=== Verify: Formalizer database backup on the external drive ===')
     with open(os.path.expanduser('~/.formalizer/config/fzbackup.py/config.json')) as f:
