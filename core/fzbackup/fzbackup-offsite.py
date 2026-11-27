@@ -29,7 +29,7 @@ import argparse
 import subprocess
 from datetime import datetime
 
-userhome = os.getenv('HOME')
+userhome = os.getenv('HOME') or os.path.expanduser('~')  # CGI scripts may run without HOME
 fzbackupconfig = userhome + '/.formalizer/config/fzbackup.py/config.json'
 
 DEFAULTS = {

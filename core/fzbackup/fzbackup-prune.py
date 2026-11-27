@@ -27,7 +27,7 @@ import json
 import argparse
 from datetime import datetime, timedelta
 
-userhome = os.getenv('HOME')
+userhome = os.getenv('HOME') or os.path.expanduser('~')  # CGI scripts may run without HOME
 fzbackupconfig = userhome + '/.formalizer/config/fzbackup.py/config.json'
 
 BACKUP_RE = re.compile(r'^formalizer-postgres-backup-(\d{12})\.gz$')
