@@ -183,7 +183,7 @@ def process_as_cgi():
     if not node:
         node = "20250822225247.1"
     team = form.getvalue('team')
-    if not taem:
+    if not team:
         team = "20250822084723.1"
 
     process_common(node, team)

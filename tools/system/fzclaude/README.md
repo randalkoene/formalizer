@@ -407,13 +407,19 @@ Allowed steps:
 - `fzgraph -M node` (requires `-S` and `-T`, no `-q`)
 - `fzgraph -M edges`
 - `fzgraph -C` with completion, required, targetdate, skip, topics, or
-  superiors/dependencies add/remove requests
+  superiors/dependencies add/remove requests, or adding a Node to or removing
+  it from a Named Node List (`/fz/graph/namedlists/<name>?add=<id>` or
+  `?remove=<id>`, no other options; not the lists `superiors`, `dependencies`,
+  `selected` and `recent`, nor names starting with `_`)
 - `fzedit -M`
 - `fzlog -e -n <id> -T`, `fzlog -c <id>`, `fzlog -C`
 
 Every Node a step refers to must be in scope, and excluded topics cannot be
 added. Text has to be given inline with `-T`, so you see all of it when you
 review the proposal.
+Text may not contain `<` or `>`, except the plain formatting tags of the
+Node templates without attributes (`h3`, `h4`, `b`, `i`, `p`, `ul`, `li`), so
+that a proposal cannot break the page that shows the text.
 
 ## Files
 

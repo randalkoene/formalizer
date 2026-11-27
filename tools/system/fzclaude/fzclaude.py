@@ -1324,7 +1324,11 @@ API_PATTERNS = [
     re.compile(rf'^/fz/graph/nodes/({REF})\?skip=(?:\d+|toT(?:&T=\d{{12}})?)$'),
     re.compile(rf'^/fz/graph/nodes/({REF})/topics/(?:add|remove)\?((?:[\w-]+=\[?[0-9.]*\]?&?)+)$'),
     re.compile(rf'^/fz/graph/nodes/({REF})/(?:superiors|dependencies)/(?:add|remove)\?({REF})=$'),
+    re.compile(rf'^/fz/graph/namedlists/([\w-]+)\?(?:add|remove)=({REF})$'),
 ]
+NNL_REQUEST_RE = re.compile(r'^/fz/graph/namedlists/([\w-]+)\?')
+# Named Node Lists that fzserverpq or the add-Node tools maintain or read as defaults.
+NNL_PROTECTED = {'superiors', 'dependencies', 'selected', 'recent'}
 
 
 def parse_flags(prog: str, args: list) -> list:
@@ -1348,9 +1352,16 @@ def parse_flags(prog: str, args: list) -> list:
     return res
 
 
+# Formatting tags used by Node templates (e.g. the Team Member template), allowed in
+# proposal text without attributes. Anything else with '<' or '>' is refused.
+SAFE_TAGS_RE = re.compile(r'</?(?:h3|h4|b|i|p|ul|li)>', re.IGNORECASE)
+
+
 def raw_html_problem(text: str) -> str:
     """Log entries and Node descriptions are shown as HTML, so a raw '<' or '>' in text
-    Claude writes (e.g. a placeholder like <title>) can break the page that shows it."""
+    Claude writes (e.g. a placeholder like <title>) can break the page that shows it.
+    The plain formatting tags in SAFE_TAGS_RE are allowed."""
+    text = SAFE_TAGS_RE.sub('', text)
     if '<' in text or '>' in text:
         return ('contains "<" or ">", which the Log and Node pages read as HTML '
                 '(e.g. <title> hides the rest of the page); write &lt; and &gt; instead')
@@ -1443,6 +1454,9 @@ def validate_proposal(prop: dict, vis: dict, cfg: dict) -> list:
                 else:
                     for x in re.findall(REF, api):
                         check_ref(x, 'Node')
+                    nnl = NNL_REQUEST_RE.match(api)
+                    if nnl and (nnl.group(1).startswith('_') or nnl.group(1) in NNL_PROTECTED):
+                        err(f'Named Node List not allowed: {nnl.group(1)}')
                     if '/topics/add?' in api:
                         check_tags(re.findall(r'([\w-]+)=', api.split('?', 1)[1]))
             else:
