@@ -90,6 +90,72 @@ directory that matches `formalizer-postgres-backup-YYYYmmddHHMM.gz` is deleted. 
 month keeps at least one backup. Without `--apply` it only lists what it would keep (and
 why) and what it would delete.
 
+## `fzbackup-offsite.py` - Encrypted off-site copy
+
+```
+fzbackup-offsite.py [--no-forget] [-q]
+```
+
+Backs up `~/.formalizer/archive` with restic and thins out old snapshots by the same rule
+as `fzbackup-prune.py` (`--no-forget` skips that). Runs daily from `fzdaily_do.source` and
+from the DayWiz backup button. After every run it writes a status file for the Backups
+page (`offsite_status_file`, by default
+`/var/www/html/formalizer/fzbackup-offsite-status.json`): the time, whether it worked,
+whether the Google sign-in expired, the snapshots, and which database backups are in which
+snapshots. Settings are in the fzbackup config (see the script header). Setup: "Setting up
+encrypted off-site backups" below.
+
+## The Backups page
+
+FZ Admin page, Backups: "Database Backups and Restore" (also Database: Backups), served by
+`fzbackup-cgi.py?action=show`. It shows the status of the local and off-site backups and a
+table of all backups: when each was made, its size, whether it is local and in how many
+off-site snapshots, and which retention rule keeps it (or that the next pruning removes
+it). For each backup:
+
+- **Verify** runs `fzbackup-verify.py` on it (scratch database, compared with the live one).
+- **Fetch** (backups that are only off-site) runs `database-from-offsite.py -f NAME`.
+- **Restore...** opens a dialog that explains the steps and the undo, and shows the
+  `fzbackup-restore.sh` command to run in a terminal.
+
+Verify and Fetch run as the Formalizer user through fzserverpq (`CGIbg_run_as_user`), so
+both programs must be in `predefined_CGIbg` in the fzserverpq config (it is read when
+fzserverpq starts). The page itself never changes the live data.
+
+## `fzbackup-restore.sh` - Replace the live data with a backup, undoably
+
+```
+fzbackup-restore.sh [-d DATABASE] BACKUP
+fzbackup-restore.sh [-d DATABASE] --undo TIMESTAMP
+fzbackup-restore.sh [-d DATABASE] --drop-old TIMESTAMP
+```
+
+After a confirmation it:
+
+1. makes a fresh backup (and off-site copy) of the current state;
+2. verifies the chosen backup in a scratch database;
+3. stops fzserverpq (it keeps the Graph in memory, so it must not run during a restore);
+4. renames the current schema to `USER_before_restore_TIMESTAMP` (nothing is deleted);
+5. loads the backup in one transaction and gives the usual roles access (`fzsetup`, as
+   `fzrestore.sh` does). If loading fails, the old schema is put back;
+6. checks that the restored data matches the backup exactly;
+7. says to start fzserverpq again (`fzserverpqd.sh`), and how to undo.
+
+`--undo TIMESTAMP` puts the renamed schema back (the restored data is kept as
+`USER_undone_TIMESTAMP`). `--drop-old TIMESTAMP` deletes the renamed schema once you are
+sure.
+
+To test without touching the live data, make a scratch database and restore into it:
+
+```
+fzbackup-verify.py --keep            # note the name of the kept database, fzverify_...
+fzbackup-restore.sh -d fzverify_... formalizer-postgres-backup-YYYYmmddHHMM.gz
+fzbackup-restore.sh -d fzverify_... --undo TIMESTAMP
+dropdb fzverify_...
+```
+
+With `-d`, no fresh backup is made and fzserverpq is not stopped.
+
 ## Setting up encrypted off-site backups (restic and rclone)
 
 Local backups in `~/.formalizer/archive/` do not survive the loss of the machine. The

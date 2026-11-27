@@ -80,6 +80,7 @@ EXECUTABLES += $(COREPATH)/fzquerypq/local_node_histories_refresh.py
 EXECUTABLES += $(COREPATH)/fzbackup/fzrestore.sh
 EXECUTABLES += $(COREPATH)/fzbackup/database-from-github.py
 EXECUTABLES += $(COREPATH)/fzbackup/database-from-offsite.py
+EXECUTABLES += $(COREPATH)/fzbackup/fzbackup-restore.sh
 EXECUTABLES += $(COREPATH)/fzserverpq/fzserverpq
 EXECUTABLES += $(COREPATH)/fzserverpq/fzserverpqd.sh
 # EXECUTABLES += $(COREPATH)/fzserverpq/fzserverpq-graph
@@ -226,6 +227,7 @@ SYMBIN += $(LOCALBINSYM)
 # CGI scripts that need to be copied to $(CGIDIR)
 CGIEXE =
 CGIEXE += $(COREPATH)/fzbackup/fzbackup-cgi.py
+CGIEXE += $(COREPATH)/fzbackup/fzbackup-prune.py
 CGIEXE += $(COREPATH)/fzbackup/fzbackup-from-web-cgi.py
 CGIEXE += $(COREPATH)/fzedit/fzedit-cgi.py
 CGIEXE += $(COREPATH)/fzedit/fzeditbatch-cgi.py

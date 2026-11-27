@@ -146,6 +146,10 @@
         }
     },
     "Backups: " : {
+        "Database Backups and Restore" : {
+            "url" : "/cgi-bin/fzbackup-cgi.py?action=show",
+            "window" : "_blank"
+        },
         "Regular Full Backup (Node)" : {
             "url" : "/cgi-bin/fzlink.py?id=20201002064246.1&alt=histfull",
             "window" : "_blank"

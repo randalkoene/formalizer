@@ -24,6 +24,7 @@
 # Plan B package 3 (Node 20261102153502.3).
 
 import os
+import re
 import sys
 import glob
 import json
@@ -36,6 +37,8 @@ userhome = os.getenv('HOME')
 fzbackupconfig = userhome + '/.formalizer/config/fzbackup.py/config.json'
 
 SCRATCH_PREFIX = 'fzverify_'
+
+BACKUP_NAME_RE = re.compile(r'^formalizer-postgres-backup-\d{12}\.gz$')
 
 # Table name and exact row count for every table outside the system schemas.
 COUNT_QUERY = r"""
@@ -204,9 +207,18 @@ def main():
                         help='live database to compare with (default: formalizer)')
     parser.add_argument('--keep', action='store_true',
                         help='keep the scratch database for inspection')
+    parser.add_argument('-f', dest='name',
+                        help='name of a backup in the backup directory (used by the Backups page)')
+    parser.add_argument('-S', dest='signalfile',
+                        help='when done, write a time stamp to this file (used by the Backups page)')
     args = parser.parse_args()
 
-    if args.fresh:
+    if args.name:
+        if not BACKUP_NAME_RE.match(args.name):
+            print(f'FAIL: not a backup name: {args.name}')
+            finish(1, args.signalfile)
+        backup = os.path.join(backup_root(), args.name)
+    elif args.fresh:
         backup = make_fresh_backup()
     else:
         backup = args.backup or backup_root()
@@ -214,13 +226,21 @@ def main():
             backup = newest_backup(backup)
     if not backup:
         print('FAIL: no backup file found.')
-        sys.exit(1)
+        finish(1, args.signalfile)
 
     scratch = SCRATCH_PREFIX + datetime.now().strftime('%Y%m%d%H%M%S')
     if scratch == args.database:
         print('FAIL: the scratch database name equals the live database name.')
-        sys.exit(1)
-    sys.exit(verify(backup, args.database, scratch, args.keep))
+        finish(1, args.signalfile)
+    finish(verify(backup, args.database, scratch, args.keep), args.signalfile)
+
+
+def finish(code: int, signalfile: str):
+    sys.stdout.flush()
+    if signalfile:
+        with open(signalfile, 'w') as f:
+            f.write(datetime.now().strftime('%Y%m%d%H%M%S'))
+    sys.exit(code)
 
 
 if __name__ == '__main__':
