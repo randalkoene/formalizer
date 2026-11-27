@@ -2,4 +2,5 @@
 # The setup stub for this file should be copied to: ~/.formalizer/fzdaily_do.source
 
 /home/randalk/.formalizer/bin/fzbackup
+/home/randalk/.formalizer/bin/fzbackup-prune.py --apply -q
 /home/randalk/.formalizer/bin/local_node_histories_refresh.py
